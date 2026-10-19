@@ -1,0 +1,278 @@
+"""Read access to the installed game: finds the data folder, lists packages and reads their TOC and stream data.
+
+Most packages live inside the `bundles.NN.nxa` files (the "slim" install); the vendored hd2-audio-modder reader
+rebuilds them. The voice packs, one set per installed language, are files of their own next to the bundles: each a
+compressed "DSAR" file, with its audio in a `.stream` file beside it. Those are read here, a piece at a time.
+"""
+import bisect
+import functools
+import glob
+import os
+import re
+import struct
+from pathlib import Path
+
+from lz4 import block
+
+from ._vendor import slim
+
+WWISE_STREAM = 5785811756662211598
+WWISE_BANK = 6006249203084351385
+WWISE_DEP = 12624162998411505776
+PATCH_MAGIC = 0xF0000011
+
+_STEAM_DEFAULT = r"C:\Program Files (x86)\Steam"
+
+
+def murmur64_hash(data: bytes, seed: int = 0) -> int:
+    """MurmurHash64A, the game's resource id hash (`murmur64("content/audio/<source id>")` names a stream)."""
+    m, r, mask = 0xC6A4A7935BD1E995, 47, 2 ** 64 - 1
+    h = seed ^ ((m * len(data)) & mask)
+    off = len(data) // 8 * 8
+    for i in range(0, off, 8):
+        k = (int.from_bytes(data[i:i + 8], "little") * m) & mask
+        k = ((k ^ (k >> r)) * m) & mask
+        h = ((h ^ k) * m) & mask
+    if len(data) & 7:
+        h = ((h ^ int.from_bytes(data[off:], "little")) * m) & mask
+    h = ((h ^ (h >> r)) * m) & mask
+    return h ^ (h >> r)
+
+
+def stream_id(source_id: int, language: str = "") -> int:
+    """The file id of a source's stream. Voice lines are kept per language: `content/audio/us/<source id>`."""
+    return murmur64_hash(f"content/audio/{language + '/' if language else ''}{source_id}".encode())
+
+
+# --- archives kept as files of their own (DSAR): a table of chunks, each stored as it is or LZ4-compressed
+DSAR_MAGIC = b"DSAR"
+_DSAR_LZ4 = 0x03
+
+
+@functools.lru_cache(maxsize=128)
+def _dsar_chunks(path: str, stamp: tuple) -> tuple[list[int], list[tuple]]:
+    """([uncompressed offset of each chunk], [(uncompressed offset, compressed offset, uncompressed size,
+    compressed size, compression)]). `stamp` (size, modified) makes a changed file read again."""
+    with open(path, "rb") as f:
+        head = f.read(0x20)
+        if head[:4] != DSAR_MAGIC:
+            raise ValueError(f"{path} is not a DSAR archive")
+        raw = f.read(0x20 * struct.unpack_from("<I", head, 8)[0])
+    chunks = [struct.unpack_from("<QQIIB", raw, at) for at in range(0, len(raw), 0x20)]
+    return [c[0] for c in chunks], chunks
+
+
+def dsar_read(path, offset: int = 0, size: int | None = None) -> bytes:
+    """`size` bytes from `offset` of what a DSAR file holds once uncompressed (all of it without a size). Only the
+    chunks that cover the range are read, so one voice line doesn't cost its whole archive."""
+    path = str(path)
+    st = os.stat(path)
+    starts, chunks = _dsar_chunks(path, (st.st_size, st.st_mtime_ns))
+    if not chunks:
+        return b""
+    total = chunks[-1][0] + chunks[-1][2]
+    end = total if size is None else min(total, offset + size)
+    out, i = [], max(0, bisect.bisect_right(starts, offset) - 1)
+    with open(path, "rb") as f:
+        while i < len(chunks) and chunks[i][0] < end:
+            at, stored_at, length, stored, compression = chunks[i]
+            f.seek(stored_at)
+            data = f.read(stored)
+            if compression == _DSAR_LZ4:
+                data = block.decompress(data, uncompressed_size=length)
+            out.append(data[max(0, offset - at):end - at])
+            i += 1
+    return b"".join(out)
+
+
+def is_dsar(path: Path) -> bool:
+    try:
+        with open(path, "rb") as f:
+            return f.read(4) == DSAR_MAGIC
+    except OSError:
+        return False
+
+
+def _steam_roots() -> list[str]:
+    """Where Steam is installed: the registry's answer first (Steam can live anywhere), then the usual place."""
+    roots = []
+    if os.name == "nt":
+        import winreg
+        for hive, key, value in ((winreg.HKEY_CURRENT_USER, r"Software\Valve\Steam", "SteamPath"),
+                                 (winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\WOW6432Node\Valve\Steam", "InstallPath")):
+            try:
+                with winreg.OpenKey(hive, key) as k:
+                    roots.append(str(Path(winreg.QueryValueEx(k, value)[0])))
+            except OSError:
+                pass
+    return list(dict.fromkeys(roots + [_STEAM_DEFAULT]))
+
+
+def is_data_folder(folder) -> bool:
+    """True for a Helldivers 2 data folder: it holds the game's bundles (bundles.NN.nxa)."""
+    return Path(folder).is_dir() and any(Path(folder).glob("bundles.*.nxa"))
+
+
+def data_folder(chosen, saved=False) -> Path:
+    """The data folder in or under a folder someone picked: the data folder itself, the game's folder, or the Steam
+    library folder above it. Raises ValueError, in words for that person, when none of them is the game's. saved: a
+    folder chosen earlier (Audiodiver's settings), which may have gone since."""
+    chosen = Path(chosen)
+    for folder in (chosen, chosen / "data", chosen / "Helldivers 2" / "data",
+                   chosen / "common" / "Helldivers 2" / "data", chosen / "steamapps" / "common" / "Helldivers 2" / "data"):
+        if is_data_folder(folder):
+            return folder
+    if chosen.is_file():
+        raise ValueError(f"{chosen} is a file: choose the folder Steam installed Helldivers 2 in")
+    if not chosen.is_dir():
+        raise ValueError(f"{chosen} isn't there any more" if saved else f"{chosen} wasn't found")
+    raise ValueError(f"{chosen} isn't Helldivers 2's folder: there are no game files in it (bundles.NN.nxa in "
+                     f"a folder called data). Choose the folder Steam installed the game in, usually "
+                     r"…\steamapps\common\Helldivers 2.")
+
+
+def in_game_folder(folder, data) -> bool:
+    """True when folder is the game's own folder (the one its data folder `data` sits in) or anywhere inside it.
+    Audiodiver never writes there."""
+    folder, data = Path(folder).resolve(), Path(data).resolve()
+    game = data.parent if data.parent != data.parent.parent else data  # a data folder at a drive's root stands alone
+    return folder == game or game in folder.parents
+
+
+def locate(chosen=None) -> tuple[Path, str]:
+    """(data folder, how it was found): "chosen" in Audiodiver's settings, "env" from $HD2_DATA, or "steam" from the
+    Steam libraries. Raises FileNotFoundError when there is no game to be found."""
+    if chosen:
+        try:
+            return data_folder(chosen, saved=True), "chosen"
+        except ValueError as e:
+            raise FileNotFoundError(str(e)) from None
+    env = os.environ.get("HD2_DATA")
+    if env:
+        if not is_data_folder(env):
+            raise FileNotFoundError(f"The HD2_DATA environment variable points to {env}, and Helldivers 2's files "
+                                    f"aren't there")
+        return Path(env), "env"
+    libraries = []
+    for root in _steam_roots():
+        libraries.append(root)
+        vdf = Path(root) / "steamapps" / "libraryfolders.vdf"
+        if vdf.exists():
+            libraries += [p.replace("\\\\", "\\") for p in re.findall(r'"path"\s+"([^"]+)"', vdf.read_text(errors="replace"))]
+    for lib in dict.fromkeys(libraries):
+        data = Path(lib) / "steamapps" / "common" / "Helldivers 2" / "data"
+        if is_data_folder(data):  # an uninstalled game can leave its folder behind
+            return _as_spelled(data), "steam"
+    raise FileNotFoundError("Audiodiver didn't find Helldivers 2 in your Steam libraries")
+
+
+def _as_spelled(path: Path) -> Path:
+    """The path with the capitals the disk gives it, for showing it to people: Steam's registry entry is all lower
+    case. Left as it is when resolving it leads somewhere else (a link)."""
+    try:
+        real = path.resolve()
+    except OSError:
+        return path
+    return real if os.path.normcase(real) == os.path.normcase(path) else path
+
+
+def find_data_folder(chosen=None) -> Path:
+    """The folder chosen in Audiodiver's settings, else $HD2_DATA, else the Steam library that has Helldivers 2."""
+    return locate(chosen)[0]
+
+
+class Game:
+    """One installed game version. `fingerprint` changes whenever an update touches the data files."""
+
+    def __init__(self, data_folder=None):
+        self.data = Path(data_folder) if data_folder else find_data_folder()
+        slim.slim_init(str(self.data))
+        self.loose = self._loose()  # {name: path} of the archives outside the bundles (the voice packs)
+        self.packages = sorted(set(slim.package_contents) | set(self.loose))
+
+    def _loose(self) -> dict[str, Path]:
+        """The archives that are files of their own. A language that isn't installed leaves a stub of a few bytes
+        with nothing in it, which is left out."""
+        out = {}
+        for p in self.data.iterdir():
+            if re.fullmatch(r"[0-9a-f]{16}", p.name) and p.name not in slim.package_contents and p.is_file() \
+                    and p.stat().st_size > 512 and is_dsar(p):
+                out[p.name] = p
+        return out
+
+    @functools.cached_property
+    def fingerprint(self) -> str:
+        files = sorted(glob.glob(str(self.data / "bundles.*")))
+        return ";".join(f"{os.path.basename(f)}:{os.path.getsize(f)}:{int(os.path.getmtime(f))}" for f in files)
+
+    @functools.cached_property
+    def audio_fingerprint(self) -> str:
+        """fingerprint plus the archives outside the bundles: a language added or removed in Steam changes what
+        audio there is, without touching the bundles."""
+        loose = ";".join(f"{n}:{p.stat().st_size}:{int(p.stat().st_mtime)}" for n, p in sorted(self.loose.items()))
+        return f"{self.fingerprint}|{loose}"
+
+    def package_toc(self, name):
+        """[(file id, type id, toc offset, toc size)], read from the start of the package only."""
+        if name in self.loose:
+            return [(fid, tid, off, size) for fid, tid, off, size, *_ in toc_entries(self.package(name))]
+        p = slim.package_contents[name]
+        first = min(p.entries, key=lambda e: e.original_archive_offset)
+        bundle = str(self.data / f"bundles.{first.bundle_index:02d}.nxa")
+        head = slim.get_resource_from_bundle(bundle, first.start_offset)
+        magic, ntypes, nfiles = struct.unpack_from("<III", head)
+        if magic != PATCH_MAGIC:
+            return None
+        need = 72 + ntypes * 32 + nfiles * 80
+        if len(head) < need:
+            head = b"".join(slim.get_resources_from_bundle(bundle, first.start_offset, need))
+        return [(fid, tid, off, size) for fid, tid, off, size, *_ in toc_entries(head)]
+
+    @functools.lru_cache(maxsize=8)
+    def package(self, name) -> bytes:
+        if name in self.loose:
+            return dsar_read(self.loose[name])
+        return bytes(slim.reconstruct_package_from_bundles(name))
+
+    @functools.lru_cache(maxsize=4)
+    def stream(self, name) -> bytes:
+        return bytes(slim.reconstruct_package_from_bundles(name + ".stream"))
+
+    def stream_part(self, name, offset: int, size: int) -> bytes:
+        """A piece of a package's stream data."""
+        if name in self.loose:
+            return dsar_read(f"{self.loose[name]}.stream", offset, size)
+        return self.stream(name)[offset:offset + size]
+
+    @functools.lru_cache(maxsize=16)
+    def contents(self, name) -> dict:
+        """{(file id, type id): (toc offset, toc size, stream offset, stream size)} of a package."""
+        return {(fid, tid): (off, size, s_off, s_size)
+                for fid, tid, off, size, s_off, s_size in toc_entries(self.package(name))}
+
+    def resource(self, name, file_id, type_id):
+        """(toc data, stream data) of one resource in a package."""
+        at = self.contents(name).get((file_id, type_id))
+        if at is None:
+            raise KeyError(f"{file_id}/{type_id} not in {name}")
+        off, size, s_off, s_size = at
+        return self.package(name)[off:off + size], (self.stream_part(name, s_off, s_size) if s_size else b"")
+
+    def stream_head(self, name, file_id, size: int) -> bytes | None:
+        """The first bytes of a stream, where they can be had without rebuilding a whole package: in the archives
+        outside the bundles. None anywhere else."""
+        at = self.contents(name).get((file_id, WWISE_STREAM)) if name in self.loose else None
+        return self.stream_part(name, at[2], min(size, at[3])) if at else None
+
+
+def toc_entries(data: bytes):
+    """[(file id, type id, toc offset, toc size, stream offset, stream size)] of a package or patch."""
+    magic, nt, nf = struct.unpack_from("<III", data)
+    assert magic == PATCH_MAGIC, "not a game archive"
+    base, out = 72 + nt * 32, []
+    for i in range(nf):
+        e = base + 80 * i
+        fid, tid, toc_off, stream_off = struct.unpack_from("<QQQQ", data, e)
+        toc_size, stream_size = struct.unpack_from("<II", data, e + 56)
+        out.append((fid, tid, toc_off, toc_size, stream_off, stream_size))
+    return out

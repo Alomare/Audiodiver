@@ -1,0 +1,26 @@
+{
+  "game": "7770b30e8ae75625",
+  "note": "patch SHA-256 per project, verified in game 2026-10-05 (Dune: v4 = +8 dB loadout)",
+  "projects": {
+    "wos": {
+      "project": "hd2-wos-descent/wos-descent.audi",
+      "files": {
+        "9ba626afa44a3aa3.patch_0": "c1fa1315c9656994e16a85b3019ee71f7d9e8378cc120eb4d979dcce1020f18e",
+        "9ba626afa44a3aa3.patch_0.stream": "ec7f81aa7ce0953197c473af119f118323c5d9301218caf9b2b77f82462af4ac"
+      }
+    },
+    "exo": {
+      "project": "hd2-exo-cyclops/cyclops.audi",
+      "files": {
+        "9ba626afa44a3aa3.patch_0": "0ce01b0cc19044ee7961e2dd530ffb3ec2f2f8de8888c802b28faf539c44e7f2"
+      }
+    },
+    "dune": {
+      "project": "hd2-dune-ost-overhaul/dune.audi",
+      "files": {
+        "9ba626afa44a3aa3.patch_0": "4998281aab3b42a8d96e1c5b759fda34e3f30f5ae0f8cc7271a793eddd540d31",
+        "9ba626afa44a3aa3.patch_0.stream": "0f3498759a070cefdb6ba5741a1694f0c76fc45dfc9a2ac32e5a8efb8f245857"
+      }
+    }
+  }
+}

@@ -1,0 +1,31 @@
+# Internal development material: notes, research, experiments, reference builds, test tools, signing keys
+/internal/
+
+# Dependencies and build output (app/.gitignore has the app's own)
+__pycache__/
+*.py[cod]
+*.egg-info/
+/core/build/
+/core/dist/
+.pytest_cache/
+.venv/
+venv/
+
+# Logs
+log.txt*
+*.log
+
+# Home art: official Helldivers 2 artwork, not ours to publish (see app/src/art/README.md)
+/app/src/art/*
+!/app/src/art/README.md
+
+# Editors, the OS and Syncthing
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+.DS_Store
+.stfolder
+.stignore
+.syncthing.*
+~syncthing~*

@@ -1,0 +1,110 @@
+// Line icons, drawn in the current text colour. Sized in em, so they follow the text size setting.
+import type { ReactNode } from "react";
+
+function Icon({ children, size = 1.25, stroke = 1.8 }: { children: ReactNode; size?: number; stroke?: number }) {
+  return (
+    <svg className="icon" viewBox="0 0 24 24" width={`${size}em`} height={`${size}em`} fill="none" stroke="currentColor"
+      strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round" aria-hidden focusable="false">{children}</svg>
+  );
+}
+
+/** A cog with flat, angular teeth. */
+const GEAR = (() => {
+  const teeth = 8, outer = 9.6, inner = 7.1, pt = (r: number, deg: number) => {
+    const a = (deg * Math.PI) / 180;
+    return `${(12 + r * Math.cos(a)).toFixed(2)} ${(12 + r * Math.sin(a)).toFixed(2)}`;
+  };
+  const step = 360 / teeth;
+  let d = "";
+  for (let i = 0; i < teeth; i++) {
+    const a = i * step;
+    d += `${i ? "L" : "M"}${pt(inner, a - 14)}L${pt(outer, a - 8)}L${pt(outer, a + 8)}L${pt(inner, a + 14)}`;
+  }
+  return `${d}Z`;
+})();
+
+export const GearIcon = () => <Icon><path d={GEAR} /><circle cx="12" cy="12" r="2.9" /></Icon>;
+
+/** An open book: the guides. */
+export const GuideIcon = () => (
+  <Icon>
+    <path d="M12 6.6C10.1 5.2 7.5 4.6 3.6 4.8v13.3c3.9-.2 6.5.4 8.4 1.8 1.9-1.4 4.5-2 8.4-1.8V4.8c-3.9-.2-6.5.4-8.4 1.8z" />
+    <path d="M12 6.6v13.3" />
+    <path d="M6.4 8.9c1.2 0 2.2.2 3.1.5M6.4 12.2c1.2 0 2.2.2 3.1.5M17.6 8.9c-1.2 0-2.2.2-3.1.5M17.6 12.2c-1.2 0-2.2.2-3.1.5" strokeWidth={1.3} />
+  </Icon>
+);
+
+export const UndoIcon = () => <Icon><path d="M9 6 4 11l5 5" /><path d="M4 11h10.5a4.75 4.75 0 0 1 0 9.5H10" /></Icon>;
+
+// The quick notes' icons (App.tsx, QuickNote): what just happened, at a glance.
+export const CheckIcon = () => <Icon size={1.1} stroke={2.2}><path d="m5 12.5 4.5 4.5L19 7.5" /></Icon>;
+export const PlusIcon = () => <Icon size={1.1} stroke={2.2}><path d="M12 5v14M5 12h14" /></Icon>;
+/** A disk with its label and shutter. */
+export const SaveIcon = () => (
+  <Icon size={1.1}><path d="M5 4h11.5L20 7.5V20H4V4z" /><path d="M8 4v5h7V4M7.5 20v-6h9v6" /></Icon>
+);
+export const CopyIcon = () => <Icon size={1.1}><rect x="8.5" y="8.5" width="11" height="11" rx="1" /><path d="M15.5 8.5v-4h-11v11h4" /></Icon>;
+export const InfoIcon = () => <Icon size={1.1}><circle cx="12" cy="12" r="8.5" /><path d="M12 11v5.5M12 7.6v.1" strokeWidth={2.4} /></Icon>;
+/** A folder: show a file in its folder. */
+export const FolderIcon = () => <Icon size={1}><path d="M3.5 6.5h6l2 2h9v10h-17z" /></Icon>;
+/** Zoom in and out (a magnifier with + or −), and fit the whole width. */
+export const ZoomInIcon = () => <Icon size={1}><circle cx="10.5" cy="10.5" r="6" /><path d="m15 15 5 5M8 10.5h5M10.5 8v5" /></Icon>;
+export const ZoomOutIcon = () => <Icon size={1}><circle cx="10.5" cy="10.5" r="6" /><path d="m15 15 5 5M8 10.5h5" /></Icon>;
+export const FitIcon = () => <Icon size={1}><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></Icon>;
+export const RedoIcon = () => <Icon><path d="m15 6 5 5-5 5" /><path d="M20 11H9.5a4.75 4.75 0 0 0 0 9.5H14" /></Icon>;
+
+/** Marks a link that opens in the web browser. */
+export const ExternalIcon = () => <Icon size={0.85}><path d="M10 5H5v14h14v-5" /><path d="M14 4h6v6M20 4l-9 9" /></Icon>;
+
+export const PrevIcon = () => <Icon size={0.95}><path d="m14.5 6-6 6 6 6" /></Icon>;
+export const NextIcon = () => <Icon size={0.95}><path d="m9.5 6 6 6-6 6" /></Icon>;
+
+/** Discord's logo, filled and unchanged (their brand rules): it marks the button to the modding community's server. */
+export const DiscordIcon = () => (
+  <svg className="icon discord-logo" viewBox="0 0 24 24" width="1.2em" height="1.2em" fill="currentColor" aria-hidden focusable="false">
+    <path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.865-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.74 19.74 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.058a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .078-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.009c.12.099.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.363 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
+  </svg>
+);
+
+/** Two links of a chain: tied to something else. Drawn heavier, as it sits inside small tags. */
+export const LinkIcon = () => (
+  <Icon size={1.05} stroke={2.4}><path d="m9.5 14.5 5-5M11 6.6l1.4-1.4a3.9 3.9 0 0 1 5.5 5.5l-1.4 1.4M13 17.4l-1.4 1.4a3.9 3.9 0 0 1-5.5-5.5l1.4-1.4" /></Icon>
+);
+
+/** Fold everything: a box with a minus, another box behind it (as code editors draw it). */
+export const CollapseAllIcon = () => (
+  <Icon size={1.05}><rect x="3.5" y="8.5" width="12" height="12" rx="1" /><path d="M7 14.5h5M7.5 8.5v-4h12v12h-4" /></Icon>
+);
+
+// The master tabs, down the left of the window: an icon each, the name in the tooltip.
+
+/** Home: a house. */
+export const HomeIcon = () => (
+  <Icon><path d="M3.5 11.2 12 4l8.5 7.2" /><path d="M5.8 9.4V20h12.4V9.4" /><path d="M10 20v-5.4h4V20" /></Icon>
+);
+
+/** The Library: books on a shelf, the last one leaning. */
+export const LibraryIcon = () => (
+  <Icon>
+    <rect x="3.8" y="4.5" width="4" height="15.5" rx=".7" />
+    <rect x="8.9" y="6.8" width="4" height="13.2" rx=".7" />
+    <path d="M14.96 18.9 18.41 6.89l3.84 1.1L18.8 20z" />
+    <path d="M3.8 8.3h4M8.9 10.4h4" strokeWidth={1.3} />
+  </Icon>
+);
+
+/** The Audio Editor: a waveform. */
+export const AudioIcon = () => <Icon><path d="M4 10v4M7.2 7v10M10.4 4v16M13.6 8v8M16.8 5.5v13M20 9.5v5" /></Icon>;
+
+/** The Text Editor: a letter T beside lines of text. */
+export const TextIcon = () => <Icon><path d="M3.5 5.5H14M8.75 5.5V19M16.5 11h4M16.5 15h4M16.5 19h4" /></Icon>;
+
+/** Updates: an arrow coming down into a tray. */
+export const UpdatesIcon = () => (
+  <Icon><path d="M12 3.8v10.6" /><path d="m7.6 10 4.4 4.4 4.4-4.4" /><path d="M4.5 14.8v4.7h15v-4.7" /></Icon>
+);
+
+/** Build: a hammer. */
+export const BuildIcon = () => (
+  <Icon><path d="M12.9 3.32 20.68 11.1l-3.18 3.18L9.72 6.5z" /><path d="M12.75 9.55 3.45 18.85a1.2 1.2 0 0 0 1.7 1.7l9.3-9.3" /></Icon>
+);

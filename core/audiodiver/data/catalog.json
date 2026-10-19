@@ -1,0 +1,213 @@
+{
+  "about": "Curated names for the All cues view of the music cue map (the Music view is named by music.json). Cue ids are Wwise object ids (playlists, segments). 'slot' names the cue's slots in play order ({n} = 1-based position, {n0} = 0-based).",
+  "factions": {
+    "music_enemy_bugs": "Terminids",
+    "music_enemy_bugs_hiveworld": "Hive World",
+    "music_enemy_cyborgs": "Automatons",
+    "music_enemy_cyborgs_02": "Cyborgs",
+    "music_enemy_illuminates": "Illuminate",
+    "music_enemy_illuminates_rift": "Illuminate Void"
+  },
+  "faction_group": "1147938746",
+  "events": {
+    "music_battle_bugs_play": "Terminids",
+    "music_battle_cyborgs_play": "Automatons",
+    "music_battle_illuminates_play": "Illuminate"
+  },
+  "values": {
+    "music_scene_setter": "arrival",
+    "music_respawn": "respawn",
+    "music_mission_failure": "mission failed",
+    "music_encounter_active": "in combat",
+    "music_encounter_inactive": "out of combat",
+    "music_death": "death",
+    "music_default": "default",
+    "None": "no biome"
+  },
+  "cues": {
+    "954265847": {
+      "path": [
+        "Ship",
+        "First Load"
+      ],
+      "name": "First Load #1 (Hellpod View)"
+    },
+    "325868421": {
+      "path": [
+        "Ship",
+        "First Load"
+      ],
+      "name": "First Load #2 (Over the Shoulder)"
+    },
+    "404039554": {
+      "path": [
+        "Ship",
+        "First Load"
+      ],
+      "name": "First Load #3 (Galactic Map View)"
+    },
+    "485167785": {
+      "path": [
+        "Ship"
+      ],
+      "name": "Bridge Music, After Travelling to an Operation"
+    },
+    "656887865": {
+      "path": [
+        "Ship"
+      ],
+      "name": "Bridge Music (War Map)"
+    },
+    "967132321": {
+      "path": [
+        "Ship"
+      ],
+      "name": "Destroyer View"
+    },
+    "139653327": {
+      "path": [
+        "Ship"
+      ],
+      "name": "FTL Jump",
+      "notes": "Stinger over the war map music."
+    },
+    "565617291": {
+      "path": [
+        "Ship"
+      ],
+      "name": "Loadout Background Stinger"
+    },
+    "716451767": {
+      "path": [
+        "Hellpod"
+      ],
+      "name": "Loadout Selection",
+      "slot": "Loadout #{n0}",
+      "notes": "The start segment plays once, then #1–14 loop in order.",
+      "slot_first": "Loadout Start"
+    },
+    "547769336": {
+      "path": [
+        "Hellpod"
+      ],
+      "name": "Drop Location Selection",
+      "slot": "Drop Location #{n0}",
+      "notes": "The start segment plays once, then #1–14 loop in order.",
+      "slot_first": "Drop Location Start"
+    },
+    "978454350": {
+      "path": [
+        "Hellpod"
+      ],
+      "name": "Hellpod Descent"
+    },
+    "399723722": {
+      "path": [
+        "Mission",
+        "Extraction"
+      ],
+      "name": "Extraction",
+      "notes": "Intro, then two six-segment blocks. Each stem switches between calm and intense audio."
+    },
+    "546889090": {
+      "path": [
+        "Mission",
+        "Extraction"
+      ],
+      "name": "Pelican Landed"
+    },
+    "27740185": {
+      "path": [
+        "Mission",
+        "Objectives"
+      ],
+      "name": "Flag Raising Anthem (Music)"
+    },
+    "453269326": {
+      "path": [
+        "Training"
+      ],
+      "name": "Extraction Cue A"
+    },
+    "304246054": {
+      "path": [
+        "Training"
+      ],
+      "name": "Extraction Cue B"
+    },
+    "899249059": {
+      "path": [
+        "Training"
+      ],
+      "name": "Extraction Cue C"
+    },
+    "130961290": {
+      "path": [
+        "Mission",
+        "Objectives"
+      ],
+      "name": "Main Objective Complete"
+    },
+    "821040270": {
+      "path": [
+        "Mission",
+        "Objectives"
+      ],
+      "name": "Secondary Objective Complete"
+    },
+    "1063522879": {
+      "path": [
+        "Post-Mission"
+      ],
+      "name": "Mission End",
+      "notes": "Plays after the pelican takes off, into the mission results (the game's music_extraction_takeoff)."
+    },
+    "491277962": {
+      "path": [
+        "Post-Mission"
+      ],
+      "name": "Stats Screen"
+    },
+    "48057976": {
+      "path": [
+        "Post-Mission"
+      ],
+      "name": "Platform Rise"
+    },
+    "115326474": {
+      "path": [
+        "Training"
+      ],
+      "name": "Platform Rise (Failed)"
+    },
+    "131391879": {
+      "path": [
+        "Post-Mission"
+      ],
+      "name": "Leaving Mission"
+    },
+    "274818547": {
+      "path": [
+        "Menu"
+      ],
+      "name": "Credits",
+      "slot": "Credits Song {n}"
+    },
+    "1069113131": {
+      "path": [
+        "Training"
+      ],
+      "name": "A Cup of Liber-Tea (Alternative)"
+    },
+    "562829492": {
+      "path": [
+        "Menu"
+      ],
+      "name": "Idle"
+    }
+  },
+  "groups": {
+    "ENVIRONMENT_Planet_Biome": "biome",
+    "1409679567": "level"
+  }
+}

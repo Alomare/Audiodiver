@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "audiodiver"
+version = "1.0.0b1"
+description = "Audiodiver core: builds Helldivers 2 audio replacement mods from a project file"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "GPL-3.0-or-later"
+dependencies = ["lz4", "pillow", "numpy"]
+
+[project.optional-dependencies]
+loudness = ["waapi-client"]  # Wwise HDR/loudness analysis (needs a local Wwise install)
+test = ["pytest"]
+
+[project.urls]
+Source = "https://github.com/Alomare/Audiodiver"
+
+[project.scripts]
+audiodiver = "audiodiver.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["audiodiver*"]
+
+[tool.setuptools.package-data]
+"audiodiver" = ["data/*.json", "data/*.png"]
+"audiodiver._vendor" = ["LICENSE-hd2-audio-modder"]
+
+[tool.pytest.ini_options]
+markers = ["game: needs the installed game (slow)"]
