@@ -29,5 +29,12 @@
     "active": true,
     "targets": ["nsis"],
     "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.ico"]
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDA2Q0ZFQTE3MzlGRDdDNUYKUldSZmZQMDVGK3JQQnNTZUs0aTM5YytqMjRuamprLzRnNGFiVXNTd09FZzR2ZHVJNEdWQU5vMzIK",
+      "endpoints": ["https://github.com/Alomare/Audiodiver/releases/latest/download/latest.json"],
+      "windows": { "installMode": "passive" }
+    }
   }
 }

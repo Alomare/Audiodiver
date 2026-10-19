@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "The editor window: file dialogs, revealing files, the core endpoint, the title (the open project), and closing after a warning.",
+  "description": "The editor window: file dialogs, revealing files, the core endpoint, the title (the open project), closing after a warning, and installing an update.",
   "windows": [
     "main"
   ],
@@ -11,6 +11,7 @@
     "opener:default",
     "opener:allow-reveal-item-in-dir",
     "core:window:allow-destroy",
-    "core:window:allow-set-title"
+    "core:window:allow-set-title",
+    "updater:default"
   ]
 }

@@ -15,10 +15,6 @@ venv/
 log.txt*
 *.log
 
-# Home art: official Helldivers 2 artwork, not ours to publish (see app/src/art/README.md)
-/app/src/art/*
-!/app/src/art/README.md
-
 # Editors, the OS and Syncthing
 .vscode/
 .idea/

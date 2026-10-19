@@ -10,6 +10,13 @@ npm run tauri dev        # the app, with hot reload
 npm run tauri build      # src-tauri/target/release/audiodiver.exe + an NSIS installer
 ```
 
+Updates come from the GitHub releases' `latest.json` (`plugins.updater` in `src-tauri/tauri.conf.json`), and the app
+installs one only if its signature matches the public key there. A release is built with
+`npm run tauri build -- --config src-tauri/tauri.release.conf.json`, which also signs the installer (its `.sig`); it
+needs the private key in `TAURI_SIGNING_PRIVATE_KEY` and its password in `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` (GitHub
+Actions secrets). The release workflow puts the installer, its `.sig` and `latest.json` in the release. A build
+without the release config works as before, without a signature.
+
 Without the shell, the UI also runs in a browser for development: start `python -m audiodiver serve --port 8765 --token dev`, then `npm run dev` and open `http://localhost:1420/?port=8765&token=dev`. File pickers become path prompts there, and dragging files in needs the desktop app.
 
 The window has master tabs, icons down the left (the rail; names in the tooltips): Home, Library, Audio Editor (`editor` in the code), Text Editor (`text`) and Build, with Updates, the Wiki and Settings at the bottom. The open project's name is the window's title, the Build tab carries the count of problems, and Updates lights up when a new version is out. The version at the end of the status bar opens Updates; the ⓘ beside it (and the one by the logo on Home) opens About. The Library (Index and All Archives) is everything the game has, to find, hear and add to a project; the Audio Editor is what the open project lists, to replace. Both are the same three panes, each with its own open place, selection and history (`Scope` in `src/store.tsx`).
@@ -45,7 +52,8 @@ The window has master tabs, icons down the left (the rail; names in the tooltips
 | `src/art/` | the Home background: every image in it, shown in turn (see the README there for size and format) |
 | `src/Logo.tsx`, `../assets/logo/` | the logo: the official files, taken straight from `assets/logo` (`@logo` in `vite.config.ts`) and drawn in the highlight colour |
 | `src/platform.ts` | dialogs, drag-and-drop, reveal and web links in the desktop app; browser fallbacks |
-| `src-tauri/src/lib.rs` | starts and stops the core (with this computer's `core.json`, if any), hands its port and token to the UI, or why the core didn't start |
+| `src-tauri/src/lib.rs` | starts and stops the core (with this computer's `core.json`, if any), hands its port and token to the UI, or why the core didn't start; the updater plugin |
+| `src-tauri/tauri.release.conf.json` | added to the config for a release: signs the installer for the updater (its `.sig`) |
 | `src-tauri/icons/`, `app-icon.png` | the app's icons, made from the logo: see `../core/tools/import_logo.py` for how to make them again |
 
 Conventions: tooltips use `data-tip` (never `title=`), so they look like the app and name the current key; text that mentions a key asks `keyLabel()` in `keys.ts`, so it follows a rebinding.

@@ -17,6 +17,6 @@ next launch shows the next one. Without any image, Home shows a wall of level me
   shows no credit: its bottom right corner holds the picture controls (with more than one picture) and the Discord
   button.
 
-The picture here is a frame from the Helldivers 2 cinematic trailer (Arrowhead Game Studios). A credit is not a
-licence: only ship art you are allowed to ship. The pictures are kept out of the public repository (`.gitignore`), so
-a clone shows the level meters.
+The picture here (`cinematic-trailer.jpg`) is a frame from the Helldivers 2 cinematic trailer, by Arrowhead Game
+Studios. It is theirs, not under Audiodiver's licence. A credit is not a licence: only add art you are allowed to
+share.

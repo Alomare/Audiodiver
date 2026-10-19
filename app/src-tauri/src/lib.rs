@@ -151,6 +151,9 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         // the window reopens where and how big you left it
         .plugin(tauri_plugin_window_state::Builder::default().build())
+        // updates from the GitHub releases' latest.json, installed only when their signature matches the public key
+        // in tauri.conf.json (the private key that signs releases is kept out of the repository)
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(Core::default())
         .setup(|app| {
             let config = app.path().app_local_data_dir().ok().map(|d| d.join("core.json"));
