@@ -1,5 +1,6 @@
 """Wwise bank (v154) chunks: DIDX/DATA media and HIRC objects."""
 import struct
+import zlib
 
 from . import music
 
@@ -46,18 +47,93 @@ def parse(bank: bytes):
     return {id: data[off:off + n] for id, off, n in didx}, hirc
 
 
+def fingerprint(t: int, body: bytes) -> int:
+    """A HIRC object's content as one number (CRC-32 of its type and body): what tells an object a game version
+    changed from the same object as it was (tools/import_bank_history.py, addition.from_patch)."""
+    return zlib.crc32(bytes([t]) + body)
+
+
 def audio_summary(bank: bytes):
-    """(DIDX media ids, source ids played by its Sounds and MusicTracks, number of music segments)."""
-    media, refs, segments = [], set(), 0
+    """(DIDX media ids, source ids played by its Sounds and MusicTracks, number of music segments, the ids of all its
+    HIRC objects, their fingerprints in the same order)."""
+    media, refs, segments, objects = [], set(), 0, {}
     for tag, body in chunks(bank):
         if tag == b"DIDX":
             media = [struct.unpack_from("<I", body, i)[0] for i in range(0, len(body), 12)]
         elif tag == b"HIRC":
-            for t, _id, b in music.iter_hirc(body):
+            for t, id, b in music.iter_hirc(body):
                 refs.update(source_ids(t, b))
                 segments += t == MUSIC_SEGMENT
-    return media, sorted(refs), segments
+                objects[id] = fingerprint(t, b)
+    ids = sorted(objects)
+    return media, sorted(refs), segments, ids, [objects[i] for i in ids]
 
 
 def hirc(bank: bytes) -> bytes:
     return next((body for tag, body in chunks(bank) if tag == b"HIRC"), b"\0\0\0\0")
+
+
+# --- a node's settings: the prop bundle in its NodeBaseParams (count u8, ids u8[n], values f32[n]). Its Sounds,
+# MusicTracks, random/sequence, switch and layer containers and actor-mixers have one where these find it.
+SETTABLE = (SOUND, 0x05, 0x06, 0x07, 0x09, MUSIC_TRACK)
+
+
+def base_at(t, body) -> int:
+    """Offset of NodeBaseParams in a node's body (after the id)."""
+    if t == SOUND:
+        return 18
+    if t != MUSIC_TRACK:
+        return 0
+    p = 4 + 18 * struct.unpack_from("<I", body)[0] + 1  # sources, flags
+    items = struct.unpack_from("<I", body, p)[0]
+    p += 4 + 48 * items + (4 if items else 0)  # playlist items, sub-track count
+    clips = struct.unpack_from("<I", body, p)[0]
+    p += 4
+    for _ in range(clips):  # clip automation: index, type, point count, points
+        p += 12 + 12 * struct.unpack_from("<I", body, p + 8)[0]
+    return p
+
+
+def props_at(t, body) -> int:
+    p = base_at(t, body) + 1               # fx override flag
+    n, p = body[p], p + 1
+    p += 1 + 6 * n if n else 0             # bypass bits + effects
+    p += 1                                  # metadata fx override flag
+    n, p = body[p], p + 1
+    return p + 6 * n + 9                    # metadata effects; bus, parent, bits
+
+
+def props(t, body) -> dict[int, float]:
+    """{prop id: value} of a node's settings (bank v154 numbering: patch.py names the ones Audiodiver sets)."""
+    p = props_at(t, body)
+    n = body[p]
+    return dict(zip(body[p + 1:p + 1 + n], struct.unpack_from(f"<{n}f", body, p + 1 + n)))
+
+
+def with_props(t, body, changes: dict) -> bytearray:
+    """The node with its settings changed: {prop id: value, or None to take it away}. Values change in place; a
+    new one goes in id order."""
+    p = props_at(t, body)
+    n = body[p]
+    ids = list(body[p + 1:p + 1 + n])
+    values = list(struct.unpack_from(f"<{n}f", body, p + 1 + n))
+    for pid, value in changes.items():
+        if pid in ids:
+            if value is None:
+                del values[ids.index(pid)]
+                ids.remove(pid)
+            else:
+                values[ids.index(pid)] = value
+        elif value is not None:
+            i = sum(x < pid for x in ids)
+            ids.insert(i, pid)
+            values.insert(i, value)
+    bundle = bytes([len(ids), *ids]) + struct.pack(f"<{len(values)}f", *values)
+    return bytearray(body[:p] + bundle + body[p + 1 + 5 * n:])
+
+
+def prop_changes(t, game, mod) -> dict:
+    """What the mod's copy of a node sets differently from the game's: {prop id: value, or None when it takes one
+    away}."""
+    a, b = props(t, game), props(t, mod)
+    return {**{k: v for k, v in b.items() if a.get(k) != v}, **{k: None for k in a if k not in b}}

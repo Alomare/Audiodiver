@@ -48,7 +48,11 @@ def methods(s: Session) -> dict:
         "skip": lambda sources: s.skip(sources),
         "silence": lambda sources, keep_timing=False: s.silence(sources, keep_timing),
         "set_game_folder": lambda path=None: s.set_game_folder(path),
-        "cue": lambda id: s.cue(id),
+        "cue": lambda id, mine=False: s.cue(id, mine),
+        "add_takes": lambda container, files: s.add_takes(container, files),
+        "add_layer": lambda beside, files: s.add_layer(beside, files),
+        "own_clip": lambda source, sound: s.own_clip(source, sound),
+        "shared_clip": lambda source: s.shared_clip(source),
         "find": lambda query: s.find(query),
         "project": lambda: s.project_state() if s.project else None,
         "project_new": lambda path, name="": s.new_project(path, name),
@@ -77,12 +81,16 @@ def methods(s: Session) -> dict:
         "redo": lambda: s.redo(),
         "build": lambda bump=True: s.build(bump),
         "import_patch": lambda path: s.import_patch(path),
+        "repatch_scan": lambda path: s.repatch_scan(path),
+        "repatch": lambda path, name="", folder="": s.repatch(path, name, folder),
         "export_options": lambda cue: s.export_options(cue),
         "play_through": lambda cue, side="game", variants=None, loops=1: s.play_through(cue, side, variants, loops),
         "export": lambda cue, folder, **o: s.export(cue, folder, **o),
         "export_list": lambda entries, folder, **o: s.export_list(entries, folder, **o),
         "text_languages": lambda: s.text_languages(),
-        "text_search": lambda language, query="", mine=False, limit=300: s.text_search(language, query, mine, limit),
+        "text_search": lambda language, query="", mine=False, limit=300, ids=None: s.text_search(language, query, mine, limit, ids),
+        "text_alike": lambda id: s.text_alike(id),
+        "text_voices": lambda ids, language: s.text_voices(ids, language),
         "text_set": lambda table, id, text: s.text_set(table, id, text),
         "text_revert": lambda lines: s.text_revert(lines),
         "job": lambda id: s.job(id),
@@ -185,7 +193,7 @@ def make_handler(session: Session, token: str):
 
         def do_POST(self):
             if self.headers.get("X-Audiodiver-Token") != token:
-                return self._json(403, {"error": "The core refused the connection: wrong token"})
+                return self._json(403, {"error": "The core refused the connection because of a wrong token"})
             name = self.path.removeprefix("/api/")
             try:
                 n = int(self.headers.get("Content-Length") or 0)
@@ -233,7 +241,7 @@ def make_handler(session: Session, token: str):
             if url.path == "/health":
                 return self._json(200, {"ok": True})
             if q.get("token", [""])[0] != token:
-                return self._json(403, {"error": "The core refused the connection: wrong token"})
+                return self._json(403, {"error": "The core refused the connection because of a wrong token"})
             parts = url.path.strip("/").split("/")
             try:
                 if parts == ["project", "icon"]:  # the icon as the build packages it, or a preview of another

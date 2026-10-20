@@ -5,7 +5,8 @@
   labeling.xlsx  the HD2 modding community's "Helldivers 2 Archive Labeling" workbook (kept next to the project, in
                  _examples/). Its Audio tab names audio archives; its transcription tabs give the words of voice
                  lines by stream file id.
-  names folder   filediver's hash lists (hashes.txt, cracked.txt), for the path names of the game's Wwise banks.
+  names folder   filediver's hash lists (hashes.txt, cracked.txt), for the path names of the game's Wwise banks. The
+                 game's own wwise_dep resources name the banks it has now (the index's "path").
 
 It writes, in audiodiver/data:
 
@@ -176,7 +177,10 @@ WORDS = {"aa": "AA", "sam": "SAM", "samsite": "SAM Site", "icbm": "ICBM", "seaf"
          "explosivemushroom": "Explosive Mushroom", "frozenflowers": "Frozen Flowers", "meteorstorm": "Meteor Storm",
          "toxchimney": "Toxic Chimney", "volcanicactivity": "Volcanic Activity", "hiveworld": "Hive World",
          "jumppack": "Jump Pack", "inf": "Infiltration", "il": "Illuminate", "cy": "Automatons", "bug": "Terminids",
-         "bot": "Automatons", "gen": "", "mud": "Mud", "ice": "Ice", "dropoff": "Drop Off", "shutdown": "Shut Down"}
+         "bot": "Automatons", "gen": "", "mud": "Mud", "ice": "Ice", "dropoff": "Drop Off", "shutdown": "Shut Down",
+         "gre": "Grenade", "smg": "SMG", "frv": "FRV", "sg": "Shotgun", "ar": "AR", "at": "AT"}
+# weapon banks without the wep_ prefix (the game's own names, from its wwise_dep resources)
+SIDEARMS = {"broomhandle", "bull_machine_pistol", "hornet_pistol", "ombudsman", "pistol_shark", "smart_pistol_missile"}
 FACTIONS = {"bug": "Terminids", "cy": "Automatons", "bot": "Automatons", "il": "Illuminate"}
 
 
@@ -200,6 +204,15 @@ def pretty(tail: str) -> tuple[str, str] | None:
         return "planets/objectives", words(rest)
     if tail.startswith("foley_player_surface_media_"):  # "concrete_stone": Concrete and Stone
         return "helldivers/body", "Footsteps: " + words(tail.removeprefix("foley_player_surface_media_")).replace(" ", " and ", 1)
+    # banks no community list names (new in an update, most often): placed and named by their path name alone
+    if kind == "wep" or tail in SIDEARMS:
+        return "weapons", words(rest if kind == "wep" else tail)
+    if tail.startswith("seaf_weapons_"):
+        return "weapons", "SEAF " + words(tail.removeprefix("seaf_weapons_"))
+    if kind == "stratagems":
+        return "stratagems", words(rest)
+    if kind == "vehicle":
+        return "vehicles", words(rest)
     if kind == "bugs":
         return "enemies/terminids", words(rest)
     if kind == "bots":
@@ -251,8 +264,9 @@ def transcriptions(path) -> dict[int, str]:
 KNOWN = [PREFIX + t for t in ("illuminates_bladed", "illuminates_exomech", "illuminates_helmetguy")]
 
 
-def bank_names(folder, blocks) -> list[str]:
+def bank_names(folder, blocks, ix) -> list[str]:
     names = {n.split(" ")[0] for b in blocks for n, _ in b if n.startswith(PREFIX)} | set(KNOWN)
+    names |= {b["path"] for b in ix.banks.values() if b.get("path")}  # as the game spells them (index.py)
     for f in ("hashes.txt", "cracked.txt"):
         p = Path(folder, f)
         if p.exists():
@@ -306,10 +320,10 @@ def main():
     names_dir = sys.argv[2] if len(sys.argv) > 2 else str(ROOT.parents[1] / "BSL" / "_shared" / "filediver" / "hashes")
     blocks = audio_tab(sheet)
     assert len(blocks) == len(BLOCKS), f"the Audio tab has {len(blocks)} blocks of columns now, not {len(BLOCKS)}: check BLOCKS"
-    names = bank_names(names_dir, blocks)
+    ix = AudioIndex(log=print)
+    names = bank_names(names_dir, blocks, ix)
     # a name is a bank's as it is, or under a language ("content/audio/us/cutscenes"); keep the plain form of both
     tails = sorted({n.removeprefix(PREFIX).split("/")[-1] for n in names if n.count("/") in (2, 3)}, key=str.lower)
-    ix = AudioIndex(log=print)
     by_id = {murmur64_hash((PREFIX + t).encode()): t for t in tails}
     voice_ids = {murmur64_hash(f"{PREFIX}{code}/{t}".encode()) for _, _, t in VOICES for code in LANGUAGES}
     arch = collections.defaultdict(set)
@@ -447,7 +461,7 @@ def main():
                     said[oid] = line
     calls = borrowed_calls(ix, said)
     (DATA / "voices.json").write_text(json.dumps({
-        "about": "What voice lines say, by the id of their Sound object (the same in every language), from the "
+        "about": "What voice lines say, by the id of their English Sound object (the other languages map to it by place), from the "
                  "transcriptions in the community's archive labeling workbook. Calls: for a voice nobody transcribed, "
                  "what a sibling voice built the same way says at the same place. They name the line's call, not its "
                  "words.",

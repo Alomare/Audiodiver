@@ -7,6 +7,7 @@
       "icon": {"image": "art/cover.jpg", "border": 12, "border_color": "#ffd400", "radius": 40},
       "build_folder": "",
       "loudness_analysis": false,
+      "biome_fix": false,
       "library": ["deploy/loadout", "set:weapons/ac-8-autocannon", "archive:6ad7cc21015a5f85"],
       "replacements": [{"target": "15204189411560306296", "audio": "replacers/x.wav", "label": "...",
                         "gain_db": 0, "fit_timing": true},
@@ -38,6 +39,25 @@ next to it.
 texts are lines of the game's text the project changes (strings.py): the table (its file id: one table per
 language), the string's id, the new text, and the text it had when it was changed ("was"), so a game update that
 changes the line can be noticed. The key is left out while there are none, so older files stay as they were.
+
+additions are audio the project adds to the game's (addition.py), each under ids Audiodiver made for it:
+
+      "additions": [{"kind": "take", "container": "351417743", "sound": "368266363", "source": "149317725"},
+                    {"kind": "layer", "container": "838227169", "beside": "351417743"},
+                    {"kind": "take", "container": "838227169", "sound": "...", "source": "..."},
+                    {"kind": "own", "sound": "5565038", "source": "..."}]
+
+A take is a new Sound ("sound") in a container: the game's, or a layer's. A layer is a new container ("container")
+that plays with one of the game's ("beside"). "own" gives one of the game's Sounds a clip of its own. A take's or an
+own clip's audio is the replacement whose target is its "source", like any other: an addition without one adds
+nothing (the editor removes it), and a layer without takes neither. The key is left out while there are none.
+
+settings are an imported mod's settings on the game's objects (addition.from_patch): per object (a Sound, a
+container, a MusicTrack), the props its patch set differently from the game, each a value or null for one it took
+away (prop ids as bank v154 numbers them). The build puts them on the game's objects as they are now; a
+replacement's Make-Up Gain or silence, when set, goes on top. The key is left out while there are none:
+
+      "settings": {"372068234": {"5": 12.0, "12": 0.0}}
 """
 import json
 import math
@@ -80,12 +100,28 @@ class TextEdit:
 
 
 @dataclass
+class Addition:
+    kind: str           # "take", "layer" or "own"
+    container: int = 0  # take: the container it is a take of (the game's or a layer's); layer: its own id
+    sound: int = 0      # take: its new Sound; own: the game's Sound that gets a clip of its own
+    source: int = 0     # take and own: the new clip, the target of the replacement that holds its audio
+    beside: int = 0     # layer: the game's container it plays with
+
+    KINDS = {"take": ("container", "sound", "source"), "layer": ("container", "beside"), "own": ("sound", "source")}
+
+    def ids(self) -> list[int]:
+        """The ids Audiodiver made for it."""
+        return {"take": [self.sound, self.source], "layer": [self.container], "own": [self.source]}[self.kind]
+
+
+@dataclass
 class Project:
     name: str
     guid: str = field(default_factory=lambda: str(uuid.uuid4()))
     version: int = 1
     icon: dict = field(default_factory=dict)
     loudness_analysis: bool = False
+    biome_fix: bool = False   # music_init starts from the fix for the silent biomes (biome.py)
     replacements: list[Replacement] = field(default_factory=list)
     segment_overrides: dict[int, dict] = field(default_factory=dict)
     path: Path | None = None  # where it was loaded from / saved to
@@ -93,7 +129,17 @@ class Project:
     build_folder: str = ""    # where builds go, as the project stores it; "" for the default
     library: list[str] | None = None  # what the project works on; None: a file from before there was a list
     texts: list[TextEdit] = field(default_factory=list)  # lines of the game's text it changes
+    additions: list[Addition] = field(default_factory=list)  # audio it adds to the game's (addition.py)
+    settings: dict[int, dict[int, float | None]] = field(default_factory=dict)  # an imported mod's, on the game's objects
     repairs: list[str] = field(default_factory=list, repr=False, compare=False)  # damaged values opening put right (not saved)
+
+    def added(self) -> dict[int, Addition]:
+        """{new clip: the take or own clip it is} of the additions."""
+        return {a.source: a for a in self.additions if a.kind in ("take", "own")}
+
+    def made_ids(self) -> set[int]:
+        """Every id Audiodiver made for this project's additions."""
+        return {i for a in self.additions for i in a.ids()}
 
     def file(self, rel) -> Path:
         """A path the project stores (relative to the project file, or absolute) as a full path."""
@@ -216,6 +262,13 @@ class Project:
         texts = d.get("texts", [])
         need(isinstance(texts, list) and all(isinstance(t, dict) and {"table", "id", "text"} <= set(t) for t in texts),
              "its text changes")
+        settings = d.get("settings", {})
+        need(isinstance(settings, dict) and all(isinstance(s, dict) and all(
+            v is None or isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) for v in s.values())
+            for s in settings.values()), "its settings from a mod")
+        adds = d.get("additions", [])
+        need(isinstance(adds, list) and all(isinstance(a, dict) and set(Addition.KINDS.get(a.get("kind"), ("?",))) <= set(a)
+                                            for a in adds), "its added audio")
 
         def points(o):
             """A segment's cue points: one that isn't a number goes (the automatic spot is used), and is a repair."""
@@ -230,16 +283,20 @@ class Project:
                        version=int(number(d.get("version", 1), 1, 1, 99999, "the version", whole=True)),
                        icon={k: v for k, v in icon.items() if k in ICON_KEYS},
                        loudness_analysis=kind(d, "loudness_analysis", bool, False, "Loudness analysis"), replacements=reps,
+                       biome_fix=kind(d, "biome_fix", bool, False, "the fix for silent planets"),
                        segment_overrides={int(k): kept for k, o in overrides.items() if (kept := points(o))}, path=path,
                        description=kind(d, "description", str, "", "the description"),
                        build_folder=kind(d, "build_folder", str, "", "the build folder"),
                        library=[str(i) for i in d["library"]] if isinstance(d.get("library"), list) else None,
                        texts=[TextEdit(int(t["table"]), int(t["id"]), str(t["text"]), str(t.get("was", "")))
-                              for t in texts])
+                              for t in texts],
+                       additions=[Addition(a["kind"], **{k: int(a[k]) for k in Addition.KINDS[a["kind"]]}) for a in adds],
+                       settings={int(o): {int(k): None if v is None else float(v) for k, v in s.items()}
+                                 for o, s in settings.items() if s})
             p.repairs = list(dict.fromkeys(repairs))  # not saved: what opening it put right (project_state says it)
             return p
         except (TypeError, ValueError, OverflowError):
-            raise ProjectFormatError("is damaged (a cue point or a text change)") from None
+            raise ProjectFormatError("is damaged (a cue point, a text change, added audio or a setting)") from None
 
     def to_json(self) -> dict:
         def rep(r):
@@ -251,11 +308,16 @@ class Project:
             "audiodiver": FORMAT, "name": self.name, "guid": self.guid, "version": self.version,
             "description": self.description, "icon": dict(self.icon), "build_folder": self.build_folder,
             "loudness_analysis": self.loudness_analysis,
+            **({"biome_fix": True} if self.biome_fix else {}),  # files stay as they were with it off
             **({"library": list(self.library)} if self.library is not None else {}),
             "replacements": [rep(r) for r in self.replacements],
             "segment_overrides": {str(k): v for k, v in self.segment_overrides.items()},
             **({"texts": [{"table": str(t.table), "id": t.id, "text": t.text, "was": t.was} for t in self.texts]}
                if self.texts else {}),
+            **({"additions": [{"kind": a.kind, **{k: str(getattr(a, k)) for k in Addition.KINDS[a.kind]}}
+                              for a in self.additions]} if self.additions else {}),
+            **({"settings": {str(o): {str(k): v for k, v in s.items()} for o, s in self.settings.items()}}
+               if self.settings else {}),
         }
 
     def save(self, path=None):

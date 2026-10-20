@@ -286,7 +286,7 @@ export function IndexTree() {
 }
 
 const GLYPH: Partial<Record<MusicItem["kind"], string>> = { transition: "↝", stinger: "✦" };
-const KIND_TIP: Partial<Record<MusicItem["kind"], string>> = { transition: "Transition: plays between two pieces of music", stinger: "Stinger: plays over the music" };
+const KIND_TIP: Partial<Record<MusicItem["kind"], string>> = { transition: "A transition, which plays between two pieces of music", stinger: "A stinger, which plays over the music" };
 
 /** One item of the tree. Memoised: it draws again only when something it shows changes, not with every keystroke of
     a search or every selection. */
@@ -363,7 +363,7 @@ function Missing() {
   if (!gone.length) return null;
   return (
     <div className="lib-group">
-      <div className="lib-group-head" data-tip="Listed in the project, but not in this game version: an update may have renamed or removed them">
+      <div className="lib-group-head" data-tip="Listed in the project but missing from this game version. An update may have renamed or removed them">
         <span className="lib-group-name">Not in This Game Version</span>
       </div>
       {gone.map((id) => (
@@ -416,9 +416,9 @@ function Filters({ filter, setFilter }: { filter: Filter; setFilter: (f: Filter)
         <div className="mus-clash">
           <span><b>{n}</b> transition{n === 1 ? "" : "s"} or stinger{n === 1 ? "" : "s"} still play{n === 1 ? "s" : ""} the original next to new music.</span>
           <div className="row-btns">
-            <button className="btn quiet small-btn" onClick={review} data-tip="Open the first one (adding it to the project)">Review</button>
+            <button className="btn quiet small-btn" onClick={review} data-tip="Open the first one and add it to the project">Review</button>
             <button className="btn small-btn" onClick={skipAll}
-              data-tip={`Replace them with a short silence: the game goes straight to the next music${keyHint("undo") ? `. Undo${keyHint("undo")} brings them back` : ""}`}>Skip them all</button>
+              data-tip={`Replace them with a short silence, so the game goes straight to the next music${keyHint("undo") ? `. Undo${keyHint("undo")} brings them back` : ""}`}>Skip them all</button>
           </div>
         </div>
       </Fold>

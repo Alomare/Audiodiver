@@ -8,6 +8,7 @@
 //   {key:build}                 the key a command is on right now (ids in keys.ts)
 //   {icon:link}                 one of the app's icons, as the screen shows it (ICONS below)
 //   > [!TIP] … / [!NOTE] / [!WARNING]                      a callout
+//   ```game-text … ```          a line of the game's text as typed, and as the game shows it (TextPreview)
 import { marked, type Token, type Tokens } from "marked";
 import { Fragment, type ReactNode } from "react";
 import { AudioIcon, BuildIcon, CollapseAllIcon, ExternalIcon, GearIcon, GuideIcon, HomeIcon, InfoIcon, LibraryIcon, LinkIcon, TextIcon,
@@ -15,6 +16,7 @@ import { AudioIcon, BuildIcon, CollapseAllIcon, ExternalIcon, GearIcon, GuideIco
 import { COMMANDS, keyLabel, useKeymap, type CommandId } from "./keys";
 import { about, nav, type Tab } from "./nav";
 import { openUrl } from "./platform";
+import { TextPreview } from "./TextPreview";
 
 export type Heading = { id: string; text: string; depth: number };
 export type Doc = { tokens: Token[]; headings: Heading[]; text: string };
@@ -148,7 +150,9 @@ function Blocks({ tokens, images }: { tokens: Token[]; images?: (name: string) =
           <aside key={i} className={`callout ${c.kind.toLowerCase()}`}><b>{CALLOUT_NAME[c.kind]}</b><div><Blocks tokens={c.tokens} images={images} /></div></aside>
         ) : <blockquote key={i}><Blocks tokens={k.tokens ?? []} images={images} /></blockquote>;
       }
-      case "code": return <pre key={i}><code>{k.text}</code></pre>;
+      case "code": return k.lang === "game-text" ? (
+        <div key={i} className="md-game-text"><pre><code>{k.text}</code></pre><div className="tx-preview"><TextPreview text={k.text} /></div></div>
+      ) : <pre key={i}><code>{k.text}</code></pre>;
       case "hr": return <hr key={i} />;
       case "table": {
         const table = t as Tokens.Table;

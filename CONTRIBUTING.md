@@ -1,7 +1,7 @@
 # Contributing to Audiodiver
 
 Thanks for helping. Bug reports, ideas and pull requests are all welcome. For questions, feedback and help, come to
-the [Helldivers 2 Modding Discord](https://discord.gg/helldiversmodding); issues are for bugs and planned changes.
+the [Helldivers 2 Modding Discord](https://discord.gg/helldiversmodding). Issues are for bugs and planned changes.
 
 ## Reporting a bug
 
@@ -33,7 +33,7 @@ Audiodiver runs on Windows, with Helldivers 2 installed through Steam.
 - **ffmpeg**, **vgmstream-cli** and **wav2wem** on your PATH: the core runs them to read and encode audio.
 
 Then `npm run tauri dev` in `app` starts the app with hot reload. The window can also run in a browser against the
-core; `app/README.md` explains how.
+core, as `app/README.md` explains.
 
 ## Before a pull request
 

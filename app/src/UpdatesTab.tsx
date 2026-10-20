@@ -57,7 +57,7 @@ function UpdateCard({ u }: { u: UpdateState }) {
   if (u.phase === "downloading" || u.phase === "installing") {
     tone = "new"; icon = <UpdatesIcon />;
     title = u.phase === "installing" ? `Installing ${versionLabel(latest!.version)}` : `Downloading ${versionLabel(latest!.version)}`;
-    sub = u.phase === "installing" ? "Audiodiver restarts by itself."
+    sub = u.phase === "installing" ? "Audiodiver restarts when the update is installed."
       : u.total ? `${fmtBytes(u.got)} of ${fmtBytes(u.total)}` : fmtBytes(u.got);
   } else if (latest) {
     tone = "new"; icon = <UpdatesIcon />;
@@ -67,7 +67,7 @@ function UpdateCard({ u }: { u: UpdateState }) {
   } else if (u.phase === "failed") {
     tone = "warn"; icon = <span className="upd-bang" aria-hidden>!</span>;
     title = CHECK_ERRORS[u.error ?? ""] ?? "Couldn't check for updates";
-    sub = u.error === "limit" ? (limited ? "GitHub takes 60 checks an hour. Try again in a few minutes." : "GitHub takes 60 checks an hour.") : u.error === "offline" ? "Check the internet connection." : u.error;
+    sub = u.error === "limit" ? (limited ? "GitHub allows 60 checks an hour. Try again in a few minutes." : "GitHub allows 60 checks an hour.") : u.error === "offline" ? "Check the internet connection." : u.error;
   } else if (u.checked === null) {
     tone = "wait"; icon = <span className="upd-spin" aria-hidden />;
     title = "Checking for updates…";
@@ -104,7 +104,7 @@ function UpdateCard({ u }: { u: UpdateState }) {
           {action}
         </div>
         {u.phase === "failed" && latest && (
-          <p className="info-box">Couldn't check again: {CHECK_ERRORS[u.error ?? ""] ?? u.error}. The list below is from {fmtWhen(u.checked)}.</p>
+          <p className="info-box">Couldn't check again ({CHECK_ERRORS[u.error ?? ""] ?? u.error}). The list below is from {fmtWhen(u.checked)}.</p>
         )}
         {u.installError && latest && (
           <p className="warn-box" role="alert">Couldn't install: {u.installError}{" "}

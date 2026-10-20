@@ -14,7 +14,13 @@ Two views of the same audio:
 Both lead to the same things to open: a piece of music's cue (catalog.py), or a bank's sounds (`bank:<id>`), which
 come as a cue-shaped dict so the editor shows either the same way. A bank's sounds are grouped the way the bank
 nests them: the takes of one sound (the children of one random container) sit together. A voice line is labelled
-with what it says, where the community has written that down (data/voices.json).
+with what it says: its subtitle where it was matched to one (data/subtitles.json, which also says which subtitle, so
+the Text Editor can open it), else what the community wrote down (data/voices.json). A clip without words is named by
+what it is ("Grunt 3", numbered per bank); a voice bank lists those it holds for other banks' Sounds by kind
+("Grunts", "Laughs"). In the Audio Editor a bank's sounds
+come with the audio the project adds (Added, addition.py): its new takes after the game's (`added: "take"`), a layer
+as a group after the sound it plays with (`added: "layer"`), a clip of its own in place of the clip it stood in for
+(`was`). A group whose takes a random container picks says which (`container`), and whether a layer can go beside it.
 
 A project lists the Index items and archives it works on (project.py, "library"); `home` finds the one a sound
 belongs to, for a project that has replacements but no list yet.
@@ -24,11 +30,13 @@ import json
 import re
 import struct
 import threading
+from dataclasses import dataclass
 from functools import cached_property
 from importlib import resources
 
 from . import bank as wbank
 from . import music, wem
+from .addition import ACTION, LAYER, RANSEQ, SWITCH, play_target
 from .cuemap import slots
 from .game import murmur64_hash
 from .index import LANGUAGES
@@ -42,6 +50,9 @@ BIG_GROUP, CHUNK = 150, 100  # a group with more sounds than this is listed in r
 ALSO_LISTED = 8              # how many of the other places a sound plays in a slot names; the rest are counted
 WIDELY = 10                  # a sound in this many other banks or more is one a whole family of banks shares
 VIEWS_KEPT = 12
+KIND_GROUP = {"Grunt": "Grunts", "Sigh": "Sighs", "Laugh": "Laughs", "Scream": "Screams", "Cough": "Coughs",
+              "Groan": "Groans", "Yell": "Yells", "Sniff": "Sniffs", "Hiccup": "Hiccups", "Burp": "Burps",
+              "Whistle": "Whistles", "Hum": "Humming", "Vocal sound": "Vocal Sounds"}  # a clip without words: its group
 
 
 def _data(name):
@@ -57,6 +68,15 @@ def _line(text: str) -> str:
     return text[:1].upper() + text[1:]
 
 
+@dataclass(frozen=True)
+class Added:
+    """The audio a project adds (project.additions), as the banks' views show it: new takes after the game's, a
+    layer as a group after the sound it plays with, a clip of its own in place of the clip it stands in for."""
+    takes: tuple = ()   # ((container, new Sound, new clip), ...)
+    layers: tuple = ()  # ((layer id, the game's container it plays with), ...)
+    own: tuple = ()     # ((the game's Sound, its new clip), ...)
+
+
 def _part(cue: str, name: str, count: int) -> dict:
     """A part of a sound set or an archive: one bank (or an archive's loose streams), shaped like a part of a piece
     of music. `count` is how many sounds it has."""
@@ -67,8 +87,14 @@ def _part(cue: str, name: str, count: int) -> dict:
 class Library:
     def __init__(self, catalog):
         self.cat, self.cm, self.ix = catalog, catalog.cm, catalog.cm.ix
-        voices = _data("voices.json")
+        voices, subs = _data("voices.json"), _data("subtitles.json")
+        self.said = {int(k): v for k, v in subs["texts"].items()}  # subtitle id -> its English words
+        # a voice line's subtitle (id, certain), by its English Sound (other languages: _english) or its English clip
+        self.subtitles = {int(k): (v[0], bool(v[1])) for k, v in subs["lines"].items()}
+        self.clip_subtitles = {int(k): (v[0], bool(v[1])) for k, v in subs["clips"].items()}
+        self.wordless = subs["sounds"]  # "o<Sound>" or "s<source>" -> what a clip without words is ("Grunt")
         self.voices = {int(k): _line(v) for k, v in voices["lines"].items()}
+        self.voices.update((oid, self.said[i]) for oid, (i, _) in self.subtitles.items())  # the game's own words first
         self.calls = {int(k): _line(v) for k, v in voices.get("calls", {}).items()}  # untranscribed: a sibling's words
         self.bank_names = {}  # bank id -> the last part of its path name ("wep_autocannon")
         for tail in _data("banks.json")["names"]:
@@ -76,6 +102,9 @@ class Library:
                 bid = murmur64_hash(path.encode())
                 if bid in self.ix.banks:
                     self.bank_names[bid] = tail
+        for bid, b in self.ix.banks.items():  # the rest: as the game spells them (index.py)
+            if bid not in self.bank_names and b.get("path"):
+                self.bank_names[bid] = b["path"].rsplit("/", 1)[-1]
         installed = {b.get("lang") for b in self.ix.banks.values()}
         self.voice_languages = [name for code, name in LANGUAGES.items() if code in installed]  # in this install
         self._views, self._lock = collections.OrderedDict(), threading.Lock()
@@ -286,22 +315,24 @@ class Library:
         return {s for p in self.item(iid)["parts"] for s in self.cue_sources(p["cue"])}
 
     # --- a bank's sounds, as something to open
-    def view(self, cue_id: str) -> dict:
-        """The cue-shaped view of `bank:<id>` or `streams:<archive>`. KeyError when there is no such thing."""
-        with self._lock:
-            if cue_id in self._views:
-                self._views.move_to_end(cue_id)
-                return self._views[cue_id]
+    def view(self, cue_id: str, added: "Added | None" = None) -> dict:
+        """The cue-shaped view of `bank:<id>` or `streams:<archive>`, a bank's with the audio a project adds to it.
+        KeyError when there is no such thing."""
         kind, _, key = cue_id.partition(":")
+        at = (cue_id, added if kind == "bank" and added else None)
+        with self._lock:
+            if at in self._views:
+                self._views.move_to_end(at)
+                return self._views[at]
         try:
-            v = (self._bank(int(key)) if kind == "bank" else self._streams(key) if kind == "streams"
+            v = (self._bank(int(key), at[1]) if kind == "bank" else self._streams(key) if kind == "streams"
                  else self._sound(int(key)) if kind == "sfx" else None)
         except (ValueError, KeyError):
             v = None
         if v is None:
             raise KeyError(f"nothing to open as {cue_id}")
         with self._lock:
-            self._views[cue_id] = v
+            self._views[at] = v
             while len(self._views) > VIEWS_KEPT:
                 self._views.popitem(last=False)
         return v
@@ -322,6 +353,29 @@ class Library:
                 "label": label, "locked": False, "also_in": also[:ALSO_LISTED], "also_n": len(also),
                 "banks": len(banks), **self.cat.clip_notes(sid)}
 
+    def _voice(self, slot: dict, oid: int | None, sid: int) -> dict:
+        """A voice line's subtitle on its slot (`subtitle`, `subtitle_sure`: false where it is one of several with
+        the same words), its words as the label where it has none; or, for a clip without words, what it is
+        (`sound`, its label until the bank numbers it)."""
+        sub = (oid is not None and self.subtitles.get(oid)) or self.clip_subtitles.get(sid)
+        if sub:
+            slot.update(subtitle=str(sub[0]), subtitle_sure=sub[1])
+            slot["label"] = slot["label"] or self.said[sub[0]]
+        elif kind := (oid is not None and self.wordless.get(f"o{oid}")) or self.wordless.get(f"s{sid}"):
+            slot.update(sound=kind, label=slot["label"] or kind)
+        return slot
+
+    def _reach(self, banks, here) -> dict:
+        """A slot's `also_in`, `also_n` and `banks` for something that plays in these banks."""
+        others = sorted((b for b in banks if b != here), key=lambda b: (not self.bank_sets.get(b), b))
+        also = [f"bank:{b}" for b in others]
+        return {"also_in": also[:ALSO_LISTED], "also_n": len(also), "banks": len(others)}
+
+    def _added_slot(self, sid, oid, banks, here) -> dict:
+        """A new take as a slot: it has no original."""
+        return {"source": str(sid), "duration_ms": 0, "unused": False, "absent": False, "variant": "", "label": "",
+                "locked": False, "object": str(oid), "added": "take", **self._reach(banks, here)}
+
     @staticmethod
     def _group(name, slots_, **more) -> dict:
         """Sounds that belong together, shaped like a music segment with one stem. `shared` is how many other banks
@@ -330,7 +384,42 @@ class Library:
                 "stems": [{"track": "", "type": "sound", "switch_group": "", "slots": slots_}], "tags": [], "group": True,
                 "shared": min((s["banks"] for s in slots_), default=0), **more}
 
-    def _bank(self, bid: int) -> dict:
+    def _languages(self, bid: int) -> list[int]:
+        """The same voice's bank in every installed language (the bank alone for one that isn't a voice)."""
+        tail, lang = self.bank_names.get(bid), self.ix.banks[bid].get("lang")
+        if not tail or not lang:
+            return [bid]
+        return [b for code in LANGUAGES if (b := murmur64_hash(f"{PREFIX}{code}/{tail}".encode())) in self.ix.banks]
+
+    def _english(self, bid: int) -> dict[int, int]:
+        """{Sound id: the Sound at the same place in the English bank} for a voice bank in another language, where
+        the ids differ. Voices' words, subtitles and names (voices.json, subtitles.json) go by the English Sounds.
+        A voice's banks are built alike in every language, the n-th Sound of each saying the same line, but an update
+        can renumber one language's Sounds and not the others' (build 25988413 renumbered English alone, and gave
+        three ship voices' English banks three more lines at the end). {} for English, a bank that isn't a voice, or
+        one whose Sounds don't pair up with the English ones (their parents don't match one to one)."""
+        if not hasattr(self, "_en"):
+            self._en = {}
+        if bid not in self._en:
+            self._en[bid] = {}
+            us = next((b for b in self._languages(bid) if self.ix.banks[b].get("lang") == "us"), None)
+            if us is not None and us != bid:
+                def sounds(b):
+                    out = []
+                    for t, oid, body in music.iter_hirc(wbank.hirc(self.ix.bank_files(b)[0])):
+                        if t == wbank.SOUND:
+                            try:
+                                out.append((oid, music.read_node_base_params(music.Reader(body, 18))[1]))
+                            except Exception:
+                                out.append((oid, 0))
+                    return out
+                mine, theirs = sounds(bid), sounds(us)
+                pairs = {}
+                if not any(pairs.setdefault(p, q) != q for (_, p), (_, q) in zip(mine, theirs)):
+                    self._en[bid] = {o: e for (o, _), (e, _) in zip(mine, theirs) if o != e}
+        return self._en[bid]
+
+    def _bank(self, bid: int, added: "Added | None" = None) -> dict:
         ix = self.ix
         info = ix.banks[bid]
         didx, data, hirc = [], b"", bytes(4)  # a bank that only stores audio has no objects at all
@@ -342,7 +431,7 @@ class Library:
             elif tag == b"HIRC":
                 hirc = body
         held = {sid: wem.length_ms(data[off:off + min(n, 96)]) for sid, off, n in didx}  # source -> ms, of what is in here
-        sounds, parent, segments = [], {}, []
+        sounds, parent, segments, kinds, plays = [], {}, [], {}, set()
         for t, oid, body in music.iter_hirc(hirc):
             if t == wbank.SOUND:
                 plugin, _stype, sid, _cache, _mem, _bits = wbank.SOURCE.unpack_from(body, 0)
@@ -354,12 +443,30 @@ class Library:
                     parent[oid] = 0
                 sounds.append((oid, sid))
             elif t in CONTAINERS:
+                kinds[oid] = t
                 try:
                     parent[oid] = music.read_node_base_params(music.Reader(body, 0))[1]
                 except Exception:
                     pass
             elif t == music.MUSIC_SEGMENT:
                 segments.append(oid)
+            elif t == ACTION and (target := play_target(body)) is not None:
+                plays.add(target)
+
+        # the project's added audio: clips of their own, layers, new takes (each new take after the game's)
+        was, layer_of, new_takes = {}, {}, set()  # new clip -> the clip it stands in for; layer -> beside; new Sounds
+        if added:
+            own = dict(added.own)
+            was = {own[oid]: sid for oid, sid in sounds if oid in own}
+            sounds = [(oid, own.get(oid, sid)) for oid, sid in sounds]
+            for lay, beside in added.layers:
+                if beside in kinds:
+                    layer_of[lay], kinds[lay], parent[lay] = beside, RANSEQ, parent.get(beside, 0)
+            for container, snd, src in added.takes:
+                if kinds.get(container) == RANSEQ:
+                    sounds.append((snd, src))
+                    parent[snd] = container
+                    new_takes.add(snd)
 
         groups, listed = [], set()
         # 1. music segments, as the cue map has them (named and timed), each tagged with the piece of music it is
@@ -387,82 +494,141 @@ class Library:
             listed.update(int(sl["source"]) for st in g["stems"] for sl in st["slots"])
         groups = [g for _, g in sorted(groups, key=lambda x: x[0])]
 
-        # 2. sounds, by the container that holds the takes of one sound: the nearest one above with more than one
+        # 2. sounds, by the container that holds the takes of one sound: the nearest one above with more than one.
+        # A layer's takes are a group of their own, right after the sound it plays with.
         leaves = collections.Counter()
         for oid, _sid in sounds:
             cur, seen = parent.get(oid), set()
-            while cur in parent and cur not in seen:
+            while cur in parent and cur not in seen and cur not in layer_of:
                 seen.add(cur)
                 leaves[cur] += 1
                 cur = parent[cur]
-        by_key, order = collections.defaultdict(list), []
+        by_key, order, home = collections.defaultdict(list), [], {}  # home: a container -> the group of its takes
         for oid, sid in sounds:
             if sid in listed:
                 continue  # in the music above, or played by a Sound that came before: one thing to replace
             listed.add(sid)
             key, seen = parent.get(oid, 0), set()
-            while key in parent and leaves[key] < 2 and key not in seen:
+            while key not in layer_of and key in parent and leaves[key] < 2 and key not in seen:
                 seen.add(key)
                 key = parent[key]
+            home.setdefault(parent.get(oid, 0), key)
             if key not in by_key:
                 order.append(key)
             by_key[key].append((oid, sid))
-        made = [([self._slot(sid, held.get(sid), self.voices.get(oid, ""), bid) for oid, sid in by_key[key]],
-                 collections.Counter(self.calls[oid] for oid, _ in by_key[key] if oid in self.calls)) for key in order]
+
+        en = self._english(bid)  # another language's voice: its Sounds as the English bank's, which the words go by
+
+        def row(oid, sid):
+            if oid in new_takes:  # a new take plays wherever its container is
+                return self._added_slot(sid, oid, self.ix.copies(layer_of.get(parent[oid], parent[oid])), bid)
+            line = en.get(oid, oid)
+            slot = self._voice(self._slot(was.get(sid, sid), held.get(was.get(sid, sid)), self.voices.get(line, ""), bid),
+                               line, was.get(sid, sid))
+            if sid in was:  # a clip of its own: the Sound plays it wherever the Sound is
+                slot.update(self._reach(self.ix.copies(oid), bid), source=str(sid), was=str(was[sid]), object=str(oid))
+            return slot
+        made = [([row(oid, sid) for oid, sid in by_key[key]],
+                 collections.Counter(self.calls[en.get(oid, oid)] for oid, _ in by_key[key] if en.get(oid, oid) in self.calls),
+                 key)
+                for key in order]
         # what this bank has to itself (or shares with a variant or two) comes first; the sounds a whole family of
         # banks has copies of (every weapon's handling sounds) go last. Within each, the bank's own order.
         made.sort(key=lambda m: min(r["banks"] for r in m[0]) >= WIDELY)
+        for m in [m for m in made if m[2] in layer_of]:  # a layer after the sound it plays with, and its other layers
+            made.remove(m)
+            beside = home.get(layer_of[m[2]])
+            at = next((i + 1 for i, x in enumerate(made) if x[2] == beside), len(made))
+            while at < len(made) and made[at][2] in layer_of:
+                at += 1
+            made.insert(at, m)
+
+        def can_layer(key):
+            """A layer beside it would play when it plays: its parent is a switch or a layer container, or an event
+            plays it (and it isn't one choice of a random container)."""
+            ptype = kinds.get(parent.get(key))
+            return ptype in (SWITCH, LAYER) or (key in plays and ptype != RANSEQ)
+
         # a sound nothing says, named by the notes on its takes (data/notes.json: "Ready"), numbered when several are
-        noted = [collections.Counter(l for r in rows if (l := self.cat.clip(int(r["source"])).get("label")))
-                 for rows, _ in made]
+        noted = [collections.Counter(l for r in rows if (l := self.cat.clip(int(r.get("was") or r["source"])).get("label")))
+                 for rows, _, _ in made]
         noted_n, noted_seen = collections.Counter(c.most_common(1)[0][0] for c in noted if c), collections.Counter()
-        n, borrowed = 0, False
-        for (rows, called), notes in zip(made, noted):
+        n, borrowed, named, layers = 0, False, {}, []
+        for (rows, called, key), notes in zip(made, noted):
             if len(rows) > BIG_GROUP:
                 for at in range(0, len(rows), CHUNK):
                     groups.append(self._group(f"Sounds {at + 1}–{min(len(rows), at + CHUNK)}", rows[at:at + CHUNK]))
                 continue
-            n += 1
-            said = collections.Counter(r["label"] for r in rows if r["label"])
+            said = collections.Counter(r["label"] for r in rows if r["label"] and r["label"] != r.get("sound"))
+            wordless = collections.Counter(r.get("sound") for r in rows)
             for k, r in enumerate(rows, 1):  # the takes of one sound, told apart by number where nothing says more
                 r["label"] = r["label"] or (f"Take {k}" if len(rows) > 1 else "")
+            if key in layer_of:
+                layers.append((self._group("", rows, added="layer", container=str(key), beside=str(layer_of[key])), key))
+                groups.append(layers[-1][0])
+                continue
+            n += 1
             borrowed |= not said and bool(called)  # the call is named, the takes keep their numbers
             said = said or called
             name = f"Sound {n}"
             if said:
                 name = f"“{said.most_common(1)[0][0]}”"
+            elif None not in wordless:  # takes without words: what they are
+                name = KIND_GROUP.get(k := wordless.most_common(1)[0][0], k)
             elif notes:
                 name = notes.most_common(1)[0][0]
                 if noted_n[name] > 1:
                     noted_seen[name] += 1
                     name += f" {noted_seen[name]}"
-            groups.append(self._group(name, rows))
+            named[key] = name
+            more = {"container": str(key), "layer": can_layer(key)} if kinds.get(key) == RANSEQ else {}
+            groups.append(self._group(name, rows, **more))
+        per_sound = collections.Counter(home.get(layer_of[k]) for _, k in layers)
+        seen_layers = collections.Counter()
+        for g, key in layers:  # "Sound 3 · Layer", or numbered when it has several
+            beside = home.get(layer_of[key])
+            seen_layers[beside] += 1
+            g["name"] = f"{named.get(beside, 'Sound')} · Layer" + (f" {seen_layers[beside]}" if per_sound[beside] > 1 else "")
         # 3. what is left: audio this bank holds or names that none of its Sounds plays (a Sound in another bank
         # does, or nothing seen does), then what it names that has no audio in this install at all
-        rest = [self._slot(s, held.get(s), self.cat.clip(s).get("label", ""), bid) for s in self.sources(bid)
-                if s not in listed]
-        for title_, slots_ in (("Other Audio", [r for r in rest if not r["absent"]]), ("No Audio in the Game Files", [r for r in rest if r["absent"]])):
+        # (a voice bank holds the grunts and breaths of a voice's Sounds in another bank: listed by what they are)
+        rest = [self._voice(self._slot(s, held.get(s), self.cat.clip(s).get("label", ""), bid), None, s)
+                for s in self.sources(bid) if s not in listed]
+        kinds = collections.Counter(r["sound"] for r in rest if r.get("sound") and not r["absent"])
+        for title_, slots_ in (*((KIND_GROUP.get(k, k), sorted((r for r in rest if r.get("sound") == k and not r["absent"]),
+                                                               key=lambda r: r["duration_ms"]))
+                                 for k, _ in kinds.most_common()),
+                               ("Other Audio", [r for r in rest if not r["absent"] and not r.get("sound")]),
+                               ("No Audio in the Game Files", [r for r in rest if r["absent"]])):
             for at in range(0, len(slots_), CHUNK):
                 name = title_ if len(slots_) <= CHUNK else f"{title_} {at + 1}–{min(len(slots_), at + CHUNK)}"
                 groups.append(self._group(name, slots_[at:at + CHUNK]))
 
+        heard = collections.Counter()  # clips without words, numbered per kind in the order they are listed
+        for sl in (sl for g in groups for st in g["stems"] for sl in st["slots"]):
+            if sl.get("sound") and sl["label"] == sl["sound"]:
+                heard[sl["sound"]] += 1
+                sl["label"] = f"{sl['sound']} {heard[sl['sound']]}"
+
         sets = self.bank_sets.get(bid, [])
         notes = []
         if rest and not sounds and not segments:
-            notes.append("This bank only stores audio: the sounds that play it are in another bank.")
+            notes.append("This bank only stores audio. The sounds that play it are in another bank.")
         lang = LANGUAGES.get(info.get("lang") or "", "")
         if lang:
-            notes.append(f"{lang} voices: a replacement here only reaches players who use this language.")
+            notes.append(f"These are {lang} voices. A replacement here only reaches players who use this language.")
             if len(self.voice_languages) < len(LANGUAGES):  # a voice has a tab per language only where it's installed
                 have = self.voice_languages
                 notes.append((f"Only {have[0]} voices are installed." if len(have) == 1 else
                               f"Voices installed: {', '.join(have)}.") +
                              " Other languages appear as tabs once Steam downloads their voice packs.")
         if borrowed:
-            notes.append("Not transcribed: each line is named after what another Helldiver voice says in its place, "
+            notes.append("Not transcribed. Each line is named after what another Helldiver voice says in its place, "
                          "and the words may differ.")
-        # a sound's slot names the Sound object that plays it (the first, where several do), for reference
-        played_by = {}
+        # a sound's slot names the Sound object that plays it (the first, where several do), for reference and for a
+        # clip of its own: `players` counts the Sounds here that play the clip, `sound_banks` the other banks that
+        # have that Sound (a clip of its own changes it in those, where a replacement changes it in `banks`)
+        played_by, players = {}, collections.Counter(sid for _, sid in sounds)
         for oid, sid in sounds:
             played_by.setdefault(sid, oid)
         for g in groups:
@@ -470,6 +636,8 @@ class Library:
                 for sl in st["slots"]:
                     if int(sl["source"]) in played_by:
                         sl.setdefault("object", str(played_by[int(sl["source"])]))
+                        sl["players"] = players[int(sl["source"])]
+                        sl["sound_banks"] = max(0, len(self.ix.copies(int(sl["object"]))) - 1)
         all_slots = list(dict.fromkeys(sl["source"] for g in groups for st in g["stems"] for sl in st["slots"]))
         return {
             "id": f"bank:{bid}", "kind": "sounds", "path": list(self.where[sets[0]]) if sets else ["All Archives"],
@@ -478,7 +646,7 @@ class Library:
             "contexts": 0, "archive_names": info["archives"], "segments_detail": groups, "context_list": [],
             "labels": [], "tags": [self._tag(i) for i in sets],
             "bank_name": PREFIX + (f"{info['lang']}/" if info.get("lang") else "") + self.bank_names[bid]
-            if bid in self.bank_names else "", "language": lang,
+            if bid in self.bank_names else "", "language": lang, "lang": info.get("lang") or "",
         }
 
     def _streams(self, archive: str) -> dict:
@@ -501,7 +669,7 @@ class Library:
         sid = self.ix.resolve(sid)
         slot = self._slot(sid, wem.length_ms((self.ix.stream_data(sid, 96) or self.ix.wem(sid))[:96]))
         return {"id": f"sfx:{sid}", "kind": "sound", "path": ["Other Sounds"], "name": f"Sound {sid}", "detail": "",
-                "notes": "A sound on its own. Audiodiver replaces it in every bank that holds or plays it.",
+                "notes": "A single sound. Audiodiver replaces it in every bank that holds or plays it.",
                 "locked": False, "curated": False, "segments": 1, "slots": [str(sid)], "duration_ms": 0,
                 "archives": 0, "contexts": 0, "archive_names": [], "segments_detail": [self._group("Sound", [slot])],
                 "context_list": [], "labels": [], "tags": [], "bank_name": "", "language": ""}
@@ -530,6 +698,39 @@ class Library:
         if sid in self.ix.orphans:
             return f"archive:{self.ix.streams[sid][0]}"
         return None
+
+    def subtitle_lines(self, subs: list[int], code: str) -> list[dict]:
+        """The voice lines that say these subtitles, in the voice banks of a language (English where it has none of
+        them): [{cue, source, item, archives, name, subtitle, sure}], the first subtitle's first, sure ones first."""
+        subs = [int(i) for i in subs]
+        want = set(subs)
+        if not hasattr(self, "_said_by"):  # subtitle -> the Sounds and English clips that say it
+            self._said_by = collections.defaultdict(list)
+            for oid, (i, _) in self.subtitles.items():
+                self._said_by[i].append(("o", oid))
+            for sid, (i, _) in self.clip_subtitles.items():
+                self._said_by[i].append(("s", sid))
+        banks = collections.defaultdict(set)  # language -> the banks to look in
+        for i in want:
+            for p, k in self._said_by.get(i, ()):
+                for bid in self.ix.copies(k) if p == "o" else (self.ix.users.get(k) or self.ix.holders.get(k) or ()):
+                    for b in self._languages(bid):  # the other languages' Sounds may go by other ids (_english)
+                        banks[self.ix.banks[b].get("lang") or ""].add(b)
+        out = []
+        for bid in sorted(banks.get(code) or banks.get("us") or set().union(*banks.values())):
+            try:
+                view = self.view(f"bank:{bid}")
+            except KeyError:
+                continue
+            for g in view["segments_detail"]:
+                for st in g["stems"]:
+                    for sl in st["slots"]:
+                        if sl.get("subtitle") and int(sl["subtitle"]) in want:
+                            out.append({"cue": f"bank:{bid}", "source": sl["source"], "item": self._bank_home(bid),
+                                        "archives": self.ix.banks[bid]["archives"], "name": view["name"],
+                                        "subtitle": sl["subtitle"], "sure": sl["subtitle_sure"]})
+        order = {i: n for n, i in enumerate(subs)}
+        return sorted(out, key=lambda r: (order[int(r["subtitle"])], not r["sure"], r["name"]))
 
     def places(self, n: int) -> list[dict]:
         """Where an id leads: a cue, a bank, or the cues and banks that play a source or a stream. Each place is

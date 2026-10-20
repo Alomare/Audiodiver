@@ -253,7 +253,7 @@ class MusicList:
         for v in sorted(values - {f["value"] for f in known}):
             name = v.removeprefix("music_enemy_").replace("_", " ").title()
             known.append({"value": v, "id": f"faction-{v}", "name": name, "short": name,
-                          "about": f"Combat music for the game's {v} (a faction Audiodiver doesn't know yet)."})
+                          "about": f"Combat music for the game's {v} (a faction that Audiodiver can't identify yet)."})
         return [f for f in known if f["value"] in values]
 
     def _combat_role(self, cid, factions):

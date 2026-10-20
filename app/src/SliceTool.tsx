@@ -195,7 +195,7 @@ export function SliceTool({ onClose }: { onClose: () => void }) {
     setLayout("custom");
   };
   const addCut = (ms: number) => {
-    if (n >= Math.min(targets.length, MAX_PIECES)) { notify("info", `This cue has ${targets.length} slot${targets.length === 1 ? "" : "s"} from here: no room for another piece.`); return; }
+    if (n >= Math.min(targets.length, MAX_PIECES)) { notify("info", `This cue has ${targets.length} slot${targets.length === 1 ? "" : "s"} from here, so there is no room for another piece.`); return; }
     const i = bounds.findIndex((b) => b > ms);
     if (i <= 0 || ms - bounds[i - 1] < MIN_PIECE || bounds[i] - ms < MIN_PIECE) return;
     setBounds((b) => [...b.slice(0, i), Math.round(ms), ...b.slice(i)]);
@@ -267,7 +267,7 @@ export function SliceTool({ onClose }: { onClose: () => void }) {
       <div className="modal slice" role="dialog" aria-modal="true" aria-label="Slice a song into this cue" ref={box} tabIndex={-1}>
         <div className="pop-head">
           <h2>Slice a song into {cue.name}</h2>
-          <Help tip="Drag a cut to move it (it snaps to the original's length; Shift: no snap). Double-click the song to add a cut; Delete removes the selected one, ←/→ nudge it (Shift: 100 ms, Alt: 1 ms). Ctrl+wheel zooms, the wheel scrolls, Space plays." page="timing-and-loops" />
+          <Help tip="Drag a cut to move it. It snaps to the original's length unless you hold Shift. Double-click the song to add a cut. Delete removes the selected cut, and ←/→ nudge it (Shift moves 100 ms, Alt moves 1 ms). Ctrl+wheel zooms, the wheel scrolls, and Space plays." page="timing-and-loops" />
           <span className="spacer" />
           <button className="x" onClick={onClose} aria-label="Close">✕</button>
         </div>
@@ -341,7 +341,7 @@ export function SliceTool({ onClose }: { onClose: () => void }) {
               })}
             </div>
             <div className="modal-foot">
-              <span className="muted small">{tooShort ? `This song is shorter than ${MIN_PIECE} ms: too short to cut.`
+              <span className="muted small">{tooShort ? `This song is shorter than ${MIN_PIECE} ms, which is too short to cut.`
                 : <>Pieces are saved in the project's <code>slices</code> folder.</>}</span>
               <span className="spacer" />
               <button className="btn quiet" onClick={onClose}>Cancel</button>

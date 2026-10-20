@@ -26,6 +26,30 @@ def session():
 
 
 @pytest.mark.game
+def test_a_voice_line_opens_its_subtitle_and_those_with_the_same_words(session):
+    s = session
+    one = next(r for r in s.text_search("us", "reloading", limit=5000)["results"] if strings.plain(r["text"]) == "Reloading.")
+    alike = s.text_alike(one["id"])
+    assert alike[0] == one["id"] and len(alike) > 10 and len(set(alike)) == len(alike)
+    assert all(strings.plain(r["text"]).lower().strip(".!") == "reloading" for r in s.text_search("us", ids=alike)["results"])
+    got = s.text_search("us", "anything at all", ids=alike[:3][::-1])  # the ids, in their order, whatever the query
+    assert [r["id"] for r in got["results"]] == alike[:3][::-1] and got["total"] == 3
+    with pytest.raises(Exception):
+        s.text_alike(12345)
+    # and back: the recordings that say a subtitle, in the voices of the language asked for (English where it has none)
+    said = s.text_voices(alike, "us")
+    assert said and all(v["cue"].startswith("bank:") and v["subtitle"] in map(str, alike) for v in said)
+    assert {v["name"].split(" · ")[0] for v in said} >= {"Helldiver Voice 1", "Helldiver Voice 2"}
+    assert all(v["name"].endswith("English") for v in said)
+    assert any(v["source"] == p["source"] for v in said for p in s.find(v["source"]) if p["cue"] == v["cue"])
+    assert [v["name"] for v in s.text_voices(alike, "gb")] == [v["name"] for v in said]  # no UK voices: the US ones
+    if "Italian" in s.lib.voice_languages:
+        it = s.text_voices(alike, "it")
+        assert it and all(v["name"].endswith("Italian") for v in it)
+    assert s.text_voices([12345], "us") == []
+
+
+@pytest.mark.game
 def test_lines_are_found_changed_undone_and_built_whole(session, tmp_path):
     s = session
     assert s.text_languages()[0] == {"code": "us", "name": "English (US)"}

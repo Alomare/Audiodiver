@@ -58,6 +58,15 @@ export async function pickPatch(): Promise<string | null> {
   return (r as string) ?? null;
 }
 
+/** A mod to repatch: its ZIP or its patch file (a folder: pickFolder). */
+export async function pickMod(): Promise<string | null> {
+  if (!isTauri()) return promptPaths("The mod's ZIP or .patch_0 file", false)?.[0] ?? null;
+  const { open } = await import("@tauri-apps/plugin-dialog");
+  const r = await open({ multiple: false, title: "Choose a mod to repatch",
+    filters: [{ name: "Mods (.zip, .patch_0)", extensions: ["zip", "patch_0", "patch_1", "patch_2", "patch_3", "patch_4"] }, { name: "All files", extensions: ["*"] }] });
+  return (r as string) ?? null;
+}
+
 export const IMAGES = ["png", "jpg", "jpeg", "webp", "bmp", "gif", "tif", "tiff"];
 export const isImage = (path: string) => IMAGES.includes(path.split(".").pop()?.toLowerCase() ?? "");
 
@@ -87,7 +96,7 @@ export async function copyText(text: string, quick: (text: string, icon?: "copy"
     await navigator.clipboard.writeText(text);
     quick(`Copied ${what || `**${text}**`}`, "copy");
   } catch {
-    quick("Couldn't copy: the clipboard refused", "info");
+    quick("Couldn't copy to the clipboard", "info");
   }
 }
 

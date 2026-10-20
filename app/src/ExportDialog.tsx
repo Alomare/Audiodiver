@@ -18,9 +18,9 @@ type Whose = "game" | "mine" | "both";
 const FOLDER_KEY = "audiodiver.exportFolder";
 const PREFS_KEY = "audiodiver.exportPrefs";
 const WHAT: { id: What; title: string; text: string }[] = [
-  { id: "slots", title: "Each slot", text: "Every slot's audio on its own, untouched" },
+  { id: "slots", title: "Each slot", text: "Each slot's audio as a separate, unchanged file" },
   { id: "segments", title: "Each segment", text: "Every segment mixed as the game plays it, layers together" },
-  { id: "cue", title: "The whole cue", text: "One track: the segments in play order, handing over at their Exit points" },
+  { id: "cue", title: "The whole cue", text: "One track with the segments in play order, handing over at their Exit points" },
 ];
 const FORMATS = [
   { id: "wav", name: "WAV (24-bit)" }, { id: "flac", name: "FLAC (lossless, smaller)" },
@@ -28,7 +28,7 @@ const FORMATS = [
 ];
 /** Which audio an export takes: the original, the replacement (where there is one), or both. */
 const SIDES = [["game", "Original"], ["mine", "Replaced"], ["both", "Both"]] as const;
-const REFERENCE_ONLY = "Exports of the original are for reference and mod work, not for upload.";
+const REFERENCE_ONLY = "Exports of the original are for reference and mod work. Don't upload them.";
 
 function prefs(): { what?: What; fmt?: string; tails?: boolean } {
   try { return JSON.parse(localStorage.getItem(PREFS_KEY) ?? "{}"); } catch { return {}; }
@@ -108,7 +108,7 @@ export function ExportListDialog({ onClose }: { onClose: () => void }) {
             ))}
           </ul>
         ) : (
-          <p className="set-note">Empty. Right-click slots, groups, Index entries or archives and choose <b>Add to the export list</b>.</p>
+          <p className="set-note">The list is empty. Right-click slots, groups, Index entries or archives and choose <b>Add to the export list</b>.</p>
         )}
         <div className="export-grid">
           <div className="field">
@@ -129,7 +129,7 @@ export function ExportListDialog({ onClose }: { onClose: () => void }) {
           </label>
         </div>
         <label className="check"><input type="checkbox" checked={apart} onChange={(e) => setApart(e.target.checked)} />
-          <span>A folder for each <Help tip="Off: every file in one folder, named after where it is." /></span></label>
+          <span>A folder for each <Help tip="When this is off, all files go into one folder and are named after where they come from." /></span></label>
         <div className="field">
           <span className="field-label">Save to</span>
           <div className="folder-row">
@@ -235,7 +235,7 @@ export function ExportForm({ onDone, onCancel }: { onDone?: () => void; onCancel
             <div className="segmented" role="radiogroup" aria-label="Audio">
               {SIDES.map(([id, name]) => (
                 <button key={id} role="radio" aria-checked={side === id} className={side === id ? "on" : ""} disabled={id !== "game" && !canMine}
-                  onClick={() => setWhose(id)} data-tip={id === "mine" && kind !== "slots" ? "As the mod plays it: Make-Up Gain, timing and cue points" : undefined}>{name}</button>
+                  onClick={() => setWhose(id)} data-tip={id === "mine" && kind !== "slots" ? "As the mod plays it, with Make-Up Gain, timing and cue points" : undefined}>{name}</button>
               ))}
             </div>
             {(readOnly || !project || !canMine) && <small>{readOnly ? "The replaced audio exports from the Audio Editor." : !project ? "Open a project to export the replaced audio."
@@ -265,7 +265,7 @@ export function ExportForm({ onDone, onCancel }: { onDone?: () => void; onCancel
             )}
             {kind === "segments" && (
               <label className="check"><input type="checkbox" checked={tails} onChange={(e) => setTails(e.target.checked)} />
-                <span>Lead-in and ring-out <Help tip="The audio before Entry and after Exit. Off: pieces that sit end to end without overlap." /></span></label>
+                <span>Lead-in and ring-out <Help tip="The audio before Entry and after Exit. When this is off, the pieces sit end to end without overlap." /></span></label>
             )}
             {kind === "cue" && options?.playlist && (
               <label className="inline">Play the repeating part

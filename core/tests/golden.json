@@ -1,11 +1,11 @@
 {
   "game": "7770b30e8ae75625",
-  "note": "patch SHA-256 per project, verified in game 2026-10-05 (Dune: v4 = +8 dB loadout)",
+  "note": "patch SHA-256 per project, verified in game 2026-10-05 (Dune: v4 = +8 dB loadout); 2026-10-19: wos and dune re-recorded with music_init carrying the silent-biome fix (biome.py), not yet heard in game",
   "projects": {
     "wos": {
       "project": "hd2-wos-descent/wos-descent.audi",
       "files": {
-        "9ba626afa44a3aa3.patch_0": "c1fa1315c9656994e16a85b3019ee71f7d9e8378cc120eb4d979dcce1020f18e",
+        "9ba626afa44a3aa3.patch_0": "5fe129e922bfc969537d4f1397df5f5c08a48cf18bb707b95a3eefdc4c9589a9",
         "9ba626afa44a3aa3.patch_0.stream": "ec7f81aa7ce0953197c473af119f118323c5d9301218caf9b2b77f82462af4ac"
       }
     },
@@ -18,7 +18,7 @@
     "dune": {
       "project": "hd2-dune-ost-overhaul/dune.audi",
       "files": {
-        "9ba626afa44a3aa3.patch_0": "4998281aab3b42a8d96e1c5b759fda34e3f30f5ae0f8cc7271a793eddd540d31",
+        "9ba626afa44a3aa3.patch_0": "a64f8f65132dbcf156f7ae77f7400b3cdd59e32355f55b8ad2ef2739f61cfb26",
         "9ba626afa44a3aa3.patch_0.stream": "0f3498759a070cefdb6ba5741a1694f0c76fc45dfc9a2ac32e5a8efb8f245857"
       }
     }

@@ -41,9 +41,9 @@ export const DENSITIES: [Density, string, number][] = [["compact", "Compact", 0.
     built into the app (main.tsx loads them), so nothing comes from the web. Each has the four weights the app uses:
     300, 400, 500 and 700. */
 export const FONTS: { id: FontId; name: string; stack: string; about: string }[] = [
-  { id: "archivo", name: "Archivo", stack: '"Archivo Variable", "Segoe UI", system-ui, sans-serif', about: "A sturdy sans serif. The default." },
+  { id: "archivo", name: "Archivo", stack: '"Archivo Variable", "Segoe UI", system-ui, sans-serif', about: "A sturdy sans-serif typeface, and the default." },
   { id: "noto-serif", name: "Noto Serif", stack: '"Noto Serif Variable", Georgia, "Times New Roman", serif', about: "A serif, for a bookish look." },
-  { id: "roboto-mono", name: "Roboto Mono", stack: '"Roboto Mono Variable", Consolas, "Cascadia Mono", monospace', about: "Monospaced: every character equally wide." },
+  { id: "roboto-mono", name: "Roboto Mono", stack: '"Roboto Mono Variable", Consolas, "Cascadia Mono", monospace', about: "A monospaced typeface, with every character the same width." },
 ];
 export const fontStack = (id: FontId) => (FONTS.find((f) => f.id === id) ?? FONTS[0]).stack;
 export const DEFAULT_THEME: Theme = { mode: "dark", hue: YELLOW_HUE, hue2: BLUE_HUE, size: DEFAULT_SIZE, bodyFont: "archivo", titleFont: "archivo",

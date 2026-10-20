@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AboutButton, AboutDialog } from "./About";
 import { BuildTab } from "./BuildTab";
+import { repatchInbox } from "./RepatchPage";
 import { CueView } from "./CueView";
 import { ExportListDialog } from "./ExportDialog";
 import { useExportList } from "./exportList";
@@ -70,8 +71,8 @@ function Startup({ error, stage }: { error: string | null; stage?: string }) {
   );
 }
 
-// libSplit: the Library's list, as a share of the window (it has no details panel), half by default
-const WIDTHS = { left: 320, right: 340, libSplit: 0.5 };
+// libSplit: the Library's list, as a share of the window (it has no details panel), a third by default
+const WIDTHS = { left: 320, right: 340, libSplit: 1 / 3 };
 type Widths = typeof WIDTHS;
 
 /** The tab that browses audio, if that is the one showing: the Library or the Editor. */
@@ -88,7 +89,10 @@ function Shell() {
   const [textSeen, setTextSeen] = useState(false);
   useEffect(() => { if (tab === "text") setTextSeen(true); }, [tab]);
   const [widths, setWidths] = useState<Widths>(() => {
-    try { return { ...WIDTHS, ...JSON.parse(localStorage.getItem("audiodiver.widths") ?? "{}") }; } catch { return WIDTHS; }
+    try {
+      const kept = { ...WIDTHS, ...JSON.parse(localStorage.getItem("audiodiver.widths") ?? "{}") };
+      return kept.libSplit === 0.5 ? { ...kept, libSplit: WIDTHS.libSplit } : kept;  // the old default, never dragged
+    } catch { return WIDTHS; }
   });
   useEffect(() => { try { localStorage.setItem("audiodiver.widths", JSON.stringify(widths)); } catch { /* storage off */ } }, [widths]);
   useEffect(() => {
@@ -107,7 +111,7 @@ function Shell() {
       if (!live || !action || !updates.claimStartup()) return; // asked once per launch, also when the game is read again
       if (action === "prompt") return setPrompt(true);
       const label = versionLabel(updates.get().latest!.version);
-      const r = await updates.install(false, () => notify("info", `Updating to ${label}. Audiodiver restarts by itself.`));
+      const r = await updates.install(false, () => notify("info", `Updating to ${label}. Audiodiver restarts when the update is installed.`));
       if (r === "page") setPrompt(true); // this version can't install it: ask instead
       else if (r === "failed") notify("bad", `${label} didn't install: ${updates.get().installError}`, { label: "Updates", run: () => nav.go("updates") }, true);
     });
@@ -116,6 +120,12 @@ function Shell() {
 
   // what a drop does depends on what was dropped and where it lands
   handler.current = async (raw, target) => {
+    // a mod to repatch: anything on the Repatch page, or a ZIP anywhere (nothing else takes one)
+    const zip = raw.find((p) => /\.zip$/i.test(p));
+    if (target?.kind === "repatch" || zip) {
+      nav.go("build", "repatch");
+      return repatchInbox.offer(target?.kind === "repatch" ? raw[0] : zip!);
+    }
     const paths = await expandDropped(raw);
     const patch = paths.find((p) => /\.patch_\d+$/i.test(p));
     const proj = paths.find((p) => /\.audi$/i.test(p));
@@ -124,7 +134,7 @@ function Shell() {
     if (proj) return actions.openProject(proj);
     if (patch) return actions.importPatch(patch);
     if (target?.kind === "icon") return images.length ? actions.setIcon(images[0]) : quick("Drop an image here to make it the icon", "info");
-    if (!audio.length) return quick(images.length ? "Images go on the icon, on the Build tab" : "No audio files in the drop", "info");
+    if (!audio.length) return quick(images.length ? "Drop images on the icon on the Build tab" : "No audio files in the drop", "info");
     // only the Editor has places to drop audio onto: a slot, a group of takes, a cue, a piece of music
     if (target?.kind === "slot") { scopes.editor.setSelected([target.source]); return actions.assign(target.source, audio); }
     if (target?.kind === "sources") return actions.fillSources(target.sources, audio, target.what);
@@ -136,7 +146,7 @@ function Shell() {
     const t = nav.get().tab;
     quick(t === "editor" ? (project ? "Drop audio on a slot, a group of takes, a piece in the list or a title" : "Open a project first")
       : t === "library" ? "Add it to the project, then drop audio on its slots in the Audio Editor"
-      : "Audio goes on a slot in the Audio Editor", "info");
+      : "Drop audio on a slot in the Audio Editor", "info");
   };
 
   useEffect(() => {
@@ -287,7 +297,7 @@ const TABS: { id: Tab; name: string; about: string; cmd: CommandId; Icon: () => 
   { id: "home", name: "Home", about: "projects", cmd: "tabHome", Icon: HomeIcon },
   { id: "library", name: "Library", about: "all the game's audio", cmd: "tabLibrary", Icon: LibraryIcon },
   { id: "editor", name: "Audio Editor", about: "replace what the project lists", cmd: "tabEditor", Icon: AudioIcon },
-  { id: "text", name: "Text Editor", about: "subtitles and every other line", cmd: "tabText", Icon: TextIcon },
+  { id: "text", name: "Text Editor", about: "subtitles and the rest of the game's text", cmd: "tabText", Icon: TextIcon },
   { id: "build", name: "Build", about: "name, icon and the mod's ZIP", cmd: "tabBuild", Icon: BuildIcon },
 ];
 
@@ -379,7 +389,7 @@ function ExportListButton() {
 function NowPlaying() {
   const p = usePlayer();
   const { goTo, quick } = useEditor();
-  const show = async () => { if (p.at && !(await goTo(p.at))) quick("That isn't there any more", "info"); };
+  const show = async () => { if (p.at && !(await goTo(p.at))) quick("That item no longer exists", "info"); };
   // a preview that fails (a file gone, audio the core can't read) says so: the button alone just went back to ▶
   useEffect(() => { if (p.error) quick(`Can't play ${p.label || "this audio"}`, "info"); }, [p.error, p.label, quick]);
   return (

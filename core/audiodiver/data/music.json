@@ -33,10 +33,10 @@
      "about": "Combat music on Illuminate missions."},
     {"value": "music_enemy_illuminates_rift", "id": "illuminate-rifts", "name": "Illuminate Void", "short": "Illuminate Void",
      "about": "Combat music on Illuminate Void missions (the game's music_enemy_illuminates_rift). Much of it is shared with the main Illuminate music.",
-     "roles": {"death": "The game plays the regular Illuminate death music here. The Void's own death music is in the game files, but nothing plays it."}}
+     "roles": {"death": "The game plays the regular Illuminate death music here. The Void's death music is in the game files, but nothing plays it."}}
   ],
   "roles": {
-    "arrival": {"name": "Arrival", "about": "Calm music that sets the scene after landing (the game's scene setter), also called the battleground intro. Each biome has its own part."},
+    "arrival": {"name": "Arrival", "about": "Calm music that sets the scene after landing (the game's scene setter), also called the battleground intro. Each biome has a separate part."},
     "exploring": {"name": "Exploring", "about": "Plays while no enemies are engaging. The game picks a part by the current intensity: stealth (fighting undetected, or enemies searching), calm (approaching an outpost) and calm transition."},
     "battle": {"name": "Battle", "about": "Plays during a fight, also called common battle."},
     "intense": {"name": "Intense Battle", "about": "Plays at the highest combat intensity."},
@@ -65,7 +65,7 @@
   },
   "items": [
     {"id": "ship/bridge", "section": "ship", "name": "Bridge and War Map",
-     "about": "The ship's music by the galactic war map: three layers that play together (music, war-map music and a white-noise bed). The second part opens with a short piece for travelling to an operation (also called 'Travel to New Operation'). The two parts share most of their audio.",
+     "about": "The ship's music at the galactic war map, made of three layers that play together (music, war-map music and a white-noise bed). The second part opens with a short piece for travelling to an operation (also called 'Travel to New Operation'). The two parts share most of their audio.",
      "parts": [{"match": {"MUSIC": "music_bridge_play", "music_bridge_hellpod": "bridge_default"}, "name": "On the Bridge"},
                {"match": {"MUSIC": "2094455428"}, "name": "After Travelling to an Operation"}]},
     {"id": "ship/ftl", "section": "ship", "name": "FTL Jump",
@@ -112,7 +112,7 @@
      "about": "Plays when a secondary objective or outpost is done, at low intensity only. During a fight the combat music keeps going.",
      "parts": [{"cue": 821040270}]},
     {"id": "objectives/flag", "section": "objectives", "name": "Flag Raising",
-     "about": "The Super Earth anthem while the flag rises. The game has it twice: as a plain sound (labelled per faction) and as interactive music for the game's flag-raise state.",
+     "about": "The Super Earth anthem while the flag rises. The game has it twice, as a plain sound (labelled per faction) and as interactive music for the game's flag-raise state.",
      "parts": [{"sound": 190505498, "name": "As a Sound"},
                {"match": {"MUSIC": "music_flag_raise", "music_extraction": "out_extraction", "music_credits_switch": "music_credits_off"}, "name": "As Music"}]},
 
@@ -120,7 +120,7 @@
      "about": "Leads from whatever is playing into the extraction music (also called 'Extraction Cue').",
      "parts": [{"cue": 216565318}]},
     {"id": "extraction/main", "section": "extraction", "name": "Extraction",
-     "about": "Plays from calling the pelican until it lands. An intro, then two six-segment blocks; each stem switches between calm and intense audio.",
+     "about": "Plays from calling the pelican until it lands. It has an intro, then two blocks of six segments. Each stem switches between calm and intense audio.",
      "parts": [{"match": {"music_extraction": "in_extraction"}}]},
     {"id": "extraction/landed", "section": "extraction", "name": "Pelican Landed",
      "about": "Plays once the pelican has landed and waits.",

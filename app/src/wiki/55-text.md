@@ -1,45 +1,44 @@
 ---
 title: The game's text and subtitles
 group: Making a mod
-summary: Changing subtitles and any other line of the game's text on the Text Editor: words, colours, sizes, and what to keep.
+summary: Changing subtitles and any other line of the game's text in the Text Editor, including words, colours and sizes, and what to keep intact.
 ---
 
-The [Text Editor](app:text) has every line of the game's text, in each of its languages: the subtitles of every voice line, mission and menu text, names. Find a line, change it, and the mod carries the change.
+The [Text Editor](app:text) has every line of the game's text in each of its languages. This includes the subtitles of every voice line, mission and menu text, and names. Find a line and change it, and the mod includes the change.
 
 ## Finding a line
 
-Pick the **language** first: each language is a table of its own, so a change to *English (US)* doesn't change *English (UK)* or *French*. Then search for a word of the line, or paste its id. **Changed** lists the lines the project changes.
+Pick the **language** first. Each language is a separate table, so a change to *English (US)* doesn't change *English (UK)* or *French*. Then search for a word from the line, or paste its id. **Changed** lists the lines that the project changes.
 
-A row says whether the line is a **Subtitle** or other **Text**. The right panel shows the **Original**, the **New text** under it, and a **Preview** of how the game shows it.
+Each row shows whether the line is a **Subtitle** or other **Text**. The right panel shows the **Original**, the **New text** box under it, and a **Preview** of how the game displays the line.
 
-## Changing it
+## Changing a line
 
-Type in **New text**; it saves a moment after typing stops (or at once with {key:save}), and each save is one step of {key:undo}. **Restore the original** gives the line back.
+Type in **New text**. The change is saved shortly after you stop typing, or immediately with {key:save}, and each save is one step for {key:undo}. **Restore the original** puts the game's line back.
 
-Select words and use the bar above the box:
+To format part of a line, select the words and use the bar above the box. It has **Colour**, **Size** and **Emphasis**, and **Timing** for subtitles. If nothing is selected, a button formats the whole line. **Clear formatting** removes every colour, size and style.
 
-- **Colour**: pick one (or type its hex code) and press *Colour*. The game writes colours as `<c=FFRRGGBB>words</c>`, the opacity first: `FFFFE900` is the game's own yellow.
-- **Size**: `<s=30>words</s>`. Chat uses sizes; no line of the game does.
-- **Emphasis**: the game's own emphasis style, `<i=1>words</i>`.
-- **Clear formatting** removes every colour, size and style.
-
-With nothing selected, a button formats the whole line.
+[Formatting text](wiki:formatting-text) describes each format, with examples you can copy.
 
 ## What to keep
 
-- **Subtitle timing.** A subtitle starts with its timing, like `{0.00->3.85}`: from when to when, in seconds into the voice line, its words show. A long line has several. Keep them, and when the voice line's new audio has another length, change the times to match. **Timing** adds one at the cursor.
-- **Words the game fills in.** Words in capitals after `#`, like `#COUNT` or `#NAME`, are filled in when the game shows the line. The editor warns when one goes missing.
-- **Colours the game fills in**, like `<c=#PLAYER_COLOR>`: leave them as they are.
-- *[Square brackets]* in subtitles mark sounds that aren't words, like *[Grunts]*.
+- **Subtitle timing.** A subtitle starts with timing marks like `{0.00->3.85}`, which set when its words appear and disappear, in seconds from the start of the voice line. A long line has several marks. Keep them, and if the voice line's new audio has a different length, change the times to match it. **Timing** adds a mark at the cursor.
+- **Words the game fills in.** Capitalised words after `#`, like `#COUNT` or `#NAME`, are replaced by the game when it shows the line. The editor warns you if one goes missing.
+- **Colours the game fills in**, like `<c=#PLAYER_COLOR>`. Leave these unchanged.
+- **Square brackets** in subtitles, like *[Grunts]*, mark sounds that aren't words.
 
-## How it is built
+## How text is built
 
-A mod carries whole text tables, not single lines. A build takes the table from the installed game and puts the project's lines in it, so:
+A mod contains whole text tables. A build takes each table from the installed game and puts the project's lines into it. This has two consequences:
 
 > [!WARNING]
-> **One text mod per table and language.** Two mods that change lines of the same table don't add up: the one HD2 Arsenal deploys later replaces the other's table whole.
+> **Use only one text mod per table and language.** If two mods change lines in the same table, their changes don't combine. The mod that HD2 Arsenal deploys later replaces the other mod's copy of the table.
 
 > [!NOTE]
-> **After a game update, build again.** A built mod is a copy of the table as it was, so lines the game adds or rewrites later would be hidden behind it. Building again takes the new table and puts the project's lines back in. If the game rewrote a changed line, the Text Editor says so.
+> **Build again after a game update.** A built mod contains the table as it was at build time. Lines that the game adds or rewrites later would be hidden behind the mod's copy. Building again takes the new table and puts the project's lines back into it. If the game rewrote a line that the project changes, the Text Editor shows a warning.
 
-The game files don't link a voice line to its subtitle: to change both, find the subtitle by its words.
+## Subtitles of voice lines
+
+The game files don't link a voice line to its subtitle. Audiodiver matched them by what each line says and how long it is. Select a voice line and click its **Subtitle** link to open the subtitle here.
+
+Often several subtitles have the same words. For example, the game has 32 subtitles that say *Reloading.* For many of them, the recording's length isn't enough to tell them apart. A line like this is marked **one of several**. The Text Editor lists every subtitle with those words and opens the most likely one. To make sure the new words appear, change all of them.

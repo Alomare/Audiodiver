@@ -329,7 +329,7 @@ export function ProjectPanel() {
       </div>
       {empty ? (
         <div className="lib-empty">
-          <p>The project is empty. Add music or sounds from the Library: they show up here, ready for new audio.</p>
+          <p>The project is empty. Add music or sounds from the Library, and they appear here, ready for new audio.</p>
           <div className="row-btns"><button className="btn primary" onClick={() => nav.go("library")}>Open the Library</button></div>
         </div>
       ) : (
@@ -353,7 +353,7 @@ function OtherSounds() {
     <div className="lib-other">
       <div className="lib-group">
         <button className="lib-group-head" aria-expanded={open} onClick={() => setOpen(!open)}
-          data-tip="Replaced slots that nothing in the project's list holds">
+          data-tip="Replaced slots that no entry in the project's list contains">
           <span className="caret" aria-hidden>▸</span>
           <span className="lib-group-name">Other Replaced Sounds</span>
         </button>

@@ -1,7 +1,7 @@
 {
   "about": "Notes on single clips (their sources are listed in the app's Credits). Each group gives its clips (source ids) a 'label', shown where labels.json has none, and a 'note', shown with the clip: its 'tag' also marks the clip's row, 'warn' shows it as a warning, and 'min_ms' is the shortest replacement that works.",
   "groups": [
-    {"label": "Void Death", "tag": "never plays", "note": "Never plays: Void missions play the regular Illuminate death music, and no playlist in the game data plays this one.",
+    {"label": "Void Death", "tag": "never plays", "note": "Never plays. Void missions play the regular Illuminate death music, and no playlist in the game data plays this one.",
      "ids": ["942313184", "42679671", "1062313217"]},
     {"label": "Calm", "note": "Plays when approaching an outpost.",
      "ids": ["978981136", "986845506", "139651515", "916654467", "327754624", "360425067", "636868270", "818520595", "304089966"]},
@@ -41,11 +41,11 @@
      "ids": ["131865742", "162883623", "901847815", "685507074", "140613842", "356280692", "59152969", "204441243", "766853926", "794081345", "416145977", "77312062", "109258238", "617639192", "63083831", "109370550", "703362946", "1034445573", "285165892", "812455747", "741010411", "634944448", "461700542", "99951389"]},
     {"tag": "quiet drums", "note": "Low drums under another stem, barely audible.",
      "ids": ["7066344", "503349157", "620751449", "60186208", "344441147", "520178865", "377579181", "30959060", "829210890", "43477761", "204655383", "13339250", "17614128", "177921915", "11548406", "239691109", "690090324", "600572807", "121946697", "327262047", "960642417", "978587086", "443241016", "776541198", "1040134259", "787263491", "652265066", "111922134", "115756295", "101058047", "152796320", "336286646", "533971440", "316351500", "501379016", "691994821", "253854239", "389574408", "715312852", "413939505", "292697948", "146257331", "368060267", "219940775", "796868985", "363872600", "573934302", "339954425", "900279792", "419438052", "853108591", "886663823", "769745969", "981146880", "706759095", "301110267", "1532915", "350888383"]},
-    {"note": "Make-Up Gain has no effect here: set the loudness in the file. Keep Fit timing on: the track has to take the new clip's length.", "warn": true,
+    {"note": "Make-Up Gain has no effect here, so set the loudness in the file. Keep Fit timing on, because the track has to take the new clip's length.", "warn": true,
      "ids": ["885012710", "30237293", "623009754", "312124169", "707004033", "198898715"]},
     {"label": "Supercruise", "note": "Plays 6 dB louder than the ship music after it, and replacements are unreliable. To skip it, use silence with Move straight on.", "warn": true,
      "ids": ["369257816"]},
-    {"note": "The hellpod launches 7.867 s into this clip: time the new audio to it.",
+    {"note": "The hellpod launches 7.867 s into this clip. Time the new audio to match.",
      "ids": ["41628611"]},
     {"label": "Long Descent", "note": "Likely plays when the drop outlasts the first descent clip, as on a slow connection.",
      "ids": ["200968094"]},

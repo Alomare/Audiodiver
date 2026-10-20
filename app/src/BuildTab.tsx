@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { fmtWhen, iconUrl, type Icon, type IconFrame, type Job } from "./api";
+import { fmtWhen, iconUrl, nameProblem, type Icon, type IconFrame, type Job } from "./api";
 import { JOB_NAMES } from "./jobs";
-import { nav } from "./nav";
-import { NoProject, Page, useDraft } from "./Page";
+import { nav, useNav, type BuildTab as BuildSub } from "./nav";
+import { NoProjectCard, Page, tabArrows, useDraft } from "./Page";
+import { RepatchPage } from "./RepatchPage";
 import { copyText, fullPath, pickFolder, reveal } from "./platform";
 import { settings, useSettings } from "./settings";
 import { useEditor } from "./store";
@@ -12,24 +13,37 @@ const fileName = (path: string) => path.split(/[\\/]/).pop()!;
 const FRAME_KEYS: (keyof IconFrame)[] = ["border", "border_color", "radius"];
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
-/** What HD2 Arsenal can't have in a mod's name: it uses the name as a folder name. */
-function nameProblem(name: string): string | null {
-  if (!name.trim()) return "A mod needs a name.";
-  const bad = [...new Set([...name].filter((c) => c.charCodeAt(0) > 126 || c.charCodeAt(0) < 32 || '\\/:*?"<>|'.includes(c)))];
-  if (bad.length) return `Arsenal can't use ${bad.join(" ")} in a name (it names a folder after the mod). Letters, digits, spaces and - _ ( ) are fine.`;
-  if (!/[A-Za-z0-9]/.test(name)) return "A name needs a letter or a digit.";
-  return null;
-}
 /** Why a typed version can't be used, or null. */
 function versionProblem(v: string): string | null {
   return /^\s*\d+\s*$/.test(v) && Number(v) >= 1 && Number(v) <= 99999 ? null : "A whole number from 1 to 99999.";
 }
 
-/** The Build tab: what the mod is called and looks like in HD2 Arsenal, building it, and what builds logged. */
+const SUBS: [BuildSub, string, string][] = [
+  ["project", "Project", "The open project's name and icon in HD2 Arsenal, and its build"],
+  ["repatch", "Repatch", "Rebuild an existing audio mod for the current game version"],
+];
+
+/** The Build tab. Project: what the mod is called and looks like in HD2 Arsenal, building it, and what builds
+    logged. Repatch (RepatchPage.tsx): an existing mod rebuilt on the game as it is now, no project needed. */
 export function BuildTab() {
   const { project } = useEditor();
-  if (!project) return <NoProject title="Build" text="Open a project to build it." />;
-  return <BuildPage key={project.path} />;
+  const { build: sub } = useNav();
+  return (
+    <Page title="Build" wide lead={sub === "repatch"
+      ? <>Rebuild an audio mod made for an older version of the game, or by another tool. <Help tip="Repatching" page="repatching" /></>
+      : <>A build is a ZIP for <b>HD2 Arsenal</b>, the mod manager. <Help tip="Building and installing" page="build-and-install" /></>}>
+      <div className="sub-tabs" role="tablist" aria-label="Build" onKeyDown={tabArrows}>
+        {SUBS.map(([id, name, about]) => (
+          <button key={id} role="tab" aria-selected={sub === id} className={sub === id ? "on" : ""} data-tip={about}
+            onClick={() => nav.go("build", id)}>{name}</button>
+        ))}
+      </div>
+      <div className="view-in bld-sub" key={sub}>
+        {sub === "repatch" ? <RepatchPage />
+          : project ? <BuildPage key={project.path} /> : <NoProjectCard text="Open a project to build it, or repatch an existing mod." />}
+      </div>
+    </Page>
+  );
 }
 
 function BuildPage() {
@@ -76,13 +90,12 @@ function BuildPage() {
   const frame = { ...p.icon_frame, ...Object.fromEntries(FRAME_KEYS.filter((k) => k in icon).map((k) => [k, icon[k]])) } as IconFrame;
 
   return (
-    <Page title="Build" wide lead={<>A build is a ZIP for <b>HD2 Arsenal</b>, the mod manager. <Help tip="Building and installing" page="build-and-install" /></>}>
       <div className="bld">
         <div className="bld-main">
           <section className="set-sec">
             <h2>Name and description</h2>
             <label className="field">
-              <span className="field-label">Name <Help tip="Arsenal keeps the name from the first import: settle on it before sharing, and leave the version out." /></span>
+              <span className="field-label">Name <Help tip="Arsenal keeps the name from the first import, so choose it before sharing. Leave the version out of the name." /></span>
               <input value={name} maxLength={80} spellCheck={false} aria-invalid={!!problem} onChange={(e) => setName(e.target.value)} onBlur={saveName}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") e.currentTarget.blur();
@@ -91,7 +104,7 @@ function BuildPage() {
               {problem && <small className="bad">{problem}</small>}
             </label>
             <label className="field">
-              <span className="field-label">Description <Help tip="Optional. Arsenal shows it with the mod, as written." /></span>
+              <span className="field-label">Description <Help tip="Optional. Arsenal shows this text with the mod." /></span>
               <textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)}
                 onBlur={() => { if (description.trim() !== p.description) save({ description }); }} />
             </label>
@@ -114,12 +127,12 @@ function BuildPage() {
           <IconEditor icon={icon} frame={frame} setIcon={setIcon} saveIcon={saveIcon} />
 
           <section className="set-sec">
-            <h2>Mod id <Help tip="Arsenal recognises the mod by this id: while it stays the same, a new build updates the installed mod." /></h2>
+            <h2>Mod id <Help tip="Arsenal recognises the mod by this id. As long as the id stays the same, a new build updates the installed mod." /></h2>
             <div className="pkg-id">
               <code>{p.guid}</code>
               <button className="btn quiet" onClick={() => copyText(p.guid, quick, "the mod id")}>Copy</button>
               <button className="btn quiet" onClick={() => actions.newModId()}
-                data-tip="For a copied project that becomes another mod" data-tip-more="Arsenal then installs it next to the old one">Make a new id</button>
+                data-tip="Use this when a copied project becomes a different mod" data-tip-more="Arsenal then installs it as a separate mod">Make a new id</button>
             </div>
           </section>
 
@@ -133,7 +146,6 @@ function BuildPage() {
           <BuildBox />
         </aside>
       </div>
-    </Page>
   );
 }
 
@@ -159,7 +171,7 @@ function IconEditor({ icon, frame, setIcon, saveIcon }: IconProps) {
 
   return (
     <section className="set-sec">
-      <h2>Icon <Help tip="Cropped to a square around its middle and resized to 540 × 540, the size Arsenal shows. An image can be dropped on the preview." /></h2>
+      <h2>Icon <Help tip="The image is cropped to a square around its centre and resized to 540 × 540, the size Arsenal uses. You can also drop an image on the preview." /></h2>
       <div className="ico-body view-in" key={image ? "image" : "default"}>
         <p className="path" data-tip={image} data-tip-clip>{image ?? "Default icon"}</p>
         <div className="row-btns">
@@ -255,7 +267,7 @@ function BuildBox() {
   const { project, actions, jobs } = useEditor();
   const p = project!;
   const building = Object.values(jobs).some((j) => j.kind === "build" && j.state === "running");
-  const empty = !Object.keys(p.assignments).length && !p.texts.length;
+  const empty = !Object.keys(p.assignments).length && !p.texts.length && !p.settings;
   const elsewhere = p.build_folder !== p.build_folder_default;
   const chooseFolder = async () => {
     // the picker starts in a folder that is there: the default build folder isn't, before the first build
@@ -286,11 +298,15 @@ function BuildBox() {
       <div className="bld-out">
         <p>Goes to <span className="path" data-tip={p.build_folder} data-tip-clip>{p.build_folder}</span></p>
         <div className="row-btns">
-          <button className="btn" onClick={chooseFolder} disabled={building} data-tip="Another folder for this mod's builds (only the ZIP is written there)">Change…</button>
+          <button className="btn" onClick={chooseFolder} disabled={building} data-tip="Choose another folder for this mod's builds. Only the ZIP is written there.">Change…</button>
           {elsewhere && <button className="btn" onClick={() => actions.settings({ build_folder: null })} disabled={building}
             data-tip={p.build_folder_default}>Back to the default</button>}
         </div>
       </div>
+      {p.settings > 0 && (
+        <p className="set-note">The build also includes an imported mod's settings on {p.settings === 1 ? "a sound or container" : `${p.settings} sounds and containers`}
+          {" "}<Help tip="Volume, delays and similar settings, with the values the imported mod used. A slot's Make-Up Gain is applied on top." page="repatching#what-repatching-carries-over" /></p>
+      )}
       {p.last_build && (
         <p className="build-last">Last build: <b>{fileName(p.last_build.zip)}</b>, {p.last_build.mb} MB, {fmtWhen(p.last_build.modified)}
           <button className="link-inline" onClick={() => reveal(p.last_build!.zip)}>Show in folder</button></p>
@@ -319,8 +335,12 @@ function BuildOptions() {
         <label className="check" data-tip={missing && !p.loudness_analysis ? missing : undefined}>
           <input type="checkbox" checked={p.loudness_analysis} disabled={!!missing && !p.loudness_analysis}
             onChange={(e) => actions.settings({ loudness_analysis: e.target.checked })} />
-          <span>Add Wwise loudness analysis <Help tip="For this project. The game's own audio carries this data; it makes no audible difference. Needs Wwise installed, and builds take longer." />
-            {missing && <small>{p.loudness_analysis ? `${missing}: builds fail until it is off.` : missing}</small>}</span>
+          <span>Add Wwise loudness analysis <Help tip="Applies to this project. The game's audio includes this data, but it makes no audible difference. It needs Wwise installed and makes builds slower." />
+            {missing && <small>{p.loudness_analysis ? `${missing}. Builds fail until you turn this off.` : missing}</small>}</span>
+        </label>
+        <label className="check">
+          <input type="checkbox" checked={p.biome_fix} onChange={(e) => actions.settings({ biome_fix: e.target.checked })} />
+          <span>Fix music that stays silent on some planets <Help tip="Applies to this project, when the build includes the music_init bank. Made for an older game version: where it no longer fits, builds go on without it. See the Wiki's Building and installing page." /></span>
         </label>
       </div>
     </section>

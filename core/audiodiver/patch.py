@@ -2,13 +2,16 @@
 describe it, and (optionally) the timing of the music segments/tracks that play it.
 
 Unlike hd2-audio-modder it never merges same-id objects across banks, so everything not being replaced stays
-byte-identical to the current game.
+byte-identical to the current game. Audio a project adds (new takes, layers, clips of their own: addition.py) goes in
+first, and its new clips are then replaced like the game's: their sizes, gain and silence are set here too.
+One exception, where a project turns it on: music_init starts from a copy with the fix for the game's silent music on
+seven biomes (biome.py).
 """
 import os
 import struct
 from dataclasses import dataclass, field
 
-from . import music
+from . import addition, biome, music
 from . import bank as wbank
 from .bank import SOUND, MUSIC_SEGMENT, MUSIC_TRACK, TYPE_NAMES
 from .game import WWISE_STREAM, WWISE_BANK, WWISE_DEP, toc_entries
@@ -50,44 +53,37 @@ class BankEdit:
     sounds: list = field(default_factory=list)    # Sound ids whose in-memory size changed
     gains: list = field(default_factory=list)     # Sound/MusicTrack ids given a Make-Up Gain
     mutes: list = field(default_factory=list)     # Sound ids taken out of the mix (Volume MUTE_DB)
+    added: list = field(default_factory=list)     # ids of the objects added (addition.py)
+    settings: list = field(default_factory=list)  # ids of the objects given the project's settings
 
 
 def _align(n, a):
     return (n + a - 1) // a * a
 
 
-def _base_params_offset(t, body):
-    """Offset of NodeBaseParams in a Sound or MusicTrack body (after the id)."""
-    if t == SOUND:
-        return 18
-    p = 4 + 18 * struct.unpack_from("<I", body)[0] + 1  # sources, flags
-    items = struct.unpack_from("<I", body, p)[0]
-    p += 4 + 48 * items + (4 if items else 0)  # playlist items, sub-track count
-    clips = struct.unpack_from("<I", body, p)[0]
-    p += 4
-    for _ in range(clips):  # clip automation: index, type, point count, points
-        p += 12 + 12 * struct.unpack_from("<I", body, p + 8)[0]
-    return p
-
-
 def set_prop(t, body: bytearray, prop_id: int, value: float) -> bytearray:
-    """Sets one float property in the node's prop bundle (count u8, ids u8[n], values f32[n]), adding it if absent."""
-    p = _base_params_offset(t, body) + 1  # fx override flag
-    n, p = body[p], p + 1
-    p += 1 + 6 * n if n else 0             # bypass bits + effects
-    p += 1                                  # metadata fx override flag
-    n, p = body[p], p + 1
-    p += 6 * n + 9                          # metadata effects; bus, parent, bits
-    n, ids = body[p], list(body[p + 1:p + 1 + body[p]])
-    values = list(struct.unpack_from(f"<{n}f", body, p + 1 + n))
-    if prop_id in ids:
-        values[ids.index(prop_id)] = value
-    else:
-        i = sum(x < prop_id for x in ids)
-        ids.insert(i, prop_id)
-        values.insert(i, value)
-    bundle = bytes([len(ids), *ids]) + struct.pack(f"<{len(values)}f", *values)
-    return body[:p] + bundle + body[p + 1 + 5 * n:]
+    """Sets one float property in the node's prop bundle, adding it if absent."""
+    return wbank.with_props(t, body, {prop_id: value})
+
+
+def apply_settings(bank: bytes, settings: dict[int, dict]) -> tuple[bytes, list[int]]:
+    """The bank with the settings ({object id: {prop id: value or None}}, Project.settings) on the objects it has;
+    and their ids. The bank comes back as it was when it has none of them."""
+    chunks = wbank.chunks(bank)
+    hirc = next((c for c in chunks if c[0] == b"HIRC"), None)
+    if hirc is None:
+        return bank, []
+    entries, done = [], []
+    for t, id, body in music.iter_hirc(hirc[1]):
+        if id in settings and t in wbank.SETTABLE:
+            body = wbank.with_props(t, body, settings[id])
+            done.append(id)
+        entries.append((t, id, body))
+    if not done:
+        return bank, []
+    hirc[1] = struct.pack("<I", len(entries)) + b"".join(struct.pack("<BII", t, 4 + len(b), id) + bytes(b)
+                                                         for t, id, b in entries)
+    return b"".join(t + struct.pack("<I", len(b)) + b for t, b in chunks), done
 
 
 def patch_bank(bank: bytes, reps: dict[int, Replacement], overrides: dict[int, dict]):
@@ -231,18 +227,29 @@ def write_patch(path, streams: dict[int, bytes], banks: dict[int, bytes], deps: 
         os.remove(path + ".stream")
 
 
-def build_patch(path, reps: list[Replacement], ix: AudioIndex, overrides=None, strings=None):
-    """Patches every bank that holds or plays a replaced source, and adds string tables ({file id: table bytes});
-    returns {bank id: BankEdit}."""
-    overrides = overrides or {}
+def build_patch(path, reps: list[Replacement], ix: AudioIndex, overrides=None, strings=None,
+                plan: addition.Plan | None = None, settings=None, biome_fix=False):
+    """Patches every bank that holds or plays a replaced source, gets new audio (the plan; reps hold the new
+    clips' audio too) or has an object with settings ({object id: {prop id: value or None}}: an imported mod's,
+    applied before the replacements' gain and silence), and adds string tables ({file id: table bytes});
+    returns {bank id: BankEdit}. biome_fix: music_init starts from the fixed one (biome.py)."""
+    overrides, settings = overrides or {}, settings or {}
     by_source = {r.source: r for r in reps}
-    banks = set()
+    banks = set(plan.banks) if plan else set()
     for r in reps:
         banks |= ix.banks_for(r.source)
+    for oid in settings:
+        banks |= set(ix.copies(oid))
     new_banks, deps, edits = {}, {}, {}
     for bid in sorted(banks):
         raw, dep = ix.bank_files(bid)
-        new, edit = patch_bank(raw, by_source, overrides)
+        start = biome.base(ix, bid) if biome_fix else raw  # music_init: with the fix (biome.py), the edits on top
+        grown = addition.apply(start, plan.banks[bid], plan) if plan and bid in plan.banks else start
+        grown, set_ids = apply_settings(grown, settings) if settings else (grown, [])
+        new, edit = patch_bank(grown, by_source, overrides)
+        edit.settings = set_ids
+        if plan and bid in plan.banks:
+            edit.added = sorted(plan.banks[bid].added)
         if new is not raw:
             new_banks[bid], edits[bid] = new, edit
             if dep:
@@ -268,15 +275,21 @@ def read_patch(path):
 
 
 def diff(path, ix: AudioIndex):
-    """What a patch changes against the current game: streams, and per bank the media and HIRC objects."""
+    """What a patch changes against the current game: streams, and per bank the media and HIRC objects (new ones
+    count as changed too, and are also listed as added). "read" keeps both banks as wbank.parse reads them. A
+    music_init that carries the fix for the silent biomes is compared with the fixed one (biome.py)."""
     banks, streams = read_patch(path)
-    out = {"streams": streams, "banks": {}}
+    out = {"streams": streams, "banks": {}, "unknown": []}  # unknown: banks this game version doesn't have
     for bid, (media, hirc) in banks.items():
-        v_media, v_hirc = wbank.parse(ix.bank_files(bid)[0])
+        if bid not in ix.banks:
+            out["unknown"].append(bid)
+            continue
+        v_media, v_hirc = wbank.parse(biome.base_for(ix, bid, hirc))
         out["banks"][bid] = {
             "media": sorted(m for m in media if v_media.get(m) != media[m]),
             "objects": sorted((TYPE_NAMES.get(t, hex(t)), id) for id, (t, b) in hirc.items() if v_hirc.get(id) != (t, b)),
             "added": sorted(set(hirc) - set(v_hirc)), "removed": sorted(set(v_hirc) - set(hirc)),
+            "read": ((media, hirc), (v_media, v_hirc)),
         }
     return out
 
@@ -299,10 +312,33 @@ def verify_strings(path, tables: dict[int, bytes]) -> list[str]:
     return problems
 
 
-def verify(path, reps: list[Replacement], ix: AudioIndex) -> list[str]:
+def verify(path, reps: list[Replacement], ix: AudioIndex, plan: addition.Plan | None = None, settings=None) -> list[str]:
     """Problems with a written patch: it must change only the replaced audio, its size fields, the timing of the
-    segments/tracks that play it, their gain and (silence) their Volume. Empty list = good."""
+    segments/tracks that play it, their gain and (silence) their Volume; add exactly what the plan adds, where it
+    belongs (addition.check); and give the objects with settings those settings (their Make-Up Gain and Volume a
+    replacement's gain or silence may set instead). Empty list = good."""
     d, by_source, problems = diff(path, ix), {r.source: r for r in reps}, []
+    settings = settings or {}
+    for bid, b in d["banks"].items():
+        (_, hirc), _ = b["read"]
+        for oid in [i for _, i in b["objects"] if i in settings]:
+            t, body = hirc[oid]
+            have = wbank.props(t, body)
+            if any(have.get(k) != v for k, v in settings[oid].items() if k not in (MAKEUP_GAIN, VOLUME)):
+                problems.append(f"bank {bid}: object {oid} doesn't have its settings")
+        b["objects"] = [(t, i) for t, i in b["objects"] if i not in settings]
+    planned = plan.banks if plan else {}
+    if d["unknown"]:
+        problems.append(f"banks this game version doesn't have: {d['unknown'][:5]}")
+    for bid, here in planned.items():
+        if bid not in d["banks"]:
+            problems.append(f"bank {bid}: the audio added to it is missing")
+    for bid, b in d["banks"].items():
+        here = planned.get(bid)
+        if here is not None:
+            problems += [f"bank {bid}: {p}" for p in addition.check(*b["read"], here)]
+            b["objects"] = [(t, i) for t, i in b["objects"] if i not in here.added | here.changed]
+            b["added"] = []
     for fid, data in d["streams"].items():
         sid = ix.resolve(fid)
         if sid not in by_source:

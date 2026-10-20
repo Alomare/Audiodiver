@@ -58,7 +58,7 @@ export function PlayThrough({ onThrough, onMark }: { onThrough?: (t: Through | n
     if (rendered.current === mine) return;
     rendered.current = mine;
     if (t?.side !== "mine") return;
-    if (player.state.key === t.key) { player.stop(); quick("Play through stopped: this cue changed", "info"); }
+    if (player.state.key === t.key) { player.stop(); quick("Play through stopped because this cue changed", "info"); }
     setT(null);
   }, [mine, t, quick]);
 

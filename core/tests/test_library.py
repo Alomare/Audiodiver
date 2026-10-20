@@ -179,16 +179,23 @@ def test_voice_lines_say_what_they_say_and_play_from_their_language(session):
 
 
 @pytest.mark.game
-def test_a_voice_nobody_transcribed_names_its_calls_after_a_sibling(session):
+def test_voice_lines_say_their_subtitles_and_clips_without_words_are_named(session):
     it = _items(session)
     views = [session.cue(next(p for p in it[f"set:helldivers/voices/helldiver-voice-{v}"]["parts"]
                               if p["name"] in ("English", ""))["cue"]) for v in (1, 2)]
-    named = [[g["name"] for g in v["segments_detail"] if g["name"].startswith("“")] for v in views]
-    assert len(named[0]) > 100 and named[0] == named[1]  # the same calls, in the same places
-    assert "named after what another Helldiver voice says" in views[0]["notes"]
-    assert "another Helldiver voice" not in views[1]["notes"]
-    # the call is borrowed, the words aren't: the takes keep their numbers
-    assert all(r["label"].startswith("Take ") or not r["label"] for r in _rows(views[0]))
+    for view in views:  # voice 1: the community transcribed none of it, its subtitles say it all the same
+        rows = _rows(view)
+        said = [r for r in rows if r.get("subtitle")]
+        assert len(said) > len(rows) * 0.8 and all(r["label"] and isinstance(r["subtitle_sure"], bool) for r in said)
+        assert any(r["subtitle_sure"] for r in said) and not all(r["subtitle_sure"] for r in said)
+        assert "another Helldiver voice" not in view["notes"]
+        # grunts, panting: grouped by what they are, numbered in the bank (sighs and laughs are panting)
+        names = [g["name"] for g in view["segments_detail"]]
+        assert any(n.startswith("Grunts") for n in names) and "Panting" in names
+        assert not {"Sighs", "Laughs"} & set(names)
+        grunts = [r["label"] for r in rows if r.get("sound") == "Grunt"]
+        assert grunts[:2] == ["Grunt 1", "Grunt 2"] and len(set(grunts)) == len(grunts) > 50
+        assert not any(r.get("subtitle") and r.get("sound") for r in rows)
 
 
 @pytest.mark.game
@@ -236,7 +243,7 @@ def test_items_are_added_to_a_project_and_removed_with_their_audio(session, own,
     if only:
         st = s.library_add(only)
         assert not set(only) & set(st["library"]) and st["notes"] == [
-            f"{s._list_name(only[0])} is in the project already: its sounds are in {_items(s)[gun]['full']}."]
+            f"{s._list_name(only[0])} is already in the project, because its sounds are in {_items(s)[gun]['full']}."]
     # an archive that shares a set's bank is added, with a note: taking one off keeps the audio the other still has
     single = [it for it in _items(s).values() if it["kind"] == "sounds" and len(it["parts"]) == 1 and it["id"] != gun]
     one, archive = next((it, f"archive:{ar}") for it in single

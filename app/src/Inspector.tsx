@@ -7,6 +7,7 @@ import { where } from "./music";
 import { nav } from "./nav";
 import { fullPath, reveal } from "./platform";
 import { useEditor } from "./store";
+import { showLines } from "./TextTab";
 import { Help, WikiLink } from "./Wiki";
 
 /** The Audio Editor's right panel: the selected slot's settings. Each control has one home: the slot's row plays the
@@ -38,19 +39,23 @@ export function Inspector() {
         <h2>{seg.name}{sub ? <span className="sub">{sub}</span> : null}</h2>
         <CopyId id={slot.source} />
       </div>
-      {slot.locked && <p className="warn-box">Do not touch: replacing it makes the music stutter. <Help tip="Tags on a slot" page="reading-the-screen" /></p>}
-      {slot.absent && <p className="info-box">Not in the installed game files: nothing to play or replace.</p>}
-      {slot.unused && <p className="info-box">Never heard: the game never plays this clip.</p>}
+      {slot.locked && <p className="warn-box">Do not touch. Replacing this clip makes the music stutter. <Help tip="Tags on a slot" page="reading-the-screen" /></p>}
+      {slot.absent && <p className="info-box">This clip isn't in the installed game files, so there is nothing to play or replace.</p>}
+      {slot.unused && <p className="info-box">Never heard. The game never plays this clip.</p>}
+      {seg.added === "layer" ? <p className="info-box">A new layer. It plays whenever the sound above it plays.</p>
+        : slot.added && <p className="info-box">A new take. The game picks it like the sound's other takes.</p>}
       <ClipNotes slot={slot} a={a} />
 
       <Settle key={a?.silence ? "silence" : a ? "file" : "none"} still={shown.current !== slot.source}>
         <Replacement slot={slot} a={a} music={isMusic(cue)} what={seg.name} />
+        {a && (slot.was || (!slot.added && slot.object && ((slot.players ?? 1) > 1 || (slot.sound_banks ?? 0) < (slot.banks ?? 0)))) &&
+          <Reach slot={slot} />}
         {a && !a.silence && <Gain source={slot.source} value={a.gain_db} />}
         {a && !a.silence && seg.segment && (
           <section className="insp-sec">
             <label className="check">
               <input type="checkbox" checked={a.fit_timing} onChange={(e) => actions.update(slot.source, { fit_timing: e.target.checked })} />
-              <span>Fit timing to the new audio <Help tip="On: the next segment starts when the new audio ends. Off: the original timing." page="timing-and-loops" /></span>
+              <span>Fit timing to the new audio <Help tip="When this is on, the next segment starts when the new audio ends. When it is off, the original timing applies." page="timing-and-loops" /></span>
             </label>
           </section>
         )}
@@ -60,7 +65,7 @@ export function Inspector() {
 
       {also > 0 && (
         <section className="insp-sec">
-          <h3>Also plays in <Help tip="The game reuses this audio: new audio here is heard there too." page="how-the-game-plays-music" /></h3>
+          <h3>Also plays in <Help tip="The game reuses this audio in other places, and new audio here is heard there too." page="how-the-game-plays-music" /></h3>
           <ul className="also">
             {slot.also_in.map((id) => <li key={id}><AlsoLink id={id} source={slot.source} /></li>)}
           </ul>
@@ -73,6 +78,8 @@ export function Inspector() {
           {seg.segment && <><dt>Segment</dt><dd>{fmtTime(seg.duration_ms)}{seg.exit_ms != null && <> · exit at {fmtTime(seg.exit_ms)}</>}</dd></>}
           {slot.variant && <><dt>Plays when</dt><dd>{slot.variant}</dd></>}
           {cue.language && <><dt>Language</dt><dd>{cue.language}</dd></>}
+          {slot.subtitle && <><dt>Subtitle</dt><dd><SubtitleLink slot={slot}>Open</SubtitleLink>{!slot.subtitle_sure &&
+            <span className="muted" data-tip={SEVERAL}> · one of several</span>}</dd></>}
         </dl>
       </section>
       </div>
@@ -127,7 +134,7 @@ function Replacement({ slot, a, music, what }: { slot: Slot; a?: Assignment; mus
             </button>
           ))}
         </div>
-        {!music && <p className="muted small">It also leaves the game's mix. <Help tip="A silenced sound no longer turns down the sounds around it." page="volume" /></p>}
+        {!music && <p className="muted small">Audiodiver also takes it out of the game's mix. <Help tip="A silenced sound no longer turns down the sounds around it." page="volume" /></p>}
       </section>
     );
   }
@@ -158,6 +165,32 @@ function Replacement({ slot, a, music, what }: { slot: Slot; a?: Assignment; mus
   );
 }
 
+/** Where the new audio plays, for a bank's sound whose clip other sounds play too: in every sound that plays the
+    clip, as any replacement does, or only in this sound (a clip of its own). The count is of banks, this one too. */
+function Reach({ slot }: { slot: Slot }) {
+  const { actions } = useEditor();
+  const own = !!slot.was;
+  const banks = (others: number) => `${others + 1} bank${others ? "s" : ""}`;
+  const choices = [
+    [false, "Every sound that plays it", own ? "Like any replacement, every sound that plays this clip gets the new audio"
+      : `Changes it in ${banks(slot.banks ?? 0)}`],
+    [true, "Only this sound", `Changes it in ${banks(own ? slot.banks ?? 0 : slot.sound_banks ?? 0)}. Other sounds that play the clip keep the original.`],
+  ] as const;
+  return (
+    <section className="insp-sec">
+      <h3>Plays in <Help tip="Several sounds can play the same clip. Choose whether the new audio plays in all of them or only in this one." page="adding-audio" /></h3>
+      <div className="cards one" role="radiogroup" aria-label="Where the new audio plays">
+        {choices.map(([only, title, text]) => (
+          <button key={title} role="radio" aria-checked={own === only} className={`card${own === only ? " on" : ""}`} data-tip={text}
+            onClick={() => { if (own !== only) actions.onlyThisSound(slot.source, slot.object, only); }}>
+            <b>{title}</b>
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 /** What the clip notes say about a clip (core data/notes.json), and a warning when the new audio is shorter than
     the shortest that works there. */
 function ClipNotes({ slot, a }: { slot: Slot; a?: Assignment }) {
@@ -165,7 +198,7 @@ function ClipNotes({ slot, a }: { slot: Slot; a?: Assignment }) {
   return (
     <>
       {(slot.notes ?? []).map((n) => <p key={n.text} className={n.warn ? "warn-box" : "info-box"}>{n.text}</p>)}
-      {short && <p className="warn-box">The new audio is {fmtTime(a?.duration_ms)}: the shortest that works here is {fmtTime(slot.min_ms)}.</p>}
+      {short && <p className="warn-box">The new audio is {fmtTime(a?.duration_ms)} long, and this slot needs at least {fmtTime(slot.min_ms)}.</p>}
     </>
   );
 }
@@ -190,10 +223,11 @@ export function SlotFacts({ row }: { row: Row }) {
         {slot.locked && <span className="warn" data-tip="Replacing it makes the music stutter">do not touch</span>}
         {slot.unused && <span data-tip="Nothing in the game data plays it">never played</span>}
         {slot.absent && <span data-tip="Not in the installed game files">no audio</span>}
+        {slot.subtitle && <SubtitleLink slot={slot}>{slot.subtitle_sure ? "subtitle" : "subtitle: one of several"}</SubtitleLink>}
         {(slot.notes ?? []).map((n) => n.tag && <span key={n.tag} className={n.warn ? "warn" : undefined} data-tip={n.text}>{n.tag}</span>)}
       </div>
       {also > 0 && (
-        <div className="tl-facts-line also-line" data-tip="The game reuses this audio: new audio here is heard there too" data-tip-side="top">
+        <div className="tl-facts-line also-line" data-tip="The game reuses this audio in other places, and new audio here is heard there too" data-tip-side="top">
           <span>Also plays in</span>
           {slot.also_in.map((id) => <AlsoLink key={id} id={id} source={slot.source} />)}
           {also > slot.also_in.length && <span>and {also - slot.also_in.length} more</span>}
@@ -202,6 +236,23 @@ export function SlotFacts({ row }: { row: Row }) {
       {(slot.notes ?? []).map((n) => !n.tag && <div key={n.text} className={`tl-facts-line${n.warn ? " warn" : ""}`}>{n.text}</div>)}
     </div>
   );
+}
+
+const SEVERAL = "Several subtitles have these words, and the game files don't show which one belongs to this recording. The Text Editor lists them all and opens the most likely one";
+
+/** A voice line's subtitle, opened in the Text Editor: the one it says, or, where several subtitles have its words
+    and its length doesn't tell them apart, all of them (core: library.py `subtitle`, editor.py text_alike). */
+function SubtitleLink({ slot, children }: { slot: Slot; children: ReactNode }) {
+  const { cue } = useEditor();
+  const open = async () => {
+    const id = Number(slot.subtitle);
+    const ids = slot.subtitle_sure ? [id] : await call<number[]>("text_alike", { id }).catch(() => [id]);
+    const lang = cue?.lang || undefined; // the voice's language: its subtitle in the same one
+    showLines({ ids, pick: id, lang, note: ids.length > 1
+      ? `${ids.length} subtitles have the ${lang && lang !== "us" ? "English " : ""}words of this voice line. The recording matches one of them, most likely the one that is open.`
+      : "The subtitle of this voice line." });
+  };
+  return <button className="link-text" onClick={open} data-tip={slot.subtitle_sure ? "Open its subtitle in the Text Editor" : SEVERAL}>{children}</button>;
 }
 
 /** Content that settles in when it takes the place of other content (its key changed). `still` is read once, when it
@@ -216,7 +267,7 @@ function CopyId({ id }: { id: string }) {
   const { quick } = useEditor();
   const copy = async () => {
     try { await navigator.clipboard.writeText(id); setDone(true); setTimeout(() => setDone(false), 1200); }
-    catch { quick("Couldn't copy: the clipboard refused", "info"); }
+    catch { quick("Couldn't copy to the clipboard", "info"); }
   };
   return (
     <button className="id" data-tip="Copy the source id" onClick={copy}>
@@ -315,7 +366,7 @@ function Markers({ segment, gameEntry, gameExit, fit, lengthMs }: {
   const auto = (x: number | null | undefined) => (x == null ? "auto" : `${Math.round(x)} (${fit ? "fitted" : "original"})`);
   return (
     <details className="insp-sec" open={open} onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
-      <summary>Cue points <Help tip="Entry: where the segment counts as started. Exit: where the next one starts." page="timing-and-loops" /></summary>
+      <summary>Cue points <Help tip="Entry is where the segment counts as started. Exit is where the next segment starts." page="timing-and-loops" /></summary>
       <div className="markers">
         <label>Entry (ms)<input ref={entryBox} type="number" min={0} value={entry} placeholder={auto(autoEntry)}
           onChange={(e) => setEntry(e.target.value)} onBlur={save} aria-invalid={!!problem || undefined} /></label>

@@ -1,4 +1,4 @@
 /** A background job's kind in words: [what it is, what it is doing]. */
 export const JOB_NAMES: Record<string, [string, string]> = {
-  build: ["Build", "Building"], import: ["Import", "Importing"], export: ["Export", "Exporting"],
+  build: ["Build", "Building"], import: ["Import", "Importing"], export: ["Export", "Exporting"], repatch: ["Repatch", "Repatching"],
 };

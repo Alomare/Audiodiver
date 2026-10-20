@@ -57,7 +57,7 @@ export function Home() {
                   <div className="row-btns">
                     <button className="btn primary" onClick={() => nav.go("editor")}>Continue in the Audio Editor</button>
                     <button className="btn" onClick={() => actions.importPatch()}
-                      data-tip="Take the replaced sounds of an existing mod's .patch_0 file into this project">Import a mod's patch…</button>
+                      data-tip="Take the replaced and added sounds of an existing mod's .patch_0 file into this project">Import a mod's patch…</button>
                     <button className="btn quiet" onClick={actions.closeProject} data-tip="Close the project" data-tip-cmd="closeProject">Close project</button>
                   </div>
                 </div>
@@ -66,6 +66,8 @@ export function Home() {
             <div className="row-btns">
               <button className={`btn big${project ? "" : " primary"}`} onClick={actions.newProject} data-tip="Start a mod" data-tip-cmd="newProject">New project…</button>
               <button className="btn big" onClick={() => actions.openProject()} data-tip="Open a .audi project file" data-tip-cmd="openProject">Open project…</button>
+              <button className="btn big quiet" onClick={() => nav.go("build", "repatch")}
+                data-tip="Rebuild an existing audio mod for the current game version, without a project">Repatch a mod…</button>
             </div>
           </header>
 

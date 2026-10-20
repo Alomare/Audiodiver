@@ -5,6 +5,7 @@ this, so everything here is testable without a browser.
 import logging
 import math
 import os
+import re
 import shutil
 import subprocess
 import threading
@@ -15,7 +16,7 @@ from pathlib import Path
 from . import wem
 from .errors import os_error, plain  # noqa: F401 (server.py takes them from here too)
 from .index import AudioIndex, CACHE_DIR
-from .project import GAIN_DB, Project, ProjectFormatError, Replacement, TextEdit
+from .project import GAIN_DB, Addition, Project, ProjectFormatError, Replacement, TextEdit
 
 log = logging.getLogger("audiodiver")
 LOG_FILE = CACHE_DIR / "logs" / "core.log"
@@ -67,20 +68,20 @@ def out_folder(folder) -> Path:
     if not f.is_absolute():
         raise EditorError(f"{folder} needs its full path")
     if f.is_file():
-        raise EditorError(f"{f.name} is a file: choose a folder")
+        raise EditorError(f"{f.name} is a file. Choose a folder.")
     try:
         f.mkdir(parents=True, exist_ok=True)
     except PermissionError:
-        raise EditorError(f"{f} can't be written to: choose another folder") from None
+        raise EditorError(f"{f} can't be written to. Choose another folder.") from None
     except OSError as e:  # "Q:\ wasn't found", "…\bad?name isn't a valid path"
         raise EditorError(os_error(e, str(f))) from None
     if not f.is_dir():  # a device name (CON, NUL) "makes" nothing
-        raise EditorError(f"{f.name} can't be a folder: choose another name")
+        raise EditorError(f"{f.name} can't be used as a folder name. Choose another name.")
     try:
         with tempfile.TemporaryFile(dir=f):
             pass
     except OSError:
-        raise EditorError(f"{f} can't be written to: choose another folder") from None
+        raise EditorError(f"{f} can't be written to. Choose another folder.") from None
     return f
 
 
@@ -147,6 +148,7 @@ class Session:
         self.lib = None  # library.Library: the Index and All Archives
         self.texts = None  # strings.Texts: the game's text, read when first asked for
         self._cue_sets = {}  # part cue id -> its sounds, for the parts of what projects list
+        self._clips = {}     # object id -> the game's clip it plays (_clip_of)
         self.stage, self.load_error = "starting", None
         self.game_where = {"path": None, "how": None}  # the data folder in use (or tried) and how it was found
         self.project: Project | None = None
@@ -192,7 +194,7 @@ class Session:
         is checked first, so a wrong one changes nothing; then the game data loads again, as at start-up."""
         from .game import data_folder
         if self.stage not in ("ready", "failed"):
-            raise EditorError("The game is still loading; try again when it's done")
+            raise EditorError("The game is still loading. Try again when it's done.")
         if any(j.state == "running" for j in self.jobs.values()):
             raise EditorError("Wait for the build or export to finish first")
         chosen = None
@@ -204,7 +206,7 @@ class Session:
         save_settings(game_data=chosen)
         with self.lock:
             self.ix, self.catalog, self.lib, self.load_error, self.texts = None, None, None, None, None
-            self._cue_sets = {}
+            self._cue_sets, self._clips = {}, {}
             self.__dict__.pop("_music_json", None)
             self.stage = "starting"
             self.game_where = {"path": chosen, "how": "chosen" if chosen else None}
@@ -266,13 +268,15 @@ class Session:
         except KeyError:
             raise EditorError(f"{item_id} is not in this game version") from None
 
-    def cue(self, cue_id):
+    def cue(self, cue_id, mine=False):
         """What opens in the middle: a music cue by its id, a bank's sounds as "bank:<id>", an archive's loose
-        streams as "streams:<archive>", or one sound as "sfx:<source>"."""
+        streams as "streams:<archive>", or one sound as "sfx:<source>". mine: a bank's sounds with the audio the open
+        project adds to them (the Audio Editor's view; the Library shows the game's)."""
         self.require_game()
         try:
             cue_id = str(cue_id)
-            view = self.catalog.cue(int(cue_id)) if cue_id.isdigit() else self.lib.view(cue_id)
+            view = self.catalog.cue(int(cue_id)) if cue_id.isdigit() else \
+                self.lib.view(cue_id, self._overlay() if mine else None)
         except KeyError:
             raise EditorError(f"No cue {cue_id}") from None
         # every slot also says the file id of the stream that holds its audio ("" when it is only inside banks): the
@@ -295,9 +299,13 @@ class Session:
 
     # --- vanilla and project audio for preview
     def vanilla_wav(self, sid: int) -> Path:
-        """The vanilla audio of a source decoded to WAV (cached)."""
+        """The vanilla audio of a source decoded to WAV (cached). A clip of its own's is the clip it stands in for."""
         from .audio import cache_lock
         self.require_game()
+        if sid in self._added():
+            if (was := self._original(sid)) is None:
+                raise EditorError("A new take has no original audio")
+            sid = was
         out = CACHE_DIR / "preview" / f"{sid}.wav"
         with cache_lock(out):
             if not out.exists():
@@ -413,7 +421,7 @@ class Session:
         if self.project and self.project.path == path:
             return self.project_state()  # already open: keep its undo history
         if path.is_dir():
-            raise EditorError(f"{path.name} is a folder: choose a .audi project file")
+            raise EditorError(f"{path.name} is a folder. Choose a .audi project file.")
         if not path.exists():
             raise EditorError(f"{path} wasn't found")
         try:
@@ -448,14 +456,162 @@ class Session:
         return self.project
 
     def _sources(self):
-        """{source id: replacement} for the open project's targets that resolve in this game version."""
-        out = {}
+        """{source id: replacement} for the open project's targets that resolve in this game version (or are clips
+        it adds)."""
+        out, added = {}, self._added()
         for r in self.project.replacements:
             try:
-                out[self.ix.resolve(r.target) if self.ix else r.target] = r
+                out[r.target if r.target in added or not self.ix else self.ix.resolve(r.target)] = r
             except KeyError:
                 pass
         return out
+
+    # --- audio the project adds (addition.py): new takes, layers, clips of their own
+    def _added(self) -> dict:
+        """{new clip: its addition} of the open project."""
+        return self.project.added() if self.project else {}
+
+    def _overlay(self):
+        """The open project's added audio, as the banks' views show it (library.Added)."""
+        from .library import Added
+        p = self.project
+        if not p or not p.additions:
+            return None
+        return Added(takes=tuple((a.container, a.sound, a.source) for a in p.additions if a.kind == "take"),
+                     layers=tuple((a.container, a.beside) for a in p.additions if a.kind == "layer"),
+                     own=tuple((a.sound, a.source) for a in p.additions if a.kind == "own"))
+
+    def _clip_of(self, oid: int) -> int | None:
+        """The game's clip a Sound plays, or the first take of a container plays (kept: it reads a bank)."""
+        from .addition import first_clip
+        if oid not in self._clips:
+            self._clips[oid] = first_clip(self.ix, oid)
+        return self._clips[oid]
+
+    def _original(self, sid: int) -> int | None:
+        """The game's clip an added clip stands in for: a clip of its own's; None for a new take."""
+        a = self._added().get(sid)
+        return self._clip_of(a.sound) if a and a.kind == "own" else None
+
+    def _anchor(self, sid: int) -> int:
+        """The game's clip that says where an added clip is listed: the one it stands in for, or one of the sound's
+        it is a take of (a layer's: of the sound it plays with). Any other clip is its own anchor."""
+        a = self._added().get(sid)
+        if not a or not self.ix:
+            return sid
+        if a.kind == "own":
+            return self._clip_of(a.sound) or sid
+        beside = {x.container: x.beside for x in self.project.additions if x.kind == "layer"}
+        return self._clip_of(beside.get(a.container, a.container)) or sid
+
+    @staticmethod
+    def _tidy(p: Project):
+        """Added audio is its audio: a take or a clip of its own whose new audio is gone goes too, and a layer
+        without takes."""
+        have = {r.target for r in p.replacements}
+        kept = [a for a in p.additions if a.kind == "layer" or a.source in have]
+        used = {a.container for a in kept if a.kind == "take"}
+        p.additions = [a for a in kept if a.kind != "layer" or a.container in used]
+
+    def _new_ids(self, p: Project, n: int) -> list[int]:
+        """n new ids the game and the project don't use."""
+        from .addition import new_id
+        taken, out = set(self.ix.taken) | p.made_ids() | {r.target for r in p.replacements}, []
+        for _ in range(n):
+            out.append(new_id(taken))
+            taken.add(out[-1])
+        return out
+
+    def _audio_files(self, files) -> list[str]:
+        from .audio import natural
+        if not isinstance(files, list) or not files or not all(given(f) for f in files):
+            raise EditorError("Choose the audio files to add")
+        return sorted((str(f) for f in files), key=natural)
+
+    def add_takes(self, container, files):
+        """New takes in a random container (the game's, or a layer's), one per file, in file-name order, as one
+        undo step: the container picks them like its other takes. The answer's `sources` are their slots."""
+        from .addition import take_problem
+        self.require_game()
+        files = self._audio_files(files)
+        cid, made = self._object_id(container), []
+        p = self._need_project()
+        if not any(a.kind == "layer" and a.container == cid for a in p.additions):
+            if why := take_problem(self.ix, cid):
+                raise EditorError(why)
+
+        def apply(p):
+            for f in files:
+                sound, source = self._new_ids(p, 2)
+                p.additions.append(Addition("take", container=cid, sound=sound, source=source))
+                self._set(p, source, f)
+                made.append(str(source))
+        return {**self._edit("add take", apply), "sources": made}
+
+    def add_layer(self, beside, files):
+        """A layer beside one of the game's containers, with a take per file, as one undo step: it plays whenever
+        that container plays. The answer's `sources` are the takes' slots."""
+        from .addition import layer_problem
+        self.require_game()
+        files = self._audio_files(files)
+        cid, made = self._object_id(beside), []
+        self._need_project()
+        if why := layer_problem(self.ix, cid):
+            raise EditorError(why)
+
+        def apply(p):
+            (layer,) = self._new_ids(p, 1)
+            p.additions.append(Addition("layer", container=layer, beside=cid))
+            for f in files:
+                sound, source = self._new_ids(p, 2)
+                p.additions.append(Addition("take", container=layer, sound=sound, source=source))
+                self._set(p, source, f)
+                made.append(str(source))
+        return {**self._edit("add layer", apply), "sources": made}
+
+    def own_clip(self, source, sound):
+        """Gives one Sound a clip of its own: the new audio in its slot plays only where that Sound plays, and the
+        other Sounds that play the clip keep the original. The answer's `source` is the slot it moves to."""
+        from .addition import sound_clip
+        self.require_game()
+        sid, snd, made = self._source(source), self._object_id(sound), []
+        if sound_clip(self.ix, snd) != sid:
+            raise EditorError(f"Sound {snd} doesn't play {sid}")
+        if any(a.kind == "own" and a.sound == snd for a in self._need_project().additions):
+            raise EditorError("That sound already has a separate clip")
+
+        def apply(p):
+            r = self._replacement(p, sid)
+            if not r:
+                raise EditorError("Give the slot its new audio first")
+            (new,) = self._new_ids(p, 1)
+            p.additions.append(Addition("own", sound=snd, source=new))
+            r.target = new
+            made.append(str(new))
+        return {**self._edit("own clip", apply), "source": made[0]}
+
+    def shared_clip(self, source):
+        """Takes a clip of its own back: the new audio goes to every Sound that plays the clip again. The answer's
+        `source` is the slot it moves to."""
+        self.require_game()
+        sid = self._source(source)
+        a = self._added().get(sid)
+        if not a or a.kind != "own":
+            raise EditorError("That slot doesn't have a separate clip")
+        was = self._clip_of(a.sound)
+
+        def apply(p):
+            if self._replacement(p, was):
+                raise EditorError("Another sound that plays this clip already has new audio. Remove that audio first.")
+            self._replacement(p, sid).target = was
+        return {**self._edit("shared clip", apply), "source": str(was)}
+
+    @staticmethod
+    def _object_id(v) -> int:
+        try:
+            return int(v)
+        except (TypeError, ValueError, OverflowError):
+            raise EditorError(f"{v!r} isn't an object id") from None
 
     def _rep(self, sid) -> Replacement:
         try:
@@ -505,6 +661,10 @@ class Session:
         return sorted(homes, key=lambda i: (i not in order, order.get(i, 0), i))
 
     def _resolved(self, r: Replacement) -> int | None:
+        """The game's sound a replacement is listed by: its target as this game version has it, or for an added
+        clip its anchor; None for a target the game no longer has."""
+        if r.target in self._added():
+            return self._anchor(r.target)
         try:
             return self.ix.resolve(r.target)
         except KeyError:
@@ -566,11 +726,11 @@ class Session:
                 have = [c for c in mine if c in held]
                 owners = ", ".join(self._list_name(o) for o in dict.fromkeys(held[c] for c in have))
                 if mine and len(have) == len(it["parts"]):
-                    notes.append(f"{self._list_name(iid)} is in the project already: its sounds are in {owners}.")
+                    notes.append(f"{self._list_name(iid)} is already in the project, because its sounds are in {owners}.")
                     continue
                 if have:
                     notes.append(f"{self._list_name(iid)} added. {len(have)} of its {len(mine)} banks "
-                                 f"{'was' if len(have) == 1 else 'were'} in the project already, in {owners}: their "
+                                 f"{'was' if len(have) == 1 else 'were'} already in the project, in {owners}. Their "
                                  f"sounds show under both.")
                 new.append(iid)
                 for c in mine:
@@ -598,10 +758,10 @@ class Session:
         from .build import zip_name
         p = self._need_project()
         self._adopt(p)
-        assignments, unresolved = {}, []
+        assignments, unresolved, added = {}, [], p.added()
         for r in p.replacements:
             try:
-                sid = self.ix.resolve(r.target) if self.ix else r.target
+                sid = self.ix.resolve(r.target) if self.ix and r.target not in added else r.target
             except KeyError:
                 unresolved.append({"target": str(r.target), "audio": r.audio, "label": r.label})
                 continue
@@ -637,10 +797,10 @@ class Session:
         library, missing, in_banks, outside = list(p.library or []), [], {}, []
         if self.lib:
             parts, missing = self._listed(library)
-            mine = {int(s) for s in assignments}
+            mine = {int(s): self._anchor(int(s)) for s in assignments}  # an added clip is listed by its anchor
             inside = set()
             for cue, sounds in parts.items():
-                got = mine & sounds
+                got = {s for s, at in mine.items() if at in sounds}
                 inside |= got
                 if got and not cue.isdigit():
                     in_banks[cue] = len(got)
@@ -649,12 +809,13 @@ class Session:
                 "outside": outside,
                 "path": str(p.path), "folder": str(p.path.parent), "name": p.name, "guid": p.guid,
                 "revision": self.revision, "version": p.version, "description": p.description, "icon": p.icon, "icon_frame": frame,
-                "loudness_analysis": p.loudness_analysis,
+                "loudness_analysis": p.loudness_analysis, "biome_fix": p.biome_fix,
                 "build_folder": str(p.build_dir()), "build_folder_default": str(p.default_build_dir()),
                 "zip_name": zip_name(p), "last_build": _last_build(p.build_dir(), slug(p.name)),
                 "assignments": assignments, "unresolved": unresolved,
                 "segment_overrides": {str(k): v for k, v in p.segment_overrides.items()},
                 "texts": [{"table": str(t.table), "id": t.id, "text": t.text, "was": t.was} for t in p.texts],
+                "additions": p.to_json().get("additions", []), "settings": len(p.settings),
                 "problems": problems, "can_undo": bool(self.undo_stack), "can_redo": bool(self.redo_stack),
                 "undo_label": self.undo_stack[-1][0] if self.undo_stack else None,
                 "redo_label": self.redo_stack[-1][0] if self.redo_stack else None}
@@ -667,6 +828,7 @@ class Session:
             before = p.to_json()
             try:
                 fn(p)
+                self._tidy(p)
                 self._cover(p)
             except BaseException:
                 self.project = Project.from_json(before, p.path)  # an edit that fails half-way changes nothing
@@ -725,7 +887,7 @@ class Session:
     def _target(self, t: int) -> int:
         """The source a replacement's target plays now; the same id when this game version no longer has it (such a
         replacement stays in the project, listed as unresolved, until it is removed)."""
-        if not self.ix:
+        if not self.ix or t in self._added():
             return t
         try:
             return self.ix.resolve(t)
@@ -738,7 +900,7 @@ class Session:
             sid = int(s)
         except (TypeError, ValueError, OverflowError):
             raise EditorError(f"{s!r} isn't a sound id") from None
-        if not self.ix:
+        if not self.ix or sid in self._added():
             return sid
         try:
             return self.ix.resolve(sid)
@@ -764,7 +926,7 @@ class Session:
     def fill(self, cue_id, files, only_empty=False, start_source=None):
         """Assigns files, in file-name order, to a cue's slots (play order; skips never-heard, locked and absent slots).
         only_empty keeps existing assignments; start_source starts at that slot (dropping an album on slot #3)."""
-        cue = self.cue(cue_id)
+        cue = self.cue(cue_id, mine=True)
         targets = [s["source"] for seg in cue["segments_detail"] for st in seg["stems"] for s in st["slots"]
                    if not s["unused"] and not s["locked"] and not s.get("absent")]
         targets = list(dict.fromkeys(targets))
@@ -938,7 +1100,7 @@ class Session:
             raise EditorError(f"{folder} is not a folder")
         folder = folder.resolve()
         if self.game_where["path"] and in_game_folder(folder, self.game_where["path"]):
-            raise EditorError("That folder is inside the game's. Audiodiver never writes there: choose a folder "
+            raise EditorError("That folder is inside the game's folder, and Audiodiver never writes there. Choose a folder "
                               "outside it, and import the ZIP in HD2 Arsenal.")
         if folder == p.default_build_dir().resolve():
             return ""
@@ -951,7 +1113,8 @@ class Session:
         """Changes what the build packages the mod as (name, version, description, icon, a new id) and where its
         builds go. Every value is checked before any is changed."""
         from . import akd
-        bad = set(fields) - {"name", "version", "description", "icon", "build_folder", "guid", "loudness_analysis"}
+        bad = set(fields) - {"name", "version", "description", "icon", "build_folder", "guid", "loudness_analysis",
+                             "biome_fix"}
         if bad:
             raise EditorError(f"Unknown setting {sorted(bad)[0]}")
         checked = {}
@@ -973,6 +1136,8 @@ class Session:
                     raise EditorError("Loudness analysis is on or off")
                 if v and (why := akd.unavailable()):
                     raise EditorError(f"Loudness analysis: {why}")
+            elif k == "biome_fix" and not isinstance(v, bool):
+                raise EditorError("The fix for silent planets is on or off")
             checked[k] = v
 
         def apply(p):
@@ -992,6 +1157,8 @@ class Session:
                     p.guid = str(uuid.uuid4()) if v == "new" else v
                 elif k == "loudness_analysis":
                     p.loudness_analysis = v
+                elif k == "biome_fix":
+                    p.biome_fix = v
         return self._edit("settings", apply)
 
     def set_icon(self, image):
@@ -1097,7 +1264,7 @@ class Session:
         if any(j.kind == "build" and j.state == "running" for j in self.jobs.values()):
             raise EditorError("A build is already running")
         if not p.replacements and not p.texts:
-            raise EditorError("Nothing to build yet: replace some audio or change a line of text first")
+            raise EditorError("Nothing to build yet. Replace some audio or change a line of text first.")
         if problems := self.project_state()["problems"]:
             raise EditorError(f"Fix the problems on the Build tab first: {problems[0]}"
                               + (f" (and {len(problems) - 1} more)" if len(problems) > 1 else ""))
@@ -1141,9 +1308,6 @@ class Session:
     def import_patch(self, patch_path):
         """Turns an existing .patch_0 (any mod, old tool or Audiodiver) into assignments: every replaced source's
         audio is decoded to <project>/imported/<source>.wav."""
-        import re
-        import struct
-        from .patch import diff
         self.require_game()
         p = self._need_project()
         if not given(patch_path):
@@ -1152,55 +1316,301 @@ class Session:
         if not patch_path.is_file():
             raise EditorError(f"{patch_path} wasn't found")
         if not re.search(r"\.patch_\d+$", patch_path.name, re.I):
-            raise EditorError(f"{patch_path.name} isn't a patch file: choose the mod's .patch_0 (the .stream next to "
-                              f"it is read with it)")
+            raise EditorError(f"{patch_path.name} isn't a patch file. Choose the mod's .patch_0 file. Audiodiver reads the .stream file "
+                              f"next to it as well.")
 
         def run(job):
-            job.say(f"reading {patch_path.name}")
-            try:
-                d = diff(str(patch_path), self.ix)
-            except (AssertionError, struct.error, ValueError, KeyError, IndexError):
-                raise EditorError(f"{patch_path.name} can't be read as a game patch") from None
-            found = {}  # source id -> wem bytes
-            for fid, data in d["streams"].items():
-                try:
-                    found[self.ix.resolve(fid)] = data
-                except KeyError:
-                    job.say(f"stream {fid} is not in this game version; skipped")
-            from .patch import read_patch
-            banks, _ = read_patch(str(patch_path))
-            for bid, b in d["banks"].items():
-                media, _ = banks[bid]
-                for m in b["media"]:
-                    found.setdefault(m, media[m])
-            if not found:
-                raise EditorError(f"{patch_path.name} replaces no audio")
             out_dir = p.path.parent / "imported" / patch_path.stem.split(".")[0]
-            out_dir.mkdir(parents=True, exist_ok=True)
-            files, job.total = {}, len(found)
-            for i, (sid, data) in enumerate(sorted(found.items()), 1):
-                wem_path, wav = out_dir / f"{sid}.wem", out_dir / f"{sid}.wav"
-                wem_path.write_bytes(data)
-                try:
-                    subprocess.run([wem.VGMSTREAM, "-o", str(wav), str(wem_path)], check=True, capture_output=True)
-                    files[sid] = wav
-                except subprocess.CalledProcessError:
-                    job.say(f"source {sid}: can't decode its audio; skipped")
-                finally:
-                    wem_path.unlink(missing_ok=True)
-                job.step(f"Decoding {i} of {len(found)}", i)
-            if not files:
-                raise EditorError(f"{'The sound' if len(found) == 1 else f'None of the {len(found)} sounds'} in "
-                                  f"{patch_path.name} couldn't be decoded. Is its .stream file next to it?")
+            got, replaced, files, skipped = self._patch_audio(patch_path, out_dir, job)
             if not self.project or self.project.path != p.path:
-                raise EditorError("Another project was opened during the import: open this one again and import")
+                raise EditorError("Another project was opened during the import. Open this project again and import again.")
+            counts = {"added": 0}
 
             def apply(proj):  # what the patch replaces joins the project's list (_cover), so the Editor shows it
-                for sid, wav in files.items():
-                    self._set(proj, sid, str(wav), label=f"imported {sid}")
+                counts["added"] = self._fill_from_patch(proj, got, replaced, files)
             self._edit("import", apply)
-            return {"imported": len(files), "skipped": len(found) - len(files), "folder": str(out_dir)}
+            return {"imported": sum(s in files for s in replaced), "added": counts["added"], "skipped": skipped,
+                    "settings": len(got.settings), "left": got.left, "stale": len(got.stale), "folder": str(out_dir)}
         return self._start("import", run)
+
+    def _patch_audio(self, patch_path: Path, out_dir: Path, job):
+        """What a mod's patch replaces, adds and sets (addition.from_patch), its audio decoded into out_dir as WAVs, each
+        keeping the patch's own encoding for builds (build.keep_encoding). Returns (got, replaced, files, skipped):
+        replaced {the game's source: wem}, files {source or new clip: wav}, skipped: how many couldn't be decoded."""
+        import struct
+        from .addition import from_patch
+        from .build import keep_encoding
+        from .patch import diff
+        job.say(f"reading {patch_path.name}")
+        try:
+            d = diff(str(patch_path), self.ix)
+            got = from_patch(self.ix, d)  # what it adds (Unwise's new takes, layers, rewired sounds) and replaces
+        except (AssertionError, struct.error, ValueError, KeyError, IndexError):
+            raise EditorError(f"{patch_path.name} can't be read as a game patch") from None
+        def named(m):  # a bank as the Library names it
+            return f'{m[1]} the bank "{self.lib.bank_label(int(m[2]))}"' if self.lib and int(m[2]) in self.ix.banks else m[0]
+        got.left = [re.sub(r"\b(in|of) bank (\d+)", named, line) for line in got.left]
+        replaced = {}  # the game's source id -> wem bytes
+        for fid, data in d["streams"].items():
+            try:
+                replaced[self.ix.resolve(fid)] = data
+            except KeyError:
+                job.say(f"stream {fid} is not in this game version; skipped")
+        for sid, data in got.replaced.items():
+            replaced.setdefault(sid, data)
+        new = {src: data for *_, src, data in got.takes} | {src: data for _, src, data in got.own}
+        for line in got.left:
+            job.say(f"left out: {line}")
+        if got.stale:
+            job.say(f"{len(got.stale)} sounds of an older game version, which the game no longer has, left out")
+        found = {**new, **replaced}
+        if not found and got.settings:
+            return got, replaced, {}, 0  # only settings
+        if not found:
+            raise EditorError(f"{patch_path.name} replaces, adds or sets nothing"
+                              + (f" Audiodiver can bring in ({got.left[0]})" if got.left else ""))
+        out_dir.mkdir(parents=True, exist_ok=True)
+        files, job.total = {}, len(found)
+        for i, (sid, data) in enumerate(sorted(found.items()), 1):
+            wem_path, wav = out_dir / f"{sid}.wem", out_dir / f"{sid}.wav"
+            wem_path.write_bytes(data)
+            try:
+                subprocess.run([wem.VGMSTREAM, "-o", str(wav), str(wem_path)], check=True, capture_output=True)
+                keep_encoding(wav, data)
+                files[sid] = wav
+            except subprocess.CalledProcessError:
+                job.say(f"source {sid}: can't decode its audio; skipped")
+            finally:
+                wem_path.unlink(missing_ok=True)
+            job.step(f"Decoding {i} of {len(found)}", i)
+        if not files:
+            raise EditorError(f"{'The sound' if len(found) == 1 else f'None of the {len(found)} sounds'} in "
+                              f"{patch_path.name} couldn't be decoded. Is its .stream file next to it?")
+        return got, replaced, files, len(found) - len(files)
+
+    def _fill_from_patch(self, p: Project, got, replaced: dict, files: dict) -> int:
+        """Puts a patch's audio (_patch_audio) into a project: what it replaces, then what it adds, and its settings
+        on the game's objects (a later import's go over an earlier one's). Returns how many slots it added or
+        changed."""
+        for sid, wav in files.items():
+            if sid in replaced:
+                self._set(p, sid, str(wav), label=f"imported {sid}")
+        for oid, changes in got.settings.items():
+            p.settings[oid] = {**p.settings.get(oid, {}), **changes}
+        return self._take_in(p, got, files)
+
+    # --- repatching (repatch.py): an existing mod rebuilt on the game as it is now
+    @staticmethod
+    def _repatch_root() -> Path:
+        """Where repatched mods' projects go: the folder last chosen, else Documents/Audiodiver/Repatched."""
+        from .repatch import documents
+        return Path(load_settings().get("repatch_folder") or documents() / "Audiodiver" / "Repatched")
+
+    def repatch_scan(self, path):
+        """What repatching `path` (a .patch_N, a folder or a mod's ZIP) would take: its patches, and the name, icon
+        and Arsenal id a manifest gives."""
+        from .repatch import RepatchError, scan
+        try:
+            f = scan(path)
+        except RepatchError as e:
+            raise EditorError(str(e)) from None
+        except OSError as e:
+            raise EditorError(f"Can't read {Path(str(path)).name}: {os_error(e)}") from None
+        return {"source": str(f.source), "name": f.name or "Repatched mod", "description": f.description,
+                "guid": bool(f.guid), "icon": bool(f.icon), "manifest": bool(f.manifest), "zip": f.is_zip,
+                "folder": str(self._repatch_root()),
+                "patches": [{"key": p.key, "label": p.label, "other": self._not_audio(f, p.key)} for p in f.patches]}
+
+    @staticmethod
+    def _not_audio(found, key) -> list[str]:
+        """What a patch holds besides audio, which a repatch leaves out ("2 string tables")."""
+        from .game import WWISE_BANK, WWISE_DEP, WWISE_STREAM, toc_entries
+        from .strings import STRINGS
+        try:
+            types = [tid for _, tid, *_ in toc_entries(found.read(key) or b"")]
+        except Exception:  # noqa: BLE001 (a patch that can't be read says so when it is repatched)
+            return []
+        texts = sum(t == STRINGS for t in types)
+        rest = sum(t not in (WWISE_BANK, WWISE_DEP, WWISE_STREAM, STRINGS) for t in types)
+        return ([f"{texts} string table{'s' if texts != 1 else ''} (the game's text, like subtitles, which isn't supported yet)"] if texts else []) + \
+               ([f"{rest} other file{'s' if rest != 1 else ''} (such as models and textures)"] if rest else [])
+
+    def repatch(self, path, name="", folder=""):
+        """Rebuilds a mod on the game as it is now, as the one mod it was. Each of its patches is imported into a
+        project of its own (in the mod's folder under the repatch folder, to change it further) and made again on the
+        current game's banks; the new ZIP is the mod as it was, with a manifest's options, files and id kept
+        (repatch.repackage), those patches in place of the old ones. Without a manifest it is a ZIP for HD2 Arsenal,
+        one option per patch. A patch that can't be repatched stays as it was in a mod of several, and the result
+        says so."""
+        import tempfile
+        from .arsenal import default_icon, name_problem, package
+        from .build import PATCH, BuildError, icon_bytes, make_patch
+        from .game import in_game_folder
+        from .repatch import RepatchError, clean_name, repackage, scan
+        self.require_game()
+        try:
+            f = scan(path)
+        except RepatchError as e:
+            raise EditorError(str(e)) from None
+        name = str(name or "").strip() or f.name or "Repatched mod"
+        if problem := name_problem(name):
+            raise EditorError(f"The name: {problem}")
+        root = Path(folder) if given(folder) else self._repatch_root()
+        if not root.is_absolute():
+            raise EditorError("Choose where repatched mods go (a full path)")
+        if in_game_folder(root, self.ix.game.data):
+            raise EditorError(f"{root} is inside the game's folder, and Audiodiver never writes there")
+        if any(j.kind in ("build", "repatch") and j.state == "running" for j in self.jobs.values()):
+            raise EditorError("A build is already running")
+        if given(folder):
+            save_settings(repatch_folder=str(root))
+        several = len(f.patches) > 1
+
+        def one(job, pt, home: Path, scratch: Path) -> dict:
+            """A patch imported into a project at home and made again into scratch/out."""
+            mod = clean_name(f"{name} {pt.label}") if several and pt.label else name
+            home.mkdir(parents=True, exist_ok=True)
+            p = Project(name=mod, path=home / f"{home.name}.audi", library=[], description=f.description,
+                        guid=f.guid if f.guid and not several else str(uuid.uuid4()))
+            if f.icon and (image := f.read(f.icon)):
+                (home / f"icon{Path(f.icon).suffix.lower()}").write_bytes(image)
+                p.icon = {"image": f"icon{Path(f.icon).suffix.lower()}"}
+                try:
+                    icon_bytes(p)
+                except BuildError:
+                    job.say("the mod's icon can't be read, so its project uses Audiodiver's icon")
+                    p.icon = {}
+            got, replaced, files, skipped = self._patch_audio(f.place(pt.key, scratch / "in"), home / "imported", job)
+            with self.lock:
+                added = self._fill_from_patch(p, got, replaced, files)
+                self._tidy(p)
+                self._cover(p)
+                p.save()
+
+            def progress(doing, done=None, total=None):
+                if total:
+                    job.total = total
+                job.step(doing, done)
+            (scratch / "out").mkdir(parents=True)
+            try:
+                make_patch(p, self.ix, scratch / "out", log=job.say, step=progress)
+            except BuildError as e:
+                raise EditorError(str(e)) from None
+            return {"label": pt.label, "project": str(p.path), "imported": sum(s in files for s in replaced),
+                    "added": added, "skipped": skipped, "settings": len(got.settings), "left": got.left,
+                    "stale": len(got.stale),
+                    "other": self._not_audio(f, pt.key), "kept": "", "patch": str(scratch / "out" / PATCH)}
+
+        def run(job):
+            n = 1
+            while (home := root / (name if n == 1 else f"{name} {n}")).exists():
+                n += 1
+            try:
+                home.mkdir(parents=True)
+            except OSError as e:
+                raise EditorError(f"Can't make the folder {home}: {os_error(e)}") from None
+            try:
+                with tempfile.TemporaryDirectory(prefix="audiodiver-repatch-", ignore_cleanup_errors=True) as tmp:
+                    parts, used = [], set()
+                    for i, pt in enumerate(f.patches):
+                        at = home
+                        if several:
+                            job.say(f"--- {pt.label or pt.key} ({i + 1} of {len(f.patches)})")
+                            sub = clean_name(pt.label.replace("/", " ")) or clean_name(Path(pt.key).parent.name) or "Patch"
+                            k = 1
+                            while (sub if k == 1 else f"{sub} {k}").lower() in used:
+                                k += 1
+                            used.add((sub if k == 1 else f"{sub} {k}").lower())
+                            at = home / (sub if k == 1 else f"{sub} {k}")
+                        try:
+                            parts.append(one(job, pt, at, Path(tmp) / str(i)))
+                        except EditorError as e:
+                            if not several:
+                                raise
+                            job.say(f"kept as it was: {e}")
+                            if at != home:
+                                shutil.rmtree(at, ignore_errors=True)
+                            parts.append({"label": pt.label or pt.key, "kept": str(e), "other": [], "left": []})
+                    if all(x["kept"] for x in parts):
+                        raise EditorError(parts[0]["kept"])
+                    job.step("Packing the ZIP")
+                    zip_path = home / f"{name}.zip"
+                    try:
+                        if f.manifest:
+                            repackage(f, zip_path, {pt.key: Path(x["patch"]) for pt, x in zip(f.patches, parts)
+                                                    if not x["kept"]}, name)
+                        else:  # no manifest: an Arsenal ZIP, each patch an option of its own
+                            icon = Path(tmp) / "icon.png"
+                            icon.write_bytes(default_icon())
+                            options = []
+                            for i, (pt, x) in enumerate(zip(f.patches, parts)):
+                                if x["kept"]:  # as it was
+                                    f.place(pt.key, Path(tmp) / str(i) / "kept")
+                                    src = Path(tmp) / str(i) / "kept"
+                                    for kept in src.iterdir():
+                                        kept.rename(src / (PATCH + kept.name[len(Path(pt.key).name):]))
+                                else:
+                                    src = Path(x["patch"]).parent
+                                options.append({"name": clean_name(pt.label.replace("/", " ")) or name, "description": "",
+                                                "folder": src})
+                            package(zip_path, name=name, guid=str(uuid.uuid4()), icon=icon, options=options)
+                    except OSError as e:
+                        raise EditorError(f"Can't write the ZIP into {home}: {os_error(e)}") from None
+            except BaseException:
+                if not any(home.rglob("*.audi")):
+                    shutil.rmtree(home, ignore_errors=True)  # made just now, with nothing to show for it
+                raise
+            for x in parts:
+                x.pop("patch", None)
+            job.say(f"{zip_path} ({zip_path.stat().st_size / 1e6:.1f} MB)")
+            return {"name": name, "zip": str(zip_path), "folder": str(home), "mb": round(zip_path.stat().st_size / 1e6, 1),
+                    "kept_id": bool(f.manifest and f.guid), "manifest": bool(f.manifest), "parts": parts}
+        return self._start("repatch", run, title=name)
+
+    def _take_in(self, p: Project, got, files: dict) -> int:
+        """Puts what a patch adds (addition.from_patch) into the project, each with its decoded audio (files: {clip:
+        wav}): under the patch's own ids where they are free, else new ones. An addition the project has already
+        (the same patch imported again) takes the new audio. Returns how many slots it added or changed."""
+        from .addition import new_id
+        taken = set(self.ix.taken) | p.made_ids() | {r.target for r in p.replacements}
+
+        def free(i):
+            if i in taken:
+                i = new_id(taken)
+            taken.add(i)
+            return i
+
+        def give(source, clip, label, gain=0.0):
+            self._set(p, source, str(files[clip]), label=label)
+            if gain:
+                self._replacement(p, source).gain_db = max(GAIN_DB[0], min(GAIN_DB[1], gain))
+
+        n, layers = 0, {}
+        for lay, beside, gain in got.layers:
+            have = next((a for a in p.additions if a.kind == "layer" and a.container == lay), None)
+            layers[lay] = (have.container if have else free(lay), gain)
+            if not have:
+                p.additions.append(Addition("layer", container=layers[lay][0], beside=beside))
+        for container, sound, clip, _wem in got.takes:
+            if clip not in files:
+                continue
+            to, gain = layers.get(container, (container, 0.0))
+            have = next((a for a in p.additions if a.kind == "take" and a.sound == sound), None)
+            if not have:
+                have = Addition("take", container=to, sound=free(sound), source=free(clip))
+                p.additions.append(have)
+            give(have.source, clip, f"imported take {clip}", gain)
+            n += 1
+        for sound, clip, _wem in got.own:
+            if clip not in files:
+                continue
+            have = next((a for a in p.additions if a.kind == "own" and a.sound == sound), None)
+            if not have:
+                have = Addition("own", sound=sound, source=free(clip))
+                p.additions.append(have)
+            give(have.source, clip, f"imported {clip}")
+            n += 1
+        return n
 
     # --- export and play-through (render.py)
     def _mine(self) -> dict:
@@ -1216,7 +1626,7 @@ class Session:
         self.require_game()
         cue = self.catalog.cm.cues.get(int(cue_id)) if str(cue_id).isdigit() else None
         if not cue:
-            raise EditorError(f"{cue_id} is not a piece of music: only music has segments to mix and play through")
+            raise EditorError(f"{cue_id} is not a piece of music. Only music has segments to mix and play through.")
         mine, overrides = {}, {}
         if side == "mine":
             mine, overrides = self._mine(), self._need_project().segment_overrides
@@ -1271,9 +1681,9 @@ class Session:
             raise EditorError(f"Unknown format {fmt}")
         if whose != "game":
             self._need_project()
-        detail = self.cue(cue_id)
+        detail = self.cue(cue_id, mine=whose != "game")
         if detail["kind"] in ("sounds", "sound") and what != "slots":
-            raise EditorError("A bank's sounds export one by one: there are no segments to mix")
+            raise EditorError("A bank's sounds export one by one, because there are no segments to mix")
         folder, loops = out_folder(folder), loop_count(loops)
         only = {int(s) for s in sources} if sources else None
         chosen = choices(variants)
@@ -1325,7 +1735,8 @@ class Session:
                     for n, (seg, sl) in enumerate(slots, 1):
                         sid = int(sl["source"])
                         job.step(f"{seg['name']} ({whose_label})", job.done + 1)
-                        if (only and sid not in only) or (side == "mine" and sid not in mine) or (side == "game" and sl.get("absent")):
+                        if (only and sid not in only) or (side == "mine" and sid not in mine) or \
+                                (side == "game" and (sl.get("absent") or sl.get("added"))):  # a new take: no original
                             continue
                         path = target(_slot_stem(title, n, digits, seg, sl, tag))
                         src = mine[sid].path if side == "mine" else self.vanilla_wav(sid)
@@ -1395,15 +1806,17 @@ class Session:
         from . import strings
         return [{"code": c, "name": strings.LANGUAGES.get(c, c)} for c in self._texts().languages()]
 
-    def text_search(self, language, query="", mine=False, limit=300):
+    def text_search(self, language, query="", mine=False, limit=300, ids=None):
         """Lines of the game's text in a language that have every word of query in them (or that are the id typed);
-        mine: only the ones the open project changes. Subtitles come first. {results, total}: results stop at limit."""
+        mine: only the ones the open project changes; ids: only these lines (a voice line's subtitle and those with
+        its words), in that order, whatever the query. Subtitles come first. {results, total}: results stop at limit."""
         from . import strings
         tx = self._texts()
         edits = {(t.table, t.id): t for t in (self.project.texts if self.project else [])}
         words = str(query or "").lower().split()
         try:
             limit = max(0, min(5000, int(limit)))
+            only = None if ids is None else {int(i): k for k, i in enumerate(ids)}
         except (TypeError, ValueError, OverflowError):
             raise EditorError("The number of lines to show is a whole number") from None
         out, total = [], 0
@@ -1414,7 +1827,10 @@ class Session:
                 e = edits.get((fid, sid))
                 if mine and not e:
                     continue
-                if words and not (str(sid) == words[0] and len(words) == 1):
+                if only is not None:
+                    if sid not in only:
+                        continue
+                elif words and not (str(sid) == words[0] and len(words) == 1):
                     hay = f"{strings.plain(text)} {strings.plain(e.text) if e else ''}".lower()
                     if not all(w in hay for w in words):
                         continue
@@ -1424,7 +1840,37 @@ class Session:
                 if len(out) < limit:
                     out.append({"table": str(fid), "id": sid, "kind": kind, "text": text,
                                 **({"yours": e.text, "was": e.was} if e else {})})
+        if only is not None:
+            out.sort(key=lambda r: only[r["id"]])
         return {"results": out, "total": total}
+
+    def text_alike(self, id):
+        """The subtitles with the same words as this one in US English, this one first: the game has a subtitle per
+        script line, and several lines can say the same ("Reloading." is 32). A voice line matched by its words
+        alone is one of them (library.py, `subtitle_sure`)."""
+        from . import strings
+        tx = self._texts()
+        subs = {}
+        for fid, t in tx.tables("us"):
+            if tx.kind(fid) == "subtitles":
+                subs.update(t.texts)
+        words = lambda t: re.sub(r"[^\w']+", " ", strings.plain(t).lower()).split()
+        try:
+            id = int(id)
+            mine = words(subs[id])
+        except (TypeError, ValueError, OverflowError, KeyError):
+            raise EditorError("That line isn't one of the game's subtitles") from None
+        return [id, *(i for i, t in subs.items() if i != id and words(t) == mine)]
+
+    def text_voices(self, ids, language):
+        """The voice lines that say these subtitles (one, or those with its words), in a text language's voices
+        (English where that language has no voices): where each is, to open it in the Library (library.py)."""
+        self.require_game()
+        try:
+            ids = [int(i) for i in ids]
+        except (TypeError, ValueError, OverflowError):
+            raise EditorError("Subtitle ids are whole numbers") from None
+        return self.lib.subtitle_lines(ids, str(language))
 
     def text_set(self, table, id, text):
         """Changes one line of the game's text in the open project (undoable). Back to the game's own text, it is
@@ -1472,24 +1918,24 @@ class Session:
         if whose != "game":
             self._need_project()
         if not isinstance(entries, list) or not all(isinstance(e, dict) and "cue" in e for e in entries):
-            raise EditorError("The export list can't be read: clear it and collect again")
+            raise EditorError("The export list can't be read. Clear it and add the items again.")
         plan = []  # (folder name, title, [(segment, slot)])
         for e in entries:
-            detail = self.cue(e["cue"])
+            detail = self.cue(e["cue"], mine=whose != "game")
             only = {str(s) for s in e.get("sources") or ()}
             # the name it has on the list (the Index's, or one typed) names its folder and starts its files' names
             title = str(e.get("name") or "").strip() or " - ".join(dict.fromkeys(x for x in [*detail["path"], detail["name"]] if x))
             plan.append((_filename(title), title,
                          [(seg, sl) for seg, sl in _slots_of(detail) if not only or str(sl["source"]) in only]))
         if not any(slots for *_, slots in plan):
-            raise EditorError("Nothing to export: the export list is empty")
+            raise EditorError("Nothing to export, because the export list is empty")
         folder, ext = out_folder(folder), render.FORMATS[fmt][0]
         sides = ["game", "mine"] if whose == "both" else [whose]
 
         def run(job):
             mine = self._mine() if whose != "game" else {}
             # what is written: the original of a slot the game's files have audio for, the new audio of a replaced one
-            heard = lambda side, sl: int(sl["source"]) in mine if side == "mine" else not sl.get("absent")
+            heard = lambda side, sl: int(sl["source"]) in mine if side == "mine" else not (sl.get("absent") or sl.get("added"))
             job.total = sum(heard(side, sl) for *_, slots in plan for side in sides for _, sl in slots)
             absent = sum(bool(sl.get("absent")) for *_, slots in plan for _, sl in slots) if "game" in sides else 0
             job.step("Getting ready")

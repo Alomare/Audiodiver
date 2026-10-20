@@ -21,7 +21,7 @@ export const TIP_SPEEDS: [TipSpeed, string][] = [["off", "Off"], ["quick", "Quic
 export const UPDATE_MODES: [UpdateMode, string][] = [["manual", "Manual"], ["prompt", "Prompt on startup"], ["auto", "Automatic"]];
 /** What each mode does, under the choice (Settings ▸ System) and at the foot of the Updates tab. */
 export const UPDATE_NOTES: Record<UpdateMode, string> = {
-  manual: "Checks at startup; new versions wait in the Updates tab.",
+  manual: "Checks at startup and lists new versions in the Updates tab.",
   prompt: "At startup, asks before installing a new version.",
   auto: "At startup, installs a new version and restarts.",
 };

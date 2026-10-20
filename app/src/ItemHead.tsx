@@ -98,7 +98,7 @@ export function ItemActions({ item }: { item: MusicItem }) {
   const kind = item.kind === "transition" ? "transition" : "stinger";
   const skippable = [...new Set(item.parts.flatMap((p) => p.own.filter((t) => !a[t])))];
   return skippable.length ? (
-    <button className="btn" data-tip={`Replace them with a short silence: the game goes straight to the next music${keyHint("undo") ? `. Undo${keyHint("undo")} brings them back` : ""}`}
+    <button className="btn" data-tip={`Replace them with a short silence, so the game goes straight to the next music${keyHint("undo") ? `. Undo${keyHint("undo")} brings them back` : ""}`}
       onClick={() => actions.skip(skippable, `${item.parts.length} ${kind}s`)}>Skip all {item.parts.length}</button>
   ) : null;
 }
@@ -143,10 +143,10 @@ function Around({ item, a }: { item: MusicItem; a: Record<string, Assignment> })
   return (
     <div className={`around${warn ? " warn" : ""}`}>
       <div className="around-head">
-        <span>{what} {rows.length === 1 ? "plays" : "play"} next to this music{warn ? <>; <b>{game.length}</b> still {game.length === 1 ? "plays" : "play"} the original next to new music.</> : "."}</span>
+        <span>{what} {rows.length === 1 ? "plays" : "play"} next to this music{warn ? <>. <b>{game.length}</b> still {game.length === 1 ? "plays" : "play"} the original next to new music.</> : "."}</span>
         <button className="link-text" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? "Hide" : "Show"}</button>
         {warn && project && (
-          <button className="btn quiet small-btn" data-tip="Replace them with a short silence: the game goes straight to the next music. They join the project."
+          <button className="btn quiet small-btn" data-tip="Replace them with a short silence, so the game goes straight to the next music. This also adds them to the project."
             onClick={() => actions.skip([...new Set(game.flatMap((r) => r.part.own.filter((t) => !a[t])))], `${game.length} around ${item.full}`)}>
             Skip {game.length === 1 ? "it" : "them"}</button>
         )}
@@ -160,7 +160,7 @@ function Around({ item, a }: { item: MusicItem; a: Record<string, Assignment> })
                 what={owner.parts.length > 1 && part.name ? part.name : owner.full}
                 at={{ scope: !readOnly && project?.library.includes(owner.id) ? "editor" : "library", itemId: owner.id, cueId: part.cue, source: part.targets[0] ?? null }} />
               <button className="link-text around-name" onClick={() => show(owner.id, index)}
-                data-tip={!readOnly && !project?.library.includes(owner.id) ? "Not in the project: opens in the Library" : undefined}>
+                data-tip={!readOnly && !project?.library.includes(owner.id) ? "Not in the project. Opens in the Library" : undefined}>
                 {owner.parts.length > 1 && part.name ? part.name : owner.name}
               </button>
               <span className="pstate-cell">{clash.has(part.cue) && <span className="clash" data-tip="Plays the original next to new music">!</span>}
@@ -181,6 +181,6 @@ export function PartState({ part, a }: { part: MusicPart; a: Record<string, Assi
   if (!mine.length) return <span className="pstate game">original</span>;
   if (mine.length < part.own.length) return <span className="pstate part">partly replaced</span>;
   if (!mine.every((t) => a[t].silence)) return <span className="pstate mine">replaced</span>;
-  return mine.every((t) => a[t].fit_timing) ? <span className="pstate skipped" data-tip="Silence: the game moves straight on">skipped</span>
+  return mine.every((t) => a[t].fit_timing) ? <span className="pstate skipped" data-tip="Silent, and the game moves straight on">skipped</span>
     : <span className="pstate silent" data-tip="Silence for as long as the original would play">silent</span>;
 }

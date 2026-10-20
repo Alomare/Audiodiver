@@ -217,3 +217,45 @@ def test_golden_build(key, tmp_path):
         assert _png_size(z.read("icon.png")) == (540, 540)
     got = {name: hashlib.sha256(data).hexdigest() for name, data in patch_files.items() if data}
     assert got == g["files"] and len(patch_files) == 3
+
+
+@pytest.mark.game
+def test_music_builds_carry_the_fix_for_silent_biomes(tmp_path):
+    """With the project's biome_fix on, a build's music_init starts from the fix for the music that stays silent on
+    seven biomes (biome.py, Sound Systems Rebalanced's patch): each object the fix touches is the fix applied to the
+    build's own copy of it (the build's timing, sizes and gain reach the copied tracks and the new clips), and nothing
+    else differs from the same build with it off (the default)."""
+    from audiodiver import biome, patch
+    from audiodiver._vendor.ssr import biome_patch as ssr
+    from audiodiver.build import build
+    from audiodiver.index import AudioIndex
+    ix = AudioIndex()
+    if biome.fixed_init(ix) is None:
+        pytest.skip("this game version's music banks aren't the ones the fix was made for")
+    project = MODS / GOLDEN["projects"]["wos"]["project"]
+
+    def built(folder, fix):
+        folder.mkdir()
+        p = Project.load(project)
+        assert not p.biome_fix  # off unless a project turns it on
+        p.biome_fix = fix
+        with zipfile.ZipFile(build(p, ix, folder, log=lambda *_: None)) as z:
+            for n in z.namelist():
+                if "/" in n:
+                    (folder / Path(n).name).write_bytes(z.read(n))
+        return patch.read_patch(str(folder / "9ba626afa44a3aa3.patch_0"))
+    (fixed, streams) = built(tmp_path / "fixed", True)
+    (plain, plain_streams) = built(tmp_path / "plain", False)
+    assert biome.INIT in fixed and streams == plain_streams
+    assert {b: v for b, v in fixed.items() if b != biome.INIT} == {b: v for b, v in plain.items() if b != biome.INIT}
+    new, old = fixed[biome.INIT][1], plain[biome.INIT][1]
+    assert set(new) - set(old) == biome.copied(ix) and set(old) <= set(new)
+    mission = (fixed.get(biome.MISSION[0]) or (None, bank.parse(ix.bank_files(biome.MISSION[0])[0])[1]))[1]
+    changed = [i for i in new if new[i] != old.get(i)]
+    assert len(changed) == 52  # 24 tracks and a switch fixed in place, 24 tracks and 3 switches copied in
+    for i in changed:
+        kind, body = old.get(i) or mission[i]
+        want = ssr.patch_track(body) if kind == 11 else ssr.patch_switch(body if i in old else ssr.without_children(body))
+        assert new[i] == (kind, want)
+    # a patch whose music_init carries the fix reads as changing only what the build changed
+    assert not patch.diff(str(tmp_path / "fixed" / "9ba626afa44a3aa3.patch_0"), ix)["banks"][biome.INIT]["added"]

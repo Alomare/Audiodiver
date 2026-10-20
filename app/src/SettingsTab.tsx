@@ -70,7 +70,7 @@ function System() {
         <h2>Starting up</h2>
         <label className="check">
           <input type="checkbox" checked={s.openLast} onChange={(e) => settings.set({ openLast: e.target.checked })} />
-          <span>Open the last project when Audiodiver starts <Help tip="On: straight to the Audio Editor with the last project. Off: Home, with recent projects." /></span>
+          <span>Open the last project when Audiodiver starts <Help tip="When this is on, Audiodiver opens the last project in the Audio Editor. When it is off, Audiodiver starts on Home with the recent projects." /></span>
         </label>
       </section>
 
@@ -98,13 +98,13 @@ function System() {
                 onClick={() => settings.set({ tips: id })}>{name}</button>
             ))}
           </div>
-          <small>{s.tips === "off" ? "Off. The “?”s still show their words."
-            : s.tips === "quick" ? "Almost at once." : s.tips === "slow" ? "A second of rest." : "Half a second of rest."}</small>
+          <small>{s.tips === "off" ? "Off. The “?” buttons still show their text."
+            : s.tips === "quick" ? "Almost immediately." : s.tips === "slow" ? "After the pointer rests for a second." : "After the pointer rests for half a second."}</small>
         </div>
       </section>
 
       <section className="set-sec">
-        <h2>Disk space <Help tip="Copies of prepared audio, so it isn't prepared again. Projects and audio files are never in it." /></h2>
+        <h2>Disk space <Help tip="Prepared copies of audio, kept so that Audiodiver doesn't prepare it again. Projects and audio files are never stored here." /></h2>
         <div className="set-rows">
           <div className="set-row">
             <div><b>Previews</b><small>Decoded originals, waveforms and Play through renders</small></div>
@@ -146,7 +146,7 @@ function GameFolder() {
   const change = async (path?: string | null) => setError(await actions.setGameFolder(path));
   return (
     <section className="set-sec">
-      <h2>Game <Help tip="Audiodiver only reads this folder. Choosing another reads the game again (about a minute the first time)." /></h2>
+      <h2>Game <Help tip="Audiodiver only reads from this folder. If you choose another folder, Audiodiver reads the game again, which takes about a minute the first time." /></h2>
       <div className="game-folder">
         <span className="path-text">{where?.path ?? "Not found"}</span>
       </div>
@@ -192,7 +192,7 @@ function Shortcuts() {
   };
   const reset = (id: CommandId) => {
     const lost = keymap.reset(id);
-    setNote(lost.length ? `Back on its default. That took a key from ${lost.map((x) => `“${keymap.command(x).label}”`).join(" and ")}.` : null);
+    setNote(lost.length ? `Reset to its default. This took a key from ${lost.map((x) => `“${keymap.command(x).label}”`).join(" and ")}.` : null);
   };
 
   const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -208,9 +208,9 @@ function Shortcuts() {
       <div className="keys-bar">
         <input type="search" placeholder="Find a shortcut, by what it does or by its key" value={query} aria-label="Find a shortcut"
           onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => { if (e.key === "Escape") setQuery(""); }} />
-        <button className="btn" disabled={keymap.allDefault()} onClick={() => { keymap.resetAll(); setNote("Every shortcut is back on its default key."); }}>Reset all</button>
+        <button className="btn" disabled={keymap.allDefault()} onClick={() => { keymap.resetAll(); setNote("Every shortcut is reset to its default key."); }}>Reset all</button>
       </div>
-      <p className="set-note">Click a key, then press the new one (Esc cancels). A key does one thing: it moves from the command that had it.</p>
+      <p className="set-note">Click a key, then press the new one. Esc cancels. Each key does only one thing, so a key you assign is removed from the command that had it.</p>
       <p className="keys-note" role="status">{capture ? "Press the new key…" : note}</p>
 
       {GROUPS.map((group) => {
@@ -248,7 +248,7 @@ function Shortcuts() {
 
       {fixed.length > 0 && (
         <section className="set-sec keys-group">
-          <h2>Mouse, and keys that stay as they are</h2>
+          <h2>Mouse and fixed keys</h2>
           {fixed.map(([how, what]) => (
             <div key={how} className="key-row fixed"><span className="key-what">{what}</span><span className="key-chords"><span className="key-fixed">{how}</span></span></div>
           ))}
@@ -302,8 +302,8 @@ function Theme() {
                 onClick={() => theme.set({ contrast: high })}>{high ? "High" : "Normal"}</button>
             ))}
           </div>
-          <small>{t.contrast !== null ? "Set here, whatever the system says."
-            : systemWantsContrast() ? "High: the system asks for more contrast." : "Following the system."}</small>
+          <small>{t.contrast !== null ? "Set here, overriding the system setting."
+            : systemWantsContrast() ? "High, because the system asks for more contrast." : "Following the system."}</small>
         </div>
         <div className="field">
           <span className="field-label">Night mode</span>
@@ -379,7 +379,7 @@ function Theme() {
                 onClick={() => theme.set({ density: d })}>{name}</button>
             ))}
           </div>
-          <small>{t.density === "compact" ? "The most on screen." : t.density === "relaxed" ? "More room around rows and buttons." : "The default."}</small>
+          <small>{t.density === "compact" ? "Fits the most on screen." : t.density === "relaxed" ? "More room around rows and buttons." : "The default."}</small>
         </div>
       </section>
 
@@ -395,8 +395,8 @@ function Theme() {
                 onClick={() => theme.set({ motion: on })}>{on ? "On" : "Off"}</button>
             ))}
           </div>
-          <small>{t.motion !== null ? "Set here, whatever the system says."
-            : systemReducesMotion() ? "Off: the system asks for less motion." : "Following the system."}</small>
+          <small>{t.motion !== null ? "Set here, overriding the system setting."
+            : systemReducesMotion() ? "Off, because the system asks for less motion." : "Following the system."}</small>
         </div>
         <div className="field">
           <span className="field-label">Animation speed

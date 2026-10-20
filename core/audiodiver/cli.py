@@ -72,7 +72,8 @@ def cmd_inspect(a):
         d = diff(a.patch, ix)
     except (AssertionError, ValueError, KeyError, IndexError, __import__("struct").error):
         sys.exit(f"{a.patch} can't be read as a game patch")
-    print(f"{a.patch}: {len(d['streams'])} streams replaced")
+    print(f"{a.patch}: {len(d['streams'])} streams replaced"
+          + (f"; banks this game version doesn't have: {d['unknown']}" if d["unknown"] else ""))
     for bid, b in d["banks"].items():
         print(f"  bank {bid} ({len(ix.banks[bid]['archives'])} archives): {len(b['media'])} media, "
               f"{len(b['objects'])} objects changed, {len(b['added'])} added, {len(b['removed'])} removed")

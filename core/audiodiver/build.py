@@ -4,7 +4,7 @@ import tempfile
 import time
 from pathlib import Path
 
-from . import akd, arsenal, patch, strings, wem
+from . import addition, akd, arsenal, biome, patch, strings, wem
 from .errors import os_error
 from .game import in_game_folder
 from .index import AudioIndex, CACHE_DIR
@@ -18,10 +18,15 @@ class BuildError(Exception):
     for_people = True
 
 
+def _encoded(wav: bytes, quality: float) -> Path:
+    """Where the encoding of this audio is cached."""
+    return CACHE_DIR / "wem" / f"{hashlib.sha1(wav + f'q{quality}'.encode()).hexdigest()[:16]}.wem"
+
+
 def encode_cached(src: Path, quality: float = 6, log=None) -> bytes:
     """The Vorbis .wem of src, encoded once per content (wav2wem + channel-config fix + vgmstream check)."""
-    key = hashlib.sha1(src.read_bytes() + f"q{quality}".encode()).hexdigest()[:16]
-    out = CACHE_DIR / "wem" / f"{key}.wem"
+    out = _encoded(src.read_bytes(), quality)
+    key = out.stem
     if not out.exists():
         if log:
             log(f"encoding {src.name}")
@@ -32,29 +37,62 @@ def encode_cached(src: Path, quality: float = 6, log=None) -> bytes:
     return out.read_bytes()
 
 
+def keep_encoding(wav: Path, data: bytes, quality: float = 6):
+    """Takes the .wem a wav was decoded from (a mod's patch, imported) as that wav's encoding: built unchanged, it
+    ships as the mod had it, not encoded a second time. Audio changed since is new content, and is encoded."""
+    out = _encoded(wav.read_bytes(), quality)
+    if not out.exists():
+        out.parent.mkdir(parents=True, exist_ok=True)
+        tmp = out.with_name(f"{out.stem}.partial.wem")
+        tmp.write_bytes(data)
+        tmp.replace(out)
+
+
 def replacements(project: Project, ix: AudioIndex, log=None, step=None) -> list[patch.Replacement]:
     """step(doing, done, total), when given, hears of each file as it is encoded (the job's progress; it may stop
     the build there)."""
     sources = [project.audio_path(r) for r in project.replacements]  # silence: the built-in silence file
     heard = sorted({src for r, src in zip(project.replacements, sources) if not r.silence})
     analysis = akd.analyse_files(heard) if project.loudness_analysis and heard else {}
-    out, by_sound = [], {}
+    out, by_sound, added = [], {}, project.added()
     for i, (r, src) in enumerate(zip(project.replacements, sources)):
         name = r.label or ("silence" if r.silence else Path(r.audio).name)
         if step:
             step(f"Encoding {name}", i, len(sources))
         try:
-            sid = ix.resolve(r.target)
+            sid = r.target if r.target in added else ix.resolve(r.target)
         except KeyError:
             raise BuildError(f"{name}: sound {r.target} isn't in this version of the game") from None
         if sid in by_sound:
             raise BuildError(f"{by_sound[sid]} and {name} replace the same sound")
         by_sound[sid] = name
         data = encode_cached(src, log=log)
-        if project.loudness_analysis and not r.silence:
+        if project.loudness_analysis and not r.silence and akd.get_chunk(data, b"akd ") is None:  # a mod's own may have it
             data = akd.insert(data, analysis[src])
         out.append(patch.Replacement(sid, data, fit_timing=r.fit_timing, makeup_db=r.gain_db, mute=r.silence))
     return out
+
+
+def additions(project: Project, ix: AudioIndex, reps: list[patch.Replacement]) -> addition.Plan:
+    """What the project adds to the game's banks, with the new clips' audio (reps, encoded). A take or own clip
+    without audio adds nothing, and a layer without takes neither."""
+    if not project.additions:
+        return addition.Plan()
+    wem_of = {r.source: r.wem for r in reps}
+    clash = sorted(project.made_ids() & ix.taken)
+    if clash:
+        raise BuildError(f"Since the last game update, the game uses some ids that this project's added audio also uses "
+                         f"({', '.join(map(str, clash[:3]))}). Remove that audio and add it again.")
+    takes = [addition.Take(a.container, a.sound, a.source, wem_of[a.source]) for a in project.additions
+             if a.kind == "take" and a.source in wem_of]
+    layers = [addition.Layer(a.container, a.beside) for a in project.additions
+              if a.kind == "layer" and any(t.to == a.container for t in takes)]
+    own = [addition.Own(a.sound, a.source, wem_of[a.source]) for a in project.additions
+           if a.kind == "own" and a.source in wem_of]
+    try:
+        return addition.plan(ix, takes, layers, own, project.made_ids())
+    except addition.AdditionError as e:
+        raise BuildError(f"Added audio: {e}") from None
 
 
 def text_tables(project: Project, texts, log=print) -> dict[int, bytes]:
@@ -82,12 +120,52 @@ def text_tables(project: Project, texts, log=print) -> dict[int, bytes]:
     return out
 
 
+def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, step=None, after=0) -> dict:
+    """Writes the project's patch (patch_dir/PATCH and its .stream) and checks it; returns {bank id: BankEdit}.
+    step(doing, done, total) follows it, counting `after` more steps the caller takes once the patch is made."""
+    t0 = time.time()
+    if problems := project.problems():
+        raise BuildError("Project problems:\n  " + "\n  ".join(problems))
+    steps = len(project.replacements) + 2 + after  # every file, then the banks and the check
+    reps = replacements(project, ix, log, step)
+    if step:
+        step("Patching the sound banks", steps - after - 2, steps)
+    log(f"patching the banks that hold or play {len(reps)} sound{'s' if len(reps) != 1 else ''}")
+    plan = additions(project, ix, reps)
+    tables = text_tables(project, strings.Texts(ix.game), log) if project.texts else {}
+    settings = {o: s for o, s in project.settings.items() if ix.copies(o)}
+    if gone := len(project.settings) - len(settings):
+        log(f"settings: {gone} object{'s' if gone != 1 else ''} the mod set {'are' if gone != 1 else 'is'} not in "
+            f"this game version; left out")
+    edits = patch.build_patch(str(patch_dir / PATCH), reps, ix, project.segment_overrides, tables, plan, settings,
+                              project.biome_fix)
+    if project.biome_fix and biome.INIT in edits and not biome.fixed_init(ix):
+        log("the fix for silent planets doesn't fit this game version's music_init; built without it")
+    missing = set(project.segment_overrides) - {s for e in edits.values() for s in e.segments}
+    if missing:
+        raise BuildError(f"Segment overrides matched no segment of a replaced clip: {sorted(missing)}")
+    if step:
+        step("Checking the patch", steps - after - 1, steps)
+    if problems := patch.verify(str(patch_dir / PATCH), reps, ix, plan, settings) \
+            + patch.verify_strings(str(patch_dir / PATCH), tables):
+        raise BuildError("The patch failed verification:\n  " + "\n  ".join(problems))
+    gains = sum(len(e.gains) for e in edits.values())
+    mutes = sum(len(e.mutes) for e in edits.values())
+    set_on = len({i for e in edits.values() for i in e.settings})
+    grown = sum(bool(e.added) for e in edits.values())
+    log(f"{len(reps)} replacements -> {len(edits)} banks patched"
+        + (f", added audio in {grown}" if grown else "")
+        + (f", make-up gain on {gains} objects" if gains else "")
+        + (f", {mutes} silenced sounds taken out of the mix" if mutes else "")
+        + (f", a mod's settings on {set_on} objects" if set_on else "") + f", verified ({time.time() - t0:.0f}s)")
+    return edits
+
+
 def build(project: Project, ix: AudioIndex, out_dir=None, version=None, log=print, step=None) -> Path:
     """Writes <out_dir>/<name>-<version>.zip and returns its path; out_dir defaults to the project's build folder.
     step(doing, done, total), when given, follows the build (the job's progress; it may stop the build there).
     The patch and the icon are made and checked in a scratch folder, so the ZIP is all a build adds to out_dir:
     any folder can take builds, also one that other mods build into."""
-    t0 = time.time()
     out_dir = Path(out_dir or project.build_dir())
     if in_game_folder(out_dir, ix.game.data):  # a project file can name any folder; the editor refuses this one
         raise BuildError(f"{out_dir} is inside the game's folder, and Audiodiver never writes there. Choose another "
@@ -98,30 +176,12 @@ def build(project: Project, ix: AudioIndex, out_dir=None, version=None, log=prin
     with tempfile.TemporaryDirectory(prefix="audiodiver-build-", ignore_cleanup_errors=True) as scratch:
         patch_dir = Path(scratch) / "patch"
         patch_dir.mkdir()
-        steps = len(project.replacements) + 3  # every file, then the banks, the check and the ZIP
-        reps = replacements(project, ix, log, step)
-        if step:
-            step("Patching the sound banks", steps - 3, steps)
-        log(f"patching the banks that hold or play {len(reps)} sound{'s' if len(reps) != 1 else ''}")
-        tables = text_tables(project, strings.Texts(ix.game), log) if project.texts else {}
-        edits = patch.build_patch(str(patch_dir / PATCH), reps, ix, project.segment_overrides, tables)
-        missing = set(project.segment_overrides) - {s for e in edits.values() for s in e.segments}
-        if missing:
-            raise BuildError(f"Segment overrides matched no segment of a replaced clip: {sorted(missing)}")
-        if step:
-            step("Checking the patch", steps - 2, steps)
-        if problems := patch.verify(str(patch_dir / PATCH), reps, ix) + patch.verify_strings(str(patch_dir / PATCH), tables):
-            raise BuildError("The patch failed verification:\n  " + "\n  ".join(problems))
-        gains = sum(len(e.gains) for e in edits.values())
-        mutes = sum(len(e.mutes) for e in edits.values())
-        log(f"{len(reps)} replacements -> {len(edits)} banks patched"
-            + (f", make-up gain on {gains} objects" if gains else "")
-            + (f", {mutes} silenced sounds taken out of the mix" if mutes else "") + f", verified ({time.time() - t0:.0f}s)")
-
+        make_patch(project, ix, patch_dir, log, step, after=1)
         icon_path = Path(scratch) / "icon.png"
         icon_path.write_bytes(icon)
         version = version or project.version
         if step:
+            steps = len(project.replacements) + 3
             step("Packing the ZIP", steps - 1, steps)
         try:
             out_dir.mkdir(parents=True, exist_ok=True)

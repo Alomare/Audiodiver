@@ -6,18 +6,28 @@ per installed language). A sound is known by its source id. A voice line has a s
 language, and its stream is filed under that language (`content/audio/us/<source id>`); a bank that plays such
 sources is marked with the language's code. A stream no bank plays is known by its own file id.
 
+A bank's path name comes from its wwise_dep resource, which spells it ("path"), so a bank the game adds is named
+without any list.
+
+It also keeps the ids of every bank's objects (Sounds, containers, events...): one object is often copied into many
+banks under the same id, and audio added to the game has to go into every copy (addition.py), under ids the game
+doesn't use. Each object's fingerprint ("prints", in the same order) says what it was in this version, for the
+versions after it (tools/import_bank_history.py).
+
 The index is cached per game version (keyed by the data files' fingerprint) and rebuilt after an update.
 """
 import json
 import os
+import struct
 import time
+from functools import cached_property
 from pathlib import Path
 
 from . import bank as wbank
-from .game import Game, WWISE_BANK, WWISE_STREAM, WWISE_DEP, stream_id
+from .game import Game, WWISE_BANK, WWISE_STREAM, WWISE_DEP, murmur64_hash, stream_id
 
 CACHE_DIR = Path(os.environ.get("AUDIODIVER_CACHE") or Path(os.environ.get("LOCALAPPDATA", Path.home())) / "Audiodiver")
-FORMAT = 3
+FORMAT = 6
 # the game's codes for the languages it has voices in, as its stream names spell them
 LANGUAGES = {"us": "English", "bp": "Portuguese (Brazil)", "cn": "Chinese", "de": "German", "es": "Spanish (Spain)",
              "fr": "French", "it": "Italian", "jp": "Japanese", "ms": "Spanish (Latin America)", "ru": "Russian"}
@@ -41,6 +51,17 @@ def _language(bank: dict, streams: dict) -> str:
     return ""
 
 
+def _dep_path(dep: bytes, fid: int) -> str:
+    """A bank's path name ("content/audio/wep_autocannon"), from its wwise_dep resource (a hash, the name's length,
+    the name); "" where the name doesn't hash to the bank's file id."""
+    try:
+        n = struct.unpack_from("<I", dep, 4)[0]
+        path = dep[8:8 + n].rstrip(b"\0")
+    except struct.error:
+        return ""
+    return path.decode("ascii", "replace") if murmur64_hash(path) == fid else ""
+
+
 def build(game: Game, log=print) -> dict:
     t0, banks, streams = time.time(), {}, {}
     for name in game.packages:
@@ -59,7 +80,11 @@ def build(game: Game, log=print) -> dict:
             b = banks.setdefault(str(fid), {"archives": []})
             b["archives"].append(name)
             if "media" not in b:
-                b["media"], b["refs"], b["music"] = wbank.audio_summary(data[off + 16:off + size])
+                b["media"], b["refs"], b["music"], b["objects"], b["prints"] = wbank.audio_summary(data[off + 16:off + size])
+        for fid, _t, off, size in (e for e in toc if e[1] == WWISE_DEP):
+            b = banks.get(str(fid))
+            if b is not None and "path" not in b and (path := _dep_path(data[off:off + size], fid)):
+                b["path"] = path
     for b in banks.values():
         b["lang"] = _language(b, streams)
     log(f"indexed {len(banks)} banks and {len(streams)} streams in {time.time() - t0:.0f}s")
@@ -125,6 +150,23 @@ class AudioIndex:
     def banks_for(self, sid: int) -> set[int]:
         """Every bank that holds the source's audio or plays it."""
         return self.holders.get(sid, set()) | self.users.get(sid, set())
+
+    @cached_property
+    def _copies(self) -> dict[int, list[int]]:
+        out = {}
+        for bid, b in self.banks.items():
+            for oid in b.get("objects", ()):
+                out.setdefault(oid, []).append(bid)
+        return out
+
+    def copies(self, oid: int) -> list[int]:
+        """The banks that have an object with this id (a Sound, a container, an event...), in id order."""
+        return sorted(self._copies.get(oid, ()))
+
+    @cached_property
+    def taken(self) -> frozenset[int]:
+        """Every id the game uses for an object or a sound: what a new one must not be."""
+        return frozenset(self._copies) | frozenset(self.holders) | frozenset(self.users)
 
     def bank_files(self, bank_id: int):
         """(raw bank bytes, raw dep toc data or None) from the first archive that has the bank."""

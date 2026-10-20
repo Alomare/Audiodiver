@@ -4,43 +4,43 @@ group: Getting started
 summary: What Audiodiver does, what a project is, and what each tab is for.
 ---
 
-Audiodiver replaces Helldivers 2 audio by **what it is and where it plays**, not by the ids in the game files. Find a piece of music or a set of sounds in the Library, add it to a project, give it new audio, and Audiodiver works out every sound bank, id and timing value the game needs.
+Audiodiver replaces Helldivers 2 audio by **what it is and where it plays**. You find a piece of music or a set of sounds in the Library, add it to a project and give it new audio. Audiodiver then works out the sound banks, ids and timing values the game needs.
 
-New to the game's audio? [The game's audio, explained](wiki:game-audio) covers archives, banks, takes, cues, segments and slots, and [Reading the screen](wiki:reading-the-screen) every part of the window.
+If the game's audio is new to you, [The game's audio, explained](wiki:game-audio) covers archives, banks, takes, cues, segments and slots. [Reading the screen](wiki:reading-the-screen) goes through every part of the window.
 
 ## Projects
 
-A project is one `.audi` file. It records what the mod works on and which files replace which of the game's clips, with Make-Up Gain and timing. Audio files stay where they are: keep them next to the project file and the whole folder can move.
+A project is a single `.audi` file. It records what the mod changes and which files replace which of the game's clips, along with Make-Up Gain and timing. The project points to the audio files and doesn't copy them. If you keep the audio files next to the project file, you can move the whole folder.
 
-Every change saves itself, {key:save} saves on demand, and {key:undo} takes a change back.
+Changes are saved automatically. {key:save} saves at any time, and {key:undo} undoes the last change.
 
-Audiodiver never writes to the game. It reads the game's audio from the Steam library (another folder can be chosen under **Game** in [Settings](app:settings/system)), and a build writes a ZIP for **HD2 Arsenal**, the mod manager that installs it.
+Audiodiver never writes to the game's folder. It reads the game's audio from the Steam library, and you can choose another folder under **Game** in [Settings](app:settings/system). A build produces a ZIP for **HD2 Arsenal**, the mod manager that installs it.
 
 ## The tabs
 
-The master tabs are the icons down the left of the window; hover one for its name and key.
+The icons down the left of the window are the main tabs. Hover over one to see its name and shortcut.
 
-- {icon:home} **Home**: new, open and recent projects.
-- {icon:library} **Library**: everything the game plays, to find and hear. It changes nothing. **Index** sorts what has a name; **All Archives** lists every archive with audio. **Add to the project** puts something in the project.
-- {icon:audio} **Audio Editor**: what the project works on. This is where slots get new audio.
-- {icon:text} **Text Editor**: the game's text in every language, subtitles included. See [The game's text and subtitles](wiki:text).
-- {icon:build} **Build**: what HD2 Arsenal shows for the mod, and the Build button. A red number counts the problems that stop a build.
-- {icon:updates} **Updates**, {icon:wiki} **Wiki** ({key:wiki}) and {icon:settings} **Settings**, at the bottom. Updates lights up when a new version of Audiodiver is out, and lists every version's changes.
+- {icon:home} **Home** has new, open and recent projects.
+- {icon:library} **Library** lists everything the game plays, so you can find it and listen to it. Browsing it changes nothing, and **Add to the project** puts an entry in the project. **Index** sorts the audio that has a name, and **All Archives** lists every archive that contains audio.
+- {icon:audio} **Audio Editor** shows what the project works on. This is where slots get new audio.
+- {icon:text} **Text Editor** has the game's text in every language, including subtitles. See [The game's text and subtitles](wiki:text).
+- {icon:build} **Build** sets what HD2 Arsenal shows for the mod and holds the Build button. A red number on the tab counts the problems that block a build.
+- {icon:updates} **Updates**, {icon:wiki} **Wiki** ({key:wiki}) and {icon:settings} **Settings** are at the bottom. Updates is highlighted when a new version of Audiodiver is available, and it lists the changes in every version.
 
-The version, at the right end of the status bar, opens Updates too. The {icon:info} next to it opens [About](app:about): the licence, the log file and the credits.
+The version number at the right end of the status bar also opens Updates. The {icon:info} button next to it opens [About](app:about), with the licence, the log file and the credits.
 
-The open project's name is the window's title.
+The window's title is the name of the open project.
 
-The Library and the Audio Editor look alike on purpose: find something in one, work on it in the other. **Export…** is in both.
+The Library and the Audio Editor share the same layout, and both have **Export…**. You find something in the Library and work on it in the Audio Editor.
 
 ## New versions of Audiodiver
 
-Audiodiver looks for a new version on GitHub each time it starts. [Settings ▸ System](app:settings/system) says what happens when there is one:
+Audiodiver checks GitHub for a new version every time it starts. [Settings ▸ System](app:settings/system) controls what happens when there is one:
 
-- **Prompt on startup** (the default): it asks, with **Update now**, **Read the changelog** and **Not now**.
-- **Manual**: it doesn't ask. The Updates tab and the version in the status bar light up, and **Update now** is in the Updates tab.
-- **Automatic**: it installs the new version at startup and opens again on it.
+- **Prompt on startup** (the default) asks first, with **Update now**, **Read the changelog** and **Not now**.
+- **Manual** doesn't ask. The Updates tab and the version in the status bar are highlighted, and **Update now** is on the Updates tab.
+- **Automatic** installs the new version at startup and restarts Audiodiver.
 
-An update replaces Audiodiver itself. Projects, audio files and settings stay where they are.
+An update replaces only the app. Projects, audio files and settings are kept.
 
 Next: [A first mod](wiki:first-mod).

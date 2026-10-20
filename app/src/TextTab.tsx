@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { call, type ProjectState, type TextLine } from "./api";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { call, type ProjectState, type SaidBy, type TextLine } from "./api";
 import { Mark } from "./IndexTree";
 import { chordOf, keymap } from "./keys";
 import { nav } from "./nav";
@@ -7,6 +7,7 @@ import { copyText } from "./platform";
 import { Splitter } from "./Resize";
 import { RESET_LAYOUT } from "./settings";
 import { useEditor } from "./store";
+import { TextPreview } from "./TextPreview";
 import { Help, WikiLink } from "./Wiki";
 
 /** The Text tab: the game's text in every language (subtitles, menus, names, everything), to find a line and change
@@ -14,6 +15,17 @@ import { Help, WikiLink } from "./Wiki";
     (core: strings.py, editor.py text_*). */
 type Lang = { code: string; name: string };
 type Found = { results: TextLine[]; total: number };
+
+/** Lines another tab asks to show (a voice line's subtitle, or the subtitles with its words): the list holds just
+    them, `pick` open, until the search or the filter changes; in `lang`, the voice's language, where given. */
+export type Shown = { ids: number[]; pick: number; note: string; lang?: string };
+let asked: Shown | null = null;
+const askers = new Set<(s: Shown) => void>();
+export function showLines(s: Shown) {
+  asked = s;
+  askers.forEach((f) => f(s));
+  nav.go("text");
+}
 
 const LANG_KEY = "audiodiver.textLanguage";
 const WIDTH_KEY = "audiodiver.textLeft";
@@ -25,12 +37,19 @@ export const plainText = (t: string) => t.replace(TIMING, " ").replace(MARKUP, "
 export function TextTab({ hidden }: { hidden?: boolean }) {
   const { project, actions, quick } = useEditor();
   const [langs, setLangs] = useState<Lang[]>([]);
-  const [lang, setLang] = useState(() => { try { return localStorage.getItem(LANG_KEY) ?? "us"; } catch { return "us"; } });
+  const [lang, setLang] = useState(() => { try { return asked?.lang ?? localStorage.getItem(LANG_KEY) ?? "us"; } catch { return "us"; } });
   const [query, setQuery] = useState("");
   const [mine, setMine] = useState(false);
   const [found, setFound] = useState<Found | null>(null);
   const [error, setError] = useState("");
-  const [pick, setPick] = useState<{ table: string; id: number } | null>(null);
+  const [only, setOnly] = useState<Shown | null>(asked);
+  const [pick, setPick] = useState<{ table: string; id: number } | null>(asked && { table: "", id: asked.pick });
+  useEffect(() => {
+    const show = (s: Shown) => { setOnly(s); setQuery(""); setMine(false); setPick({ table: "", id: s.pick }); if (s.lang) setLang(s.lang); };
+    askers.add(show);
+    return () => { askers.delete(show); };
+  }, []);
+  useEffect(() => { asked = only; }, [only]);
   const [width, setWidth] = useState(() => { try { return Number(localStorage.getItem(WIDTH_KEY)) || 480; } catch { return 480; } });
   useEffect(() => { try { localStorage.setItem(WIDTH_KEY, String(width)); } catch { /* storage off */ } }, [width]);
   useEffect(() => {
@@ -40,19 +59,22 @@ export function TextTab({ hidden }: { hidden?: boolean }) {
   }, []);
   useEffect(() => { try { localStorage.setItem(LANG_KEY, lang); } catch { /* storage off */ } }, [lang]);
   useEffect(() => { call<Lang[]>("text_languages").then(setLangs).catch((e) => setError(e.message)); }, []);
+  // a language the game's text doesn't come in (a voice's, from a link): US English
+  useEffect(() => { if (langs.length && !langs.some((l) => l.code === lang)) setLang("us"); }, [langs, lang]);
 
   const yours = project?.texts ?? [];
   const edits = useMemo(() => JSON.stringify(yours), [yours]);
   // the list: what the search finds, or the lines the project changes; asked for again after an edit
   useEffect(() => {
-    if (!query.trim() && !mine) { setFound(null); return; }
+    if (!query.trim() && !mine && !only) { setFound(null); return; }
     let live = true;
     const t = setTimeout(() => {
-      call<Found>("text_search", { language: lang, query, mine }).then((f) => { if (live) { setFound(f); setError(""); } })
+      call<Found>("text_search", { language: lang, query, mine, ...(only ? { ids: only.ids } : {}) })
+        .then((f) => { if (live) { setFound(f); setError(""); } })
         .catch((e) => live && setError(e.message));
-    }, 220);
+    }, only ? 0 : 220);
     return () => { live = false; clearTimeout(t); };
-  }, [lang, query, mine, edits]);
+  }, [lang, query, mine, edits, only]);
 
   // the open line: from the list, or (after the language changed) asked for by its id, which every language shares
   const [extra, setExtra] = useState<TextLine | null>(null);
@@ -91,25 +113,31 @@ export function TextTab({ hidden }: { hidden?: boolean }) {
     <div className="panes two text-tab" hidden={hidden} style={{ ["--left" as any]: `${width}px` }}>
       <aside className="library" aria-label="The game's text" onKeyDown={listKeys}>
         <div className="lib-search">
-          <select value={lang} onChange={(e) => setLang(e.target.value)} aria-label="Language" data-tip="Language: each one is a table of its own">
+          <select value={lang} onChange={(e) => setLang(e.target.value)} aria-label="Language" data-tip="Language. Each language is a separate table">
             {(langs.length ? langs : [{ code: lang, name: lang }]).map((l) => <option key={l.code} value={l.code}>{l.name}</option>)}
           </select>
-          <input type="search" placeholder="Search, or paste an id" value={query} onChange={(e) => setQuery(e.target.value)}
+          <input type="search" placeholder="Search, or paste an id" value={query} onChange={(e) => { setOnly(null); setQuery(e.target.value); }}
             aria-label="Search the game's text" data-tip="Words of a line in this language, or a line's id" data-tip-side="bottom"
             onKeyDown={(e) => { if (e.key === "Escape") setQuery(""); }} />
         </div>
         <div className="mus-filters">
           <div className="segmented mus-filter" role="radiogroup" aria-label="Show">
-            <button role="radio" aria-checked={!mine} className={!mine ? "on" : ""} onClick={() => setMine(false)}>All lines</button>
-            <button role="radio" aria-checked={mine} className={mine ? "on" : ""} disabled={!project} onClick={() => setMine(true)}
+            <button role="radio" aria-checked={!mine} className={!mine ? "on" : ""} onClick={() => { setOnly(null); setMine(false); }}>All lines</button>
+            <button role="radio" aria-checked={mine} className={mine ? "on" : ""} disabled={!project} onClick={() => { setOnly(null); setMine(true); }}
               data-tip={project ? "Only the lines the project changes in this language" : "Open a project to change lines"}>Changed{count ? ` (${count})` : ""}</button>
           </div>
         </div>
         <div className="lib-tree tx-list">
+          {only && (
+            <div className="tx-only">
+              <span>{only.note}</span>
+              <button className="x" aria-label="Show all lines" data-tip="Show all lines" onClick={() => setOnly(null)}>✕</button>
+            </div>
+          )}
           {error && <p className="empty-note">{error}</p>}
           {!found && !error && (
             <div className="empty-note">
-              <p>Search every line of the game's text: subtitles, mission and menu text, names.</p>
+              <p>Search every line of the game's text, including subtitles, mission and menu text, and names.</p>
               <p className="muted small">Try <button className="link-text" onClick={() => setQuery("democracy")}>democracy</button>, <button className="link-text"
                 onClick={() => setQuery("reinforcing")}>reinforcing</button> or <button className="link-text" onClick={() => setQuery("extraction")}>extraction</button>.</p>
             </div>
@@ -129,7 +157,7 @@ export function TextTab({ hidden }: { hidden?: boolean }) {
       </aside>
       <Splitter width={width} onResize={setWidth} initial={480} panel="left" label="Resize the list" />
       <main className="center">
-        {line ? <LineEditor key={`${line.table}:${line.id}`} line={line} canEdit={!!project}
+        {line ? <LineEditor key={`${line.table}:${line.id}`} line={line} lang={lang} canEdit={!!project}
           onSave={(t) => actions.setText(line.table, line.id, t)}
           onRevert={async () => { if (await actions.revertText([{ table: line.table, id: line.id }])) quick("Original restored", "undo"); }} />
           : (
@@ -149,8 +177,8 @@ export function TextTab({ hidden }: { hidden?: boolean }) {
 }
 
 /** One line: the original, the new text (with a formatting bar), and a preview of how the game shows it. */
-function LineEditor({ line, canEdit, onSave, onRevert }: {
-  line: TextLine; canEdit: boolean; onSave: (text: string) => Promise<ProjectState | null>; onRevert: () => void;
+function LineEditor({ line, lang, canEdit, onSave, onRevert }: {
+  line: TextLine; lang: string; canEdit: boolean; onSave: (text: string) => Promise<ProjectState | null>; onRevert: () => void;
 }) {
   const { actions, quick, project } = useEditor();
   const rev = project?.revision ?? -1;
@@ -235,8 +263,9 @@ function LineEditor({ line, canEdit, onSave, onRevert }: {
           <span className="field-label">Original</span>
           <div className="tx-preview game"><TextPreview text={line.text} /></div>
         </div>
+        {subtitle && <VoiceLines id={line.id} lang={lang} />}
         <div className="field">
-          <span className="field-label">New text <Help tip="Timing marks, colours and the words the game fills in" page="text" /></span>
+          <span className="field-label">New text <Help tip="What each format does, with examples" page="formatting-text" /></span>
           <div className="tx-bar" role="toolbar" aria-label="Formatting">
             <label className="tx-color" data-tip="Colour for the selected words">
               <input type="color" value={color} onChange={(e) => setColor(e.target.value)} aria-label="Colour" disabled={!canEdit} />
@@ -251,7 +280,7 @@ function LineEditor({ line, canEdit, onSave, onRevert }: {
             <button className="btn small-btn" disabled={!canEdit} onClick={() => wrap(`<c=FF${hex}>`, "</c>")}
               data-tip="Colour the selection (the whole line when nothing is selected)">Colour</button>
             <input type="number" className="tx-size" min={10} max={60} value={sizeDraft ?? size} disabled={!canEdit} aria-label="Size, 10 to 60"
-              data-tip="Size from 10 to 60 (20 is the game's own). No line of the game uses sizes; chat does"
+              data-tip="Size from 10 to 60. The game's normal size is 20. None of the game's lines use sizes, but chat does"
               onChange={(e) => setSizeDraft(e.target.value)}
               onBlur={() => { const n = Number(sizeDraft); if (sizeDraft !== null && sizeDraft.trim() !== "" && Number.isFinite(n)) setSize(Math.round(Math.max(10, Math.min(60, n)))); setSizeDraft(null); }}
               onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }} />
@@ -259,7 +288,7 @@ function LineEditor({ line, canEdit, onSave, onRevert }: {
               data-tip="Size the selection">Size</button>
             <button className="btn small-btn" disabled={!canEdit} onClick={() => wrap("<i=1>", "</i>")} data-tip="The game's emphasis style">Emphasis</button>
             {subtitle && (
-              <button className="btn small-btn" disabled={!canEdit} data-tip="Add a timing mark at the cursor" data-tip-more="When the words after it show, in seconds into the voice line"
+              <button className="btn small-btn" disabled={!canEdit} data-tip="Add a timing mark at the cursor" data-tip-more="When the words after it appear, in seconds from the start of the voice line"
                 onClick={() => { const el = box.current!, at = el.selectionStart; edit(draft.slice(0, at) + "{0.00->2.00}" + draft.slice(at), true); }}>Timing</button>
             )}
             <span className="spacer" />
@@ -285,34 +314,46 @@ function LineEditor({ line, canEdit, onSave, onRevert }: {
   );
 }
 
-/** A line as the game shows it: colours, sizes and emphasis applied, subtitle timing as marks, and the words the game
-    fills in (#NAME) as chips. */
-export function TextPreview({ text }: { text: string }) {
-  const out: ReactNode[] = [];
-  const stack: { tag: string; style: CSSProperties }[] = [];
-  const re = /\{(\d+(?:\.\d+)?)->(\d+(?:\.\d+)?)\}|<([cifs])=([^>]*)>|<\/([cifs])>|(#[A-Z][A-Z0-9_]+)|(\n)/g;
-  const style = () => Object.assign({}, ...stack.map((f) => f.style)) as CSSProperties;
-  let last = 0, k = 0, m: RegExpExecArray | null;
-  const words = (s: string) => { if (s) out.push(<span key={k++} style={style()}>{s}</span>); };
-  while ((m = re.exec(text))) {
-    words(text.slice(last, m.index));
-    last = re.lastIndex;
-    if (m[1] !== undefined) out.push(<span key={k++} className="tx-time" data-tip="Timing: when these words show, in seconds into the voice line">{m[1]}–{m[2]} s</span>);
-    else if (m[3]) {
-      const v = m[4], s: CSSProperties = {};
-      if (m[3] === "c" && /^[0-9a-f]{8}$/i.test(v)) {
-        const n = parseInt(v, 16);
-        s.color = `rgb(${(n >> 16) & 255} ${(n >> 8) & 255} ${n & 255} / ${((n >>> 24) / 255).toFixed(2)})`;
-      } else if (m[3] === "c") s.textDecoration = "underline dotted"; // a colour the game fills in (#PLAYER_COLOR…)
-      else if (m[3] === "i") s.fontStyle = "italic";
-      else if (m[3] === "s" && Number(v)) s.fontSize = `${Number(v) / 20}em`;
-      stack.push({ tag: m[3], style: s });
-    } else if (m[5]) {
-      const i = stack.map((f) => f.tag).lastIndexOf(m[5]);
-      if (i >= 0) stack.splice(i, 1);
-    } else if (m[6]) out.push(<span key={k++} className="tx-fill" data-tip="The game fills this in">{m[6]}</span>);
-    else out.push(<br key={k++} />);
-  }
-  words(text.slice(last));
-  return <>{out.length ? out : <span className="muted">(empty)</span>}</>;
+const SHOWN_VOICES = 8;
+
+/** The voice lines that say a subtitle, in the language open (English where it has no voices), each opening in the
+    Library: the way back from a subtitle to its recordings. Where no recording is matched to this subtitle, the
+    ones matched to subtitles with its words, any of which may be it (core: editor.py text_voices). */
+function VoiceLines({ id, lang }: { id: number; lang: string }) {
+  const { openFound } = useEditor();
+  const [found, setFound] = useState<{ lines: SaidBy[]; alike: boolean } | null>(null);
+  useEffect(() => {
+    let live = true;
+    setFound(null);
+    (async () => {
+      const own = await call<SaidBy[]>("text_voices", { ids: [id], language: lang });
+      if (own.length) return { lines: own, alike: false };
+      const ids = await call<number[]>("text_alike", { id });
+      return { lines: ids.length > 1 ? await call<SaidBy[]>("text_voices", { ids: ids.slice(1), language: lang }) : [], alike: true };
+    })().then((f) => live && setFound(f), () => live && setFound(null));
+    return () => { live = false; };
+  }, [id, lang]);
+  if (!found?.lines.length) return null;
+  const { lines, alike } = found;
+  const takes = new Map<string, number>(); // a voice with two recordings of the line: "take 2"
+  return (
+    <div className="field">
+      <span className="field-label">{alike ? "Voice lines with these words" : "Voice lines"} <Help tip={alike
+        ? "No recording is matched to this subtitle. These recordings say the same words but are matched to other subtitles. One of them may belong to this subtitle"
+        : "The recordings that say this subtitle. Open one in the Library to hear it or replace it"} page="text" /></span>
+      <div className="tx-voices">
+        {lines.slice(0, SHOWN_VOICES).map((v) => {
+          const n = (takes.get(v.name) ?? 0) + 1;
+          takes.set(v.name, n);
+          return (
+            <button key={`${v.cue}:${v.source}`} className="link-text" onClick={() => openFound("library", v)}
+              data-tip={v.sure && !alike ? "Open it in the Library" : "Several subtitles have these words, so this match is likely but not certain. Open it in the Library"}>
+              {v.name}{n > 1 && ` · take ${n}`}{(!v.sure || alike) && <span className="tx-likely">· likely</span>}
+            </button>
+          );
+        })}
+        {lines.length > SHOWN_VOICES && <span className="muted small">and {lines.length - SHOWN_VOICES} more</span>}
+      </div>
+    </div>
+  );
 }

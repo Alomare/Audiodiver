@@ -59,8 +59,8 @@ function NoteTags({ slot }: { slot: Slot }) {
 
 /** What each kind of silence does: the slot row's tooltip and the choice in the details panel. */
 export const SILENCE_TIP = {
-  move: "Plays nothing; the game moves straight on",
-  keep: "Plays nothing for as long as the original would; what follows keeps its place",
+  move: "Plays nothing, and the game moves straight on",
+  keep: "Plays nothing for as long as the original would, so what follows keeps its timing",
 };
 
 /** Whether a slot has new audio to listen to: a file that is there, not silence. */
@@ -135,7 +135,7 @@ function CueBody({ cue }: { cue: Cue }) {
   const hits = useMemo(() => {
     if (!q) return null;
     const words = q.split(/\s+/);
-    return all.filter((r) => { const hay = `${r.seg.name} ${r.slot.label} ${r.slot.source} ${noteTags(r.slot).join(" ")}`.toLowerCase(); return words.every((w) => hay.includes(w)); });
+    return all.filter((r) => { const hay = `${r.seg.name} ${r.slot.label} ${r.slot.source} ${r.slot.was ?? ""} ${noteTags(r.slot).join(" ")}`.toLowerCase(); return words.every((w) => hay.includes(w)); });
   }, [all, q]);
   /** The slots that show: all of a music cue's; of a bank's, those of the open groups or the ones the filter finds. */
   const rows = useMemo(() => (hits ? hits.slice(0, MAX_SHOWN) : grouped ? all.filter(isOpen) : all), [hits, grouped, all, isOpen]);
@@ -315,6 +315,17 @@ function CueBody({ cue }: { cue: Cue }) {
     ];
   };
 
+  /** What a sound can have added (the Audio Editor): new takes, which its random container picks like its own, and
+      a layer beside it, which plays whenever it plays. A layer takes new takes too. */
+  const addEntries = (r: Row): MenuEntry[] => {
+    const g = r.seg;
+    if (readOnly || !g.container) return [];
+    return [
+      { label: "New takes…", disabled: !project, run: () => actions.addTakes(g.container!, g.name) },
+      ...(g.added === "layer" ? [] : [{ label: "New layer…", disabled: !project || !g.layer, run: () => actions.addLayer(g.container!, g.name) }]),
+    ];
+  };
+
   /** The right-click menu of a slot (it acts on the selection when the slot is part of it). */
   const slotMenu = (e: React.MouseEvent, r: Row) => {
     const s = r.slot.source;
@@ -338,8 +349,9 @@ function CueBody({ cue }: { cue: Cue }) {
     const withAudio = ordered.filter((x) => assigned[x]);
     const silenceable = rows.filter((x) => sel.includes(x.slot.source) && usable(x)).map((x) => x.slot.source);
     const many = sel.length > 1 ? ` (${sel.length} slots)` : "";
+    const adds = addEntries(r);
     const entries: MenuEntry[] = [
-      { label: "Play the original", keys: keyLabel("playGame"), disabled: r.slot.absent, run: () => playSlot("vanilla", s, revision, rowName(r), at(s)) },
+      { label: "Play the original", keys: keyLabel("playGame"), disabled: r.slot.absent || !!r.slot.added, run: () => playSlot("vanilla", s, revision, rowName(r), at(s)) },
       { label: "Play the new audio", keys: keyLabel("playMine"), disabled: !audible(a), run: () => playSlot("project", s, revision, rowName(r), at(s)) },
       "-",
       { label: a ? "Replace with another file…" : "Choose a file…", keys: keyLabel("chooseFile"), disabled: !project || !usable(r), run: () => choose(s) },
@@ -351,6 +363,7 @@ function CueBody({ cue }: { cue: Cue }) {
       { label: `Replace with silence${many}`, keys: keyLabel("silence"), disabled: !project || !silenceable.length || silenceable.every((x) => assigned[x]?.silence),
         run: () => actions.silence(silenceable, false, sel.length > 1 ? `${silenceable.length} slots` : rowName(r)) },
       { label: `Remove the new audio${many}`, keys: keyLabel("remove"), disabled: !withAudio.length, run: () => actions.unassign(withAudio) },
+      ...(adds.length ? ["-" as const, ...adds] : []),
       "-",
       exportEntry(sel, r),
       { label: "Show the file in its folder", disabled: !a?.exists || a.silence, run: () => reveal(fullPath(project!.folder, a!.audio)) },
@@ -385,6 +398,7 @@ function CueBody({ cue }: { cue: Cue }) {
     remove: (source: string) => { actions.unassign([source]); },
     toggle: (segIndex: number) => setFlipped((f) => { const next = new Set(f); if (next.has(segIndex)) next.delete(segIndex); else next.add(segIndex); return next; }),
     openTag: (id: string, cueId: string) => { show(id, cueId); },
+    add: (e: React.MouseEvent, first: Row) => openMenu(e, addEntries(first)),
     groupMenu: (e: React.MouseEvent, first: Row) => {
       const takes = takesOf.get(first.segIndex) ?? NONE, replaced = takes.filter((s) => assigned[s]);
       const name = first.seg.name, n = `${takes.length} ${takes.length === 1 ? "take" : "takes"}`;
@@ -396,6 +410,7 @@ function CueBody({ cue }: { cue: Cue }) {
           { label: `Replace its ${n} with silence`, disabled: !project || !takes.length || takes.every((s) => assigned[s]?.silence),
             run: () => actions.silence(takes, false, name) },
           { label: `Remove the new audio from its ${n}`, disabled: !replaced.length, run: () => actions.unassign(replaced) },
+          ...(addEntries(first).length ? ["-", ...addEntries(first)] : []),
           "-"] as MenuEntry[]),
         { label: `Add its ${first.takes} ${first.takes === 1 ? "take" : "takes"} to the export list`,
           run: () => toExport(all.filter((r) => r.segIndex === first.segIndex).map((r) => r.slot.source), `${item?.full ?? cue.name} - ${name}`) },
@@ -457,8 +472,8 @@ function CueBody({ cue }: { cue: Cue }) {
           {part?.note && <p className="cue-notes">{part.note}</p>}
           {cue.notes && (!part || cue.locked || !music) && <p className={`cue-notes${cue.locked ? " warn" : ""}`}>{cue.notes}</p>}
           {between && between.own.length < between.targets.length && (
-            <p className="cue-notes">{between.own.length ? `${between.targets.length - between.own.length} of its ${between.targets.length} slots belong`
-              : "Its audio belongs"} to other music too, and {between.own.length ? "change" : "changes"} with it.</p>
+            <p className="cue-notes">{between.own.length ? `${between.targets.length - between.own.length} of its ${between.targets.length} slots also belong`
+              : "Its audio also belongs"} to other music, and {between.own.length ? "they change" : "it changes"} along with that music.</p>
           )}
         </header>
         <ResizeEdge edge="bottom" label="Resize the header" min={56} max={() => room("top")}
@@ -466,7 +481,7 @@ function CueBody({ cue }: { cue: Cue }) {
       </div>
       <div className="cue-bar" data-drop={drop}>
         {readOnly && item && (listed ? (
-          <button className="btn primary" data-tip="Open it where it gets new audio"
+          <button className="btn primary" data-tip="Open it to give it new audio"
             onClick={() => goTo({ scope: "editor", itemId: item.id, cueId: cue.id, source: selected[0] ?? null })}>Open in the Audio Editor</button>
         ) : inside ? (
           <button className="btn primary" data-tip="Its sounds are in the project already" data-tip-more={`In ${listName(inside)}`}
@@ -490,7 +505,7 @@ function CueBody({ cue }: { cue: Cue }) {
           <button className="btn" data-tip="Save as WAV, FLAC or MP3" onClick={() => setExporting(true)}>Export…</button>
         )}
         {between && project && skip.length > 0 && (
-          <button className="btn" data-tip={`Replace with a short silence: the game goes straight to the next music${keyHint("undo") ? `. Undo${keyHint("undo")} brings it back` : ""}`}
+          <button className="btn" data-tip={`Replace with a short silence, so the game goes straight to the next music${keyHint("undo") ? `. Undo${keyHint("undo")} brings it back` : ""}`}
             onClick={() => actions.skip(skip, between.name || item?.name || cue.name)}>Skip it</button>
         )}
         {!readOnly && mine > 0 && (
@@ -506,7 +521,7 @@ function CueBody({ cue }: { cue: Cue }) {
               onKeyDown={(e) => { if (e.key === "Escape") { if (filter) setFilter(""); else e.currentTarget.blur(); } }} />
             {!hits && all.some(folds) && (
               <button className="icon-btn" disabled={!anyOpen} onClick={collapseAll} aria-label="Collapse all"
-                data-tip={anyOpen ? "Collapse all: every sound to its one line" : "Every sound is collapsed"}><CollapseAllIcon /></button>
+                data-tip={anyOpen ? "Collapse all sounds" : "Every sound is collapsed"}><CollapseAllIcon /></button>
             )}
           </div>
         )}
@@ -532,6 +547,29 @@ type RowHandlers = {
   click: (e: React.MouseEvent, source: string) => void; select: (source: string) => void; choose: (source: string) => void;
   menu: (e: React.MouseEvent, r: Row) => void; remove: (source: string) => void; toggle: (segIndex: number) => void;
   openTag: (id: string, cueId: string) => void; groupMenu: (e: React.MouseEvent, first: Row) => void;
+  add: (e: React.MouseEvent, first: Row) => void;
+};
+
+/** The + at the end of a sound's line in the Audio Editor: new takes for it, or a layer beside it. */
+function AddButton({ row, on }: { row: Row; on: RowHandlers }) {
+  const { readOnly } = useLite();
+  if (readOnly || !row.seg.container) return null;
+  return (
+    <button className="icon-btn grp-add" aria-label={`Add new audio to ${row.seg.name}`} data-tip="Add new audio"
+      data-tip-more={row.seg.added === "layer" ? "New takes for this layer" : "New takes, or a layer that plays with it"}
+      onClick={(e) => { e.stopPropagation(); on.add(e, row); }} onDoubleClick={(e) => e.stopPropagation()}>+</button>
+  );
+}
+
+/** A tag on a row of audio the project adds: a new take, or a clip of its own. */
+function AddedTag({ slot }: { slot: Slot }) {
+  if (slot.added) return <span className="tag new" data-tip={ADDED_TIP.take}>new take</span>;
+  if (slot.was) return <span className="tag new" data-tip={ADDED_TIP.own}>only this sound</span>;
+  return null;
+}
+const ADDED_TIP = {
+  take: "A take added by the project. The game picks it like the other takes. It has no original",
+  own: "The new audio plays only in this sound. Other sounds that play the clip keep the original",
 };
 
 /** Where a row's slot is, for the now-playing bar to lead back to. */
@@ -557,16 +595,18 @@ const GroupHead = memo(function GroupHead({ row, open, shown, status, itemId, cu
   const unit = /^(Sounds|Other Audio|No Audio|Streams)\b/.test(seg.name) ? "sounds" : "takes";
   return (
     <div className={`grp${open ? " open" : ""}`} data-drop={drop} onContextMenu={(e) => on.groupMenu(e, row)}>
-      <PlayButton kind="vanilla" source={slot.source} label={`the first of ${seg.name}`} what={rowName(row)} small at={at} disabled={slot.absent} />
+      <PlayButton kind="vanilla" source={slot.source} label={`the first of ${seg.name}`} what={rowName(row)} small at={at} disabled={slot.absent || !!slot.added} />
       <button className="grp-head" aria-expanded={open} onClick={() => on.toggle(row.segIndex)}>
         <span className="caret" aria-hidden>▸</span>
-        <span className="grp-name" data-tip={seg.name} data-tip-clip>{seg.name}</span>
+        <span className={`grp-name${seg.added ? " new" : ""}`} data-tip={seg.name} data-tip-clip>{seg.name}</span>
         <span className="grp-n">{shown < takes ? `${shown} of ${takes}` : takes} {unit}</span>
       </button>
       <span className="grp-meta">
         {(seg.tags ?? []).map((t) => <CatTag key={t.item ?? t.name} tag={t} tip="Show it in the Index" onOpen={t.item ? () => on.openTag(t.item!, seg.cue ?? "") : undefined} />)}
-        {shared > 0 && <Linked tip={`Also in ${shared} other bank${shared === 1 ? "" : "s"}: new audio here changes all of them`}>in {shared} other bank{shared === 1 ? "" : "s"}</Linked>}
+        {seg.added === "layer" && <span className="tag new" data-tip={LAYER_TIP}>layer</span>}
+        {shared > 0 && <Linked tip={`Also in ${shared} other bank${shared === 1 ? "" : "s"}. New audio here changes all of them`}>in {shared} other bank{shared === 1 ? "" : "s"}</Linked>}
         {status !== "na" && <Mark status={status} />}
+        <AddButton row={row} on={on} />
       </span>
     </div>
   );
@@ -588,7 +628,7 @@ function SlotId({ id }: { id: string }) {
 
 /** A tag saying the audio is linked to other places: the same sound plays in other cues or banks, so replacing it
     changes it there too. The chain says "linked" before the words are read. */
-function Linked({ children, tip = "Linked: new audio here plays there too" }: { children: React.ReactNode; tip?: string }) {
+function Linked({ children, tip = "Linked to other places. New audio here plays there too" }: { children: React.ReactNode; tip?: string }) {
   return <span className="tag linked" data-tip={tip}><LinkIcon />{children}</span>;
 }
 
@@ -637,33 +677,37 @@ const SlotRow = memo(function SlotRow({ row, a, selected, now, itemId, cueId, on
       {flash > flashed && <span key={flash} className="slot-flash" aria-hidden onAnimationEnd={() => setFlashed(flash)} />}
       {solo ? (
         <div className="slot-name solo-line">
-          <PlayButton kind="vanilla" source={slot.source} label="the original" what={what} onPlay={onSelect} at={at} disabled={slot.absent} small />
+          <PlayButton kind="vanilla" source={slot.source} label="the original" what={what} onPlay={onSelect} at={at} disabled={slot.absent || !!slot.added} small />
           <span className="caret ghost" aria-hidden>▸</span>
-          <span className="grp-name" data-tip={seg.name} data-tip-clip>{seg.name}</span>
-          <span className="grp-n" data-tip={gameMs ? fmtTime(gameMs) : undefined}>{label && !seg.name.includes(label) ? label : "1 take"}</span>
+          <span className={`grp-name${seg.added ? " new" : ""}`} data-tip={seg.name} data-tip-more={seg.added ? LAYER_TIP : undefined}
+            data-tip-clip={seg.added ? undefined : true}>{seg.name}</span>
+          {!seg.added && <span className="grp-n" data-tip={gameMs ? fmtTime(gameMs) : undefined}>{label && !seg.name.includes(label) ? label : "1 take"}</span>}
           <span className="grp-meta">
             {slot.absent && <span className="tag" data-tip={NO_AUDIO_TIP}>no audio</span>}
             {slot.locked && <span className="tag warn">do not touch</span>}
+            {seg.added !== "layer" && <AddedTag slot={slot} />}
             <NoteTags slot={slot} />
             {(seg.tags ?? []).map((t) => <CatTag key={t.item ?? t.name} tag={t} />)}
             {also > 0 && <Linked>{banks >= also ? `in ${also} other bank${also > 1 ? "s" : ""}` : `+${also} ${banks ? "more" : `cue${also > 1 ? "s" : ""}`}`}</Linked>}
+            <AddButton row={row} on={on} />
           </span>
-          <SlotId id={slot.source} />
+          {!seg.added && <SlotId id={slot.source} />}
         </div>
       ) : (
       <div className="slot-name">
         {/* the original plays from the start of the line, as it does on a group's line and in the lists */}
-        <PlayButton kind="vanilla" source={slot.source} label="the original" what={what} onPlay={onSelect} at={at} disabled={slot.absent} />
+        <PlayButton kind="vanilla" source={slot.source} label="the original" what={what} onPlay={onSelect} at={at} disabled={slot.absent || !!slot.added} />
         <div className="slot-text">
           {inGroup ? null : row.firstOfSeg ? <span className="seg-name">{seg.name}</span> : <span className="seg-cont" aria-hidden />}
           <span className="slot-sub" data-tip={label ? [label, slot.variant].filter(Boolean).join(" · ") : undefined} data-tip-clip>
-            {label && <span className="slot-label">{label}</span>}{slot.variant && <span className="tag">{slot.variant}</span>}
+            {label && <span className={`slot-label${label.length < 16 ? " nowrap" : ""}`}>{label}</span>}{slot.variant && <span className="tag">{slot.variant}</span>}
             {loops && <span className="tag">{loops}</span>}
             {slot.unused && <span className="tag" data-tip="The game never plays this clip">never heard</span>}
             {slot.absent && <span className="tag" data-tip={NO_AUDIO_TIP}>no audio</span>}
             {slot.locked && <span className="tag warn">do not touch</span>}
+            <AddedTag slot={slot} />
             {audible(a) && slot.min_ms && a!.duration_ms != null && a!.duration_ms < slot.min_ms && (
-              <span className="tag warn" data-tip={`The new audio is shorter than this clip needs: at least ${fmtTime(slot.min_ms)}`}>too short</span>
+              <span className="tag warn" data-tip={`The new audio is too short. This clip needs at least ${fmtTime(slot.min_ms)}`}>too short</span>
             )}
             <NoteTags slot={slot} />
             {!inGroup && row.firstOfSeg && (seg.tags ?? []).map((t) => <CatTag key={t.item ?? t.name} tag={t} />)}
@@ -675,7 +719,7 @@ const SlotRow = memo(function SlotRow({ row, a, selected, now, itemId, cueId, on
         <SlotId id={slot.source} />
       </div>
       )}
-      {solo ? !readOnly && <div className="slot-game" /> : (
+      {solo ? null : (
         <div className="slot-game"><span className="len">{gameMs ? fmtTime(gameMs) : "–"}</span></div>
       )}
       {/* the replacement: played, chosen, replaced and removed here, and nowhere else on screen (the details panel
@@ -699,7 +743,7 @@ const SlotRow = memo(function SlotRow({ row, a, selected, now, itemId, cueId, on
                 {a.exists ? a.name : `Missing: ${a.name}`}</button>
               {a.duration_ms != null && (
                 <span className={`len mine-len${slot.min_ms && a.duration_ms < slot.min_ms ? " short" : ""}`}
-                  data-tip={slot.min_ms && a.duration_ms < slot.min_ms ? `Too short: this clip needs at least ${fmtTime(slot.min_ms)}` : gameMs ? `Original: ${fmtTime(gameMs)}` : undefined}>
+                  data-tip={slot.min_ms && a.duration_ms < slot.min_ms ? `Too short. This clip needs at least ${fmtTime(slot.min_ms)}` : gameMs ? `Original: ${fmtTime(gameMs)}` : undefined}>
                   {fmtTime(a.duration_ms)}</span>
               )}
               {a.gain_db !== 0 && <span className="gain">{a.gain_db > 0 ? "+" : ""}{a.gain_db} dB</span>}
@@ -717,7 +761,8 @@ const SlotRow = memo(function SlotRow({ row, a, selected, now, itemId, cueId, on
   );
 });
 
-const NO_AUDIO_TIP = "Not in the installed game files: nothing to play or replace";
+const NO_AUDIO_TIP = "Not in the installed game files, so there is nothing to play or replace";
+const LAYER_TIP = "A layer added by the project. It plays whenever the sound above it plays";
 
 /** A bank that is still being read: the first time one is opened takes a second or two. */
 function CueLoading() {
@@ -735,7 +780,7 @@ function CueEmpty() {
       <section className="cue empty">
         <div className="empty-card">
           <h1>Everything the game plays</h1>
-          <p>▶ plays anything. Open something to see its slots, and add it to {project ? <b>{project.name}</b>
+          <p>Press ▶ to play anything. Open an entry to see its slots, and add it to {project ? <b>{project.name}</b>
             : <>a project <span className="nowrap">(<button className="link-text" onClick={() => tabs.go("home")}>Home</button>)</span></>} to replace it.</p>
           <p><WikiLink page="game-audio" about="Archives, banks, sounds and slots">The game's audio, explained</WikiLink></p>
         </div>

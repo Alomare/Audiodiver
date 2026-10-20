@@ -14,9 +14,9 @@ next launch shows the next one. Without any image, Home shows a wall of level me
 - **Theme:** the darkening follows the theme (darker in dark mode, lighter in light mode), so pick art that still
   reads when its left side is dimmed.
 - **Credit:** `ART_CREDIT` in `src/content.ts` says where the art comes from; About ▸ Credits lists it. Home itself
-  shows no credit: its bottom right corner holds the picture controls (with more than one picture) and the Discord
-  button.
+  shows no credit, because its bottom right corner holds the picture controls (when there is more than one picture)
+  and the Discord button.
 
 The picture here (`cinematic-trailer.jpg`) is a frame from the Helldivers 2 cinematic trailer, by Arrowhead Game
-Studios. It is theirs, not under Audiodiver's licence. A credit is not a licence: only add art you are allowed to
-share.
+Studios. It belongs to them and isn't covered by Audiodiver's licence. A credit doesn't grant a licence, so only add
+art you are allowed to share.

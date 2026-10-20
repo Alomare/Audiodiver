@@ -63,7 +63,7 @@ const BY_ID = new Map(COMMANDS.map((c) => [c.id, c]));
 /** What the mouse and a few fixed keys do: listed with the shortcuts, but not for rebinding. */
 export const FIXED: [string, string][] = [
   ["Click ▶", "play, and select the slot"],
-  ["Double-click a slot", "play it (its new audio, if it has some)"],
+  ["Double-click a slot", "play it (the new audio, if the slot has some)"],
   ["Ctrl+click, Shift+click", "add a slot to the selection, or select a range"],
   ["Right-click", "every other action"],
   ["Drop files on a piece, a part or a slot in the Audio Editor", "fill it, in file-name order"],

@@ -123,10 +123,10 @@ def data_folder(chosen, saved=False) -> Path:
         if is_data_folder(folder):
             return folder
     if chosen.is_file():
-        raise ValueError(f"{chosen} is a file: choose the folder Steam installed Helldivers 2 in")
+        raise ValueError(f"{chosen} is a file. Choose the folder Steam installed Helldivers 2 in.")
     if not chosen.is_dir():
         raise ValueError(f"{chosen} isn't there any more" if saved else f"{chosen} wasn't found")
-    raise ValueError(f"{chosen} isn't Helldivers 2's folder: there are no game files in it (bundles.NN.nxa in "
+    raise ValueError(f"{chosen} isn't Helldivers 2's folder, because it has no game files (bundles.NN.nxa in "
                      f"a folder called data). Choose the folder Steam installed the game in, usually "
                      r"…\steamapps\common\Helldivers 2.")
 

@@ -25,7 +25,8 @@ export function Timeline({ room, through, at }: { room: () => number; through: T
   const row = selected.length === 1 ? rows.find((r) => r.slot.source === selected[0]) : undefined;
   const source = row?.slot.source ?? null;
   const a = source && !readOnly ? project?.assignments[source] : undefined;
-  const gameWave = usePeaks("vanilla", row?.slot.absent ? null : source); // "No audio": nothing to draw
+  const none = !!(row?.slot.absent || row?.slot.added); // "No audio", or a new take: no original to draw
+  const gameWave = usePeaks("vanilla", none ? null : source);
   const mineWave = usePeaks("project", audible(a) ? source : null, String(revision));
   const game = gameWave.peaks, mine = mineWave.peaks;
   if (!row || !source) return null;
@@ -81,7 +82,8 @@ export function Timeline({ room, through, at }: { room: () => number; through: T
         <div className="tl-label game"><b>Original</b><span>{fmtTime(game?.duration_ms)}</span></div>
         <Waveform peaks={game} spanMs={span} tone="game" markers={gameMarkers} playheadMs={head(kGame, false, game?.duration_ms)}
           activeFrom={hasCues ? seg.entry_ms ?? 0 : undefined} activeTo={hasCues ? seg.exit_ms ?? undefined : undefined}
-          onSeek={row.slot.absent ? undefined : (ms) => seek("vanilla", ms)} label={row.slot.absent ? "No audio in the game's files" : "Loading the original…"}
+          onSeek={none ? undefined : (ms) => seek("vanilla", ms)}
+          label={row.slot.added ? "A new take has no original" : row.slot.absent ? "No audio in the game's files" : "Loading the original…"}
           error={gameWave.error} onRetry={gameWave.retry} />
       </div>
       {!readOnly && (
@@ -101,8 +103,8 @@ export function Timeline({ room, through, at }: { room: () => number; through: T
       )}
       {audible(a) && hasCues && (
         <p className="tl-note">
-          {fit ? "Drag Exit to move where the next segment starts" : "Fit timing is off: the original cue points apply unless moved"}
-          {tail > 30 && <>; the last <b>{fmtTime(tail)}</b> rings out over it</>}.
+          {fit ? "Drag Exit to move where the next segment starts" : "Fit timing is off, so the original cue points apply unless you move them"}
+          {tail > 30 && <>. The last <b>{fmtTime(tail)}</b> rings out over it</>}.
           {overridden && <button className="link-inline" onClick={() => actions.segmentOverride(seg.segment, null, null)}>Reset cue points</button>}
         </p>
       )}

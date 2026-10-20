@@ -135,7 +135,7 @@ class Catalog:
         if other and not cur and named and not locked:
             notes = (notes + " " if notes else "") + f"Also called '{other}'."
         if locked:
-            notes = (notes + " " if notes else "") + "Do not touch: replacing it makes the music stutter."
+            notes = (notes + " " if notes else "") + "Do not touch. Replacing it makes the music stutter."
         return {"path": [title(x) for x in cur.get("path", path)],
                 "name": title(named or other or f"{cue['kind'].title()} {cue['id']}"),
                 "detail": self._detail(cue), "notes": notes, "locked": locked, "curated": bool(cur),

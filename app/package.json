@@ -3,7 +3,7 @@
   "private": true,
   "license": "GPL-3.0-or-later",
   "repository": "github:Alomare/Audiodiver",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

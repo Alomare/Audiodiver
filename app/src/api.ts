@@ -23,6 +23,14 @@ export type Slot = {
   object?: string;   // a bank's sound: the Sound object that plays it
   notes?: ClipNote[]; // what the clip notes say about this clip (core data/notes.json)
   min_ms?: number;   // the shortest replacement that works here, as the notes found it
+  // the Audio Editor's view of a bank (core library.py, addition.py):
+  added?: "take";    // a new take the project adds: it has no original
+  was?: string;      // a clip of its own: the clip this sound played, its original
+  players?: number;  // how many Sounds of this bank play the clip
+  sound_banks?: number; // the other banks that have the Sound: where a clip of its own would change it
+  // a voice line: the subtitle it says (an id of the game's text), false where it is one of several with its words;
+  // or, for a clip without words, what it is ("Grunt")
+  subtitle?: string; subtitle_sure?: boolean; sound?: string;
 };
 /** A note on one clip: what it is or a warning found in game. A note with a tag also marks the clip's row. */
 export type ClipNote = { text: string; tag?: string; warn?: boolean };
@@ -34,12 +42,16 @@ export type Segment = {
   shared?: number;  // a group: how many other banks play every one of its sounds
   tags?: Tag[];     // in a bank: the piece of music a segment is
   cue?: string;     // in a bank: the music cue a segment belongs to
+  container?: string; // a group whose takes a random container picks: it can take new takes
+  layer?: boolean;  // a layer can go beside it (it would play whenever this sound plays)
+  added?: "layer";  // a layer the project adds, beside the sound in `beside`
+  beside?: string;
 };
 /** What opens in the middle: a music cue (kind playlist, segment, bridge or stinger), a bank's sounds ("sounds",
     id "bank:<id>" or "streams:<archive>") or one sound on its own ("sound", id "sfx:<source>"). */
 export type Cue = Entry & {
   archive_names: string[]; segments_detail: Segment[]; context_list: string[]; labels: string[];
-  tags?: Tag[]; bank_name?: string; language?: string;
+  tags?: Tag[]; bank_name?: string; language?: string; lang?: string; // a voice bank's language: its name, its code
 };
 export const isMusic = (cue: { kind: string }) => cue.kind !== "sounds" && cue.kind !== "sound";
 export type Assignment = {
@@ -83,6 +95,9 @@ export type ArchiveRow = {
 /** Where an id leads (core Library.places): the cue to open, the slot to select in it, the item it is listed under
     and the archives that hold it. */
 export type Place = { cue: string; source: string | null; item: string | null; archives: string[] };
+/** A voice line that says a subtitle (core library.subtitle_lines): where it is, its bank's name, and whether the
+    subtitle's id is certain or one of several with its words. */
+export type SaidBy = Place & { name: string; subtitle: string; sure: boolean };
 /** The frame around the icon (core arsenal.icon_frame): a border and rounded corners, in pixels of the 540 tile. */
 export type IconFrame = { border: number; border_color: string; radius: number };
 /** The icon as the project stores it: the image, if one is chosen (Audiodiver's default icon otherwise), and the frame
@@ -95,6 +110,7 @@ export type ProjectState = {
   icon: Icon;
   icon_frame: IconFrame; // the icon's full frame, defaults included
   loudness_analysis: boolean;
+  biome_fix: boolean;    // music_init carries the fix for the music that stays silent on some planets
   build_folder: string; zip_name: string; // where the next build goes, and what it is called
   build_folder_default: string;           // the build folder next to the project file: where builds go unless another is chosen
   last_build: { zip: string; mb: number; modified: number } | null; // this mod's newest ZIP there (modified: Unix seconds)
@@ -105,6 +121,8 @@ export type ProjectState = {
   outside: string[];                // the replaced slots that nothing on the list holds
   segment_overrides: Record<string, { entry_marker?: number; exit_marker?: number }>;
   texts: TextLine[];     // lines of the game's text the project changes (the Text Editor)
+  additions: { kind: "take" | "layer" | "own"; [key: string]: string }[]; // audio it adds (core project.py)
+  settings: number;      // the game's objects an imported mod's settings go on (core project.py)
   repairs: string[];     // damaged values in its file that opening it set back (said once, when it opens)
   problems: string[]; can_undo: boolean; can_redo: boolean;
   undo_label: string | null; redo_label: string | null; // what Undo / Redo would change ("fill", "move")
@@ -157,7 +175,7 @@ export async function call<T = any>(method: string, args: Record<string, unknown
     throw new ApiError(answered ? "Lost contact with the Audiodiver core. Restart the app." : "Waiting for the Audiodiver core to start…");
   }
   answered = true;
-  const body = await res.json().catch(() => ({ error: `The core's answer couldn't be read (HTTP ${res.status})` }));
+  const body = await res.json().catch(() => ({ error: `Audiodiver couldn't read the core's response (HTTP ${res.status})` }));
   if (!res.ok) throw new ApiError(body.error ?? `HTTP ${res.status}`);
   return body.result as T;
 }
@@ -207,6 +225,15 @@ export function fmtTime(ms: number | null | undefined) {
   if (s < 60) return `${s.toFixed(1)} s`;
   const m = Math.floor(s / 60);
   return `${m}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+}
+
+/** What HD2 Arsenal can't have in a mod's name (Build, Repatch): it uses the name as a folder name. */
+export function nameProblem(name: string): string | null {
+  if (!name.trim()) return "A mod needs a name.";
+  const bad = [...new Set([...name].filter((c) => c.charCodeAt(0) > 126 || c.charCodeAt(0) < 32 || '\\/:*?"<>|'.includes(c)))];
+  if (bad.length) return `Arsenal can't use ${bad.join(" ")} in a name, because it names a folder after the mod. Use letters, digits, spaces and - _ ( ).`;
+  if (!/[A-Za-z0-9]/.test(name)) return "A name needs a letter or a digit.";
+  return null;
 }
 
 /** A line of the game's text: in a string table (its file id), by its id. `text` is the original; `yours` (the new text) and `was`

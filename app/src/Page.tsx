@@ -32,21 +32,19 @@ export function tabArrows(e: React.KeyboardEvent<HTMLElement>) {
   tabs[to].click();
 }
 
-/** What Build shows while no project is open. */
-export function NoProject({ title, text }: { title: string; text: string }) {
+/** What Build's Project page shows while no project is open. */
+export function NoProjectCard({ text }: { text: string }) {
   const { actions } = useEditor();
   return (
-    <Page title={title}>
-      <div className="empty-card">
-        <h2>No project is open</h2>
-        <p>{text}</p>
-        <div className="row-btns">
-          <button className="btn primary" onClick={actions.newProject}>New project…</button>
-          <button className="btn" onClick={() => actions.openProject()}>Open project…</button>
-          <button className="btn quiet" onClick={() => nav.go("home")}>Recent projects</button>
-        </div>
+    <div className="empty-card">
+      <h2>No project is open</h2>
+      <p>{text}</p>
+      <div className="row-btns">
+        <button className="btn primary" onClick={actions.newProject}>New project…</button>
+        <button className="btn" onClick={() => actions.openProject()}>Open project…</button>
+        <button className="btn quiet" onClick={() => nav.go("home")}>Recent projects</button>
       </div>
-    </Page>
+    </div>
   );
 }
 

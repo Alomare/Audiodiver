@@ -36,12 +36,13 @@ function saveRecent(list: string[]) {
 export const EDIT_NAMES: Record<string, string> = {
   assign: "assign", fill: "fill", unassign: "remove", update: "change", skip: "skip", silence: "silence", paste: "paste",
   move: "move", segment: "cue points", settings: "mod details", import: "import", add: "add to the project",
-  unlist: "remove from the project", text: "text change",
+  unlist: "remove from the project", text: "text change", "add take": "new takes", "add layer": "new layer",
+  "own clip": "only this sound", "shared clip": "every sound that plays it",
 };
 
 /** What opening a project put right in its file (said once, when it opens; the file is fixed by its next save). */
 const repairNote = (p: ProjectState) =>
-  `${p.name}: some values in its file were damaged and were set back (${p.repairs.join(", ")}).`;
+  `Some values in ${p.name} were damaged and were reset to their defaults (${p.repairs.join(", ")}).`;
 
 /** The two tabs that show audio. The Library is everything the game has, to hear and to add to a project; the
     Editor is what the open project lists, to replace. Each keeps its own open place, selection and history. */
@@ -62,11 +63,12 @@ function useBrowse(scope: ScopeName, deps: {
   resolveItem: (id: string) => Promise<MusicItem | null>;
   gameRev: number;                 // bumps when the game was read again: what is open is fetched again
   projectPath: () => string | null;
+  added?: string;                  // the Editor: the audio the project adds, as a key (a bank is fetched again with it)
 }) {
-  const { notify, resolveItem, gameRev, projectPath } = deps;
+  const { notify, resolveItem, gameRev, projectPath, added = "" } = deps;
   const [place, setPlace] = useState<Place | null>(null);
-  // the cue that shows, the item it was opened as a part of, and the read of the game it came from
-  const [loaded, setLoaded] = useState<{ cue: Cue; itemId: string | null; rev: number } | null>(null);
+  // the cue that shows, the item it was opened as a part of, and the read of the game (and of added audio) it came from
+  const [loaded, setLoaded] = useState<{ cue: Cue; itemId: string | null; rev: string } | null>(null);
   const last = useRef(loaded);
   last.current = loaded;
   const [slow, setSlow] = useState(false); // the open cue is taking a while to come: stop showing the last one
@@ -78,18 +80,19 @@ function useBrowse(scope: ScopeName, deps: {
   useEffect(() => {
     if (!place) { setLoaded(null); setSlow(false); return; }
     const { cueId: id, itemId } = place;
-    if (last.current?.cue.id === id && last.current.rev === gameRev) { // the same cue, reached another way
+    const rev = `${gameRev}|${id.startsWith("bank:") ? added : ""}`;
+    if (last.current?.cue.id === id && last.current.rev === rev) { // the same cue, reached another way
       if (last.current.itemId !== itemId) setLoaded({ ...last.current, itemId });
       return;
     }
     let live = true;
     const t = setTimeout(() => { if (live) setSlow(true); }, 180);
-    call<Cue>("cue", { id })
-      .then((c) => { if (live) { setLoaded({ cue: c, itemId, rev: gameRev }); setSlow(false); } })
+    call<Cue>("cue", { id, mine: scope === "editor" })
+      .then((c) => { if (live) { setLoaded({ cue: c, itemId, rev }); setSlow(false); } })
       .catch((e) => { if (live) { setPlace(null); setSlow(false); notify("bad", e.message); } }) // nothing to show: nothing is open
       .finally(() => clearTimeout(t));
     return () => { live = false; clearTimeout(t); };
-  }, [place, notify, gameRev]);
+  }, [place, notify, gameRev, added, scope]);
   const loading = !!place && loaded?.cue.id !== place.cueId;
   const cue = loading && slow ? null : loaded?.cue ?? null;
   /** The item the cue that shows was opened as a part of. While the next one loads that is still the last one's. */
@@ -342,7 +345,8 @@ function useEditorState() {
   // --- the two tabs that browse
   const getProjectPath = useCallback(() => projectPath.current, []);
   const lib = useBrowse("library", { notify, resolveItem, gameRev, projectPath: getProjectPath });
-  const ed = useBrowse("editor", { notify, resolveItem, gameRev, projectPath: getProjectPath });
+  const added = useMemo(() => JSON.stringify(project?.additions ?? []), [project?.additions]);
+  const ed = useBrowse("editor", { notify, resolveItem, gameRev, projectPath: getProjectPath, added });
   const scopes = useMemo(() => ({ library: lib, editor: ed }), [lib, ed]);
   const scopesRef = useRef(scopes);
   scopesRef.current = scopes;
@@ -416,16 +420,31 @@ function useEditorState() {
       fetches the project again, so its version, its problems and what an import brought in show at once. */
   const finishJob = useCallback(async (j: Job) => {
     const refresh = async () => applyProject(await run<ProjectState>("project"));
-    const what = j.kind === "build" ? "Build" : j.kind === "import" ? "Import" : "Export";
+    const what = j.kind === "build" ? "Build" : j.kind === "import" ? "Import" : j.kind === "repatch" ? "Repatch" : "Export";
     if (j.state === "cancelled") quick(`${what} cancelled`, "info");
     else if (j.state !== "done") jobFailed(what, j);
     else if (j.kind === "build") {
       notify("good", `Built ${j.result.zip.split(/[\\/]/).pop()} (${j.result.mb} MB).`,
         { label: "Show in folder", run: () => platform.reveal(j.result.zip) });
       if (settings.get().revealBuild) platform.reveal(j.result.zip).catch(() => {});
+    } else if (j.kind === "repatch") { // the Repatch page shows the rest
+      const zip: string = j.result.zip;
+      notify("good", `Repatched ${j.title}: ${zip.split(/[\\/]/).pop()} (${j.result.mb} MB).`,
+        { label: "Show in folder", run: () => platform.reveal(zip) });
+      if (settings.get().revealBuild) platform.reveal(zip).catch(() => {});
     } else if (j.kind === "import") {
-      const skipped = j.result.skipped ? ` ${j.result.skipped} couldn't be decoded.` : "";
-      notify("good", `Imported ${j.result.imported} sound${j.result.imported === 1 ? "" : "s"} from the patch into the Audio Editor.${skipped}`);
+      // replacements, and what the mod adds (new takes, layers, sounds with a clip of their own); what can't come
+      // in is said, and then the notice waits to be read
+      const r = j.result, left: string[] = r.left ?? [];
+      const parts = [r.imported ? plural(r.imported, "replaced sound") : "", r.added ? plural(r.added, "added sound") : "",
+        r.settings ? `the mod's settings on ${plural(r.settings, "sound or container", "sounds and containers")}` : ""].filter(Boolean);
+      const what = parts.length > 1 ? `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}` : parts[0] || "nothing";
+      const skipped = r.skipped ? ` ${r.skipped} couldn't be decoded.` : "";
+      // sounds the patch still had from an older game version: not the mod's, so not imported (Wiki: Repatching)
+      const stale = r.stale ? ` ${plural(r.stale, "sound")} from an older game version left out.` : "";
+      notify("good", `Imported ${what} from the patch into the Audio Editor.${skipped}${stale}${left.length ? ` Left out: ${left.join("; ")}.` : ""}`,
+        r.stale ? { label: "Why?", run: () => tabs.go("wiki", "repatching#sounds-from-an-older-game-version") } : undefined,
+        left.length > 0 || r.stale > 0);
     } else {
       // the export list's slots that have no audio in the game's files: why fewer files came out than it counts
       const absent = j.result.absent ? ` ${plural(j.result.absent, "slot")} on it ${j.result.absent === 1 ? "has" : "have"} no audio in the game's files.` : "";
@@ -445,7 +464,7 @@ function useEditorState() {
   const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
   /** How many slots an edit gave new audio. */
   const changed = (after: ProjectState) => Object.entries(after.assignments).filter(([s, x]) => project?.assignments[s]?.audio !== x.audio).length;
-  const fitNote = (files: number, placed: number) => (files > placed ? ` ${plural(files - placed, "file")} left over: no free slots.` : "");
+  const fitNote = (files: number, placed: number) => (files > placed ? ` ${plural(files - placed, "file")} left over, because there are no free slots.` : "");
   const editorCue = ed.cueId;
 
   const actions = useMemo(() => ({
@@ -570,7 +589,7 @@ function useEditorState() {
     /** Remembers the audio of these slots for pasting (the slots without new audio are left out). */
     copySlots(sources: string[]) {
       const mine = sources.filter((s) => project?.assignments[s]);
-      if (!mine.length) { quick("Nothing to copy: these slots aren't replaced", "info"); return; }
+      if (!mine.length) { quick("Nothing to copy, because these slots aren't replaced", "info"); return; }
       setClip(mine);
       const paste = keyLabel("paste");
       quick(`Copied ${plural(mine.length, "slot")}${paste ? ` · ${paste} pastes` : ""}`, "copy");
@@ -580,6 +599,37 @@ function useEditorState() {
       if (!needProject() || !clip.length || !targets.length) return;
       const pairs = clip.length === 1 ? targets.map((t) => [clip[0], t]) : clip.slice(0, targets.length).map((c, i) => [c, targets[i]]);
       if (edited(await run<ProjectState>("copy_audio", { pairs }))) quick(`Pasted into ${plural(pairs.length, "slot")}`);
+    },
+    /** New takes for a sound the game picks takes from (or for a layer), one per file in file-name order, asking
+        which files without them. `what` names the sound. The first new take is selected. */
+    async addTakes(container: string, what: string, files?: string[]) {
+      if (!needProject()) return;
+      files ??= (await platform.pickAudio(true)) ?? [];
+      const audio = files.filter((f) => !/\.(patch_\d+|audi)$/i.test(f));
+      if (!audio.length) return;
+      const p = await run<ProjectState & { sources: string[] }>("add_takes", { container, files: audio });
+      if (p && edited(p)) {
+        scopesRef.current.editor.setSelected(p.sources.slice(0, 1));
+        quick(`${plural(p.sources.length, "new take")} for **${what}**`, "add");
+      }
+    },
+    /** A layer beside a sound, with a take per file: it plays whenever that sound plays. */
+    async addLayer(beside: string, what: string, files?: string[]) {
+      if (!needProject()) return;
+      files ??= (await platform.pickAudio(true)) ?? [];
+      const audio = files.filter((f) => !/\.(patch_\d+|audi)$/i.test(f));
+      if (!audio.length) return;
+      const p = await run<ProjectState & { sources: string[] }>("add_layer", { beside, files: audio });
+      if (p && edited(p)) {
+        scopesRef.current.editor.setSelected(p.sources.slice(0, 1));
+        quick(`New layer on **${what}**`, "add");
+      }
+    },
+    /** The slot's new audio plays only in this sound (a clip of its own), or again in every sound that plays the
+        clip. The slot it moves to stays selected. */
+    async onlyThisSound(source: string, sound: string | undefined, only: boolean) {
+      const p = await run<ProjectState & { source: string }>(only ? "own_clip" : "shared_clip", only ? { source, sound } : { source });
+      if (p && edited(p)) scopesRef.current.editor.setSelected([p.source]);
     },
     /** Swaps the audio of two slots (or moves it into an empty one). */
     async swap(a: string, b: string) {
@@ -595,7 +645,7 @@ function useEditorState() {
     async settings(fields: Record<string, unknown>) { edited(await run<ProjectState>("settings", fields)); },
     /** A new mod id: HD2 Arsenal then sees the next build as another mod. Undo puts the old id back. */
     async newModId() {
-      if (edited(await run<ProjectState>("settings", { guid: "new" }))) editNotice("info", "New mod id: HD2 Arsenal installs the next build as another mod.");
+      if (edited(await run<ProjectState>("settings", { guid: "new" }))) editNotice("info", "New mod id created. HD2 Arsenal installs the next build as a separate mod.");
     },
     /** The project as it is on disk now (a file deleted meanwhile becomes a problem); quiet when it can't be asked. */
     async refresh() {
@@ -670,7 +720,7 @@ function useEditorState() {
         return;
       }
       if (!Object.keys(fresh.assignments).length && !fresh.texts.length) {
-        notify("info", "Nothing to build yet: replace some audio, or change a line of text.");
+        notify("info", "Nothing to build yet. Replace some audio or change a line of text first.");
         return;
       }
       const job = await run<Job>("build", { bump: settings.get().bumpVersion });
@@ -689,6 +739,12 @@ function useEditorState() {
       return !!job;
     },
     async cancelJob(id: string) { await run("job_cancel", { id }); },
+    /** Rebuilds an existing mod on the game as it is now, as the one mod it was (the Repatch page). */
+    async repatch(path: string, name: string, folder: string) {
+      const job = await run<Job>("repatch", { path, name, folder });
+      if (job) watchJob(job, finishJob);
+      return !!job;
+    },
     async importPatch(path?: string) {
       if (!needProject()) return;
       path ??= (await platform.pickPatch()) ?? undefined;
