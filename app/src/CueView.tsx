@@ -554,9 +554,13 @@ type RowHandlers = {
 function AddButton({ row, on }: { row: Row; on: RowHandlers }) {
   const { readOnly } = useLite();
   if (readOnly || !row.seg.container) return null;
+  // the takes' audio can be in banks the container isn't: added audio goes only where the container is
+  const { copies = 0, shared = 0 } = row.seg;
+  const where = copies ? `. The ${copies} other bank${copies === 1 ? "" : "s"} with this sound get${copies === 1 ? "s" : ""} it too`
+    : shared ? ". Only this bank gets it. The other banks with this audio play it from sounds of their own" : "";
   return (
     <button className="icon-btn grp-add" aria-label={`Add new audio to ${row.seg.name}`} data-tip="Add new audio"
-      data-tip-more={row.seg.added === "layer" ? "New takes for this layer" : "New takes, or a layer that plays with it"}
+      data-tip-more={(row.seg.added === "layer" ? "New takes for this layer" : "New takes, or a layer that plays with it") + where}
       onClick={(e) => { e.stopPropagation(); on.add(e, row); }} onDoubleClick={(e) => e.stopPropagation()}>+</button>
   );
 }
@@ -604,7 +608,7 @@ const GroupHead = memo(function GroupHead({ row, open, shown, status, itemId, cu
       <span className="grp-meta">
         {(seg.tags ?? []).map((t) => <CatTag key={t.item ?? t.name} tag={t} tip="Show it in the Index" onOpen={t.item ? () => on.openTag(t.item!, seg.cue ?? "") : undefined} />)}
         {seg.added === "layer" && <span className="tag new" data-tip={LAYER_TIP}>layer</span>}
-        {shared > 0 && <Linked tip={`Also in ${shared} other bank${shared === 1 ? "" : "s"}. New audio here changes all of them`}>in {shared} other bank{shared === 1 ? "" : "s"}</Linked>}
+        {shared > 0 && <Linked tip={`Its audio is also in ${shared} other bank${shared === 1 ? "" : "s"}. New audio on its takes plays there too`}><OtherBanks n={shared} /></Linked>}
         {status !== "na" && <Mark status={status} />}
         <AddButton row={row} on={on} />
       </span>
@@ -630,6 +634,11 @@ function SlotId({ id }: { id: string }) {
     changes it there too. The chain says "linked" before the words are read. */
 function Linked({ children, tip = "Linked to other places. New audio here plays there too" }: { children: React.ReactNode; tip?: string }) {
   return <span className="tag linked" data-tip={tip}><LinkIcon />{children}</span>;
+}
+
+/** "in N other banks", whose words a narrow list leaves out (the chain and the number stay; the tip says it in full). */
+function OtherBanks({ n }: { n: number }) {
+  return <><span className="lk-words">in </span>{n}<span className="lk-words"> other bank{n === 1 ? "" : "s"}</span></>;
 }
 
 /** Counts the changes of a value after the first render; a new count replays the flash that shows what an edit
@@ -688,7 +697,7 @@ const SlotRow = memo(function SlotRow({ row, a, selected, now, itemId, cueId, on
             {seg.added !== "layer" && <AddedTag slot={slot} />}
             <NoteTags slot={slot} />
             {(seg.tags ?? []).map((t) => <CatTag key={t.item ?? t.name} tag={t} />)}
-            {also > 0 && <Linked>{banks >= also ? `in ${also} other bank${also > 1 ? "s" : ""}` : `+${also} ${banks ? "more" : `cue${also > 1 ? "s" : ""}`}`}</Linked>}
+            {also > 0 && <Linked>{banks >= also ? <OtherBanks n={also} /> : `+${also} ${banks ? "more" : `cue${also > 1 ? "s" : ""}`}`}</Linked>}
             <AddButton row={row} on={on} />
           </span>
           {!seg.added && <SlotId id={slot.source} />}

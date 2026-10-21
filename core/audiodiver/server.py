@@ -81,7 +81,7 @@ def methods(s: Session) -> dict:
         "undo": lambda: s.undo(),
         "redo": lambda: s.redo(),
         "build": lambda bump=True: s.build(bump),
-        "import_patch": lambda path: s.import_patch(path),
+        "import_patch": lambda path, mode="add": s.import_patch(path, mode),
         "repatch_scan": lambda path: s.repatch_scan(path),
         "repatch": lambda path, name="", folder="", biome_fix=False: s.repatch(path, name, folder, biome_fix),
         "export_options": lambda cue: s.export_options(cue),

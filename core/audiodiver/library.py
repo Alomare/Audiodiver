@@ -570,7 +570,8 @@ class Library:
             for k, r in enumerate(rows, 1):  # the takes of one sound, told apart by number where nothing says more
                 r["label"] = r["label"] or (f"Take {k}" if len(rows) > 1 else "")
             if key in layer_of:
-                layers.append((self._group("", rows, added="layer", container=str(key), beside=str(layer_of[key])), key))
+                layers.append((self._group("", rows, added="layer", container=str(key), beside=str(layer_of[key]),
+                                           copies=len(self.ix.copies(layer_of[key])) - 1), key))
                 groups.append(layers[-1][0])
                 continue
             n += 1
@@ -587,7 +588,8 @@ class Library:
                     noted_seen[name] += 1
                     name += f" {noted_seen[name]}"
             named[key] = name
-            more = {"container": str(key), "layer": can_layer(key)} if kinds.get(key) == RANSEQ else {}
+            more = ({"container": str(key), "layer": can_layer(key), "copies": len(self.ix.copies(key)) - 1}
+                    if kinds.get(key) == RANSEQ else {})
             groups.append(self._group(name, rows, **more))
         per_sound = collections.Counter(home.get(layer_of[k]) for _, k in layers)
         seen_layers = collections.Counter()

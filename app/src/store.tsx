@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { call, type ArchiveRow, type Assignment, type Cue, type Index, type Job, type MusicItem, type Place as Found, type ProjectState, type Status } from "./api";
-import { confirm } from "./Confirm";
+import { choose, confirm } from "./Confirm";
 import { keyHint, keyLabel } from "./keys";
 import { indexItems } from "./music";
 import { nav as tabs } from "./nav";
@@ -461,14 +461,19 @@ function useEditorState() {
     } else if (j.kind === "import") {
       // replacements, and what the mod adds (new takes, layers, sounds with a clip of their own); what can't come
       // in is said, and then the notice waits to be read
+      // (a heading, then one line each)
       const r = j.result, left: string[] = r.left ?? [];
-      const parts = [r.imported ? plural(r.imported, "replaced sound") : "", r.added ? plural(r.added, "added sound") : "",
-        r.settings ? `the mod's settings on ${plural(r.settings, "sound or container", "sounds and containers")}` : ""].filter(Boolean);
-      const what = parts.length > 1 ? `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}` : parts[0] || "nothing";
-      const skipped = r.skipped ? ` ${r.skipped} couldn't be decoded.` : "";
-      // sounds the patch still had from an older game version: not the mod's, so not imported (Wiki: Repatching)
-      const stale = r.stale ? ` ${plural(r.stale, "sound")} from an older game version left out.` : "";
-      notify("good", `Imported ${what} from the patch into the Audio Editor.${skipped}${stale}${left.length ? ` Left out: ${left.join("; ")}.` : ""}`,
+      const brought = [r.imported ? plural(r.imported, "replaced sound") : "", r.added ? plural(r.added, "added sound") : "",
+        r.settings ? `The mod's settings on ${plural(r.settings, "sound or container", "sounds and containers")}` : ""].filter(Boolean);
+      const lines = [
+        brought.length ? "Imported from the patch into the Audio Editor:" : "Imported nothing from the patch.",
+        ...brought,
+        r.skipped ? `${r.skipped} couldn't be decoded` : "",
+        // sounds the patch still had from an older game version: not the mod's, so not imported (Wiki: Repatching)
+        r.stale ? `Left out: ${plural(r.stale, "sound")} from an older game version` : "",
+        ...left.map((l) => `Left out: ${l}`),
+      ].filter(Boolean);
+      notify("good", lines.join("\n"),
         r.stale ? { label: "Why?", run: () => tabs.go("wiki", "repatching#sounds-from-an-older-game-version") } : undefined,
         left.length > 0 || r.stale > 0);
     } else {
@@ -786,7 +791,23 @@ function useEditorState() {
       if (!needProject()) return;
       path ??= (await platform.pickPatch()) ?? undefined;
       if (!path) return;
-      const job = await run<Job>("import_patch", { path });
+      // a project with something in it: the patch's audio joins it, or takes the place of its audio
+      const p = project!;
+      const empty = !Object.keys(p.assignments).length && !p.additions.length && !p.settings
+        && !Object.keys(p.segment_overrides).length && !p.library.length;
+      let mode: "add" | "replace" = "add";
+      if (!empty) {
+        const answer = await choose({
+          title: `Import ${path.split(/[\\/]/).pop()}`,
+          text: "Add the patch's audio to this project, or replace the project's audio with it? Adding keeps what the "
+            + "project has, and where both have audio for a slot, the patch's goes in. Replacing takes out the project's "
+            + `new audio, added sounds, cue points and list first; its text and audio files stay. ${undoHint()} brings it back.`,
+          ok: "Add to the project", alt: "Replace the project's audio",
+        });
+        if (!answer) return;
+        if (answer === "alt") mode = "replace";
+      }
+      const job = await run<Job>("import_patch", { path, mode });
       if (job) watchJob(job, finishJob);
     },
   }), [run, applyProject, edited, editNotice, notify, quick, needProject, editorCue, project, watchJob, finishJob, clip, remember, status, jobs]);

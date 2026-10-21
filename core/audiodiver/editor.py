@@ -1334,11 +1334,15 @@ class Session:
                 p.save()
                 self.revision += 1
 
-    def import_patch(self, patch_path):
+    def import_patch(self, patch_path, mode="add"):
         """Turns an existing .patch_0 (any mod, old tool or Audiodiver) into assignments: every replaced source's
-        audio is decoded to <project>/imported/<source>.wav."""
+        audio is decoded to <project>/imported/<source>.wav. mode "add": it joins what the project has (where both
+        have audio for a slot, the patch's goes in); "replace": the project's audio goes first (its new audio,
+        additions, cue points, settings and list; its text edits stay). One edit either way, so Undo takes it back."""
         self.require_game()
         p = self._need_project()
+        if mode not in ("add", "replace"):
+            raise EditorError("An import adds to the project or replaces its audio")
         if not given(patch_path):
             raise EditorError("Choose a mod's .patch_0 file")
         patch_path = Path(patch_path)
@@ -1356,6 +1360,9 @@ class Session:
             counts = {"added": 0}
 
             def apply(proj):  # what the patch replaces joins the project's list (_cover), so the Editor shows it
+                if mode == "replace":  # the files stay on disk
+                    proj.replacements, proj.additions, proj.settings, proj.segment_overrides = [], [], {}, {}
+                    proj.library = []
                 counts["added"] = self._fill_from_patch(proj, got, replaced, files)
             self._edit("import", apply)
             return {"imported": sum(s in files for s in replaced), "added": counts["added"], "skipped": skipped,

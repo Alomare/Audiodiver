@@ -34,7 +34,7 @@ The master tabs are icons down the left of the window, in the rail, with their n
 | `src/Timeline.tsx`, `src/Waveform.tsx` | the waveform dock: original vs replaced on one scale, click to play from a spot, draggable cue points, and where a play-through is in the slot |
 | `src/PlayThrough.tsx`, `src/player.ts` | a whole cue played the way the game does, and the one player everything plays through (the now-playing bar leads back to what plays) |
 | `src/SliceTool.tsx` | cut one song into pieces and fill a cue, one slot per segment From one slot To another: the song and the originals on one zoomable time scale, the originals played one after another, cuts to drag, add and remove, a table of pieces against their originals |
-| `src/Confirm.tsx` | the question before removing new audio (`confirm()`, Enter confirms, Esc keeps) |
+| `src/Confirm.tsx` | the question before removing new audio (`confirm()`, Enter confirms, Esc keeps), and one with two ways to go ahead (`choose()`: Import a mod's patch adds or replaces) |
 | `src/RepatchPage.tsx` | Build ▸ Repatch: an existing mod (ZIP, folder or `.patch_0`, dropped or picked) rebuilt on the current game, its patches, name and folder, the outcome, and what repatching does |
 | `src/BuildTab.tsx` | Build's two sub-tabs, Project and Repatch. Project: name, description, version and id as HD2 Arsenal shows them, the icon (an image or the default one, with a border and corners), the Build button and where builds go, build options, the log |
 | `src/ExportDialog.tsx`, `src/exportList.ts` | the Export… dialog (a cue's audio, or a bank's sounds one by one, as WAV, FLAC or MP3), and the export list: things collected from anywhere (right-click ▸ Add to the export list), exported together from the status bar |

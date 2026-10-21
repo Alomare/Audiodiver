@@ -328,3 +328,22 @@ def test_a_mod_made_with_unwise_comes_in_as_takes_a_layer_and_a_clip_of_its_own(
     while s.job(j2["id"])["state"] == "running":
         time.sleep(0.2)
     assert len(s.project_state()["additions"]) == 4
+
+    # an import adds to what the project has, or replaces its audio; Undo takes either back whole
+    other = next(t for t in ix.stream_of if str(t) not in st["assignments"])
+    s.project.replacements.append(Replacement(target=other, audio="mine.wav"))
+    s.project.library.append("deploy/loadout")
+    s.project.segment_overrides[1] = {"entry_marker": 10.0}
+    for mode, kept in (("add", True), ("replace", False)):
+        j3 = s.import_patch(str(path), mode)
+        while (j := s.job(j3["id"]))["state"] == "running":
+            time.sleep(0.2)
+        assert j["state"] == "done", j
+        st3 = s.project_state()
+        assert (str(other) in st3["assignments"]) is kept and ("deploy/loadout" in st3["library"]) is kept
+        assert len(st3["additions"]) == 4 and str(did["layer_clip"]) in st3["assignments"]
+    assert s.project.segment_overrides == {}
+    s.undo()
+    assert str(other) in s.project_state()["assignments"] and "deploy/loadout" in s.project.library
+    with pytest.raises(EditorError):
+        s.import_patch(str(path), "merge")

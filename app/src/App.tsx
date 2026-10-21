@@ -449,7 +449,7 @@ function Notices() {
         {running.map((j) => <JobCard key={j.id} job={j} />)}
         {notices.map((n) => (
           <div key={n.id} className={`notice ${n.tone}${n.leaving ? " leaving" : ""}`}>
-            <span>{n.text}</span>
+            <NoticeText text={n.text} />
             {n.action && <button className="btn quiet" onClick={() => { n.action!.run(); dismiss(n.id); }}>{n.action.label}</button>}
             <button className="x" onClick={() => dismiss(n.id)} aria-label="Dismiss">✕</button>
           </div>
@@ -457,6 +457,18 @@ function Notices() {
       </div>
       <QuickNote />
     </>
+  );
+}
+
+/** A notice's words: its first line, then any further lines as a list (what an import brought in, item by item). */
+function NoticeText({ text }: { text: string }) {
+  const [head, ...rest] = text.split("\n");
+  if (!rest.length) return <span>{head}</span>;
+  return (
+    <div className="notice-text">
+      {head}
+      <ul>{rest.map((line, i) => <li key={i}>{line}</li>)}</ul>
+    </div>
   );
 }
 

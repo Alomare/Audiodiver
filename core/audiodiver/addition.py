@@ -647,6 +647,10 @@ def from_patch(ix, d: dict) -> Found:
         # an object exactly as an earlier game version had it: the mod's copy is that version's, not a change of the
         # mod's (no settings either: the game changed them since)
         as_was = {i for _, i in b["objects"] if wbank.fingerprint(*hirc[i]) in before.get(i, ())}
+        # one of the game's objects under another parent than today's: mods don't move the game's objects, updates
+        # do, so the copy is an older version's (covers versions the history has no fingerprints of)
+        as_was |= {i for _, i in b["objects"] if i in vanilla and (t := hirc[i][0]) == vanilla[i][0]
+                   and t in (SOUND, *CONTAINERS) and parent_of(t, hirc[i][1]) != parent_of(t, vanilla[i][1])}
         removed = [i for i in b["removed"] if i not in newer]  # the rest came into the game after the mod was made
         audio = lambda sid: media.get(sid) if sid in media else (ix.wem(sid) if game(sid) else None)
         for m in b["media"]:

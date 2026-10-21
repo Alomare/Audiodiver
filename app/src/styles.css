@@ -247,7 +247,7 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color])
 /* a slot: the game's play button and its name, the game's length, then yours. Play buttons always lead the line */
 .slot { display: grid; grid-template-columns: minmax(180px, 1.1fr) calc(64px * var(--fs)) minmax(220px, 1.5fr); gap: 12px; align-items: center; padding: calc(5px * var(--sp)) 8px; border-left: 2px solid transparent; cursor: default; }
 .slot.seg-start { border-top: 1px solid var(--line-soft); margin-top: 2px; padding-top: calc(7px * var(--sp)); }
-.slot:hover { background: var(--panel); }
+.slot:hover, .grp:hover { background: color-mix(in srgb, var(--panel) 50%, var(--raised)); } /* a grey band, as the Library's rows have */
 .slot.selected { background: var(--raised); border-left-color: var(--second-fg); }
 .slot.unused { opacity: .55; }
 .slot-name { display: flex; align-items: center; gap: 10px; min-width: 0; }
@@ -271,7 +271,7 @@ button.file:hover:not(:disabled) { text-decoration: underline dotted; text-under
 .file.silent { flex: none; }
 .file.silent ~ .x { margin-left: auto; }
 .gain { font-size: calc(12px * var(--fs)); color: var(--accent-fg); font-weight: 500; }
-.drop-hint { flex: 1; text-align: left; color: var(--faint); font-size: calc(13px * var(--fs)); padding: 6px 10px; border: 1px dashed var(--line); border-radius: 2px; }
+.drop-hint { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; color: var(--faint); font-size: calc(13px * var(--fs)); padding: 6px 10px; border: 1px dashed var(--line); border-radius: 2px; }
 .drop-hint:hover { color: var(--text); border-color: var(--muted); }
 .slot.locked .drop-hint { border-color: color-mix(in srgb, var(--red) 40%, transparent); }
 
@@ -364,7 +364,11 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fg); }
 .statusbar .busy { color: var(--accent-fg); }
 .notices { position: fixed; bottom: calc(38px + 8px * var(--sp)); right: 16px; display: flex; flex-direction: column; gap: 8px; z-index: 30; max-width: 460px; }
 .notice { display: flex; gap: 10px; align-items: center; background: var(--raised); border: 1px solid var(--line); border-left: 3px solid var(--steel); padding: calc(10px * var(--sp)) 10px calc(10px * var(--sp)) 14px; box-shadow: 0 10px 30px var(--shadow); font-size: calc(14px * var(--fs)); }
-.notice span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.notice span, .notice-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.notice:has(.notice-text) { align-items: flex-start; } /* a notice of several lines keeps its buttons by its first line */
+.notice:has(.notice-text) > :is(.btn, .x) { margin-top: -2px; }
+.notice-text ul { margin: 6px 0 0; padding-left: 18px; color: var(--muted); }
+.notice-text li + li { margin-top: 2px; }
 .notice.good { border-left-color: var(--accent-fg); }
 .notice.bad { border-left-color: var(--red); }
 
@@ -510,8 +514,14 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fg); }
 .lib-group-line:hover > .row-act { opacity: 1; }
 .lib-group-line > .in-proj { margin-right: 12px; }
 .lib-group-head.sub { padding-left: 20px; }
-.lib-group.cat > .lib-group-body > .mus-item { padding-left: 16px; }
-.mus-item.deep { padding-left: 24px; }
+.lib-group.cat > .lib-group-body > .mus-item { padding-left: 26px; }
+.mus-item.deep { padding-left: 36px; }
+/* the levels at a glance: a category's line on a band a shade lighter, and a thin guide down from each fold arrow
+   beside what that level holds (drawn over the rows' own bands) */
+.lib-group.cat > .lib-group-body, .lib-group.cat .lib-group > .lib-group-body { position: relative; }
+.lib-group.cat > .lib-group-body::before, .lib-group.cat .lib-group > .lib-group-body::before {
+  content: ""; position: absolute; top: 0; bottom: 2px; left: 15px; width: 1px; background: var(--line); pointer-events: none; }
+.lib-group.cat .lib-group > .lib-group-body::before { left: 25px; }
 .mus-item.gone .mus-name { color: var(--faint); }
 /* a row's own action (add to the project, take off its list) shows when the pointer or the keyboard is on the row */
 .row-act { display: inline-grid; place-items: center; flex: none; width: calc(18px + 4px * var(--sp)); height: calc(18px + 4px * var(--sp)); border-radius: 2px; color: var(--muted); font-size: calc(14px * var(--fs)); line-height: 1; opacity: 0; transition: opacity var(--t1), background-color var(--t1), color var(--t1); }
@@ -569,8 +579,7 @@ button.ctag:hover { background: color-mix(in oklch, var(--c) 24%, transparent); 
 .grp { display: flex; align-items: center; gap: 8px; margin-top: 2px; padding: calc(3px * var(--sp)) 8px; border-top: 1px solid var(--line-soft); border-left: 2px solid transparent; }
 .grp-head { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 8px; padding: calc(3px * var(--sp)) 0; text-align: left; }
 .grp-head .caret { align-self: center; }
-.grp-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: calc(15px * var(--fs)); font-weight: 700; transition: color var(--t1); }
-.grp-head:hover .grp-name { color: var(--second-fg); }
+.grp-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: calc(15px * var(--fs)); font-weight: 700; }
 .grp-n { flex: none; font-size: calc(12px * var(--fs)); color: var(--faint); }
 .grp-meta { display: flex; align-items: center; gap: 6px; flex: none; }
 .grp-meta .tag { margin-left: 0; }
@@ -685,12 +694,22 @@ button.ctag:hover { background: color-mix(in oklch, var(--c) 24%, transparent); 
 .np-vol { display: inline-flex; align-items: center; gap: 6px; color: var(--faint); }
 .np-vol input { width: 80px; accent-color: var(--accent-fg); height: 12px; }
 
-/* narrow centre (small window or big text): your audio wraps under the slot instead of overflowing */
+/* narrow centre (small window or big text): the columns tighten first; then the new audio wraps under the slot's
+   name (past its play button), and a "linked" tag keeps its chain and number */
 .cue { container-type: inline-size; }
 @container (max-width: 720px) {
-  .slot, .cue.ro .slot { grid-template-columns: minmax(0, 1fr) auto; row-gap: 4px; }
-  .slot-mine { grid-column: 1 / -1; }
+  .slot { grid-template-columns: minmax(180px, 1.2fr) auto minmax(150px, 1fr); gap: 8px; }
+  .cue.ro .slot { grid-template-columns: minmax(0, 1fr) auto; }
   .through { flex-wrap: wrap; }
+}
+@container (max-width: 580px) {
+  .slot, .cue.ro .slot { grid-template-columns: minmax(0, 1fr) auto; row-gap: 4px; }
+  .slot-mine { grid-column: 1 / -1; margin-left: calc(28px + 6px * var(--sp)); } /* its box starts where the name does */
+  .slot.solo .slot-mine { margin-left: calc(40px + 4px * var(--sp)); }
+}
+@container (max-width: 480px) {
+  .tag.linked .lk-words { display: none; }
+  .tag.linked .icon { margin-right: 2px; }
 }
 .statusbar .sb-main { min-width: 0; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; }
 .statusbar > :not(.sb-main):not(.spacer) { flex: none; }
@@ -701,6 +720,8 @@ button.ctag:hover { background: color-mix(in oklch, var(--c) 24%, transparent); 
 
 /* section titles stay in view while their pieces scroll */
 .lib-tree > .lib-group > .lib-group-line { position: sticky; top: -4px; z-index: 1; background: var(--panel); } /* -4px: over the list's top padding */
+.lib-tree > .lib-group.cat > .lib-group-line { background: color-mix(in srgb, var(--panel) 40%, var(--raised)); }
+.lib-tree > .lib-group.cat + .lib-group.cat { border-top: 1px solid var(--line-soft); }
 .lib-tree > .lib-group > .lib-group-line:hover { background: var(--raised); }
 
 /* ---------- motion: quick, and only where it shows where something went or what changed.
@@ -908,7 +929,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
    to Ko-fi on the left, the picture controls (previous, how long until the next, next; only with more than one
    picture) on the right. The logos keep their brands' own colours (their brand rules). The row lets clicks and the
    wheel through between its buttons. */
-.home { --home-m: calc(48px * var(--sp)); --ticker-h: calc(35px * var(--fs)); }
+.home { --home-m: calc(64px * var(--sp)); --ticker-h: calc(35px * var(--fs)); }
 .home-corner { position: absolute; left: var(--home-m); right: var(--home-m); bottom: calc(var(--ticker-h) + 12px); z-index: 2;
   display: flex; align-items: center; justify-content: space-between; gap: 8px; pointer-events: none; }
 .home-corner > * { pointer-events: auto; }
@@ -943,38 +964,49 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .home-brand { display: flex; align-items: center; gap: 12px; font-family: var(--title); font-stretch: 125%; font-size: calc(20px * var(--fs)); font-weight: 700; line-height: 1; }
 .home-brand .logo { width: calc(38px * var(--fs)); height: calc(38px * var(--fs)); }
 .home-hero h1 { font-size: calc(42px * var(--fs)); line-height: 1.04; letter-spacing: -.015em; max-width: 15ch; }
-.home-lead { margin: 0; max-width: 54ch; color: var(--muted); font-size: calc(17px * var(--fs)); }
-.home-open { align-self: stretch; display: flex; flex-direction: column; gap: 10px; padding: calc(14px * var(--sp)) 18px;
-  background: color-mix(in srgb, var(--panel) 88%, transparent); border-left: 3px solid var(--accent-fg); backdrop-filter: blur(8px); }
-.home-open-text { display: flex; flex-direction: column; min-width: 0; }
-.home-open-text h2 { font-size: calc(20px * var(--fs)); line-height: 1.2; }
 .home-path { color: var(--faint); font-size: calc(13px * var(--fs)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-/* the open project's card folds in and out; its gap to what follows is inside the fold, so nothing jumps */
-/* over the picture the usual outline is lost in the dark: a quiet button keeps a visible one */
-.home-hero .btn.quiet { border-color: var(--faint); color: var(--text); }
-.home-hero > .fold { align-self: stretch; margin-bottom: calc(-18px * var(--sp)); }
-.home-hero > .fold > .home-open { margin-bottom: calc(18px * var(--sp)); }
-.home-cols { display: flex; flex-direction: column; gap: calc(16px * var(--sp)); max-width: calc(720px * var(--fs)); margin-top: calc(44px * var(--sp)); }
-.home-recent, .home-news { padding: calc(16px * var(--sp)) 18px calc(18px * var(--sp)); background: color-mix(in srgb, var(--panel) 90%, transparent);
-  border: 1px solid var(--line-soft); backdrop-filter: blur(8px); }
-.home-recent h2, .home-news h2 { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; font-size: calc(18px * var(--fs)); }
+/* the menu, as the game draws its own: tall uppercase strips that fade out to the right, the way in yellow. Hovered or
+   focused, a strip takes the accent bar on its left. Under Continue: the open project's file, Import and Close. */
+.home-menu { display: flex; flex-direction: column; gap: calc(6px * var(--sp)); max-width: calc(560px * var(--fs)); margin-top: calc(48px * var(--sp)); }
+.home-menu > .fold { margin-bottom: calc(-6px * var(--sp)); }
+.home-menu > .fold > :last-child { margin-bottom: calc(6px * var(--sp)); }
+.menu-item { display: flex; align-items: center; width: 100%; min-height: calc(56px * var(--fs)); padding: calc(8px * var(--sp)) 20px; text-align: left;
+  font-family: var(--title); font-stretch: 112%; font-size: calc(16.2px * var(--fs)); font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--text); border-left: 3px solid transparent;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--bg) 60%, transparent), color-mix(in srgb, var(--bg) 28%, transparent) 70%, transparent);
+  transition: background var(--t1), border-color var(--t1); }
+.menu-item:hover, .menu-item:focus-visible { border-left-color: var(--accent-fg);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 16%, transparent), transparent 80%); }
+.menu-item.hot { min-height: calc(62px * var(--fs)); font-size: calc(18px * var(--fs)); font-weight: 800; color: var(--accent-ink); border-left-color: var(--accent);
+  background: linear-gradient(90deg, var(--accent) 12%, color-mix(in srgb, var(--accent) 70%, transparent) 50%, color-mix(in srgb, var(--accent) 25%, transparent) 80%, transparent); }
+.menu-item.hot:hover, .menu-item.hot:focus-visible {
+  background: linear-gradient(90deg, var(--accent-hover) 12%, color-mix(in srgb, var(--accent-hover) 76%, transparent) 50%, color-mix(in srgb, var(--accent-hover) 30%, transparent) 80%, transparent); }
+.menu-item small { display: block; margin-top: 2px; font-family: var(--body); font-stretch: 100%; font-size: calc(13px * var(--fs)); font-weight: 500;
+  letter-spacing: 0; text-transform: none; opacity: .75; }
+.menu-sub { display: flex; align-items: center; gap: 18px; padding: calc(12px * var(--sp)) 23px calc(14px * var(--sp)); font-size: calc(13px * var(--fs)); }
+.menu-sub .home-path-line { min-width: 0; flex: 0 1 auto; }
+.menu-sub .link-text { white-space: nowrap; }
+.home-cols { display: flex; flex-direction: column; gap: calc(24px * var(--sp)); max-width: calc(560px * var(--fs)); margin-top: calc(48px * var(--sp)); }
+/* the recent projects straight on the picture, each row a faint strip so it reads as one */
+.home-recent h2 { margin: 0 0 calc(6px * var(--sp)) 23px; font-size: calc(12px * var(--fs)); font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); }
+.home-recent ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.home-news { padding: calc(16px * var(--sp)) 18px calc(18px * var(--sp)); background: color-mix(in srgb, var(--panel) 90%, transparent); backdrop-filter: blur(8px); }
+.home-news h2 { display: flex; align-items: baseline; gap: 10px; font-size: calc(18px * var(--fs)); }
 .news-date { font-size: calc(13px * var(--fs)); font-weight: 400; color: var(--faint); }
-.home-recent ul { list-style: none; margin: 0 -10px; padding: 0; }
-.recent-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; align-items: center; gap: 8px; padding-right: 6px; border-left: 2px solid transparent; }
-.recent-row .x + .x { margin-left: -6px; } /* the folder and the ✕ sit together */
-.recent-folder { display: grid; place-items: center; }
+.recent-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 4px; padding-right: 8px;
+  border-left: 3px solid transparent; background: rgb(0 0 0 / .15); }
+/* Show in folder leads the row, apart from the ✕ (Take off this list) at its far end */
+.recent-folder { display: grid; place-items: center; margin-left: 14px; }
 .recent-row.missing .recent-folder { visibility: hidden; }
-.recent-row:hover { background: var(--raised); }
-.recent-row.open { border-left-color: var(--accent-fg); }
-.recent-open { display: flex; flex-direction: column; min-width: 0; padding: calc(6px * var(--sp)) 10px; text-align: left; }
-.recent-name { font-size: calc(15px * var(--fs)); font-weight: 500; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.recent-row:hover { background: rgb(0 0 0 / .3); border-left-color: var(--line); }
+.recent-open { display: flex; flex-direction: column; min-width: 0; padding: calc(9px * var(--sp)) 16px calc(9px * var(--sp)) 6px; text-align: left; }
+.recent-name { font-size: calc(16px * var(--fs)); font-weight: 500; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .recent-path { font-size: calc(12px * var(--fs)); color: var(--faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .recent-open:hover:not(:disabled) .recent-name { color: var(--second-fg); }
-.recent-when { font-size: calc(13px * var(--fs)); color: var(--muted); white-space: nowrap; }
+.recent-when { margin-right: 8px; font-size: calc(13px * var(--fs)); color: var(--muted); white-space: nowrap; }
 .recent-row.missing .recent-when { color: var(--red); }
-.recent-row .x { opacity: 0; }
-.recent-row:hover .x, .recent-row .x:focus-visible { opacity: 1; }
+.recent-forget { opacity: 0; }
+.recent-row:hover .recent-forget, .recent-forget:focus-visible { opacity: 1; }
 .home-news .md { font-size: calc(14.5px * var(--fs)); line-height: 1.5; }
 .home-news .md li { margin: 5px 0; }
 .home-news h2 { margin-bottom: 4px; }

@@ -44,6 +44,7 @@ export type Segment = {
   cue?: string;     // in a bank: the music cue a segment belongs to
   container?: string; // a group whose takes a random container picks: it can take new takes
   layer?: boolean;  // a layer can go beside it (it would play whenever this sound plays)
+  copies?: number;  // how many other banks have its container: new takes and layers go there too
   added?: "layer";  // a layer the project adds, beside the sound in `beside`
   beside?: string;
 };

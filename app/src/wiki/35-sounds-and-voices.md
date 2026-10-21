@@ -16,6 +16,25 @@ Most groups have only numbers as names, like *Sound 1* and *Take 2* ([why this h
 
 You can also add audio that the game doesn't have, such as more takes for a sound or a layer that plays with it. See [Adding audio](wiki:adding-audio).
 
+## Weapons
+
+A weapon's shot is several sounds that play at the same time. Each of them is a separate group in the weapon's set, and one shot plays between 3 and 15 of them, depending on the weapon. Most weapons play 6 or more, and the flamethrowers play the most.
+
+A gunshot is usually built from these parts:
+
+| Part | Description |
+|---|---|
+| Mechanism | The moving parts of the gun, such as the bolt and the trigger. |
+| Bass | The low thump of the shot. |
+| Transient | The short crack at the start of the shot. |
+| Tail | The echo of the shot, and the shot as it sounds from far away. |
+
+A weapon's set also holds its handling sounds, such as reloading and the ammunition belt.
+
+To give a weapon a new shot, replace or silence every group that the shot plays. A group that keeps its original audio still plays under the new sound. The groups are numbered, so listen to each one to find out which part of the shot it is. You can also replace one part and keep the others, for example to put a heavier bass under the original shot.
+
+Some parts are shared with other weapons. Replacing one of them changes it on every weapon that has it.
+
 ## Sounds that many things share
 
 The game keeps copies of some sounds in many places. For example, the bank of every weapon contains the weapon handling sounds. A group like this shows **in 104 other banks** and comes after the sounds that belong to the set alone.

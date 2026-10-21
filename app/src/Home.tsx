@@ -14,11 +14,14 @@ import { DEFAULT_SIZE, motionMs, motionOn, useTheme } from "./theme";
 type Info = { path: string; exists: boolean; readable: boolean; name: string; modified: number | null };
 const fileName = (path: string) => path.split(/[\\/]/).pop()!.replace(/\.audi$/i, "");
 
-/** Where the app starts: projects to open or make, the one that is open, and what changed in this version. */
+/** Where the app starts, laid out like the game's menu: the open project to continue (with its file, Import a mod's
+    patch and Close under it), a project to make or open, a mod to repatch; then the recent projects and what changed
+    in this version. */
 export function Home() {
   const { project, recent, actions } = useEditor();
   const [info, setInfo] = useState<Record<string, Info>>({});
-  const shown = useLastWhile(project, !!project); // the card still says which project while it folds away
+  const shown = useLastWhile(project, !!project); // Continue still says which project while it folds away
+  const others = recent.filter((path) => path !== project?.path);
   const [leaving, setLeaving] = useState<string[]>([]); // rows folding away after their ✕
   const forget = (path: string) => {
     setLeaving((l) => [...l, path]);
@@ -42,58 +45,55 @@ export function Home() {
           <header className="home-hero">
             <div className="home-brand"><Logo detail />Audiodiver<AboutButton /></div>
             <h1>A new anthem for Super Earth</h1>
-            <p className="home-lead">Find music or sounds in the Library, add them to a project, drop in new audio, and build
-              the mod.</p>
+          </header>
+
+          {/* a menu, as the game's own: the yellow item is the way in (Continue with a project open, else New project) */}
+          <nav className="home-menu" aria-label="Start">
             <Fold open={!!project}>
               {shown && (
-                <div className="home-open">
-                  <div className="home-open-text">
-                    <h2>{shown.name}</h2>
+                <>
+                  <button className="menu-item hot" onClick={() => nav.go("editor")} data-tip="Continue in the Audio Editor">
+                    <span>Continue<small>{shown.name}</small></span>
+                  </button>
+                  <div className="menu-sub">
                     <span className="home-path-line">
                       <span className="home-path" data-tip={shown.path} data-tip-clip>{shown.path}</span>
                       <button className="x" onClick={() => reveal(shown.path)} aria-label="Show in folder" data-tip="Show in folder"><FolderIcon /></button>
                     </span>
-                  </div>
-                  <div className="row-btns">
-                    <button className="btn primary" onClick={() => nav.go("editor")}>Continue in the Audio Editor</button>
-                    <button className="btn" onClick={() => actions.importPatch()}
+                    <button className="link-text" onClick={() => actions.importPatch()}
                       data-tip="Take the replaced and added sounds of an existing mod's .patch_0 file into this project">Import a mod's patch…</button>
-                    <button className="btn quiet" onClick={actions.closeProject} data-tip="Close the project" data-tip-cmd="closeProject">Close project</button>
+                    <button className="link-text" onClick={actions.closeProject} data-tip="Close the project" data-tip-cmd="closeProject">Close</button>
                   </div>
-                </div>
+                </>
               )}
             </Fold>
-            <div className="row-btns">
-              <button className={`btn big${project ? "" : " primary"}`} onClick={actions.newProject} data-tip="Start a mod" data-tip-cmd="newProject">New project…</button>
-              <button className="btn big" onClick={() => actions.openProject()} data-tip="Open a .audi project file" data-tip-cmd="openProject">Open project…</button>
-              <button className="btn big" onClick={() => nav.go("build", "repatch")}
-                data-tip="Rebuild an existing audio mod for the current game version, without a project">Repatch a mod…</button>
-            </div>
-          </header>
+            <button className={`menu-item${project ? "" : " hot"}`} onClick={actions.newProject} data-tip="Start a mod" data-tip-cmd="newProject">New project</button>
+            <button className="menu-item" onClick={() => actions.openProject()} data-tip="Open a .audi project file" data-tip-cmd="openProject">Open project</button>
+            <button className="menu-item" onClick={() => nav.go("build", "repatch")}
+              data-tip="Rebuild an existing audio mod for the current game version, without a project">Repatch a mod</button>
+          </nav>
 
           <div className="home-cols">
-            {recent.length > 0 && ( // nothing to show until a project has been made or opened
+            {others.length > 0 && ( // nothing to show until a project has been made or opened
               <section className="home-recent" aria-label="Recent projects">
                 <h2>Recent projects</h2>
                 <ul>
-                  {recent.map((path) => {
+                  {others.map((path) => {
                     const i = info[path];
                     const name = i?.name ?? fileName(path);
-                    const open = project?.path === path, missing = i ? !i.exists : false;
+                    const missing = i ? !i.exists : false;
                     const unreadable = !!i && i.exists && !i.readable;
                     const gone = leaving.includes(path);
                     return (
-                      <li key={path} className={`recent-row${open ? " open" : ""}${missing || unreadable ? " missing" : ""}${gone ? " leaving" : ""}`} inert={gone}>
-                        <button className="recent-open" disabled={missing}
-                          onClick={() => (open ? nav.go("editor") : actions.openProject(path))}>
-                          <span className="recent-name" data-tip={name} data-tip-clip>{name}</span>
-                          <span className="recent-path" data-tip={path} data-tip-clip>{path}</span>
-                        </button>
-                        <span className="recent-when" data-tip={missing ? "Moved, renamed or deleted" : unreadable ? "Not an Audiodiver project, or damaged" : undefined}>
-                          {open ? "Open now" : missing ? "Not found" : unreadable ? "Can't be read" : fmtWhen(i?.modified)}</span>
+                      <li key={path} className={`recent-row${missing || unreadable ? " missing" : ""}${gone ? " leaving" : ""}`} inert={gone}>
                         <button className="x recent-folder" aria-label={`Show ${name} in its folder`} disabled={missing}
                           onClick={() => reveal(path)} data-tip="Show in folder"><FolderIcon /></button>
-                        <button className="x" aria-label={`Remove ${name} from this list`} onClick={() => forget(path)}
+                        <button className="recent-open" disabled={missing} onClick={() => actions.openProject(path)}>
+                          <span className="recent-name" data-tip={path} data-tip-more={name}>{name}</span>
+                        </button>
+                        <span className="recent-when" data-tip={missing ? "Moved, renamed or deleted" : unreadable ? "Not an Audiodiver project, or damaged" : undefined}>
+                          {missing ? "Not found" : unreadable ? "Can't be read" : fmtWhen(i?.modified)}</span>
+                        <button className="x recent-forget" aria-label={`Remove ${name} from this list`} onClick={() => forget(path)}
                           data-tip="Take off this list" data-tip-more="The file stays where it is">✕</button>
                       </li>
                     );
