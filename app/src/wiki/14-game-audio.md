@@ -60,7 +60,7 @@ Every clip, sound, bank and cue has a number, and the game files use only these 
 | Archive | One of the game's files in its `data` folder. Holds banks and streamed clips. |
 | Assignment | A file, or silence, given to a slot. |
 | Bank | A Wwise sound bank, with clips and the sounds that play them. |
-| Category, section | How the Index sorts things, as in Weapons ▸ Shotguns. |
+| Category, section | How the Index sorts things, as in Weapons ▸ Support Weapons. |
 | Cue | One piece of music as the game's data defines it, a playlist of segments. |
 | Entry, Exit | A segment's cue points. Entry is where it counts as started, and Exit is where the next one starts. |
 | Fill | Assigning several files to slots in play order in one action. |

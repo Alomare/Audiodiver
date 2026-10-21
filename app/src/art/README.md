@@ -5,18 +5,16 @@ one after the other in file-name order. A picture stays for 20 seconds, grows by
 into the next. With animations off (Settings ▸ Theme, or the system's own setting) one picture stays still, and the
 next launch shows the next one. Without any image, Home shows a wall of level meters instead.
 
-- **Size:** 16:9, up to 2560 × 1440. 1920 × 1080 and 1600 × 900 work; larger only makes the app bigger.
-- **Format:** JPG at quality 80–85, or WebP. sRGB. Aim for under 1 MB each.
-- **Composition:** a picture fills the whole tab and is cropped to the window's shape (about 16:9 at the default
-  size, wider on big screens); it is never stretched. The left ~40% sits under the welcome text and is darkened; the
-  lower half sits behind the Recent projects panel. Keep the subject in the middle or on the right, in the upper two
-  thirds.
+- **Size:** at most the width of a big screen (the pictures here are 3440 × 1440). A wider picture than the window is
+  cropped at its sides, a taller one at its top and bottom; it is never stretched.
+- **Format:** WebP at quality 85, sRGB. The three here are 110 to 210 KB each.
+- **Composition:** the left ~40% sits under the welcome text and is darkened; the lower half sits behind the Recent
+  projects panel. Keep the subject in the middle or on the right, in the upper two thirds.
 - **Theme:** the darkening follows the theme (darker in dark mode, lighter in light mode), so pick art that still
   reads when its left side is dimmed.
 - **Credit:** `ART_CREDIT` in `src/content.ts` says where the art comes from; About ▸ Credits lists it. Home itself
   shows no credit, because its bottom right corner holds the picture controls (when there is more than one picture)
   and the Discord button.
 
-The picture here (`cinematic-trailer.jpg`) is a frame from the Helldivers 2 cinematic trailer, by Arrowhead Game
-Studios. It belongs to them and isn't covered by Audiodiver's licence. A credit doesn't grant a licence, so only add
-art you are allowed to share.
+The pictures here (`home-1.webp` to `home-3.webp`) are screenshots of Helldivers 2 taken by Alomare. The originals
+are in `internal/art/`. The game in them belongs to Arrowhead Game Studios and isn't covered by Audiodiver's licence.

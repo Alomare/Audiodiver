@@ -15,7 +15,8 @@ A mod's patch contains complete copies of the sound banks it changes, as they we
 1. Open [Build ▸ Repatch](app:build/repatch).
 2. Drop the mod on the page. You can drop the ZIP you downloaded, the mod's folder, or its `.patch_0` file with its `.stream` file next to it. **Choose a ZIP or patch file…** and **Choose a folder…** do the same. A ZIP dropped anywhere in Audiodiver also opens on this page.
 3. Check the name. Audiodiver takes it from the mod's manifest if the mod has one, and otherwise from the file or folder name.
-4. Press **Repatch**.
+4. For a music mod, tick **Apply biome music fix** to add the [Sound Systems Rebalanced Patch](wiki:build-and-install#sound-systems-rebalanced-patch).
+5. Press **Repatch**.
 
 Some mods have several options, with one patch for each option. A mod like this stays one mod with the same options. The page lists its patches, and Audiodiver rebuilds each one in its original place.
 
@@ -24,11 +25,13 @@ Some mods have several options, with one patch for each option. A mod like this 
 - The audio that the mod replaces, and the audio it adds. Added audio can be new takes for a sound, a sound that plays with another sound, or a separate clip for one sound.
 - The mod's sound settings. These include the volume (Make-Up Gain) of a sound or a container, a delay before it plays, how much of it goes to the game's reverb, and similar settings.
 
-Audiodiver applies all of this to the game's current sound banks and builds a new ZIP of the same mod. The fix for music that stays silent on some planets (see [Building and installing](wiki:build-and-install)) is off. To add it, open the project, turn it on under When building, and build again.
+Audiodiver applies all of this to the game's current sound banks and builds a new ZIP of the same mod. The Sound Systems Rebalanced Patch goes in only when **Apply biome music fix** is ticked.
 
 If the mod has a mod manager manifest, the new ZIP keeps everything else from the original. That includes the name, the description, the icon, the options, the files next to the patches, and the mod's id. Because the id stays the same, importing the new ZIP in Arsenal updates the old mod and doesn't add another copy. Only the patches are new. The mod's audio goes in exactly as it was, without being converted again, so it sounds the same.
 
-Each repatched mod gets a folder under **Where it goes**. The default location is `Documents\Audiodiver\Repatched`, and **Change…** picks another. The folder holds the new ZIP and one project for each patch, with the audio extracted from the patch in an `imported` folder. **Open as project** opens a project in the [Audio Editor](app:editor), where you can change it further and build it from [Build](app:build). If the mod had several options, each option built this way becomes a separate mod.
+## Destination folder
+
+Each repatched mod gets a folder in the **Destination folder**. The default location is `Documents\Audiodiver\Repatched`, and **Change…** picks another. The folder holds the new ZIP and one project for each patch, with the audio extracted from the patch in an `imported` folder. **Open as project** opens a project in the [Audio Editor](app:editor), where you can change it further and build it from [Build](app:build). If the mod had several options, each option built this way becomes a separate mod.
 
 ## What repatching leaves out
 

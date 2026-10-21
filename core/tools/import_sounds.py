@@ -38,6 +38,7 @@ from audiodiver import bank as wbank
 from audiodiver import music
 from audiodiver.game import murmur64_hash, stream_id
 from audiodiver.index import AudioIndex, LANGUAGES
+from audiodiver.library import slug
 from audiodiver.titles import title
 
 HERE = Path(__file__).parent
@@ -54,7 +55,11 @@ BLOCKS = ["weapons", "stratagems", "vehicles", None, None, "planets/environments
 
 CATEGORIES = [
     ("weapons", "Weapons", 60, "Everything a Helldiver carries and fires: primaries, sidearms, grenades and support weapons.", [
-        ("weapons", "Weapons", "")]),
+        ("weapons/primary", "Primary Weapons", ""),
+        ("weapons/secondary", "Secondary Weapons", "Pistols, melee weapons and the other sidearms."),
+        ("weapons/support", "Support Weapons", "The weapons a stratagem brings, and the ones found on the battlefield."),
+        ("weapons/grenades", "Grenades", "Grenades, knives and the other throwables."),
+        ("weapons/shared", "Shared", "")]),
     ("stratagems", "Stratagems", 250, "Orbitals, Eagles, sentries, emplacements, mines and backpacks.", [
         ("stratagems", "Stratagems", "")]),
     ("vehicles", "Vehicles", 215, "Vehicles and exosuits.", [
@@ -179,6 +184,91 @@ WORDS = {"aa": "AA", "sam": "SAM", "samsite": "SAM Site", "icbm": "ICBM", "seaf"
          "jumppack": "Jump Pack", "inf": "Infiltration", "il": "Illuminate", "cy": "Automatons", "bug": "Terminids",
          "bot": "Automatons", "gen": "", "mud": "Mud", "ice": "Ice", "dropoff": "Drop Off", "shutdown": "Shut Down",
          "gre": "Grenade", "smg": "SMG", "frv": "FRV", "sg": "Shotgun", "ar": "AR", "at": "AT"}
+# Each weapon set's slot in the game's loadout and its in-game name: the name the Audio tab (or the bank's path name)
+# gives it -> (section, name shown). The names come from the workbook's "Weapons & Attachment IDs" tab (the weapon
+# whose archive holds the bank) and the Helldivers 2 wiki's weapon lists, which also give the slots; the Scope of
+# Authority weapons (R-40, AMW-20, LAS-44) were named by the user. The LAS-99 Quasar Cannon is wep_laser_pulse_cannon,
+# in the archive the tab calls "LAS-98 Laser Cannon & LAS-99 Quasar Cannon"; wep_laser_charge_rifle, which sounds alike,
+# is in the LAS-22 Shear's. Weapons that aren't a Helldiver's go where their users are (exosuits and FRVs to Vehicles,
+# the SEAF's to Allies). The tool stops on a weapon set this table doesn't place (a new one after a game update): look
+# it up and add it here.
+P, S, U, G = "weapons/primary", "weapons/secondary", "weapons/support", "weapons/grenades"
+WEAPONS = {
+    "AC-8 Autocannon": (U, None), "APW-1 Anti-Materiel Rifle": (U, None), "AR Risk": (P, "AR-11 Arbitrator"),
+    "AR-2 Coyote": (P, None), "AR-23 Liberator": (P, None), "AR-23A Liberator Carbine": (P, None), "AR-32 Pacifier": (P, None),
+    "AR-59 Suppressor": (P, None), "AR-61 Tenderizer": (P, None), "AR/GL-21 One Two": (P, "AR/GL-21 One-Two"),
+    "ARC-12 Blitzer": (P, None), "ARC-3 Arc Thrower": (U, None),
+    "Belt-Fed Grenade Launcher": (U, "GL-28 Belt-Fed Grenade Launcher"), "BR-14 Adjudicator": (P, None),
+    "Breaching Hammer": (U, "CQC-20 Breaching Hammer"), "Break-Action Shotgun": (U, "SG-88 Break-Action Shotgun"),
+    "Broomhandle": (S, "P-69 Veto"), "Bull Machine Pistol": (S, None), "CB-9 Exploding Crossbow": (P, None),
+    "Combat Walker Breacher Flak Cannon": ("vehicles", "EXO-55 Breakthrough Flak Cannon"),
+    "Combat Walker Flamethrower": ("vehicles", "EXO-51 Lumberer Flamethrower"),
+    "Combat Walker Lumberer Cannon": ("vehicles", "EXO-51 Lumberer Cannon"),
+    "CQC-19 Stun Lance": (S, None), "CQC-2 Saber": (S, None), "CQC-30 Stun Baton": (S, None), "CQC-42 Machete": (S, None),
+    "CQC-5 Combat Hatchet": (S, None), "CQC-9 Defoliation Tool": (U, None), "Double Freedom": (P, "DBS-2 Double Freedom"),
+    "Drake Rifle": (P, "R-4 Hyena"),  # its archive is the R-63 Diligence's, with the R-63CS and the R-4 Hyena
+    "EAT-17 Expendable Anti-Tank": (U, None), "EAT-700 Expendable Napalm": (U, None),
+    "Entrenching Tool": (U, "CQC-72 Entrenchment Tool"), "Expendable Machinegun": (U, "MGX-42 Bullet Storm"),
+    "FAF-14 Spear": (U, None), "FLAM-40 Flamethrower": (U, None), "FLAM-66 Torcher": (P, None),
+    "FRV Heavy Flamer": ("vehicles", "M-104 Incinerator FRV Flamer"),
+    "FRV Supply Autoturret": ("vehicles", "M-103 Supply FRV Autoturret"),
+    "G-109 Urchin": (G, None), "G-12 High Explosive, G-16 Impact Grenades": (G, None), "G-123 Thermite Grenade": (G, None),
+    "G-13 Incendiary Impact, G-10 Incendiary Grenades": (G, None), "G-142 Pyrotech Grenade": (G, None),
+    "G-23 Stun Grenade": (G, None), "G-3 Smoke Grenade": (G, None), "G-31 Arc Grenade": (G, None), "G-4 Gas Grenade": (G, None),
+    "G-50 Seeker": (G, None), "G-6 Frag Grenade": (G, None), "G-7 Pineapple": (G, None), "G/SH-39 Shield Grenade": (G, None),
+    "GL-21 Grenade Launcher": (U, None), "GL-52 De-Escalator": (U, None), "GP-20 Ultimatum": (S, None),
+    "GP-31 Grenade Pistol": (S, None), "GR-8 Recoilless Rifle": (U, None),
+    "Grenade AT Explosive": (G, "G-48 Giga Grenade"), "Grenade AT Self Destruct Drone": (G, "G-60 Anti-Tank Seeker"),
+    "Grenade Caltrops": (G, "G-11 Caltrops"), "Grenade Melta Mine": (G, "G/40-K Melta Mine"),
+    "Grenade Molotov": (G, "G-8 Immolation"), "Heavy Flamer": (U, "B/FLAM-80 Cremator"),
+    "Hornet Pistol": (S, "P-34 Breacher"), "Hotshot Marksman Rifle": (P, "R/40-K Hot-Shot Marksman Rifle"),
+    "JAR-5 Dominator": (P, None), "K-2 Throwing Knife": (G, None), "LAS-16 Sickle": (P, None),
+    "LAS-16 Trident": (P, "LAS-13 Trident"), "LAS-17 Double-Edge Sickle": (P, None), "LAS-5 Scythe": (P, None),
+    "LAS-58 Talon": (S, None), "LAS-7 Dagger": (S, None), "LAS-98 Laser Cannon": (U, None), "LAS-99 Quasar Cannon": (U, None),
+    "Laser Charge Rifle": (P, "LAS-22 Shear"), "Laser Rifle Ion": (U, "LAS-44 Nova"), "Leveller": (U, "EAT-411 Leveller"),
+    "Liberator Legacy": (P, None), "M-1000 Maxigun": (U, None), "M-105 Stalwart": (U, None), "M6C/SOCOM Pistol": (S, None),
+    "M7S SMG": (P, None), "M90A Shotgun": (P, None), "MA5C Assault Rifle": (P, None), "Meltagun": (U, "40-K Meltagun"),
+    "MG-206 Heavy Machine Gun": (U, None), "MG-43 Machine Gun": (U, None), "MLS-4X Commando": (U, None),
+    "MP-98 Knight": (P, None), "Ombudsman": (S, "P-41 Ombudsman"), "One True Flag": (U, "CQC-1 One True Flag"),
+    "P-11 Stim Pistol": (S, None), "P-113 Verdict": (S, None), "P-19 Redeemer": (S, None), "P-2 Peacemaker": (S, None),
+    "P-35 Re-Educator": (S, None), "P-72 Crisper": (S, None), "P-8 Senator": (S, "P-4 Senator"),
+    "Pistol Shark": (S, "P/40-K Bolt Pistol"), "PLAS-1 Scorcher": (P, None), "PLAS-101 Purifier": (P, None),
+    "PLAS-15 Loyalist": (S, None), "PLAS-39 Accelerator Rifle": (P, None), "PLAS-45 Epoch": (U, None),
+    "PT-92 Warrant": (S, "P-92 Warrant"), "Pump Grenade Launcher": (P, "GL-15 Evictor"), "R-2 Amendment": (P, None),
+    "R-2124 Constitution": (P, None), "R-36 Eruptor": (P, None), "R-6 Deadeye": (P, None), "R-63 Diligence": (P, None),
+    "R-72 Censor": (P, None), "RL-77 Airburst Rocket Launcher": (U, None), "RS-422 Railgun": (U, None),
+    "S-11 Speargun": (U, None),
+    "SEAF Defender": ("allies/civilians", None), "SEAF Expendable Anti-Tank": ("allies/civilians", None),
+    "SEAF Grenade": ("allies/civilians", None), "SEAF Liberator": ("allies/civilians", None),
+    "SEAF Machinegun": ("allies/civilians", None), "SEAF Stim Pistol": ("allies/civilians", None),
+    "SG-20 Halt": (P, None), "SG-22 Bushwhacker": (S, None), "SG-255 Breaker": (P, "SG-225 Breaker"),
+    "SG-451 Cookout": (P, None), "SG-8 Punisher": (P, None), "Shared Weapon Sounds": ("weapons/shared", None),
+    "Shotgun Trenchgun": (P, "SG-97 Sweeper"), "Smart Pistol Missile": (S, "P-33 Missile Pistol"),
+    "SMG Flamer": (P, "SMG/FLAM-34 Stoker"), "SMG Laser Blaster": (P, "LAS-12 Sai"), "SMG Solvent": (P, "SMG-203 Gallant"),
+    "SMG-32 Reprimand": (P, None), "SMG-37 Defender": (P, None), "SMG-72 Pummeler": (P, None),
+    "Smokescreen": (G, "G-89 Smokescreen"), "Sniper Rifle Duo": (U, "AMW-20 Apex"), "Sniper Rifle Simo": (P, "R-40 Sightliner"),
+    "StA-11 SMG": (P, None), "StA-52 Assault Rifle": (P, None), "StA-X3 W.A.S.P. Launcher (WASP Launcher)": (U, None),
+    "TED-63 Dynamite Grenade": (G, None), "TM-1 Lure Mine": (G, None), "TX-41 Sterilizer": (U, None), "VG-70 Variable": (P, None),
+}
+
+
+def slot_weapons(sections: dict):
+    """Moves the weapon sets out of the one "weapons" section the Audio tab fills, into their loadout slots (WEAPONS),
+    under their in-game names. A set renamed or moved keeps its old name and id as its "was", so a project that
+    listed it finds it (library.py)."""
+    unplaced = sorted(set(sections.get("weapons", {})) - set(WEAPONS))
+    assert not unplaced, f"weapon sets WEAPONS doesn't place (look them up and add them): {unplaced}"
+    for name, e in sections.pop("weapons", {}).items():
+        section, shown = WEAPONS[name]
+        shown = shown or name
+        was = [name] if shown != name else []
+        if not section.startswith("weapons/"):
+            was = [f"set:weapons/{slug(name)}"]  # another category: by the id it had in Weapons
+        moved = {**e, "name": shown, **({"was": sorted(set(e.get("was", [])) | set(was))} if was else {})}
+        assert shown not in sections[section], f"two weapon sets named {shown} in {section}"
+        sections[section][shown] = moved
+
+
 # weapon banks without the wep_ prefix (the game's own names, from its wwise_dep resources)
 SIDEARMS = {"broomhandle", "bull_machine_pistol", "hornet_pistol", "ombudsman", "pistol_shark", "smart_pistol_missile"}
 FACTIONS = {"bug": "Terminids", "cy": "Automatons", "bot": "Automatons", "il": "Illuminate"}
@@ -419,6 +509,7 @@ def main():
             add(place[0], place[1], banks=[PREFIX + tail])
             claimed.add(tail)
     left = [t for t in tails if t not in claimed and t not in PLACED and in_game(t)]
+    slot_weapons(sections)
 
     out = {"about": "The Index's sound sets (library.py), written by tools/import_sounds.py from the HD2 modding community's "
                     "archive labeling workbook and filediver's name lists. A set is the banks it names: 'banks' by path "

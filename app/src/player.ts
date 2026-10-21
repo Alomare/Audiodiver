@@ -63,7 +63,12 @@ audio.addEventListener("playing", () => {
   if (!ticking) { ticking = true; requestAnimationFrame(tick); }
 });
 audio.addEventListener("pause", () => set({ playing: false }));
-audio.addEventListener("ended", () => set({ playing: false, time: 0 }));
+const enders = new Set<(key: string) => void>(); // what plays one thing after another (the slice tool's originals)
+audio.addEventListener("ended", () => {
+  const key = state.key;
+  set({ playing: false, time: 0 });
+  if (key) enders.forEach((f) => f(key));
+});
 audio.addEventListener("waiting", () => set({ loading: true }));
 // A source that fails to load is asked for again, twice, before giving up: the core may still have been preparing it.
 audio.addEventListener("error", () => {
@@ -136,6 +141,8 @@ export const player = {
     set({ volume: audio.volume });
     try { localStorage.setItem(VOLUME_KEY, String(audio.volume)); } catch { /* storage off */ }
   },
+  /** Calls back with the key of whatever plays to its end; returns the way to stop listening. */
+  onEnded(f: (key: string) => void) { enders.add(f); return () => { enders.delete(f); }; },
   get state() { return state; },
 };
 

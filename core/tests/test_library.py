@@ -97,7 +97,7 @@ def test_index_has_the_music_first_then_the_sound_sets_by_category(session):
     ids = [i["id"] for c in cats for sec in c["sections"] for i in sec["items"]]
     assert len(ids) == len(set(ids)) > 400
     it = _items(session)
-    gun = it["set:weapons/ac-8-autocannon"]
+    gun = it["set:weapons/support/ac-8-autocannon"]
     assert gun["name"] == "AC-8 Autocannon" and gun["category"] == "weapons" and gun["kind"] == "sounds"
     assert [p["cue"] for p in gun["parts"]] == [AUTOCANNON] and gun["parts"][0]["count"] == gun["count"] > 100
     assert it["deploy/loadout"]["category"] == "music" and it["deploy/loadout"]["count"] == 15
@@ -137,8 +137,8 @@ def test_a_bank_opens_as_its_sounds_grouped_by_take(session):
     view = session.cue(AUTOCANNON)
     bid = int(AUTOCANNON[5:])
     rows = _rows(view)
-    assert view["kind"] == "sounds" and view["name"] == "AC-8 Autocannon" and view["path"] == ["Weapons", "Weapons"]
-    assert view["tags"] == [{"name": "AC-8 Autocannon", "category": "weapons", "item": "set:weapons/ac-8-autocannon"}]
+    assert view["kind"] == "sounds" and view["name"] == "AC-8 Autocannon" and view["path"] == ["Weapons", "Support Weapons"]
+    assert view["tags"] == [{"name": "AC-8 Autocannon", "category": "weapons", "item": "set:weapons/support/ac-8-autocannon"}]
     assert view["bank_name"] == "content/audio/wep_autocannon"
     # every sound of the bank once, and nothing else
     assert sorted(int(r["source"]) for r in rows) == sorted(session.lib.sources(bid)) == sorted(map(int, view["slots"]))
@@ -232,6 +232,9 @@ def test_items_are_added_to_a_project_and_removed_with_their_audio(session, own,
     st = s.assign(stray, a)
     assert st["library"] == [gun, loadout, "set:helldivers/body/movement-and-gear"] and st["outside"] == []
     assert st["in_banks"] == {bank: 1, foley: 1}
+    # what taking it off would take with it, for the question the app asks first; asking changes nothing
+    assert s.library_remove_preview([gun]) == {"slots": 1, "files": ["a.wav"]}
+    assert s.library_remove_preview([loadout]) == {"slots": 1, "files": ["a.wav"]} and gun in s.project_state()["library"]
     st = s.library_remove([gun])
     assert st["library"] == [loadout, "set:helldivers/body/movement-and-gear"] and sound not in st["assignments"]
     assert set(st["assignments"]) == {music, stray} and st["undo_label"] == "unlist" and st["in_banks"] == {foley: 1}
@@ -290,6 +293,25 @@ def test_a_set_renamed_in_the_index_is_found_by_its_old_name(session, tmp_path):
 
 
 @pytest.mark.game
+def test_weapons_by_loadout_slot_keep_the_ids_projects_listed(session, tmp_path):
+    """Weapons was one section once. Its sets are in their loadout slots now, some under their in-game names and
+    some in other categories, and a project that listed one by its id of that time still finds it."""
+    s = session
+    weapons = next(c for c in s.index()["categories"] if c["id"] == "weapons")
+    assert [x["name"] for x in weapons["sections"]] == ["Primary Weapons", "Secondary Weapons", "Support Weapons", "Grenades", "Shared"]
+    it = _items(s)
+    assert it["set:weapons/primary/smg-203-gallant"]["name"] == "SMG-203 Gallant"
+    assert it["set:allies/civilians/seaf-liberator"]["category"] == "allies"
+    old = Project(name="Old", path=tmp_path / "w.audi", library=["set:weapons/ac-8-autocannon", "set:weapons/smg-solvent",
+                                                                  "set:weapons/seaf-liberator", "set:weapons/combat-walker-flamethrower"])
+    old.save()
+    st = s.open_project(tmp_path / "w.audi")
+    assert st["library"] == ["set:weapons/support/ac-8-autocannon", "set:weapons/primary/smg-203-gallant",
+                             "set:allies/civilians/seaf-liberator", "set:vehicles/exo-51-lumberer-flamethrower"]
+    assert st["library_missing"] == []
+
+
+@pytest.mark.game
 def test_ids_lead_to_where_they_are_listed(session, own):
     s = session
     gun, bank, sound = own
@@ -301,7 +323,7 @@ def test_ids_lead_to_where_they_are_listed(session, own):
     shared = max(_rows(s.cue(AUTOCANNON)), key=lambda r: r["also_n"])["source"]
     places = s.find(shared)
     assert len(places) > 50 and places[0]["item"].startswith("set:")
-    assert ("set:weapons/ac-8-autocannon", AUTOCANNON, shared) in [(p["item"], p["cue"], p["source"]) for p in places]
+    assert ("set:weapons/support/ac-8-autocannon", AUTOCANNON, shared) in [(p["item"], p["cue"], p["source"]) for p in places]
     assert s.lib.home(int(shared)).startswith("set:weapons/")
     # a sound nobody has named leads to the archive it is in
     unknown = next(a for a in s.archives() if not a["tags"])
@@ -345,8 +367,8 @@ def test_a_banks_sounds_export_one_file_each(session, tmp_path):
     done = s.job(job["id"])
     assert done["state"] == "done" and done["result"]["files"] == 2, done
     names = sorted(f.name for f in (tmp_path / "out").iterdir())
-    assert names == ["Weapons - AC-8 Autocannon - 001 Sound 1 Take 1 (original).wav",
-                     "Weapons - AC-8 Autocannon - 002 Sound 1 Take 2 (original).wav"]
+    assert names == ["Weapons - Support Weapons - AC-8 Autocannon - 001 Sound 1 Take 1 (original).wav",
+                     "Weapons - Support Weapons - AC-8 Autocannon - 002 Sound 1 Take 2 (original).wav"]
 
 
 @pytest.mark.game

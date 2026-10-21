@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { call, type ArchiveRow, type Cue, type Index, type Job, type MusicItem, type Place as Found, type ProjectState, type Status } from "./api";
+import { call, type ArchiveRow, type Assignment, type Cue, type Index, type Job, type MusicItem, type Place as Found, type ProjectState, type Status } from "./api";
+import { confirm } from "./Confirm";
 import { keyHint, keyLabel } from "./keys";
 import { indexItems } from "./music";
 import { nav as tabs } from "./nav";
@@ -39,6 +40,31 @@ export const EDIT_NAMES: Record<string, string> = {
   unlist: "remove from the project", text: "text change", "add take": "new takes", "add layer": "new layer",
   "own clip": "only this sound", "shared clip": "every sound that plays it",
 };
+
+/** "a.wav, b.wav and 3 more". */
+function listNames(names: string[], shown = 3) {
+  const xs = names.slice(0, shown), more = names.length - xs.length;
+  if (more) return `${xs.join(", ")} and ${more} more`;
+  return xs.length > 1 ? `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}` : xs[0] ?? "";
+}
+const undoHint = () => (keyLabel("undo") ? `Undo (${keyLabel("undo")})` : "Undo");
+
+/** Asks before new audio leaves slots (a new take goes with its audio). True to go ahead. */
+function confirmRemoval(mine: Assignment[], p: ProjectState) {
+  const n = mine.length, silence = mine.every((x) => x.silence);
+  const takes = mine.filter((x) => p.additions.some((a) => a.kind === "take" && a.source === x.target)).length;
+  const files = [...new Set(mine.filter((x) => !x.silence).map((x) => x.name))];
+  const what = silence ? "the silence" : takes === n ? (n === 1 ? "the new take" : "the new takes") : "the new audio";
+  const after = takes === n ? (n === 1 ? "The take is gone from the sound." : "The takes are gone from their sounds.")
+    : silence ? `${n === 1 ? "This slot plays" : "These slots play"} the original again.`
+    : `${n === 1 ? "This slot plays" : `These ${n} slots play`} the original again.`;
+  return confirm({
+    title: `Remove ${what}${n > 1 && takes !== n ? ` from ${n} slots` : ""}?`,
+    text: `${after}${files.length ? ` ${files.length === 1 ? `The file ${files[0]} stays` : `The files (${listNames(files)}) stay`} on disk.` : ""}`
+      + ` ${undoHint()} brings ${n === 1 ? "it" : "them"} back.`,
+    ok: "Remove", cancel: "Keep",
+  });
+}
 
 /** What opening a project put right in its file (said once, when it opens; the file is fixed by its next save). */
 const repairNote = (p: ProjectState) =>
@@ -528,6 +554,16 @@ function useEditorState() {
     async removeFromProject(ids: string[], what: string) {
       if (!project) return;
       const before = Object.keys(project.assignments).length;
+      // what goes with them: the new audio in their slots (the core's preview of the same removal)
+      const losing = await run<{ slots: number; files: string[] }>("library_remove_preview", { items: ids });
+      if (!losing) return;
+      if (losing.slots && !(await confirm({
+        title: `Remove ${what} from the project?`,
+        text: `${plural(losing.slots, "slot")} with new audio ${losing.slots === 1 ? "goes" : "go"} with ${ids.length === 1 ? "it" : "them"}`
+          + `${losing.files.length ? ` (${listNames(losing.files)})` : ""}. The audio files stay on disk, and `
+          + `${undoHint()} brings everything back.`,
+        ok: "Remove", cancel: "Keep",
+      }))) return;
       const p = await run<ProjectState>("library_remove", { items: ids });
       if (!p || !edited(p)) return;
       const gone = before - Object.keys(p.assignments).length;
@@ -572,6 +608,7 @@ function useEditorState() {
     async unassign(sources: string[]) {
       const mine = sources.flatMap((s) => project?.assignments[s] ?? []);
       const n = mine.length;
+      if (n && !(await confirmRemoval(mine, project!))) return;
       if (edited(await run<ProjectState>("unassign", { sources })) && n)
         editNotice("info", `Removed ${mine.every((x) => x.silence) ? "the silence" : "the new audio"} from ${plural(n, "slot")}.`);
     },
@@ -740,8 +777,8 @@ function useEditorState() {
     },
     async cancelJob(id: string) { await run("job_cancel", { id }); },
     /** Rebuilds an existing mod on the game as it is now, as the one mod it was (the Repatch page). */
-    async repatch(path: string, name: string, folder: string) {
-      const job = await run<Job>("repatch", { path, name, folder });
+    async repatch(path: string, name: string, folder: string, biomeFix: boolean) {
+      const job = await run<Job>("repatch", { path, name, folder, biome_fix: biomeFix });
       if (job) watchJob(job, finishJob);
       return !!job;
     },

@@ -8,7 +8,7 @@ The Library and the Audio Editor share one layout. There is a list on the left a
 
 ## The list on the left
 
-- **Index** sorts the game's audio by what it is. Categories such as Music, Weapons and Enemies contain sections such as *On the Ship* and *Shotguns*. Each section lists things you can open, either a **piece of music** or a **sound set**. The number at the end of a row is the length of a piece of music, or the number of sounds in a set.
+- **Index** sorts the game's audio by what it is. Categories such as Music, Weapons and Enemies contain sections such as *On the Ship* and *Primary Weapons*. Each section lists things you can open, either a **piece of music** or a **sound set**. The number at the end of a row is the length of a piece of music, or the number of sounds in a set.
 - **All Archives** shows every **archive** that contains audio, as a table. Click a column heading to sort by it, and click again to reverse the order. The icons in the *Index* column show which categories include the archive.
 - In the Library, the **+** at the end of a row adds it to the project, and **✓** means the project already has it. Category and section lines have a **+** as well, which adds everything visible under them. After a search, that **+** adds only the results.
 - In the Audio Editor, the list contains what the project has. **✕** on a row, or on a category or section line, removes it from the project along with its new audio. Right-clicking does the same, and {key:undo} brings it back.
@@ -16,7 +16,7 @@ The Library and the Audio Editor share one layout. There is a list on the left a
 
 ## The top of the middle panel
 
-- **The path and the title** show where the item is in the Index (*Weapons*, *Helldivers ▸ Voices*) and its name.
+- **The path and the title** show where the item is in the Index (*Weapons ▸ Primary Weapons*, *Helldivers ▸ Voices*) and its name.
 - **Original**, **Partly replaced** or **Replaced** shows what the item plays now. This appears in the Audio Editor only.
 - **In the archive …** names the archive that contains the item, followed by the **bank** name from the game files. Click the archive to open it in All Archives.
 - **Shares audio with** lists other things that play some of the same clips. Replacing one of those clips changes it in both places.
@@ -93,9 +93,21 @@ Every slot shows its **source id** at the end of its row. Click the id to copy i
 
 The search box accepts any of them.
 
+## Exporting
+
+**Export…** saves the open item as audio files, either the **Original** or the **Replaced** audio, in the format you pick.
+
+### A folder for each
+
+With **A folder for each** on, the files of each entry go into a separate folder. With it off, all files go into one folder, and each file is named after the place it comes from.
+
+### Lead-in and ring-out
+
+Exporting a piece of music by segment saves one file per segment. **Lead-in and ring-out** includes the audio before each segment's Entry and after its Exit, so the files overlap the way the segments do in game. With it off, the files hold only the audio from Entry to Exit and fit end to end. See [Timing and loops](wiki:timing-and-loops#entry-and-exit).
+
 ## The export list
 
-**Export…** saves the open item. You can also collect things from different places and export them together. Right-click a slot, a group of takes, an Index entry, a category or section line, or an archive, and choose **Add to the export list**. The **Export list** button in the status bar opens the list. There you can rename an entry to set its folder name, remove entries, and export everything as a single job. The list is kept until you clear it.
+You can also collect things from different places and export them together. You can also collect things from different places and export them together. Right-click a slot, a group of takes, an Index entry, a category or section line, or an archive, and choose **Add to the export list**. The **Export list** button in the status bar opens the list. There you can rename an entry to set its folder name, remove entries, and export everything as a single job. The list is kept until you clear it.
 
 ## Colours
 

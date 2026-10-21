@@ -117,16 +117,12 @@ export function WikiLink({ page, about, children }: { page: string; about: strin
   return <button className="link-text" onClick={() => nav.go("wiki", page)} data-tip={`${about}: open the Wiki`}>{children}</button>;
 }
 
-/** A "?" that holds a description, so the screen doesn't have to: hovering (or focusing) it shows `tip`; with a
-    `page`, a click opens that Wiki page for the long version. */
-export function Help({ tip, page }: { tip: string; page?: string }) {
+/** A "?" that holds a description, so the screen doesn't have to: hovering (or focusing) it shows `tip`, and a click
+    opens `page` (a Wiki page, or "page#heading" for the section on it) for the long version. Every "?" has one. */
+export function Help({ tip, page }: { tip: string; page: string }) {
   // inside a label, a click on the "?" must not tick the checkbox or focus the field the label is for
-  if (!page) {
-    return <span className="wiki-q static" tabIndex={0} role="img" aria-label={tip} data-tip={tip} data-tip-always
-      onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>?</span>;
-  }
   return (
-    <button className="wiki-q" onClick={(e) => { e.preventDefault(); e.stopPropagation(); nav.go("wiki", page); }} aria-label={`${tip} Open the Wiki page.`}
-      data-tip={tip} data-tip-more="Click for the Wiki page" data-tip-always>?</button>
+    <button className="wiki-q" onClick={(e) => { e.preventDefault(); e.stopPropagation(); nav.go("wiki", page); }} aria-label={`${tip} Open the Wiki section.`}
+      data-tip={tip} data-tip-more="Click for the Wiki section" data-tip-always>?</button>
   );
 }

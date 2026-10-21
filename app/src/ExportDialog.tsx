@@ -112,7 +112,7 @@ export function ExportListDialog({ onClose }: { onClose: () => void }) {
         )}
         <div className="export-grid">
           <div className="field">
-            <span className="field-label">Audio <Help tip={REFERENCE_ONLY} page="sharing" /></span>
+            <span className="field-label">Audio <Help tip={REFERENCE_ONLY} page="sharing#rights" /></span>
             <div className="segmented" role="radiogroup" aria-label="Audio">
               {SIDES.map(([id, name]) => (
                 <button key={id} role="radio" aria-checked={side === id} className={side === id ? "on" : ""} disabled={id !== "game" && !project}
@@ -129,9 +129,9 @@ export function ExportListDialog({ onClose }: { onClose: () => void }) {
           </label>
         </div>
         <label className="check"><input type="checkbox" checked={apart} onChange={(e) => setApart(e.target.checked)} />
-          <span>A folder for each <Help tip="When this is off, all files go into one folder and are named after where they come from." /></span></label>
+          <span>A folder for each <Help tip="When this is off, all files go into one folder and are named after where they come from." page="reading-the-screen#a-folder-for-each" /></span></label>
         <div className="field">
-          <span className="field-label">Save to</span>
+          <span className="field-label">Destination folder</span>
           <div className="folder-row">
             <span className={`folder${folder ? "" : " none"}`} data-tip={folder} data-tip-clip>{folder || "No folder chosen yet"}</span>
             <button className="btn" onClick={async () => { const f = await pickFolder(folder || project?.folder); if (f) setFolder(f); }}>Choose…</button>
@@ -214,8 +214,8 @@ export function ExportForm({ onDone, onCancel }: { onDone?: () => void; onCancel
     <>
         {music ? (
           <div className="field">
-            <span className="field-label">What to export</span>
-            <div className="cards" role="radiogroup" aria-label="What to export">
+            <span className="field-label">Contents</span>
+            <div className="cards" role="radiogroup" aria-label="Contents">
               {WHAT.map((w) => (
                 <button key={w.id} role="radio" aria-checked={what === w.id} className={`card${what === w.id ? " on" : ""}`} onClick={() => setWhat(w.id)}
                   data-tip={w.text}>
@@ -231,7 +231,7 @@ export function ExportForm({ onDone, onCancel }: { onDone?: () => void; onCancel
 
         <div className="export-grid">
           <div className="field">
-            <span className="field-label">Audio <Help tip={REFERENCE_ONLY} page="sharing" /></span>
+            <span className="field-label">Audio <Help tip={REFERENCE_ONLY} page="sharing#rights" /></span>
             <div className="segmented" role="radiogroup" aria-label="Audio">
               {SIDES.map(([id, name]) => (
                 <button key={id} role="radio" aria-checked={side === id} className={side === id ? "on" : ""} disabled={id !== "game" && !canMine}
@@ -265,7 +265,7 @@ export function ExportForm({ onDone, onCancel }: { onDone?: () => void; onCancel
             )}
             {kind === "segments" && (
               <label className="check"><input type="checkbox" checked={tails} onChange={(e) => setTails(e.target.checked)} />
-                <span>Lead-in and ring-out <Help tip="The audio before Entry and after Exit. When this is off, the pieces sit end to end without overlap." /></span></label>
+                <span>Lead-in and ring-out <Help tip="The audio before Entry and after Exit. When this is off, the pieces sit end to end without overlap." page="reading-the-screen#lead-in-and-ring-out" /></span></label>
             )}
             {kind === "cue" && options?.playlist && (
               <label className="inline">Play the repeating part
@@ -282,7 +282,7 @@ export function ExportForm({ onDone, onCancel }: { onDone?: () => void; onCancel
         )}
 
         <div className="field">
-          <span className="field-label">Save to</span>
+          <span className="field-label">Destination folder</span>
           <div className="folder-row">
             <span className={`folder${folder ? "" : " none"}`} data-tip={folder} data-tip-clip>{folder || "No folder chosen yet"}</span>
             <button className="btn" onClick={choose}>Choose…</button>

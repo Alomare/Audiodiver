@@ -25,9 +25,9 @@ Audiodiver is free software, released under the [GNU General Public License v3.0
 `core/audiodiver/_vendor/slim.py` comes from [hd2-audio-modder](https://github.com/RaidingForPants/hd2-audio-modder)
 under the MIT License (`core/audiodiver/_vendor/LICENSE-hd2-audio-modder`), and `core/audiodiver/_vendor/ssr/` from
 [Sound Systems Rebalanced](https://github.com/CowboyBingus/SoundSystemsRebalanced) under the Zero-Clause BSD licence
-(`core/audiodiver/_vendor/LICENSE-SoundSystemsRebalanced`). The Home picture
-(`app/src/art/cinematic-trailer.jpg`) is a frame from the Helldivers 2 cinematic trailer by Arrowhead Game Studios,
-not covered by the GPL.
+(`core/audiodiver/_vendor/LICENSE-SoundSystemsRebalanced`). The Home pictures
+(`app/src/art/`) are screenshots of Helldivers 2 by the author. The game in them belongs to Arrowhead Game Studios and
+isn't covered by the GPL.
 
 Audiodiver is a fan-made tool, not affiliated with or endorsed by Arrowhead Game Studios or Sony Interactive
 Entertainment. HELLDIVERS is a trademark of Sony Interactive Entertainment LLC.

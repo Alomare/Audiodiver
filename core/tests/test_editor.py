@@ -500,3 +500,32 @@ def test_a_sliced_song_goes_to_the_slots_given(game_session, tmp_path):
     st = s.slice_fill(716451767, str(song), [0, 400, 1000], sources=[order[0], order[3]])
     assert st["assignments"][order[0]]["name"] == "01 song.wav" and st["assignments"][order[3]]["name"] == "02 song.wav"
     assert order[1] not in st["assignments"] and st["undo_label"] == "fill"
+
+
+@pytest.mark.game
+def test_cue_points_go_with_their_segments_new_audio(game_session, tmp_path):
+    """Cue points are in ms of a segment's new audio. Taking the last of it off takes them off too; a build leaves
+    out those of a segment without new audio (an older project can have them) and keeps the game's; and it refuses
+    an Entry at or after the Exit, where the game would play the music before it on until the Entry."""
+    from audiodiver import bank as wbank, patch
+    from audiodiver.build import BuildError, make_patch
+    s = game_session
+    s.new_project(tmp_path / "c.audi", "C")
+    segs = s.cue(716451767)["segments_detail"]
+    first, second = (int(x["segment"]) for x in segs[:2])
+    slot = segs[0]["stems"][0]["slots"][0]["source"]
+    s.fill_sources([slot], [str(_tone(tmp_path / "a.wav", 0.5))])
+    s.segment_override(first, entry_marker=100)
+    assert s.unassign([slot])["segment_overrides"] == {}
+    s.undo()
+    s.project.segment_overrides[second] = {"entry_marker": 309362.0}  # as an older project left it
+    lines = []
+    make_patch(s.project, s.ix, tmp_path, log=lines.append)
+    banks, _ = patch.read_patch(str(tmp_path / "9ba626afa44a3aa3.patch_0"))
+    for bid, (_media, hirc) in banks.items():
+        if second in hirc:
+            assert hirc[second] == wbank.parse(s.ix.bank_files(bid)[0])[1][second]
+    assert any("cue points of 1 segment without new audio left out" in x for x in lines)
+    s.project.segment_overrides[first] = {"entry_marker": 600.0}  # past the new audio's end, where Exit is
+    with pytest.raises(BuildError, match="Entry cue point"):
+        make_patch(s.project, s.ix, tmp_path, log=lines.append)

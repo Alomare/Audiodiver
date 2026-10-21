@@ -107,7 +107,8 @@ code { background: var(--raised); padding: 0 4px; }
 /* ---------- buttons */
 .btn { display: inline-flex; align-items: center; gap: 6px; padding: calc(6px * var(--sp)) calc(10px + 4px * var(--sp)); background: var(--raised); border: 1px solid var(--line); border-radius: 2px; white-space: nowrap; }
 .btn:hover:not(:disabled) { background: var(--hover); }
-.btn.quiet { background: transparent; border-color: transparent; color: var(--muted); }
+/* a secondary button: no fill, but outlined like every button, so it never reads as loose text */
+.btn.quiet { background: transparent; border-color: var(--line); color: var(--muted); }
 .btn.quiet:hover:not(:disabled) { color: var(--text); background: var(--raised); }
 .btn.primary, .btn.build { background: var(--accent); color: var(--accent-ink); border: 0; font-weight: 700; padding: calc(7px * var(--sp)) calc(13px + 5px * var(--sp)); border-radius: 0; }
 .btn.primary:hover:not(:disabled), .btn.build:hover:not(:disabled) { background: var(--accent-hover); }
@@ -635,8 +636,6 @@ button.ctag:hover { background: color-mix(in oklch, var(--c) 24%, transparent); 
   border: 1px solid var(--line); border-radius: 50%; font-size: calc(11px * var(--fs)); font-weight: 700; color: var(--muted); line-height: 1;
   transition: color var(--t1), border-color var(--t1); }
 .wiki-q:hover { color: var(--second-fg); border-color: var(--second-fg); }
-.wiki-q.static { cursor: help; }
-.wiki-q.static:hover { color: var(--text); border-color: var(--muted); }
 .link-text { color: var(--second-fg); text-decoration: underline; text-underline-offset: 2px; font-size: inherit; }
 .link-text:hover { color: var(--text); }
 /* an item's parts: a strip of tabs between the toolbar and the slots they switch */
@@ -823,7 +822,6 @@ details.insp-sec[open]::details-content { block-size: auto; opacity: 1; }
 :root[data-contrast="high"] :focus-visible { outline-width: 3px; outline-offset: 2px; }
 :root[data-contrast="high"] .fold { overflow-clip-margin: 5px; } /* room for the wider focus ring */
 :root[data-contrast="high"] button:disabled { opacity: .6; }
-:root[data-contrast="high"] .btn.quiet { border-color: var(--line-soft); }
 :root[data-contrast="high"] .slot.selected, :root[data-contrast="high"] .mus-item.active, :root[data-contrast="high"] .lib-cue.active,
 :root[data-contrast="high"] .wiki-link.active { border-left-width: 4px; }
 :root[data-contrast="high"] .arc-row.active { box-shadow: inset 4px 0 var(--second-fg); }
@@ -906,18 +904,30 @@ kbd.none { color: var(--faint); font-weight: 400; }
   animation: art-in calc(1800ms * var(--anim)) ease-out both, art-zoom calc(var(--art-time, 20s) + 2s) linear both; }
 @keyframes art-in { from { opacity: 0; } }
 @keyframes art-zoom { from { transform: scale(1); } to { transform: scale(1.02); } }
-/* the corner: the picture controls (previous, how long until the next, next; only with more than one picture) and
-   the way to the modding community's Discord. Its logo keeps Discord's own colour (their brand rules). */
-.home-corner { position: absolute; right: 14px; bottom: 10px; z-index: 2; display: flex; align-items: center; gap: 8px; }
-.home-steps, .home-discord { display: flex; align-items: center; height: calc(24px * var(--fs)); font-size: calc(12px * var(--fs)); color: var(--muted);
+/* the bottom row, above the ticker and in line with the page's margin: the ways to the modding community's Discord and
+   to Ko-fi on the left, the picture controls (previous, how long until the next, next; only with more than one
+   picture) on the right. The logos keep their brands' own colours (their brand rules). The row lets clicks and the
+   wheel through between its buttons. */
+.home { --home-m: calc(48px * var(--sp)); --ticker-h: calc(35px * var(--fs)); }
+.home-corner { position: absolute; left: var(--home-m); right: var(--home-m); bottom: calc(var(--ticker-h) + 12px); z-index: 2;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; pointer-events: none; }
+.home-corner > * { pointer-events: auto; }
+.home-links { display: flex; align-items: center; gap: 8px; }
+.home-steps, .home-link { display: flex; align-items: center; height: calc(26.5px * var(--fs)); font-size: calc(13.2px * var(--fs)); color: var(--muted);
   background: color-mix(in srgb, var(--panel) 72%, transparent); border: 1px solid var(--line-soft); border-radius: 2px; backdrop-filter: blur(6px); }
-.home-steps button { align-self: stretch; display: flex; align-items: center; padding: 0 3px; color: inherit; transition: color var(--t1), background var(--t1); }
+.home-steps button { align-self: stretch; display: flex; align-items: center; padding: 0 3.5px; color: inherit; transition: color var(--t1), background var(--t1); }
 .home-steps button:hover { color: var(--second-fg); background: var(--raised); }
-.art-time { width: calc(34px * var(--fs)); height: 2px; margin: 0 2px; background: var(--line); overflow: hidden; }
+.art-time { width: calc(37px * var(--fs)); height: 2px; margin: 0 2px; background: var(--line); overflow: hidden; }
 .art-time i { display: block; height: 100%; background: var(--muted); transform-origin: left; animation: art-left var(--art-time) linear both; }
-.home-discord { gap: 7px; padding: 0 10px 0 8px; font-weight: 500; transition: color var(--t1), background var(--t1); }
-.home-discord:hover { color: var(--text); background: var(--raised); }
+.home-link { gap: 8px; padding: 0 11px 0 9px; font-weight: 500; transition: color var(--t1), background var(--t1); }
+.home-link:hover { color: var(--text); background: var(--raised); }
 .discord-logo { color: #5865f2; }
+.kofi-logo { color: #ff6433; }
+/* Divershub's ticker: a strip along the very bottom, under the row above. It takes no clicks, and stays hidden until
+   it has loaded, so a slow connection leaves nothing half-drawn. */
+.home-ticker { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; width: 100%; height: var(--ticker-h); border: 0;
+  background: transparent; pointer-events: none; opacity: 0; transition: opacity calc(600ms * var(--anim)); }
+.home-ticker.ready { opacity: 1; }
 @keyframes art-left { from { transform: scaleX(0); } }
 .home-art::after { content: ""; position: absolute; inset: 0; background:
   linear-gradient(90deg, color-mix(in srgb, var(--bg) 92%, transparent) 0%, color-mix(in srgb, var(--bg) 64%, transparent) 44%, color-mix(in srgb, var(--bg) 22%, transparent) 100%),
@@ -925,8 +935,9 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .home-meters { position: absolute; inset: 0; width: 100%; height: 100%; }
 .home-meters rect { fill: var(--line-soft); }
 .home-meters rect.hot { fill: var(--accent-dim); opacity: .35; }
-.home-scroll { position: absolute; inset: 0; z-index: 1; overflow: auto; }
-.home-inner { max-width: calc(1180px * var(--fs)); margin: 0 auto; padding: calc(48px * var(--sp)) 40px 56px; container-type: inline-size; }
+.home-scroll { position: absolute; inset: 0 0 var(--ticker-h); z-index: 1; overflow: auto; }
+/* the page sits in the top-left corner, the same margin on every side; the row above the ticker fits in the bottom one */
+.home-inner { padding: var(--home-m); container-type: inline-size; }
 .home-hero { display: flex; flex-direction: column; align-items: flex-start; gap: calc(18px * var(--sp)); max-width: calc(700px * var(--fs)); }
 /* the name, set like a title so it follows the title typeface chosen in Settings ▸ Theme */
 .home-brand { display: flex; align-items: center; gap: 12px; font-family: var(--title); font-stretch: 125%; font-size: calc(20px * var(--fs)); font-weight: 700; line-height: 1; }
@@ -940,6 +951,8 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .home-path { color: var(--faint); font-size: calc(13px * var(--fs)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* the open project's card folds in and out; its gap to what follows is inside the fold, so nothing jumps */
+/* over the picture the usual outline is lost in the dark: a quiet button keeps a visible one */
+.home-hero .btn.quiet { border-color: var(--faint); color: var(--text); }
 .home-hero > .fold { align-self: stretch; margin-bottom: calc(-18px * var(--sp)); }
 .home-hero > .fold > .home-open { margin-bottom: calc(18px * var(--sp)); }
 .home-cols { display: flex; flex-direction: column; gap: calc(16px * var(--sp)); max-width: calc(720px * var(--fs)); margin-top: calc(44px * var(--sp)); }
@@ -978,7 +991,10 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .bld { display: grid; grid-template-columns: minmax(0, calc(640px * var(--fs))) calc(300px * var(--fs)); justify-content: start; gap: 56px; align-items: start; }
 .bld-main { min-width: 0; }
 .bld-main > .set-sec:first-child { border-top: 0; padding-top: 0; }
-.bld-side { position: sticky; top: 16px; display: flex; flex-direction: column; gap: calc(18px * var(--sp)); max-height: calc(100vh - 130px); overflow-y: auto; }
+/* the column keeps its width whether it scrolls or not (scrollbar-gutter): a scrollbar taking width would shrink the
+   square preview, the content would fit again and the scrollbar go, back and forth at some window heights, moving the
+   Build and Change buttons out from under the pointer. The bottom padding takes a pressed button's 1 px dip. */
+.bld-side { position: sticky; top: 16px; display: flex; flex-direction: column; gap: calc(18px * var(--sp)); max-height: calc(100vh - 130px); overflow-y: auto; scrollbar-gutter: stable; padding-bottom: 4px; }
 .bld-box { display: flex; flex-direction: column; gap: 10px; padding-top: calc(16px * var(--sp)); border-top: 1px solid var(--line-soft); }
 .bld-box .btn.build { justify-content: center; }
 .bld-box .warn-box, .bld-box .info-box { margin: 0; }
@@ -1274,6 +1290,8 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .slice-field { display: flex; align-items: center; gap: 6px; color: var(--muted); }
 .slice-field select { max-width: 240px; }
 .slice-through { font-size: calc(13px * var(--fs)); }
+.slice-tools .play-btn { min-width: calc(92px * var(--fs)); }
+.slice-tools .play-btn.on { border-color: var(--second-fg); color: var(--second-fg); }
 .stepper { display: inline-flex; align-items: center; border: 1px solid var(--line); background: var(--bg); }
 .stepper .icon-btn { width: 26px; height: 28px; font-size: 16px; }
 .stepper input { width: calc(42px * var(--fs)); text-align: center; border: 0; background: none; padding: 0; appearance: textfield; }
@@ -1423,6 +1441,11 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .upd-prompt-head .upd-icon { width: calc(46px * var(--fs)); height: calc(46px * var(--fs)); font-size: calc(19px * var(--fs)); }
 .upd-prompt-head h2 { font-size: calc(20px * var(--fs)); }
 .upd-prompt-head p { margin: 2px 0 0; color: var(--muted); font-size: calc(14px * var(--fs)); }
+
+/* a question before removing work (Confirm.tsx) */
+.modal.confirm { max-width: calc(520px * var(--fs)); gap: 10px; }
+.modal.confirm h2 { font-size: calc(19px * var(--fs)); }
+.modal.confirm p { margin: 0 0 6px; color: var(--muted); font-size: calc(14px * var(--fs)); overflow-wrap: anywhere; }
 
 /* ---------- from the pre-release test suite */
 .nowrap { white-space: nowrap; }

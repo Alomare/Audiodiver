@@ -265,7 +265,7 @@ function LineEditor({ line, lang, canEdit, onSave, onRevert }: {
         </div>
         {subtitle && <VoiceLines id={line.id} lang={lang} />}
         <div className="field">
-          <span className="field-label">New text <Help tip="What each format does, with examples" page="formatting-text" /></span>
+          <span className="field-label">New text <Help tip="What each format does, with examples" page="formatting-text#applying-a-format" /></span>
           <div className="tx-bar" role="toolbar" aria-label="Formatting">
             <label className="tx-color" data-tip="Colour for the selected words">
               <input type="color" value={color} onChange={(e) => setColor(e.target.value)} aria-label="Colour" disabled={!canEdit} />
@@ -340,7 +340,7 @@ function VoiceLines({ id, lang }: { id: number; lang: string }) {
     <div className="field">
       <span className="field-label">{alike ? "Voice lines with these words" : "Voice lines"} <Help tip={alike
         ? "No recording is matched to this subtitle. These recordings say the same words but are matched to other subtitles. One of them may belong to this subtitle"
-        : "The recordings that say this subtitle. Open one in the Library to hear it or replace it"} page="text" /></span>
+        : "The recordings that say this subtitle. Open one in the Library to hear it or replace it"} page="text#subtitles-of-voice-lines" /></span>
       <div className="tx-voices">
         {lines.slice(0, SHOWN_VOICES).map((v) => {
           const n = (takes.get(v.name) ?? 0) + 1;

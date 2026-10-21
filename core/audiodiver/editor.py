@@ -513,6 +513,21 @@ class Session:
         used = {a.container for a in kept if a.kind == "take"}
         p.additions = [a for a in kept if a.kind != "layer" or a.container in used]
 
+    def _tidy_cues(self, p: Project):
+        """Cue points are in ms of a segment's new audio: when the last of it goes, so do they (left behind, they
+        would move the game's own cue points)."""
+        if not p.segment_overrides or not self.catalog:
+            return
+        have = {self._target(r.target) for r in p.replacements}
+        for seg in list(p.segment_overrides):
+            cue = next((self.catalog.cm.cues[c] for c in self.catalog.cm.by_segment.get(seg, [])), None)
+            if cue is None:
+                continue  # a segment this game version doesn't have: kept, as the build leaves it out
+            sources = {sl["source"] for s in cue["segments"] if s["segment"] == seg
+                       for st in s["stems"] for sl in st["slots"]}
+            if not sources & have:
+                del p.segment_overrides[seg]
+
     def _new_ids(self, p: Project, n: int) -> list[int]:
         """n new ids the game and the project don't use."""
         from .addition import new_id
@@ -745,12 +760,25 @@ class Session:
         gone = {str(i) for i in items}
 
         def apply(p):
-            keep = [i for i in (p.library or []) if i not in gone]
-            sounds = lambda ids: {s for part in self._listed(ids)[0].values() for s in part}
-            drop = sounds(i for i in (p.library or []) if i in gone) - sounds(keep)
-            p.library = keep
-            p.replacements = [r for r in p.replacements if self._resolved(r) not in drop]
+            drop = {id(r) for r in self._unlisted(p, gone)}
+            p.library = [i for i in (p.library or []) if i not in gone]
+            p.replacements = [r for r in p.replacements if id(r) not in drop]
         return self._edit("unlist", apply)
+
+    def library_remove_preview(self, items):
+        """What library_remove would take with the items: the slots with new audio, and the files they play (the
+        app asks before taking them)."""
+        self.require_game()
+        drop = self._unlisted(self._need_project(), {str(i) for i in items})
+        return {"slots": len(drop), "files": list(dict.fromkeys(Path(r.audio).name for r in drop if not r.silence))}
+
+    def _unlisted(self, p: Project, gone: set) -> list:
+        """The replacements that go when the items `gone` leave the list: those in their slots, but for a slot that
+        something still on the list has too."""
+        keep = [i for i in (p.library or []) if i not in gone]
+        sounds = lambda ids: {s for part in self._listed(ids)[0].values() for s in part}
+        drop = sounds(i for i in (p.library or []) if i in gone) - sounds(keep)
+        return [r for r in p.replacements if self._resolved(r) in drop]
 
     def project_state(self):
         from .arsenal import icon_frame, slug
@@ -786,7 +814,7 @@ class Session:
         if p.loudness_analysis:
             from . import akd
             if why := akd.unavailable():
-                problems.append(f"Wwise loudness analysis: {why[:1].lower() + why[1:]} (turn it off under When building)")
+                problems.append(f"Wwise loudness analysis: {why[:1].lower() + why[1:]} (turn it off under Build options)")
         try:
             frame = icon_frame(p.icon)
         except ValueError:  # a hand-edited project file: the build names the problem
@@ -829,6 +857,7 @@ class Session:
             try:
                 fn(p)
                 self._tidy(p)
+                self._tidy_cues(p)
                 self._cover(p)
             except BaseException:
                 self.project = Project.from_json(before, p.path)  # an edit that fails half-way changes nothing
@@ -1137,7 +1166,7 @@ class Session:
                 if v and (why := akd.unavailable()):
                     raise EditorError(f"Loudness analysis: {why}")
             elif k == "biome_fix" and not isinstance(v, bool):
-                raise EditorError("The fix for silent planets is on or off")
+                raise EditorError("The biome music fix is on or off")
             checked[k] = v
 
         def apply(p):
@@ -1435,13 +1464,14 @@ class Session:
         return ([f"{texts} string table{'s' if texts != 1 else ''} (the game's text, like subtitles, which isn't supported yet)"] if texts else []) + \
                ([f"{rest} other file{'s' if rest != 1 else ''} (such as models and textures)"] if rest else [])
 
-    def repatch(self, path, name="", folder=""):
+    def repatch(self, path, name="", folder="", biome_fix=False):
         """Rebuilds a mod on the game as it is now, as the one mod it was. Each of its patches is imported into a
         project of its own (in the mod's folder under the repatch folder, to change it further) and made again on the
         current game's banks; the new ZIP is the mod as it was, with a manifest's options, files and id kept
         (repatch.repackage), those patches in place of the old ones. Without a manifest it is a ZIP for HD2 Arsenal,
         one option per patch. A patch that can't be repatched stays as it was in a mod of several, and the result
-        says so."""
+        says so. biome_fix: the music is built with the Sound Systems Rebalanced Patch (biome.py), as a project's
+        setting does it."""
         import tempfile
         from .arsenal import default_icon, name_problem, package
         from .build import PATCH, BuildError, icon_bytes, make_patch
@@ -1464,6 +1494,8 @@ class Session:
             raise EditorError("A build is already running")
         if given(folder):
             save_settings(repatch_folder=str(root))
+        if not isinstance(biome_fix, bool):
+            raise EditorError("The biome music fix is on or off")
         several = len(f.patches) > 1
 
         def one(job, pt, home: Path, scratch: Path) -> dict:
@@ -1471,7 +1503,7 @@ class Session:
             mod = clean_name(f"{name} {pt.label}") if several and pt.label else name
             home.mkdir(parents=True, exist_ok=True)
             p = Project(name=mod, path=home / f"{home.name}.audi", library=[], description=f.description,
-                        guid=f.guid if f.guid and not several else str(uuid.uuid4()))
+                        guid=f.guid if f.guid and not several else str(uuid.uuid4()), biome_fix=biome_fix)
             if f.icon and (image := f.read(f.icon)):
                 (home / f"icon{Path(f.icon).suffix.lower()}").write_bytes(image)
                 p.icon = {"image": f"icon{Path(f.icon).suffix.lower()}"}
@@ -1484,6 +1516,7 @@ class Session:
             with self.lock:
                 added = self._fill_from_patch(p, got, replaced, files)
                 self._tidy(p)
+                self._tidy_cues(p)
                 self._cover(p)
                 p.save()
 

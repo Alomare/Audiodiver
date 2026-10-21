@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { fmtWhen, iconUrl, nameProblem, type Icon, type IconFrame, type Job } from "./api";
+import { BIOME_FIX_PAGE, BIOME_FIX_TIP } from "./content";
 import { JOB_NAMES } from "./jobs";
 import { nav, useNav, type BuildTab as BuildSub } from "./nav";
 import { NoProjectCard, Page, tabArrows, useDraft } from "./Page";
@@ -95,7 +96,7 @@ function BuildPage() {
           <section className="set-sec">
             <h2>Name and description</h2>
             <label className="field">
-              <span className="field-label">Name <Help tip="Arsenal keeps the name from the first import, so choose it before sharing. Leave the version out of the name." /></span>
+              <span className="field-label">Name <Help tip="Arsenal keeps the name from the first import, so choose it before sharing. Leave the version out of the name." page="build-and-install#name-and-description" /></span>
               <input value={name} maxLength={80} spellCheck={false} aria-invalid={!!problem} onChange={(e) => setName(e.target.value)} onBlur={saveName}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") e.currentTarget.blur();
@@ -104,7 +105,7 @@ function BuildPage() {
               {problem && <small className="bad">{problem}</small>}
             </label>
             <label className="field">
-              <span className="field-label">Description <Help tip="Optional. Arsenal shows this text with the mod." /></span>
+              <span className="field-label">Description <Help tip="Optional. Arsenal shows this text with the mod." page="build-and-install#name-and-description" /></span>
               <textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)}
                 onBlur={() => { if (description.trim() !== p.description) save({ description }); }} />
             </label>
@@ -113,7 +114,7 @@ function BuildPage() {
           <section className="set-sec">
             <h2>Version</h2>
             <label className="field">
-              <span className="field-label">Next build <Help tip={`The number in the ZIP's name (${p.zip_name}). It goes up after each build unless turned off under When building.`} /></span>
+              <span className="field-label">Next version <Help tip={`The number in the ZIP's name (${p.zip_name}). It goes up after each build unless turned off under Build options.`} page="build-and-install#version" /></span>
               <input className="short" type="number" min={1} max={99999} step={1} value={version} aria-invalid={!!versionProblem(version)}
                 onChange={(e) => setVersion(e.target.value)} onBlur={saveVersion}
                 onKeyDown={(e) => {
@@ -127,7 +128,7 @@ function BuildPage() {
           <IconEditor icon={icon} frame={frame} setIcon={setIcon} saveIcon={saveIcon} />
 
           <section className="set-sec">
-            <h2>Mod id <Help tip="Arsenal recognises the mod by this id. As long as the id stays the same, a new build updates the installed mod." /></h2>
+            <h2>Mod id <Help tip="Arsenal recognises the mod by this id. As long as the id stays the same, a new build updates the installed mod." page="build-and-install#mod-id" /></h2>
             <div className="pkg-id">
               <code>{p.guid}</code>
               <button className="btn quiet" onClick={() => copyText(p.guid, quick, "the mod id")}>Copy</button>
@@ -171,7 +172,7 @@ function IconEditor({ icon, frame, setIcon, saveIcon }: IconProps) {
 
   return (
     <section className="set-sec">
-      <h2>Icon <Help tip="The image is cropped to a square around its centre and resized to 540 × 540, the size Arsenal uses. You can also drop an image on the preview." /></h2>
+      <h2>Icon <Help tip="The image is cropped to a square around its centre and resized to 540 × 540, the size Arsenal uses. You can also drop an image on the preview." page="build-and-install#icon" /></h2>
       <div className="ico-body view-in" key={image ? "image" : "default"}>
         <p className="path" data-tip={image} data-tip-clip>{image ?? "Default icon"}</p>
         <div className="row-btns">
@@ -254,7 +255,7 @@ function IconPreview({ preview, bust, name, description }: { preview?: Icon; bus
         <b>{name}</b>
         {description && <span className="pkg-desc" data-tip={description.length > 160 ? description : undefined}>{description}</span>}
       </div>
-      <p className="set-note">Builds as {project!.zip_name}</p>
+      <p className="set-note">File name <b>{project!.zip_name}</b></p>
     </div>
   );
 }
@@ -296,7 +297,7 @@ function BuildBox() {
         {building ? "Building…" : `Build v${p.version}`}
       </button>
       <div className="bld-out">
-        <p>Goes to <span className="path" data-tip={p.build_folder} data-tip-clip>{p.build_folder}</span></p>
+        <p>Destination folder <span className="path" data-tip={p.build_folder} data-tip-clip>{p.build_folder}</span></p>
         <div className="row-btns">
           <button className="btn" onClick={chooseFolder} disabled={building} data-tip="Choose another folder for this mod's builds. Only the ZIP is written there.">Change…</button>
           {elsewhere && <button className="btn" onClick={() => actions.settings({ build_folder: null })} disabled={building}
@@ -321,12 +322,12 @@ function BuildOptions() {
   const p = project!;
   const missing = status?.loudness_missing ?? null;
   return (
-    <section className="set-sec" id="when-building">
-      <h2>When building</h2>
+    <section className="set-sec" id="build-options">
+      <h2>Build options</h2>
       <div className="set-list">
         <label className="check">
           <input type="checkbox" checked={s.bumpVersion} onChange={(e) => settings.set({ bumpVersion: e.target.checked })} />
-          <span>Raise the version after each build <Help tip="Arsenal then sees every build as an update." /></span>
+          <span>Raise the version after each build <Help tip="Arsenal then sees every build as an update." page="build-and-install#build-options" /></span>
         </label>
         <label className="check">
           <input type="checkbox" checked={s.revealBuild} onChange={(e) => settings.set({ revealBuild: e.target.checked })} />
@@ -335,12 +336,12 @@ function BuildOptions() {
         <label className="check" data-tip={missing && !p.loudness_analysis ? missing : undefined}>
           <input type="checkbox" checked={p.loudness_analysis} disabled={!!missing && !p.loudness_analysis}
             onChange={(e) => actions.settings({ loudness_analysis: e.target.checked })} />
-          <span>Add Wwise loudness analysis <Help tip="Applies to this project. The game's audio includes this data, but it makes no audible difference. It needs Wwise installed and makes builds slower." />
+          <span>Add Wwise loudness analysis <Help tip="Applies to this project. The game's audio includes this data, but it makes no audible difference. It needs Wwise installed and makes builds slower." page="build-and-install#wwise-loudness-analysis" />
             {missing && <small>{p.loudness_analysis ? `${missing}. Builds fail until you turn this off.` : missing}</small>}</span>
         </label>
         <label className="check">
           <input type="checkbox" checked={p.biome_fix} onChange={(e) => actions.settings({ biome_fix: e.target.checked })} />
-          <span>Fix music that stays silent on some planets <Help tip="Applies to this project, when the build includes the music_init bank. Made for an older game version: where it no longer fits, builds go on without it. See the Wiki's Building and installing page." /></span>
+          <span>Apply biome music fix <Help tip={BIOME_FIX_TIP} page={BIOME_FIX_PAGE} /></span>
         </label>
       </div>
     </section>

@@ -43,4 +43,18 @@ Audiodiver checks GitHub for a new version every time it starts. [Settings ▸ S
 
 An update replaces only the app. Projects, audio files and settings are kept.
 
+## Settings
+
+### Game folder
+
+**Game** in [Settings ▸ System](app:settings/system) shows the folder Audiodiver reads the game from. Audiodiver finds it through Steam. If the game is somewhere else, press **Choose another folder…** and pick the folder Steam installed Helldivers 2 in, or its `data` folder. Audiodiver then reads the game again, which takes about a minute the first time. It only reads from this folder and never writes to it.
+
+### Startup
+
+With **Open the last project when Audiodiver starts** on, Audiodiver opens the last project in the Audio Editor. With it off, Audiodiver starts on Home with the recent projects.
+
+### Disk space
+
+Audiodiver keeps prepared copies of audio so that it doesn't prepare the same audio twice. **Previews** are the decoded originals, the waveforms and the Play through renders. **Encoded audio** is new audio converted for the game, which builds reuse. Clearing either one is safe, and Audiodiver prepares the copies again when it needs them. Projects and audio files are never stored there.
+
 Next: [A first mod](wiki:first-mod).

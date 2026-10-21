@@ -20,7 +20,7 @@ Some sounds can't have a layer, and **New layer…** is greyed out for them. A s
 
 ## Only this sound
 
-Several sounds often play the same clip, and replacing the clip changes it in all of them. After a slot has new audio, you can set **Plays in** in the details to **Only this sound**. The other sounds that play the clip then keep the original. Each option shows how many banks it changes.
+Several sounds often play the same clip, and replacing the clip changes it in all of them. After a slot has new audio, you can set **Scope** in the details to **Only this sound**. The other sounds that play the clip then keep the original. Each option shows how many banks it changes.
 
 This option works at the level of the sound. When the game copies a whole sound into other banks, like the weapon handling sounds that are in every weapon's bank, the copies are the same sound. The change applies to all of them.
 

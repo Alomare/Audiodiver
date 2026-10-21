@@ -110,7 +110,7 @@ export type ProjectState = {
   icon: Icon;
   icon_frame: IconFrame; // the icon's full frame, defaults included
   loudness_analysis: boolean;
-  biome_fix: boolean;    // music_init carries the fix for the music that stays silent on some planets
+  biome_fix: boolean;    // music_init carries the Sound Systems Rebalanced Patch (Apply biome music fix)
   build_folder: string; zip_name: string; // where the next build goes, and what it is called
   build_folder_default: string;           // the build folder next to the project file: where builds go unless another is chosen
   last_build: { zip: string; mb: number; modified: number } | null; // this mod's newest ZIP there (modified: Unix seconds)

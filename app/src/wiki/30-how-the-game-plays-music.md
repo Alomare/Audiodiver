@@ -37,6 +37,6 @@ Any slot can play silence in place of the original, without a file. Right-click 
 
 ## Shared audio
 
-The game reuses some clips in several places. A slot with a shared clip shows **+N cues**, and its details list the other places under **Also plays in**. Replacing the clip changes it in all of them.
+The game reuses some clips in several places. A slot with a shared clip shows **+N cues**, and its details list the other places under **Shared with**. Replacing the clip changes it in all of them.
 
 Leave slots tagged **never heard** or **do not touch** alone. [Reading the screen](wiki:reading-the-screen) explains these tags.

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AboutButton, AboutDialog } from "./About";
+import { ConfirmDialog } from "./Confirm";
 import { BuildTab } from "./BuildTab";
 import { repatchInbox } from "./RepatchPage";
 import { CueView } from "./CueView";
@@ -287,6 +288,7 @@ function Shell() {
       <StatusBar />
       <Notices />
       <AboutDialog />
+      <ConfirmDialog />
       {prompt && <UpdatePrompt onClose={() => setPrompt(false)} />}
       <TooltipLayer />
     </div>

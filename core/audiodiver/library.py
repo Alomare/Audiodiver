@@ -211,8 +211,14 @@ class Library:
                     }
                     self.items[iid] = it
                     self.where[iid] = (out["name"], title(sec["name"]))
-                    for old in e.get("was", []):  # a project that listed it by an older name finds it
-                        self.renamed.setdefault(f"set:{sec['id']}/{slug(old)}", iid)
+                    # a project that listed it by an older name finds it: a "was" is a name in this section, or the
+                    # whole id it had elsewhere ("set:weapons/seaf-liberator"); and a category that was one section
+                    # once (Weapons) has its sets' ids of that time
+                    for old in e.get("was", []):
+                        self.renamed.setdefault(old if old.startswith("set:") else f"set:{sec['id']}/{slug(old)}", iid)
+                    if sec["id"] != cat["id"] and sec["id"].startswith(f"{cat['id']}/"):
+                        for old in [e["name"], *(w for w in e.get("was", []) if not w.startswith("set:"))]:
+                            self.renamed.setdefault(f"set:{cat['id']}/{slug(old)}", iid)
                     items.append(it)
                     for _, bid in parts:
                         self.bank_sets[bid].append(iid)

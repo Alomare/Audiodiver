@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { nameProblem, type Job } from "./api";
+import { BIOME_FIX_PAGE, BIOME_FIX_TIP } from "./content";
 import { nav } from "./nav";
 import { pickFolder, pickMod, reveal } from "./platform";
 import { useEditor } from "./store";
@@ -41,7 +42,7 @@ export const repatchInbox = (() => {
 })();
 
 // the mod being set up, kept while another tab shows
-let kept: { scan: Scan; name: string; folder: string } | null = null;
+let kept: { scan: Scan; name: string; folder: string; biomeFix: boolean } | null = null;
 let staleJob: string | null = null;
 
 /** Build ▸ Repatch: an existing audio mod (a ZIP, a folder or a .patch_0) rebuilt on the game as it is now, as the
@@ -52,9 +53,10 @@ export function RepatchPage() {
   const [scan, setScan] = useState<Scan | null>(kept?.scan ?? null);
   const [name, setName] = useState(kept?.name ?? "");
   const [folder, setFolder] = useState(kept?.folder ?? "");
+  const [biomeFix, setBiomeFix] = useState(kept?.biomeFix ?? false);
   const [reading, setReading] = useState(false);
   const [stale, setStale] = useState(staleJob); // the repatch whose outcome belongs to the mod chosen before this one
-  useEffect(() => { kept = scan && { scan, name, folder }; }, [scan, name, folder]);
+  useEffect(() => { kept = scan && { scan, name, folder, biomeFix }; }, [scan, name, folder, biomeFix]);
   useEffect(() => { staleJob = stale; }, [stale]);
   const jobsNow = useRef(jobs); // read when a mod is chosen, also from a drop the first render subscribed to
   jobsNow.current = jobs;
@@ -81,7 +83,7 @@ export function RepatchPage() {
   const running = job?.state === "running";
   const busy = Object.values(jobs).some((j) => (j.kind === "build" || j.kind === "repatch") && j.state === "running");
   const problem = scan ? nameProblem(name) : null;
-  const go = () => scan && actions.repatch(scan.source, name.trim(), folder);
+  const go = () => scan && actions.repatch(scan.source, name.trim(), folder, biomeFix);
   const chooseFolder = async () => {
     const f = await pickFolder(folder || undefined, "Choose where repatched mods go");
     if (f) setFolder(f);
@@ -97,7 +99,7 @@ export function RepatchPage() {
               <p className="path" data-tip={scan.source} data-tip-clip>{scan.source}</p>
               {scan.patches.length > 1 ? (
                 <div className="rp-patches">
-                  <span className="field-label">Its patches <Help tip={scan.manifest ? "Each patch is rebuilt in its original place, so the mod keeps its options." : "Without a manifest, each becomes an option of the new mod."} /></span>
+                  <span className="field-label">Patches <Help tip={scan.manifest ? "Each patch is rebuilt in its original place, so the mod keeps its options." : "Without a manifest, each becomes an option of the new mod."} page="repatching#repatching-a-mod" /></span>
                   <ul>
                     {scan.patches.map((p) => (
                       <li key={p.key}>{p.label || fileName(p.key)}{p.other.length > 0 && <small>Also holds {p.other.join(" and ")}: left out.</small>}</li>
@@ -108,7 +110,7 @@ export function RepatchPage() {
                 <p className="info-box">The patch also holds {scan.patches[0].other.join(" and ")}. Repatching leaves {scan.patches[0].other.length === 1 ? "it" : "them"} out.</p>
               )}
               <label className="field">
-                <span className="field-label">Name <Help tip="The mod's name in HD2 Arsenal." /></span>
+                <span className="field-label">Name <Help tip="The mod's name in HD2 Arsenal." page="repatching#repatching-a-mod" /></span>
                 <input value={name} maxLength={80} spellCheck={false} aria-invalid={!!problem} disabled={running}
                   onChange={(e) => setName(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !problem) go(); }} />
                 {problem && <small className="bad">{problem}</small>}
@@ -135,11 +137,19 @@ export function RepatchPage() {
         </section>
 
         <section className="set-sec">
-          <h2>Where it goes <Help tip="Each repatched mod gets a folder here. It holds a project that you can change in the Audio Editor, the audio extracted from the mod, and the new ZIP in the build folder." /></h2>
+          <h2>Destination folder <Help tip="Each repatched mod gets a folder here. It holds a project that you can change in the Audio Editor, the audio extracted from the mod, and the new ZIP in the build folder." page="repatching#destination-folder" /></h2>
           <p className="path" data-tip={folder || scan?.folder} data-tip-clip>{folder || scan?.folder || "Documents\\Audiodiver\\Repatched"}</p>
           <div className="row-btns">
             <button className="btn" onClick={chooseFolder} disabled={running}>Change…</button>
           </div>
+        </section>
+
+        <section className="set-sec">
+          <h2>Music</h2>
+          <label className="check">
+            <input type="checkbox" checked={biomeFix} disabled={running} onChange={(e) => setBiomeFix(e.target.checked)} />
+            <span>Apply biome music fix <Help tip={BIOME_FIX_TIP} page={BIOME_FIX_PAGE} /></span>
+          </label>
         </section>
 
         <div className="bld-box rp-go">
@@ -243,13 +253,13 @@ function About() {
       <h3>What it does</h3>
       <ul>
         <li>Takes the audio that the mod replaces and adds, and its sound settings such as volume and delays.</li>
-        <li>Applies them to the game's current sound banks, and adds the fix for music that stays silent on some planets.</li>
+        <li>Applies them to the game's current sound banks. With <b>Apply biome music fix</b>, it also adds the Sound Systems Rebalanced Patch.</li>
         <li>Builds a new ZIP of the same mod, with its options, files and id unchanged. The mod's audio isn't encoded again.</li>
       </ul>
       <h3>When to use it</h3>
       <ul>
         <li>A mod's sounds went silent, wrong or missing after a game update.</li>
-        <li>A music mod made with another tool undoes Sound Systems Rebalanced's fix.</li>
+        <li>A music mod made with another tool undoes the Sound Systems Rebalanced Patch.</li>
       </ul>
       <h3>What it leaves out</h3>
       <ul>

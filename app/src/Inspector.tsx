@@ -39,7 +39,7 @@ export function Inspector() {
         <h2>{seg.name}{sub ? <span className="sub">{sub}</span> : null}</h2>
         <CopyId id={slot.source} />
       </div>
-      {slot.locked && <p className="warn-box">Do not touch. Replacing this clip makes the music stutter. <Help tip="Tags on a slot" page="reading-the-screen" /></p>}
+      {slot.locked && <p className="warn-box">Do not touch. Replacing this clip makes the music stutter. <Help tip="Tags on a slot" page="reading-the-screen#tags-on-a-row" /></p>}
       {slot.absent && <p className="info-box">This clip isn't in the installed game files, so there is nothing to play or replace.</p>}
       {slot.unused && <p className="info-box">Never heard. The game never plays this clip.</p>}
       {seg.added === "layer" ? <p className="info-box">A new layer. It plays whenever the sound above it plays.</p>
@@ -55,7 +55,7 @@ export function Inspector() {
           <section className="insp-sec">
             <label className="check">
               <input type="checkbox" checked={a.fit_timing} onChange={(e) => actions.update(slot.source, { fit_timing: e.target.checked })} />
-              <span>Fit timing to the new audio <Help tip="When this is on, the next segment starts when the new audio ends. When it is off, the original timing applies." page="timing-and-loops" /></span>
+              <span>Fit timing to the new audio <Help tip="When this is on, the next segment starts when the new audio ends. When it is off, the original timing applies." page="timing-and-loops#fitting-the-timing-to-the-new-audio" /></span>
             </label>
           </section>
         )}
@@ -65,7 +65,7 @@ export function Inspector() {
 
       {also > 0 && (
         <section className="insp-sec">
-          <h3>Also plays in <Help tip="The game reuses this audio in other places, and new audio here is heard there too." page="how-the-game-plays-music" /></h3>
+          <h3>Shared with <Help tip="The game reuses this audio in other places, and new audio here is heard there too." page="how-the-game-plays-music#shared-audio" /></h3>
           <ul className="also">
             {slot.also_in.map((id) => <li key={id}><AlsoLink id={id} source={slot.source} /></li>)}
           </ul>
@@ -76,7 +76,7 @@ export function Inspector() {
         <dl>
           <dt>Original</dt><dd>{slot.duration_ms || seg.duration_ms ? fmtTime(slot.duration_ms || seg.duration_ms) : "–"}</dd>
           {seg.segment && <><dt>Segment</dt><dd>{fmtTime(seg.duration_ms)}{seg.exit_ms != null && <> · exit at {fmtTime(seg.exit_ms)}</>}</dd></>}
-          {slot.variant && <><dt>Plays when</dt><dd>{slot.variant}</dd></>}
+          {slot.variant && <><dt>Variant</dt><dd>{slot.variant}</dd></>}
           {cue.language && <><dt>Language</dt><dd>{cue.language}</dd></>}
           {slot.subtitle && <><dt>Subtitle</dt><dd><SubtitleLink slot={slot}>Open</SubtitleLink>{!slot.subtitle_sure &&
             <span className="muted" data-tip={SEVERAL}> · one of several</span>}</dd></>}
@@ -125,8 +125,8 @@ function Replacement({ slot, a, music, what }: { slot: Slot; a?: Assignment; mus
   if (a?.silence) {
     return (
       <section className="insp-sec">
-        <h3>Silence <Help tip="Silence plays nothing in place of the original." page="how-the-game-plays-music" /></h3>
-        <div className="cards one" role="radiogroup" aria-label="What the silence does to the timing">
+        <h3>Silence <Help tip="Silence plays nothing in place of the original." page="how-the-game-plays-music#silence" /></h3>
+        <div className="cards one" role="radiogroup" aria-label="Silence timing">
           {([[true, "Move straight on", SILENCE_TIP.move], [false, "Keep the original timing", SILENCE_TIP.keep]] as const).map(([fit, title, text]) => (
             <button key={title} role="radio" aria-checked={a.fit_timing === fit} className={`card${a.fit_timing === fit ? " on" : ""}`}
               data-tip={text} onClick={() => { if (a.fit_timing !== fit) actions.update(slot.source, { fit_timing: fit }); }}>
@@ -134,14 +134,14 @@ function Replacement({ slot, a, music, what }: { slot: Slot; a?: Assignment; mus
             </button>
           ))}
         </div>
-        {!music && <p className="muted small">Audiodiver also takes it out of the game's mix. <Help tip="A silenced sound no longer turns down the sounds around it." page="volume" /></p>}
+        {!music && <p className="muted small">Audiodiver also takes it out of the game's mix. <Help tip="A silenced sound no longer turns down the sounds around it." page="volume#the-game-s-hdr-mix" /></p>}
       </section>
     );
   }
   if (a) {
     return (
       <section className="insp-sec">
-        <h3>Replaced with</h3>
+        <h3>New audio</h3>
         <div className="replaced-with">
           <span className={`file${a.exists ? "" : " missing"}`} data-tip={a.audio} data-tip-clip>{a.exists ? a.name : `Missing: ${a.name}`}</span>
           {a.duration_ms != null && <span className="len">{fmtTime(a.duration_ms)}</span>}
@@ -178,8 +178,8 @@ function Reach({ slot }: { slot: Slot }) {
   ] as const;
   return (
     <section className="insp-sec">
-      <h3>Plays in <Help tip="Several sounds can play the same clip. Choose whether the new audio plays in all of them or only in this one." page="adding-audio" /></h3>
-      <div className="cards one" role="radiogroup" aria-label="Where the new audio plays">
+      <h3>Scope <Help tip="Several sounds can play the same clip. Choose whether the new audio plays in all of them or only in this one." page="adding-audio#only-this-sound" /></h3>
+      <div className="cards one" role="radiogroup" aria-label="Scope">
         {choices.map(([only, title, text]) => (
           <button key={title} role="radio" aria-checked={own === only} className={`card${own === only ? " on" : ""}`} data-tip={text}
             onClick={() => { if (own !== only) actions.onlyThisSound(slot.source, slot.object, only); }}>
@@ -228,7 +228,7 @@ export function SlotFacts({ row }: { row: Row }) {
       </div>
       {also > 0 && (
         <div className="tl-facts-line also-line" data-tip="The game reuses this audio in other places, and new audio here is heard there too" data-tip-side="top">
-          <span>Also plays in</span>
+          <span>Shared with</span>
           {slot.also_in.map((id) => <AlsoLink key={id} id={id} source={slot.source} />)}
           {also > slot.also_in.length && <span>and {also - slot.also_in.length} more</span>}
         </div>
@@ -321,7 +321,7 @@ function Gain({ source, value }: { source: string; value: number }) {
   };
   return (
     <section className="insp-sec">
-      <h3>Make-Up Gain <Help tip="Louder or quieter, without changing the file or the game's mix." page="volume" />
+      <h3>Make-Up Gain <Help tip="Louder or quieter, without changing the file or the game's mix." page="volume#make-up-gain-per-slot" />
         <span className="val"><input className="gain-val" value={typed ?? fmtGain(v)} aria-label="Make-Up Gain in dB, typed" inputMode="decimal"
           onFocus={(e) => { setTyped(fmtGain(v)); e.currentTarget.select(); }} onChange={(e) => setTyped(e.target.value)} onBlur={takeTyped}
           onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); else if (e.key === "Escape") { escaped.current = true; e.currentTarget.blur(); } }}
@@ -366,7 +366,7 @@ function Markers({ segment, gameEntry, gameExit, fit, lengthMs }: {
   const auto = (x: number | null | undefined) => (x == null ? "auto" : `${Math.round(x)} (${fit ? "fitted" : "original"})`);
   return (
     <details className="insp-sec" open={open} onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
-      <summary>Cue points <Help tip="Entry is where the segment counts as started. Exit is where the next segment starts." page="timing-and-loops" /></summary>
+      <summary>Cue points <Help tip="Entry is where the segment counts as started. Exit is where the next segment starts." page="timing-and-loops#entry-and-exit" /></summary>
       <div className="markers">
         <label>Entry (ms)<input ref={entryBox} type="number" min={0} value={entry} placeholder={auto(autoEntry)}
           onChange={(e) => setEntry(e.target.value)} onBlur={save} aria-invalid={!!problem || undefined} /></label>

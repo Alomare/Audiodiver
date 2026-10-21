@@ -32,7 +32,7 @@ A segment marked **loops** repeats until the game moves on. A segment marked **�
 
 ## Slicing one long song
 
-**Slice a song…** cuts one long file into consecutive pieces at exact sample positions, so the pieces sound like the uncut song when they play back to back. Each piece goes to one segment, in play order. The layers of a segment play together, so all of the pieces go into one layer, the layer of the first slot.
+**Slice a song…** cuts one long file into consecutive pieces at exact sample positions, so the pieces sound like the uncut song when they play back to back. Each piece goes to one segment, in play order. The layers of a segment play together, so all of the pieces go into one layer, the layer of the **From** slot.
 
 The window shows the song and the original on one time scale:
 
@@ -41,10 +41,10 @@ The window shows the song and the original on one time scale:
 
 To slice a song:
 
-1. Set the number of pieces in **Pieces**, and the slot where they start in **First slot**. *to …* names the last slot that gets a piece.
-2. Place the cuts. **Original proportions** spreads the original lengths over the song. **Original lengths** cuts at exactly the original lengths. **Even** cuts the song into equal pieces.
+1. Choose the slots in **From** and **To**. Each segment between them gets one piece, and **To** lists how many pieces that makes.
+2. Place the cuts. **Original proportions** spreads the original lengths over the whole song. **Original lengths** cuts at exactly the original lengths, so the last piece can end before the song does. **Even** cuts the song into equal pieces.
 3. Adjust the cuts. Drag a cut to move it, and hold Shift to stop it from snapping to the original's length. Double-click the song to add a cut. Select a cut and press Delete to remove it, or nudge it with ←/→ (Shift moves 100 ms, Alt moves 1 ms). **Start** and **End** can skip an intro or an outro.
-4. Listen. Click the song or the original to play from that point, or press ▶ on a piece in the table. Space plays and pauses.
+4. Listen. **Song** plays the song, and **Originals** plays the original audio of the slots one after another. Click the song or the original to play from that point, or press ▶ on a piece or its original in the table. Space plays and pauses.
 5. Zoom with Ctrl+wheel or the buttons. Scroll with the wheel or the strip under the lanes. Clicking a row of the table brings its piece into view.
 6. Press **Slice and fill**. Audiodiver saves the pieces in the project's `slices` folder and fills the slots.
 

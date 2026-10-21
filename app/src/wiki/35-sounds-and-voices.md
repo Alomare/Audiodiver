@@ -20,7 +20,7 @@ You can also add audio that the game doesn't have, such as more takes for a soun
 
 The game keeps copies of some sounds in many places. For example, the bank of every weapon contains the weapon handling sounds. A group like this shows **in 104 other banks** and comes after the sounds that belong to the set alone.
 
-Replacing a shared sound changes it everywhere the game plays it. The details list those places under **Also plays in**. The mod also includes a copy of every bank it changes, so replacing a widely shared sound makes the mod large.
+Replacing a shared sound changes it everywhere the game plays it. The details list those places under **Shared with**. The mod also includes a copy of every bank it changes, so replacing a widely shared sound makes the mod large.
 
 ## Voices
 

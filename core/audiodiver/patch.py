@@ -57,6 +57,13 @@ class BankEdit:
     settings: list = field(default_factory=list)  # ids of the objects given the project's settings
 
 
+class CueError(ValueError):
+    """A segment whose Entry cue point would come at or after its Exit."""
+    def __init__(self, segment: int, entry_ms: float, exit_ms: float):
+        super().__init__(f"segment {segment}: Entry at {entry_ms:.0f} ms, Exit at {exit_ms:.0f} ms")
+        self.segment, self.entry_ms, self.exit_ms = segment, entry_ms, exit_ms
+
+
 def _align(n, a):
     return (n + a - 1) // a * a
 
@@ -97,6 +104,7 @@ def patch_bank(bank: bytes, reps: dict[int, Replacement], overrides: dict[int, d
     entries = [[t, id, bytearray(b)] for t, id, b in music.iter_hirc(hirc[1])] if hirc else []
     mem_sizes = {}   # source id -> media size this bank must hold
     retimed = {}     # track id -> new length
+    replaced = set()  # track ids that play new audio: only their segments take the project's cue points
     for t, id, body in entries:
         if t == SOUND:
             offs = [0]
@@ -109,6 +117,8 @@ def patch_bank(bank: bytes, reps: dict[int, Replacement], overrides: dict[int, d
             r = reps.get(sid)
             if r is None:
                 continue
+            if t == MUSIC_TRACK:
+                replaced.add(id)
             if stype == BANK or (stype == PREFETCH and len(r.wem) < mem):
                 mem = len(r.wem)
             if stype in (BANK, PREFETCH):
@@ -144,15 +154,21 @@ def patch_bank(bank: bytes, reps: dict[int, Replacement], overrides: dict[int, d
             continue
         seg = music.MusicSegment.read(id, music.Reader(bytes(body)))
         lengths = [retimed[c] for c in seg.node.children if c in retimed]
-        if not lengths and id not in overrides:
+        # cue points are in ms of the new audio: a segment that plays none keeps the game's
+        cues = overrides.get(id, {}) if any(c in replaced for c in seg.node.children) else {}
+        if not lengths and not cues:
             continue
         if lengths:
             seg.duration_ms = max(lengths)
             seg.markers = [(m, 0.0 if m == music.ENTRY_CUE else seg.duration_ms if m == music.EXIT_CUE else p, n)
                            for m, p, n in seg.markers]
-        for key, value in overrides.get(id, {}).items():
+        for key, value in cues.items():
             cue = {"entry_marker": music.ENTRY_CUE, "exit_marker": music.EXIT_CUE}[key]
             seg.markers = [(m, value if m == cue else p, n) for m, p, n in seg.markers]
+        if (entry := seg.cue(music.ENTRY_CUE)) is not None and (end := seg.cue(music.EXIT_CUE)) is not None \
+                and entry >= end:
+            # the game would hold the segment until its Entry (the music before it plays on, minutes long)
+            raise CueError(id, entry, end)
         e[2] = bytearray(seg.to_bytes())
         edit.segments.append(id)
 

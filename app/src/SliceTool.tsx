@@ -105,31 +105,41 @@ export function SliceTool({ onClose }: { onClose: () => void }) {
   const { cue, selected, actions, notify } = useEditor();
   const box = useDialog(onClose);
   const rows = useMemo(() => (cue ? rowsOf(cue.segments_detail).filter((r) => !r.slot.unused && !r.slot.locked && !r.slot.absent) : []), [cue]);
+  // the pieces go From one slot To another: one piece per segment between them
   const [start, setStart] = useState(() => (rows.find((r) => r.slot.source === selected[0]) ?? rows[0])?.slot.source ?? "");
+  const [stop, setStop] = useState(""); // the To slot; none chosen yet: as far as the cue goes
   const startRow = rows.find((r) => r.slot.source === start);
-  const targets = useMemo(() => targetsFrom(rows, startRow), [rows, startRow]);
+  const reach = useMemo(() => targetsFrom(rows, startRow).slice(0, MAX_PIECES), [rows, startRow]); // what To offers
+  const targets = useMemo(() => {
+    const i = reach.findIndex((r) => r.slot.source === stop);
+    return reach.slice(0, i >= 0 ? i + 1 : reach.length);
+  }, [reach, stop]);
   const lens = useMemo(() => targets.map(originalMs), [targets]);
   const [file, setFile] = useState<string | null>(null);
   const [info, setInfo] = useState<Info | null>(null);
   const [bounds, setBounds] = useState<number[]>([]);
+  // the stretch of the song the pieces come from: all of it, unless the Start or End cut was moved by hand. Every
+  // layout places its cuts within it (Original lengths can end before its end, and that doesn't shrink it)
+  const [span, setSpan] = useState({ from: 0, to: 0 });
   const [layout, setLayout] = useState<Layout>("proportions");
   const [view, setView] = useState<View>({ from: 0, span: 1 });
   const [sel, setSel] = useState<number | null>(null); // the selected cut, for the keys
   const [busy, setBusy] = useState(false);
-  const opened = useRef(1); // how many pieces the song opened with (short ones merged): what a layout goes back to
   const n = Math.max(0, bounds.length - 1);
   const total = info?.duration_ms ?? 1;
   const known = lens.every((l) => l > 0);
 
-  /** Cuts for `count` pieces over from..to, placed the `how` way. */
-  const place = useCallback((how: Layout, count: number, from: number, to: number, now = bounds): number[] => {
+  /** Cuts for one piece per slot of `slots`, over the stretch, placed the `how` way. */
+  const place = (how: Layout, slots: Row[], over = span, now = bounds): number[] => {
+    const { from, to } = over;
+    const ls = slots.map(originalMs), sure = ls.every((l) => l > 0);
     const room = Math.max(1, Math.floor((to - from) / MIN_PIECE)); // a short song has room for fewer pieces
-    const k = Math.max(1, Math.min(count, targets.length, MAX_PIECES, room));
-    if (how === "lengths" && known) return tidy(lengths(lens.slice(0, k), from, total));
-    if (how === "proportions" && known) return tidy(proportions(lens.slice(0, k), from, to));
+    const k = Math.max(1, Math.min(slots.length, room));
+    if (how === "lengths" && sure) return tidy(lengths(ls.slice(0, k), from, to));
+    if (how === "proportions" && sure) return tidy(proportions(ls.slice(0, k), from, to));
     if (how === "custom" && now.length > 1) return tidy(recount(now, k));
     return tidy(even(k, from, to));
-  }, [bounds, targets.length, lens, known, total]);
+  };
 
   const choose = async () => {
     const f = (await pickAudio(false))?.[0];
@@ -141,19 +151,27 @@ export function SliceTool({ onClose }: { onClose: () => void }) {
       setView({ from: 0, span: i.duration_ms });
       setSel(null);
       const prev = i.previous; // the cuts this song had last time, unless they no longer fit (or leave a piece too short)
-      if (prev && prev.length - 1 <= targets.length && prev[prev.length - 1] <= i.duration_ms + 1 && tidy(prev).length === prev.length) {
+      if (prev && prev.length - 1 <= reach.length && prev[prev.length - 1] <= i.duration_ms + 1 && tidy(prev).length === prev.length) {
         setBounds(prev); setLayout("custom");
-        opened.current = prev.length - 1;
+        setSpan({ from: prev[0], to: prev[prev.length - 1] });
+        setStop(reach[prev.length - 2].slot.source);
       } else {
         const how: Layout = known ? "proportions" : "even";
         setLayout(how);
-        const k = Math.max(1, Math.min(targets.length, MAX_PIECES, Math.floor(i.duration_ms / MIN_PIECE)));
-        const b = tidy(how === "proportions" ? proportions(lens.slice(0, k), 0, i.duration_ms) : even(k, 0, i.duration_ms));
-        setBounds(b);
-        opened.current = b.length - 1;
+        setSpan({ from: 0, to: i.duration_ms });
+        setBounds(place(how, targets, { from: 0, to: i.duration_ms }));
       }
     } catch (e: any) { notify("bad", e.message); setFile(null); }
   };
+  // other From and To slots: the cuts placed again for as many pieces, the same way (cuts placed by hand are kept,
+  // with pieces split or merged)
+  const targetKey = targets.map((r) => r.slot.source).join();
+  const placedFor = useRef(targetKey);
+  useEffect(() => {
+    if (placedFor.current === targetKey) return;
+    placedFor.current = targetKey;
+    if (info && bounds.length && (layout !== "custom" || targets.length !== n)) { setBounds(place(layout, targets)); setSel(null); }
+  }, [targetKey]); // eslint-disable-line react-hooks/exhaustive-deps
   // the picker opens straight away, once (React runs a new component's effects twice in development)
   const asked = useRef(false);
   useEffect(() => { if (!asked.current) { asked.current = true; choose(); } }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -178,52 +196,60 @@ export function SliceTool({ onClose }: { onClose: () => void }) {
   });
 
   // ---- editing the cuts
-  // the number of pieces asked for: a layout that fits fewer (Original lengths on a short song) doesn't lose it
-  const wanted = useRef<number | null>(null);
-  const apply = (how: Layout, count = wanted.current ?? (layout === "lengths" ? opened.current : n)) => {
+  const apply = (how: Layout) => {
     if (!info || !bounds.length) return;
     setLayout(how);
-    setBounds(place(how, count, bounds[0], bounds[n]));
+    setBounds(place(how, targets));
     setSel(null);
-  };
-  const setCount = (count: number) => {
-    wanted.current = count;
-    if (info && bounds.length) setBounds(place(layout, count, bounds[0], bounds[n]));
   };
   const moveCut = (i: number, ms: number) => {
     setBounds((b) => b.map((x, j) => (j === i ? ms : x)));
+    // the Start or End cut moved by hand: the pieces come from the new stretch of the song
+    if (i === 0) setSpan((s) => ({ ...s, from: ms }));
+    else if (i === n) setSpan((s) => ({ ...s, to: ms }));
     setLayout("custom");
   };
   const addCut = (ms: number) => {
-    if (n >= Math.min(targets.length, MAX_PIECES)) { notify("info", `This cue has ${targets.length} slot${targets.length === 1 ? "" : "s"} from here, so there is no room for another piece.`); return; }
+    if (n >= reach.length) { notify("info", `This cue has ${reach.length} slot${reach.length === 1 ? "" : "s"} from ${startRow ? rowName(startRow) : "here"}, so there is no room for another piece.`); return; }
     const i = bounds.findIndex((b) => b > ms);
     if (i <= 0 || ms - bounds[i - 1] < MIN_PIECE || bounds[i] - ms < MIN_PIECE) return;
     setBounds((b) => [...b.slice(0, i), Math.round(ms), ...b.slice(i)]);
     setLayout("custom");
+    setStop(reach[n].slot.source); // one more piece: To moves on by a slot
     setSel(i);
   };
   const removeCut = (i: number) => {
     if (i <= 0 || i >= n) return; // the start and the end stay
     setBounds((b) => b.filter((_, j) => j !== i));
     setLayout("custom");
+    setStop(reach[n - 2].slot.source);
     setSel(null);
-  };
-  const changeStart = (source: string) => {
-    setStart(source);
-    const r = rows.find((x) => x.slot.source === source);
-    const left = targetsFrom(rows, r).length;
-    if (n > left && bounds.length) setBounds(recount(bounds, left));
   };
 
   // ---- playing
   const song = file ? fileUrl(file) : "";
+  // the originals played one after another (Play the originals): the piece playing now, or null
+  const inTurn = useRef<number | null>(null);
   /** Plays the song from a spot, or one piece (`piece`: its own key, so its button shows it playing). */
-  const playSong = (fromMs: number, toMs?: number, piece?: number) => file && player.playFrom(piece === undefined ? KEY : `${KEY}:${piece}`, song,
-    fromMs / 1000, toMs !== undefined ? toMs / 1000 : undefined, `Slice · ${file.split(/[\\/]/).pop()}`);
-  const playOriginal = (i: number, offsetMs = 0) => {
-    const r = targets[i];
-    if (r) player.playFrom(`vanilla:${r.slot.source}`, audioUrl("vanilla", r.slot.source), offsetMs / 1000, undefined, `${rowName(r)} · original`);
+  const playSong = (fromMs: number, toMs?: number, piece?: number) => {
+    inTurn.current = null;
+    if (file) player.playFrom(piece === undefined ? KEY : `${KEY}:${piece}`, song, fromMs / 1000, toMs !== undefined ? toMs / 1000 : undefined,
+      `Slice · ${file.split(/[\\/]/).pop()}`);
   };
+  const playOriginal = (i: number, offsetMs = 0, next = false) => {
+    const r = targets[i];
+    inTurn.current = next ? i : null;
+    if (r) player.playFrom(`vanilla:${r.slot.source}`, audioUrl("vanilla", r.slot.source), offsetMs / 1000, undefined,
+      next ? `Originals · ${i + 1} of ${n} · ${rowName(r)}` : `${rowName(r)} · original`);
+  };
+  useEffect(() => player.onEnded((key) => {
+    const i = inTurn.current;
+    if (i === null || key !== `vanilla:${targets[i]?.slot.source}`) return;
+    if (i + 1 < n) playOriginal(i + 1, 0, true); else inTurn.current = null;
+  }), [targets, n]); // eslint-disable-line react-hooks/exhaustive-deps
+  const look = usePlayer();
+  const songOn = look.playing && look.key === KEY;
+  const originalsOn = look.playing && inTurn.current !== null && look.key === `vanilla:${targets[inTurn.current]?.slot.source}`;
 
   // the dialog's keys (the app's own are off while a dialog is open)
   const latest = useRef({ sel, n, bounds, info, total });
@@ -259,15 +285,15 @@ export function SliceTool({ onClose }: { onClose: () => void }) {
     setBusy(false);
     if (ok) onClose();
   };
-  const last = targets[n - 1];
   const tooShort = !!info && info.duration_ms < MIN_PIECE; // shorter than one piece can be
+  const slotName = (r: Row) => `${rowName(r)}${r.slot.variant ? ` (${r.slot.variant})` : ""}`;
 
   return (
     <div className="modal-back" onPointerDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="modal slice" role="dialog" aria-modal="true" aria-label="Slice a song into this cue" ref={box} tabIndex={-1}>
         <div className="pop-head">
           <h2>Slice a song into {cue.name}</h2>
-          <Help tip="Drag a cut to move it. It snaps to the original's length unless you hold Shift. Double-click the song to add a cut. Delete removes the selected cut, and ←/→ nudge it (Shift moves 100 ms, Alt moves 1 ms). Ctrl+wheel zooms, the wheel scrolls, and Space plays." page="timing-and-loops" />
+          <Help tip="Drag a cut to move it. It snaps to the original's length unless you hold Shift. Double-click the song to add a cut. Delete removes the selected cut, and ←/→ nudge it (Shift moves 100 ms, Alt moves 1 ms). Ctrl+wheel zooms, the wheel scrolls, and Space plays." page="timing-and-loops#slicing-one-long-song" />
           <span className="spacer" />
           <button className="x" onClick={onClose} aria-label="Close">✕</button>
         </div>
@@ -281,25 +307,26 @@ export function SliceTool({ onClose }: { onClose: () => void }) {
             <div className="slice-bar">
               <span className="slice-file" data-tip={file} data-tip-clip>{file.split(/[\\/]/).pop()}</span>
               <span className="muted">{fmtTime(info.duration_ms)}</span>
-              <button className="btn quiet small-btn" onClick={choose}>Change…</button>
+              <button className="btn small-btn" onClick={choose} data-tip="Choose another song">Change…</button>
               <span className="spacer" />
-              <label className="slice-field">Pieces
-                <span className="stepper">
-                  <button className="icon-btn" aria-label="One piece fewer" disabled={n <= 1} onClick={() => setCount(n - 1)}>−</button>
-                  <input type="number" min={1} max={Math.min(targets.length, MAX_PIECES)} value={n} aria-label="Pieces"
-                    onChange={(e) => setCount(Number(e.target.value))} />
-                  <button className="icon-btn" aria-label="One piece more" disabled={n >= Math.min(targets.length, MAX_PIECES)} onClick={() => setCount(n + 1)}>+</button>
-                </span>
-              </label>
-              <label className="slice-field">First slot
-                <select value={start} onChange={(e) => changeStart(e.target.value)}>
-                  {rows.map((r) => <option key={r.slot.source} value={r.slot.source}>{rowName(r)}{r.slot.variant ? ` (${r.slot.variant})` : ""}</option>)}
+              <label className="slice-field">From
+                <select value={start} onChange={(e) => setStart(e.target.value)}>
+                  {rows.map((r) => <option key={r.slot.source} value={r.slot.source}>{slotName(r)}</option>)}
                 </select>
               </label>
-              {last && <span className="muted slice-through" data-tip={`Pieces fill ${n} slot${n === 1 ? "" : "s"}, one per segment`}>to {rowName(last)}</span>}
+              <label className="slice-field">To
+                <select value={targets[targets.length - 1]?.slot.source ?? ""} onChange={(e) => setStop(e.target.value)}>
+                  {reach.map((r, i) => <option key={r.slot.source} value={r.slot.source}>{slotName(r)} · {i + 1} piece{i ? "s" : ""}</option>)}
+                </select>
+              </label>
+              {n < targets.length && <span className="muted slice-through" data-tip="The song is too short for a piece in every slot">{n} of {targets.length} slots</span>}
             </div>
 
             <div className="slice-tools">
+              <button className={`btn small-btn play-btn${songOn ? " on" : ""}`} onClick={() => (songOn ? player.toggle() : playSong(bounds[0]))}
+                data-tip="The song, from the first cut">{songOn ? "❚❚" : "▶"} Song</button>
+              <button className={`btn small-btn play-btn${originalsOn ? " on" : ""}`} onClick={() => (originalsOn ? player.toggle() : playOriginal(0, 0, true))}
+                data-tip="The original audio of the slots, one after another">{originalsOn ? "❚❚" : "▶"} Originals</button>
               <div className="segmented" role="radiogroup" aria-label="Place the cuts">
                 {([["proportions", "Original proportions", "The original lengths, stretched over the song"],
                   ["lengths", "Original lengths", "The original lengths as they are, from the first cut"],

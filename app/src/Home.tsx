@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { AboutButton } from "./About";
 import { call, fmtWhen } from "./api";
-import { DISCORD_URL, fmtDate, HOME_ART, RELEASES } from "./content";
+import { DISCORD_URL, fmtDate, HOME_ART, KOFI_URL, RELEASES, TICKER_URL } from "./content";
 import { Fold, useLastWhile } from "./Fold";
-import { DiscordIcon, FolderIcon, NextIcon, PrevIcon } from "./Icons";
+import { DiscordIcon, FolderIcon, KofiIcon, NextIcon, PrevIcon } from "./Icons";
 import { Logo } from "./Logo";
 import { Markdown } from "./Markdown";
 import { nav } from "./nav";
 import { openUrl, reveal } from "./platform";
 import { useEditor } from "./store";
-import { motionMs, motionOn, useTheme } from "./theme";
+import { DEFAULT_SIZE, motionMs, motionOn, useTheme } from "./theme";
 
 type Info = { path: string; exists: boolean; readable: boolean; name: string; modified: number | null };
 const fileName = (path: string) => path.split(/[\\/]/).pop()!.replace(/\.audi$/i, "");
@@ -66,7 +66,7 @@ export function Home() {
             <div className="row-btns">
               <button className={`btn big${project ? "" : " primary"}`} onClick={actions.newProject} data-tip="Start a mod" data-tip-cmd="newProject">New project…</button>
               <button className="btn big" onClick={() => actions.openProject()} data-tip="Open a .audi project file" data-tip-cmd="openProject">Open project…</button>
-              <button className="btn big quiet" onClick={() => nav.go("build", "repatch")}
+              <button className="btn big" onClick={() => nav.go("build", "repatch")}
                 data-tip="Rebuild an existing audio mod for the current game version, without a project">Repatch a mod…</button>
             </div>
           </header>
@@ -107,16 +107,37 @@ export function Home() {
       </div>
       {HOME_ART.length ? <HomeArt><Community /></HomeArt>
         : <><div className="home-art" aria-hidden><Meters /></div><div className="home-corner"><Community /></div></>}
+      <Ticker />
     </section>
   );
 }
 
-/** The way to the modding community's Discord, for questions, feedback and help (in the corner, over the art). */
+/** The way to the modding community's Discord, for questions, feedback and help, and to Ko-fi, for supporting
+    Audiodiver (in the corner, over the art). */
 function Community() {
   return (
-    <button className="home-discord" onClick={() => openUrl(DISCORD_URL)} data-tip="Helldivers 2 Modding on Discord"
-      data-tip-more="Questions, feedback and help. Opens discord.gg/helldiversmodding" data-tip-side="top">
-      <DiscordIcon />Discord</button>
+    <div className="home-links">
+      <button className="home-link" onClick={() => openUrl(DISCORD_URL)} data-tip="Helldivers 2 Modding on Discord"
+        data-tip-more="Questions, feedback and help. Opens discord.gg/helldiversmodding" data-tip-side="top">
+        <DiscordIcon />Discord</button>
+      <button className="home-link" onClick={() => openUrl(KOFI_URL)} data-tip="Support Audiodiver on Ko-fi"
+        data-tip-more="Opens ko-fi.com/alomare" data-tip-side="top">
+        <KofiIcon />Ko-fi</button>
+    </div>
+  );
+}
+
+const TICKER_SCALE = 0.625; // the overlay is 56px tall at scale 1, for a stream; 35px here at the usual text size
+
+/** Divershub's news ticker along the bottom: the war's orders and news, as streams show them. Only to look at
+    (it takes no clicks); it follows the text size and fades in once it has loaded. */
+function Ticker() {
+  const { size } = useTheme();
+  const [ready, setReady] = useState(false);
+  const scale = +(TICKER_SCALE * size / DEFAULT_SIZE).toFixed(3);
+  return (
+    <iframe className={`home-ticker${ready ? " ready" : ""}`} src={`${TICKER_URL}?scale=${scale}`} title="Divershub news ticker"
+      aria-hidden tabIndex={-1} sandbox="allow-scripts allow-same-origin" referrerPolicy="no-referrer" onLoad={() => setReady(true)} />
   );
 }
 
@@ -137,8 +158,8 @@ let opening: number | null = null; // chosen once per launch; coming back to Hom
 /** The art behind Home: the pictures in src/art, one after the other. Each fills the tab (cropped to its shape,
     never stretched), drifts in very slowly (a 2% zoom over its time on screen) and gives way to the next with a
     cross-fade. With animations off (Settings ▸ Theme, or the system's own setting) one picture stays still, and
-    the next launch shows the next one. The corner holds the picture controls (with more than one picture) and
-    whatever Home puts beside them. */
+    the next launch shows the next one. The corner holds whatever Home puts there, on the left, and the picture
+    controls (with more than one picture) on the right. */
 function HomeArt({ children }: { children?: ReactNode }) {
   const moving = motionOn(useTheme()) && HOME_ART.length > 1;
   // the picture that shows and, while it fades in, the one under it. A new key replays the fade and the zoom.
@@ -182,6 +203,7 @@ function HomeArt({ children }: { children?: ReactNode }) {
         {(moving ? layers : [top]).map((l) => <img key={l.key} className="home-art-img" src={HOME_ART[l.at]} alt="" draggable={false} />)}
       </div>
       <div className="home-corner">
+        {children}
         {HOME_ART.length > 1 && (
           <div className="home-steps">
             <button onClick={() => step(-1)} aria-label="Previous picture" data-tip="Previous picture" data-tip-side="top"><PrevIcon /></button>
@@ -190,7 +212,6 @@ function HomeArt({ children }: { children?: ReactNode }) {
             <button onClick={() => step(1)} aria-label="Next picture" data-tip="Next picture" data-tip-side="top"><NextIcon /></button>
           </div>
         )}
-        {children}
       </div>
     </>
   );

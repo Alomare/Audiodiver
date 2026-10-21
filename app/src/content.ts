@@ -1,5 +1,5 @@
 // What the app shows that is written, not coded: the Wiki's pages (src/wiki/*.md), the changelog (CHANGELOG.md) and
-// the Home tab's background art (src/art/home.*). All of it is bundled at build time.
+// the Home tab's background art (src/art/*). All of it is bundled at build time.
 import type { Token, Tokens } from "marked";
 import changelog from "../CHANGELOG.md?raw";
 import { parse, type Doc } from "./Markdown";
@@ -18,6 +18,13 @@ export const REPO_URL = "https://github.com/Alomare/Audiodiver";
 export const LICENCE = { name: "GNU General Public License v3.0 or later", url: "https://www.gnu.org/licenses/gpl-3.0.html" };
 /** Where questions and feedback go: the Helldivers 2 modding community's Discord (Home's corner and About). */
 export const DISCORD_URL = "https://discord.gg/helldiversmodding";
+/** Where Audiodiver can be supported: Alomare's Ko-fi page (Home's corner, beside Discord). */
+export const KOFI_URL = "https://ko-fi.com/alomare";
+/** Divershub's news ticker, the stream overlay along the bottom of Home (its CSP frame-src is in tauri.conf.json). */
+export const TICKER_URL = "https://divershub.app/overlay/ticker";
+/** Apply biome music fix (Build ▸ Project's Build options, and Build ▸ Repatch): its "?" and the Wiki section. */
+export const BIOME_FIX_TIP = "Adds the Sound Systems Rebalanced Patch, which fixes the music that stays silent after a drop on seven planet biomes. Where it no longer fits the game's banks, the build goes on without it.";
+export const BIOME_FIX_PAGE = "build-and-install#sound-systems-rebalanced-patch";
 
 /** "2026-10-05" as "5 Oct 2026"; anything else as it is. */
 export function fmtDate(iso: string) {
@@ -31,7 +38,7 @@ export const HOME_ART = Object.entries(import.meta.glob("./art/*.{jpg,jpeg,png,w
   { query: "?url", import: "default", eager: true }) as Record<string, string>)
   .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true })).map(([, url]) => url);
 /** Where the art comes from: About ▸ Credits names it. */
-export const ART_CREDIT = { name: "Arrowhead Game Studios", url: "https://www.arrowheadgamestudios.com", for: "a frame from the Helldivers 2 cinematic trailer" };
+export const ART_CREDIT: { name: string; url?: string; for: string } = { name: "Alomare", for: "the screenshots of Helldivers 2 behind Home" };
 
 /** Everyone whose work Audiodiver builds on: About ▸ Credits (the ⓘ by the version and on Home), the one place the
     app names people and sources. Notes, tooltips, the Wiki and the core's data never do: they say what a thing is,
@@ -50,7 +57,7 @@ export const CREDITS: { group: string; items: Credit[] }[] = [
     { name: "wwise-teller", by: "Dekr0", url: "https://github.com/Dekr0/wwise-teller", licence: "MIT",
       for: "Wwise property ids, the difference between Volume and Make-Up Gain, and how new takes, layers and clips go into a bank" },
     { name: "Sound Systems Rebalanced", by: "CowboyBingus", url: "https://github.com/CowboyBingus/SoundSystemsRebalanced", licence: "0BSD",
-      for: "the fix music builds carry for the music that stays silent on seven planet biomes, and the music's drop at the war table" },
+      for: "the Sound Systems Rebalanced Patch (Apply biome music fix), for the music that stays silent on seven planet biomes, and the music's drop at the war table" },
     { name: "wwiser", by: "bnnm", url: "https://github.com/bnnm/wwiser", for: "the reference for Wwise sound bank structures" },
     { name: "Whisper", by: "OpenAI", url: "https://github.com/openai/whisper", licence: "MIT", for: "hearing the voice lines, to match each to its subtitle" },
     { name: "Audio Spectrogram Transformer", by: "MIT", url: "https://huggingface.co/MIT/ast-finetuned-audioset-10-10-0.4593", licence: "BSD-3-Clause",

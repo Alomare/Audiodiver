@@ -67,17 +67,17 @@ function System() {
       <GameFolder />
 
       <section className="set-sec">
-        <h2>Starting up</h2>
+        <h2>Startup</h2>
         <label className="check">
           <input type="checkbox" checked={s.openLast} onChange={(e) => settings.set({ openLast: e.target.checked })} />
-          <span>Open the last project when Audiodiver starts <Help tip="When this is on, Audiodiver opens the last project in the Audio Editor. When it is off, Audiodiver starts on Home with the recent projects." /></span>
+          <span>Open the last project when Audiodiver starts <Help tip="When this is on, Audiodiver opens the last project in the Audio Editor. When it is off, Audiodiver starts on Home with the recent projects." page="how-audiodiver-works#startup" /></span>
         </label>
       </section>
 
       <section className="set-sec">
         <h2>Updates <Help tip="Audiodiver looks for a new version on GitHub each time it starts. The Updates tab lists every version's changes." page="how-audiodiver-works#new-versions-of-audiodiver" /></h2>
         <div className="field">
-          <span className="field-label">New versions</span>
+          <span className="field-label">Mode</span>
           <div className="segmented updates-mode" role="radiogroup" aria-label="Updates">
             {UPDATE_MODES.map(([id, name]) => (
               <button key={id} role="radio" aria-checked={s.updates === id} className={s.updates === id ? "on" : ""}
@@ -91,7 +91,7 @@ function System() {
       <section className="set-sec">
         <h2>Tooltips</h2>
         <div className="field">
-          <span className="field-label">Show after</span>
+          <span className="field-label">Delay</span>
           <div className="segmented narrow" role="radiogroup" aria-label="Tooltips">
             {TIP_SPEEDS.map(([id, name]) => (
               <button key={id} role="radio" aria-checked={s.tips === id} className={s.tips === id ? "on" : ""}
@@ -104,7 +104,7 @@ function System() {
       </section>
 
       <section className="set-sec">
-        <h2>Disk space <Help tip="Prepared copies of audio, kept so that Audiodiver doesn't prepare it again. Projects and audio files are never stored here." /></h2>
+        <h2>Disk space <Help tip="Prepared copies of audio, kept so that Audiodiver doesn't prepare it again. Projects and audio files are never stored here." page="how-audiodiver-works#disk-space" /></h2>
         <div className="set-rows">
           <div className="set-row">
             <div><b>Previews</b><small>Decoded originals, waveforms and Play through renders</small></div>
@@ -146,7 +146,7 @@ function GameFolder() {
   const change = async (path?: string | null) => setError(await actions.setGameFolder(path));
   return (
     <section className="set-sec">
-      <h2>Game <Help tip="Audiodiver only reads from this folder. If you choose another folder, Audiodiver reads the game again, which takes about a minute the first time." /></h2>
+      <h2>Game <Help tip="Audiodiver only reads from this folder. If you choose another folder, Audiodiver reads the game again, which takes about a minute the first time." page="how-audiodiver-works#game-folder" /></h2>
       <div className="game-folder">
         <span className="path-text">{where?.path ?? "Not found"}</span>
       </div>

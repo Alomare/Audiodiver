@@ -8,11 +8,54 @@ summary: What a build makes, how to install it with HD2 Arsenal, and how updates
 
 On [Build](app:build), press **Build** ({key:build}). Audiodiver converts the new audio for the game and patches every sound bank that holds or plays the replaced sounds. It then checks the result and packs it into a ZIP named after the mod and its version.
 
-The ZIP goes into the `build` folder next to the project file. To send a mod's builds to another folder, press **Change…** under the Build button. **Back to the default** returns to the project's `build` folder. A build adds only the ZIP, so several mods can share one folder. Audiodiver doesn't build into the game's folder.
-
 Building changes nothing else. The project, the audio files and the game stay the same.
 
 If the project has problems, such as a missing file or a name that Arsenal can't use, the Build button is disabled. The tab lists the problems to fix above the button.
+
+### Destination folder
+
+The ZIP goes into the `build` folder next to the project file. To send a mod's builds to another folder, press **Change…** under **Destination folder**. **Back to the default** returns to the project's `build` folder. A build adds only the ZIP, so several mods can share one folder. Audiodiver doesn't build into the game's folder.
+
+## What Arsenal shows
+
+The [Build](app:build) tab previews the icon, the name and the description as Arsenal displays them.
+
+### Name and description
+
+Use only letters, digits and spaces in the name, and leave the version out. Arsenal keeps the name from the first import, so choose it before you share the mod. The description is optional, and Arsenal shows it with the mod.
+
+### Version
+
+**Next version** is the number in the next ZIP's name. It goes up by one after each build, unless **Raise the version after each build** is off.
+
+### Icon
+
+The icon is the default Audiodiver icon until you choose an image. An image is cropped to a square around its centre and resized to 540 × 540, the size Arsenal uses. You can also drop an image on the preview. **Border**, **Border colour** and **Corners** frame the icon, whichever image it shows.
+
+### Mod id
+
+Arsenal recognises a mod by its id. As long as the id stays the same, a new build updates the installed mod. When you copy a project to make a different mod, press **Make a new id**. Arsenal then installs the copy's builds as a separate mod.
+
+## Build options
+
+These settings are under **Build options** on the Build tab.
+
+- **Raise the version after each build** makes Arsenal see every build as an update. It applies to all projects.
+- **Show the ZIP in its folder when a build finishes** opens the folder in Explorer.
+
+### Wwise loudness analysis
+
+**Add Wwise loudness analysis** adds the loudness data that the game's audio files carry. It makes no audible difference. It needs Wwise installed on the computer, and it makes builds slower. The setting applies to the open project.
+
+### Sound Systems Rebalanced Patch
+
+On seven types of planet (swamp, deciduous, coniferous, desert, oasis, hive worlds and Illuminate rifts), the game is missing a version of the music for the first minutes of a mission. After a drop, the music stays silent until its intensity changes, which can take minutes, and some drop music doesn't play at all.
+
+The [Sound Systems Rebalanced Patch](https://github.com/CowboyBingus/SoundSystemsRebalanced) fixes this in the `music_init` bank, which almost every music build includes. Those planets then play the default version of the music. **Apply biome music fix** adds the patch to the build. It applies to the open project and is off for new projects. On [Repatch](app:build/repatch), the same checkbox adds the patch to the repatched mod.
+
+The patch was made for an older game version. Where it no longer fits the game's banks, the build goes on without it, and the build log says so.
+
+With the patch on, deploy the music mod **after** Sound Systems Rebalanced if you use both. The two mods then carry the patch whichever loads last, and the music timing and Make-Up Gain stay as you built them.
 
 ## Installing with HD2 Arsenal
 
@@ -29,18 +72,6 @@ HD2 Arsenal is the mod manager that Audiodiver builds for.
 
 A mod contains complete copies of the sound banks it changes. If two mods change the same bank, their changes don't combine. The mod that HD2 Arsenal deploys later replaces the other mod's copy of the bank. Music mods share most of their banks, so two music mods can't be used together, whichever tool made them.
 
-### Music that stays silent on some planets
-
-On seven types of planet (swamp, deciduous, coniferous, desert, oasis, hive worlds and Illuminate rifts), the game is missing a version of the music for the first minutes of a mission. After a drop, the music stays silent until its intensity changes, which can take minutes, and some drop music doesn't play at all.
-
-**Fix music that stays silent on some planets**, under When building, adds a fix to the `music_init` bank, which almost every music build includes. Those planets then play the default version of the music. It is off for new projects. The fix comes from the **Sound Systems Rebalanced** mod and was made for an older game version. Where it no longer fits the game's banks, the build goes on without it and the build log says so.
-
-With the fix on, deploy the music mod **after** Sound Systems Rebalanced if you use both. The two mods then carry the fix whichever loads last, and the music timing and Make-Up Gain stay as you built them.
-
 ## Updating
 
-After each build, the version number goes up by one. You can turn this off under **When building**. Import the new ZIP in Arsenal. The mod keeps the same id, so Arsenal replaces the installed version and doesn't add another copy. Deploy again and restart the game.
-
-## What Arsenal shows
-
-The [Build](app:build) tab sets the name, the description and the icon, and previews the icon as Arsenal displays it. Use only letters, digits and spaces in the name, and leave the version out. Arsenal keeps the name from the first import. An icon is cropped to a square and resized to 540 × 540.
+Import the new ZIP in Arsenal. The mod keeps the same id, so Arsenal replaces the installed version and doesn't add another copy. Deploy again and restart the game.
