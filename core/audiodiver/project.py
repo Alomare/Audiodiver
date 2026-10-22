@@ -8,6 +8,9 @@
       "build_folder": "",
       "loudness_analysis": false,
       "biome_fix": false,
+      "every_bank": false,
+      "imported_banks": ["2954416524880961046"],
+      "built_for": "25988413",
       "library": ["deploy/loadout", "set:weapons/support/ac-8-autocannon", "archive:6ad7cc21015a5f85"],
       "replacements": [{"target": "15204189411560306296", "audio": "replacers/x.wav", "label": "...",
                         "gain_db": 0, "fit_timing": true},
@@ -25,8 +28,13 @@ updates that move or copy banks.
 
 library is what the project works on: the pieces of music, sound sets and archives added to it from the Library
 (library.py; an Index item by its id, an archive as "archive:<name>"), in the order they were added. The Editor
-shows these and nothing else. It only says what to show: the build goes by the replacements. A project file without
-the key is from before projects had a list, and the editor gives it one from its replacements when it opens it.
+shows these and nothing else. A project file without the key is from before projects had a list, and the editor
+gives it one from its replacements when it opens it.
+
+A sound is often in many banks (a weapon's clip in every weapon's bank that plays it). The build puts a replaced
+sound into the project's banks: those the mods imported into it patched ("imported_banks"), else those of what its
+list holds, else every bank that has it (build.reach). "every_bank" puts it into every bank that has it: the new
+audio then plays wherever the game uses the sound, and the mod is bigger. Both keys are left out while unused.
 
 name, guid, description and icon are what HD2 Arsenal shows and keys the mod by (arsenal.py). The icon is the
 "image" (relative to the project file, like the audio) fitted to Arsenal's 540x540 PNG, or Audiodiver's default icon
@@ -34,7 +42,8 @@ without one, in a frame (arsenal.icon_frame; keys left out take the defaults). I
 older projects store that text (and an image as a plain path): loading keeps only the image and the frame.
 
 build_folder is where builds go, relative to the project file (absolute on another drive); "" is the build folder
-next to it.
+next to it. built_for is the game version its last build was made on (Steam's build id), so the Build tab can say
+when the game updated since: a build carries whole banks, and their copies of what many banks share go stale.
 
 texts are lines of the game's text the project changes (strings.py): the table (its file id: one table per
 language), the string's id, the new text, and the text it had when it was changed ("was"), so a game update that
@@ -53,11 +62,19 @@ own clip's audio is the replacement whose target is its "source", like any other
 nothing (the editor removes it), and a layer without takes neither. The key is left out while there are none.
 
 settings are an imported mod's settings on the game's objects (addition.from_patch): per object (a Sound, a
-container, a MusicTrack), the props its patch set differently from the game, each a value or null for one it took
-away (prop ids as bank v154 numbers them). The build puts them on the game's objects as they are now; a
-replacement's Make-Up Gain or silence, when set, goes on top. The key is left out while there are none:
+container, a MusicTrack), the props its patch set differently from the game (prop ids as bank v154 numbers them;
+on an object other banks share too, those a mod sets: bank.MIX_PROPS). Files imported before 2026-10-21 can have
+null for one the patch didn't have: the build leaves those out, as the game added them after the mod was made. The
+build puts them on the game's objects as they are now; a replacement's Make-Up Gain or silence, when set, goes on
+top. The key is left out while there are none:
 
       "settings": {"372068234": {"5": 12.0, "12": 0.0}}
+
+notes are the project's notes on what the Audio Editor shows, in Markdown, keyed as notes.py says (the global notes,
+for every project, are in notes.py's file). A note that isn't valid is left out when the file opens. The key is left
+out while there are none:
+
+      "notes": {"clip:15204189411560306296": "## Drop\\n- needs a quieter take", "item:deploy/loadout": "Done."}
 """
 import json
 import math
@@ -67,6 +84,7 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
 from .arsenal import FRAME_KEYS, icon_frame, name_problem
+from .notes import tidy as tidy_notes
 
 FORMAT = 1
 GAIN_DB = (-12.0, 12.0)  # Make-Up Gain, as the details panel's slider offers it
@@ -122,6 +140,9 @@ class Project:
     icon: dict = field(default_factory=dict)
     loudness_analysis: bool = False
     biome_fix: bool = False   # music_init starts from the fix for the silent biomes (biome.py)
+    every_bank: bool = False  # a replaced sound goes into every bank that has it, not only the project's (build.reach)
+    imported_banks: list[int] = field(default_factory=list)  # the banks the mods imported into it patched
+    built_for: str = ""     # the game version (Game.version) its last build was made on; "" before one
     replacements: list[Replacement] = field(default_factory=list)
     segment_overrides: dict[int, dict] = field(default_factory=dict)
     path: Path | None = None  # where it was loaded from / saved to
@@ -131,6 +152,7 @@ class Project:
     texts: list[TextEdit] = field(default_factory=list)  # lines of the game's text it changes
     additions: list[Addition] = field(default_factory=list)  # audio it adds to the game's (addition.py)
     settings: dict[int, dict[int, float | None]] = field(default_factory=dict)  # an imported mod's, on the game's objects
+    notes: dict[str, str] = field(default_factory=dict)  # the project's notes ({key: Markdown}, notes.py)
     repairs: list[str] = field(default_factory=list, repr=False, compare=False)  # damaged values opening put right (not saved)
 
     def added(self) -> dict[int, Addition]:
@@ -270,6 +292,10 @@ class Project:
         need(isinstance(adds, list) and all(isinstance(a, dict) and set(Addition.KINDS.get(a.get("kind"), ("?",))) <= set(a)
                                             for a in adds), "its added audio")
 
+        notes, dropped = tidy_notes(d.get("notes"))
+        if dropped:
+            repairs.append("a note")
+
         def points(o):
             """A segment's cue points: one that isn't a number goes (the automatic spot is used), and is a repair."""
             out = {}
@@ -284,6 +310,9 @@ class Project:
                        icon={k: v for k, v in icon.items() if k in ICON_KEYS},
                        loudness_analysis=kind(d, "loudness_analysis", bool, False, "Loudness analysis"), replacements=reps,
                        biome_fix=kind(d, "biome_fix", bool, False, "the biome music fix"),
+                       every_bank=kind(d, "every_bank", bool, False, "Banks"),
+                       imported_banks=[int(b) for b in kind(d, "imported_banks", list, [], "the imported mods' banks")],
+                       built_for=kind(d, "built_for", str, "", "the game version of the last build"),
                        segment_overrides={int(k): kept for k, o in overrides.items() if (kept := points(o))}, path=path,
                        description=kind(d, "description", str, "", "the description"),
                        build_folder=kind(d, "build_folder", str, "", "the build folder"),
@@ -292,7 +321,8 @@ class Project:
                               for t in texts],
                        additions=[Addition(a["kind"], **{k: int(a[k]) for k in Addition.KINDS[a["kind"]]}) for a in adds],
                        settings={int(o): {int(k): None if v is None else float(v) for k, v in s.items()}
-                                 for o, s in settings.items() if s})
+                                 for o, s in settings.items() if s},
+                       notes=notes)
             p.repairs = list(dict.fromkeys(repairs))  # not saved: what opening it put right (project_state says it)
             return p
         except (TypeError, ValueError, OverflowError):
@@ -309,6 +339,9 @@ class Project:
             "description": self.description, "icon": dict(self.icon), "build_folder": self.build_folder,
             "loudness_analysis": self.loudness_analysis,
             **({"biome_fix": True} if self.biome_fix else {}),  # files stay as they were with it off
+            **({"every_bank": True} if self.every_bank else {}),
+            **({"imported_banks": [str(b) for b in self.imported_banks]} if self.imported_banks else {}),
+            **({"built_for": self.built_for} if self.built_for else {}),
             **({"library": list(self.library)} if self.library is not None else {}),
             "replacements": [rep(r) for r in self.replacements],
             "segment_overrides": {str(k): v for k, v in self.segment_overrides.items()},
@@ -318,6 +351,7 @@ class Project:
                               for a in self.additions]} if self.additions else {}),
             **({"settings": {str(o): {str(k): v for k, v in s.items()} for o, s in self.settings.items()}}
                if self.settings else {}),
+            **({"notes": dict(self.notes)} if self.notes else {}),
         }
 
     def save(self, path=None):

@@ -1,8 +1,8 @@
 import { useSyncExternalStore } from "react";
 
-/** Which master tab shows. Home, Library, the two editors and Build lead the rail; Updates, Wiki and Settings sit at
-    its foot, and those lead back to where you were when pressed again. */
-export type Tab = "home" | "library" | "editor" | "text" | "build" | "updates" | "settings" | "wiki";
+/** Which master tab shows. Home, Project, Library, the two editors and Build lead the rail; Updates, Wiki and Settings
+    sit at its foot, and those lead back to where you were when pressed again. */
+export type Tab = "home" | "project" | "library" | "editor" | "text" | "build" | "updates" | "settings" | "wiki";
 export type SettingsTab = "system" | "shortcuts" | "theme";
 export type LibraryTab = "index" | "archives";
 export type BuildTab = "project" | "repatch";
@@ -18,7 +18,7 @@ export type Nav = {
                          // another goes back to that one)
 };
 
-const MAIN: Tab[] = ["home", "library", "editor", "text", "build"];
+const MAIN: Tab[] = ["home", "project", "library", "editor", "text", "build"];
 const SETTINGS: SettingsTab[] = ["system", "shortcuts", "theme"];
 const LIBRARY: LibraryTab[] = ["index", "archives"];
 const BUILD: BuildTab[] = ["project", "repatch"];

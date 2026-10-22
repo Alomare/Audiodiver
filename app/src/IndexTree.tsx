@@ -9,6 +9,8 @@ import { useEditor, useLite } from "./store";
 import { useStable } from "./stable";
 import { addedNote, exportList, itemEntries } from "./exportList";
 import { CollapseAllIcon } from "./Icons";
+import { NoteButton } from "./Notes";
+import { noteKeys } from "./noteStore";
 import { CatMark } from "./Tags";
 import { motionMs, scrollBehavior } from "./theme";
 
@@ -193,9 +195,9 @@ export function IndexTree() {
   ));
   /** A group's line (a category or a section): the head that folds it, and what acts on everything it shows (all of
       it, or what a search left) at once. In the Library a + adds it to the project; in the Audio Editor an ✕ takes it
-      off. A right-click has the same and more. The + is always there, so it can be found; with no project open, it
-      says to open one. */
-  const groupLine = (head: ReactNode, items: MusicItem[], name: string) => {
+      off, after its notes. A right-click has the same and more. The + is always there, so it can be found; with no
+      project open, it says to open one. */
+  const groupLine = (head: ReactNode, items: MusicItem[], name: string, noteKey: string) => {
     const exporting: MenuEntry = { label: `Add ${items.length === 1 ? "it" : `all ${items.length}`} to the export list`, run: () => toExport(items) };
     const inProject = items.filter((it) => listed.has(it.id));
     const what = (some: MusicItem[]) => (some.length === 1 ? some[0].full : some.length === items.length ? name : `${some.length} from ${name}`);
@@ -206,6 +208,7 @@ export function IndexTree() {
       return (
         <div className="lib-group-line" onContextMenu={(e) => openMenu(e, [{ label: removeLabel, run: remove }, "-", exporting])}>
           {head}
+          <NoteButton k={noteKey} name={name} />
           <button className="row-act remove" onClick={remove} aria-label={`${removeLabel}: ${name}`} data-tip={removeLabel}>✕</button>
         </div>
       );
@@ -252,7 +255,7 @@ export function IndexTree() {
                   <CatMark category={g.id} />
                   <span className="lib-group-name">{g.name}</span>
                   {hasMine(g.sections.flatMap((s) => s.items)) && mineDot}
-                </button>, g.sections.flatMap((s) => s.items), g.name)}
+                </button>, g.sections.flatMap((s) => s.items), g.name, noteKeys.category(g.id))}
               <Fold open={groupOpen} instant={instant} className="lib-group-body">
                 {g.flat ? rows(g.sections[0], false) : g.sections.map((s) => {
                   const secOpen = narrowed || isOpen(`s:${s.id}`, g.id);
@@ -264,7 +267,7 @@ export function IndexTree() {
                           <span className="caret" aria-hidden>▸</span>
                           <span className="lib-group-name">{s.name}</span>
                           {!s.unused && hasMine(s.items) && mineDot}
-                        </button>, s.items, s.name)}
+                        </button>, s.items, s.name, noteKeys.section(s.id))}
                       <Fold open={secOpen} instant={instant} className="lib-group-body">{rows(s, true)}</Fold>
                     </div>
                   );
@@ -324,11 +327,14 @@ const ItemRow = memo(function ItemRow({ item, deep, active, hi, status, clash, a
           <button className="row-act" onClick={() => on.add(item)} aria-label={`Add ${item.full} to the project`} data-tip="Add to the project"
             data-tip-more={noProject ? "Open or create a project first" : undefined}>+</button>
         )}
+        {editing && <NoteButton k={noteKeys.item(item.id)} name={item.full} />}
         {editing && (
           <button className="row-act" onClick={() => on.remove(item)} aria-label={`Remove ${item.full} from the project`}
             data-tip="Remove from the project" data-tip-more="With its new audio. Undo brings both back.">✕</button>
         )}
-        <span className="dur" data-tip={music ? undefined : `${sounds} sound${sounds === 1 ? "" : "s"}`}>{music ? fmtTime(item.duration_ms || null) : sounds}</span>
+        {/* the Audio Editor's list leaves out the number of sounds, so its marks and buttons line up from row to row */}
+        {music ? <span className="dur">{fmtTime(item.duration_ms || null)}</span>
+          : !editing && <span className="dur" data-tip={`${sounds} sound${sounds === 1 ? "" : "s"}`}>{sounds}</span>}
       </span>
     </div>
   );

@@ -26,7 +26,7 @@ include = ["audiodiver*"]
 
 [tool.setuptools.package-data]
 "audiodiver" = ["data/*.json", "data/*.png"]
-"audiodiver._vendor" = ["LICENSE-hd2-audio-modder"]
+"audiodiver._vendor" = ["LICENSE-hd2-audio-modder", "LICENSE-SoundSystemsRebalanced"]
 
 [tool.pytest.ini_options]
 markers = ["game: needs the installed game (slow)"]

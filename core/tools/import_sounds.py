@@ -407,7 +407,7 @@ def borrowed_calls(ix: AudioIndex, said: dict[int, str]) -> dict[int, str]:
 
 def main():
     sheet = sys.argv[1] if len(sys.argv) > 1 else str(ROOT.parent / "_examples" / "Helldivers 2 Archive Labeling.xlsx")
-    names_dir = sys.argv[2] if len(sys.argv) > 2 else str(ROOT.parents[1] / "BSL" / "_shared" / "filediver" / "hashes")
+    names_dir = sys.argv[2] if len(sys.argv) > 2 else str(ROOT.parents[1] / "Script" / "_shared" / "filediver" / "hashes")
     blocks = audio_tab(sheet)
     assert len(blocks) == len(BLOCKS), f"the Audio tab has {len(blocks)} blocks of columns now, not {len(BLOCKS)}: check BLOCKS"
     ix = AudioIndex(log=print)

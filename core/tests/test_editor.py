@@ -68,6 +68,38 @@ def test_project_edits_autosave_and_undo_without_the_game(tmp_path):
         s.update(1234, volume=3)
 
 
+def test_notes_global_and_in_the_project(tmp_path, monkeypatch):
+    from audiodiver import notes
+    monkeypatch.setattr(notes, "FILE", tmp_path / "notes.json")
+    s = Session(load=False)
+    s.new_project(tmp_path / "m.audi", "M")
+    got = s.set_note("clip:1234", "# Drop\n- quieter\n\n", "Take 2 only")
+    assert got["notes"] == {"clip:1234": "# Drop\n- quieter"} == notes.load()
+    assert got["project"]["notes"] == {"clip:1234": "Take 2 only"}
+    assert json.loads((tmp_path / "m.audi").read_text())["notes"] == {"clip:1234": "Take 2 only"}
+    assert got["project"]["undo_label"] == "note"
+    assert s.undo()["notes"] == {} and notes.load() == {"clip:1234": "# Drop\n- quieter"}  # the global one stays
+    s.redo()
+    assert s.set_note("clip:1234", None, "")["project"]["notes"] == {}  # None leaves the global note alone
+    assert notes.load() == {"clip:1234": "# Drop\n- quieter"}
+    assert s.set_note("clip:1234", "")["notes"] == {}
+    assert "notes" not in json.loads((tmp_path / "m.audi").read_text())  # files without notes stay as they were
+    for key, text in (("cue:1", "x"), ("clip:", "x"), ("clip:1", 5), ("clip:1", "x" * 100_001)):
+        with pytest.raises(EditorError):
+            s.set_note(key, text)
+    s.close_project()
+    with pytest.raises(EditorError):
+        s.set_note("item:deploy/loadout", "x", "y")
+    assert notes.load() == {}  # a refused edit writes neither note
+
+
+def test_project_notes_that_are_not_valid_are_left_out(tmp_path):
+    from audiodiver.project import Project
+    p = Project.from_json({"audiodiver": 1, "name": "M", "notes": {"clip:1": "ok", "nope": "x", "seg:2": 3, "obj:3": ""}})
+    assert p.notes == {"clip:1": "ok"} and p.repairs == ["a note"]
+    assert Project.from_json({"audiodiver": 1, "name": "M", "notes": "x"}).notes == {}
+
+
 def test_save_writes_the_project_file_now(tmp_path):
     s = Session(load=False)
     s.new_project(tmp_path / "m.audi", "M")

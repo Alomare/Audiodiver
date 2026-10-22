@@ -32,7 +32,7 @@ export function tabArrows(e: React.KeyboardEvent<HTMLElement>) {
   tabs[to].click();
 }
 
-/** What Build's Project page shows while no project is open. */
+/** What Build's This project page shows while no project is open, and the Project tab too. */
 export function NoProjectCard({ text }: { text: string }) {
   const { actions } = useEditor();
   return (

@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "The editor window: file dialogs, revealing files, the core endpoint, the title (the open project), closing after a warning, and installing an update.",
+  "description": "The editor window: file dialogs, revealing files, the core endpoint, the title (the open project), closing after a warning, installing an update, and the project or pack Audiodiver was started with or handed.",
   "windows": [
     "main"
   ],

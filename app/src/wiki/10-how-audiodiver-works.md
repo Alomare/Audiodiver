@@ -10,7 +10,7 @@ If the game's audio is new to you, [The game's audio, explained](wiki:game-audio
 
 ## Projects
 
-A project is a single `.audi` file. It records what the mod changes and which files replace which of the game's clips, along with Make-Up Gain and timing. The project points to the audio files and doesn't copy them. If you keep the audio files next to the project file, you can move the whole folder.
+A project is a folder with a `.audi` file in it, and the folder is named after the project. The file records what the mod changes and which files replace which of the game's clips, along with Make-Up Gain and timing. The audio it uses is in the folder beside it, or the project stores a path to it. [Project folders](wiki:project-folders) covers what is in it.
 
 Changes are saved automatically. {key:save} saves at any time, and {key:undo} undoes the last change.
 
@@ -21,10 +21,11 @@ Audiodiver never writes to the game's folder. It reads the game's audio from the
 The icons down the left of the window are the main tabs. Hover over one to see its name and shortcut.
 
 - {icon:home} **Home** has new, open and recent projects.
+- {icon:project} **Project** holds the mod's name, description, icon and id, and its folder.
 - {icon:library} **Library** lists everything the game plays, so you can find it and listen to it. Browsing it changes nothing, and **Add to the project** puts an entry in the project. **Index** sorts the audio that has a name, and **All Archives** lists every archive that contains audio.
 - {icon:audio} **Audio Editor** shows what the project works on. This is where slots get new audio.
 - {icon:text} **Text Editor** has the game's text in every language, including subtitles. See [The game's text and subtitles](wiki:text).
-- {icon:build} **Build** sets what HD2 Arsenal shows for the mod and holds the Build button. A red number on the tab counts the problems that block a build.
+- {icon:build} **Build** holds the next version, the Build options and the Build button. A red number on the tab counts the problems that block a build.
 - {icon:updates} **Updates**, {icon:wiki} **Wiki** ({key:wiki}) and {icon:settings} **Settings** are at the bottom. Updates is highlighted when a new version of Audiodiver is available, and it lists the changes in every version.
 
 The version number at the right end of the status bar also opens Updates. The {icon:info} button next to it opens [About](app:about), with the licence, the log file and the credits.

@@ -14,6 +14,13 @@ and build a mod for [HD2 Arsenal](https://github.com/Orbit-Studios/hd2arsenal-re
 
 There are no releases yet. To build it from source, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Requirements
+
+Windows 10 or 11, with Helldivers 2 installed through Steam. Audiodiver's window runs on the Microsoft Edge WebView2
+Runtime, which Windows 11 always has and nearly every Windows 10 PC has too. If it's missing, Audiodiver shows a
+message at startup with a link to
+[Microsoft's free download](https://developer.microsoft.com/microsoft-edge/webview2/).
+
 ## Questions and feedback
 
 Ask on the [Helldivers 2 Modding Discord](https://discord.gg/helldiversmodding). Bugs go to

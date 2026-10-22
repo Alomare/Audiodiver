@@ -157,6 +157,7 @@ class Session:
         # next build never overwrites a ZIP already made (see _bump_version). By id, not path: another project made
         # later at the same path is another mod.
         self.version_floor: dict[str, int] = {}
+        self.built_for: dict[str, str] = {}  # the same for the game version a build was made on (Project.built_for)
         self.revision = 0  # counts the changes to what is open (edits, undo, redo, another project): project_state
         self.jobs: dict[str, Job] = {}
         if load:
@@ -368,10 +369,12 @@ class Session:
             raise EditorError("Choose a song to slice")
         ms = audio.duration_ms(Path(audio_path)) or 0
         buckets = int(min(120_000, max(2000, ms / 2.5)))
-        legacy = self.project.path.parent / "slices" / Path(audio_path).stem  # cuts made before songs had a folder each
+        home, song = self.project.path.parent, Path(audio_path)
+        # then where cuts were kept before: the slices folder beside the project file, by song, and before songs had
+        # a folder each
+        places = [self._slice_dir(audio_path), audio.slice_folder(home, song, legacy=True), home / "slices" / song.stem]
         return {**self.peaks("file", path=audio_path, buckets=buckets),
-                "previous": audio.previous_cuts(self._slice_dir(audio_path), Path(audio_path))
-                or audio.previous_cuts(legacy, Path(audio_path))}
+                "previous": next(filter(None, (audio.previous_cuts(d, song) for d in places)), None)}
 
     def slice_fill(self, cue_id, audio_path, bounds_ms, start_source=None, sources=None):
         """Cuts one song at bounds_ms and assigns the pieces, in order: to `sources` when given (the slice tool's
@@ -394,12 +397,17 @@ class Session:
         return self.fill(cue_id, [str(p) for p in pieces], start_source=start_source)
 
     # --- project lifecycle
-    def new_project(self, path, name):
+    def new_project(self, path, name, folder=False):
+        """A new, empty project at path. folder: the project gets a folder of its own there, named like the file
+        (`Dune.audi` chosen in Mods is Mods/Dune/Dune.audi), unless the folder chosen is named like it already."""
+        from .projectfiles import folder_name
         if not given(path) or not Path(path).is_absolute():
             raise EditorError("Choose where to save the project (a full path)")
         path = Path(path).resolve()
         if path.suffix.lower() != ".audi":
             path = path.with_name(path.name + ".audi")  # "Dune 2.0" is Dune 2.0.audi, not Dune 2.audi
+        if folder and path.parent.name.casefold() != path.stem.casefold():
+            path = path.parent / folder_name(path.stem) / path.name
         if path.exists():
             raise EditorError(f"{path.name} already exists in {path.parent}")
         try:
@@ -412,6 +420,8 @@ class Session:
             self.project.save()
             self.undo_stack, self.redo_stack = [], []
             self.revision += 1
+        if folder:  # the next new project is offered the same place
+            save_settings(projects_folder=str(path.parent.parent))
         return self.project_state()
 
     def open_project(self, path):
@@ -661,6 +671,10 @@ class Session:
                 parts[part["cue"]] = self._part_sounds(part["cue"])
         return parts, missing
 
+    def _listed_banks(self, p: Project) -> set[int]:
+        """The banks of what a project lists, where a build puts its sounds (build.reach)."""
+        return self.lib.banks(p.library or []) if self.lib and not p.every_bank else set()
+
     def _homes(self, sids, covered=()) -> list[str]:
         """The items and archives these sounds belong to, in the Index's order, leaving out the sounds in
         `covered` (what the project lists already)."""
@@ -833,17 +847,24 @@ class Session:
                 if got and not cue.isdigit():
                     in_banks[cue] = len(got)
             outside = [s for s in assignments if int(s) not in inside]
+        from . import projectfiles as pf
         return {"repairs": p.repairs, "library": [i for i in library if i not in missing], "library_missing": missing, "in_banks": in_banks,
                 "outside": outside,
                 "path": str(p.path), "folder": str(p.path.parent), "name": p.name, "guid": p.guid,
+                # the project's folder (Project tab): whether it is the project's own, how many other projects are
+                # in it, and how many of the files it uses are elsewhere
+                "own_folder": pf.own_folder(p.path), "folder_projects": len(pf.others(p.path)),
+                "files_elsewhere": sum(1 for f in pf.uses(p.to_json(), p.path.parent)
+                                       if pf.inside(f, p.path.parent) is None and f.is_file()),
                 "revision": self.revision, "version": p.version, "description": p.description, "icon": p.icon, "icon_frame": frame,
-                "loudness_analysis": p.loudness_analysis, "biome_fix": p.biome_fix,
+                "loudness_analysis": p.loudness_analysis, "biome_fix": p.biome_fix, "every_bank": p.every_bank,
                 "build_folder": str(p.build_dir()), "build_folder_default": str(p.default_build_dir()),
-                "zip_name": zip_name(p), "last_build": _last_build(p.build_dir(), slug(p.name)),
+                "zip_name": zip_name(p), "last_build": (last := _last_build(p.build_dir(), slug(p.name))),
+                "game_updated": bool(self.ix) and _game_updated(p, self.ix.game, last),
                 "assignments": assignments, "unresolved": unresolved,
                 "segment_overrides": {str(k): v for k, v in p.segment_overrides.items()},
                 "texts": [{"table": str(t.table), "id": t.id, "text": t.text, "was": t.was} for t in p.texts],
-                "additions": p.to_json().get("additions", []), "settings": len(p.settings),
+                "additions": p.to_json().get("additions", []), "settings": len(p.settings), "notes": dict(p.notes),
                 "problems": problems, "can_undo": bool(self.undo_stack), "can_redo": bool(self.redo_stack),
                 "undo_label": self.undo_stack[-1][0] if self.undo_stack else None,
                 "redo_label": self.redo_stack[-1][0] if self.redo_stack else None}
@@ -875,6 +896,7 @@ class Session:
         self.project = Project.from_json(d, self.project.path)
         floor = self.version_floor.get(self.project.guid, 0)  # a build moved it on: undo doesn't take that back
         self.project.version = max(self.project.version, floor)
+        self.project.built_for = self.built_for.get(self.project.guid, self.project.built_for)
         self.project.save()
 
     def undo(self):
@@ -1143,7 +1165,7 @@ class Session:
         builds go. Every value is checked before any is changed."""
         from . import akd
         bad = set(fields) - {"name", "version", "description", "icon", "build_folder", "guid", "loudness_analysis",
-                             "biome_fix"}
+                             "biome_fix", "every_bank"}
         if bad:
             raise EditorError(f"Unknown setting {sorted(bad)[0]}")
         checked = {}
@@ -1167,6 +1189,8 @@ class Session:
                     raise EditorError(f"Loudness analysis: {why}")
             elif k == "biome_fix" and not isinstance(v, bool):
                 raise EditorError("The biome music fix is on or off")
+            elif k == "every_bank" and not isinstance(v, bool):
+                raise EditorError("Every bank is on or off")
             checked[k] = v
 
         def apply(p):
@@ -1188,7 +1212,33 @@ class Session:
                     p.loudness_analysis = v
                 elif k == "biome_fix":
                     p.biome_fix = v
+                elif k == "every_bank":
+                    p.every_bank = v
         return self._edit("settings", apply)
+
+    def set_note(self, key, text=None, project_text=None):
+        """Writes the global note (`text`) and the open project's note (`project_text`) on one thing (notes.py's
+        keys); None leaves that one as it is, "" removes it. The project's is one undoable edit; the global one isn't
+        undone, like a setting. Returns the global notes and the project."""
+        from . import notes
+        for t in (text, project_text):
+            if t is not None:
+                try:
+                    notes.check(key, t)
+                except ValueError as e:
+                    raise EditorError(str(e)) from None
+        if project_text is not None:
+            self._need_project()
+        all_ = notes.set_note(key, text) if text is not None else notes.load()
+
+        def apply(p):
+            kept = notes.check(key, project_text)[1]
+            if kept:
+                p.notes[key] = kept
+            else:
+                p.notes.pop(key, None)
+        state = self._edit("note", apply) if project_text is not None else self.project_state() if self.project else None
+        return {"notes": all_, "project": state}
 
     def set_icon(self, image):
         """Uses an image file as the mod's icon. Like audio, it stays where it is and the project points at it;
@@ -1252,6 +1302,164 @@ class Session:
                 p.segment_overrides.pop(seg, None)
         return self._edit("segment", apply)
 
+    # --- the project's folder (projectfiles.py)
+    def _history(self) -> list[dict]:
+        """The open project and every step of its undo history, as to_json() dicts: what may still use a file."""
+        return [self.project.to_json(), *(d for _, d in self.undo_stack), *(d for _, d in self.redo_stack)]
+
+    def projects_folder(self) -> str:
+        """Where new projects go: the folder the last one was made in, else Documents/Audiodiver/Projects (made when
+        asked for, so the dialog can start in it)."""
+        from .repatch import documents
+        f = Path(load_settings().get("projects_folder") or documents() / "Audiodiver" / "Projects")
+        try:
+            f.mkdir(parents=True, exist_ok=True)
+        except OSError:  # a drive that is gone
+            f = documents()
+        return str(f)
+
+    def move_to_own_folder(self):
+        """Gives the project a folder of its own, beside its file and named like it. The project file moves there,
+        with what Audiodiver made for it (slices, imported and collected audio) and its builds in the default build
+        folder. Files a person picked stay where they are, and the project points at them. A file another project in
+        the old folder uses is copied there, not moved. The undo history moves with the project."""
+        from . import projectfiles as pf
+        from .arsenal import slug
+        with self.lock:
+            p = self._need_project()
+            if pf.own_folder(p.path):
+                raise EditorError("The project is in a folder of its own already")
+            if any(j.state == "running" for j in self.jobs.values()):
+                raise EditorError("Wait until the running job is done")
+            old_file, old = p.path, p.path.parent
+            dest = pf.free(old / pf.folder_name(old_file.stem))
+            plan = pf.move_plan(old_file, dest, self._history())
+            if not p.build_folder:
+                s = slug(p.name)
+                plan |= {pf.norm(z): dest / "build" / z.name for z in (old / "build").glob(f"{s}-*.zip")
+                         if z.stem[len(s) + 1:].isdigit()}
+            try:
+                dest.mkdir(parents=True, exist_ok=True)  # a project with nothing to copy still gets its folder
+                pf.copy(plan)
+                moved = Project.from_json(pf.rebase(p.to_json(), old, dest, plan), dest / f"{dest.name}.audi")
+                moved.save()
+            except OSError as e:
+                shutil.rmtree(dest, ignore_errors=True)  # made just now: nothing else is in it
+                raise EditorError(f"The project couldn't move: {os_error(e)}") from None
+            self.project = moved
+            self.undo_stack = [(label, pf.rebase(d, old, dest, plan)) for label, d in self.undo_stack]
+            self.redo_stack = [(label, pf.rebase(d, old, dest, plan)) for label, d in self.redo_stack]
+            self.revision += 1
+            try:
+                old_file.unlink()
+            except OSError as e:
+                log.warning("the old project file stays: %s", os_error(e))
+            pf.release(old_file, plan)
+            log.info("project moved from %s to %s with %d files", old_file, moved.path, len(plan))
+            return self.project_state()
+
+    def unused_files(self):
+        """The files in Audiodiver's folders beside the project that nothing uses (projectfiles.unused):
+        {folder, files: [{path, rel, bytes}], bytes}."""
+        from . import projectfiles as pf
+        with self.lock:
+            p = self._need_project()
+            try:
+                found = pf.unused(p.path, self._history())
+            except pf.FilesError as e:
+                raise EditorError(str(e)) from None
+            folder = p.path.parent
+        files = []
+        for f in found:
+            try:
+                files.append({"path": str(f), "rel": pf.stored(f, folder), "bytes": f.stat().st_size})
+            except OSError:
+                pass  # gone meanwhile
+        return {"folder": str(folder), "files": files, "bytes": sum(f["bytes"] for f in files)}
+
+    def remove_unused_files(self, paths):
+        """Moves those of `paths` that nothing uses now to the Recycle Bin, then takes away Audiodiver's folders that
+        are empty. {removed, left, bytes}."""
+        from . import projectfiles as pf
+        if not isinstance(paths, list):
+            raise EditorError("Name the files to remove")
+        with self.lock:
+            p = self._need_project()
+            try:
+                now = {pf.key(f): f for f in pf.unused(p.path, self._history())}
+            except pf.FilesError as e:
+                raise EditorError(str(e)) from None
+            chosen = [now[k] for x in paths if isinstance(x, str) and (k := pf.key(x)) in now]
+            sizes = {f: f.stat().st_size for f in chosen if f.exists()}
+            left = pf.recycle(chosen)
+            pf.prune(p.path.parent)
+        log.info("unused files: %d to the Recycle Bin, %d left", len(chosen) - len(left), len(left))
+        return {"removed": len(chosen) - len(left), "left": len(left),
+                "bytes": sum(n for f, n in sizes.items() if f not in left)}
+
+    def collect_files(self):
+        """Copies the files the project uses from outside its folder into its audio/added folder and points the
+        project at the copies. One step of Undo; the copies stay on disk. {…project, collected}."""
+        from . import projectfiles as pf
+        with self.lock:
+            p = self._need_project()
+            folder = p.path.parent
+            plan = pf.collect_plan(folder, pf.uses(p.to_json(), folder))
+            if not plan:
+                return {**self.project_state(), "collected": 0}
+            try:
+                pf.copy(plan)
+            except OSError as e:
+                raise EditorError(f"The files couldn't be copied: {os_error(e)}") from None
+
+            def apply(proj: Project):
+                d = pf.rebase(proj.to_json(), folder, folder, plan)
+                for r, now in zip(proj.replacements, d["replacements"]):
+                    r.audio = now["audio"]
+                proj.icon = d["icon"]
+            return {**self._edit("collect", apply), "collected": len(plan)}
+
+    def export_pack(self, dest):
+        """Packs the project and the files it uses into dest (.audipack), as a job (projectfiles.pack)."""
+        from . import projectfiles as pf
+        p = self._need_project()
+        if not given(dest) or not Path(dest).is_absolute():
+            raise EditorError("Choose where to save the pack (a full path)")
+        dest = Path(dest)
+        if dest.suffix.lower() != pf.PACK:
+            dest = dest.with_name(dest.name + pf.PACK)
+        if not dest.parent.is_dir():
+            raise EditorError(f"{dest.parent} is not a folder")
+        with self.lock:
+            d, folder, name = p.to_json(), p.path.parent, p.path.stem
+
+        def run(job):
+            got = pf.pack(d, folder, name, dest, job)
+            job.say(f"{got['files']} files packed into {dest.name}"
+                    + (f"; {got['missing']} the project uses weren't found" if got["missing"] else ""))
+            return {"pack": str(dest), "mb": round(got["bytes"] / 1e6, 1), **got}
+        return self._start("pack", run, p.name)
+
+    def open_pack(self, path, folder=None):
+        """Unpacks a .audipack into a folder of its own in `folder` (by default, where new projects go), as a job. Its
+        result names the project file, and the window opens it."""
+        from . import projectfiles as pf
+        if not given(path) or not Path(path).is_file():
+            raise EditorError(f"{path} wasn't found")
+        src = Path(path)
+        into = Path(folder) if given(folder) else Path(self.projects_folder())
+        if not into.is_absolute():
+            raise EditorError("Choose where to unpack it (a full path)")
+
+        def run(job):
+            try:
+                audi = pf.unpack(src, into, job)
+            except pf.FilesError as e:
+                raise EditorError(str(e)) from None
+            job.say(f"unpacked into {audi.parent}")
+            return {"project": str(audi), "folder": str(audi.parent)}
+        return self._start("unpack", run, src.stem)
+
     # --- jobs
     def _start(self, kind, fn, title="") -> dict:
         job = Job(kind, title)
@@ -1307,20 +1515,19 @@ class Session:
                     job.total = total
                 job.step(doing, done)
             try:
-                zip_path = build(snapshot, self.ix, log=job.say, step=progress)
+                zip_path = build(snapshot, self.ix, log=job.say, step=progress, listed=self._listed_banks(snapshot))
             except BuildError as e:
                 raise EditorError(str(e)) from None
             result = {"zip": str(zip_path), "folder": str(zip_path.parent), "version": snapshot.version,
                       "mb": round(zip_path.stat().st_size / 1e6, 1)}
-            if bump:
-                self._bump_version(snapshot.path, snapshot.version + 1)
+            self._bump_version(snapshot.path, snapshot.version + 1 if bump else 0, self.ix.game.version)
             return result
         return self._start("build", run)
 
-    def _bump_version(self, path, version):
-        """After a build, its project goes on to the next version: the one that was built, even if another is open
-        by now (or none). Not an edit: undo and redo keep it (version_floor), so the next build never overwrites
-        the ZIP just made."""
+    def _bump_version(self, path, version, built_for=""):
+        """After a build, its project goes on to the next version (0: stays) and notes the game version it was made
+        on: the one that was built, even if another is open by now (or none). Not an edit: undo and redo keep it
+        (version_floor, built_for), so the next build never overwrites the ZIP just made."""
         with self.lock:
             p = self.project if self.project and self.project.path == path else None
             if p is None:
@@ -1329,8 +1536,11 @@ class Session:
                 except (OSError, ValueError, KeyError):
                     return  # moved or deleted meanwhile: nothing to move on
             self.version_floor[p.guid] = max(version, self.version_floor.get(p.guid, 0))
-            if p.version < version:
-                p.version = version
+            if built_for:
+                self.built_for[p.guid] = built_for
+            if p.version < version or (built_for and p.built_for != built_for):
+                p.version = max(p.version, version)
+                p.built_for = built_for or p.built_for
                 p.save()
                 self.revision += 1
 
@@ -1353,7 +1563,9 @@ class Session:
                               f"next to it as well.")
 
         def run(job):
-            out_dir = p.path.parent / "imported" / patch_path.stem.split(".")[0]
+            # a folder per patch: two mods' patches of one archive have the same name, so the name of the folder
+            # carries what is in them too (the same mod imported twice uses the same folder)
+            out_dir = p.path.parent / "audio" / "imported" / f"{patch_path.stem.split('.')[0]}-{_digest(patch_path)}"
             got, replaced, files, skipped = self._patch_audio(patch_path, out_dir, job)
             if not self.project or self.project.path != p.path:
                 raise EditorError("Another project was opened during the import. Open this project again and import again.")
@@ -1362,11 +1574,12 @@ class Session:
             def apply(proj):  # what the patch replaces joins the project's list (_cover), so the Editor shows it
                 if mode == "replace":  # the files stay on disk
                     proj.replacements, proj.additions, proj.settings, proj.segment_overrides = [], [], {}, {}
-                    proj.library = []
+                    proj.library, proj.imported_banks = [], []
                 counts["added"] = self._fill_from_patch(proj, got, replaced, files)
             self._edit("import", apply)
             return {"imported": sum(s in files for s in replaced), "added": counts["added"], "skipped": skipped,
-                    "settings": len(got.settings), "left": got.left, "stale": len(got.stale), "folder": str(out_dir)}
+                    "settings": len(got.settings), "left": got.left, "stale": len(got.stale), "older": len(got.older),
+                    "folder": str(out_dir)}
         return self._start("import", run)
 
     def _patch_audio(self, patch_path: Path, out_dir: Path, job):
@@ -1374,7 +1587,7 @@ class Session:
         keeping the patch's own encoding for builds (build.keep_encoding). Returns (got, replaced, files, skipped):
         replaced {the game's source: wem}, files {source or new clip: wav}, skipped: how many couldn't be decoded."""
         import struct
-        from .addition import from_patch
+        from .addition import from_patch, same_audio
         from .build import keep_encoding
         from .patch import diff
         job.say(f"reading {patch_path.name}")
@@ -1389,9 +1602,17 @@ class Session:
         replaced = {}  # the game's source id -> wem bytes
         for fid, data in d["streams"].items():
             try:
-                replaced[self.ix.resolve(fid)] = data
+                sid = self.ix.resolve(fid)
             except KeyError:
                 job.say(f"stream {fid} is not in this game version; skipped")
+                continue
+            try:
+                if same_audio(data, self.ix.wem(sid)):  # the game's clip in an older file: not the mod's audio
+                    got.older.add(sid)
+                    continue
+            except KeyError:
+                pass
+            replaced[sid] = data
         for sid, data in got.replaced.items():
             replaced.setdefault(sid, data)
         new = {src: data for *_, src, data in got.takes} | {src: data for _, src, data in got.own}
@@ -1399,6 +1620,11 @@ class Session:
             job.say(f"left out: {line}")
         if got.stale:
             job.say(f"{len(got.stale)} sounds of an older game version, which the game no longer has, left out")
+        if got.older:
+            job.say(f"{len(got.older)} objects as an older game version had them; the current ones are used")
+        if got.merged:
+            job.say(f"{len(got.merged)} objects copied from another bank by the tool that made the mod; each bank's "
+                    f"own are used")
         found = {**new, **replaced}
         if not found and got.settings:
             return got, replaced, {}, 0  # only settings
@@ -1420,8 +1646,11 @@ class Session:
                 wem_path.unlink(missing_ok=True)
             job.step(f"Decoding {i} of {len(found)}", i)
         if not files:
-            raise EditorError(f"{'The sound' if len(found) == 1 else f'None of the {len(found)} sounds'} in "
-                              f"{patch_path.name} couldn't be decoded. Is its .stream file next to it?")
+            what = "The sound" if len(found) == 1 else f"None of the {len(found)} sounds"
+            could = "couldn't" if len(found) == 1 else "could"
+            raise EditorError(f"{what} in {patch_path.name} {could} be decoded. "
+                              + (f"The folder {out_dir} has too long a path for the decoder. Choose a shorter one."
+                                 if len(str(out_dir)) > 230 else "Is its .stream file next to it?"))
         return got, replaced, files, len(found) - len(files)
 
     def _fill_from_patch(self, p: Project, got, replaced: dict, files: dict) -> int:
@@ -1433,6 +1662,7 @@ class Session:
                 self._set(p, sid, str(wav), label=f"imported {sid}")
         for oid, changes in got.settings.items():
             p.settings[oid] = {**p.settings.get(oid, {}), **changes}
+        p.imported_banks = sorted(set(p.imported_banks) | got.banks)  # where its sounds go (build.reach)
         return self._take_in(p, got, files)
 
     # --- repatching (repatch.py): an existing mod rebuilt on the game as it is now
@@ -1455,7 +1685,23 @@ class Session:
         return {"source": str(f.source), "name": f.name or "Repatched mod", "description": f.description,
                 "guid": bool(f.guid), "icon": bool(f.icon), "manifest": bool(f.manifest), "zip": f.is_zip,
                 "folder": str(self._repatch_root()),
-                "patches": [{"key": p.key, "label": p.label, "other": self._not_audio(f, p.key)} for p in f.patches]}
+                "patches": [{"key": p.key, "label": p.label, "files": len(p.keys),
+                             "other": [x for key in p.keys for x in self._not_audio(f, key)]} for p in f.patches]}
+
+    def check_mods(self):
+        """The installed mods (the game's data folder and HD2 Arsenal's library) checked for sound banks of an older
+        game version (installed.check), as a job: its result lists each mod with sound banks, worst first."""
+        from .installed import check
+        self.require_game()
+        if any(j.kind == "check" and j.state == "running" for j in self.jobs.values()):
+            raise EditorError("The installed mods are being checked already")
+
+        def run(job):
+            def progress(doing, done, total):
+                job.total = total
+                job.step(doing, done)
+            return check(self.ix, self.ix.game.data, step=progress)
+        return self._start("check", run, title="installed mods")
 
     @staticmethod
     def _not_audio(found, key) -> list[str]:
@@ -1471,14 +1717,15 @@ class Session:
         return ([f"{texts} string table{'s' if texts != 1 else ''} (the game's text, like subtitles, which isn't supported yet)"] if texts else []) + \
                ([f"{rest} other file{'s' if rest != 1 else ''} (such as models and textures)"] if rest else [])
 
-    def repatch(self, path, name="", folder="", biome_fix=False):
+    def repatch(self, path, name="", folder="", biome_fix=False, every_bank=False):
         """Rebuilds a mod on the game as it is now, as the one mod it was. Each of its patches is imported into a
         project of its own (in the mod's folder under the repatch folder, to change it further) and made again on the
         current game's banks; the new ZIP is the mod as it was, with a manifest's options, files and id kept
         (repatch.repackage), those patches in place of the old ones. Without a manifest it is a ZIP for HD2 Arsenal,
         one option per patch. A patch that can't be repatched stays as it was in a mod of several, and the result
         says so. biome_fix: the music is built with the Sound Systems Rebalanced Patch (biome.py), as a project's
-        setting does it."""
+        setting does it. every_bank: the mod's sounds go into every bank that has them, not only the banks the mod
+        patched (build.reach)."""
         import tempfile
         from .arsenal import default_icon, name_problem, package
         from .build import PATCH, BuildError, icon_bytes, make_patch
@@ -1503,14 +1750,18 @@ class Session:
             save_settings(repatch_folder=str(root))
         if not isinstance(biome_fix, bool):
             raise EditorError("The biome music fix is on or off")
+        if not isinstance(every_bank, bool):
+            raise EditorError("Every bank is on or off")
         several = len(f.patches) > 1
 
         def one(job, pt, home: Path, scratch: Path) -> dict:
-            """A patch imported into a project at home and made again into scratch/out."""
+            """A patch imported into a project at home and made again into scratch/out (with the patches loaded
+            over it, pt.also, imported after it: one part of the mod, one patch)."""
             mod = clean_name(f"{name} {pt.label}") if several and pt.label else name
             home.mkdir(parents=True, exist_ok=True)
             p = Project(name=mod, path=home / f"{home.name}.audi", library=[], description=f.description,
-                        guid=f.guid if f.guid and not several else str(uuid.uuid4()), biome_fix=biome_fix)
+                        guid=f.guid if f.guid and not several else str(uuid.uuid4()), biome_fix=biome_fix,
+                        every_bank=every_bank)
             if f.icon and (image := f.read(f.icon)):
                 (home / f"icon{Path(f.icon).suffix.lower()}").write_bytes(image)
                 p.icon = {"image": f"icon{Path(f.icon).suffix.lower()}"}
@@ -1519,12 +1770,14 @@ class Session:
                 except BuildError:
                     job.say("the mod's icon can't be read, so its project uses Audiodiver's icon")
                     p.icon = {}
-            got, replaced, files, skipped = self._patch_audio(f.place(pt.key, scratch / "in"), home / "imported", job)
+            reads = [self._patch_audio(f.place(key, scratch / "in" / str(k)), home / "audio" / "imported", job)
+                     for k, key in enumerate(pt.keys)]
             with self.lock:
-                added = self._fill_from_patch(p, got, replaced, files)
+                added = sum(self._fill_from_patch(p, got, replaced, files) for got, replaced, files, _ in reads)
                 self._tidy(p)
                 self._tidy_cues(p)
                 self._cover(p)
+                p.built_for = self.ix.game.version  # the repatch builds it (but leaves its version at 1)
                 p.save()
 
             def progress(doing, done=None, total=None):
@@ -1533,17 +1786,21 @@ class Session:
                 job.step(doing, done)
             (scratch / "out").mkdir(parents=True)
             try:
-                make_patch(p, self.ix, scratch / "out", log=job.say, step=progress)
+                make_patch(p, self.ix, scratch / "out", log=job.say, step=progress, listed=self._listed_banks(p))
             except BuildError as e:
                 raise EditorError(str(e)) from None
-            return {"label": pt.label, "project": str(p.path), "imported": sum(s in files for s in replaced),
-                    "added": added, "skipped": skipped, "settings": len(got.settings), "left": got.left,
-                    "stale": len(got.stale),
-                    "other": self._not_audio(f, pt.key), "kept": "", "patch": str(scratch / "out" / PATCH)}
+            return {"label": pt.label, "project": str(p.path),
+                    "imported": len({s for _, replaced, files, _ in reads for s in replaced if s in files}),
+                    "added": added, "skipped": sum(r[3] for r in reads), "settings": len(p.settings),
+                    "left": [x for got, *_ in reads for x in got.left],
+                    "stale": len(set().union(*(got.stale for got, *_ in reads))),
+                    "older": len(set().union(*(got.older for got, *_ in reads))),
+                    "other": [x for key in pt.keys for x in self._not_audio(f, key)], "kept": "",
+                    "patch": str(scratch / "out" / PATCH)}
 
         def run(job):
             n = 1
-            while (home := root / (name if n == 1 else f"{name} {n}")).exists():
+            while (home := root / (_short(name) if n == 1 else f"{_short(name)} {n}")).exists():
                 n += 1
             try:
                 home.mkdir(parents=True)
@@ -1556,7 +1813,8 @@ class Session:
                         at = home
                         if several:
                             job.say(f"--- {pt.label or pt.key} ({i + 1} of {len(f.patches)})")
-                            sub = clean_name(pt.label.replace("/", " ")) or clean_name(Path(pt.key).parent.name) or "Patch"
+                            sub = _short(clean_name(pt.label.replace("/", " ")) or clean_name(Path(pt.key).parent.name)
+                                         or "Patch")
                             k = 1
                             while (sub if k == 1 else f"{sub} {k}").lower() in used:
                                 k += 1
@@ -1576,23 +1834,26 @@ class Session:
                     job.step("Packing the ZIP")
                     zip_path = home / f"{name}.zip"
                     try:
-                        if f.manifest:
-                            repackage(f, zip_path, {pt.key: Path(x["patch"]) for pt, x in zip(f.patches, parts)
-                                                    if not x["kept"]}, name)
-                        else:  # no manifest: an Arsenal ZIP, each patch an option of its own
+                        made = [(pt, x) for pt, x in zip(f.patches, parts) if not x["kept"]]
+                        if f.manifest:  # a part's patches built into its first one's place
+                            repackage(f, zip_path, {pt.key: Path(x["patch"]) for pt, x in made}, name,
+                                      gone=[key for pt, _ in made for key in pt.also])
+                        else:  # no manifest: an Arsenal ZIP, each part an option of its own
                             icon = Path(tmp) / "icon.png"
                             icon.write_bytes(default_icon())
                             options = []
                             for i, (pt, x) in enumerate(zip(f.patches, parts)):
-                                if x["kept"]:  # as it was
-                                    f.place(pt.key, Path(tmp) / str(i) / "kept")
-                                    src = Path(tmp) / str(i) / "kept"
+                                label = clean_name(pt.label.replace("/", " ")) or name
+                                if not x["kept"]:
+                                    options.append({"name": label, "description": "", "folder": Path(x["patch"]).parent})
+                                    continue
+                                for k, key in enumerate(pt.keys):  # as it was, each patch an option
+                                    src = Path(tmp) / str(i) / "kept" / str(k)
+                                    f.place(key, src)
                                     for kept in src.iterdir():
-                                        kept.rename(src / (PATCH + kept.name[len(Path(pt.key).name):]))
-                                else:
-                                    src = Path(x["patch"]).parent
-                                options.append({"name": clean_name(pt.label.replace("/", " ")) or name, "description": "",
-                                                "folder": src})
+                                        kept.rename(src / (PATCH + kept.name[len(Path(key).name):]))
+                                    options.append({"name": f"{label} {k + 1}" if pt.also else label,
+                                                    "description": "", "folder": src})
                             package(zip_path, name=name, guid=str(uuid.uuid4()), icon=icon, options=options)
                     except OSError as e:
                         raise EditorError(f"Can't write the ZIP into {home}: {os_error(e)}") from None
@@ -2043,6 +2304,28 @@ def _then(pieces, after):
     after()
 
 
+def _short(name: str, most: int = 48) -> str:
+    """A folder's name of at most `most` characters, cut between words: a repatch's folders hold the decoded audio
+    several levels down, and the decoder can't write past Windows' 260-character paths."""
+    if len(name) <= most:
+        return name
+    cut = name[:most + 1].rsplit(" ", 1)[0] if " " in name[:most + 1] else name[:most]
+    return cut.rstrip(" .-") or name[:most]
+
+
+def _game_updated(p: Project, game, last) -> bool:
+    """Whether the game updated since the project's last build (last: _last_build's): the build was made on an
+    older game version, or, for a build from before projects noted that, its ZIP is older than Steam's last update
+    of the game. Its banks' copies of what many banks share are then stale and can mute the game's sounds."""
+    if not last:
+        return False
+    if p.built_for:
+        if p.built_for.isdigit() and game.version.isdigit():
+            return int(p.built_for) < int(game.version)  # a computer with an older game says nothing
+        return p.built_for != game.version
+    return "updated" in game.steam and last["modified"] < game.steam["updated"]
+
+
 def _last_build(folder: Path, slug: str):
     """The newest build of a mod in its build folder, <slug>-<version>.zip (other mods may build into the same
     folder): {zip, mb, modified}, or None."""
@@ -2054,6 +2337,20 @@ def _last_build(folder: Path, slug: str):
         return None
     st, f = max(zips, key=lambda z: z[0].st_mtime)
     return {"zip": str(f), "mb": round(st.st_size / 1e6, 1), "modified": st.st_mtime}
+
+
+def _digest(patch: Path) -> str:
+    """A short fingerprint of a patch file and its .stream: what tells two mods' patches of one archive apart."""
+    import hashlib
+    h = hashlib.sha1()
+    for f in (patch, patch.with_name(patch.name + ".stream")):
+        try:
+            with open(f, "rb") as r:
+                while chunk := r.read(1 << 20):
+                    h.update(chunk)
+        except OSError:
+            pass  # no .stream: the patch alone
+    return h.hexdigest()[:8]
 
 
 def projects_info(paths):

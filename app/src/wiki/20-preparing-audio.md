@@ -27,4 +27,4 @@ The game's music sits at about **−13 to −15 LUFS** (integrated loudness). Mu
 
 ## Where to keep the files
 
-Keep the audio in the project's folder or in a folder next to it. The project stores paths relative to its own location, so you can move or copy the whole folder. If a file goes missing, Build lists it as a problem and doesn't build until you fix it.
+Keep the audio in the project's folder, which is where a new project puts it. A file from another folder works too, and **Collect files** on the [Project](app:project) tab copies it into `audio\added`. The project stores paths relative to its folder, so you can move or copy the whole folder. If a file goes missing, Build lists it as a problem and doesn't build until you fix it.

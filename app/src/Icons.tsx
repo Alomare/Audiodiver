@@ -46,6 +46,8 @@ export const SaveIcon = () => (
 export const CopyIcon = () => <Icon size={1.1}><rect x="8.5" y="8.5" width="11" height="11" rx="1" /><path d="M15.5 8.5v-4h-11v11h4" /></Icon>;
 export const InfoIcon = () => <Icon size={1.1}><circle cx="12" cy="12" r="8.5" /><path d="M12 11v5.5M12 7.6v.1" strokeWidth={2.4} /></Icon>;
 /** A folder: show a file in its folder. */
+/** A page with a folded corner and lines of writing: a note. */
+export const NoteIcon = () => <Icon size={1}><path d="M5.5 3.5h9l4 4v13h-13z" /><path d="M14.5 3.5v4h4M8.5 12h7M8.5 15.5h7M8.5 8.5h3" /></Icon>;
 export const FolderIcon = () => <Icon size={1}><path d="M3.5 6.5h6l2 2h9v10h-17z" /></Icon>;
 /** Zoom in and out (a magnifier with + or −), and fit the whole width. */
 export const ZoomInIcon = () => <Icon size={1}><circle cx="10.5" cy="10.5" r="6" /><path d="m15 15 5 5M8 10.5h5M10.5 8v5" /></Icon>;
@@ -88,6 +90,11 @@ export const CollapseAllIcon = () => (
 /** Home: a house. */
 export const HomeIcon = () => (
   <Icon><path d="M3.5 11.2 12 4l8.5 7.2" /><path d="M5.8 9.4V20h12.4V9.4" /><path d="M10 20v-5.4h4V20" /></Icon>
+);
+
+/** The Project tab: a folder with level bars in it. */
+export const ProjectIcon = () => (
+  <Icon><path d="M3.5 6h6.2l2 2.2h8.8V19.5h-17z" /><path d="M8.5 12.6v3.4M11 11.2v6.2M13.5 13v2.6M16 12v4.4" strokeWidth={1.4} /></Icon>
 );
 
 /** The Library: books on a shelf, the last one leaning. */

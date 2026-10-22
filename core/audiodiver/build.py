@@ -95,6 +95,34 @@ def additions(project: Project, ix: AudioIndex, reps: list[patch.Replacement]) -
         raise BuildError(f"Added audio: {e}") from None
 
 
+def reach(project: Project, ix: AudioIndex, reps: list[patch.Replacement], settings: dict, listed=None) \
+        -> tuple[dict[int, set[int]], dict[int, set[int]]]:
+    """({source: banks}, {object: banks}): where the replaced sounds and the settings go, when the project keeps to
+    its banks (Project.every_bank off). A sound goes into the banks the mods imported into the project patched that
+    have it, else into the banks of what the project lists that have it (listed: Library.banks of its list), else
+    into every bank that has it. A bank that only plays a sound takes its audio from one that holds it, so the
+    holders join when none of them is among those; a streamed sound's holders all join, as each has the start of
+    the stream. Music keeps every bank. The game uses the first loaded copy of an object, every mission music bank
+    has copies of every faction's music, and music_init, loaded first, has copies of much of it (nearly all of the
+    second Automaton set's): a track retimed in one bank can play with another's old timing and cut off. Which
+    copies a mission loads isn't known, so all of them get the new timing. Settings, from imported mods, go into the
+    copies in the banks those mods patched. A sound or object left out goes into every bank that has it."""
+    if project.every_bank:
+        return {}, {}
+    mod, listed, music = set(project.imported_banks), set(listed or ()), set(ix.music_banks)
+    sounds = {}
+    for r in reps:
+        every = ix.banks_for(r.source)
+        if every & music or not (mine := every & mod or every & listed):
+            continue
+        holders = ix.holders.get(r.source, set())
+        if ix.stream_file(r.source) is not None or not mine & holders:
+            mine |= holders
+        sounds[r.source] = mine
+    objects = {o: mine for o in settings if (mine := set(ix.copies(o)) & mod)}
+    return sounds, objects
+
+
 def text_tables(project: Project, texts, log=print) -> dict[int, bytes]:
     """{file id: table bytes} of the string tables the project changes: each the live table with the project's lines
     in it. A line the game no longer has is left out, and a line the game changed since it was edited is named."""
@@ -120,9 +148,10 @@ def text_tables(project: Project, texts, log=print) -> dict[int, bytes]:
     return out
 
 
-def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, step=None, after=0) -> dict:
+def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, step=None, after=0, listed=None) -> dict:
     """Writes the project's patch (patch_dir/PATCH and its .stream) and checks it; returns {bank id: BankEdit}.
-    step(doing, done, total) follows it, counting `after` more steps the caller takes once the patch is made."""
+    step(doing, done, total) follows it, counting `after` more steps the caller takes once the patch is made.
+    listed: the banks of what the project lists (Library.banks), where its sounds go (reach)."""
     t0 = time.time()
     if problems := project.problems():
         raise BuildError("Project problems:\n  " + "\n  ".join(problems))
@@ -130,16 +159,20 @@ def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, ste
     reps = replacements(project, ix, log, step)
     if step:
         step("Patching the sound banks", steps - after - 2, steps)
-    log(f"patching the banks that hold or play {len(reps)} sound{'s' if len(reps) != 1 else ''}")
+    log(f"patching the {'' if project.every_bank else "project's "}banks that hold or play {len(reps)} "
+        f"sound{'s' if len(reps) != 1 else ''}")
     plan = additions(project, ix, reps)
     tables = text_tables(project, strings.Texts(ix.game), log) if project.texts else {}
-    settings = {o: s for o, s in project.settings.items() if ix.copies(o)}
-    if gone := len(project.settings) - len(settings):
+    # a setting taken away (None) came from a copy older than the game, in projects imported before that was known
+    settings = {o: kept for o, s in project.settings.items()
+                if ix.copies(o) and (kept := {k: v for k, v in s.items() if v is not None})}
+    if gone := len({o for o in project.settings if not ix.copies(o)}):
         log(f"settings: {gone} object{'s' if gone != 1 else ''} the mod set {'are' if gone != 1 else 'is'} not in "
             f"this game version; left out")
+    where, set_where = reach(project, ix, reps, settings, listed)
     try:
         edits = patch.build_patch(str(patch_dir / PATCH), reps, ix, project.segment_overrides, tables, plan,
-                                  settings, project.biome_fix)
+                                  settings, project.biome_fix, where, set_where)
     except patch.CueError as e:
         raise BuildError(f"Music segment {e.segment}: its Entry cue point ({e.entry_ms / 1000:.1f} s) comes at or "
                          f"after its Exit ({e.exit_ms / 1000:.1f} s), so the game would play the music before it "
@@ -150,7 +183,7 @@ def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, ste
         log(f"cue points of {len(unused)} segment{'s' if len(unused) != 1 else ''} without new audio left out")
     if step:
         step("Checking the patch", steps - after - 1, steps)
-    if problems := patch.verify(str(patch_dir / PATCH), reps, ix, plan, settings) \
+    if problems := patch.verify(str(patch_dir / PATCH), reps, ix, plan, settings, where) \
             + patch.verify_strings(str(patch_dir / PATCH), tables):
         raise BuildError("The patch failed verification:\n  " + "\n  ".join(problems))
     gains = sum(len(e.gains) for e in edits.values())
@@ -165,7 +198,7 @@ def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, ste
     return edits
 
 
-def build(project: Project, ix: AudioIndex, out_dir=None, version=None, log=print, step=None) -> Path:
+def build(project: Project, ix: AudioIndex, out_dir=None, version=None, log=print, step=None, listed=None) -> Path:
     """Writes <out_dir>/<name>-<version>.zip and returns its path; out_dir defaults to the project's build folder.
     step(doing, done, total), when given, follows the build (the job's progress; it may stop the build there).
     The patch and the icon are made and checked in a scratch folder, so the ZIP is all a build adds to out_dir:
@@ -180,7 +213,7 @@ def build(project: Project, ix: AudioIndex, out_dir=None, version=None, log=prin
     with tempfile.TemporaryDirectory(prefix="audiodiver-build-", ignore_cleanup_errors=True) as scratch:
         patch_dir = Path(scratch) / "patch"
         patch_dir.mkdir()
-        make_patch(project, ix, patch_dir, log, step, after=1)
+        make_patch(project, ix, patch_dir, log, step, after=1, listed=listed)
         icon_path = Path(scratch) / "icon.png"
         icon_path.write_bytes(icon)
         version = version or project.version

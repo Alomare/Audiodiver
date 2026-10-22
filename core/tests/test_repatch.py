@@ -47,6 +47,18 @@ def test_a_mod_managers_zip_names_its_patches_by_their_options(tmp_path):
     assert f.name == "Plain Mod" and not f.guid and [p.label for p in f.patches] == ["a", "b"]
     f = repatch.scan(_zip(tmp_path / "One.zip", {"deep/9ba626afa44a3aa3.patch_0": b"", "deep/9ba626afa44a3aa3.patch_0.stream": b""}))
     assert [p.label for p in f.patches] == [""]
+    # one folder's patches are one part, in the order the game loads them
+    stack = {f"9ba626afa44a3aa3.patch_{n}": b"" for n in (2, 0, 10, 1)} | {"tanks/9e430d763af434c1.patch_0": b"",
+                                                                            "tanks/9ba626afa44a3aa3.patch_0": b""}
+    f = repatch.scan(_zip(tmp_path / "Stacked.zip", stack))
+    assert [(p.label, p.keys) for p in f.patches] == [
+        ("", [f"9ba626afa44a3aa3.patch_{n}" for n in (0, 1, 2, 10)]),
+        ("tanks", ["tanks/9ba626afa44a3aa3.patch_0", "tanks/9e430d763af434c1.patch_0"])]
+    # a download's name, without what Nexus Mods added (from its site, from its app)
+    for download, name in [("Apex Music-17608-1-0-1729430000", "Apex Music"),
+                           ("Apex Music 17608 1.2 2026-10-20T12-46Z 3aPOjIbKe", "Apex Music"),
+                           ("Pack-2-Remix", "Pack-2-Remix"), ("Warp Pack Plus 5 Sounds", "Warp Pack Plus 5 Sounds")]:
+        assert repatch.scan(_zip(tmp_path / f"{download}.zip", {"9ba626afa44a3aa3.patch_0": b""})).name == name
 
     for bad, why in [(tmp_path / "none.zip", "holds no patch"), (tmp_path / "notes.txt", "isn't a mod"),
                      (tmp_path / "gone.zip", "wasn't found"), (tmp_path / "broken.zip", "can't be opened")]:

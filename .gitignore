@@ -1,4 +1,4 @@
-# Internal development material: notes, research, experiments, reference builds, test tools, signing keys
+# Internal development material
 /internal/
 
 # Dependencies and build output (app/.gitignore has the app's own)
@@ -15,7 +15,7 @@ venv/
 log.txt*
 *.log
 
-# Editors, the OS and Syncthing
+# Editors
 .vscode/
 .idea/
 Thumbs.db

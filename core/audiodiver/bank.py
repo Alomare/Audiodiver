@@ -76,12 +76,24 @@ def hirc(bank: bytes) -> bytes:
 # --- a node's settings: the prop bundle in its NodeBaseParams (count u8, ids u8[n], values f32[n]). Its Sounds,
 # MusicTracks, random/sequence, switch and layer containers and actor-mixers have one where these find it.
 SETTABLE = (SOUND, 0x05, 0x06, 0x07, 0x09, MUSIC_TRACK)
+# the settings a mod sets on how a sound plays: Volume, Pitch, the low- and high-pass filters, Make-Up Gain, Initial
+# Delay. The rest of a bundle (Priority, sends, HDR...) is the game's mix: updates change it on objects many banks
+# share, and on those the mods looked at (148 patches) differ there only as an older game version had it
+MIX_PROPS = (0x00, 0x01, 0x02, 0x03, 0x05, 0x22)
+
+
+def sound_base(body) -> int:
+    """Where a Sound's NodeBaseParams start: after its 18-byte source, and for a source plugin (a tone, silence) after
+    the plugin's parameters (their size, u32, then the parameters)."""
+    if struct.unpack_from("<I", body)[0] & 0xF == 2:
+        return 22 + struct.unpack_from("<I", body, 18)[0]
+    return 18
 
 
 def base_at(t, body) -> int:
     """Offset of NodeBaseParams in a node's body (after the id)."""
     if t == SOUND:
-        return 18
+        return sound_base(body)
     if t != MUSIC_TRACK:
         return 0
     p = 4 + 18 * struct.unpack_from("<I", body)[0] + 1  # sources, flags

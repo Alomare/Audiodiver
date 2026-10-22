@@ -68,7 +68,7 @@ export function Home() {
               )}
             </Fold>
             <button className={`menu-item${project ? "" : " hot"}`} onClick={actions.newProject} data-tip="Start a mod" data-tip-cmd="newProject">New project</button>
-            <button className="menu-item" onClick={() => actions.openProject()} data-tip="Open a .audi project file" data-tip-cmd="openProject">Open project</button>
+            <button className="menu-item" onClick={() => actions.openProject()} data-tip="Open a .audi project or a .audipack pack" data-tip-cmd="openProject">Open project</button>
             <button className="menu-item" onClick={() => nav.go("build", "repatch")}
               data-tip="Rebuild an existing audio mod for the current game version, without a project">Repatch a mod</button>
           </nav>

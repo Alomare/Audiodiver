@@ -4,6 +4,7 @@ import { choose, confirm } from "./Confirm";
 import { keyHint, keyLabel } from "./keys";
 import { indexItems } from "./music";
 import { nav as tabs } from "./nav";
+import { notes } from "./noteStore";
 import * as platform from "./platform";
 import type { PlayedAt } from "./player";
 import { settings } from "./settings";
@@ -38,7 +39,7 @@ export const EDIT_NAMES: Record<string, string> = {
   assign: "assign", fill: "fill", unassign: "remove", update: "change", skip: "skip", silence: "silence", paste: "paste",
   move: "move", segment: "cue points", settings: "mod details", import: "import", add: "add to the project",
   unlist: "remove from the project", text: "text change", "add take": "new takes", "add layer": "new layer",
-  "own clip": "only this sound", "shared clip": "every sound that plays it",
+  "own clip": "only this sound", "shared clip": "every sound that plays it", note: "note", collect: "collect files",
 };
 
 /** "a.wav, b.wav and 3 more". */
@@ -259,6 +260,7 @@ function useEditorState() {
     const changed = rev !== coreRevision.current;
     if (changed) { coreRevision.current = rev; editSeq.current++; }
     setProject(p);
+    notes.setProject(p?.notes);
     // previews and waveforms are fetched again only when the audio itself may have changed: another file, silence,
     // the icon, or files chosen again (they may have been rewritten on disk). A gain or a cue point keeps them.
     const sig = p ? JSON.stringify([Object.entries(p.assignments).map(([s, a]) => [s, a.audio, a.silence, a.exists, a.duration_ms]), p.icon]) : "";
@@ -304,10 +306,28 @@ function useEditorState() {
             const [ix, all] = await Promise.all([call<Index>("index"), call<ArchiveRow[]>("archives")]);
             if (stop) return;
             setIndex(ix); setArchives(all);
+            notes.load();
             if (!firstBoot.current) { setArchiveItems({}); pending.current.clear(); applyProject(s.project); setGameRev((r) => r + 1); return; }
             firstBoot.current = false;
             for (const j of s.jobs ?? []) resume.current(j); // a build or export still running: the window reloaded
-            if (s.project) { applyProject(s.project); tabs.go("editor"); } // the core kept it open (the window reloaded)
+            // a project or pack opened in Explorer (a double-click): it wins over the last one
+            const launched = await platform.launchFile();
+            if (stop) return;
+            if (launched) {
+              try {
+                if (/\.audipack$/i.test(launched)) {
+                  const job = await call<Job>("pack_open", { path: launched });
+                  if (!stop) resume.current(job); // its end unpacks the project, says where, and opens it
+                } else {
+                  const p = await call<ProjectState>("project_open", { path: launched });
+                  if (stop) return;
+                  applyProject(p); remember(p.path); tabs.go("editor");
+                  if (p.repairs.length) notify("info", repairNote(p), undefined, true);
+                }
+              } catch (e: any) {
+                if (!stop) notify("bad", String(e?.message ?? e), undefined, true);
+              }
+            } else if (s.project) { applyProject(s.project); tabs.go("editor"); } // the core kept it open (the window reloaded)
             else if (settings.get().openLast) {
               const last = recentProjects()[0];
               if (last) {
@@ -333,7 +353,7 @@ function useEditorState() {
       }
     })();
     return () => { stop = true; };
-  }, [quick, notify, boot, applyProject]);
+  }, [quick, notify, boot, applyProject, remember]);
 
   // --- coming back to the window (from Explorer, say) looks at the project's files again: one deleted or renamed
   // meanwhile is a problem on the Build tab at once, not at the next edit
@@ -446,10 +466,13 @@ function useEditorState() {
       fetches the project again, so its version, its problems and what an import brought in show at once. */
   const finishJob = useCallback(async (j: Job) => {
     const refresh = async () => applyProject(await run<ProjectState>("project"));
-    const what = j.kind === "build" ? "Build" : j.kind === "import" ? "Import" : j.kind === "repatch" ? "Repatch" : "Export";
+    const what = j.kind === "build" ? "Build" : j.kind === "import" ? "Import" : j.kind === "repatch" ? "Repatch"
+      : j.kind === "check" ? "Check" : j.kind === "pack" ? "Pack" : j.kind === "unpack" ? "Unpack" : "Export";
     if (j.state === "cancelled") quick(`${what} cancelled`, "info");
     else if (j.state !== "done") jobFailed(what, j);
-    else if (j.kind === "build") {
+    else if (j.kind === "check") {
+      // the Repatch page lists what it found
+    } else if (j.kind === "build") {
       notify("good", `Built ${j.result.zip.split(/[\\/]/).pop()} (${j.result.mb} MB).`,
         { label: "Show in folder", run: () => platform.reveal(j.result.zip) });
       if (settings.get().revealBuild) platform.reveal(j.result.zip).catch(() => {});
@@ -471,11 +494,24 @@ function useEditorState() {
         r.skipped ? `${r.skipped} couldn't be decoded` : "",
         // sounds the patch still had from an older game version: not the mod's, so not imported (Wiki: Repatching)
         r.stale ? `Left out: ${plural(r.stale, "sound")} from an older game version` : "",
+        // the game's objects as the patch's older copies had them: the current ones stay (Wiki: Repatching)
+        r.older ? `Kept current: ${plural(r.older, "sound object")} the patch had from an older game version` : "",
         ...left.map((l) => `Left out: ${l}`),
       ].filter(Boolean);
-      notify("good", lines.join("\n"),
-        r.stale ? { label: "Why?", run: () => tabs.go("wiki", "repatching#sounds-from-an-older-game-version") } : undefined,
-        left.length > 0 || r.stale > 0);
+      const why = r.stale ? "repatching#sounds-from-an-older-game-version"
+        : r.older ? "repatching#shared-settings-from-an-older-game-version" : "";
+      notify("good", lines.join("\n"), why ? { label: "Why?", run: () => tabs.go("wiki", why) } : undefined,
+        left.length > 0 || r.stale > 0 || r.older > 0);
+    } else if (j.kind === "pack") {
+      const r = j.result;
+      const missed = r.missing ? ` ${plural(r.missing, "file")} the project uses ${r.missing === 1 ? "was" : "were"} not found.` : "";
+      notify("good", `Packed ${plural(r.files, "file")} into ${r.pack.split(/[\\/]/).pop()} (${r.mb} MB).${missed}`,
+        { label: "Show in folder", run: () => platform.reveal(r.pack) });
+    } else if (j.kind === "unpack") {
+      // the pack's project, in a folder of its own where new projects go: it opens where it landed
+      const p = await run<ProjectState>("project_open", { path: j.result.project });
+      if (p) { applyProject(p); remember(p.path); tabs.go("editor"); }
+      notify("good", `Unpacked into ${j.result.folder}.`, { label: "Show in folder", run: () => platform.reveal(j.result.folder) });
     } else {
       // the export list's slots that have no audio in the game's files: why fewer files came out than it counts
       const absent = j.result.absent ? ` ${plural(j.result.absent, "slot")} on it ${j.result.absent === 1 ? "has" : "have"} no audio in the game's files.` : "";
@@ -483,8 +519,14 @@ function useEditorState() {
         { label: "Show in folder", run: () => platform.reveal(j.result.first) }, true);
     }
     if (j.kind === "build" || j.kind === "import") await refresh();
-  }, [applyProject, run, quick, jobFailed, notify]);
+  }, [applyProject, run, quick, jobFailed, notify, remember]);
   resume.current = (j: Job) => watchJob(j, finishJob);
+
+  /** Unpacks a .audipack: the core makes a folder for it where new projects go, and its end opens the project. */
+  const openPack = useCallback(async (path: string) => {
+    const job = await run<Job>("pack_open", { path });
+    if (job) watchJob(job, finishJob);
+  }, [run, watchJob, finishJob]);
 
   const needProject = useCallback(() => {
     if (project) return true;
@@ -500,7 +542,9 @@ function useEditorState() {
 
   const actions = useMemo(() => ({
     async newProject() {
-      const path = await platform.pickProjectToCreate("My mod.audi", project?.path ?? recentProjects()[0]);
+      // new projects get a folder of their own in the projects folder (Settings keeps the last one used)
+      const folder = await call<string>("projects_folder").catch(() => "");
+      const path = await platform.pickProjectToCreate("My mod.audi", folder);
       if (!path) return;
       const name = path.split(/[\\/]/).pop()!.replace(/\.audi$/i, "");
       const from = tabs.get().tab;
@@ -511,7 +555,7 @@ function useEditorState() {
         quick(`**${p.name}** created`, "add");
       }
     },
-    /** Writes the project file now. Edits save themselves; Ctrl+S also commits a field being typed in (the Build
+    /** Writes the project file now. Edits save themselves; Ctrl+S also commits a field being typed in (the Project
         tab's name, a line on the Text Editor), which saves when it loses focus. */
     async save() {
       if (!project) { quick("No project open", "info"); return; }
@@ -521,21 +565,60 @@ function useEditorState() {
       const p = await run<ProjectState>("project_save");
       if (p) { applyProject(p); quick(`**${p.name}** saved`, "save"); } // the name just typed, not the one before
     },
-    /** Opens a project (asking which, without a path) and shows it in the Editor. */
+    /** Opens a project (asking which, without a path) and shows it in the Editor. A .audipack unpacks first. */
     async openProject(path?: string) {
       path ??= (await platform.pickProjectToOpen(project?.path ?? recentProjects()[0])) ?? undefined;
       if (!path) return;
+      if (/\.audipack$/i.test(path)) return openPack(path);
       const p = await run<ProjectState>("project_open", { path });
       if (p) {
         applyProject(p); remember(p.path); tabs.go("editor");
         if (p.repairs.length) notify("info", repairNote(p), undefined, true); // a list to read: it waits for its ✕
       }
     },
+    /** Writes a thing's global note and the open project's (Notes.tsx); undefined leaves one as it is, "" removes
+        it. The project's is one step of Undo. True when the core took them. */
+    async setNote(key: string, text?: string, projectText?: string) {
+      const r = await run<{ notes: Record<string, string>; project: ProjectState | null }>("note_set", { key, text, project_text: projectText });
+      if (!r) return false;
+      notes.setGlobal(r.notes);
+      if (r.project) applyProject(r.project);
+      return true;
+    },
     async closeProject() {
       if (!project) return;
       await run("project_close");
       applyProject(null);
       quick(`**${project.name}** closed`, "info");
+    },
+    /** A .audipack unpacks into a folder of its own, and the project it holds opens (see openPack above). */
+    openPack,
+    /** Gives the project a folder of its own beside its file (Project tab). The recent list follows its new path. */
+    async moveToOwnFolder() {
+      if (!project) return;
+      const old = project.path;
+      const p = await run<ProjectState>("project_move");
+      if (!p) return;
+      applyProject(p);
+      setRecent((list) => { const next = [p.path, ...list.filter((x) => x !== old && x !== p.path)].slice(0, RECENT_MAX); saveRecent(next); return next; });
+      quick(`**${p.name}** moved to its own folder`);
+    },
+    /** Copies the files the project uses from outside its folder into audio\added (Project tab). */
+    async collectFiles() {
+      const p = await run<ProjectState & { collected: number }>("collect_files");
+      if (!p) return;
+      edited(p);
+      if (p.collected) editNotice("good", `Copied ${plural(p.collected, "file")} into the project's folder.`);
+      else quick("Nothing to copy", "info");
+    },
+    /** Writes the project and the files it uses as one .audipack file (Project tab). */
+    async exportPack() {
+      if (!project) return;
+      const parent = project.folder.replace(/[\\/][^\\/]*$/, "");
+      const dest = await platform.pickPackToSave(`${project.name}.audipack`, parent || project.folder);
+      if (!dest) return;
+      const job = await run<Job>("pack_export", { dest });
+      if (job) watchJob(job, finishJob);
     },
     /** Takes a project off the Home tab's list. The file is left alone; opening it again lists it again. */
     forgetRecent(path: string) {
@@ -782,10 +865,15 @@ function useEditorState() {
     },
     async cancelJob(id: string) { await run("job_cancel", { id }); },
     /** Rebuilds an existing mod on the game as it is now, as the one mod it was (the Repatch page). */
-    async repatch(path: string, name: string, folder: string, biomeFix: boolean) {
-      const job = await run<Job>("repatch", { path, name, folder, biome_fix: biomeFix });
+    async repatch(path: string, name: string, folder: string, biomeFix: boolean, everyBank: boolean) {
+      const job = await run<Job>("repatch", { path, name, folder, biome_fix: biomeFix, every_bank: everyBank });
       if (job) watchJob(job, finishJob);
       return !!job;
+    },
+    /** Checks the installed mods for sound banks of an older game version (the Repatch page lists them). */
+    async checkMods() {
+      const job = await run<Job>("check_mods");
+      if (job) watchJob(job, finishJob);
     },
     async importPatch(path?: string) {
       if (!needProject()) return;
@@ -810,7 +898,7 @@ function useEditorState() {
       const job = await run<Job>("import_patch", { path, mode });
       if (job) watchJob(job, finishJob);
     },
-  }), [run, applyProject, edited, editNotice, notify, quick, needProject, editorCue, project, watchJob, finishJob, clip, remember, status, jobs]);
+  }), [run, applyProject, edited, editNotice, notify, quick, needProject, editorCue, project, watchJob, finishJob, clip, remember, status, jobs, openPack]);
   undoRef.current = actions.undo;
 
   return {

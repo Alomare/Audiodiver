@@ -2,7 +2,7 @@
 
 # Audiodiver (desktop editor)
 
-Tauri 2 + React. The window starts the Python core (`python -m audiodiver serve`, see `../core`) and talks to it over a token-protected localhost API. The interpreter is `AUDIODIVER_PYTHON` if set, else the one named in `core.json` in the app's local data folder (`%LOCALAPPDATA%\com.audiodiver.editor`), else `python`. `core.json` is for a computer whose `python` doesn't have the core (a venv): `{"python": "…\\venv\\Scripts\\python.exe", "path": ["…\\bin"], "env": {"PYTHONUTF8": "1"}}`, where `path` folders go first on the core's PATH (ffmpeg, vgmstream-cli, wav2wem). The file is per computer, so a copied exe still runs the Python installed on each computer. When the core can't start, the window shows the last error Python printed, such as a missing module.
+Tauri 2 + React. The window starts the Python core (`python -m audiodiver serve`, see `../core`) and talks to it over a token-protected localhost API. The interpreter is `AUDIODIVER_PYTHON` if set, else the one named in `core.json` in the app's local data folder (`%LOCALAPPDATA%\com.audiodiver.editor`), else the one a release carries (`core/python` beside the exe, with ffmpeg, vgmstream-cli and wav2wem in `core/tools`), else `python`. `core.json` is for a computer whose `python` doesn't have the core (a venv): `{"python": "…\\venv\\Scripts\\python.exe", "path": ["…\\bin"], "env": {"PYTHONUTF8": "1"}}`, where `path` folders go first on the core's PATH (ffmpeg, vgmstream-cli, wav2wem). The file is per computer, so a copied exe still runs the Python installed on each computer. When the core can't start, the window shows the last error Python printed, such as a missing module.
 
 ```
 npm install
@@ -11,15 +11,26 @@ npm run tauri build      # src-tauri/target/release/audiodiver.exe + an NSIS ins
 ```
 
 Updates come from the GitHub releases' `latest.json` (`plugins.updater` in `src-tauri/tauri.conf.json`), and the app
-installs one only if its signature matches the public key there. A release is built with
-`npm run tauri build -- --config src-tauri/tauri.release.conf.json`, which also signs the installer (its `.sig`); it
-needs the private key in `TAURI_SIGNING_PRIVATE_KEY` and its password in `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` (GitHub
-Actions secrets). The release workflow puts the installer, its `.sig` and `latest.json` in the release. A build
-without the release config works as before, without a signature.
+installs one only if its signature matches the public key there.
+
+A release is made by pushing a tag (`v1.2.0`) after the version is the same in `src-tauri/tauri.conf.json`,
+`package.json`, `src-tauri/Cargo.toml` and `../core/pyproject.toml`, and `CHANGELOG.md` has a section for it. The
+workflow (`../.github/workflows/release.yml`) checks that, runs the core's tests, puts the core together
+(`scripts/release.py core`: Python's embeddable package with the core and its packages, and the tools, each pinned and
+checked against its SHA-256, in `src-tauri/core`), builds with `--config src-tauri/tauri.release.conf.json` (the core
+as resources, and the installer signed for the updater with `TAURI_SIGNING_PRIVATE_KEY` and
+`TAURI_SIGNING_PRIVATE_KEY_PASSWORD`, GitHub Actions secrets), and makes a draft release with the changelog's section
+as its text: the installer, its `.sig`, `latest.json` and the portable ZIP (`scripts/release.py portable`).
+Publishing the draft releases it. A build without the release config works as before, without the core or a
+signature.
+
+The portable ZIP is the exe with the core beside it and a `portable.txt`. With that file beside it, the exe keeps
+everything in a `data` folder there (the core's settings, caches, notes and log, `core.json`, the WebView2 profile and
+the window's place) and nothing in AppData, and Update opens the release's page in place of the installer.
 
 Without the shell, the UI also runs in a browser for development: start `python -m audiodiver serve --port 8765 --token dev`, then `npm run dev` and open `http://localhost:1420/?port=8765&token=dev`. File pickers become path prompts there, and dragging files in needs the desktop app.
 
-The master tabs are icons down the left of the window, in the rail, with their names in tooltips. They are Home, Library, Audio Editor (`editor` in the code), Text Editor (`text`) and Build, with Updates, the Wiki and Settings at the bottom. The window's title is the open project's name. The Build tab shows the number of problems, and Updates is highlighted when a new version is available. The version at the end of the status bar opens Updates. The ⓘ next to it, and the one by the logo on Home, open About. The Library (Index and All Archives) lists everything in the game, to find, hear and add to a project. The Audio Editor lists what the open project contains, to replace. Both use the same three panes, and each keeps a separate open item, selection and history (`Scope` in `src/store.tsx`).
+The master tabs are icons down the left of the window, in the rail, with their names in tooltips. They are Home, Project, Library, Audio Editor (`editor` in the code), Text Editor (`text`) and Build, with Updates, the Wiki and Settings at the bottom. The window's title is the open project's name. The Build tab shows the number of problems, and Updates is highlighted when a new version is available. The version at the end of the status bar opens Updates. The ⓘ next to it, and the one by the logo on Home, open About. The Project tab holds what the mod is (name, description, icon and id) and where its files are (its folder, the files nothing uses, packs). The Library (Index and All Archives) lists everything in the game, to find, hear and add to a project. The Audio Editor lists what the open project contains, to replace. Both use the same three panes, and each keeps a separate open item, selection and history (`Scope` in `src/store.tsx`).
 
 | File | Role |
 |---|---|
@@ -30,13 +41,15 @@ The master tabs are icons down the left of the window, in the rail, with their n
 | `src/Library.tsx`, `src/IndexTree.tsx` | the left panels: the Library's Index and All Archives, and the Audio Editor's list of what the project works on |
 | `src/music.ts`, `src/Tags.tsx` | the Index as the app looks things up in it, whose audio an item plays, and tags in a category's colour |
 | `src/CueView.tsx`, `src/ItemHead.tsx` | the slots of what is open (a music cue, or a bank's sounds in groups that fold), and the slot list's shortcuts. A row is where a slot's original and replacement play and where its file is chosen, replaced (the file name) and removed. In the Audio Editor the + on a sound's line adds new takes or a layer (a new take is its file: its ✕ takes it away) |
+| `src/Notes.tsx`, `src/noteStore.ts` | notes on what the Audio Editor shows: the button on a row (shown on hover, lighter and always shown once a note is written), the dialog with the global note (every project, core `notes.py`) and the project's, written in Markdown with a preview. Notes go by key (`noteKeys`): categories, sections and items of the list, music segments of several slots, groups of takes (their container) and slots (their clip) |
 | `src/Inspector.tsx` | the selected slot's settings: what replaces it (file or silence and its timing), where the new audio plays (every sound that plays the clip, or only this one), Make-Up Gain, timing, cue points, notes, where else it plays, a voice line's subtitle (opens it in the Text tab); the keys while nothing is selected. In the Library, `SlotFacts` says what a slot is |
 | `src/Timeline.tsx`, `src/Waveform.tsx` | the waveform dock: original vs replaced on one scale, click to play from a spot, draggable cue points, and where a play-through is in the slot |
 | `src/PlayThrough.tsx`, `src/player.ts` | a whole cue played the way the game does, and the one player everything plays through (the now-playing bar leads back to what plays) |
 | `src/SliceTool.tsx` | cut one song into pieces and fill a cue, one slot per segment From one slot To another: the song and the originals on one zoomable time scale, the originals played one after another, cuts to drag, add and remove, a table of pieces against their originals |
 | `src/Confirm.tsx` | the question before removing new audio (`confirm()`, Enter confirms, Esc keeps), and one with two ways to go ahead (`choose()`: Import a mod's patch adds or replaces) |
-| `src/RepatchPage.tsx` | Build ▸ Repatch: an existing mod (ZIP, folder or `.patch_0`, dropped or picked) rebuilt on the current game, its patches, name and folder, the outcome, and what repatching does |
-| `src/BuildTab.tsx` | Build's two sub-tabs, Project and Repatch. Project: name, description, version and id as HD2 Arsenal shows them, the icon (an image or the default one, with a border and corners), the Build button and where builds go, build options, the log |
+| `src/RepatchPage.tsx` | Build ▸ Repatch: an existing mod (ZIP, folder or `.patch_0`, dropped or picked) rebuilt on the current game, its patches, name and folder, the outcome, and what repatching does; Installed mods, the check that finds mods with older sound banks |
+| `src/BuildTab.tsx` | Build's two sub-tabs, This project and Repatch. This project: the next version, the Build button and where builds go, build options, the log. Repatch: `RepatchPage.tsx` |
+| `src/ProjectTab.tsx` | the Project tab: name, description, icon (an image or the default one, with a border and corners) and id as HD2 Arsenal shows them, the icon preview, and the folder (where it is, moving it into a folder, copying files in), the files nothing uses, and the pack |
 | `src/ExportDialog.tsx`, `src/exportList.ts` | the Export… dialog (a cue's audio, or a bank's sounds one by one, as WAV, FLAC or MP3), and the export list: things collected from anywhere (right-click ▸ Add to the export list), exported together from the status bar |
 | `src/TextTab.tsx` | the Text tab: the game's text in every language (subtitles and every other line), to search and change, with colours, sizes and emphasis, and a preview of how the game shows it. `showLines` opens it on given lines (a voice line's subtitle, or those with its words), in the voice's language; a subtitle lists the voice lines that say it, each opening in the Library |
 | `src/TextPreview.tsx` | a line of the game's text as the game shows it (colours, sizes, styles, timing marks, the words the game fills in): the Text tab's preview and the Wiki's `game-text` examples |
@@ -55,8 +68,10 @@ The master tabs are icons down the left of the window, in the rail, with their n
 | `src/art/` | the Home background: every image in it, shown in turn (see the README there for size and format) |
 | `src/Logo.tsx`, `../assets/logo/` | the logo: the official files, taken straight from `assets/logo` (`@logo` in `vite.config.ts`) and drawn in the highlight colour |
 | `src/platform.ts` | dialogs, drag-and-drop, reveal and web links in the desktop app; browser fallbacks |
-| `src-tauri/src/lib.rs` | starts and stops the core (with this computer's `core.json`, if any), hands its port and token to the UI, or why the core didn't start; the updater plugin |
-| `src-tauri/tauri.release.conf.json` | added to the config for a release: signs the installer for the updater (its `.sig`) |
+| `src-tauri/src/lib.rs` | starts and stops the core (with this computer's `core.json`, if any, or the core a release carries), hands its port and token to the UI, or why the core didn't start; the updater plugin; a message box with Microsoft's download page when the WebView2 Runtime is missing; the main window (built in code, `create: false`) and a portable copy's data folder; `tauri-plugin-single-instance` (a second launch, from a double-clicked project or pack, focuses the open window and emits `open-file`) and `launch_file`, which hands over the file the exe was started with, once |
+| `src-tauri/tauri.conf.json` | the window and the bundle; `bundle.fileAssociations` registers `.audi` and `.audipack` with Windows (the NSIS installer only, not the portable ZIP) |
+| `src-tauri/tauri.release.conf.json` | added to the config for a release: the core (`src-tauri/core`, made by `scripts/release.py core`) as resources, and the installer signed for the updater (its `.sig`) |
+| `scripts/release.py` | what a release needs beyond `tauri build`: the version check, the release's text, the core with Python and the tools, the portable ZIP |
 | `src-tauri/icons/`, `app-icon.png` | the app's icons, made from the logo: see `../core/tools/import_logo.py` for how to make them again |
 
 Conventions. Tooltips use `data-tip` and never `title=`, so they match the app's style and show the current key. Text that mentions a key gets it from `keyLabel()` in `keys.ts`, so it follows a rebinding.

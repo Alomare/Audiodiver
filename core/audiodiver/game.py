@@ -10,6 +10,7 @@ import glob
 import os
 import re
 import struct
+import zlib
 from pathlib import Path
 
 from lz4 import block
@@ -22,6 +23,7 @@ WWISE_DEP = 12624162998411505776
 PATCH_MAGIC = 0xF0000011
 
 _STEAM_DEFAULT = r"C:\Program Files (x86)\Steam"
+STEAM_APP = 553850
 
 
 def murmur64_hash(data: bytes, seed: int = 0) -> int:
@@ -211,6 +213,26 @@ class Game:
         audio there is, without touching the bundles."""
         loose = ";".join(f"{n}:{p.stat().st_size}:{int(p.stat().st_mtime)}" for n, p in sorted(self.loose.items()))
         return f"{self.fingerprint}|{loose}"
+
+    @functools.cached_property
+    def steam(self) -> dict:
+        """{"build": Steam's build id, "updated": when Steam last updated the game (Unix seconds)}, from the app
+        manifest in the Steam library the game is in; {} for a game Steam didn't install there."""
+        try:
+            text = (self.data.parent.parent.parent / f"appmanifest_{STEAM_APP}.acf").read_text(errors="replace")
+        except OSError:
+            return {}
+        got = dict(re.findall(r'"(buildid|LastUpdated)"\s+"(\d+)"', text))
+        return {k: int(got[n]) for k, n in (("build", "buildid"), ("updated", "LastUpdated")) if n in got}
+
+    @functools.cached_property
+    def version(self) -> str:
+        """The game's version, the same on every computer that has it: Steam's build id, else the bundles' sizes as
+        one number (`fingerprint` has their times too, which differ between computers)."""
+        if "build" in self.steam:
+            return str(self.steam["build"])
+        sizes = ";".join(f"{os.path.basename(f)}:{os.path.getsize(f)}" for f in sorted(glob.glob(str(self.data / "bundles.*"))))
+        return f"files-{zlib.crc32(sizes.encode()):08x}"
 
     def package_toc(self, name):
         """[(file id, type id, toc offset, toc size)], read from the start of the package only."""

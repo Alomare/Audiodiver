@@ -16,7 +16,11 @@ On the mod page, include:
 
 ## Updates
 
-Keep the mod's name and id the same for its whole life ([Build](app:build)). A player who imports the new ZIP then gets an update and keeps one copy of the mod.
+Keep the mod's name and id the same for its whole life ([Project](app:project)). A player who imports the new ZIP then gets an update and keeps one copy of the mod.
+
+## Moving a project
+
+A pack (`.audipack`) carries the project and the files it uses to another computer. It is for keeping a project or moving it, and players don't need it. **Export as pack…** on the [Project](app:project) tab writes one. See [Project folders](wiki:project-folders#packs).
 
 ## Rights
 

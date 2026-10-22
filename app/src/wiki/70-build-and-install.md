@@ -6,7 +6,7 @@ summary: What a build makes, how to install it with HD2 Arsenal, and how updates
 
 ## Building
 
-On [Build](app:build), press **Build** ({key:build}). Audiodiver converts the new audio for the game and patches every sound bank that holds or plays the replaced sounds. It then checks the result and packs it into a ZIP named after the mod and its version.
+On [Build](app:build), press **Build** ({key:build}). Audiodiver converts the new audio for the game and patches the sound banks that hold or play the replaced sounds ([which ones](#every-bank-with-the-sounds)). It then checks the result and packs it into a ZIP named after the mod and its version.
 
 Building changes nothing else. The project, the audio files and the game stay the same.
 
@@ -18,7 +18,7 @@ The ZIP goes into the `build` folder next to the project file. To send a mod's b
 
 ## What Arsenal shows
 
-The [Build](app:build) tab previews the icon, the name and the description as Arsenal displays them.
+The [Project](app:project) tab previews the icon, the name and the description as Arsenal displays them.
 
 ### Name and description
 
@@ -56,6 +56,20 @@ The [Sound Systems Rebalanced Patch](https://github.com/CowboyBingus/SoundSystem
 The patch was made for an older game version. Where it no longer fits the game's banks, the build goes on without it, and the build log says so.
 
 With the patch on, deploy the music mod **after** Sound Systems Rebalanced if you use both. The two mods then carry the patch whichever loads last, and the music timing and Make-Up Gain stay as you built them.
+
+### Every bank with the sounds
+
+A sound is often in more than one sound bank. A clip that several weapons share is in each of their banks, and some are in a hundred. By default, a build patches only the banks of the sound sets, music and archives in the project's list. The mod stays small, as mods made with other tools are.
+
+**Patch every bank with the sounds** puts the new audio into every bank that has the sounds. It then plays wherever the game uses them, also for a weapon the project doesn't list. The mod gets bigger, sometimes by hundreds of megabytes. Turn it on if the game's audio still plays where you expected yours. The setting applies to the open project.
+
+Some sounds go into every bank either way:
+
+- Music. Every mission's music bank has copies of the music of every faction, and `music_init` has copies of much of it. The game uses the first copy it loads. A copy with the old timing would play the new audio for the old length, so the music would cut off or go silent.
+- The banks that hold the start of a streamed sound, such as a voice line. Each one gets the new start, so the old audio never plays before the new.
+- A sound that no bank on the list has.
+
+A project that you imported a mod into also counts the banks that mod patched as its own. On [Repatch](app:build/repatch), the same checkbox applies to the repatched mod: off, the mod's audio goes only into the banks the mod patched.
 
 ## Installing with HD2 Arsenal
 

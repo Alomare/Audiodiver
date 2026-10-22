@@ -1,0 +1,81 @@
+# A release: pushing a tag like v1.2.0 builds the installer (signed for the updater, with its .sig and latest.json)
+# and the portable ZIP, and puts them in a draft release whose text is the changelog's section for that version.
+# Publishing the draft makes it the release the app's updater and Updates tab see.
+#
+# Needs the repository secrets TAURI_SIGNING_PRIVATE_KEY (the content of the updater key file) and
+# TAURI_SIGNING_PRIVATE_KEY_PASSWORD. app/scripts/release.py has the steps that aren't Tauri's.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: The tag matches every version number and the changelog
+        run: python app/scripts/release.py check "$GITHUB_REF_NAME"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: app/src-tauri
+
+      - name: The core, Python and the tools the release carries
+        run: python app/scripts/release.py core
+
+      - name: Core tests (with the tools the release carries)
+        run: |
+          python -m pip install -e "core[test]"
+          PATH="$PWD/app/src-tauri/core/tools:$PATH" python -m pytest core -q -m "not game"
+
+      - name: Install the app's packages
+        working-directory: app
+        run: npm ci
+
+      - name: Draft release
+        id: draft
+        run: |
+          python app/scripts/release.py notes "$GITHUB_REF_NAME" > notes.md
+          gh release create "$GITHUB_REF_NAME" --draft --verify-tag --title "Audiodiver ${GITHUB_REF_NAME#v}" --notes-file notes.md
+          id=$(gh api "repos/$GITHUB_REPOSITORY/releases" --jq ".[] | select(.tag_name == \"$GITHUB_REF_NAME\" and .draft) | .id" | head -1)
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+
+      - name: The installer, its signature and latest.json
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          projectPath: app
+          args: --config src-tauri/tauri.release.conf.json
+          releaseId: ${{ steps.draft.outputs.id }}
+
+      - name: The portable ZIP
+        run: |
+          python app/scripts/release.py portable
+          gh release upload "$GITHUB_REF_NAME" app/src-tauri/target/release/bundle/portable/*.zip

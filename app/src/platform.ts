@@ -28,19 +28,43 @@ export async function pickAudio(multiple = true): Promise<string[] | null> {
   return files;
 }
 
-/** near: a project path; the picker starts in its folder. */
+/** A project, or a pack to unpack. near: a project path; the picker starts in its folder. */
 export async function pickProjectToOpen(near?: string): Promise<string | null> {
-  if (!isTauri()) return promptPaths("Audiodiver project (.audi)", false)?.[0] ?? null;
+  if (!isTauri()) return promptPaths("Audiodiver project (.audi) or pack (.audipack)", false)?.[0] ?? null;
   const { open } = await import("@tauri-apps/plugin-dialog");
-  const r = await open({ multiple: false, defaultPath: folderOf(near), filters: [{ name: "Audiodiver project", extensions: ["audi"] }] });
+  const r = await open({ multiple: false, defaultPath: folderOf(near),
+    filters: [{ name: "Audiodiver projects and packs", extensions: ["audi", "audipack"] }] });
   return (r as string) ?? null;
 }
 
-export async function pickProjectToCreate(suggested: string, near?: string): Promise<string | null> {
-  if (!isTauri()) return promptPaths("Where to save the new project (.audi)", false)?.[0] ?? null;
+/** The new project's name and the folder its own folder goes in (dir: where the picker starts). */
+export async function pickProjectToCreate(suggested: string, dir?: string): Promise<string | null> {
+  if (!isTauri()) return promptPaths("Where to save the new project (.audi). It gets a folder of its own there.", false)?.[0] ?? null;
   const { save } = await import("@tauri-apps/plugin-dialog");
-  const dir = folderOf(near);
-  return await save({ defaultPath: dir ? `${dir}\\${suggested}` : suggested, filters: [{ name: "Audiodiver project", extensions: ["audi"] }] });
+  return await save({ title: "New project: its name, and where its folder goes", defaultPath: dir ? `${dir}\\${suggested}` : suggested,
+    filters: [{ name: "Audiodiver project", extensions: ["audi"] }] });
+}
+
+/** Where a project's pack goes (dir: where the picker starts). */
+export async function pickPackToSave(suggested: string, dir?: string): Promise<string | null> {
+  if (!isTauri()) return promptPaths("Where to save the pack (.audipack)", false)?.[0] ?? null;
+  const { save } = await import("@tauri-apps/plugin-dialog");
+  return await save({ title: "Export the project as a pack", defaultPath: dir ? `${dir}\\${suggested}` : suggested,
+    filters: [{ name: "Audiodiver pack", extensions: ["audipack"] }] });
+}
+
+/** The project or pack Audiodiver was started with (a double-click in Explorer), once; null without one. */
+export async function launchFile(): Promise<string | null> {
+  if (!isTauri()) return null;
+  const { invoke } = await import("@tauri-apps/api/core");
+  return invoke<string | null>("launch_file").catch(() => null);
+}
+
+/** Calls back with each project or pack opened in Explorer while Audiodiver runs. */
+export async function onOpenFile(cb: (path: string) => void): Promise<() => void> {
+  if (!isTauri()) return () => {};
+  const { listen } = await import("@tauri-apps/api/event");
+  return listen<string>("open-file", (e) => cb(e.payload));
 }
 
 export async function pickFolder(startAt?: string, title = "Choose a folder"): Promise<string | null> {
@@ -76,6 +100,15 @@ export async function pickImage(near?: string): Promise<string | null> {
   const { open } = await import("@tauri-apps/plugin-dialog");
   const r = await open({ multiple: false, defaultPath: near || undefined, title: "Choose an image for the icon", filters: [{ name: "Images", extensions: IMAGES }] });
   return (r as string) ?? null;
+}
+
+let portable: Promise<boolean> | null = null;
+/** A portable copy of the desktop app (the release's ZIP): it updates from the release's page, not the installer. */
+export function isPortable(): Promise<boolean> {
+  portable ??= isTauri()
+    ? import("@tauri-apps/api/core").then(({ invoke }) => invoke<boolean>("is_portable")).catch(() => false)
+    : Promise.resolve(false);
+  return portable;
 }
 
 /** Opens a web page in the user's browser, never inside the app's own window. */
@@ -129,12 +162,12 @@ export async function reveal(path: string) {
 }
 
 /** Expands dropped folders into the audio files inside them (sorted by name). Images come through as they are:
-    one dropped on the Build tab's icon becomes the icon. */
+    one dropped on the Project tab's icon becomes the icon. */
 export async function expandDropped(paths: string[]): Promise<string[]> {
   const out: string[] = [];
   for (const p of paths) {
     const ext = p.split(".").pop()?.toLowerCase() ?? "";
-    if (AUDIO.includes(ext) || /\.patch_\d+$|\.audi$/i.test(p) || isImage(p)) out.push(p);
+    if (AUDIO.includes(ext) || /\.patch_\d+$|\.audi(pack)?$/i.test(p) || isImage(p)) out.push(p);
     else {
       try { out.push(...(await call<string[]>("list_audio", { folder: p }))); } catch { /* not a folder */ }
     }

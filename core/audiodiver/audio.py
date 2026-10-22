@@ -121,12 +121,13 @@ def natural(path) -> list:
 MIN_PIECE_MS = 100  # the slice tool's shortest piece (MIN_PIECE in SliceTool.tsx)
 
 
-def slice_folder(project_dir: Path, src: Path) -> Path:
-    """Where a project keeps the pieces of one song: a folder per song (named after it, and told apart from other
-    songs of the same name by their paths), shared by the projects in that folder."""
+def slice_folder(project_dir: Path, src: Path, legacy=False) -> Path:
+    """Where a project keeps the pieces of one song: a folder per song in its audio/slices (named after the song, and
+    told apart from other songs of the same name by their paths). legacy: where projects kept them before, in a
+    slices folder beside the project file, which several projects could share."""
     src = Path(src)
     tag = hashlib.sha1(str(src.resolve()).lower().encode()).hexdigest()[:6]
-    return Path(project_dir) / "slices" / f"{src.stem}-{tag}"
+    return Path(project_dir) / ("slices" if legacy else "audio/slices") / f"{src.stem}-{tag}"
 
 
 def slice_song(src: Path, bounds_ms: list[float], song_dir: Path) -> list[Path]:

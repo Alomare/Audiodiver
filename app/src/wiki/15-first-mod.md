@@ -6,14 +6,14 @@ summary: From an empty project to new music in game, in nine steps.
 
 This page walks through replacing the music of one screen, the loadout screen, and hearing the result in game with HD2 Arsenal.
 
-1. On [Home](app:home), choose **New project…**. Save the project in a new folder, and put the audio files in the same folder.
+1. On [Home](app:home), choose **New project…** and give the project a name. Its folder goes in `Documents\Audiodiver\Projects` unless you choose another place, and the project file is inside it. Copy the audio files into that folder.
 2. The Library opens. In the Index, open **Before the Drop** under Music and press ▶ next to **Loadout Selection** to hear it.
 3. Click **Loadout Selection**. It has a start segment followed by fourteen loops that the game plays in order. Press **Add to the project**.
 4. Go to the [Audio Editor](app:editor) and click **Loadout Selection** in the list.
 5. Drag the audio files from Explorer onto the piece in the list, or onto its first slot. Slots fill in file-name order, so name the files `01 …`, `02 …` and so on.
 6. Select a slot and press ▶ on each half of its row. The left half plays the original and the right half plays the replacement. Switching between them keeps the playback position. The waveforms below show both on one time scale.
 7. Press **Replaced** next to **Play through**, above the slots. It plays the whole piece with the same hand-overs between segments that the game uses, and selects each slot as it plays.
-8. On [Build](app:build), give the mod a name and an icon.
+8. On [Project](app:project), give the mod a name and an icon.
 9. Press **Build**. Import the ZIP in HD2 Arsenal, deploy it and start the game.
 
 > [!TIP]

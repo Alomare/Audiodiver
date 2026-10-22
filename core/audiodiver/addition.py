@@ -67,15 +67,44 @@ def derived_id(seed: str, taken) -> int:
 
 # --- the parts of an object a change touches
 def base_end(t, body) -> int:
-    """Where an object's NodeBaseParams end (a Sound's start after its 18-byte source)."""
-    r = music.Reader(body, 18 if t == SOUND else 0)
+    """Where an object's NodeBaseParams end (a Sound's start after its source, wbank.sound_base)."""
+    r = music.Reader(body, wbank.sound_base(body) if t == SOUND else 0)
     music.read_node_base_params(r)
     return r.pos
 
 
+def base_differs(t, game: bytes, mod: bytes) -> bool:
+    """Whether a copy of a node has other NodeBaseParams than the game's, its settings (the prop bundle) aside."""
+    aligned = wbank.with_props(t, game, wbank.prop_changes(t, game, mod))
+    return aligned[:base_end(t, aligned)] != mod[:base_end(t, mod)]
+
+
+def audio_data(wem: bytes) -> bytes | None:
+    """A .wem's encoded audio (its RIFF data chunk), without the chunks around it; None when it has none."""
+    p = 12
+    while p + 8 <= len(wem):
+        tag, n = wem[p:p + 4], struct.unpack_from("<I", wem, p + 4)[0]
+        if tag == b"data":
+            return wem[p + 8:p + 8 + n]
+        p += 8 + n + (n & 1)
+    return None
+
+
+def same_audio(mod: bytes, game: bytes) -> bool:
+    """Whether a mod's clip is the game's own audio in another file: an older game version's (25988413 gave every
+    clip a hash chunk), or with other metadata."""
+    return mod == game or (data := audio_data(mod)) is not None and data == audio_data(game)
+
+
+def older_settings(t, game: bytes, mod: bytes) -> bool:
+    """Whether a copy's settings are an older game version's, in part at least: it lacks one the game has (mods set,
+    they don't take away), or it has other values for the game's mix (anything but wbank.MIX_PROPS)."""
+    return any(v is None or k not in wbank.MIX_PROPS for k, v in wbank.prop_changes(t, game, mod).items())
+
+
 def parent_at(t, body) -> int:
     """Offset of the direct parent id in a Sound's or a container's body."""
-    p = (18 if t == SOUND else 0) + 1      # fx override
+    p = (wbank.sound_base(body) if t == SOUND else 0) + 1  # fx override
     n, p = body[p], p + 1
     p += 1 + 6 * n if n else 0             # bypass bits + effects
     p += 1                                  # metadata fx override
@@ -547,6 +576,9 @@ class Found:
     settings: dict = field(default_factory=dict)  # {the game's object: {prop id: the mod's value, or None}} (Project.settings)
     left: list = field(default_factory=list)      # what can't be brought in, in words for people
     stale: set = field(default_factory=set)       # the game's Sounds of an older version that the mod's copies still have
+    older: set = field(default_factory=set)       # the game's objects (and clips) that the mod's copies have as an older version had them
+    merged: set = field(default_factory=set)      # the game's objects whose copy is another bank's (a merging tool's)
+    banks: set = field(default_factory=set)       # the game's banks the patch has (Project.imported_banks)
 
 
 NO_HISTORY = (frozenset(), frozenset(), {})
@@ -633,17 +665,28 @@ def from_patch(ix, d: dict) -> Found:
     Sound's, a container's or a MusicTrack's prop bundle: Make-Up Gain, delays, sends...) are `settings`. What
     doesn't map (other changes, objects of other kinds) is said in `left`. A patch made for an older game version
     still has the game's objects of that version: those aren't the mod's (older_version), its Sounds are counted in
-    `stale`, the objects the game added since aren't ones the mod took out, and an object exactly as an earlier
-    version had it (bank_history's fingerprints) isn't one the mod changed."""
-    out, seen = Found(), set()
+    `stale`, the objects the game added since aren't ones the mod took out, nor the settings it added ones the mod
+    took away, and an object exactly as an earlier version had it (bank_history's fingerprints), under another parent
+    or an actor-mixer with other base params (base_differs) isn't one the mod changed (`older`), and neither is a
+    clip with the game's own audio in another file (same_audio). Of the settings, only those a mod sets are its
+    (wbank.MIX_PROPS), and none of a shared copy that lacks one of the game's. A copy that is another bank's, as the
+    game has it there now or had it, is a merging tool's (`merged`)."""
+    out, seen, same = Found(banks=set(d["banks"])), set(), set()  # same: the game's clips the mod's banks hold in an older file
     game = lambda sid: sid in ix.holders or sid in ix.users
+    read = {}
+
+    def game_hirc(bid):  # another bank's objects, read once
+        if bid not in read:
+            read[bid] = wbank.parse(ix.bank_files(bid)[0])[1]
+        return read[bid]
+
     out.left += [f"bank {bid}, which this version of the game doesn't have" for bid in d.get("unknown", [])]
     for bid, b in d["banks"].items():
         (media, hirc), (vmedia, vanilla) = b["read"]
         older = older_version(ix, bid, hirc, b["added"])
         out.stale |= {i for i in older if hirc[i][0] == SOUND}
         added = set(b["added"]) - older
-        _, newer, before = bank_history().get(bid, NO_HISTORY)
+        before = bank_history().get(bid, NO_HISTORY)[2]
         # an object exactly as an earlier game version had it: the mod's copy is that version's, not a change of the
         # mod's (no settings either: the game changed them since)
         as_was = {i for _, i in b["objects"] if wbank.fingerprint(*hirc[i]) in before.get(i, ())}
@@ -651,11 +694,28 @@ def from_patch(ix, d: dict) -> Found:
         # do, so the copy is an older version's (covers versions the history has no fingerprints of)
         as_was |= {i for _, i in b["objects"] if i in vanilla and (t := hirc[i][0]) == vanilla[i][0]
                    and t in (SOUND, *CONTAINERS) and parent_of(t, hirc[i][1]) != parent_of(t, vanilla[i][1])}
-        removed = [i for i in b["removed"] if i not in newer]  # the rest came into the game after the mod was made
+        # an actor-mixer whose base params differ beyond its settings (curves, effects, positioning): the game's
+        # shared parents (one is in every weapon bank) change so in updates, and mods set at most their settings. Its
+        # settings are that version's too: carried onto today's, a stale one can mute what plays under it
+        as_was |= {i for _, i in b["objects"] if hirc[i][0] == MIXER and i in vanilla
+                   and base_differs(MIXER, vanilla[i][1], hirc[i][1])}
+        # another bank's copy: a tool that merges the copies of an object writes one bank's into the others, where the
+        # game's differs (a Play action names its own bank, a container lists the children that bank has, a copy has
+        # other settings), now or as an earlier version had it there. The mod didn't change it, and the bank's own
+        # copy is used. (An object in more banks is a shared parent, which the checks above cover.)
+        merged = {i for _, i in b["objects"] if i in vanilla and i not in as_was and 1 < len(ix.copies(i)) <= 24
+                  and any(hirc[i] == game_hirc(c).get(i) or wbank.fingerprint(*hirc[i])
+                          in bank_history().get(c, NO_HISTORY)[2].get(i, ()) for c in ix.copies(i) if c != bid)}
+        out.merged |= merged
+        as_was |= merged
         audio = lambda sid: media.get(sid) if sid in media else (ix.wem(sid) if game(sid) else None)
         for m in b["media"]:
             if m in vmedia and game(m):
-                out.replaced.setdefault(m, media[m])
+                if same_audio(media[m], vmedia[m]):  # the game's clip in an older file: not the mod's audio
+                    out.older.add(m)
+                    same.add(m)
+                else:
+                    out.replaced.setdefault(m, media[m])
         explained = added | older | as_was
         new_cntr = {i for i in added if hirc[i][0] == RANSEQ}
         layer_takes = {n: [] for n in new_cntr}
@@ -699,7 +759,7 @@ def from_patch(ix, d: dict) -> Found:
                 continue
             old, new = wbank.SOURCE.unpack_from(vanilla[i][1], 0)[2], wbank.SOURCE.unpack_from(body, 0)[2]
             if old == new:
-                if old in out.replaced and body[18:] == vanilla[i][1][18:]:
+                if (old in out.replaced or old in same) and body[18:] == vanilla[i][1][18:]:
                     explained.add(i)  # only its size follows the replaced clip
                 continue
             explained.add(i)
@@ -709,27 +769,39 @@ def from_patch(ix, d: dict) -> Found:
                 seen.add(i)
                 out.own.append((i, new, wem))
         for t, i in b["objects"]:  # a music track that plays a replaced clip: its sizes follow the clip
-            if t == "MusicTrack" and set(wbank.source_ids(MUSIC_TRACK, hirc[i][1])) & set(out.replaced):
+            if t == "MusicTrack" and set(wbank.source_ids(MUSIC_TRACK, hirc[i][1])) & (set(out.replaced) | same):
                 explained.add(i)
         for _, i in b["objects"]:  # the mod's settings on the game's objects
             t, body = hirc[i]
             if i not in vanilla or vanilla[i][0] != t or t not in wbank.SETTABLE or i in as_was:
                 continue
             if changes := wbank.prop_changes(t, vanilla[i][1], body):
-                out.settings.setdefault(i, changes)
+                # a setting the copy doesn't have is one the game added since (mods set, they don't take away), so
+                # the copy is an older version's: of its values only what a mod sets of how a sound plays is the
+                # mod's (wbank.MIX_PROPS; the rest is the game's mix as it was), and where other banks have it too,
+                # nothing (carried onto every copy, a stale value changes sounds far beyond the mod). A whole copy
+                # that other banks share gives only those settings as well, and one in the mod's banks alone all
+                lacks, shared = None in changes.values(), bool(set(ix.copies(i)) - set(d["banks"]))
+                kept = {} if lacks and shared else {k: v for k, v in changes.items() if v is not None and
+                                                    (k in wbank.MIX_PROPS or not (lacks or shared))}
+                if kept:
+                    out.settings.setdefault(i, kept)
+                if kept != changes:
+                    out.older.add(i)
                 if i in explained:
                     continue
                 now = wbank.with_props(t, vanilla[i][1], changes)
-                at = 18 if t == SOUND and wbank.SOURCE.unpack_from(body, 0)[2] in out.replaced else 0  # its size follows the clip
+                clip = wbank.SOURCE.unpack_from(body, 0)[2] if t == SOUND else None
+                at = 18 if clip in out.replaced or clip in same else 0  # its size follows the clip
                 if now[at:] == body[at:]:
                     explained.add(i)
         if older:  # an object that names one of the older version's (a container listing it) is that version's too
             names_older = lambda body: any(struct.unpack_from("<I", body, k)[0] in older for k in range(len(body) - 3))
             explained.update(i for _, i in b["objects"] if i not in explained and names_older(hirc[i][1]))
+        out.older |= as_was - merged
         other = [i for t, i in b["objects"] if i not in explained]
         if other:
             out.left.append(f"{len(other)} other change{'s' if len(other) != 1 else ''} in bank {bid} (effects, "
                             f"positioning, how a container picks its sounds, and similar settings)")
-        if removed:
-            out.left.append(f"{len(removed)} objects the patch takes out of bank {bid}")
+        # objects the copy doesn't have aren't listed: mods don't take the game's out, so the game added them since
     return out

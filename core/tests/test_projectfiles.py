@@ -1,0 +1,220 @@
+"""A project's folder (projectfiles.py): new projects in a folder of their own, moving one there, unused files,
+collecting files from elsewhere, packs. None of it needs the game."""
+import json
+import wave
+import zipfile
+
+import pytest
+
+from audiodiver import projectfiles as pf
+from audiodiver.editor import EditorError, Session, _digest
+from audiodiver.project import Project
+
+
+def _wav(path, seconds=0.2):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with wave.open(str(path), "wb") as w:
+        w.setnchannels(1); w.setsampwidth(2); w.setframerate(48000)
+        w.writeframes(bytes(int(48000 * seconds) * 2))
+    return path
+
+
+@pytest.fixture(autouse=True)
+def _no_recycle_bin(monkeypatch):
+    """Removed files are deleted, not sent to the Recycle Bin of the person running the tests."""
+    def unlink(paths):
+        for p in paths:
+            p.unlink()
+        return []
+    monkeypatch.setattr(pf, "recycle", unlink)
+
+
+def _session(audi, name="M"):
+    s = Session(load=False)
+    s.new_project(audi, name)
+    return s
+
+
+def _assign(s, sid, path):
+    return s._edit("assign", lambda p: s._set(p, sid, str(path)))
+
+
+def test_a_new_project_gets_a_folder_of_its_own(tmp_path):
+    s = Session(load=False)
+    st = s.new_project(tmp_path / "Dune.audi", "Dune", folder=True)
+    assert st["path"] == str(tmp_path / "Dune" / "Dune.audi") and st["own_folder"]
+    # a folder named like the project already is its folder
+    st = Session(load=False).new_project(tmp_path / "Mine" / "mine.audi", "Mine", folder=True)
+    assert st["path"] == str(tmp_path / "Mine" / "mine.audi")
+    with pytest.raises(EditorError, match="already exists"):
+        Session(load=False).new_project(tmp_path / "Dune.audi", "Dune", folder=True)
+    assert Session(load=False).projects_folder() == str(tmp_path)  # the next one is offered the same place
+
+
+def test_a_project_beside_another_is_not_in_its_own_folder(tmp_path):
+    a = _session(tmp_path / "a.audi")
+    assert a.project_state()["own_folder"]  # named differently, but alone in it
+    _session(tmp_path / "b.audi")
+    st = a.project_state()
+    assert not st["own_folder"] and st["folder_projects"] == 1
+
+
+def test_slices_and_imports_go_into_the_audio_folder(tmp_path):
+    from audiodiver import audio
+    song = _wav(tmp_path / "music" / "song.wav", 1.0)
+    d = audio.slice_folder(tmp_path / "proj", song)
+    assert d.parent == tmp_path / "proj" / "audio" / "slices" and d.name.startswith("song-")
+    assert audio.slice_folder(tmp_path / "proj", song, legacy=True).parent == tmp_path / "proj" / "slices"
+    # two mods' patches of the same archive get folders of their own
+    one, two = tmp_path / "x" / "9ba6.patch_0", tmp_path / "y" / "9ba6.patch_0"
+    for p, data in ((one, b"mod one"), (two, b"mod two")):
+        p.parent.mkdir()
+        p.write_bytes(data)
+    alone = _digest(one)
+    assert alone != _digest(two)
+    (one.parent / "9ba6.patch_0.stream").write_bytes(b"audio")  # the .stream counts too
+    assert _digest(one) != alone
+
+
+def test_moving_a_project_into_its_own_folder(tmp_path):
+    """The project file moves into a new folder beside it, with what Audiodiver made for it; a slice another project
+    there uses is copied, the rest moved; files a person picked stay and the project points at them; builds go too.
+    Undo still finds every file."""
+    mine = _wav(tmp_path / "slices" / "song-abc" / "k1" / "01 song.wav")
+    shared = _wav(tmp_path / "slices" / "song-abc" / "k1" / "02 song.wav")
+    (tmp_path / "slices" / "song-abc" / "cuts.json").write_text("{}")
+    picked = _wav(tmp_path / "my music" / "drop.wav")
+    old_take = _wav(tmp_path / "imported" / "9ba6-1234abcd" / "77.wav")
+    other = _session(tmp_path / "other.audi", "Other")
+    _assign(other, 2, shared)
+    s = _session(tmp_path / "auditest.audi", "Unwise test")
+    _assign(s, 9, old_take)
+    s.unassign([9])  # only its undo history uses it now
+    _assign(s, 1, mine)
+    _assign(s, 2, shared)
+    _assign(s, 3, picked)
+    (tmp_path / "build").mkdir()
+    (tmp_path / "build" / "unwise_test-1.zip").write_bytes(b"zip")
+    (tmp_path / "build" / "other-1.zip").write_bytes(b"zip")
+
+    st = s.move_to_own_folder()
+    home = tmp_path / "auditest"
+    assert st["path"] == str(home / "auditest.audi") and st["own_folder"]
+    assert not (tmp_path / "auditest.audi").exists()
+    saved = json.loads((home / "auditest.audi").read_text())
+    audio = {r["target"]: r["audio"] for r in saved["replacements"]}
+    assert audio == {"1": "audio/slices/song-abc/k1/01 song.wav", "2": "audio/slices/song-abc/k1/02 song.wav",
+                     "3": "../my music/drop.wav"}
+    assert (home / "audio" / "slices" / "song-abc" / "cuts.json").exists()
+    assert not mine.exists() and shared.exists()  # the other project's slice stays where it uses it
+    assert picked.exists() and not old_take.exists() and (home / "audio" / "imported" / "9ba6-1234abcd" / "77.wav").exists()
+    assert (home / "build" / "unwise_test-1.zip").exists() and (tmp_path / "build" / "other-1.zip").exists()
+    assert not st["problems"]
+    st = s.undo()  # the slot of 9 had: its audio is in the new folder too
+    st = s.undo(); st = s.undo(); st = s.undo()
+    assert st["assignments"]["9"]["exists"]
+    with pytest.raises(EditorError, match="already"):
+        s.move_to_own_folder()
+
+
+def test_moving_a_project_with_nothing_to_carry(tmp_path):
+    """A project whose audio all stays outside its folder, beside another project, still gets its folder."""
+    elsewhere = _wav(tmp_path / "music" / "drop.wav")
+    _session(tmp_path / "other.audi", "Other")
+    s = _session(tmp_path / "mine.audi", "Mine")
+    _assign(s, 1, elsewhere)
+    st = s.move_to_own_folder()
+    assert st["path"] == str(tmp_path / "mine" / "mine.audi") and st["own_folder"]
+    saved = json.loads((tmp_path / "mine" / "mine.audi").read_text())
+    assert saved["replacements"][0]["audio"] == "../music/drop.wav"
+    assert elsewhere.exists()
+    assert not (tmp_path / "mine.audi").exists()
+
+
+def test_unused_files_are_those_nothing_uses(tmp_path):
+    used = _wav(tmp_path / "p" / "audio" / "slices" / "s-1" / "a" / "01 s.wav")
+    _wav(tmp_path / "p" / "audio" / "slices" / "s-1" / "b" / "01 s.wav")  # a set of cuts made before
+    (tmp_path / "p" / "audio" / "slices" / "s-1" / "cuts.json").write_text("{}")
+    gone = _wav(tmp_path / "p" / "audio" / "slices" / "t-2" / "a" / "01 t.wav")
+    (tmp_path / "p" / "audio" / "slices" / "t-2" / "cuts.json").write_text("{}")
+    undone = _wav(tmp_path / "p" / "audio" / "added" / "u.wav")
+    mine = _wav(tmp_path / "p" / "keep me.wav")  # not in Audiodiver's folders: never listed
+    s = _session(tmp_path / "p" / "p.audi")
+    _assign(s, 1, used)
+    _assign(s, 2, undone)
+    s.undo()
+    found = {f["rel"] for f in s.unused_files()["files"]}
+    assert found == {"audio/slices/s-1/b/01 s.wav", "audio/slices/t-2/a/01 t.wav", "audio/slices/t-2/cuts.json"}
+    got = s.remove_unused_files([str(tmp_path / "p" / "audio" / "slices" / "t-2" / "cuts.json"), str(gone), str(mine)])
+    assert got["removed"] == 2 and not (tmp_path / "p" / "audio" / "slices" / "t-2").exists() and mine.exists()
+    assert {f["rel"] for f in s.unused_files()["files"]} == {"audio/slices/s-1/b/01 s.wav"}
+
+
+def test_unused_files_leave_what_another_project_uses(tmp_path):
+    theirs = _wav(tmp_path / "slices" / "s-1" / "a" / "01 s.wav")
+    other = _session(tmp_path / "other.audi")
+    _assign(other, 1, theirs)
+    s = _session(tmp_path / "mine.audi")
+    assert s.unused_files()["files"] == []
+    (tmp_path / "broken.audi").write_text("not json")
+    with pytest.raises(EditorError, match="can't be read"):
+        s.unused_files()
+
+
+def test_collecting_copies_files_from_elsewhere_into_the_project(tmp_path):
+    a = _wav(tmp_path / "music" / "a.wav")
+    b = _wav(tmp_path / "other music" / "a.wav", 0.3)  # the same name, other audio
+    inside = _wav(tmp_path / "p" / "c.wav")
+    s = _session(tmp_path / "p" / "p.audi")
+    for sid, f in ((1, a), (2, b), (3, inside)):
+        _assign(s, sid, f)
+    assert s.project_state()["files_elsewhere"] == 2
+    st = s.collect_files()
+    assert st["collected"] == 2 and st["files_elsewhere"] == 0 and st["undo_label"] == "collect"
+    names = sorted(x["audio"] for x in st["assignments"].values())
+    assert names == ["audio/added/a 2.wav", "audio/added/a.wav", "c.wav"]
+    assert s.collect_files()["collected"] == 0
+    assert s.undo()["files_elsewhere"] == 2
+    assert s.collect_files()["collected"] == 2  # the copies there are the same files: no third copy
+    assert sorted(f.name for f in (tmp_path / "p" / "audio" / "added").iterdir()) == ["a 2.wav", "a.wav"]
+
+
+def test_a_pack_holds_the_project_and_what_it_uses(tmp_path):
+    outside = _wav(tmp_path / "music" / "drop.wav")
+    piece = _wav(tmp_path / "p" / "audio" / "slices" / "s-1" / "k" / "01 s.wav")
+    (tmp_path / "p" / "audio" / "slices" / "s-1" / "cuts.json").write_text("{}")
+    _wav(tmp_path / "p" / "audio" / "slices" / "s-1" / "old" / "01 s.wav")  # unused: stays out
+    s = _session(tmp_path / "p" / "p.audi", "Pack me")
+    _assign(s, 1, outside)
+    _assign(s, 2, piece)
+    s.project.build_folder = "../builds"
+    got = pf.pack(s.project.to_json(), tmp_path / "p", "p", tmp_path / "p.audipack")
+    assert got == {"files": 3, "missing": 0, "bytes": (tmp_path / "p.audipack").stat().st_size}
+    with zipfile.ZipFile(tmp_path / "p.audipack") as z:
+        assert sorted(z.namelist()) == ["p/audio/added/drop.wav", "p/audio/slices/s-1/cuts.json",
+                                        "p/audio/slices/s-1/k/01 s.wav", "p/p.audi"]
+        d = json.loads(z.read("p/p.audi"))
+    assert sorted(r["audio"] for r in d["replacements"]) == ["audio/added/drop.wav", "audio/slices/s-1/k/01 s.wav"]
+    assert d["build_folder"] == ""
+
+    into = tmp_path / "unpacked"
+    first, second = pf.unpack(tmp_path / "p.audipack", into), pf.unpack(tmp_path / "p.audipack", into)
+    assert first == into / "p" / "p.audi" and second == into / "p 2" / "p 2.audi"
+    q = Project.load(second)
+    assert q.name == "Pack me" and not q.problems()
+
+
+def test_a_pack_that_writes_outside_its_folder_is_refused(tmp_path):
+    bad = tmp_path / "bad.audipack"
+    with zipfile.ZipFile(bad, "w") as z:
+        z.writestr("p/p.audi", json.dumps(Project(name="P").to_json()))
+        z.writestr("p/../../evil.txt", "x")
+    with pytest.raises(pf.FilesError, match="outside"):
+        pf.unpack(bad, tmp_path / "out")
+    two = tmp_path / "two.audipack"
+    with zipfile.ZipFile(two, "w") as z:
+        z.writestr("a/a.audi", json.dumps(Project(name="A").to_json()))
+        z.writestr("b/b.audi", json.dumps(Project(name="B").to_json()))
+    with pytest.raises(pf.FilesError, match="more than one"):
+        pf.unpack(two, tmp_path / "out")
+    assert not (tmp_path / "out").exists() or not any((tmp_path / "out").iterdir())

@@ -9,6 +9,8 @@ import { ItemActions, ItemHead, PartTabs } from "./ItemHead";
 import { keyHint, keyLabel, useCommands, useKeymap } from "./keys";
 import { coverage, COVERAGE, heldBy, isMusicItem, listedBanks, listName, statusOf, where } from "./music";
 import { nav as tabs } from "./nav";
+import { NoteButton } from "./Notes";
+import { noteKeys } from "./noteStore";
 import { copyText, fullPath, pickAudio, reveal } from "./platform";
 import { PlayThrough, type Mark as ThroughMark, type Through } from "./PlayThrough";
 import { player, usePlayerLook, type PlayedAt } from "./player";
@@ -610,6 +612,7 @@ const GroupHead = memo(function GroupHead({ row, open, shown, status, itemId, cu
         {seg.added === "layer" && <span className="tag new" data-tip={LAYER_TIP}>layer</span>}
         {shared > 0 && <Linked tip={`Its audio is also in ${shared} other bank${shared === 1 ? "" : "s"}. New audio on its takes plays there too`}><OtherBanks n={shared} /></Linked>}
         {status !== "na" && <Mark status={status} />}
+        {!readOnly && seg.key && <NoteButton k={noteKeys.group(seg.key)} name={seg.name} />}
         <AddButton row={row} on={on} />
       </span>
     </div>
@@ -698,6 +701,7 @@ const SlotRow = memo(function SlotRow({ row, a, selected, now, itemId, cueId, on
             <NoteTags slot={slot} />
             {(seg.tags ?? []).map((t) => <CatTag key={t.item ?? t.name} tag={t} />)}
             {also > 0 && <Linked>{banks >= also ? <OtherBanks n={also} /> : `+${also} ${banks ? "more" : `cue${also > 1 ? "s" : ""}`}`}</Linked>}
+            {!readOnly && <NoteButton k={noteKeys.clip(slot.source)} name={what} />}
             <AddButton row={row} on={on} />
           </span>
           {!seg.added && <SlotId id={slot.source} />}
@@ -707,7 +711,12 @@ const SlotRow = memo(function SlotRow({ row, a, selected, now, itemId, cueId, on
         {/* the original plays from the start of the line, as it does on a group's line and in the lists */}
         <PlayButton kind="vanilla" source={slot.source} label="the original" what={what} onPlay={onSelect} at={at} disabled={slot.absent || !!slot.added} />
         <div className="slot-text">
-          {inGroup ? null : row.firstOfSeg ? <span className="seg-name">{seg.name}</span> : <span className="seg-cont" aria-hidden />}
+          {inGroup ? null : row.firstOfSeg ? (
+            <span className="seg-name">{seg.name}
+              {/* a music segment of several slots has a note of its own; one of a single slot shares the slot's */}
+              {!readOnly && !seg.group && seg.segment && row.takes > 1 && <NoteButton k={noteKeys.segment(seg.segment)} name={seg.name} />}
+            </span>
+          ) : <span className="seg-cont" aria-hidden />}
           <span className="slot-sub" data-tip={label ? [label, slot.variant].filter(Boolean).join(" · ") : undefined} data-tip-clip>
             {label && <span className={`slot-label${label.length < 16 ? " nowrap" : ""}`}>{label}</span>}{slot.variant && <span className="tag">{slot.variant}</span>}
             {loops && <span className="tag">{loops}</span>}
@@ -725,6 +734,7 @@ const SlotRow = memo(function SlotRow({ row, a, selected, now, itemId, cueId, on
             )}
           </span>
         </div>
+        {!readOnly && <NoteButton k={noteKeys.clip(slot.source)} name={what} />}
         <SlotId id={slot.source} />
       </div>
       )}

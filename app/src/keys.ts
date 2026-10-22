@@ -9,7 +9,7 @@ export type CommandId =
   | "silence"
   | "search" | "back" | "forward"
   | "save" | "undo" | "redo" | "build" | "newProject" | "openProject" | "closeProject"
-  | "tabHome" | "tabLibrary" | "tabEditor" | "tabText" | "tabBuild" | "updates" | "wiki" | "settings" | "shortcuts";
+  | "tabHome" | "tabProject" | "tabLibrary" | "tabEditor" | "tabText" | "tabBuild" | "updates" | "wiki" | "settings" | "shortcuts";
 
 export type Command = {
   id: CommandId; group: string; label: string;
@@ -49,10 +49,11 @@ export const COMMANDS: Command[] = [
   { id: "closeProject", group: "Project", label: "Close the project", keys: [] },
 
   { id: "tabHome", group: "Tabs", label: "Go to Home", keys: ["Ctrl+1"], inputs: true },
-  { id: "tabLibrary", group: "Tabs", label: "Go to the Library", keys: ["Ctrl+2"], inputs: true },
-  { id: "tabEditor", group: "Tabs", label: "Go to the Audio Editor", keys: ["Ctrl+3"], inputs: true },
-  { id: "tabText", group: "Tabs", label: "Go to the Text Editor", keys: ["Ctrl+4"], inputs: true },
-  { id: "tabBuild", group: "Tabs", label: "Go to Build", keys: ["Ctrl+5"], inputs: true },
+  { id: "tabProject", group: "Tabs", label: "Go to Project", keys: ["Ctrl+2"], inputs: true },
+  { id: "tabLibrary", group: "Tabs", label: "Go to the Library", keys: ["Ctrl+3"], inputs: true },
+  { id: "tabEditor", group: "Tabs", label: "Go to the Audio Editor", keys: ["Ctrl+4"], inputs: true },
+  { id: "tabText", group: "Tabs", label: "Go to the Text Editor", keys: ["Ctrl+5"], inputs: true },
+  { id: "tabBuild", group: "Tabs", label: "Go to Build", keys: ["Ctrl+6"], inputs: true },
   { id: "updates", group: "Tabs", label: "Open or close Updates", keys: [], inputs: true },
   { id: "wiki", group: "Tabs", label: "Open or close the Wiki", keys: ["F1"], inputs: true },
   { id: "settings", group: "Tabs", label: "Open or close Settings", keys: ["Ctrl+,"], inputs: true },

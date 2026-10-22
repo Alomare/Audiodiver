@@ -187,6 +187,7 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color])
 .pop-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 .pop-head h2 { font-size: calc(17px * var(--fs)); }
 .problems { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: calc(14px * var(--fs)); overflow-wrap: anywhere; }
+.unused-list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: calc(13px * var(--fs)); color: var(--muted); overflow-wrap: anywhere; }
 .log { display: flex; flex-direction: column; gap: 12px; }
 .log-head { font-size: calc(13px * var(--fs)); color: var(--muted); margin-bottom: 4px; }
 .log-job.failed .log-head { color: var(--red); }
@@ -929,7 +930,9 @@ kbd.none { color: var(--faint); font-weight: 400; }
    to Ko-fi on the left, the picture controls (previous, how long until the next, next; only with more than one
    picture) on the right. The logos keep their brands' own colours (their brand rules). The row lets clicks and the
    wheel through between its buttons. */
-.home { --home-m: calc(64px * var(--sp)); --ticker-h: calc(35px * var(--fs)); }
+/* Home is laid out at Compact's spacing whatever Settings ▸ Theme ▸ Spacing says (theme.ts DENSITIES): the menu
+   was drawn for it, and wider gaps pull its strips apart */
+.home { --sp: .55; --home-m: calc(64px * var(--sp)); --ticker-h: calc(35px * var(--fs)); }
 .home-corner { position: absolute; left: var(--home-m); right: var(--home-m); bottom: calc(var(--ticker-h) + 12px); z-index: 2;
   display: flex; align-items: center; justify-content: space-between; gap: 8px; pointer-events: none; }
 .home-corner > * { pointer-events: auto; }
@@ -1063,6 +1066,8 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .rp-mod + .rp-mod { border-top: 1px solid var(--line-soft); padding-top: 14px; }
 .rp-mod p { margin: 0; overflow-wrap: anywhere; }
 .rp-mod .info-box { margin: 0; }
+.rp-found { display: flex; flex-direction: column; margin-top: 14px; }
+.rp-found .rp-mod ul { margin: 6px 0 0; padding-left: 18px; color: var(--muted); font-size: calc(13px * var(--fs)); }
 .rp-mod .info-box ul, .rp-made .warn-box ul { margin: 4px 0 0; padding-left: 18px; }
 .rp-log summary { cursor: pointer; color: var(--muted); font-size: calc(13px * var(--fs)); }
 .rp-log pre { margin: 8px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; font: calc(13px * var(--fs))/1.5 var(--body); background: var(--bg); padding: 8px 10px; max-height: 300px; overflow: auto; }
@@ -1504,3 +1509,33 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .tx-bar .tx-size { width: calc(62px * var(--fs)); flex: none; }
 .home-scroll:focus-visible { outline: 2px solid var(--second-fg); outline-offset: -2px; }
 .len.mine-len.short { color: var(--red); font-weight: 600; }
+
+/* Notes (Notes.tsx): the button on a row shows while the pointer or the keyboard is on the row, and stays, in a
+   lighter grey, once a note is written */
+.note-btn { display: inline-grid; place-items: center; flex: none; width: calc(18px + 4px * var(--sp)); height: calc(18px + 4px * var(--sp));
+  border-radius: 2px; color: var(--faint); font-size: calc(14px * var(--fs)); line-height: 1; opacity: 0; vertical-align: middle;
+  transition: opacity var(--t1), background-color var(--t1), color var(--t1); }
+.note-btn.has { color: var(--muted); opacity: 1; }
+.slot:hover .note-btn, .slot.selected .note-btn, .grp:hover .note-btn, .mus-item:hover .note-btn,
+.lib-group-line:hover > .note-btn, .note-btn:focus-visible { opacity: 1; }
+.note-btn:hover { background: var(--hover); color: var(--text); }
+.seg-name .note-btn { margin-left: 4px; }
+.slot-name > .note-btn { margin-left: auto; align-self: center; } /* Compact lines a slot's name up by its baseline */
+.slot-name > .note-btn + .slot-id { margin-left: 2px; }
+.modal.notes-dlg { max-width: calc(640px * var(--fs)); gap: 14px; }
+.notes-dlg h2 { display: flex; align-items: baseline; gap: 10px; min-width: 0; font-size: calc(19px * var(--fs)); }
+.notes-dlg h2 small { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: calc(14px * var(--fs));
+  font-weight: 500; color: var(--muted); }
+.note-field { display: flex; flex-direction: column; gap: 6px; }
+.note-field-head { display: flex; align-items: center; gap: 10px; }
+.note-where { font-size: calc(13px * var(--fs)); color: var(--faint); }
+.note-mode { flex: none; width: calc(150px * var(--fs)); }
+.note-text, .note-preview { min-height: calc(130px * var(--fs)); max-height: 34vh; padding: 8px 10px; background: var(--bg);
+  border: 1px solid var(--line); border-radius: 2px; overflow: auto; }
+.note-text { width: 100%; resize: vertical; color: var(--text); line-height: 1.45; font-size: calc(14px * var(--fs)); }
+.note-preview.md { font-size: calc(14.5px * var(--fs)); line-height: 1.5; }
+.note-preview.md h2 { margin: 14px 0 6px; font-size: calc(19px * var(--fs)); }
+.note-preview.md h3 { margin: 12px 0 4px; font-size: calc(16px * var(--fs)); }
+.note-preview.md h4 { margin: 10px 0 4px; font-size: calc(14.5px * var(--fs)); }
+.note-empty { color: var(--faint); }
+.notes-hint { font-size: calc(12.5px * var(--fs)); color: var(--faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }

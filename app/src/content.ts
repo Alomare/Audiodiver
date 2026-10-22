@@ -22,9 +22,11 @@ export const DISCORD_URL = "https://discord.gg/helldiversmodding";
 export const KOFI_URL = "https://ko-fi.com/alomare";
 /** Divershub's news ticker, the stream overlay along the bottom of Home (its CSP frame-src is in tauri.conf.json). */
 export const TICKER_URL = "https://divershub.app/overlay/ticker";
-/** Apply biome music fix (Build ▸ Project's Build options, and Build ▸ Repatch): its "?" and the Wiki section. */
+/** Apply biome music fix (Build ▸ This project's Build options, and Build ▸ Repatch): its "?" and the Wiki section. */
 export const BIOME_FIX_TIP = "Adds the Sound Systems Rebalanced Patch, which fixes the music that stays silent after a drop on seven planet biomes. Where it no longer fits the game's banks, the build goes on without it.";
 export const BIOME_FIX_PAGE = "build-and-install#sound-systems-rebalanced-patch";
+/** Patch every bank with the sounds (the same two places). */
+export const EVERY_BANK_PAGE = "build-and-install#every-bank-with-the-sounds";
 
 /** "2026-10-05" as "5 Oct 2026"; anything else as it is. */
 export function fmtDate(iso: string) {

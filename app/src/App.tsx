@@ -7,11 +7,13 @@ import { CueView } from "./CueView";
 import { ExportListDialog } from "./ExportDialog";
 import { useExportList } from "./exportList";
 import { Home } from "./Home";
-import { AudioIcon, BuildIcon, CheckIcon, CopyIcon, GearIcon, GuideIcon, HomeIcon, InfoIcon, LibraryIcon, PlusIcon, RedoIcon, SaveIcon,
-  TextIcon, UndoIcon, UpdatesIcon } from "./Icons";
+import { AudioIcon, BuildIcon, CheckIcon, CopyIcon, GearIcon, GuideIcon, HomeIcon, InfoIcon, LibraryIcon, PlusIcon,
+  ProjectIcon, RedoIcon, SaveIcon, TextIcon, UndoIcon, UpdatesIcon } from "./Icons";
 import { Inspector } from "./Inspector";
 import { LibraryPanel, ProjectPanel } from "./Library";
 import { Logo } from "./Logo";
+import { NotesDialog } from "./Notes";
+import { ProjectTab } from "./ProjectTab";
 import { tabArrows } from "./Page";
 import { SettingsTab } from "./SettingsTab";
 import { TextTab } from "./TextTab";
@@ -25,7 +27,7 @@ import { JOB_NAMES } from "./jobs";
 import { useCommands, type CommandId } from "./keys";
 import { counted } from "./music";
 import { nav, useNav, type Tab } from "./nav";
-import { expandDropped, isImage, isTauri, onFileDrop, setTitle } from "./platform";
+import { expandDropped, isImage, isTauri, onFileDrop, onOpenFile, setTitle } from "./platform";
 import { player, usePlayer } from "./player";
 import { Splitter } from "./Resize";
 import { RESET_LAYOUT } from "./settings";
@@ -129,13 +131,15 @@ function Shell() {
     }
     const paths = await expandDropped(raw);
     const patch = paths.find((p) => /\.patch_\d+$/i.test(p));
+    const pack = paths.find((p) => /\.audipack$/i.test(p));
     const proj = paths.find((p) => /\.audi$/i.test(p));
     const images = paths.filter(isImage);
-    const audio = paths.filter((p) => !/\.(patch_\d+|audi)$/i.test(p) && !isImage(p));
+    const audio = paths.filter((p) => !/\.(patch_\d+|audi|audipack)$/i.test(p) && !isImage(p));
+    if (pack) return actions.openPack(pack);
     if (proj) return actions.openProject(proj);
     if (patch) return actions.importPatch(patch);
     if (target?.kind === "icon") return images.length ? actions.setIcon(images[0]) : quick("Drop an image here to make it the icon", "info");
-    if (!audio.length) return quick(images.length ? "Drop images on the icon on the Build tab" : "No audio files in the drop", "info");
+    if (!audio.length) return quick(images.length ? "Drop images on the icon on the Project tab" : "No audio files in the drop", "info");
     // only the Editor has places to drop audio onto: a slot, a group of takes, a cue, a piece of music
     if (target?.kind === "slot") { scopes.editor.setSelected([target.source]); return actions.assign(target.source, audio); }
     if (target?.kind === "sources") return actions.fillSources(target.sources, audio, target.what);
@@ -171,6 +175,17 @@ function Shell() {
     window.addEventListener("dragover", block); window.addEventListener("drop", block);
     return () => { off(); window.removeEventListener("dragover", block); window.removeEventListener("drop", block); };
   }, [quick]);
+
+  // a project or a pack opened in Explorer while the window runs: the shell hands over its path, and the newest
+  // actions open it (the ref keeps the listener from holding an old one). The file the exe was started with is the
+  // store's, at startup, so that it opens instead of the last project.
+  const openFile = useRef<(path: string) => void>(() => {});
+  openFile.current = (path) => { if (/\.audipack$/i.test(path)) actions.openPack(path); else actions.openProject(path); };
+  useEffect(() => {
+    let off = () => {};
+    onOpenFile((path) => openFile.current(path)).then((f) => { off = f; });
+    return () => off();
+  }, []);
 
   // closing the window while a build or export runs asks first: closing stops the core, and the job with it
   const running = useRef<string[]>([]);
@@ -234,6 +249,7 @@ function Shell() {
       else return false;
     },
     tabHome: () => nav.go("home"),
+    tabProject: () => nav.go("project"),
     tabLibrary: () => nav.go("library"),
     tabEditor: () => nav.go("editor"),
     tabBuild: () => nav.go("build"),
@@ -279,6 +295,7 @@ function Shell() {
           );
         })}
         {tab === "home" && <Home />}
+        {tab === "project" && <ProjectTab />}
         {(tab === "text" || textSeen) && <TextTab hidden={tab !== "text"} />}
         {tab === "build" && <BuildTab />}
         {tab === "updates" && <UpdatesTab />}
@@ -289,6 +306,7 @@ function Shell() {
       <Notices />
       <AboutDialog />
       <ConfirmDialog />
+      <NotesDialog />
       {prompt && <UpdatePrompt onClose={() => setPrompt(false)} />}
       <TooltipLayer />
     </div>
@@ -297,10 +315,11 @@ function Shell() {
 
 const TABS: { id: Tab; name: string; about: string; cmd: CommandId; Icon: () => React.JSX.Element }[] = [
   { id: "home", name: "Home", about: "projects", cmd: "tabHome", Icon: HomeIcon },
+  { id: "project", name: "Project", about: "name, icon and the project's files", cmd: "tabProject", Icon: ProjectIcon },
   { id: "library", name: "Library", about: "all the game's audio", cmd: "tabLibrary", Icon: LibraryIcon },
   { id: "editor", name: "Audio Editor", about: "replace what the project lists", cmd: "tabEditor", Icon: AudioIcon },
   { id: "text", name: "Text Editor", about: "subtitles and the rest of the game's text", cmd: "tabText", Icon: TextIcon },
-  { id: "build", name: "Build", about: "name, icon and the mod's ZIP", cmd: "tabBuild", Icon: BuildIcon },
+  { id: "build", name: "Build", about: "the mod's ZIP", cmd: "tabBuild", Icon: BuildIcon },
 ];
 
 /** The master tabs, down the left: an icon each with its name in the tooltip; Updates, the Wiki and Settings at the

@@ -74,6 +74,19 @@ The **waveforms** of the selected slot are shown here. The original is on top, a
 
 This panel holds the selected slot's settings. It shows what replaces the slot, which is either a file or silence. A file has a button that shows it in its folder, and silence has a timing choice. Below that are **Make-Up Gain** ([explained here](wiki:volume)), **Fit timing to the new audio**, the **cue points**, the notes and **Also plays in**. When several slots are selected, the panel sets their Make-Up Gain or silence together. Playing audio and choosing files are done on the slot's row.
 
+## Notes
+
+Anything in the Audio Editor can have notes: a category, section or item in the list on the left, and a group of sounds, a segment of music or a slot in the middle. The {icon:note} button appears when the pointer is on a row, and it stays, in a lighter grey, once a note is written. Its tooltip shows the note's first line.
+
+The button opens two notes on the same thing:
+
+- The **global note** appears in every project. It suits what is true of the game's sound, such as which take plays most often.
+- The **project note** is saved in the project file, so it goes wherever the file goes.
+
+Notes are written in Markdown. `#` starts a heading, `-` starts a list item, `**bold**` and `*italic*` mark words, and `[text](https://…)` makes a link. **Preview** shows the note as it reads. Closing the dialog saves both notes, and Undo takes back a change to the project note. The global notes are kept in `notes.json`, in Audiodiver's data folder beside the caches.
+
+A clip that plays in several places has one note, and every place shows it. A game update that gives a clip a new id leaves its note behind. The note stays in the file and shows again if the id comes back.
+
 ## The bars
 
 The bar on the left holds the tabs, with {icon:updates} Updates, the Wiki and Settings at the bottom. The open tab takes the colour of its page. Tabs inside a page, such as Index and All Archives, the parts of a piece, or the sections of Settings, are underlined instead. A dot on Updates means a new version of Audiodiver is available.

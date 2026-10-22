@@ -63,7 +63,7 @@ function UpdateCard({ u }: { u: UpdateState }) {
     tone = "new"; icon = <UpdatesIcon />;
     title = `${versionLabel(latest.version)} is available`;
     sub = [latest.date && `Released ${fmtDate(latest.date)}`, size && fmtBytes(size)].filter(Boolean).join(" · ");
-    action = <button className="btn primary" onClick={install}>Update now</button>;
+    action = <button className="btn primary" onClick={install}>{u.portable ? "Open the download page" : "Update now"}</button>;
   } else if (u.phase === "failed") {
     tone = "warn"; icon = <span className="upd-bang" aria-hidden>!</span>;
     title = CHECK_ERRORS[u.error ?? ""] ?? "Couldn't check for updates";
@@ -209,7 +209,7 @@ export function UpdatePrompt({ onClose }: { onClose: () => void }) {
           </div>
         </div>
         <div className="modal-foot">
-          <button className="btn primary" onClick={() => { onClose(); nav.go("updates"); install(); }}>Update now</button>
+          <button className="btn primary" onClick={() => { onClose(); nav.go("updates"); install(); }}>{updates.get().portable ? "Open the download page" : "Update now"}</button>
           <button className="btn" onClick={() => { onClose(); nav.go("updates"); }}>Read the changelog</button>
           <span className="spacer" />
           <button className="btn quiet" onClick={onClose}>Not now</button>

@@ -244,18 +244,20 @@ def write_patch(path, streams: dict[int, bytes], banks: dict[int, bytes], deps: 
 
 
 def build_patch(path, reps: list[Replacement], ix: AudioIndex, overrides=None, strings=None,
-                plan: addition.Plan | None = None, settings=None, biome_fix=False):
+                plan: addition.Plan | None = None, settings=None, biome_fix=False, where=None, set_where=None):
     """Patches every bank that holds or plays a replaced source, gets new audio (the plan; reps hold the new
     clips' audio too) or has an object with settings ({object id: {prop id: value or None}}: an imported mod's,
     applied before the replacements' gain and silence), and adds string tables ({file id: table bytes});
-    returns {bank id: BankEdit}. biome_fix: music_init starts from the fixed one (biome.py)."""
-    overrides, settings = overrides or {}, settings or {}
+    returns {bank id: BankEdit}. where ({source: banks}) and set_where ({object: banks}) keep a source or an
+    object to those banks (build.reach); a bank patched for something else still gets them where it has them.
+    biome_fix: music_init starts from the fixed one (biome.py)."""
+    overrides, settings, where, set_where = overrides or {}, settings or {}, where or {}, set_where or {}
     by_source = {r.source: r for r in reps}
     banks = set(plan.banks) if plan else set()
     for r in reps:
-        banks |= ix.banks_for(r.source)
+        banks |= where.get(r.source) or ix.banks_for(r.source)
     for oid in settings:
-        banks |= set(ix.copies(oid))
+        banks |= set_where.get(oid) or set(ix.copies(oid))
     new_banks, deps, edits = {}, {}, {}
     for bid in sorted(banks):
         raw, dep = ix.bank_files(bid)
@@ -328,11 +330,14 @@ def verify_strings(path, tables: dict[int, bytes]) -> list[str]:
     return problems
 
 
-def verify(path, reps: list[Replacement], ix: AudioIndex, plan: addition.Plan | None = None, settings=None) -> list[str]:
+def verify(path, reps: list[Replacement], ix: AudioIndex, plan: addition.Plan | None = None, settings=None,
+           where=None) -> list[str]:
     """Problems with a written patch: it must change only the replaced audio, its size fields, the timing of the
-    segments/tracks that play it, their gain and (silence) their Volume; add exactly what the plan adds, where it
-    belongs (addition.check); and give the objects with settings those settings (their Make-Up Gain and Volume a
+    segments/tracks that play it, their gain and (silence) their Volume; put the new audio in every bank that holds
+    the old (of those in where, {source: banks}, for a source kept to them); add exactly what the plan adds, where
+    it belongs (addition.check); and give the objects with settings those settings (their Make-Up Gain and Volume a
     replacement's gain or silence may set instead). Empty list = good."""
+    where = where or {}
     d, by_source, problems = diff(path, ix), {r.source: r for r in reps}, []
     settings = settings or {}
     for bid, b in d["banks"].items():
@@ -362,7 +367,8 @@ def verify(path, reps: list[Replacement], ix: AudioIndex, plan: addition.Plan | 
         elif data != by_source[sid].wem:
             problems.append(f"stream {fid} is not the encoded clip")
     for sid in by_source:
-        missing = [b for b in ix.holders.get(sid, ()) if b not in d["banks"] or sid not in d["banks"][b]["media"]]
+        missing = [b for b in ix.holders.get(sid, ()) if (sid not in where or b in where[sid])
+                   and (b not in d["banks"] or sid not in d["banks"][b]["media"])]
         if missing:
             problems.append(f"source {sid}: banks still holding the original audio {missing}")
     other = {t for b in d["banks"].values() for t, _ in b["objects"]} - {"MusicSegment", "MusicTrack", "Sound"}

@@ -320,6 +320,25 @@ class Library:
         """Every sound of an item, over all its parts."""
         return {s for p in self.item(iid)["parts"] for s in self.cue_sources(p["cue"])}
 
+    def banks(self, ids) -> set[int]:
+        """The banks of the items with these ids (a project's list): a sound set's or an archive's own banks, and
+        every bank that has a piece of music's sounds or a single sound. An id this game version has nothing for
+        adds none."""
+        out = set()
+        for iid in ids:
+            try:
+                parts = self.item(self.renamed.get(iid, iid))["parts"]
+            except KeyError:
+                continue
+            for p in parts:
+                kind, _, key = p["cue"].partition(":")
+                if kind == "bank":
+                    out.add(int(key))
+                elif kind != "streams":
+                    for s in self.cue_sources(p["cue"]):
+                        out |= self.ix.banks_for(s)
+        return out
+
     # --- a bank's sounds, as something to open
     def view(self, cue_id: str, added: "Added | None" = None) -> dict:
         """The cue-shaped view of `bank:<id>` or `streams:<archive>`, a bank's with the audio a project adds to it.
@@ -570,7 +589,7 @@ class Library:
             for k, r in enumerate(rows, 1):  # the takes of one sound, told apart by number where nothing says more
                 r["label"] = r["label"] or (f"Take {k}" if len(rows) > 1 else "")
             if key in layer_of:
-                layers.append((self._group("", rows, added="layer", container=str(key), beside=str(layer_of[key]),
+                layers.append((self._group("", rows, added="layer", container=str(key), key=str(key), beside=str(layer_of[key]),
                                            copies=len(self.ix.copies(layer_of[key])) - 1), key))
                 groups.append(layers[-1][0])
                 continue
@@ -590,7 +609,7 @@ class Library:
             named[key] = name
             more = ({"container": str(key), "layer": can_layer(key), "copies": len(self.ix.copies(key)) - 1}
                     if kinds.get(key) == RANSEQ else {})
-            groups.append(self._group(name, rows, **more))
+            groups.append(self._group(name, rows, **more, **({"key": str(key)} if key else {})))
         per_sound = collections.Counter(home.get(layer_of[k]) for _, k in layers)
         seen_layers = collections.Counter()
         for g, key in layers:  # "Sound 3 · Layer", or numbered when it has several

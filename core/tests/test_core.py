@@ -132,6 +132,38 @@ def test_project_round_trips_64_bit_targets(tmp_path):
     assert q.replacements == p.replacements and q.segment_overrides == p.segment_overrides and q.problems() == []
 
 
+def test_project_keeps_its_banks_setting_and_an_imported_mods_banks(tmp_path):
+    p = Project(name="Test", path=tmp_path / "t.audi")
+    p.save()
+    text = (tmp_path / "t.audi").read_text()
+    assert "every_bank" not in text and "imported_banks" not in text  # files stay as they were while unused
+    p.every_bank, p.imported_banks = True, [6187728386225981464]
+    p.save()
+    assert '"6187728386225981464"' in (tmp_path / "t.audi").read_text()
+    q = Project.load(tmp_path / "t.audi")
+    assert q.every_bank and q.imported_banks == [6187728386225981464]
+
+
+def test_a_sound_goes_into_the_projects_banks():
+    """build.reach: an imported mod's banks first, then those of what the project lists; the holders join a bank
+    that only plays the sound, a stream's holders always; music and a sound no such bank has keep every bank."""
+    from types import SimpleNamespace
+    from audiodiver.build import reach
+    R = lambda s: patch.Replacement(s, b"")
+    ix = SimpleNamespace(
+        holders={1: {10, 11, 12}, 2: {10, 11}, 3: {30}, 4: {40, 41}, 5: {50}},
+        users={1: {10, 11, 12, 13}, 2: {14}, 3: {30, 31}, 4: {40}, 5: {50, 51}},
+        music_banks=[50, 51], stream_file=lambda s: 99 if s == 4 else None,
+        copies=lambda o: [10, 11, 12] if o == 7 else [])
+    ix.banks_for = lambda s: ix.holders.get(s, set()) | ix.users.get(s, set())
+    reps = [R(1), R(2), R(3), R(4), R(5)]
+    p = Project(name="Test", imported_banks=[10, 14])
+    sounds, objects = reach(p, ix, reps, {7: {0: 1.0}, 8: {0: 1.0}}, listed={31, 40})
+    assert sounds == {1: {10}, 2: {10, 14}, 3: {31, 30}, 4: {40, 41}}  # 5: music
+    assert objects == {7: {10}}  # 8: no copy in the mod's banks, so every copy
+    assert reach(Project(name="Test", every_bank=True, imported_banks=[10]), ix, reps, {7: {0: 1.0}}) == ({}, {})
+
+
 def test_project_flags_duplicate_targets_and_missing_audio(tmp_path):
     p = Project(name="Test", replacements=[Replacement(1, "x.wav"), Replacement(1, "y.wav")], path=tmp_path / "t.audi")
     probs = p.problems()
@@ -217,6 +249,24 @@ def test_golden_build(key, tmp_path):
         assert _png_size(z.read("icon.png")) == (540, 540)
     got = {name: hashlib.sha256(data).hexdigest() for name, data in patch_files.items() if data}
     assert got == g["files"] and len(patch_files) == 3
+
+
+@pytest.mark.game
+def test_a_shared_clip_goes_into_the_projects_banks_or_every_bank(tmp_path):
+    """A clip many banks hold, kept to one bank by default and in all of them with every_bank; both verified."""
+    from audiodiver import build
+    from audiodiver.index import AudioIndex
+    ix = AudioIndex()
+    music = set(ix.music_banks)
+    sid = next(s for s, h in sorted(ix.holders.items()) if len(h) >= 3 and not ix.banks_for(s) & music
+               and ix.stream_file(s) is None)
+    home = min(ix.holders[sid])
+    for every in (False, True):
+        p = Project(name="Test", path=tmp_path / f"{every}" / "t.audi", every_bank=every, imported_banks=[home],
+                    replacements=[Replacement(sid, "", silence=True)])
+        (tmp_path / f"{every}").mkdir()
+        edits = build.make_patch(p, ix, tmp_path / f"{every}", log=lambda *_: None)
+        assert set(edits) == (ix.banks_for(sid) if every else {home})
 
 
 @pytest.mark.game

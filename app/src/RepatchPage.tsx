@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { nameProblem, type Job } from "./api";
-import { BIOME_FIX_PAGE, BIOME_FIX_TIP } from "./content";
+import { BIOME_FIX_PAGE, BIOME_FIX_TIP, EVERY_BANK_PAGE } from "./content";
 import { nav } from "./nav";
 import { pickFolder, pickMod, reveal } from "./platform";
 import { useEditor } from "./store";
@@ -9,12 +9,13 @@ import { Help } from "./Wiki";
 /** What the core found in a mod (Session.repatch_scan). */
 type Scan = {
   source: string; name: string; description: string; guid: boolean; icon: boolean; manifest: boolean; zip: boolean;
-  folder: string; patches: { key: string; label: string; other: string[] }[];
+  folder: string; patches: { key: string; label: string; files: number; other: string[] }[];
 };
 /** One of the mod's patches, repatched or kept as it was ("kept": why). */
 type Part = {
   label: string; project?: string; imported?: number; added?: number; skipped?: number; settings?: number;
   stale?: number; // sounds the mod's banks still had from an older game version (core addition.older_version)
+  older?: number; // the game's objects the mod's banks had as an older version did, shared groups included (Found.older)
   left: string[]; other: string[]; kept: string;
 };
 /** The repatched mod (Session.repatch's result). */
@@ -22,6 +23,17 @@ type Made = { name: string; zip: string; folder: string; mb: number; kept_id: bo
 
 const OLDER = "The mod was made for an older game version, and its copy of the sounds still had these. The current game no longer has them, so they aren't part of the mod.";
 const OLDER_PAGE = "repatching#sounds-from-an-older-game-version";
+const SHARED = "The mod's banks had older copies of these. Some are shared by many banks, like the settings every weapon sound goes through, and an older copy can silence sounds the mod never changed. The new ZIP has the current ones.";
+const SHARED_PAGE = "repatching#shared-settings-from-an-older-game-version";
+
+/** A mod checked for sound banks of an older game version (core installed.check), and each of its patches. */
+type State = "shared" | "older" | "current" | "unreadable";
+type Checked = { label: string; file: string; state: State; objects?: number; reach?: number; weapons?: number };
+type Installed = { name: string; source: string; where: "arsenal" | "game"; deployed: boolean; state: State; patches: Checked[] };
+type CheckResult = { mods: Installed[]; quiet: number; arsenal: boolean };
+const STATE_TEXT: Record<State, string> = {
+  shared: "Older shared settings", older: "Older sound banks", unreadable: "Can't be read", current: "Up to date",
+};
 const fileName = (path: string) => path.split(/[\\/]/).pop()!;
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 /** "a, b and c", leaving out the empty ones. */
@@ -42,7 +54,7 @@ export const repatchInbox = (() => {
 })();
 
 // the mod being set up, kept while another tab shows
-let kept: { scan: Scan; name: string; folder: string; biomeFix: boolean } | null = null;
+let kept: { scan: Scan; name: string; folder: string; biomeFix: boolean; everyBank: boolean } | null = null;
 let staleJob: string | null = null;
 
 /** Build ▸ Repatch: an existing audio mod (a ZIP, a folder or a .patch_0) rebuilt on the game as it is now, as the
@@ -54,12 +66,14 @@ export function RepatchPage() {
   const [name, setName] = useState(kept?.name ?? "");
   const [folder, setFolder] = useState(kept?.folder ?? "");
   const [biomeFix, setBiomeFix] = useState(kept?.biomeFix ?? false);
+  const [everyBank, setEveryBank] = useState(kept?.everyBank ?? false);
   const [reading, setReading] = useState(false);
   const [stale, setStale] = useState(staleJob); // the repatch whose outcome belongs to the mod chosen before this one
-  useEffect(() => { kept = scan && { scan, name, folder, biomeFix }; }, [scan, name, folder, biomeFix]);
+  useEffect(() => { kept = scan && { scan, name, folder, biomeFix, everyBank }; }, [scan, name, folder, biomeFix, everyBank]);
   useEffect(() => { staleJob = stale; }, [stale]);
   const jobsNow = useRef(jobs); // read when a mod is chosen, also from a drop the first render subscribed to
   jobsNow.current = jobs;
+  const top = useRef<HTMLElement>(null);
 
   const read = async (path: string | null) => {
     if (!path) return;
@@ -83,7 +97,7 @@ export function RepatchPage() {
   const running = job?.state === "running";
   const busy = Object.values(jobs).some((j) => (j.kind === "build" || j.kind === "repatch") && j.state === "running");
   const problem = scan ? nameProblem(name) : null;
-  const go = () => scan && actions.repatch(scan.source, name.trim(), folder, biomeFix);
+  const go = () => scan && actions.repatch(scan.source, name.trim(), folder, biomeFix, everyBank);
   const chooseFolder = async () => {
     const f = await pickFolder(folder || undefined, "Choose where repatched mods go");
     if (f) setFolder(f);
@@ -92,7 +106,7 @@ export function RepatchPage() {
   return (
     <div className="bld rp" data-drop={JSON.stringify({ kind: "repatch" })}>
       <div className="bld-main">
-        <section className="set-sec">
+        <section className="set-sec" ref={top}>
           <h2>The mod</h2>
           {scan ? (
             <div className="view-in rp-form" key={scan.source}>
@@ -102,12 +116,15 @@ export function RepatchPage() {
                   <span className="field-label">Patches <Help tip={scan.manifest ? "Each patch is rebuilt in its original place, so the mod keeps its options." : "Without a manifest, each becomes an option of the new mod."} page="repatching#repatching-a-mod" /></span>
                   <ul>
                     {scan.patches.map((p) => (
-                      <li key={p.key}>{p.label || fileName(p.key)}{p.other.length > 0 && <small>Also holds {p.other.join(" and ")}: left out.</small>}</li>
+                      <li key={p.key}>{p.label || fileName(p.key)}{p.files > 1 && <small>{p.files} patch files, built into one.</small>}{p.other.length > 0 && <small>Also holds {p.other.join(" and ")}: left out.</small>}</li>
                     ))}
                   </ul>
                 </div>
-              ) : scan.patches[0].other.length > 0 && (
-                <p className="info-box">The patch also holds {scan.patches[0].other.join(" and ")}. Repatching leaves {scan.patches[0].other.length === 1 ? "it" : "them"} out.</p>
+              ) : (
+                <>
+                  {scan.patches[0].files > 1 && <p className="set-note">The mod's {scan.patches[0].files} patch files go into one project and are built into one patch. <Help tip="The game loads them over each other as one mod." page="repatching#repatching-a-mod" /></p>}
+                  {scan.patches[0].other.length > 0 && <p className="info-box">The patch also holds {scan.patches[0].other.join(" and ")}. Repatching leaves {scan.patches[0].other.length === 1 ? "it" : "them"} out.</p>}
+                </>
               )}
               <label className="field">
                 <span className="field-label">Name <Help tip="The mod's name in HD2 Arsenal." page="repatching#repatching-a-mod" /></span>
@@ -145,11 +162,17 @@ export function RepatchPage() {
         </section>
 
         <section className="set-sec">
-          <h2>Music</h2>
-          <label className="check">
-            <input type="checkbox" checked={biomeFix} disabled={running} onChange={(e) => setBiomeFix(e.target.checked)} />
-            <span>Apply biome music fix <Help tip={BIOME_FIX_TIP} page={BIOME_FIX_PAGE} /></span>
-          </label>
+          <h2>Options</h2>
+          <div className="set-list">
+            <label className="check">
+              <input type="checkbox" checked={biomeFix} disabled={running} onChange={(e) => setBiomeFix(e.target.checked)} />
+              <span>Apply biome music fix <Help tip={BIOME_FIX_TIP} page={BIOME_FIX_PAGE} /></span>
+            </label>
+            <label className="check">
+              <input type="checkbox" checked={everyBank} disabled={running} onChange={(e) => setEveryBank(e.target.checked)} />
+              <span>Patch every bank with the sounds <Help tip="A sound is often in many banks, such as a clip that several weapons share. With this on, the mod's audio goes into all of them and plays wherever the game uses the sound, but the mod gets bigger. With it off, only the banks the mod patched get it, as in the original." page={EVERY_BANK_PAGE} /></span>
+            </label>
+          </div>
         </section>
 
         <div className="bld-box rp-go">
@@ -166,6 +189,8 @@ export function RepatchPage() {
         </div>
 
         {job && !running && job.id !== stale && <Outcome job={job} />}
+
+        <InstalledMods busy={running} onPick={(path) => { read(path); top.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }} />
       </div>
 
       <aside className="bld-side rp-about">
@@ -207,6 +232,9 @@ function Outcome({ job }: { job: Job }) {
           {!!p.stale && (
             <p className="set-note">{plural(p.stale, "sound")} from an older game version left out <Help tip={OLDER} page={OLDER_PAGE} /></p>
           )}
+          {!!p.older && (
+            <p className="set-note">{plural(p.older, "sound object")} from an older game version updated <Help tip={SHARED} page={SHARED_PAGE} /></p>
+          )}
           {(p.left.length > 0 || p.other.length > 0) && (
             <div className="info-box">
               <b>Left out</b> <Help tip="Repatching carries over the mod's audio and sound settings, and leaves out other kinds of change. Listen to the result in game." page="repatching#what-repatching-leaves-out" />
@@ -228,6 +256,59 @@ function Outcome({ job }: { job: Job }) {
       )}
       <Details job={job} />
     </section>
+  );
+}
+
+/** The mods in HD2 Arsenal and in the game's folder, checked for sound banks of an older game version; a flagged
+    one opens in the form above with its Repatch button. */
+function InstalledMods({ busy, onPick }: { busy: boolean; onPick: (path: string) => void }) {
+  const { actions, jobs } = useEditor();
+  const job = Object.values(jobs).filter((j) => j.kind === "check").pop();
+  const checking = job?.state === "running";
+  const r: CheckResult | null = job?.state === "done" ? job.result : null;
+  return (
+    <section className="set-sec">
+      <h2>Installed mods <Help tip="Finds mods with sound banks from an older game version, in HD2 Arsenal and in the game's folder. Such a mod can mute sounds it never changed, like all gunfire." page="repatching#checking-installed-mods" /></h2>
+      <div className="row-btns">
+        <button className="btn" onClick={actions.checkMods} disabled={checking}>{checking ? "Checking…" : r ? "Check again" : "Check installed mods"}</button>
+        {checking && <span className="set-note">{job?.doing || "Starting…"}</span>}
+      </div>
+      {job?.state === "failed" && <p className="warn-box">{job.error}</p>}
+      {r && (
+        <div className="view-in rp-found">
+          {!r.arsenal && <p className="set-note">HD2 Arsenal's library wasn't found, so only the game's folder was checked.</p>}
+          {r.mods.length === 0 && <p className="set-note">No installed mod has sound banks.</p>}
+          {r.mods.map((m) => <InstalledMod key={m.source} m={m} busy={busy} onPick={onPick} />)}
+          {r.quiet > 0 && <p className="set-note">{plural(r.quiet, "mod")} without sound banks not listed.</p>}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function InstalledMod({ m, busy, onPick }: { m: Installed; busy: boolean; onPick: (path: string) => void }) {
+  const flagged = m.state === "shared" || m.state === "older";
+  const widest = m.patches.reduce((a, p) => ((p.reach ?? 0) > (a.reach ?? 0) ? p : a), m.patches[0]);
+  const mixed = m.patches.length > 1 && m.patches.some((p) => p.state !== m.state);
+  return (
+    <div className="rp-mod">
+      <p><b>{m.name}</b><span className={`tag${flagged ? " warn" : ""}`}>{STATE_TEXT[m.state]}</span>{m.deployed && <span className="tag">Deployed</span>}</p>
+      {m.state === "shared" && (
+        <p className="set-note">Can mute sounds in {plural(widest.reach ?? 0, "other bank")}{widest.weapons ? `, ${widest.weapons} of them weapon banks` : ""}. <Help tip={SHARED} page={SHARED_PAGE} /></p>
+      )}
+      {m.state === "older" && <p className="set-note">Its own sounds can be wrong or missing. <Help tip={OLDER} page={OLDER_PAGE} /></p>}
+      {mixed && (
+        <details className="rp-log">
+          <summary>Options</summary>
+          <ul>{m.patches.map((p) => <li key={p.file}>{p.label || fileName(p.file)}: {STATE_TEXT[p.state]}</li>)}</ul>
+        </details>
+      )}
+      {flagged && (
+        <div className="row-btns">
+          <button className="btn quiet" disabled={busy} onClick={() => onPick(m.source)} data-tip="Open it in the form above, ready to repatch">Repatch…</button>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -259,6 +340,7 @@ function About() {
       <h3>When to use it</h3>
       <ul>
         <li>A mod's sounds went silent, wrong or missing after a game update.</li>
+        <li>Other sounds, like all gunfire, go silent while the mod is installed. <b>Installed mods</b> below finds the mods that do this.</li>
         <li>A music mod made with another tool undoes the Sound Systems Rebalanced Patch.</li>
       </ul>
       <h3>What it leaves out</h3>

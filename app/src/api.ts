@@ -43,6 +43,7 @@ export type Segment = {
   tags?: Tag[];     // in a bank: the piece of music a segment is
   cue?: string;     // in a bank: the music cue a segment belongs to
   container?: string; // a group whose takes a random container picks: it can take new takes
+  key?: string;     // a group: the container that holds its takes, whatever kind it is (what its note goes by)
   layer?: boolean;  // a layer can go beside it (it would play whenever this sound plays)
   copies?: number;  // how many other banks have its container: new takes and layers go there too
   added?: "layer";  // a layer the project adds, beside the sound in `beside`
@@ -106,15 +107,20 @@ export type IconFrame = { border: number; border_color: string; radius: number }
 export type Icon = Partial<IconFrame> & { image?: string };
 export type ProjectState = {
   path: string; folder: string; name: string; guid: string; version: number;
+  own_folder: boolean;      // the folder is the project's alone (core projectfiles.own_folder)
+  folder_projects: number;  // other projects in its folder
+  files_elsewhere: number;  // files it uses from outside its folder (Collect files copies them in)
   revision: number;      // the core's count of changes to what is open: a no-op edit leaves it
   description: string;   // the text HD2 Arsenal shows with the mod
   icon: Icon;
   icon_frame: IconFrame; // the icon's full frame, defaults included
   loudness_analysis: boolean;
   biome_fix: boolean;    // music_init carries the Sound Systems Rebalanced Patch (Apply biome music fix)
+  every_bank: boolean;   // a replaced sound goes into every bank that has it (Patch every bank with the sounds)
   build_folder: string; zip_name: string; // where the next build goes, and what it is called
   build_folder_default: string;           // the build folder next to the project file: where builds go unless another is chosen
   last_build: { zip: string; mb: number; modified: number } | null; // this mod's newest ZIP there (modified: Unix seconds)
+  game_updated: boolean; // the game updated since that build: its banks are stale (core editor._game_updated)
   assignments: Record<string, Assignment>; unresolved: { target: string; audio: string; label: string }[];
   library: string[];                // what the project works on: Index items and archives ("archive:<name>"), as added
   library_missing: string[];        // of what it lists, the ones this game version has nothing for
@@ -124,6 +130,7 @@ export type ProjectState = {
   texts: TextLine[];     // lines of the game's text the project changes (the Text Editor)
   additions: { kind: "take" | "layer" | "own"; [key: string]: string }[]; // audio it adds (core project.py)
   settings: number;      // the game's objects an imported mod's settings go on (core project.py)
+  notes: Record<string, string>; // the project's notes, by key (notes.ts; core notes.py)
   repairs: string[];     // damaged values in its file that opening it set back (said once, when it opens)
   problems: string[]; can_undo: boolean; can_redo: boolean;
   undo_label: string | null; redo_label: string | null; // what Undo / Redo would change ("fill", "move")

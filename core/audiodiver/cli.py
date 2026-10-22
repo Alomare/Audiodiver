@@ -56,8 +56,14 @@ def cmd_build(a):
     p = load(a.project)
     if not p.replacements and not p.texts:
         sys.exit(f"{a.project} replaces no audio and changes no text: nothing to build")
+    ix, listed = AudioIndex(), None
+    if p.library and not p.every_bank:  # the banks of what it lists, where its sounds go (build.reach)
+        from .catalog import Catalog
+        from .cuemap import CueMap
+        from .library import Library
+        listed = Library(Catalog(CueMap(ix))).banks(p.library)
     try:
-        build(p, AudioIndex(), a.out, a.version)
+        build(p, ix, a.out, a.version, listed=listed)
     except BuildError as e:
         sys.exit(f"build failed: {e}")
 

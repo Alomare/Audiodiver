@@ -26,7 +26,7 @@ import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from . import updates, wem
+from . import notes, updates, wem
 from .audio import cache_lock, natural
 from .editor import AUDIO_TYPES, EditorError, Session, cache_clear, cache_info, log, os_error, plain, projects_info, reveal
 from .index import CACHE_DIR
@@ -56,11 +56,18 @@ def methods(s: Session) -> dict:
         "shared_clip": lambda source: s.shared_clip(source),
         "find": lambda query: s.find(query),
         "project": lambda: s.project_state() if s.project else None,
-        "project_new": lambda path, name="": s.new_project(path, name),
+        "project_new": lambda path, name="", folder=True: s.new_project(path, name, folder),
         "project_open": lambda path: s.open_project(path),
         "project_close": lambda: s.close_project(),
         "project_save": lambda: s.save_project(),
         "projects_info": lambda paths: projects_info(paths),
+        "projects_folder": lambda: s.projects_folder(),
+        "project_move": lambda: s.move_to_own_folder(),
+        "unused_files": lambda: s.unused_files(),
+        "unused_remove": lambda paths: s.remove_unused_files(paths),
+        "collect_files": lambda: s.collect_files(),
+        "pack_export": lambda dest: s.export_pack(dest),
+        "pack_open": lambda path, folder=None: s.open_pack(path, folder),
         "set_icon": lambda image: s.set_icon(image),
         "cache_info": lambda: cache_info(),
         "cache_clear": lambda kind: cache_clear(kind),
@@ -73,6 +80,8 @@ def methods(s: Session) -> dict:
         "update": lambda source, **f: s.update(source, **f),
         "update_many": lambda sources, **f: s.update_many(sources, **f),
         "settings": lambda **f: s.settings(**f),
+        "notes": lambda: notes.load(),
+        "note_set": lambda key, text=None, project_text=None: s.set_note(key, text, project_text),
         "segment_override": lambda segment, entry_marker=None, exit_marker=None:
             s.segment_override(segment, entry_marker, exit_marker),
         "peaks": lambda kind, source=None, path=None, buckets=1200: s.peaks(kind, source, path, buckets),
@@ -83,7 +92,9 @@ def methods(s: Session) -> dict:
         "build": lambda bump=True: s.build(bump),
         "import_patch": lambda path, mode="add": s.import_patch(path, mode),
         "repatch_scan": lambda path: s.repatch_scan(path),
-        "repatch": lambda path, name="", folder="", biome_fix=False: s.repatch(path, name, folder, biome_fix),
+        "repatch": lambda path, name="", folder="", biome_fix=False, every_bank=False:
+            s.repatch(path, name, folder, biome_fix, every_bank),
+        "check_mods": lambda: s.check_mods(),
         "export_options": lambda cue: s.export_options(cue),
         "play_through": lambda cue, side="game", variants=None, loops=1: s.play_through(cue, side, variants, loops),
         "export": lambda cue, folder, **o: s.export(cue, folder, **o),

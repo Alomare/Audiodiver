@@ -369,7 +369,7 @@ export function SliceTool({ onClose }: { onClose: () => void }) {
             </div>
             <div className="modal-foot">
               <span className="muted small">{tooShort ? `This song is shorter than ${MIN_PIECE} ms, which is too short to cut.`
-                : <>Pieces are saved in the project's <code>slices</code> folder.</>}</span>
+                : <>Pieces are saved in the project's <code>audio\slices</code> folder.</>}</span>
               <span className="spacer" />
               <button className="btn quiet" onClick={onClose}>Cancel</button>
               <button className="btn primary" disabled={busy || n < 1 || tooShort} onClick={submit}>

@@ -1,11 +1,12 @@
 // Audiodiver's own updates: its releases on GitHub (asked through the core, updates.py), whether one is newer than
 // this app, and installing it. The desktop shell's updater plugin downloads the installer named in the release's
 // latest.json, checks its signature and runs it; Audiodiver closes while it installs and opens again on the new
-// version. Where the shell has no updater (or the release no latest.json), Update opens the release's page instead.
+// version. Where the shell has no updater (or the release no latest.json), Update opens the release's page instead,
+// as it always does in a portable copy (its new version is the release's ZIP).
 import { useSyncExternalStore } from "react";
 import { call } from "./api";
 import { APP_VERSION } from "./content";
-import { isTauri, openUrl } from "./platform";
+import { isPortable, isTauri, openUrl } from "./platform";
 import { settings } from "./settings";
 
 export type RemoteRelease = {
@@ -25,6 +26,7 @@ export type UpdateState = {
   failedAt: number;              // when it failed (ms), for waiting a while after GitHub's limit
   installError: string | null;   // why the last install stopped
   got: number; total: number;    // bytes of the update downloaded, of how many
+  portable: boolean;             // a portable copy: Update opens the release's page
 };
 
 /** Orders versions as semver does: 1.0.0-beta.2 < 1.0.0-beta.10 < 1.0.0-rc.1 < 1.0.0 < 1.0.1. */
@@ -48,7 +50,7 @@ export function compareVersions(a: string, b: string): number {
   return 0;
 }
 
-let state: UpdateState = { phase: "idle", releases: [], latest: null, checked: null, error: null, failedAt: 0, installError: null, got: 0, total: 0 };
+let state: UpdateState = { phase: "idle", releases: [], latest: null, checked: null, error: null, failedAt: 0, installError: null, got: 0, total: 0, portable: false };
 const listeners = new Set<() => void>();
 let frame = 0;
 function set(patch: Partial<UpdateState>, soon = false) {
@@ -73,11 +75,11 @@ export const updates = {
     if (busy()) return;
     set({ phase: "checking" });
     try {
-      const a = await call<Answer>("releases", { force });
+      const [a, portable] = await Promise.all([call<Answer>("releases", { force }), isPortable()]);
       if (a.error) return set({ phase: "failed", error: a.error, failedAt: Date.now() });
       const releases = [...a.releases].sort((x, y) => compareVersions(y.version, x.version));
       set({ phase: "ready", releases, latest: releases.find((r) => compareVersions(r.version, APP_VERSION) > 0) ?? null,
-        checked: a.checked, error: null });
+        checked: a.checked, error: null, portable });
     } catch (e: any) {
       set({ phase: "failed", error: e.message ?? String(e) });
     }
@@ -110,6 +112,10 @@ export const updates = {
     const target = state.latest;
     if (!target || busy()) return "failed";
     if (!isTauri()) return "browser";
+    if (state.portable) {
+      if (openPage) await openUrl(target.url);
+      return "page";
+    }
     set({ phase: "downloading", got: 0, total: target.installer?.size ?? 0, installError: null });
     let update;
     try {

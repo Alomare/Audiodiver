@@ -1,6 +1,6 @@
 """Packages HD2 patch archives into an HD2 Arsenal mod ZIP.
 
-Layout matches the BSL packager (Mods/BSL/tools/package.py): manifest.json at the root, every Include folder
+Layout matches the Script workspace's packager (Mods/Script/tools/package.py): manifest.json at the root, every Include folder
 holds a full 9ba626afa44a3aa3.patch_0 trio (.patch_0, .stream, .gpu_resources; missing ones ship empty).
 Arsenal renumbers patch_0 to a free slot on deploy, so every folder uses patch_0.
 
