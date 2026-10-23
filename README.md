@@ -19,8 +19,8 @@
 
 <p align="center">
   <a href="https://github.com/Alomare/Audiodiver/releases/latest"><b>Download</b></a> ·
-  <a href="#get-started">Get started</a> ·
-  <a href="https://github.com/Alomare/Audiodiver/issues">Report a bug</a> ·
+  <a href="#get-started">Get Started</a> ·
+  <a href="https://github.com/Alomare/Audiodiver/issues">Report a Bug</a> ·
   <a href="https://ko-fi.com/alomare">Ko-fi</a>
 </p>
 
@@ -32,9 +32,9 @@
 
 <p align="center">
   <a href="#features">Features</a> ·
-  <a href="#how-it-works">How it works</a> ·
-  <a href="#get-started">Get started</a> ·
-  <a href="#questions-and-feedback">Questions and feedback</a> ·
+  <a href="#how-it-works">How It Works</a> ·
+  <a href="#get-started">Get Started</a> ·
+  <a href="#questions-and-feedback">Questions and Feedback</a> ·
   <a href="#contributing">Contributing</a> ·
   <a href="#credits">Credits</a>
 </p>
@@ -44,15 +44,15 @@
 <table>
   <tr>
     <td width="25%" valign="top">
-      <h3>Every sound by name</h3>
+      <h3>Every Sound by Name</h3>
       Music by when it plays, weapons by loadout slot under their in-game names, then stratagems, enemies, voices and planets.
     </td>
     <td width="25%" valign="top">
-      <h3>Any audio file</h3>
+      <h3>Any Audio File</h3>
       WAV, FLAC, MP3 and more. Audiodiver converts them to Wwise Vorbis and works out the sound banks, ids and timing.
     </td>
     <td width="25%" valign="top">
-      <h3>Original and new</h3>
+      <h3>Original and New</h3>
       Each row plays the original and the new audio, and a whole piece of music plays as it would in a mission.
     </td>
     <td width="25%" valign="top">
@@ -83,13 +83,13 @@
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <h3>▶️ Audio Editor ▸ Play through</h3>
+      <h3>▶️ Audio Editor ▸ Play Through</h3>
       A whole piece of music, segment after segment, in the original or the new audio. Both waveforms share one time scale, with the Entry and Exit cue points.
       <br><br>
       <img src="assets/readme/playthrough.png" alt="Play through playing the new loadout music: a progress bar with a tick for each segment, the playing slot lit, and the playhead on the waveform" width="100%">
     </td>
     <td width="50%" valign="top">
-      <h3>✂️ Audio Editor ▸ Slice a song</h3>
+      <h3>✂️ Audio Editor ▸ Slice a Song</h3>
       One song cut into the segments of a piece at exact sample positions, so they play back to back like the song. You drag the cuts to where the music turns.
       <br><br>
       <img src="assets/readme/slice.png" alt="The slice tool: a five-minute song with 15 numbered cuts for the slots of Loadout Selection, the original of each slot under it, and a table of the pieces" width="100%">
@@ -97,7 +97,7 @@
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <h3>➕ Audio Editor ▸ Add new audio</h3>
+      <h3>➕ Audio Editor ▸ Add New Audio</h3>
       New takes for a sound, a layer that plays with it, or a separate clip for a sound that shares one. Mods made with other tools bring their added audio in too.
       <br><br>
       <img src="assets/readme/adding.png" alt="The AC-8 Autocannon in the Audio Editor with a layer added under Sound 3: two new takes, the first selected, the details saying it plays whenever the sound above it plays" width="100%">
@@ -141,7 +141,7 @@
 
 <br>
 
-## How it works
+## How It Works
 
 - Audiodiver finds Helldivers 2 through Steam and reads its archives.
 - At the first start, which takes about a minute, the core indexes every sound bank, stream and object, with names
@@ -154,7 +154,7 @@
   protected by a token.
 - More than 180 tests, among them byte-for-byte builds of three complete music mods.
 
-## Get started
+## Get Started
 
 You need Windows 10 or 11, Helldivers 2 installed through Steam, and
 [HD2 Arsenal](https://github.com/Orbit-Studios/hd2arsenal-release/releases) to install the mods you build.
@@ -172,7 +172,7 @@ do after a game update.
 
 | Download | What it is |
 |---|---|
-| `Audiodiver_<version>_x64-setup.exe` | The installer. It adds Audiodiver to the Start menu, opens projects and packs from Explorer, and downloads new versions automatically. |
+| `Audiodiver_<version>_x64-setup.exe` | The installer. It adds Audiodiver to the Start menu, opens projects and packs from Explorer, and checks for new versions at startup, then installs them when you say so (or on its own, with Updates set to Automatic in Settings ▸ System). |
 | `Audiodiver-<version>-portable.zip` | The portable copy, with settings and caches in the same folder. Unzip it anywhere and start `Audiodiver.exe`. New versions are downloaded by hand. |
 
 The window needs the Microsoft Edge WebView2 Runtime, which Windows 11 has and nearly every Windows 10 PC has too. If
@@ -181,12 +181,12 @@ Everything else comes with Audiodiver.
 
 ## Questions and Feedback
 
-### Asking for help
+### Asking for Help
 
 Ask on the [Helldivers 2 Modding Discord](https://discord.gg/helldiversmodding) how to do something, or show what you
 made. Refer to the in-app Wiki before doing so.
 
-### Reporting a bug
+### Reporting a Bug
 
 Open a [bug report](https://github.com/Alomare/Audiodiver/issues/new?template=bug_report.yml). The form asks for the
 version, what you did and what happened, and the log file (About ▸ Log file ▸ Show finds it).
@@ -194,7 +194,7 @@ version, what you did and what happened, and the log file (About ▸ Log file �
 If an audio mod doesn't work properly, build it again first, since Helldivers 2 may have updated since the last build. If it
 still sounds wrong, then fill and submit the form.
 
-### Suggesting an idea
+### Suggesting an Idea
 
 Open an [idea](https://github.com/Alomare/Audiodiver/issues/new?template=idea.yml) with what you'd like Audiodiver to
 do.
