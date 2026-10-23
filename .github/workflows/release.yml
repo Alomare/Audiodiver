@@ -60,8 +60,10 @@ jobs:
         id: draft
         run: |
           python app/scripts/release.py notes "$GITHUB_REF_NAME" > notes.md
-          gh release create "$GITHUB_REF_NAME" --draft --verify-tag --title "Audiodiver ${GITHUB_REF_NAME#v}" --notes-file notes.md
-          id=$(gh api "repos/$GITHUB_REPOSITORY/releases" --jq ".[] | select(.tag_name == \"$GITHUB_REF_NAME\" and .draft) | .id" | head -1)
+          # the id from the answer itself: the list of releases can lag behind a draft just made
+          id=$(gh api "repos/$GITHUB_REPOSITORY/releases" -f tag_name="$GITHUB_REF_NAME" -f name="Audiodiver ${GITHUB_REF_NAME#v}" \
+            -F body=@notes.md -F draft=true --jq .id)
+          [ -n "$id" ] || { echo "no release id"; exit 1; }
           echo "id=$id" >> "$GITHUB_OUTPUT"
 
       - name: The installer, its signature and latest.json
