@@ -273,8 +273,7 @@ has to keep the files open under the same license. The license doesn't cover the
 
 `core/audiodiver/_vendor/slim.py` comes from hd2-audio-modder, under the MIT License
 (`core/audiodiver/_vendor/LICENSE-hd2-audio-modder`). FFmpeg, vgmstream and wav2wem keep their licenses (wav2wem is
-under GPL-2.0), and their sources are at the links above. The Home pictures (`app/src/art/`) are screenshots of
-Helldivers 2 by the author; the game in them belongs to Arrowhead Game Studios.
+under GPL-2.0), and their sources are at the links above.
 
 <sub>Audiodiver is a fan-made tool, not affiliated with or endorsed by Arrowhead Game Studios or Sony Interactive
 Entertainment. HELLDIVERS is a trademark of Sony Interactive Entertainment LLC.</sub>
