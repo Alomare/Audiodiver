@@ -1,10 +1,10 @@
 <p align="center">
-  <img src="assets/logo/logo-fullres.png" alt="Audiodiver's logo" width="128">
+  <img src="assets/logo/logo-fullres.png" alt="Audiodiver's logo" width="164">
 </p>
 
 <h1 align="center">Audiodiver</h1>
 
-<p align="center">Helldivers 2 audio and text archive explorer, editor and mod packager.</p>
+<p align="center">Helldivers 2 audio and text archive explorer, editor and mod packager built with Tauri 2 and React for Windows 10/11.</p>
 
 <p align="center">
   <img alt="Windows 10 and 11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-2f7bf5?style=flat-square">
@@ -20,14 +20,13 @@
 <p align="center">
   <a href="https://github.com/Alomare/Audiodiver/releases/latest"><b>Download</b></a> ·
   <a href="#get-started">Get Started</a> ·
-  <a href="https://github.com/Alomare/Audiodiver/issues">Report a Bug</a> ·
-  <a href="https://ko-fi.com/alomare">Ko-fi</a>
+  <a href="https://github.com/Alomare/Audiodiver/issues">Report a Bug</a>
 </p>
 
 <br>
 
 <p align="center">
-  <img src="assets/readme/home.png" alt="Audiodiver's Home tab over a screenshot of a Helldiver saluting under a blue sky: New project, Open project, Repatch a mod and Combine Mods, with Discord and Ko-fi in the corner" width="100%">
+  <img src="assets/readme/home.png" alt="Audiodiver's Home tab over a screenshot of a Helldiver aiming a stratagem ball under a blue sky: New project, Open project, Repatch a mod and Combine Mods, with Discord and Ko-fi in the corner" width="100%">
 </p>
 
 <p align="center">
@@ -41,40 +40,17 @@
 
 <br>
 
-<table>
-  <tr>
-    <td width="25%" valign="top">
-      <h3>Every Sound by Name</h3>
-      Music by when it plays, weapons by loadout slot under their in-game names, then stratagems, enemies, voices and planets.
-    </td>
-    <td width="25%" valign="top">
-      <h3>Any Audio File</h3>
-      WAV, FLAC, MP3 and more. Audiodiver converts them to Wwise Vorbis and works out the sound banks, ids and timing.
-    </td>
-    <td width="25%" valign="top">
-      <h3>Original and New</h3>
-      Each row plays the original and the new audio, and a whole piece of music plays as it would in a mission.
-    </td>
-    <td width="25%" valign="top">
-      <h3>Mods for HD2 Arsenal</h3>
-      A ZIP with a name, icon and version. After a game update, build it again.
-    </td>
-  </tr>
-</table>
-
-<br>
-
 ## Features
 
 <table>
   <tr>
-    <td width="50%" valign="top">
+    <td width="50%">
       <h3>📚 Library</h3>
       Every sound in Helldivers 2, sorted. Music goes by when it plays, from the ship to extraction, and weapons by loadout slot, then stratagems, enemies and planets. Search takes a name or an id.
       <br><br>
       <img src="assets/readme/library.png" alt="The Library's Index with On the Ship, Bridge and War Map open: two parts, their segments, and the transitions and stingers that play next to them" width="100%">
     </td>
-    <td width="50%" valign="top">
+    <td width="50%">
       <h3>🎚️ Audio Editor</h3>
       The music and sounds in a project, one slot per clip. An audio file dropped on a slot, a sound or a whole piece replaces the original. Each slot takes a Make-Up Gain from −12 to +12 dB, or silence.
       <br><br>
@@ -82,13 +58,13 @@
     </td>
   </tr>
   <tr>
-    <td width="50%" valign="top">
+    <td width="50%">
       <h3>▶️ Audio Editor ▸ Play Through</h3>
       A whole piece of music, segment after segment, in the original or the new audio. Both waveforms share one time scale, with the Entry and Exit cue points.
       <br><br>
       <img src="assets/readme/playthrough.png" alt="Play through playing the new loadout music: a progress bar with a tick for each segment, the playing slot lit, and the playhead on the waveform" width="100%">
     </td>
-    <td width="50%" valign="top">
+    <td width="50%">
       <h3>✂️ Audio Editor ▸ Slice a Song</h3>
       One song cut into the segments of a piece at exact sample positions, so they play back to back like the song. You drag the cuts to where the music turns.
       <br><br>
@@ -96,13 +72,13 @@
     </td>
   </tr>
   <tr>
-    <td width="50%" valign="top">
+    <td width="50%">
       <h3>➕ Audio Editor ▸ Add New Audio</h3>
       New takes for a sound, a layer that plays with it, or a separate clip for a sound that shares one. Mods made with other tools bring their added audio in too.
       <br><br>
       <img src="assets/readme/adding.png" alt="The AC-8 Autocannon in the Audio Editor with a layer added under Sound 3: two new takes, the first selected, the details saying it plays whenever the sound above it plays" width="100%">
     </td>
-    <td width="50%" valign="top">
+    <td width="50%">
       <h3>📝 Text Editor</h3>
       All text in Helldivers 2, in 15 languages, subtitles included. A formatting bar, a preview as the line shows in game, and links between voice lines and subtitles.
       <br><br>
@@ -110,13 +86,13 @@
     </td>
   </tr>
   <tr>
-    <td width="50%" valign="top">
+    <td width="50%">
       <h3>📁 Project</h3>
       The mod's name, description, icon and id, with a preview as HD2 Arsenal shows them. The project folder has <b>Collect files</b>, a clean-up to the Recycle Bin, and packs (<code>.audipack</code>) for another computer.
       <br><br>
       <img src="assets/readme/project.png" alt="The Project tab: the description, the icon with border and corners, the mod id and the folder, beside a preview of the mod in HD2 Arsenal" width="100%">
     </td>
-    <td width="50%" valign="top">
+    <td width="50%">
       <h3>📦 Build</h3>
       A ZIP for HD2 Arsenal, checked before it's packed, with only the banks the project lists or every bank with the sounds. A dot on the tab means something changed since the last build.
       <br><br>
@@ -124,13 +100,13 @@
     </td>
   </tr>
   <tr>
-    <td width="50%" valign="top">
+    <td width="50%">
       <h3>🔧 Tools ▸ Repatch</h3>
       A mod for an older game version, rebuilt on the current sound banks with the same audio, settings, options and id. Text, models and textures stay as they were. <b>Installed mods</b> finds the mods that need it.
       <br><br>
       <img src="assets/readme/repatch.png" alt="Tools, Repatch, after rebuilding a mod: the new ZIP, Show in folder and Repatch another mod, then what was carried over, a string table included" width="100%">
     </td>
-    <td width="50%" valign="top">
+    <td width="50%">
       <h3>🔀 Tools ▸ Combine Mods</h3>
       Several mods that change the same sound banks, built as one with the options chosen in Arsenal, text, models and textures included. Where two change the same sound, you play both versions and pick one.
       <br><br>
@@ -144,7 +120,7 @@
 ## How It Works
 
 - Audiodiver finds Helldivers 2 through Steam and reads its archives.
-- At the first start, which takes about a minute, the core indexes every sound bank, stream and object, with names
+- On first startup, the core indexes every sound bank, stream and object, with names
   from the modding community's research. It indexes again after each game update.
 - A build takes the current sound banks, puts the new audio and timing in, and reads the result back to check it
   before packing the ZIP. That's why rebuilding after an update is usually all a mod needs.
