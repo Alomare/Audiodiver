@@ -4,7 +4,7 @@
 
 <h1 align="center">Audiodiver</h1>
 
-<p align="center">Helldivers 2 audio and text archive explorer, editor and mod packager built with Tauri 2 and React for Windows 10/11.</p>
+<p align="center">Helldivers 2 audio and text archive explorer, editor and mod builder.</p>
 
 <p align="center">
   <img alt="Windows 10 and 11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-2f7bf5?style=flat-square">
