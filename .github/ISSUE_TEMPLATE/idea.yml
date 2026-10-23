@@ -1,12 +1,7 @@
 name: Idea
-description: Something Audiodiver could do, already talked over on the Discord.
+description: Something Audiodiver could do.
 labels: ["enhancement"]
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Talk an idea over on the [Helldivers 2 Modding Discord](https://discord.gg/helldiversmodding) first, then open an issue once it's agreed on.
-
   - type: textarea
     id: idea
     attributes:
@@ -15,8 +10,8 @@ body:
     validations:
       required: true
 
-  - type: input
-    id: discord
+  - type: textarea
+    id: example
     attributes:
-      label: Discord thread
-      description: A link to where it was talked over.
+      label: An example
+      description: A mod, a sound or a moment in game where it would help. Screenshots and sketches are welcome.

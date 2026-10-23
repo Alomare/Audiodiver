@@ -27,6 +27,10 @@
 <br>
 
 <p align="center">
+  <img src="assets/readme/home.png" alt="Audiodiver's Home tab over a screenshot of a Helldiver saluting under a blue sky: New project, Open project, Repatch a mod and Combine Mods, with Discord and Ko-fi in the corner" width="100%">
+</p>
+
+<p align="center">
   <a href="#features">Features</a> ·
   <a href="#how-it-works">How it works</a> ·
   <a href="#get-started">Get started</a> ·
@@ -179,8 +183,8 @@ Everything else comes with Audiodiver.
 
 ### Asking for help
 
-Ask on the [Helldivers 2 Modding Discord](https://discord.gg/helldiversmodding): how to do something, what you made,
-or what you'd like Audiodiver to do next.
+Ask on the [Helldivers 2 Modding Discord](https://discord.gg/helldiversmodding) how to do something, or show what you
+made.
 
 ### Reporting a bug
 
@@ -192,8 +196,8 @@ still sounds wrong, the form asks which piece or sound it is and where you heard
 
 ### Suggesting an idea
 
-Talk it over on the Discord first, then open an [idea](https://github.com/Alomare/Audiodiver/issues/new?template=idea.yml)
-once it's agreed on.
+Open an [idea](https://github.com/Alomare/Audiodiver/issues/new?template=idea.yml) with what you'd like Audiodiver to
+do.
 
 ### Supporting Audiodiver
 
