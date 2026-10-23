@@ -8,7 +8,7 @@ version = "1.0.0"
 description = "Audiodiver core: builds Helldivers 2 audio replacement mods from a project file"
 readme = "README.md"
 requires-python = ">=3.12"
-license = "GPL-3.0-or-later"
+license = "MPL-2.0"
 dependencies = ["lz4", "pillow", "numpy"]
 
 [project.optional-dependencies]
@@ -26,7 +26,7 @@ include = ["audiodiver*"]
 
 [tool.setuptools.package-data]
 "audiodiver" = ["data/*.json", "data/*.png"]
-"audiodiver._vendor" = ["LICENSE-hd2-audio-modder", "LICENSE-SoundSystemsRebalanced"]
+"audiodiver._vendor" = ["LICENSE-hd2-audio-modder"]
 
 [tool.pytest.ini_options]
 markers = ["game: needs the installed game (slow)"]

@@ -1,7 +1,7 @@
 {
   "name": "audiodiver",
   "private": true,
-  "license": "GPL-3.0-or-later",
+  "license": "MPL-2.0",
   "repository": "github:Alomare/Audiodiver",
   "version": "1.0.0",
   "type": "module",

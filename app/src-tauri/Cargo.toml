@@ -3,7 +3,7 @@ name = "audiodiver"
 version = "1.0.0"
 description = "Audiodiver: Helldivers 2 audio mod editor"
 edition = "2021"
-license = "GPL-3.0-or-later"
+license = "MPL-2.0"
 repository = "https://github.com/Alomare/Audiodiver"
 
 [lib]

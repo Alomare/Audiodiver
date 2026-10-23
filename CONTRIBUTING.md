@@ -49,5 +49,5 @@ Contributions written with AI tools are held to the same standard: you've run th
 
 ## Licence
 
-Audiodiver is under the GNU General Public License v3.0 or later. By contributing, you agree that your contribution
+Audiodiver is under the Mozilla Public License 2.0. By contributing, you agree that your contribution
 is released under the same licence.
