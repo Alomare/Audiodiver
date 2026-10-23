@@ -210,7 +210,7 @@ export function SliceTool({ onClose }: { onClose: () => void }) {
     setLayout("custom");
   };
   const addCut = (ms: number) => {
-    if (n >= reach.length) { notify("info", `This cue has ${reach.length} slot${reach.length === 1 ? "" : "s"} from ${startRow ? rowName(startRow) : "here"}, so there is no room for another piece.`); return; }
+    if (n >= reach.length) { notify("info", `No room for another piece. This cue has ${reach.length} slot${reach.length === 1 ? "" : "s"} from ${startRow ? rowName(startRow) : "here"}.`); return; }
     const i = bounds.findIndex((b) => b > ms);
     if (i <= 0 || ms - bounds[i - 1] < MIN_PIECE || bounds[i] - ms < MIN_PIECE) return;
     setBounds((b) => [...b.slice(0, i), Math.round(ms), ...b.slice(i)]);
@@ -293,13 +293,13 @@ export function SliceTool({ onClose }: { onClose: () => void }) {
       <div className="modal slice" role="dialog" aria-modal="true" aria-label="Slice a song into this cue" ref={box} tabIndex={-1}>
         <div className="pop-head">
           <h2>Slice a song into {cue.name}</h2>
-          <Help tip="Drag a cut to move it. It snaps to the original's length unless you hold Shift. Double-click the song to add a cut. Delete removes the selected cut, and ←/→ nudge it (Shift moves 100 ms, Alt moves 1 ms). Ctrl+wheel zooms, the wheel scrolls, and Space plays." page="timing-and-loops#slicing-one-long-song" />
+          <Help tip="Drag a cut to move it, and hold Shift to stop it snapping to the original length. Double-click the song to add a cut. Delete removes the selected cut, and ←/→ nudge it (Shift moves 100 ms, Alt moves 1 ms). Ctrl+wheel zooms, the wheel scrolls, and Space plays." page="timing-and-loops#slicing-one-long-song" />
           <span className="spacer" />
           <button className="x" onClick={onClose} aria-label="Close">✕</button>
         </div>
         {!file || !info ? (
           <div className="slice-empty">
-            <p>{file ? "Reading the song…" : "Choose one song to cut into this cue's slots."}</p>
+            <p>{file ? "Reading the song…" : "Choose a song to cut into the slots."}</p>
             {!file && <button className="btn primary" onClick={choose}>Choose a song…</button>}
           </div>
         ) : (
@@ -324,9 +324,9 @@ export function SliceTool({ onClose }: { onClose: () => void }) {
 
             <div className="slice-tools">
               <button className={`btn small-btn play-btn${songOn ? " on" : ""}`} onClick={() => (songOn ? player.toggle() : playSong(bounds[0]))}
-                data-tip="The song, from the first cut">{songOn ? "❚❚" : "▶"} Song</button>
+                data-tip="Play the song from the first cut">{songOn ? "❚❚" : "▶"} Song</button>
               <button className={`btn small-btn play-btn${originalsOn ? " on" : ""}`} onClick={() => (originalsOn ? player.toggle() : playOriginal(0, 0, true))}
-                data-tip="The original audio of the slots, one after another">{originalsOn ? "❚❚" : "▶"} Originals</button>
+                data-tip="Play the originals one after another">{originalsOn ? "❚❚" : "▶"} Originals</button>
               <div className="segmented" role="radiogroup" aria-label="Place the cuts">
                 {([["proportions", "Original proportions", "The original lengths, stretched over the song"],
                   ["lengths", "Original lengths", "The original lengths as they are, from the first cut"],
@@ -368,7 +368,7 @@ export function SliceTool({ onClose }: { onClose: () => void }) {
               })}
             </div>
             <div className="modal-foot">
-              <span className="muted small">{tooShort ? `This song is shorter than ${MIN_PIECE} ms, which is too short to cut.`
+              <span className="muted small">{tooShort ? `This song is shorter than ${MIN_PIECE} ms and can't be cut.`
                 : <>Pieces are saved in the project's <code>audio\slices</code> folder.</>}</span>
               <span className="spacer" />
               <button className="btn quiet" onClick={onClose}>Cancel</button>

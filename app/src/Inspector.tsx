@@ -43,9 +43,9 @@ export function Inspector() {
       </div>
       {slot.locked && <p className="warn-box">Do not touch. Replacing this clip makes the music stutter. <Help tip="Tags on a slot" page="reading-the-screen#tags-on-a-row" /></p>}
       {slot.absent && <p className="info-box">This clip isn't in the installed game files, so there is nothing to play or replace.</p>}
-      {slot.unused && <p className="info-box">Never heard. The game never plays this clip.</p>}
+      {slot.unused && <p className="info-box">The game never plays this clip.</p>}
       {seg.added === "layer" ? <p className="info-box">A new layer. It plays whenever the sound above it plays.</p>
-        : slot.added && <p className="info-box">A new take. The game picks it like the sound's other takes.</p>}
+        : slot.added && <p className="info-box">A new take. The game picks it like the other takes.</p>}
       <ClipNotes slot={slot} a={a} />
 
       <Settle key={a?.silence ? "silence" : a ? "file" : "none"} still={shown.current !== slot.source}>
@@ -65,15 +65,7 @@ export function Inspector() {
           fit={a.fit_timing} lengthMs={a.duration_ms} />}
       </Settle>
 
-      {also > 0 && (
-        <section className="insp-sec">
-          <h3>Shared with <Help tip="The game reuses this audio in other places, and new audio here is heard there too." page="how-the-game-plays-music#shared-audio" /></h3>
-          <ul className="also">
-            {slot.also_in.map((id) => <li key={id}><AlsoLink id={id} source={slot.source} /></li>)}
-          </ul>
-          {also > slot.also_in.length && <p className="muted small">And {also - slot.also_in.length} more.</p>}
-        </section>
-      )}
+      {also > 0 && <section className="insp-sec"><SharedWith slot={slot} also={also} /></section>}
       <section className="insp-sec facts">
         <dl>
           <dt>Original</dt><dd>{slot.duration_ms || seg.duration_ms ? fmtTime(slot.duration_ms || seg.duration_ms) : "–"}</dd>
@@ -141,7 +133,7 @@ function Replacement({ slot, a, music, what }: { slot: Slot; a?: Assignment; mus
           <input type="checkbox" checked={!a.fit_timing} onChange={(e) => actions.update(slot.source, { fit_timing: !e.target.checked })} />
           <span>Keep original duration <Help tip={`On: ${SILENCE_TIP.keep.toLowerCase()}. Off: ${SILENCE_TIP.move.toLowerCase()}.`} page="how-the-game-plays-music#silence" /></span>
         </label>
-        {!music && <p className="muted small">Audiodiver also takes it out of the game's mix. <Help tip="A silenced sound no longer turns down the sounds around it." page="volume#the-game-s-hdr-mix" /></p>}
+        {!music && <p className="muted small">Audiodiver also removes it from the mix. <Help tip="A silenced sound no longer turns down the sounds around it." page="volume#the-game-s-hdr-mix" /></p>}
       </section>
     );
   }
@@ -179,7 +171,7 @@ function Reach({ slot }: { slot: Slot }) {
   const own = !!slot.was;
   const banks = (others: number) => `${others + 1} bank${others ? "s" : ""}`;
   const choices = [
-    [false, "Every sound that plays it", own ? "Like any replacement, every sound that plays this clip gets the new audio"
+    [false, "Every sound that plays it", own ? "Every sound that plays this clip gets the new audio"
       : `Changes it in ${banks(slot.banks ?? 0)}`],
     [true, "Only this sound", `Changes it in ${banks(own ? slot.banks ?? 0 : slot.sound_banks ?? 0)}. Other sounds that play the clip keep the original.`],
   ] as const;
@@ -233,19 +225,13 @@ export function SlotFacts({ row }: { row: Row }) {
         {slot.subtitle && <SubtitleLink slot={slot}>{slot.subtitle_sure ? "subtitle" : "subtitle: one of several"}</SubtitleLink>}
         {(slot.notes ?? []).map((n) => n.tag && <span key={n.tag} className={n.warn ? "warn" : undefined} data-tip={n.text}>{n.tag}</span>)}
       </div>
-      {also > 0 && (
-        <div className="tl-facts-line also-line" data-tip="The game reuses this audio in other places, and new audio here is heard there too" data-tip-side="top">
-          <span>Shared with</span>
-          {slot.also_in.map((id) => <AlsoLink key={id} id={id} source={slot.source} />)}
-          {also > slot.also_in.length && <span>and {also - slot.also_in.length} more</span>}
-        </div>
-      )}
+      {also > 0 && <SharedWith slot={slot} also={also} />}
       {(slot.notes ?? []).map((n) => !n.tag && <div key={n.text} className={`tl-facts-line${n.warn ? " warn" : ""}`}>{n.text}</div>)}
     </div>
   );
 }
 
-const SEVERAL = "Several subtitles have these words, and the game files don't show which one belongs to this recording. The Text Editor lists them all and opens the most likely one";
+const SEVERAL = "Several subtitles have these words, and the game files don't show which one matches this recording. The Text Editor lists them all and opens the most likely one";
 
 /** A voice line's subtitle, opened in the Text Editor: the one it says, or, where several subtitles have its words
     and its length doesn't tell them apart, all of them (core: library.py `subtitle`, editor.py text_alike). */
@@ -256,10 +242,10 @@ function SubtitleLink({ slot, children }: { slot: Slot; children: ReactNode }) {
     const ids = slot.subtitle_sure ? [id] : await call<number[]>("text_alike", { id }).catch(() => [id]);
     const lang = cue?.lang || undefined; // the voice's language: its subtitle in the same one
     showLines({ ids, pick: id, lang, note: ids.length > 1
-      ? `${ids.length} subtitles have the ${lang && lang !== "us" ? "English " : ""}words of this voice line. The recording matches one of them, most likely the one that is open.`
+      ? `${ids.length} subtitles have the ${lang && lang !== "us" ? "English " : ""}words of this voice line. The open one is the most likely match.`
       : "The subtitle of this voice line." });
   };
-  return <button className="link-text" onClick={open} data-tip={slot.subtitle_sure ? "Open its subtitle in the Text Editor" : SEVERAL}>{children}</button>;
+  return <button className="link-text" onClick={open} data-tip={slot.subtitle_sure ? "Open the subtitle in the Text Editor" : SEVERAL}>{children}</button>;
 }
 
 /** Content that settles in when it takes the place of other content (its key changed). `still` is read once, when it
@@ -283,24 +269,64 @@ function CopyId({ id }: { id: string }) {
   );
 }
 
-/** Another place that plays the same audio: a piece of music or a sound set as the Index names it, else the bank.
-    It opens there, with the slot selected: in this tab when it can show it, else in the Library. */
-function AlsoLink({ id, source }: { id: string; source: string }) {
+/** The other places that play the slot's audio, grouped by where the Index has them ("Hive World": Exploring ·
+    Ambient), banks the Index doesn't name under All Archives, and cues without a name folded behind their count.
+    Each opens there with the slot selected. `also` is the full count, which can be more than the ids sent. */
+function SharedWith({ slot, also }: { slot: Slot; also: number }) {
+  const { itemIndex } = useEditor();
+  const [cuesOpen, setCuesOpen] = useState(false);
+  const { groups, cues } = useMemo(() => {
+    const groups = new Map<string, { id: string; name: string }[]>(), cues: string[] = [];
+    for (const id of slot.also_in) {
+      const at = itemIndex.byCue.get(id);
+      const bank = id.startsWith("bank:");
+      if (!at && !bank) { cues.push(id); continue; }
+      const group = at ? where(itemIndex, at.item).replace(/ ▸ [^▸]*$/, "") || "Music" : "All Archives";
+      const name = at ? `${at.item.name}${at.part.name && at.item.parts.length > 1 ? ` · ${at.part.name}` : ""}` : `Bank ${id.slice(5)}`;
+      groups.set(group, [...groups.get(group) ?? [], { id, name }]);
+    }
+    return { groups: [...groups], cues };
+  }, [slot.also_in, itemIndex]);
+  const more = also - slot.also_in.length;
+  return (
+    <div className="shared">
+      <h3>Shared with <span className="shared-n">{also}</span>
+        <Help tip="The game plays this audio in other places too." page="how-the-game-plays-music#shared-audio" /></h3>
+      <dl className="shared-groups">
+        {groups.map(([group, places]) => (
+          <div key={group}>
+            <dt>{group}</dt>
+            <dd>{places.map((p) => <PlaceLink key={p.id} id={p.id} source={slot.source}>{p.name}</PlaceLink>)}</dd>
+          </div>
+        ))}
+        {cues.length > 0 && (
+          <div>
+            <dt>Unnamed music</dt>
+            <dd>
+              <button className="link-text shared-fold" aria-expanded={cuesOpen} onClick={() => setCuesOpen(!cuesOpen)}>
+                <span className="caret" aria-hidden>▸</span>{cues.length} cue{cues.length === 1 ? "" : "s"}</button>
+              {cuesOpen && cues.map((id) => <PlaceLink key={id} id={id} source={slot.source} mono>{id}</PlaceLink>)}
+            </dd>
+          </div>
+        )}
+      </dl>
+      {more > 0 && <p className="muted small">And {more} more.</p>}
+    </div>
+  );
+}
+
+/** Another place that plays the same audio: a piece of music or a sound set as the Index names it, else a bank or a
+    cue, found in the Library (All Archives has every bank). It opens with the slot selected: in this tab when it can
+    show it, else in the Library. */
+function PlaceLink({ id, source, mono, children }: { id: string; source: string; mono?: boolean; children: ReactNode }) {
   const { itemIndex, show, openFound } = useEditor();
   const at = itemIndex.byCue.get(id);
-  if (at) {
-    return (
-      <button className="link" onClick={() => show(at.item.id, at.part.cue, source)}>
-        {at.item.name}{at.part.name && at.item.parts.length > 1 ? ` · ${at.part.name}` : ""}<small>{where(itemIndex, at.item).replace(/ ▸ [^▸]*$/, "") || "Music"}</small>
-      </button>
-    );
-  }
-  const bank = id.startsWith("bank:") ? id.slice(5) : null; // a bank the Index doesn't have: All Archives does
   const open = async () => {
-    const places = await call<Place[]>("find", { query: bank ?? id }).catch(() => []);
+    if (at) return show(at.item.id, at.part.cue, source);
+    const places = await call<Place[]>("find", { query: id.startsWith("bank:") ? id.slice(5) : id }).catch(() => []);
     if (places[0]) openFound("library", { ...places[0], source });
   };
-  return <button className="link" onClick={open}>{bank ? `Bank ${bank}` : `Cue ${id}`}<small>{bank ? "Opens in All Archives" : "Music"}</small></button>;
+  return <button className={`link${mono ? " mono" : ""}`} onClick={open}>{children}</button>;
 }
 
 const GAIN_PRESETS = [-4, 0, 4, 8]; // the same for one slot and for several
@@ -328,7 +354,7 @@ function Gain({ source, value }: { source: string; value: number }) {
   };
   return (
     <section className="insp-sec">
-      <h3>Make-Up Gain <Help tip="Louder or quieter, without changing the file or the game's mix." page="volume#make-up-gain-per-slot" />
+      <h3>Make-Up Gain <Help tip="Louder or quieter, without changing the file or the mix." page="volume#make-up-gain-per-slot" />
         <span className="val"><input className="gain-val" value={typed ?? fmtGain(v)} aria-label="Make-Up Gain in dB, typed" inputMode="decimal"
           onFocus={(e) => { setTyped(fmtGain(v)); e.currentTarget.select(); }} onChange={(e) => setTyped(e.target.value)} onBlur={takeTyped}
           onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); else if (e.key === "Escape") { escaped.current = true; e.currentTarget.blur(); } }}

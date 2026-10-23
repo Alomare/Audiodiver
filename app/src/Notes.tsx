@@ -39,7 +39,7 @@ export function NoteSection({ k, name }: { k: string; name: string }) {
     setEditing(false);
   };
   const remove = async () => {
-    if (text.trim() && !(await confirm({ title: "Delete the note?", text: `The note on ${name} goes. Undo brings it back.`, ok: "Delete", cancel: "Keep" }))) return;
+    if (text.trim() && !(await confirm({ title: "Delete the note?", text: `The note on ${name} will be deleted. Undo brings it back.`, ok: "Delete", cancel: "Keep" }))) return;
     setText("");
     setEditing(false);
     if (saved) await actions.setNote(k, "");
@@ -48,7 +48,7 @@ export function NoteSection({ k, name }: { k: string; name: string }) {
 
   return (
     <section className="insp-sec note-sec" aria-label="Note">
-      <h3>Note <Help tip="A note for yourself, saved in the project. Markdown marks headings, lists, bold and links." page="reading-the-screen#notes" /></h3>
+      <h3>Note <Help tip="A note saved in the project. Markdown formats headings, lists, bold and links." page="reading-the-screen#notes" /></h3>
       {!has && <div className="row-btns"><button className="btn quiet" onClick={() => setEditing(true)}>Add note</button></div>}
       {editing && (
         <div className="note-editor" onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) save(); }}>

@@ -15,7 +15,7 @@ export function ProjectTab() {
   const { project } = useEditor();
   return (
     <Page title="Project" wide
-      lead={<>A project is one mod for <b>HD2 Arsenal</b>, in a folder with the files it uses. <Help tip="Project folders" page="project-folders" /></>}>
+      lead={<>A project is one patch mod, in a folder with all associated files. <Help tip="Project folders" page="project-folders" /></>}>
       {project ? <ProjectPage key={project.path} /> : <NoProjectCard text="Create or open a project, or open a pack." />}
     </Page>
   );
@@ -65,7 +65,7 @@ function ProjectPage() {
         <section className="set-sec">
           <h2>Name and description</h2>
           <label className="field">
-            <span className="field-label">Name <Help tip="Arsenal keeps the name from the first import, so choose it before sharing. Leave the version out of the name." page="build-and-install#name-and-description" /></span>
+            <span className="field-label">Name <Help tip="Choose it before sharing. Mod managers keep the name from the first import. Leave out the version." page="build-and-install#name-and-description" /></span>
             <input value={name} maxLength={80} spellCheck={false} aria-invalid={!!problem} onChange={(e) => setName(e.target.value)} onBlur={saveName}
               onKeyDown={(e) => {
                 if (e.key === "Enter") e.currentTarget.blur();
@@ -74,7 +74,7 @@ function ProjectPage() {
             {problem && <small className="bad">{problem}</small>}
           </label>
           <label className="field">
-            <span className="field-label">Description <Help tip="Optional. Arsenal shows this text with the mod." page="build-and-install#name-and-description" /></span>
+            <span className="field-label">Description <Help tip="Optional. Shown with the mod in the mod manager." page="build-and-install#name-and-description" /></span>
             <textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)}
               onBlur={() => { if (description.trim() !== p.description) save({ description }); }} />
           </label>
@@ -83,12 +83,12 @@ function ProjectPage() {
         <IconEditor icon={icon} frame={frame} setIcon={setIcon} saveIcon={saveIcon} />
 
         <section className="set-sec">
-          <h2>Mod id <Help tip="Arsenal recognises the mod by this id. As long as the id stays the same, a new build updates the installed mod." page="build-and-install#mod-id" /></h2>
+          <h2>Mod id <Help tip="Mod managers recognise the mod by this id. While it stays the same, a new build updates the installed mod." page="build-and-install#mod-id" /></h2>
           <div className="pkg-id">
             <code>{p.guid}</code>
             <button className="btn quiet" onClick={() => copyText(p.guid, quick, "the mod id")}>Copy</button>
             <button className="btn quiet" onClick={() => actions.newModId()}
-              data-tip="Use this when a copied project becomes a different mod" data-tip-more="Arsenal then installs it as a separate mod">Make a new id</button>
+              data-tip="Use this when a copied project becomes a different mod" data-tip-more="Its next build installs as a separate mod">Make a new id</button>
           </div>
         </section>
 
@@ -96,7 +96,7 @@ function ProjectPage() {
         <UnusedFiles busy={busy} />
 
         <section className="set-sec">
-          <h2>Export <Help tip="A pack is one .audipack file with the project and the files it uses, to move it to another computer or keep a copy." page="project-folders#packs" /></h2>
+          <h2>Export <Help tip="A pack is one .audipack file with the project and all associated files, for moving it to another computer or keeping a copy." page="project-folders#packs" /></h2>
           <div className="row-btns">
             <button className="btn" onClick={actions.exportPack} disabled={busy}>Export as pack…</button>
           </div>
@@ -146,7 +146,7 @@ function FolderSection({ busy }: { busy: boolean }) {
       {p.files_elsewhere > 0 && (
         <div className="info-box">
           <p>{plural(p.files_elsewhere, "file")} the project uses {p.files_elsewhere === 1 ? "is" : "are"} outside its folder.
-            {" "}<Help tip="Collecting files into the project's folder" page="project-folders#collecting-files" /></p>
+            {" "}<Help tip="Collecting files into the project folder" page="project-folders#collecting-files" /></p>
           <div className="row-btns">
             <button className="btn" onClick={actions.collectFiles} disabled={busy}>Collect files</button>
           </div>
@@ -229,7 +229,7 @@ function IconEditor({ icon, frame, setIcon, saveIcon }: IconProps) {
 
   return (
     <section className="set-sec">
-      <h2>Icon <Help tip="The image is cropped to a square around its centre and resized to 540 × 540, the size Arsenal uses. You can also drop an image on the preview." page="build-and-install#icon" /></h2>
+      <h2>Icon <Help tip="Cropped to a centred square and resized to 540 × 540. Drop an image on the preview to use it." page="build-and-install#icon" /></h2>
       <div className="ico-body view-in" key={image ? "image" : "default"}>
         <p className="path" data-tip={image} data-tip-clip>{image ?? "Default icon"}</p>
         <div className="row-btns">
@@ -306,7 +306,7 @@ function IconPreview({ preview, bust, name, description }: { preview?: Icon; bus
     <div className="pkg-preview" aria-label="Preview">
       <div className="pkg-icon" data-drop={JSON.stringify({ kind: "icon" })}>
         {failed === src ? <span className="pkg-icon-missing">The image can't be read. Choose another, or use the default icon.</span>
-          : <img src={src} alt="The mod's icon" width={540} height={540} onError={() => setFailed(src)} />}
+          : <img src={src} alt="Mod icon" width={540} height={540} onError={() => setFailed(src)} />}
       </div>
       <div className="pkg-card">
         <b>{name}</b>

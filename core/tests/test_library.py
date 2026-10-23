@@ -246,7 +246,7 @@ def test_items_are_added_to_a_project_and_removed_with_their_audio(session, own,
     if only:
         st = s.library_add(only)
         assert not set(only) & set(st["library"]) and st["notes"] == [
-            f"{s._list_name(only[0])} is already in the project, because its sounds are in {_items(s)[gun]['full']}."]
+            f"The sounds of {s._list_name(only[0])} are already in the project, under {_items(s)[gun]['full']}."]
     # an archive that shares a set's bank is added, with a note: taking one off keeps the audio the other still has
     single = [it for it in _items(s).values() if it["kind"] == "sounds" and len(it["parts"]) == 1 and it["id"] != gun]
     one, archive = next((it, f"archive:{ar}") for it in single

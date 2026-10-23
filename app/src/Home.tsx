@@ -1,11 +1,8 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { AboutButton } from "./About";
 import { call, fmtWhen } from "./api";
-import { DISCORD_URL, fmtDate, HOME_ART, KOFI_URL, RELEASES, TICKER_URL } from "./content";
+import { DISCORD_URL, HOME_ART, KOFI_URL, TICKER_URL } from "./content";
 import { Fold, useLastWhile } from "./Fold";
 import { DiscordIcon, FolderIcon, KofiIcon, NextIcon, PrevIcon } from "./Icons";
-import { Logo } from "./Logo";
-import { Markdown } from "./Markdown";
 import { nav } from "./nav";
 import { openUrl, reveal } from "./platform";
 import { useEditor } from "./store";
@@ -15,8 +12,8 @@ type Info = { path: string; exists: boolean; readable: boolean; name: string; mo
 const fileName = (path: string) => path.split(/[\\/]/).pop()!.replace(/\.audi$/i, "");
 
 /** Where the app starts, laid out like the game's menu: the open project to continue (with its file, Import a mod's
-    patch and Close under it), a project to make or open, a mod to repatch; then the recent projects and what changed
-    in this version. */
+    patch and Close under it), a project to make or open, a mod to repatch or mods to combine; then the recent
+    projects. */
 export function Home() {
   const { project, recent, actions } = useEditor();
   const [info, setInfo] = useState<Record<string, Info>>({});
@@ -43,8 +40,7 @@ export function Home() {
       <div className="home-scroll">
         <div className="home-inner view-in">
           <header className="home-hero">
-            <div className="home-brand"><Logo detail />Audiodiver<AboutButton /></div>
-            <h1>A new anthem for Super Earth</h1>
+            <h1>A new anthem<br />for Super Earth</h1>
           </header>
 
           {/* a menu, as the game's own: the yellow item is the way in (Continue with a project open, else New project) */}
@@ -61,7 +57,7 @@ export function Home() {
                       <button className="x" onClick={() => reveal(shown.path)} aria-label="Show in folder" data-tip="Show in folder"><FolderIcon /></button>
                     </span>
                     <button className="link-text" onClick={() => actions.importPatch()}
-                      data-tip="Take the replaced and added sounds of an existing mod's .patch_0 file into this project">Import a mod's patch…</button>
+                      data-tip="Import the replaced and added sounds from a mod's .patch_0 file into this project">Import a mod's patch…</button>
                     <button className="link-text" onClick={actions.closeProject} data-tip="Close the project" data-tip-cmd="closeProject">Close</button>
                   </div>
                 </>
@@ -75,8 +71,8 @@ export function Home() {
               data-tip="Make one mod out of several audio mods">Combine mods</button>
           </nav>
 
-          <div className="home-cols">
-            {others.length > 0 && ( // nothing to show until a project has been made or opened
+          {others.length > 0 && ( // nothing to show until a project has been made or opened
+            <div className="home-cols">
               <section className="home-recent" aria-label="Recent projects">
                 <h2>Recent projects</h2>
                 <ul>
@@ -88,7 +84,7 @@ export function Home() {
                     const gone = leaving.includes(path);
                     return (
                       <li key={path} className={`recent-row${missing || unreadable ? " missing" : ""}${gone ? " leaving" : ""}`} inert={gone}>
-                        <button className="x recent-folder" aria-label={`Show ${name} in its folder`} disabled={missing}
+                        <button className="x recent-folder" aria-label={`Show ${name} in folder`} disabled={missing}
                           onClick={() => reveal(path)} data-tip="Show in folder"><FolderIcon /></button>
                         <button className="recent-open" disabled={missing} onClick={() => actions.openProject(path)}>
                           <span className="recent-name" data-tip={path} data-tip-more={name}>{name}</span>
@@ -96,15 +92,14 @@ export function Home() {
                         <span className="recent-when" data-tip={missing ? "Moved, renamed or deleted" : unreadable ? "Not an Audiodiver project, or damaged" : undefined}>
                           {missing ? "Not found" : unreadable ? "Can't be read" : fmtWhen(i?.modified)}</span>
                         <button className="x recent-forget" aria-label={`Remove ${name} from this list`} onClick={() => forget(path)}
-                          data-tip="Take off this list" data-tip-more="The file stays where it is">✕</button>
+                          data-tip="Remove from this list" data-tip-more="The file stays where it is">✕</button>
                       </li>
                     );
                   })}
                 </ul>
               </section>
-            )}
-            <News />
-          </div>
+            </div>
+          )}
         </div>
       </div>
       {HOME_ART.length ? <HomeArt><Community /></HomeArt>
@@ -224,42 +219,6 @@ function HomeArt({ children }: { children?: ReactNode }) {
         )}
       </div>
     </>
-  );
-}
-
-/** What changed in this version, folded to its heading until asked for; earlier versions fold out inside it. */
-function News() {
-  const [open, setOpen] = useState(false);
-  const [older, setOlder] = useState(false);
-  const [latest, ...earlier] = RELEASES;
-  if (!latest) return null;
-  return (
-    <section className={`home-news${open ? " open" : ""}`} aria-label="What's new">
-      <h2>What's new in {latest.version}{latest.date && <span className="news-date">{fmtDate(latest.date)}</span>}</h2>
-      <button className="news-toggle" aria-expanded={open} aria-controls="news-body" onClick={() => setOpen(!open)}>
-        <span className="caret" aria-hidden>▸</span>{open ? "Hide the changes" : "Show the changes"}
-      </button>
-      <Fold open={open} id="news-body">
-        <div className="news-body">
-          <Markdown tokens={latest.tokens} />
-          {earlier.length > 0 && (
-            <>
-              <button className="news-toggle" aria-expanded={older} onClick={() => setOlder(!older)}>
-                <span className="caret" aria-hidden>▸</span>{older ? "Hide earlier versions" : "Earlier versions"}
-              </button>
-              <Fold open={older}>
-                {earlier.map((r) => (
-                  <div key={r.version} className="news-older">
-                    <h3>{r.version}{r.date && <span className="news-date">{fmtDate(r.date)}</span>}</h3>
-                    <Markdown tokens={r.tokens} />
-                  </div>
-                ))}
-              </Fold>
-            </>
-          )}
-        </div>
-      </Fold>
-    </section>
   );
 }
 

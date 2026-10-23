@@ -1,18 +1,18 @@
 ---
 title: Tools and links
 group: Resources
-summary: The mod manager, free audio tools that help with music mods, and where mods are shared.
+summary: Where mods are installed and shared, and free audio tools that help with music mods.
 ---
 
 ## Installing and sharing mods
 
-- [HD2 Arsenal](https://www.nexusmods.com/helldivers2/mods/4664) is the mod manager that Audiodiver builds for, on Nexus Mods. Its installers are also on [GitHub](https://github.com/Orbit-Studios/hd2arsenal-release/releases).
+- Builds install with a Helldivers 2 mod manager.
 - [Helldivers 2 on Nexus Mods](https://www.nexusmods.com/helldivers2) is where most mods are shared.
 
 ## Editing audio
 
 - [Audacity](https://www.audacityteam.org) is a free editor for cutting, fading and exporting WAV or FLAC. Its *Loudness Normalization* effect sets a file to a LUFS target.
-- [Youlean Loudness Meter](https://youlean.co/youlean-loudness-meter/) is a free loudness meter. Use it to compare new music with the game's level of −13 to −15 LUFS.
+- [Youlean Loudness Meter](https://youlean.co/youlean-loudness-meter/) is a free loudness meter. Use it to compare new music with the original level of −13 to −15 LUFS.
 - [FFmpeg](https://ffmpeg.org) converts between almost any audio formats from the command line.
 
 ## Under the hood

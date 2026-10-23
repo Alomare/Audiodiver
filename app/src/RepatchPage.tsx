@@ -24,16 +24,16 @@ type Part = {
 /** The repatched mod (Session.repatch's result). */
 type Made = { name: string; zip: string; mb: number; kept_id: boolean; manifest: boolean; parts: Part[] };
 
-const OLDER = "The mod was made for an older game version, and its copy of the sounds still had these. The current game no longer has them, so they aren't part of the mod.";
+const OLDER = "The mod's sound banks are from an older game version and still had these sounds. The current game no longer has them, so they are left out.";
 const OLDER_PAGE = "repatching#sounds-from-an-older-game-version";
-const SHARED = "The mod's banks had older copies of these. Some are shared by many banks, like the settings every weapon sound goes through, and an older copy can silence sounds the mod never changed. The new ZIP has the current ones.";
+const SHARED = "The mod's banks had older copies of these. Some are shared by many banks, like the settings every weapon sound goes through, so an older copy can silence sounds the mod never changed. The new ZIP has the current ones.";
 const SHARED_PAGE = "repatching#shared-settings-from-an-older-game-version";
 
 /** A mod checked for sound banks of an older game version (core installed.check), and each of its patches. */
 type State = "shared" | "older" | "current" | "unreadable";
 type Checked = { label: string; file: string; state: State; objects?: number; reach?: number; weapons?: number };
-type Installed = { name: string; source: string; where: "arsenal" | "game"; deployed: boolean; state: State; patches: Checked[] };
-type CheckResult = { mods: Installed[]; quiet: number; arsenal: boolean };
+type Installed = { name: string; source: string; where: "manager" | "game"; deployed: boolean; state: State; patches: Checked[] };
+type CheckResult = { mods: Installed[]; quiet: number; library: boolean };
 const STATE_TEXT: Record<State, string> = {
   shared: "Older shared settings", older: "Older sound banks", unreadable: "Can't be read", current: "Up to date",
 };
@@ -124,12 +124,12 @@ export function RepatchPage() {
                 <p className="warn-box">The patch holds no audio, so there is nothing to repatch.</p>
               ) : (
                 <>
-                  {scan.patches[0].files > 1 && <p className="set-note">The mod's {scan.patches[0].files} patch files are built into one patch. <Help tip="The game loads them over each other as one mod." page="repatching#repatching-a-mod" /></p>}
+                  {scan.patches[0].files > 1 && <p className="set-note">The {scan.patches[0].files} patch files are built into one patch. <Help tip="The game loads them over each other as one mod." page="repatching#repatching-a-mod" /></p>}
                   {scan.patches[0].others.length > 0 && <p className="set-note">Also holds {scan.patches[0].others.join(" and ")}, carried over.</p>}
                 </>
               )}
               <label className="field">
-                <span className="field-label">Name <Help tip="The mod's name in HD2 Arsenal." page="repatching#repatching-a-mod" /></span>
+                <span className="field-label">Name <Help tip="Name shown in the mod manager." page="repatching#repatching-a-mod" /></span>
                 <input value={name} maxLength={80} spellCheck={false} aria-invalid={!!problem} disabled={running}
                   onChange={(e) => setName(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !problem) go(); }} />
                 {problem && <small className="bad">{problem}</small>}
@@ -137,7 +137,7 @@ export function RepatchPage() {
               {scan.manifest && (
                 <p className="set-note">Kept from the manifest: {listed([scan.icon && "the icon", scan.description && "the description",
                   scan.patches.length > 1 && "the options", "the files beside the patches", scan.guid && "the mod id"])}.
-                  {scan.guid && " Importing the new ZIP in Arsenal updates the old mod."}</p>
+                  {scan.guid && " Importing the new ZIP in a mod manager updates the old mod."}</p>
               )}
               <div className="row-btns">
                 <button className="btn quiet" disabled={running || reading} onClick={async () => read(await pickMod())}>Choose another mod…</button>
@@ -148,7 +148,7 @@ export function RepatchPage() {
               <p>Drop a mod here as a <b>ZIP</b>, a <b>folder</b> or a <b>.patch_0</b> file.</p>
               <div className="row-btns">
                 <button className="btn" disabled={reading} onClick={async () => read(await pickMod())}>Choose a ZIP or patch file…</button>
-                <button className="btn" disabled={reading} onClick={async () => read(await pickFolder(undefined, "Choose the mod's folder"))}>Choose a folder…</button>
+                <button className="btn" disabled={reading} onClick={async () => read(await pickFolder(undefined, "Choose the mod folder"))}>Choose a folder…</button>
               </div>
               {reading && <p className="set-note">Reading…</p>}
             </div>
@@ -168,14 +168,14 @@ export function RepatchPage() {
           <div className="set-list">
             <label className="check">
               <input type="checkbox" checked={everyBank} disabled={running} onChange={(e) => setEveryBank(e.target.checked)} />
-              <span>Patch every bank with the sounds <Help tip="A sound is often in many banks, such as a clip that several weapons share. With this on, the mod's audio goes into all of them and plays wherever the game uses the sound, but the mod gets bigger. With it off, only the banks the mod patched get it, as in the original." page={EVERY_BANK_PAGE} /></span>
+              <span>Patch every bank with the sounds <Help tip="A sound is often in many banks, such as a clip that several weapons share. With this on, the mod's audio goes into all of them and plays wherever the sound is used, but the mod gets bigger. With it off, only the banks the mod patched get it, as in the original." page={EVERY_BANK_PAGE} /></span>
             </label>
           </div>
         </section>
 
         <div className="bld-box rp-go">
           <button className="btn primary build" onClick={go} disabled={!scan || !!problem || busy || silent}
-            data-tip={!scan ? "Choose a mod first" : silent ? "The mod holds no audio" : "Apply the mod's audio and settings to the current game's sound banks and build a new ZIP"}>
+            data-tip={!scan ? "Choose a mod first" : silent ? "The mod holds no audio" : "Apply the mod's audio and settings to the current sound banks and build a new ZIP"}>
             {running ? "Repatching…" : "Repatch"}
           </button>
           {running && job && (
@@ -204,7 +204,7 @@ function Patches({ scan }: { scan: Scan }) {
   const audio = scan.patches.filter((p) => p.audio), plain = scan.patches.length - audio.length;
   return (
     <div className="rp-patches">
-      <span className="field-label">Patches <Help tip={scan.manifest ? "Each patch with audio is rebuilt in its original place, so the mod keeps its options." : "Without a manifest, each becomes an option of the new mod."} page="repatching#repatching-a-mod" /></span>
+      <span className="field-label">Patches <Help tip={scan.manifest ? "Each patch with audio is rebuilt in its original place, so the options stay the same." : "Without a manifest, each becomes an option of the new mod."} page="repatching#repatching-a-mod" /></span>
       {audio.length === 0 ? <p className="warn-box">The mod holds no audio, so there is nothing to repatch.</p> : (
         <ul>
           <li>{plural(audio.length, "patch", "patches")} with audio, rebuilt on the current game</li>
@@ -215,7 +215,7 @@ function Patches({ scan }: { scan: Scan }) {
         <summary>Show all</summary>
         <ul>
           {scan.patches.map((p) => (
-            <li key={p.key}>{p.label || fileName(p.key)}{!p.audio ? <small>No audio: kept as it is.</small> : (
+            <li key={p.key}>{p.label || fileName(p.key)}{!p.audio ? <small>No audio, kept as it is.</small> : (
               <>{p.files > 1 && <small>{p.files} patch files, built into one.</small>}{p.others.length > 0 && <small>Also holds {p.others.join(" and ")}, carried over.</small>}</>
             )}</li>
           ))}
@@ -250,7 +250,7 @@ function Outcome({ job, again }: { job: Job; again: () => void }) {
     <section className="set-sec view-in rp-made" aria-label="Repatched">
       <h2>Repatched</h2>
       <p><b>{m.name}</b>: {fileName(m.zip)}, {m.mb} MB.
-        {m.kept_id ? " It keeps the old mod's id, so importing it in Arsenal updates that mod." : " Remove the old mod in Arsenal before importing this one."}</p>
+        {m.kept_id ? " It keeps the old mod id, so importing it in a mod manager updates the old mod." : " Remove the old mod in the mod manager before importing this one."}</p>
       <div className="row-btns">
         <button className="btn" onClick={() => reveal(m.zip)}>Show in folder</button>
         <button className="btn quiet" onClick={again}>Repatch another mod</button>
@@ -300,7 +300,7 @@ function Outcome({ job, again }: { job: Job; again: () => void }) {
   );
 }
 
-/** The mods in HD2 Arsenal and in the game's folder, checked for sound banks of an older game version; a flagged
+/** The mods in the mod managers' libraries and in the game's folder, checked for sound banks of an older game version; a flagged
     one opens in the form above with its Repatch button. */
 function InstalledMods({ busy, onPick }: { busy: boolean; onPick: (path: string) => void }) {
   const { actions, jobs } = useEditor();
@@ -309,7 +309,7 @@ function InstalledMods({ busy, onPick }: { busy: boolean; onPick: (path: string)
   const r: CheckResult | null = job?.state === "done" ? job.result : null;
   return (
     <section className="set-sec">
-      <h2>Installed mods <Help tip="Finds mods with sound banks from an older game version, in HD2 Arsenal and in the game's folder. Such a mod can mute sounds it never changed, like all gunfire." page="repatching#checking-installed-mods" /></h2>
+      <h2>Installed mods <Help tip="Finds mods with sound banks from an older game version, in mod manager libraries and the game folder. Such a mod can mute sounds it never changed, like all gunfire." page="repatching#checking-installed-mods" /></h2>
       <div className="row-btns">
         <button className="btn" onClick={actions.checkMods} disabled={checking}>{checking ? "Checking…" : r ? "Check again" : "Check installed mods"}</button>
         {checking && <span className="set-note">{job?.doing || "Starting…"}</span>}
@@ -317,7 +317,7 @@ function InstalledMods({ busy, onPick }: { busy: boolean; onPick: (path: string)
       {job?.state === "failed" && <p className="warn-box">{job.error}</p>}
       {r && (
         <div className="view-in rp-found">
-          {!r.arsenal && <p className="set-note">HD2 Arsenal's library wasn't found, so only the game's folder was checked.</p>}
+          {!r.library && <p className="set-note">No mod manager library was found, so only the game folder was checked.</p>}
           {r.mods.length === 0 && <p className="set-note">No installed mod has sound banks.</p>}
           {r.mods.map((m) => <InstalledMod key={m.source} m={m} busy={busy} onPick={onPick} />)}
           {r.quiet > 0 && <p className="set-note">{plural(r.quiet, "mod")} without sound banks not listed.</p>}
@@ -337,7 +337,7 @@ function InstalledMod({ m, busy, onPick }: { m: Installed; busy: boolean; onPick
       {m.state === "shared" && (
         <p className="set-note">Can mute sounds in {plural(widest.reach ?? 0, "other bank")}{widest.weapons ? `, ${widest.weapons} of them weapon banks` : ""}. <Help tip={SHARED} page={SHARED_PAGE} /></p>
       )}
-      {m.state === "older" && <p className="set-note">Its own sounds can be wrong or missing. <Help tip={OLDER} page={OLDER_PAGE} /></p>}
+      {m.state === "older" && <p className="set-note">The mod's sounds can be wrong or missing. <Help tip={OLDER} page={OLDER_PAGE} /></p>}
       {mixed && (
         <details className="rp-log">
           <summary>Options</summary>
@@ -356,13 +356,13 @@ function InstalledMod({ m, busy, onPick }: { m: Installed; busy: boolean; onPick
 /** "10 replaced sounds, 6 added sounds and the mod's settings on 4 sounds and containers". */
 function carried(p: Part) {
   return listed([p.imported && plural(p.imported, "replaced sound"), p.added && plural(p.added, "added sound"),
-    p.settings && `its settings on ${plural(p.settings, "sound or container", "sounds and containers")}`, ...p.others]) || "Nothing to carry over";
+    p.settings && `settings on ${plural(p.settings, "sound or container", "sounds and containers")}`, ...p.others]) || "Nothing to carry over";
 }
 
 /** "4 patches, with 20 to 28 replaced or added sounds each", for a mod of several. */
 function rebuilt(ps: Part[]) {
   const n = ps.map((p) => (p.imported ?? 0) + (p.added ?? 0)), lo = Math.min(...n), hi = Math.max(...n);
-  const also = [ps.some((p) => p.settings) && "the mod's settings", ps.some((p) => p.others.length) && "its other files"].filter(Boolean);
+  const also = [ps.some((p) => p.settings) && "the mod's settings", ps.some((p) => p.others.length) && "other files"].filter(Boolean);
   const settings = also.length ? ` and ${also.join(" and ")}` : "";
   if (!hi) return `${plural(ps.length, "patch", "patches")}, with ${also.join(" and ") || "nothing to carry over"}`;
   return `${plural(ps.length, "patch", "patches")}, with ${lo === hi ? hi : `${lo} to ${hi}`} replaced or added sound${hi === 1 ? "" : "s"}${ps.length > 1 ? " each" : ""}${settings}`;
@@ -399,7 +399,7 @@ function About() {
       </ul>
       <h3>Installing</h3>
       <ul>
-        <li>Import the new ZIP in Arsenal in place of the old mod.</li>
+        <li>Import the new ZIP in the mod manager in place of the old mod.</li>
       </ul>
       <p className="set-note">A repatched mod is still its author's work. Keep it for personal use, and share it only with the author's permission.</p>
       <p className="set-note"><button className="link-text" onClick={() => nav.go("wiki", "repatching")}>More in the Wiki</button></p>

@@ -55,10 +55,10 @@ function Startup({ error, stage }: { error: string | null; stage?: string }) {
           <>
             <p className="warn-box">{picked ?? error}</p>
             {/* a folder that was just refused says where to look itself */}
-            {!picked && <p className="muted">Choose the folder Steam installed Helldivers 2 in,
-              usually <code>…\steamapps\common\Helldivers 2</code>. Audiodiver only reads it.</p>}
+            {!picked && <p className="muted">Choose the Helldivers 2 install folder,
+              usually <code>…\steamapps\common\Helldivers 2</code>. Audiodiver only reads from it.</p>}
             <div className="row-btns">
-              <button className="btn primary" onClick={() => choose()}>Choose the game's folder…</button>
+              <button className="btn primary" onClick={() => choose()}>Choose the game folder…</button>
               {where?.chosen && <button className="btn quiet" onClick={() => choose(null)}>Look in Steam again</button>}
             </div>
           </>
@@ -324,10 +324,10 @@ const APP_TABS: MainTab[] = [
 ];
 const MOD_TABS: MainTab[] = [
   { id: "project", name: "Project", about: "name, icon and files", cmd: "tabProject", Icon: ProjectIcon },
-  { id: "library", name: "Library", about: "all the game's audio", cmd: "tabLibrary", Icon: LibraryIcon },
+  { id: "library", name: "Library", about: "all game audio", cmd: "tabLibrary", Icon: LibraryIcon },
   { id: "editor", name: "Audio Editor", about: "replace what the project lists", cmd: "tabEditor", Icon: AudioIcon },
-  { id: "text", name: "Text Editor", about: "subtitles and the rest of the game's text", cmd: "tabText", Icon: TextIcon },
-  { id: "build", name: "Build", about: "the mod's ZIP", cmd: "tabBuild", Icon: BuildIcon },
+  { id: "text", name: "Text Editor", about: "subtitles and all other game text", cmd: "tabText", Icon: TextIcon },
+  { id: "build", name: "Build", about: "the mod ZIP", cmd: "tabBuild", Icon: BuildIcon },
 ];
 /** Why the Build tab carries a dot: the ZIP in the build folder isn't the project as it is now. */
 const REBUILD = { new: "not built yet", changed: "changed since the last build", game: "the game updated since the last build" };
@@ -387,7 +387,7 @@ function Rail() {
   const mainTab = ({ id, name, about, cmd, Icon }: MainTab) => {
     let label = name, shown = name, icon = <Icon />, badge = 0, dot = false, cls = "";
     if (id === "project" && project) { // the project's own icon and name
-      [label, shown, about, cls] = [`Project, ${project.name}`, project.name, "the project's name, icon and files", " tab-mod"];
+      [label, shown, about, cls] = [`Project, ${project.name}`, project.name, "name, icon and files", " tab-mod"];
       if (broken !== iconSig)
         icon = <img className="tab-mod-icon" src={iconUrl(iconSig)} alt="" draggable={false} onError={() => setBroken(iconSig)} />;
     }

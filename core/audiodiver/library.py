@@ -45,7 +45,7 @@ from .titles import title
 PREFIX = "content/audio/"
 CONTAINERS = (0x05, 0x06, 0x07, 0x09)  # random/sequence, switch, actor-mixer, layer: what a Sound can sit in
 MUSIC = {"id": "music", "name": "Music", "hue": 300,
-         "about": "The game's music by where it plays, from the ship to the credits."}
+         "about": "Music by where it plays, from the ship to the credits."}
 BIG_GROUP, CHUNK = 150, 100  # a group with more sounds than this is listed in runs of CHUNK
 ALSO_LISTED = 8              # how many of the other places a sound plays in a slot names; the rest are counted
 WIDELY = 10                  # a sound in this many other banks or more is one a whole family of banks shares

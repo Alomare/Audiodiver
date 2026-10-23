@@ -253,7 +253,7 @@ class MusicList:
         for v in sorted(values - {f["value"] for f in known}):
             name = v.removeprefix("music_enemy_").replace("_", " ").title()
             known.append({"value": v, "id": f"faction-{v}", "name": name, "short": name,
-                          "about": f"Combat music for the game's {v} (a faction that Audiodiver can't identify yet)."})
+                          "about": f"Combat music for {v}, a faction that Audiodiver can't identify yet."})
         return [f for f in known if f["value"] in values]
 
     def _combat_role(self, cid, factions):
@@ -307,7 +307,7 @@ class MusicList:
         if not state:
             return "Started directly by a game event."
         sub = f.get(state)
-        return f"Starts when the game's MUSIC state is {state}" + (f" and {state} is {sub}" if sub else "") + "."
+        return f"Starts when the MUSIC state is {state}" + (f" and {state} is {sub}" if sub else "") + "."
 
     # --- stingers and bridges
     def _place(self, oid) -> Place | None:

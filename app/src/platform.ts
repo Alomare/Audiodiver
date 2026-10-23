@@ -84,7 +84,7 @@ export async function pickPatch(): Promise<string | null> {
 
 /** A mod to repatch: its ZIP or its patch file (a folder: pickFolder). */
 export async function pickMod(): Promise<string | null> {
-  if (!isTauri()) return promptPaths("The mod's ZIP or .patch_0 file", false)?.[0] ?? null;
+  if (!isTauri()) return promptPaths("Mod ZIP or .patch_0 file", false)?.[0] ?? null;
   const { open } = await import("@tauri-apps/plugin-dialog");
   const r = await open({ multiple: false, title: "Choose a mod to repatch",
     filters: [{ name: "Mods (.zip, .patch_0)", extensions: ["zip", "patch_0", "patch_1", "patch_2", "patch_3", "patch_4"] }, { name: "All files", extensions: ["*"] }] });
@@ -93,7 +93,7 @@ export async function pickMod(): Promise<string | null> {
 
 /** Mods to combine: ZIPs and patch files, several at once. */
 export async function pickMods(): Promise<string[] | null> {
-  if (!isTauri()) return promptPaths("The mods' ZIP or .patch_0 files", true);
+  if (!isTauri()) return promptPaths("Mod ZIPs or .patch_0 files", true);
   const { open } = await import("@tauri-apps/plugin-dialog");
   const r = await open({ multiple: true, title: "Choose mods to combine",
     filters: [{ name: "Mods (.zip, .patch_0)", extensions: ["zip", "patch_0", "patch_1", "patch_2", "patch_3", "patch_4"] }, { name: "All files", extensions: ["*"] }] });

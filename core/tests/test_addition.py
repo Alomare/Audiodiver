@@ -168,7 +168,7 @@ def test_takes_layers_and_clips_of_their_own_show_where_they_play(session, tmp_p
 
     row = next(r for x in after for r in x["stems"][0]["slots"]
                if not r.get("added") and not r.get("was") and r.get("object") and r["sound_banks"] < r["banks"])
-    with pytest.raises(EditorError, match="new audio first"):
+    with pytest.raises(EditorError, match="new audio to the slot first"):
         s.own_clip(row["source"], row["object"])
     s.assign(row["source"], str(_wav(tmp_path / "d.wav")))
     st = s.own_clip(row["source"], row["object"])

@@ -102,7 +102,7 @@ export function PlayThrough({ onThrough, onMark }: { onThrough?: (t: Through | n
 
   return (
     <div className="through" aria-label="Play the whole cue">
-      <span className="through-label" data-tip={`The segments in order, handing over at their Exit points${t?.random ? ". The game shuffles parts of this cue" : ""}`}>Play through</span>
+      <span className="through-label" data-tip={`Plays the segments in order, switching at each Exit point${t?.random ? ". The game shuffles parts of this cue" : ""}`}>Play through</span>
       {button("game", readOnly ? "Play" : "Original")}
       {!readOnly && button("mine", "Replaced")}
       {active ? (

@@ -112,7 +112,7 @@ export type ProjectState = {
   files_elsewhere: number;  // files it uses from outside its folder (Collect files copies them in)
   move_to: string | null;   // where Move would put the project file; null when the folder is its own
   revision: number;      // the core's count of changes to what is open: a no-op edit leaves it
-  description: string;   // the text HD2 Arsenal shows with the mod
+  description: string;   // the text a mod manager shows with the mod
   icon: Icon;
   icon_frame: IconFrame; // the icon's full frame, defaults included
   loudness_analysis: boolean;
@@ -239,11 +239,11 @@ export function fmtTime(ms: number | null | undefined) {
   return `${m}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 }
 
-/** What HD2 Arsenal can't have in a mod's name (Build, Repatch): it uses the name as a folder name. */
+/** What a mod manager can't have in a mod's name (Build, Repatch): it uses the name as a folder name. */
 export function nameProblem(name: string): string | null {
   if (!name.trim()) return "A mod needs a name.";
   const bad = [...new Set([...name].filter((c) => c.charCodeAt(0) > 126 || c.charCodeAt(0) < 32 || '\\/:*?"<>|'.includes(c)))];
-  if (bad.length) return `Arsenal can't use ${bad.join(" ")} in a name, because it names a folder after the mod. Use letters, digits, spaces and - _ ( ).`;
+  if (bad.length) return `Mod managers can't use ${bad.join(" ")} in a name, because it becomes a folder name. Use letters, digits, spaces and - _ ( ).`;
   if (!/[A-Za-z0-9]/.test(name)) return "A name needs a letter or a digit.";
   return null;
 }

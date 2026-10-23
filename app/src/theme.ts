@@ -13,7 +13,7 @@ export type BarSide = "top" | "right" | "bottom" | "left";
 export const BAR_SIDES: [BarSide, string][] = [["top", "Top"], ["right", "Right"], ["bottom", "Bottom"], ["left", "Left"]];
 export const barIsVertical = (side: BarSide) => side === "left" || side === "right";
 export type Theme = {
-  mode: ThemeMode;
+  mode: ThemeMode | null;   // dark or light; null follows the system (Windows' app mode)
   hue: number;              // the primary colour's hue
   hue2: number;             // the secondary colour's hue
   size: number;
@@ -54,6 +54,9 @@ export const FONTS: { id: FontId; name: string; stack: string; about: string }[]
 export const fontStack = (id: FontId) => (FONTS.find((f) => f.id === id) ?? FONTS[0]).stack;
 export const DEFAULT_THEME: Theme = { mode: "dark", hue: YELLOW_HUE, hue2: BLUE_HUE, size: DEFAULT_SIZE, bodyFont: "archivo", titleFont: "archivo",
   density: "balanced", contrast: null, motion: null, speed: 1, night: false, warmth: DEFAULT_WARMTH, bar: "top", labels: true };
+/** What Reset in Settings ▸ Theme gives: the defaults, with dark or light following the system as well. A first start
+    stays dark, the look Audiodiver is made in. */
+export const RESET_THEME: Theme = { ...DEFAULT_THEME, mode: null };
 const KEY = "audiodiver.theme";
 
 // ---- colour maths: OKLCH -> sRGB, so every hue gets the same perceived brightness
@@ -134,7 +137,7 @@ export function nightTint(warmth: number) {
 function load(): Theme {
   try {
     const t = JSON.parse(localStorage.getItem(KEY) ?? "null");
-    if (t && (t.mode === "dark" || t.mode === "light") && Number.isFinite(t.hue)) {
+    if (t && (t.mode === "dark" || t.mode === "light" || t.mode === null) && Number.isFinite(t.hue)) {
       const font = (id: unknown): FontId => (FONTS.some((f) => f.id === id) ? (id as FontId) : "archivo");
       return { mode: t.mode, hue: t.hue, hue2: Number.isFinite(t.hue2) ? t.hue2 : BLUE_HUE, size: TEXT_SIZES.includes(t.size) ? t.size : DEFAULT_SIZE,
         bodyFont: font(t.bodyFont), titleFont: font(t.titleFont),
@@ -155,6 +158,9 @@ const listeners = new Set<() => void>();
 // its contrast themes as more contrast
 const reduced = typeof matchMedia === "function" ? matchMedia("(prefers-reduced-motion: reduce)") : null;
 const more = typeof matchMedia === "function" ? matchMedia("(prefers-contrast: more)") : null;
+const light = typeof matchMedia === "function" ? matchMedia("(prefers-color-scheme: light)") : null;
+/** Dark or light: the user's choice, else the system's. */
+export const modeOf = (t: Theme = current): ThemeMode => t.mode ?? (light?.matches ? "light" : "dark");
 /** Whether the system asks apps for more contrast. */
 export const systemWantsContrast = () => !!more?.matches;
 /** Whether high contrast is on: the user's choice, else the system's. */
@@ -171,7 +177,8 @@ export const motionMs = (ms: number) => (motionOn() ? ms / current.speed : 0);
 
 function apply(t: Theme) {
   const root = document.documentElement;
-  root.dataset.theme = t.mode;
+  const mode = modeOf(t);
+  root.dataset.theme = mode;
   root.style.setProperty("--fs", String(t.size / DEFAULT_SIZE));
   root.style.setProperty("--body", fontStack(t.bodyFont));
   root.style.setProperty("--title", fontStack(t.titleFont));
@@ -179,13 +186,13 @@ function apply(t: Theme) {
   root.dataset.contrast = high ? "high" : "normal";
   root.dataset.density = t.density;
   root.style.setProperty("--sp", String(DENSITIES.find(([d]) => d === t.density)?.[2] ?? 1));
-  const a = accentFor(t.mode, t.hue, high, t.hue2);
+  const a = accentFor(mode, t.hue, high, t.hue2);
   root.style.setProperty("--accent", a.accent);
   root.style.setProperty("--accent-fg", a.fg);
   root.style.setProperty("--accent-dim", a.dim);
   root.style.setProperty("--accent-hover", a.hover);
   root.style.setProperty("--accent-ink", a.ink);
-  const s = secondFor(t.mode, t.hue2, high);
+  const s = secondFor(mode, t.hue2, high);
   root.style.setProperty("--second-fg", s.fg);
   root.style.setProperty("--second-dim", s.dim);
   const on = motionOn(t);
@@ -201,6 +208,7 @@ function apply(t: Theme) {
 const systemChanged = () => { apply(current); current = { ...current }; listeners.forEach((f) => f()); };
 reduced?.addEventListener("change", systemChanged);
 more?.addEventListener("change", systemChanged);
+light?.addEventListener("change", systemChanged);
 
 // a colour slider's drag saves the theme at most every SAVE_MS, and only the components that use a colour re-render
 // (useThemeValue): each move cost 65-90 ms on a slow PC
@@ -224,7 +232,8 @@ export const theme = {
     }
     listeners.forEach((f) => f());
   },
-  reset() { theme.set(DEFAULT_THEME); },
+  /** Every setting back to its default, and dark or light, contrast and animations following the system. */
+  reset() { theme.set(RESET_THEME); },
   subscribe(f: () => void) { listeners.add(f); return () => { listeners.delete(f); }; },
   /** Call once before the first render, so the app never flashes the wrong theme. */
   init() { apply(current); },

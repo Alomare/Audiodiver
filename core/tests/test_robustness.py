@@ -46,11 +46,11 @@ def server():
 # --- names and files
 @pytest.mark.parametrize("name, problem", [
     ("Dune OST", None),
-    ("", "a mod needs a name"),
-    (" Spaced ", "it starts or ends with a space"),
-    ("---", "it needs a letter or a digit"),
-    ("Trilha Épica", "HD2 Arsenal can't use É in a name (letters, digits, spaces and - _ ( ) are fine)"),
-    ("a/b", "HD2 Arsenal can't use / in a name (letters, digits, spaces and - _ ( ) are fine)"),
+    ("", "A mod needs a name"),
+    (" Spaced ", "The name starts or ends with a space"),
+    ("---", "The name needs a letter or a digit"),
+    ("Trilha Épica", "Mod managers can't use É in a name (letters, digits, spaces and - _ ( ) are fine)"),
+    ("a/b", "Mod managers can't use / in a name (letters, digits, spaces and - _ ( ) are fine)"),
 ])
 def test_names_hd2_arsenal_takes_and_why_not(name, problem):
     assert arsenal.name_problem(name) == problem

@@ -88,7 +88,7 @@ def out_folder(folder) -> Path:
         raise EditorError("Choose a folder to save into")
     f = Path(folder)
     if not f.is_absolute():
-        raise EditorError(f"{folder} needs its full path")
+        raise EditorError(f"{folder} isn't a full path")
     if f.is_file():
         raise EditorError(f"{f.name} is a file. Choose a folder.")
     try:
@@ -203,8 +203,8 @@ class Session:
             folder, how = locate(load_settings().get("game_data"))
             again = bool(self.game_where.get("path"))  # another folder was chosen: this isn't the start-up read
             self.game_where = {"path": str(folder), "how": how}
-            self.stage = ("Reading the game's audio from the new folder" if again
-                          else "Reading the game's audio (first run after a game update takes about a minute)")
+            self.stage = ("Reading the game audio from the new folder" if again
+                          else "Reading the game audio (the first run after a game update takes about a minute)")
             ix = AudioIndex(Game(folder), log=lambda *a: None)
             self.stage = "Mapping the music"
             cat = Catalog(CueMap(ix, log=lambda *a: None))
@@ -343,7 +343,7 @@ class Session:
                 try:
                     data = self.ix.wem(sid)
                 except KeyError:  # a "No audio" slot: the game's data names it, no file holds it
-                    raise EditorError(f"Sound {sid} has no audio in the game's files") from None
+                    raise EditorError(f"Sound {sid} has no audio in the game files") from None
                 src.write_bytes(data)
                 tmp = out.with_name(f"{sid}.partial.wav")
                 subprocess.run([wem.VGMSTREAM, "-o", str(tmp), str(src)], check=True, capture_output=True)
@@ -636,7 +636,7 @@ class Session:
         def apply(p):
             r = self._replacement(p, sid)
             if not r:
-                raise EditorError("Give the slot its new audio first")
+                raise EditorError("Add new audio to the slot first")
             (new,) = self._new_ids(p, 1)
             p.additions.append(Addition("own", sound=snd, source=new))
             r.target = new
@@ -783,11 +783,11 @@ class Session:
                 have = [c for c in mine if c in held]
                 owners = ", ".join(self._list_name(o) for o in dict.fromkeys(held[c] for c in have))
                 if mine and len(have) == len(it["parts"]):
-                    notes.append(f"{self._list_name(iid)} is already in the project, because its sounds are in {owners}.")
+                    notes.append(f"The sounds of {self._list_name(iid)} are already in the project, under {owners}.")
                     continue
                 if have:
-                    notes.append(f"{self._list_name(iid)} added. {len(have)} of its {len(mine)} banks "
-                                 f"{'was' if len(have) == 1 else 'were'} already in the project, in {owners}. Their "
+                    notes.append(f"{self._list_name(iid)} added. {len(have)} of {len(mine)} banks "
+                                 f"{'was' if len(have) == 1 else 'were'} already in the project, under {owners}. Those "
                                  f"sounds show under both.")
                 new.append(iid)
                 for c in mine:
@@ -988,7 +988,7 @@ class Session:
             raise EditorError("Choose an audio file")
         audio = Path(audio)
         if not audio.is_absolute():
-            raise EditorError(f"{audio} needs its full path")
+            raise EditorError(f"{audio} isn't a full path")
         if not audio.exists():
             raise EditorError(f"{audio} wasn't found")
         if audio.suffix.lower() not in AUDIO_TYPES or audio.is_dir():
@@ -1216,8 +1216,8 @@ class Session:
             raise EditorError(f"{folder} is not a folder")
         folder = folder.resolve()
         if self.game_where["path"] and in_game_folder(folder, self.game_where["path"]):
-            raise EditorError("That folder is inside the game's folder, and Audiodiver never writes there. Choose a folder "
-                              "outside it, and import the ZIP in HD2 Arsenal.")
+            raise EditorError("That folder is inside the game folder, and Audiodiver never writes there. Choose another "
+                              "folder, and import the ZIP in a mod manager.")
         if folder == p.default_build_dir().resolve():
             return ""
         try:
@@ -1393,7 +1393,7 @@ class Session:
         with self.lock:
             p = self._need_project()
             if pf.own_folder(p.path):
-                raise EditorError("The project is in a folder of its own already")
+                raise EditorError("The project already has a folder to itself")
             self._files_busy()
             old_file, old = p.path, p.path.parent
             dest = pf.move_dest(old_file)
@@ -1638,8 +1638,8 @@ class Session:
         if not patch_path.is_file():
             raise EditorError(f"{patch_path} wasn't found")
         if not re.search(r"\.patch_\d+$", patch_path.name, re.I):
-            raise EditorError(f"{patch_path.name} isn't a patch file. Choose the mod's .patch_0 file. Audiodiver reads the .stream file "
-                              f"next to it as well.")
+            raise EditorError(f"{patch_path.name} isn't a patch file. Choose a .patch_0 file. Audiodiver also reads the .stream file "
+                              f"next to it.")
 
         def run(job):
             # a folder per patch: two mods' patches of one archive have the same name, so the name of the folder
@@ -1763,7 +1763,7 @@ class Session:
 
     def repatch_scan(self, path):
         """What repatching `path` (a .patch_N, a folder or a mod's ZIP) would take: its patches, and the name, icon
-        and Arsenal id a manifest gives."""
+        and mod id a manifest gives."""
         from .repatch import RepatchError, scan
         try:
             f = scan(path)
@@ -1781,7 +1781,7 @@ class Session:
                 "folder": str(self._repatch_root()), "patches": [patch(p) for p in f.patches]}
 
     def check_mods(self):
-        """The installed mods (the game's data folder and HD2 Arsenal's library) checked for sound banks of an older
+        """The installed mods (the game's data folder and the mod managers' libraries) checked for sound banks of an older
         game version (installed.check), as a job: its result lists each mod with sound banks, worst first."""
         from .installed import check
         self.require_game()
@@ -1838,7 +1838,7 @@ class Session:
             try:
                 out += carried_of(str(path))
             except (ValueError, OSError, struct.error) as e:
-                raise EditorError(f"Its files besides audio can't be read: {e}") from None
+                raise EditorError(f"The files besides audio can't be read: {e}") from None
         return out
 
     def repatch(self, path, name="", folder="", every_bank=False):
@@ -1861,12 +1861,12 @@ class Session:
             raise EditorError(str(e)) from None
         name = str(name or "").strip() or f.name or "Repatched mod"
         if problem := name_problem(name):
-            raise EditorError(f"The name: {problem}")
+            raise EditorError(problem)
         root = Path(folder) if given(folder) else self._repatch_root()
         if not root.is_absolute():
             raise EditorError("Choose where repatched mods go (a full path)")
         if in_game_folder(root, self.ix.game.data):
-            raise EditorError(f"{root} is inside the game's folder, and Audiodiver never writes there")
+            raise EditorError(f"{root} is inside the game folder, and Audiodiver never writes there")
         if any(j.kind in ("build", "repatch") and j.state == "running" for j in self.jobs.values()):
             raise EditorError("A build is already running")
         if given(folder):
@@ -1932,7 +1932,7 @@ class Session:
                         parts.append({"label": pt.label or pt.key, "kept": str(e), "others": [], "left": [],
                                       "audio": any(self._kinds(f, key)[0] for key in pt.keys)})
                 if not any(x["audio"] for x in parts):
-                    raise EditorError("The mod holds no audio, so there is nothing to repatch")
+                    raise EditorError("The mod has no audio to repatch")
                 if all(x["kept"] for x in parts):
                     raise EditorError(parts[0]["kept"])
                 job.step("Packing the ZIP")
@@ -2000,18 +2000,18 @@ class Session:
             raise EditorError(f"Can't read {Path(str(path)).name}: {os_error(e)}") from None
 
     @staticmethod
-    def _arsenal_recorded(source: Path, opts) -> list[str] | None:
-        """What HD2 Arsenal's data file records as chosen for the mod at source, as picks; None for a mod that isn't
-        in its library, or an entry nothing can be read from (combine.arsenal_picks)."""
+    def _manager_recorded(source: Path, opts) -> list[str] | None:
+        """What a mod manager's library records as chosen for the mod at source, as picks; None for a mod that isn't
+        in a library, or an entry nothing can be read from (combine.recorded_picks)."""
         from . import combine as cb
         from . import projectfiles as pf
-        from .installed import arsenal_entries
+        from .installed import manager_entries
         if not opts:
             return None
-        for name, folder, entry in arsenal_entries():
+        for name, folder, entry in manager_entries():
             if pf.key(folder) == pf.key(source):
-                picks = cb.arsenal_picks(entry, opts)
-                log.info("combine: Arsenal's entry for %s has the keys %s; its choice was %s", name,
+                picks = cb.recorded_picks(entry, opts)
+                log.info("combine: the library's entry for %s has the keys %s; its choice was %s", name,
                          sorted(map(str, entry)), "read" if picks is not None else "not found")
                 return picks
         return None
@@ -2019,7 +2019,7 @@ class Session:
     def combine_scan(self, path):
         """A mod to combine (a .patch_N, a folder or a mod's ZIP): {source, name, description, manifest, others
         (what it holds besides audio, which goes in as it was), options (a manifest's: [{id, name, sub: [{id, name}]}]),
-        picks (the choice it starts with: Arsenal's, else every Option on with its first SubOption)}."""
+        picks (the choice it starts with: the mod manager's, else every Option on with its first SubOption)}."""
         from . import combine as cb
         f = self._scan(path)
         opts = cb.options(f.manifest)
@@ -2027,12 +2027,12 @@ class Session:
         texts, rest = sum(c[0] for c in counts), sum(c[1] for c in counts)
         return {"source": str(f.source), "name": f.name or "Mod", "description": f.description,
                 "manifest": bool(f.manifest), "others": self._file_lines(texts, rest),
-                "options": cb.shown(opts), "picks": cb.default_picks(opts, self._arsenal_recorded(f.source, opts))}
+                "options": cb.shown(opts), "picks": cb.default_picks(opts, self._manager_recorded(f.source, opts))}
 
     def combine_installed(self):
-        """The mods in HD2 Arsenal's library, to combine: {mods: [{name, source, deployed}], arsenal: whether its
-        library was found}. deployed: one of the mod's patches is in the game's data folder (the same file)."""
-        from .installed import arsenal_entries, deployed, same_file
+        """The mods in the mod managers' libraries, to combine: {mods: [{name, source, deployed}], library: whether
+        one was found}. deployed: one of the mod's patches is in the game's data folder (the same file)."""
+        from .installed import deployed, manager_entries, same_file
         from .repatch import PATCH_RE
         data = self.ix.game.data if self.ix else Path(self.game_where["path"]) if self.game_where.get("path") else None
         sizes = {}
@@ -2041,7 +2041,7 @@ class Session:
                 sizes.setdefault(f.stat().st_size, []).append(f)
         except OSError:
             sizes = {}
-        entries, mods = arsenal_entries(), []
+        entries, mods = manager_entries(), []
         for name, folder, _ in entries:
             on = False
             for f in folder.rglob("*") if sizes else []:
@@ -2053,7 +2053,7 @@ class Session:
                 except OSError:
                     continue
             mods.append({"name": name, "source": str(folder), "deployed": on})
-        return {"mods": mods, "arsenal": bool(entries)}
+        return {"mods": mods, "library": bool(entries)}
 
     @staticmethod
     def _combine_list(mods) -> list[tuple[str, list[str] | None]]:
@@ -2119,7 +2119,7 @@ class Session:
                 f = self._scan(source)
                 opts = cb.options(f.manifest)
                 if picks is None:
-                    picks = cb.default_picks(opts, self._arsenal_recorded(f.source, opts))
+                    picks = cb.default_picks(opts, self._manager_recorded(f.source, opts))
                 name = f.name or Path(source).stem
                 job.say(f"--- {name} ({n + 1} of {len(mods)})")
                 parts = []
@@ -2280,12 +2280,12 @@ class Session:
         mods = self._combine_list(mods)
         name = str(name or "").strip() or "Combined mods"
         if problem := name_problem(name):
-            raise EditorError(f"The name: {problem}")
+            raise EditorError(problem)
         root = Path(folder) if given(folder) else self._combine_root()
         if not root.is_absolute():
             raise EditorError("Choose where combined mods go (a full path)")
         if in_game_folder(root, self.ix.game.data):
-            raise EditorError(f"{root} is inside the game's folder, and Audiodiver never writes there")
+            raise EditorError(f"{root} is inside the game folder, and Audiodiver never writes there")
         if not isinstance(every_bank, bool):
             raise EditorError("Every bank is on or off")
         if winners is not None and not isinstance(winners, dict):
@@ -2368,7 +2368,7 @@ class Session:
                     stats[i]["others"] = self._carried_lines([c for key, c in carried.items() if owner[key] == i])
                     if lost[i]:
                         stats[i]["left"] = [*stats[i]["left"], f"{lost[i]} file{'s' if lost[i] != 1 else ''} besides "
-                                            f"audio that a later mod also has, whose version goes in"]
+                                            f"audio that a later mod replaces"]
 
                 def progress(doing, done=None, total=None):
                     if total:
@@ -2701,7 +2701,7 @@ class Session:
             id = int(id)
             mine = words(subs[id])
         except (TypeError, ValueError, OverflowError, KeyError):
-            raise EditorError("That line isn't one of the game's subtitles") from None
+            raise EditorError("That line isn't a game subtitle") from None
         return [id, *(i for i, t in subs.items() if i != id and words(t) == mine)]
 
     def text_voices(self, ids, language):
@@ -2723,7 +2723,7 @@ class Session:
             table, id = int(table), int(id)
             was = self._texts().table(table).texts[id]
         except (TypeError, ValueError, OverflowError, KeyError):
-            raise EditorError("That line isn't in the game's text") from None
+            raise EditorError("That line isn't in the game text") from None
 
         def apply(p):
             mine = next((t for t in p.texts if t.table == table and t.id == id), None)
@@ -2740,7 +2740,7 @@ class Session:
         try:
             gone = {(int(x["table"]), int(x["id"])) for x in lines}
         except (TypeError, ValueError, KeyError, OverflowError):
-            raise EditorError("Those aren't lines of the game's text") from None
+            raise EditorError("Those aren't lines of the game text") from None
 
         def apply(p):
             p.texts = [t for t in p.texts if (t.table, t.id) not in gone]
@@ -2770,7 +2770,7 @@ class Session:
             plan.append((_filename(title), title,
                          [(seg, sl) for seg, sl in _slots_of(detail) if not only or str(sl["source"]) in only]))
         if not any(slots for *_, slots in plan):
-            raise EditorError("Nothing to export, because the export list is empty")
+            raise EditorError("The export list is empty")
         folder, ext = out_folder(folder), render.FORMATS[fmt][0]
         sides = ["game", "mine"] if whose == "both" else [whose]
 

@@ -381,7 +381,6 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fg); }
 .markers label { font-size: calc(13px * var(--fs)); color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
 .markers input[aria-invalid="true"] { border-color: var(--red); }
 .insp-sec small.bad { color: var(--red); font-size: calc(12px * var(--fs)); }
-.also { list-style: none; margin: 0; padding: 0; }
 .insp-sec .cards { margin: 8px 0 10px; }
 .facts dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; font-size: calc(14px * var(--fs)); }
 .facts dt { color: var(--muted); }
@@ -485,9 +484,23 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fg); }
 .tl-facts-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; min-width: 0; }
 .tl-facts-line b { font-size: calc(15px * var(--fs)); color: var(--text); font-weight: 700; }
 .tl-facts .warn { color: var(--red); }
-.also-line .link { display: inline; font-size: inherit; color: var(--second-fg); text-decoration: underline; text-underline-offset: 2px; }
-.also-line .link:hover { color: var(--text); }
-.also-line .link small { margin-left: 5px; text-decoration: none; }
+/* Shared with: a row per place the Index has (its name on the left, the items after it), cues without a name folded
+   behind their count. In the narrow details panel each place's name sits over its items. */
+.shared h3 { display: flex; align-items: center; gap: 6px; }
+.tl-facts .shared { margin-top: 6px; }
+.tl-facts .shared h3 { margin-bottom: 4px; font-size: calc(13px * var(--fs)); font-weight: 600; color: var(--text); }
+.shared-n { font-weight: 500; color: var(--faint); font-variant-numeric: tabular-nums; }
+.shared-groups { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 3px 16px; margin: 0; }
+.shared-groups > div { display: contents; }
+.shared-groups dt { color: var(--faint); font-size: calc(12px * var(--fs)); line-height: calc(19px * var(--fs)); }
+.shared-groups dd { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 14px; min-width: 0; margin: 0; line-height: calc(19px * var(--fs)); }
+.shared .link { display: inline; padding: 0; font-size: inherit; color: var(--second-fg); text-decoration: underline; text-underline-offset: 2px; }
+.shared .link:hover { color: var(--text); }
+.shared .link.mono { font: calc(12px * var(--fs)) "Roboto Mono Variable", Consolas, monospace; }
+.shared-fold { display: inline-flex; align-items: center; gap: 4px; text-decoration: none; }
+.inspector .shared-groups { grid-template-columns: minmax(0, 1fr); gap: 0; }
+.inspector .shared-groups dt { margin-top: 6px; }
+.inspector .shared-groups > div:first-child dt { margin-top: 0; }
 .tl-note { margin: 0 0 0 calc(64px * var(--fs) + 10px); font-size: calc(12px * var(--fs)); color: var(--muted); }
 .tl-note b { color: var(--text); font-weight: 500; }
 .link-inline { margin-left: 10px; color: var(--second-fg); font-size: calc(12px * var(--fs)); text-decoration: underline; }
@@ -681,7 +694,7 @@ button.ctag:hover { background: color-mix(in oklch, var(--c) 24%, transparent); 
 .slots-note { margin: 0; padding: 12px 8px; color: var(--muted); font-size: calc(13px * var(--fs)); }
 .cue-loading { width: min(320px, 80%); }
 .timeline.one { min-height: 84px; }
-.item-title .ctag { align-self: center; }
+.item-title .ctag, .item-title .item-about { align-self: center; }
 .lib-group.unused .lib-group-name { color: var(--muted); }
 
 .mus-filters { padding: calc(8px * var(--sp)) 12px; border-bottom: 1px solid var(--line-soft); flex: none; }
@@ -984,6 +997,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .set-note b { color: var(--text); font-weight: 500; }
 .set-list { display: flex; flex-direction: column; gap: calc(10px * var(--sp)); }
 .set-reset { align-self: flex-start; margin-top: 14px; font-size: calc(14px * var(--fs)); }
+.set-top { display: flex; margin: calc(16px * var(--sp)) 0 4px; }
 .set-sec > button, .set-sec > .row-btns { align-self: flex-start; } /* a button is as wide as its label */
 
 /* text fields on a page */
@@ -1043,9 +1057,6 @@ kbd.none { color: var(--faint); font-weight: 400; }
 /* the page sits in the top-left corner, the same margin on every side; the row above the ticker fits in the bottom one */
 .home-inner { padding: var(--home-m); container-type: inline-size; }
 .home-hero { display: flex; flex-direction: column; align-items: flex-start; gap: calc(18px * var(--sp)); max-width: calc(700px * var(--fs)); }
-/* the name, set like a title so it follows the title typeface chosen in Settings ▸ Theme */
-.home-brand { display: flex; align-items: center; gap: 12px; font-family: var(--title); font-stretch: 125%; font-size: calc(20px * var(--fs)); font-weight: 700; line-height: 1; }
-.home-brand .logo { width: calc(38px * var(--fs)); height: calc(38px * var(--fs)); }
 .home-hero h1 { font-size: calc(42px * var(--fs)); line-height: 1.04; letter-spacing: -.015em; max-width: 15ch; }
 .home-path { color: var(--faint); font-size: calc(13px * var(--fs)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* the menu, as the game draws its own: tall uppercase strips that fade out to the right, the way in yellow. Hovered or
@@ -1073,9 +1084,6 @@ kbd.none { color: var(--faint); font-weight: 400; }
 /* the recent projects straight on the picture, each row a faint strip so it reads as one */
 .home-recent h2 { margin: 0 0 calc(6px * var(--sp)) 23px; font-size: calc(12px * var(--fs)); font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); }
 .home-recent ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
-.home-news { padding: calc(16px * var(--sp)) 18px calc(18px * var(--sp)); background: color-mix(in srgb, var(--panel) 90%, transparent); backdrop-filter: blur(8px); }
-.home-news h2 { display: flex; align-items: baseline; gap: 10px; font-size: calc(18px * var(--fs)); }
-.news-date { font-size: calc(13px * var(--fs)); font-weight: 400; color: var(--faint); }
 .recent-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 4px; padding-right: 8px;
   border-left: 3px solid transparent; background: rgb(0 0 0 / .15); }
 /* Show in folder leads the row, apart from the ✕ (Take off this list) at its far end */
@@ -1090,16 +1098,6 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .recent-row.missing .recent-when { color: var(--red); }
 .recent-forget { opacity: 0; }
 .recent-row:hover .recent-forget, .recent-forget:focus-visible { opacity: 1; }
-.home-news .md { font-size: calc(14.5px * var(--fs)); line-height: 1.5; }
-.home-news .md li { margin: 5px 0; }
-.home-news h2 { margin-bottom: 4px; }
-.news-toggle { display: inline-flex; align-items: center; gap: 6px; padding: 2px 0; color: var(--second-fg); font-size: calc(14px * var(--fs)); }
-.news-toggle:hover { color: var(--text); }
-.news-toggle .caret { color: inherit; }
-.news-body { padding-top: calc(12px * var(--sp)); }
-.news-body > .news-toggle { margin-top: 12px; }
-.news-older { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line-soft); }
-.news-older h3 { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; font-size: calc(15px * var(--fs)); }
 
 /* ---------- Build: the mod's name, icon and version on the left; the icon as it will look and the build button
    stay in view on the right */
@@ -1517,7 +1515,6 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .about-btn { display: inline-grid; place-items: center; width: 24px; height: 24px; color: var(--faint); border-radius: 50%; transition: color var(--t1), background var(--t1); }
 .about-btn:hover { color: var(--second-fg); background: var(--raised); }
 .about-btn .icon { width: 1.15em; height: 1.15em; }
-.home-brand .about-btn { width: 28px; height: 28px; margin-left: -4px; font-size: calc(15px * var(--fs)); color: var(--muted); }
 
 /* About (About.tsx): a dialog over any tab */
 .modal.about { gap: 14px; max-width: calc(560px * var(--fs)); }

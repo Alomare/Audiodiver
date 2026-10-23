@@ -1,7 +1,7 @@
 """Combining mods: several mods' audio in one mod, built once on the game as it is now.
 
 Each mod is read like an import (Session._patch_audio): what it replaces, adds and sets, with the options a player
-picked in it. A manifest's Options are offered as HD2 Arsenal offers them: each is on or off, and an Option with
+picked in it. A manifest's Options are offered as the mod managers offer them: each is on or off, and an Option with
 SubOptions has exactly one of them chosen. A mod without a manifest is all its patches, in the order the game loads
 them. A mod's parts apply in order, a later one over an earlier one.
 
@@ -79,7 +79,7 @@ def chosen(opts: list[dict], picks) -> dict[str, str | None]:
 
 
 def default_picks(opts: list[dict], recorded=None) -> list[str]:
-    """What a mod starts with: what HD2 Arsenal recorded as chosen for it (arsenal_picks), else every Option on,
+    """What a mod starts with: what the mod manager recorded as chosen for it (recorded_picks), else every Option on,
     with its first SubOption."""
     if recorded is not None:
         return recorded
@@ -134,7 +134,7 @@ def parts(found, opts: list[dict], picks) -> list[str]:
     return list(reversed(dict.fromkeys(reversed(out))))
 
 
-# --- what HD2 Arsenal recorded as chosen
+# --- what a mod manager recorded as chosen
 _NAME_KEYS = ("name", "label", "title", "id")
 _FLAG_KEYS = ("enabled", "selected", "checked", "active", "deployed", "on", "isenabled", "isselected", "ischecked",
               "value", "state")
@@ -178,7 +178,7 @@ def _subs_in(x: dict, o: dict) -> str | None:
 
 
 def _from_value(v, opts: list[dict]) -> dict[str, str | None] | None:
-    """{Option id: "" | SubOption id | None} from one value of Arsenal's entry, or None when it names no option."""
+    """{Option id: "" | SubOption id | None} from one value of a library's entry, or None when it names no option."""
     by_name = {o["name"].casefold(): o for o in opts}
     got = {}
 
@@ -223,12 +223,13 @@ def _from_value(v, opts: list[dict]) -> dict[str, str | None] | None:
     return None
 
 
-def arsenal_picks(entry: dict, opts: list[dict]) -> list[str] | None:
-    """The options HD2 Arsenal's data file records as chosen for a mod (installed.arsenal_entries: its library entry
-    with the profile's choice as its options), as picks; None when nothing in the entry can be read as that. The
-    file has [{name, enabled, suboptions: [{name, enabled}]}] (seen in Arsenal 0.37's); Arsenal doesn't publish its
-    format, so this also reads what other shapes a value under a key about options or choices could take: a list of
-    the names that are on, or a map from names to a flag or the chosen SubOption."""
+def recorded_picks(entry: dict, opts: list[dict]) -> list[str] | None:
+    """The options a mod manager's library records as chosen for a mod (installed.manager_entries: HD2 Arsenal's
+    library entry with the profile's choice as its options, or Echelon's), as picks; None when nothing in the entry
+    can be read as that. Arsenal's file has [{name, enabled, suboptions: [{name, enabled}]}] (seen in 0.37's),
+    Echelon's [{name, enabled, choices, selected: a choice's place}]; Arsenal doesn't publish its format, so this
+    also reads what other shapes a value under a key about options or choices could take: a list of the names that
+    are on, or a map from names to a flag or the chosen SubOption."""
     if not isinstance(entry, dict) or not opts:
         return None
     for k, v in entry.items():

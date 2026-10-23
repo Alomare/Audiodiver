@@ -214,7 +214,7 @@ class Project:
     def problems(self) -> list[str]:
         out, seen = [], {}
         if problem := name_problem(self.name):
-            out.append(f'name "{self.name}": {problem}')
+            out.append(problem)
         if (icon := self.icon_path()) and not icon.exists():
             out.append(f"icon: image not found ({icon})")
         try:
@@ -245,7 +245,7 @@ class Project:
         fmt = d.get("audiodiver") if isinstance(d, dict) else None
         if fmt != FORMAT:
             if isinstance(fmt, int) and fmt > FORMAT:
-                raise ProjectFormatError("was made by a newer version of Audiodiver: update Audiodiver to open it")
+                raise ProjectFormatError("was made by a newer version of Audiodiver. Update Audiodiver to open it")
             raise ProjectFormatError("isn't an Audiodiver project")
         return cls.from_json(d, path)
 

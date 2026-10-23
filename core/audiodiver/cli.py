@@ -123,7 +123,7 @@ def main(argv=None):
     p.add_argument("--from-folder", help="add every <id>_<name>.wav under this folder")
     p.add_argument("--skip", nargs="*", default=[], help="file names to leave out")
     p.set_defaults(func=cmd_new)
-    p = sub.add_parser("build", help="build a project into a verified Arsenal ZIP")
+    p = sub.add_parser("build", help="build a project into a verified mod manager ZIP")
     p.add_argument("project")
     p.add_argument("--out")
     p.add_argument("--version", type=positive)

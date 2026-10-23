@@ -327,7 +327,7 @@ def test_a_build_never_goes_into_the_games_folder(tmp_path):
     ix = SimpleNamespace(game=SimpleNamespace(data=game / "data"))  # the check comes before anything reads the game
     p = Project(name="Test", path=tmp_path / "proj" / "t.audi", build_folder="../Helldivers 2/mods")
     for folder in (None, game / "data", game, game / "bin" / "x"):  # None: the folder the project file names
-        with pytest.raises(BuildError, match="inside the game's folder"):
+        with pytest.raises(BuildError, match="inside the game folder"):
             build(p, ix, folder, log=lambda *_: None)
     assert [f.name for f in game.iterdir()] == ["data"] and not list((game / "data").iterdir())
     assert not in_game_folder(tmp_path / "Helldivers 2 mods", game / "data")  # a name that only starts the same

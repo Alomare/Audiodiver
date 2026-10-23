@@ -183,7 +183,7 @@ function Changelog({ releases, waiting, failed }: { releases: RemoteRelease[]; w
           })}
         </ol>
       ) : (
-        !waiting && <p className="upd-empty">{failed ? "The changelog comes from GitHub, which couldn't be reached." : "No releases yet."}</p>
+        !waiting && <p className="upd-empty">{failed ? "Couldn't reach GitHub for the changelog." : "No releases yet."}</p>
       )}
     </section>
   );

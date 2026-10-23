@@ -184,7 +184,7 @@ def test_package_settings_save_undo_and_flag_a_name_arsenal_rejects(tmp_path):
     assert s.undo()["description"] == "" and s.redo()["description"] == "Epic music."  # undo steps keep the field
     assert s.settings(guid="new")["guid"] != guid and s.undo()["guid"] == guid
     assert s.settings(name="Trilha Épica")["problems"] == [
-        'name "Trilha Épica": HD2 Arsenal can\'t use É in a name (letters, digits, spaces and - _ ( ) are fine)']
+        'Mod managers can\'t use É in a name (letters, digits, spaces and - _ ( ) are fine)']
     with pytest.raises(EditorError):
         s.settings(icon="cover.png")  # an image goes through set_icon, which checks it
 
@@ -303,7 +303,7 @@ def test_builds_go_to_a_chosen_folder_or_next_to_the_project(tmp_path, monkeypat
     (game / "bin").mkdir()
     s.game_where = {"path": str(game / "data"), "how": "steam"}
     for inside in (game, game / "data", game / "bin"):
-        with pytest.raises(EditorError, match="inside the game's"):
+        with pytest.raises(EditorError, match="inside the game folder"):
             s.settings(build_folder=str(inside))
     assert s.project_state()["build_folder"] == default
 

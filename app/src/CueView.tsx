@@ -61,7 +61,7 @@ function NoteTags({ slot }: { slot: Slot }) {
 /** What each kind of silence does: the slot row's tooltip and the choice in the details panel. */
 export const SILENCE_TIP = {
   move: "Plays nothing, and the game moves straight on",
-  keep: "Plays nothing for as long as the original would, so what follows keeps its timing",
+  keep: "Plays nothing for the length of the original, so the timing doesn't change",
 };
 
 /** Whether a slot has new audio to listen to: a file that is there, not silence. */
@@ -340,7 +340,7 @@ function CueBody({ cue }: { cue: Cue }) {
     quick(addedNote(n, 1), "add");
   };
   const exportEntry = (sel: string[], r: Row): MenuEntry => ({
-    label: sel.length > 1 ? `Add the ${sel.length} slots to the export list` : "Add to the export list",
+    label: sel.length > 1 ? `Add ${sel.length} slots to the export list` : "Add to the export list",
     run: () => toExport(sel, sel.length > 1 ? `${item?.full ?? cue.name} (${sel.length} slots)` : `${item?.full ?? cue.name} - ${rowName(r)}`),
   });
 
@@ -408,7 +408,7 @@ function CueBody({ cue }: { cue: Cue }) {
       ...(adds.length ? ["-" as const, ...adds] : []),
       "-",
       exportEntry(sel, r),
-      { label: "Show the file in its folder", disabled: !a?.exists || a.silence, run: () => reveal(fullPath(project!.folder, a!.audio)) },
+      { label: "Show in folder", disabled: !a?.exists || a.silence, run: () => reveal(fullPath(project!.folder, a!.audio)) },
       ...copyIds(r),
     ];
     openMenu(e, entries);
@@ -447,14 +447,14 @@ function CueBody({ cue }: { cue: Cue }) {
       openMenu(e, [
         { label: "Play the first take", run: () => playSlot("vanilla", first.slot.source, revision, rowName(first), at(first.slot.source)) },
         ...(readOnly ? [] : ["-",
-          { label: `Choose files for its ${n}…`, disabled: !project || !takes.length,
+          { label: `Choose files for the ${n}…`, disabled: !project || !takes.length,
             run: async () => { const f = await pickAudio(true); if (f) actions.fillSources(takes, f, `the takes of ${name}`); } },
-          { label: `Replace its ${n} with silence`, disabled: !project || !takes.length || takes.every((s) => assigned[s]?.silence),
+          { label: `Replace the ${n} with silence`, disabled: !project || !takes.length || takes.every((s) => assigned[s]?.silence),
             run: () => actions.silence(takes, true, name) },
-          { label: `Remove the new audio from its ${n}`, disabled: !replaced.length, run: () => actions.unassign(replaced) },
+          { label: `Remove the new audio from the ${n}`, disabled: !replaced.length, run: () => actions.unassign(replaced) },
           ...(addEntries(first).length ? ["-", ...addEntries(first)] : []),
           "-"] as MenuEntry[]),
-        { label: `Add its ${first.takes} ${first.takes === 1 ? "take" : "takes"} to the export list`,
+        { label: `Add the ${first.takes} ${first.takes === 1 ? "take" : "takes"} to the export list`,
           run: () => toExport(all.filter((r) => r.segIndex === first.segIndex).map((r) => r.slot.source), `${item?.full ?? cue.name} - ${name}`) },
       ]);
     },
@@ -497,8 +497,8 @@ function CueBody({ cue }: { cue: Cue }) {
           {part?.note && <p className="cue-notes">{part.note}</p>}
           {cue.notes && (!part || cue.locked || !music) && <p className={`cue-notes${cue.locked ? " warn" : ""}`}>{cue.notes}</p>}
           {between && between.own.length < between.targets.length && (
-            <p className="cue-notes">{between.own.length ? `${between.targets.length - between.own.length} of its ${between.targets.length} slots also belong`
-              : "Its audio also belongs"} to other music, and {between.own.length ? "they change" : "it changes"} along with that music.</p>
+            <p className="cue-notes">{between.own.length ? `${between.targets.length - between.own.length} of the ${between.targets.length} slots also play`
+              : "This audio also plays"} in other music.</p>
           )}
         </header>
         <ResizeEdge edge="bottom" label="Resize the header" min={56} max={() => room("top")}
@@ -506,10 +506,10 @@ function CueBody({ cue }: { cue: Cue }) {
       </div>
       <div className="cue-bar" data-drop={drop}>
         {readOnly && item && (listed ? (
-          <button className="btn primary" data-tip="Open it to give it new audio"
+          <button className="btn primary" data-tip="Replace audio there"
             onClick={() => goTo({ scope: "editor", itemId: item.id, cueId: cue.id, source: selected[0] ?? null })}>Open in the Audio Editor</button>
         ) : inside ? (
-          <button className="btn primary" data-tip="Its sounds are in the project already" data-tip-more={`In ${listName(inside)}`}
+          <button className="btn primary" data-tip="These sounds are in the project already" data-tip-more={`In ${listName(inside)}`}
             onClick={() => openInside(selected[0] ?? null)}>Open in the Audio Editor</button>
         ) : (
           <button className="btn primary" data-tip={project ? `Add to ${project.name}` : "Open or create a project first"}
@@ -530,7 +530,7 @@ function CueBody({ cue }: { cue: Cue }) {
           <button className="btn" data-tip="Save as WAV, FLAC or MP3" onClick={() => setExporting(true)}>Export…</button>
         )}
         {between && project && skip.length > 0 && (
-          <button className="btn" data-tip={`Replace with a short silence, so the game goes straight to the next music${keyHint("undo") ? `. Undo${keyHint("undo")} brings it back` : ""}`}
+          <button className="btn" data-tip={`Replace with a short silence, so the next music starts right away${keyHint("undo") ? `. Undo${keyHint("undo")} brings it back` : ""}`}
             onClick={() => actions.skip(skip, between.name || item?.name || cue.name)}>Skip it</button>
         )}
         {!readOnly && mine > 0 && (
@@ -573,8 +573,8 @@ function CueBody({ cue }: { cue: Cue }) {
             <div className="slots-gap" ref={win.gap.end} style={{ height: win.after }} aria-hidden />
           </>
         ) : lines.map(line)}
-        {hits && hits.length > MAX_SHOWN && <p className="slots-note">Showing the first {MAX_SHOWN} of {hits.length} sounds that match. Type more to narrow them down.</p>}
-        {hits && !hits.length && <p className="slots-note">No sound here matches “{filter.trim()}”.</p>}
+        {hits && hits.length > MAX_SHOWN && <p className="slots-note">Showing the first {MAX_SHOWN} of {hits.length} matches. Type more to narrow the search.</p>}
+        {hits && !hits.length && <p className="slots-note">No sound matches “{filter.trim()}”.</p>}
       </div>
       <Timeline room={() => room("wave")} through={through} at={selected.length === 1 ? at(selected[0]) : null} />
       {menu}
@@ -602,7 +602,7 @@ function AddButton({ row, on }: { row: Row; on: RowHandlers }) {
   // the takes' audio can be in banks the container isn't: added audio goes only where the container is
   const { copies = 0, shared = 0 } = row.seg;
   const where = copies ? `. The ${copies} other bank${copies === 1 ? "" : "s"} with this sound get${copies === 1 ? "s" : ""} it too`
-    : shared ? ". Only this bank gets it. The other banks with this audio play it from sounds of their own" : "";
+    : shared ? ". Only this bank gets it. The other banks with this audio play it from separate sounds" : "";
   return (
     <button className="icon-btn grp-add" aria-label={`Add new audio to ${row.seg.name}`} data-tip="Add new audio"
       data-tip-more={(row.seg.added === "layer" ? "New takes for this layer" : "New takes, or a layer that plays with it") + where}
@@ -651,9 +651,9 @@ const GroupHead = memo(function GroupHead({ row, open, shown, status, itemId, cu
         <span className="grp-n">{shown < takes ? `${shown} of ${takes}` : takes} {unit}</span>
       </button>
       <span className="grp-meta">
-        {(seg.tags ?? []).map((t) => <CatTag key={t.item ?? t.name} tag={t} tip="Show it in the Index" onOpen={t.item ? () => on.openTag(t.item!, seg.cue ?? "") : undefined} />)}
+        {(seg.tags ?? []).map((t) => <CatTag key={t.item ?? t.name} tag={t} tip="Show in the Index" onOpen={t.item ? () => on.openTag(t.item!, seg.cue ?? "") : undefined} />)}
         {seg.added === "layer" && <span className="tag new" data-tip={LAYER_TIP}>layer</span>}
-        {shared > 0 && <Linked tip={`Its audio is also in ${shared} other bank${shared === 1 ? "" : "s"}. New audio on its takes plays there too`}><OtherBanks n={shared} /></Linked>}
+        {shared > 0 && <Linked tip={`Also in ${shared} other bank${shared === 1 ? "" : "s"}. New audio on these takes plays there too`}><OtherBanks n={shared} /></Linked>}
         {status !== "na" && <Mark status={status} />}
         <AddButton row={row} on={on} />
       </span>
@@ -670,7 +670,7 @@ function copyId(id: string, quick: (text: string, icon?: "copy" | "info") => voi
 function SlotId({ id }: { id: string }) {
   const { quick } = useLite();
   return (
-    <button className="slot-id" data-tip="Copy the source id" data-tip-more="Right-click the row for its other ids"
+    <button className="slot-id" data-tip="Copy the source id" data-tip-more="Right-click the row for the other ids"
       onClick={(e) => { e.stopPropagation(); copyId(id, quick); }} onDoubleClick={(e) => e.stopPropagation()}>{id}</button>
   );
 }
@@ -827,7 +827,7 @@ const LAYER_TIP = "A layer added by the project. It plays whenever the sound abo
 function CueLoading() {
   return (
     <section className="cue empty">
-      <p className="loading cue-loading">Reading its sounds…</p>
+      <p className="loading cue-loading">Reading the bank…</p>
     </section>
   );
 }
@@ -838,10 +838,10 @@ function CueEmpty() {
     return (
       <section className="cue empty">
         <div className="empty-card">
-          <h1>Everything the game plays</h1>
-          <p>Press ▶ to play anything. Open an entry to see its slots, and add it to {project ? <b>{project.name}</b>
-            : <>a project <span className="nowrap">(<button className="link-text" onClick={() => tabs.go("home")}>Home</button>)</span></>} to replace it.</p>
-          <p><WikiLink page="game-audio" about="Archives, banks, sounds and slots">The game's audio, explained</WikiLink></p>
+          <h1>Nothing open</h1>
+          <p>Press ▶ to play anything. Open an entry to see the slots, and add it to {project ? <b>{project.name}</b>
+            : <>a project <span className="nowrap">(<button className="link-text" onClick={() => tabs.go("home")}>Home</button>)</span></>} to replace the audio.</p>
+          <p><WikiLink page="game-audio" about="Archives, banks, sounds and slots">Game audio, explained</WikiLink></p>
         </div>
       </section>
     );
@@ -852,7 +852,7 @@ function CueEmpty() {
         <h1>{project ? "Nothing open" : "No project open"}</h1>
         {project ? (
           <>
-            <p>Open something on the left and drop audio on its slots. More is in
+            <p>Open an entry on the left and drop audio on the slots. Find more in
               the <button className="link-text" onClick={() => tabs.go("library")}>Library</button>.</p>
             <p><WikiLink page="first-mod" about="A first mod">A first mod, step by step</WikiLink></p>
           </>

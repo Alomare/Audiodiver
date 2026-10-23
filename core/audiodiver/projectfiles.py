@@ -405,7 +405,7 @@ def unpack(src: Path, into: Path, job=None) -> Path:
         try:
             Project.from_json(json.loads(z.read(projects[0]).decode("utf-8-sig")))
         except (ValueError, ProjectFormatError) as e:
-            raise FilesError(f"{src.name}: its project {e if isinstance(e, ProjectFormatError) else 'is damaged'}") from None
+            raise FilesError(f"The project in {src.name} {e if isinstance(e, ProjectFormatError) else 'is damaged'}") from None
         into.mkdir(parents=True, exist_ok=True)
         need = sum(i.file_size for i in files)
         if need > shutil.disk_usage(into).free:

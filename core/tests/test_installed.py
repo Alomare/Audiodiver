@@ -185,9 +185,9 @@ def test_the_installed_mods_are_listed_once_each_worst_first(ix, tmp_path):
     assert [n for n, _ in installed.arsenal_mods(arsenal)] == ["Warp Pack", "Scopes"]
     assert installed.arsenal_mods(tmp_path / "none.json") == []
 
-    got = installed.check(ix, data, arsenal)
-    assert got["arsenal"] and got["quiet"] == 1  # the scopes have no sound banks
+    got = installed.check(ix, data, arsenal, echelon_file=tmp_path / "none.json")
+    assert got["library"] and got["quiet"] == 1  # the scopes have no sound banks
     warp, broken = got["mods"]
-    assert (warp["name"], warp["where"], warp["deployed"], warp["state"]) == ("Warp Pack", "arsenal", True, installed.SHARED)
+    assert (warp["name"], warp["where"], warp["deployed"], warp["state"]) == ("Warp Pack", "manager", True, installed.SHARED)
     assert Path(warp["source"]) == lib / "Warp"
     assert (broken["name"], broken["where"], broken["state"]) == ("9ba626afa44a3aa3.patch_4", "game", installed.UNREADABLE)

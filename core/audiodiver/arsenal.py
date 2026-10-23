@@ -36,18 +36,18 @@ BORDER_MAX, RADIUS_MAX = 48, 270
 
 
 def name_problem(name):
-    """Why HD2 Arsenal can't take this as a mod's name (it names a folder after it), or None. The app's Build tab
+    """Why a mod manager can't take this as a mod's name (it names a folder after it), or None. The app's Build tab
     says the same as you type (nameProblem in BuildTab.tsx)."""
     if not name.strip():
-        return "a mod needs a name"
+        return "A mod needs a name"
     if name != name.strip():
-        return "it starts or ends with a space"
+        return "The name starts or ends with a space"
     bad = sorted({c for c in name if not 32 <= ord(c) <= 126 or c in '\\/:*?"<>|'})
     if bad:  # an invisible one is named
         shown = ["a tab" if c == "\t" else f"U+{ord(c):04X}" if ord(c) < 32 else c for c in bad]
-        return f"HD2 Arsenal can't use {' '.join(shown)} in a name (letters, digits, spaces and - _ ( ) are fine)"
+        return f"Mod managers can't use {' '.join(shown)} in a name (letters, digits, spaces and - _ ( ) are fine)"
     if not re.search(r"[A-Za-z0-9]", name):
-        return "it needs a letter or a digit"
+        return "The name needs a letter or a digit"
     return None
 
 
@@ -68,7 +68,7 @@ def archive_files(folder):
         raise FileNotFoundError(f'{folder} has no {ARCHIVE}')
     extra = [p.name for p in folder.iterdir() if p.name not in {ARCHIVE + s for s in SUFFIXES}]
     if extra:
-        raise ValueError(f'{folder} has files Arsenal would not expect: {extra}')
+        raise ValueError(f'{folder} has files a mod manager would not expect: {extra}')
     return {ARCHIVE + s: (folder / (ARCHIVE + s)) if (folder / (ARCHIVE + s)).exists() else b'' for s in SUFFIXES}
 
 

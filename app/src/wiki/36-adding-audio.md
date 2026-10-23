@@ -4,26 +4,26 @@ group: Making a mod
 summary: New takes for a sound, a layer that plays with it, and new audio for one sound only, in addition to what the game has.
 ---
 
-Replacing audio changes what a slot plays. You can also give a bank's sounds audio that the game doesn't have. There are three ways to do this, and all of them are in the Audio Editor. They work for sounds and voices, but music can't get added audio.
+Replacing audio changes what a slot plays. Sounds can also get audio that the game doesn't have, in three ways, all in the Audio Editor. They work for sounds and voices, but not for music.
 
 ## New takes
 
-When the game picks a sound's audio at random from several takes, you can add more takes. Press **+** on the sound's line and choose **New takes…**, then pick one file for each take. The game then picks from the original takes and the new ones. A new take is marked *new take* and has no original to play. Its ✕ removes it.
+A sound that picks its audio at random from several takes can get more takes. Press **+** on the sound's line, choose **New takes…** and pick one file for each take. The game then picks from the original and the new takes. A new take is marked *new take* and has no original to play. ✕ removes it.
 
-To replace a sound completely, give each of its existing takes new audio. See [Sounds and voices](wiki:sounds-and-voices).
+To replace a sound completely, give every existing take new audio. See [Sounds and voices](wiki:sounds-and-voices).
 
 ## A layer
 
-A layer plays together with a sound every time the sound plays, like a deeper boom under a gunshot. Press **+** and choose **New layer…** to add a layer under the sound, with one take for each file you pick. The layer's **+** adds more takes, and the game picks one of them each time. A layer goes to the same place in the game's mix as its sound, and its Make-Up Gain sets how loud it is.
+A layer plays every time its sound plays, like a deeper boom under a gunshot. Press **+** and choose **New layer…** to add a layer under the sound, with one take for each file you pick. **+** on the layer adds more takes, and the game picks one of them each time. A layer goes to the same place in the mix as the sound, and Make-Up Gain sets how loud it is.
 
-Some sounds can't have a layer, and **New layer…** is greyed out for them. A sound that is one of the random choices of another sound can't have one, because the layer would only become another choice. A sound that nothing plays directly can't have one either.
+**New layer…** is greyed out for sounds that can't have a layer. A sound that is one of the random choices of another sound can't have one, because the layer would only become another choice. Neither can a sound that nothing plays directly.
 
 ## Only this sound
 
-Several sounds often play the same clip, and replacing the clip changes it in all of them. After a slot has new audio, you can set **Scope** in the details to **Only this sound**. The other sounds that play the clip then keep the original. Each option shows how many banks it changes.
+Several sounds often play the same clip, and replacing the clip changes it in all of them. To limit a replacement, set **Scope** in the details of a replaced slot to **Only this sound**. The other sounds then keep the original. Each option shows how many banks it changes.
 
-This option works at the level of the sound. When the game copies a whole sound into other banks, like the weapon handling sounds that are in every weapon's bank, the copies are the same sound. The change applies to all of them.
+This option works per sound. When the game copies a whole sound into other banks, like the weapon handling sounds in every weapon bank, the copies are the same sound and all of them change.
 
 ## Size
 
-Added audio goes into every bank that contains its sound. Just as with replacements, adding audio to a widely shared sound makes the mod large.
+Added audio goes into every bank that contains the sound. As with replacements, adding audio to a widely shared sound makes the mod large.

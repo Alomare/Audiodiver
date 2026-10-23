@@ -825,7 +825,7 @@ def from_patch(ix, d: dict) -> Found:
         out.older |= as_was - merged
         other = [i for t, i in b["objects"] if i not in explained]
         if other:
-            out.left.append(f"{len(other)} other change{'s' if len(other) != 1 else ''} in bank {bid} (effects, "
-                            f"positioning, how a container picks its sounds, and similar settings)")
+            out.left.append(f"{len(other)} other change{'s' if len(other) != 1 else ''} in bank {bid} (settings such as "
+                            f"effects, positioning or how a container picks its sounds)")
         # objects the copy doesn't have aren't listed: mods don't take the game's out, so the game added them since
     return out

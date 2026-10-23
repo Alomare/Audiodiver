@@ -298,7 +298,7 @@ export function IndexTree() {
 }
 
 const GLYPH: Partial<Record<MusicItem["kind"], string>> = { transition: "↝", stinger: "✦" };
-const KIND_TIP: Partial<Record<MusicItem["kind"], string>> = { transition: "A transition, which plays between two pieces of music", stinger: "A stinger, which plays over the music" };
+const KIND_TIP: Partial<Record<MusicItem["kind"], string>> = { transition: "A transition between two pieces of music", stinger: "A stinger that plays over the music" };
 
 /** One item of the tree. Memoised: it draws again only when something it shows changes, not with every keystroke of
     a search or every selection. */
@@ -331,14 +331,14 @@ const ItemRow = memo(function ItemRow({ item, deep, active, hi, status, clash, a
         {status !== "na" && <Mark status={status} />}
         {added && <span className="in-proj" role="img" aria-label="In the project" data-tip="In the project">✓</span>}
         {held && <span className="in-proj held" role="img" aria-label={`In the project, in ${listName(held)}`} data-tip="In the project already"
-          data-tip-more={`Its sounds are in ${listName(held)}`}>✓</span>}
+          data-tip-more={`The sounds are in ${listName(held)}`}>✓</span>}
         {!editing && !added && !held && (
           <button className="row-act" onClick={() => on.add(item)} aria-label={`Add ${item.full} to the project`} data-tip="Add to the project"
             data-tip-more={noProject ? "Open or create a project first" : undefined}>+</button>
         )}
         {editing && (
           <button className="row-act" onClick={() => on.remove(item)} aria-label={`Remove ${item.full} from the project`}
-            data-tip="Remove from the project" data-tip-more="With its new audio. Undo brings both back.">✕</button>
+            data-tip="Remove from the project" data-tip-more="Also removes the new audio. Undo brings both back.">✕</button>
         )}
         {/* the Audio Editor's list leaves out lengths and counts, so its marks and buttons line up from row to row */}
         {!editing && (music ? <span className="dur">{fmtTime(item.duration_ms || null)}</span>
@@ -432,7 +432,7 @@ function Filters({ filter, setFilter }: { filter: Filter; setFilter: (f: Filter)
           <div className="row-btns">
             <button className="btn quiet small-btn" onClick={review} data-tip="Open the first one and add it to the project">Review</button>
             <button className="btn small-btn" onClick={skipAll}
-              data-tip={`Replace them with a short silence, so the game goes straight to the next music${keyHint("undo") ? `. Undo${keyHint("undo")} brings them back` : ""}`}>Skip them all</button>
+              data-tip={`Replace them with a short silence, so the next music starts right away${keyHint("undo") ? `. Undo${keyHint("undo")} brings them back` : ""}`}>Skip them all</button>
           </div>
         </div>
       </Fold>

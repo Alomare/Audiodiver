@@ -13,9 +13,10 @@ its old settings carried over shows this); its bank lacks objects today's has (m
 has a bank the game no longer has; or an object is exactly as an earlier version had it (addition.bank_history). A
 bank the update didn't touch shows nothing, as it is still right.
 
-Where: the patches in the game's data folder (what the game loads now, whoever put them there) and the mods in HD2
-Arsenal's library, deployed or not. Arsenal's own data file is read as far as it goes (its format is Arsenal's); a
-deployed patch that is one of its mods' files (the same bytes) is listed once, under that mod.
+Where: the patches in the game's data folder (what the game loads now, whoever put them there) and the mods in the
+mod managers' libraries, deployed or not: HD2 Arsenal's data file, read as far as it goes (its format is Arsenal's),
+and Echelon's library.json (a published format, version 1). A deployed patch that is one of their mods' files (the
+same bytes) is listed once, under that mod.
 """
 import filecmp
 import json
@@ -27,6 +28,7 @@ from . import bank as wbank
 from .repatch import PATCH_RE, RepatchError, scan
 
 ARSENAL_DATA = Path(os.environ.get("LOCALAPPDATA") or Path.home() / "AppData" / "Local") / "hd2arsenal" / "hd2a_data.json"
+ECHELON_DATA = Path(os.environ.get("APPDATA") or Path.home() / "AppData" / "Roaming") / "Echelon" / "library.json"
 # what a patch says, worst first
 SHARED, OLDER, CURRENT, NO_AUDIO, UNREADABLE = "shared", "older", "current", "no_audio", "unreadable"
 RANK = {SHARED: 0, OLDER: 1, UNREADABLE: 2, CURRENT: 3, NO_AUDIO: 4}
@@ -62,9 +64,38 @@ def arsenal_entries(data_file=None) -> list[tuple[str, Path, dict]]:
     return [(name or folder.name, folder, m) for name, folder, m in mods if folder.is_dir()]
 
 
+def echelon_entries(data_file=None) -> list[tuple[str, Path, dict]]:
+    """(name, folder, its entry) of each mod in Echelon's library; [] without Echelon or when its file can't be read.
+    The entry's options are the active profile's: [{name, enabled, choices: [{name}], selected: a choice's place}]."""
+    try:
+        d = json.loads(Path(data_file or ECHELON_DATA).read_text(encoding="utf-8"))
+        if d.get("format") != "echelon-library":
+            return []
+        mods = [(str(m.get("name") or "").strip(), Path(str(m["folder"])), m)
+                for m in d["mods"] if isinstance(m, dict) and m.get("folder")]
+    except (OSError, ValueError, TypeError, KeyError, AttributeError):
+        return []
+    return [(name or folder.name, folder, m) for name, folder, m in mods if folder.is_dir()]
+
+
+def manager_entries(arsenal_file=None, echelon_file=None) -> list[tuple[str, Path, dict]]:
+    """(name, folder, its entry) of each mod in the mod managers' libraries, a folder both have once (Arsenal's)."""
+    seen, out = set(), []
+    for name, folder, m in arsenal_entries(arsenal_file) + echelon_entries(echelon_file):
+        if (k := os.path.normcase(os.path.normpath(folder))) not in seen:
+            seen.add(k)
+            out.append((name, folder, m))
+    return out
+
+
 def arsenal_mods(data_file=None) -> list[tuple[str, Path]]:
     """(name, folder) of each mod in HD2 Arsenal's library; [] without Arsenal or when its file can't be read."""
     return [(name, folder) for name, folder, _ in arsenal_entries(data_file)]
+
+
+def manager_mods(arsenal_file=None, echelon_file=None) -> list[tuple[str, Path]]:
+    """(name, folder) of each mod in the mod managers' libraries; [] when none is found."""
+    return [(name, folder) for name, folder, _ in manager_entries(arsenal_file, echelon_file)]
 
 
 def same_file(a: Path, b: Path, ends=1 << 16) -> bool:
@@ -124,18 +155,19 @@ def _worst(parts) -> str:
     return min((p["state"] for p in parts), key=RANK.get, default=NO_AUDIO)
 
 
-def check(ix, data: Path, arsenal_file=None, step=None) -> dict:
+def check(ix, data: Path, arsenal_file=None, step=None, echelon_file=None) -> dict:
     """Every installed mod with sound banks, worst first: {"mods": [{"name", "source" (the folder or patch file to
-    repatch), "where": "arsenal" or "game", "deployed", "state", "patches": [{"label", "file", "state", ...}]}],
-    "quiet": how many mods hold no sound banks, "arsenal": whether Arsenal's library was found}.
+    repatch), "where": "manager" or "game", "deployed", "state", "patches": [{"label", "file", "state", ...}]}],
+    "quiet": how many mods hold no sound banks, "library": whether a mod manager's library was found}.
     step(doing, done, total) follows it."""
     found = []  # (name, source, where, [(label, path)])
-    for name, folder in arsenal_mods(arsenal_file):
+    managed = manager_mods(arsenal_file, echelon_file)
+    for name, folder in managed:
         try:
             f = scan(folder)
         except (RepatchError, OSError):
             continue
-        found.append((name, folder, "arsenal", [(p.label, f.place(key, folder)) for p in f.patches for key in p.keys]))
+        found.append((name, folder, "manager", [(p.label, f.place(key, folder)) for p in f.patches for key in p.keys]))
     loose = deployed(data)
     by_size = {}
     for *_, patches in found:
@@ -144,7 +176,7 @@ def check(ix, data: Path, arsenal_file=None, step=None) -> dict:
                 by_size.setdefault(p.stat().st_size, []).append(p)
             except OSError:
                 pass
-    shipped = {}  # an Arsenal mod's patch -> the deployed file with its bytes
+    shipped = {}  # a managed mod's patch -> the deployed file with its bytes
     for p in loose:
         same = next((q for q in by_size.get(p.stat().st_size, []) if filecmp.cmp(p, q, shallow=False)), None)
         if same is not None:
@@ -169,4 +201,4 @@ def check(ix, data: Path, arsenal_file=None, step=None) -> dict:
                      "deployed": where == "game" or any(path in shipped for _, path in patches),
                      "patches": [p for p in parts if p["state"] != NO_AUDIO]})
     mods.sort(key=lambda m: (RANK[m["state"]], not m["deployed"], m["name"].lower()))
-    return {"mods": mods, "quiet": quiet, "arsenal": bool(arsenal_mods(arsenal_file))}
+    return {"mods": mods, "quiet": quiet, "library": bool(managed)}

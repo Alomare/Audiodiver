@@ -4,36 +4,36 @@ group: Getting started
 summary: What Audiodiver does, what a project is, and what each tab is for.
 ---
 
-Audiodiver replaces Helldivers 2 audio by **what it is and where it plays**. You find a piece of music or a set of sounds in the Library, add it to a project and give it new audio. Audiodiver then works out the sound banks, ids and timing values the game needs.
+Audiodiver replaces Helldivers 2 audio by **what it is and where it plays**. Find a piece of music or a set of sounds in the Library, add it to a project and give it new audio. Audiodiver then works out the sound banks, ids and timing values the game needs.
 
-If the game's audio is new to you, [The game's audio, explained](wiki:game-audio) covers archives, banks, takes, cues, segments and slots. [Reading the screen](wiki:reading-the-screen) goes through every part of the window.
+[Game audio, explained](wiki:game-audio) covers archives, banks, takes, cues, segments and slots. [Reading the screen](wiki:reading-the-screen) describes every part of the window.
 
 ## Projects
 
-A project is a folder with a `.audi` file in it, and the folder is named after the project. The file records what the mod changes and which files replace which of the game's clips, along with Make-Up Gain and timing. The audio it uses is in that folder, or the project stores a path to it. [Project folders](wiki:project-folders) covers what is in it.
+A project is a folder named after the project, with a `.audi` file in it. The file records what the mod changes, which files replace which clips, and the Make-Up Gain and timing. Audio files are in that folder, or the project stores their paths. [Project folders](wiki:project-folders) covers what is in it.
 
 Changes are saved automatically. {key:save} saves at any time, and {key:undo} undoes the last change.
 
-Audiodiver never writes to the game's folder. It reads the game's audio from the Steam library, and you can choose another folder under **Game** in [Settings](app:settings/system). A build produces a ZIP for **HD2 Arsenal**, the mod manager that installs it.
+Audiodiver never writes to the game folder. It reads the game audio from the Steam library, or from another folder chosen under **Game** in [Settings](app:settings/system). A build produces a ZIP that a mod manager imports and installs.
 
 ## The tabs
 
-The tab bar along the top of the window holds the main tabs in two groups. Home and Tools come first, and they make projects. The darker band after them holds the tabs that work on the open project, in the order a mod is made, and it starts with the project's icon and name. Hover over a tab to see what it holds and its shortcut. **Tab bar** in [Settings ▸ Theme](app:settings/theme) moves it to another side of the window and turns the tabs' names on or off.
+The tab bar along the top of the window holds the main tabs in two groups. Home and Tools come first. The darker band after them starts with the project icon and name, and holds the tabs for the open project in the order a mod is made. Hover over a tab to see its contents and shortcut. **Tab bar** in [Settings ▸ Theme](app:settings/theme) moves the bar to another side of the window and shows or hides tab names.
 
 - {icon:home} **Home** has new, open and recent projects.
-- {icon:tools} **Tools** works on existing mods, without a project. [Repatch](wiki:repatching) rebuilds a mod for the current game version as a new ZIP, and [Combine Mods](wiki:combining-mods) makes one mod out of several, also as a new ZIP.
-- {icon:project} **Project** holds the mod's name, description, icon and id, and its folder. The tab shows the project's icon and name.
-- {icon:library} **Library** lists everything the game plays, so you can find it and listen to it. Browsing it changes nothing, and **Add to the project** puts an entry in the project. **Index** sorts the audio that has a name, and **All Archives** lists every archive that contains audio.
-- {icon:audio} **Audio Editor** shows what the project works on. This is where slots get new audio.
-- {icon:text} **Text Editor** has the game's text in every language, including subtitles. See [The game's text and subtitles](wiki:text).
-- {icon:build} **Build** holds the next version, the Build options and the Build button. A dot on the tab means the project isn't built yet, or it changed since its last build, or the game updated since. A red number counts the problems that block a build.
+- {icon:tools} **Tools** works on existing mods, without a project. [Repatch](wiki:repatching) rebuilds a mod for the current game version, and [Combine Mods](wiki:combining-mods) makes one mod out of several. Both produce a new ZIP.
+- {icon:project} **Project** holds the mod name, description, icon and id, and the project folder. The tab shows the project icon and name.
+- {icon:library} **Library** lists everything the game plays, so you can find it and listen to it. Browsing changes nothing. **Add to the project** puts an entry in the project. **Index** sorts the audio that has a name, and **All Archives** lists every archive that contains audio.
+- {icon:audio} **Audio Editor** shows what the project works on. Slots get new audio here.
+- {icon:text} **Text Editor** has all in-game text in every language, including subtitles. See [Text and subtitles](wiki:text).
+- {icon:build} **Build** holds the next version, the Build options and the Build button. A dot on the tab means the project isn't built yet, or it changed or the game updated since the last build. A red number counts the problems that block a build.
 - {icon:updates} **Updates**, {icon:wiki} **Wiki** ({key:wiki}) and {icon:settings} **Settings** are at the end of the tab bar. Updates is highlighted when a new version of Audiodiver is available, and it lists the changes in every version.
 
 The version number at the right end of the status bar also opens Updates. The {icon:info} button next to it opens [About](app:about), with the licence, the log file and the credits.
 
-The window's title is the name of the open project.
+The window title is the name of the open project.
 
-The Library and the Audio Editor share the same layout, and both have **Export…**. You find something in the Library and work on it in the Audio Editor.
+The Library and the Audio Editor share the same layout, and both have **Export…**. Find something in the Library and work on it in the Audio Editor.
 
 ## New versions of Audiodiver
 
@@ -49,7 +49,7 @@ An update replaces only the app. Projects, audio files and settings are kept.
 
 ### Game folder
 
-**Game** in [Settings ▸ System](app:settings/system) shows the folder Audiodiver reads the game from. Audiodiver finds it through Steam. If the game is somewhere else, press **Choose another folder…** and pick the folder Steam installed Helldivers 2 in, or its `data` folder. Audiodiver then reads the game again, which takes about a minute the first time. It only reads from this folder and never writes to it.
+**Game** in [Settings ▸ System](app:settings/system) shows the folder Audiodiver reads the game from. Audiodiver finds it through Steam. If the game is somewhere else, press **Choose another folder…** and pick the Helldivers 2 install folder, or its `data` folder. Audiodiver then reads the game again, which takes about a minute the first time. It only reads from this folder and never writes to it.
 
 ### Startup
 
@@ -57,6 +57,4 @@ With **Open the last project when Audiodiver starts** on, Audiodiver opens the l
 
 ### Disk space
 
-Audiodiver keeps prepared copies of audio so that it doesn't prepare the same audio twice. **Previews** are the decoded originals, the waveforms and the Play through renders. **Encoded audio** is new audio converted for the game, which builds reuse. Clearing either one is safe, and Audiodiver prepares the copies again when it needs them. Projects and audio files are never stored there.
-
-Next: [A first mod](wiki:first-mod).
+Audiodiver keeps prepared copies of audio so that it doesn't prepare the same audio twice. **Previews** are the decoded originals, the waveforms and the Play through renders. **Encoded audio** is new audio converted for the game, which builds reuse. Clearing either one is safe. Audiodiver prepares the copies again when needed. Projects and audio files are never stored there.

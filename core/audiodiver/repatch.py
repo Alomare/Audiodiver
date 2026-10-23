@@ -186,8 +186,8 @@ def scan(path) -> Found:
     """What a repatch of `path` would take: its patches, with the name and the rest a manifest gives."""
     path = Path(str(path or "")).expanduser()
     if not str(path).strip() or not path.exists():
-        raise RepatchError(f"{path} wasn't found" if str(path).strip() else "Choose a mod's .patch_0 file, its "
-                                                                         "folder or its ZIP")
+        raise RepatchError(f"{path} wasn't found" if str(path).strip() else "Choose a .patch_0 file, a mod "
+                                                                         "folder or a ZIP")
     if path.is_file() and path.suffix.lower() == ".zip":
         try:
             with zipfile.ZipFile(path) as z:
@@ -197,8 +197,8 @@ def scan(path) -> Found:
         found = Found(path, file_name(path.stem))
     elif path.is_file():
         if not PATCH_RE.search(path.name):
-            raise RepatchError(f"{path.name} isn't a mod. Choose its .patch_0 file (Audiodiver reads the .stream file next to it as "
-                               f"well), its folder or its ZIP" + (". Unpack .7z and .rar files first"
+            raise RepatchError(f"{path.name} isn't a mod. Choose a .patch_0 file (Audiodiver also reads the .stream file next "
+                               f"to it), a mod folder or a ZIP" + (". Unpack .7z and .rar files first"
                                                                      if path.suffix.lower() in (".7z", ".rar") else ""))
         found = Found(path, file_name(path.parent.name))
         found.patches = [Patch(path.name, "")]

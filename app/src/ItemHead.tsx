@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { fmtTime, type Assignment, type Cue, type MusicItem, type MusicPart } from "./api";
 import { PlayButton } from "./CueView";
 import { Fold } from "./Fold";
+import { InfoIcon } from "./Icons";
 import { Mark } from "./IndexTree";
 import { keyHint } from "./keys";
 import { clashes, counted, COVERAGE, heldBy, isMusicItem, itemCoverage, listedBanks, listName, statusOf } from "./music";
@@ -11,6 +12,18 @@ import { useEditor } from "./store";
 import { CatMark, CatTag } from "./Tags";
 
 const WAY = { in: "Into", out: "Out of", over: "Over" } as const;
+
+const ABOUT_KEY = "audiodiver.itemAbout"; // whether item descriptions show under the title: the last choice, for all items
+const aboutShown = () => { try { return !!localStorage.getItem(ABOUT_KEY); } catch { return false; } };
+
+/** The ⓘ after an item's title: its description in the tooltip, and a click shows it under the title (or hides it). */
+function AboutToggle({ about, open, onToggle }: { about: string; open: boolean; onToggle: () => void }) {
+  return (
+    <button className="about-btn item-about" aria-expanded={open} aria-label={open ? "Hide the description" : "Show the description"}
+      onClick={onToggle} data-tip={open ? "Hide the description" : about} data-tip-more={open ? undefined : "Click to keep it shown"}>
+      <InfoIcon /></button>
+  );
+}
 
 /** The top of the centre panel for an item: what it is and where the Index has it, and for a piece of
     music what leads in and out of it. `nav` (back and forward) sits at the end of the first row. `cue` is the part
@@ -32,6 +45,11 @@ export function ItemHead({ item, part, cue, nav }: { item: MusicItem; part: Musi
   // in an archive, what the Index knows of the bank that shows: a link to the sound set it is
   const known = item.kind === "archive" ? (cue.tags ?? []).filter((t) => t.item) : [];
   const archives = cue.kind === "sounds" ? cue.archive_names : [];
+  const [aboutOpen, setAboutOpen] = useState(aboutShown);
+  const toggleAbout = () => {
+    setAboutOpen(!aboutOpen);
+    try { localStorage.setItem(ABOUT_KEY, aboutOpen ? "" : "1"); } catch { /* storage off: for this view only */ }
+  };
   return (
     <>
       <div className="head-row">
@@ -43,17 +61,18 @@ export function ItemHead({ item, part, cue, nav }: { item: MusicItem; part: Musi
       </div>
       <div className="item-title">
         <h1>{item.name}</h1>
+        {item.about && <AboutToggle about={item.about} open={aboutOpen} onToggle={toggleAbout} />}
         {!readOnly && project && c.total > 0 && (
           <span className={`item-cov ${statusOf(c)}`}><Mark status={statusOf(c)} />{COVERAGE[statusOf(c)]}</span>
         )}
         {readOnly && listed && <span className="item-cov done" data-tip={`In ${project!.name}`}>In the project</span>}
-        {inside && <span className="item-cov done" data-tip="Its sounds are in the project already" data-tip-more={`In ${listName(inside)}`}>In the project</span>}
+        {inside && <span className="item-cov done" data-tip="These sounds are in the project already" data-tip-more={`In ${listName(inside)}`}>In the project</span>}
         {item.kind === "archive" && (item.tags ?? []).map((t) => <CatTag key={t.category} tag={t} />)}
       </div>
-      {item.about && <p className="cue-notes">{item.about}</p>}
+      {item.about && <Fold open={aboutOpen}><p className="cue-notes">{item.about}</p></Fold>}
       {known.length > 0 && (
         <p className="cue-detail">This bank is {known.map((t, i) => (
-          <span key={t.item}>{i > 0 && " and "}<CatTag tag={t} tip="Show it in the Index" onOpen={() => show(t.item!, cue.id)} /></span>
+          <span key={t.item}>{i > 0 && " and "}<CatTag tag={t} tip="Show in the Index" onOpen={() => show(t.item!, cue.id)} /></span>
         ))} in the Index.</p>
       )}
       {item.shares.length > 0 && (
@@ -64,17 +83,17 @@ export function ItemHead({ item, part, cue, nav }: { item: MusicItem; part: Musi
               <span key={s.item}>{i > 0 && (i === item.shares.length - 1 ? " and " : ", ")}
                 <button className="link-text" onClick={() => show(other.id)}>{other.full}</button> ({s.count} slot{s.count === 1 ? "" : "s"})</span>
             ) : null;
-          })}: a replacement there changes it here too.
+          })}.
         </p>
       )}
       {archives.length > 0 && item.kind !== "archive" && (
         <p className="cue-detail">
           {archives.length === 1 ? "In the archive " : `In ${archives.length} archives: `}
           {archives.slice(0, 4).map((name, i) => (
-            <span key={name}>{i > 0 && ", "}<button className="link-text arc-id" data-tip="Show it in All Archives"
+            <span key={name}>{i > 0 && ", "}<button className="link-text arc-id" data-tip="Show in All Archives"
               onClick={() => goTo({ scope: "library", itemId: `archive:${name}`, cueId: cue.id, source: null })}>{name}</button></span>
           ))}{archives.length > 4 && ` and ${archives.length - 4} more`}
-          {cue.bank_name && <> · <span className="arc-id" data-tip="The bank's name in the game files">{cue.bank_name}</span></>}
+          {cue.bank_name && <> · <span className="arc-id" data-tip="Bank name in the game files">{cue.bank_name}</span></>}
         </p>
       )}
       {item.kind === "music" && item.around.length > 0 && <Around item={item} a={a} />}
@@ -90,7 +109,7 @@ export function ItemActions({ item }: { item: MusicItem }) {
   const total = counted(item).length;
   if (item.kind === "music") {
     return total > 1 ? (
-      <button className="btn" data-tip={`Choose files for all ${total} slots, across its parts, in order`}
+      <button className="btn" data-tip={`Choose files for all ${total} slots in every part, in order`}
         onClick={async () => { const f = await pickAudio(true); if (f) actions.fillSources(counted(item), f, `the ${item.parts.length} parts of ${item.full}`); }}>
         Fill the whole piece…</button>
     ) : null;
@@ -98,7 +117,7 @@ export function ItemActions({ item }: { item: MusicItem }) {
   const kind = item.kind === "transition" ? "transition" : "stinger";
   const skippable = [...new Set(item.parts.flatMap((p) => p.own.filter((t) => !a[t])))];
   return skippable.length ? (
-    <button className="btn" data-tip={`Replace them with a short silence, so the game goes straight to the next music${keyHint("undo") ? `. Undo${keyHint("undo")} brings them back` : ""}`}
+    <button className="btn" data-tip={`Replace them with a short silence, so the next music starts right away${keyHint("undo") ? `. Undo${keyHint("undo")} brings them back` : ""}`}
       onClick={() => actions.skip(skippable, `${item.parts.length} ${kind}s`)}>Skip all {item.parts.length}</button>
   ) : null;
 }
@@ -180,7 +199,7 @@ function Around({ item, a }: { item: MusicItem; a: Record<string, Assignment> })
         <span>{what} {rows.length === 1 ? "plays" : "play"} next to this music{warn ? <>. <b>{game.length}</b> still {game.length === 1 ? "plays" : "play"} the original next to new music.</> : "."}</span>
         <button className="link-text" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? "Hide" : "Show"}</button>
         {warn && project && (
-          <button className="btn quiet small-btn" data-tip="Replace them with a short silence, so the game goes straight to the next music. This also adds them to the project."
+          <button className="btn quiet small-btn" data-tip="Replace them with a short silence, so the next music starts right away. This also adds them to the project."
             onClick={() => actions.skip([...new Set(game.flatMap((r) => r.part.own.filter((t) => !a[t])))], `${game.length} around ${item.full}`)}>
             Skip {game.length === 1 ? "it" : "them"}</button>
         )}
@@ -210,11 +229,11 @@ function Around({ item, a }: { item: MusicItem; a: Record<string, Assignment> })
 /** What a transition or stinger plays now: the original, a replacement, a skip (silence the game moves straight on
     from) or silence that keeps the original timing. */
 export function PartState({ part, a }: { part: MusicPart; a: Record<string, Assignment> }) {
-  if (!part.own.length) return <span className="pstate shared" data-tip="Its audio belongs to other music and changes with it">with the music</span>;
+  if (!part.own.length) return <span className="pstate shared" data-tip="The audio is part of other music and changes with it">with the music</span>;
   const mine = part.own.filter((t) => a[t]);
   if (!mine.length) return <span className="pstate game">original</span>;
   if (mine.length < part.own.length) return <span className="pstate part">partly replaced</span>;
   if (!mine.every((t) => a[t].silence)) return <span className="pstate mine">replaced</span>;
   return mine.every((t) => a[t].fit_timing) ? <span className="pstate skipped" data-tip="Silent, and the game moves straight on">skipped</span>
-    : <span className="pstate silent" data-tip="Silence for as long as the original would play">silent</span>;
+    : <span className="pstate silent" data-tip="Silence for the length of the original">silent</span>;
 }

@@ -58,7 +58,7 @@ function confirmRemoval(mine: Assignment[], p: ProjectState) {
   const takes = mine.filter((x) => p.additions.some((a) => a.kind === "take" && a.source === x.target)).length;
   const files = [...new Set(mine.filter((x) => !x.silence).map((x) => x.name))];
   const what = silence ? "the silence" : takes === n ? (n === 1 ? "the new take" : "the new takes") : "the new audio";
-  const after = takes === n ? (n === 1 ? "The take is gone from the sound." : "The takes are gone from their sounds.")
+  const after = takes === n ? (n === 1 ? "The take is removed from the sound." : "The takes are removed from their sounds.")
     : silence ? `${n === 1 ? "This slot plays" : "These slots play"} the original again.`
     : `${n === 1 ? "This slot plays" : `These ${n} slots play`} the original again.`;
   return confirm({
@@ -71,7 +71,7 @@ function confirmRemoval(mine: Assignment[], p: ProjectState) {
 
 /** What opening a project put right in its file (said once, when it opens; the file is fixed by its next save). */
 const repairNote = (p: ProjectState) =>
-  `Some values in ${p.name} were damaged and were reset to their defaults (${p.repairs.join(", ")}).`;
+  `Some values in ${p.name} were damaged and reset to defaults (${p.repairs.join(", ")}).`;
 
 /** The two tabs that show audio. The Library is everything the game has, to hear and to add to a project; the
     Editor is what the open project lists, to replace. Each keeps its own open place, selection and history. */
@@ -295,7 +295,7 @@ function useEditorState() {
     notify(tone, text, {
       label: "Undo", run: () => {
         if (editSeq.current === seq) undoRef.current();
-        else notify("info", `Newer changes came after it. Undo${keyHint("undo")} steps back one change at a time.`);
+        else notify("info", `There are newer changes. Undo${keyHint("undo")} steps back one change at a time.`);
       },
     });
   }, [notify]);
@@ -516,11 +516,11 @@ function useEditorState() {
       // (a heading, then one line each)
       const r = j.result, left: string[] = r.left ?? [];
       const brought = [r.imported ? plural(r.imported, "replaced sound") : "", r.added ? plural(r.added, "added sound") : "",
-        r.settings ? `The mod's settings on ${plural(r.settings, "sound or container", "sounds and containers")}` : ""].filter(Boolean);
+        r.settings ? `Settings on ${plural(r.settings, "sound or container", "sounds and containers")}` : ""].filter(Boolean);
       const lines = [
         brought.length ? "Imported from the patch into the Audio Editor:" : "Imported nothing from the patch.",
         ...brought,
-        r.skipped ? `${r.skipped} couldn't be decoded` : "",
+        r.skipped ? `${plural(r.skipped, "sound")} couldn't be decoded` : "",
         // sounds the patch still had from an older game version: not the mod's, so not imported (Wiki: Repatching)
         r.stale ? `Left out: ${plural(r.stale, "sound")} from an older game version` : "",
         // the game's objects as the patch's older copies had them: the current ones stay (Wiki: Repatching)
@@ -544,7 +544,7 @@ function useEditorState() {
       if (p?.repairs.length) notify("info", repairNote(p), undefined, true);
     } else {
       // the export list's slots that have no audio in the game's files: why fewer files came out than it counts
-      const absent = j.result.absent ? ` ${plural(j.result.absent, "slot")} on it ${j.result.absent === 1 ? "has" : "have"} no audio in the game's files.` : "";
+      const absent = j.result.absent ? ` ${plural(j.result.absent, "slot")} on it ${j.result.absent === 1 ? "has" : "have"} no audio in the game files.` : "";
       notify("good", `Exported ${plural(j.result.files, "file")} of ${j.title}.${absent}`,
         { label: "Show in folder", run: () => platform.reveal(j.result.first) }, true);
     }
@@ -637,7 +637,7 @@ function useEditorState() {
       if (!r) return;
       const { collected, ...p } = r;
       edited(p);
-      if (collected) editNotice("good", `Copied ${plural(collected, "file")} into the project's folder.`);
+      if (collected) editNotice("good", `Copied ${plural(collected, "file")} into the project folder.`);
       else quick("Nothing to copy", "info");
     },
     /** Writes the project and the files it uses as one .audipack file (Project tab), named as the project file is. */
@@ -685,7 +685,7 @@ function useEditorState() {
       const p = await run<ProjectState>("library_remove", { items: ids });
       if (!p || !edited(p)) return;
       const gone = before - Object.keys(p.assignments).length;
-      if (gone) editNotice("info", `Removed ${what} from the project, with the new audio of ${plural(gone, "slot")}.`);
+      if (gone) editNotice("info", `Removed ${what} from the project, along with the new audio in ${plural(gone, "slot")}.`);
       else quick(`**${what}** removed from **${project.name}**`, "undo");
     },
     /** Uses an image file as the mod's icon (asking which, without a path). */
@@ -752,7 +752,7 @@ function useEditorState() {
     /** Remembers the audio of these slots for pasting (the slots without new audio are left out). */
     copySlots(sources: string[]) {
       const mine = sources.filter((s) => project?.assignments[s]);
-      if (!mine.length) { quick("Nothing to copy, because these slots aren't replaced", "info"); return; }
+      if (!mine.length) { quick("Nothing to copy. These slots aren't replaced", "info"); return; }
       setClip(mine);
       const paste = keyLabel("paste");
       quick(`Copied ${plural(mine.length, "slot")}${paste ? ` · ${paste} pastes` : ""}`, "copy");
@@ -806,9 +806,9 @@ function useEditorState() {
       edited(await run<ProjectState>("update_many", { sources, ...fields }));
     },
     async settings(fields: Record<string, unknown>) { edited(await run<ProjectState>("settings", fields)); },
-    /** A new mod id: HD2 Arsenal then sees the next build as another mod. Undo puts the old id back. */
+    /** A new mod id: a mod manager then sees the next build as another mod. Undo puts the old id back. */
     async newModId() {
-      if (edited(await run<ProjectState>("settings", { guid: "new" }))) editNotice("info", "New mod id created. HD2 Arsenal installs the next build as a separate mod.");
+      if (edited(await run<ProjectState>("settings", { guid: "new" }))) editNotice("info", "New mod id created. Mod managers install the next build as a separate mod.");
     },
     /** The project as it is on disk now (a file deleted meanwhile becomes a problem); quiet when it can't be asked. */
     async refresh() {
@@ -858,7 +858,7 @@ function useEditorState() {
         the caller shows it, since notices can't be seen from the start-up screen. */
     async setGameFolder(path?: string | null): Promise<string | null> {
       if (path === undefined) {
-        path = await platform.pickFolder(status?.game_folder?.path ?? undefined, "Choose the folder Helldivers 2 is installed in");
+        path = await platform.pickFolder(status?.game_folder?.path ?? undefined, "Choose the Helldivers 2 install folder");
         if (!path) return null;
       }
       try {
@@ -868,7 +868,7 @@ function useEditorState() {
         return null;
       } catch (e: any) { return e.message ?? String(e); }
     },
-    /** Builds the Arsenal ZIP. The Build tab's switches say whether the version goes up afterwards and whether
+    /** Builds the mod's ZIP. The Build tab's switches say whether the version goes up afterwards and whether
         the ZIP is shown in its folder. */
     async build() {
       if (!needProject()) return;
@@ -937,9 +937,9 @@ function useEditorState() {
       if (!empty) {
         const answer = await choose({
           title: `Import ${path.split(/[\\/]/).pop()}`,
-          text: "Add the patch's audio to this project, or replace the project's audio with it? Adding keeps what the "
-            + "project has, and where both have audio for a slot, the patch's goes in. Replacing takes out the project's "
-            + `new audio, added sounds, cue points and list first; its text and audio files stay. ${undoHint()} brings it back.`,
+          text: "Add the patch's audio to this project, or replace the current audio? Adding keeps everything, and where "
+            + "both have audio for a slot, the patch's version is used. Replacing first removes the new audio, added sounds, "
+            + `cue points and list. The text and audio files stay. ${undoHint()} brings them back.`,
           ok: "Add to the project", alt: "Replace the project's audio",
         });
         if (!answer) return;

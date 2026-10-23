@@ -111,13 +111,13 @@ export function TextTab({ hidden }: { hidden?: boolean }) {
   };
   return (
     <div className="panes two text-tab" hidden={hidden} style={{ ["--left" as any]: `${width}px` }}>
-      <aside className="library" aria-label="The game's text" onKeyDown={listKeys}>
+      <aside className="library" aria-label="Lines" onKeyDown={listKeys}>
         <div className="lib-search">
           <select value={lang} onChange={(e) => setLang(e.target.value)} aria-label="Language" data-tip="Language. Each language is a separate table">
             {(langs.length ? langs : [{ code: lang, name: lang }]).map((l) => <option key={l.code} value={l.code}>{l.name}</option>)}
           </select>
           <input type="search" placeholder="Search, or paste an id" value={query} onChange={(e) => { setOnly(null); setQuery(e.target.value); }}
-            aria-label="Search the game's text" data-tip="Words of a line in this language, or a line's id" data-tip-side="bottom"
+            aria-label="Search lines" data-tip="Words in this language, or a line id" data-tip-side="bottom"
             onKeyDown={(e) => { if (e.key === "Escape") setQuery(""); }} />
         </div>
         <div className="mus-filters">
@@ -137,7 +137,7 @@ export function TextTab({ hidden }: { hidden?: boolean }) {
           {error && <p className="empty-note">{error}</p>}
           {!found && !error && (
             <div className="empty-note">
-              <p>Search every line of the game's text, including subtitles, mission and menu text, and names.</p>
+              <p>Search every line, including subtitles, mission and menu text, and names.</p>
               <p className="muted small">Try <button className="link-text" onClick={() => setQuery("democracy")}>democracy</button>, <button className="link-text"
                 onClick={() => setQuery("reinforcing")}>reinforcing</button> or <button className="link-text" onClick={() => setQuery("extraction")}>extraction</button>.</p>
             </div>
@@ -163,11 +163,10 @@ export function TextTab({ hidden }: { hidden?: boolean }) {
           : (
             <section className="cue empty">
               <div className="empty-card">
-                <h1>The game's text</h1>
-                <p>Find a line on the left and change its words, colours or size.
+                <p>Search for a line to change words, colours or size.
                   {project ? <> Changes go into <b>{project.name}</b>.</>
                     : <> Open or create a project on <button className="link-text" onClick={() => nav.go("home")}>Home</button> to change lines.</>}</p>
-                <p><WikiLink page="text" about="Changing the game's text">How changing text works</WikiLink></p>
+                <p><WikiLink page="text" about="Changing text">How changing text works</WikiLink></p>
               </div>
             </section>
           )}
@@ -254,7 +253,7 @@ function LineEditor({ line, lang, canEdit, onSave, onRevert }: {
     <section className="cue tx-edit" aria-label="The line">
       <div className="cue-top"><header className="cue-head">
         <div className="head-row"><div className="crumbs">{subtitle ? "Subtitle" : "Text"} · line {line.id} · table {line.table}</div>
-          <button className="link-text small" onClick={() => copyText(String(line.id), quick, `**${line.id}**`)} data-tip="Copy the line's id">Copy the id</button></div>
+          <button className="link-text small" onClick={() => copyText(String(line.id), quick, `**${line.id}**`)} data-tip="Copy the line id">Copy the id</button></div>
         <div className="item-title"><h1>{plainText(line.text).slice(0, 80) || "(empty)"}</h1>
           {line.yours !== undefined && <span className="item-cov done"><Mark status="done" />Changed</span>}</div>
       </header></div>
@@ -280,13 +279,13 @@ function LineEditor({ line, lang, canEdit, onSave, onRevert }: {
             <button className="btn small-btn" disabled={!canEdit} onClick={() => wrap(`<c=FF${hex}>`, "</c>")}
               data-tip="Colour the selection (the whole line when nothing is selected)">Colour</button>
             <input type="number" className="tx-size" min={10} max={60} value={sizeDraft ?? size} disabled={!canEdit} aria-label="Size, 10 to 60"
-              data-tip="Size from 10 to 60. The game's normal size is 20. None of the game's lines use sizes, but chat does"
+              data-tip="Size from 10 to 60. The normal size is 20. No game line uses sizes, but chat does"
               onChange={(e) => setSizeDraft(e.target.value)}
               onBlur={() => { const n = Number(sizeDraft); if (sizeDraft !== null && sizeDraft.trim() !== "" && Number.isFinite(n)) setSize(Math.round(Math.max(10, Math.min(60, n)))); setSizeDraft(null); }}
               onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }} />
             <button className="btn small-btn" disabled={!canEdit} onClick={() => wrap(`<s=${String(size).padStart(2, "0")}>`, "</s>")}
               data-tip="Size the selection">Size</button>
-            <button className="btn small-btn" disabled={!canEdit} onClick={() => wrap("<i=1>", "</i>")} data-tip="The game's emphasis style">Emphasis</button>
+            <button className="btn small-btn" disabled={!canEdit} onClick={() => wrap("<i=1>", "</i>")} data-tip="The style tips and briefings use for terms">Emphasis</button>
             {subtitle && (
               <button className="btn small-btn" disabled={!canEdit} data-tip="Add a timing mark at the cursor" data-tip-more="When the words after it appear, in seconds from the start of the voice line"
                 onClick={() => { const el = box.current!, at = el.selectionStart; edit(draft.slice(0, at) + "{0.00->2.00}" + draft.slice(at), true); }}>Timing</button>
@@ -298,7 +297,7 @@ function LineEditor({ line, lang, canEdit, onSave, onRevert }: {
           <textarea ref={box} className="tx-input" value={draft} rows={5} readOnly={!canEdit} spellCheck
             onChange={(e) => edit(e.target.value)} onBlur={() => save(draft, true)} onKeyDown={projectKeys} aria-label="New text" />
           {!canEdit && <small className="muted">Open a project to change this line.</small>}
-          {lost.length > 0 && <p className="warn-box">The game fills in {lost.join(", ")} here: keep {lost.length > 1 ? "them" : "it"}.</p>}
+          {lost.length > 0 && <p className="warn-box">The game fills in {lost.join(", ")} here. Keep {lost.length > 1 ? "them" : "it"}.</p>}
           {line.was !== undefined && line.was !== line.text && <p className="warn-box">The game has changed this line since it was edited. The original now reads: {plainText(line.text)}</p>}
         </div>
         <div className="field">

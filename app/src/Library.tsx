@@ -35,12 +35,12 @@ export function LibraryPanel() {
 type SortKey = "name" | "cat" | "archive" | "language" | "banks" | "sounds";
 /** The table's columns: what each sorts by, its heading and what it says. */
 const COLUMNS: [SortKey, string, string][] = [
-  ["name", "Name", "Its name in the Index"],
-  ["cat", "Index", "Its categories in the Index"],
-  ["archive", "Archive", "Its name in the game files"],
-  ["language", "Language", "A voice pack's language"],
-  ["banks", "Banks", "Sound banks in it"],
-  ["sounds", "Sounds", "Sounds in it"],
+  ["name", "Name", "Name in the Index"],
+  ["cat", "Index", "Categories in the Index"],
+  ["archive", "Archive", "Name in the game files"],
+  ["language", "Language", "Voice pack language"],
+  ["banks", "Banks", "Number of sound banks"],
+  ["sounds", "Sounds", "Number of sounds"],
 ];
 const SORT_KEY = "audiodiver.archiveSort";
 /** The columns' widths at the default text size; each heading's right edge drags its column wider or narrower. */
@@ -231,7 +231,7 @@ function ArchiveList() {
         { label: "Open in the Audio Editor", run: () => goTo({ scope: "editor", itemId: id, cueId: null, source: null }) } as MenuEntry,
         { label: "Remove from the project", run: () => actions.removeFromProject([id], title(a)) } as MenuEntry,
       ] : [{ label: "Add to the project", run: () => actions.addToProject([id], title(a)) } as MenuEntry]),
-      { label: "Copy the archive's name", run: () => copyText(a.id, quick) },
+      { label: "Copy the archive name", run: () => copyText(a.id, quick) },
     ];
     openMenu(e, entries);
   };
@@ -336,7 +336,7 @@ export function ProjectPanel() {
       </div>
       {empty ? (
         <div className="lib-empty">
-          <p>The project is empty. Add music or sounds from the Library, and they appear here, ready for new audio.</p>
+          <p>The project is empty. Add music or sounds from the Library.</p>
           <div className="row-btns"><button className="btn primary" onClick={() => nav.go("library")}>Open the Library</button></div>
         </div>
       ) : (
@@ -360,7 +360,7 @@ function OtherSounds() {
     <div className="lib-other">
       <div className="lib-group">
         <button className="lib-group-head" aria-expanded={open} onClick={() => setOpen(!open)}
-          data-tip="Replaced slots that no entry in the project's list contains">
+          data-tip="Replaced slots that no project entry contains">
           <span className="caret" aria-hidden>▸</span>
           <span className="lib-group-name">Other Replaced Sounds</span>
         </button>

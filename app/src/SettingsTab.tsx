@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { call, fmtBytes } from "./api";
+import { confirm } from "./Confirm";
 import { captureChord, COMMANDS, FIXED, fmtChord, keymap, useKeymap, type CommandId } from "./keys";
 import { nav, useNav, type SettingsTab as Sub } from "./nav";
 import { Page, tabArrows } from "./Page";
@@ -8,12 +9,12 @@ import { player } from "./player";
 import { DEFAULT_SETTINGS, resetLayout, settings, TIP_SPEEDS, UPDATE_MODES, UPDATE_NOTES, useSettings } from "./settings";
 import { useEditor } from "./store";
 import { Help } from "./Wiki";
-import { accentFor, BAR_SIDES, barIsVertical, BLUE_HUE, contrastOn, DEFAULT_SIZE, DEFAULT_THEME, DEFAULT_WARMTH, DENSITIES, FONTS, motionOn, nightTint, secondFor, SPEEDS,
-  systemReducesMotion, systemWantsContrast, TEXT_SIZES, theme, useTheme, WARMTH, YELLOW_HUE, type FontId } from "./theme";
+import { accentFor, BAR_SIDES, barIsVertical, BLUE_HUE, contrastOn, DEFAULT_SIZE, DEFAULT_THEME, DEFAULT_WARMTH, DENSITIES, FONTS, modeOf, motionOn, nightTint,
+  RESET_THEME, secondFor, SPEEDS, systemReducesMotion, systemWantsContrast, TEXT_SIZES, theme, useTheme, WARMTH, YELLOW_HUE, type FontId } from "./theme";
 
 const SUBS: [Sub, string, string][] = [
-  ["system", "System", "The game's folder, startup, updates, tooltips, disk space, layout"],
-  ["shortcuts", "Shortcuts", "Every key, and changing them"],
+  ["system", "System", "Game folder, startup, updates, tooltips, disk space, layout"],
+  ["shortcuts", "Shortcuts", "Shortcut keys and rebinding"],
   ["theme", "Theme", "Colours, text, spacing, the tab bar, animations"],
 ];
 
@@ -70,12 +71,12 @@ function System() {
         <h2>Startup</h2>
         <label className="check">
           <input type="checkbox" checked={s.openLast} onChange={(e) => settings.set({ openLast: e.target.checked })} />
-          <span>Open the last project when Audiodiver starts <Help tip="When this is on, Audiodiver opens the last project in the Audio Editor. When it is off, Audiodiver starts on Home with the recent projects." page="how-audiodiver-works#startup" /></span>
+          <span>Open the last project when Audiodiver starts <Help tip="When on, the last project opens in the Audio Editor. When off, Audiodiver starts on Home with the recent projects." page="how-audiodiver-works#startup" /></span>
         </label>
       </section>
 
       <section className="set-sec">
-        <h2>Updates <Help tip="Audiodiver looks for a new version on GitHub each time it starts. The Updates tab lists every version's changes." page="how-audiodiver-works#new-versions-of-audiodiver" /></h2>
+        <h2>Updates <Help tip="Audiodiver checks GitHub for a new version on every start. The Updates tab lists the changes in each version." page="how-audiodiver-works#new-versions-of-audiodiver" /></h2>
         <div className="field">
           <span className="field-label">Mode</span>
           <div className="segmented updates-mode" role="radiogroup" aria-label="Updates">
@@ -104,7 +105,7 @@ function System() {
       </section>
 
       <section className="set-sec">
-        <h2>Disk space <Help tip="Prepared copies of audio, kept so that Audiodiver doesn't prepare it again. Projects and audio files are never stored here." page="how-audiodiver-works#disk-space" /></h2>
+        <h2>Disk space <Help tip="Prepared copies of audio, kept for reuse. Projects and audio files are never stored here." page="how-audiodiver-works#disk-space" /></h2>
         <div className="set-rows">
           <div className="set-row">
             <div><b>Previews</b><small>Decoded originals, waveforms and Play through renders</small></div>
@@ -126,7 +127,7 @@ function System() {
           data-tip="The side panels, the header and the waveforms back to their default sizes">Reset panel sizes</button>
       </section>
 
-      {changed && <button className="link-text set-reset" onClick={() => settings.set(defaults)}>Put these settings back to their defaults</button>}
+      {changed && <button className="link-text set-reset" onClick={() => settings.set(defaults)}>Reset these settings to default</button>}
     </div>
   );
 }
@@ -146,14 +147,14 @@ function GameFolder() {
   const change = async (path?: string | null) => setError(await actions.setGameFolder(path));
   return (
     <section className="set-sec">
-      <h2>Game <Help tip="Audiodiver only reads from this folder. If you choose another folder, Audiodiver reads the game again, which takes about a minute the first time." page="how-audiodiver-works#game-folder" /></h2>
+      <h2>Game <Help tip="Audiodiver only reads from this folder. Choosing another folder reads the game again, which takes about a minute the first time." page="how-audiodiver-works#game-folder" /></h2>
       <div className="game-folder">
         <span className="path-text">{where?.path ?? "Not found"}</span>
       </div>
       {where?.how && FOUND[where.how] && <p className="set-note">{FOUND[where.how]}</p>}
       <div className="row-btns">
         <button className="btn" disabled={busy} onClick={() => change()}
-          data-tip={busy ? "Wait for the build or export to finish" : "The folder Steam installed Helldivers 2 in, or its data folder"}>Choose another folder…</button>
+          data-tip={busy ? "Wait for the build or export to finish" : "The Helldivers 2 install folder, or its data folder"}>Choose another folder…</button>
         {where?.chosen && <button className="btn quiet" disabled={busy} onClick={() => change(null)}>Find it through Steam again</button>}
         {where?.path && <button className="btn quiet" onClick={() => reveal(where.path!)}>Show in folder</button>}
       </div>
@@ -192,7 +193,13 @@ function Shortcuts() {
   };
   const reset = (id: CommandId) => {
     const lost = keymap.reset(id);
-    setNote(lost.length ? `Reset to its default. This took a key from ${lost.map((x) => `“${keymap.command(x).label}”`).join(" and ")}.` : null);
+    setNote(lost.length ? `Reset to default. This took a key from ${lost.map((x) => `“${keymap.command(x).label}”`).join(" and ")}.` : null);
+  };
+  const resetAll = async () => {
+    const ok = await confirm({ title: "Reset all shortcuts?", text: "All commands go back to their default keys.", ok: "Reset", cancel: "Cancel" });
+    if (!ok) return;
+    keymap.resetAll();
+    setNote("All shortcuts reset to default.");
   };
 
   const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -206,11 +213,12 @@ function Shortcuts() {
   return (
     <div className="set-page keys-page">
       <div className="keys-bar">
-        <input type="search" placeholder="Find a shortcut, by what it does or by its key" value={query} aria-label="Find a shortcut"
+        <input type="search" placeholder="Search a shortcut by function or key" value={query} aria-label="Search a shortcut"
           onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => { if (e.key === "Escape") setQuery(""); }} />
-        <button className="btn" disabled={keymap.allDefault()} onClick={() => { keymap.resetAll(); setNote("Every shortcut is reset to its default key."); }}>Reset all</button>
+        <button className="btn" disabled={keymap.allDefault()} onClick={resetAll}>Reset all…</button>
       </div>
-      <p className="set-note">Click a key, then press the new one. Esc cancels. Each key does only one thing, so a key you assign is removed from the command that had it.</p>
+      <p className="set-note">Click on a key bind to change it. Press Esc to cancel.<br />
+        Key functions are exclusive. If you assign a key to a function, all other functions that use that key will be emptied.</p>
       <p className="keys-note" role="status">{capture ? "Press the new key…" : note}</p>
 
       {GROUPS.map((group) => {
@@ -275,22 +283,32 @@ function FontPicker({ label, value, onChange }: { label: string; value: FontId; 
 function Theme() {
   const t = useTheme();
   // the slider shows the colours you would really get, which differ in brightness from a plain rainbow
-  const rainbow = useMemo(() => `linear-gradient(90deg, ${Array.from({ length: 25 }, (_, i) => accentFor(t.mode, i * 15, contrastOn(t)).accent).join(", ")})`, [t.mode, t.contrast]);
-  const rainbow2 = useMemo(() => `linear-gradient(90deg, ${Array.from({ length: 25 }, (_, i) => secondFor(t.mode, i * 15, contrastOn(t)).fg).join(", ")})`, [t.mode, t.contrast]);
+  const rainbow = useMemo(() => `linear-gradient(90deg, ${Array.from({ length: 25 }, (_, i) => accentFor(modeOf(t), i * 15, contrastOn(t)).accent).join(", ")})`, [t.mode, t.contrast]);
+  const rainbow2 = useMemo(() => `linear-gradient(90deg, ${Array.from({ length: 25 }, (_, i) => secondFor(modeOf(t), i * 15, contrastOn(t)).fg).join(", ")})`, [t.mode, t.contrast]);
   const warm = useMemo(() => `linear-gradient(90deg, ${[0, 0.25, 0.5, 0.75, 1].map((w) => nightTint(w)).join(", ")})`, []);
-  const changed = (Object.keys(DEFAULT_THEME) as (keyof typeof DEFAULT_THEME)[]).some((k) => t[k] !== DEFAULT_THEME[k]);
+  const changed = (Object.keys(RESET_THEME) as (keyof typeof RESET_THEME)[]).some((k) => t[k] !== RESET_THEME[k]);
+  const reset = async () => {
+    const ok = await confirm({ title: "Reset the theme?", text: "Every theme setting goes back to its default. Dark or light, contrast and animations follow the system.", ok: "Reset", cancel: "Cancel" });
+    if (ok) theme.reset();
+  };
   return (
     <div className="set-page">
+      <div className="set-top">
+        <button className="btn" disabled={!changed} onClick={reset}>Reset theme…</button>
+      </div>
       <section className="set-sec">
         <h2>Colours</h2>
         <div className="field">
-          <span className="field-label">Theme</span>
+          <span className="field-label">Theme
+            {t.mode !== null && <button className="link-inline" onClick={() => theme.set({ mode: null })}>Follow the system</button>}
+          </span>
           <div className="segmented narrow" role="radiogroup" aria-label="Theme">
             {(["dark", "light"] as const).map((m) => (
-              <button key={m} role="radio" aria-checked={t.mode === m} className={t.mode === m ? "on" : ""}
+              <button key={m} role="radio" aria-checked={modeOf(t) === m} className={modeOf(t) === m ? "on" : ""}
                 onClick={() => theme.set({ mode: m })}>{m === "dark" ? "Dark" : "Light"}</button>
             ))}
           </div>
+          {t.mode === null && <small>Following the system.</small>}
         </div>
         <div className="field">
           <span className="field-label">Contrast
@@ -338,7 +356,7 @@ function Theme() {
           </span>
           <input type="range" className="hue-slider second" style={{ background: rainbow2 }} min={0} max={359} step={1} value={t.hue2} aria-label="Secondary colour hue"
             onChange={(e) => theme.set({ hue2: Number(e.target.value) })} />
-          <small>Links, the open tab, the selection and the focus ring{t.mode === "light" ? ", and on the light theme the primary colour's text and lines" : ""}.</small>
+          <small>Links, the open tab, the selection and the focus ring{modeOf(t) === "light" ? ", and primary-coloured text and lines on the light theme" : ""}.</small>
         </div>
       </section>
 
@@ -356,7 +374,7 @@ function Theme() {
             {t.titleFont !== DEFAULT_THEME.titleFont && <button className="link-inline" onClick={() => theme.set({ titleFont: DEFAULT_THEME.titleFont })}>Back to Archivo</button>}
           </span>
           <FontPicker label="Typeface for titles" value={t.titleFont} onChange={(f) => theme.set({ titleFont: f })} />
-          <small>Page and panel titles, and the app's name.</small>
+          <small>Page and panel titles, and the app name.</small>
         </div>
         <div className="field">
           <span className="field-label">Text size
@@ -402,7 +420,7 @@ function Theme() {
                 onClick={() => theme.set({ labels: on })}>{on ? "On" : "Off"}</button>
             ))}
           </div>
-          <small>{!t.labels ? "Only icons, with each name in its tooltip." : barIsVertical(t.bar) ? "A tab's name shows when the pointer is on it." : "Each name shows beside its icon."}</small>
+          <small>{!t.labels ? "Icons only. Names show in tooltips." : barIsVertical(t.bar) ? "Names show when the pointer is on a tab." : "Names show beside the icons."}</small>
         </div>
       </section>
 
@@ -438,7 +456,6 @@ function Theme() {
         </div>
       </section>
 
-      {changed && <button className="link-text set-reset" onClick={() => theme.reset()}>Put the theme back to its defaults</button>}
     </div>
   );
 }

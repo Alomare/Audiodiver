@@ -27,7 +27,7 @@ type Made = {
   name: string; zip: string; mb: number;
   mods: { name: string; imported: number; added: number; settings: number; stale: number; older: number; left: string[]; others: string[] }[];
 };
-type Installed = { mods: { name: string; source: string; deployed: boolean }[]; arsenal: boolean };
+type Installed = { mods: { name: string; source: string; deployed: boolean }[]; library: boolean };
 
 const fileName = (path: string) => path.split(/[\\/]/).pop()!;
 const OPEN_ALL = 30; // more conflicts than this start folded
@@ -60,7 +60,7 @@ function defaultName(mods: Mod[]) {
   return short.length <= 80 ? short : "Combined mods";
 }
 
-/** Tools ▸ Combine Mods: several audio mods (ZIPs, folders, .patch_0 files, or mods in HD2 Arsenal's library), each
+/** Tools ▸ Combine Mods: several audio mods (ZIPs, folders, .patch_0 files, or mods in a mod manager's library), each
     with the options it should have, made into one mod built on the current game. Where two mods change the same
     sound, the user picks which mod's goes in (the lower one by default, as it deploys later). The explanations sit
     beside it, the rest in the Wiki. */
@@ -143,7 +143,7 @@ export function CombinePage() {
     <div className="bld rp cmb drop-page" data-drop={JSON.stringify({ kind: "combine" })}>
       <div className="bld-main">
         <section className="set-sec">
-          <h2>Mods <Help tip="The order counts where two mods change the same sound. A mod lower in the list wins, as it does when Arsenal deploys it later." page="combining-mods#order-and-conflicts" /></h2>
+          <h2>Mods <Help tip="The order counts where two mods change the same sound. A mod lower in the list wins, as it does when a mod manager deploys it later." page="combining-mods#order-and-conflicts" /></h2>
           {mods.length > 0 && (
             <ol className="cmb-mods drop-zone">
               {mods.map((m, i) => (
@@ -154,7 +154,7 @@ export function CombinePage() {
                     <button className="icon-btn" disabled={i === 0 || checking || combining} onClick={() => move(i, -1)} aria-label={`Move ${m.scan.name} up`} data-tip="Move up">↑</button>
                     <button className="icon-btn" disabled={i === mods.length - 1 || checking || combining} onClick={() => move(i, 1)} aria-label={`Move ${m.scan.name} down`} data-tip="Move down">↓</button>
                     <button className="icon-btn" disabled={checking || combining} onClick={() => setMods((list) => list.filter((_, j) => j !== i))}
-                      aria-label={`Take ${m.scan.name} off the list`} data-tip="Take it off the list">✕</button>
+                      aria-label={`Remove ${m.scan.name} from the list`} data-tip="Remove from the list">✕</button>
                   </div>
                   {m.scan.options.length > 0 && <Options mod={m} disabled={checking || combining} onChange={(p) => setPicks(i, p)} />}
                   {m.scan.others.length > 0 && <small className="cmb-other">Also holds {m.scan.others.join(" and ")}, carried over.</small>}
@@ -166,21 +166,21 @@ export function CombinePage() {
             {!mods.length && <p>Drop mods here as <b>ZIPs</b>, <b>folders</b> or <b>.patch_0</b> files.</p>}
             <div className="row-btns">
               <button className="btn" disabled={combining} onClick={async () => { const p = await pickMods(); if (p) add(p); }}>Add ZIPs or patch files…</button>
-              <button className="btn" disabled={combining} onClick={async () => { const f = await pickFolder(undefined, "Choose a mod's folder"); if (f) add([f]); }}>Add a folder…</button>
+              <button className="btn" disabled={combining} onClick={async () => { const f = await pickFolder(undefined, "Choose a mod folder"); if (f) add([f]); }}>Add a folder…</button>
               <button className="btn quiet" disabled={combining} onClick={findInstalled}>Installed mods…</button>
             </div>
             {reading > 0 && <p className="set-note">Reading…</p>}
           </div>
           {installed && (
             <div className="cmb-installed view-in">
-              {!installed.arsenal && <p className="set-note">HD2 Arsenal's library wasn't found, so only the game's folder was checked.</p>}
+              {!installed.library && <p className="set-note">No mod manager library was found.</p>}
               {installed.mods.length ? (
                 <ul>
                   {installed.mods.map((m) => {
                     const on = mods.some((x) => x.scan.source === m.source);
                     return (
                       <li key={m.source}>
-                        <button className="link-text" disabled={on || combining} onClick={() => add([m.source])} data-tip={on ? "On the list" : "Add it to the list"}>{m.name}</button>
+                        <button className="link-text" disabled={on || combining} onClick={() => add([m.source])} data-tip={on ? "On the list" : "Add to the list"}>{m.name}</button>
                         {m.deployed && <span className="tag">Deployed</span>}
                       </li>
                     );
@@ -212,7 +212,7 @@ export function CombinePage() {
         <section className="set-sec">
           <h2>The combined mod</h2>
           <label className="field">
-            <span className="field-label">Name <Help tip="The mod's name in HD2 Arsenal." page="combining-mods#combining-mods" /></span>
+            <span className="field-label">Name <Help tip="Name shown in the mod manager." page="combining-mods#combining-mods" /></span>
             <input value={name} maxLength={80} spellCheck={false} aria-invalid={!!problem} disabled={combining}
               onChange={(e) => { setName(e.target.value); setNamed(true); }} />
             {problem && mods.length > 0 && <small className="bad">{problem}</small>}
@@ -232,7 +232,7 @@ export function CombinePage() {
 
         <div className="bld-box rp-go">
           <button className="btn primary build" onClick={go} disabled={!fresh || !!problem || busy}
-            data-tip={mods.length < 2 ? "Add at least two mods" : !fresh ? "Check for conflicts first" : "Build one mod from these, on the current game's sound banks"}>
+            data-tip={mods.length < 2 ? "Add at least two mods" : !fresh ? "Check for conflicts first" : "Build one mod from these on the current sound banks"}>
             {combining ? "Combining…" : "Combine"}
           </button>
           {combining && job && (
@@ -288,7 +288,7 @@ function Options({ mod, disabled, onChange }: { mod: Mod; disabled: boolean; onC
 function Conflicts({ read, winners, choose }: { read: Read; winners: Record<string, number>; choose: (w: Record<string, number>) => void }) {
   const total = read.groups.reduce((n, g) => n + g.clashes.length, 0);
   const [shut, setShut] = useState<Set<string>>(() => new Set(total > OPEN_ALL ? read.groups.map((g) => g.item || g.name) : []));
-  if (!total) return <p className="set-note view-in">No conflicts. Each sound is changed by one mod.</p>;
+  if (!total) return <p className="set-note view-in">No conflicts.</p>;
   const toggle = (k: string) => setShut((s) => { const n = new Set(s); if (n.has(k)) n.delete(k); else n.add(k); return n; });
   const modName = (i: number) => read.mods[i]?.name ?? `Mod ${i + 1}`;
   return (
@@ -381,7 +381,7 @@ function Outcome({ job }: { job: Job }) {
   const m: Made | null = job.state === "done" ? job.result : null;
   const lines = useMemo(() => m?.mods.map((x) => {
     const got = [x.imported && plural(x.imported, "replaced sound"), x.added && plural(x.added, "added sound"),
-      x.settings && `the mod's settings on ${plural(x.settings, "sound or container", "sounds and containers")}`, ...x.others].filter(Boolean) as string[];
+      x.settings && `settings on ${plural(x.settings, "sound or container", "sounds and containers")}`, ...x.others].filter(Boolean) as string[];
     return { ...x, got: got.length > 1 ? `${got.slice(0, -1).join(", ")} and ${got[got.length - 1]}` : got[0] ?? "Nothing went in" };
   }) ?? [], [m]);
   if (!m) {
@@ -396,7 +396,7 @@ function Outcome({ job }: { job: Job }) {
   return (
     <section className="set-sec view-in rp-made" aria-label="Combined">
       <h2>Combined</h2>
-      <p><b>{m.name}</b>: {fileName(m.zip)}, {m.mb} MB. In Arsenal, turn off the mods it combines before deploying it.</p>
+      <p><b>{m.name}</b>: {fileName(m.zip)}, {m.mb} MB. In the mod manager, turn off the mods it combines before deploying it.</p>
       <div className="row-btns">
         <button className="btn" onClick={() => reveal(m.zip)}>Show in folder</button>
       </div>
@@ -404,7 +404,7 @@ function Outcome({ job }: { job: Job }) {
         <div key={x.name} className="rp-mod">
           <h3>{x.name}</h3>
           <p className="set-note">{x.got}.</p>
-          {x.stale > 0 && <p className="set-note">{plural(x.stale, "sound")} from an older game version left out <Help tip="The mod was made for an older game version, and its copy of the sounds still had these. The current game no longer has them." page="repatching#sounds-from-an-older-game-version" /></p>}
+          {x.stale > 0 && <p className="set-note">{plural(x.stale, "sound")} from an older game version left out <Help tip="The mod's sound banks are from an older game version and still had these sounds. The current game no longer has them." page="repatching#sounds-from-an-older-game-version" /></p>}
           {x.left.length > 0 && (
             <div className="info-box"><b>Left out</b> <Help tip="Combining carries over the mods' audio and sound settings, and leaves out other kinds of change." page="combining-mods#what-combining-leaves-out" />
               <ul>{x.left.map((l, i) => <li key={i}>{l}</li>)}</ul>
@@ -423,9 +423,9 @@ function About() {
     <div className="rp-text">
       <h3>What it does</h3>
       <ul>
-        <li>Takes the audio and sound settings of each mod, with the options you choose, and its other files, like text or textures, as they are.</li>
+        <li>Takes each mod's audio and sound settings with the chosen options, and its other files, like text or textures, as they are.</li>
         <li>Lists the sounds that more than one mod changes, to play and choose from.</li>
-        <li>Builds one mod on the game's current sound banks.</li>
+        <li>Builds one mod on the current sound banks.</li>
       </ul>
       <h3>When to use it</h3>
       <ul>
@@ -439,7 +439,7 @@ function About() {
       </ul>
       <h3>Installing</h3>
       <ul>
-        <li>Turn off the combined mods in Arsenal, then import and deploy the new ZIP.</li>
+        <li>Turn off the combined mods in the mod manager, then import and deploy the new ZIP.</li>
       </ul>
       <p className="set-note">A combined mod is still its authors' work. Keep it for personal use, and share it only with their permission.</p>
       <p className="set-note"><button className="link-text" onClick={() => nav.go("wiki", "combining-mods")}>More in the Wiki</button></p>

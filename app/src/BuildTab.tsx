@@ -23,7 +23,7 @@ function versionProblem(v: string): string | null {
 export function BuildTab() {
   const { project } = useEditor();
   return (
-    <Page title="Build" wide lead={<>A build is a ZIP for <b>HD2 Arsenal</b>, the mod manager. <Help tip="Building and installing" page="build-and-install" /></>}>
+    <Page title="Build" wide lead={<>A build is a ZIP to install with a mod manager. <Help tip="Building and installing" page="build-and-install" /></>}>
       {project ? <BuildPage key={project.path} /> : <NoProjectCard text="Open a project to build it." />}
     </Page>
   );
@@ -48,7 +48,7 @@ function BuildPage() {
         <section className="set-sec">
           <h2>Version</h2>
           <label className="field">
-            <span className="field-label">Next version <Help tip={`The number in the ZIP's name (${p.zip_name}). It goes up after each build unless turned off under Build options.`} page="build-and-install#version" /></span>
+            <span className="field-label">Next version <Help tip={`The number in the ZIP name (${p.zip_name}). It goes up after each build unless turned off under Build options.`} page="build-and-install#version" /></span>
             <input className="short" type="number" min={1} max={99999} step={1} value={version} aria-invalid={!!versionProblem(version)}
               onChange={(e) => setVersion(e.target.value)} onBlur={saveVersion}
               onKeyDown={(e) => {
@@ -82,7 +82,7 @@ function BuildBox() {
   const elsewhere = p.build_folder !== p.build_folder_default;
   const chooseFolder = async () => {
     // the picker starts in a folder that is there: the default build folder isn't, before the first build
-    const folder = await pickFolder(elsewhere ? p.build_folder : p.folder, "Choose the folder this mod's builds go to");
+    const folder = await pickFolder(elsewhere ? p.build_folder : p.folder, "Choose a destination folder for builds");
     if (folder) actions.settings({ build_folder: folder });
   };
   return (
@@ -105,13 +105,13 @@ function BuildBox() {
           the <button className="link-text" onClick={() => nav.go("editor")}>Audio Editor</button>.</p>
       )}
       <button className="btn primary build" onClick={actions.build} disabled={building || empty || p.problems.length > 0} data-tip-cmd="build"
-        data-tip={p.problems.length ? "Fix the problems first" : empty ? "Nothing to build yet" : "Encode, patch the game's sound banks, verify and pack the ZIP"}>
+        data-tip={p.problems.length ? "Fix the problems first" : empty ? "Nothing to build yet" : "Encode, patch the sound banks, verify and pack the ZIP"}>
         {building ? "Building…" : `Build v${p.version}`}
       </button>
       <div className="bld-out">
         <p>Destination folder <span className="path" data-tip={p.build_folder} data-tip-clip>{p.build_folder}</span></p>
         <div className="row-btns">
-          <button className="btn" onClick={chooseFolder} disabled={building} data-tip="Choose another folder for this mod's builds. Only the ZIP is written there.">Change…</button>
+          <button className="btn" onClick={chooseFolder} disabled={building} data-tip="Choose another folder for builds. Only the ZIP is written there.">Change…</button>
           {elsewhere && <button className="btn" onClick={() => actions.settings({ build_folder: null })} disabled={building}
             data-tip={p.build_folder_default}>Back to the default</button>}
         </div>
@@ -125,7 +125,7 @@ function BuildBox() {
           <button className="link-inline" onClick={() => reveal(p.last_build!.zip)}>Show in folder</button></p>
       )}
       {p.last_build && p.game_updated && (
-        <p className="warn-box">The game updated after this build. Build again before you play or share it, because its sound banks are from the older version.
+        <p className="warn-box">The game updated after this build, so its sound banks are outdated. Build again before playing or sharing it.
           {" "}<Help tip="An older build can mute sounds it never changed, like all gunfire." page="repatching#shared-settings-from-an-older-game-version" /></p>
       )}
     </div>
@@ -143,7 +143,7 @@ function BuildOptions() {
       <div className="set-list">
         <label className="check">
           <input type="checkbox" checked={s.bumpVersion} onChange={(e) => settings.set({ bumpVersion: e.target.checked })} />
-          <span>Raise the version after each build <Help tip="Arsenal then sees every build as an update." page="build-and-install#build-options" /></span>
+          <span>Raise the version after each build <Help tip="The mod manager then sees every build as an update." page="build-and-install#build-options" /></span>
         </label>
         <label className="check">
           <input type="checkbox" checked={s.revealBuild} onChange={(e) => settings.set({ revealBuild: e.target.checked })} />
@@ -157,7 +157,7 @@ function BuildOptions() {
         </label>
         <label className="check">
           <input type="checkbox" checked={p.every_bank} onChange={(e) => actions.settings({ every_bank: e.target.checked })} />
-          <span>Patch every bank with the sounds <Help tip="A sound is often in many banks, such as a clip that several weapons share. With this on, the new audio goes into all of them and plays wherever the game uses the sound, but the mod gets bigger. With it off, only the banks of what the project lists get it." page={EVERY_BANK_PAGE} /></span>
+          <span>Patch every bank with the sounds <Help tip="A sound is often in many banks, such as a clip that several weapons share. With this on, the new audio goes into all of them and plays wherever the sound is used, but the mod gets bigger. With it off, only the banks of the listed items get it." page={EVERY_BANK_PAGE} /></span>
         </label>
       </div>
     </section>
@@ -173,7 +173,7 @@ function Log() {
       {list.length ? (
         <div className="log">{list.map((j) => <LogJob key={j.id} job={j} />)}</div>
       ) : <p className="set-note">This session's builds, imports and exports.</p>}
-      {status?.log && <button className="link-inline log-file" onClick={() => reveal(status.log)}>Show the core's log file</button>}
+      {status?.log && <button className="link-inline log-file" onClick={() => reveal(status.log)}>Show the core log file</button>}
     </section>
   );
 }

@@ -83,7 +83,7 @@ export function Timeline({ room, through, at }: { room: () => number; through: T
         <Waveform peaks={game} spanMs={span} tone="game" markers={gameMarkers} playheadMs={head(kGame, false, game?.duration_ms)}
           activeFrom={hasCues ? seg.entry_ms ?? 0 : undefined} activeTo={hasCues ? seg.exit_ms ?? undefined : undefined}
           onSeek={none ? undefined : (ms) => seek("vanilla", ms)}
-          label={row.slot.added ? "A new take has no original" : row.slot.absent ? "No audio in the game's files" : "Loading the original…"}
+          label={row.slot.added ? "A new take has no original" : row.slot.absent ? "Not in the installed game files" : "Loading the original…"}
           error={gameWave.error} onRetry={gameWave.retry} />
       </div>
       {!readOnly && (
@@ -103,8 +103,8 @@ export function Timeline({ room, through, at }: { room: () => number; through: T
       )}
       {audible(a) && hasCues && (
         <p className="tl-note">
-          {fit ? "Drag Exit to move where the next segment starts" : "Fit timing is off, so the original cue points apply unless you move them"}
-          {tail > 30 && <>. The last <b>{fmtTime(tail)}</b> rings out over it</>}.
+          {fit ? "Drag Exit to move where the next segment starts" : "Fit timing is off, so the original cue points apply until one is moved"}
+          {tail > 30 && <>. The last <b>{fmtTime(tail)}</b> rings out over the next segment</>}.
           {overridden && <button className="link-inline" onClick={() => actions.segmentOverride(seg.segment, null, null)}>Reset cue points</button>}
         </p>
       )}

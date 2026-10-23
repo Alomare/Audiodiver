@@ -18,9 +18,9 @@ type Whose = "game" | "mine" | "both";
 const FOLDER_KEY = "audiodiver.exportFolder";
 const PREFS_KEY = "audiodiver.exportPrefs";
 const WHAT: { id: What; title: string; text: string }[] = [
-  { id: "slots", title: "Each slot", text: "Each slot's audio as a separate, unchanged file" },
-  { id: "segments", title: "Each segment", text: "Every segment mixed as the game plays it, layers together" },
-  { id: "cue", title: "The whole cue", text: "One track with the segments in play order, handing over at their Exit points" },
+  { id: "slots", title: "Each slot", text: "Each slot as a separate, unchanged file" },
+  { id: "segments", title: "Each segment", text: "Each segment with its layers mixed, as the game plays it" },
+  { id: "cue", title: "The whole cue", text: "One track with the segments in play order, joined at their Exit points" },
 ];
 const FORMATS = [
   { id: "wav", name: "WAV (24-bit)" }, { id: "flac", name: "FLAC (lossless, smaller)" },
@@ -103,7 +103,7 @@ export function ExportListDialog({ onClose }: { onClose: () => void }) {
                   onBlur={(ev) => { const v = ev.target.value.trim(); if (v && v !== e.name) exportList.rename(e.id, v); }}
                   onKeyDown={(ev) => { if (ev.key === "Enter") ev.currentTarget.blur(); }} />
                 <span className="xl-where">{e.where}{e.count ? ` · ${e.count} slot${e.count === 1 ? "" : "s"}` : ""}</span>
-                <button className="x" onClick={() => exportList.remove(e.id)} aria-label={`Take ${e.name} off the list`} data-tip="Take off the list">✕</button>
+                <button className="x" onClick={() => exportList.remove(e.id)} aria-label={`Remove ${e.name} from the list`} data-tip="Remove from the list">✕</button>
               </li>
             ))}
           </ul>
@@ -225,8 +225,8 @@ export function ExportForm({ onDone, onCancel }: { onDone?: () => void; onCancel
             </div>
           </div>
         ) : (
-          <p className="set-note">One file per sound, named by its group and take
-            {onlySelected && selected.length > 1 ? `: the ${selected.length} selected.` : `: ${rows.length} file${rows.length === 1 ? "" : "s"}.`}</p>
+          <p className="set-note">
+            {onlySelected && selected.length > 1 ? `${selected.length} files, one per selected sound` : `${rows.length} file${rows.length === 1 ? "" : "s"}, one per sound`}, named by group and take.</p>
         )}
 
         <div className="export-grid">
@@ -273,7 +273,7 @@ export function ExportForm({ onDone, onCancel }: { onDone?: () => void; onCancel
                 time{loops === 1 ? "" : "s"}
               </label>
             )}
-            {kind === "cue" && options?.random && <small>The game shuffles parts of this cue. The export plays them in their listed order.</small>}
+            {kind === "cue" && options?.random && <small>The game shuffles parts of this cue. The export uses the listed order.</small>}
             {kind !== "cue" && selected.length > 1 && (
               <label className="check"><input type="checkbox" checked={onlySelected} onChange={(e) => setOnlySelected(e.target.checked)} />
                 <span>Only the {selected.length} selected slots</span></label>
@@ -292,7 +292,7 @@ export function ExportForm({ onDone, onCancel }: { onDone?: () => void; onCancel
         <div className="modal-foot">
           <span className="spacer" />
           {onCancel && <button className="btn quiet" onClick={onCancel}>Cancel</button>}
-          <button className="btn" onClick={toList} data-tip="Collect it with other things, to export together from the status bar">
+          <button className="btn" onClick={toList} data-tip="Collect with other items to export together from the status bar">
             Add to the export list</button>
           <button className="btn primary" onClick={submit}>Export</button>
         </div>

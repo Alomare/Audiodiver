@@ -1,14 +1,14 @@
 import { useDialog } from "./dialog";
-import { APP_LABEL, APP_VERSION, CREDITS, DISCORD_URL, HOME_ART, LICENCE, REPO_URL, versionLabel } from "./content";
-import { DiscordIcon, ExternalIcon, InfoIcon } from "./Icons";
+import { APP_LABEL, APP_VERSION, CREDITS, DISCORD_URL, HOME_ART, KOFI_URL, LICENCE, REPO_URL, versionLabel } from "./content";
+import { DiscordIcon, ExternalIcon, InfoIcon, KofiIcon } from "./Icons";
 import { Logo } from "./Logo";
 import { about, useAboutOpen } from "./nav";
 import { openUrl, reveal } from "./platform";
 import { useEditor } from "./store";
 
 // About Audiodiver: the version, the licence and the source, the log file, and the credits (the one place the app
-// names the people and sources it builds on). It opens from the ⓘ next to the version in the status bar, from the
-// one by the logo on Home, and from [About](app:about) in the Wiki.
+// names the people and sources it builds on). It opens from the ⓘ next to the version in the status bar and from
+// [About](app:about) in the Wiki.
 
 /** The small circled "i" that opens About. */
 export function AboutButton({ className }: { className?: string }) {
@@ -55,6 +55,8 @@ function About() {
         <button className="btn" onClick={() => openUrl(REPO_URL)}>Source code <ExternalIcon /></button>
         <button className="btn" onClick={() => openUrl(DISCORD_URL)} data-tip="Helldivers 2 Modding on Discord"
           data-tip-more="Questions, feedback and help"><DiscordIcon /> Discord <ExternalIcon /></button>
+        <button className="btn" onClick={() => openUrl(KOFI_URL)} data-tip="Support Audiodiver on Ko-fi"
+          data-tip-more="Opens ko-fi.com/alomare"><KofiIcon /> Ko-fi <ExternalIcon /></button>
       </div>
       <dl className="set-facts">
         <dt>Log file</dt>

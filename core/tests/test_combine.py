@@ -65,16 +65,16 @@ def test_a_mods_options_and_the_patches_a_choice_deploys(tmp_path):
         Session(load=False).combine_scan(str(tmp_path / "gone.zip"))
 
 
-def test_what_arsenal_recorded_as_chosen_is_the_start(tmp_path, monkeypatch):
+def test_what_the_mod_manager_recorded_as_chosen_is_the_start(tmp_path, monkeypatch):
     opts = cb.options(MANIFEST)
     # the shapes the entry can take (Arsenal doesn't publish its format)
-    assert cb.arsenal_picks({"options": [{"name": "Base", "enabled": False},
+    assert cb.recorded_picks({"options": [{"name": "Base", "enabled": False},
                                          {"name": "Voices", "enabled": True, "subOptions": [
                                              {"name": "Loud", "selected": False}, {"name": "Soft", "selected": True}]},
                                          {"name": "Extra", "enabled": True}]}, opts) == ["1.1", "2"]
-    assert cb.arsenal_picks({"selectedOptions": ["Voices / Soft", "Base"]}, opts) == ["0", "1.1"]
-    assert cb.arsenal_picks({"options": {"Base": True, "Voices": "Loud", "Extra": False}}, opts) == ["0", "1.0"]
-    assert cb.arsenal_picks({"label": "Voices", "path": "x"}, opts) is None
+    assert cb.recorded_picks({"selectedOptions": ["Voices / Soft", "Base"]}, opts) == ["0", "1.1"]
+    assert cb.recorded_picks({"options": {"Base": True, "Voices": "Loud", "Extra": False}}, opts) == ["0", "1.0"]
+    assert cb.recorded_picks({"label": "Voices", "path": "x"}, opts) is None
     # read for a mod of Arsenal's library, by its folder
     mod = tmp_path / "lib" / "Voices"
     for d in ("base", "voices/loud", "voices/soft", "extra"):
@@ -84,9 +84,10 @@ def test_what_arsenal_recorded_as_chosen_is_the_start(tmp_path, monkeypatch):
     data = tmp_path / "hd2a_data.json"
     data.write_text(json.dumps({"modsLibrary": [{"label": "Voices", "path": str(mod), "options": {"Extra": False}}]}))
     monkeypatch.setattr(installed, "ARSENAL_DATA", data)
+    monkeypatch.setattr(installed, "ECHELON_DATA", tmp_path / "none.json")
     s = Session(load=False)
     assert s.combine_scan(str(mod))["picks"] == ["0", "1.0"]
-    assert s.combine_installed() == {"mods": [{"name": "Voices", "source": str(mod), "deployed": False}], "arsenal": True}
+    assert s.combine_installed() == {"mods": [{"name": "Voices", "source": str(mod), "deployed": False}], "library": True}
     # as Arsenal 0.37 writes it: the library lists the manifest's options, the deployed profile what was chosen
     listed = [{"name": "Base", "enabled": True}, {"name": "Voices", "enabled": True, "suboptions": [
         {"name": "Loud", "enabled": True}, {"name": "Soft", "enabled": False}]}, {"name": "Extra", "enabled": True}]
@@ -97,6 +98,23 @@ def test_what_arsenal_recorded_as_chosen_is_the_start(tmp_path, monkeypatch):
                                 "modsList": {"default": {"mods": [{"uuid": "u1", "optionsConfig": listed}]},
                                              "p2": {"mods": [{"uuid": "u1", "enabled": True, "optionsConfig": picked}]}}}))
     assert s.combine_scan(str(mod))["picks"] == ["1.1", "2"]
+    # Echelon's library.json (its published format): the active profile's choice is on the mod's options
+    echelon = tmp_path / "library.json"
+    echelon.write_text(json.dumps({"format": "echelon-library", "version": 1, "mods": [
+        {"id": "e1", "name": "Voices", "folder": str(mod), "enabled": True, "deployed": False, "sets": [],
+         "options": [{"name": "Base", "enabled": True, "sets": [], "choices": [], "selected": None},
+                     {"name": "Voices", "enabled": True, "sets": [], "selected": 1,
+                      "choices": [{"name": "Loud", "sets": []}, {"name": "Soft", "sets": []}]},
+                     {"name": "Extra", "enabled": False, "sets": [], "choices": [], "selected": None}]}]}))
+    monkeypatch.setattr(installed, "ARSENAL_DATA", tmp_path / "none.json")
+    monkeypatch.setattr(installed, "ECHELON_DATA", echelon)
+    assert s.combine_scan(str(mod))["picks"] == ["0", "1.1"]
+    assert s.combine_installed()["mods"] == [{"name": "Voices", "source": str(mod), "deployed": False}]
+    # a folder in both libraries is listed once; a file of another format is no library
+    monkeypatch.setattr(installed, "ARSENAL_DATA", data)
+    assert [n for n, _ in installed.manager_mods()] == ["Voices"]
+    data.write_text(json.dumps({"format": "other", "mods": []}))
+    assert installed.echelon_entries(data) == []
 
 
 def test_clashes_are_where_mods_differ_and_the_later_wins():
@@ -218,7 +236,7 @@ def test_combined_mods_keep_every_take_and_the_winners(session, tmp_path):
     assert [(m["imported"], m["added"]) for m in made["mods"]] == [(1, 1), (1, 1), (2, 0)]
     assert made["mods"][0]["settings"] == 0 and made["mods"][1]["settings"] == 1
     assert [m["others"] for m in made["mods"]] == [["1 other file, such as models or textures"]] * 2 + [[]]
-    assert made["mods"][0]["left"] == ["1 file besides audio that a later mod also has, whose version goes in"]
+    assert made["mods"][0]["left"] == ["1 file besides audio that a later mod replaces"]
 
     with zipfile.ZipFile(made["zip"]) as zf:
         assert "Voices / Soft" in json.loads(zf.read("manifest.json"))["Description"]

@@ -6,7 +6,7 @@ summary: Publishing the ZIP, describing what it replaces, and which music you ma
 
 ## What to upload
 
-Upload the ZIP from the project's `build` folder, or from the folder you chose for its builds. It is a complete HD2 Arsenal mod, and players import it in the usual way.
+Upload the ZIP from the project's `build` folder, or from the destination folder you chose. It is a complete mod, and players import it with a mod manager.
 
 On the mod page, include:
 
@@ -16,11 +16,11 @@ On the mod page, include:
 
 ## Updates
 
-Keep the mod's name and id the same for its whole life ([Project](app:project)). A player who imports the new ZIP then gets an update and keeps one copy of the mod.
+Keep the mod's name and id the same for the life of the mod ([Project](app:project)). Importing the new ZIP then updates the mod and keeps one copy.
 
 ## Moving a project
 
-A pack (`.audipack`) carries the project and the files it uses to another computer. It is for keeping a project or moving it, and players don't need it. **Export as pack…** on the [Project](app:project) tab writes one. See [Project folders](wiki:project-folders#packs).
+A pack (`.audipack`) carries a project and its files to another computer. It is for backing up or moving a project, and players don't need it. **Export as pack…** on the [Project](app:project) tab writes one. See [Project folders](wiki:project-folders#packs).
 
 ## Rights
 

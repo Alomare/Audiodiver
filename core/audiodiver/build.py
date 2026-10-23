@@ -81,7 +81,7 @@ def additions(project: Project, ix: AudioIndex, reps: list[patch.Replacement]) -
     wem_of = {r.source: r.wem for r in reps}
     clash = sorted(project.made_ids() & ix.taken)
     if clash:
-        raise BuildError(f"Since the last game update, the game uses some ids that this project's added audio also uses "
+        raise BuildError(f"Since the last game update, the game uses some ids that the added audio also uses "
                          f"({', '.join(map(str, clash[:3]))}). Remove that audio and add it again.")
     takes = [addition.Take(a.container, a.sound, a.source, wem_of[a.source]) for a in project.additions
              if a.kind == "take" and a.source in wem_of]
@@ -177,8 +177,8 @@ def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, ste
         edits = patch.build_patch(str(patch_dir / PATCH), reps, ix, project.segment_overrides, tables, plan,
                                   settings, where, set_where, carried)
     except patch.CueError as e:
-        raise BuildError(f"Music segment {e.segment}: its Entry cue point ({e.entry_ms / 1000:.1f} s) comes at or "
-                         f"after its Exit ({e.exit_ms / 1000:.1f} s), so the game would play the music before it "
+        raise BuildError(f"Music segment {e.segment}: the Entry cue point ({e.entry_ms / 1000:.1f} s) is at or "
+                         f"after the Exit ({e.exit_ms / 1000:.1f} s), so the game would play the music before it "
                          f"until the Entry. Move the cue points in the Audio Editor, or reset them.") from None
     if unused := set(project.segment_overrides) - {s for e in edits.values() for s in e.segments}:
         log(f"cue points of {len(unused)} segment{'s' if len(unused) != 1 else ''} without new audio left out")
@@ -211,7 +211,7 @@ def build(project: Project, ix: AudioIndex, out_dir=None, version=None, log=prin
     any folder can take builds, also one that other mods build into."""
     out_dir = Path(out_dir or project.build_dir())
     if in_game_folder(out_dir, ix.game.data):  # a project file can name any folder; the editor refuses this one
-        raise BuildError(f"{out_dir} is inside the game's folder, and Audiodiver never writes there. Choose another "
+        raise BuildError(f"{out_dir} is inside the game folder, and Audiodiver never writes there. Choose another "
                          f"folder for the builds.")
     if problems := project.problems():
         raise BuildError("Project problems:\n  " + "\n  ".join(problems))

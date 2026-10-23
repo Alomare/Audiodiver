@@ -273,7 +273,7 @@ def data_folder(chosen, saved=False) -> Path:
         raise ValueError(f"{chosen} is a file. Choose the folder Steam installed Helldivers 2 in.")
     if not chosen.is_dir():
         raise ValueError(f"{chosen} isn't there any more" if saved else f"{chosen} wasn't found")
-    raise ValueError(f"{chosen} isn't Helldivers 2's folder, because it has no game files (bundles.NN.nxa in "
+    raise ValueError(f"{chosen} isn't the Helldivers 2 folder. It has no game files (bundles.NN.nxa in "
                      f"a folder called data). Choose the folder Steam installed the game in, usually "
                      r"…\steamapps\common\Helldivers 2.")
 
@@ -297,8 +297,8 @@ def locate(chosen=None) -> tuple[Path, str]:
     env = os.environ.get("HD2_DATA")
     if env:
         if not is_data_folder(env):
-            raise FileNotFoundError(f"The HD2_DATA environment variable points to {env}, and Helldivers 2's files "
-                                    f"aren't there")
+            raise FileNotFoundError(f"The HD2_DATA environment variable points to {env}, which has no Helldivers 2 "
+                                    f"files")
         return Path(env), "env"
     libraries = []
     for root in _steam_roots():
@@ -310,7 +310,7 @@ def locate(chosen=None) -> tuple[Path, str]:
         data = Path(lib) / "steamapps" / "common" / "Helldivers 2" / "data"
         if is_data_folder(data):  # an uninstalled game can leave its folder behind
             return _as_spelled(data), "steam"
-    raise FileNotFoundError("Audiodiver didn't find Helldivers 2 in your Steam libraries")
+    raise FileNotFoundError("Helldivers 2 wasn't found in the Steam libraries")
 
 
 def _as_spelled(path: Path) -> Path:

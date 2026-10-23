@@ -8,7 +8,7 @@
 
 <p align="center">
   <img alt="Windows 10 and 11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-2f7bf5?style=flat-square">
-  <img alt="Mods for HD2 Arsenal" src="https://img.shields.io/badge/mods%20for-HD2%20Arsenal-ffe81f?style=flat-square">
+  <img alt="Mods for Helldivers 2" src="https://img.shields.io/badge/mods%20for-Helldivers%202-ffe81f?style=flat-square">
   <img alt="License: MPL-2.0" src="https://img.shields.io/badge/license-MPL--2.0-3a3a3a?style=flat-square">
   <a href="https://github.com/Alomare/Audiodiver/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/Alomare/Audiodiver?style=flat-square&label=release&color=3a3a3a"></a>
 </p>
@@ -88,13 +88,13 @@
   <tr>
     <td width="50%">
       <h3>📁 Project</h3>
-      The mod's name, description, icon and id, with a preview as HD2 Arsenal shows them. The project folder has <b>Collect files</b>, a clean-up to the Recycle Bin, and packs (<code>.audipack</code>) for another computer.
+      The mod's name, description, icon and id, with a preview as a mod manager shows them. The project folder has <b>Collect files</b>, a clean-up to the Recycle Bin, and packs (<code>.audipack</code>) for another computer.
       <br><br>
-      <img src="assets/readme/project.png" alt="The Project tab: the description, the icon with border and corners, the mod id and the folder, beside a preview of the mod in HD2 Arsenal" width="100%">
+      <img src="assets/readme/project.png" alt="The Project tab: the description, the icon with border and corners, the mod id and the folder, beside a preview of the mod in a mod manager" width="100%">
     </td>
     <td width="50%">
       <h3>📦 Build</h3>
-      A ZIP for HD2 Arsenal, checked before it's packed, with only the banks the project lists or every bank with the sounds. A dot on the tab means something changed since the last build.
+      A ZIP for mod managers, checked before it's packed, with only the banks the project lists or every bank with the sounds. A dot on the tab means something changed since the last build.
       <br><br>
       <img src="assets/readme/build.png" alt="The Build tab after a build: the next version, the build options, the Build button with the destination folder and the last build, and the build log" width="100%">
     </td>
@@ -108,7 +108,7 @@
     </td>
     <td width="50%">
       <h3>🔀 Tools ▸ Combine Mods</h3>
-      Several mods that change the same sound banks, built as one with the options chosen in Arsenal, text, models and textures included. Where two change the same sound, you play both versions and pick one.
+      Several mods that change the same sound banks, built as one with the options chosen in the mod manager, text, models and textures included. Where two change the same sound, you play both versions and pick one.
       <br><br>
       <img src="assets/readme/combine.png" alt="Combine Mods with two mods that both change Loadout Selection: six conflicts, each with both versions to play and the chosen one marked" width="100%">
     </td>
@@ -132,8 +132,8 @@
 
 ## Get Started
 
-You need Windows 10 or 11, Helldivers 2 installed through Steam, and
-[HD2 Arsenal](https://github.com/Orbit-Studios/hd2arsenal-release/releases) to install the mods you build.
+You need Windows 10 or 11, Helldivers 2 installed through Steam, and a Helldivers 2 mod manager to install the mods
+you build.
 
 1. Download Audiodiver from [Releases](https://github.com/Alomare/Audiodiver/releases/latest) and run it. The installer
    isn't code-signed yet, so Windows may say it protected your PC: choose **More info**, then **Run anyway**.
@@ -141,7 +141,7 @@ You need Windows 10 or 11, Helldivers 2 installed through Steam, and
 3. On Home, choose **New project**.
 4. In the Library, find what you want to change and press **Add to the project**.
 5. In the Audio Editor, drop audio files on the slots.
-6. Press **Build**, then import the ZIP in HD2 Arsenal and deploy it.
+6. Press **Build**, then import the ZIP in the mod manager and deploy it.
 
 The Wiki (F1) has a first mod step by step, how music plays in a mission, how loud new audio should be, and what to
 do after a game update.
