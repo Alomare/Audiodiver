@@ -152,7 +152,7 @@ def check(tag):
 def section(v) -> str:
     """The changelog's text for a version: what is under its `## <version> - <date>` heading."""
     text = (APP / "CHANGELOG.md").read_text(encoding="utf-8")
-    m = re.search(rf"^## \[?v?{re.escape(v)}\]?(?:\s+[-–—].*)?$\n(.*?)(?=^## |\Z)", text, re.M | re.S)
+    m = re.search(rf"^## \[?v?{re.escape(v)}\]?(?:[ \t]+[-–—][^\n]*)?\n(.*?)(?=^## |\Z)", text, re.M | re.S)
     return m.group(1).strip() if m else ""
 
 
