@@ -1,0 +1,103 @@
+name: Bug report
+description: Something in Audiodiver, or in a mod built with it, doesn't work as it should.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For a question about how to do something, ask on the [Helldivers 2 Modding Discord](https://discord.gg/helldiversmodding) instead.
+
+        If a mod sounds wrong in game, build it again first: Helldivers 2 may have updated since the last build.
+
+  - type: input
+    id: version
+    attributes:
+      label: Audiodiver version
+      description: At the bottom right of the window, or in About (the ⓘ next to it).
+      placeholder: v1.0.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: download
+    attributes:
+      label: Which download
+      options:
+        - Installer
+        - Portable copy
+        - Built from source
+    validations:
+      required: true
+
+  - type: dropdown
+    id: windows
+    attributes:
+      label: Windows
+      options:
+        - Windows 11
+        - Windows 10
+    validations:
+      required: true
+
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where it happened
+      options:
+        - Starting Audiodiver, or the first index
+        - Home
+        - Library
+        - Audio Editor
+        - Text Editor
+        - Project
+        - Build
+        - Tools ▸ Repatch
+        - Tools ▸ Combine Mods
+        - Wiki
+        - Installing an update
+        - In game, with a mod built in Audiodiver
+        - Somewhere else
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, step by step, what you expected, and what happened instead. Screenshots help.
+      placeholder: |
+        1. Opened the loadout music in the Audio Editor
+        2. Dropped a FLAC file on Segment 3
+        3. Expected the slot to play the new audio, but it stayed silent
+    validations:
+      required: true
+
+  - type: textarea
+    id: log
+    attributes:
+      label: Log file
+      description: About ▸ Log file ▸ Show opens the folder. Drag the file in here, especially when an error message came up.
+
+  - type: textarea
+    id: game
+    attributes:
+      label: In game
+      description: For something heard in game. Which piece of music or which sound, the mission, planet or faction, and what you heard.
+      placeholder: Loadout Selection, on the ship. The music stops after about a minute instead of looping.
+
+  - type: textarea
+    id: files
+    attributes:
+      label: The project or the mod
+      description: |
+        When the problem shows up with one project only, a pack of it lets us open it the same way (Project ▸ Export as pack…, then zip the `.audipack` and drag it in).
+        For Repatch or Combine Mods, the mod ZIPs or a link to their Nexus pages.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before sending
+      options:
+        - label: I looked through the open issues and this isn't one of them.
+          required: true
+        - label: For a problem in game, I built the mod again after the last Helldivers 2 update.

@@ -45,8 +45,10 @@ export const ART_CREDIT: { name: string; url?: string; for: string } = { name: "
 export type Credit = { name: string; by?: string; url?: string; licence?: string; for: string };
 export const CREDITS: { group: string; items: Credit[] }[] = [
   { group: "Names and notes", items: [
-    { name: "Helldivers 2 Archive Labeling", by: "the HD2 modding community", for: "names of sound sets, banks and archives, and voice-line transcripts" },
-    { name: "Helldivers 2 Music Stuff", by: "the HD2 modding community", for: "names of music clips and the do-not-touch marks" },
+    { name: "Helldivers 2 Archive Labeling", by: "the HD2 modding community",
+      url: "https://docs.google.com/spreadsheets/d/1oQys_OI5DWou4GeRE3mW56j7BIi4M7KftBIPAl1ULFw/edit?gid=0#gid=0", for: "names of sound sets, banks and archives, and voice-line transcripts" },
+    { name: "Helldivers 2 Music Stuff", by: "the HD2 modding community",
+      url: "https://docs.google.com/spreadsheets/d/1drg0VRwn1c247GwBOEgFBIJmBQxy2Ik-ZLuSjbWbK4o/edit?gid=329417206#gid=329417206", for: "names of music clips and the do-not-touch marks" },
     { name: "Music notes", by: "geoffreyhdt1", for: "Illuminate Void and Automaton clip names, when clips play, warnings and minimum lengths" },
     { name: "FileDiver", by: "xypwn", url: "https://github.com/xypwn/filediver", for: "the name lists behind the banks' path names" },
   ] },

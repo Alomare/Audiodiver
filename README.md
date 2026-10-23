@@ -27,16 +27,6 @@
 <br>
 
 <p align="center">
-  <img src="assets/readme/editor.png" alt="The Audio Editor with the loadout screen music open: segments in a list, each with the original and the new audio side by side, and both waveforms on one time scale below" width="100%">
-  <br>
-  <sub>The Audio Editor with new music for the loadout screen.</sub>
-</p>
-
-> [!NOTE]
-> Audiodiver never writes to the Helldivers 2 folder. Mods go in through HD2 Arsenal, where you can turn them off at
-> any time.
-
-<p align="center">
   <a href="#features">Features</a> ·
   <a href="#how-it-works">How it works</a> ·
   <a href="#get-started">Get started</a> ·
@@ -194,19 +184,16 @@ or what you'd like Audiodiver to do next.
 
 ### Reporting a bug
 
-Open an [issue](https://github.com/Alomare/Audiodiver/issues) with:
+Open a [bug report](https://github.com/Alomare/Audiodiver/issues/new?template=bug_report.yml). The form asks for the
+version, what you did and what happened, and the log file (About ▸ Log file ▸ Show finds it).
 
-- the version, at the bottom right of the window,
-- what you did, what you expected, and what happened instead,
-- the log file, if the problem left an error in it (the ⓘ next to the version shows where it is),
-- for something you heard in game, the mission, planet or faction where it happened.
-
-If a mod sounds wrong in game, build it again first, since the game may have updated since the last build. If it
-still sounds wrong, say which piece or sound it is and what you heard.
+If a mod sounds wrong in game, build it again first, since Helldivers 2 may have updated since the last build. If it
+still sounds wrong, the form asks which piece or sound it is and where you heard it.
 
 ### Suggesting an idea
 
-Talk it over on the Discord first, then open an issue once it's agreed on.
+Talk it over on the Discord first, then open an [idea](https://github.com/Alomare/Audiodiver/issues/new?template=idea.yml)
+once it's agreed on.
 
 ### Supporting Audiodiver
 
@@ -217,8 +204,11 @@ Audiodiver is free. If you'd like to support it, there's [Ko-fi](https://ko-fi.c
 ### Without code
 
 - Report bugs, odd sounds and confusing screens, in an issue or on the Discord.
-- Fix names. Library names come from community spreadsheets and research, so if a sound is in the wrong place, or
-  has the wrong name or none, say so.
+- Fix names. Library names come from research and the community's
+  [Archive Labeling](https://docs.google.com/spreadsheets/d/1oQys_OI5DWou4GeRE3mW56j7BIi4M7KftBIPAl1ULFw/edit?gid=0#gid=0)
+  and [Music Stuff](https://docs.google.com/spreadsheets/d/1drg0VRwn1c247GwBOEgFBIJmBQxy2Ik-ZLuSjbWbK4o/edit?gid=329417206#gid=329417206)
+  spreadsheets. If a sound is in the wrong place, or has the wrong name or none, open a
+  [Wrong or missing name](https://github.com/Alomare/Audiodiver/issues/new?template=wrong_name.yml) issue.
 - Edit the Wiki. The pages are Markdown files in [`app/src/wiki/`](app/src/wiki/), and a clearer sentence or a
   missing step is a good first pull request.
 - Help others on the Discord.
@@ -264,8 +254,8 @@ About ▸ Credits too.
 | [wwiser](https://github.com/bnnm/wwiser) | bnnm | The reference for Wwise sound bank structures. |
 | [FileDiver](https://github.com/xypwn/filediver) | xypwn | The name lists behind the banks' path names. |
 | [Sound Systems Rebalanced](https://github.com/CowboyBingus/SoundSystemsRebalanced) | CowboyBingus | The music's drop at the war table. |
-| Helldivers 2 Archive Labeling | the HD2 modding community | Names of sound sets, banks and archives, and voice line transcripts. |
-| Helldivers 2 Music Stuff | the HD2 modding community | Names of music clips, and the marks on clips not to touch. |
+| [Helldivers 2 Archive Labeling](https://docs.google.com/spreadsheets/d/1oQys_OI5DWou4GeRE3mW56j7BIi4M7KftBIPAl1ULFw/edit?gid=0#gid=0) | the HD2 modding community | Names of sound sets, banks and archives, and voice line transcripts. |
+| [Helldivers 2 Music Stuff](https://docs.google.com/spreadsheets/d/1drg0VRwn1c247GwBOEgFBIJmBQxy2Ik-ZLuSjbWbK4o/edit?gid=329417206#gid=329417206) | the HD2 modding community | Names of music clips, and the marks on clips not to touch. |
 | Music notes | geoffreyhdt1 | Illuminate Void and Automaton clip names, when clips play, warnings and minimum lengths. |
 | [Whisper](https://github.com/openai/whisper) | OpenAI | Hearing the voice lines, to match each one to a subtitle. |
 | [Audio Spectrogram Transformer](https://huggingface.co/MIT/ast-finetuned-audioset-10-10-0.4593) | MIT | Telling grunts, breaths and laughs from words. |

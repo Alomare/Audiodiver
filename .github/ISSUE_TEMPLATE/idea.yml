@@ -1,0 +1,22 @@
+name: Idea
+description: Something Audiodiver could do, already talked over on the Discord.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Talk an idea over on the [Helldivers 2 Modding Discord](https://discord.gg/helldiversmodding) first, then open an issue once it's agreed on.
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: What you'd like to do in Audiodiver, and how you do it today.
+    validations:
+      required: true
+
+  - type: input
+    id: discord
+    attributes:
+      label: Discord thread
+      description: A link to where it was talked over.

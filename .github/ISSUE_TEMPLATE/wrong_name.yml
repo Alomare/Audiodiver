@@ -1,0 +1,50 @@
+name: Wrong or missing name
+description: A sound in the Library has the wrong name, no name, or sits in the wrong place.
+labels: ["names"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Library names come from the community's [Archive Labeling](https://docs.google.com/spreadsheets/d/1oQys_OI5DWou4GeRE3mW56j7BIi4M7KftBIPAl1ULFw/edit?gid=0#gid=0) and [Music Stuff](https://docs.google.com/spreadsheets/d/1drg0VRwn1c247GwBOEgFBIJmBQxy2Ik-ZLuSjbWbK4o/edit?gid=329417206#gid=329417206) spreadsheets and from research. A name that's wrong there can be fixed in both places.
+
+  - type: input
+    id: where
+    attributes:
+      label: Where it is in the Library
+      placeholder: Weapons ▸ Primary ▸ AR-23 Liberator ▸ Sound 2
+    validations:
+      required: true
+
+  - type: input
+    id: id
+    attributes:
+      label: Id
+      description: Right-click the row and copy one of its ids, or copy the source id from the details panel.
+      placeholder: "123456789"
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What's wrong
+      options:
+        - The name is wrong
+        - It has no name
+        - It's in the wrong place
+        - The voice line's text is wrong
+    validations:
+      required: true
+
+  - type: textarea
+    id: should
+    attributes:
+      label: What it should be
+      description: The right name or place, and how you know. For example, where you heard it in game.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Audiodiver version
+      description: At the bottom right of the window.
+      placeholder: v1.0.0
