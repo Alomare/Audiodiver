@@ -7,7 +7,6 @@
       "icon": {"image": "art/cover.jpg", "border": 12, "border_color": "#ffd400", "radius": 40},
       "build_folder": "",
       "loudness_analysis": false,
-      "biome_fix": false,
       "every_bank": false,
       "imported_banks": ["2954416524880961046"],
       "built_for": "25988413",
@@ -44,6 +43,8 @@ older projects store that text (and an image as a plain path): loading keeps onl
 build_folder is where builds go, relative to the project file (absolute on another drive); "" is the build folder
 next to it. built_for is the game version its last build was made on (Steam's build id), so the Build tab can say
 when the game updated since: a build carries whole banks, and their copies of what many banks share go stale.
+built_from is a fingerprint of what that build was made from (editor.build_inputs), so the tab bar can say when the
+project changed since.
 
 texts are lines of the game's text the project changes (strings.py): the table (its file id: one table per
 language), the string's id, the new text, and the text it had when it was changed ("was"), so a game update that
@@ -79,6 +80,7 @@ out while there are none:
 import json
 import math
 import os
+import time
 import uuid
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
@@ -88,6 +90,29 @@ from .notes import tidy as tidy_notes
 
 FORMAT = 1
 GAIN_DB = (-12.0, 12.0)  # Make-Up Gain, as the details panel's slider offers it
+
+
+def write_whole(path, text: str, tries=5):
+    """Writes a file whole or not at all: a hidden file beside it, then a rename over it, so a crash or a full disk
+    mid-write leaves the old file as it was (writing in place left it empty). Retries a moment while another program
+    (Syncthing, a virus scanner) holds the file."""
+    path = Path(path)
+    tmp = path.with_name(f".{path.name}.saving")
+    try:
+        for n in range(tries):
+            try:
+                with open(tmp, "w", encoding="utf-8") as f:
+                    f.write(text)
+                    f.flush()
+                    os.fsync(f.fileno())
+                os.replace(tmp, path)
+                return
+            except PermissionError:
+                if n == tries - 1:
+                    raise
+                time.sleep(0.05 * (n + 1))
+    finally:
+        tmp.unlink(missing_ok=True)
 
 
 class ProjectFormatError(ValueError):
@@ -139,10 +164,10 @@ class Project:
     version: int = 1
     icon: dict = field(default_factory=dict)
     loudness_analysis: bool = False
-    biome_fix: bool = False   # music_init starts from the fix for the silent biomes (biome.py)
     every_bank: bool = False  # a replaced sound goes into every bank that has it, not only the project's (build.reach)
     imported_banks: list[int] = field(default_factory=list)  # the banks the mods imported into it patched
     built_for: str = ""     # the game version (Game.version) its last build was made on; "" before one
+    built_from: str = ""    # a fingerprint of what its last build was made from (editor.build_inputs); "" before one
     replacements: list[Replacement] = field(default_factory=list)
     segment_overrides: dict[int, dict] = field(default_factory=dict)
     path: Path | None = None  # where it was loaded from / saved to
@@ -209,7 +234,7 @@ class Project:
         try:
             uuid.UUID(self.guid)
         except (ValueError, TypeError, AttributeError):
-            out.append("mod id: damaged in the project file (Make a new id, on the Build tab)")
+            out.append("mod id: damaged in the project file (Make a new id, on the Project tab)")
         return out
 
     # --- file I/O
@@ -309,10 +334,10 @@ class Project:
                        version=int(number(d.get("version", 1), 1, 1, 99999, "the version", whole=True)),
                        icon={k: v for k, v in icon.items() if k in ICON_KEYS},
                        loudness_analysis=kind(d, "loudness_analysis", bool, False, "Loudness analysis"), replacements=reps,
-                       biome_fix=kind(d, "biome_fix", bool, False, "the biome music fix"),
                        every_bank=kind(d, "every_bank", bool, False, "Banks"),
                        imported_banks=[int(b) for b in kind(d, "imported_banks", list, [], "the imported mods' banks")],
                        built_for=kind(d, "built_for", str, "", "the game version of the last build"),
+                       built_from=kind(d, "built_from", str, "", "what the last build was made from"),
                        segment_overrides={int(k): kept for k, o in overrides.items() if (kept := points(o))}, path=path,
                        description=kind(d, "description", str, "", "the description"),
                        build_folder=kind(d, "build_folder", str, "", "the build folder"),
@@ -338,10 +363,10 @@ class Project:
             "audiodiver": FORMAT, "name": self.name, "guid": self.guid, "version": self.version,
             "description": self.description, "icon": dict(self.icon), "build_folder": self.build_folder,
             "loudness_analysis": self.loudness_analysis,
-            **({"biome_fix": True} if self.biome_fix else {}),  # files stay as they were with it off
             **({"every_bank": True} if self.every_bank else {}),
             **({"imported_banks": [str(b) for b in self.imported_banks]} if self.imported_banks else {}),
             **({"built_for": self.built_for} if self.built_for else {}),
+            **({"built_from": self.built_from} if self.built_from else {}),
             **({"library": list(self.library)} if self.library is not None else {}),
             "replacements": [rep(r) for r in self.replacements],
             "segment_overrides": {str(k): v for k, v in self.segment_overrides.items()},
@@ -356,7 +381,7 @@ class Project:
 
     def save(self, path=None):
         self.path = Path(path or self.path)
-        self.path.write_text(json.dumps(self.to_json(), indent=2) + "\n", encoding="utf-8")
+        write_whole(self.path, json.dumps(self.to_json(), indent=2) + "\n")
 
 
 def replacements_from_folder(folder, relative_to, skip=()) -> list[Replacement]:

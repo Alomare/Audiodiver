@@ -26,7 +26,7 @@ import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from . import notes, updates, wem
+from . import updates, wem
 from .audio import cache_lock, natural
 from .editor import AUDIO_TYPES, EditorError, Session, cache_clear, cache_info, log, os_error, plain, projects_info, reveal
 from .index import CACHE_DIR
@@ -80,8 +80,7 @@ def methods(s: Session) -> dict:
         "update": lambda source, **f: s.update(source, **f),
         "update_many": lambda sources, **f: s.update_many(sources, **f),
         "settings": lambda **f: s.settings(**f),
-        "notes": lambda: notes.load(),
-        "note_set": lambda key, text=None, project_text=None: s.set_note(key, text, project_text),
+        "note_set": lambda key, project_text: s.set_note(key, project_text),
         "segment_override": lambda segment, entry_marker=None, exit_marker=None:
             s.segment_override(segment, entry_marker, exit_marker),
         "peaks": lambda kind, source=None, path=None, buckets=1200: s.peaks(kind, source, path, buckets),
@@ -92,8 +91,13 @@ def methods(s: Session) -> dict:
         "build": lambda bump=True: s.build(bump),
         "import_patch": lambda path, mode="add": s.import_patch(path, mode),
         "repatch_scan": lambda path: s.repatch_scan(path),
-        "repatch": lambda path, name="", folder="", biome_fix=False, every_bank=False:
-            s.repatch(path, name, folder, biome_fix, every_bank),
+        "repatch": lambda path, name="", folder="", every_bank=False: s.repatch(path, name, folder, every_bank),
+        "combine_scan": lambda path: s.combine_scan(path),
+        "combine_installed": lambda: s.combine_installed(),
+        "combine_folder": lambda: s.combine_folder(),
+        "combine_read": lambda mods: s.combine_read(mods),
+        "combine": lambda mods, winners=None, name="", folder="", every_bank=False:
+            s.combine(mods, winners, name, folder, every_bank),
         "check_mods": lambda: s.check_mods(),
         "export_options": lambda cue: s.export_options(cue),
         "play_through": lambda cue, side="game", variants=None, loops=1: s.play_through(cue, side, variants, loops),

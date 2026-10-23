@@ -1,6 +1,6 @@
 """Mods of an older game version: their older copies of what many banks share (addition.from_patch, base_differs),
 the check of the installed mods (installed.py), and builds that say when the game updated since (Project.built_for,
-editor._game_updated)."""
+editor._game_updated) or the project changed since (Project.built_from, editor._rebuild)."""
 import json
 import shutil
 import struct
@@ -59,6 +59,29 @@ def test_builds_say_when_the_game_updated_since():
     assert not _game_updated(Project("M"), files, last)
     p = Project("M", built_for="25988413")
     assert Project.from_json(p.to_json()).built_for == "25988413" and "built_for" not in Project("M").to_json()
+
+
+def test_builds_say_when_the_project_changed_since(tmp_path):
+    from audiodiver.editor import _rebuild, build_inputs
+    from audiodiver.project import Replacement
+    wav = tmp_path / "a.wav"
+    wav.write_bytes(b"RIFF")
+    p = Project("M", replacements=[Replacement(target=5, audio="a.wav")], path=tmp_path / "m.audi")
+    last = {"zip": "m-1.zip", "mb": 1.0, "modified": 1000}
+    assert _rebuild(Project("M"), False, None) is None  # nothing to build
+    assert _rebuild(p, False, None) == "new"
+    assert _rebuild(p, False, last) is None  # built before builds noted what they were made from
+    p.built_from = build_inputs(p)
+    assert _rebuild(p, False, last) is None and _rebuild(p, True, last) == "game"
+    p.notes["clip:5"] = "loud"
+    p.version, p.build_folder = 7, "../out"
+    assert _rebuild(p, False, last) is None  # notes and build records aren't in the mod
+    p.replacements[0].gain_db = -3
+    assert _rebuild(p, False, last) == "changed"
+    p.replacements[0].gain_db = 0
+    wav.write_bytes(b"RIFF....")  # the audio changed in another program
+    assert _rebuild(p, False, last) == "changed"
+    assert Project.from_json(p.to_json()).built_from == p.built_from and "built_from" not in Project("M").to_json()
 
 
 @pytest.fixture(scope="module")

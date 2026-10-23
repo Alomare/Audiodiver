@@ -47,16 +47,6 @@ These settings are under **Build options** on the Build tab.
 
 **Add Wwise loudness analysis** adds the loudness data that the game's audio files carry. It makes no audible difference. It needs Wwise installed on the computer, and it makes builds slower. The setting applies to the open project.
 
-### Sound Systems Rebalanced Patch
-
-On seven types of planet (swamp, deciduous, coniferous, desert, oasis, hive worlds and Illuminate rifts), the game is missing a version of the music for the first minutes of a mission. After a drop, the music stays silent until its intensity changes, which can take minutes, and some drop music doesn't play at all.
-
-The [Sound Systems Rebalanced Patch](https://github.com/CowboyBingus/SoundSystemsRebalanced) fixes this in the `music_init` bank, which almost every music build includes. Those planets then play the default version of the music. **Apply biome music fix** adds the patch to the build. It applies to the open project and is off for new projects. On [Repatch](app:build/repatch), the same checkbox adds the patch to the repatched mod.
-
-The patch was made for an older game version. Where it no longer fits the game's banks, the build goes on without it, and the build log says so.
-
-With the patch on, deploy the music mod **after** Sound Systems Rebalanced if you use both. The two mods then carry the patch whichever loads last, and the music timing and Make-Up Gain stay as you built them.
-
 ### Every bank with the sounds
 
 A sound is often in more than one sound bank. A clip that several weapons share is in each of their banks, and some are in a hundred. By default, a build patches only the banks of the sound sets, music and archives in the project's list. The mod stays small, as mods made with other tools are.
@@ -69,7 +59,7 @@ Some sounds go into every bank either way:
 - The banks that hold the start of a streamed sound, such as a voice line. Each one gets the new start, so the old audio never plays before the new.
 - A sound that no bank on the list has.
 
-A project that you imported a mod into also counts the banks that mod patched as its own. On [Repatch](app:build/repatch), the same checkbox applies to the repatched mod: off, the mod's audio goes only into the banks the mod patched.
+A project that you imported a mod into also counts the banks that mod patched as its own. On [Tools ▸ Repatch](app:tools/repatch), the same checkbox applies to the repatched mod. With it off, the mod's audio goes only into the banks the mod patched.
 
 ## Installing with HD2 Arsenal
 
@@ -84,7 +74,7 @@ HD2 Arsenal is the mod manager that Audiodiver builds for.
 
 ## Two mods that change the same bank
 
-A mod contains complete copies of the sound banks it changes. If two mods change the same bank, their changes don't combine. The mod that HD2 Arsenal deploys later replaces the other mod's copy of the bank. Music mods share most of their banks, so two music mods can't be used together, whichever tool made them.
+A mod contains complete copies of the sound banks it changes. If two mods change the same bank, their changes don't combine. The mod that HD2 Arsenal deploys later replaces the other mod's copy of the bank. Music mods share most of their banks, so two music mods can't be deployed together, whichever tool made them. [Combine Mods](wiki:combining-mods) makes one mod out of them, with the audio of both.
 
 ## Updating
 

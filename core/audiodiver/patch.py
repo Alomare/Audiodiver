@@ -4,14 +4,12 @@ describe it, and (optionally) the timing of the music segments/tracks that play 
 Unlike hd2-audio-modder it never merges same-id objects across banks, so everything not being replaced stays
 byte-identical to the current game. Audio a project adds (new takes, layers, clips of their own: addition.py) goes in
 first, and its new clips are then replaced like the game's: their sizes, gain and silence are set here too.
-One exception, where a project turns it on: music_init starts from a copy with the fix for the game's silent music on
-seven biomes (biome.py).
 """
 import os
 import struct
 from dataclasses import dataclass, field
 
-from . import addition, biome, music
+from . import addition, music
 from . import bank as wbank
 from .bank import SOUND, MUSIC_SEGMENT, MUSIC_TRACK, TYPE_NAMES
 from .game import WWISE_STREAM, WWISE_BANK, WWISE_DEP, toc_entries
@@ -244,13 +242,12 @@ def write_patch(path, streams: dict[int, bytes], banks: dict[int, bytes], deps: 
 
 
 def build_patch(path, reps: list[Replacement], ix: AudioIndex, overrides=None, strings=None,
-                plan: addition.Plan | None = None, settings=None, biome_fix=False, where=None, set_where=None):
+                plan: addition.Plan | None = None, settings=None, where=None, set_where=None):
     """Patches every bank that holds or plays a replaced source, gets new audio (the plan; reps hold the new
     clips' audio too) or has an object with settings ({object id: {prop id: value or None}}: an imported mod's,
     applied before the replacements' gain and silence), and adds string tables ({file id: table bytes});
     returns {bank id: BankEdit}. where ({source: banks}) and set_where ({object: banks}) keep a source or an
-    object to those banks (build.reach); a bank patched for something else still gets them where it has them.
-    biome_fix: music_init starts from the fixed one (biome.py)."""
+    object to those banks (build.reach); a bank patched for something else still gets them where it has them."""
     overrides, settings, where, set_where = overrides or {}, settings or {}, where or {}, set_where or {}
     by_source = {r.source: r for r in reps}
     banks = set(plan.banks) if plan else set()
@@ -261,8 +258,7 @@ def build_patch(path, reps: list[Replacement], ix: AudioIndex, overrides=None, s
     new_banks, deps, edits = {}, {}, {}
     for bid in sorted(banks):
         raw, dep = ix.bank_files(bid)
-        start = biome.base(ix, bid) if biome_fix else raw  # music_init: with the fix (biome.py), the edits on top
-        grown = addition.apply(start, plan.banks[bid], plan) if plan and bid in plan.banks else start
+        grown = addition.apply(raw, plan.banks[bid], plan) if plan and bid in plan.banks else raw
         grown, set_ids = apply_settings(grown, settings) if settings else (grown, [])
         new, edit = patch_bank(grown, by_source, overrides)
         edit.settings = set_ids
@@ -294,15 +290,14 @@ def read_patch(path):
 
 def diff(path, ix: AudioIndex):
     """What a patch changes against the current game: streams, and per bank the media and HIRC objects (new ones
-    count as changed too, and are also listed as added). "read" keeps both banks as wbank.parse reads them. A
-    music_init that carries the fix for the silent biomes is compared with the fixed one (biome.py)."""
+    count as changed too, and are also listed as added). "read" keeps both banks as wbank.parse reads them."""
     banks, streams = read_patch(path)
     out = {"streams": streams, "banks": {}, "unknown": []}  # unknown: banks this game version doesn't have
     for bid, (media, hirc) in banks.items():
         if bid not in ix.banks:
             out["unknown"].append(bid)
             continue
-        v_media, v_hirc = wbank.parse(biome.base_for(ix, bid, hirc))
+        v_media, v_hirc = wbank.parse(ix.bank_files(bid)[0])
         out["banks"][bid] = {
             "media": sorted(m for m in media if v_media.get(m) != media[m]),
             "objects": sorted((TYPE_NAMES.get(t, hex(t)), id) for id, (t, b) in hirc.items() if v_hirc.get(id) != (t, b)),

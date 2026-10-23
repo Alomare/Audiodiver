@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { iconUrl, nameProblem, type Icon, type IconFrame } from "./api";
+import { fmtBytes, iconUrl, nameProblem, plural, type Icon, type IconFrame } from "./api";
 import { confirm } from "./Confirm";
 import { NoProjectCard, Page, useDraft } from "./Page";
 import { copyText, fullPath, reveal } from "./platform";
@@ -8,8 +8,6 @@ import { Help } from "./Wiki";
 
 const FRAME_KEYS: (keyof IconFrame)[] = ["border", "border_color", "radius"];
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
-const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
-const sizeText = (bytes: number) => (bytes >= 1e6 ? `${(bytes / 1e6).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1000))} KB`);
 
 /** The Project tab: what the mod is (its name, description, icon and id) and where its files are (its folder, the
     files nothing uses, and packs). Build keeps how the ZIP is made. */
@@ -17,15 +15,16 @@ export function ProjectTab() {
   const { project } = useEditor();
   return (
     <Page title="Project" wide
-      lead={<>This page holds what the mod is in HD2 Arsenal, and where the project keeps its files. <Help tip="Project folders" page="project-folders" /></>}>
+      lead={<>A project is one mod for <b>HD2 Arsenal</b>, in a folder with the files it uses. <Help tip="Project folders" page="project-folders" /></>}>
       {project ? <ProjectPage key={project.path} /> : <NoProjectCard text="Create or open a project, or open a pack." />}
     </Page>
   );
 }
 
 function ProjectPage() {
-  const { project, actions, revision, quick } = useEditor();
+  const { project, actions, revision, quick, jobs } = useEditor();
   const p = project!;
+  const busy = Object.values(jobs).some((j) => j.state === "running"); // the folder's files may be changing
   // what is on disk now: an image deleted since the last change shows as a problem here at once
   useEffect(() => { actions.refresh(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [name, setName] = useDraft(p.name);
@@ -93,14 +92,13 @@ function ProjectPage() {
           </div>
         </section>
 
-        <FolderSection />
-        <UnusedFiles />
+        <FolderSection busy={busy} />
+        <UnusedFiles busy={busy} />
 
         <section className="set-sec">
-          <h2>Share <Help tip="A pack holds the project and the files it uses in one file, to move to another computer or to keep" page="project-folders#packs" /></h2>
-          <p className="set-note">A pack is one <code>.audipack</code> file with the project and the files it uses. Opening it unpacks the project into the projects folder.</p>
+          <h2>Export <Help tip="A pack is one .audipack file with the project and the files it uses, to move it to another computer or keep a copy." page="project-folders#packs" /></h2>
           <div className="row-btns">
-            <button className="btn" onClick={actions.exportPack}>Export as pack…</button>
+            <button className="btn" onClick={actions.exportPack} disabled={busy}>Export as pack…</button>
           </div>
         </section>
       </div>
@@ -113,42 +111,46 @@ function ProjectPage() {
   );
 }
 
-/** Where the project and the files it uses are: the folder, a move into a folder of its own, and collecting files
-    that are outside it. */
-function FolderSection() {
+/** Where the project and the files it uses are: the folder, a move into a new folder, and collecting files that are
+    outside it. Each action sits in the box that says why it is offered. */
+function FolderSection({ busy }: { busy: boolean }) {
   const { project: p, actions } = useEditor();
   if (!p) return null;
-  const stem = p.path.split(/[\\/]/).pop()!.replace(/\.audi$/i, "");
   const move = async () => {
     const ok = await confirm({
-      title: "Move the project into a folder of its own?",
-      text: `The project moves to ${p.folder}\\${stem}\\${stem}.audi, with the slices, imported audio and builds Audiodiver made for it. Files you picked from elsewhere stay where they are, and the project points at them.`,
+      title: "Move the project into a new folder?",
+      text: `The project moves to ${p.move_to ?? "a new folder"}, with the slices, imported audio and builds Audiodiver made for it. Files you picked from elsewhere stay where they are.`,
       ok: "Move", cancel: "Keep it here",
     });
     if (ok) await actions.moveToOwnFolder();
   };
+  const others = p.folder_projects;
   return (
     <section className="set-sec">
       <h2>Folder <Help tip="Where the project file and the files it uses are kept" page="project-folders#the-project-folder" /></h2>
       <p className="path" data-tip={p.path} data-tip-clip>{p.folder}</p>
       <div className="row-btns">
         <button className="btn quiet" onClick={() => reveal(p.path)}>Show in folder</button>
-        {!p.own_folder && <button className="btn" onClick={move}>Move to its own folder</button>}
-        {p.files_elsewhere > 0 && <button className="btn" onClick={actions.collectFiles}>Collect files</button>}
       </div>
       {!p.own_folder && (
-        <p className="warn-box">
-          {p.folder_projects
-            ? `This folder holds ${p.folder_projects === 1 ? "another project" : `${p.folder_projects} other projects`}, which ${p.folder_projects === 1 ? "shares" : "share"} its slices and imported audio.`
+        <div className="warn-box">
+          <p>{others
+            ? `${others === 1 ? "Another project is" : `${others} other projects are`} in this folder and ${others === 1 ? "uses" : "use"} the same slices and imported folders.`
             : "This project is in a shared place, such as the Desktop or Documents."}
-          {" "}<Help tip="Moving a project into its own folder" page="project-folders#moving-a-project-into-its-own-folder" />
-        </p>
+            {" "}<Help tip="Moving a project into a new folder" page="project-folders#moving-a-project-into-a-new-folder" /></p>
+          <div className="row-btns">
+            <button className="btn" onClick={move} disabled={busy}>Move to a new folder</button>
+          </div>
+        </div>
       )}
       {p.files_elsewhere > 0 && (
-        <p className="set-note">
-          {plural(p.files_elsewhere, "file")} the project uses {p.files_elsewhere === 1 ? "is" : "are"} outside its folder.
-          {" "}<Help tip="Collecting files into the project's folder" page="project-folders#collecting-files" />
-        </p>
+        <div className="info-box">
+          <p>{plural(p.files_elsewhere, "file")} the project uses {p.files_elsewhere === 1 ? "is" : "are"} outside its folder.
+            {" "}<Help tip="Collecting files into the project's folder" page="project-folders#collecting-files" /></p>
+          <div className="row-btns">
+            <button className="btn" onClick={actions.collectFiles} disabled={busy}>Collect files</button>
+          </div>
+        </div>
       )}
     </section>
   );
@@ -158,7 +160,7 @@ type Unused = { folder: string; files: { path: string; rel: string; bytes: numbe
 
 /** The files in Audiodiver's folders beside the project that nothing uses: found on request, removed to the Recycle
     Bin. The list is taken again when the project changes. */
-function UnusedFiles() {
+function UnusedFiles({ busy: working }: { busy: boolean }) {
   const { project, run, quick } = useEditor();
   const [found, setFound] = useState<Unused | null>(null);
   const [busy, setBusy] = useState(false);
@@ -175,26 +177,26 @@ function UnusedFiles() {
     const n = found.files.length;
     const ok = await confirm({
       title: `Remove ${plural(n, "unused file")}?`,
-      text: `They go to the Recycle Bin. Files the project or its Undo history still uses are kept.`,
+      text: n === 1 ? "It goes to the Recycle Bin." : "They go to the Recycle Bin.",
       ok: "Remove", cancel: "Keep",
     });
     if (!ok) return;
     const r = await run<{ removed: number; left: number; bytes: number }>("unused_remove", { paths: found.files.map((f) => f.path) });
     if (!r) return;
     setFound(null);
-    quick(r.removed ? `${plural(r.removed, "file")} removed${r.left ? `, ${plural(r.left, "file")} still in use` : ""}`
+    quick(r.removed ? `${plural(r.removed, "file")} moved to the Recycle Bin${r.left ? `, ${r.left} couldn't be removed` : ""}`
       : "No files were removed", r.removed ? "done" : "info");
   };
   return (
     <section className="set-sec">
       <h2>Unused files <Help tip="Files Audiodiver made for the project that nothing uses any more" page="project-folders#unused-files" /></h2>
       <div className="row-btns">
-        <button className="btn" onClick={find} disabled={busy}>{busy ? "Looking…" : "Find unused files"}</button>
-        {!!found?.files.length && <button className="btn quiet" onClick={remove}>Remove</button>}
+        <button className="btn" onClick={find} disabled={busy || working}>{busy ? "Looking…" : "Find unused files"}</button>
+        {!!found?.files.length && <button className="btn quiet" onClick={remove} disabled={working}>Remove</button>}
       </div>
       {found && (found.files.length ? (
         <>
-          <p className="set-note">Nothing uses {plural(found.files.length, "file")}. {found.files.length === 1 ? "It takes" : "They take"} {sizeText(found.bytes)}.</p>
+          <p className="set-note">{plural(found.files.length, "file is", "files are")} unused ({fmtBytes(found.bytes)}).</p>
           <ul className="unused-list">
             {found.files.slice(0, 8).map((f) => <li key={f.path}>{f.rel}</li>)}
             {found.files.length > 8 && <li>and {found.files.length - 8} more</li>}

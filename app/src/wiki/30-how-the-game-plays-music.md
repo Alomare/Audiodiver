@@ -28,10 +28,10 @@ A slot with a condition, such as a biome, plays only when that condition is met.
 
 ## Silence
 
-Any slot can play silence in place of the original, without a file. Right-click the slot and choose **Replace with silence**, or select it and press **Use silence** in the details. The details then let you choose what the silence does to the timing:
+Any slot can play silence in place of the original, without a file. Right-click the slot and choose **Replace with silence**, or select it and press **Use silence** in the details. **Keep original duration** in the details sets what the silence does to the timing:
 
-- **Move straight on** makes the game continue to the next segment at once. **Skip** uses this setting for transitions and stingers.
-- **Keep the original timing** keeps the slot silent for as long as the original would play. Everything that plays with it or after it keeps its timing. Use this to mute one layer of a piece, or to keep a pause that the original had.
+- On, which is the default, the slot stays silent for as long as the original would play. Everything that plays with it or after it keeps its timing. Use this to mute one layer of a piece, or to keep a pause that the original had.
+- Off, the game continues to the next segment at once. **Skip** silences transitions and stingers this way.
 
 ✕ on the row removes the silence.
 

@@ -126,6 +126,40 @@ export function PartTabs({ item, part }: { item: MusicItem; part: MusicPart }) {
   );
 }
 
+/** Whether an item's parts fold in the slot list instead of sitting in tabs: transitions and stingers, which have
+    many parts of a slot or two each, with long names ("Intense Battle → Exploring #2"). */
+export const partsFold = (item: MusicItem) => item.parts.length > 1 && (item.kind === "transition" || item.kind === "stinger");
+
+/** A part's line in the slot list (partsFold): it plays the part's original, opens it (its slots show under it, the
+    other parts fold) or folds it, takes files dropped on it, and says what it plays now. */
+export function PartHead({ item, part, index, open, onToggle }: {
+  item: MusicItem; part: MusicPart; index: number; open: boolean; onToggle: () => void;
+}) {
+  const { project, readOnly, scope } = useEditor();
+  const a = project?.assignments ?? {};
+  const c = itemCoverage(item, readOnly ? null : project, part);
+  const name = part.name || `Part ${index + 1}`;
+  // silence, and audio that belongs to other music, say so in words; the dot says the rest
+  const mine = part.own.filter((t) => a[t]);
+  const worded = !part.own.length || (mine.length === part.own.length && mine.every((t) => a[t].silence));
+  return (
+    <div className={`grp part-grp${open ? " open" : ""}`}
+      data-drop={!readOnly && part.kind !== "bank" && part.kind !== "sound" ? JSON.stringify({ kind: "cue", cue: part.cue }) : undefined}>
+      <PlayButton kind="vanilla" source={part.targets[0] ?? ""} label={`the original ${name}`} what={name} small disabled={!part.targets.length}
+        at={{ scope, itemId: item.id, cueId: part.cue, source: part.targets[0] ?? null }} />
+      <button className="grp-head" aria-expanded={open} onClick={onToggle} data-tip={part.note || undefined}>
+        <span className="caret" aria-hidden>▸</span>
+        <span className="grp-name" data-tip={name} data-tip-clip>{name}</span>
+        <span className="grp-n">{fmtTime(part.duration_ms)}</span>
+      </button>
+      <span className="grp-meta">
+        {!readOnly && project && worded && <PartState part={part} a={a} />}
+        {c.total > 0 ? <Mark status={statusOf(c)} /> : <span className="mark-dot none mark-gap" aria-hidden />}
+      </span>
+    </div>
+  );
+}
+
 /** Transitions into and out of a piece of music and stingers over it, with what they play now. */
 function Around({ item, a }: { item: MusicItem; a: Record<string, Assignment> }) {
   const { itemIndex, project, show, actions, readOnly } = useEditor();

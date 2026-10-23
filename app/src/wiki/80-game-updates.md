@@ -26,7 +26,7 @@ New music appears in the Index automatically. Music that Audiodiver can't identi
 
 Patches from older, id-based tools contain complete sound banks from the game version they were built on. After a large update, such a patch rolls those banks back and can undo the game's newer music.
 
-To update one of these mods, [repatch](wiki:repatching) it on [Build ▸ Repatch](app:build/repatch). Drop the mod on the page, and Audiodiver rebuilds it against the current game version.
+To update one of these mods, [repatch](wiki:repatching) it on [Tools ▸ Repatch](app:tools/repatch). Drop the mod on the page, and Audiodiver rebuilds it against the current game version.
 
 To work the mod into an existing project instead, use **Import a mod's patch…** on [Home](app:home), or drop its `.patch_0` file on the window. Audiodiver extracts the audio from the patch, assigns it to the same sounds, and you build the project from there. When the project already has something in it, Audiodiver asks first: **Add to the project** keeps what it has (where both have audio for a slot, the patch's goes in), and **Replace the project's audio** takes out its new audio, added sounds, cue points and list before the patch comes in. Its text and audio files stay either way, and Undo brings the project back as it was. In both cases, the mod's audio goes into the build exactly as it was and isn't converted again.
 

@@ -28,7 +28,9 @@ In the Library, the toolbar has **Add to the project**. In the Audio Editor, it 
 
 ## Parts
 
-Tabs under the toolbar switch between the **parts** of the open item. Parts are the biomes or intensities of a piece of music, the languages of a voice, or the versions of a transition. The number on a tab is the part's length or its number of sounds.
+Tabs under the toolbar switch between the **parts** of the open item. Parts are the biomes or intensities of a piece of music, or the languages of a voice. The number on a tab is the part's length or its number of sounds.
+
+Transitions and stingers have many short parts, so their parts are lines in the list of slots instead. Each line plays the part's original, and shows its length and, when it is silent or belongs to other music, says so. The open part's slots are under its line. Click another line to open that part, or the open one to fold it. The toolbar acts on the open part.
 
 ## The slots
 
@@ -72,24 +74,21 @@ The **waveforms** of the selected slot are shown here. The original is on top, a
 
 ## The right panel (Audio Editor)
 
-This panel holds the selected slot's settings. It shows what replaces the slot, which is either a file or silence. A file has a button that shows it in its folder, and silence has a timing choice. Below that are **Make-Up Gain** ([explained here](wiki:volume)), **Fit timing to the new audio**, the **cue points**, the notes and **Also plays in**. When several slots are selected, the panel sets their Make-Up Gain or silence together. Playing audio and choosing files are done on the slot's row.
+This panel holds the selected slot's settings. It shows what replaces the slot, which is either a file or silence. A file has a button that shows it in its folder, and silence has **Keep original duration**. Below that are **Make-Up Gain** ([explained here](wiki:volume)), **Fit timing to the new audio**, the **cue points**, **Also plays in** and the slot's note. When several slots are selected, the panel sets their Make-Up Gain or silence together. Playing audio and choosing files are done on the slot's row.
+
+With no slot selected, the panel shows the open item's note and the keys of the slot list.
 
 ## Notes
 
-Anything in the Audio Editor can have notes: a category, section or item in the list on the left, and a group of sounds, a segment of music or a slot in the middle. The {icon:note} button appears when the pointer is on a row, and it stays, in a lighter grey, once a note is written. Its tooltip shows the note's first line.
+A slot, and an item from the list on the left, can have a note. The note is at the bottom of the right panel: select a slot for its note, or select nothing for the item's. **Add note** opens the editor. The note is saved in the project file, and Undo takes back a change to it.
 
-The button opens two notes on the same thing:
-
-- The **global note** appears in every project. It suits what is true of the game's sound, such as which take plays most often.
-- The **project note** is saved in the project file, so it goes wherever the file goes.
-
-Notes are written in Markdown. `#` starts a heading, `-` starts a list item, `**bold**` and `*italic*` mark words, and `[text](https://…)` makes a link. **Preview** shows the note as it reads. Closing the dialog saves both notes, and Undo takes back a change to the project note. The global notes are kept in `notes.json`, in Audiodiver's data folder beside the caches.
+Notes are written in Markdown. `#` starts a heading, `-` starts a list item, `**bold**` and `*italic*` mark words, and `[text](https://…)` makes a link. The buttons above the box do the same for the selected words, and pressing one again takes the mark off. {key:undo} works in the box while you type. When you click elsewhere, the note is saved and shows as it reads. Click it to edit it again. **Delete note** removes it, and asks first if it has any words.
 
 A clip that plays in several places has one note, and every place shows it. A game update that gives a clip a new id leaves its note behind. The note stays in the file and shows again if the id comes back.
 
 ## The bars
 
-The bar on the left holds the tabs, with {icon:updates} Updates, the Wiki and Settings at the bottom. The open tab takes the colour of its page. Tabs inside a page, such as Index and All Archives, the parts of a piece, or the sections of Settings, are underlined instead. A dot on Updates means a new version of Audiodiver is available.
+The tab bar holds the main tabs, with {icon:updates} Updates, the Wiki and Settings at its end. Home and Tools come first. The darker band after them holds the tabs that work on the open project, from Project to Build, and the Project tab shows the project's icon and name. It runs along the top of the window, and **Tab bar** in [Settings ▸ Theme](app:settings/theme) puts it on another side. With the tabs' names on, a bar at the top or bottom shows them beside the icons, and a bar at the left or right shows a tab's name when the pointer is on it. The open tab takes the colour of its page, and in the band its edge is in the primary colour. Tabs inside a page, such as Index and All Archives, the parts of a piece, or the sections of Settings, are underlined instead. A dot on Build means the project isn't built as it is now, and a dot on Updates means a new version of Audiodiver is available.
 
 The status bar at the bottom has undo and redo, the project's file and the audio that is playing. Click the playing audio to go to its slot. The **Export list** button appears once the list has something on it. **Vol** sets the preview volume, which doesn't affect the mod. The version number opens Updates, and the {icon:info} next to it opens [About](app:about).
 
@@ -125,7 +124,7 @@ You can also collect things from different places and export them together. You 
 ## Colours
 
 - The **primary colour** (Super Earth yellow) fills the main buttons and marks replaced audio, edits and the project.
-- The **secondary colour** (blue) is used for navigation and information, such as links, the open tab, the selection and the focus ring. On the light theme, it is also used for text and lines that would otherwise be in the primary colour.
+- The **secondary colour** (blue) is used for navigation and information, such as links, the open tab, the selection and the focus ring. On the light theme, it is also used for text, lines and tints that would otherwise be in the primary colour.
 - Neutral grey marks the original.
 
 You can change both colours, the theme, the contrast and **Night mode** in [Settings ▸ Theme](app:settings/theme).

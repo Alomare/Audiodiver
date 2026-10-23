@@ -1,99 +1,119 @@
-import { memo, useMemo, useRef, useState } from "react";
-import { useDialog } from "./dialog";
-import { NoteIcon } from "./Icons";
-import { Markdown, parse, plainText } from "./Markdown";
-import { closeNote, notes, openNote, useEditingNote, useNote } from "./noteStore";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { confirm } from "./Confirm";
+import { LinkIcon } from "./Icons";
+import { Markdown, parse } from "./Markdown";
+import { useNote } from "./noteStore";
 import { useEditor } from "./store";
+import { Help } from "./Wiki";
 
-/** The note button on a row of the Audio Editor: there while the pointer is on the row when nothing is written,
-    always there (and lighter) when a note is. Its tip shows the start of the note. */
-export const NoteButton = memo(function NoteButton({ k, name }: { k: string; name: string }) {
-  const [g, p] = useNote(k);
-  const has = !!(g || p);
-  const first = has ? firstLine(p || g) : "";
-  return (
-    <button className={`note-btn${has ? " has" : ""}`} aria-label={has ? `Notes on ${name}` : `Add a note to ${name}`}
-      data-tip={has ? "Notes" : "Add a note"} data-tip-more={first || undefined}
-      onClick={(e) => { e.stopPropagation(); openNote(k, name); }} onDoubleClick={(e) => e.stopPropagation()}
-      onContextMenu={(e) => e.stopPropagation()}><NoteIcon /></button>
-  );
-});
+type Tool = { id: string; label: string; tip: string; keys?: string; draw: React.ReactNode };
+const TOOLS: Tool[] = [
+  { id: "bold", label: "Bold", tip: "Bold", keys: "Ctrl+B", draw: <b>B</b> },
+  { id: "italic", label: "Italic", tip: "Italic", keys: "Ctrl+I", draw: <i>I</i> },
+  { id: "heading", label: "Heading", tip: "Heading", draw: <b>H</b> },
+  { id: "list", label: "List", tip: "List", draw: <span aria-hidden>•</span> },
+  { id: "link", label: "Link", tip: "Link", keys: "Ctrl+K", draw: <LinkIcon /> },
+];
 
-/** The first line of a note with words in it, without its Markdown. */
-function firstLine(md: string) {
-  for (const line of md.split("\n")) {
-    const text = plainText(parse(line).tokens).trim();
-    if (text) return text.length > 80 ? `${text.slice(0, 79)}…` : text;
-  }
-  return "";
-}
-
-/** The dialog the note buttons open (mounted once, in App). */
-export function NotesDialog() {
-  const at = useEditingNote();
-  return at ? <NotesBox key={at.key} k={at.key} name={at.name} /> : null;
-}
-
-/** A thing's two notes: the global one, in every project, and the open project's. Each is written in Markdown and
-    shown as it reads. Closing the dialog (Done, Esc, a click beside it) saves what changed. */
-function NotesBox({ k, name }: { k: string; name: string }) {
+/** The project's note on what the details panel shows: a slot (its clip) or, with no slot selected, the open item.
+    Add note opens the editor; a note shows as it reads, and a click edits it. It is saved when the editor loses the
+    focus (and when the panel moves on to something else), one step of Undo; Delete note asks first when the note has
+    words in it. Written in Markdown, with buttons that mark the selected words. */
+export function NoteSection({ k, name }: { k: string; name: string }) {
   const { project, actions } = useEditor();
-  const was = useRef({ global: notes.global(k), project: notes.project(k) });
-  const [global, setGlobal] = useState(was.current.global);
-  const [own, setOwn] = useState(was.current.project);
-  const saving = useRef(false);
-  const done = async () => {
-    if (saving.current) return;
-    const g = global.trimEnd() !== was.current.global ? global : undefined;
-    const p = project && own.trimEnd() !== was.current.project ? own : undefined;
-    if (g === undefined && p === undefined) return closeNote();
-    saving.current = true;
-    const ok = await actions.setNote(k, g, p);
-    saving.current = false;
-    if (ok) closeNote(); // refused: the text stays here, and the notice says why
-  };
-  const box = useDialog(done);
-  return (
-    <div className="modal-back" onPointerDown={(e) => { if (e.target === e.currentTarget) done(); }}>
-      <div className="modal narrow notes-dlg" role="dialog" aria-modal="true" aria-label={`Notes on ${name}`} ref={box} tabIndex={-1}
-        onKeyDown={(e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); done(); } }}>
-        <h2>Notes<small data-tip={name} data-tip-clip>{name}</small></h2>
-        <NoteField label="Global note" where="Shown in every project" text={global} onChange={setGlobal} />
-        {project && <NoteField label="Project note" where={`Saved in ${project.name}`} text={own} onChange={setOwn} />}
-        <div className="modal-foot">
-          <button className="btn primary" onClick={done} data-tip="Save and close" data-tip-more="Ctrl+Enter">Done</button>
-          <span className="spacer" />
-          <span className="notes-hint">Markdown: # Heading, - list, **bold**, *italic*, [link](https://…)</span>
-        </div>
-      </div>
-    </div>
-  );
-}
+  const saved = useNote(k);
+  const [text, setText] = useState(saved);
+  const [editing, setEditing] = useState(false);
+  const box = useRef<HTMLTextAreaElement>(null);
+  const doc = useMemo(() => (editing || !saved ? null : parse(saved)), [editing, saved]);
+  // what is typed and what was saved, for the save on the way out (the panel can change under a focused editor)
+  const now = useRef({ text, saved });
+  now.current = { text, saved };
+  useEffect(() => { if (!editing) setText(saved); }, [saved, editing]); // an undo, another project
+  useEffect(() => () => { const n = now.current; if (n.text.trimEnd() !== n.saved) actions.setNote(k, n.text); }, [k]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (editing) box.current?.focus(); }, [editing]);
+  if (!project) return null;
 
-/** One note: Edit to write it, Preview to read it as it shows. A note with text opens on Preview, an empty one on
-    Edit. */
-function NoteField({ label, where, text, onChange }: { label: string; where: string; text: string; onChange: (t: string) => void }) {
-  const [editing, setEditing] = useState(!text);
-  const doc = useMemo(() => (editing ? null : parse(text)), [editing, text]);
+  const save = async () => {
+    if (text.trimEnd() !== saved) await actions.setNote(k, text);
+    setEditing(false);
+  };
+  const remove = async () => {
+    if (text.trim() && !(await confirm({ title: "Delete the note?", text: `The note on ${name} goes. Undo brings it back.`, ok: "Delete", cancel: "Keep" }))) return;
+    setText("");
+    setEditing(false);
+    if (saved) await actions.setNote(k, "");
+  };
+  const has = !!saved || editing;
+
   return (
-    <section className="note-field" aria-label={label}>
-      <div className="note-field-head">
-        <span className="field-label">{label}</span>
-        <span className="note-where">{where}</span>
-        <span className="spacer" />
-        <div className="segmented note-mode" role="radiogroup" aria-label={`${label}: show`}>
-          <button role="radio" aria-checked={editing} className={editing ? "on" : ""} onClick={() => setEditing(true)}>Edit</button>
-          <button role="radio" aria-checked={!editing} className={editing ? "" : "on"} onClick={() => setEditing(false)}>Preview</button>
-        </div>
-      </div>
-      {editing ? (
-        <textarea className="note-text" value={text} onChange={(e) => onChange(e.target.value)} spellCheck
-          aria-label={label} placeholder="Write a note" />
-      ) : (
-        <div className="note-preview md" onDoubleClick={() => setEditing(true)}>
-          {text.trim() ? <Markdown tokens={doc!.tokens} /> : <p className="note-empty">Nothing written yet.</p>}
+    <section className="insp-sec note-sec" aria-label="Note">
+      <h3>Note <Help tip="A note for yourself, saved in the project. Markdown marks headings, lists, bold and links." page="reading-the-screen#notes" /></h3>
+      {!has && <div className="row-btns"><button className="btn quiet" onClick={() => setEditing(true)}>Add note</button></div>}
+      {editing && (
+        <div className="note-editor" onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) save(); }}>
+          <div className="note-tools" role="toolbar" aria-label="Formatting">
+            {TOOLS.map((t) => (
+              <button key={t.id} className="icon-btn" aria-label={t.label} data-tip={t.tip} data-tip-more={t.keys}
+                onMouseDown={(e) => e.preventDefault()} onClick={() => box.current && mark(box.current, t.id, setText)}>{t.draw}</button>
+            ))}
+          </div>
+          <textarea ref={box} className="note-text" value={text} spellCheck aria-label={`Note on ${name}`} placeholder="Write a note"
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => {
+              const tool = e.ctrlKey && !e.altKey && !e.shiftKey ? { b: "bold", i: "italic", k: "link" }[e.key.toLowerCase()] : undefined;
+              if (tool) { e.preventDefault(); e.stopPropagation(); mark(e.currentTarget, tool, setText); }
+              else if (e.key === "Escape") { e.stopPropagation(); e.currentTarget.blur(); }
+            }} />
         </div>
       )}
+      {!editing && saved && (
+        <div className="note-preview md" role="button" tabIndex={0} data-tip="Edit the note" onClick={() => setEditing(true)}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); setEditing(true); } }}>
+          <Markdown tokens={doc!.tokens} />
+        </div>
+      )}
+      {has && <div className="row-btns"><button className="btn quiet" onClick={remove}>Delete note</button></div>}
     </section>
   );
+}
+
+/** Turns a style on or off for the selected words (or the lines they are on), through the editor's own typing so
+    that Ctrl+Z in the box takes it back. */
+function mark(el: HTMLTextAreaElement, tool: string, set: (t: string) => void) {
+  const v = el.value;
+  let s = el.selectionStart, e = el.selectionEnd;
+  const put = (from: number, to: number, text: string, selFrom: number, selTo: number) => {
+    el.focus();
+    el.setSelectionRange(from, to);
+    if (!document.execCommand("insertText", false, text)) el.setRangeText(text, from, to, "end");
+    el.setSelectionRange(selFrom, selTo);
+    set(el.value);
+  };
+  if (tool === "heading" || tool === "list") { // a mark at the start of each line the selection touches
+    const start = v.lastIndexOf("\n", s - 1) + 1;
+    const end = v.indexOf("\n", e) < 0 ? v.length : v.indexOf("\n", e);
+    const lines = v.slice(start, end).split("\n");
+    const re = tool === "heading" ? /^#{1,6} / : /^- /;
+    const on = lines.every((l) => re.test(l));
+    const next = lines.map((l) => (on ? l.replace(re, "") : `${tool === "heading" ? "# " : "- "}${l.replace(/^#{1,6} |^- /, "")}`)).join("\n");
+    return put(start, end, next, start, start + next.length);
+  }
+  if (tool === "link") {
+    const words = v.slice(s, e) || "text";
+    const text = `[${words}](https://)`;
+    return put(s, e, text, s + words.length + 3, s + text.length - 1); // the address, ready to type over
+  }
+  const m = tool === "bold" ? "**" : "*";
+  // the selection inside the marks, or the marks inside the selection: either way they come off
+  if (v.slice(s - m.length, s) === m && v.slice(e, e + m.length) === m && (m === "**" || v.slice(s - 2, s) !== "**")) {
+    s -= m.length; e += m.length;
+  }
+  const inner = v.slice(s, e);
+  if (inner.length >= 2 * m.length && inner.startsWith(m) && inner.endsWith(m) && (m === "**" || !inner.startsWith("**"))) {
+    const off = inner.slice(m.length, -m.length);
+    return put(s, e, off, s, s + off.length);
+  }
+  const words = inner || (tool === "bold" ? "bold" : "italic");
+  return put(s, e, `${m}${words}${m}`, s + m.length, s + m.length + words.length);
 }

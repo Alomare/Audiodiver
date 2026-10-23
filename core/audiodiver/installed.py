@@ -32,15 +32,55 @@ SHARED, OLDER, CURRENT, NO_AUDIO, UNREADABLE = "shared", "older", "current", "no
 RANK = {SHARED: 0, OLDER: 1, UNREADABLE: 2, CURRENT: 3, NO_AUDIO: 4}
 
 
-def arsenal_mods(data_file=None) -> list[tuple[str, Path]]:
-    """(name, folder) of each mod in HD2 Arsenal's library; [] without Arsenal or when its file can't be read."""
+def _profile(d: dict) -> dict:
+    """{mod uuid: its line in the profile Arsenal deployed (else the one it shows)}. A line says whether the mod is on
+    and what is chosen of its options: optionsConfig, [{name, enabled, suboptions: [{name, enabled}]}]."""
+    lists = d.get("modsList")
+    for key in (d.get("deployedProfile"), d.get("selectedProfile"), "default"):
+        prof = lists.get(key) if isinstance(lists, dict) and isinstance(key, str) else None
+        if isinstance(prof, dict) and isinstance(prof.get("mods"), list) and prof["mods"]:
+            return {m.get("uuid"): m for m in prof["mods"] if isinstance(m, dict)}
+    return {}
+
+
+def arsenal_entries(data_file=None) -> list[tuple[str, Path, dict]]:
+    """(name, folder, its entry) of each mod in HD2 Arsenal's library; [] without Arsenal or when its file can't be
+    read. The library's entry lists the mod's options as its manifest has them (all on, the first of each choice);
+    what the user chose is in the profile, so the entry's options are the profile's where it has the mod."""
     try:
         d = json.loads(Path(data_file or ARSENAL_DATA).read_text(encoding="utf-8"))
-        mods = [(str(m.get("label") or "").strip(), Path(str(m["path"]))) for m in d["modsLibrary"]
-                if isinstance(m, dict) and m.get("path")]
-    except (OSError, ValueError, TypeError, KeyError):
+        chosen = _profile(d)
+        mods = []
+        for m in d["modsLibrary"]:
+            if isinstance(m, dict) and m.get("path"):
+                line = chosen.get(m.get("uuid")) or {}
+                if isinstance(line.get("optionsConfig"), list):
+                    m = {**m, "options": line["optionsConfig"]}
+                mods.append((str(m.get("label") or "").strip(), Path(str(m["path"])), m))
+    except (OSError, ValueError, TypeError, KeyError, AttributeError):
         return []
-    return [(name or folder.name, folder) for name, folder in mods if folder.is_dir()]
+    return [(name or folder.name, folder, m) for name, folder, m in mods if folder.is_dir()]
+
+
+def arsenal_mods(data_file=None) -> list[tuple[str, Path]]:
+    """(name, folder) of each mod in HD2 Arsenal's library; [] without Arsenal or when its file can't be read."""
+    return [(name, folder) for name, folder, _ in arsenal_entries(data_file)]
+
+
+def same_file(a: Path, b: Path, ends=1 << 16) -> bool:
+    """Whether two files are the same, told quickly: the same size, start and end (patches are hundreds of MB)."""
+    try:
+        if a.stat().st_size != b.stat().st_size:
+            return False
+        with open(a, "rb") as x, open(b, "rb") as y:
+            if x.read(ends) != y.read(ends):
+                return False
+            size = a.stat().st_size
+            x.seek(max(0, size - ends))
+            y.seek(max(0, size - ends))
+            return x.read(ends) == y.read(ends)
+    except OSError:
+        return False
 
 
 def deployed(data: Path) -> list[Path]:

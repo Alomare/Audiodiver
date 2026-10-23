@@ -68,29 +68,23 @@ def test_project_edits_autosave_and_undo_without_the_game(tmp_path):
         s.update(1234, volume=3)
 
 
-def test_notes_global_and_in_the_project(tmp_path, monkeypatch):
-    from audiodiver import notes
-    monkeypatch.setattr(notes, "FILE", tmp_path / "notes.json")
+def test_notes_in_the_project(tmp_path):
     s = Session(load=False)
     s.new_project(tmp_path / "m.audi", "M")
-    got = s.set_note("clip:1234", "# Drop\n- quieter\n\n", "Take 2 only")
-    assert got["notes"] == {"clip:1234": "# Drop\n- quieter"} == notes.load()
-    assert got["project"]["notes"] == {"clip:1234": "Take 2 only"}
-    assert json.loads((tmp_path / "m.audi").read_text())["notes"] == {"clip:1234": "Take 2 only"}
+    got = s.set_note("clip:1234", "# Drop\n- quieter\n\n")
+    assert got["project"]["notes"] == {"clip:1234": "# Drop\n- quieter"}
+    assert json.loads((tmp_path / "m.audi").read_text())["notes"] == {"clip:1234": "# Drop\n- quieter"}
     assert got["project"]["undo_label"] == "note"
-    assert s.undo()["notes"] == {} and notes.load() == {"clip:1234": "# Drop\n- quieter"}  # the global one stays
+    assert s.undo()["notes"] == {}
     s.redo()
-    assert s.set_note("clip:1234", None, "")["project"]["notes"] == {}  # None leaves the global note alone
-    assert notes.load() == {"clip:1234": "# Drop\n- quieter"}
-    assert s.set_note("clip:1234", "")["notes"] == {}
+    assert s.set_note("clip:1234", "")["project"]["notes"] == {}
     assert "notes" not in json.loads((tmp_path / "m.audi").read_text())  # files without notes stay as they were
     for key, text in (("cue:1", "x"), ("clip:", "x"), ("clip:1", 5), ("clip:1", "x" * 100_001)):
         with pytest.raises(EditorError):
             s.set_note(key, text)
     s.close_project()
     with pytest.raises(EditorError):
-        s.set_note("item:deploy/loadout", "x", "y")
-    assert notes.load() == {}  # a refused edit writes neither note
+        s.set_note("item:deploy/loadout", "y")
 
 
 def test_project_notes_that_are_not_valid_are_left_out(tmp_path):
@@ -109,6 +103,45 @@ def test_save_writes_the_project_file_now(tmp_path):
     s.close_project()
     with pytest.raises(EditorError):
         s.save_project()
+
+
+def test_a_save_that_fails_changes_nothing(tmp_path, monkeypatch):
+    from audiodiver import project
+    s = Session(load=False)
+    s.new_project(tmp_path / "m.audi", "M")
+    s._edit("assign", lambda p: s._set(p, 1234, str(_wav(tmp_path / "a.wav"))))
+    real = project.os.replace
+
+    def held(*a):  # another program holds the project file, for longer than the retries wait
+        raise PermissionError(13, "Access is denied", str(a[1]))
+    monkeypatch.setattr(project.os, "replace", held)
+    with pytest.raises(EditorError, match="Nothing changed"):
+        s.update(1234, gain_db=8)
+    with pytest.raises(EditorError, match="Nothing changed"):
+        s.undo()
+    st = s.project_state()
+    assert st["assignments"]["1234"]["gain_db"] == 0.0 and st["undo_label"] == "assign" and not st["can_redo"]
+    assert [f.name for f in tmp_path.iterdir() if f.suffix != ".wav"] == ["m.audi"]  # no half-written file beside it
+    monkeypatch.setattr(project.os, "replace", real)
+    assert s.update(1234, gain_db=8)["assignments"]["1234"]["gain_db"] == 8.0
+    assert json.loads((tmp_path / "m.audi").read_text())["replacements"][0]["gain_db"] == 8.0
+
+
+def test_temp_folders_left_by_a_closed_core_are_cleaned(tmp_path, monkeypatch):
+    import os
+    import tempfile
+    import time
+    from audiodiver.editor import clean_temp
+    monkeypatch.setattr(tempfile, "tempdir", str(tmp_path))
+    old, live, other = tmp_path / "audiodiver-build-x", tmp_path / "audiodiver-combine-y", tmp_path / "another-app"
+    for d in (old, live, other):
+        (d / "sub").mkdir(parents=True)
+        (d / "sub" / "f").write_bytes(b"x")
+    then = time.time() - 7200
+    for f in (old, old / "sub", old / "sub" / "f", live, other, other / "sub", other / "sub" / "f"):
+        os.utime(f, (then, then))  # live's folder is old too, but a file in it is still being written
+    clean_temp()
+    assert not old.exists() and live.exists() and other.exists()
 
 
 def test_relative_audio_paths_and_rejects_non_audio(tmp_path):
@@ -377,12 +410,13 @@ def test_last_build_is_the_newest_zip(tmp_path):
 def test_cache_is_sized_and_cleared_by_kind(tmp_path, monkeypatch):
     from audiodiver import editor
     monkeypatch.setattr(editor, "CACHE_DIR", tmp_path)
-    for folder, size in (("preview", 300), ("render", 50), ("peaks", 5), ("wem", 70), ("logs", 9)):
+    for folder, size in (("preview", 300), ("render", 50), ("peaks", 5), ("wem", 70), ("logs", 9), ("combine", 20)):
         (tmp_path / folder).mkdir()
         (tmp_path / folder / "x").write_bytes(bytes(size))
     (tmp_path / "audio_index.json").write_text("{}")
-    assert editor.cache_info() == {"folder": str(tmp_path), "previews": 355, "encoded": 70}
-    assert editor.cache_clear("previews") == {"folder": str(tmp_path), "previews": 0, "encoded": 70}
+    assert editor.cache_info() == {"folder": str(tmp_path), "previews": 355, "encoded": 70, "combine": 20}
+    assert editor.cache_clear("previews") == {"folder": str(tmp_path), "previews": 0, "encoded": 70, "combine": 20}
+    assert editor.cache_clear("combine")["combine"] == 0
     assert (tmp_path / "logs" / "x").exists() and (tmp_path / "audio_index.json").exists()  # never offered
     with pytest.raises(EditorError):
         editor.cache_clear("everything")

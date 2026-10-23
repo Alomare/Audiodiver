@@ -1,47 +1,30 @@
 import { useEffect } from "react";
 import { fmtWhen, type Job } from "./api";
-import { BIOME_FIX_PAGE, BIOME_FIX_TIP, EVERY_BANK_PAGE } from "./content";
+import { EVERY_BANK_PAGE } from "./content";
 import { JOB_NAMES } from "./jobs";
-import { nav, useNav, type BuildTab as BuildSub } from "./nav";
-import { NoProjectCard, Page, tabArrows, useDraft } from "./Page";
-import { RepatchPage } from "./RepatchPage";
+import { nav } from "./nav";
+import { NoProjectCard, Page, useDraft } from "./Page";
 import { pickFolder, reveal } from "./platform";
 import { settings, useSettings } from "./settings";
 import { useEditor } from "./store";
 import { Help } from "./Wiki";
 
 const fileName = (path: string) => path.split(/[\\/]/).pop()!;
+/** Problems that the Project tab fixes (the core's Project.problems): the name, the icon, the mod id. */
+const ON_PROJECT_TAB = /^(name "|icon: |mod id: )/;
 
 /** Why a typed version can't be used, or null. */
 function versionProblem(v: string): string | null {
   return /^\s*\d+\s*$/.test(v) && Number(v) >= 1 && Number(v) <= 99999 ? null : "A whole number from 1 to 99999.";
 }
 
-const SUBS: [BuildSub, string, string][] = [
-  ["project", "This project", "Build the open project"],
-  ["repatch", "Repatch", "Rebuild an existing audio mod for the current game version"],
-];
-
-/** The Build tab. This project: its next version, how the ZIP is made, and what builds logged. The mod's name, icon
-    and id are on the Project tab. Repatch (RepatchPage.tsx): an existing mod rebuilt on the game as it is now, no
-    project needed. */
+/** The Build tab: the open project's next version, how the ZIP is made, and what builds logged. The mod's name, icon
+    and id are on the Project tab; Repatch and Combine Mods on Tools. */
 export function BuildTab() {
   const { project } = useEditor();
-  const { build: sub } = useNav();
   return (
-    <Page title="Build" wide lead={sub === "repatch"
-      ? <>Rebuild an audio mod made for an older version of the game, or by another tool. <Help tip="Repatching" page="repatching" /></>
-      : <>A build is a ZIP for <b>HD2 Arsenal</b>, the mod manager. <Help tip="Building and installing" page="build-and-install" /></>}>
-      <div className="sub-tabs" role="tablist" aria-label="Build" onKeyDown={tabArrows}>
-        {SUBS.map(([id, name, about]) => (
-          <button key={id} role="tab" aria-selected={sub === id} className={sub === id ? "on" : ""} data-tip={about}
-            onClick={() => nav.go("build", id)}>{name}</button>
-        ))}
-      </div>
-      <div className="view-in bld-sub" key={sub}>
-        {sub === "repatch" ? <RepatchPage />
-          : project ? <BuildPage key={project.path} /> : <NoProjectCard text="Open a project to build it, or repatch an existing mod." />}
-      </div>
+    <Page title="Build" wide lead={<>A build is a ZIP for <b>HD2 Arsenal</b>, the mod manager. <Help tip="Building and installing" page="build-and-install" /></>}>
+      {project ? <BuildPage key={project.path} /> : <NoProjectCard text="Open a project to build it." />}
     </Page>
   );
 }
@@ -107,7 +90,9 @@ function BuildBox() {
       {p.problems.length > 0 && (
         <div className="warn-box">
           <b>Fix {p.problems.length === 1 ? "this" : "these"} before building</b>
-          <ul className="problems">{p.problems.map((x, i) => <li key={i}>{x}</li>)}</ul>
+          <ul className="problems">{p.problems.map((x, i) => (
+            <li key={i}>{x}{ON_PROJECT_TAB.test(x) && <> <button className="link-inline" onClick={() => nav.go("project")}>Project tab</button></>}</li>
+          ))}</ul>
           {p.unresolved.length > 0 && (
             <button className="btn" onClick={() => actions.unassign(p.unresolved.map((u) => u.target))}>
               Remove the {p.unresolved.length === 1 ? "sound" : `${p.unresolved.length} sounds`} the game no longer has</button>
@@ -169,10 +154,6 @@ function BuildOptions() {
             onChange={(e) => actions.settings({ loudness_analysis: e.target.checked })} />
           <span>Add Wwise loudness analysis <Help tip="Applies to this project. The game's audio includes this data, but it makes no audible difference. It needs Wwise installed and makes builds slower." page="build-and-install#wwise-loudness-analysis" />
             {missing && <small>{p.loudness_analysis ? `${missing}. Builds fail until you turn this off.` : missing}</small>}</span>
-        </label>
-        <label className="check">
-          <input type="checkbox" checked={p.biome_fix} onChange={(e) => actions.settings({ biome_fix: e.target.checked })} />
-          <span>Apply biome music fix <Help tip={BIOME_FIX_TIP} page={BIOME_FIX_PAGE} /></span>
         </label>
         <label className="check">
           <input type="checkbox" checked={p.every_bank} onChange={(e) => actions.settings({ every_bank: e.target.checked })} />

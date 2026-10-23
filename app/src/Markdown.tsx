@@ -12,7 +12,7 @@
 import { marked, type Token, type Tokens } from "marked";
 import { Fragment, type ReactNode } from "react";
 import { AudioIcon, BuildIcon, CollapseAllIcon, ExternalIcon, GearIcon, GuideIcon, HomeIcon, InfoIcon, LibraryIcon, LinkIcon, NoteIcon,
-  ProjectIcon, TextIcon, UpdatesIcon } from "./Icons";
+  ProjectIcon, TextIcon, ToolsIcon, UpdatesIcon } from "./Icons";
 import { COMMANDS, keyLabel, useKeymap, type CommandId } from "./keys";
 import { about, nav, type Tab } from "./nav";
 import { openUrl } from "./platform";
@@ -51,7 +51,7 @@ export function parse(md: string): Doc {
   return { tokens, headings, text: plainText(tokens) };
 }
 
-const TABS: Tab[] = ["home", "project", "library", "editor", "text", "build", "updates", "settings", "wiki"];
+const TABS: Tab[] = ["home", "project", "library", "editor", "text", "build", "tools", "updates", "settings", "wiki"];
 const CALLOUT = /^\[!(TIP|NOTE|WARNING)\]\s*/;
 const CALLOUT_NAME: Record<string, string> = { TIP: "Tip", NOTE: "Note", WARNING: "Careful" };
 const REF = /\{(key|icon):(\w+)\}/g;
@@ -59,7 +59,7 @@ const REF = /\{(key|icon):(\w+)\}/g;
 const ICONS: Record<string, () => ReactNode> = {
   link: LinkIcon, collapse: CollapseAllIcon,
   home: HomeIcon, library: LibraryIcon, audio: AudioIcon, text: TextIcon, build: BuildIcon, updates: UpdatesIcon, wiki: GuideIcon,
-  settings: GearIcon, info: InfoIcon, note: NoteIcon, project: ProjectIcon,
+  settings: GearIcon, info: InfoIcon, note: NoteIcon, project: ProjectIcon, tools: ToolsIcon,
 };
 
 /** Text with {key:command} turned into the key that command is on now, and {icon:name} into that icon. */

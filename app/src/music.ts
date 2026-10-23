@@ -73,9 +73,14 @@ export const COVERAGE: Record<Status, string> = { none: "Original", part: "Partl
 
 export type Clash = { item: MusicItem; part: MusicPart; next: MusicItem[]; open: string[] };
 
+let lastClashes: { idx: ItemIndex; a: Record<string, Assignment>; out: Clash[] } | null = null;
+
 /** Transitions that still play the original between two replaced pieces of music, and stingers that still play
- * it over replaced music. An original transition into original music is not a clash. */
+ * it over replaced music. An original transition into original music is not a clash. Worked out again only when
+ * the project's assignments change: the Editor's list and the open item's head ask on every render (a selection's
+ * move cost 6 ms of it on a slow PC). */
 export function clashes(idx: ItemIndex, a: Record<string, Assignment>): Clash[] {
+  if (lastClashes?.idx === idx && lastClashes.a === a) return lastClashes.out;
   const touched = (id: string) => !!id && !!idx.items.get(id)?.targets.some((t) => a[t]);
   const out: Clash[] = [];
   for (const s of idx.music) {
@@ -92,6 +97,7 @@ export function clashes(idx: ItemIndex, a: Record<string, Assignment>): Clash[] 
       }
     }
   }
+  lastClashes = { idx, a, out };
   return out;
 }
 

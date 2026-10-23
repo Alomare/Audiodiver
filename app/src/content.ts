@@ -15,17 +15,14 @@ export function versionLabel(version: string) {
 export const APP_LABEL = versionLabel(APP_VERSION);
 /** Where Audiodiver's source and releases are (also in the core's updates.py). */
 export const REPO_URL = "https://github.com/Alomare/Audiodiver";
-export const LICENCE = { name: "GNU General Public License v3.0 or later", url: "https://www.gnu.org/licenses/gpl-3.0.html" };
+export const LICENCE = { name: "Mozilla Public License 2.0", url: "https://www.mozilla.org/MPL/2.0/" };
 /** Where questions and feedback go: the Helldivers 2 modding community's Discord (Home's corner and About). */
 export const DISCORD_URL = "https://discord.gg/helldiversmodding";
 /** Where Audiodiver can be supported: Alomare's Ko-fi page (Home's corner, beside Discord). */
 export const KOFI_URL = "https://ko-fi.com/alomare";
 /** Divershub's news ticker, the stream overlay along the bottom of Home (its CSP frame-src is in tauri.conf.json). */
 export const TICKER_URL = "https://divershub.app/overlay/ticker";
-/** Apply biome music fix (Build ▸ This project's Build options, and Build ▸ Repatch): its "?" and the Wiki section. */
-export const BIOME_FIX_TIP = "Adds the Sound Systems Rebalanced Patch, which fixes the music that stays silent after a drop on seven planet biomes. Where it no longer fits the game's banks, the build goes on without it.";
-export const BIOME_FIX_PAGE = "build-and-install#sound-systems-rebalanced-patch";
-/** Patch every bank with the sounds (the same two places). */
+/** Patch every bank with the sounds (Build's options, and Tools ▸ Repatch): its Wiki section. */
 export const EVERY_BANK_PAGE = "build-and-install#every-bank-with-the-sounds";
 
 /** "2026-10-05" as "5 Oct 2026"; anything else as it is. */
@@ -58,8 +55,8 @@ export const CREDITS: { group: string; items: Credit[] }[] = [
       for: "reading the game's archives, and how HD2 keeps its sound banks" },
     { name: "wwise-teller", by: "Dekr0", url: "https://github.com/Dekr0/wwise-teller", licence: "MIT",
       for: "Wwise property ids, the difference between Volume and Make-Up Gain, and how new takes, layers and clips go into a bank" },
-    { name: "Sound Systems Rebalanced", by: "CowboyBingus", url: "https://github.com/CowboyBingus/SoundSystemsRebalanced", licence: "0BSD",
-      for: "the Sound Systems Rebalanced Patch (Apply biome music fix), for the music that stays silent on seven planet biomes, and the music's drop at the war table" },
+    { name: "Sound Systems Rebalanced", by: "CowboyBingus", url: "https://github.com/CowboyBingus/SoundSystemsRebalanced",
+      for: "the music's drop at the war table" },
     { name: "wwiser", by: "bnnm", url: "https://github.com/bnnm/wwiser", for: "the reference for Wwise sound bank structures" },
     { name: "Whisper", by: "OpenAI", url: "https://github.com/openai/whisper", licence: "MIT", for: "hearing the voice lines, to match each to its subtitle" },
     { name: "Audio Spectrogram Transformer", by: "MIT", url: "https://huggingface.co/MIT/ast-finetuned-audioset-10-10-0.4593", licence: "BSD-3-Clause",
@@ -97,8 +94,12 @@ function page(path: string, source: string): WikiPage {
     const at = line.indexOf(":");
     if (at > 0) about[line.slice(0, at).trim()] = line.slice(at + 1).trim();
   }
+  // its Markdown is read when the page is first shown or searched, not as the app starts (all of them took 230 ms
+  // of a slow PC's start)
+  let doc: Doc | null = null;
+  const body = () => (doc ??= parse(head ? source.slice(head[0].length) : source));
   return {
-    ...parse(head ? source.slice(head[0].length) : source),
+    get tokens() { return body().tokens; }, get headings() { return body().headings; }, get text() { return body().text; },
     id: name.replace(/^\d+-/, ""), title: about.title || name, group: about.group || "Guides", summary: about.summary || "",
   };
 }

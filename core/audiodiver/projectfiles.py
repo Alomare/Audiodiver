@@ -11,8 +11,10 @@ Paths in a project file are relative to it (absolute on another drive), so movin
 its files where its folder has them, and files from elsewhere in `audio/added`. Builds aren't packed.
 """
 import filecmp
+import functools
 import json
 import os
+import re
 import shutil
 import zipfile
 from pathlib import Path, PurePosixPath
@@ -20,6 +22,18 @@ from pathlib import Path, PurePosixPath
 AUDIO = "audio"
 MADE = ("slices", "imported", "added")  # Audiodiver's folders in a project's audio folder
 LEGACY = ("slices", "imported")         # where they were before, beside the project file
+# Beside the project file, a folder named like these can be a person's own (a project on the Desktop), so only the
+# files named as Audiodiver named them count as its: a song's pieces in slices/<song>-<6 hex>/<8 hex>/ with the cut
+# points in slices/<song>-<6 hex>/cuts.json, and a patch's audio in imported/<archive>/<source>.wav (a repatched
+# mod's in imported/<source>.wav). LEGACY_DIRS are the folders those files are in.
+LEGACY_FILES = {
+    "slices": re.compile(r"[^/]+-[0-9a-f]{6}/(?:cuts\.json|\.?[0-9a-f]{8}(?:\.partial)?/[^/]+\.wav)", re.I),
+    "imported": re.compile(r"(?:(?:[0-9a-f]{16}|[^/]+-[0-9a-f]{8})/)?\d{5,20}\.(?:wav|wem)", re.I),
+}
+LEGACY_DIRS = {
+    "slices": re.compile(r"[^/]+-[0-9a-f]{6}(?:/\.?[0-9a-f]{8}(?:\.partial)?)?", re.I),
+    "imported": re.compile(r"[0-9a-f]{16}|[^/]+-[0-9a-f]{8}", re.I),
+}
 PACK = ".audipack"
 # kept as they are in a pack: compressing them again saves nothing
 PACKED_ALREADY = {".flac", ".mp3", ".ogg", ".opus", ".m4a", ".aac", ".wma", ".png", ".jpg", ".jpeg", ".webp", ".gif"}
@@ -111,11 +125,13 @@ def others(audi: Path) -> list[Path]:
         return []
 
 
-def _shared_places() -> set[str]:
+@functools.cache
+def _shared_places() -> frozenset[str]:
     """Folders that are never a project's own: the user's home, Desktop, Documents and Downloads."""
     from .repatch import documents
     home = Path.home()
-    return {key(p) for p in (home, home / "Desktop", home / "Downloads", home / "OneDrive" / "Desktop", documents())}
+    return frozenset(key(p) for p in (home, home / "Desktop", home / "Downloads", home / "OneDrive" / "Desktop",
+                                      documents()))
 
 
 def own_folder(audi: Path) -> bool:
@@ -125,16 +141,30 @@ def own_folder(audi: Path) -> bool:
     return not others(audi) and folder.parent != folder and key(folder) not in _shared_places()
 
 
+def move_dest(audi: Path) -> Path:
+    """The folder a project moves into (move_to_own_folder): beside its file and named like it, or "<name> 2"... when
+    that is taken. The project file there is named like the folder."""
+    return free(Path(audi).parent / folder_name(Path(audi).stem))
+
+
 def made_dirs(folder: Path) -> list[Path]:
     """Audiodiver's folders beside a project file: those in `audio`, then those from before."""
     return [folder / AUDIO / m for m in MADE] + [folder / m for m in LEGACY]
+
+
+def _ours(d: Path, rel, folder: Path, names=LEGACY_FILES) -> bool:
+    """Whether what is at rel in d, one of Audiodiver's folders beside a project file in folder, is Audiodiver's:
+    anything in `audio`, and in the folders from before what is named as Audiodiver named it."""
+    if key(Path(d).parent) != key(folder):
+        return True
+    return bool(names[Path(d).name].fullmatch(PurePosixPath(*Path(rel).parts).as_posix()))
 
 
 def made(path, folder: Path) -> Path | None:
     """Where a file Audiodiver made beside a project file in folder belongs in a folder of the project's own
     (relative to it), or None for any other file."""
     for d in made_dirs(folder):
-        if (rel := inside(path, d)) is not None and rel.parts:
+        if (rel := inside(path, d)) is not None and rel.parts and _ours(d, rel, folder):
             return Path(AUDIO) / d.name / rel
     return None
 
@@ -171,20 +201,28 @@ def unused(audi: Path, projects: list[dict]) -> list[Path]:
     out = []
     for d in made_dirs(folder):
         if d.is_dir():
-            out += [norm(f) for f in d.rglob("*") if f.is_file() and key(f) not in used]
+            out += [norm(f) for f in d.rglob("*") if f.is_file() and key(f) not in used
+                    and _ours(d, f.relative_to(d), folder)]
     return sorted(out)
 
 
 def prune(folder: Path):
-    """Takes away Audiodiver's folders beside a project file that are empty now, from the deepest up."""
+    """Takes away Audiodiver's folders beside a project file that are empty now, from the deepest up. Of the folders
+    from before, only those named as Audiodiver named them, and the folder itself only when one of them went."""
     for d in [*made_dirs(folder), folder / AUDIO]:
         if not d.is_dir():
             continue
+        legacy, gone = d.name in LEGACY and key(d.parent) == key(folder), False
         for sub in sorted((x for x in d.rglob("*") if x.is_dir()), key=lambda x: len(x.parts), reverse=True):
+            if legacy and not _ours(d, sub.relative_to(d), folder, LEGACY_DIRS):
+                continue
             try:
                 sub.rmdir()
+                gone = True
             except OSError:
                 pass  # not empty
+        if legacy and not gone:
+            continue
         try:
             d.rmdir()
         except OSError:
@@ -192,7 +230,8 @@ def prune(folder: Path):
 
 
 def recycle(paths: list[Path]) -> list[Path]:
-    """Moves files to the Recycle Bin. Returns those still there after (none, unless Windows refused some)."""
+    """Moves files to the Recycle Bin. Returns those still there after (none, unless Windows refused some). On a
+    drive without a Recycle Bin, Windows asks before it deletes them for good."""
     paths = [Path(p) for p in paths if Path(p).exists()]
     if not paths:
         return []
@@ -205,10 +244,11 @@ def recycle(paths: list[Path]) -> list[Path]:
                         ("pTo", wintypes.LPCWSTR), ("fFlags", ctypes.c_ushort), ("fAnyOperationsAborted", wintypes.BOOL),
                         ("hNameMappings", ctypes.c_void_p), ("lpszProgressTitle", wintypes.LPCWSTR)]
         FO_DELETE, FOF_SILENT, FOF_NOCONFIRMATION, FOF_ALLOWUNDO, FOF_NOERRORUI = 3, 0x4, 0x10, 0x40, 0x400
+        FOF_WANTNUKEWARNING = 0x4000  # asks first where a file can't go to the Recycle Bin (overrides NOCONFIRMATION)
         for i in range(0, len(paths), 200):  # the list is one string: a few hundred paths at a time
             names = "\0".join(str(p.resolve()) for p in paths[i:i + 200]) + "\0"  # ends in two nulls
-            op = FileOp(None, FO_DELETE, names, None, FOF_SILENT | FOF_NOCONFIRMATION | FOF_ALLOWUNDO | FOF_NOERRORUI,
-                        False, None, None)
+            op = FileOp(None, FO_DELETE, names, None, FOF_SILENT | FOF_NOCONFIRMATION | FOF_ALLOWUNDO | FOF_NOERRORUI
+                        | FOF_WANTNUKEWARNING, False, None, None)
             ctypes.windll.shell32.SHFileOperationW(ctypes.byref(op))
     else:
         for p in paths:
@@ -227,8 +267,8 @@ def move_plan(audi: Path, dest: Path, projects: list[dict]) -> dict[Path, Path]:
     for f in set().union(*(uses(d, folder) for d in projects)):
         if (rel := made(f, folder)) and f.is_file():
             plan[f] = dest / rel
-            if (c := cuts_of(f, folder)) and c.is_file():
-                plan[c] = dest / made(c, folder)
+            if (c := cuts_of(f, folder)) and c.is_file() and (crel := made(c, folder)):
+                plan[c] = dest / crel
     return plan
 
 
@@ -241,19 +281,44 @@ def copy(plan: dict[Path, Path]):
             shutil.copy2(src, dst)
 
 
-def release(audi: Path, plan: dict[Path, Path]):
-    """After a move: deletes the files a project took along from its old folder, but those another project there
-    uses (all of them, when one can't be read), then the folders that are empty now."""
-    theirs = _used_by_others(audi)
-    if theirs is None:
-        return
-    for src in plan:
-        if key(src) not in theirs:
-            try:
-                src.unlink()
-            except OSError:
-                pass  # in use: it stays behind, unused
-    prune(Path(audi).parent)
+def carry(audi: Path, plan: dict[Path, Path]) -> list[tuple[Path, Path, bool]]:
+    """Takes the files of a project that moves (move_plan, {from: to}) to their places, the folders made as needed.
+    A file is renamed into place (the new folder is on the same drive, so even gigabytes take a moment). It is copied
+    when another project in the old folder uses it too (every file, when one of those can't be read), or when Windows
+    won't let it go (a file in use stays behind, unused). Returns what was done, [(from, to, moved)], for put_back.
+    On a failure, what was done is put back before the error goes on."""
+    theirs, done = _used_by_others(audi), []
+    try:
+        for src, dst in sorted(plan.items()):
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            if theirs is not None and key(src) not in theirs:
+                try:
+                    os.replace(src, dst)
+                    done.append((src, dst, True))
+                    continue
+                except OSError:
+                    pass  # in use: copied below
+            shutil.copy2(src, dst)
+            done.append((src, dst, False))
+    except BaseException:
+        put_back(done)
+        raise
+    return done
+
+
+def put_back(done: list[tuple[Path, Path, bool]]) -> bool:
+    """Undoes carry: the moved files go back, the copies go. False when a file couldn't go back (then the new
+    folder still has it, and must stay)."""
+    ok = True
+    for src, dst, moved in reversed(done):
+        try:
+            if moved:
+                os.replace(dst, src)
+            else:
+                dst.unlink()
+        except OSError:
+            ok = False
+    return ok
 
 
 # --- collecting the files a project uses from elsewhere

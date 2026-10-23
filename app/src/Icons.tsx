@@ -85,7 +85,7 @@ export const CollapseAllIcon = () => (
   <Icon size={1.05}><rect x="3.5" y="8.5" width="12" height="12" rx="1" /><path d="M7 14.5h5M7.5 8.5v-4h12v12h-4" /></Icon>
 );
 
-// The master tabs, down the left of the window: an icon each, the name in the tooltip.
+// The master tabs, in the tab bar: an icon each.
 
 /** Home: a house. */
 export const HomeIcon = () => (
@@ -118,7 +118,12 @@ export const UpdatesIcon = () => (
   <Icon><path d="M12 3.8v10.6" /><path d="m7.6 10 4.4 4.4 4.4-4.4" /><path d="M4.5 14.8v4.7h15v-4.7" /></Icon>
 );
 
-/** Build: a hammer. */
+/** Build: a parcel with its tape, the mod packed for HD2 Arsenal. */
 export const BuildIcon = () => (
-  <Icon><path d="M12.9 3.32 20.68 11.1l-3.18 3.18L9.72 6.5z" /><path d="M12.75 9.55 3.45 18.85a1.2 1.2 0 0 0 1.7 1.7l9.3-9.3" /></Icon>
+  <Icon><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9z" /><path d="M4 7.5 12 12l8-4.5M12 12v9" /><path d="M8 5.25 16 9.75" strokeWidth={1.5} /></Icon>
+);
+
+/** Tools: an open-ended wrench. */
+export const ToolsIcon = () => (
+  <Icon><path d="M20.06 6.91A4.2 4.2 0 0 1 14.19 11.79L6.19 19.79A1.4 1.4 0 0 1 4.21 17.81L12.21 9.81A4.2 4.2 0 0 1 17.09 3.94L15.53 5.5 18.5 8.47Z" /></Icon>
 );

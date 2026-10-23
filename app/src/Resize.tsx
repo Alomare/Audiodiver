@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { RESET_LAYOUT } from "./settings";
-import { DEFAULT_SIZE, useTheme } from "./theme";
+import { DEFAULT_SIZE, useThemeValue } from "./theme";
 
 /** A height the user chose by dragging, remembered between sessions; null means "fit the content". "Reset panel
     sizes" (Settings ▸ System) puts it back to `initial`. */
@@ -46,7 +46,7 @@ export function Splitter({ width, onResize, initial, panel, label, cssVar, fract
   const start = useRef({ x: 0, w: 0, box: 0 });
   const el = useRef<HTMLDivElement>(null);
   const drag = useRef({ frame: 0, w: null as number | null });
-  const scale = useTheme().size / DEFAULT_SIZE; // panels are drawn at width x text scale
+  const scale = useThemeValue((t) => t.size) / DEFAULT_SIZE; // panels are drawn at width x text scale
   const boxWidth = () => el.current?.parentElement?.clientWidth ?? window.innerWidth;
   // pixels moved, in the width's unit
   const unit = (px: number, box: number) => (fraction ? px / box : px / scale);

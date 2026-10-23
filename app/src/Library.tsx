@@ -12,7 +12,7 @@ import { tabArrows } from "./Page";
 import { copyText } from "./platform";
 import { useEditor } from "./store";
 import { CatMark } from "./Tags";
-import { DEFAULT_SIZE, motionMs, scrollBehavior, useTheme } from "./theme";
+import { DEFAULT_SIZE, motionMs, scrollBehavior, useThemeValue } from "./theme";
 
 /** The Library tab's left panel: the Index (what is known, sorted by where you hear it) or All Archives (everything
     the game has, named or not). Both stay as they were left when the other shows. */
@@ -49,17 +49,25 @@ type Col = keyof typeof WIDTHS;
 const WIDTHS_KEY = "audiodiver.archiveColumnWidths"; // only the columns dragged: a new default reaches the rest
 try { localStorage.removeItem("audiodiver.archiveColumns"); } catch { /* storage off */ } // every width, before
 
+const NATURAL = new Intl.Collator(undefined, { numeric: true, sensitivity: "base" }); // "Track 2" before "Track 10"
 const CHUNK = 8, OVERSCAN = 16; // rows: the drawn window moves in steps of CHUNK, with OVERSCAN more either side
 /** Which rows of a long list to draw: those in view and a few either side. The rest are spacers of the same height,
     so the scrollbar is the list's own. A column drag or a panel resize then lays out a screenful of rows instead of
     hundreds, which keeps it smooth on slow PCs. The window only changes when the view has moved on by CHUNK rows. */
 function useRowWindow(box: RefObject<HTMLElement | null>, count: number, rowH: number, head: number) {
   const [view, setView] = useState({ top: 0, height: 1000 });
+  const dims = useRef({ rowH, head });
+  dims.current = { rowH, head };
   useEffect(() => {
     const el = box.current;
     if (!el) return;
     let frame = 0;
-    const read = () => { frame = 0; setView((v) => (v.top === el.scrollTop && v.height === el.clientHeight ? v : { top: el.scrollTop, height: el.clientHeight })); };
+    const read = () => { // the top in whole CHUNKs of rows: a scroll within one draws nothing new (OVERSCAN covers it)
+      frame = 0;
+      const { rowH: r, head: h } = dims.current;
+      const top = Math.floor(Math.max(0, el.scrollTop - h) / (r * CHUNK)) * r * CHUNK + h;
+      setView((v) => (v.top === top && v.height === el.clientHeight ? v : { top, height: el.clientHeight }));
+    };
     const later = () => { if (!frame) frame = requestAnimationFrame(read); };
     read();
     el.addEventListener("scroll", later, { passive: true });
@@ -94,7 +102,7 @@ function ArchiveList() {
     window.addEventListener(RESET_LAYOUT, reset);
     return () => window.removeEventListener(RESET_LAYOUT, reset);
   }, []);
-  const scale = useTheme().size / DEFAULT_SIZE; // columns are drawn at width x text scale
+  const scale = useThemeValue((t) => t.size) / DEFAULT_SIZE; // columns are drawn at width x text scale
   const w = (c: Col) => `calc(${widths[c]}px * var(--fs))`;
   const table = useRef<HTMLTableElement>(null);
   const total = (v: typeof WIDTHS) => `calc(${Object.values(v).reduce((a, b) => a + b, 0)}px * var(--fs))`;
@@ -158,18 +166,17 @@ function ArchiveList() {
   const sorted = useMemo(() => {
     const { key, up } = sort;
     if (!key) return rows;
-    const text = (a: ArchiveRow) => key === "name" ? a.names.join(", ") : key === "cat" ? a.tags.map((t) => t.category).join(" ")
-      : key === "archive" ? a.id : a.language;
-    const by = (x: ArchiveRow, y: ArchiveRow) => {
-      if (key === "banks" || key === "sounds") return x[key] - y[key];
-      const tx = text(x), ty = text(y);
+    const sign = up ? 1 : -1, byId = (x: ArchiveRow, y: ArchiveRow) => (x.id < y.id ? -1 : x.id > y.id ? 1 : 0);
+    if (key === "banks" || key === "sounds") return [...rows].sort((x, y) => (x[key] - y[key]) * sign || byId(x, y));
+    // each row's text once, not twice per comparison (sorting took 200-300 ms on a slow PC)
+    const keyed = rows.map((a) => [key === "name" ? a.names.join(", ") : key === "cat" ? a.tags.map((t) => t.category).join(" ")
+      : key === "archive" ? a.id : a.language, a] as const);
+    const order = key === "archive" ? (x: string, y: string) => (x < y ? -1 : x > y ? 1 : 0) : NATURAL.compare; // hex names: as text
+    keyed.sort(([tx, x], [ty, y]) => {
       if (!tx !== !ty) return tx ? -1 : 1; // the empty ones (unnamed, no language) go last either way round
-      const order = key === "archive" ? (tx < ty ? -1 : tx > ty ? 1 : 0) // hex names: as text, not as numbers
-        : tx.localeCompare(ty, undefined, { numeric: true, sensitivity: "base" });
-      return order * (up ? 1 : -1);
-    };
-    const out = [...rows].sort((x, y) => (key === "banks" || key === "sounds" ? by(x, y) * (up ? 1 : -1) : by(x, y)) || x.id.localeCompare(y.id));
-    return out;
+      return order(tx, ty) * sign || byId(x, y);
+    });
+    return keyed.map(([, a]) => a);
   }, [rows, sort]);
 
   // the rows are all one height (one line each): measured from a drawn row, with the sticky heading above them

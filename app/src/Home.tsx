@@ -9,7 +9,7 @@ import { Markdown } from "./Markdown";
 import { nav } from "./nav";
 import { openUrl, reveal } from "./platform";
 import { useEditor } from "./store";
-import { DEFAULT_SIZE, motionMs, motionOn, useTheme } from "./theme";
+import { DEFAULT_SIZE, motionMs, motionOn, useTheme, useThemeValue } from "./theme";
 
 type Info = { path: string; exists: boolean; readable: boolean; name: string; modified: number | null };
 const fileName = (path: string) => path.split(/[\\/]/).pop()!.replace(/\.audi$/i, "");
@@ -69,8 +69,10 @@ export function Home() {
             </Fold>
             <button className={`menu-item${project ? "" : " hot"}`} onClick={actions.newProject} data-tip="Start a mod" data-tip-cmd="newProject">New project</button>
             <button className="menu-item" onClick={() => actions.openProject()} data-tip="Open a .audi project or a .audipack pack" data-tip-cmd="openProject">Open project</button>
-            <button className="menu-item" onClick={() => nav.go("build", "repatch")}
+            <button className="menu-item" onClick={() => nav.go("tools", "repatch")}
               data-tip="Rebuild an existing audio mod for the current game version, without a project">Repatch a mod</button>
+            <button className="menu-item" onClick={() => nav.go("tools", "combine")}
+              data-tip="Make one mod out of several audio mods">Combine mods</button>
           </nav>
 
           <div className="home-cols">
@@ -132,9 +134,17 @@ const TICKER_SCALE = 0.625; // the overlay is 56px tall at scale 1, for a stream
 /** Divershub's news ticker along the bottom: the war's orders and news, as streams show them. Only to look at
     (it takes no clicks); it follows the text size and fades in once it has loaded. */
 function Ticker() {
-  const { size } = useTheme();
+  const size = useThemeValue((t) => t.size);
   const [ready, setReady] = useState(false);
+  // its page loads once Home has been drawn and the window is idle: its scripts (about 1 s on a slow PC, at every
+  // visit to Home) came before Home answered, and a visit cut short now skips them
+  const [load, setLoad] = useState(false);
+  useEffect(() => {
+    const id = requestIdleCallback(() => setLoad(true), { timeout: 1500 });
+    return () => cancelIdleCallback(id);
+  }, []);
   const scale = +(TICKER_SCALE * size / DEFAULT_SIZE).toFixed(3);
+  if (!load) return null;
   return (
     <iframe className={`home-ticker${ready ? " ready" : ""}`} src={`${TICKER_URL}?scale=${scale}`} title="Divershub news ticker"
       aria-hidden tabIndex={-1} sandbox="allow-scripts allow-same-origin" referrerPolicy="no-referrer" onLoad={() => setReady(true)} />

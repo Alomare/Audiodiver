@@ -1,36 +1,38 @@
-import { useEffect, useRef, useState } from "react";
+import { startTransition, useEffect, useRef, useState } from "react";
 import { AboutButton, AboutDialog } from "./About";
 import { ConfirmDialog } from "./Confirm";
 import { BuildTab } from "./BuildTab";
+import { combineInbox } from "./CombinePage";
 import { repatchInbox } from "./RepatchPage";
 import { CueView } from "./CueView";
 import { ExportListDialog } from "./ExportDialog";
 import { useExportList } from "./exportList";
 import { Home } from "./Home";
 import { AudioIcon, BuildIcon, CheckIcon, CopyIcon, GearIcon, GuideIcon, HomeIcon, InfoIcon, LibraryIcon, PlusIcon,
-  ProjectIcon, RedoIcon, SaveIcon, TextIcon, UndoIcon, UpdatesIcon } from "./Icons";
+  ProjectIcon, RedoIcon, SaveIcon, TextIcon, ToolsIcon, UndoIcon, UpdatesIcon } from "./Icons";
 import { Inspector } from "./Inspector";
 import { LibraryPanel, ProjectPanel } from "./Library";
 import { Logo } from "./Logo";
-import { NotesDialog } from "./Notes";
 import { ProjectTab } from "./ProjectTab";
 import { tabArrows } from "./Page";
 import { SettingsTab } from "./SettingsTab";
 import { TextTab } from "./TextTab";
+import { ToolsTab } from "./ToolsTab";
 import { TooltipLayer } from "./Tooltip";
 import { UpdatePrompt, UpdatesTab } from "./UpdatesTab";
 import { updates, useUpdates } from "./updates";
 import { Wiki } from "./Wiki";
-import { fmtTime, type Job } from "./api";
+import { fmtTime, iconUrl, type Job } from "./api";
 import { APP_LABEL, APP_VERSION, versionLabel } from "./content";
 import { JOB_NAMES } from "./jobs";
-import { useCommands, type CommandId } from "./keys";
+import { keyLabel, useCommands, useKeymap, type CommandId } from "./keys";
 import { counted } from "./music";
 import { nav, useNav, type Tab } from "./nav";
-import { expandDropped, isImage, isTauri, onFileDrop, onOpenFile, setTitle } from "./platform";
+import { expandDropped, isImage, isTauri, onFileDrop, setTitle } from "./platform";
 import { player, usePlayer } from "./player";
 import { Splitter } from "./Resize";
-import { RESET_LAYOUT } from "./settings";
+import { RESET_LAYOUT, useSettings } from "./settings";
+import { barIsVertical, useThemeValue, type BarSide } from "./theme";
 import { EDIT_NAMES, Scope, useEditor, type ScopeName, type ToastIcon } from "./store";
 
 export function App() {
@@ -91,6 +93,14 @@ function Shell() {
   // the Text Editor stays as it was left (search, filter, the open line) once it has been opened
   const [textSeen, setTextSeen] = useState(false);
   useEffect(() => { if (tab === "text") setTextSeen(true); }, [tab]);
+  // the Library and the Audio Editor are drawn when first shown, or when the start is over, in a render a click can
+  // interrupt: drawing the hidden one at the start too cost a slow PC most of a second before the window answered
+  const [drawn, setDrawn] = useState<ReadonlySet<Tab>>(() => new Set([tab]));
+  useEffect(() => { if (!drawn.has(tab)) setDrawn((d) => new Set([...d, tab])); }, [tab]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    const id = requestIdleCallback(() => startTransition(() => setDrawn((d) => new Set([...d, "library", "editor"]))), { timeout: 4000 });
+    return () => cancelIdleCallback(id);
+  }, []);
   const [widths, setWidths] = useState<Widths>(() => {
     try {
       const kept = { ...WIDTHS, ...JSON.parse(localStorage.getItem("audiodiver.widths") ?? "{}") };
@@ -123,10 +133,12 @@ function Shell() {
 
   // what a drop does depends on what was dropped and where it lands
   handler.current = async (raw, target) => {
-    // a mod to repatch: anything on the Repatch page, or a ZIP anywhere (nothing else takes one)
+    // mods to combine: anything on the Combine Mods page
+    if (target?.kind === "combine") return combineInbox.offer(raw);
+    // a mod to repatch: anything on the Repatch page, or a ZIP anywhere else (nothing else takes one)
     const zip = raw.find((p) => /\.zip$/i.test(p));
     if (target?.kind === "repatch" || zip) {
-      nav.go("build", "repatch");
+      nav.go("tools", "repatch");
       return repatchInbox.offer(target?.kind === "repatch" ? raw[0] : zip!);
     }
     const paths = await expandDropped(raw);
@@ -155,7 +167,7 @@ function Shell() {
   };
 
   useEffect(() => {
-    let off = () => {};
+    let off = () => {}, gone = false; // gone: the effect was undone before the listener was in place
     const targetAt = (x: number, y: number) => (document.elementFromPoint(x, y)?.closest("[data-drop]") as HTMLElement | null);
     let last: HTMLElement | null = null;
     onFileDrop((e) => {
@@ -169,23 +181,12 @@ function Shell() {
         setDropTarget(null); last = null;
         handler.current(e.paths, el ? JSON.parse(el.dataset.drop!) : null);
       }
-    }).then((f) => { off = f; });
+    }).then((f) => { if (gone) f(); else off = f; });
     // in a plain browser, file drops carry no paths
     const block = (ev: DragEvent) => { ev.preventDefault(); if (ev.type === "drop" && !isTauri()) quick("Dropping files needs the desktop app", "info"); };
     window.addEventListener("dragover", block); window.addEventListener("drop", block);
-    return () => { off(); window.removeEventListener("dragover", block); window.removeEventListener("drop", block); };
+    return () => { gone = true; off(); window.removeEventListener("dragover", block); window.removeEventListener("drop", block); };
   }, [quick]);
-
-  // a project or a pack opened in Explorer while the window runs: the shell hands over its path, and the newest
-  // actions open it (the ref keeps the listener from holding an old one). The file the exe was started with is the
-  // store's, at startup, so that it opens instead of the last project.
-  const openFile = useRef<(path: string) => void>(() => {});
-  openFile.current = (path) => { if (/\.audipack$/i.test(path)) actions.openPack(path); else actions.openProject(path); };
-  useEffect(() => {
-    let off = () => {};
-    onOpenFile((path) => openFile.current(path)).then((f) => { off = f; });
-    return () => off();
-  }, []);
 
   // closing the window while a build or export runs asks first: closing stops the core, and the job with it
   const running = useRef<string[]>([]);
@@ -253,6 +254,7 @@ function Shell() {
     tabLibrary: () => nav.go("library"),
     tabEditor: () => nav.go("editor"),
     tabBuild: () => nav.go("build"),
+    tabTools: () => nav.go("tools"),
     tabText: () => nav.go("text"),
     updates: () => nav.toggle("updates"),
     wiki: () => nav.toggle("wiki"),
@@ -279,6 +281,7 @@ function Shell() {
         {(["library", "editor"] as const).map((scope) => {
           // the Library has two panels, half and half to start: what a slot is shows under its waveform, in the middle
           const lib = scope === "library";
+          if (tab !== scope && !drawn.has(scope)) return null;
           return (
             <Scope key={scope} name={scope}>
               <div className={`panes${lib ? " two lib-split" : ""}`} hidden={tab !== scope}
@@ -298,6 +301,7 @@ function Shell() {
         {tab === "project" && <ProjectTab />}
         {(tab === "text" || textSeen) && <TextTab hidden={tab !== "text"} />}
         {tab === "build" && <BuildTab />}
+        {tab === "tools" && <ToolsTab />}
         {tab === "updates" && <UpdatesTab />}
         {tab === "settings" && <SettingsTab />}
         {tab === "wiki" && <Wiki />}
@@ -306,49 +310,104 @@ function Shell() {
       <Notices />
       <AboutDialog />
       <ConfirmDialog />
-      <NotesDialog />
       {prompt && <UpdatePrompt onClose={() => setPrompt(false)} />}
       <TooltipLayer />
     </div>
   );
 }
 
-const TABS: { id: Tab; name: string; about: string; cmd: CommandId; Icon: () => React.JSX.Element }[] = [
+type MainTab = { id: Tab; name: string; about: string; cmd: CommandId; Icon: () => React.JSX.Element };
+/** Home and Tools make projects; the rest work on the open one, in the order a mod is made. */
+const APP_TABS: MainTab[] = [
   { id: "home", name: "Home", about: "projects", cmd: "tabHome", Icon: HomeIcon },
-  { id: "project", name: "Project", about: "name, icon and the project's files", cmd: "tabProject", Icon: ProjectIcon },
+  { id: "tools", name: "Tools", about: "repatch and combine existing mods", cmd: "tabTools", Icon: ToolsIcon },
+];
+const MOD_TABS: MainTab[] = [
+  { id: "project", name: "Project", about: "name, icon and files", cmd: "tabProject", Icon: ProjectIcon },
   { id: "library", name: "Library", about: "all the game's audio", cmd: "tabLibrary", Icon: LibraryIcon },
   { id: "editor", name: "Audio Editor", about: "replace what the project lists", cmd: "tabEditor", Icon: AudioIcon },
   { id: "text", name: "Text Editor", about: "subtitles and the rest of the game's text", cmd: "tabText", Icon: TextIcon },
   { id: "build", name: "Build", about: "the mod's ZIP", cmd: "tabBuild", Icon: BuildIcon },
 ];
+/** Why the Build tab carries a dot: the ZIP in the build folder isn't the project as it is now. */
+const REBUILD = { new: "not built yet", changed: "changed since the last build", game: "the game updated since the last build" };
 
-/** The master tabs, down the left: an icon each with its name in the tooltip; Updates, the Wiki and Settings at the
-    bottom (Updates lights up when a new version is out). The open tab takes the colour of the page beside it and
-    covers the rail's edge, so it reads as holding that page. The open project's name is the window's title. */
+const TIP_SIDE: Record<BarSide, string> = { top: "bottom", right: "left", bottom: "top", left: "right" };
+const upper = (s: string) => s[0].toUpperCase() + s.slice(1);
+/** A short key for a project's icon (its file and settings), so the tab bar fetches it again only when it changes. */
+const iconKey = (icon: unknown) => {
+  let h = 0;
+  for (const c of JSON.stringify(icon)) h = (h * 31 + c.charCodeAt(0)) | 0;
+  return (h >>> 0).toString(36);
+};
+
+/** The master tabs, along the side of the window Settings ▸ Theme puts them on (the top by default): an icon each.
+    Home and Tools come first; then a band of the tabs that work on the open project, led by the Project tab with
+    the project's own icon and name, and ending with Build (a dot when the build folder's ZIP isn't the project as it
+    is now, a count when problems stop the build). Updates, the Wiki and Settings are at the far end (Updates lights
+    up when a new version is out). With names on, a top or bottom bar shows each main tab's name beside its icon,
+    and a side bar shows it when the pointer is on the tab, in a label that grows out of the button and holds what
+    the tooltip says. Updates, the Wiki and Settings never show a name. The open tab takes the colour of the page
+    beside it and covers the bar's edge, so it reads as holding that page. The open project's name is the window's
+    title. */
 function Rail() {
   const { project } = useEditor();
   const { tab } = useNav();
   const u = useUpdates();
+  const t = { bar: useThemeValue((x) => x.bar), labels: useThemeValue((x) => x.labels) }; // not every colour change
+  const { tips } = useSettings();
+  useKeymap(); // the keys in the side bar's labels follow a rebinding
   const problems = project?.problems.length ?? 0;
   const name = project?.name;
   useEffect(() => { setTitle(name ? `${name} · Audiodiver` : "Audiodiver"); }, [name]);
-  const tabButton = (id: Tab, label: string, tip: string, cmd: CommandId, icon: React.ReactNode, go: () => void, badge?: number, lit?: boolean) => (
-    <button key={id} role="tab" aria-selected={tab === id} aria-label={label} className={`tab${tab === id ? " on" : ""}${lit ? " lit" : ""}`}
-      onClick={go} data-tip={tip} data-tip-cmd={cmd} data-tip-side="right">
-      {icon}{badge ? <span className="rail-badge" aria-hidden>{badge}</span> : lit ? <span className="rail-dot" aria-hidden /> : null}
-    </button>
-  );
+  const iconSig = project ? iconKey([project.path, project.icon]) : ""; // repatched projects all have "icon.png"
+  const [broken, setBroken] = useState(""); // the icon that didn't load: the Project tab's own icon stands in
+  const vertical = barIsVertical(t.bar);
+  const tabButton = (id: Tab, label: string, tip: string, cmd: CommandId, icon: React.ReactNode, go: () => void,
+    badge?: number, lit?: boolean | "dot", shown?: { name: string; about: string }, cls = "") => {
+    const named = !!shown && t.labels && !vertical; // the name beside the icon
+    const flyout = !!shown && t.labels && vertical;  // the name in a label on hover, with the tooltip's words in it
+    return (
+      <button key={id} role="tab" aria-selected={tab === id} aria-label={label}
+        className={`tab${tab === id ? " on" : ""}${lit === true ? " lit" : ""}${named ? " named" : ""}${cls}`} onClick={go}
+        data-tip={flyout ? undefined : named ? upper(shown!.about) : tip} data-tip-cmd={cmd} data-tip-side={TIP_SIDE[t.bar]}>
+        {icon}
+        {named && <span className="tab-name">{shown!.name}</span>}
+        {badge ? <span className="rail-badge" aria-hidden>{badge}</span>
+          : lit ? <span className={`rail-dot${lit === "dot" ? " quiet" : ""}`} aria-hidden /> : null}
+        {flyout && (
+          <span className="tab-fly" aria-hidden>
+            <b>{shown!.name}</b>
+            {tips !== "off" && <span className="tab-fly-tip">{upper(shown!.about)}{keyLabel(cmd) && <kbd>{keyLabel(cmd)}</kbd>}</span>}
+          </span>
+        )}
+      </button>
+    );
+  };
+  const mainTab = ({ id, name, about, cmd, Icon }: MainTab) => {
+    let label = name, shown = name, icon = <Icon />, badge = 0, dot = false, cls = "";
+    if (id === "project" && project) { // the project's own icon and name
+      [label, shown, about, cls] = [`Project, ${project.name}`, project.name, "the project's name, icon and files", " tab-mod"];
+      if (broken !== iconSig)
+        icon = <img className="tab-mod-icon" src={iconUrl(iconSig)} alt="" draggable={false} onError={() => setBroken(iconSig)} />;
+    }
+    if (id === "build" && problems) {
+      const stop = `${problems} problem${problems > 1 ? "s" : ""}`;
+      [label, about, badge] = [`${name}, ${stop}`, `${stop} to fix`, problems];
+    } else if (id === "build" && project?.rebuild) {
+      [label, about, dot] = [`${name}, ${REBUILD[project.rebuild]}`, REBUILD[project.rebuild], true];
+    }
+    return tabButton(id, label, `${shown}: ${about}`, cmd, icon, () => nav.go(id), badge, dot && "dot", { name: shown, about }, cls);
+  };
   const update = u.latest ? `${versionLabel(u.latest.version)} is available` : "";
+  const orientation = vertical ? "vertical" : "horizontal";
   return (
     <nav className="rail" aria-label="Main">
-      <div className="rail-group" role="tablist" aria-orientation="vertical" aria-label="Tabs" onKeyDown={tabArrows}>
-        {TABS.map(({ id, name, about, cmd, Icon }) => {
-          const stop = id === "build" && problems > 0 ? `${problems} problem${problems > 1 ? "s" : ""}` : "";
-          return tabButton(id, stop ? `${name}, ${stop}` : name, stop ? `${name}: ${stop} to fix` : `${name}: ${about}`,
-            cmd, <Icon />, () => nav.go(id), stop ? problems : 0);
-        })}
+      <div className="rail-group" role="tablist" aria-orientation={orientation} aria-label="Tabs" onKeyDown={tabArrows}>
+        <div className="rail-set">{APP_TABS.map(mainTab)}</div>
+        <div className={`rail-set rail-mod${project ? "" : " idle"}`}>{MOD_TABS.map(mainTab)}</div>
       </div>
-      <div className="rail-group" role="tablist" aria-orientation="vertical" aria-label="More" onKeyDown={tabArrows}>
+      <div className="rail-group" role="tablist" aria-orientation={orientation} aria-label="More" onKeyDown={tabArrows}>
         {tabButton("updates", update ? `Updates, ${update}` : "Updates", update ? `Updates: ${update}` : "Updates: new versions and changelogs",
           "updates", <UpdatesIcon />, () => nav.toggle("updates"), 0, !!update)}
         {tabButton("wiki", "Wiki", "Wiki: guides", "wiki", <GuideIcon />, () => nav.toggle("wiki"))}

@@ -110,17 +110,18 @@ export type ProjectState = {
   own_folder: boolean;      // the folder is the project's alone (core projectfiles.own_folder)
   folder_projects: number;  // other projects in its folder
   files_elsewhere: number;  // files it uses from outside its folder (Collect files copies them in)
+  move_to: string | null;   // where Move would put the project file; null when the folder is its own
   revision: number;      // the core's count of changes to what is open: a no-op edit leaves it
   description: string;   // the text HD2 Arsenal shows with the mod
   icon: Icon;
   icon_frame: IconFrame; // the icon's full frame, defaults included
   loudness_analysis: boolean;
-  biome_fix: boolean;    // music_init carries the Sound Systems Rebalanced Patch (Apply biome music fix)
   every_bank: boolean;   // a replaced sound goes into every bank that has it (Patch every bank with the sounds)
   build_folder: string; zip_name: string; // where the next build goes, and what it is called
   build_folder_default: string;           // the build folder next to the project file: where builds go unless another is chosen
   last_build: { zip: string; mb: number; modified: number } | null; // this mod's newest ZIP there (modified: Unix seconds)
   game_updated: boolean; // the game updated since that build: its banks are stale (core editor._game_updated)
+  rebuild: "new" | "game" | "changed" | null; // why that build isn't the project as it is now (core editor._rebuild)
   assignments: Record<string, Assignment>; unresolved: { target: string; audio: string; label: string }[];
   library: string[];                // what the project works on: Index items and archives ("archive:<name>"), as added
   library_missing: string[];        // of what it lists, the ones this game version has nothing for
@@ -219,6 +220,9 @@ export function fmtWhen(seconds: number | null | undefined) {
   if (days === 1) return `yesterday, ${time}`;
   return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }); // in English, like the rest of the app
 }
+
+/** "1 file", "3 files"; `many` for a plural that isn't one + s. */
+export const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
 export function fmtBytes(bytes: number) {
   if (bytes >= 1e9) return `${(bytes / 1e9).toFixed(1)} GB`;

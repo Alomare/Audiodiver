@@ -5,11 +5,13 @@ rebuilds them. The voice packs, one set per installed language, are files of the
 compressed "DSAR" file, with its audio in a `.stream` file beside it. Those are read here, a piece at a time.
 """
 import bisect
+import collections
 import functools
 import glob
 import os
 import re
 import struct
+import threading
 import zlib
 from pathlib import Path
 
@@ -44,6 +46,89 @@ def murmur64_hash(data: bytes, seed: int = 0) -> int:
 def stream_id(source_id: int, language: str = "") -> int:
     """The file id of a source's stream. Voice lines are kept per language: `content/audio/us/<source id>`."""
     return murmur64_hash(f"content/audio/{language + '/' if language else ''}{source_id}".encode())
+
+
+# --- the archives inside the bundles, and the cache of the ones a build or a preview reads whole: big enough for a
+# build's (a Dune build reads 16 packages over and over: 8 cached ones thrashed, and its builds took 3 times as
+# long), trimmed between jobs so an idle core gives the memory back
+PACKAGE_CACHE, STREAM_CACHE = 600 << 20, 300 << 20  # bytes
+IDLE_CACHE = 150 << 20
+
+
+def from_bundles(data: Path, name: str) -> bytes:
+    """slim.reconstruct_package_from_bundles, with each bundle file opened once (slim opens it again for every chunk:
+    about 25,700 opens in a Dune build). The same bytes: each part of the package is the bundle's resources from its
+    start, one after another, until the part is covered."""
+    p = slim.package_contents.get(name)
+    if p is None:
+        return b""
+    out, files, counts = bytearray(p.size), {}, {}
+    try:
+        for i, item in enumerate(p.entries):
+            end = p.entries[i + 1].original_archive_offset if i + 1 < len(p.entries) else p.size
+            bundle = f"bundles.{item.bundle_index:02d}.nxa"
+            if bundle not in files:
+                f = open(data / bundle, "rb")
+                files[bundle] = f
+                f.seek(8)
+                counts[bundle] = struct.unpack("<I", f.read(4))[0]
+            f, starts, done = files[bundle], slim.bundle_offsets[bundle], 0
+            while done < end - item.original_archive_offset:
+                piece = _bundle_resource(f, counts[bundle], starts[item.start_offset + done])
+                at = item.original_archive_offset + done
+                out[at:at + len(piece)] = piece
+                done += len(piece)
+    finally:
+        for f in files.values():
+            f.close()
+    return bytes(out)
+
+
+def _bundle_resource(f, count: int, chunk: int) -> bytes:
+    """One resource of an open bundle of `count` chunks: its chunks from `chunk` to the next that starts a resource
+    (as slim reads it)."""
+    data = []
+    while True:
+        f.seek(0x20 + 0x20 * chunk)
+        _, stored_at, length, stored, compression, flags = struct.unpack("<QQIIBB6x", f.read(0x20))
+        if flags & slim.START and data:
+            return b"".join(data)
+        f.seek(stored_at)
+        raw = f.read(stored)
+        data.append(block.decompress(raw, uncompressed_size=length) if compression == slim.COMPRESSED else raw)
+        if chunk == count - 1:
+            return b"".join(data)
+        chunk += 1
+
+
+class SizedCache:
+    """Byte strings by key, the least recently used dropped once they add up to more than `cap` bytes (the newest
+    always stays, however large)."""
+
+    def __init__(self, cap: int):
+        self.cap, self.items, self.lock = cap, collections.OrderedDict(), threading.Lock()
+
+    def get(self, key, make):
+        with self.lock:
+            if key in self.items:
+                self.items.move_to_end(key)
+                return self.items[key]
+        value = make()  # outside the lock: a build and a preview read different packages at once
+        with self.lock:
+            self.items[key] = value
+            self.items.move_to_end(key)
+            self._drop(self.cap, keep=1)
+        return value
+
+    def trim(self, cap: int):
+        """Drops the least recently used until the rest adds up to `cap` bytes at most."""
+        with self.lock:
+            self._drop(cap, keep=0)
+
+    def _drop(self, cap, keep):
+        total = sum(len(v) for v in self.items.values())
+        while total > cap and len(self.items) > keep:
+            total -= len(self.items.popitem(last=False)[1])
 
 
 # --- archives kept as files of their own (DSAR): a table of chunks, each stored as it is or LZ4-compressed
@@ -191,6 +276,9 @@ class Game:
         slim.slim_init(str(self.data))
         self.loose = self._loose()  # {name: path} of the archives outside the bundles (the voice packs)
         self.packages = sorted(set(slim.package_contents) | set(self.loose))
+        # whole packages and streams as builds and previews read them, by size: lru_cache kept 8 whole packages of
+        # up to 169 MB each for as long as the core ran
+        self._package_cache, self._stream_cache = SizedCache(PACKAGE_CACHE), SizedCache(STREAM_CACHE)
 
     def _loose(self) -> dict[str, Path]:
         """The archives that are files of their own. A language that isn't installed leaves a stub of a few bytes
@@ -250,15 +338,17 @@ class Game:
             head = b"".join(slim.get_resources_from_bundle(bundle, first.start_offset, need))
         return [(fid, tid, off, size) for fid, tid, off, size, *_ in toc_entries(head)]
 
-    @functools.lru_cache(maxsize=8)
     def package(self, name) -> bytes:
-        if name in self.loose:
-            return dsar_read(self.loose[name])
-        return bytes(slim.reconstruct_package_from_bundles(name))
+        return self._package_cache.get(name, lambda: dsar_read(self.loose[name]) if name in self.loose
+                                       else from_bundles(self.data, name))
 
-    @functools.lru_cache(maxsize=4)
     def stream(self, name) -> bytes:
-        return bytes(slim.reconstruct_package_from_bundles(name + ".stream"))
+        return self._stream_cache.get(name, lambda: from_bundles(self.data, name + ".stream"))
+
+    def trim_caches(self):
+        """After a job: what previews need stays, the rest of a build's packages goes."""
+        self._package_cache.trim(IDLE_CACHE)
+        self._stream_cache.trim(IDLE_CACHE)
 
     def stream_part(self, name, offset: int, size: int) -> bytes:
         """A piece of a package's stream data."""

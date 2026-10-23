@@ -10,7 +10,7 @@ If the game's audio is new to you, [The game's audio, explained](wiki:game-audio
 
 ## Projects
 
-A project is a folder with a `.audi` file in it, and the folder is named after the project. The file records what the mod changes and which files replace which of the game's clips, along with Make-Up Gain and timing. The audio it uses is in the folder beside it, or the project stores a path to it. [Project folders](wiki:project-folders) covers what is in it.
+A project is a folder with a `.audi` file in it, and the folder is named after the project. The file records what the mod changes and which files replace which of the game's clips, along with Make-Up Gain and timing. The audio it uses is in that folder, or the project stores a path to it. [Project folders](wiki:project-folders) covers what is in it.
 
 Changes are saved automatically. {key:save} saves at any time, and {key:undo} undoes the last change.
 
@@ -18,15 +18,16 @@ Audiodiver never writes to the game's folder. It reads the game's audio from the
 
 ## The tabs
 
-The icons down the left of the window are the main tabs. Hover over one to see its name and shortcut.
+The tab bar along the top of the window holds the main tabs in two groups. Home and Tools come first, and they make projects. The darker band after them holds the tabs that work on the open project, in the order a mod is made, and it starts with the project's icon and name. Hover over a tab to see what it holds and its shortcut. **Tab bar** in [Settings ▸ Theme](app:settings/theme) moves it to another side of the window and turns the tabs' names on or off.
 
 - {icon:home} **Home** has new, open and recent projects.
-- {icon:project} **Project** holds the mod's name, description, icon and id, and its folder.
+- {icon:tools} **Tools** works on existing mods, without a project. [Repatch](wiki:repatching) rebuilds a mod for the current game version, and [Combine Mods](wiki:combining-mods) makes one mod out of several. Both make a new project.
+- {icon:project} **Project** holds the mod's name, description, icon and id, and its folder. The tab shows the project's icon and name.
 - {icon:library} **Library** lists everything the game plays, so you can find it and listen to it. Browsing it changes nothing, and **Add to the project** puts an entry in the project. **Index** sorts the audio that has a name, and **All Archives** lists every archive that contains audio.
 - {icon:audio} **Audio Editor** shows what the project works on. This is where slots get new audio.
 - {icon:text} **Text Editor** has the game's text in every language, including subtitles. See [The game's text and subtitles](wiki:text).
-- {icon:build} **Build** holds the next version, the Build options and the Build button. A red number on the tab counts the problems that block a build.
-- {icon:updates} **Updates**, {icon:wiki} **Wiki** ({key:wiki}) and {icon:settings} **Settings** are at the bottom. Updates is highlighted when a new version of Audiodiver is available, and it lists the changes in every version.
+- {icon:build} **Build** holds the next version, the Build options and the Build button. A dot on the tab means the project isn't built yet, or it changed since its last build, or the game updated since. A red number counts the problems that block a build.
+- {icon:updates} **Updates**, {icon:wiki} **Wiki** ({key:wiki}) and {icon:settings} **Settings** are at the end of the tab bar. Updates is highlighted when a new version of Audiodiver is available, and it lists the changes in every version.
 
 The version number at the right end of the status bar also opens Updates. The {icon:info} button next to it opens [About](app:about), with the licence, the log file and the credits.
 

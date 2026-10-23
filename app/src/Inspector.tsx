@@ -5,6 +5,8 @@ import { FolderIcon } from "./Icons";
 import { keyLabel, useKeymap, type CommandId } from "./keys";
 import { where } from "./music";
 import { nav } from "./nav";
+import { NoteSection } from "./Notes";
+import { noteKeys } from "./noteStore";
 import { fullPath, reveal } from "./platform";
 import { useEditor } from "./store";
 import { showLines } from "./TextTab";
@@ -82,15 +84,24 @@ export function Inspector() {
             <span className="muted" data-tip={SEVERAL}> · one of several</span>}</dd></>}
         </dl>
       </section>
+      {!slot.absent && <NoteSection k={noteKeys.clip(slot.source)} name={sub ? `${seg.name}, ${sub}` : seg.name} />}
       </div>
     </aside>
   );
 }
 
-/** Nothing selected: what the keys do, with the keys they are on now. */
+/** Nothing selected: the open item's note, and what the keys do, with the keys they are on now. */
 function Empty() {
+  const { shownItemId, itemIndex } = useEditor();
+  const item = shownItemId ? itemIndex.items.get(shownItemId) : undefined;
   return (
     <aside className="inspector" aria-label="Details">
+      {item && (
+        <div className="insp-item view-in" key={item.id}>
+          <div className="insp-title"><h2>{item.name}</h2></div>
+          <NoteSection k={noteKeys.item(item.id)} name={item.full} />
+        </div>
+      )}
       <div className="insp-empty">
         <p>Select a slot.</p>
         <dl className="key-hints">
@@ -126,14 +137,10 @@ function Replacement({ slot, a, music, what }: { slot: Slot; a?: Assignment; mus
     return (
       <section className="insp-sec">
         <h3>Silence <Help tip="Silence plays nothing in place of the original." page="how-the-game-plays-music#silence" /></h3>
-        <div className="cards one" role="radiogroup" aria-label="Silence timing">
-          {([[true, "Move straight on", SILENCE_TIP.move], [false, "Keep the original timing", SILENCE_TIP.keep]] as const).map(([fit, title, text]) => (
-            <button key={title} role="radio" aria-checked={a.fit_timing === fit} className={`card${a.fit_timing === fit ? " on" : ""}`}
-              data-tip={text} onClick={() => { if (a.fit_timing !== fit) actions.update(slot.source, { fit_timing: fit }); }}>
-              <b>{title}</b>
-            </button>
-          ))}
-        </div>
+        <label className="check">
+          <input type="checkbox" checked={!a.fit_timing} onChange={(e) => actions.update(slot.source, { fit_timing: !e.target.checked })} />
+          <span>Keep original duration <Help tip={`On: ${SILENCE_TIP.keep.toLowerCase()}. Off: ${SILENCE_TIP.move.toLowerCase()}.`} page="how-the-game-plays-music#silence" /></span>
+        </label>
         {!music && <p className="muted small">Audiodiver also takes it out of the game's mix. <Help tip="A silenced sound no longer turns down the sounds around it." page="volume#the-game-s-hdr-mix" /></p>}
       </section>
     );
@@ -158,7 +165,7 @@ function Replacement({ slot, a, music, what }: { slot: Slot; a?: Assignment; mus
       <h3>Not replaced</h3>
       {usable && <p className="muted small">Drop audio on the slot{choose ? `, or press ${choose} to choose a file` : ""}.</p>}
       <div className="row-btns">
-        <button className="btn" disabled={!usable} onClick={() => actions.silence([slot.source], false, what)} data-tip-cmd="silence"
+        <button className="btn" disabled={!usable} onClick={() => actions.silence([slot.source], true, what)} data-tip-cmd="silence"
           data-tip="Play nothing here instead of the original">Use silence</button>
       </div>
     </section>
@@ -400,18 +407,18 @@ function Bulk({ sources, usable }: { sources: string[]; usable: string[] }) {
       {silent.length > 0 && (
         <section className="insp-sec">
           <h3>Silence in {slots(silent.length)}</h3>
-          <div className="presets">
-            <button className={`chip${silent.every((s) => a[s].fit_timing) ? " on" : ""}`} data-tip={SILENCE_TIP.move}
-              onClick={() => actions.updateMany(silent, { fit_timing: true })}>Move straight on</button>
-            <button className={`chip${silent.every((s) => !a[s].fit_timing) ? " on" : ""}`} data-tip={SILENCE_TIP.keep}
-              onClick={() => actions.updateMany(silent, { fit_timing: false })}>Keep the original timing</button>
-          </div>
+          <label className="check">
+            <input type="checkbox" checked={silent.every((s) => !a[s].fit_timing)}
+              ref={(el) => { if (el) el.indeterminate = silent.some((s) => !a[s].fit_timing) && silent.some((s) => a[s].fit_timing); }}
+              onChange={(e) => actions.updateMany(silent, { fit_timing: !e.target.checked })} />
+            <span>Keep original duration <Help tip={`On: ${SILENCE_TIP.keep.toLowerCase()}. Off: ${SILENCE_TIP.move.toLowerCase()}.`} page="how-the-game-plays-music#silence" /></span>
+          </label>
         </section>
       )}
       {!mine.length && <p className="insp-empty">None of these is replaced yet.</p>}
       <section className="insp-sec">
         <div className="row-btns">
-          <button className="btn" disabled={!toSilence.length} onClick={() => actions.silence(toSilence)} data-tip-cmd="silence"
+          <button className="btn" disabled={!toSilence.length} onClick={() => actions.silence(toSilence, true)} data-tip-cmd="silence"
             data-tip={toSilence.length ? "Play nothing in these slots" : usable.length ? "Already silent" : "Never played, or do not touch"}>
             Replace {toSilence.length > 0 && toSilence.length < sources.length ? `${slots(toSilence.length)} ` : ""}with silence</button>
           {mine.length > 0 && (

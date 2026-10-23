@@ -2,12 +2,16 @@ import { useSyncExternalStore } from "react";
 
 /** The look (Settings ▸ Theme): dark or light, the primary colour that fills the main buttons and marks what is replaced
     (Super Earth yellow by default), the secondary colour that navigates and informs (Super Earth blue), Night mode,
-    the typefaces, the text size, spacing, contrast and animations.
-    Kept per user in localStorage; applied as data-theme, data-density, data-contrast, data-motion and data-night on
-    <html> and as custom properties. */
+    the typefaces, the text size, spacing, contrast, animations, and where the tab bar sits.
+    Kept per user in localStorage; applied as data-theme, data-density, data-contrast, data-motion, data-night,
+    data-bar and data-labels on <html> and as custom properties. */
 export type ThemeMode = "dark" | "light";
 export type Density = "compact" | "balanced" | "relaxed";
 export type FontId = "archivo" | "noto-serif" | "roboto-mono";
+/** The side of the window the tab bar runs along. */
+export type BarSide = "top" | "right" | "bottom" | "left";
+export const BAR_SIDES: [BarSide, string][] = [["top", "Top"], ["right", "Right"], ["bottom", "Bottom"], ["left", "Left"]];
+export const barIsVertical = (side: BarSide) => side === "left" || side === "right";
 export type Theme = {
   mode: ThemeMode;
   hue: number;              // the primary colour's hue
@@ -21,6 +25,8 @@ export type Theme = {
   speed: number;            // animation speed, × normal
   night: boolean;           // Night mode: every colour on screen warmer, as a night light makes it
   warmth: number;           // how warm Night mode makes them, from WARMTH[0] to 1
+  bar: BarSide;             // where the tab bar sits
+  labels: boolean;          // the main tabs' names: beside the icons on a top or bottom bar, on hover on a side bar
 };
 
 /** The OKLCH hue of Super Earth yellow (#ffe135), the default primary colour. */
@@ -47,7 +53,7 @@ export const FONTS: { id: FontId; name: string; stack: string; about: string }[]
 ];
 export const fontStack = (id: FontId) => (FONTS.find((f) => f.id === id) ?? FONTS[0]).stack;
 export const DEFAULT_THEME: Theme = { mode: "dark", hue: YELLOW_HUE, hue2: BLUE_HUE, size: DEFAULT_SIZE, bodyFont: "archivo", titleFont: "archivo",
-  density: "balanced", contrast: null, motion: null, speed: 1, night: false, warmth: DEFAULT_WARMTH };
+  density: "balanced", contrast: null, motion: null, speed: 1, night: false, warmth: DEFAULT_WARMTH, bar: "top", labels: true };
 const KEY = "audiodiver.theme";
 
 // ---- colour maths: OKLCH -> sRGB, so every hue gets the same perceived brightness
@@ -135,7 +141,8 @@ function load(): Theme {
         density: DENSITIES.some(([d]) => d === t.density) ? t.density : "balanced",
         contrast: typeof t.contrast === "boolean" ? t.contrast : null,
         motion: typeof t.motion === "boolean" ? t.motion : null, speed: SPEEDS.includes(t.speed) ? t.speed : 1,
-        night: t.night === true, warmth: Number.isFinite(t.warmth) ? Math.min(WARMTH[1], Math.max(WARMTH[0], t.warmth)) : DEFAULT_WARMTH };
+        night: t.night === true, warmth: Number.isFinite(t.warmth) ? Math.min(WARMTH[1], Math.max(WARMTH[0], t.warmth)) : DEFAULT_WARMTH,
+        bar: BAR_SIDES.some(([s]) => s === t.bar) ? t.bar : DEFAULT_THEME.bar, labels: typeof t.labels === "boolean" ? t.labels : DEFAULT_THEME.labels };
     }
   } catch { /* storage off or bad value */ }
   return DEFAULT_THEME;
@@ -187,19 +194,34 @@ function apply(t: Theme) {
   // Night mode: a tint over the whole window that every colour is multiplied by (the .night layer in App.tsx)
   root.dataset.night = t.night ? "on" : "off";
   root.style.setProperty("--night", nightTint(t.warmth));
+  root.dataset.bar = t.bar;
+  root.dataset.labels = t.labels ? "on" : "off";
 }
 // the system changed its mind: apply it, and tell Settings ▸ Theme
 const systemChanged = () => { apply(current); current = { ...current }; listeners.forEach((f) => f()); };
 reduced?.addEventListener("change", systemChanged);
 more?.addEventListener("change", systemChanged);
 
+// a colour slider's drag saves the theme at most every SAVE_MS, and only the components that use a colour re-render
+// (useThemeValue): each move cost 65-90 ms on a slow PC
+let lastSave = 0, saveTimer = 0;
+const SAVE_MS = 300;
+const save = () => {
+  saveTimer = 0;
+  lastSave = performance.now();
+  try { localStorage.setItem(KEY, JSON.stringify(current)); } catch { /* storage off */ }
+};
+
 export const theme = {
   get: () => current,
-  /** Applies a change straight away and remembers it. */
+  /** Applies a change straight away and remembers it: a click at once, a drag every SAVE_MS. */
   set(patch: Partial<Theme>) {
     current = { ...current, ...patch };
     apply(current);
-    try { localStorage.setItem(KEY, JSON.stringify(current)); } catch { /* storage off */ }
+    if (!saveTimer) {
+      if (performance.now() - lastSave > SAVE_MS) save();
+      else saveTimer = window.setTimeout(save, SAVE_MS);
+    }
     listeners.forEach((f) => f());
   },
   reset() { theme.set(DEFAULT_THEME); },
@@ -209,3 +231,6 @@ export const theme = {
 };
 
 export const useTheme = () => useSyncExternalStore(theme.subscribe, theme.get);
+/** One value of the theme: the component re-renders only when that value changes, not on every move of a colour
+    slider. */
+export const useThemeValue = <T,>(pick: (t: Theme) => T) => useSyncExternalStore(theme.subscribe, () => pick(current));

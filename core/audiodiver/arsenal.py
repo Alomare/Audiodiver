@@ -17,6 +17,7 @@ deployed).
 import io
 import json
 import re
+import shutil
 import uuid
 import zipfile
 from pathlib import Path
@@ -61,14 +62,14 @@ def slug(text):
 
 
 def archive_files(folder):
+    """The patch's files in folder as the ZIP takes them: {name: its path}, or b'' for one the build didn't write."""
     folder = Path(folder)
     if not (folder / ARCHIVE).is_file():
         raise FileNotFoundError(f'{folder} has no {ARCHIVE}')
     extra = [p.name for p in folder.iterdir() if p.name not in {ARCHIVE + s for s in SUFFIXES}]
     if extra:
         raise ValueError(f'{folder} has files Arsenal would not expect: {extra}')
-    return {ARCHIVE + s: (folder / (ARCHIVE + s)).read_bytes() if (folder / (ARCHIVE + s)).exists() else b''
-            for s in SUFFIXES}
+    return {ARCHIVE + s: (folder / (ARCHIVE + s)) if (folder / (ARCHIVE + s)).exists() else b'' for s in SUFFIXES}
 
 
 def icon_frame(icon=None) -> dict:
@@ -200,9 +201,16 @@ def package(out_zip, *, name, guid, icon, options, description=''):
         with zipfile.ZipFile(partial, 'w', compression=zipfile.ZIP_DEFLATED) as z:
             for path, data in sorted(files.items()):
                 info = zipfile.ZipInfo(path, date_time=(1980, 1, 1, 0, 0, 0))
-                info.compress_type = zipfile.ZIP_DEFLATED
                 info.external_attr = 0o100644 << 16
-                z.writestr(info, data)
+                # a patch file is stored, copied from disk: Vorbis barely deflates (3% for half of a build's time)
+                if isinstance(data, Path):
+                    info.compress_type = zipfile.ZIP_STORED
+                    info.file_size = data.stat().st_size
+                    with open(data, 'rb') as src, z.open(info, 'w') as dst:
+                        shutil.copyfileobj(src, dst, 1 << 20)
+                else:
+                    info.compress_type = zipfile.ZIP_DEFLATED
+                    z.writestr(info, data)
         partial.replace(out_zip)
     finally:
         partial.unlink(missing_ok=True)

@@ -40,7 +40,7 @@ The game's music is built to change with the action. These are the terms Audiodi
 
 - A **cue** is one piece of music as the game's data defines it, which is a playlist of segments. A **+3 cues** tag on a slot means the same clip plays in three other pieces of music.
 - A **piece of music** is what the Index lists, like *Loadout Selection*. It is one cue, or several cues that belong together.
-- A **part** is one cue of a piece, shown as a tab. A piece can have a part for each biome, each intensity, or each language of a voice. Each part has a separate set of slots.
+- A **part** is one cue of a piece, shown as a tab (as a line of the list for transitions and stingers). A piece can have a part for each biome, each intensity, or each language of a voice. Each part has a separate set of slots.
 - A **segment** is a stretch of music that plays as a unit, with an **Entry** and an **Exit** point. The next segment starts at the Exit, and the end of the current segment rings out over it.
 - A **layer**, or stem, is one of several clips that a segment plays at the same time. Each layer is a separate slot.
 - A **slot** is one clip in its place, either a take of a sound or a layer of a segment. You replace audio one slot at a time, with one file per slot.

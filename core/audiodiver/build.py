@@ -4,7 +4,7 @@ import tempfile
 import time
 from pathlib import Path
 
-from . import addition, akd, arsenal, biome, patch, strings, wem
+from . import addition, akd, arsenal, patch, strings, wem
 from .errors import os_error
 from .game import in_game_folder
 from .index import AudioIndex, CACHE_DIR
@@ -172,13 +172,11 @@ def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, ste
     where, set_where = reach(project, ix, reps, settings, listed)
     try:
         edits = patch.build_patch(str(patch_dir / PATCH), reps, ix, project.segment_overrides, tables, plan,
-                                  settings, project.biome_fix, where, set_where)
+                                  settings, where, set_where)
     except patch.CueError as e:
         raise BuildError(f"Music segment {e.segment}: its Entry cue point ({e.entry_ms / 1000:.1f} s) comes at or "
                          f"after its Exit ({e.exit_ms / 1000:.1f} s), so the game would play the music before it "
                          f"until the Entry. Move the cue points in the Audio Editor, or reset them.") from None
-    if project.biome_fix and biome.INIT in edits and not biome.fixed_init(ix):
-        log("the Sound Systems Rebalanced Patch doesn't fit this game version's music_init; built without it")
     if unused := set(project.segment_overrides) - {s for e in edits.values() for s in e.segments}:
         log(f"cue points of {len(unused)} segment{'s' if len(unused) != 1 else ''} without new audio left out")
     if step:

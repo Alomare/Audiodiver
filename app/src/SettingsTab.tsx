@@ -8,13 +8,13 @@ import { player } from "./player";
 import { DEFAULT_SETTINGS, resetLayout, settings, TIP_SPEEDS, UPDATE_MODES, UPDATE_NOTES, useSettings } from "./settings";
 import { useEditor } from "./store";
 import { Help } from "./Wiki";
-import { accentFor, BLUE_HUE, contrastOn, DEFAULT_SIZE, DEFAULT_THEME, DEFAULT_WARMTH, DENSITIES, FONTS, motionOn, nightTint, secondFor, SPEEDS,
+import { accentFor, BAR_SIDES, barIsVertical, BLUE_HUE, contrastOn, DEFAULT_SIZE, DEFAULT_THEME, DEFAULT_WARMTH, DENSITIES, FONTS, motionOn, nightTint, secondFor, SPEEDS,
   systemReducesMotion, systemWantsContrast, TEXT_SIZES, theme, useTheme, WARMTH, YELLOW_HUE, type FontId } from "./theme";
 
 const SUBS: [Sub, string, string][] = [
   ["system", "System", "The game's folder, startup, updates, tooltips, disk space, layout"],
   ["shortcuts", "Shortcuts", "Every key, and changing them"],
-  ["theme", "Theme", "Colours, text, spacing, animations"],
+  ["theme", "Theme", "Colours, text, spacing, the tab bar, animations"],
 ];
 
 /** The Settings tab (the gear): System, Shortcuts and Theme. Settings are kept per user, not per project. About
@@ -380,6 +380,29 @@ function Theme() {
             ))}
           </div>
           <small>{t.density === "compact" ? "Fits the most on screen." : t.density === "relaxed" ? "More room around rows and buttons." : "The default."}</small>
+        </div>
+      </section>
+
+      <section className="set-sec">
+        <h2>Tab bar</h2>
+        <div className="field">
+          <span className="field-label">Position</span>
+          <div className="segmented narrow" role="radiogroup" aria-label="Tab bar position">
+            {BAR_SIDES.map(([side, name]) => (
+              <button key={side} role="radio" aria-checked={t.bar === side} className={t.bar === side ? "on" : ""}
+                onClick={() => theme.set({ bar: side })}>{name}</button>
+            ))}
+          </div>
+        </div>
+        <div className="field">
+          <span className="field-label">Tab names</span>
+          <div className="segmented narrow" role="radiogroup" aria-label="Tab names">
+            {([true, false] as const).map((on) => (
+              <button key={String(on)} role="radio" aria-checked={t.labels === on} className={t.labels === on ? "on" : ""}
+                onClick={() => theme.set({ labels: on })}>{on ? "On" : "Off"}</button>
+            ))}
+          </div>
+          <small>{!t.labels ? "Only icons, with each name in its tooltip." : barIsVertical(t.bar) ? "A tab's name shows when the pointer is on it." : "Each name shows beside its icon."}</small>
         </div>
       </section>
 

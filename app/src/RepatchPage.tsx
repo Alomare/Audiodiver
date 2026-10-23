@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { nameProblem, type Job } from "./api";
-import { BIOME_FIX_PAGE, BIOME_FIX_TIP, EVERY_BANK_PAGE } from "./content";
+import { nameProblem, plural, type Job } from "./api";
+import { EVERY_BANK_PAGE } from "./content";
 import { nav } from "./nav";
 import { pickFolder, pickMod, reveal } from "./platform";
 import { useEditor } from "./store";
@@ -35,7 +35,6 @@ const STATE_TEXT: Record<State, string> = {
   shared: "Older shared settings", older: "Older sound banks", unreadable: "Can't be read", current: "Up to date",
 };
 const fileName = (path: string) => path.split(/[\\/]/).pop()!;
-const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 /** "a, b and c", leaving out the empty ones. */
 const listed = (items: (string | false | 0 | undefined)[]) => {
   const xs = items.filter(Boolean) as string[];
@@ -54,10 +53,10 @@ export const repatchInbox = (() => {
 })();
 
 // the mod being set up, kept while another tab shows
-let kept: { scan: Scan; name: string; folder: string; biomeFix: boolean; everyBank: boolean } | null = null;
+let kept: { scan: Scan; name: string; folder: string; everyBank: boolean } | null = null;
 let staleJob: string | null = null;
 
-/** Build ▸ Repatch: an existing audio mod (a ZIP, a folder or a .patch_0) rebuilt on the game as it is now, as the
+/** Tools ▸ Repatch: an existing audio mod (a ZIP, a folder or a .patch_0) rebuilt on the game as it is now, as the
     one mod it was: each of its patches made again, its options and files as they were. The explanations sit beside
     it, the rest in the Wiki. */
 export function RepatchPage() {
@@ -65,11 +64,10 @@ export function RepatchPage() {
   const [scan, setScan] = useState<Scan | null>(kept?.scan ?? null);
   const [name, setName] = useState(kept?.name ?? "");
   const [folder, setFolder] = useState(kept?.folder ?? "");
-  const [biomeFix, setBiomeFix] = useState(kept?.biomeFix ?? false);
   const [everyBank, setEveryBank] = useState(kept?.everyBank ?? false);
   const [reading, setReading] = useState(false);
   const [stale, setStale] = useState(staleJob); // the repatch whose outcome belongs to the mod chosen before this one
-  useEffect(() => { kept = scan && { scan, name, folder, biomeFix, everyBank }; }, [scan, name, folder, biomeFix, everyBank]);
+  useEffect(() => { kept = scan && { scan, name, folder, everyBank }; }, [scan, name, folder, everyBank]);
   useEffect(() => { staleJob = stale; }, [stale]);
   const jobsNow = useRef(jobs); // read when a mod is chosen, also from a drop the first render subscribed to
   jobsNow.current = jobs;
@@ -97,7 +95,7 @@ export function RepatchPage() {
   const running = job?.state === "running";
   const busy = Object.values(jobs).some((j) => (j.kind === "build" || j.kind === "repatch") && j.state === "running");
   const problem = scan ? nameProblem(name) : null;
-  const go = () => scan && actions.repatch(scan.source, name.trim(), folder, biomeFix, everyBank);
+  const go = () => scan && actions.repatch(scan.source, name.trim(), folder, everyBank);
   const chooseFolder = async () => {
     const f = await pickFolder(folder || undefined, "Choose where repatched mods go");
     if (f) setFolder(f);
@@ -164,10 +162,6 @@ export function RepatchPage() {
         <section className="set-sec">
           <h2>Options</h2>
           <div className="set-list">
-            <label className="check">
-              <input type="checkbox" checked={biomeFix} disabled={running} onChange={(e) => setBiomeFix(e.target.checked)} />
-              <span>Apply biome music fix <Help tip={BIOME_FIX_TIP} page={BIOME_FIX_PAGE} /></span>
-            </label>
             <label className="check">
               <input type="checkbox" checked={everyBank} disabled={running} onChange={(e) => setEveryBank(e.target.checked)} />
               <span>Patch every bank with the sounds <Help tip="A sound is often in many banks, such as a clip that several weapons share. With this on, the mod's audio goes into all of them and plays wherever the game uses the sound, but the mod gets bigger. With it off, only the banks the mod patched get it, as in the original." page={EVERY_BANK_PAGE} /></span>
@@ -334,14 +328,13 @@ function About() {
       <h3>What it does</h3>
       <ul>
         <li>Takes the audio that the mod replaces and adds, and its sound settings such as volume and delays.</li>
-        <li>Applies them to the game's current sound banks. With <b>Apply biome music fix</b>, it also adds the Sound Systems Rebalanced Patch.</li>
+        <li>Applies them to the game's current sound banks.</li>
         <li>Builds a new ZIP of the same mod, with its options, files and id unchanged. The mod's audio isn't encoded again.</li>
       </ul>
       <h3>When to use it</h3>
       <ul>
         <li>A mod's sounds went silent, wrong or missing after a game update.</li>
         <li>Other sounds, like all gunfire, go silent while the mod is installed. <b>Installed mods</b> below finds the mods that do this.</li>
-        <li>A music mod made with another tool undoes the Sound Systems Rebalanced Patch.</li>
       </ul>
       <h3>What it leaves out</h3>
       <ul>
@@ -352,7 +345,6 @@ function About() {
       <h3>Installing</h3>
       <ul>
         <li>Import the new ZIP in Arsenal in place of the old mod.</li>
-        <li>Deploy it after Sound Systems Rebalanced.</li>
       </ul>
       <p className="set-note">A repatched mod is still its author's work. Keep it for personal use, and share it only with the author's permission.</p>
       <p className="set-note"><button className="link-text" onClick={() => nav.go("wiki", "repatching")}>More in the Wiki</button></p>

@@ -2,6 +2,7 @@
 undone, plus background jobs (game loading, builds, patch imports). The HTTP server (server.py) is a thin layer over
 this, so everything here is testable without a browser.
 """
+import collections
 import logging
 import math
 import os
@@ -11,12 +12,13 @@ import subprocess
 import threading
 import time
 import uuid
-from pathlib import Path
+from pathlib import Path, PurePosixPath
+from types import SimpleNamespace
 
 from . import wem
 from .errors import os_error, plain  # noqa: F401 (server.py takes them from here too)
 from .index import AudioIndex, CACHE_DIR
-from .project import GAIN_DB, Addition, Project, ProjectFormatError, Replacement, TextEdit
+from .project import GAIN_DB, Addition, Project, ProjectFormatError, Replacement, TextEdit, write_whole
 
 log = logging.getLogger("audiodiver")
 LOG_FILE = CACHE_DIR / "logs" / "core.log"
@@ -38,7 +40,26 @@ def save_settings(**changes):
     import json
     d = {k: v for k, v in {**load_settings(), **changes}.items() if v is not None}
     SETTINGS_FILE.parent.mkdir(parents=True, exist_ok=True)
-    SETTINGS_FILE.write_text(json.dumps(d, indent=2) + "\n", encoding="utf-8")
+    write_whole(SETTINGS_FILE, json.dumps(d, indent=2) + "\n")
+
+
+def clean_temp(age_s: float = 3600):
+    """Removes the temp folders of builds, repatches and combines that a core closed mid-job left behind (closing the
+    window ends the core at once: a Dune build left 297 MB). A folder untouched for an hour is no live job's."""
+    import tempfile
+    for d in Path(tempfile.gettempdir()).glob("audiodiver-*"):
+        try:
+            if d.is_dir() and time.time() - max(f.stat().st_mtime for f in [d, *d.rglob("*")]) > age_s:
+                shutil.rmtree(d, ignore_errors=True)
+        except OSError:
+            pass
+
+
+def _unsaved(e: OSError, path) -> str:
+    """Why an edit, undo or redo didn't happen: the project file couldn't be written (named as the project file, not
+    the hidden one beside it that write_whole writes first)."""
+    why = os_error(OSError(e.errno, e.strerror, str(path)) if e.errno is not None else e)
+    return f"Nothing changed, because the project file couldn't be saved. {why}."
 
 
 class EditorError(Exception):
@@ -158,8 +179,13 @@ class Session:
         # later at the same path is another mod.
         self.version_floor: dict[str, int] = {}
         self.built_for: dict[str, str] = {}  # the same for the game version a build was made on (Project.built_for)
+        self.built_from: dict[str, str] = {}  # and for what it was made from (Project.built_from)
         self.revision = 0  # counts the changes to what is open (edits, undo, redo, another project): project_state
         self.jobs: dict[str, Job] = {}
+        self.build_lock = threading.Lock()  # a build's "already running" check and its start, as one step
+        self._facts = {}  # what project_state found out about the project's folder (_folder_facts)
+        # Combine: each patch read (combine.Part) by its digest, and the digest of a patch by where it is and its time
+        self._combine_parts, self._combine_ids = collections.OrderedDict(), {}
         if load:
             threading.Thread(target=self._load_game, daemon=True).start()
 
@@ -172,6 +198,7 @@ class Session:
             from .library import Library
             from .render import clean_spool
             clean_spool()
+            clean_temp()
             folder, how = locate(load_settings().get("game_data"))
             again = bool(self.game_where.get("path"))  # another folder was chosen: this isn't the start-up read
             self.game_where = {"path": str(folder), "how": how}
@@ -794,6 +821,34 @@ class Session:
         drop = sounds(i for i in (p.library or []) if i in gone) - sounds(keep)
         return [r for r in p.replacements if self._resolved(r) in drop]
 
+    FACTS_SECONDS = 30  # how long project_state trusts what it found out about the project's folder
+
+    def _folder_facts(self, p: Project) -> dict:
+        """The project's folder, for the Project tab: whether it is the project's own, how many other projects are in
+        it, where Move would put the project file (move_to, None in a folder of its own), and how many of the files
+        it uses are outside it. project_state runs on every edit (a slider's every save), so what needs the disk is
+        kept: the folder's facts until a file is added, removed or renamed in it (its time changes), the files' until
+        the project uses others; either for FACTS_SECONDS at most. A folder changed in the last two seconds is read
+        again each time, as Windows' file times move in steps of about 16 ms."""
+        from . import projectfiles as pf
+        folder, now, c = p.path.parent, time.monotonic(), self._facts
+        try:
+            stamp = folder.stat().st_mtime_ns
+        except OSError:
+            stamp = None
+        if c.get("where") != (str(p.path), stamp) or now - c["where_at"] > self.FACTS_SECONDS \
+                or stamp is None or time.time_ns() - stamp < 2_000_000_000:
+            own = pf.own_folder(p.path)
+            dest = None if own else pf.move_dest(p.path)
+            c.update(where=(str(p.path), stamp), where_at=now, own_folder=own, folder_projects=len(pf.others(p.path)),
+                     move_to=str(dest / f"{dest.name}.audi") if dest else None)
+        rels = frozenset([*(r.audio for r in p.replacements if not r.silence), p.icon.get("image") or ""])
+        if c.get("uses") != (str(p.path), rels) or now - c["uses_at"] > self.FACTS_SECONDS:
+            used = {pf.norm(folder / rel) for rel in rels if isinstance(rel, str) and rel.strip()}
+            c.update(uses=(str(p.path), rels), uses_at=now,
+                     files_elsewhere=sum(1 for f in used if pf.inside(f, folder) is None and f.is_file()))
+        return {k: c[k] for k in ("own_folder", "folder_projects", "move_to", "files_elsewhere")}
+
     def project_state(self):
         from .arsenal import icon_frame, slug
         from .audio import SILENCE_MS, duration_ms
@@ -847,20 +902,16 @@ class Session:
                 if got and not cue.isdigit():
                     in_banks[cue] = len(got)
             outside = [s for s in assignments if int(s) not in inside]
-        from . import projectfiles as pf
         return {"repairs": p.repairs, "library": [i for i in library if i not in missing], "library_missing": missing, "in_banks": in_banks,
                 "outside": outside,
                 "path": str(p.path), "folder": str(p.path.parent), "name": p.name, "guid": p.guid,
-                # the project's folder (Project tab): whether it is the project's own, how many other projects are
-                # in it, and how many of the files it uses are elsewhere
-                "own_folder": pf.own_folder(p.path), "folder_projects": len(pf.others(p.path)),
-                "files_elsewhere": sum(1 for f in pf.uses(p.to_json(), p.path.parent)
-                                       if pf.inside(f, p.path.parent) is None and f.is_file()),
+                **self._folder_facts(p),
                 "revision": self.revision, "version": p.version, "description": p.description, "icon": p.icon, "icon_frame": frame,
-                "loudness_analysis": p.loudness_analysis, "biome_fix": p.biome_fix, "every_bank": p.every_bank,
+                "loudness_analysis": p.loudness_analysis, "every_bank": p.every_bank,
                 "build_folder": str(p.build_dir()), "build_folder_default": str(p.default_build_dir()),
                 "zip_name": zip_name(p), "last_build": (last := _last_build(p.build_dir(), slug(p.name))),
-                "game_updated": bool(self.ix) and _game_updated(p, self.ix.game, last),
+                "game_updated": (updated := bool(self.ix) and _game_updated(p, self.ix.game, last)),
+                "rebuild": _rebuild(p, updated, last),
                 "assignments": assignments, "unresolved": unresolved,
                 "segment_overrides": {str(k): v for k, v in p.segment_overrides.items()},
                 "texts": [{"table": str(t.table), "id": t.id, "text": t.text, "was": t.was} for t in p.texts],
@@ -884,11 +935,15 @@ class Session:
                 self.project = Project.from_json(before, p.path)  # an edit that fails half-way changes nothing
                 raise
             if p.to_json() != before:
+                try:
+                    p.save()
+                except OSError as e:  # memory and the file stay the same: the edit didn't happen
+                    self.project = Project.from_json(before, p.path)
+                    raise EditorError(_unsaved(e, p.path)) from None
                 self.revision += 1
                 self.undo_stack.append((label, before))
                 del self.undo_stack[:-UNDO_LIMIT]
                 self.redo_stack.clear()
-                p.save()
             return self.project_state()
 
     def _restore(self, d):
@@ -897,25 +952,34 @@ class Session:
         floor = self.version_floor.get(self.project.guid, 0)  # a build moved it on: undo doesn't take that back
         self.project.version = max(self.project.version, floor)
         self.project.built_for = self.built_for.get(self.project.guid, self.project.built_for)
+        self.project.built_from = self.built_from.get(self.project.guid, self.project.built_from)
         self.project.save()
 
     def undo(self):
         with self.lock:
             self._need_project()
             if self.undo_stack:
-                label, d = self.undo_stack.pop()
-                self.redo_stack.append((label, self.project.to_json()))
-                self._restore(d)
+                self._step(self.undo_stack, self.redo_stack)
             return self.project_state()
 
     def redo(self):
         with self.lock:
             self._need_project()
             if self.redo_stack:
-                label, d = self.redo_stack.pop()
-                self.undo_stack.append((label, self.project.to_json()))
-                self._restore(d)
+                self._step(self.redo_stack, self.undo_stack)
             return self.project_state()
+
+    def _step(self, src, dst):
+        """Moves one step from src to dst (undo or redo). A project file that can't be saved keeps both as they were."""
+        label, d = src[-1]
+        now = self.project.to_json()
+        try:
+            self._restore(d)
+        except OSError as e:
+            self.project = Project.from_json(now, self.project.path)
+            raise EditorError(_unsaved(e, self.project.path)) from None
+        src.pop()
+        dst.append((label, now))
 
     def _relative(self, p: Project, audio) -> str:
         from .audio import duration_ms
@@ -1165,7 +1229,7 @@ class Session:
         builds go. Every value is checked before any is changed."""
         from . import akd
         bad = set(fields) - {"name", "version", "description", "icon", "build_folder", "guid", "loudness_analysis",
-                             "biome_fix", "every_bank"}
+                             "every_bank"}
         if bad:
             raise EditorError(f"Unknown setting {sorted(bad)[0]}")
         checked = {}
@@ -1187,8 +1251,6 @@ class Session:
                     raise EditorError("Loudness analysis is on or off")
                 if v and (why := akd.unavailable()):
                     raise EditorError(f"Loudness analysis: {why}")
-            elif k == "biome_fix" and not isinstance(v, bool):
-                raise EditorError("The biome music fix is on or off")
             elif k == "every_bank" and not isinstance(v, bool):
                 raise EditorError("Every bank is on or off")
             checked[k] = v
@@ -1210,26 +1272,19 @@ class Session:
                     p.guid = str(uuid.uuid4()) if v == "new" else v
                 elif k == "loudness_analysis":
                     p.loudness_analysis = v
-                elif k == "biome_fix":
-                    p.biome_fix = v
                 elif k == "every_bank":
                     p.every_bank = v
         return self._edit("settings", apply)
 
-    def set_note(self, key, text=None, project_text=None):
-        """Writes the global note (`text`) and the open project's note (`project_text`) on one thing (notes.py's
-        keys); None leaves that one as it is, "" removes it. The project's is one undoable edit; the global one isn't
-        undone, like a setting. Returns the global notes and the project."""
+    def set_note(self, key, project_text):
+        """Writes the open project's note on one thing (notes.py's keys); "" removes it. One undoable edit. Returns
+        the project."""
         from . import notes
-        for t in (text, project_text):
-            if t is not None:
-                try:
-                    notes.check(key, t)
-                except ValueError as e:
-                    raise EditorError(str(e)) from None
-        if project_text is not None:
-            self._need_project()
-        all_ = notes.set_note(key, text) if text is not None else notes.load()
+        try:
+            notes.check(key, project_text)
+        except ValueError as e:
+            raise EditorError(str(e)) from None
+        self._need_project()
 
         def apply(p):
             kept = notes.check(key, project_text)[1]
@@ -1237,8 +1292,7 @@ class Session:
                 p.notes[key] = kept
             else:
                 p.notes.pop(key, None)
-        state = self._edit("note", apply) if project_text is not None else self.project_state() if self.project else None
-        return {"notes": all_, "project": state}
+        return {"project": self._edit("note", apply)}
 
     def set_icon(self, image):
         """Uses an image file as the mod's icon. Like audio, it stays where it is and the project points at it;
@@ -1318,34 +1372,47 @@ class Session:
             f = documents()
         return str(f)
 
+    # jobs that write no file beside a project: the rest can be halfway through writing one (an import decodes its
+    # audio into audio/imported before its edit adds it to the project)
+    READ_ONLY_JOBS = ("check", "combine_read")
+
+    def _files_busy(self):
+        """Refuses while a job that writes files beside a project runs."""
+        if any(j.state == "running" and j.kind not in self.READ_ONLY_JOBS for j in self.jobs.values()):
+            raise EditorError("Wait until the running job is done")
+
     def move_to_own_folder(self):
         """Gives the project a folder of its own, beside its file and named like it. The project file moves there,
         with what Audiodiver made for it (slices, imported and collected audio) and its builds in the default build
         folder. Files a person picked stay where they are, and the project points at them. A file another project in
-        the old folder uses is copied there, not moved. The undo history moves with the project."""
+        the old folder uses is copied there; the others are renamed into place (projectfiles.carry), so a move takes a
+        moment whatever their size. The undo history moves with the project."""
         from . import projectfiles as pf
         from .arsenal import slug
         with self.lock:
             p = self._need_project()
             if pf.own_folder(p.path):
                 raise EditorError("The project is in a folder of its own already")
-            if any(j.state == "running" for j in self.jobs.values()):
-                raise EditorError("Wait until the running job is done")
+            self._files_busy()
             old_file, old = p.path, p.path.parent
-            dest = pf.free(old / pf.folder_name(old_file.stem))
+            dest = pf.move_dest(old_file)
             plan = pf.move_plan(old_file, dest, self._history())
             if not p.build_folder:
                 s = slug(p.name)
                 plan |= {pf.norm(z): dest / "build" / z.name for z in (old / "build").glob(f"{s}-*.zip")
                          if z.stem[len(s) + 1:].isdigit()}
+            done = []
             try:
-                dest.mkdir(parents=True, exist_ok=True)  # a project with nothing to copy still gets its folder
-                pf.copy(plan)
+                dest.mkdir(parents=True, exist_ok=True)  # a project with nothing to carry still gets its folder
+                done = pf.carry(old_file, plan)
                 moved = Project.from_json(pf.rebase(p.to_json(), old, dest, plan), dest / f"{dest.name}.audi")
                 moved.save()
-            except OSError as e:
-                shutil.rmtree(dest, ignore_errors=True)  # made just now: nothing else is in it
-                raise EditorError(f"The project couldn't move: {os_error(e)}") from None
+            except BaseException as e:
+                if pf.put_back(done):  # (carry puts back what it did when it fails itself)
+                    shutil.rmtree(dest, ignore_errors=True)  # made just now: nothing else is in it
+                if isinstance(e, OSError):
+                    raise EditorError(f"The project couldn't move: {os_error(e)}") from None
+                raise
             self.project = moved
             self.undo_stack = [(label, pf.rebase(d, old, dest, plan)) for label, d in self.undo_stack]
             self.redo_stack = [(label, pf.rebase(d, old, dest, plan)) for label, d in self.redo_stack]
@@ -1354,16 +1421,18 @@ class Session:
                 old_file.unlink()
             except OSError as e:
                 log.warning("the old project file stays: %s", os_error(e))
-            pf.release(old_file, plan)
-            log.info("project moved from %s to %s with %d files", old_file, moved.path, len(plan))
+            pf.prune(old)
+            log.info("project moved from %s to %s: %d files moved, %d copied", old_file, moved.path,
+                     sum(m for *_, m in done), sum(not m for *_, m in done))
             return self.project_state()
 
     def unused_files(self):
         """The files in Audiodiver's folders beside the project that nothing uses (projectfiles.unused):
-        {folder, files: [{path, rel, bytes}], bytes}."""
+        {folder, files: [{path, rel, bytes}], bytes}. rel is the path in the project's folder, as Windows writes it."""
         from . import projectfiles as pf
         with self.lock:
             p = self._need_project()
+            self._files_busy()
             try:
                 found = pf.unused(p.path, self._history())
             except pf.FilesError as e:
@@ -1372,7 +1441,7 @@ class Session:
         files = []
         for f in found:
             try:
-                files.append({"path": str(f), "rel": pf.stored(f, folder), "bytes": f.stat().st_size})
+                files.append({"path": str(f), "rel": str(pf.inside(f, folder) or f), "bytes": f.stat().st_size})
             except OSError:
                 pass  # gone meanwhile
         return {"folder": str(folder), "files": files, "bytes": sum(f["bytes"] for f in files)}
@@ -1385,6 +1454,7 @@ class Session:
             raise EditorError("Name the files to remove")
         with self.lock:
             p = self._need_project()
+            self._files_busy()
             try:
                 now = {pf.key(f): f for f in pf.unused(p.path, self._history())}
             except pf.FilesError as e:
@@ -1479,6 +1549,8 @@ class Session:
                 job.say(f"failed: {job.error}")  # the traceback is in the log file, not on the Build tab
                 log.exception("job %s (%s: %s) failed", job.id, kind, title)
             job.ended = time.time()
+            if self.ix and not any(j.state == "running" for j in self.jobs.values()):
+                self.ix.game.trim_caches()  # the packages a build read, up to 900 MB
         threading.Thread(target=run, daemon=True).start()
         return job.to_json()
 
@@ -1498,17 +1570,11 @@ class Session:
         from .build import BuildError, build
         self.require_game()
         p = self._need_project()
-        if any(j.kind == "build" and j.state == "running" for j in self.jobs.values()):
-            raise EditorError("A build is already running")
-        if not p.replacements and not p.texts:
-            raise EditorError("Nothing to build yet. Replace some audio or change a line of text first.")
-        if problems := self.project_state()["problems"]:
-            raise EditorError(f"Fix the problems on the Build tab first: {problems[0]}"
-                              + (f" (and {len(problems) - 1} more)" if len(problems) > 1 else ""))
 
         def run(job):
             with self.lock:
                 snapshot = Project.load(p.path) if p.path.exists() else p
+                made_from = build_inputs(snapshot)
 
             def progress(doing, done=None, total=None):  # and a cancel stops the build here
                 if total:
@@ -1520,14 +1586,23 @@ class Session:
                 raise EditorError(str(e)) from None
             result = {"zip": str(zip_path), "folder": str(zip_path.parent), "version": snapshot.version,
                       "mb": round(zip_path.stat().st_size / 1e6, 1)}
-            self._bump_version(snapshot.path, snapshot.version + 1 if bump else 0, self.ix.game.version)
+            self._bump_version(snapshot.path, snapshot.version + 1 if bump else 0, self.ix.game.version, made_from)
             return result
-        return self._start("build", run)
+        with self.build_lock:  # two builds sent together both started, and wrote one .partial ZIP
+            if any(j.kind == "build" and j.state == "running" for j in self.jobs.values()):
+                raise EditorError("A build is already running")
+            if not p.replacements and not p.texts:
+                raise EditorError("Nothing to build yet. Replace some audio or change a line of text first.")
+            if problems := self.project_state()["problems"]:
+                raise EditorError(f"Fix the problems on the Build tab first: {problems[0]}"
+                                  + (f" (and {len(problems) - 1} more)" if len(problems) > 1 else ""))
+            return self._start("build", run)
 
-    def _bump_version(self, path, version, built_for=""):
+    def _bump_version(self, path, version, built_for="", built_from=""):
         """After a build, its project goes on to the next version (0: stays) and notes the game version it was made
-        on: the one that was built, even if another is open by now (or none). Not an edit: undo and redo keep it
-        (version_floor, built_for), so the next build never overwrites the ZIP just made."""
+        on and what it was made from: the project that was built, even if another is open by now (or none). Not an
+        edit: undo and redo keep it (version_floor, built_for, built_from), so the next build never overwrites the
+        ZIP just made."""
         with self.lock:
             p = self.project if self.project and self.project.path == path else None
             if p is None:
@@ -1538,9 +1613,12 @@ class Session:
             self.version_floor[p.guid] = max(version, self.version_floor.get(p.guid, 0))
             if built_for:
                 self.built_for[p.guid] = built_for
-            if p.version < version or (built_for and p.built_for != built_for):
+            if built_from:
+                self.built_from[p.guid] = built_from
+            if p.version < version or (built_for and p.built_for != built_for) or (built_from and p.built_from != built_from):
                 p.version = max(p.version, version)
                 p.built_for = built_for or p.built_for
+                p.built_from = built_from or p.built_from
                 p.save()
                 self.revision += 1
 
@@ -1582,10 +1660,12 @@ class Session:
                     "folder": str(out_dir)}
         return self._start("import", run)
 
-    def _patch_audio(self, patch_path: Path, out_dir: Path, job):
+    def _patch_audio(self, patch_path: Path, out_dir: Path, job, reuse=False):
         """What a mod's patch replaces, adds and sets (addition.from_patch), its audio decoded into out_dir as WAVs, each
         keeping the patch's own encoding for builds (build.keep_encoding). Returns (got, replaced, files, skipped):
-        replaced {the game's source: wem}, files {source or new clip: wav}, skipped: how many couldn't be decoded."""
+        replaced {the game's source: wem}, files {source or new clip: wav}, skipped: how many couldn't be decoded.
+        reuse: out_dir is this patch's alone (Combine's cache), and the WAVs a finished reading left there (it writes
+        `.done`) are used again, not decoded again."""
         import struct
         from .addition import from_patch, same_audio
         from .build import keep_encoding
@@ -1633,8 +1713,14 @@ class Session:
                               + (f" Audiodiver can bring in ({got.left[0]})" if got.left else ""))
         out_dir.mkdir(parents=True, exist_ok=True)
         files, job.total = {}, len(found)
+        decoded = reuse and (out_dir / ".done").is_file()
         for i, (sid, data) in enumerate(sorted(found.items()), 1):
             wem_path, wav = out_dir / f"{sid}.wem", out_dir / f"{sid}.wav"
+            if decoded and wav.is_file():
+                keep_encoding(wav, data)
+                files[sid] = wav
+                job.step(f"Decoding {i} of {len(found)}", i)
+                continue
             wem_path.write_bytes(data)
             try:
                 subprocess.run([wem.VGMSTREAM, "-o", str(wav), str(wem_path)], check=True, capture_output=True)
@@ -1651,6 +1737,8 @@ class Session:
             raise EditorError(f"{what} in {patch_path.name} {could} be decoded. "
                               + (f"The folder {out_dir} has too long a path for the decoder. Choose a shorter one."
                                  if len(str(out_dir)) > 230 else "Is its .stream file next to it?"))
+        if reuse:
+            (out_dir / ".done").write_text("")
         return got, replaced, files, len(found) - len(files)
 
     def _fill_from_patch(self, p: Project, got, replaced: dict, files: dict) -> int:
@@ -1704,28 +1792,35 @@ class Session:
         return self._start("check", run, title="installed mods")
 
     @staticmethod
-    def _not_audio(found, key) -> list[str]:
-        """What a patch holds besides audio, which a repatch leaves out ("2 string tables")."""
+    def _not_audio_counts(found, key) -> tuple[int, int]:
+        """(string tables, other files) in a mod's patch: what it holds besides audio."""
         from .game import WWISE_BANK, WWISE_DEP, WWISE_STREAM, toc_entries
         from .strings import STRINGS
         try:
             types = [tid for _, tid, *_ in toc_entries(found.read(key) or b"")]
         except Exception:  # noqa: BLE001 (a patch that can't be read says so when it is repatched)
-            return []
-        texts = sum(t == STRINGS for t in types)
-        rest = sum(t not in (WWISE_BANK, WWISE_DEP, WWISE_STREAM, STRINGS) for t in types)
+            return 0, 0
+        return sum(t == STRINGS for t in types), sum(t not in (WWISE_BANK, WWISE_DEP, WWISE_STREAM, STRINGS) for t in types)
+
+    @staticmethod
+    def _other_lines(texts: int, rest: int) -> list[str]:
+        """What a repatch or a combine leaves out of a mod besides its audio ("2 string tables")."""
         return ([f"{texts} string table{'s' if texts != 1 else ''} (the game's text, like subtitles, which isn't supported yet)"] if texts else []) + \
                ([f"{rest} other file{'s' if rest != 1 else ''} (such as models and textures)"] if rest else [])
 
-    def repatch(self, path, name="", folder="", biome_fix=False, every_bank=False):
+    @staticmethod
+    def _not_audio(found, key) -> list[str]:
+        """What a patch holds besides audio, which a repatch leaves out ("2 string tables")."""
+        return Session._other_lines(*Session._not_audio_counts(found, key))
+
+    def repatch(self, path, name="", folder="", every_bank=False):
         """Rebuilds a mod on the game as it is now, as the one mod it was. Each of its patches is imported into a
         project of its own (in the mod's folder under the repatch folder, to change it further) and made again on the
         current game's banks; the new ZIP is the mod as it was, with a manifest's options, files and id kept
         (repatch.repackage), those patches in place of the old ones. Without a manifest it is a ZIP for HD2 Arsenal,
         one option per patch. A patch that can't be repatched stays as it was in a mod of several, and the result
-        says so. biome_fix: the music is built with the Sound Systems Rebalanced Patch (biome.py), as a project's
-        setting does it. every_bank: the mod's sounds go into every bank that has them, not only the banks the mod
-        patched (build.reach)."""
+        says so. every_bank: the mod's sounds go into every bank that has them, not only the banks the mod patched
+        (build.reach)."""
         import tempfile
         from .arsenal import default_icon, name_problem, package
         from .build import PATCH, BuildError, icon_bytes, make_patch
@@ -1748,8 +1843,6 @@ class Session:
             raise EditorError("A build is already running")
         if given(folder):
             save_settings(repatch_folder=str(root))
-        if not isinstance(biome_fix, bool):
-            raise EditorError("The biome music fix is on or off")
         if not isinstance(every_bank, bool):
             raise EditorError("Every bank is on or off")
         several = len(f.patches) > 1
@@ -1760,8 +1853,7 @@ class Session:
             mod = clean_name(f"{name} {pt.label}") if several and pt.label else name
             home.mkdir(parents=True, exist_ok=True)
             p = Project(name=mod, path=home / f"{home.name}.audi", library=[], description=f.description,
-                        guid=f.guid if f.guid and not several else str(uuid.uuid4()), biome_fix=biome_fix,
-                        every_bank=every_bank)
+                        guid=f.guid if f.guid and not several else str(uuid.uuid4()), every_bank=every_bank)
             if f.icon and (image := f.read(f.icon)):
                 (home / f"icon{Path(f.icon).suffix.lower()}").write_bytes(image)
                 p.icon = {"image": f"icon{Path(f.icon).suffix.lower()}"}
@@ -1868,10 +1960,417 @@ class Session:
                     "kept_id": bool(f.manifest and f.guid), "manifest": bool(f.manifest), "parts": parts}
         return self._start("repatch", run, title=name)
 
-    def _take_in(self, p: Project, got, files: dict) -> int:
+    # --- combining mods (combine.py): several mods in one, built on the game as it is now
+    COMBINE_KEPT = 64  # patches read for Combine kept in memory (combine.Part: no audio, the WAVs are on disk)
+
+    @staticmethod
+    def _combine_root() -> Path:
+        """Where combined mods go: the folder last chosen, else Documents/Audiodiver/Combined."""
+        from .repatch import documents
+        return Path(load_settings().get("combine_folder") or documents() / "Audiodiver" / "Combined")
+
+    def combine_folder(self) -> str:
+        """Where combined mods go (made when asked for, so the dialog can start in it)."""
+        from .repatch import documents
+        f = self._combine_root()
+        try:
+            f.mkdir(parents=True, exist_ok=True)
+        except OSError:  # a drive that is gone
+            f = documents()
+        return str(f)
+
+    @staticmethod
+    def _scan(path):
+        from .repatch import RepatchError, scan
+        try:
+            return scan(path)
+        except RepatchError as e:
+            raise EditorError(str(e)) from None
+        except OSError as e:
+            raise EditorError(f"Can't read {Path(str(path)).name}: {os_error(e)}") from None
+
+    @staticmethod
+    def _arsenal_recorded(source: Path, opts) -> list[str] | None:
+        """What HD2 Arsenal's data file records as chosen for the mod at source, as picks; None for a mod that isn't
+        in its library, or an entry nothing can be read from (combine.arsenal_picks)."""
+        from . import combine as cb
+        from . import projectfiles as pf
+        from .installed import arsenal_entries
+        if not opts:
+            return None
+        for name, folder, entry in arsenal_entries():
+            if pf.key(folder) == pf.key(source):
+                picks = cb.arsenal_picks(entry, opts)
+                log.info("combine: Arsenal's entry for %s has the keys %s; its choice was %s", name,
+                         sorted(map(str, entry)), "read" if picks is not None else "not found")
+                return picks
+        return None
+
+    def combine_scan(self, path):
+        """A mod to combine (a .patch_N, a folder or a mod's ZIP): {source, name, description, manifest, other (what
+        it holds besides audio, which Combine leaves out), options (a manifest's: [{id, name, sub: [{id, name}]}]),
+        picks (the choice it starts with: Arsenal's, else every Option on with its first SubOption)}."""
+        from . import combine as cb
+        f = self._scan(path)
+        opts = cb.options(f.manifest)
+        counts = [self._not_audio_counts(f, k) for p in f.patches for k in p.keys]
+        texts, rest = sum(c[0] for c in counts), sum(c[1] for c in counts)
+        return {"source": str(f.source), "name": f.name or "Mod", "description": f.description,
+                "manifest": bool(f.manifest), "other": self._other_lines(texts, rest),
+                "options": cb.shown(opts), "picks": cb.default_picks(opts, self._arsenal_recorded(f.source, opts))}
+
+    def combine_installed(self):
+        """The mods in HD2 Arsenal's library, to combine: {mods: [{name, source, deployed}], arsenal: whether its
+        library was found}. deployed: one of the mod's patches is in the game's data folder (the same file)."""
+        from .installed import arsenal_entries, deployed, same_file
+        from .repatch import PATCH_RE
+        data = self.ix.game.data if self.ix else Path(self.game_where["path"]) if self.game_where.get("path") else None
+        sizes = {}
+        try:
+            for f in deployed(data) if data else []:
+                sizes.setdefault(f.stat().st_size, []).append(f)
+        except OSError:
+            sizes = {}
+        entries, mods = arsenal_entries(), []
+        for name, folder, _ in entries:
+            on = False
+            for f in folder.rglob("*") if sizes else []:
+                try:
+                    if PATCH_RE.search(f.name) and f.is_file() and \
+                            any(same_file(f, q) for q in sizes.get(f.stat().st_size, ())):
+                        on = True
+                        break
+                except OSError:
+                    continue
+            mods.append({"name": name, "source": str(folder), "deployed": on})
+        return {"mods": mods, "arsenal": bool(entries)}
+
+    @staticmethod
+    def _combine_list(mods) -> list[tuple[str, list[str] | None]]:
+        """The mods to combine as the window sends them ([{source, picks}]), checked: [(source, picks or None)]."""
+        if not isinstance(mods, list) or not mods:
+            raise EditorError("Choose the mods to combine")
+        out = []
+        for m in mods:
+            if not isinstance(m, dict) or not given(m.get("source")):
+                raise EditorError("Each mod to combine is a patch file, a folder or a ZIP")
+            picks = m.get("picks")
+            if picks is not None and (not isinstance(picks, list) or not all(isinstance(x, str) for x in picks)):
+                raise EditorError("A mod's options are a list of their ids")
+            out.append((str(m["source"]), picks))
+        return out
+
+    def _combine_part(self, job, f, key: str, scratch: Path):
+        """One patch of a mod, read for Combine: (its digest, combine.Part). A patch is kept by its digest, and known
+        by where it is and its time, so a mod read once is read again only after the game changed or its WAVs were
+        cleared from the cache."""
+        from . import combine as cb
+        try:
+            if f.is_zip:
+                st, path = f.source.stat(), None
+                stamp = (str(f.source), st.st_mtime_ns, st.st_size, key)
+            else:
+                path = f.place(key, scratch)
+                stream = path.with_name(path.name + ".stream")
+                stamp = (str(path), path.stat().st_mtime_ns, path.stat().st_size,
+                         *((stream.stat().st_mtime_ns, stream.stat().st_size) if stream.is_file() else ()))
+            version = self.ix.game.version
+            digest = self._combine_ids.get(stamp)
+            if digest is None:
+                path = path or f.place(key, scratch / uuid.uuid4().hex[:8])
+                digest = self._combine_ids[stamp] = _digest(path)
+        except OSError as e:
+            raise EditorError(f"Can't read {f.name}: {os_error(e)}") from None
+        out_dir = CACHE_DIR / "combine" / digest
+        kept = self._combine_parts.get(digest)
+        if kept and kept[0] == version and (not kept[1].files or (out_dir / ".done").is_file()):
+            self._combine_parts.move_to_end(digest)
+            return digest, kept[1]
+        if path is None:
+            path = f.place(key, scratch / uuid.uuid4().hex[:8])
+        try:
+            part = cb.part_of(*self._patch_audio(path, out_dir, job, reuse=True))
+        except EditorError as e:  # nothing it can bring in, or no game patch at all: said with the mod
+            part = cb.Part(error=str(e))
+        part.texts, part.rest = self._not_audio_counts(f, key)
+        self._combine_parts[digest] = (version, part)
+        while len(self._combine_parts) > self.COMBINE_KEPT:
+            self._combine_parts.popitem(last=False)
+        return digest, part
+
+    def _combine_gather(self, job, mods) -> list[dict]:
+        """Each mod to combine read (what was read before is used again): [{source, name, chosen (its options by
+        name), parts: [(key, digest, combine.Part)], left, sounds}]."""
+        import tempfile
+        from . import combine as cb
+        out = []
+        with tempfile.TemporaryDirectory(prefix="audiodiver-combine-", ignore_cleanup_errors=True) as tmp:
+            for n, (source, picks) in enumerate(mods):
+                f = self._scan(source)
+                opts = cb.options(f.manifest)
+                if picks is None:
+                    picks = cb.default_picks(opts, self._arsenal_recorded(f.source, opts))
+                name = f.name or Path(source).stem
+                job.say(f"--- {name} ({n + 1} of {len(mods)})")
+                parts = []
+                for key in cb.parts(f, opts, picks):
+                    job.step(f"Reading {name}")
+                    parts.append((key, *self._combine_part(job, f, key, Path(tmp))))
+                pts = [pt for *_, pt in parts]
+                texts, rest = sum(pt.texts for pt in pts), sum(pt.rest for pt in pts)
+                left = list(dict.fromkeys(x for pt in pts for x in pt.left)) + self._other_lines(texts, rest)
+                left += [pt.error for pt in pts if pt.error and not (pt.texts or pt.rest)]
+                if not parts:
+                    left.append("No patch is in the chosen options")
+                sounds = set().union(*(set(pt.replaced) | {t[2] for t in pt.takes if t[2] in pt.files}
+                                       | {o[1] for o in pt.own if o[1] in pt.files} for pt in pts))
+                out.append({"source": str(f.source), "name": name, "chosen": cb.labels(opts, picks), "parts": parts,
+                            "left": left, "sounds": len(sounds)})
+        return out
+
+    def _plays(self, oids) -> dict[int, list[int]]:
+        """{object: the clips it plays} as the first bank with a copy of it has it: a Sound's clip, a music track's,
+        and the clips of the Sounds below a container. Each bank is read once."""
+        from . import bank as wbank
+        from .addition import CONTAINERS, is_audio, parent_of
+        by_bank = {}
+        for oid in oids:
+            if banks := self.ix.copies(oid):
+                by_bank.setdefault(banks[0], []).append(oid)
+        out = {}
+        for bid, here in by_bank.items():
+            parent, clips = {}, {}
+            for oid, (t, body) in wbank.parse(self.ix.bank_files(bid)[0])[1].items():
+                try:
+                    if t == wbank.SOUND and is_audio(body):
+                        clips[oid], parent[oid] = [wbank.SOURCE.unpack_from(body, 0)[2]], parent_of(t, body)
+                    elif t == wbank.MUSIC_TRACK:
+                        clips[oid] = wbank.source_ids(t, body)
+                    elif t in CONTAINERS:
+                        parent[oid] = parent_of(t, body)
+                except Exception:  # noqa: BLE001 (an object this reading doesn't know: it plays nothing here)
+                    continue
+            for oid in here:
+                if oid in clips:
+                    out[oid] = clips[oid]
+                    continue
+                below = []
+                for o, c in clips.items():
+                    cur, seen = parent.get(o), set()
+                    while cur and cur not in seen:
+                        if cur == oid:
+                            below += c
+                            break
+                        seen.add(cur)
+                        cur = parent.get(cur)
+                out[oid] = below
+        return out
+
+    def _slot_label(self, sid: int, views: dict, of: int | None = None) -> str:
+        """A sound as the Library shows its slot: the music and its segment, or the sound and take in its bank. of: an
+        object that plays it (a setting's), named by the slot only when it is the Sound the slot names, else by the
+        group (a container: the sound whose takes it holds)."""
+        for place in self.lib.places(sid):
+            cue = place["cue"]
+            if cue not in views:
+                try:
+                    views[cue] = self.catalog.cue(int(cue)) if cue.isdigit() else self.lib.view(cue)
+                except (KeyError, ValueError):
+                    views[cue] = None
+            v = views[cue]
+            for g in (v or {}).get("segments_detail", []):
+                for st in g["stems"]:
+                    if any(sl["source"] == str(sid) for sl in st["slots"]):
+                        sl = next(sl for sl in st["slots"] if sl["source"] == str(sid))
+                        take = (sl.get("label") or "") if of is None or sl.get("object") == str(of) else ""
+                        bits = [v["name"] if cue.isdigit() else "", g["name"], take]
+                        return " · ".join(dict.fromkeys(b for b in bits if b))
+        return f"Sound {sid}"
+
+    def _combine_clashes(self, read):
+        """(the mods' effects, their clashes, {object: the clash its settings go with}) of what _combine_gather read."""
+        from . import combine as cb
+        effects = [cb.effect([pt for *_, pt in m["parts"]]) for m in read]
+        found, follows = cb.clashes(effects, self._plays)
+        return effects, found, follows
+
+    def _combine_result(self, read, effects, found) -> dict:
+        """combine_read's answer: the mods, and the clashes grouped by the Index item they belong to."""
+        from . import combine as cb
+        from .audio import duration_ms
+        views, groups = {}, {}
+        sounds = self._plays({c["key"] for c in found if c["kind"] == "clip"})  # a Sound -> its clip
+        objects = self._plays({c["key"][0] for c in found if c["kind"] == "setting"})
+        for c in found:
+            kind, key = c["kind"], c["key"]
+            src = key if kind == "sound" else next(iter((sounds if kind == "clip" else objects).get(
+                key if kind == "clip" else key[0], [])), None)
+            label = self._slot_label(src, views, key[0] if kind == "setting" else None) if src is not None else \
+                f"Object {key[0] if kind == 'setting' else key}"
+            versions = []
+            for m in c["mods"]:
+                e, parts = effects[m], read[m]["parts"]
+                if kind == "setting":
+                    versions.append({"mod": m, "value": round(e.settings[key[0]][key[1]][1], 4)})
+                    continue
+                n, clip = (e.replaced[key][0], key) if kind == "sound" else e.own[key][:2]
+                wav = parts[n][2].files[clip]
+                versions.append({"mod": m, "audio": str(wav), "ms": duration_ms(wav)})
+            item = (self.lib.home(src) or "") if src is not None else ""
+            groups.setdefault(item, []).append({
+                "id": c["id"], "kind": kind, "label": label + (f" · {cb.prop_name(key[1])}" if kind == "setting" else ""),
+                **({"source": str(src)} if src is not None else {}), "versions": versions, "winner": c["mods"][-1]})
+        order, kinds = self.lib.order, {"sound": 0, "clip": 1, "setting": 2}
+
+        def item_name(i):
+            try:
+                return self._list_name(i) if i else "Other Sounds"
+            except KeyError:
+                return i
+        return {"mods": [{"source": m["source"], "name": m["name"], "left": m["left"], "sounds": m["sounds"]}
+                         for m in read],
+                "groups": [{"item": i, "name": item_name(i),
+                            "clashes": sorted(groups[i], key=lambda x: (kinds[x["kind"]], x["label"]))}
+                           for i in sorted(groups, key=lambda i: (i == "", i not in order, order.get(i, 0), i))]}
+
+    def _combine_busy(self, kinds, what):
+        if any(j.kind in kinds and j.state == "running" for j in self.jobs.values()):
+            raise EditorError(what)
+
+    def combine_read(self, mods):
+        """Reads the mods to combine ([{source, picks}], in order: a later one wins where two differ), as a job: what
+        each leaves out and the clashes between them (combine.clashes), grouped by the Index item they belong to,
+        each with every mod's version and the one that wins by default. Each patch's audio is decoded into the cache
+        (CACHE_DIR/combine/<digest>) and what was read is kept, so another order or other winners read nothing
+        again."""
+        self.require_game()
+        mods = self._combine_list(mods)
+        self._combine_busy(("combine", "combine_read"), "The mods are being read or combined already")
+
+        def run(job):
+            read = self._combine_gather(job, mods)
+            job.step("Comparing the mods")
+            effects, found, _ = self._combine_clashes(read)
+            job.say(f"{len(found)} clash{'es' if len(found) != 1 else ''}")
+            return self._combine_result(read, effects, found)
+        return self._start("combine_read", run, title=f"{len(mods)} mods")
+
+    def combine(self, mods, winners=None, name="", folder="", every_bank=False):
+        """Combines the mods ([{source, picks}], in order) into one, as a job: a project in its own folder under the
+        combine folder (`<name>/<name>.audi`, its audio in audio/imported), with a new id, Audiodiver's icon and a
+        description that lists the mods and their options, built once into an HD2 Arsenal ZIP in its build folder.
+        winners: {clash id: the mod that wins it}; a clash not named goes to the last mod with a version. Takes and
+        layers of every mod go in. every_bank: the sounds go into every bank that has them (build.reach)."""
+        from . import combine as cb
+        from .arsenal import name_problem
+        from .build import BuildError, build
+        from .game import in_game_folder
+        self.require_game()
+        mods = self._combine_list(mods)
+        name = str(name or "").strip() or "Combined mods"
+        if problem := name_problem(name):
+            raise EditorError(f"The name: {problem}")
+        root = Path(folder) if given(folder) else self._combine_root()
+        if not root.is_absolute():
+            raise EditorError("Choose where combined mods go (a full path)")
+        if in_game_folder(root, self.ix.game.data):
+            raise EditorError(f"{root} is inside the game's folder, and Audiodiver never writes there")
+        if not isinstance(every_bank, bool):
+            raise EditorError("Every bank is on or off")
+        if winners is not None and not isinstance(winners, dict):
+            raise EditorError("The winners are pairs of a clash and a mod")
+        chosen = {str(k): v for k, v in (winners or {}).items()}
+        self._combine_busy(("build", "repatch", "combine", "combine_read"),
+                           "Wait until the running build, repatch or combine is done")
+        if given(folder):
+            save_settings(combine_folder=str(root))
+
+        def copy_in(pt, clips, into: Path) -> dict:
+            """The WAVs of these clips copied from the cache into the project: {clip: its copy}."""
+            out = {}
+            for clip in sorted(clips):
+                src = pt.files.get(clip)
+                if src is None or not src.is_file():
+                    continue
+                to = into / f"{clip}.wav"
+                if not to.exists():
+                    to.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(src, to)
+                out[clip] = to
+            return out
+
+        def run(job):
+            read = self._combine_gather(job, mods)
+            effects, found, follows = self._combine_clashes(read)
+            won = cb.winners(found, chosen)
+            clips, own, settings, by = cb.outcome(effects, found, follows, won)
+            n = 1
+            while (home := root / (_short(name) if n == 1 else f"{_short(name)} {n}")).exists():
+                n += 1
+            try:
+                home.mkdir(parents=True)
+            except OSError as e:
+                raise EditorError(f"Can't make the folder {home}: {os_error(e)}") from None
+            stats = [{"name": m["name"], "imported": 0, "added": 0,
+                      "settings": sum(i in ms for ms in by.values()),
+                      "stale": len(set().union(*(pt.stale for *_, pt in m["parts"]))),
+                      "older": len(set().union(*(pt.older for *_, pt in m["parts"]))), "left": m["left"]}
+                     for i, m in enumerate(read)]
+            try:
+                p = Project(name=name, path=home / f"{home.name}.audi", library=[], every_bank=every_bank,
+                            description=cb.description([(m["name"], m["chosen"]) for m in read]))
+                job.step("Putting the mods together")
+                with self.lock:
+                    for i, m in enumerate(read):
+                        mine = {}  # this mod's additions (_take_in): another mod's with the same ids go in beside them
+                        for k, (key, digest, pt) in enumerate(m["parts"]):
+                            if pt.error:
+                                continue
+                            wins = {sid for sid, at in clips.items() if at == (i, k)}
+                            own_here = [o for o in pt.own if own.get(o[0]) == (i, k)]
+                            local = copy_in(pt, wins | {t[2] for t in pt.takes} | {o[1] for o in own_here},
+                                            home / "audio" / "imported" / f"{PurePosixPath(key).name.split('.')[0]}-{digest}")
+                            for sid in sorted(wins & set(local)):
+                                self._set(p, sid, str(local[sid]), label=f"{m['name']} {sid}")
+                                stats[i]["imported"] += 1
+                            got = SimpleNamespace(layers=pt.layers, takes=pt.takes, own=own_here)
+                            stats[i]["added"] += self._take_in(p, got, local, mine, tag=m["name"])
+                            p.imported_banks = sorted(set(p.imported_banks) | pt.banks)  # where its sounds go
+                    p.settings = settings
+                    self._tidy(p)
+                    self._tidy_cues(p)
+                    self._cover(p)
+                    if not p.replacements and not p.settings:
+                        raise EditorError("None of the mods has audio or settings that Audiodiver can bring in")
+                    p.built_for = self.ix.game.version
+                    p.save()
+                    made_from = build_inputs(p)
+
+                def progress(doing, done=None, total=None):
+                    if total:
+                        job.total = total
+                    job.step(doing, done)
+                try:
+                    zip_path = build(p, self.ix, log=job.say, step=progress, listed=self._listed_banks(p))
+                except BuildError as e:
+                    raise EditorError(str(e)) from None
+            except BaseException:
+                if not any(home.glob("*.audi")):
+                    shutil.rmtree(home, ignore_errors=True)  # made just now, with nothing to show for it
+                raise
+            self._bump_version(p.path, p.version + 1, self.ix.game.version, made_from)  # its next build doesn't overwrite this one
+            mb = round(zip_path.stat().st_size / 1e6, 1)
+            return {"name": name, "zip": str(zip_path), "folder": str(home), "mb": mb, "project": str(p.path),
+                    "mods": stats}
+        return self._start("combine", run, title=name)
+
+    def _take_in(self, p: Project, got, files: dict, mine: dict | None = None, tag="imported") -> int:
         """Puts what a patch adds (addition.from_patch) into the project, each with its decoded audio (files: {clip:
         wav}): under the patch's own ids where they are free, else new ones. An addition the project has already
-        (the same patch imported again) takes the new audio. Returns how many slots it added or changed."""
+        (the same patch imported again) takes the new audio. mine: {(kind, the patch's id): the addition it became}
+        for one mod's patches (Combine), so only that mod's own additions are matched; another mod's take or layer
+        with the same id goes in beside it, under new ids. A clip of its own is one per Sound, whoever's it is. tag
+        starts the slots' labels. Returns how many slots it added or changed."""
         from .addition import new_id
         taken = set(self.ix.taken) | p.made_ids() | {r.target for r in p.replacements}
 
@@ -1881,6 +2380,18 @@ class Session:
             taken.add(i)
             return i
 
+        def find(kind, i):
+            if mine is not None:
+                return mine.get((kind, i))
+            return next((a for a in p.additions if a.kind == kind and (a.container if kind == "layer" else a.sound) == i),
+                        None)
+
+        def add(kind, i, a):
+            p.additions.append(a)
+            if mine is not None:
+                mine[(kind, i)] = a
+            return a
+
         def give(source, clip, label, gain=0.0):
             self._set(p, source, str(files[clip]), label=label)
             if gain:
@@ -1888,19 +2399,15 @@ class Session:
 
         n, layers = 0, {}
         for lay, beside, gain in got.layers:
-            have = next((a for a in p.additions if a.kind == "layer" and a.container == lay), None)
-            layers[lay] = (have.container if have else free(lay), gain)
-            if not have:
-                p.additions.append(Addition("layer", container=layers[lay][0], beside=beside))
+            have = find("layer", lay) or add("layer", lay, Addition("layer", container=free(lay), beside=beside))
+            layers[lay] = (have.container, gain)
         for container, sound, clip, _wem in got.takes:
             if clip not in files:
                 continue
             to, gain = layers.get(container, (container, 0.0))
-            have = next((a for a in p.additions if a.kind == "take" and a.sound == sound), None)
-            if not have:
-                have = Addition("take", container=to, sound=free(sound), source=free(clip))
-                p.additions.append(have)
-            give(have.source, clip, f"imported take {clip}", gain)
+            have = find("take", sound) or add("take", sound, Addition("take", container=to, sound=free(sound),
+                                                                      source=free(clip)))
+            give(have.source, clip, f"{tag} take {clip}", gain)
             n += 1
         for sound, clip, _wem in got.own:
             if clip not in files:
@@ -1909,7 +2416,7 @@ class Session:
             if not have:
                 have = Addition("own", sound=sound, source=free(clip))
                 p.additions.append(have)
-            give(have.source, clip, f"imported {clip}")
+            give(have.source, clip, f"{tag} {clip}")
             n += 1
         return n
 
@@ -2326,6 +2833,40 @@ def _game_updated(p: Project, game, last) -> bool:
     return "updated" in game.steam and last["modified"] < game.steam["updated"]
 
 
+def build_inputs(p: Project) -> str:
+    """A fingerprint of what a build of the project is made from: its file but for its notes and its build records,
+    and the size and time of each file it uses, so audio changed in another program counts too."""
+    import hashlib
+    import json
+    d = p.to_json()
+    for k in ("version", "built_for", "built_from", "build_folder", "notes"):
+        d.pop(k, None)
+    files = {r.audio for r in p.replacements if not r.silence and r.audio} | {p.icon.get("image") or ""}
+    stats = {}
+    for rel in sorted(f for f in files if isinstance(f, str) and f):
+        try:
+            st = p.file(rel).stat()
+            stats[rel] = [st.st_size, st.st_mtime_ns]
+        except OSError:
+            stats[rel] = None
+    return hashlib.sha1(json.dumps([d, stats], sort_keys=True).encode()).hexdigest()[:16]
+
+
+def _rebuild(p: Project, game_updated: bool, last) -> str | None:
+    """Why the mod in the build folder isn't the project as it is now: "new" (no build yet), "game" (the game updated
+    since), "changed" (the project did), or None. A build from before projects noted what it was made from says
+    nothing until the next one."""
+    if not p.replacements and not p.texts:
+        return None  # nothing to build
+    if not last:
+        return "new"
+    if game_updated:
+        return "game"
+    if p.built_from and p.built_from != build_inputs(p):
+        return "changed"
+    return None
+
+
 def _last_build(folder: Path, slug: str):
     """The newest build of a mod in its build folder, <slug>-<version>.zip (other mods may build into the same
     folder): {zip, mb, modified}, or None."""
@@ -2375,12 +2916,13 @@ def projects_info(paths):
 
 
 # What Audiodiver keeps on disk to save time, by what it costs to lose: previews are made again as you listen,
-# encoded audio at the next build. The game index and the logs are not offered for clearing.
-CACHE_KINDS = {"previews": ("preview", "render", "peaks"), "encoded": ("wem", "akd")}
+# encoded audio at the next build, the mods Combine read when they are read again. The game index and the logs are
+# not offered for clearing.
+CACHE_KINDS = {"previews": ("preview", "render", "peaks"), "encoded": ("wem", "akd"), "combine": ("combine",)}
 
 
 def cache_info():
-    """{folder, previews, encoded}: where the cache lives and how many bytes each clearable part takes."""
+    """{folder, previews, encoded, combine}: where the cache is and how many bytes each clearable part takes."""
     def size(name):
         total = 0
         for f in (CACHE_DIR / name).rglob("*"):

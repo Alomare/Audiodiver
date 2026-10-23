@@ -4,7 +4,7 @@ group: Building and sharing
 summary: Rebuilding an audio mod that was made for an older version of the game, or with another tool, against the current game.
 ---
 
-A mod's patch contains complete copies of the sound banks it changes, as they were in the game version the mod was made for. After a game update, those copies are out of date. The mod can go silent or play the wrong sounds, and while it is installed it rolls the game's newer audio back. It can even silence sounds it never changed, because its banks also carry settings that many other banks share. **Repatch**, on [Build](app:build/repatch), rebuilds such a mod against the current game. You don't need a project or any modding experience to use it.
+A mod's patch contains complete copies of the sound banks it changes, as they were in the game version the mod was made for. After a game update, those copies are out of date. The mod can go silent or play the wrong sounds, and while it is installed it rolls the game's newer audio back. It can even silence sounds it never changed, because its banks also carry settings that many other banks share. **Repatch**, on [Tools](app:tools/repatch), rebuilds such a mod against the current game. You don't need a project or any modding experience to use it.
 
 ## When to use it
 
@@ -13,12 +13,11 @@ A mod's patch contains complete copies of the sound banks it changes, as they we
 
 ## Repatching a mod
 
-1. Open [Build ▸ Repatch](app:build/repatch).
+1. Open [Tools ▸ Repatch](app:tools/repatch).
 2. Drop the mod on the page. You can drop the ZIP you downloaded, the mod's folder, or its `.patch_0` file with its `.stream` file next to it. **Choose a ZIP or patch file…** and **Choose a folder…** do the same. A ZIP dropped anywhere in Audiodiver also opens on this page.
 3. Check the name. Audiodiver takes it from the mod's manifest if the mod has one, and otherwise from the file or folder name, without the numbers and dates that Nexus Mods adds to a download's name.
-4. For a music mod, tick **Apply biome music fix** to add the [Sound Systems Rebalanced Patch](wiki:build-and-install#sound-systems-rebalanced-patch).
-5. Tick **Patch every bank with the sounds** if the mod's audio should play wherever the game uses its sounds. Left off, the mod's audio goes only into the banks the mod patched, as in the original, and the mod stays about the same size. [More about it](wiki:build-and-install#every-bank-with-the-sounds).
-6. Press **Repatch**.
+4. Tick **Patch every bank with the sounds** if the mod's audio should play wherever the game uses its sounds. Left off, the mod's audio goes only into the banks the mod patched, as in the original, and the mod stays about the same size. [More about it](wiki:build-and-install#every-bank-with-the-sounds).
+5. Press **Repatch**.
 
 Some mods have several options, with one patch for each option. A mod like this stays one mod with the same options. The page lists its patches, and Audiodiver rebuilds each one in its original place.
 
@@ -42,7 +41,7 @@ The check only reports what a mod's author wouldn't have changed on purpose, so 
 - The audio that the mod replaces, and the audio it adds. Added audio can be new takes for a sound, a sound that plays with another sound, or a separate clip for one sound.
 - The mod's sound settings. These include the volume (Make-Up Gain) of a sound or a container, a delay before it plays, how much of it goes to the game's reverb, and similar settings.
 
-Audiodiver applies all of this to the game's current sound banks and builds a new ZIP of the same mod. The Sound Systems Rebalanced Patch goes in only when **Apply biome music fix** is ticked, and the banks the mod didn't patch get its audio only when **Patch every bank with the sounds** is ticked.
+Audiodiver applies all of this to the game's current sound banks and builds a new ZIP of the same mod. The banks the mod didn't patch get its audio only when **Patch every bank with the sounds** is ticked.
 
 If the mod has a mod manager manifest, the new ZIP keeps everything else from the original. That includes the name, the description, the icon, the options, the files next to the patches, and the mod's id. Because the id stays the same, importing the new ZIP in Arsenal updates the old mod and doesn't add another copy. Only the patches are new. The mod's audio goes in exactly as it was, without being converted again, so it sounds the same.
 

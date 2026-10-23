@@ -15,6 +15,7 @@ Guid and icon carry over, and its options name the patches found under their fol
 import json
 import re
 import shutil
+import time
 import uuid
 import zipfile
 from dataclasses import dataclass, field
@@ -111,7 +112,9 @@ def repackage(found: Found, out_zip: Path, rebuilt: dict[str, Path], name: str, 
     try:
         with zipfile.ZipFile(partial, "w", compression=zipfile.ZIP_DEFLATED) as z:
             for key in sorted((set(found.names) | set(swap)) - gone):
-                with z.open(key, "w", force_zip64=True) as dst:
+                info = zipfile.ZipInfo(key, time.localtime()[:6])
+                info.compress_type = zipfile.ZIP_STORED if ".patch_" in key else zipfile.ZIP_DEFLATED  # as package()
+                with z.open(info, "w", force_zip64=True) as dst:
                     if key in swap:
                         if swap[key].is_file():
                             with open(swap[key], "rb") as src:

@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from audiodiver import biome, repatch
+from audiodiver import repatch
 from audiodiver import bank as wbank
 from audiodiver.editor import EditorError, Session
 from audiodiver.patch import read_patch
@@ -140,7 +140,6 @@ def test_an_old_mod_comes_back_on_the_current_game_as_it_was(session, tmp_path):
         assert {f"WoS/extras/warp/9ba626afa44a3aa3.patch_0{x}" for x in ("", ".stream", ".gpu_resources")} <= names
     banks, streams = read_patch(str(_patch_of(got["zip"], "WoS/descent/9ba626afa44a3aa3.patch_0", tmp_path / "d")))
     old_banks, old_streams = read_patch(str(WOS))
-    assert biome.INIT in banks and not set(banks[biome.INIT][1]) & biome.copied(ix)  # no fix: off by default
     for bid, (media, hirc) in banks.items():  # the game's banks of today, each object at least once
         assert set(wbank.parse(ix.bank_files(bid)[0])[1]) <= set(hirc)
     old_audio = set(old_streams.values()) | {m for media, _ in old_banks.values() for m in media.values()}

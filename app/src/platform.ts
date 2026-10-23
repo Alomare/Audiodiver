@@ -37,11 +37,11 @@ export async function pickProjectToOpen(near?: string): Promise<string | null> {
   return (r as string) ?? null;
 }
 
-/** The new project's name and the folder its own folder goes in (dir: where the picker starts). */
+/** The new project's name and where its folder goes (dir: where the picker starts). */
 export async function pickProjectToCreate(suggested: string, dir?: string): Promise<string | null> {
-  if (!isTauri()) return promptPaths("Where to save the new project (.audi). It gets a folder of its own there.", false)?.[0] ?? null;
+  if (!isTauri()) return promptPaths("Where to save the new project (.audi). Audiodiver makes a folder for it there.", false)?.[0] ?? null;
   const { save } = await import("@tauri-apps/plugin-dialog");
-  return await save({ title: "New project: its name, and where its folder goes", defaultPath: dir ? `${dir}\\${suggested}` : suggested,
+  return await save({ title: "New project", defaultPath: dir ? `${dir}\\${suggested}` : suggested,
     filters: [{ name: "Audiodiver project", extensions: ["audi"] }] });
 }
 
@@ -89,6 +89,15 @@ export async function pickMod(): Promise<string | null> {
   const r = await open({ multiple: false, title: "Choose a mod to repatch",
     filters: [{ name: "Mods (.zip, .patch_0)", extensions: ["zip", "patch_0", "patch_1", "patch_2", "patch_3", "patch_4"] }, { name: "All files", extensions: ["*"] }] });
   return (r as string) ?? null;
+}
+
+/** Mods to combine: ZIPs and patch files, several at once. */
+export async function pickMods(): Promise<string[] | null> {
+  if (!isTauri()) return promptPaths("The mods' ZIP or .patch_0 files", true);
+  const { open } = await import("@tauri-apps/plugin-dialog");
+  const r = await open({ multiple: true, title: "Choose mods to combine",
+    filters: [{ name: "Mods (.zip, .patch_0)", extensions: ["zip", "patch_0", "patch_1", "patch_2", "patch_3", "patch_4"] }, { name: "All files", extensions: ["*"] }] });
+  return r ? (Array.isArray(r) ? r : [r]) : null;
 }
 
 export const IMAGES = ["png", "jpg", "jpeg", "webp", "bmp", "gif", "tif", "tiff"];

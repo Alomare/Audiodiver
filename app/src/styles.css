@@ -3,7 +3,8 @@
    fills the main buttons; neutral gray means "original"; the secondary colour (blue) navigates and informs: links,
    the open tab, the selection, focus. theme.ts sets the --accent* and --second* tokens from the chosen hues and
    data-theme on <html>. --accent fills (with --accent-ink on top); --accent-fg is for text and lines on the page
-   background (on the light theme it is the secondary colour: dark yellows read as olive); --second-fg likewise.
+   background (on the light theme it is the secondary colour: dark yellows read as olive), and for the tints behind
+   such text and lines, so blue never sits on a yellow tint; --second-fg likewise.
    The window's chrome (the rail of master tabs) is darker than the pages, and the open tab takes the colour of what it holds.
    The typefaces are the user's choice too (Settings ▸ Theme): theme.ts sets --body and --title, and main.tsx loads
    the fonts. The app uses four weights, 300, 400, 500 and 700; Light (300) only for subtitles of 16px and up,
@@ -27,7 +28,9 @@
   --second-fg: #82b6ff;
   --second-dim: #3f6597;
   --chrome: #0e0e0e;     /* the rail: darker than any page, so the open tab stands out as part of the page */
-  --steel: #cfcfcf;      /* the game's audio: neutral light gray */
+  --rail-band: #070707;  /* the rail's band of project tabs: darker still, so no page's colour matches it */
+  --rail-band-edge: var(--line-soft);
+  --steel: #cfcfcf;     /* the game's audio: neutral light gray */
   --steel-dim: #7a7a7a;
   --steel-ink: #111;
   --red: #e5603f;
@@ -56,7 +59,9 @@
   --second-fg: #1f5fb4;
   --second-dim: #a9c3e8;
   --chrome: #d6d6d6;
-  --steel: #4a4a4a;      /* the game's audio: neutral dark gray on a light page */
+  --rail-band: #c5c5c5;
+  --rail-band-edge: #b3b3b3;
+  --steel: #4a4a4a;     /* the game's audio: neutral dark gray on a light page */
   --steel-dim: #a6a6a6;
   --steel-ink: #fff;
   --red: #c2401f;
@@ -137,9 +142,16 @@ input[type="search"], input[type="number"] { background: var(--bg); border: 1px 
 input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color]):focus, textarea:focus { border-color: var(--muted); outline: none; }
 
 /* ---------- layout */
-/* the master tabs down the left (.rail), the tab that shows beside them, the status bar along the bottom */
-.app { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; height: 100%; }
-.app > .statusbar { grid-column: 1 / -1; }
+/* the master tabs (.rail) on the side Settings ▸ Theme puts them (data-bar on <html>, the top by default), the tab that
+   shows beside them, the status bar along the bottom */
+.app { display: grid; grid-template-areas: "rail" "views" "status"; grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto; height: 100%; }
+:root[data-bar="bottom"] .app { grid-template-areas: "views" "rail" "status"; grid-template-rows: minmax(0, 1fr) auto auto; }
+:root[data-bar="left"] .app { grid-template-areas: "rail views" "status status"; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; }
+:root[data-bar="right"] .app { grid-template-areas: "views rail" "status status"; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: minmax(0, 1fr) auto; }
+.app > .rail { grid-area: rail; }
+.app > .views { grid-area: views; }
+.app > .statusbar { grid-area: status; }
 .views { min-height: 0; min-width: 0; }
 .views > * { height: 100%; }
 .panes[hidden] { display: none; }
@@ -163,20 +175,72 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color])
 .splitter:hover, .splitter.active { background: var(--accent); }
 .center { min-width: 0; min-height: 0; display: flex; flex-direction: column; background: var(--bg); }
 
-/* ---------- the rail: the master tabs, down the left */
+/* ---------- the rail: the master tabs, the tab bar */
 /* The rail is the window's chrome, darker than any page. The open master tab takes the colour of the page right
    beside it (--under: the list panel in the Library, the Audio Editor, the Text Editor and the Wiki, the page
-   elsewhere) and covers the rail's edge, so it runs on into what it holds; the subtabs inside a page keep an
-   underline. */
-.app { --under: var(--bg); }
+   elsewhere) and covers the rail's edge, so it runs on into what it holds; a line of the secondary colour marks it
+   on the window's side. The subtabs inside a page keep an underline. Down the left or right, the rail is a column of
+   square buttons; along the top or bottom, a row, the main tabs' names beside their icons when names are on.
+   The main tabs come in two sets: Home and Tools, which make projects, then a band holding the tabs that work on the
+   open project, led by the project's own icon and name. The band is darker than the rail with an edge at each end,
+   keeps the rail's line along the page, and marks its open tab in the project's colour. */
+.app { --under: var(--bg); --bar: calc(40px * var(--fs) + 8px * var(--sp)); }
 .app[data-tab="library"], .app[data-tab="editor"], .app[data-tab="text"], .app[data-tab="wiki"] { --under: var(--panel); }
-.rail { position: relative; z-index: 5; display: flex; flex-direction: column; justify-content: space-between; min-height: 0;
-  width: calc(40px * var(--fs) + 8px * var(--sp)); background: var(--chrome); border-right: 1px solid var(--line); }
-.rail-group { display: flex; flex-direction: column; margin-right: -1px; } /* -1px: the open tab covers the rail's own line */
-.rail .tab { position: relative; display: grid; place-items: center; height: calc(40px * var(--fs) + 8px * var(--sp));
-  font-size: calc(17px * var(--fs)); color: var(--muted); border: solid transparent; border-width: 0 2px; }
+.rail { position: relative; z-index: 5; display: flex; justify-content: space-between; min-width: 0; min-height: 0;
+  background: var(--chrome); }
+.rail-group { display: flex; }
+.rail-set { display: flex; min-width: 0; min-height: 0; }
+.rail-mod { --tab-line: var(--accent-fg); background: var(--rail-band); }
+.rail-mod.idle .tab:not(.on):not(:hover) { color: var(--faint); } /* no project open: quieter */
+.tab-mod-icon { flex: none; width: 1.25em; height: 1.25em; }
+.rail .tab-mod .tab-name { max-width: calc(200px * var(--fs)); }
+.rail .tab { position: relative; display: flex; align-items: center; justify-content: center; gap: 8px;
+  min-width: var(--bar); height: var(--bar); font-size: calc(17px * var(--fs)); color: var(--muted); border: 0 solid transparent; }
 .rail .tab:hover { color: var(--text); background: color-mix(in srgb, var(--under) 50%, var(--chrome)); }
-.rail .tab.on { color: var(--text); background: var(--under); border-left-color: var(--second-fg); }
+.rail .tab.on { color: var(--text); background: var(--under); }
+/* down a side: -1px lets the open tab cover the rail's own line */
+:root:is([data-bar="left"], [data-bar="right"]) .rail { flex-direction: column; width: var(--bar); }
+:root:is([data-bar="left"], [data-bar="right"]) :is(.rail-group, .rail-set) { flex-direction: column; }
+:root:is([data-bar="left"], [data-bar="right"]) .rail .tab { border-width: 0 2px; }
+:root:is([data-bar="left"], [data-bar="right"]) .rail-set + .rail-set { margin-top: calc(6px + 4px * var(--sp)); }
+:root[data-bar="left"] .rail { border-right: 1px solid var(--line); }
+:root[data-bar="left"] .rail-group { margin-right: -1px; }
+:root[data-bar="left"] .rail .tab.on { border-left-color: var(--tab-line, var(--second-fg)); }
+:root[data-bar="left"] .rail-mod { box-shadow: inset 0 1px var(--rail-band-edge), inset 0 -1px var(--rail-band-edge), inset -1px 0 var(--line); }
+:root[data-bar="right"] .rail { border-left: 1px solid var(--line); }
+:root[data-bar="right"] .rail-group { margin-left: -1px; }
+:root[data-bar="right"] .rail .tab.on { border-right-color: var(--tab-line, var(--second-fg)); }
+:root[data-bar="right"] .rail-mod { box-shadow: inset 0 1px var(--rail-band-edge), inset 0 -1px var(--rail-band-edge), inset 1px 0 var(--line); }
+/* along the top or bottom */
+:root:is([data-bar="top"], [data-bar="bottom"]) .rail { flex-direction: row; }
+:root:is([data-bar="top"], [data-bar="bottom"]) .rail-group { min-width: 0; } /* a narrow window cuts the names short */
+:root:is([data-bar="top"], [data-bar="bottom"]) .rail-set + .rail-set { margin-left: calc(6px + 4px * var(--sp)); }
+:root:is([data-bar="top"], [data-bar="bottom"]) .rail .tab { flex: 0 1 auto; border-width: 2px 0; }
+:root:is([data-bar="top"], [data-bar="bottom"]) .rail .tab > .icon { flex: none; }
+.tab-name { overflow: hidden; text-overflow: ellipsis; }
+:root:is([data-bar="top"], [data-bar="bottom"]) .rail .tab.named { padding: 0 calc(12px + 4px * var(--sp)) 0 calc(10px + 4px * var(--sp)); }
+:root[data-bar="top"] .rail { border-bottom: 1px solid var(--line); }
+:root[data-bar="top"] .rail-group { margin-bottom: -1px; }
+:root[data-bar="top"] .rail .tab.on { border-top-color: var(--tab-line, var(--second-fg)); }
+:root[data-bar="top"] .rail-mod { box-shadow: inset 1px 0 var(--rail-band-edge), inset -1px 0 var(--rail-band-edge), inset 0 -1px var(--line); }
+:root[data-bar="bottom"] .rail { border-top: 1px solid var(--line); }
+:root[data-bar="bottom"] .rail-group { margin-top: -1px; }
+:root[data-bar="bottom"] .rail .tab.on { border-bottom-color: var(--tab-line, var(--second-fg)); }
+:root[data-bar="bottom"] .rail-mod { box-shadow: inset 1px 0 var(--rail-band-edge), inset -1px 0 var(--rail-band-edge), inset 0 1px var(--line); }
+.tab-name { font-size: calc(14px * var(--fs)); font-weight: 500; white-space: nowrap; }
+.rail .tab.named :is(.rail-badge, .rail-dot) { position: static; flex: none; } /* after the name, where they can't cover it */
+/* a side bar's names: a label that grows out of the button under the pointer (or the focus), in its colour, with
+   what the tooltip would say under the name; it takes no clicks, so the page beside stays in reach */
+.tab-fly { position: absolute; top: -1px; bottom: -1px; display: flex; flex-direction: column; justify-content: center; gap: 2px;
+  padding: 0 16px; background: inherit; border: 1px solid var(--line); box-shadow: 0 8px 22px var(--shadow);
+  color: var(--text); text-align: left; white-space: nowrap; pointer-events: none; opacity: 0; visibility: hidden;
+  transition: opacity var(--t1), visibility 0s linear var(--t1); }
+:root[data-bar="left"] .tab-fly { left: 100%; border-left: 0; border-radius: 0 4px 4px 0; }
+:root[data-bar="right"] .tab-fly { right: 100%; border-right: 0; border-radius: 4px 0 0 4px; }
+.tab-fly b { font-family: var(--title); font-size: calc(15px * var(--fs)); font-weight: 700; }
+.tab-fly-tip { display: flex; align-items: baseline; gap: 10px; font-size: calc(13px * var(--fs)); color: var(--muted); }
+.tab-fly-tip kbd { font-size: calc(12px * var(--fs)); }
+.rail .tab:hover .tab-fly, .rail .tab:focus-visible .tab-fly { opacity: 1; visibility: visible; transition: opacity var(--t1) 60ms, visibility 0s 60ms; }
 /* how many problems stop the build, on the Build tab */
 .rail-badge { position: absolute; top: calc(3px + 2px * var(--sp)); right: calc(2px + 2px * var(--sp)); min-width: 16px; height: 16px; padding: 0 4px;
   border-radius: 8px; background: var(--red); color: #fff; font-size: 11px; font-weight: 700; line-height: 16px; text-align: center; }
@@ -262,12 +326,12 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color])
 .slot-mine { display: flex; align-items: center; gap: 8px; min-height: calc(26px + 8px * var(--sp)); padding: 0 6px; }
 /* the Library's slots are for listening: the original, and no column for a replacement */
 .cue.ro .slot { grid-template-columns: minmax(180px, 1fr) calc(64px * var(--fs)); }
-.slot.assigned .slot-mine { background: color-mix(in srgb, var(--accent) 10%, var(--panel)); border-left: 3px solid var(--accent-fg); }
+.slot.assigned .slot-mine { background: color-mix(in srgb, var(--accent-fg) 10%, var(--panel)); border-left: 3px solid var(--accent-fg); }
 .file { flex: 1; min-width: 0; font-size: calc(14px * var(--fs)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
 button.file:hover:not(:disabled) { text-decoration: underline dotted; text-underline-offset: 3px; color: var(--text); }
 .file.missing { color: var(--red); }
 /* silence: a flat line where a file's play button would be */
-.silence-mark { position: relative; flex: none; width: calc(24px + 6px * var(--sp)); height: calc(24px + 6px * var(--sp)); border-radius: 50%; background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.silence-mark { position: relative; flex: none; width: calc(24px + 6px * var(--sp)); height: calc(24px + 6px * var(--sp)); border-radius: 50%; background: color-mix(in srgb, var(--accent-fg) 14%, transparent); }
 .silence-mark::after { content: ""; position: absolute; left: 28%; right: 28%; top: calc(50% - 1px); height: 2px; background: var(--accent-fg); }
 .file.silent { flex: none; }
 .file.silent ~ .x { margin-left: auto; }
@@ -279,13 +343,13 @@ button.file:hover:not(:disabled) { text-decoration: underline dotted; text-under
 /* play buttons fill with progress: original = steel, replaced = accent */
 .play { --progress: 0; position: relative; width: calc(24px + 6px * var(--sp)); height: calc(24px + 6px * var(--sp)); flex: none; border-radius: 50%; font-size: 11px; display: grid; place-items: center; }
 .play.vanilla { color: var(--steel); background: conic-gradient(var(--steel-dim) calc(var(--progress) * 1turn), color-mix(in srgb, var(--steel) 14%, transparent) 0); }
-.play.project { color: var(--accent-fg); background: conic-gradient(var(--accent-dim) calc(var(--progress) * 1turn), color-mix(in srgb, var(--accent) 14%, transparent) 0); }
+.play.project { color: var(--accent-fg); background: conic-gradient(var(--accent-dim) calc(var(--progress) * 1turn), color-mix(in srgb, var(--accent-fg) 14%, transparent) 0); }
 .play:hover:not(:disabled) { filter: brightness(1.3); }
 .play.playing { color: var(--text); }
 
 /* drag and drop */
 .app.dragging [data-drop] { outline: 1px dashed var(--line); outline-offset: -1px; }
-.app.dragging .drop-over, [data-drop].drop-over { outline: 2px solid var(--accent-fg) !important; outline-offset: -2px; background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.app.dragging .drop-over, [data-drop].drop-over { outline: 2px solid var(--accent-fg) !important; outline-offset: -2px; background: color-mix(in srgb, var(--accent-fg) 8%, transparent); }
 
 /* ---------- inspector */
 .inspector { background: var(--panel); min-width: 0; overflow: auto; padding: calc(16px * var(--sp)) 18px 30px; }
@@ -325,7 +389,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fg); }
 .ab.one { grid-template-columns: 1fr; }
 .ab-btn { padding: calc(9px * var(--sp)) 0; font-size: calc(15px * var(--fs)); font-weight: 700; }
 .ab-btn.game { background: color-mix(in srgb, var(--steel) 16%, var(--raised)); color: var(--steel); }
-.ab-btn.mine { background: color-mix(in srgb, var(--accent) 14%, var(--raised)); color: var(--accent-fg); }
+.ab-btn.mine { background: color-mix(in srgb, var(--accent-fg) 14%, var(--raised)); color: var(--accent-fg); }
 .ab-btn.game.on { background: var(--steel); color: var(--steel-ink); }
 .ab-btn.mine.on { background: var(--accent); color: var(--accent-ink); }
 .scrub { height: 8px; background: var(--bg); margin-top: 10px; cursor: pointer; position: relative; }
@@ -364,6 +428,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fg); }
 .sb-btn:disabled { opacity: .35; }
 .statusbar .busy { color: var(--accent-fg); }
 .notices { position: fixed; bottom: calc(38px + 8px * var(--sp)); right: 16px; display: flex; flex-direction: column; gap: 8px; z-index: 30; max-width: 460px; }
+:root[data-bar="bottom"] .notices { bottom: calc(38px + 8px * var(--sp) + var(--bar)); } /* above the tab bar too */
 .notice { display: flex; gap: 10px; align-items: center; background: var(--raised); border: 1px solid var(--line); border-left: 3px solid var(--steel); padding: calc(10px * var(--sp)) 10px calc(10px * var(--sp)) 14px; box-shadow: 0 10px 30px var(--shadow); font-size: calc(14px * var(--fs)); }
 .notice span, .notice-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .notice:has(.notice-text) { align-items: flex-start; } /* a notice of several lines keeps its buttons by its first line */
@@ -466,7 +531,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fg); }
 .card:hover { border-color: var(--muted); }
 .card b { font-size: calc(15px * var(--fs)); }
 .card span { font-size: calc(13px * var(--fs)); color: var(--muted); line-height: 1.35; }
-.card.on { border-color: var(--second-fg); background: color-mix(in srgb, var(--accent) 9%, var(--bg)); }
+.card.on { border-color: var(--second-fg); background: color-mix(in srgb, var(--second-fg) 10%, var(--bg)); } /* a selection: blue only */
 .card.on b { color: var(--second-fg); }
 .export-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; align-items: start; }
 .inline input { background: var(--bg); border: 1px solid var(--line); border-radius: 2px; padding: 6px 8px; }
@@ -585,6 +650,12 @@ button.ctag:hover { background: color-mix(in oklch, var(--c) 24%, transparent); 
 .grp-meta { display: flex; align-items: center; gap: 6px; flex: none; }
 .grp-meta .tag { margin-left: 0; }
 .grp-add { width: 24px; height: 24px; font-size: calc(17px * var(--fs)); color: var(--faint); }
+/* a transition's or stinger's parts as lines of the slot list (ItemHead's PartHead): the open one is marked like an
+   open tab, its slots under it */
+.part-grp.open { border-left-color: var(--second-fg); }
+.part-grp .grp-name { font-size: calc(14px * var(--fs)); }
+.parts-collapse { margin-left: auto; }
+.mark-gap { visibility: hidden; } /* a line without a dot keeps the dot's room, so the tags line up */
 /* a sound with one take, laid out like a group's line: play, a blank where the fold arrow would be, name, tags */
 .slot.solo { border-top: 1px solid var(--line-soft); margin-top: 2px; padding-top: calc(3px * var(--sp)); padding-bottom: calc(3px * var(--sp)); }
 .solo-line { flex-direction: row; align-items: center; gap: 8px; }
@@ -751,7 +822,7 @@ button.ctag:hover { background: color-mix(in oklch, var(--c) 24%, transparent); 
 @keyframes slide-in { from { opacity: 0; transform: translateX(28px); } }
 @keyframes slide-out { to { opacity: 0; transform: translateX(28px); } }
 @keyframes view-in { from { opacity: 0; transform: translateY(4px); } }
-@keyframes flash { from { background: color-mix(in srgb, var(--accent) 24%, transparent); } to { background: transparent; } }
+@keyframes flash { from { background: color-mix(in srgb, var(--accent-fg) 24%, transparent); } to { background: transparent; } }
 @keyframes pulse { 50% { opacity: .5; } }
 @keyframes demo { from { transform: translateX(-100%); } to { transform: translateX(400%); } }
 
@@ -830,7 +901,7 @@ details.insp-sec[open]::details-content { block-size: auto; opacity: 1; }
   --steel: #fff; --steel-dim: #c0c0c0; --steel-ink: #000;
   --red: #ff8466; --green: #a3e6a8;
   --band: rgb(255 255 255 / .1); --stripe: rgb(255 255 255 / .06); --shadow: rgb(0 0 0 / .8);
-  --chrome: #000;
+  --chrome: #000; --rail-band: #000; --rail-band-edge: var(--line);
 }
 :root[data-theme="light"][data-contrast="high"] {
   --bg: #fff; --panel: #fff; --raised: #fff; --hover: #e4e4e4;
@@ -839,7 +910,7 @@ details.insp-sec[open]::details-content { block-size: auto; opacity: 1; }
   --steel: #000; --steel-dim: #595959; --steel-ink: #fff;
   --red: #a1250a; --green: #1b6a25;
   --band: rgb(0 0 0 / .08); --stripe: rgb(0 0 0 / .05); --shadow: rgb(0 0 0 / .3);
-  --chrome: #cfcfcf;
+  --chrome: #cfcfcf; --rail-band: #b8b8b8; --rail-band-edge: var(--line);
 }
 :root[data-contrast="high"] :focus-visible { outline-width: 3px; outline-offset: 2px; }
 :root[data-contrast="high"] .fold { overflow-clip-margin: 5px; } /* room for the wider focus ring */
@@ -847,7 +918,10 @@ details.insp-sec[open]::details-content { block-size: auto; opacity: 1; }
 :root[data-contrast="high"] .slot.selected, :root[data-contrast="high"] .mus-item.active, :root[data-contrast="high"] .lib-cue.active,
 :root[data-contrast="high"] .wiki-link.active { border-left-width: 4px; }
 :root[data-contrast="high"] .arc-row.active { box-shadow: inset 4px 0 var(--second-fg); }
-:root[data-contrast="high"] .rail .tab.on { border-left-width: 4px; }
+:root[data-contrast="high"][data-bar="left"] .rail .tab.on { border-left-width: 4px; }
+:root[data-contrast="high"][data-bar="right"] .rail .tab.on { border-right-width: 4px; }
+:root[data-contrast="high"][data-bar="top"] .rail .tab.on { border-top-width: 4px; }
+:root[data-contrast="high"][data-bar="bottom"] .rail .tab.on { border-bottom-width: 4px; }
 :root[data-contrast="high"] .sub-tabs button.on { border-bottom-width: 4px; }
 :root[data-contrast="high"] .slot.selected { outline: 1px solid var(--line); outline-offset: -1px; }
 :root[data-contrast="high"] .slot.unused { opacity: .75; }
@@ -979,7 +1053,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
   background: linear-gradient(90deg, color-mix(in srgb, var(--bg) 60%, transparent), color-mix(in srgb, var(--bg) 28%, transparent) 70%, transparent);
   transition: background var(--t1), border-color var(--t1); }
 .menu-item:hover, .menu-item:focus-visible { border-left-color: var(--accent-fg);
-  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 16%, transparent), transparent 80%); }
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent-fg) 16%, transparent), transparent 80%); }
 .menu-item.hot { min-height: calc(62px * var(--fs)); font-size: calc(18px * var(--fs)); font-weight: 800; color: var(--accent-ink); border-left-color: var(--accent);
   background: linear-gradient(90deg, var(--accent) 12%, color-mix(in srgb, var(--accent) 70%, transparent) 50%, color-mix(in srgb, var(--accent) 25%, transparent) 80%, transparent); }
 .menu-item.hot:hover, .menu-item.hot:focus-visible {
@@ -1068,6 +1142,36 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .rp-mod .info-box { margin: 0; }
 .rp-found { display: flex; flex-direction: column; margin-top: 14px; }
 .rp-found .rp-mod ul { margin: 6px 0 0; padding-left: 18px; color: var(--muted); font-size: calc(13px * var(--fs)); }
+/* Tools ▸ Combine Mods (CombinePage.tsx): the mods in their order, each with its options; the conflicts by item, each
+   with the original and the mods' versions to play and choose from */
+.cmb-mods { margin: 0 0 12px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.cmb-mod { display: flex; flex-direction: column; gap: 6px; padding: calc(8px * var(--sp)) 10px; background: var(--bg); border: 1px solid var(--line-soft); border-radius: 2px; }
+.cmb-mod-head { display: flex; align-items: center; gap: 4px; }
+.cmb-n { flex: none; min-width: 22px; color: var(--faint); font-size: calc(13px * var(--fs)); font-variant-numeric: tabular-nums; }
+.cmb-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cmb-options { display: flex; flex-direction: column; gap: 4px; padding-left: 22px; }
+.cmb-option { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.cmb-option select { width: auto; min-width: 160px; }
+.cmb-other { padding-left: 22px; color: var(--muted); font-size: calc(13px * var(--fs)); }
+.cmb-installed { margin-top: 12px; padding: 10px 12px; border: 1px solid var(--line-soft); border-radius: 2px; }
+.cmb-installed ul { margin: 0 0 8px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.cmb-installed li { display: flex; align-items: center; gap: 8px; }
+.cmb-conflicts { margin-top: 12px; display: flex; flex-direction: column; }
+.cmb-sum { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: calc(14px * var(--fs)); margin-bottom: 6px; }
+.cmb-group { border-top: 1px solid var(--line-soft); }
+.cmb-group > .lib-group-head { padding-left: 0; }
+.cmb-all { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding: 2px 0 6px 18px; color: var(--faint); font-size: calc(13px * var(--fs)); }
+.cmb-clashes { margin: 0 0 8px; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.cmb-clash { display: flex; flex-direction: column; gap: 4px; padding: calc(4px * var(--sp)) 0 calc(4px * var(--sp)) 18px; }
+.cmb-clash-head { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.cmb-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: calc(14px * var(--fs)); }
+.cmb-label small { color: var(--faint); }
+.cmb-versions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; padding-left: calc(26px + 4px * var(--sp)); }
+.cmb-version { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+.cmb-chip { display: inline-flex; align-items: baseline; gap: 6px; max-width: 18em; }
+.cmb-chip-n { flex: none; font-weight: 700; font-variant-numeric: tabular-nums; }
+.cmb-chip-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cmb-chip-more { flex: none; color: var(--faint); font-size: .92em; }
 .rp-mod .info-box ul, .rp-made .warn-box ul { margin: 4px 0 0; padding-left: 18px; }
 .rp-log summary { cursor: pointer; color: var(--muted); font-size: calc(13px * var(--fs)); }
 .rp-log pre { margin: 8px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; font: calc(13px * var(--fs))/1.5 var(--body); background: var(--bg); padding: 8px 10px; max-height: 300px; overflow: auto; }
@@ -1230,7 +1334,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .callout { display: flex; flex-direction: column; gap: 2px; padding: 10px 14px; border-left: 3px solid var(--steel); background: color-mix(in srgb, var(--steel) 8%, transparent); }
 .callout > b { color: var(--text); font-size: .92em; }
 .callout > div > :last-child { margin-bottom: 0; }
-.callout.tip { border-left-color: var(--accent-fg); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.callout.tip { border-left-color: var(--accent-fg); background: color-mix(in srgb, var(--accent-fg) 8%, transparent); }
 .callout.warning { border-left-color: var(--red); background: color-mix(in srgb, var(--red) 9%, transparent); }
 .md-icon { display: inline-flex; vertical-align: -.15em; color: var(--muted); }
 
@@ -1282,6 +1386,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 /* ---------- quick notes (App.tsx QuickNote, store.tsx Toast): one line that confirms what was just done, at the
    bottom middle, in the tooltip's colours. A new one replaces the last. */
 .toast-slot { position: fixed; left: 50%; bottom: calc(44px + 8px * var(--sp)); transform: translateX(-50%); z-index: 35; pointer-events: none; }
+:root[data-bar="bottom"] .toast-slot { bottom: calc(44px + 8px * var(--sp) + var(--bar)); }
 .toast { display: flex; align-items: center; gap: 8px; max-width: min(640px, 80vw); padding: 7px 16px 7px 11px; border-radius: 999px;
   background: var(--text); color: var(--bg); font-size: calc(14px * var(--fs)); font-weight: 500; box-shadow: 0 8px 24px var(--shadow);
   animation: toast-in var(--t2) var(--ease) both; }
@@ -1387,6 +1492,8 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .rail-dot { position: absolute; top: calc(7px + 2px * var(--sp)); right: calc(7px + 2px * var(--sp)); width: 8px; height: 8px; border-radius: 50%;
   background: var(--accent); box-shadow: 0 0 0 2px var(--chrome); animation: pulse 1.1s ease-in-out 3; }
 .rail .tab.on .rail-dot { box-shadow: 0 0 0 2px var(--under); }
+.rail-dot.quiet { animation: none; } /* Build's: comes back after every edit, so it doesn't call out */
+.rail-mod .rail-dot { box-shadow: 0 0 0 2px var(--rail-band); }
 .sb-version { display: inline-flex; align-items: center; gap: 2px; margin-right: -6px; }
 .sb-ver { display: inline-flex; align-items: center; gap: 6px; padding: 2px 6px; color: inherit; border-radius: 2px; transition: color var(--t1), background var(--t1); }
 .sb-ver:hover { color: var(--text); background: var(--raised); }
@@ -1510,32 +1617,19 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .home-scroll:focus-visible { outline: 2px solid var(--second-fg); outline-offset: -2px; }
 .len.mine-len.short { color: var(--red); font-weight: 600; }
 
-/* Notes (Notes.tsx): the button on a row shows while the pointer or the keyboard is on the row, and stays, in a
-   lighter grey, once a note is written */
-.note-btn { display: inline-grid; place-items: center; flex: none; width: calc(18px + 4px * var(--sp)); height: calc(18px + 4px * var(--sp));
-  border-radius: 2px; color: var(--faint); font-size: calc(14px * var(--fs)); line-height: 1; opacity: 0; vertical-align: middle;
-  transition: opacity var(--t1), background-color var(--t1), color var(--t1); }
-.note-btn.has { color: var(--muted); opacity: 1; }
-.slot:hover .note-btn, .slot.selected .note-btn, .grp:hover .note-btn, .mus-item:hover .note-btn,
-.lib-group-line:hover > .note-btn, .note-btn:focus-visible { opacity: 1; }
-.note-btn:hover { background: var(--hover); color: var(--text); }
-.seg-name .note-btn { margin-left: 4px; }
-.slot-name > .note-btn { margin-left: auto; align-self: center; } /* Compact lines a slot's name up by its baseline */
-.slot-name > .note-btn + .slot-id { margin-left: 2px; }
-.modal.notes-dlg { max-width: calc(640px * var(--fs)); gap: 14px; }
-.notes-dlg h2 { display: flex; align-items: baseline; gap: 10px; min-width: 0; font-size: calc(19px * var(--fs)); }
-.notes-dlg h2 small { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: calc(14px * var(--fs));
-  font-weight: 500; color: var(--muted); }
-.note-field { display: flex; flex-direction: column; gap: 6px; }
-.note-field-head { display: flex; align-items: center; gap: 10px; }
-.note-where { font-size: calc(13px * var(--fs)); color: var(--faint); }
-.note-mode { flex: none; width: calc(150px * var(--fs)); }
-.note-text, .note-preview { min-height: calc(130px * var(--fs)); max-height: 34vh; padding: 8px 10px; background: var(--bg);
+/* Notes (Notes.tsx): the project's note in the details panel. The editor is a toolbar over a box of Markdown; a
+   written note shows as it reads, and a click edits it */
+.note-tools { display: flex; gap: 2px; margin-bottom: 4px; }
+.note-tools .icon-btn { width: calc(26px + 2px * var(--sp)); height: calc(26px + 2px * var(--sp)); font-size: calc(14px * var(--fs)); color: var(--muted); }
+.note-tools .icon-btn:hover { color: var(--text); }
+.note-tools i { font-family: var(--title); font-style: italic; font-weight: 700; }
+.note-text, .note-preview { min-height: calc(110px * var(--fs)); max-height: 40vh; padding: 8px 10px; background: var(--bg);
   border: 1px solid var(--line); border-radius: 2px; overflow: auto; }
-.note-text { width: 100%; resize: vertical; color: var(--text); line-height: 1.45; font-size: calc(14px * var(--fs)); }
-.note-preview.md { font-size: calc(14.5px * var(--fs)); line-height: 1.5; }
-.note-preview.md h2 { margin: 14px 0 6px; font-size: calc(19px * var(--fs)); }
-.note-preview.md h3 { margin: 12px 0 4px; font-size: calc(16px * var(--fs)); }
-.note-preview.md h4 { margin: 10px 0 4px; font-size: calc(14.5px * var(--fs)); }
-.note-empty { color: var(--faint); }
-.notes-hint { font-size: calc(12.5px * var(--fs)); color: var(--faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.note-text { display: block; width: 100%; resize: vertical; color: var(--text); line-height: 1.45; font-size: calc(14px * var(--fs)); }
+.note-preview { min-height: 0; cursor: text; }
+.note-preview:hover { border-color: var(--muted); }
+.note-preview.md { font-size: calc(14px * var(--fs)); line-height: 1.5; }
+.note-preview.md h1, .note-preview.md h2 { margin: 12px 0 6px; font-size: calc(17px * var(--fs)); color: var(--text); }
+.note-preview.md h3, .note-preview.md h4 { margin: 10px 0 4px; font-size: calc(15px * var(--fs)); color: var(--text); }
+.note-sec .row-btns { margin-top: 8px; }
+.insp-item { margin-bottom: 14px; }

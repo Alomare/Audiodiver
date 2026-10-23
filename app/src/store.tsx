@@ -1,9 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { call, type ArchiveRow, type Assignment, type Cue, type Index, type Job, type MusicItem, type Place as Found, type ProjectState, type Status } from "./api";
+import { call, plural, type ArchiveRow, type Assignment, type Cue, type Index, type Job, type MusicItem, type Place as Found, type ProjectState, type Status } from "./api";
 import { choose, confirm } from "./Confirm";
+import { JOB_NAMES } from "./jobs";
 import { keyHint, keyLabel } from "./keys";
 import { indexItems } from "./music";
-import { nav as tabs } from "./nav";
+import { FOLD_LIBRARY, nav as tabs } from "./nav";
 import { notes } from "./noteStore";
 import * as platform from "./platform";
 import type { PlayedAt } from "./player";
@@ -24,6 +25,7 @@ const TOAST_MS = 1800;
 const RECENT_KEY = "audiodiver.recent";
 const RECENT_MAX = 10;
 const LAST_KEY = "audiodiver.last"; // where you were, per tab: reopened at the next launch
+const removing = new Set<string>(); // slots whose new audio is being removed (unassign)
 function recentProjects(): string[] {
   try {
     const list = JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]");
@@ -194,8 +196,13 @@ function useEditorState() {
   // the projects opened lately, newest first: the Home tab's list. Opening one puts it back on top, also after it
   // was taken off the list by hand.
   const [recent, setRecent] = useState<string[]>(recentProjects);
-  const remember = useCallback((path: string) => {
-    setRecent((list) => { const next = [path, ...list.filter((p) => p !== path)].slice(0, RECENT_MAX); saveRecent(next); return next; });
+  /** Puts a project on top of the recent list; `replacing`: the path it had before a move, which leaves the list. */
+  const remember = useCallback((path: string, replacing?: string) => {
+    setRecent((list) => {
+      const next = [path, ...list.filter((p) => p !== path && p !== replacing)].slice(0, RECENT_MAX);
+      saveRecent(next);
+      return next;
+    });
   }, []);
   const [notices, setNotices] = useState<Notice[]>([]);
   const [jobs, setJobs] = useState<Record<string, Job>>({});
@@ -291,6 +298,17 @@ function useEditorState() {
   // opens on Home; with "Open the last project at startup" on (Settings ▸ System) it reopens that project and goes
   // straight to the Editor. A second read keeps the tab and the project as they were.
   const resume = useRef<(j: Job) => void>(() => {}); // follows a job the core is running (set below, by watchJob)
+  // a project or pack opened in Explorer while the window runs: the shell hands its path over. Until startup is done
+  // (the core loading, the launch file and the last project opening) it waits, then opens with the newest actions.
+  const openFile = useRef<(path: string) => Promise<unknown>>(async () => {});
+  const started = useRef(false);
+  const waiting = useRef<string[]>([]);
+  useEffect(() => {
+    let off = () => {}, gone = false;
+    platform.onOpenFile((path) => { if (started.current) openFile.current(path); else waiting.current.push(path); })
+      .then((f) => { if (gone) f(); else off = f; });
+    return () => { gone = true; off(); };
+  }, []);
   const [boot, setBoot] = useState(0);        // counts the times the game data is read
   const [gameRev, setGameRev] = useState(0);  // bumps when it has been read again (what is open is fetched again)
   const firstBoot = useRef(true);
@@ -306,7 +324,6 @@ function useEditorState() {
             const [ix, all] = await Promise.all([call<Index>("index"), call<ArchiveRow[]>("archives")]);
             if (stop) return;
             setIndex(ix); setArchives(all);
-            notes.load();
             if (!firstBoot.current) { setArchiveItems({}); pending.current.clear(); applyProject(s.project); setGameRev((r) => r + 1); return; }
             firstBoot.current = false;
             for (const j of s.jobs ?? []) resume.current(j); // a build or export still running: the window reloaded
@@ -345,6 +362,8 @@ function useEditorState() {
                 }
               }
             }
+            started.current = true; // files opened in Explorer meanwhile open now, in turn
+            for (const path of waiting.current.splice(0)) await openFile.current(path);
             return;
           }
           if (s.stage === "failed") return;
@@ -466,19 +485,18 @@ function useEditorState() {
       fetches the project again, so its version, its problems and what an import brought in show at once. */
   const finishJob = useCallback(async (j: Job) => {
     const refresh = async () => applyProject(await run<ProjectState>("project"));
-    const what = j.kind === "build" ? "Build" : j.kind === "import" ? "Import" : j.kind === "repatch" ? "Repatch"
-      : j.kind === "check" ? "Check" : j.kind === "pack" ? "Pack" : j.kind === "unpack" ? "Unpack" : "Export";
+    const what = JOB_NAMES[j.kind]?.[0] ?? "Export";
     if (j.state === "cancelled") quick(`${what} cancelled`, "info");
     else if (j.state !== "done") jobFailed(what, j);
-    else if (j.kind === "check") {
-      // the Repatch page lists what it found
+    else if (j.kind === "check" || j.kind === "combine_read") {
+      // the Repatch and Combine Mods pages show what it found
     } else if (j.kind === "build") {
       notify("good", `Built ${j.result.zip.split(/[\\/]/).pop()} (${j.result.mb} MB).`,
         { label: "Show in folder", run: () => platform.reveal(j.result.zip) });
       if (settings.get().revealBuild) platform.reveal(j.result.zip).catch(() => {});
-    } else if (j.kind === "repatch") { // the Repatch page shows the rest
+    } else if (j.kind === "repatch" || j.kind === "combine") { // the Repatch and Combine Mods pages show the rest
       const zip: string = j.result.zip;
-      notify("good", `Repatched ${j.title}: ${zip.split(/[\\/]/).pop()} (${j.result.mb} MB).`,
+      notify("good", `${j.kind === "repatch" ? "Repatched" : "Combined"} ${j.title}: ${zip.split(/[\\/]/).pop()} (${j.result.mb} MB).`,
         { label: "Show in folder", run: () => platform.reveal(zip) });
       if (settings.get().revealBuild) platform.reveal(zip).catch(() => {});
     } else if (j.kind === "import") {
@@ -506,12 +524,13 @@ function useEditorState() {
       const r = j.result;
       const missed = r.missing ? ` ${plural(r.missing, "file")} the project uses ${r.missing === 1 ? "was" : "were"} not found.` : "";
       notify("good", `Packed ${plural(r.files, "file")} into ${r.pack.split(/[\\/]/).pop()} (${r.mb} MB).${missed}`,
-        { label: "Show in folder", run: () => platform.reveal(r.pack) });
+        { label: "Show in folder", run: () => platform.reveal(r.pack) }, r.missing > 0); // files left out: it waits to be read
     } else if (j.kind === "unpack") {
-      // the pack's project, in a folder of its own where new projects go: it opens where it landed
+      // the pack's project, in a new folder where new projects go: it opens where it landed
       const p = await run<ProjectState>("project_open", { path: j.result.project });
       if (p) { applyProject(p); remember(p.path); tabs.go("editor"); }
       notify("good", `Unpacked into ${j.result.folder}.`, { label: "Show in folder", run: () => platform.reveal(j.result.folder) });
+      if (p?.repairs.length) notify("info", repairNote(p), undefined, true);
     } else {
       // the export list's slots that have no audio in the game's files: why fewer files came out than it counts
       const absent = j.result.absent ? ` ${plural(j.result.absent, "slot")} on it ${j.result.absent === 1 ? "has" : "have"} no audio in the game's files.` : "";
@@ -534,7 +553,6 @@ function useEditorState() {
     return false;
   }, [project, notify]);
 
-  const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
   /** How many slots an edit gave new audio. */
   const changed = (after: ProjectState) => Object.entries(after.assignments).filter(([s, x]) => project?.assignments[s]?.audio !== x.audio).length;
   const fitNote = (files: number, placed: number) => (files > placed ? ` ${plural(files - placed, "file")} left over, because there are no free slots.` : "");
@@ -551,7 +569,8 @@ function useEditorState() {
       const p = await run<ProjectState>("project_new", { path, name });
       if (p) {
         applyProject(p); remember(p.path);
-        if (tabs.get().tab === from) tabs.go("library");
+        window.dispatchEvent(new Event(FOLD_LIBRARY)); // the Library starts folded for it
+        if (tabs.get().tab === from) tabs.go("project");
         quick(`**${p.name}** created`, "add");
       }
     },
@@ -576,12 +595,11 @@ function useEditorState() {
         if (p.repairs.length) notify("info", repairNote(p), undefined, true); // a list to read: it waits for its ✕
       }
     },
-    /** Writes a thing's global note and the open project's (Notes.tsx); undefined leaves one as it is, "" removes
-        it. The project's is one step of Undo. True when the core took them. */
-    async setNote(key: string, text?: string, projectText?: string) {
-      const r = await run<{ notes: Record<string, string>; project: ProjectState | null }>("note_set", { key, text, project_text: projectText });
+    /** Writes the open project's note on a thing (Notes.tsx); "" removes it. One step of Undo. True when the core
+        took it. */
+    async setNote(key: string, text: string) {
+      const r = await run<{ project: ProjectState | null }>("note_set", { key, project_text: text });
       if (!r) return false;
-      notes.setGlobal(r.notes);
       if (r.project) applyProject(r.project);
       return true;
     },
@@ -591,31 +609,33 @@ function useEditorState() {
       applyProject(null);
       quick(`**${project.name}** closed`, "info");
     },
-    /** A .audipack unpacks into a folder of its own, and the project it holds opens (see openPack above). */
+    /** A .audipack unpacks into a new folder, and the project it holds opens (see openPack above). */
     openPack,
-    /** Gives the project a folder of its own beside its file (Project tab). The recent list follows its new path. */
+    /** Moves the project into a new folder beside its file (Project tab). The recent list follows its new path. */
     async moveToOwnFolder() {
       if (!project) return;
       const old = project.path;
       const p = await run<ProjectState>("project_move");
       if (!p) return;
       applyProject(p);
-      setRecent((list) => { const next = [p.path, ...list.filter((x) => x !== old && x !== p.path)].slice(0, RECENT_MAX); saveRecent(next); return next; });
-      quick(`**${p.name}** moved to its own folder`);
+      remember(p.path, old);
+      quick(`**${p.name}** moved into a new folder`);
     },
     /** Copies the files the project uses from outside its folder into audio\added (Project tab). */
     async collectFiles() {
-      const p = await run<ProjectState & { collected: number }>("collect_files");
-      if (!p) return;
+      const r = await run<ProjectState & { collected: number }>("collect_files");
+      if (!r) return;
+      const { collected, ...p } = r;
       edited(p);
-      if (p.collected) editNotice("good", `Copied ${plural(p.collected, "file")} into the project's folder.`);
+      if (collected) editNotice("good", `Copied ${plural(collected, "file")} into the project's folder.`);
       else quick("Nothing to copy", "info");
     },
-    /** Writes the project and the files it uses as one .audipack file (Project tab). */
+    /** Writes the project and the files it uses as one .audipack file (Project tab), named as the project file is. */
     async exportPack() {
       if (!project) return;
       const parent = project.folder.replace(/[\\/][^\\/]*$/, "");
-      const dest = await platform.pickPackToSave(`${project.name}.audipack`, parent || project.folder);
+      const stem = project.path.split(/[\\/]/).pop()!.replace(/\.audi$/i, "");
+      const dest = await platform.pickPackToSave(`${stem}.audipack`, parent || project.folder);
       if (!dest) return;
       const job = await run<Job>("pack_export", { dest });
       if (job) watchJob(job, finishJob);
@@ -694,20 +714,27 @@ function useEditorState() {
       }
     },
     async unassign(sources: string[]) {
+      // asked again before the core's answer took the row away (the dialog gives the focus back to ✕: Enter twice)
+      if (sources.some((s) => removing.has(s))) return;
       const mine = sources.flatMap((s) => project?.assignments[s] ?? []);
       const n = mine.length;
-      if (n && !(await confirmRemoval(mine, project!))) return;
-      if (edited(await run<ProjectState>("unassign", { sources })) && n)
-        editNotice("info", `Removed ${mine.every((x) => x.silence) ? "the silence" : "the new audio"} from ${plural(n, "slot")}.`);
+      sources.forEach((s) => removing.add(s));
+      try {
+        if (n && !(await confirmRemoval(mine, project!))) return;
+        if (edited(await run<ProjectState>("unassign", { sources })) && n)
+          editNotice("info", `Removed ${mine.every((x) => x.silence) ? "the silence" : "the new audio"} from ${plural(n, "slot")}.`);
+      } finally {
+        sources.forEach((s) => removing.delete(s));
+      }
     },
     /** Makes transitions or stingers play a short silence, so the game moves straight on. `what` names them. */
     async skip(sources: string[], what: string) {
       if (!needProject() || !sources.length) return;
       if (edited(await run<ProjectState>("skip", { sources }))) quick(`**${what}** skipped`);
     },
-    /** Replaces slots with the built-in silence. keepTiming: they stay silent for as long as the original would play;
-        otherwise the game moves straight on, as Skip does. */
-    async silence(sources: string[], keepTiming = false, what = plural(sources.length, "slot")) {
+    /** Replaces slots with the built-in silence. keepTiming (Keep original duration, on by default): they stay silent
+        for as long as the original would play; otherwise the game moves straight on, as Skip does. */
+    async silence(sources: string[], keepTiming = true, what = plural(sources.length, "slot")) {
       if (!needProject() || !sources.length) return;
       if (edited(await run<ProjectState>("silence", { sources, keep_timing: keepTiming }))) quick(`**${what}** replaced with silence`);
     },
@@ -865,8 +892,20 @@ function useEditorState() {
     },
     async cancelJob(id: string) { await run("job_cancel", { id }); },
     /** Rebuilds an existing mod on the game as it is now, as the one mod it was (the Repatch page). */
-    async repatch(path: string, name: string, folder: string, biomeFix: boolean, everyBank: boolean) {
-      const job = await run<Job>("repatch", { path, name, folder, biome_fix: biomeFix, every_bank: everyBank });
+    async repatch(path: string, name: string, folder: string, everyBank: boolean) {
+      const job = await run<Job>("repatch", { path, name, folder, every_bank: everyBank });
+      if (job) watchJob(job, finishJob);
+      return !!job;
+    },
+    /** Reads mods to combine, each with its options, and finds where they change the same things (Combine Mods). */
+    async combineRead(mods: { source: string; picks: string[] }[]) {
+      const job = await run<Job>("combine_read", { mods });
+      if (job) watchJob(job, finishJob);
+      return !!job;
+    },
+    /** Builds one mod out of several, with the winner chosen for each conflict (Combine Mods). */
+    async combine(mods: { source: string; picks: string[] }[], winners: Record<string, number>, name: string, folder: string, everyBank: boolean) {
+      const job = await run<Job>("combine", { mods, winners, name, folder, every_bank: everyBank });
       if (job) watchJob(job, finishJob);
       return !!job;
     },
@@ -900,6 +939,7 @@ function useEditorState() {
     },
   }), [run, applyProject, edited, editNotice, notify, quick, needProject, editorCue, project, watchJob, finishJob, clip, remember, status, jobs, openPack]);
   undoRef.current = actions.undo;
+  openFile.current = actions.openProject; // a .audipack goes on to openPack
 
   return {
     status, connectError, index, archives, itemIndex, project, recent, clip, notices, dismiss, notify, toast, quick, jobs, revision,
