@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, use, useCallback, useContext, useEffect, useMemo, useRef, useState, type Context, type ReactNode } from "react";
 import { call, plural, type ArchiveRow, type Assignment, type Cue, type Index, type Job, type MusicItem, type Place as Found, type ProjectState, type Status } from "./api";
 import { choose, confirm } from "./Confirm";
 import { JOB_NAMES } from "./jobs";
@@ -180,10 +180,16 @@ function useBrowse(scope: ScopeName, deps: {
   const back = useCallback(() => step(-1), [step]);
   const forward = useCallback(() => step(1), [step]);
 
-  return useMemo(() => ({ itemId: place?.itemId ?? null, cueId, cue, shownItemId, loading, selected, setSelected, openCue, openItem,
-    close, back, forward, nav }), [place, cueId, cue, shownItemId, loading, selected, openCue, openItem, close, back, forward, nav]);
+  // what is open and what is selected, apart: a key press that selects the next slot changes only the selection
+  const open = useMemo(() => ({ itemId: place?.itemId ?? null, cueId, cue, shownItemId, loading, openCue, openItem, close, back, forward,
+    nav }), [place, cueId, cue, shownItemId, loading, openCue, openItem, close, back, forward, nav]);
+  const selection = useMemo(() => ({ selected, setSelected }), [selected]);
+  return { open, selection };
 }
-type Browse = ReturnType<typeof useBrowse>;
+type Open = ReturnType<typeof useBrowse>["open"];
+type Selection = ReturnType<typeof useBrowse>["selection"];
+/** One tab's browsing, all of it. */
+type Browse = Open & Selection;
 
 function useEditorState() {
   const [status, setStatus] = useState<Status | null>(null);
@@ -412,18 +418,23 @@ function useEditorState() {
   const lib = useBrowse("library", { notify, resolveItem, gameRev, projectPath: getProjectPath });
   const added = useMemo(() => JSON.stringify(project?.additions ?? []), [project?.additions]);
   const ed = useBrowse("editor", { notify, resolveItem, gameRev, projectPath: getProjectPath, added });
-  const scopes = useMemo(() => ({ library: lib, editor: ed }), [lib, ed]);
-  const scopesRef = useRef(scopes);
-  scopesRef.current = scopes;
+  const browseRef = useRef({ library: lib, editor: ed });
+  browseRef.current = { library: lib, editor: ed };
+  /** Each tab's browsing as it is when asked, for actions and handlers. It keeps one identity, so the shared state
+      doesn't change when something is selected or opened (the contexts below carry that). */
+  const scopes = useMemo(() => {
+    const now = (s: ScopeName): Browse => ({ ...browseRef.current[s].open, ...browseRef.current[s].selection });
+    return { get library() { return now("library"); }, get editor() { return now("editor"); } } as Record<ScopeName, Browse>;
+  }, []);
 
   /** Goes to where something is: the tab, the item and part, the slot. `at.cueId` alone opens that cue on its own. */
   const goTo = useCallback(async (at: PlayedAt) => {
-    const s = scopesRef.current[at.scope];
+    const s = scopes[at.scope];
     tabs.go(at.scope, at.scope === "library" && at.itemId ? (at.itemId.startsWith("archive:") ? "archives" : "index") : undefined);
     if (at.itemId) return s.openItem(at.itemId, at.cueId, at.source);
     if (at.cueId) s.openCue(at.cueId, at.source ?? undefined);
     return !!at.cueId;
-  }, []);
+  }, [scopes]);
   /** Opens what `find` found, in a tab. */
   const openFound = useCallback((scope: ScopeName, f: Found) => goTo({ scope, itemId: f.item, cueId: f.cue, source: f.source }), [goTo]);
 
@@ -433,15 +444,15 @@ function useEditorState() {
     if (!index || restored.current) return;
     restored.current = true;
     const last = lastPlace("library");
-    if (last?.itemId) scopesRef.current.library.openItem(last.itemId, last.cueId);
-  }, [index]);
+    if (last?.itemId) scopes.library.openItem(last.itemId, last.cueId);
+  }, [index, scopes]);
   // the Editor shows what the open project lists, and nothing else: it reopens where it was in that project, and
   // lets go of what leaves the list. What it let go of comes back when an Undo puts it back on the list while
   // nothing else has opened.
   const editorFor = useRef<string | null>(null);
   const letGo = useRef<{ itemId: string; cueId: string | null } | null>(null);
   useEffect(() => {
-    const e = scopesRef.current.editor;
+    const e = scopes.editor;
     const path = project?.path ?? null;
     if (path !== editorFor.current) {
       editorFor.current = path;
@@ -460,7 +471,7 @@ function useEditorState() {
     const listed = e.itemId ? project.library.includes(e.itemId) : project.outside.includes(e.cueId!.replace(/^sfx:/, ""));
     letGo.current = listed || !e.itemId ? null : { itemId: e.itemId, cueId: e.cueId };
     if (!listed) e.close();
-  }, [project, ed.itemId, ed.cueId]);
+  }, [project, ed.open.itemId, ed.open.cueId, scopes]);
 
   // --- jobs (build, import): poll until done
   const watchJob = useCallback((job: Job, onDone: (j: Job) => void) => {
@@ -556,7 +567,6 @@ function useEditorState() {
   /** How many slots an edit gave new audio. */
   const changed = (after: ProjectState) => Object.entries(after.assignments).filter(([s, x]) => project?.assignments[s]?.audio !== x.audio).length;
   const fitNote = (files: number, placed: number) => (files > placed ? ` ${plural(files - placed, "file")} left over, because there are no free slots.` : "");
-  const editorCue = ed.cueId;
 
   const actions = useMemo(() => ({
     async newProject() {
@@ -688,8 +698,9 @@ function useEditorState() {
       if (!needProject()) return;
       const audio = files.filter((f) => !/\.(patch_\d+|audi)$/i.test(f));
       if (!audio.length) return;
-      if (audio.length > 1 && editorCue) {
-        const p = await run<ProjectState>("fill", { cue: editorCue, files: audio, start_source: source });
+      const cue = scopes.editor.cueId; // read now: actions don't change when another cue opens
+      if (audio.length > 1 && cue) {
+        const p = await run<ProjectState>("fill", { cue, files: audio, start_source: source });
         if (p && edited(p)) {
           const n = changed(p);
           editNotice("good", `Filled ${plural(n, "slot")} from here on, in file-name order.${fitNote(audio.length, n)}`);
@@ -761,7 +772,7 @@ function useEditorState() {
       if (!audio.length) return;
       const p = await run<ProjectState & { sources: string[] }>("add_takes", { container, files: audio });
       if (p && edited(p)) {
-        scopesRef.current.editor.setSelected(p.sources.slice(0, 1));
+        scopes.editor.setSelected(p.sources.slice(0, 1));
         quick(`${plural(p.sources.length, "new take")} for **${what}**`, "add");
       }
     },
@@ -773,7 +784,7 @@ function useEditorState() {
       if (!audio.length) return;
       const p = await run<ProjectState & { sources: string[] }>("add_layer", { beside, files: audio });
       if (p && edited(p)) {
-        scopesRef.current.editor.setSelected(p.sources.slice(0, 1));
+        scopes.editor.setSelected(p.sources.slice(0, 1));
         quick(`New layer on **${what}**`, "add");
       }
     },
@@ -781,7 +792,7 @@ function useEditorState() {
         clip. The slot it moves to stays selected. */
     async onlyThisSound(source: string, sound: string | undefined, only: boolean) {
       const p = await run<ProjectState & { source: string }>(only ? "own_clip" : "shared_clip", only ? { source, sound } : { source });
-      if (p && edited(p)) scopesRef.current.editor.setSelected([p.source]);
+      if (p && edited(p)) scopes.editor.setSelected([p.source]);
     },
     /** Swaps the audio of two slots (or moves it into an empty one). */
     async swap(a: string, b: string) {
@@ -937,23 +948,38 @@ function useEditorState() {
       const job = await run<Job>("import_patch", { path, mode });
       if (job) watchJob(job, finishJob);
     },
-  }), [run, applyProject, edited, editNotice, notify, quick, needProject, editorCue, project, watchJob, finishJob, clip, remember, status, jobs, openPack]);
+  }), [run, applyProject, edited, editNotice, notify, quick, needProject, scopes, project, watchJob, finishJob, clip, remember, status, jobs, openPack]);
   undoRef.current = actions.undo;
   openFile.current = actions.openProject; // a .audipack goes on to openPack
 
-  return {
+  // one object while these stay the same: selecting a slot or opening an item (each tab's contexts, below) leaves it
+  // as it is, so what reads only this isn't drawn again
+  const shared = useMemo(() => ({
     status, connectError, index, archives, itemIndex, project, recent, clip, notices, dismiss, notify, toast, quick, jobs, revision,
     actions, run, scopes, resolveItem, goTo, openFound,
-  };
+  }), [status, connectError, index, archives, itemIndex, project, recent, clip, notices, dismiss, notify, toast, quick, jobs, revision,
+    actions, run, scopes, resolveItem, goTo, openFound]);
+  return { shared, browse: { library: lib, editor: ed } };
 }
 
-type Shared = ReturnType<typeof useEditorState>;
+type Shared = ReturnType<typeof useEditorState>["shared"];
 const Ctx = createContext<Shared | null>(null);
 const ScopeCtx = createContext<ScopeName>("editor");
+// each tab's browsing in two contexts: what is open there, and what is selected there
+const OpenCtx = { library: createContext<Open | null>(null), editor: createContext<Open | null>(null) };
+const SelectionCtx = { library: createContext<Selection | null>(null), editor: createContext<Selection | null>(null) };
 
 export function EditorProvider({ children }: { children: ReactNode }) {
-  const editor = useEditorState();
-  return <Ctx.Provider value={editor}><LiteProvider scope="editor">{children}</LiteProvider></Ctx.Provider>;
+  const { shared, browse: { library: lib, editor: ed } } = useEditorState();
+  return (
+    <Ctx.Provider value={shared}>
+      <OpenCtx.library.Provider value={lib.open}><SelectionCtx.library.Provider value={lib.selection}>
+        <OpenCtx.editor.Provider value={ed.open}><SelectionCtx.editor.Provider value={ed.selection}>
+          <LiteProvider scope="editor">{children}</LiteProvider>
+        </SelectionCtx.editor.Provider></OpenCtx.editor.Provider>
+      </SelectionCtx.library.Provider></OpenCtx.library.Provider>
+    </Ctx.Provider>
+  );
 }
 /** Everything under it browses in one tab: the Library (read-only) or the Editor. */
 export function Scope({ name, children }: { name: ScopeName; children: ReactNode }) {
@@ -961,7 +987,7 @@ export function Scope({ name, children }: { name: ScopeName; children: ReactNode
 }
 
 /** What the rows of a long list need besides their own data. It changes rarely (an edit, opening something, the
-    Index arriving), so a row that reads it instead of useEditor() isn't drawn again when the selection, a notice or a
+    Index arriving), so a row that reads it instead of useEditor() isn't drawn again when a notice, a quick note or a
     job's progress changes: everything that reads useEditor() is, and a bank can have a thousand rows. */
 export type Lite = {
   revision: number; scope: ScopeName; readOnly: boolean; itemId: string | null; cueId: string | null;
@@ -970,7 +996,7 @@ export type Lite = {
 const LiteCtx = createContext<Lite | null>(null);
 function LiteProvider({ scope, children }: { scope: ScopeName; children: ReactNode }) {
   const e = useContext(Ctx)!;
-  const here = e.scopes[scope];
+  const here = useContext(OpenCtx[scope])!;
   const value = useMemo<Lite>(() => ({ revision: e.revision, scope, readOnly: scope === "library", itemId: here.itemId, cueId: here.cueId,
     itemIndex: e.itemIndex, notify: e.notify, quick: e.quick }), [e.revision, scope, here.itemId, here.cueId, e.itemIndex, e.notify, e.quick]);
   return <LiteCtx.Provider value={value}>{children}</LiteCtx.Provider>;
@@ -981,14 +1007,38 @@ export function useLite(): Lite {
   return v;
 }
 
+// a tab's browsing, field by field, with the context each field comes from (TypeScript checks that none is missing)
+const OPEN_FIELDS: Record<keyof Open, true> = { itemId: true, cueId: true, cue: true, shownItemId: true, loading: true, openCue: true,
+  openItem: true, close: true, back: true, forward: true, nav: true };
+const SELECTION_FIELDS: Record<keyof Selection, true> = { selected: true, setSelected: true };
+/** What useEditor() starts from in each tab: the tab's browsing as getters, each reading its context when it is read.
+    React lets use() run anywhere in a render, so a component is drawn again by the selection, or by what is open, only
+    when it reads them. */
+const BROWSING = Object.fromEntries((["library", "editor"] as const).map((scope) => {
+  const view = {};
+  const from = (fields: object, ctx: Context<any>) => {
+    for (const k of Object.keys(fields)) Object.defineProperty(view, k, {
+      get(this: { scopes: Record<ScopeName, Browse> }) {
+        // read in a handler, after the render, use() can't run: the tab's browsing as it is now does instead
+        try { return use(ctx)[k]; } catch { return this.scopes[scope][k as keyof Browse]; }
+      },
+    });
+  };
+  from(OPEN_FIELDS, OpenCtx[scope]);
+  from(SELECTION_FIELDS, SelectionCtx[scope]);
+  return [scope, view];
+})) as Record<ScopeName, Browse>;
+
 /** The app's state, with the browsing of the tab this component is in (what is open and selected there). Outside
-    the two tabs that browse, that is the Audio Editor's. */
+    the two tabs that browse, that is the Audio Editor's. The browsing comes from the tab's own contexts as its fields
+    are read (see BROWSING): a component that takes only `project` and `actions` isn't drawn again when a slot is
+    selected. So take the fields while rendering, as `const { cue, selected } = useEditor()` does: one read only in a
+    handler gets the tab's browsing as it is then, but doesn't draw the component again when it changes. */
 export function useEditor() {
   const e = useContext(Ctx);
   const scope = useContext(ScopeCtx);
   if (!e) throw new Error("useEditor outside EditorProvider");
-  const here: Browse = e.scopes[scope];
-  const { goTo, project } = e;
+  const { goTo, project, scopes } = e;
   /** Opens an item where it can be shown: here, or in the Library when this is the Editor and the project doesn't
       list it. */
   const show = (itemId: string, part?: number | string | null, select?: string | null) => {
@@ -997,7 +1047,7 @@ export function useEditor() {
     }
     // in the Library, the list on the left shows where it is: the Index for an item, All Archives for an archive
     if (scope === "library") tabs.go("library", itemId.startsWith("archive:") ? "archives" : "index");
-    return here.openItem(itemId, part, select);
+    return scopes[scope].openItem(itemId, part, select);
   };
-  return { ...e, ...here, scope, readOnly: scope === "library", show };
+  return Object.assign(Object.create(BROWSING[scope]) as Browse, e, { scope, readOnly: scope === "library", show });
 }

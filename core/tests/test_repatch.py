@@ -118,12 +118,12 @@ def test_an_old_mod_comes_back_on_the_current_game_as_it_was(session, tmp_path):
     j = _wait(s, s.repatch(str(mod), "WoS Again", str(tmp_path / "out")))
     assert j["state"] == "done", j["error"]
     got = j["result"]
-    assert got["kept_id"] and Path(got["zip"]) == tmp_path / "out" / "WoS Again" / "WoS Again.zip"
+    assert got["kept_id"] and Path(got["zip"]) == tmp_path / "out" / "WoS Again.zip"
+    assert [x.name for x in (tmp_path / "out").iterdir()] == ["WoS Again.zip"]  # the ZIP alone: no project stays
     descent, broken, warp = got["parts"]
     assert descent["imported"] > 0 and descent["settings"] == 1 and not descent["kept"]
     assert broken["kept"] and warp["added"] == 6 and warp["settings"] == 4
     assert all("other change" in x for x in warp["left"])  # what the game changed since the mod (positioning)
-    assert {Path(x["project"]).parent.name for x in (descent, warp)} == {"Descent", "Extras Warp"}
     # the Sounds the repatch adds are the mod's six, each with new audio: none the game had in the mod's day and
     # took out since (25988413 took 7 out of this bank, addition.older_version)
     warp_banks, _ = read_patch(str(_patch_of(got["zip"], "WoS/extras/warp/9ba626afa44a3aa3.patch_0", tmp_path / "w")))
@@ -151,21 +151,17 @@ def test_an_old_mod_comes_back_on_the_current_game_as_it_was(session, tmp_path):
     for oid in (372068234, 612810235, 618435854, 429412609):  # the mod's settings, on today's objects
         assert wbank.props(*_object(banks, oid)) == wbank.props(*_object(old, oid))
 
-    s.open_project(descent["project"])
-    assert s.project_state()["version"] == 1  # not built yet: Open as project builds it as a mod of its own
-    s.close_project()
-
-    j = _wait(s, s.repatch(str(mod), "", str(tmp_path / "out")))  # again: a folder of its own
-    assert j["state"] == "done" and Path(j["result"]["folder"]).name == "WoS"
+    j = _wait(s, s.repatch(str(mod), "", str(tmp_path / "out")))  # again: a ZIP beside the first, never over it
+    assert j["state"] == "done" and Path(j["result"]["zip"]).name == "WoS.zip"
     j = _wait(s, s.repatch(str(mod), "", str(tmp_path / "out")))
-    assert Path(j["result"]["folder"]).name == "WoS 2"
+    assert Path(j["result"]["zip"]).name == "WoS 2.zip"
     with pytest.raises(EditorError, match="name"):
         s.repatch(str(mod), "Bad: name", str(tmp_path / "out"))
 
     # a patch alone: an Arsenal ZIP of its own
     j = _wait(s, s.repatch(str(WARP), "Warp", str(tmp_path / "out")))
     assert j["state"] == "done", j["error"]
-    assert not j["result"]["kept_id"] and Path(j["result"]["parts"][0]["project"]).parent.name == "Warp"
+    assert not j["result"]["kept_id"] and Path(j["result"]["zip"]).name == "Warp.zip"
     with zipfile.ZipFile(j["result"]["zip"]) as z:
         m = json.loads(z.read("manifest.json"))
         assert m["Name"] == "Warp" and m["Guid"] != GUID and len(m["Options"]) == 1

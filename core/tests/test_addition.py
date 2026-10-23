@@ -347,3 +347,17 @@ def test_a_mod_made_with_unwise_comes_in_as_takes_a_layer_and_a_clip_of_its_own(
     assert str(other) in s.project_state()["assignments"] and "deploy/loadout" in s.project.library
     with pytest.raises(EditorError):
         s.import_patch(str(path), "merge")
+
+
+@pytest.mark.game
+def test_a_segment_whose_timing_follows_new_audio_is_not_a_change_left_out(session):
+    # a music mod built with fit timing changes its segments' lengths and cue points: the rebuild makes them again, so
+    # the import doesn't list them as other changes (Audiodiver's own builds showed 6 to 30 "left out" per bank)
+    ix, loadout_1 = session.ix, 371453169
+    t, body = wbank.parse(ix.bank_files(ix.copies(loadout_1)[0])[0])[1][loadout_1]
+    seg = music.MusicSegment.read(loadout_1, music.Reader(body))
+    seg.duration_ms += 1500
+    seg.markers = [(i, p + 1500 if k else p, n) for k, (i, p, n) in enumerate(seg.markers)]
+    assert add._timing_only(body, seg.to_bytes()) and add._timing_only(body, body)
+    seg.node.grid_offset += 10  # anything else of the segment is a change of its own
+    assert not add._timing_only(body, seg.to_bytes())

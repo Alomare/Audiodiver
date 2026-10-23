@@ -7,6 +7,7 @@ import { CollapseAllIcon, LinkIcon } from "./Icons";
 import { Mark } from "./IndexTree";
 import { ItemActions, ItemHead, PartHead, partsFold, PartTabs } from "./ItemHead";
 import { keyHint, keyLabel, useCommands, useKeymap } from "./keys";
+import { useListWindow, type WindowLine } from "./listWindow";
 import { coverage, COVERAGE, heldBy, isMusicItem, listedBanks, listName, statusOf, where } from "./music";
 import { nav as tabs } from "./nav";
 import { copyText, fullPath, pickAudio, reveal } from "./platform";
@@ -107,6 +108,7 @@ const NONE: string[] = [];
 const NO_ASSIGNMENTS: Record<string, Assignment> = {}; // one empty object, so the memos below keep without a project
 const OPEN_ALL = 200;    // a bank with more sounds than this opens with its groups folded
 const MAX_SHOWN = 300;    // a filter shows at most this many sounds at once
+const WINDOW_FROM = 150;  // a list with more lines than this draws only those near the view (useListWindow)
 
 function CueBody({ cue }: { cue: Cue }) {
   const { project, selected, setSelected, actions, shownItemId, itemIndex, show, goTo, openItem, revision, clip, back, forward, nav: nav_,
@@ -142,14 +144,18 @@ function CueBody({ cue }: { cue: Cue }) {
   }, [all, q]);
   /** The slots that show: all of a music cue's; of a bank's, those of the open groups or the ones the filter finds. */
   const rows = useMemo(() => (hits ? hits.slice(0, MAX_SHOWN) : grouped ? all.filter(isOpen) : all), [hits, grouped, all, isOpen]);
-  // a slot that gets selected from elsewhere (a search, the now-playing bar, "also plays in") shows: its group opens
+  // a slot that gets selected from elsewhere (a search, the now-playing bar, "also plays in") shows: its group opens,
+  // and the list scrolls to it if none of it is on screen. One clicked here stays where it is.
+  const picked = useRef(false); // the selection is the list's own: a click, a key, the play-through moving on
   useEffect(() => {
-    if (!grouped || !selected.length) return;
-    const shut = all.filter((r) => selected.includes(r.slot.source) && !isOpen(r)).map((r) => r.segIndex);
+    const own = picked.current;
+    picked.current = false;
+    if (!selected.length) return;
+    const shut = grouped ? all.filter((r) => selected.includes(r.slot.source) && !isOpen(r)).map((r) => r.segIndex) : [];
     if (shut.length) setFlipped((f) => { const next = new Set(f); for (const i of shut) if (openByDefault) next.delete(i); else next.add(i); return next; });
+    if (!own && selected.length === 1) win.reveal(selected[0], { block: "center", hidden: true });
   }, [selected]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const scrollTo = (source: string) => listRef.current?.querySelector(`[data-source="${source}"]`)?.scrollIntoView({ block: "nearest" });
   const usable = (r: Row) => !r.slot.unused && !r.slot.locked && !r.slot.absent;
   // each group's takes that can take audio, worked out once per cue rather than for every group on every render
   const takesOf = useMemo(() => {
@@ -183,7 +189,7 @@ function CueBody({ cue }: { cue: Cue }) {
     if (!assigned[a]) return; // only new audio moves: an empty slot doesn't pull its neighbour's in
     moving.current = true;
     try {
-      if (await actions.swap(a, b)) { setSelected([b]); scrollTo(b); }
+      if (await actions.swap(a, b)) { setSelected([b]); win.reveal(b); }
     } finally { moving.current = false; }
   }, [rows, selected, assigned, actions, setSelected]);
 
@@ -196,8 +202,9 @@ function CueBody({ cue }: { cue: Cue }) {
     if (!here()) return false;
     const i = pos();
     const j = Math.max(0, Math.min(rows.length - 1, i < 0 ? 0 : i + d));
+    picked.current = true;
     setSelected([rows[j].slot.source]);
-    scrollTo(rows[j].slot.source);
+    win.reveal(rows[j].slot.source);
   };
   const play = (kind: "vanilla" | "project" | null) => {
     const i = pos();
@@ -258,8 +265,8 @@ function CueBody({ cue }: { cue: Cue }) {
     if (!mark) return;
     const of = all.filter((r) => r.seg.segment === mark.segment);
     const playing = of.find((r) => mark.clips.some((c) => c.source === r.slot.source)) ?? of[0];
-    if (playing) setSelected([playing.slot.source]);
-    listRef.current?.querySelector(`[data-seg="${mark.segment}"]`)?.scrollIntoView({ block: "nearest", behavior: scrollBehavior() });
+    if (playing) { picked.current = true; setSelected([playing.slot.source]); }
+    if (of.length) win.reveal(of[0].slot.source, { behavior: scrollBehavior() }); // the segment's first slot, and its name
   }, [mark]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // over every slot, once per cue and change of the project rather than per render (a key press in an 8,330-sound
@@ -281,6 +288,27 @@ function CueBody({ cue }: { cue: Cue }) {
   useEffect(() => { // the list is drawn again for each part opened: the open one stays in view
     if (folding) listRef.current?.querySelector(".part-grp.open")?.scrollIntoView({ block: "nearest" });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  /** The list's lines, top to bottom: a bank's sounds, each group under a line that folds it (or the ones the filter
+      finds, under their groups' lines), or a music cue's slots. */
+  const lines = useMemo(() => {
+    const out: Line[] = [];
+    const add = (r: Row) => out.push({ key: r.slot.source, kind: !r.seg.group ? "slot" : r.takes > 1 ? "take" : "solo", row: r });
+    if (!grouped) { rows.forEach(add); return out; }
+    const list = hits ? rows : all;
+    for (let i = 0, j = 0; i < list.length; i = j) {
+      const first = list[i];
+      while (j < list.length && list[j].segIndex === first.segIndex) j++;
+      if (first.takes === 1 || !first.seg.group) { list.slice(i, j).forEach(add); continue; }
+      const open = !!hits || isOpen(first);
+      out.push({ key: `g${first.segIndex}`, kind: "group", row: first, group: { open, shown: hits ? j - i : first.takes } });
+      if (open) list.slice(i, j).forEach(add);
+    }
+    return out;
+  }, [grouped, hits, rows, all, isOpen]);
+  // a long list draws the lines near the view and spacers for the rest: a key press or a wheel tick then lays out a
+  // screenful of rows instead of a bank's thousands. A short one draws them all, as before.
+  const windowed = !folding && lines.length > WINDOW_FROM;
+  const win = useListWindow(listRef, lines, windowed, (source) => listRef.current?.querySelector(`[data-source="${source}"]`));
   const listed = !!item && !!project?.library.includes(item.id);
   // in the Library, a sound set or archive whose banks the project has already, in something else: that opens instead
   const banks = readOnly && item && !listed ? listedBanks(itemIndex, project?.library ?? []) : null;
@@ -288,6 +316,7 @@ function CueBody({ cue }: { cue: Cue }) {
   const openInside = (source: string | null) => inside && goTo({ scope: "editor", itemId: inside.id, cueId: cue.id, source });
 
   const click =(e: React.MouseEvent, source: string) => {
+    picked.current = true;
     if (e.shiftKey && selected.length) {
       const a = rows.findIndex((r) => r.slot.source === selected[0]);
       const b = rows.findIndex((r) => r.slot.source === source);
@@ -405,7 +434,7 @@ function CueBody({ cue }: { cue: Cue }) {
   // draws the two rows it changes instead of every row of the bank
   const on: RowHandlers = useStable({
     click: (e: React.MouseEvent, source: string) => click(e, source),
-    select: (source: string) => { if (!selected.includes(source)) setSelected([source]); },
+    select: (source: string) => { if (!selected.includes(source)) { picked.current = true; setSelected([source]); } },
     choose: (source: string) => choose(source),
     menu: (e: React.MouseEvent, r: Row) => slotMenu(e, r),
     remove: (source: string) => { actions.unassign([source]); },
@@ -434,28 +463,11 @@ function CueBody({ cue }: { cue: Cue }) {
     <SlotRow key={r.slot.source} row={r} a={readOnly ? undefined : assigned[r.slot.source]} selected={selected.includes(r.slot.source)}
       now={r.seg.segment !== "" && r.seg.segment === nowSeg} itemId={shownItemId} cueId={cue.id} on={on} />
   );
-  /** A bank's sounds: each group under a line that folds it, says how many takes it has and plays the first. */
-  const groups = () => {
-    const out: React.ReactNode[] = [];
-    let i = 0;
-    const list = hits ? rows : all;
-    while (i < list.length) {
-      const first = list[i];
-      let j = i;
-      while (j < list.length && list[j].segIndex === first.segIndex) j++;
-      const of = list.slice(i, j);
-      i = j;
-      if (first.takes === 1 || !first.seg.group) { out.push(...of.map(slot)); continue; }
-      const open = !!hits || isOpen(first);
-      const sources = takesOf.get(first.segIndex) ?? NONE;
-      out.push(
-        <GroupHead key={`g${first.segIndex}`} row={first} open={open} shown={hits ? of.length : first.takes} itemId={shownItemId} cueId={cue.id}
-          sources={sources} status={readOnly || !project ? "na" : groupStatus.get(first.segIndex) ?? "na"} on={on} />,
-      );
-      if (open) out.push(...of.map(slot));
-    }
-    return out;
-  };
+  /** A line of the list: a slot, or a group's line, which folds its takes, says how many there are and plays the first. */
+  const line = (l: Line) => (l.group ? (
+    <GroupHead key={l.key} row={l.row} open={l.group.open} shown={l.group.shown} itemId={shownItemId} cueId={cue.id}
+      sources={takesOf.get(l.row.segIndex) ?? NONE} status={readOnly || !project ? "na" : groupStatus.get(l.row.segIndex) ?? "na"} on={on} />
+  ) : slot(l.row));
   const folds = (r: Row) => r.takes > 1 && !!r.seg.group; // a group with a line of its own to fold it under
   const anyOpen = grouped && all.some((r) => folds(r) && isOpen(r));
   // folded is the default for big banks (nothing flipped) and the exception for the others (every group flipped)
@@ -546,14 +558,21 @@ function CueBody({ cue }: { cue: Cue }) {
       </div>
       {item && part && item.parts.length > 1 && !folding && <PartTabs item={item} part={part} />}
 
-      <div className="slots view-in" key={folding ? item!.id : cue.id} ref={listRef} role="listbox" aria-multiselectable aria-label={grouped ? "Sounds" : "Slots"}>
+      <div className={`slots view-in${windowed ? " windowed" : ""}`} key={folding ? item!.id : cue.id} ref={listRef} role="listbox" aria-multiselectable
+        aria-label={grouped ? "Sounds" : "Slots"}>
         {folding ? item!.parts.map((p, i) => (
           <Fragment key={p.cue}>
             <PartHead item={item!} part={p} index={i} open={p === part && !shut}
               onToggle={() => (p === part ? setShut(!shut) : openItem(item!.id, i))} />
             {p === part && !shut && rows.map(slot)}
           </Fragment>
-        )) : grouped ? groups() : rows.map(slot)}
+        )) : windowed ? (
+          <>
+            <div className="slots-gap" ref={win.gap.top} style={{ height: win.before }} aria-hidden />
+            {lines.slice(win.first, win.last).map(line)}
+            <div className="slots-gap" ref={win.gap.end} style={{ height: win.after }} aria-hidden />
+          </>
+        ) : lines.map(line)}
         {hits && hits.length > MAX_SHOWN && <p className="slots-note">Showing the first {MAX_SHOWN} of {hits.length} sounds that match. Type more to narrow them down.</p>}
         {hits && !hits.length && <p className="slots-note">No sound here matches “{filter.trim()}”.</p>}
       </div>
@@ -564,6 +583,9 @@ function CueBody({ cue }: { cue: Cue }) {
     </section>
   );
 }
+
+/** A line of the slot list: a slot (its row), or the line above a group's takes (`group`, with `row` its first take). */
+type Line = WindowLine & { row: Row; group?: { open: boolean; shown: number } };
 
 /** What a list's rows do, from the list (useStable keeps one identity for each). */
 type RowHandlers = {

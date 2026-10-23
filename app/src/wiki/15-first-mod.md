@@ -8,7 +8,7 @@ This page walks through replacing the music of one screen, the loadout screen, a
 
 1. On [Home](app:home), choose **New project** and give the project a name. Audiodiver makes a folder for it in the projects folder (`Documents\Audiodiver\Projects` at first), with the project file inside. The [Project](app:project) tab opens, with the mod's name, icon and folder. Copy the audio files into that folder.
 2. Go to the [Library](app:library). In the Index, open **Before the Drop** under Music and press ▶ next to **Loadout Selection** to hear it.
-3. Click **Loadout Selection**. It has a start segment followed by fourteen loops that the game plays in order. Press **Add to the project**.
+3. Click **Loadout Selection**. It has a start segment followed by fourteen loops that the game plays in order. In game the loadout screen comes after the drop location screen and its music goes on from there, in the loops, so you rarely hear the start. Press **Add to the project**.
 4. Go to the [Audio Editor](app:editor) and click **Loadout Selection** in the list.
 5. Drag the audio files from Explorer onto the piece in the list, or onto its first slot. Slots fill in file-name order, so name the files `01 …`, `02 …` and so on.
 6. Select a slot and press ▶ on each half of its row. The left half plays the original and the right half plays the replacement. Switching between them keeps the playback position. The waveforms below show both on one time scale.

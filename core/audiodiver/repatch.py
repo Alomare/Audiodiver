@@ -3,7 +3,7 @@
 A mod's patch holds whole copies of the banks it changes, frozen at the game version it was made for. After a game
 update those copies are stale (the game's newer objects are missing from them, and a later one replaces the game's
 own). A repatch
-takes what each patch replaces, adds and sets (Session.import_patch's reading) into a project of its own and makes
+takes what each patch replaces, adds and sets (Session.import_patch's reading) into a temporary project and makes
 the patch again: the banks come from the current game, the mod's audio rides on them as it was encoded
 (build.keep_encoding), its settings on the game's objects as it set them. The mod stays one mod (repackage): every
 file where it was, its manifest's options and id as they were, the new patches in place of the old ones.

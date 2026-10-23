@@ -119,7 +119,7 @@ Exporting a piece of music by segment saves one file per segment. **Lead-in and 
 
 ## The export list
 
-You can also collect things from different places and export them together. You can also collect things from different places and export them together. Right-click a slot, a group of takes, an Index entry, a category or section line, or an archive, and choose **Add to the export list**. The **Export list** button in the status bar opens the list. There you can rename an entry to set its folder name, remove entries, and export everything as a single job. The list is kept until you clear it.
+You can also collect things from different places and export them together. Right-click a slot, a group of takes, an Index entry, a category or section line, or an archive, and choose **Add to the export list**. The **Export list** button in the status bar opens the list. There you can rename an entry to set its folder name, remove entries, and export everything as a single job. The list is kept until you clear it.
 
 ## Colours
 

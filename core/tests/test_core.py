@@ -120,6 +120,117 @@ def test_write_patch_round_trips(tmp_path):
     assert banks[222] == ({}, {7: (bank.SOUND, b"body")})
 
 
+def _patch_files(n):
+    """Streams, banks, deps and string tables of odd sizes: every file needs padding, and with n=1 the patch ends
+    before 256 bytes a file."""
+    return ({111: b"s" * (5 * n + 3), 99: b"t" * (16 * n), 5: b"u" * 7},
+            {222: b"B" * (9 * n + 1), 7: b"C" * 33, 300: b"D" * (16 * n - 16)},
+            {222: b"dep-data", 300: b"d" * 21}, {44: b"table" * (3 * n)} if n > 1 else {})
+
+
+@pytest.mark.parametrize("n, digests", [
+    (1, ("23bfb4127b70d449cc8a4f867827cb3fc6a3e100b09fb6062f82f801a35dd714",
+         "5fc27d1ab01edd7559a2b7d57d496d23b755ee1842fda97c52f9033227e5fb6b")),
+    (40_000, ("05938a4e7cfcc00a4354b85e7c1b892a35ecf43bd2ef510c14c46799eb63a6ac",
+              "4f83d9dd807ee2b9a3761b84ba44564be2e1f09276eddf9c958e255eef86ba82"))])
+def test_write_patch_writes_the_bytes_it_always_has(tmp_path, n, digests):
+    """The same bytes as the writer that joined the whole patch in memory first (its SHA-256s)."""
+    path = str(tmp_path / "x.patch_0")
+    patch.write_patch(path, *_patch_files(n))
+    assert tuple(hashlib.sha256(open(p, "rb").read()).hexdigest() for p in (path, path + ".stream")) == digests
+
+
+@pytest.mark.parametrize("piece", [7, 16, 500, 1 << 20])
+def test_patch_writer_laid_out_for_more_writes_what_write_patch_does(tmp_path, monkeypatch, piece):
+    """Banks and deps that were laid out but don't come: what is written moves up, a piece at a time (pieces
+    smaller than a file, not a multiple of 16, larger than the distance moved), to where write_patch puts it. With
+    none of the banks the table loses its rows for banks and deps."""
+    monkeypatch.setattr(patch, "MOVE_PIECE", piece)
+    streams, banks, deps, strings = _patch_files(40)
+    for came, came_deps in ((banks, deps), ({}, {})):
+        want, got = str(tmp_path / "want.patch_0"), str(tmp_path / "got.patch_0")
+        patch.write_patch(want, streams, came, came_deps, strings)
+        with patch.PatchWriter(got, streams, [*banks, 250, 400], [*deps, 7, 250], strings) as w:
+            for fid in sorted(came):
+                w.bank(fid, came[fid])
+            w.finish(came_deps)
+        for suffix in ("", ".stream"):
+            assert open(got + suffix, "rb").read() == open(want + suffix, "rb").read()
+        assert not (tmp_path / "got.patch_0.partial").exists()
+
+
+def test_patch_writer_that_fails_leaves_the_patch_as_it_was(tmp_path):
+    path = str(tmp_path / "x.patch_0")
+    patch.write_patch(path, *_patch_files(1))
+    before = open(path, "rb").read()
+    with pytest.raises(patch.CueError):
+        with patch.PatchWriter(path, {}, [1, 2], [1]) as w:
+            w.bank(1, b"x" * 100)
+            raise patch.CueError(2, 10, 5)
+    with pytest.raises(ValueError):  # banks come in id order, and only those laid out
+        with patch.PatchWriter(path, {}, [1, 2], []) as w:
+            w.bank(2, b"x")
+            w.bank(1, b"x")
+    assert open(path, "rb").read() == before and not (tmp_path / "x.patch_0.partial").exists()
+
+
+# --- the game's archives
+def _bundle(folder: Path, resources) -> dict[int, int]:
+    """Writes folder/bundles.00.nxa as the game lays one out: a table of chunks, each stored as it is or
+    LZ4-compressed, a resource's first chunk flagged. resources: [[(bytes, compressed)] per chunk]. Returns
+    {uncompressed offset: chunk} (slim.bundle_offsets)."""
+    from lz4 import block
+    from audiodiver._vendor import slim
+    chunks, offsets, at = [], {}, 0
+    for resource in resources:
+        for i, (data, packed) in enumerate(resource):
+            offsets[at] = len(chunks)
+            chunks.append((at, data, block.compress(data, store_size=False) if packed else data, packed, i == 0))
+            at += len(data)
+    table, blobs, stored_at = b"", b"", 0x20 + 0x20 * len(chunks)
+    for at, data, stored, packed, first in chunks:
+        table += struct.pack("<QQIIBB6x", at, stored_at + len(blobs), len(data), len(stored),
+                             slim.COMPRESSED if packed else slim.UNCOMPRESSED, slim.START if first else slim.CONTINUE)
+        blobs += stored
+    (folder / "bundles.00.nxa").write_bytes(struct.pack("<QI", 0, len(chunks)).ljust(0x20, b"\0") + table + blobs)
+    return offsets
+
+
+def test_bundle_part_reads_what_the_whole_package_has(tmp_path, monkeypatch):
+    """Every range of a package, read from only its chunks, is that range of the package rebuilt whole: resources of
+    one chunk and of several, stored and compressed, and a part whose last resource runs on past where the next
+    part starts (the next part's bytes win there)."""
+    import random
+    from audiodiver import game
+    from audiodiver._vendor import slim
+    random.seed(5)
+    blob = lambda n: bytes(random.randrange(4) for _ in range(n))  # a few values: LZ4 has something to pack
+    resources = [[(blob(40), False)], [(blob(100), True), (blob(50), False), (blob(70), True)],
+                 [(blob(33), True)], [(blob(64), False), (blob(10), True)], [(blob(25), True)]]
+    offsets = _bundle(tmp_path, resources)
+
+    def part(start, at):
+        e = slim.BundleEntry()
+        e.bundle_index, e.start_offset, e.original_archive_offset = 0, start, at
+        return e
+    p = slim.Package()
+    # the first part is two resources (260 bytes); the second (from 260) runs 7 bytes on past the third's start
+    p.size, p.entries = 385, [part(0, 0), part(260, 260), part(367, 360)]
+    shuffled = slim.Package()
+    shuffled.size, shuffled.entries = p.size, [p.entries[1], p.entries[0], p.entries[2]]
+    monkeypatch.setattr(slim, "package_contents", {"pkg": p, "shuffled": shuffled})
+    monkeypatch.setattr(slim, "bundle_offsets", {"bundles.00.nxa": offsets})
+    whole = game.from_bundles(tmp_path, "pkg")
+    assert len(whole) == p.size
+    for offset in range(0, p.size + 1):
+        for size in {0, 1, 7, 16, 41, 99, p.size - offset}:
+            if offset + size <= p.size:
+                assert game.bundle_part(tmp_path, "pkg", offset, size) == whole[offset:offset + size], (offset, size)
+    # past the end, or parts out of order: only the whole rebuild reads those
+    assert game.bundle_part(tmp_path, "pkg", 380, 6) is None
+    assert game.bundle_part(tmp_path, "shuffled", 0, 10) is None
+
+
 # --- project file
 def test_project_round_trips_64_bit_targets(tmp_path):
     (tmp_path / "a.wav").write_bytes(b"")

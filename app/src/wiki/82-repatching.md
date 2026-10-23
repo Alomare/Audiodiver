@@ -19,9 +19,11 @@ A mod's patch contains complete copies of the sound banks it changes, as they we
 4. Tick **Patch every bank with the sounds** if the mod's audio should play wherever the game uses its sounds. Left off, the mod's audio goes only into the banks the mod patched, as in the original, and the mod stays about the same size. [More about it](wiki:build-and-install#every-bank-with-the-sounds).
 5. Press **Repatch**.
 
-Some mods have several options, with one patch for each option. A mod like this stays one mod with the same options. The page lists its patches, and Audiodiver rebuilds each one in its original place.
+The page then sums up the result: what was carried over, what was kept as it was, and what was left out. **Show all** lists every patch and the log. **Repatch another mod** clears the page for the next one.
 
-Some mods have several patch files in one folder, such as `.patch_0`, `.patch_1` and `.patch_2`. The game loads them over each other as one mod. Audiodiver imports them into one project in the same order and builds them into one patch.
+Some mods have several options, with one patch for each option. A mod like this stays one mod with the same options. The page counts its patches, and Audiodiver rebuilds each one that holds audio in its original place. A patch without audio, such as an option that only changes a texture, stays as it is. **Show all** lists them one by one.
+
+Some mods have several patch files in one folder, such as `.patch_0`, `.patch_1` and `.patch_2`. The game loads them over each other as one mod. Audiodiver reads them in the same order and builds them into one patch.
 
 ## Checking installed mods
 
@@ -47,7 +49,9 @@ If the mod has a mod manager manifest, the new ZIP keeps everything else from th
 
 ## Destination folder
 
-Each repatched mod gets a folder in the **Destination folder**. The default location is `Documents\Audiodiver\Repatched`, and **Change…** picks another. The folder holds the new ZIP and one project for each patch, with the audio extracted from the patch in an `audio\imported` folder. **Open as project** opens a project in the [Audio Editor](app:editor), where you can change it further and build it from [Build](app:build). If the mod had several options, each option built this way becomes a separate mod.
+The new ZIP goes into the **Destination folder**. The default location is `Documents\Audiodiver\Repatched`, and **Change…** picks another. If a ZIP with the same name is already there, it stays, and the new one gets a number.
+
+To change a mod further, make a project and import the mod's patch into it, as [When the game updates](wiki:game-updates#mods-made-with-older-tools) explains. Then build it from [Build](app:build) like any other project.
 
 ## What repatching leaves out
 
@@ -55,14 +59,14 @@ Repatching carries over audio and sound settings. After each repatch, the page l
 
 - **Other kinds of change.** A mod's copy of a bank can also have different effects or positioning, or a different way for a container to pick its sounds. Most of these differences are the game's banks as they were when the mod was made, before later updates changed them, so Audiodiver leaves them out. Where Audiodiver knows a difference from an earlier game version, it doesn't list it. If the repatched mod sounds different, compare it with the old version in game.
 - **Text that the mod changes.** Repatching doesn't support text yet. For example, a voice mod's new subtitles are left out, and the game shows its normal subtitles. The page tells you when a patch contains text.
-- **Anything else in the patch besides sound banks.** A patch that also contains models or textures loses them. The page tells you when this happens.
+- **Anything else in the patch besides sound banks.** A patch that holds sound banks and also models or textures loses the models and textures. The page tells you when this happens. A patch without any audio stays in the ZIP as it was, with everything in it.
 
 The sound settings are copied from the mod as they were. One of them may override a value that the game has changed since, and the old mod overrode it in the same way. On groups that other banks share, only the volume, pitch, filters and delay are copied. See [Shared settings from an older game version](#shared-settings-from-an-older-game-version).
 
 > [!NOTE]
 > Audiodiver keeps track of what each game update changes, starting with the update of 20 October 2026. For a mod made before that update, some items under **Left out** and some of the copied settings can be the game's own values from that time, not changes the mod made.
 
-In a mod with several options, a patch that can't be repatched stays in the ZIP unchanged, and the page tells you which one. This happens when a patch contains no sound or can't be read.
+In a mod with several options, a patch with audio that can't be repatched stays in the ZIP unchanged, and the page tells you which one. This happens when its sound banks can't be read, or hold nothing that Audiodiver can bring over.
 
 ## Sounds from an older game version
 

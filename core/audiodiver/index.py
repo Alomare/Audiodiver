@@ -178,6 +178,10 @@ class AudioIndex:
             dep = None
         return bank[16:], dep
 
+    def has_dep(self, bank_id: int) -> bool:
+        """Whether the archive bank_files reads the bank from has a dep for it (its table of contents says)."""
+        return (bank_id, WWISE_DEP) in self.game.contents(self.banks[bank_id]["archives"][0])
+
     def stream_file(self, sid: int) -> int | None:
         """The file id of the stream that holds a sound's audio, or None when its audio is only inside banks."""
         return sid if sid in self.orphans else self.stream_of.get(sid)

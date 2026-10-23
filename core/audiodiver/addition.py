@@ -657,6 +657,15 @@ def _beside(n, hirc, vanilla, added) -> list[int]:
                                         -_likeness(hirc[n][1], vanilla[c][1])))
 
 
+def _timing_only(game_body, body) -> bool:
+    """A music segment that differs from the game's only in its length and where its cue points are."""
+    try:
+        a, b = (music.MusicSegment.read(0, music.Reader(x)) for x in (game_body, body))
+    except (struct.error, IndexError, ValueError):
+        return False
+    return a.node.to_bytes() == b.node.to_bytes() and [(i, n) for i, _, n in a.markers] == [(i, n) for i, _, n in b.markers]
+
+
 def from_patch(ix, d: dict) -> Found:
     """The additions and replacements in a patch, from patch.diff(): new Sounds in the game's random containers are
     new takes; a new random container with new Sounds, played with one of the game's, is a layer beside it; a
@@ -681,6 +690,14 @@ def from_patch(ix, d: dict) -> Found:
         return read[bid]
 
     out.left += [f"bank {bid}, which this version of the game doesn't have" for bid in d.get("unknown", [])]
+    # the game's clips the patch has audio for, in a bank or streamed, known before any bank is read: a music track
+    # in one bank can play a clip that another bank or the stream replaces
+    new_audio = {m for b in d["banks"].values() for m in b["media"] if m in b["read"][1][0] and game(m)}
+    for fid in d.get("streams", ()):
+        try:
+            new_audio.add(ix.resolve(fid))
+        except KeyError:
+            pass
     for bid, b in d["banks"].items():
         (media, hirc), (vmedia, vanilla) = b["read"]
         older = older_version(ix, bid, hirc, b["added"])
@@ -768,8 +785,15 @@ def from_patch(ix, d: dict) -> Found:
             elif i not in seen:
                 seen.add(i)
                 out.own.append((i, new, wem))
+        plays_new = lambda i: i in hirc and hirc[i][0] == MUSIC_TRACK and bool(
+            set(wbank.source_ids(MUSIC_TRACK, hirc[i][1])) & (new_audio | set(out.replaced) | same))
         for t, i in b["objects"]:  # a music track that plays a replaced clip: its sizes follow the clip
-            if t == "MusicTrack" and set(wbank.source_ids(MUSIC_TRACK, hirc[i][1])) & (set(out.replaced) | same):
+            if t == "MusicTrack" and plays_new(i):
+                explained.add(i)
+        for t, i in b["objects"]:  # its segment's length and cue points follow the clip too, and a build makes them
+            # again for the new audio (fit timing): they aren't a change left out
+            if t == "MusicSegment" and i in vanilla and _timing_only(vanilla[i][1], hirc[i][1]) and any(
+                    plays_new(c) for c in music.MusicSegment.read(i, music.Reader(hirc[i][1])).node.children):
                 explained.add(i)
         for _, i in b["objects"]:  # the mod's settings on the game's objects
             t, body = hirc[i]

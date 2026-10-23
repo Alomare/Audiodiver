@@ -140,12 +140,12 @@ export function CombinePage() {
   const findInstalled = async () => { const r = await run<Installed>("combine_installed"); if (r) setInstalled(r); };
 
   return (
-    <div className="bld rp cmb" data-drop={JSON.stringify({ kind: "combine" })}>
+    <div className="bld rp cmb drop-page" data-drop={JSON.stringify({ kind: "combine" })}>
       <div className="bld-main">
         <section className="set-sec">
           <h2>Mods <Help tip="The order counts where two mods change the same sound. A mod lower in the list wins, as it does when Arsenal deploys it later." page="combining-mods#order-and-conflicts" /></h2>
           {mods.length > 0 && (
-            <ol className="cmb-mods">
+            <ol className="cmb-mods drop-zone">
               {mods.map((m, i) => (
                 <li key={m.scan.source} className="cmb-mod view-in">
                   <div className="cmb-mod-head">
@@ -162,7 +162,7 @@ export function CombinePage() {
               ))}
             </ol>
           )}
-          <div className={mods.length ? "row-btns" : "rp-drop"}>
+          <div className={mods.length ? "row-btns" : "rp-drop drop-zone"}>
             {!mods.length && <p>Drop mods here as <b>ZIPs</b>, <b>folders</b> or <b>.patch_0</b> files.</p>}
             <div className="row-btns">
               <button className="btn" disabled={combining} onClick={async () => { const p = await pickMods(); if (p) add(p); }}>Add ZIPs or patch files…</button>

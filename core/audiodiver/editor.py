@@ -1550,7 +1550,7 @@ class Session:
                 log.exception("job %s (%s: %s) failed", job.id, kind, title)
             job.ended = time.time()
             if self.ix and not any(j.state == "running" for j in self.jobs.values()):
-                self.ix.game.trim_caches()  # the packages a build read, up to 900 MB
+                self.ix.game.trim_caches()  # the streams a job read, and packages the Library opened
         threading.Thread(target=run, daemon=True).start()
         return job.to_json()
 
@@ -1756,7 +1756,7 @@ class Session:
     # --- repatching (repatch.py): an existing mod rebuilt on the game as it is now
     @staticmethod
     def _repatch_root() -> Path:
-        """Where repatched mods' projects go: the folder last chosen, else Documents/Audiodiver/Repatched."""
+        """Where repatched mods go: the folder last chosen, else Documents/Audiodiver/Repatched."""
         from .repatch import documents
         return Path(load_settings().get("repatch_folder") or documents() / "Audiodiver" / "Repatched")
 
@@ -1770,11 +1770,14 @@ class Session:
             raise EditorError(str(e)) from None
         except OSError as e:
             raise EditorError(f"Can't read {Path(str(path)).name}: {os_error(e)}") from None
+
+        def patch(p):  # audio: whether repatching changes it (one without stays as it is, other files included)
+            kinds = [self._kinds(f, key) for key in p.keys]
+            return {"key": p.key, "label": p.label, "files": len(p.keys), "audio": any(k[0] for k in kinds),
+                    "other": [x for _, texts, rest in kinds for x in self._other_lines(texts, rest)]}
         return {"source": str(f.source), "name": f.name or "Repatched mod", "description": f.description,
                 "guid": bool(f.guid), "icon": bool(f.icon), "manifest": bool(f.manifest), "zip": f.is_zip,
-                "folder": str(self._repatch_root()),
-                "patches": [{"key": p.key, "label": p.label, "files": len(p.keys),
-                             "other": [x for key in p.keys for x in self._not_audio(f, key)]} for p in f.patches]}
+                "folder": str(self._repatch_root()), "patches": [patch(p) for p in f.patches]}
 
     def check_mods(self):
         """The installed mods (the game's data folder and HD2 Arsenal's library) checked for sound banks of an older
@@ -1792,15 +1795,23 @@ class Session:
         return self._start("check", run, title="installed mods")
 
     @staticmethod
-    def _not_audio_counts(found, key) -> tuple[int, int]:
-        """(string tables, other files) in a mod's patch: what it holds besides audio."""
+    def _kinds(found, key) -> tuple[bool, int, int]:
+        """(holds audio, string tables, other files) of a mod's patch. One that can't be read counts as audio: kept
+        as it was, it may be a mod's old sound banks, where a patch of models or textures alone is fine as it is."""
         from .game import WWISE_BANK, WWISE_DEP, WWISE_STREAM, toc_entries
         from .strings import STRINGS
         try:
             types = [tid for _, tid, *_ in toc_entries(found.read(key) or b"")]
         except Exception:  # noqa: BLE001 (a patch that can't be read says so when it is repatched)
-            return 0, 0
-        return sum(t == STRINGS for t in types), sum(t not in (WWISE_BANK, WWISE_DEP, WWISE_STREAM, STRINGS) for t in types)
+            return True, 0, 0
+        audio = (WWISE_BANK, WWISE_DEP, WWISE_STREAM)
+        return (any(t in audio for t in types), sum(t == STRINGS for t in types),
+                sum(t not in (*audio, STRINGS) for t in types))
+
+    @staticmethod
+    def _not_audio_counts(found, key) -> tuple[int, int]:
+        """(string tables, other files) in a mod's patch: what it holds besides audio."""
+        return Session._kinds(found, key)[1:]
 
     @staticmethod
     def _other_lines(texts: int, rest: int) -> list[str]:
@@ -1815,15 +1826,15 @@ class Session:
 
     def repatch(self, path, name="", folder="", every_bank=False):
         """Rebuilds a mod on the game as it is now, as the one mod it was. Each of its patches is imported into a
-        project of its own (in the mod's folder under the repatch folder, to change it further) and made again on the
-        current game's banks; the new ZIP is the mod as it was, with a manifest's options, files and id kept
+        project of its own (in a temp folder, gone after) and made again on the current game's banks; the new ZIP,
+        the only thing left in the repatch folder, is the mod as it was, with a manifest's options, files and id kept
         (repatch.repackage), those patches in place of the old ones. Without a manifest it is a ZIP for HD2 Arsenal,
         one option per patch. A patch that can't be repatched stays as it was in a mod of several, and the result
         says so. every_bank: the mod's sounds go into every bank that has them, not only the banks the mod patched
         (build.reach)."""
         import tempfile
         from .arsenal import default_icon, name_problem, package
-        from .build import PATCH, BuildError, icon_bytes, make_patch
+        from .build import PATCH, BuildError, make_patch
         from .game import in_game_folder
         from .repatch import RepatchError, clean_name, repackage, scan
         self.require_game()
@@ -1847,21 +1858,12 @@ class Session:
             raise EditorError("Every bank is on or off")
         several = len(f.patches) > 1
 
-        def one(job, pt, home: Path, scratch: Path) -> dict:
-            """A patch imported into a project at home and made again into scratch/out (with the patches loaded
+        def one(job, pt, scratch: Path) -> dict:
+            """A patch imported into a project in scratch and made again into scratch/out (with the patches loaded
             over it, pt.also, imported after it: one part of the mod, one patch)."""
-            mod = clean_name(f"{name} {pt.label}") if several and pt.label else name
-            home.mkdir(parents=True, exist_ok=True)
-            p = Project(name=mod, path=home / f"{home.name}.audi", library=[], description=f.description,
-                        guid=f.guid if f.guid and not several else str(uuid.uuid4()), every_bank=every_bank)
-            if f.icon and (image := f.read(f.icon)):
-                (home / f"icon{Path(f.icon).suffix.lower()}").write_bytes(image)
-                p.icon = {"image": f"icon{Path(f.icon).suffix.lower()}"}
-                try:
-                    icon_bytes(p)
-                except BuildError:
-                    job.say("the mod's icon can't be read, so its project uses Audiodiver's icon")
-                    p.icon = {}
+            home = scratch / "project"
+            home.mkdir(parents=True)
+            p = Project(name=name, path=home / "repatch.audi", library=[], every_bank=every_bank)
             reads = [self._patch_audio(f.place(key, scratch / "in" / str(k)), home / "audio" / "imported", job)
                      for k, key in enumerate(pt.keys)]
             with self.lock:
@@ -1869,8 +1871,6 @@ class Session:
                 self._tidy(p)
                 self._tidy_cues(p)
                 self._cover(p)
-                p.built_for = self.ix.game.version  # the repatch builds it (but leaves its version at 1)
-                p.save()
 
             def progress(doing, done=None, total=None):
                 if total:
@@ -1881,82 +1881,73 @@ class Session:
                 make_patch(p, self.ix, scratch / "out", log=job.say, step=progress, listed=self._listed_banks(p))
             except BuildError as e:
                 raise EditorError(str(e)) from None
-            return {"label": pt.label, "project": str(p.path),
+            return {"label": pt.label,
                     "imported": len({s for _, replaced, files, _ in reads for s in replaced if s in files}),
                     "added": added, "skipped": sum(r[3] for r in reads), "settings": len(p.settings),
                     "left": [x for got, *_ in reads for x in got.left],
                     "stale": len(set().union(*(got.stale for got, *_ in reads))),
                     "older": len(set().union(*(got.older for got, *_ in reads))),
-                    "other": [x for key in pt.keys for x in self._not_audio(f, key)], "kept": "",
+                    "other": [x for key in pt.keys for x in self._not_audio(f, key)], "kept": "", "audio": True,
                     "patch": str(scratch / "out" / PATCH)}
 
         def run(job):
-            n = 1
-            while (home := root / (_short(name) if n == 1 else f"{_short(name)} {n}")).exists():
-                n += 1
             try:
-                home.mkdir(parents=True)
+                root.mkdir(parents=True, exist_ok=True)
             except OSError as e:
-                raise EditorError(f"Can't make the folder {home}: {os_error(e)}") from None
-            try:
-                with tempfile.TemporaryDirectory(prefix="audiodiver-repatch-", ignore_cleanup_errors=True) as tmp:
-                    parts, used = [], set()
-                    for i, pt in enumerate(f.patches):
-                        at = home
-                        if several:
-                            job.say(f"--- {pt.label or pt.key} ({i + 1} of {len(f.patches)})")
-                            sub = _short(clean_name(pt.label.replace("/", " ")) or clean_name(Path(pt.key).parent.name)
-                                         or "Patch")
-                            k = 1
-                            while (sub if k == 1 else f"{sub} {k}").lower() in used:
-                                k += 1
-                            used.add((sub if k == 1 else f"{sub} {k}").lower())
-                            at = home / (sub if k == 1 else f"{sub} {k}")
-                        try:
-                            parts.append(one(job, pt, at, Path(tmp) / str(i)))
-                        except EditorError as e:
-                            if not several:
-                                raise
-                            job.say(f"kept as it was: {e}")
-                            if at != home:
-                                shutil.rmtree(at, ignore_errors=True)
-                            parts.append({"label": pt.label or pt.key, "kept": str(e), "other": [], "left": []})
-                    if all(x["kept"] for x in parts):
-                        raise EditorError(parts[0]["kept"])
-                    job.step("Packing the ZIP")
-                    zip_path = home / f"{name}.zip"
+                raise EditorError(f"Can't make the folder {root}: {os_error(e)}") from None
+            n = 1
+            while (zip_path := root / (f"{name}.zip" if n == 1 else f"{name} {n}.zip")).exists():
+                n += 1
+            partial = zip_path.with_name(f".{zip_path.name}.partial")  # the ZIP shows up whole or not at all
+            with tempfile.TemporaryDirectory(prefix="audiodiver-repatch-", ignore_cleanup_errors=True) as tmp:
+                parts = []
+                for i, pt in enumerate(f.patches):
+                    if several:
+                        job.say(f"--- {pt.label or pt.key} ({i + 1} of {len(f.patches)})")
                     try:
-                        made = [(pt, x) for pt, x in zip(f.patches, parts) if not x["kept"]]
-                        if f.manifest:  # a part's patches built into its first one's place
-                            repackage(f, zip_path, {pt.key: Path(x["patch"]) for pt, x in made}, name,
-                                      gone=[key for pt, _ in made for key in pt.also])
-                        else:  # no manifest: an Arsenal ZIP, each part an option of its own
-                            icon = Path(tmp) / "icon.png"
-                            icon.write_bytes(default_icon())
-                            options = []
-                            for i, (pt, x) in enumerate(zip(f.patches, parts)):
-                                label = clean_name(pt.label.replace("/", " ")) or name
-                                if not x["kept"]:
-                                    options.append({"name": label, "description": "", "folder": Path(x["patch"]).parent})
-                                    continue
-                                for k, key in enumerate(pt.keys):  # as it was, each patch an option
-                                    src = Path(tmp) / str(i) / "kept" / str(k)
-                                    f.place(key, src)
-                                    for kept in src.iterdir():
-                                        kept.rename(src / (PATCH + kept.name[len(Path(key).name):]))
-                                    options.append({"name": f"{label} {k + 1}" if pt.also else label,
-                                                    "description": "", "folder": src})
-                            package(zip_path, name=name, guid=str(uuid.uuid4()), icon=icon, options=options)
-                    except OSError as e:
-                        raise EditorError(f"Can't write the ZIP into {home}: {os_error(e)}") from None
-            except BaseException:
-                if not any(home.rglob("*.audi")):
-                    shutil.rmtree(home, ignore_errors=True)  # made just now, with nothing to show for it
-                raise
+                        parts.append(one(job, pt, Path(tmp) / str(i)))
+                    except EditorError as e:
+                        if not several:
+                            raise
+                        job.say(f"kept as it was: {e}")
+                        parts.append({"label": pt.label or pt.key, "kept": str(e), "other": [], "left": [],
+                                      "audio": any(self._kinds(f, key)[0] for key in pt.keys)})
+                if not any(x["audio"] for x in parts):
+                    raise EditorError("The mod holds no audio, so there is nothing to repatch")
+                if all(x["kept"] for x in parts):
+                    raise EditorError(parts[0]["kept"])
+                job.step("Packing the ZIP")
+                try:
+                    made = [(pt, x) for pt, x in zip(f.patches, parts) if not x["kept"]]
+                    if f.manifest:  # a part's patches built into its first one's place
+                        repackage(f, partial, {pt.key: Path(x["patch"]) for pt, x in made}, name,
+                                  gone=[key for pt, _ in made for key in pt.also])
+                    else:  # no manifest: an Arsenal ZIP, each part an option of its own
+                        icon = Path(tmp) / "icon.png"
+                        icon.write_bytes(default_icon())
+                        options = []
+                        for i, (pt, x) in enumerate(zip(f.patches, parts)):
+                            label = clean_name(pt.label.replace("/", " ")) or name
+                            if not x["kept"]:
+                                options.append({"name": label, "description": "", "folder": Path(x["patch"]).parent})
+                                continue
+                            for k, key in enumerate(pt.keys):  # as it was, each patch an option
+                                src = Path(tmp) / str(i) / "kept" / str(k)
+                                f.place(key, src)
+                                for kept in src.iterdir():
+                                    kept.rename(src / (PATCH + kept.name[len(Path(key).name):]))
+                                options.append({"name": f"{label} {k + 1}" if pt.also else label,
+                                                "description": "", "folder": src})
+                        package(partial, name=name, guid=str(uuid.uuid4()), icon=icon, options=options)
+                    os.replace(partial, zip_path)
+                except OSError as e:
+                    raise EditorError(f"Can't write the ZIP into {root}: {os_error(e)}") from None
+                finally:
+                    partial.unlink(missing_ok=True)
             for x in parts:
                 x.pop("patch", None)
             job.say(f"{zip_path} ({zip_path.stat().st_size / 1e6:.1f} MB)")
-            return {"name": name, "zip": str(zip_path), "folder": str(home), "mb": round(zip_path.stat().st_size / 1e6, 1),
+            return {"name": name, "zip": str(zip_path), "mb": round(zip_path.stat().st_size / 1e6, 1),
                     "kept_id": bool(f.manifest and f.guid), "manifest": bool(f.manifest), "parts": parts}
         return self._start("repatch", run, title=name)
 
@@ -2812,8 +2803,8 @@ def _then(pieces, after):
 
 
 def _short(name: str, most: int = 48) -> str:
-    """A folder's name of at most `most` characters, cut between words: a repatch's folders hold the decoded audio
-    several levels down, and the decoder can't write past Windows' 260-character paths."""
+    """A folder's name of at most `most` characters, cut between words: a combined mod's folder holds the decoded
+    audio several levels down, and the decoder can't write past Windows' 260-character paths."""
     if len(name) <= most:
         return name
     cut = name[:most + 1].rsplit(" ", 1)[0] if " " in name[:most + 1] else name[:most]

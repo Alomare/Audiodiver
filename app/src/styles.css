@@ -202,7 +202,6 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color])
 :root:is([data-bar="left"], [data-bar="right"]) .rail { flex-direction: column; width: var(--bar); }
 :root:is([data-bar="left"], [data-bar="right"]) :is(.rail-group, .rail-set) { flex-direction: column; }
 :root:is([data-bar="left"], [data-bar="right"]) .rail .tab { border-width: 0 2px; }
-:root:is([data-bar="left"], [data-bar="right"]) .rail-set + .rail-set { margin-top: calc(6px + 4px * var(--sp)); }
 :root[data-bar="left"] .rail { border-right: 1px solid var(--line); }
 :root[data-bar="left"] .rail-group { margin-right: -1px; }
 :root[data-bar="left"] .rail .tab.on { border-left-color: var(--tab-line, var(--second-fg)); }
@@ -214,7 +213,6 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color])
 /* along the top or bottom */
 :root:is([data-bar="top"], [data-bar="bottom"]) .rail { flex-direction: row; }
 :root:is([data-bar="top"], [data-bar="bottom"]) .rail-group { min-width: 0; } /* a narrow window cuts the names short */
-:root:is([data-bar="top"], [data-bar="bottom"]) .rail-set + .rail-set { margin-left: calc(6px + 4px * var(--sp)); }
 :root:is([data-bar="top"], [data-bar="bottom"]) .rail .tab { flex: 0 1 auto; border-width: 2px 0; }
 :root:is([data-bar="top"], [data-bar="bottom"]) .rail .tab > .icon { flex: none; }
 .tab-name { overflow: hidden; text-overflow: ellipsis; }
@@ -350,6 +348,11 @@ button.file:hover:not(:disabled) { text-decoration: underline dotted; text-under
 /* drag and drop */
 .app.dragging [data-drop] { outline: 1px dashed var(--line); outline-offset: -1px; }
 .app.dragging .drop-over, [data-drop].drop-over { outline: 2px solid var(--accent-fg) !important; outline-offset: -2px; background: color-mix(in srgb, var(--accent-fg) 8%, transparent); }
+/* a page that takes a drop anywhere on it (Repatch, Combine Mods) lights its drop zone only, not the whole page */
+.app.dragging [data-drop].drop-page { outline: none !important; background: none; }
+.app.dragging .drop-page .drop-zone { outline: 1px dashed var(--line); outline-offset: -1px; transition: background-color var(--t1), outline-color var(--t1); }
+.app.dragging .drop-page.drop-over .drop-zone { outline: 2px solid var(--accent-fg); outline-offset: -2px; background: color-mix(in srgb, var(--accent-fg) 8%, transparent); }
+.app.dragging .drop-page .drop-zone:not(.rp-drop) { outline-offset: 6px; } /* a form or a list: around it, not on it */
 
 /* ---------- inspector */
 .inspector { background: var(--panel); min-width: 0; overflow: auto; padding: calc(16px * var(--sp)) 18px 30px; }
@@ -456,6 +459,9 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fg); }
    paints the whole page as one list each frame, so anything that changes while something plays had it walk every
    row, on screen or not. The heights are remembered once a row has been seen. */
 .slots > .grp, .slots > .slot, .lib-tree .mus-item, .tx-row { content-visibility: auto; contain-intrinsic-size: auto 34px; }
+/* a long slot list draws only the rows near the view (useListWindow): those are drawn in full, so their heights are
+   measured as they are */
+.slots.windowed > .grp, .slots.windowed > .slot { content-visibility: visible; }
 .marker { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px solid var(--muted); }
 .wave.mine .marker { border-left-color: var(--accent-fg); }
 .marker-flag { position: absolute; top: 0; left: 0; font-size: calc(11px * var(--fs)); line-height: calc(16px * var(--fs)); padding: 0 5px; background: var(--muted); color: var(--steel-ink); white-space: nowrap; pointer-events: none; }
@@ -1131,8 +1137,17 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .rp-patches { display: flex; flex-direction: column; gap: 6px; }
 .rp-patches ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
 .rp-patches small { display: block; color: var(--muted); }
+.rp-patches details ul { margin-top: 8px; }
+.rp-patches .warn-box { margin: 0; }
 .rp-made > p { margin: 0 0 10px; overflow-wrap: anywhere; }
 .rp-made > .row-btns { margin-bottom: 14px; }
+/* the outcome in short; Show all holds each patch and the log */
+.rp-sum { margin-bottom: 12px; }
+.rp-sum dd { overflow-wrap: anywhere; }
+.rp-made > .warn-box { margin: 0 0 12px; }
+.rp-all[open] > summary { margin-bottom: 10px; }
+.rp-all .rp-mod ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: calc(13px * var(--fs)); }
+.rp-all > .rp-log { margin-top: 4px; }
 .rp-mod h3 { margin: 0; font-size: calc(14px * var(--fs)); }
 .rp-go { margin-top: 4px; }
 .rp-progress { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--muted); font-size: calc(13px * var(--fs)); }

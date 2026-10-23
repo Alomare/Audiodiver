@@ -48,10 +48,11 @@ def stream_id(source_id: int, language: str = "") -> int:
     return murmur64_hash(f"content/audio/{language + '/' if language else ''}{source_id}".encode())
 
 
-# --- the archives inside the bundles, and the cache of the ones a build or a preview reads whole: big enough for a
-# build's (a Dune build reads 16 packages over and over: 8 cached ones thrashed, and its builds took 3 times as
-# long), trimmed between jobs so an idle core gives the memory back
-PACKAGE_CACHE, STREAM_CACHE = 600 << 20, 300 << 20  # bytes
+# --- the archives inside the bundles, and the cache of the ones read whole (the index reads each package once, a
+# preview of a streamed sound its archive's stream data), trimmed between jobs so an idle core gives the memory
+# back. A bank or a table is read from only the chunks that hold it (bundle_part): reading whole packages, a Dune
+# build read 16 of them over and over and kept up to 600 MB of them
+PACKAGE_CACHE, STREAM_CACHE = 150 << 20, 300 << 20  # bytes
 IDLE_CACHE = 150 << 20
 
 
@@ -78,6 +79,65 @@ def from_bundles(data: Path, name: str) -> bytes:
                 at = item.original_archive_offset + done
                 out[at:at + len(piece)] = piece
                 done += len(piece)
+    finally:
+        for f in files.values():
+            f.close()
+    return bytes(out)
+
+
+@functools.lru_cache(maxsize=64)
+def _part_starts(p: slim.Package) -> list[int] | None:
+    """Where each part of a package starts in it, or None when they aren't in order."""
+    begins = [e.original_archive_offset for e in p.entries]
+    return begins if all(a <= b for a, b in zip(begins, begins[1:])) else None
+
+
+def bundle_part(data: Path, name: str, offset: int, size: int) -> bytes | None:
+    """from_bundles(data, name)[offset:offset + size], decompressing only the chunks that hold those bytes: a bank
+    cost its whole package (up to 169 MB) and a place in the package cache. None for a range past the package's end
+    or a package whose parts aren't in order, which only a whole rebuild reads as from_bundles does."""
+    p = slim.package_contents.get(name)
+    if p is None or offset < 0 or size < 0 or offset + size > p.size or (begins := _part_starts(p)) is None:
+        return None
+    parts, end, out, files, counts = p.entries, offset + size, bytearray(size), {}, {}
+    try:
+        for i in range(max(0, bisect.bisect_right(begins, offset) - 1), len(parts)):
+            item, lo = parts[i], begins[i]
+            if lo >= end:
+                break
+            hi = begins[i + 1] if i + 1 < len(parts) else p.size
+            if hi <= offset:
+                continue
+            bundle = f"bundles.{item.bundle_index:02d}.nxa"
+            if bundle not in files:
+                f = open(data / bundle, "rb")
+                files[bundle] = f
+                f.seek(8)
+                counts[bundle] = struct.unpack("<I", f.read(4))[0]
+            f, count, starts, at = files[bundle], counts[bundle], slim.bundle_offsets[bundle], lo
+            # resource by resource as from_bundles reads them; a part's bytes are its own up to the next part's
+            # start, also where its last resource runs on
+            while at < hi and at < end:
+                chunk, first = starts[item.start_offset + at - lo], True
+                while True:
+                    f.seek(0x20 + 0x20 * chunk)
+                    _, stored_at, length, stored, compression, flags = struct.unpack("<QQIIBB6x", f.read(0x20))
+                    if flags & slim.START and not first:
+                        break
+                    first, n = False, length if compression == slim.COMPRESSED else stored
+                    a, b = max(at, offset), min(at + n, hi, end)
+                    if a < b:
+                        f.seek(stored_at)
+                        piece = f.read(stored)
+                        if compression == slim.COMPRESSED:
+                            piece = block.decompress(piece, uncompressed_size=length)
+                        if len(piece) != n:  # a chunk shorter than its header says: the whole rebuild has it right
+                            return None
+                        out[a - offset:b - offset] = memoryview(piece)[a - at:b - at]
+                    at += n
+                    if chunk == count - 1:
+                        break
+                    chunk += 1
     finally:
         for f in files.values():
             f.close()
@@ -276,8 +336,8 @@ class Game:
         slim.slim_init(str(self.data))
         self.loose = self._loose()  # {name: path} of the archives outside the bundles (the voice packs)
         self.packages = sorted(set(slim.package_contents) | set(self.loose))
-        # whole packages and streams as builds and previews read them, by size: lru_cache kept 8 whole packages of
-        # up to 169 MB each for as long as the core ran
+        # whole packages and streams as the index and previews read them, by size: lru_cache kept 8 whole packages
+        # of up to 169 MB each for as long as the core ran
         self._package_cache, self._stream_cache = SizedCache(PACKAGE_CACHE), SizedCache(STREAM_CACHE)
 
     def _loose(self) -> dict[str, Path]:
@@ -342,11 +402,18 @@ class Game:
         return self._package_cache.get(name, lambda: dsar_read(self.loose[name]) if name in self.loose
                                        else from_bundles(self.data, name))
 
+    def package_part(self, name, offset: int, size: int) -> bytes:
+        """package(name)[offset:offset + size], read from only the chunks that hold it."""
+        if name in self.loose:
+            return dsar_read(self.loose[name], offset, size)
+        part = bundle_part(self.data, name, offset, size)
+        return self.package(name)[offset:offset + size] if part is None else part
+
     def stream(self, name) -> bytes:
         return self._stream_cache.get(name, lambda: from_bundles(self.data, name + ".stream"))
 
     def trim_caches(self):
-        """After a job: what previews need stays, the rest of a build's packages goes."""
+        """After a job: what previews need stays, the rest goes."""
         self._package_cache.trim(IDLE_CACHE)
         self._stream_cache.trim(IDLE_CACHE)
 
@@ -358,17 +425,23 @@ class Game:
 
     @functools.lru_cache(maxsize=16)
     def contents(self, name) -> dict:
-        """{(file id, type id): (toc offset, toc size, stream offset, stream size)} of a package."""
+        """{(file id, type id): (toc offset, toc size, stream offset, stream size)} of a package, read from its table
+        of contents only."""
+        head = self.package_part(name, 0, 72)
+        if head[:4] == struct.pack("<I", PATCH_MAGIC):  # else toc_entries says what it is
+            types, files = struct.unpack_from("<II", head, 4)
+            head = self.package_part(name, 0, 72 + 32 * types + 80 * files)
         return {(fid, tid): (off, size, s_off, s_size)
-                for fid, tid, off, size, s_off, s_size in toc_entries(self.package(name))}
+                for fid, tid, off, size, s_off, s_size in toc_entries(head)}
 
     def resource(self, name, file_id, type_id):
-        """(toc data, stream data) of one resource in a package."""
+        """(toc data, stream data) of one resource in a package. Only its own bytes are read: a build reads its
+        banks twice (to patch them, then to check the patch) and keeps none of their packages."""
         at = self.contents(name).get((file_id, type_id))
         if at is None:
             raise KeyError(f"{file_id}/{type_id} not in {name}")
         off, size, s_off, s_size = at
-        return self.package(name)[off:off + size], (self.stream_part(name, s_off, s_size) if s_size else b"")
+        return self.package_part(name, off, size), (self.stream_part(name, s_off, s_size) if s_size else b"")
 
     def stream_head(self, name, file_id, size: int) -> bytes | None:
         """The first bytes of a stream, where they can be had without rebuilding a whole package: in the archives

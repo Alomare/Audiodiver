@@ -37,14 +37,14 @@ def source_ids(type_, body) -> list[int]:
 def parse(bank: bytes):
     """({media id: bytes}, {hirc id: (type, body)})."""
     didx, data, hirc = [], b"", {}
-    for tag, body in chunks(bank):
+    for tag, body in chunks(memoryview(bank)):  # views: each clip and object is copied once, out of the bank
         if tag == b"DIDX":
             didx = [struct.unpack_from("<III", body, i) for i in range(0, len(body), 12)]
         elif tag == b"DATA":
             data = body
         elif tag == b"HIRC":
-            hirc = {id: (t, b) for t, id, b in music.iter_hirc(body)}
-    return {id: data[off:off + n] for id, off, n in didx}, hirc
+            hirc = {id: (t, bytes(b)) for t, id, b in music.iter_hirc(body)}
+    return {id: bytes(data[off:off + n]) for id, off, n in didx}, hirc
 
 
 def fingerprint(t: int, body: bytes) -> int:

@@ -83,7 +83,7 @@
       ],
       "name": "Loadout Selection",
       "slot": "Loadout #{n0}",
-      "notes": "The start segment plays once, then #1–14 loop in order.",
+      "notes": "Plays after the drop location screen and goes on from where that music was, in its loops #1–14: the start segment plays only when the loadout screen opens straight from the ship.",
       "slot_first": "Loadout Start"
     },
     "547769336": {
@@ -92,7 +92,7 @@
       ],
       "name": "Drop Location Selection",
       "slot": "Drop Location #{n0}",
-      "notes": "The start segment plays once, then #1–14 loop in order.",
+      "notes": "From the ship, the start segment plays once, then #1–14 loop in order. Back from the loadout screen, it goes on in its loops from where that music was.",
       "slot_first": "Drop Location Start"
     },
     "978454350": {

@@ -10,7 +10,7 @@ Helldivers 2 doesn't play its songs from start to end. It plays music in pieces 
 
 A piece of music is a chain of **segments**, and each segment holds one or more **slots** (clips). When a segment reaches its **Exit** point, the next segment starts, and the rest of the first one rings out over it.
 
-For example, the loadout screen plays a start segment once, then fourteen loops in order. It repeats the loops until the screen closes.
+For example, the drop location screen plays a start segment once, then fourteen loops in order. It repeats the loops until the screen closes. Where a piece starts depends on what played before it: the loadout screen that follows skips its own start and goes on in its loops from where the drop location music was.
 
 ## Layers
 
