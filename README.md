@@ -4,7 +4,7 @@
 
 <h1 align="center">Audiodiver</h1>
 
-<p align="center">Helldivers 2 audio and text archive explorer, editor and mod packager</p>
+<p align="center">Helldivers 2 audio and text archive explorer, editor and mod packager.</p>
 
 <p align="center">
   <img alt="Windows 10 and 11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-2f7bf5?style=flat-square">
@@ -172,27 +172,27 @@ do after a game update.
 
 | Download | What it is |
 |---|---|
-| `Audiodiver_<version>_x64-setup.exe` | The installer. It adds Audiodiver to the Start menu, opens projects and packs from Explorer, and installs new versions. |
+| `Audiodiver_<version>_x64-setup.exe` | The installer. It adds Audiodiver to the Start menu, opens projects and packs from Explorer, and downloads new versions automatically. |
 | `Audiodiver-<version>-portable.zip` | The portable copy, with settings and caches in the same folder. Unzip it anywhere and start `Audiodiver.exe`. New versions are downloaded by hand. |
 
 The window needs the Microsoft Edge WebView2 Runtime, which Windows 11 has and nearly every Windows 10 PC has too. If
 yours doesn't, Audiodiver shows a link to [Microsoft's free download](https://developer.microsoft.com/microsoft-edge/webview2/).
 Everything else comes with Audiodiver.
 
-## Questions and feedback
+## Questions and Feedback
 
 ### Asking for help
 
 Ask on the [Helldivers 2 Modding Discord](https://discord.gg/helldiversmodding) how to do something, or show what you
-made.
+made. Refer to the in-app Wiki before doing so.
 
 ### Reporting a bug
 
 Open a [bug report](https://github.com/Alomare/Audiodiver/issues/new?template=bug_report.yml). The form asks for the
 version, what you did and what happened, and the log file (About ▸ Log file ▸ Show finds it).
 
-If a mod sounds wrong in game, build it again first, since Helldivers 2 may have updated since the last build. If it
-still sounds wrong, the form asks which piece or sound it is and where you heard it.
+If an audio mod doesn't work properly, build it again first, since Helldivers 2 may have updated since the last build. If it
+still sounds wrong, then fill and submit the form.
 
 ### Suggesting an idea
 
@@ -201,11 +201,11 @@ do.
 
 ### Supporting Audiodiver
 
-Audiodiver is free. If you'd like to support it, there's [Ko-fi](https://ko-fi.com/alomare).
+Audiodiver is 100% free, no caveats. If you'd like to support it, buy me a [Ko-fi](https://ko-fi.com/alomare)!
 
 ## Contributing
 
-### Without code
+### Without Code
 
 - Report bugs, odd sounds and confusing screens, in an issue or on the Discord.
 - Fix names. Library names come from research and the community's
@@ -217,7 +217,7 @@ Audiodiver is free. If you'd like to support it, there's [Ko-fi](https://ko-fi.c
   missing step is a good first pull request.
 - Help others on the Discord.
 
-### With code
+### With Code
 
 You need Windows with Helldivers 2 from Steam, Python 3.12+, Node.js 20+ and Rust, and ffmpeg, vgmstream-cli and
 wav2wem on your PATH.
