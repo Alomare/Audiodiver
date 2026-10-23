@@ -12,7 +12,7 @@ import { Help } from "./Wiki";
 /** What the core found in a mod (Session.combine_scan): its options as a mod manager shows them, and the default
     choice. `picks` holds the ids of the Options that are on; for an Option with SubOptions, the chosen one's id. */
 type ModScan = {
-  source: string; name: string; description: string; manifest: boolean; other: string[];
+  source: string; name: string; description: string; manifest: boolean; others: string[];
   options: { id: string; name: string; sub: { id: string; name: string }[] }[];
   picks: string[];
 };
@@ -24,8 +24,8 @@ type Clash = {
 };
 type Read = { mods: { source: string; name: string; left: string[]; sounds: number }[]; groups: { item: string; name: string; clashes: Clash[] }[] };
 type Made = {
-  name: string; zip: string; folder: string; mb: number; project: string;
-  mods: { name: string; imported: number; added: number; settings: number; stale: number; older: number; left: string[] }[];
+  name: string; zip: string; mb: number;
+  mods: { name: string; imported: number; added: number; settings: number; stale: number; older: number; left: string[]; others: string[] }[];
 };
 type Installed = { mods: { name: string; source: string; deployed: boolean }[]; arsenal: boolean };
 
@@ -157,7 +157,7 @@ export function CombinePage() {
                       aria-label={`Take ${m.scan.name} off the list`} data-tip="Take it off the list">✕</button>
                   </div>
                   {m.scan.options.length > 0 && <Options mod={m} disabled={checking || combining} onChange={(p) => setPicks(i, p)} />}
-                  {m.scan.other.length > 0 && <small className="cmb-other">Also holds {m.scan.other.join(" and ")}, which is left out.</small>}
+                  {m.scan.others.length > 0 && <small className="cmb-other">Also holds {m.scan.others.join(" and ")}, carried over.</small>}
                 </li>
               ))}
             </ol>
@@ -217,7 +217,7 @@ export function CombinePage() {
               onChange={(e) => { setName(e.target.value); setNamed(true); }} />
             {problem && mods.length > 0 && <small className="bad">{problem}</small>}
           </label>
-          <span className="field-label">Destination folder <Help tip="The combined mod gets a folder here, with a project you can change in the Audio Editor and the ZIP in its build folder." page="combining-mods#destination-folder" /></span>
+          <span className="field-label">Destination folder <Help tip="The new ZIP goes here. A ZIP with the same name stays, and the new one gets a number." page="combining-mods#destination-folder" /></span>
           <p className="path" data-tip={folder} data-tip-clip>{folder || "Documents\\Audiodiver\\Combined"}</p>
           <div className="row-btns">
             <button className="btn" disabled={combining} onClick={async () => { const f = await pickFolder(folder || undefined, "Choose where combined mods go"); if (f) setFolder(f); }}>Change…</button>
@@ -378,11 +378,10 @@ function Play({ url, k, label }: { url: string; k: string; label: string }) {
 
 /** What the last combine made, what it left out, and its log. */
 function Outcome({ job }: { job: Job }) {
-  const { actions } = useEditor();
   const m: Made | null = job.state === "done" ? job.result : null;
   const lines = useMemo(() => m?.mods.map((x) => {
     const got = [x.imported && plural(x.imported, "replaced sound"), x.added && plural(x.added, "added sound"),
-      x.settings && `the mod's settings on ${plural(x.settings, "sound or container", "sounds and containers")}`].filter(Boolean) as string[];
+      x.settings && `the mod's settings on ${plural(x.settings, "sound or container", "sounds and containers")}`, ...x.others].filter(Boolean) as string[];
     return { ...x, got: got.length > 1 ? `${got.slice(0, -1).join(", ")} and ${got[got.length - 1]}` : got[0] ?? "Nothing went in" };
   }) ?? [], [m]);
   if (!m) {
@@ -400,7 +399,6 @@ function Outcome({ job }: { job: Job }) {
       <p><b>{m.name}</b>: {fileName(m.zip)}, {m.mb} MB. In Arsenal, turn off the mods it combines before deploying it.</p>
       <div className="row-btns">
         <button className="btn" onClick={() => reveal(m.zip)}>Show in folder</button>
-        <button className="btn quiet" onClick={() => actions.openProject(m.project)} data-tip="Change it further in the Audio Editor">Open as project</button>
       </div>
       {lines.map((x) => (
         <div key={x.name} className="rp-mod">
@@ -425,9 +423,9 @@ function About() {
     <div className="rp-text">
       <h3>What it does</h3>
       <ul>
-        <li>Takes the audio and sound settings of each mod, with the options you choose.</li>
+        <li>Takes the audio and sound settings of each mod, with the options you choose, and its other files, like text or textures, as they are.</li>
         <li>Lists the sounds that more than one mod changes, to play and choose from.</li>
-        <li>Builds one mod on the game's current sound banks, and a project to change it further.</li>
+        <li>Builds one mod on the game's current sound banks.</li>
       </ul>
       <h3>When to use it</h3>
       <ul>
@@ -436,8 +434,8 @@ function About() {
       </ul>
       <h3>What it leaves out</h3>
       <ul>
-        <li>Text the mods change, like subtitles, and anything besides sound banks, like models or textures.</li>
-        <li>Changes of other kinds, like effects. The result lists them for each mod.</li>
+        <li>Changes of other kinds in the sound banks, like effects. The result lists them for each mod.</li>
+        <li>Of two mods with the same file besides audio, the one lower in the list goes in.</li>
       </ul>
       <h3>Installing</h3>
       <ul>

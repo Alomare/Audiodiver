@@ -35,7 +35,7 @@ This means that a sound silenced in the usual way still affects the mix. If you 
 
 At some moments the game lowers its music, and it lowers new music in the same way:
 
-- On the loadout screen, the first set of loops plays more quietly than the rest. The music comes back up after you pick a drop location. This comes from the game's mix and has nothing to do with your file.
+- On the drop location screen, the loops play more quietly. The music comes back up on the loadout screen that follows. This comes from the game's mix and has nothing to do with your file.
 - On the ship, walking up to the war table turns the music down by 6 dB, and nothing turns it back up. Before your first visit to the war table, the ship's music plays 6 dB louder than it does for players who joined a mission from the war table, which is the usual way. Judge the ship's music after a visit to the war table.
 - Voices, explosions and combat effects sit on top of the music, and HDR turns the music down under them. Music that sounds right alone can sound buried during a firefight.
 

@@ -21,7 +21,7 @@ Audiodiver never writes to the game's folder. It reads the game's audio from the
 The tab bar along the top of the window holds the main tabs in two groups. Home and Tools come first, and they make projects. The darker band after them holds the tabs that work on the open project, in the order a mod is made, and it starts with the project's icon and name. Hover over a tab to see what it holds and its shortcut. **Tab bar** in [Settings ▸ Theme](app:settings/theme) moves it to another side of the window and turns the tabs' names on or off.
 
 - {icon:home} **Home** has new, open and recent projects.
-- {icon:tools} **Tools** works on existing mods, without a project. [Repatch](wiki:repatching) rebuilds a mod for the current game version as a new ZIP, and [Combine Mods](wiki:combining-mods) makes one mod out of several, with a project to change it further.
+- {icon:tools} **Tools** works on existing mods, without a project. [Repatch](wiki:repatching) rebuilds a mod for the current game version as a new ZIP, and [Combine Mods](wiki:combining-mods) makes one mod out of several, also as a new ZIP.
 - {icon:project} **Project** holds the mod's name, description, icon and id, and its folder. The tab shows the project's icon and name.
 - {icon:library} **Library** lists everything the game plays, so you can find it and listen to it. Browsing it changes nothing, and **Add to the project** puts an entry in the project. **Index** sorts the audio that has a name, and **All Archives** lists every archive that contains audio.
 - {icon:audio} **Audio Editor** shows what the project works on. This is where slots get new audio.

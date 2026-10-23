@@ -2,7 +2,6 @@
 deploy, what HD2 Arsenal recorded as chosen, the clashes between mods and who wins them, and a combined mod built
 from three synthetic mods on the game."""
 import json
-import shutil
 import time
 import zipfile
 from pathlib import Path
@@ -61,7 +60,7 @@ def test_a_mods_options_and_the_patches_a_choice_deploys(tmp_path):
 
     got = Session(load=False).combine_scan(str(tmp_path / "v.zip"))
     assert (got["name"], got["manifest"], got["picks"]) == ("Voices", True, ["0", "1.0", "2"])
-    assert got["options"] == cb.shown(opts) and got["other"] == [] and got["description"] == "Two."
+    assert got["options"] == cb.shown(opts) and got["others"] == [] and got["description"] == "Two."
     with pytest.raises(EditorError, match="wasn't found"):
         Session(load=False).combine_scan(str(tmp_path / "gone.zip"))
 
@@ -163,13 +162,17 @@ def _pieces(s):
     return bid, takes_in, set_on, clips[:6]
 
 
-def _mod(ix, path, replaced: dict, takes=(), settings=None):
-    """A patch that replaces clips, adds takes and sets settings, as a mod's tool would write it."""
+def _mod(ix, path, replaced: dict, takes=(), settings=None, carried=None):
+    """A patch that replaces clips, adds takes and sets settings, as a mod's tool would write it, with other files
+    (patch.Carried) beside the audio."""
     reps = [patch.Replacement(sid, wem, fit_timing=False) for sid, wem in replaced.items()]
     plan = addition.plan(ix, [addition.Take(*t) for t in takes], [], []) if takes else None
     path.parent.mkdir(parents=True, exist_ok=True)
-    patch.build_patch(str(path), reps, ix, plan=plan, settings=settings)
+    patch.build_patch(str(path), reps, ix, plan=plan, settings=settings, carried=carried)
     return path
+
+
+TEXTURE = 0xCD4238C6A0C69E32
 
 
 @pytest.mark.game
@@ -178,8 +181,12 @@ def test_combined_mods_keep_every_take_and_the_winners(session, tmp_path):
     bid, takes_in, set_on, (x, z, y, w, one, two) = _pieces(s)
     a1, a2 = ix.wem(one), ix.wem(two)
     sound, clip = addition.new_id(ix.taken), addition.new_id(ix.taken)  # the same ids in both mods' takes
-    mod_a = _mod(ix, tmp_path / "A" / ARCHIVE, {x: a1, z: a2}, [(takes_in, sound, clip, a1)], {set_on: {5: 3.0}})
-    mod_b = _mod(ix, tmp_path / "B" / ARCHIVE, {x: a2, z: a2}, [(takes_in, sound, clip, a2)], {set_on: {5: -2.0}})
+    tex_a, tex_b, own = (patch.Carried(5, TEXTURE, b"A's", gpu=b"a" * 80), patch.Carried(5, TEXTURE, b"B's", gpu=b"b" * 9),
+                         patch.Carried(6, TEXTURE, b"A's own", stream=b"s" * 3))
+    mod_a = _mod(ix, tmp_path / "A" / ARCHIVE, {x: a1, z: a2}, [(takes_in, sound, clip, a1)], {set_on: {5: 3.0}},
+                 [tex_a, own])
+    mod_b = _mod(ix, tmp_path / "B" / ARCHIVE, {x: a2, z: a2}, [(takes_in, sound, clip, a2)], {set_on: {5: -2.0}},
+                 [tex_b])
     files = {}
     for folder, reps in (("base", {y: a1}), ("voices/loud", {w: a1}), ("voices/soft", {w: a2}), ("extra", {})):
         if reps:
@@ -206,21 +213,21 @@ def test_combined_mods_keep_every_take_and_the_winners(session, tmp_path):
     j = _wait(s, s.combine(mods, {f"sound:{x}": 0}, "Combined test", str(tmp_path / "out")))
     assert j["state"] == "done", j["error"]
     made = j["result"]
-    home = tmp_path / "out" / "Combined test"
-    assert Path(made["project"]) == home / "Combined test.audi" and Path(made["zip"]).parent == home / "build"
+    assert "project" not in made and [f.name for f in (tmp_path / "out").iterdir()] == ["Combined test.zip"]  # the ZIP only
+    assert Path(made["zip"]) == tmp_path / "out" / "Combined test.zip"
     assert [(m["imported"], m["added"]) for m in made["mods"]] == [(1, 1), (1, 1), (2, 0)]
     assert made["mods"][0]["settings"] == 0 and made["mods"][1]["settings"] == 1
-    wavs = sorted(f.relative_to(home / "audio" / "imported").parent.name for f in (home / "audio" / "imported").rglob("*.wav"))
-    assert len(wavs) == 6  # what wins, and the takes: mod B's audio for x stays out
-    p = json.loads(Path(made["project"]).read_text())
-    assert "Voices / Soft" in p["description"] and p["version"] == 2 and len(p["additions"]) == 2
+    assert [m["others"] for m in made["mods"]] == [["1 other file, such as models or textures"]] * 2 + [[]]
+    assert made["mods"][0]["left"] == ["1 file besides audio that a later mod also has, whose version goes in"]
 
     with zipfile.ZipFile(made["zip"]) as zf:
+        assert "Voices / Soft" in json.loads(zf.read("manifest.json"))["Description"]
         key = next(n for n in zf.namelist() if n.endswith(ARCHIVE))
         (tmp_path / "built").mkdir()
-        (tmp_path / "built" / ARCHIVE).write_bytes(zf.read(key))
-        if key + ".stream" in zf.namelist():
-            (tmp_path / "built" / (ARCHIVE + ".stream")).write_bytes(zf.read(key + ".stream"))
+        for suffix in ("", ".stream", ".gpu_resources"):
+            if key + suffix in zf.namelist():
+                (tmp_path / "built" / (ARCHIVE + suffix)).write_bytes(zf.read(key + suffix))
+    assert sorted(patch.carried_of(str(tmp_path / "built" / ARCHIVE)), key=lambda c: c.fid) == [tex_b, own]  # B's wins
     banks, _ = patch.read_patch(str(tmp_path / "built" / ARCHIVE))
     media, hirc = banks[bid]
     assert media[x] == a1 and media[z] == a2 and media[y] == a1 and media[w] == a2  # x: mod A, as chosen; w: Soft
@@ -230,4 +237,6 @@ def test_combined_mods_keep_every_take_and_the_winners(session, tmp_path):
     assert len(new) == 2  # both mods' takes
     with pytest.raises(EditorError, match="name"):
         s.combine(mods, None, "Bad: name", str(tmp_path / "out"))
-    shutil.rmtree(home, ignore_errors=True)
+    j = _wait(s, s.combine(mods, None, "Combined test", str(tmp_path / "out")))
+    assert j["state"] == "done", j["error"]
+    assert Path(j["result"]["zip"]).name == "Combined test 2.zip"  # the earlier one stays

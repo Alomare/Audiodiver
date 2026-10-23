@@ -32,13 +32,16 @@ A setting on a sound in conflict follows the sound: the mod whose audio goes in 
 
 ## Destination folder
 
-Each combined mod gets a folder in the **Destination folder**. The default location is `Documents\Audiodiver\Combined`, and **Change…** picks another. The folder holds a project with the audio of the sounds that went in, in `audio\imported`, and the new ZIP in `build`. **Open as project** opens the project in the [Audio Editor](app:editor) to change it further, and [Build](app:build) builds it again, also after a game update.
+The new ZIP goes into the **Destination folder**. The default location is `Documents\Audiodiver\Combined`, and **Change…** picks another. If a ZIP with the same name is already there, it stays, and the new one gets a number.
+
+After a game update, combine the mods again. To change the result's audio further, make a project and import its patch into it, as [When the game updates](wiki:game-updates#mods-made-with-older-tools) explains. A project takes only the audio.
 
 ## What combining leaves out
 
-- Text the mods change, such as subtitles.
-- Anything a patch holds besides sound banks, such as models or textures.
 - Changes Audiodiver doesn't carry over, such as effects or how a container picks its sounds, and sounds a mod still has from an older game version. The result lists them for each mod, as [Repatch](wiki:repatching#what-repatching-leaves-out) does.
+- Of two mods with the same file besides audio, such as a texture or a string table, the earlier one's. The mod lower in the list goes in, as it would if Arsenal deployed it later, and the result says so for the other.
+
+Everything else the mods' patches hold, such as text, models and textures, goes in as it was.
 
 ## Installing the result
 

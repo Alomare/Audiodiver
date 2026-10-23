@@ -148,10 +148,13 @@ def text_tables(project: Project, texts, log=print) -> dict[int, bytes]:
     return out
 
 
-def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, step=None, after=0, listed=None) -> dict:
+def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, step=None, after=0, listed=None,
+               carried=None) -> dict:
     """Writes the project's patch (patch_dir/PATCH and its .stream) and checks it; returns {bank id: BankEdit}.
     step(doing, done, total) follows it, counting `after` more steps the caller takes once the patch is made.
-    listed: the banks of what the project lists (Library.banks), where its sounds go (reach)."""
+    listed: the banks of what the project lists (Library.banks), where its sounds go (reach). carried: a mod's files
+    besides its audio (patch.Carried), which go in as they were."""
+    carried = carried or []
     t0 = time.time()
     if problems := project.problems():
         raise BuildError("Project problems:\n  " + "\n  ".join(problems))
@@ -172,7 +175,7 @@ def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, ste
     where, set_where = reach(project, ix, reps, settings, listed)
     try:
         edits = patch.build_patch(str(patch_dir / PATCH), reps, ix, project.segment_overrides, tables, plan,
-                                  settings, where, set_where)
+                                  settings, where, set_where, carried)
     except patch.CueError as e:
         raise BuildError(f"Music segment {e.segment}: its Entry cue point ({e.entry_ms / 1000:.1f} s) comes at or "
                          f"after its Exit ({e.exit_ms / 1000:.1f} s), so the game would play the music before it "
@@ -182,7 +185,8 @@ def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, ste
     if step:
         step("Checking the patch", steps - after - 1, steps)
     if problems := patch.verify(str(patch_dir / PATCH), reps, ix, plan, settings, where) \
-            + patch.verify_strings(str(patch_dir / PATCH), tables):
+            + patch.verify_strings(str(patch_dir / PATCH), tables, [c.fid for c in carried if c.tid == strings.STRINGS]) \
+            + (patch.verify_carried(str(patch_dir / PATCH), carried, tables) if carried else []):
         raise BuildError("The patch failed verification:\n  " + "\n  ".join(problems))
     gains = sum(len(e.gains) for e in edits.values())
     mutes = sum(len(e.mutes) for e in edits.values())
@@ -193,10 +197,14 @@ def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, ste
         + (f", make-up gain on {gains} objects" if gains else "")
         + (f", {mutes} silenced sounds taken out of the mix" if mutes else "")
         + (f", a mod's settings on {set_on} objects" if set_on else "") + f", verified ({time.time() - t0:.0f}s)")
+    if kept := len({(c.tid, c.fid) for c in carried} - {(strings.STRINGS, t) for t in tables}):
+        log(f"{kept} file{'s' if kept != 1 else ''} besides audio (text, models, textures...) carried as "
+            f"{'they were' if kept != 1 else 'it was'}")
     return edits
 
 
-def build(project: Project, ix: AudioIndex, out_dir=None, version=None, log=print, step=None, listed=None) -> Path:
+def build(project: Project, ix: AudioIndex, out_dir=None, version=None, log=print, step=None, listed=None,
+          carried=None) -> Path:
     """Writes <out_dir>/<name>-<version>.zip and returns its path; out_dir defaults to the project's build folder.
     step(doing, done, total), when given, follows the build (the job's progress; it may stop the build there).
     The patch and the icon are made and checked in a scratch folder, so the ZIP is all a build adds to out_dir:
@@ -211,7 +219,7 @@ def build(project: Project, ix: AudioIndex, out_dir=None, version=None, log=prin
     with tempfile.TemporaryDirectory(prefix="audiodiver-build-", ignore_cleanup_errors=True) as scratch:
         patch_dir = Path(scratch) / "patch"
         patch_dir.mkdir()
-        make_patch(project, ix, patch_dir, log, step, after=1, listed=listed)
+        make_patch(project, ix, patch_dir, log, step, after=1, listed=listed, carried=carried)
         icon_path = Path(scratch) / "icon.png"
         icon_path.write_bytes(icon)
         version = version or project.version

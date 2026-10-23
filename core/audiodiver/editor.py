@@ -8,6 +8,7 @@ import math
 import os
 import re
 import shutil
+import struct
 import subprocess
 import threading
 import time
@@ -1771,10 +1772,10 @@ class Session:
         except OSError as e:
             raise EditorError(f"Can't read {Path(str(path)).name}: {os_error(e)}") from None
 
-        def patch(p):  # audio: whether repatching changes it (one without stays as it is, other files included)
+        def patch(p):  # audio: whether repatching changes it (one without stays as it is); others go in as they were
             kinds = [self._kinds(f, key) for key in p.keys]
             return {"key": p.key, "label": p.label, "files": len(p.keys), "audio": any(k[0] for k in kinds),
-                    "other": [x for _, texts, rest in kinds for x in self._other_lines(texts, rest)]}
+                    "others": self._file_lines(sum(k[1] for k in kinds), sum(k[2] for k in kinds))}
         return {"source": str(f.source), "name": f.name or "Repatched mod", "description": f.description,
                 "guid": bool(f.guid), "icon": bool(f.icon), "manifest": bool(f.manifest), "zip": f.is_zip,
                 "folder": str(self._repatch_root()), "patches": [patch(p) for p in f.patches]}
@@ -1814,15 +1815,31 @@ class Session:
         return Session._kinds(found, key)[1:]
 
     @staticmethod
-    def _other_lines(texts: int, rest: int) -> list[str]:
-        """What a repatch or a combine leaves out of a mod besides its audio ("2 string tables")."""
-        return ([f"{texts} string table{'s' if texts != 1 else ''} (the game's text, like subtitles, which isn't supported yet)"] if texts else []) + \
-               ([f"{rest} other file{'s' if rest != 1 else ''} (such as models and textures)"] if rest else [])
+    def _file_lines(texts: int, rest: int) -> list[str]:
+        """What a mod holds besides its audio, which a repatch or a combine carries as it was ("2 string tables")."""
+        return ([f"{texts} string table{'s' if texts != 1 else ''}"] if texts else []) + \
+               ([f"{rest} other file{'s' if rest != 1 else ''}, such as models or textures"] if rest else [])
 
     @staticmethod
-    def _not_audio(found, key) -> list[str]:
-        """What a patch holds besides audio, which a repatch leaves out ("2 string tables")."""
-        return Session._other_lines(*Session._not_audio_counts(found, key))
+    def _carried_lines(carried) -> list[str]:
+        """_file_lines of carried files (patch.Carried; one of an id counts once)."""
+        from .strings import STRINGS
+        kinds = {(c.tid, c.fid) for c in carried}
+        texts = sum(t == STRINGS for t, _ in kinds)
+        return Session._file_lines(texts, len(kinds) - texts)
+
+    @staticmethod
+    def _carried(paths) -> list:
+        """The files besides audio of these patches on disk (patch.carried_of), in order: of two with one id, the
+        later patch's goes in."""
+        from .patch import carried_of
+        out = []
+        for path in paths:
+            try:
+                out += carried_of(str(path))
+            except (ValueError, OSError, struct.error) as e:
+                raise EditorError(f"Its files besides audio can't be read: {e}") from None
+        return out
 
     def repatch(self, path, name="", folder="", every_bank=False):
         """Rebuilds a mod on the game as it is now, as the one mod it was. Each of its patches is imported into a
@@ -1864,8 +1881,9 @@ class Session:
             home = scratch / "project"
             home.mkdir(parents=True)
             p = Project(name=name, path=home / "repatch.audi", library=[], every_bank=every_bank)
-            reads = [self._patch_audio(f.place(key, scratch / "in" / str(k)), home / "audio" / "imported", job)
-                     for k, key in enumerate(pt.keys)]
+            placed = [f.place(key, scratch / "in" / str(k)) for k, key in enumerate(pt.keys)]
+            reads = [self._patch_audio(at, home / "audio" / "imported", job) for at in placed]
+            carried = self._carried(placed)
             with self.lock:
                 added = sum(self._fill_from_patch(p, got, replaced, files) for got, replaced, files, _ in reads)
                 self._tidy(p)
@@ -1878,7 +1896,8 @@ class Session:
                 job.step(doing, done)
             (scratch / "out").mkdir(parents=True)
             try:
-                make_patch(p, self.ix, scratch / "out", log=job.say, step=progress, listed=self._listed_banks(p))
+                make_patch(p, self.ix, scratch / "out", log=job.say, step=progress, listed=self._listed_banks(p),
+                           carried=carried)
             except BuildError as e:
                 raise EditorError(str(e)) from None
             return {"label": pt.label,
@@ -1887,7 +1906,7 @@ class Session:
                     "left": [x for got, *_ in reads for x in got.left],
                     "stale": len(set().union(*(got.stale for got, *_ in reads))),
                     "older": len(set().union(*(got.older for got, *_ in reads))),
-                    "other": [x for key in pt.keys for x in self._not_audio(f, key)], "kept": "", "audio": True,
+                    "others": self._carried_lines(carried), "kept": "", "audio": True,
                     "patch": str(scratch / "out" / PATCH)}
 
         def run(job):
@@ -1910,7 +1929,7 @@ class Session:
                         if not several:
                             raise
                         job.say(f"kept as it was: {e}")
-                        parts.append({"label": pt.label or pt.key, "kept": str(e), "other": [], "left": [],
+                        parts.append({"label": pt.label or pt.key, "kept": str(e), "others": [], "left": [],
                                       "audio": any(self._kinds(f, key)[0] for key in pt.keys)})
                 if not any(x["audio"] for x in parts):
                     raise EditorError("The mod holds no audio, so there is nothing to repatch")
@@ -1998,8 +2017,8 @@ class Session:
         return None
 
     def combine_scan(self, path):
-        """A mod to combine (a .patch_N, a folder or a mod's ZIP): {source, name, description, manifest, other (what
-        it holds besides audio, which Combine leaves out), options (a manifest's: [{id, name, sub: [{id, name}]}]),
+        """A mod to combine (a .patch_N, a folder or a mod's ZIP): {source, name, description, manifest, others
+        (what it holds besides audio, which goes in as it was), options (a manifest's: [{id, name, sub: [{id, name}]}]),
         picks (the choice it starts with: Arsenal's, else every Option on with its first SubOption)}."""
         from . import combine as cb
         f = self._scan(path)
@@ -2007,7 +2026,7 @@ class Session:
         counts = [self._not_audio_counts(f, k) for p in f.patches for k in p.keys]
         texts, rest = sum(c[0] for c in counts), sum(c[1] for c in counts)
         return {"source": str(f.source), "name": f.name or "Mod", "description": f.description,
-                "manifest": bool(f.manifest), "other": self._other_lines(texts, rest),
+                "manifest": bool(f.manifest), "others": self._file_lines(texts, rest),
                 "options": cb.shown(opts), "picks": cb.default_picks(opts, self._arsenal_recorded(f.source, opts))}
 
     def combine_installed(self):
@@ -2108,9 +2127,8 @@ class Session:
                     job.step(f"Reading {name}")
                     parts.append((key, *self._combine_part(job, f, key, Path(tmp))))
                 pts = [pt for *_, pt in parts]
-                texts, rest = sum(pt.texts for pt in pts), sum(pt.rest for pt in pts)
-                left = list(dict.fromkeys(x for pt in pts for x in pt.left)) + self._other_lines(texts, rest)
-                left += [pt.error for pt in pts if pt.error and not (pt.texts or pt.rest)]
+                left = list(dict.fromkeys(x for pt in pts for x in pt.left))
+                left += [pt.error for pt in pts if pt.error and not (pt.texts or pt.rest)]  # those go in as they were
                 if not parts:
                     left.append("No patch is in the chosen options")
                 sounds = set().union(*(set(pt.replaced) | {t[2] for t in pt.takes if t[2] in pt.files}
@@ -2247,13 +2265,15 @@ class Session:
         return self._start("combine_read", run, title=f"{len(mods)} mods")
 
     def combine(self, mods, winners=None, name="", folder="", every_bank=False):
-        """Combines the mods ([{source, picks}], in order) into one, as a job: a project in its own folder under the
-        combine folder (`<name>/<name>.audi`, its audio in audio/imported), with a new id, Audiodiver's icon and a
-        description that lists the mods and their options, built once into an HD2 Arsenal ZIP in its build folder.
+        """Combines the mods ([{source, picks}], in order) into one, as a job: a project in a temp folder (gone after),
+        with a new id, Audiodiver's icon and a description that lists the mods and their options, built into an HD2
+        Arsenal ZIP, the only thing left in the combine folder (`<name>.zip`, `<name> 2.zip` beside an earlier one).
         winners: {clash id: the mod that wins it}; a clash not named goes to the last mod with a version. Takes and
-        layers of every mod go in. every_bank: the sounds go into every bank that has them (build.reach)."""
+        layers of every mod go in, and their files besides audio as they were (of two with one id, the later mod's).
+        every_bank: the sounds go into every bank that has them (build.reach)."""
         from . import combine as cb
         from .arsenal import name_problem
+        import tempfile
         from .build import BuildError, build
         from .game import in_game_folder
         self.require_game()
@@ -2295,20 +2315,18 @@ class Session:
             effects, found, follows = self._combine_clashes(read)
             won = cb.winners(found, chosen)
             clips, own, settings, by = cb.outcome(effects, found, follows, won)
-            n = 1
-            while (home := root / (_short(name) if n == 1 else f"{_short(name)} {n}")).exists():
-                n += 1
             try:
-                home.mkdir(parents=True)
+                root.mkdir(parents=True, exist_ok=True)
             except OSError as e:
-                raise EditorError(f"Can't make the folder {home}: {os_error(e)}") from None
+                raise EditorError(f"Can't make the folder {root}: {os_error(e)}") from None
             stats = [{"name": m["name"], "imported": 0, "added": 0,
                       "settings": sum(i in ms for ms in by.values()),
                       "stale": len(set().union(*(pt.stale for *_, pt in m["parts"]))),
                       "older": len(set().union(*(pt.older for *_, pt in m["parts"]))), "left": m["left"]}
                      for i, m in enumerate(read)]
-            try:
-                p = Project(name=name, path=home / f"{home.name}.audi", library=[], every_bank=every_bank,
+            with tempfile.TemporaryDirectory(prefix="audiodiver-combine-", ignore_cleanup_errors=True) as tmp:
+                home = Path(tmp) / "project"
+                p = Project(name=name, path=home / "combined.audi", library=[], every_bank=every_bank,
                             description=cb.description([(m["name"], m["chosen"]) for m in read]))
                 job.step("Putting the mods together")
                 with self.lock:
@@ -2333,26 +2351,51 @@ class Session:
                     self._cover(p)
                     if not p.replacements and not p.settings:
                         raise EditorError("None of the mods has audio or settings that Audiodiver can bring in")
-                    p.built_for = self.ix.game.version
-                    p.save()
-                    made_from = build_inputs(p)
+
+                carried, owner, lost = {}, {}, [0] * len(read)  # {(type, id): file}, the mod it is from, lost to later ones
+                for i, m in enumerate(read):
+                    f = self._scan(m["source"])
+                    try:
+                        files = self._carried([f.place(key, Path(tmp) / "in" / f"{i}-{k}")
+                                               for k, (key, *_) in enumerate(m["parts"])])
+                    except EditorError as e:
+                        raise EditorError(f"{m['name']}: {e}") from None
+                    for c in files:
+                        if owner.get((c.tid, c.fid), i) != i:
+                            lost[owner[(c.tid, c.fid)]] += 1
+                        carried[(c.tid, c.fid)], owner[(c.tid, c.fid)] = c, i
+                for i in range(len(read)):
+                    stats[i]["others"] = self._carried_lines([c for key, c in carried.items() if owner[key] == i])
+                    if lost[i]:
+                        stats[i]["left"] = [*stats[i]["left"], f"{lost[i]} file{'s' if lost[i] != 1 else ''} besides "
+                                            f"audio that a later mod also has, whose version goes in"]
 
                 def progress(doing, done=None, total=None):
                     if total:
                         job.total = total
                     job.step(doing, done)
+
+                def say(line):  # the build's last line names its ZIP in the temp folder: said below for the copy
+                    if not line.startswith(tmp):
+                        job.say(line)
                 try:
-                    zip_path = build(p, self.ix, log=job.say, step=progress, listed=self._listed_banks(p))
+                    made = build(p, self.ix, Path(tmp) / "out", log=say, step=progress, listed=self._listed_banks(p),
+                                 carried=list(carried.values()))
                 except BuildError as e:
                     raise EditorError(str(e)) from None
-            except BaseException:
-                if not any(home.glob("*.audi")):
-                    shutil.rmtree(home, ignore_errors=True)  # made just now, with nothing to show for it
-                raise
-            self._bump_version(p.path, p.version + 1, self.ix.game.version, made_from)  # its next build doesn't overwrite this one
-            mb = round(zip_path.stat().st_size / 1e6, 1)
-            return {"name": name, "zip": str(zip_path), "folder": str(home), "mb": mb, "project": str(p.path),
-                    "mods": stats}
+                n = 1
+                while (zip_path := root / (f"{name}.zip" if n == 1 else f"{name} {n}.zip")).exists():
+                    n += 1
+                partial = zip_path.with_name(f".{zip_path.name}.partial")  # the ZIP shows up whole or not at all
+                try:
+                    shutil.copyfile(made, partial)
+                    os.replace(partial, zip_path)
+                except OSError as e:
+                    raise EditorError(f"Can't write the ZIP into {root}: {os_error(e)}") from None
+                finally:
+                    partial.unlink(missing_ok=True)
+            job.say(f"{zip_path} ({zip_path.stat().st_size / 1e6:.1f} MB)")
+            return {"name": name, "zip": str(zip_path), "mb": round(zip_path.stat().st_size / 1e6, 1), "mods": stats}
         return self._start("combine", run, title=name)
 
     def _take_in(self, p: Project, got, files: dict, mine: dict | None = None, tag="imported") -> int:
@@ -2800,15 +2843,6 @@ def _then(pieces, after):
     """pieces, then a call once they are used up (a progress step between rendering and encoding)."""
     yield from pieces
     after()
-
-
-def _short(name: str, most: int = 48) -> str:
-    """A folder's name of at most `most` characters, cut between words: a combined mod's folder holds the decoded
-    audio several levels down, and the decoder can't write past Windows' 260-character paths."""
-    if len(name) <= most:
-        return name
-    cut = name[:most + 1].rsplit(" ", 1)[0] if " " in name[:most + 1] else name[:most]
-    return cut.rstrip(" .-") or name[:most]
 
 
 def _game_updated(p: Project, game, last) -> bool:

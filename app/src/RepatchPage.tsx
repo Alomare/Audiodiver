@@ -11,14 +11,15 @@ type Scan = {
   source: string; name: string; description: string; guid: boolean; icon: boolean; manifest: boolean; zip: boolean;
   folder: string; patches: Patch[];
 };
-/** audio: whether it holds sound banks (one without, like a texture option, is kept as it is). */
-type Patch = { key: string; label: string; files: number; audio: boolean; other: string[] };
+/** audio: whether it holds sound banks (one without, like a texture option, is kept as it is); others: what else it
+    holds, which goes into the new patch as it was ("1 string table"). */
+type Patch = { key: string; label: string; files: number; audio: boolean; others: string[] };
 /** One of the mod's patches, repatched or kept as it was ("kept": why; audio false: it had none to repatch). */
 type Part = {
   label: string; imported?: number; added?: number; skipped?: number; settings?: number;
   stale?: number; // sounds the mod's banks still had from an older game version (core addition.older_version)
   older?: number; // the game's objects the mod's banks had as an older version did, shared groups included (Found.older)
-  left: string[]; other: string[]; kept: string; audio: boolean;
+  left: string[]; others: string[]; kept: string; audio: boolean;
 };
 /** The repatched mod (Session.repatch's result). */
 type Made = { name: string; zip: string; mb: number; kept_id: boolean; manifest: boolean; parts: Part[] };
@@ -124,7 +125,7 @@ export function RepatchPage() {
               ) : (
                 <>
                   {scan.patches[0].files > 1 && <p className="set-note">The mod's {scan.patches[0].files} patch files are built into one patch. <Help tip="The game loads them over each other as one mod." page="repatching#repatching-a-mod" /></p>}
-                  {scan.patches[0].other.length > 0 && <p className="info-box">The patch also holds {scan.patches[0].other.join(" and ")}. Repatching leaves {scan.patches[0].other.length === 1 ? "it" : "them"} out.</p>}
+                  {scan.patches[0].others.length > 0 && <p className="set-note">Also holds {scan.patches[0].others.join(" and ")}, carried over.</p>}
                 </>
               )}
               <label className="field">
@@ -201,14 +202,12 @@ export function RepatchPage() {
     all (a mod can have dozens: textures and models as options of their own). */
 function Patches({ scan }: { scan: Scan }) {
   const audio = scan.patches.filter((p) => p.audio), plain = scan.patches.length - audio.length;
-  const mixed = audio.filter((p) => p.other.length > 0).length;
   return (
     <div className="rp-patches">
       <span className="field-label">Patches <Help tip={scan.manifest ? "Each patch with audio is rebuilt in its original place, so the mod keeps its options." : "Without a manifest, each becomes an option of the new mod."} page="repatching#repatching-a-mod" /></span>
       {audio.length === 0 ? <p className="warn-box">The mod holds no audio, so there is nothing to repatch.</p> : (
         <ul>
-          <li>{plural(audio.length, "patch", "patches")} with audio, rebuilt on the current game
-            {mixed > 0 && <small>{mixed === audio.length ? (mixed === 1 ? "It also holds" : "They also hold") : `${mixed} of them also hold`} other files, which are left out.</small>}</li>
+          <li>{plural(audio.length, "patch", "patches")} with audio, rebuilt on the current game</li>
           {plain > 0 && <li>{plural(plain, "patch", "patches")} without audio, kept as {plain === 1 ? "it is" : "they are"}</li>}
         </ul>
       )}
@@ -217,7 +216,7 @@ function Patches({ scan }: { scan: Scan }) {
         <ul>
           {scan.patches.map((p) => (
             <li key={p.key}>{p.label || fileName(p.key)}{!p.audio ? <small>No audio: kept as it is.</small> : (
-              <>{p.files > 1 && <small>{p.files} patch files, built into one.</small>}{p.other.length > 0 && <small>Also holds {p.other.join(" and ")}: left out.</small>}</>
+              <>{p.files > 1 && <small>{p.files} patch files, built into one.</small>}{p.others.length > 0 && <small>Also holds {p.others.join(" and ")}, carried over.</small>}</>
             )}</li>
           ))}
         </ul>
@@ -241,7 +240,7 @@ function Outcome({ job, again }: { job: Job; again: () => void }) {
   const built = m.parts.filter((p) => !p.kept);
   const plain = m.parts.filter((p) => p.kept && !p.audio); // no audio: kept as they were, as they should be
   const failed = m.parts.filter((p) => p.kept && p.audio);
-  const left = [...new Set(built.flatMap((p) => [...p.left, ...p.other]))];
+  const left = [...new Set(built.flatMap((p) => p.left))];
   const most = (k: "stale" | "older") => {
     const all = built.map((p) => p[k] ?? 0), top = Math.max(0, ...all);
     return { n: top, upTo: new Set(all).size > 1 };
@@ -284,8 +283,8 @@ function Outcome({ job, again }: { job: Job; again: () => void }) {
             <p className="set-note">{carried(p)}{p.skipped ? `; ${plural(p.skipped, "sound")} couldn't be read` : ""}.</p>
             {!!p.stale && <p className="set-note">{plural(p.stale, "sound")} from an older game version left out</p>}
             {!!p.older && <p className="set-note">{plural(p.older, "sound object")} from an older game version updated</p>}
-            {(p.left.length > 0 || p.other.length > 0) && (
-              <div className="info-box"><b>Left out</b><ul>{[...p.left, ...p.other].map((x, i) => <li key={i}>{x}</li>)}</ul></div>
+            {p.left.length > 0 && (
+              <div className="info-box"><b>Left out</b><ul>{p.left.map((x, i) => <li key={i}>{x}</li>)}</ul></div>
             )}
           </div>
         ))}
@@ -357,14 +356,15 @@ function InstalledMod({ m, busy, onPick }: { m: Installed; busy: boolean; onPick
 /** "10 replaced sounds, 6 added sounds and the mod's settings on 4 sounds and containers". */
 function carried(p: Part) {
   return listed([p.imported && plural(p.imported, "replaced sound"), p.added && plural(p.added, "added sound"),
-    p.settings && `its settings on ${plural(p.settings, "sound or container", "sounds and containers")}`]) || "Nothing to carry over";
+    p.settings && `its settings on ${plural(p.settings, "sound or container", "sounds and containers")}`, ...p.others]) || "Nothing to carry over";
 }
 
 /** "4 patches, with 20 to 28 replaced or added sounds each", for a mod of several. */
 function rebuilt(ps: Part[]) {
   const n = ps.map((p) => (p.imported ?? 0) + (p.added ?? 0)), lo = Math.min(...n), hi = Math.max(...n);
-  const settings = ps.some((p) => p.settings) ? " and the mod's settings" : "";
-  if (!hi) return `${plural(ps.length, "patch", "patches")}, with the mod's settings`;
+  const also = [ps.some((p) => p.settings) && "the mod's settings", ps.some((p) => p.others.length) && "its other files"].filter(Boolean);
+  const settings = also.length ? ` and ${also.join(" and ")}` : "";
+  if (!hi) return `${plural(ps.length, "patch", "patches")}, with ${also.join(" and ") || "nothing to carry over"}`;
   return `${plural(ps.length, "patch", "patches")}, with ${lo === hi ? hi : `${lo} to ${hi}`} replaced or added sound${hi === 1 ? "" : "s"}${ps.length > 1 ? " each" : ""}${settings}`;
 }
 
@@ -386,6 +386,7 @@ function About() {
         <li>Takes the audio that the mod replaces and adds, and its sound settings such as volume and delays.</li>
         <li>Applies them to the game's current sound banks.</li>
         <li>Builds a new ZIP of the same mod, with its options, files and id unchanged. The mod's audio isn't encoded again.</li>
+        <li>Keeps what the patches hold besides audio, like text, models or textures, as it was.</li>
       </ul>
       <h3>When to use it</h3>
       <ul>
@@ -394,9 +395,7 @@ function About() {
       </ul>
       <h3>What it leaves out</h3>
       <ul>
-        <li>Changes of other kinds, like effects or how a container picks its sounds. Each repatch lists them.</li>
-        <li>Text that the mod changes, like subtitles. Repatching doesn't support text yet.</li>
-        <li>Anything else a patch holds besides sound banks, like models or textures.</li>
+        <li>Changes of other kinds in the sound banks, like effects or how a container picks its sounds. Each repatch lists them.</li>
       </ul>
       <h3>Installing</h3>
       <ul>

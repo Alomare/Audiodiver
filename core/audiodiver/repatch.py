@@ -71,14 +71,15 @@ class Found:
         return f.read_bytes() if f.is_file() else None
 
     def place(self, key: str, folder: Path) -> Path:
-        """The patch file `key` with its .stream next to it, as files on disk: where they are in a folder, or taken
-        out of the ZIP into `folder` (each under its own name: nothing in the ZIP picks where it lands)."""
+        """The patch file `key` with its .stream and .gpu_resources next to it, as files on disk: where they are in a
+        folder, or taken out of the ZIP into `folder` (each under its own name: nothing in the ZIP picks where it
+        lands)."""
         if not self.is_zip:
             return (self.source.parent if self.source.is_file() else self.source) / key
         folder.mkdir(parents=True, exist_ok=True)
         out = folder / PurePosixPath(key).name
         with zipfile.ZipFile(self.source) as z:
-            for suffix in ("", ".stream"):
+            for suffix in SUFFIXES:
                 try:
                     with z.open(key + suffix) as src, open(str(out) + suffix, "wb") as dst:
                         shutil.copyfileobj(src, dst)

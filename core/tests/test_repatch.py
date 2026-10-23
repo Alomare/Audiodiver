@@ -8,10 +8,12 @@ from pathlib import Path
 
 import pytest
 
-from audiodiver import repatch
+from audiodiver import patch, repatch
 from audiodiver import bank as wbank
 from audiodiver.editor import EditorError, Session
+from audiodiver.game import WWISE_BANK, WWISE_STREAM, WWISE_DEP
 from audiodiver.patch import read_patch
+from audiodiver.strings import STRINGS
 
 MODS = Path(__file__).parents[3] / "replacement mods"
 WOS = MODS / "hd2-wos-descent" / "9ba626afa44a3aa3.patch_0"  # made with hd2-audio-modder: a stale music_init
@@ -165,6 +167,64 @@ def test_an_old_mod_comes_back_on_the_current_game_as_it_was(session, tmp_path):
     with zipfile.ZipFile(j["result"]["zip"]) as z:
         m = json.loads(z.read("manifest.json"))
         assert m["Name"] == "Warp" and m["Guid"] != GUID and len(m["Options"]) == 1
+
+
+TEXTURE, MODEL = 0xCD4238C6A0C69E32, 0xE0A48D0BE9A7453F  # types a mod's patch holds besides audio and text
+
+
+def _others():
+    """A model with GPU data, a texture with stream and GPU data, and a string table, as a mod's patch has them."""
+    return [patch.Carried(7, MODEL, b"model" * 9, gpu=b"g" * 100, unknown=(2656768, 4220160, 16, 64)),
+            patch.Carried(8, TEXTURE, b"tex", stream=b"s" * 33, gpu=b"t" * 70, unknown=(5, 6, 16, 64)),
+            patch.Carried(9, STRINGS, b"a table, carried unread")]
+
+
+def test_a_patch_carries_a_mods_other_files_as_they_were(tmp_path):
+    path = str(tmp_path / "9ba626afa44a3aa3.patch_0")
+    others = _others()
+    late = patch.Carried(8, TEXTURE, b"later", gpu=b"L" * 5)  # the same id again: the later one goes in
+    mine = patch.Carried(4, STRINGS, b"the project's own table wins")
+    patch.write_patch(path, {1: b"stream" * 5}, {2: b"bank" * 8}, {2: b"dep"}, {4: b"own table"},
+                      carried=[*others, late, mine])
+    got = sorted(patch.carried_of(path), key=lambda c: c.fid)  # with the project's own table (4)
+    assert got[0].data == b"own table" and got[1:] == [others[0], late, others[2]]
+    assert patch.verify_carried(path, [*others, late, mine], {4: b""}) == []
+    assert dict(patch._files(path, WWISE_BANK)) == {2: b"bank" * 8}  # the audio as written
+    assert dict(patch._files(path, WWISE_STREAM)) == {1: b"stream" * 5}
+    assert dict(patch._files(path, STRINGS)) == {4: b"own table", 9: b"a table, carried unread"}
+    rows = Path(path).read_bytes()
+    nt, nf = struct.unpack_from("<II", rows, 4)
+    entries = [struct.unpack_from("<QQQQQQQIIIIII", rows, 72 + 32 * nt + 80 * i) for i in range(nf)]
+    assert [e[1] for e in entries].count(STRINGS) == 2 and nt == len({e[1] for e in entries})  # one row a type
+    assert all(e[4] % 64 == 0 for e in entries if e[9]) and all(e[3] % 64 == 0 for e in entries if e[8] and e[1] != WWISE_STREAM)
+    patch.write_patch(path, {}, {2: b"bank"}, {})  # without carried files, no .gpu_resources stays
+    assert not Path(path + ".gpu_resources").exists() and patch.carried_of(path) == []
+
+
+@pytest.mark.game
+@pytest.mark.skipif(not WARP.exists(), reason="the Warp Pack isn't here")
+def test_a_repatch_keeps_what_a_patch_holds_besides_audio(session, tmp_path):
+    mixed = tmp_path / "mod" / "9ba626afa44a3aa3.patch_0"
+    mixed.parent.mkdir()
+    others = _others()
+    patch.write_patch(str(mixed), dict(patch._files(str(WARP), WWISE_STREAM)), dict(patch._files(str(WARP), WWISE_BANK)),
+                      dict(patch._files(str(WARP), WWISE_DEP)), carried=others)
+    seen = session.repatch_scan(str(mixed))
+    assert seen["patches"][0]["others"] == ["1 string table", "2 other files, such as models or textures"]
+    j = _wait(session, session.repatch(str(mixed), "Mixed", str(tmp_path / "out")))
+    assert j["state"] == "done", j["error"]
+    part = j["result"]["parts"][0]
+    assert part["added"] == 6 and part["others"] == seen["patches"][0]["others"]
+    assert all("other change" in x for x in part["left"])  # nothing about the other files: they went in
+    with zipfile.ZipFile(j["result"]["zip"]) as z:
+        key = next(n for n in z.namelist() if n.endswith(".patch_0"))
+        out = tmp_path / "built"
+        out.mkdir()
+        for s in ("", ".stream", ".gpu_resources"):
+            (out / ("9ba626afa44a3aa3.patch_0" + s)).write_bytes(z.read(key + s))
+    built = str(out / "9ba626afa44a3aa3.patch_0")
+    assert sorted(patch.carried_of(built), key=lambda c: c.fid) == others  # byte for byte
+    assert read_patch(built)[0]  # and the banks, rebuilt
 
 
 def test_a_mods_settings_go_on_the_games_objects():

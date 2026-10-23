@@ -14,7 +14,7 @@ import { useEditor } from "./store";
 export function AboutButton({ className }: { className?: string }) {
   return (
     <button className={`about-btn${className ? ` ${className}` : ""}`} onClick={about.open} aria-label="About Audiodiver"
-      data-tip="About Audiodiver" data-tip-more="Version, licence, log file and credits"><InfoIcon /></button>
+      data-tip="About Audiodiver" data-tip-more="Version, license, log file and credits"><InfoIcon /></button>
   );
 }
 

@@ -42,6 +42,7 @@ The check only reports what a mod's author wouldn't have changed on purpose, so 
 
 - The audio that the mod replaces, and the audio it adds. Added audio can be new takes for a sound, a sound that plays with another sound, or a separate clip for one sound.
 - The mod's sound settings. These include the volume (Make-Up Gain) of a sound or a container, a delay before it plays, how much of it goes to the game's reverb, and similar settings.
+- Everything else in the patch, such as text, models and textures, exactly as it was. The page lists what a patch holds besides audio.
 
 Audiodiver applies all of this to the game's current sound banks and builds a new ZIP of the same mod. The banks the mod didn't patch get its audio only when **Patch every bank with the sounds** is ticked.
 
@@ -55,11 +56,9 @@ To change a mod further, make a project and import the mod's patch into it, as [
 
 ## What repatching leaves out
 
-Repatching carries over audio and sound settings. After each repatch, the page lists what it left out:
+A mod's copy of a bank can also have different effects or positioning, or a different way for a container to pick its sounds. Most of these differences are the game's banks as they were when the mod was made, before later updates changed them, so Audiodiver leaves them out, and the page lists them. Where Audiodiver knows a difference from an earlier game version, it doesn't list it. If the repatched mod sounds different, compare it with the old version in game.
 
-- **Other kinds of change.** A mod's copy of a bank can also have different effects or positioning, or a different way for a container to pick its sounds. Most of these differences are the game's banks as they were when the mod was made, before later updates changed them, so Audiodiver leaves them out. Where Audiodiver knows a difference from an earlier game version, it doesn't list it. If the repatched mod sounds different, compare it with the old version in game.
-- **Text that the mod changes.** Repatching doesn't support text yet. For example, a voice mod's new subtitles are left out, and the game shows its normal subtitles. The page tells you when a patch contains text.
-- **Anything else in the patch besides sound banks.** A patch that holds sound banks and also models or textures loses the models and textures. The page tells you when this happens. A patch without any audio stays in the ZIP as it was, with everything in it.
+Text, models and textures go in as the mod had them, without changes. A string table holds every line of its table, so a mod's table from an older game version also brings back that version's lines, as the old mod did.
 
 The sound settings are copied from the mod as they were. One of them may override a value that the game has changed since, and the old mod overrode it in the same way. On groups that other banks share, only the volume, pitch, filters and delay are copied. See [Shared settings from an older game version](#shared-settings-from-an-older-game-version).
 
