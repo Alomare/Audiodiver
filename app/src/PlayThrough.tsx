@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { call, fileUrl, fmtTime } from "./api";
+import { PauseIcon, ThroughIcon } from "./Icons";
 import { player, usePlayer } from "./player";
 import { useEditor } from "./store";
 
@@ -89,24 +90,25 @@ export function PlayThrough({ onThrough, onMark }: { onThrough?: (t: Through | n
     setBusy(null);
   };
 
-  const button = (side: "game" | "mine", label: string) => {
+  const button = (side: "game" | "mine") => {
     const on = active?.side === side && p.playing;
+    const name = side === "mine" ? "Play through · Replaced" : readOnly ? "Play through" : "Play through · Original";
+    const about = busy === side ? "Preparing…" : side === "mine" ? changed ? "The cue as the mod plays it" : "Nothing replaced in this cue yet"
+      : `The cue as the game plays it, segment by segment${t?.random ? ". The game shuffles parts of this cue" : ""}`;
     return (
-      <button className={`btn through-btn ${side}${active?.side === side ? " on" : ""}`} disabled={busy !== null || (side === "mine" && !changed)}
-        data-tip={side === "mine" && !changed ? "Nothing replaced in this cue yet" : side === "mine" ? "The cue as the mod plays it" : "The cue as the game plays it"}
-        onClick={() => start(side)}>
-        <span aria-hidden>{busy === side ? "…" : on ? "❚❚" : "▶"}</span> {busy === side ? "Preparing…" : label}
+      <button className={`play ${side === "game" ? "vanilla" : "project"} through-btn${on ? " playing" : ""}`} disabled={busy !== null || (side === "mine" && !changed)}
+        aria-label={on ? `Pause ${name}` : name} data-tip={on ? `Pause ${name}` : name} data-tip-more={about} onClick={() => start(side)}
+        style={{ ["--progress" as any]: active?.side === side ? ms / active.duration_ms : 0 }}>
+        {busy === side ? <span aria-hidden>…</span> : on ? <PauseIcon /> : <ThroughIcon />}
       </button>
     );
   };
 
   return (
-    <div className="through" aria-label="Play the whole cue">
-      <span className="through-label" data-tip={`Plays the segments in order, switching at each Exit point${t?.random ? ". The game shuffles parts of this cue" : ""}`}>Play through</span>
-      {button("game", readOnly ? "Play" : "Original")}
-      {!readOnly && button("mine", "Replaced")}
+    <>
+      <div className="through-btns" role="group" aria-label="Play through">{button("game")}{!readOnly && button("mine")}</div>
       {active ? (
-        <>
+        <div className="through">
           <div className={`through-bar ${active.side}`} role="slider" aria-label="Position in the cue" aria-valuemin={0}
             aria-valuemax={Math.round(active.duration_ms / 1000)} aria-valuenow={Math.round(ms / 1000)} tabIndex={0}
             onClick={(e) => { const r = e.currentTarget.getBoundingClientRect(); player.seek((e.clientX - r.left) / r.width); }}
@@ -118,8 +120,8 @@ export function PlayThrough({ onThrough, onMark }: { onThrough?: (t: Through | n
             {active.marks.map((m, i) => <span key={i} className="through-tick" style={{ left: `${(m.ms / active.duration_ms) * 100}%` }} />)}
           </div>
           <span className="through-now"><b>{now?.name ?? "Lead-in"}</b> {fmtTime(ms)} / {fmtTime(active.duration_ms)}</span>
-        </>
+        </div>
       ) : null}
-    </div>
+    </>
   );
 }

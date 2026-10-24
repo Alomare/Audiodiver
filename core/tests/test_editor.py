@@ -512,6 +512,15 @@ def test_find_resolves_stream_ids_to_cues(game_session):
     assert (first["cue"], first["source"], first["item"]) == ("978454350", "41628611", "deploy/descent") and first["archives"]
 
 
+@pytest.mark.game
+def test_find_text_reaches_slots_by_their_label(game_session):
+    hits = game_session.find_text("extraction perc")  # the workbook's "Extraction Cue (Perc.)" clips
+    perc = [h for h in hits if h["source"] == "37386235"]
+    assert [(h["cue"], h["item"], h["label"]) for h in perc] == [("399723722", "extraction/main", "Extraction Cue (Perc.)")]
+    assert all(h["item"] for h in hits)
+    assert game_session.find_text("ex") == [] and game_session.find_text("no such label here") == []
+
+
 # --- audio helpers (need ffmpeg, not the game)
 def _tone(path, seconds=1.0):
     import math, struct

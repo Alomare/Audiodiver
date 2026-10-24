@@ -12,7 +12,7 @@ Outside the music, the Index lists **sound sets**. A sound set holds the sounds 
 
 The sounds in a set are shown in groups. Each group is one sound with its **takes**, and the game picks one take at random each time the sound plays. To replace a sound completely, give every take new audio, or the game still mixes in the originals. Files dropped on a group's line fill the takes in order. Right-click the line to fill, silence or clear all takes.
 
-Most groups have only numbers as names, like *Sound 1* and *Take 2* ([why this happens](wiki:game-audio)), so listen to tell them apart. ▶ on a group's line plays the first take. In a large set the groups start folded, and **Filter these sounds** finds a sound by a word or an id. The same page explains the **Other Audio** and **No Audio in the Game Files** groups.
+Most groups have only numbers as names, like *Sound 1* and *Take 2* ([why this happens](wiki:game-audio)), so listen to tell them apart. ▶ on a group's line plays the first take. In a large set the groups start folded, and **Search sounds** finds a sound by a word or an id. The same page explains the **Other Audio** and **No Audio in the Game Files** groups.
 
 You can also add audio that the game doesn't have, such as more takes for a sound or a layer that plays with it. See [Adding audio](wiki:adding-audio).
 

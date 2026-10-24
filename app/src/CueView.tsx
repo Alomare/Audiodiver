@@ -3,7 +3,7 @@ import { audioUrl, fmtTime, isMusic, shownId, type Assignment, type Cue, type Se
 import { useContextMenu, type MenuEntry } from "./ContextMenu";
 import { ExportDialog } from "./ExportDialog";
 import { addedNote, exportList } from "./exportList";
-import { CollapseAllIcon, LinkIcon } from "./Icons";
+import { ClearIcon, CollapseAllIcon, ExportIcon, FillIcon, LinkIcon, SkipIcon, SliceIcon } from "./Icons";
 import { Mark } from "./IndexTree";
 import { ItemActions, ItemHead, PartHead, partsFold, PartTabs } from "./ItemHead";
 import { keyHint, keyLabel, useCommands, useKeymap } from "./keys";
@@ -21,6 +21,7 @@ import { useEditor, useLite } from "./store";
 import { CatTag } from "./Tags";
 import { scrollBehavior } from "./theme";
 import { Timeline } from "./Timeline";
+import { Elsewhere, SlotSearch, ToolButton } from "./Tools";
 
 export type Row = {
   seg: Segment; segIndex: number; slot: Slot; stemIndex: number; stems: number; firstOfSeg: boolean;
@@ -134,14 +135,19 @@ function CueBody({ cue }: { cue: Cue }) {
   const openByDefault = !grouped || all.length <= OPEN_ALL;
   // (a segment of music a bank holds isn't a group: its slots always show, under its own name)
   const isOpen = useCallback((r: Row) => r.takes === 1 || !r.seg.group || flipped.has(r.segIndex) !== openByDefault, [flipped, openByDefault]);
-  // the list follows the filter a beat behind the typing, in a render that typing can interrupt
+  // the list follows the search a beat behind the typing, in a render that typing can interrupt
   const typed = useDeferredValue(filter);
-  const q = grouped ? typed.trim().toLowerCase() : "";
+  const q = typed.trim().toLowerCase();
   const hits = useMemo(() => {
     if (!q) return null;
     const words = q.split(/\s+/);
-    return all.filter((r) => { const hay = `${r.seg.name} ${r.slot.label} ${r.slot.source} ${r.slot.was ?? ""} ${noteTags(r.slot).join(" ")}`.toLowerCase(); return words.every((w) => hay.includes(w)); });
-  }, [all, q]);
+    return all.filter((r) => {
+      const sl = r.slot, a = assigned[sl.source];
+      const hay = `${r.seg.name} ${sl.label} ${sl.source} ${sl.stream ?? ""} ${sl.object ?? ""} ${r.seg.stems[r.stemIndex]?.track ?? ""} ${sl.was ?? ""}
+        ${(sl.notes ?? []).map((n) => `${n.tag ?? ""} ${n.text}`).join(" ")} ${a && !a.silence ? a.audio : ""}`.toLowerCase();
+      return words.every((w) => hay.includes(w));
+    });
+  }, [all, q, assigned]);
   /** The slots that show: all of a music cue's; of a bank's, those of the open groups or the ones the filter finds. */
   const rows = useMemo(() => (hits ? hits.slice(0, MAX_SHOWN) : grouped ? all.filter(isOpen) : all), [hits, grouped, all, isOpen]);
   // a slot that gets selected from elsewhere (a search, the now-playing bar, "also plays in") shows: its group opens,
@@ -508,6 +514,7 @@ function CueBody({ cue }: { cue: Cue }) {
           onResize={setHeadH} onReset={() => setHeadH(null)} />
       </div>
       <div className="cue-bar" data-drop={drop}>
+        {music && cue.kind !== "sound" && <PlayThrough onThrough={setThrough} onMark={setMark} />}
         {readOnly && item && (listed ? (
           <button className="btn primary" data-tip="Replace audio there"
             onClick={() => goTo({ scope: "editor", itemId: item.id, cueId: cue.id, source: selected[0] ?? null })}>Open in the Audio Editor</button>
@@ -518,42 +525,35 @@ function CueBody({ cue }: { cue: Cue }) {
           <button className="btn primary" data-tip={project ? `Add to ${project.name}` : "Open or create a project first"}
             onClick={() => actions.addToProject([item.id], item.full)}>Add to the project</button>
         ))}
-        {!readOnly && music && cue.kind !== "sound" && (
-          <button className="btn primary" disabled={!fillable} data-tip="Choose files for the slots, in play order"
-            onClick={async () => { const f = await pickAudio(true); if (f) actions.fill(cue.id, f); }}>
-            Fill from files…
-          </button>
+        <div className="tools">
+          {!readOnly && music && cue.kind !== "sound" && (
+            <ToolButton icon={<FillIcon />} name="Fill from files" about="Choose files for the slots, in play order" primary disabled={!fillable}
+              onClick={async () => { const f = await pickAudio(true); if (f) actions.fill(cue.id, f); }} />
+          )}
+          {!readOnly && item && isMusicItem(item) && <ItemActions item={item} />}
+          {!readOnly && music && fillable > 1 && (
+            <ToolButton icon={<SliceIcon />} name="Slice a song" about={project ? "Cut one song into pieces, one per slot" : "Open a project first"}
+              disabled={!project} onClick={() => setSlicing(true)} />
+          )}
+          {cue.kind !== "sound" && (
+            <ToolButton icon={<ExportIcon />} name="Export" about="Save as WAV, FLAC or MP3" onClick={() => setExporting(true)} />
+          )}
+          {between && project && skip.length > 0 && (
+            <ToolButton icon={<SkipIcon />} name="Skip it" onClick={() => actions.skip(skip, between.name || item?.name || cue.name)}
+              about={`Replace with a short silence, so the next music starts right away${keyHint("undo") ? `. Undo${keyHint("undo")} brings it back` : ""}`} />
+          )}
+          {!readOnly && mine > 0 && (() => {
+            const silent = all.every((r) => !assigned[r.slot.source] || assigned[r.slot.source].silence);
+            const name = silent ? between ? "Undo the skip" : "Remove the silence" : part && item && item.parts.length > 1 ? "Clear this part" : "Clear this cue";
+            return <ToolButton icon={<ClearIcon />} name={name} about={silent ? "The original plays again" : "Remove the new audio from every slot here"}
+              onClick={() => actions.unassign(all.map((r) => r.slot.source).filter((s) => assigned[s]))} />;
+          })()}
+        </div>
+        <SlotSearch value={filter} onChange={setFilter} sounds={grouped} />
+        {grouped && !hits && all.some(folds) && (
+          <button className="icon-btn" disabled={!anyOpen} onClick={collapseAll} aria-label="Collapse all"
+            data-tip={anyOpen ? "Collapse all sounds" : "Every sound is collapsed"}><CollapseAllIcon /></button>
         )}
-        {!readOnly && item && isMusicItem(item) && <ItemActions item={item} />}
-        {!readOnly && music && fillable > 1 && (
-          <button className="btn" disabled={!project} data-tip={project ? "Cut one song into pieces, one per slot" : "Open a project first"}
-            onClick={() => setSlicing(true)}>Slice a song…</button>
-        )}
-        {cue.kind !== "sound" && (
-          <button className="btn" data-tip="Save as WAV, FLAC or MP3" onClick={() => setExporting(true)}>Export…</button>
-        )}
-        {between && project && skip.length > 0 && (
-          <button className="btn" data-tip={`Replace with a short silence, so the next music starts right away${keyHint("undo") ? `. Undo${keyHint("undo")} brings it back` : ""}`}
-            onClick={() => actions.skip(skip, between.name || item?.name || cue.name)}>Skip it</button>
-        )}
-        {!readOnly && mine > 0 && (
-          <button className="btn quiet" onClick={() => actions.unassign(all.map((r) => r.slot.source).filter((s) => assigned[s]))}>
-            {all.every((r) => !assigned[r.slot.source] || assigned[r.slot.source].silence) ? between ? "Undo the skip" : "Remove the silence"
-              : part && item && item.parts.length > 1 ? "Clear this part" : "Clear this cue"}
-          </button>
-        )}
-        {grouped && all.length > 12 && (
-          <div className="cue-filter">
-            <input type="search" placeholder="Filter these sounds" value={filter} onChange={(e) => setFilter(e.target.value)} aria-label="Filter these sounds"
-              data-tip="By name, words of a voice line, or id" data-tip-side="top"
-              onKeyDown={(e) => { if (e.key === "Escape") { if (filter) setFilter(""); else e.currentTarget.blur(); } }} />
-            {!hits && all.some(folds) && (
-              <button className="icon-btn" disabled={!anyOpen} onClick={collapseAll} aria-label="Collapse all"
-                data-tip={anyOpen ? "Collapse all sounds" : "Every sound is collapsed"}><CollapseAllIcon /></button>
-            )}
-          </div>
-        )}
-        {music && cue.kind !== "sound" && <PlayThrough onThrough={setThrough} onMark={setMark} />}
         {folding && (
           <button className="icon-btn parts-collapse" disabled={shut} onClick={() => setShut(true)} aria-label="Collapse all"
             data-tip={shut ? "Every part is collapsed" : "Collapse all parts"}><CollapseAllIcon /></button>
@@ -577,7 +577,8 @@ function CueBody({ cue }: { cue: Cue }) {
           </>
         ) : lines.map(line)}
         {hits && hits.length > MAX_SHOWN && <p className="slots-note">Showing the first {MAX_SHOWN} of {hits.length} matches. Type more to narrow the search.</p>}
-        {hits && !hits.length && <p className="slots-note">No sound matches “{filter.trim()}”.</p>}
+        {hits && !hits.length && <p className="slots-note">No {grouped ? "sound" : "slot"} here matches “{filter.trim()}”.</p>}
+        {hits && !hits.length && <Elsewhere query={typed} here={cue.id} />}
       </div>
       <Timeline room={() => room("wave")} through={through} at={selected.length === 1 ? at(selected[0]) : null} />
       {menu}

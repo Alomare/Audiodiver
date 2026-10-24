@@ -55,6 +55,42 @@ export const ZoomOutIcon = () => <Icon size={1}><circle cx="10.5" cy="10.5" r="6
 export const FitIcon = () => <Icon size={1}><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></Icon>;
 export const RedoIcon = () => <Icon><path d="m15 6 5 5-5 5" /><path d="M20 11H9.5a4.75 4.75 0 0 0 0 9.5H14" /></Icon>;
 
+// The toolbar above the slots (CueView): one icon per tool.
+
+/** A file with an arrow going into it: files into the slots. */
+export const FillIcon = () => (
+  <Icon><path d="M14 3.5H7A1.5 1.5 0 0 0 5.5 5v14A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5V8z" /><path d="M14 3.5V8h4.5M12 10.5v6.5M9 14l3 3 3-3" /></Icon>
+);
+/** Two files with the arrow: every part of the piece. */
+export const FillPieceIcon = () => (
+  <Icon>
+    <path d="M8.5 6V5A1.5 1.5 0 0 1 10 3.5h6l4 4v10a1.5 1.5 0 0 1-1.5 1.5H17" />
+    <path d="M13.5 7H5.5A1.5 1.5 0 0 0 4 8.5v11A1.5 1.5 0 0 0 5.5 21h9a1.5 1.5 0 0 0 1.5-1.5v-10z" />
+    <path d="M10 12v5.5M7.5 15.25 10 17.75l2.5-2.5" />
+  </Icon>
+);
+/** Scissors: cut a song into pieces. */
+export const SliceIcon = () => (
+  <Icon><circle cx="6.5" cy="7" r="2.5" /><circle cx="6.5" cy="17" r="2.5" /><path d="M8.6 8.4 19.5 17.5M8.6 15.6 19.5 6.5" /></Icon>
+);
+/** An arrow out of a tray: audio files saved out. */
+export const ExportIcon = () => (
+  <Icon><path d="M12 14.5V3.8" /><path d="m7.6 8.2 4.4-4.4 4.4 4.4" /><path d="M4.5 13.5v6h15v-6" /></Icon>
+);
+/** Skip forward: a short silence instead, so the next music comes at once. */
+export const SkipIcon = () => <Icon><path d="M6 6.5v11l8.5-5.5z" /><path d="M18 6.5v11" /></Icon>;
+/** Skip forward twice: every part at once. */
+export const SkipAllIcon = () => <Icon><path d="M3.5 6.5v11l6.5-5.5zM11 6.5v11l6.5-5.5z" /><path d="M20.5 6.5v11" /></Icon>;
+/** An eraser: the new audio taken off. */
+export const ClearIcon = () => (
+  <Icon><path d="M13.9 4.6 19.4 10a1.5 1.5 0 0 1 0 2.1L12.5 19H7.6l-3-3a1.5 1.5 0 0 1 0-2.1l7.2-7.3a1.5 1.5 0 0 1 2.1 0z" /><path d="m8.6 9.9 5.5 5.5M12.5 19h7" /></Icon>
+);
+/** A magnifier: a search box. */
+export const SearchIcon = () => <Icon size={1}><circle cx="10.5" cy="10.5" r="6" /><path d="m15 15 5 5" /></Icon>;
+/** A play sign before three bars: the segments played one after another. */
+export const ThroughIcon = () => <Icon size={1}><path d="M4 6.5v11l7.5-5.5z" /><path d="M14.5 8.5v7M18 8.5v7M21.5 8.5v7" /></Icon>;
+export const PauseIcon = () => <Icon size={1}><path d="M8.5 6v12M15.5 6v12" /></Icon>;
+
 /** Marks a link that opens in the web browser. */
 export const ExternalIcon = () => <Icon size={0.85}><path d="M10 5H5v14h14v-5" /><path d="M14 4h6v6M20 4l-9 9" /></Icon>;
 

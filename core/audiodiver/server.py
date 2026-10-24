@@ -55,6 +55,7 @@ def methods(s: Session) -> dict:
         "own_clip": lambda source, sound: s.own_clip(source, sound),
         "shared_clip": lambda source: s.shared_clip(source),
         "find": lambda query: s.find(query),
+        "find_text": lambda query: s.find_text(query),
         "project": lambda: s.project_state() if s.project else None,
         "project_new": lambda path, name="", folder=True: s.new_project(path, name, folder),
         "project_open": lambda path: s.open_project(path),

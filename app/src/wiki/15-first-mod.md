@@ -12,7 +12,7 @@ This page goes through replacing the music of the loadout screen and hearing the
 4. Go to the [Audio Editor](app:editor) and click **Loadout Selection** in the list.
 5. Drag the audio files from Explorer onto the piece in the list, or onto its first slot. Slots fill in file-name order, so name the files `01 …`, `02 …` and so on.
 6. Select a slot and press ▶ on each half of the row. The left half plays the original and the right half plays the replacement. Switching between them keeps the playback position. The waveforms below show both on one time scale.
-7. Press **Replaced** next to **Play through**, above the slots. It plays the whole piece with the same hand-overs between segments that the game uses, and selects each slot as it plays.
+7. Press the yellow {icon:through} **Play through** button above the slots. It plays the whole piece with the same hand-overs between segments that the game uses, and selects each slot as it plays.
 8. On [Project](app:project), give the mod a name and an icon.
 9. Press **Build**. Import the ZIP in a mod manager, deploy it and start the game.
 
@@ -21,7 +21,7 @@ This page goes through replacing the music of the loadout screen and hearing the
 
 ## Next steps
 
-- Add more from the Library. A piece with several parts has **Fill the whole piece…**, which takes files for all parts at once.
+- Add more from the Library. A piece with several parts has {icon:fillpiece} **Fill the whole piece**, which takes files for all parts at once.
 - Weapons, enemies, voices and other sounds are in the Index too. See [Sounds and voices](wiki:sounds-and-voices).
-- **Slice a song…** cuts one long song into pieces that play back without gaps. See [Timing, cue points and loops](wiki:timing-and-loops).
+- {icon:slice} **Slice a song** cuts one long song into pieces that play back without gaps. See [Timing, cue points and loops](wiki:timing-and-loops).
 - After a change, build again and import the new ZIP. The mod manager updates the installed mod. See [Building and installing](wiki:build-and-install).

@@ -24,7 +24,20 @@ The Library and the Audio Editor share one layout. There is a list on the left a
 
 ## The toolbar
 
-In the Library, the toolbar has **Add to the project**. In the Audio Editor, it has **Fill from files…**, **Slice a song…**, **Export…** and other actions. **Play through** plays a whole piece of music segment by segment, in the same order the game uses, with either the **Original** or the **Replaced** audio. In a large sound set, **Filter these sounds** narrows the list by name, by the words of a voice line, or by id.
+{icon:through} **Play through** plays the whole piece of music segment by segment, in the same order the game uses. The grey button plays the **Original** audio, the yellow one the **Replaced** audio. While one plays, a bar shows where it is.
+
+In the Library, the toolbar has **Add to the project**. In the Audio Editor it has these tools:
+
+| Tool | What it does |
+|---|---|
+| {icon:fill} **Fill from files** | Fills the slots with files, in play order. |
+| {icon:fillpiece} **Fill the whole piece** | Fills the slots of every part. |
+| {icon:slice} **Slice a song** | Cuts one song into pieces, one per slot. |
+| {icon:export} **Export** | Saves the audio as WAV, FLAC or MP3. |
+| {icon:skip} **Skip it**, {icon:skipall} **Skip all** | Replace a transition or stinger with a short silence. |
+| {icon:clear} **Clear this part** | Removes the new audio from every slot of the part. |
+
+{icon:search} **Search slots** narrows the list by name, label, note, file name or id. In a sound set it also finds the words of a voice line. When nothing in the list matches, **Elsewhere** lists the pieces of music and sound sets that have a match.
 
 ## Parts
 
@@ -104,11 +117,11 @@ Every slot shows its **stream id** at the end of the row, the id other audio too
 - the **Sound** in a bank that plays the clip
 - the music **track** that the clip is a layer of
 
-The search box accepts any of them.
+Both search boxes take any of them.
 
 ## Exporting
 
-**Export…** saves the open item as audio files, either the **Original** or the **Replaced** audio, in the format you pick.
+{icon:export} **Export** saves the open item as audio files, either the **Original** or the **Replaced** audio, in the format you pick.
 
 ### A folder for each
 

@@ -2,7 +2,7 @@ import { useState, type ReactNode } from "react";
 import { fmtTime, type Assignment, type Cue, type MusicItem, type MusicPart } from "./api";
 import { PlayButton } from "./CueView";
 import { Fold } from "./Fold";
-import { InfoIcon } from "./Icons";
+import { FillPieceIcon, InfoIcon, SkipAllIcon } from "./Icons";
 import { Mark } from "./IndexTree";
 import { keyHint } from "./keys";
 import { clashes, counted, COVERAGE, heldBy, isMusicItem, itemCoverage, listedBanks, listName, statusOf } from "./music";
@@ -10,6 +10,7 @@ import { tabArrows } from "./Page";
 import { pickAudio } from "./platform";
 import { useEditor } from "./store";
 import { CatMark, CatTag } from "./Tags";
+import { ToolButton } from "./Tools";
 
 const WAY = { in: "Into", out: "Out of", over: "Over" } as const;
 
@@ -109,16 +110,15 @@ export function ItemActions({ item }: { item: MusicItem }) {
   const total = counted(item).length;
   if (item.kind === "music") {
     return total > 1 ? (
-      <button className="btn" data-tip={`Choose files for all ${total} slots in every part, in order`}
-        onClick={async () => { const f = await pickAudio(true); if (f) actions.fillSources(counted(item), f, `the ${item.parts.length} parts of ${item.full}`); }}>
-        Fill the whole piece…</button>
+      <ToolButton icon={<FillPieceIcon />} name="Fill the whole piece" about={`Choose files for all ${total} slots in every part, in order`}
+        onClick={async () => { const f = await pickAudio(true); if (f) actions.fillSources(counted(item), f, `the ${item.parts.length} parts of ${item.full}`); }} />
     ) : null;
   }
   const kind = item.kind === "transition" ? "transition" : "stinger";
   const skippable = [...new Set(item.parts.flatMap((p) => p.own.filter((t) => !a[t])))];
   return skippable.length ? (
-    <button className="btn" data-tip={`Replace them with a short silence, so the next music starts right away${keyHint("undo") ? `. Undo${keyHint("undo")} brings them back` : ""}`}
-      onClick={() => actions.skip(skippable, `${item.parts.length} ${kind}s`)}>Skip all {item.parts.length}</button>
+    <ToolButton icon={<SkipAllIcon />} name={`Skip all ${item.parts.length}`} onClick={() => actions.skip(skippable, `${item.parts.length} ${kind}s`)}
+      about={`Replace them with a short silence, so the next music starts right away${keyHint("undo") ? `. Undo${keyHint("undo")} brings them back` : ""}`} />
   ) : null;
 }
 

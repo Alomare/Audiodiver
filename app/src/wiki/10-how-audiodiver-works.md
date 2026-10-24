@@ -33,7 +33,7 @@ The version number at the right end of the status bar also opens Updates. The {i
 
 The window title is the name of the open project.
 
-The Library and the Audio Editor share the same layout, and both have **Export…**. Find something in the Library and work on it in the Audio Editor.
+The Library and the Audio Editor share the same layout, and both have {icon:export} **Export**. Find something in the Library and work on it in the Audio Editor.
 
 ## New versions of Audiodiver
 

@@ -11,8 +11,9 @@
 //   ```game-text … ```          a line of the game's text as typed, and as the game shows it (TextPreview)
 import { marked, type Token, type Tokens } from "marked";
 import { Fragment, type ReactNode } from "react";
-import { AudioIcon, BuildIcon, CollapseAllIcon, ExternalIcon, GearIcon, GuideIcon, HomeIcon, InfoIcon, LibraryIcon, LinkIcon, NoteIcon,
-  ProjectIcon, TextIcon, ToolsIcon, UpdatesIcon } from "./Icons";
+import { AudioIcon, BuildIcon, ClearIcon, CollapseAllIcon, ExportIcon, ExternalIcon, FillIcon, FillPieceIcon, GearIcon, GuideIcon, HomeIcon,
+  InfoIcon, LibraryIcon, LinkIcon, NoteIcon, ProjectIcon, SearchIcon, SkipAllIcon, SkipIcon, SliceIcon, TextIcon, ThroughIcon, ToolsIcon,
+  UpdatesIcon } from "./Icons";
 import { COMMANDS, keyLabel, useKeymap, type CommandId } from "./keys";
 import { about, nav, type Tab } from "./nav";
 import { openUrl } from "./platform";
@@ -60,6 +61,8 @@ const ICONS: Record<string, () => ReactNode> = {
   link: LinkIcon, collapse: CollapseAllIcon,
   home: HomeIcon, library: LibraryIcon, audio: AudioIcon, text: TextIcon, build: BuildIcon, updates: UpdatesIcon, wiki: GuideIcon,
   settings: GearIcon, info: InfoIcon, note: NoteIcon, project: ProjectIcon, tools: ToolsIcon,
+  fill: FillIcon, fillpiece: FillPieceIcon, slice: SliceIcon, export: ExportIcon, skip: SkipIcon, skipall: SkipAllIcon, clear: ClearIcon,
+  search: SearchIcon, through: ThroughIcon,
 };
 
 /** Text with {key:command} turned into the key that command is on now, and {icon:name} into that icon. */

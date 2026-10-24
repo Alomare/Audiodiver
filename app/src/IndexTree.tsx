@@ -8,7 +8,7 @@ import { clashes, COVERAGE, heldBy, isMusicItem, itemCoverage, listedBanks, list
 import { useEditor, useLite } from "./store";
 import { useStable } from "./stable";
 import { addedNote, exportList, itemEntries } from "./exportList";
-import { CollapseAllIcon } from "./Icons";
+import { CollapseAllIcon, SearchIcon } from "./Icons";
 import { CatMark } from "./Tags";
 import { motionMs, scrollBehavior } from "./theme";
 import { FOLD_LIBRARY } from "./nav";
@@ -99,27 +99,53 @@ export function IndexTree() {
     return () => { live = false; };
   }, [q, numeric]);
   const foundItems = useMemo(() => new Set((found ?? []).flatMap((f) => f.item ?? [])), [found]);
+  // a name also finds the slots the community labels or the clip notes call that, in whatever piece they are
+  const [named, setNamed] = useState<Named[]>([]);
+  useEffect(() => {
+    if (numeric || q.replace(/\s/g, "").length < 3) { setNamed([]); return; }
+    let live = true;
+    const t = setTimeout(() => call<Named[]>("find_text", { query: q }).then((hits) => { if (live) setNamed(hits); }).catch(() => live && setNamed([])), 150);
+    return () => { live = false; clearTimeout(t); };
+  }, [q, numeric]);
+  const byLabel = useMemo(() => {
+    const m = new Map<string, Named>();
+    for (const n of named) if (n.item && !m.has(n.item)) m.set(n.item, n);
+    return m;
+  }, [named]);
+  /** Opens an item, at the slot the search found in it: the id pasted, or the label typed. */
+  const openHit = (it: MusicItem) => {
+    const at = numeric ? found?.find((f) => f.item === it.id) : hints.has(it.id) ? byLabel.get(it.id) : undefined;
+    if (at) goTo({ scope, itemId: it.id, cueId: at.cue, source: at.source });
+    else openItem(it.id);
+  };
 
   const clash = useMemo(() => (editing ? clashes(itemIndex, a) : []), [editing, itemIndex, a]);
   const clashing = useMemo(() => new Set(clash.map((c) => c.item.id)), [clash]);
   const statusOfItem = (it: MusicItem): Status => statusOf(itemCoverage(it, project));
 
-  const shownGroups = useMemo(() => {
+  // hints: the items shown only for a slot's label, with that label
+  const { shownGroups, hints } = useMemo(() => {
     const words = q.split(/\s+/).filter(Boolean);
+    const hints = new Map<string, string>();
     const keep = (g: Group, s: MusicSection, it: MusicItem) => {
       if (numeric) return foundItems.has(it.id) || it.targets.includes(q) || it.archive === q;
       if (words.length) {
         const hay = `${g.name} ${s.name} ${it.name} ${it.full} ${it.about} ${it.names?.join(" ") ?? ""} ${it.archive ?? ""} ${it.parts.map((p) => `${p.name} ${p.note}`).join(" ")}`.toLowerCase();
-        if (!words.every((w) => hay.includes(w))) return false;
+        if (!words.every((w) => hay.includes(w))) {
+          const n = byLabel.get(it.id);
+          if (!n) return false;
+          hints.set(it.id, n.label ?? "");
+        }
       }
       if (filter === "all" || !editing || !project) return true;
       const st = statusOfItem(it);
       // "Replaced" is anything with new audio in it; "Original" is what a player hears that has none
       return filter === "mine" ? st === "part" || st === "done" : st === "none" && !s.unused;
     };
-    return groups.map((g) => ({ ...g, sections: g.sections.map((s) => ({ ...s, items: s.items.filter((it) => keep(g, s, it)) })).filter((s) => s.items.length) }))
+    const shownGroups = groups.map((g) => ({ ...g, sections: g.sections.map((s) => ({ ...s, items: s.items.filter((it) => keep(g, s, it)) })).filter((s) => s.items.length) }))
       .filter((g) => g.sections.length);
-  }, [groups, q, numeric, foundItems, filter, editing, project]); // eslint-disable-line react-hooks/exhaustive-deps
+    return { shownGroups, hints };
+  }, [groups, q, numeric, foundItems, byLabel, filter, editing, project]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const shown = useMemo(() => shownGroups.flatMap((g) => g.sections.flatMap((s) => s.items)), [shownGroups]);
   useEffect(() => {
@@ -148,7 +174,7 @@ export function IndexTree() {
       setHi((h) => Math.max(0, Math.min(shown.length - 1, h + (e.key === "ArrowDown" ? 1 : -1))));
     } else if (e.key === "Enter" && shown.length) {
       e.preventDefault();
-      openItem(shown[Math.max(0, hi)].id);
+      openHit(shown[Math.max(0, hi)]);
     }
   };
 
@@ -186,7 +212,7 @@ export function IndexTree() {
   // what the rows do, with one identity for the life of the tree: the rows are memoised, so a search or a selection
   // draws the rows it changes instead of all of them
   const on = useStable({
-    open: (it: MusicItem) => openItem(it.id),
+    open: (it: MusicItem) => openHit(it),
     menu: (e: React.MouseEvent, it: MusicItem) => itemMenu(e, it),
     add: (it: MusicItem) => { actions.addToProject([it.id], it.full); },
     remove: (it: MusicItem) => { actions.removeFromProject([it.id], it.full); },
@@ -201,7 +227,7 @@ export function IndexTree() {
   const rows = (s: MusicSection, deep: boolean) => s.items.map((it) => (
     <ItemRow key={it.id} item={it} deep={deep} active={it.id === itemId} hi={hi >= 0 && shown[hi] === it}
       status={editing && project ? statusOfItem(it) : "na"} clash={clashing.has(it.id)} added={!editing && listed.has(it.id)}
-      held={held(it)} editing={editing} noProject={!project} on={on} />
+      held={held(it)} editing={editing} noProject={!project} hint={hints.get(it.id)} on={on} />
   ));
   /** A group's line (a category or a section): the head that folds it, and what acts on everything it shows (all of
       it, or what a search left) at once. In the Library a + adds it to the project; in the Audio Editor an ✕ takes it
@@ -298,12 +324,15 @@ export function IndexTree() {
 }
 
 const GLYPH: Partial<Record<MusicItem["kind"], string>> = { transition: "↝", stinger: "✦" };
+/** A place a name leads to (core find_text): an id's place, with the label that matched. */
+type Named = Place & { label?: string };
 const KIND_TIP: Partial<Record<MusicItem["kind"], string>> = { transition: "A transition between two pieces of music", stinger: "A stinger that plays over the music" };
 
 /** One item of the tree. Memoised: it draws again only when something it shows changes, not with every keystroke of
     a search or every selection. */
-const ItemRow = memo(function ItemRow({ item, deep, active, hi, status, clash, added, held, editing, noProject, on }: {
+const ItemRow = memo(function ItemRow({ item, deep, active, hi, status, clash, added, held, editing, noProject, hint, on }: {
   item: MusicItem; deep: boolean; active: boolean; hi: boolean; status: Status; clash: boolean;
+  hint?: string;             // a search found it by this label of a slot in it
   added: boolean;            // the Library: the project lists it already
   held: MusicItem | null;    // the Library: what the project lists that has all its banks already (it can't be added)
   editing: boolean;          // the Audio Editor's list (it can be taken off), else the Library's (it can be added)
@@ -324,6 +353,7 @@ const ItemRow = memo(function ItemRow({ item, deep, active, hi, status, clash, a
       <button className="mus-name" onClick={() => on.open(item)} data-tip={(item.kind === "music" || !music ? item.about : KIND_TIP[item.kind]) || undefined} data-tip-side="right">
         {GLYPH[item.kind] && <span className="glyph" aria-hidden>{GLYPH[item.kind]}</span>}
         <span className="mus-label" data-tip={item.full} data-tip-clip>{item.name}</span>
+        {hint && <span className="mus-hint"><SearchIcon />{hint}</span>}
         {item.parts.length > 1 && <span className="parts-n" data-tip={`${item.parts.length} parts`}>×{item.parts.length}</span>}
       </button>
       <span className="mus-meta">

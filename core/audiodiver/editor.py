@@ -331,6 +331,32 @@ class Session:
         except (ValueError, OverflowError):
             return []
 
+    def find_text(self, query: str, limit: int = 200):
+        """Where a name leads: [{cue, source, item, archives, label}] for the slots and cues whose community label or
+        clip note has every word of the query. Places outside the Index (no item) are left out, and so are the banks
+        that hold a clip of music: its cues are where it is replaced."""
+        self.require_game()
+        words = str(query).lower().split()
+        if sum(map(len, words)) < 3:
+            return []
+        has = lambda text: all(w in text.lower() for w in words)
+        cat, out, seen = self.catalog, [], set()
+        named = [*cat.labels.items(), *((k, [c["label"]]) for k, c in cat.clips.items() if c.get("label"))]
+        for key, labels in named:
+            if not has(" ".join(labels)):
+                continue
+            label = next((l for l in labels if has(l)), labels[0])
+            places = [p for p in self.lib.places(int(key)) if p["item"]]
+            for p in [p for p in places if p["cue"].isdigit()] or places:
+                at = (p["item"], p["cue"], p["source"])
+                if at in seen:
+                    continue
+                seen.add(at)
+                out.append({**p, "label": label})
+                if len(out) >= limit:
+                    return out
+        return out
+
     # --- vanilla and project audio for preview
     def vanilla_wav(self, sid: int) -> Path:
         """The vanilla audio of a source decoded to WAV (cached). A clip of its own's is the clip it stands in for."""
