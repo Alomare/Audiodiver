@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { call, fmtTime, isMusic, type Assignment, type Place, type Slot } from "./api";
+import { call, fmtTime, isMusic, shownId, type Assignment, type Place, type Slot } from "./api";
 import { rowsOf, SILENCE_TIP, type Row } from "./CueView";
 import { FolderIcon } from "./Icons";
 import { keyLabel, useKeymap, type CommandId } from "./keys";
@@ -39,7 +39,7 @@ export function Inspector() {
       <div className="view-in" key={slot.source}>
       <div className="insp-title">
         <h2>{seg.name}{sub ? <span className="sub">{sub}</span> : null}</h2>
-        <CopyId id={slot.source} />
+        <CopyId slot={slot} />
       </div>
       {slot.locked && <p className="warn-box">Do not touch. Replacing this clip makes the music stutter. <Help tip="Tags on a slot" page="reading-the-screen#tags-on-a-row" /></p>}
       {slot.absent && <p className="info-box">This clip isn't in the installed game files, so there is nothing to play or replace.</p>}
@@ -52,7 +52,7 @@ export function Inspector() {
         <Replacement slot={slot} a={a} music={isMusic(cue)} what={seg.name} />
         {a && (slot.was || (!slot.added && slot.object && ((slot.players ?? 1) > 1 || (slot.sound_banks ?? 0) < (slot.banks ?? 0)))) &&
           <Reach slot={slot} />}
-        {a && !a.silence && <Gain source={slot.source} value={a.gain_db} />}
+        {a && !a.silence && <Gain sources={[slot.source]} value={a.gain_db} />}
         {a && !a.silence && seg.segment && (
           <section className="insp-sec">
             <label className="check">
@@ -214,7 +214,7 @@ export function SlotFacts({ row }: { row: Row }) {
     <div className="tl-facts view-in" key={slot.source}>
       <div className="tl-facts-line">
         <b>{seg.name}{sub && <span className="muted"> · {sub}</span>}</b>
-        <CopyId id={slot.source} />
+        <CopyId slot={slot} />
         {length > 0 && <span>{fmtTime(length)}</span>}
         {seg.segment && seg.exit_ms != null && <span>exit at {fmtTime(seg.exit_ms)}</span>}
         {slot.variant && <span>plays when {slot.variant}</span>}
@@ -255,15 +255,16 @@ function Settle({ still, children }: { still: boolean; children: ReactNode }) {
   return <div className={cls}>{children}</div>;
 }
 
-function CopyId({ id }: { id: string }) {
+function CopyId({ slot }: { slot: Slot }) {
   const [done, setDone] = useState(false);
   const { quick } = useEditor();
+  const { id, what } = shownId(slot);
   const copy = async () => {
     try { await navigator.clipboard.writeText(id); setDone(true); setTimeout(() => setDone(false), 1200); }
     catch { quick("Couldn't copy to the clipboard", "info"); }
   };
   return (
-    <button className="id" data-tip="Copy the source id" onClick={copy}>
+    <button className="id" data-tip={`Copy the ${what} id`} onClick={copy}>
       {done ? "Copied" : id}
     </button>
   );
@@ -329,18 +330,26 @@ function PlaceLink({ id, source, mono, children }: { id: string; source: string;
   return <button className={`link${mono ? " mono" : ""}`} onClick={open}>{children}</button>;
 }
 
-const GAIN_PRESETS = [-4, 0, 4, 8]; // the same for one slot and for several
+const GAIN_MAX = 96; // dB either way, as the core takes it (project.GAIN_DB)
 const fmtGain = (x: number) => `${x > 0 ? "+" : ""}${x}`;
 
-function Gain({ source, value }: { source: string; value: number }) {
+/** Make-Up Gain of one replaced slot or of several; `value` is null while several differ (the box says Mixed and the
+    slider rests at 0 until moved). */
+function Gain({ sources, value, title = "Make-Up Gain" }: { sources: string[]; value: number | null; title?: string }) {
   const { actions } = useEditor();
-  const [v, setV] = useState(value);
+  const [v, setV] = useState(value ?? 0);
   const [typed, setTyped] = useState<string | null>(null); // the value box while it is typed in
+  const [moved, setMoved] = useState(false); // mixed values: the slider has been moved, so its value shows
   const escaped = useRef(false);
-  useEffect(() => setV(value), [value]);
+  useEffect(() => { setV(value ?? 0); setMoved(false); }, [value, sources.join()]);
   const later = useRef(0);
   useEffect(() => () => clearTimeout(later.current), []);
-  const commit = (x: number) => { clearTimeout(later.current); if (x !== value) actions.update(source, { gain_db: x }); };
+  const commit = (x: number, typedIn = false) => {
+    clearTimeout(later.current);
+    if (x === value || (value === null && !moved && !typedIn)) return;
+    if (sources.length === 1) actions.update(sources[0], { gain_db: x });
+    else actions.updateMany(sources, { gain_db: x });
+  };
   // arrow keys on the slider step it; the steps become one change (one undo) once the keys rest
   const commitSoon = (x: number) => { clearTimeout(later.current); later.current = window.setTimeout(() => commit(x), 600); };
   const takeTyped = () => {
@@ -348,24 +357,23 @@ function Gain({ source, value }: { source: string; value: number }) {
     setTyped(null);
     if (escaped.current) { escaped.current = false; return; } // Esc: as it was
     if (typed === null || typed.trim() === "" || !Number.isFinite(x)) return;
-    const g = Math.round(Math.max(-12, Math.min(12, x)) * 2) / 2;
+    const g = Math.round(Math.max(-GAIN_MAX, Math.min(GAIN_MAX, x)) * 2) / 2;
     setV(g);
-    commit(g);
+    setMoved(true);
+    commit(g, true);
   };
+  const shown = value === null && !moved ? "Mixed" : fmtGain(v);
   return (
     <section className="insp-sec">
-      <h3>Make-Up Gain <Help tip="Louder or quieter, without changing the file or the mix." page="volume#make-up-gain-per-slot" />
-        <span className="val"><input className="gain-val" value={typed ?? fmtGain(v)} aria-label="Make-Up Gain in dB, typed" inputMode="decimal"
-          onFocus={(e) => { setTyped(fmtGain(v)); e.currentTarget.select(); }} onChange={(e) => setTyped(e.target.value)} onBlur={takeTyped}
+      <h3>{title} <Help tip="Louder or quieter, without changing the file or the mix." page="volume#make-up-gain-per-slot" />
+        <span className="val"><input className="gain-val" value={typed ?? shown} aria-label="Make-Up Gain in dB, typed" inputMode="decimal"
+          onFocus={(e) => { setTyped(value === null && !moved ? "" : fmtGain(v)); e.currentTarget.select(); }} onChange={(e) => setTyped(e.target.value)} onBlur={takeTyped}
           onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); else if (e.key === "Escape") { escaped.current = true; e.currentTarget.blur(); } }}
-          data-tip="Type a value from −12 to +12" /> dB</span></h3>
-      <input type="range" min={-12} max={12} step={0.5} value={v} aria-label="Make-Up Gain in dB"
-        onChange={(e) => setV(Number(e.target.value))} onPointerUp={() => commit(v)}
+          data-tip={`Type a value from −${GAIN_MAX} to +${GAIN_MAX}`} /> dB</span></h3>
+      <input type="range" min={-GAIN_MAX} max={GAIN_MAX} step={0.5} value={v} aria-label="Make-Up Gain in dB"
+        onChange={(e) => { setV(Number(e.target.value)); setMoved(true); }} onPointerUp={() => commit(v)}
         onKeyUp={(e) => { if (/^(Arrow|Home|End|Page)/.test(e.key)) commitSoon(v); }} onBlur={() => commit(v)}
         onKeyDown={(e) => { if (e.ctrlKey || e.metaKey || e.altKey) commit(v); }} /* a nudge on its way goes first: then Ctrl+Z undoes it */ />
-      <div className="presets">
-        {GAIN_PRESETS.map((x) => <button key={x} className={`chip${v === x ? " on" : ""}`} onClick={() => { setV(x); commit(x); }}>{fmtGain(x)} dB</button>)}
-      </div>
     </section>
   );
 }
@@ -423,12 +431,8 @@ function Bulk({ sources, usable }: { sources: string[]; usable: string[] }) {
     <aside className="inspector" aria-label="Details">
       <div className="insp-title"><h2>{sources.length} slots selected</h2></div>
       {files.length > 0 && (
-        <section className="insp-sec">
-          <h3>Make-Up Gain{files.length < sources.length ? ` of the ${files.length} replaced` : ""}</h3>
-          <div className="presets">
-            {GAIN_PRESETS.map((x) => <button key={x} className="chip" onClick={() => actions.updateMany(files, { gain_db: x })}>{fmtGain(x)} dB</button>)}
-          </div>
-        </section>
+        <Gain sources={files} value={files.every((s) => a[s].gain_db === a[files[0]].gain_db) ? a[files[0]].gain_db : null}
+          title={`Make-Up Gain${files.length < sources.length ? ` of the ${files.length} replaced` : ""}`} />
       )}
       {silent.length > 0 && (
         <section className="insp-sec">

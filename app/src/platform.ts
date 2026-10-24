@@ -102,6 +102,13 @@ export async function pickMods(): Promise<string[] | null> {
 
 export const IMAGES = ["png", "jpg", "jpeg", "webp", "bmp", "gif", "tif", "tiff"];
 export const isImage = (path: string) => IMAGES.includes(path.split(".").pop()?.toLowerCase() ?? "");
+export const isAudio = (path: string) => AUDIO.includes(path.split(".").pop()?.toLowerCase() ?? "");
+
+/** The audio files copied in Explorer, folders opened up, and the clipboard's change count (core clipboard_files). */
+export async function clipboardAudio(): Promise<{ audio: string[]; seq: number }> {
+  const c = await call<{ files: string[]; seq: number }>("clipboard_files").catch(() => ({ files: [], seq: 0 }));
+  return { audio: c.files.length ? (await expandDropped(c.files)).filter(isAudio) : [], seq: c.seq };
+}
 
 /** near: a folder to start in (the project's). */
 export async function pickImage(near?: string): Promise<string | null> {

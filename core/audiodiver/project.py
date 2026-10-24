@@ -89,7 +89,7 @@ from .arsenal import FRAME_KEYS, icon_frame, name_problem
 from .notes import tidy as tidy_notes
 
 FORMAT = 1
-GAIN_DB = (-12.0, 12.0)  # Make-Up Gain, as the details panel's slider offers it
+GAIN_DB = (-96.0, 96.0)  # Make-Up Gain, as the details panel's slider offers it
 
 
 def write_whole(path, text: str, tries=5):

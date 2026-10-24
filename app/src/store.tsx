@@ -215,6 +215,7 @@ function useEditorState() {
   const [jobs, setJobs] = useState<Record<string, Job>>({});
   const [revision, setRevision] = useState(0); // bumps when assigned audio changes (preview cache-busting)
   const [clip, setClip] = useState<string[]>([]); // slots whose audio Ctrl+C copied, in play order
+  const clipAt = useRef(-1); // the clipboard's change count then: files copied in Explorer since paste instead
   const nextId = useRef(1);
   const editSeq = useRef(0); // counts edits, so an Undo button only undoes the edit it was shown for
 
@@ -755,12 +756,26 @@ function useEditorState() {
       const mine = sources.filter((s) => project?.assignments[s]);
       if (!mine.length) { quick("Nothing to copy. These slots aren't replaced", "info"); return; }
       setClip(mine);
+      platform.clipboardAudio().then((c) => { clipAt.current = c.seq; });
       const paste = keyLabel("paste");
       quick(`Copied ${plural(mine.length, "slot")}${paste ? ` · ${paste} pastes` : ""}`, "copy");
     },
-    /** Gives targets the copied audio: one copied slot goes into every target, several go in order. */
-    async pasteSlots(targets: string[]) {
-      if (!needProject() || !clip.length || !targets.length) return;
+    /** Pastes what was copied last: audio files copied in Explorer go into `selection` (one file into every slot,
+        several in file-name order; one slot fills on from there), slots copied in the app go into `targets` (one
+        copied slot into every target, several in order). */
+    async pasteSlots(targets: string[], selection: string[] = targets) {
+      if (!needProject()) return;
+      const os = await platform.clipboardAudio();
+      if (os.audio.length && (!clip.length || os.seq !== clipAt.current)) {
+        if (!selection.length) return;
+        if (selection.length === 1) return actions.assign(selection[0], os.audio);
+        const files = os.audio.length === 1 ? selection.map(() => os.audio[0]) : os.audio;
+        const p = await run<ProjectState>("fill_sources", { sources: selection, files });
+        if (p && edited(p)) quick(`Pasted ${os.audio.length === 1 ? "into" : `${plural(os.audio.length, "file")} into`} ${plural(changed(p), "slot")}`);
+        return;
+      }
+      if (!clip.length) { quick("Nothing to paste. Copy audio files or replaced slots first", "info"); return; }
+      if (!targets.length) return;
       const pairs = clip.length === 1 ? targets.map((t) => [clip[0], t]) : clip.slice(0, targets.length).map((c, i) => [c, targets[i]]);
       if (edited(await run<ProjectState>("copy_audio", { pairs }))) quick(`Pasted into ${plural(pairs.length, "slot")}`);
     },

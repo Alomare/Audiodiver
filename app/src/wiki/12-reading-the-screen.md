@@ -40,6 +40,7 @@ Each row is one **slot**, a single game clip that can be replaced.
 - **Sounds** are shown in **groups**, with one line per sound and the **takes** folded under it. ▶ on the line plays the first take. Files dropped on the line fill the takes in order. Right-click the line to fill, silence or clear all takes at once.
 - The left half of a row is the original. ▶ plays it, and the length is shown at the end. In the Audio Editor, the right half is the replacement. ▶ plays the new audio, clicking the file name picks another file, and ✕ removes it. An empty slot shows *Drop audio or choose a file*.
 - Double-click a row to play it. Right-click it for everything else, including copy, paste, silence and ids.
+- Copy audio files in Explorer, select slots and press **Ctrl+V**. One file goes into every selected slot. Several files go in file-name order, and on a single selected slot they fill on from there. Ctrl+V pastes whatever was copied last: files from Explorer or slots copied in Audiodiver.
 
 ### Tags on a row
 
@@ -96,10 +97,10 @@ Short confirmations such as *Loadout Selection added to My Mod* or *My Mod saved
 
 ## Ids
 
-Every slot shows its **source id** at the end of the row. Click the id to copy it. Right-click the row to see all ids of the slot:
+Every slot shows its **stream id** at the end of the row, the id other audio tools list it by. Audio stored only inside a bank shows its **source id**. Click the id to copy it. Right-click the row to see all ids of the slot:
 
+- the 64-bit **stream** id of the file that holds the audio
 - the **source** id of the clip
-- the 64-bit **stream** id of the file that holds the audio, which older tools use
 - the **Sound** in a bank that plays the clip
 - the music **track** that the clip is a layer of
 

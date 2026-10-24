@@ -32,6 +32,11 @@ export type Slot = {
   // or, for a clip without words, what it is ("Grunt")
   subtitle?: string; subtitle_sure?: boolean; sound?: string;
 };
+/** The id a slot shows: its stream's, as other audio tools list streamed audio, else its source id (audio only
+    inside banks). */
+export function shownId(s: Slot): { id: string; what: "stream" | "source" } {
+  return s.stream ? { id: s.stream, what: "stream" } : { id: s.source, what: "source" };
+}
 /** A note on one clip: what it is or a warning found in game. A note with a tag also marks the clip's row. */
 export type ClipNote = { text: string; tag?: string; warn?: boolean };
 export type Stem = { track: string; type: string; switch_group: string; slots: Slot[] };

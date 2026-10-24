@@ -5,17 +5,11 @@
 "7813067": [
 "Automaton Cue"
 ],
-"12901787": [
-"Automaton Stinger(?)"
-],
 "17907424": [
 "Automaton Cue"
 ],
 "20952073": [
 "Drowned Death Cue(?)"
-],
-"24557526": [
-"Select Drop Location(?)"
 ],
 "30237293": [
 "Illuminate Combat Music",
@@ -35,9 +29,6 @@
 ],
 "45326988": [
 "Drowning (?)"
-],
-"46239602": [
-"Mission End - Statistics (?)"
 ],
 "48744741": [
 "Drowning (?)"
@@ -318,7 +309,6 @@
 "Battle Music"
 ],
 "600528189124694260": [
-"Mission End - Stats Screen",
 "Picking loadout #13"
 ],
 "618625608475274743": [
@@ -492,7 +482,6 @@
 "Picking loadout #11"
 ],
 "1869653093136026116": [
-"Hellpod Land Cue (?)",
 "Hellpod touchdown"
 ],
 "1882839005356192376": [
@@ -605,8 +594,6 @@
 "Ship Ambience white noise #2"
 ],
 "2804501959320279547": [
-"Automaton Combat Music",
-"Calm",
 "death-when you don't get respawned"
 ],
 "2818434438857360841": [

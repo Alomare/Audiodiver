@@ -366,13 +366,11 @@ button.file:hover:not(:disabled) { text-decoration: underline dotted; text-under
 .insp-sec { border-top: 1px solid var(--line-soft); padding: calc(12px * var(--sp)) 0; }
 .insp-sec h3 { font-size: calc(15px * var(--fs)); color: var(--text); margin-bottom: 6px; display: flex; align-items: center; gap: 2px; }
 .insp-sec h3 .val { margin-left: auto; color: var(--accent-fg); white-space: nowrap; } /* a value sits at the end; a "?" right after the words */
-.gain-val { width: 3.4em; padding: 0 3px; text-align: right; font: inherit; color: inherit; background: transparent; border: 1px solid transparent; border-radius: 2px; }
+.gain-val { width: 3.8em; padding: 0 3px; text-align: right; font: inherit; color: inherit; background: transparent; border: 1px solid transparent; border-radius: 2px; }
 .gain-val:hover { border-color: var(--line); }
 .gain-val:focus { border-color: var(--muted); background: var(--bg); outline: none; }
 .insp-sec summary { font-size: calc(15px * var(--fs)); font-weight: 700; color: var(--text); cursor: pointer; }
 .path { font-size: calc(13px * var(--fs)); word-break: break-all; margin: 0 0 8px; color: var(--muted); }
-.presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
-.presets > * { white-space: nowrap; } /* "+4 dB" stays whole; in a narrow panel the buttons wrap instead */
 input[type="range"] { width: 100%; accent-color: var(--accent-fg); }
 .check { display: flex; gap: 10px; align-items: flex-start; }
 .check input { margin-top: 4px; accent-color: var(--second-fg); }
@@ -695,6 +693,8 @@ button.ctag:hover { background: color-mix(in oklch, var(--c) 24%, transparent); 
 .cue-loading { width: min(320px, 80%); }
 .timeline.one { min-height: 84px; }
 .item-title .ctag, .item-title .item-about { align-self: center; }
+/* centred on the caps, not on the line box, whose lower part is room for descenders */
+.item-title .item-about { margin-top: calc(-4.5px * var(--fs)); }
 .lib-group.unused .lib-group-name { color: var(--muted); }
 
 .mus-filters { padding: calc(8px * var(--sp)) 12px; border-bottom: 1px solid var(--line-soft); flex: none; }

@@ -51,7 +51,7 @@ Helldivers 2 music is built to change with the action. Audiodiver uses these ter
 
 ## Ids
 
-Every clip, sound, bank and cue has a number, and the game files use only these numbers. Paste an id from notes or from another tool into a search box to find where it is. A slot's **source id**, shown at the top of the details, is the clip id. Projects stay valid when a game update changes ids.
+Every clip, sound, bank and cue has a number, and the game files use only these numbers. Paste an id from notes or from another tool into a search box to find where it is. The top of the details shows a slot's **stream id**, or its **source id** (the clip id) when the audio is only inside a bank. Projects stay valid when a game update changes ids.
 
 ## Glossary
 
@@ -82,6 +82,7 @@ Every clip, sound, bank and cue has a number, and the game files use only these 
 | Source id | A clip's number in the game files. |
 | Stinger | A short phrase that plays over the music. |
 | Stream | A clip stored next to a bank, outside it. |
+| Stream id | A stream file's 64-bit number. |
 | Take | One recording of a sound. The game picks one at random. |
 | Transition | A short piece that plays between two pieces of music. |
 | Variant | A slot that plays only under a condition. |

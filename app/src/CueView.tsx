@@ -1,5 +1,5 @@
 import { Fragment, memo, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
-import { audioUrl, fmtTime, isMusic, type Assignment, type Cue, type Segment, type Slot } from "./api";
+import { audioUrl, fmtTime, isMusic, shownId, type Assignment, type Cue, type Segment, type Slot } from "./api";
 import { useContextMenu, type MenuEntry } from "./ContextMenu";
 import { ExportDialog } from "./ExportDialog";
 import { addedNote, exportList } from "./exportList";
@@ -176,6 +176,9 @@ function CueBody({ cue }: { cue: Cue }) {
     }
     return rows.filter((r) => selected.includes(r.slot.source)).map((r) => r.slot.source);
   }, [rows, selected, clip]);
+  /** Where audio files copied in Explorer go: the selected slots that take audio, in play order. */
+  const pasteSelection = useCallback(() => rows.filter((r) => selected.includes(r.slot.source) && usable(r)).map((r) => r.slot.source),
+    [rows, selected]);
   /** Moves the selected slot's audio to the next usable slot up or down, swapping with what is there. One move at
       a time: a key held down or pressed fast moves on from where the last move put the audio. */
   const moving = useRef(false);
@@ -252,8 +255,8 @@ function CueBody({ cue }: { cue: Cue }) {
       actions.copySlots(rows.filter((r) => selected.includes(r.slot.source)).map((r) => r.slot.source));
     },
     paste: () => {
-      if (!editing() || !selected.length || !clip.length) return false;
-      actions.pasteSlots(pasteTargets());
+      if (!editing() || !selected.length) return false;
+      actions.pasteSlots(pasteTargets(), pasteSelection());
     },
   }, 1);
   useKeymap(); // the menu and the tooltips name the keys as they are now
@@ -350,8 +353,8 @@ function CueBody({ cue }: { cue: Cue }) {
     const sl = r.slot, track = r.seg.stems[r.stemIndex]?.track;
     const entry = (what: string, id: string): MenuEntry => ({ label: `Copy the ${what} id`, keys: id, run: () => copyId(id, quick) });
     return [
-      entry("source", sl.source),
       ...(sl.stream ? [entry("stream", sl.stream)] : []),
+      entry("source", sl.source),
       ...(sl.object ? [entry("Sound", sl.object)] : []),
       ...(track && track !== "0" ? [entry("track", track)] : []),
     ];
@@ -399,7 +402,7 @@ function CueBody({ cue }: { cue: Cue }) {
       { label: a ? "Replace with another file…" : "Choose a file…", keys: keyLabel("chooseFile"), disabled: !project || !usable(r), run: () => choose(s) },
       { label: `Copy the new audio${many}`, keys: keyLabel("copy"), disabled: !withAudio.length, run: () => actions.copySlots(ordered) },
       { label: `Paste${clip.length > 1 && sel.length === 1 ? ` ${clip.length} slots from here` : many}`, keys: keyLabel("paste"),
-        disabled: !project || !clip.length, run: () => actions.pasteSlots(pasteTargets().length ? pasteTargets() : [s]) },
+        disabled: !project, run: () => actions.pasteSlots(pasteTargets().length ? pasteTargets() : [s], pasteSelection().length ? pasteSelection() : [s]) },
       { label: "Move the new audio up", keys: keyLabel("moveUp"), disabled: sel.length > 1 || !project || !a, run: () => moveAudio(-1) },
       { label: "Move the new audio down", keys: keyLabel("moveDown"), disabled: sel.length > 1 || !project || !a, run: () => moveAudio(1) },
       { label: `Replace with silence${many}`, keys: keyLabel("silence"), disabled: !project || !silenceable.length || silenceable.every((x) => assigned[x]?.silence),
@@ -666,11 +669,12 @@ function copyId(id: string, quick: (text: string, icon?: "copy" | "info") => voi
   copyText(id, quick);
 }
 
-/** A slot's source id at the end of its line: click to copy it; the right-click menu has its other ids. */
-function SlotId({ id }: { id: string }) {
+/** A slot's id at the end of its line (`shownId`): click to copy it; the right-click menu has its other ids. */
+function SlotId({ slot }: { slot: Slot }) {
   const { quick } = useLite();
+  const { id, what } = shownId(slot);
   return (
-    <button className="slot-id" data-tip="Copy the source id" data-tip-more="Right-click the row for the other ids"
+    <button className="slot-id" data-tip={`Copy the ${what} id`} data-tip-more="Right-click the row for the other ids"
       onClick={(e) => { e.stopPropagation(); copyId(id, quick); }} onDoubleClick={(e) => e.stopPropagation()}>{id}</button>
   );
 }
@@ -745,7 +749,7 @@ const SlotRow = memo(function SlotRow({ row, a, selected, now, itemId, cueId, on
             {also > 0 && <Linked>{banks >= also ? <OtherBanks n={also} /> : `+${also} ${banks ? "more" : `cue${also > 1 ? "s" : ""}`}`}</Linked>}
             <AddButton row={row} on={on} />
           </span>
-          {!seg.added && <SlotId id={slot.source} />}
+          {!seg.added && <SlotId slot={slot} />}
         </div>
       ) : (
       <div className="slot-name">
@@ -775,7 +779,7 @@ const SlotRow = memo(function SlotRow({ row, a, selected, now, itemId, cueId, on
             )}
           </span>
         </div>
-        <SlotId id={slot.source} />
+        <SlotId slot={slot} />
       </div>
       )}
       {solo ? null : (

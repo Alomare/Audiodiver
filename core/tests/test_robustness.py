@@ -261,7 +261,7 @@ def test_unreadable_audio_is_refused_when_chosen(game_session, tmp_path):
         s.assign(order[0], "t.wav")
     s.assign(order[0], str(_wav(tmp_path / "ok.wav")))
     with pytest.raises(EditorError, match="Make-Up Gain goes from"):
-        s.update(order[0], gain_db=40)
+        s.update(order[0], gain_db=100)
     with pytest.raises(EditorError, match="Make-Up Gain goes from"):
         s.update(order[0], gain_db=float("nan"))
 

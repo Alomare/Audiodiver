@@ -6,7 +6,7 @@ summary: Setting a slot's loudness, how the game's HDR mix works, and why some s
 
 ## Make-Up Gain per slot
 
-Select a replaced slot and set **Make-Up Gain** in the details, from −12 to +12 dB, or pick a preset. Several selected slots all get the same value. Make-Up Gain doesn't change the audio file, so you can adjust it at any time.
+Select a replaced slot and set **Make-Up Gain** in the details, from −96 to +96 dB, with the slider or by typing a value. Several selected slots all get the same value. Make-Up Gain doesn't change the audio file, so you can adjust it at any time.
 
 > [!NOTE]
 > A few clips ignore Make-Up Gain in game, including the Illuminate calm stingers. Their details show a warning. Set the loudness of these clips in the audio file.

@@ -114,6 +114,7 @@ def methods(s: Session) -> dict:
         "reveal": lambda path: reveal(path),
         "releases": lambda force=False: updates.releases(force),
         "list_audio": lambda folder: list_audio(folder),
+        "clipboard_files": lambda: clipboard_files(),
     }
 
 
@@ -155,6 +156,39 @@ def list_audio(folder):
     except OSError as e:
         raise EditorError(os_error(e, folder)) from None
     return sorted((str(p) for p in files), key=natural)
+
+
+def clipboard_files():
+    """The files copied in Explorer (the clipboard's file list) and the clipboard's change count, which tells whether
+    they were copied after the slots Ctrl+C copied in the app. No files off Windows or while another program holds
+    the clipboard."""
+    if sys.platform != "win32":
+        return {"files": [], "seq": 0}
+    import ctypes
+    from ctypes import wintypes
+    user, shell = ctypes.windll.user32, ctypes.windll.shell32
+    user.GetClipboardSequenceNumber.restype = wintypes.DWORD
+    user.GetClipboardData.restype = ctypes.c_void_p
+    shell.DragQueryFileW.argtypes = [ctypes.c_void_p, wintypes.UINT, wintypes.LPWSTR, wintypes.UINT]
+    CF_HDROP = 15
+    seq, files = user.GetClipboardSequenceNumber(), []
+    if not user.IsClipboardFormatAvailable(CF_HDROP):
+        return {"files": files, "seq": seq}
+    for _ in range(5):  # another program can hold it for a moment
+        if user.OpenClipboard(None):
+            break
+        time.sleep(0.02)
+    else:
+        return {"files": files, "seq": seq}
+    try:
+        if h := user.GetClipboardData(CF_HDROP):
+            for i in range(shell.DragQueryFileW(h, 0xFFFFFFFF, None, 0)):
+                buf = ctypes.create_unicode_buffer(shell.DragQueryFileW(h, i, None, 0) + 1)
+                shell.DragQueryFileW(h, i, buf, len(buf))
+                files.append(buf.value)
+    finally:
+        user.CloseClipboard()
+    return {"files": files, "seq": seq}
 
 
 def playable(path: Path) -> Path:
