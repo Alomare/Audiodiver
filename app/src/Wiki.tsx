@@ -8,8 +8,9 @@ import { scrollBehavior } from "./theme";
 
 const NAV_WIDTH = 270;
 /** The pages the list shows and Previous/Next step through: Audiodiver Utils lists only its own (a link still opens
-    any page). */
-const WIKI = UTILS ? ALL_PAGES.filter((p) => UTILS_WIKI.has(p.id)) : ALL_PAGES;
+    any page). The FAQ (group "FAQ") has an entry of its own above the groups, and isn't one of the steps. */
+const WIKI = UTILS ? ALL_PAGES.filter((p) => UTILS_WIKI.has(p.id)) : ALL_PAGES.filter((p) => p.group !== "FAQ");
+const FAQ = UTILS ? undefined : ALL_PAGES.find((p) => p.group === "FAQ");
 
 /** The Wiki tab: guides, resources and good practice for making audio mods. Pages are Markdown files in src/wiki
     (see content.ts for how one is laid out); the list on the left, the page in the middle, its headings on the right. */
@@ -29,6 +30,7 @@ export function Wiki() {
     return words.every((w) => hay.includes(w));
   }).map((p) => p.id)), [query]); // eslint-disable-line react-hooks/exhaustive-deps
   const groups = WIKI_GROUPS.map((g) => ({ ...g, pages: g.pages.filter((p) => found.has(p.id)) })).filter((g) => g.pages.length);
+  const faqFound = !!FAQ && words.every((w) => `${FAQ.title} ${FAQ.summary} ${FAQ.text}`.toLowerCase().includes(w));
   const step = (by: number) => (index >= 0 ? WIKI[index + by] : undefined);
 
   // another page starts at its top, or at the heading a link names (once: then the page is where the reader leaves it)
@@ -74,9 +76,17 @@ export function Wiki() {
             onKeyDown={(e) => {
               if (e.key === "Escape") { if (query) setQuery(""); else e.currentTarget.blur(); }
               else if (e.key === "Enter" && groups.length) nav.go("wiki", groups[0].pages[0].id);
+              else if (e.key === "Enter" && faqFound) nav.go("wiki", FAQ!.id);
             }} />
         </div>
         <div className="wiki-list">
+          {FAQ && faqFound && (
+            <button className={`wiki-faq${FAQ.id === page.id ? " active" : ""}`} aria-current={FAQ.id === page.id ? "page" : undefined}
+              onClick={() => nav.go("wiki", FAQ.id)} data-tip={FAQ.summary} data-tip-side="right">
+              <span className="wiki-faq-mark" aria-hidden>?</span>
+              <b className="wiki-faq-text">{FAQ.title}</b>
+            </button>
+          )}
           {groups.map((g) => (
             <div key={g.name} className="wiki-group">
               <h2>{g.name}</h2>
@@ -86,7 +96,7 @@ export function Wiki() {
               ))}
             </div>
           ))}
-          {!groups.length && <p className="empty-note">No guide mentions “{query}”.</p>}
+          {!groups.length && !faqFound && <p className="empty-note">No guide mentions “{query}”.</p>}
         </div>
       </nav>
       <Splitter width={width} onResize={setWidth} initial={NAV_WIDTH} panel="left" label="Resize the list of guides" cssVar="--wiki-nav" />

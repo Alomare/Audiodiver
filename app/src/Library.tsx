@@ -228,7 +228,7 @@ function ArchiveList() {
       } },
       "-",
       ...(listed.has(id) ? [
-        { label: "Open in the Audio Editor", run: () => goTo({ scope: "editor", itemId: id, cueId: null, source: null }) } as MenuEntry,
+        { label: "Open in the Audio tab", run: () => goTo({ scope: "editor", itemId: id, cueId: null, source: null }) } as MenuEntry,
         { label: "Remove from the project", run: () => actions.removeFromProject([id], title(a)) } as MenuEntry,
       ] : [{ label: "Add to the project", run: () => actions.addToProject([id], title(a)) } as MenuEntry]),
       { label: "Copy the archive name", run: () => copyText(a.id, quick) },

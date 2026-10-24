@@ -49,7 +49,7 @@ A voice line is named after the words of its subtitle, and the filter finds it b
 
 Sounds without words are named after what they are, like *Grunt 1* or *Panting 3*, and numbered separately for each voice. Grunts are short sounds of effort. **Panting** covers the longer breathing, sighs and laughs. Most of these sounds are at the end of a Helldiver voice and in **Helldiver Exertions**, in groups called **Grunts** and **Panting**. Each of these clips is shared by two Helldiver voices, voices 1 and 3, and voices 2 and 4.
 
-A voice line with a subtitle shows a **Subtitle** link in the details. The link opens the line in the [Text Editor](wiki:text) to change the words.
+A voice line with a subtitle shows a **Subtitle** link in the details. The link opens the line on the [Text](wiki:text) tab to change the words.
 
 ## All Archives
 

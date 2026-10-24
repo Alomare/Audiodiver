@@ -94,6 +94,7 @@ export function PlayThrough({ onThrough, onMark }: { onThrough?: (t: Through | n
     const on = active?.side === side && p.playing;
     const name = side === "mine" ? "Play through · Replaced" : readOnly ? "Play through" : "Play through · Original";
     const about = busy === side ? "Preparing…" : side === "mine" ? changed ? "The cue as the mod plays it" : "Nothing replaced in this cue yet"
+      : cue.ordered === false ? "One round of the playlist, top to bottom. Play order shows how the game plays it"
       : `The cue as the game plays it, segment by segment${t?.random ? ". The game shuffles parts of this cue" : ""}`;
     return (
       <button className={`play ${side === "game" ? "vanilla" : "project"} through-btn${on ? " playing" : ""}`} disabled={busy !== null || (side === "mine" && !changed)}

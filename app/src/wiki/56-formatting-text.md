@@ -1,10 +1,10 @@
 ---
 title: Formatting text
 group: Making a mod
-summary: What each button of the Text Editor's formatting bar does, how the game writes each format, and examples to copy.
+summary: What each button of the Text tab's formatting bar does, how the game writes each format, and examples to copy.
 ---
 
-The game formats text with tags. An opening tag goes before the words, and a closing tag goes after them. For example, `<c=FFFFE900>ARMORED ENEMIES</c>` shows *ARMORED ENEMIES* in Super Earth yellow. The bar above **New text** in the [Text Editor](app:text) writes the tags, and you can also type them. **Preview** shows the result as you work.
+The game formats text with tags. An opening tag goes before the words, and a closing tag goes after them. For example, `<c=FFFFE900>ARMORED ENEMIES</c>` shows *ARMORED ENEMIES* in Super Earth yellow. The bar above **New text** on the [Text](app:text) tab writes the tags, and you can also type them. **Preview** shows the result as you work.
 
 Each example below shows a line as typed on the left, and as displayed on the right.
 

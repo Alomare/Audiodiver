@@ -185,7 +185,7 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color])
    open project, led by the project's own icon and name. The band is darker than the rail with an edge at each end,
    keeps the rail's line along the page, and marks its open tab in the project's colour. */
 .app { --under: var(--bg); --bar: calc(40px * var(--fs) + 8px * var(--sp)); }
-.app[data-tab="library"], .app[data-tab="editor"], .app[data-tab="text"], .app[data-tab="wiki"] { --under: var(--panel); }
+.app[data-tab="library"], .app[data-tab="editor"], .app[data-tab="soundtrack"], .app[data-tab="text"], .app[data-tab="wiki"] { --under: var(--panel); }
 .rail { position: relative; z-index: 5; display: flex; justify-content: space-between; min-width: 0; min-height: 0;
   background: var(--chrome); }
 .rail-group { display: flex; }
@@ -214,6 +214,14 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color])
 :root:is([data-bar="top"], [data-bar="bottom"]) .rail { flex-direction: row; }
 :root:is([data-bar="top"], [data-bar="bottom"]) .rail-group { min-width: 0; } /* a narrow window cuts the names short */
 :root:is([data-bar="top"], [data-bar="bottom"]) .rail .tab { flex: 0 1 auto; border-width: 2px 0; }
+/* along the top or bottom, the tabs of a set (Home and Tools; the project's) are as wide as its widest. A narrow
+   window narrows the project's set only, its tabs together (the longest name is cut short first); Home, Tools and
+   the icons at the end keep their width */
+:root:is([data-bar="top"], [data-bar="bottom"]) .rail-set { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); flex-shrink: 0; }
+:root:is([data-bar="top"], [data-bar="bottom"]) .rail-set.rail-mod { flex-shrink: 1; }
+:root:is([data-bar="top"], [data-bar="bottom"]) .rail > .rail-group:last-child { flex-shrink: 0; }
+:root:is([data-bar="top"], [data-bar="bottom"]) .rail-set > .tab { min-width: 0; }
+:root:is([data-bar="top"], [data-bar="bottom"]) .rail-set > .tab.named { padding: 0 calc(10px + 2px * var(--sp)); }
 :root:is([data-bar="top"], [data-bar="bottom"]) .rail .tab > .icon { flex: none; }
 .tab-name { overflow: hidden; text-overflow: ellipsis; }
 :root:is([data-bar="top"], [data-bar="bottom"]) .rail .tab.named { padding: 0 calc(12px + 4px * var(--sp)) 0 calc(10px + 4px * var(--sp)); }
@@ -286,8 +294,18 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color])
 .cue { display: flex; flex-direction: column; min-height: 0; height: 100%; overflow: hidden; }
 .cue-top { position: relative; flex: 0 1 auto; min-height: 44px; display: flex; flex-direction: column; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, var(--panel), var(--bg)); }
 .cue-top:not(.sized) { max-height: 40vh; }
-.cue-head { flex: 1 1 auto; min-height: 0; overflow: auto; padding: calc(6px * var(--sp)) 20px calc(10px * var(--sp)); }
-.head-row { display: flex; align-items: center; gap: 12px; min-height: 28px; }
+.cue-head { flex: 1 1 auto; min-height: 0; overflow: auto; padding: calc(6px * var(--sp)) 20px calc(8px * var(--sp)); }
+.head-row { display: flex; align-items: center; gap: 12px; min-height: calc(20px * var(--fs)); }
+/* back and forward at the end of the title's line */
+.item-title > .nav-btns { margin-left: auto; align-self: center; }
+/* what the header says besides the title, side by side (what it shares, what plays next to it, the play order),
+   each in a box led by an icon, wrapping onto more lines when the panel is narrow */
+.head-facts { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 6px 8px; margin: calc(6px * var(--sp)) 0 2px; }
+.fact { display: flex; align-items: flex-start; gap: 7px; flex: 0 1 auto; min-width: 0; max-width: 100%; margin: 0;
+  padding: calc(3px * var(--sp)) 10px; background: var(--bg); border: 1px solid var(--line-soft); border-left: 3px solid var(--steel-dim);
+  font-size: calc(13px * var(--fs)); color: var(--muted); }
+.fact > .icon { flex: none; margin-top: .15em; color: var(--steel); }
+.fact.warn { border-left-color: var(--red); }
 .crumbs { flex: 1 1 auto; min-width: 0; color: var(--muted); font-size: calc(13px * var(--fs)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cue-head h1 { font-size: calc(22px * var(--fs)); line-height: 1.15; margin: 0 0 2px; }
 .cue-detail { margin: 2px 0; color: var(--muted); font-size: calc(13px * var(--fs)); }
@@ -307,6 +325,9 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color])
 .slot-search > .icon { position: absolute; left: 9px; color: var(--muted); pointer-events: none; }
 .slot-search input { width: 100%; padding: calc(4px * var(--sp)) 10px calc(4px * var(--sp)) 30px; }
 .cue-bar > .icon-btn { order: 4; }
+/* show or hide the header and the waveforms, at the end of the toolbar */
+.panel-toggles { order: 5; display: flex; gap: 2px; margin-left: auto; }
+.panel-toggles .icon-btn { width: calc(28px + 2px * var(--sp)); height: calc(28px + 2px * var(--sp)); }
 .elsewhere { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 0 8px 12px; }
 .elsewhere > p:first-child { margin: 0 0 2px; color: var(--muted); font-size: calc(13px * var(--fs)); }
 .elsewhere > .slots-note { padding: 4px 0; }
@@ -321,8 +342,18 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color])
 .resize-edge:hover::after, .resize-edge.active::after, .resize-edge:focus-visible::after { background: var(--accent); }
 .resize-edge:focus-visible { outline: none; }
 
-/* a slot: the game's play button and its name, the game's length, then yours. Play buttons always lead the line */
-.slot { display: grid; grid-template-columns: minmax(180px, 1.1fr) calc(64px * var(--fs)) minmax(220px, 1.5fr); gap: 12px; align-items: center; padding: calc(5px * var(--sp)) 8px; border-left: 2px solid transparent; cursor: default; }
+/* a slot: the game's play button and its name, the game's length, then the new audio, in a column as wide as the
+   widest line of the list needs (--mine-w, CueView's useMineWidth) and at most half the row. Play buttons lead the
+   line; in the Audio tab a tick before it puts the slot in the selection */
+.slot { display: grid; grid-template-columns: minmax(180px, 1fr) calc(64px * var(--fs)) min(var(--mine-w, 300px), 50%); gap: 12px; align-items: center; padding: calc(5px * var(--sp)) 8px; border-left: 2px solid transparent; cursor: default; }
+.cue:not(.ro) .slot, .cue:not(.ro) .grp { padding-left: calc(8px + 22px * var(--fs)); }
+.cue:not(.ro) .slot.take { padding-left: calc(54px + 4px * var(--sp) + 22px * var(--fs)); }
+.slot-check { position: absolute; left: 7px; top: 50%; translate: 0 -50%; width: calc(14px * var(--fs)); height: calc(14px * var(--fs)); margin: 0;
+  accent-color: var(--second-fg); opacity: .5; cursor: pointer; transition: opacity var(--t1); }
+.slot:hover > .slot-check, .grp:hover > .slot-check, .slot-check:checked, .slot-check:indeterminate { opacity: 1; }
+.grp { position: relative; }
+/* the toolbar's tick, over the rows' ticks */
+.cue-bar > .slot-check.all { position: static; translate: none; flex: none; margin: 0 6px 0 4px; opacity: 1; }
 .slot.seg-start { border-top: 1px solid var(--line-soft); margin-top: 2px; padding-top: calc(7px * var(--sp)); }
 .slot:hover, .grp:hover { background: color-mix(in srgb, var(--panel) 50%, var(--raised)); } /* a grey band, as the Library's rows have */
 .slot.selected { background: var(--raised); border-left-color: var(--second-fg); }
@@ -741,7 +772,8 @@ button.ctag:hover { background: color-mix(in oklch, var(--c) 24%, transparent); 
 .item-title { display: flex; align-items: baseline; gap: 6px 14px; flex-wrap: wrap; }
 .item-cov { display: inline-flex; align-items: center; gap: 6px; font-size: calc(13px * var(--fs)); color: var(--muted); }
 .item-cov.done, .item-cov.part { color: var(--accent-fg); }
-.item-shares { margin: 2px 0; font-size: calc(13px * var(--fs)); color: var(--muted); max-width: 80ch; }
+/* the status sits on the title's caps, as the ⓘ beside it does */
+.item-title > .item-cov { align-self: center; margin-top: calc(-4.5px * var(--fs)); }
 /* "?": opens the Wiki page that explains what it sits next to */
 .wiki-q { display: inline-grid; place-items: center; width: calc(17px * var(--fs)); height: calc(17px * var(--fs)); margin-left: 4px; vertical-align: 1px;
   border: 1px solid var(--line); border-radius: 50%; font-size: calc(11px * var(--fs)); font-weight: 700; color: var(--muted); line-height: 1;
@@ -757,9 +789,9 @@ button.ctag:hover { background: color-mix(in oklch, var(--c) 24%, transparent); 
 .part-tab.on { color: var(--text); border-bottom-color: var(--second-fg); }
 .part-tab .part-len { font-weight: 400; }
 .part-len { color: var(--faint); font-size: calc(12px * var(--fs)); }
-.around { margin: calc(6px * var(--sp)) 0 2px; padding: calc(4px * var(--sp)) 10px; background: var(--bg); border: 1px solid var(--line-soft); border-left: 3px solid var(--steel-dim); font-size: calc(13px * var(--fs)); color: var(--muted); max-width: 900px; }
-.around.warn { border-left-color: var(--red); }
-.around-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.around { display: block; }
+.around-head { display: flex; align-items: center; gap: 4px 10px; flex-wrap: wrap; }
+.around-head > .icon { margin-right: -3px; color: var(--steel); }
 .around-head b { color: var(--text); }
 .around-list { list-style: none; margin: 6px 0 2px; padding: 0; display: flex; flex-direction: column; gap: 2px; }
 .around-list li { display: grid; grid-template-columns: calc(52px * var(--fs)) 22px minmax(0, 1fr) auto; align-items: center; gap: 8px; }
@@ -800,7 +832,7 @@ button.ctag:hover { background: color-mix(in oklch, var(--c) 24%, transparent); 
    name (past its play button), and a "linked" tag keeps its chain and number */
 .cue { container-type: inline-size; }
 @container (max-width: 720px) {
-  .slot { grid-template-columns: minmax(180px, 1.2fr) auto minmax(150px, 1fr); gap: 8px; }
+  .slot { grid-template-columns: minmax(150px, 1fr) auto min(var(--mine-w, 300px), 50%); gap: 8px; }
   .cue.ro .slot { grid-template-columns: minmax(0, 1fr) auto; }
   .through { flex-wrap: wrap; }
 }
@@ -1061,8 +1093,10 @@ kbd.none { color: var(--faint); font-weight: 400; }
   background: transparent; pointer-events: none; opacity: 0; transition: opacity calc(600ms * var(--anim)); }
 .home-ticker.ready { opacity: 1; }
 @keyframes art-left { from { transform: scaleX(0); } }
+/* the picture darkens towards the left, under the menu, so the menu's strips stand out from it; the bottom darkens
+   for the corner's buttons and the ticker */
 .home-art::after { content: ""; position: absolute; inset: 0; background:
-  linear-gradient(90deg, color-mix(in srgb, var(--bg) 92%, transparent) 0%, color-mix(in srgb, var(--bg) 64%, transparent) 44%, color-mix(in srgb, var(--bg) 22%, transparent) 100%),
+  linear-gradient(90deg, color-mix(in srgb, var(--bg) 97%, transparent) 0%, color-mix(in srgb, var(--bg) 82%, transparent) 44%, color-mix(in srgb, var(--bg) 36%, transparent) 100%),
   linear-gradient(180deg, transparent 35%, color-mix(in srgb, var(--bg) 80%, transparent) 100%); }
 .home-meters { position: absolute; inset: 0; width: 100%; height: 100%; }
 .home-meters rect { fill: var(--line-soft); }
@@ -1078,7 +1112,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .menu-item { display: flex; align-items: center; width: 100%; min-height: calc(48px * var(--fs)); padding: calc(7px * var(--sp)) 17px; text-align: left;
   font-family: var(--title); font-stretch: 112%; font-size: calc(13.8px * var(--fs)); font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
   color: var(--text); border-left: 3px solid transparent;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--bg) 60%, transparent), color-mix(in srgb, var(--bg) 28%, transparent) 70%, transparent);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--raised) 92%, transparent), color-mix(in srgb, var(--raised) 50%, transparent) 70%, transparent);
   transition: background var(--t1), border-color var(--t1); }
 .menu-item:hover, .menu-item:focus-visible { border-left-color: var(--accent-fg);
   background: linear-gradient(90deg, color-mix(in srgb, var(--accent-fg) 16%, transparent), transparent 80%); }
@@ -1092,6 +1126,11 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .home-loaded > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .home-loaded b { color: var(--text); font-weight: 600; }
 .home-loaded .link-text { white-space: nowrap; }
+/* the last projects opened, under Open project: each name opens it */
+.home-recent { gap: 12px; }
+.home-recent > span:first-child { flex: none; }
+.home-recent-list { display: flex; flex-wrap: wrap; gap: 2px 12px; min-width: 0; }
+.home-recent .link-text { max-width: 24ch; overflow: hidden; text-overflow: ellipsis; }
 .home-tools { margin-top: calc(32px * var(--sp)); }
 .home-tools h2 { margin: 0 0 calc(6px * var(--sp)) 20px; font-size: calc(12px * var(--fs)); font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); }
 
@@ -1116,9 +1155,13 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .recent-tools .x { display: grid; place-items: center; }
 .recent-tools .x:disabled { visibility: hidden; }
 
-/* the page's title with its actions at the right (the Project tab's Import patches and Close project) */
-.page-title { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-.page-actions { display: flex; gap: 8px; }
+/* the Project tab's Import patches and Close project, over the icon and as wide as it */
+.side-actions { display: flex; gap: 8px; }
+.side-actions .btn { flex: 1 1 0; justify-content: center; white-space: nowrap; }
+/* the tabs that can be hidden (Settings ▸ System, the Project tab) */
+.tab-checks { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+.tab-checks .check { align-items: center; }
+.tab-checks .check input { margin-top: 0; }
 
 /* ---------- Build: the mod's name, icon and version on the left; the icon as it will look and the build button
    stay in view on the right */
@@ -1249,6 +1292,8 @@ kbd.none { color: var(--faint); font-weight: 400; }
 @container (max-width: 760px) {
   .bld { grid-template-columns: minmax(0, 1fr); }
   .bld-side { position: static; order: -1; flex-direction: row; flex-wrap: wrap; align-items: flex-start; max-height: none; overflow: visible; }
+  .side-actions { flex: 1 1 100%; }
+  .side-actions .btn { flex: none; }
   .pkg-preview { flex: 0 0 calc(220px * var(--fs)); }
   .bld-box { flex: 1 1 260px; padding-top: 0; border-top: 0; }
 }
@@ -1304,6 +1349,14 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .wiki { display: grid; grid-template-columns: min(calc(var(--wiki-nav, 270px) * var(--fs)), 40vw) 5px minmax(0, 1fr); min-height: 0; }
 .wiki-nav { display: flex; flex-direction: column; min-height: 0; min-width: 0; background: var(--panel); }
 .wiki-list { flex: 1; overflow: auto; padding: 4px 0 24px; }
+/* the FAQ: an entry of its own above the groups, a box with a question mark, in the primary colour */
+.wiki-faq { display: flex; align-items: center; gap: 12px; width: calc(100% - 20px); margin: 8px 10px 4px; padding: calc(9px * var(--sp)) 12px;
+  text-align: left; background: color-mix(in srgb, var(--accent-fg) 8%, var(--raised)); border: 1px solid color-mix(in srgb, var(--accent-fg) 45%, var(--line));
+  border-left: 3px solid var(--accent-fg); border-radius: 2px; color: var(--text); transition: background var(--t1), border-color var(--t1); }
+.wiki-faq:hover, .wiki-faq.active { background: color-mix(in srgb, var(--accent-fg) 16%, var(--raised)); border-color: var(--accent-fg); }
+.wiki-faq-mark { flex: none; display: grid; place-items: center; width: calc(26px * var(--fs)); height: calc(26px * var(--fs)); border-radius: 50%;
+  background: var(--accent); color: var(--accent-ink); font-weight: 800; font-size: calc(15px * var(--fs)); }
+.wiki-faq-text { min-width: 0; font-size: calc(15px * var(--fs)); line-height: 1.25; }
 .wiki-group { padding: calc(8px * var(--sp)) 0 2px; }
 .wiki-group h2 { padding: 4px 14px; font-size: calc(15px * var(--fs)); color: var(--text); }
 .wiki-link { display: block; width: 100%; padding: calc(4px * var(--sp)) 14px calc(4px * var(--sp)) 24px; text-align: left;
@@ -1661,3 +1714,98 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .note-preview.md h3, .note-preview.md h4 { margin: 10px 0 4px; font-size: calc(15px * var(--fs)); color: var(--text); }
 .note-sec .row-btns { margin-top: 8px; }
 .insp-item { margin-bottom: 14px; }
+
+/* ---------- the Soundtrack (Soundtrack.tsx): all music on the left with how it plays, the one picked in the middle,
+   laid out as the Audio tab's slots are: the header, the bar with the fight player, the lines and the play order,
+   and the waveforms of the segment selected. In the play order, groups are bands that say what they do with their
+   segments, and the segments are chips that light up while a fight plays them. Grey is the game's, yellow the
+   project's */
+.panes.st-panes { grid-template-columns: min(calc(var(--left, 330px) * var(--fs)), calc(100% - 20px - var(--mid))) 5px minmax(var(--mid), 1fr); }
+.pane-rule { background: var(--line-soft); }
+.st-list { padding-top: 2px; }
+.st-row { display: flex; align-items: baseline; gap: 8px; width: 100%; padding: calc(4px * var(--sp)) 10px calc(4px * var(--sp)) 26px; text-align: left;
+  border-left: 2px solid transparent; color: var(--muted); font-size: calc(14px * var(--fs)); }
+.st-row:hover { background: var(--raised); color: var(--text); }
+.st-row.active { background: var(--raised); color: var(--text); border-left-color: var(--second-fg); }
+.st-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.st-gain { font-size: calc(12px * var(--fs)); color: var(--faint); white-space: nowrap; }
+.st-mode { flex: none; font-size: calc(12px * var(--fs)); color: var(--faint); white-space: nowrap; }
+.st-mode.song, .st-mode.tracks { color: var(--accent-fg); font-weight: 600; }
+.st-mode.silent, .st-mode.same, .st-mode.mixed { color: var(--text); }
+.st-slots { display: inline-flex; align-items: center; gap: 5px; flex: none; font-size: calc(13px * var(--fs)); }
+.st-head .parts { padding: 0; margin: 6px 0 0; background: none; }
+.st-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: calc(8px * var(--sp)); }
+.st-modes { grid-auto-columns: auto; flex: 0 1 auto; }
+.st-modes button { padding: calc(5px * var(--sp)) 14px; }
+.st-level { display: flex; align-items: center; gap: 8px; margin-left: auto; color: var(--muted); font-size: calc(13px * var(--fs)); }
+.st-level input { width: calc(150px * var(--fs)); accent-color: var(--accent-fg); }
+.st-db { min-width: 4.5em; text-align: right; color: var(--text); font-variant-numeric: tabular-nums; }
+.st-body { flex: 1 1 0; min-height: 0; overflow: auto; padding: calc(12px * var(--sp)) 20px 40px; display: flex; flex-direction: column; gap: calc(14px * var(--sp)); }
+.st-note { margin: 0; color: var(--muted); max-width: 70ch; }
+.st-empty { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+.st-empty p { margin: 0; max-width: 60ch; }
+.st-empty.center-note { align-items: center; justify-content: center; height: 100%; color: var(--muted); }
+.st-row-btns { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.st-row-btns .check { align-items: center; }
+.st-row-btns .check input { margin-top: 0; }
+.cue-bar > .st-length { width: auto; }
+.st-transcript { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: calc(12px * var(--fs)); }
+.st-transcript > .muted { margin-right: 4px; }
+.st-mark { padding: 1px 7px; border: 1px solid var(--line); border-radius: 2px; color: var(--muted); }
+.st-mark.now { border-color: var(--accent-fg); color: var(--text); }
+.st-order h2, .st-song h2 { font-size: calc(15px * var(--fs)); margin: 0 0 8px; }
+/* a segment as a line, as a slot's in Audio: the original on the left, what the project puts there on the right */
+.st-lines { display: flex; flex-direction: column; gap: 2px; }
+.st-line { position: relative; display: grid; grid-template-columns: minmax(200px, 1fr) minmax(240px, 1.25fr); gap: 12px; align-items: center;
+  padding: calc(3px * var(--sp)) 8px; border-left: 2px solid transparent; cursor: default; transition: background-color var(--t1), border-color var(--t1); }
+.st-line:hover { background: color-mix(in srgb, var(--panel) 50%, var(--raised)); }
+.st-line.selected { background: var(--raised); border-left-color: var(--second-fg); }
+.st-line.now { box-shadow: inset 4px 0 0 var(--steel-dim); }
+.st-orig { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.st-n { min-width: 1.4em; color: var(--faint); font-variant-numeric: tabular-nums; text-align: right; }
+.st-sname { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.st-new { display: flex; align-items: center; gap: 8px; min-width: 0; min-height: calc(26px + 8px * var(--sp)); padding: 0 6px; }
+.st-line.assigned .st-new { background: color-mix(in srgb, var(--accent-fg) 10%, var(--panel)); border-left: 3px solid var(--accent-fg); }
+.st-new .file { flex: 1; }
+.st-new .drop-hint { flex: 1; }
+.st-tools { display: flex; gap: 2px; flex: none; }
+.st-tools .x:disabled { visibility: hidden; }
+.st-none { color: var(--faint); font-size: calc(13px * var(--fs)); }
+.st-song { display: flex; flex-direction: column; gap: 10px; }
+.st-songname { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 40ch; }
+.st-drop { padding: 14px 16px; border: 1px dashed var(--line); }
+@container (max-width: 640px) {
+  .st-line { grid-template-columns: minmax(0, 1fr); row-gap: 4px; }
+}
+/* the play order: a group is a band with a rule on its left, its kind and loop at the top; the root's band is plain */
+.po { font-size: calc(13px * var(--fs)); }
+.po-group { border-left: 2px solid var(--line); padding: 2px 0 4px 10px; margin: 6px 0 2px; }
+.po-group.root { border-left: 0; padding-left: 0; margin-top: 0; }
+.po-group.k1 { border-left-color: var(--steel-dim); }
+.po-group.k2, .po-group.k3 { border-left-style: dashed; }
+.po-group.start { border-left-color: var(--second-fg); }
+.po-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; color: var(--muted); }
+.po-kind { font-weight: 600; color: var(--text); }
+.po-loop { color: var(--faint); }
+.po-start { color: var(--second-fg); font-weight: 600; }
+.po-kids { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 4px; }
+.po-kids > .po-group { flex-basis: 100%; }
+.po-seg { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px 2px 3px; border: 1px solid var(--line); border-radius: 2px; background: var(--panel); cursor: pointer; }
+.po-seg:has(input) { padding-left: 6px; }
+.po-seg:hover { background: var(--raised); }
+.po-seg.sel { background: var(--raised); border-color: var(--second-fg); }
+.po-seg input { margin: 0; accent-color: var(--steel); cursor: pointer; }
+.po-seg.out .po-name { color: var(--faint); text-decoration: line-through; }
+.po-seg.start { border-color: var(--second-fg); }
+.po-seg.now { border-color: var(--accent-fg); box-shadow: inset 0 0 0 1px var(--accent-fg); }
+/* the layers of a piece that plays several at once: a row per segment, a column per layer at each switch value */
+.st-layers { display: grid; gap: 2px 6px; align-items: center; font-size: calc(13px * var(--fs)); }
+.st-lrow { display: contents; }
+.st-lh { color: var(--muted); font-weight: 600; padding-bottom: 2px; }
+.st-lname { color: var(--muted); white-space: nowrap; padding-right: 6px; }
+.st-cell { display: flex; align-items: center; gap: 6px; min-width: 0; padding: 2px 6px 2px 2px; border: 1px solid var(--line-soft); border-radius: 2px; background: var(--panel); cursor: pointer; }
+.st-cell:hover { background: var(--raised); }
+.st-cell.mine { border-color: var(--accent-fg); }
+.st-cell.sel { background: var(--raised); box-shadow: inset 0 0 0 1px var(--second-fg); }
+.st-cname { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+.st-cell.mine .st-cname { color: var(--text); }

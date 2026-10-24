@@ -25,4 +25,4 @@ A pack (`.audipack`) carries a project and its files to another computer. It is 
 ## Rights
 
 - Share only music that you have the right to share, and credit the artists.
-- Exports of the original audio (**Export** in the Library, or **Original** in the Audio Editor's export options) are for reference and mod work. Don't upload them.
+- Exports of the original audio (**Export** in the Library, or **Original** in the Audio tab's export options) are for reference and mod work. Don't upload them.

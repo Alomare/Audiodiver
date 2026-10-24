@@ -3,7 +3,7 @@ import { call, fmtBytes } from "./api";
 import { confirm } from "./Confirm";
 import { UTILS } from "./edition";
 import { captureChord, COMMANDS, FIXED, fmtChord, keymap, useKeymap, type CommandId } from "./keys";
-import { nav, useNav, type SettingsTab as Sub } from "./nav";
+import { HIDEABLE, nav, useNav, type Hideable, type SettingsTab as Sub } from "./nav";
 import { Page, tabArrows } from "./Page";
 import { reveal } from "./platform";
 import { player } from "./player";
@@ -17,7 +17,7 @@ const SUBS: [Sub, string, string][] = UTILS ? [
   ["system", "System", "Game folder, updates, tooltips, disk space"],
   ["theme", "Theme", "Dark or light, contrast, text size"],
 ] : [
-  ["system", "System", "Game folder, startup, updates, tooltips, disk space, layout"],
+  ["system", "System", "Game folder, tabs, startup, updates, tooltips, disk space, layout"],
   ["shortcuts", "Shortcuts", "Shortcut keys and rebinding"],
   ["theme", "Theme", "Colours, text, spacing, the tab bar, animations"],
 ];
@@ -45,9 +45,25 @@ export function SettingsTab() {
 
 type Cache = { folder: string; previews: number; encoded: number };
 
+/** A tick for each tab that can be hidden (Settings ▸ System, and each project on the Project tab). */
+const TAB_NAMES: [Hideable, string][] = [["editor", "Audio"], ["soundtrack", "Soundtrack"], ["text", "Text"]];
+export function TabChecks({ value, onChange }: { value: Hideable[]; onChange: (tabs: Hideable[]) => void }) {
+  return (
+    <div className="tab-checks">
+      {TAB_NAMES.map(([id, name]) => (
+        <label key={id} className="check">
+          <input type="checkbox" checked={value.includes(id)}
+            onChange={(e) => onChange(HIDEABLE.filter((t) => (t === id ? e.target.checked : value.includes(t))))} />
+          <span>{name}</span>
+        </label>
+      ))}
+    </div>
+  );
+}
+
 function System() {
   const s = useSettings();
-  const { notify, quick } = useEditor();
+  const { notify, quick, project } = useEditor();
   const [cache, setCache] = useState<Cache | null>(null);
   const [clearing, setClearing] = useState<string | null>(null);
   useEffect(() => { call<Cache>("cache_info").then(setCache).catch(() => {}); }, []);
@@ -64,18 +80,25 @@ function System() {
     setClearing(null);
   };
   // the settings on this page (the build switches live on the Build tab)
-  const defaults = { openLast: DEFAULT_SETTINGS.openLast, tips: DEFAULT_SETTINGS.tips, updates: DEFAULT_SETTINGS.updates };
-  const changed = s.openLast !== defaults.openLast || s.tips !== defaults.tips || s.updates !== defaults.updates;
+  const defaults = { openLast: DEFAULT_SETTINGS.openLast, tips: DEFAULT_SETTINGS.tips, updates: DEFAULT_SETTINGS.updates, tabs: DEFAULT_SETTINGS.tabs };
+  const changed = s.openLast !== defaults.openLast || s.tips !== defaults.tips || s.updates !== defaults.updates
+    || s.tabs.join() !== defaults.tabs.join();
 
   return (
     <div className="set-page">
       <GameFolder />
 
       {!UTILS && <section className="set-sec">
+        <h2>Tabs <Help tip="The tabs that show. A new project starts with these, and can change them on the Project tab." page="how-audiodiver-works#tabs" /></h2>
+        <TabChecks value={s.tabs} onChange={(tabs) => settings.set({ tabs })} />
+        {project?.tabs && <small className="set-note">{project.name} uses the tabs chosen on the Project tab.</small>}
+      </section>}
+
+      {!UTILS && <section className="set-sec">
         <h2>Startup</h2>
         <label className="check">
           <input type="checkbox" checked={s.openLast} onChange={(e) => settings.set({ openLast: e.target.checked })} />
-          <span>Open the last project when Audiodiver starts <Help tip="When on, the last project opens in the Audio Editor. When off, Audiodiver starts on Home." page="how-audiodiver-works#startup" /></span>
+          <span>Open the last project when Audiodiver starts <Help tip="When on, the last project opens on the Audio tab. When off, Audiodiver starts on Home." page="how-audiodiver-works#startup" /></span>
         </label>
       </section>}
 

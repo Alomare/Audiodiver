@@ -71,11 +71,23 @@ top. The key is left out while there are none:
 
       "settings": {"372068234": {"5": 12.0, "12": 0.0}}
 
-notes are the project's notes on what the Audio Editor shows, in Markdown, keyed as notes.py says (the global notes,
+notes are the project's notes on what the Audio tab shows, in Markdown, keyed as notes.py says (the global notes,
 for every project, are in notes.py's file). A note that isn't valid is left out when the file opens. The key is left
 out while there are none:
 
       "notes": {"clip:15204189411560306296": "## Drop\\n- needs a quieter take", "item:deploy/loadout": "Done."}
+
+soundtrack is how pieces of music play (soundtrack.py), by playlist: the game's order without some items, a song
+or whole tracks in an order of their own, silence, or another piece; and a level for the whole piece. A playlist
+set to none of that isn't listed, and the key is left out while none is:
+
+      "soundtrack": {"841554794": {"mode": "song", "segments": ["37386235", "524665816"], "gain_db": -3.0},
+                     "213690393": {"mode": "same", "follows": "841554794"}}
+
+tabs are the window's tabs the project shows of those it can hide (TABS: the Audio, Soundtrack and Text tabs). A new
+project takes Settings' choice; a file without the key shows what Settings says:
+
+      "tabs": ["editor", "soundtrack"]
 """
 import json
 import math
@@ -87,9 +99,18 @@ from pathlib import Path
 
 from .arsenal import FRAME_KEYS, icon_frame, name_problem
 from .notes import tidy as tidy_notes
+from .soundtrack import Piece
 
 FORMAT = 1
 GAIN_DB = (-96.0, 96.0)  # Make-Up Gain, as the details panel's slider offers it
+TABS = ("editor", "soundtrack", "text")  # the window's tabs a project can hide, in the tab bar's order
+
+
+def tab_list(v) -> list[str] | None:
+    """The tabs a project shows, in the bar's order; None for a value that isn't a list of them."""
+    if not isinstance(v, list) or not all(isinstance(t, str) and t in TABS for t in v):
+        return None
+    return [t for t in TABS if t in v]
 
 
 def write_whole(path, text: str, tries=5):
@@ -178,6 +199,8 @@ class Project:
     additions: list[Addition] = field(default_factory=list)  # audio it adds to the game's (addition.py)
     settings: dict[int, dict[int, float | None]] = field(default_factory=dict)  # an imported mod's, on the game's objects
     notes: dict[str, str] = field(default_factory=dict)  # the project's notes ({key: Markdown}, notes.py)
+    soundtrack: dict[int, Piece] = field(default_factory=dict)  # how pieces of music play, by playlist (soundtrack.py)
+    tabs: list[str] | None = None  # the hideable tabs it shows (TABS); None: as Settings says
     repairs: list[str] = field(default_factory=list, repr=False, compare=False)  # damaged values opening put right (not saved)
 
     def added(self) -> dict[int, Addition]:
@@ -320,6 +343,15 @@ class Project:
         notes, dropped = tidy_notes(d.get("notes"))
         if dropped:
             repairs.append("a note")
+        soundtrack = d.get("soundtrack", {})
+        need(isinstance(soundtrack, dict), "its soundtrack")
+        try:
+            pieces = {int(k): Piece.from_json(v, GAIN_DB) for k, v in soundtrack.items()}
+        except (TypeError, ValueError, OverflowError):
+            raise ProjectFormatError("is damaged (its soundtrack)") from None
+        tabs = tab_list(d.get("tabs"))
+        if tabs is None and "tabs" in d:
+            repairs.append("the tabs")
 
         def points(o):
             """A segment's cue points: one that isn't a number goes (the automatic spot is used), and is a repair."""
@@ -347,7 +379,7 @@ class Project:
                        additions=[Addition(a["kind"], **{k: int(a[k]) for k in Addition.KINDS[a["kind"]]}) for a in adds],
                        settings={int(o): {int(k): None if v is None else float(v) for k, v in s.items()}
                                  for o, s in settings.items() if s},
-                       notes=notes)
+                       notes=notes, soundtrack={k: v for k, v in pieces.items() if not v.plain()}, tabs=tabs)
             p.repairs = list(dict.fromkeys(repairs))  # not saved: what opening it put right (project_state says it)
             return p
         except (TypeError, ValueError, OverflowError):
@@ -377,6 +409,8 @@ class Project:
             **({"settings": {str(o): {str(k): v for k, v in s.items()} for o, s in self.settings.items()}}
                if self.settings else {}),
             **({"notes": dict(self.notes)} if self.notes else {}),
+            **({"soundtrack": {str(k): v.to_json() for k, v in self.soundtrack.items()}} if self.soundtrack else {}),
+            **({"tabs": list(self.tabs)} if self.tabs is not None else {}),
         }
 
     def save(self, path=None):

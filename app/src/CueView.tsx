@@ -3,7 +3,7 @@ import { audioUrl, fmtTime, isMusic, shownId, type Assignment, type Cue, type Se
 import { useContextMenu, type MenuEntry } from "./ContextMenu";
 import { ExportDialog } from "./ExportDialog";
 import { addedNote, exportList } from "./exportList";
-import { ClearIcon, CollapseAllIcon, ExportIcon, FillIcon, LinkIcon, SkipIcon, SliceIcon } from "./Icons";
+import { ClearIcon, CollapseAllIcon, ExportIcon, FillIcon, LinkIcon, OrderIcon, SkipIcon, SliceIcon } from "./Icons";
 import { Mark } from "./IndexTree";
 import { ItemActions, ItemHead, PartHead, partsFold, PartTabs } from "./ItemHead";
 import { keyHint, keyLabel, useCommands, useKeymap } from "./keys";
@@ -15,13 +15,14 @@ import { PlayThrough, type Mark as ThroughMark, type Through } from "./PlayThrou
 import { player, usePlayerLook, type PlayedAt } from "./player";
 import { ResizeEdge, useStoredHeight } from "./Resize";
 import { SliceTool } from "./SliceTool";
+import { openInSoundtrack } from "./Soundtrack";
 import { useStable } from "./stable";
 import { WikiLink } from "./Wiki";
-import { useEditor, useLite } from "./store";
+import { useEditor, useLite, useShownTabs } from "./store";
 import { CatTag } from "./Tags";
-import { scrollBehavior } from "./theme";
+import { DEFAULT_SIZE, DENSITIES, scrollBehavior, useThemeValue } from "./theme";
 import { Timeline } from "./Timeline";
-import { Elsewhere, SlotSearch, ToolButton } from "./Tools";
+import { Elsewhere, PanelToggles, SlotSearch, ToolButton, usePanels } from "./Tools";
 
 export type Row = {
   seg: Segment; segIndex: number; slot: Slot; stemIndex: number; stems: number; firstOfSeg: boolean;
@@ -105,6 +106,51 @@ export function CueView() {
   return <CueBody key={cue.id} cue={cue} />;
 }
 
+let pen: CanvasRenderingContext2D | null = null;
+const widths = new Map<string, number>();
+/** The width of a line of text in the body font, at `px` and `weight` (measured once, kept). */
+function textWidth(text: string, px: number, weight = 400) {
+  const family = getComputedStyle(document.body).fontFamily;
+  const key = `${weight} ${px}px ${family}|${text}`;
+  let w = widths.get(key);
+  if (w === undefined) {
+    pen ??= document.createElement("canvas").getContext("2d");
+    if (!pen) return text.length * px * 0.55;
+    pen.font = `${weight} ${px}px ${family}`;
+    w = pen.measureText(text).width;
+    widths.set(key, w);
+  }
+  return w;
+}
+const DROP_HINT = "Drop audio or choose a file";
+
+/** How wide the new audio column is: what its widest line needs (a file with its length, gain and ✕, silence, or
+    the drop hint), so the column lines up from row to row and leaves the rest of the row to the names. It is worked
+    out from the text rather than from what is drawn, so the rows a long list leaves undrawn count too. */
+function useMineWidth(all: Row[], assigned: Record<string, Assignment>, on: boolean) {
+  const t = useThemeValue((x) => `${x.size}|${x.density}|${x.bodyFont}`);
+  const [fonts, setFonts] = useState(() => document.fonts?.status === "loaded");
+  useEffect(() => { if (!fonts) document.fonts?.ready.then(() => setFonts(true)); }, [fonts]);
+  return useMemo(() => {
+    if (!on) return 0;
+    const [size, density] = t.split("|");
+    const fs = Number(size) / DEFAULT_SIZE, sp = DENSITIES.find(([d]) => d === density)?.[2] ?? 1;
+    const play = 24 + 6 * sp, gap = 8, x = 24, frame = 12; // .play, .slot-mine's gap, .x, its padding
+    let w = frame + 22 + textWidth(DROP_HINT, 13 * fs);   // .drop-hint: its padding and border
+    for (const r of all) {
+      const a = assigned[r.slot.source];
+      if (!a) continue;
+      const len = a.duration_ms != null ? gap + textWidth(fmtTime(a.duration_ms), 13 * fs) : 0;
+      const gain = a.gain_db ? gap + textWidth(`${a.gain_db > 0 ? "+" : ""}${a.gain_db} dB`, 12 * fs, 500) : 0;
+      const line = a.silence
+        ? play + gap + textWidth("Silence", 14 * fs) + gap + 14 + textWidth(a.fit_timing ? "moves on" : "keeps timing", 12 * fs) + gap + x
+        : play + gap + textWidth(a.exists ? a.name : `Missing: ${a.name}`, 14 * fs) + len + gain + gap + x;
+      w = Math.max(w, frame + 3 + line); // + the replaced line's left border
+    }
+    return Math.ceil(w) + 2;
+  }, [all, assigned, on, t, fonts]);
+}
+
 const NONE: string[] = [];
 const NO_ASSIGNMENTS: Record<string, Assignment> = {}; // one empty object, so the memos below keep without a project
 const OPEN_ALL = 200;    // a bank with more sounds than this opens with its groups folded
@@ -126,6 +172,9 @@ function CueBody({ cue }: { cue: Cue }) {
   const assigned = project?.assignments ?? NO_ASSIGNMENTS;
   const cueRef = useRef<HTMLElement>(null);
   const [headH, setHeadH] = useStoredHeight("audiodiver.headHeight", null); // null: as tall as its content
+  const [panels, setPanels] = usePanels(scope); // whether the header and the waveforms show
+  const shown = useShownTabs();
+  const mineW = useMineWidth(all, assigned, !readOnly);
 
   // a bank's sounds come in groups (the takes of one sound) that fold, and a filter narrows them
   const [filter, setFilter] = useState("");
@@ -335,6 +384,18 @@ function CueBody({ cue }: { cue: Cue }) {
       setSelected(selected.includes(source) ? selected.filter((s) => s !== source) : [...selected, source]);
     } else setSelected([source]);
   };
+  /** A slot's tick: in or out of the selection, as Ctrl+click does; with Shift, the range from the first selected. */
+  const check = (e: React.MouseEvent, source: string) => {
+    if (e.shiftKey && selected.length) return click(e, source);
+    picked.current = true;
+    setSelected(selected.includes(source) ? selected.filter((s) => s !== source) : [...selected, source]);
+  };
+  /** A group's tick: all its takes in the selection, or none of them. */
+  const checkGroup = (sources: string[]) => {
+    picked.current = true;
+    const all = sources.every((s) => selected.includes(s));
+    setSelected(all ? selected.filter((s) => !sources.includes(s)) : [...selected, ...sources.filter((s) => !selected.includes(s))]);
+  };
   const choose = async (source: string) => {
     setSelected([source]);
     const f = await pickAudio(true);
@@ -366,7 +427,7 @@ function CueBody({ cue }: { cue: Cue }) {
     ];
   };
 
-  /** What a sound can have added (the Audio Editor): new takes, which its random container picks like its own, and
+  /** What a sound can have added (the Audio tab): new takes, which its random container picks like its own, and
       a layer beside it, which plays whenever it plays. A layer takes new takes too. */
   const addEntries = (r: Row): MenuEntry[] => {
     const g = r.seg;
@@ -389,8 +450,8 @@ function CueBody({ cue }: { cue: Cue }) {
         exportEntry(sel, r),
         "-",
         ...(item ? [listed
-          ? { label: "Open in the Audio Editor", run: () => goTo({ scope: "editor", itemId: item.id, cueId: cue.id, source: s }) } as MenuEntry
-          : inside ? { label: "Open in the Audio Editor", run: () => openInside(s) } as MenuEntry
+          ? { label: "Open in the Audio tab", run: () => goTo({ scope: "editor", itemId: item.id, cueId: cue.id, source: s }) } as MenuEntry
+          : inside ? { label: "Open in the Audio tab", run: () => openInside(s) } as MenuEntry
           : { label: `Add ${item.full} to the project`, run: () => actions.addToProject([item.id], item.full) } as MenuEntry] : []),
         ...copyIds(r),
       ]);
@@ -405,7 +466,12 @@ function CueBody({ cue }: { cue: Cue }) {
       { label: "Play the original", keys: keyLabel("playGame"), disabled: r.slot.absent || !!r.slot.added, run: () => playSlot("vanilla", s, revision, rowName(r), at(s)) },
       { label: "Play the new audio", keys: keyLabel("playMine"), disabled: !audible(a), run: () => playSlot("project", s, revision, rowName(r), at(s)) },
       "-",
-      { label: a ? "Replace with another file…" : "Choose a file…", keys: keyLabel("chooseFile"), disabled: !project || !usable(r), run: () => choose(s) },
+      ...(sel.length > 1 ? [
+        { label: `Choose one file for ${silenceable.length} slots…`, disabled: !project || !silenceable.length,
+          run: async () => { const f = (await pickAudio(false))?.[0]; if (f) actions.assignAll(silenceable, f); } },
+        { label: `Choose files for ${silenceable.length} slots…`, disabled: !project || !silenceable.length,
+          run: async () => { const f = await pickAudio(true); if (f) actions.fillSources(silenceable, f, `${silenceable.length} slots`); } },
+      ] : [{ label: a ? "Replace with another file…" : "Choose a file…", keys: keyLabel("chooseFile"), disabled: !project || !usable(r), run: () => choose(s) }]),
       { label: `Copy the new audio${many}`, keys: keyLabel("copy"), disabled: !withAudio.length, run: () => actions.copySlots(ordered) },
       { label: `Paste${clip.length > 1 && sel.length === 1 ? ` ${clip.length} slots from here` : many}`, keys: keyLabel("paste"),
         disabled: !project, run: () => actions.pasteSlots(pasteTargets().length ? pasteTargets() : [s], pasteSelection().length ? pasteSelection() : [s]) },
@@ -443,6 +509,8 @@ function CueBody({ cue }: { cue: Cue }) {
   // draws the two rows it changes instead of every row of the bank
   const on: RowHandlers = useStable({
     click: (e: React.MouseEvent, source: string) => click(e, source),
+    check: (e: React.MouseEvent, source: string) => check(e, source),
+    checkGroup: (sources: string[]) => checkGroup(sources),
     select: (source: string) => { if (!selected.includes(source)) { picked.current = true; setSelected([source]); } },
     choose: (source: string) => choose(source),
     menu: (e: React.MouseEvent, r: Row) => slotMenu(e, r),
@@ -468,15 +536,34 @@ function CueBody({ cue }: { cue: Cue }) {
       ]);
     },
   });
+  const selSet = useMemo(() => new Set(selected), [selected]);
   const slot = (r: Row) => (
-    <SlotRow key={r.slot.source} row={r} a={readOnly ? undefined : assigned[r.slot.source]} selected={selected.includes(r.slot.source)}
+    <SlotRow key={r.slot.source} row={r} a={readOnly ? undefined : assigned[r.slot.source]} selected={selSet.has(r.slot.source)}
       now={r.seg.segment !== "" && r.seg.segment === nowSeg} itemId={shownItemId} cueId={cue.id} on={on} />
   );
   /** A line of the list: a slot, or a group's line, which folds its takes, says how many there are and plays the first. */
-  const line = (l: Line) => (l.group ? (
-    <GroupHead key={l.key} row={l.row} open={l.group.open} shown={l.group.shown} itemId={shownItemId} cueId={cue.id}
-      sources={takesOf.get(l.row.segIndex) ?? NONE} status={readOnly || !project ? "na" : groupStatus.get(l.row.segIndex) ?? "na"} on={on} />
-  ) : slot(l.row));
+  const line = (l: Line) => {
+    if (!l.group) return slot(l.row);
+    const sources = takesOf.get(l.row.segIndex) ?? NONE, n = sources.filter((s) => selSet.has(s)).length;
+    return (
+      <GroupHead key={l.key} row={l.row} open={l.group.open} shown={l.group.shown} itemId={shownItemId} cueId={cue.id}
+        sources={sources} picked={!n ? "none" : n === sources.length ? "all" : "some"}
+        status={readOnly || !project ? "na" : groupStatus.get(l.row.segIndex) ?? "na"} on={on} />
+    );
+  };
+  // the toolbar's tick: every slot shown, or none (the ones that take audio and the rest alike, as Ctrl+A)
+  const shownSources = useMemo(() => rows.map((r) => r.slot.source), [rows]);
+  const ticked = shownSources.filter((s) => selSet.has(s)).length;
+  // what the header says besides the item's own facts, in its row of facts
+  const facts: React.ReactNode[] = [];
+  if (project && item && part?.kind === "playlist" && cue.ordered === false && shown.includes("soundtrack")) {
+    facts.push(<p key="order" className="fact"><OrderIcon /><span>The game plays these slots in another order.{" "}
+      <button className="link-text" onClick={() => openInSoundtrack(item, part.cue)}>Play order</button></span></p>);
+  }
+  if (between && between.own.length < between.targets.length) {
+    facts.push(<p key="between" className="fact"><LinkIcon /><span>{between.own.length ? `${between.targets.length - between.own.length} of the ${between.targets.length} slots also play`
+      : "This audio also plays"} in other music.</span></p>);
+  }
   const folds = (r: Row) => r.takes > 1 && !!r.seg.group; // a group with a line of its own to fold it under
   const anyOpen = grouped && all.some((r) => folds(r) && isOpen(r));
   // folded is the default for big banks (nothing flipped) and the exception for the others (every group flipped)
@@ -484,16 +571,17 @@ function CueBody({ cue }: { cue: Cue }) {
 
   return (
     <section className={`cue${readOnly ? " ro" : ""}`} aria-label={cue.name} ref={cueRef}>
-      <div className={`cue-top${headH != null ? " sized" : ""}`} style={headH != null ? { height: headH } : undefined}>
+      {panels.head && <div className={`cue-top${headH != null ? " sized" : ""}`} style={headH != null ? { height: headH } : undefined}>
         <header className="cue-head view-in" key={item?.id ?? cue.id} data-drop={drop}>
-          {item && part ? <ItemHead item={item} part={part} cue={cue} nav={nav} /> : (
+          {item && part ? <ItemHead item={item} part={part} cue={cue} nav={nav} facts={facts} /> : (
             <>
-              <div className="head-row"><div className="crumbs">{cue.path.join(" ▸ ")}</div>{nav}</div>
+              <div className="head-row"><div className="crumbs">{cue.path.join(" ▸ ")}</div></div>
               <div className="item-title">
                 <h1>{cue.name}</h1>
                 {!readOnly && project && cov.total > 0 && (
                   <span className={`item-cov ${statusOf(cov)}`}><Mark status={statusOf(cov)} />{COVERAGE[statusOf(cov)]}</span>
                 )}
+                {nav}
               </div>
               {cue.detail && cue.curated === false && <p className="cue-detail">{cue.detail}</p>}
               {home && (
@@ -501,26 +589,31 @@ function CueBody({ cue }: { cue: Cue }) {
                   onClick={() => show(home.item.id, home.part.cue)}>
                   {itemIndex.section.get(home.item.id)?.name} ▸ {home.item.name}{home.part.name && home.item.parts.length > 1 ? ` ▸ ${home.part.name}` : ""}</button></p>
               )}
+              {facts.length > 0 && <div className="head-facts">{facts}</div>}
             </>
           )}
           {part?.note && <p className="cue-notes">{part.note}</p>}
           {cue.notes && (!part || cue.locked || !music) && <p className={`cue-notes${cue.locked ? " warn" : ""}`}>{cue.notes}</p>}
-          {between && between.own.length < between.targets.length && (
-            <p className="cue-notes">{between.own.length ? `${between.targets.length - between.own.length} of the ${between.targets.length} slots also play`
-              : "This audio also plays"} in other music.</p>
-          )}
         </header>
         <ResizeEdge edge="bottom" label="Resize the header" min={56} max={() => room("top")}
           onResize={setHeadH} onReset={() => setHeadH(null)} />
-      </div>
+      </div>}
       <div className="cue-bar" data-drop={drop}>
+        {!readOnly && (
+          <input type="checkbox" className="slot-check all" checked={ticked > 0 && ticked === shownSources.length} disabled={!shownSources.length}
+            ref={(el) => { if (el) el.indeterminate = ticked > 0 && ticked < shownSources.length; }}
+            onChange={() => { picked.current = true; setSelected(ticked === shownSources.length ? [] : shownSources); }}
+            aria-label={ticked === shownSources.length ? "Clear the selection" : "Select every slot"}
+            data-tip={ticked === shownSources.length ? "Clear the selection" : `Select every ${grouped ? "sound shown" : "slot"}`}
+            data-tip-cmd={ticked === shownSources.length ? undefined : "selectAll"} />
+        )}
         {music && cue.kind !== "sound" && <PlayThrough onThrough={setThrough} onMark={setMark} />}
         {readOnly && item && (listed ? (
           <button className="btn primary" data-tip="Replace audio there"
-            onClick={() => goTo({ scope: "editor", itemId: item.id, cueId: cue.id, source: selected[0] ?? null })}>Open in the Audio Editor</button>
+            onClick={() => goTo({ scope: "editor", itemId: item.id, cueId: cue.id, source: selected[0] ?? null })}>Open in the Audio tab</button>
         ) : inside ? (
           <button className="btn primary" data-tip="These sounds are in the project already" data-tip-more={`In ${listName(inside)}`}
-            onClick={() => openInside(selected[0] ?? null)}>Open in the Audio Editor</button>
+            onClick={() => openInside(selected[0] ?? null)}>Open in the Audio tab</button>
         ) : (
           <button className="btn primary" data-tip={project ? `Add to ${project.name}` : "Open or create a project first"}
             onClick={() => actions.addToProject([item.id], item.full)}>Add to the project</button>
@@ -558,11 +651,12 @@ function CueBody({ cue }: { cue: Cue }) {
           <button className="icon-btn parts-collapse" disabled={shut} onClick={() => setShut(true)} aria-label="Collapse all"
             data-tip={shut ? "Every part is collapsed" : "Collapse all parts"}><CollapseAllIcon /></button>
         )}
+        <PanelToggles panels={panels} set={setPanels} />
       </div>
       {item && part && item.parts.length > 1 && !folding && <PartTabs item={item} part={part} />}
 
       <div className={`slots view-in${windowed ? " windowed" : ""}`} key={folding ? item!.id : cue.id} ref={listRef} role="listbox" aria-multiselectable
-        aria-label={grouped ? "Sounds" : "Slots"}>
+        aria-label={grouped ? "Sounds" : "Slots"} style={readOnly ? undefined : { ["--mine-w" as any]: `${mineW}px` }}>
         {folding ? item!.parts.map((p, i) => (
           <Fragment key={p.cue}>
             <PartHead item={item!} part={p} index={i} open={p === part && !shut}
@@ -580,7 +674,7 @@ function CueBody({ cue }: { cue: Cue }) {
         {hits && !hits.length && <p className="slots-note">No {grouped ? "sound" : "slot"} here matches “{filter.trim()}”.</p>}
         {hits && !hits.length && <Elsewhere query={typed} here={cue.id} />}
       </div>
-      <Timeline room={() => room("wave")} through={through} at={selected.length === 1 ? at(selected[0]) : null} />
+      {panels.waves && <Timeline room={() => room("wave")} through={through} at={selected.length === 1 ? at(selected[0]) : null} />}
       {menu}
       {slicing && <SliceTool onClose={() => setSlicing(false)} />}
       {exporting && <ExportDialog onClose={() => setExporting(false)} />}
@@ -594,12 +688,13 @@ type Line = WindowLine & { row: Row; group?: { open: boolean; shown: number } };
 /** What a list's rows do, from the list (useStable keeps one identity for each). */
 type RowHandlers = {
   click: (e: React.MouseEvent, source: string) => void; select: (source: string) => void; choose: (source: string) => void;
+  check: (e: React.MouseEvent, source: string) => void; checkGroup: (sources: string[]) => void;
   menu: (e: React.MouseEvent, r: Row) => void; remove: (source: string) => void; toggle: (segIndex: number) => void;
   openTag: (id: string, cueId: string) => void; groupMenu: (e: React.MouseEvent, first: Row) => void;
   add: (e: React.MouseEvent, first: Row) => void;
 };
 
-/** The + at the end of a sound's line in the Audio Editor: new takes for it, or a layer beside it. */
+/** The + at the end of a sound's line in the Audio tab: new takes for it, or a layer beside it. */
 function AddButton({ row, on }: { row: Row; on: RowHandlers }) {
   const { readOnly } = useLite();
   if (readOnly || !row.seg.container) return null;
@@ -634,9 +729,9 @@ function useAt(itemId: string | null, cueId: string, source: string): PlayedAt {
 /** The line above the takes of one sound: it folds them, says how many there are, plays the first, and takes files
     dropped on it (one per take, in order). In a bank's listing it also carries what the Index knows about a segment
     of music, as a link to it. Memoised: it draws again only when something it shows changes. */
-const GroupHead = memo(function GroupHead({ row, open, shown, status, itemId, cueId, sources, on }: {
+const GroupHead = memo(function GroupHead({ row, open, shown, status, itemId, cueId, sources, picked, on }: {
   row: Row; open: boolean; shown: number; status: "none" | "part" | "done" | "na"; itemId: string | null; cueId: string;
-  sources: string[]; on: RowHandlers;
+  sources: string[]; picked: "none" | "some" | "all"; on: RowHandlers;
 }) {
   const { readOnly } = useLite();
   const { seg, slot, takes } = row;
@@ -648,6 +743,10 @@ const GroupHead = memo(function GroupHead({ row, open, shown, status, itemId, cu
   const unit = /^(Sounds|Other Audio|No Audio|Streams)\b/.test(seg.name) ? "sounds" : "takes";
   return (
     <div className={`grp${open ? " open" : ""}`} data-drop={drop} onContextMenu={(e) => on.groupMenu(e, row)}>
+      {!readOnly && sources.length > 0 && (
+        <input type="checkbox" className="slot-check" checked={picked === "all"} readOnly tabIndex={-1} aria-label={`Select the ${unit} of ${seg.name}`}
+          ref={(el) => { if (el) el.indeterminate = picked === "some"; }} onClick={(e) => { e.stopPropagation(); on.checkGroup(sources); }} />
+      )}
       <PlayButton kind="vanilla" source={slot.source} label={`the first of ${seg.name}`} what={rowName(row)} small at={at} disabled={slot.absent || !!slot.added} />
       <button className="grp-head" aria-expanded={open} onClick={() => on.toggle(row.segIndex)}>
         <span className="caret" aria-hidden>▸</span>
@@ -718,7 +817,7 @@ const SlotRow = memo(function SlotRow({ row, a, selected, now, itemId, cueId, on
   const game = usePlayerLook(`vanilla:${slot.source}`), yours = usePlayerLook(`project:${slot.source}`);
   const playing = game.playing || yours.playing;
   const flash = useFlash(a ? `${a.audio}|${a.silence}` : "");
-  const [flashed, setFlashed] = useState(0); // the flash that has played: taken away, or it would play again whenever the Audio Editor tab comes back
+  const [flashed, setFlashed] = useState(0); // the flash that has played: taken away, or it would play again whenever the Audio tab comes back
   const what = rowName(row);
   const gameMs = slot.duration_ms || seg.duration_ms;
   const inGroup = !!seg.group && row.takes > 1; // a take of a sound: its group's line above says what it is
@@ -734,6 +833,11 @@ const SlotRow = memo(function SlotRow({ row, a, selected, now, itemId, cueId, on
       onContextMenu={(e) => on.menu(e, row)}
       data-drop={readOnly || slot.absent ? undefined : JSON.stringify({ kind: "slot", source: slot.source })}>
       {flash > flashed && <span key={flash} className="slot-flash" aria-hidden onAnimationEnd={() => setFlashed(flash)} />}
+      {!readOnly && (
+        <input type="checkbox" className="slot-check" checked={selected} readOnly tabIndex={-1} aria-hidden
+          onClick={(e) => { e.stopPropagation(); on.check(e, slot.source); }} onDoubleClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => { if (e.shiftKey) e.preventDefault(); }} />
+      )}
       {solo ? (
         <div className="slot-name solo-line">
           <PlayButton kind="vanilla" source={slot.source} label="the original" what={what} onPlay={onSelect} at={at} disabled={slot.absent || !!slot.added} small />

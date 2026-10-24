@@ -2,7 +2,7 @@ import { useState, type ReactNode } from "react";
 import { fmtTime, type Assignment, type Cue, type MusicItem, type MusicPart } from "./api";
 import { PlayButton } from "./CueView";
 import { Fold } from "./Fold";
-import { FillPieceIcon, InfoIcon, SkipAllIcon } from "./Icons";
+import { FillPieceIcon, InfoIcon, LinkIcon, SkipAllIcon, TransitionIcon } from "./Icons";
 import { Mark } from "./IndexTree";
 import { keyHint } from "./keys";
 import { clashes, counted, COVERAGE, heldBy, isMusicItem, itemCoverage, listedBanks, listName, statusOf } from "./music";
@@ -27,10 +27,11 @@ function AboutToggle({ about, open, onToggle }: { about: string; open: boolean; 
 }
 
 /** The top of the centre panel for an item: what it is and where the Index has it, and for a piece of
-    music what leads in and out of it. `nav` (back and forward) sits at the end of the first row. `cue` is the part
+    music what leads in and out of it. `nav` (back and forward) sits at the end of the title's line. `cue` is the part
     that shows: for a bank it says what archives hold it and what the Index knows of it. The title says what the item
-    plays as a whole; each part's own state is on its tab. */
-export function ItemHead({ item, part, cue, nav }: { item: MusicItem; part: MusicPart; cue: Cue; nav: ReactNode }) {
+    plays as a whole; each part's own state is on its tab. What it shares, what plays next to it and `facts` (the
+    slot list's own) sit side by side in one row under the title, and stack when there is no room. */
+export function ItemHead({ item, part, cue, nav, facts = [] }: { item: MusicItem; part: MusicPart; cue: Cue; nav: ReactNode; facts?: ReactNode[] }) {
   const { itemIndex, project, show, goTo, readOnly } = useEditor();
   const a = project?.assignments ?? {};
   const section = itemIndex.section.get(item.id), category = itemIndex.category.get(item.id);
@@ -51,6 +52,23 @@ export function ItemHead({ item, part, cue, nav }: { item: MusicItem; part: Musi
     setAboutOpen(!aboutOpen);
     try { localStorage.setItem(ABOUT_KEY, aboutOpen ? "" : "1"); } catch { /* storage off: for this view only */ }
   };
+  // the short ones first, so they sit side by side; music of the same section goes by its own name ("Intense Battle")
+  const all = [
+    item.kind === "music" && item.around.length > 0 && <Around key="around" item={item} a={a} />,
+    ...facts,
+    item.shares.length > 0 && (
+      <p key="shares" className="fact"><LinkIcon /><span>Shares audio with{" "}
+        {item.shares.map((s, i) => {
+          const other = itemIndex.items.get(s.item);
+          return other ? (
+            <span key={s.item}>{i > 0 && (i === item.shares.length - 1 ? " and " : ", ")}
+              <button className="link-text" onClick={() => show(other.id)} data-tip={other.full}>
+                {itemIndex.section.get(other.id) === section ? other.name : other.full}</button> ({s.count} slot{s.count === 1 ? "" : "s"})</span>
+          ) : null;
+        })}.</span>
+      </p>
+    ),
+  ].filter(Boolean);
   return (
     <>
       <div className="head-row">
@@ -58,7 +76,6 @@ export function ItemHead({ item, part, cue, nav }: { item: MusicItem; part: Musi
           {category && <CatMark category={category.id} />}
           {place}{kind && <> · {kind}{item.parts.length > 1 ? "s" : ""}</>}
         </div>
-        {nav}
       </div>
       <div className="item-title">
         <h1>{item.name}</h1>
@@ -69,6 +86,7 @@ export function ItemHead({ item, part, cue, nav }: { item: MusicItem; part: Musi
         {readOnly && listed && <span className="item-cov done" data-tip={`In ${project!.name}`}>In the project</span>}
         {inside && <span className="item-cov done" data-tip="These sounds are in the project already" data-tip-more={`In ${listName(inside)}`}>In the project</span>}
         {item.kind === "archive" && (item.tags ?? []).map((t) => <CatTag key={t.category} tag={t} />)}
+        {nav}
       </div>
       {item.about && <Fold open={aboutOpen}><p className="cue-notes">{item.about}</p></Fold>}
       {known.length > 0 && (
@@ -76,17 +94,7 @@ export function ItemHead({ item, part, cue, nav }: { item: MusicItem; part: Musi
           <span key={t.item}>{i > 0 && " and "}<CatTag tag={t} tip="Show in the Index" onOpen={() => show(t.item!, cue.id)} /></span>
         ))} in the Index.</p>
       )}
-      {item.shares.length > 0 && (
-        <p className="item-shares">Shares audio with{" "}
-          {item.shares.map((s, i) => {
-            const other = itemIndex.items.get(s.item);
-            return other ? (
-              <span key={s.item}>{i > 0 && (i === item.shares.length - 1 ? " and " : ", ")}
-                <button className="link-text" onClick={() => show(other.id)}>{other.full}</button> ({s.count} slot{s.count === 1 ? "" : "s"})</span>
-            ) : null;
-          })}.
-        </p>
-      )}
+      {all.length > 0 && <div className="head-facts">{all}</div>}
       {archives.length > 0 && item.kind !== "archive" && (
         <p className="cue-detail">
           {archives.length === 1 ? "In the archive " : `In ${archives.length} archives: `}
@@ -97,7 +105,6 @@ export function ItemHead({ item, part, cue, nav }: { item: MusicItem; part: Musi
           {cue.bank_name && <> · <span className="arc-id" data-tip="Bank name in the game files">{cue.bank_name}</span></>}
         </p>
       )}
-      {item.kind === "music" && item.around.length > 0 && <Around item={item} a={a} />}
     </>
   );
 }
@@ -194,8 +201,9 @@ function Around({ item, a }: { item: MusicItem; a: Record<string, Assignment> })
   const what = [transitions && `${transitions} transition${transitions === 1 ? "" : "s"}`, stingers && `${stingers} stinger${stingers === 1 ? "" : "s"}`].filter(Boolean).join(" and ");
   const warn = game.length > 0;
   return (
-    <div className={`around${warn ? " warn" : ""}`}>
+    <div className={`fact around${warn ? " warn" : ""}`}>
       <div className="around-head">
+        <TransitionIcon />
         <span>{what} {rows.length === 1 ? "plays" : "play"} next to this music{warn ? <>. <b>{game.length}</b> still {game.length === 1 ? "plays" : "play"} the original next to new music.</> : "."}</span>
         <button className="link-text" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? "Hide" : "Show"}</button>
         {warn && project && (

@@ -4,7 +4,7 @@ group: Making a mod
 summary: New takes for a sound, a layer that plays with it, and new audio for one sound only, in addition to what the game has.
 ---
 
-Replacing audio changes what a slot plays. Sounds can also get audio that the game doesn't have, in three ways, all in the Audio Editor. They work for sounds and voices, but not for music.
+Replacing audio changes what a slot plays. Sounds can also get audio that the game doesn't have, in three ways, all on the Audio tab. They work for sounds and voices, but not for music.
 
 ## New takes
 

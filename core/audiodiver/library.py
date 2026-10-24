@@ -15,9 +15,9 @@ Both lead to the same things to open: a piece of music's cue (catalog.py), or a 
 come as a cue-shaped dict so the editor shows either the same way. A bank's sounds are grouped the way the bank
 nests them: the takes of one sound (the children of one random container) sit together. A voice line is labelled
 with what it says: its subtitle where it was matched to one (data/subtitles.json, which also says which subtitle, so
-the Text Editor can open it), else what the community wrote down (data/voices.json). A clip without words is named by
+the Text tab can open it), else what the community wrote down (data/voices.json). A clip without words is named by
 what it is ("Grunt 3", numbered per bank); a voice bank lists those it holds for other banks' Sounds by kind
-("Grunts", "Laughs"). In the Audio Editor a bank's sounds
+("Grunts", "Laughs"). In the Audio tab a bank's sounds
 come with the audio the project adds (Added, addition.py): its new takes after the game's (`added: "take"`), a layer
 as a group after the sound it plays with (`added: "layer"`), a clip of its own in place of the clip it stood in for
 (`was`). A group whose takes a random container picks says which (`container`), and whether a layer can go beside it.

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { audioUrl, call, fileUrl, fmtTime } from "./api";
+import { audioUrl, call, fileUrl, fmtTime, type Cue } from "./api";
 import { rowName, rowsOf, type Row } from "./CueView";
 import { FitIcon, ZoomInIcon, ZoomOutIcon } from "./Icons";
 import { useDialog } from "./dialog";
@@ -101,15 +101,23 @@ function diffText(ms: number) {
   return `${ms > 0 ? "+" : "−"}${(Math.abs(ms) / 1000).toFixed(Math.abs(ms) < 10000 ? 1 : 0)} s`;
 }
 
-export function SliceTool({ onClose }: { onClose: () => void }) {
-  const { cue, selected, actions, notify } = useEditor();
+/** A song for the Soundtrack: the piece of music's cue, the segments the song fills in order (a piece each, into
+    the first slot that takes audio), and what saving it does. */
+export type SongTarget = { cue: Cue; segments: string[]; fill: (file: string, boundsMs: number[]) => Promise<boolean> };
+
+/** `file`: the song to start on (one dropped, or the song a piece was cut from), else the picker opens. */
+export function SliceTool({ onClose, target, file: given }: { onClose: () => void; target?: SongTarget; file?: string }) {
+  const editor = useEditor();
+  const { selected, actions, notify } = editor;
+  const cue = target?.cue ?? editor.cue;
   const box = useDialog(onClose);
   const rows = useMemo(() => (cue ? rowsOf(cue.segments_detail).filter((r) => !r.slot.unused && !r.slot.locked && !r.slot.absent) : []), [cue]);
+  const fixed = useMemo(() => (target ? target.segments.flatMap((seg) => rows.find((r) => r.seg.segment === seg) ?? []) : null), [target, rows]);
   // the pieces go From one slot To another: one piece per segment between them
   const [start, setStart] = useState(() => (rows.find((r) => r.slot.source === selected[0]) ?? rows[0])?.slot.source ?? "");
   const [stop, setStop] = useState(""); // the To slot; none chosen yet: as far as the cue goes
   const startRow = rows.find((r) => r.slot.source === start);
-  const reach = useMemo(() => targetsFrom(rows, startRow).slice(0, MAX_PIECES), [rows, startRow]); // what To offers
+  const reach = useMemo(() => (fixed ?? targetsFrom(rows, startRow)).slice(0, MAX_PIECES), [fixed, rows, startRow]); // what To offers
   const targets = useMemo(() => {
     const i = reach.findIndex((r) => r.slot.source === stop);
     return reach.slice(0, i >= 0 ? i + 1 : reach.length);
@@ -143,7 +151,9 @@ export function SliceTool({ onClose }: { onClose: () => void }) {
 
   const choose = async () => {
     const f = (await pickAudio(false))?.[0];
-    if (!f) return; // cancelled: the dialog stays, with its own Choose button
+    if (f) load(f); // cancelled: the dialog stays, with its own Choose button
+  };
+  const load = async (f: string) => {
     setFile(f); setInfo(null);
     try {
       const i = await call<Info>("slice_info", { audio: f });
@@ -172,9 +182,9 @@ export function SliceTool({ onClose }: { onClose: () => void }) {
     placedFor.current = targetKey;
     if (info && bounds.length && (layout !== "custom" || targets.length !== n)) { setBounds(place(layout, targets)); setSel(null); }
   }, [targetKey]); // eslint-disable-line react-hooks/exhaustive-deps
-  // the picker opens straight away, once (React runs a new component's effects twice in development)
+  // the song given, or the picker straight away, once (React runs a new component's effects twice in development)
   const asked = useRef(false);
-  useEffect(() => { if (!asked.current) { asked.current = true; choose(); } }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!asked.current) { asked.current = true; if (given) load(given); else choose(); } }, []); // eslint-disable-line react-hooks/exhaustive-deps
   // leaving stops what the dialog played (the song, a piece, an original)
   useEffect(() => () => { if (player.state.key?.startsWith(KEY) || player.state.key?.startsWith("vanilla:")) player.stop(); }, []);
 
@@ -281,7 +291,7 @@ export function SliceTool({ onClose }: { onClose: () => void }) {
   const submit = async () => {
     if (!file || !n || tooShort) return;
     setBusy(true);
-    const ok = await actions.sliceFill(cue.id, file, bounds, targets.slice(0, n).map((r) => r.slot.source));
+    const ok = target ? await target.fill(file, bounds) : await actions.sliceFill(cue.id, file, bounds, targets.slice(0, n).map((r) => r.slot.source));
     setBusy(false);
     if (ok) onClose();
   };
@@ -309,11 +319,13 @@ export function SliceTool({ onClose }: { onClose: () => void }) {
               <span className="muted">{fmtTime(info.duration_ms)}</span>
               <button className="btn small-btn" onClick={choose} data-tip="Choose another song">Change…</button>
               <span className="spacer" />
-              <label className="slice-field">From
-                <select value={start} onChange={(e) => setStart(e.target.value)}>
-                  {rows.map((r) => <option key={r.slot.source} value={r.slot.source}>{slotName(r)}</option>)}
-                </select>
-              </label>
+              {!target && (
+                <label className="slice-field">From
+                  <select value={start} onChange={(e) => setStart(e.target.value)}>
+                    {rows.map((r) => <option key={r.slot.source} value={r.slot.source}>{slotName(r)}</option>)}
+                  </select>
+                </label>
+              )}
               <label className="slice-field">To
                 <select value={targets[targets.length - 1]?.slot.source ?? ""} onChange={(e) => setStop(e.target.value)}>
                   {reach.map((r, i) => <option key={r.slot.source} value={r.slot.source}>{slotName(r)} · {i + 1} piece{i ? "s" : ""}</option>)}
@@ -373,7 +385,7 @@ export function SliceTool({ onClose }: { onClose: () => void }) {
               <span className="spacer" />
               <button className="btn quiet" onClick={onClose}>Cancel</button>
               <button className="btn primary" disabled={busy || n < 1 || tooShort} onClick={submit}>
-                {busy ? "Slicing…" : `Slice and fill ${n} slot${n === 1 ? "" : "s"}`}</button>
+                {busy ? "Slicing…" : target ? `Cut into ${n} piece${n === 1 ? "" : "s"}` : `Slice and fill ${n} slot${n === 1 ? "" : "s"}`}</button>
             </div>
           </>
         )}

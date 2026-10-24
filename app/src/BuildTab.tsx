@@ -78,7 +78,7 @@ function BuildBox() {
   const { project, actions, jobs } = useEditor();
   const p = project!;
   const building = Object.values(jobs).some((j) => j.kind === "build" && j.state === "running");
-  const empty = !Object.keys(p.assignments).length && !p.texts.length && !p.settings;
+  const empty = !Object.keys(p.assignments).length && !p.texts.length && !p.settings && !Object.keys(p.soundtrack ?? {}).length;
   const elsewhere = p.build_folder !== p.build_folder_default;
   const chooseFolder = async () => {
     // the picker starts in a folder that is there: the default build folder isn't, before the first build
@@ -101,8 +101,8 @@ function BuildBox() {
       )}
       {empty && !p.problems.length && (
         <p className="info-box">Nothing replaced yet. Add music or sounds from
-          the <button className="link-text" onClick={() => nav.go("library")}>Library</button>, then replace them in
-          the <button className="link-text" onClick={() => nav.go("editor")}>Audio Editor</button>.</p>
+          the <button className="link-text" onClick={() => nav.go("library")}>Library</button>, then replace them on
+          the <button className="link-text" onClick={() => nav.go("editor")}>Audio</button> tab.</p>
       )}
       <button className="btn primary build" onClick={actions.build} disabled={building || empty || p.problems.length > 0} data-tip-cmd="build"
         data-tip={p.problems.length ? "Fix the problems first" : empty ? "Nothing to build yet" : "Encode, patch the sound banks, verify and pack the ZIP"}>

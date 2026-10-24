@@ -21,9 +21,9 @@ const DEFAULT_OPEN = new Set(["c:music", "s:ship", "s:deploy"]);
 const SMALL = 30; // a category with no more items than this shows its sections open
 
 /** The Index as a tree: categories, their sections, and the items in them. In the Library it is the whole Index,
-    and an item can be added to the project from here; in the Audio Editor it is what the open project lists, marked
+    and an item can be added to the project from here; in the Audio tab it is what the open project lists, marked
     with whether each item plays the original or a replacement. A whole category or section is added (Library) or
-    removed (Audio Editor) from its line: the + or ✕ on it, or a right-click. */
+    removed (Audio tab) from its line: the + or ✕ on it, or a right-click. */
 export function IndexTree() {
   const { index, itemIndex, project, itemId, openItem, goTo, actions, revision, scope, quick } = useEditor();
   const editing = scope === "editor";
@@ -198,10 +198,10 @@ export function IndexTree() {
         { label: "Show in the Library", run: () => goTo({ scope: "library", itemId: it.id, cueId: null, source: null }) } as MenuEntry,
         { label: "Remove from the project", run: () => actions.removeFromProject([it.id], it.full) } as MenuEntry,
       ] : added ? [
-        { label: "Open in the Audio Editor", run: () => goTo({ scope: "editor", itemId: it.id, cueId: null, source: null }) } as MenuEntry,
+        { label: "Open in the Audio tab", run: () => goTo({ scope: "editor", itemId: it.id, cueId: null, source: null }) } as MenuEntry,
         { label: "Remove from the project", run: () => actions.removeFromProject([it.id], it.full) } as MenuEntry,
       ] : inside ? [
-        { label: "Open in the Audio Editor", run: () => goTo({ scope: "editor", itemId: inside.id, cueId: it.parts[0].cue, source: null }) } as MenuEntry,
+        { label: "Open in the Audio tab", run: () => goTo({ scope: "editor", itemId: inside.id, cueId: it.parts[0].cue, source: null }) } as MenuEntry,
       ] : [
         { label: "Add to the project", run: () => actions.addToProject([it.id], it.full) } as MenuEntry,
       ]),
@@ -230,7 +230,7 @@ export function IndexTree() {
       held={held(it)} editing={editing} noProject={!project} hint={hints.get(it.id)} on={on} />
   ));
   /** A group's line (a category or a section): the head that folds it, and what acts on everything it shows (all of
-      it, or what a search left) at once. In the Library a + adds it to the project; in the Audio Editor an ✕ takes it
+      it, or what a search left) at once. In the Library a + adds it to the project; in the Audio tab an ✕ takes it
       off. A right-click has the same and more. The + is always there, so it can be found; with no
       project open, it says to open one. */
   const groupLine = (head: ReactNode, items: MusicItem[], name: string) => {
@@ -335,7 +335,7 @@ const ItemRow = memo(function ItemRow({ item, deep, active, hi, status, clash, a
   hint?: string;             // a search found it by this label of a slot in it
   added: boolean;            // the Library: the project lists it already
   held: MusicItem | null;    // the Library: what the project lists that has all its banks already (it can't be added)
-  editing: boolean;          // the Audio Editor's list (it can be taken off), else the Library's (it can be added)
+  editing: boolean;          // the Audio tab's list (it can be taken off), else the Library's (it can be added)
   noProject: boolean;        // no project open: the + says to open one
   on: { open: (it: MusicItem) => void; menu: (e: React.MouseEvent, it: MusicItem) => void; add: (it: MusicItem) => void; remove: (it: MusicItem) => void };
 }) {
@@ -370,7 +370,7 @@ const ItemRow = memo(function ItemRow({ item, deep, active, hi, status, clash, a
           <button className="row-act" onClick={() => on.remove(item)} aria-label={`Remove ${item.full} from the project`}
             data-tip="Remove from the project" data-tip-more="Also removes the new audio. Undo brings both back.">✕</button>
         )}
-        {/* the Audio Editor's list leaves out lengths and counts, so its marks and buttons line up from row to row */}
+        {/* the Audio tab's list leaves out lengths and counts, so its marks and buttons line up from row to row */}
         {!editing && (music ? <span className="dur">{fmtTime(item.duration_ms || null)}</span>
           : <span className="dur" data-tip={`${sounds} sound${sounds === 1 ? "" : "s"}`}>{sounds}</span>)}
       </span>
@@ -384,7 +384,7 @@ export function Mark({ status }: { status: Status }) {
 }
 
 /** An id that leads to something this list doesn't show: an archive nobody has named (the Library's Index), or
-    something the project doesn't list (the Audio Editor). */
+    something the project doesn't list (the Audio tab). */
 function FoundElsewhere({ place, more }: { place: Place; more: number }) {
   const { itemIndex, openFound, scope } = useEditor();
   const item = place.item ? itemIndex.items.get(place.item) : undefined;

@@ -23,7 +23,7 @@ export type Slot = {
   object?: string;   // a bank's sound: the Sound object that plays it
   notes?: ClipNote[]; // what the clip notes say about this clip (core data/notes.json)
   min_ms?: number;   // the shortest replacement that works here, as the notes found it
-  // the Audio Editor's view of a bank (core library.py, addition.py):
+  // the Audio tab's view of a bank (core library.py, addition.py):
   added?: "take";    // a new take the project adds: it has no original
   was?: string;      // a clip of its own: the clip this sound played, its original
   players?: number;  // how many Sounds of this bank play the clip
@@ -58,6 +58,7 @@ export type Segment = {
     id "bank:<id>" or "streams:<archive>") or one sound on its own ("sound", id "sfx:<source>"). */
 export type Cue = Entry & {
   archive_names: string[]; segments_detail: Segment[]; context_list: string[]; labels: string[];
+  ordered?: boolean; // a playlist: whether it plays its slots top to bottom (the Soundtrack shows the order otherwise)
   tags?: Tag[]; bank_name?: string; language?: string; lang?: string; // a voice bank's language: its name, its code
 };
 export const isMusic = (cue: { kind: string }) => cue.kind !== "sounds" && cue.kind !== "sound";
@@ -99,6 +100,25 @@ export type ArchiveRow = {
   id: string; names: string[]; tags: Tag[]; banks: number; sounds: number; language: string;
   preview: string; // one of its sounds, to hear without opening it
 };
+/** How a piece of music plays (core soundtrack.Piece): Original (without the items left out), One song (`song`, cut
+    into segments) or a Playlist (`tracks`: whole songs, shuffled or not, from the first at each start or going on,
+    `resume`) in segments of their own order, Silent, or the same music as another piece (follows); and its level.
+    `song`: the file One song was cut from, as the project stores audio paths. */
+export type Piece = {
+  mode: "original" | "song" | "tracks" | "silent" | "same";
+  segments?: string[]; left_out?: string[]; shuffle?: boolean; resume?: boolean; follows?: string; gain_db?: number;
+  song?: string;
+};
+/** A node of a playlist (core soundtrack.as_dict): a segment, or a group that plays its children in order (rs 0), the
+    next one each time (1), all in a random order (2) or one at random (3). loop: how often it plays, 0 for ever. */
+export type PlayNode = { item: string; loop: number; segment?: string; rs?: number; children?: PlayNode[] };
+/** How a piece of music plays (core editor.playlist_map): the game's tree, the project's (null while it is the
+    game's), the item the music starts on ("0": the top), the segments a song fills, and each segment's name and
+    length from Entry to Exit. */
+export type PlaylistMap = {
+  cue: string; tree: PlayNode; mine: PlayNode | null; entry: string; song: string[];
+  segments: Record<string, { name: string; ms: number }>; piece: Piece;
+};
 /** Where an id leads (core Library.places): the cue to open, the slot to select in it, the item it is listed under
     and the archives that hold it. */
 export type Place = { cue: string; source: string | null; item: string | null; archives: string[] };
@@ -133,10 +153,12 @@ export type ProjectState = {
   in_banks: Record<string, number>; // per listed bank ("bank:<id>"): how many of its sounds are replaced
   outside: string[];                // the replaced slots that nothing on the list holds
   segment_overrides: Record<string, { entry_marker?: number; exit_marker?: number }>;
-  texts: TextLine[];     // lines of the game's text the project changes (the Text Editor)
+  texts: TextLine[];     // lines of the game's text the project changes (the Text tab)
   additions: { kind: "take" | "layer" | "own"; [key: string]: string }[]; // audio it adds (core project.py)
   settings: number;      // the game's objects an imported mod's settings go on (core project.py)
   notes: Record<string, string>; // the project's notes, by key (notes.ts; core notes.py)
+  soundtrack: Record<string, Piece>; // how pieces of music play, by playlist cue (core soundtrack.py); the others play as the game does
+  tabs: ("editor" | "soundtrack" | "text")[] | null; // the hideable tabs it shows (nav.ts HIDEABLE); null: as Settings ▸ System says
   repairs: string[];     // damaged values in its file that opening it set back (said once, when it opens)
   problems: string[]; can_undo: boolean; can_redo: boolean;
   undo_label: string | null; redo_label: string | null; // what Undo / Redo would change ("fill", "move")

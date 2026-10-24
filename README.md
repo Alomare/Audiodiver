@@ -26,7 +26,7 @@
 <br>
 
 <p align="center">
-  <img src="assets/readme/home.png" alt="Audiodiver's Home tab over a screenshot of a Helldiver kneeling in a desert sandstorm: New project, Open project with the loaded project under it, and Repatch and Combine under Tools, with Discord and Ko-fi in the corner" width="100%">
+  <img src="assets/readme/home.png" alt="Audiodiver's Home tab over a screenshot of a Helldiver kneeling in a desert sandstorm: New project, Open project with a recent project and the loaded one under it, and Repatch and Combine under Tools, with Discord and Ko-fi in the corner" width="100%">
 </p>
 
 <p align="center">
@@ -46,43 +46,29 @@
   <tr>
     <td width="50%">
       <h3>📚 Library</h3>
-      Every sound in Helldivers 2, sorted. Music goes by when it plays, from the ship to extraction, and weapons by loadout slot, then stratagems, enemies and planets. Search takes a name or an id.
+      Every sound in Helldivers 2, sorted. Music goes by when it plays, from the ship to extraction, and weapons by loadout slot, then stratagems, enemies and planets. Search takes a name, a label or an id.
       <br><br>
       <img src="assets/readme/library.png" alt="The Library's Index with On the Ship, Bridge and War Map open: two parts, their segments, and the transitions and stingers that play next to them" width="100%">
     </td>
     <td width="50%">
-      <h3>🎚️ Audio Editor</h3>
-      The music and sounds in a project, one slot per clip. An audio file dropped on a slot, a sound or a whole piece replaces the original. Each slot takes a Make-Up Gain from −12 to +12 dB, or silence.
+      <h3>🎚️ Audio</h3>
+      The music and sounds of a project, one slot per clip. An audio file dropped on a slot, a sound or a whole piece replaces the original, and one song can be cut across a whole piece. Slots take silence and Make-Up Gain too, and sounds can get new takes and layers.
       <br><br>
-      <img src="assets/readme/sounds.png" alt="The AC-8 Autocannon in the Audio Editor: takes of a sound with new audio, the selected one 4 dB louder, and the details panel listing the places that share the clip" width="100%">
+      <img src="assets/readme/audio.png" alt="Loadout Selection on the Audio tab: slots with new audio, the selected one ticked, its original and new waveforms on one time scale, and its settings on the right" width="100%">
     </td>
   </tr>
   <tr>
     <td width="50%">
-      <h3>▶️ Audio Editor ▸ Play Through</h3>
-      A whole piece of music, segment after segment, in the original or the new audio. Both waveforms share one time scale, with the Entry and Exit cue points.
+      <h3>🎼 Soundtrack</h3>
+      How each piece of music plays in a mission: in its original order, as one song, as a playlist of whole songs, or silent. A fight plays back the way Helldivers 2 plays it, before anything is built.
       <br><br>
-      <img src="assets/readme/playthrough.png" alt="Play through playing the new loadout music: a progress bar with a tick for each segment, the playing slot lit, and the playhead on the waveform" width="100%">
+      <img src="assets/readme/soundtrack.png" alt="Illuminate Battle as a playlist on the Soundtrack tab: four songs in the first places, Continue in the next fight ticked, and the second song's waveform under the original segment's" width="100%">
     </td>
     <td width="50%">
-      <h3>✂️ Audio Editor ▸ Slice a Song</h3>
-      One song cut into the segments of a piece at exact sample positions, so they play back to back like the song. You drag the cuts to where the music turns.
-      <br><br>
-      <img src="assets/readme/slice.png" alt="The slice tool: a five-minute song with 15 numbered cuts for the slots of Loadout Selection, the original of each slot under it, and a table of the pieces" width="100%">
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <h3>➕ Audio Editor ▸ Add New Audio</h3>
-      New takes for a sound, a layer that plays with it, or a separate clip for a sound that shares one. Mods made with other tools bring their added audio in too.
-      <br><br>
-      <img src="assets/readme/adding.png" alt="The AC-8 Autocannon in the Audio Editor with a layer added under Sound 3: two new takes, the first selected, the details saying it plays whenever the sound above it plays" width="100%">
-    </td>
-    <td width="50%">
-      <h3>📝 Text Editor</h3>
+      <h3>📝 Text</h3>
       All text in Helldivers 2, in 15 languages, subtitles included. A formatting bar, a preview as the line shows in game, and links between voice lines and subtitles.
       <br><br>
-      <img src="assets/readme/text.png" alt="The Text Editor with a changed subtitle: the original, the new text with colour and emphasis tags, and a preview as it shows in game" width="100%">
+      <img src="assets/readme/text.png" alt="The Text tab with a changed subtitle: the original, the new text with colour and emphasis tags, and a preview as it shows in game" width="100%">
     </td>
   </tr>
   <tr>
@@ -90,7 +76,7 @@
       <h3>📁 Project</h3>
       The mod's name, description, icon and id, with a preview as a mod manager shows them. The project folder has <b>Collect files</b>, a clean-up to the Recycle Bin, and packs (<code>.audipack</code>) for another computer.
       <br><br>
-      <img src="assets/readme/project.png" alt="The Project tab: the description, the icon with border and corners, the mod id and the folder, beside a preview of the mod in a mod manager" width="100%">
+      <img src="assets/readme/project.png" alt="The Project tab: the name, description, icon and mod id, beside a preview of the mod in a mod manager with Import patches and Close project above it" width="100%">
     </td>
     <td width="50%">
       <h3>📦 Build</h3>
@@ -112,6 +98,29 @@
       <br><br>
       <img src="assets/readme/combine.png" alt="Combine Mods with two mods that both change Loadout Selection: six conflicts, each with both versions to play and the chosen one marked" width="100%">
     </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <h3>📖 Wiki</h3>
+      Guides inside the app, from a first mod to what to do after a game update, and a page of frequently asked questions. Every ? next to a setting opens its section.
+      <br><br>
+      <img src="assets/readme/wiki.png" alt="The Wiki on Frequently asked questions: the questions grouped by topic, each answer linking to the page that covers it, and the list of guides on the left" width="100%">
+    </td>
+    <td width="50%">
+      <h3>⚙️ Settings</h3>
+      The game folder, the tabs that show, startup, tooltips and disk space. Every shortcut key can be rebound, and the theme sets dark or light, the colours, the text size, the spacing and where the tab bar goes.
+      <br><br>
+      <img src="assets/readme/settings.png" alt="Settings, System: the game folder found through Steam, ticks for the Audio, Soundtrack and Text tabs, startup, updates and tooltips" width="100%">
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <h3>🔄 Updates</h3>
+      New versions, looked for at every start. Audiodiver asks before installing one, installs it by itself, or only lights up this tab, as set in Settings. The tab also lists the changes in every version.
+      <br><br>
+      <img src="assets/readme/updates.png" alt="The Updates tab: Audiodiver v1.0.0 up to date, what happens at startup, and the changelog" width="100%">
+    </td>
+    <td width="50%"></td>
   </tr>
 </table>
 
@@ -145,7 +154,7 @@ command returns.
   All three come with Audiodiver.
 - A Python core reads, patches and builds, and the window is Tauri 2 with React. They talk over a local connection
   protected by a token.
-- More than 180 tests, among them byte-for-byte builds of three complete music mods.
+- More than 200 tests, among them byte-for-byte builds of three complete music mods.
 
 ## Get Started
 
@@ -157,11 +166,11 @@ you build.
 2. Start Audiodiver. It finds the game through Steam and reads the audio, which takes about a minute the first time.
 3. On Home, choose **New project**.
 4. In the Library, find what you want to change and press **Add to the project**.
-5. In the Audio Editor, drop audio files on the slots.
+5. On the Audio tab, drop audio files on the slots.
 6. Press **Build**, then import the ZIP in the mod manager and deploy it.
 
-The Wiki (F1) has a first mod step by step, how music plays in a mission, how loud new audio should be, and what to
-do after a game update.
+The Wiki (F1) has a first mod step by step, how music plays in a mission, how loud new audio should be, what to do
+after a game update, and answers to frequent questions.
 
 | Download | What it is |
 |---|---|

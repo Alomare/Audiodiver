@@ -4,26 +4,22 @@ import { confirm } from "./Confirm";
 import { FolderIcon } from "./Icons";
 import { NoProjectCard, Page, useDraft } from "./Page";
 import { copyText, fullPath, reveal } from "./platform";
-import { useEditor } from "./store";
+import { TabChecks } from "./SettingsTab";
+import { useEditor, useShownTabs } from "./store";
 import { motionMs } from "./theme";
 import { Help } from "./Wiki";
 
 const FRAME_KEYS: (keyof IconFrame)[] = ["border", "border_color", "radius"];
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
-/** The Project tab: what the mod is (its name, description, icon and id) and where its files are (its folder, the
-    files nothing uses, and packs), with Import patches and Close project by the title. Build keeps how the ZIP is
-    made. With no project open: New, Open and the recent projects. */
+/** The Project tab: what the mod is (its name, description, icon and id), the tabs it shows, and where its files
+    are (its folder, the files nothing uses, and packs), with Import patches and Close project over the icon. Build
+    keeps how the ZIP is made. With no project open: New, Open and the recent projects. */
 export function ProjectTab() {
-  const { project, actions } = useEditor();
+  const { project } = useEditor();
   return (
     <Page title="Project" wide
-      lead={<>A project is one patch mod, in a folder with all associated files. <Help tip="Project folders" page="project-folders" /></>}
-      actions={project && <>
-        <button className="btn" onClick={() => actions.importPatch()}
-          data-tip="Import the replaced and added sounds from a mod's .patch_0 file into this project">Import patches…</button>
-        <button className="btn quiet" onClick={actions.closeProject} data-tip="Close the project" data-tip-cmd="closeProject">Close project</button>
-      </>}>
+      lead={<>A project is one patch mod, in a folder with all associated files. <Help tip="Project folders" page="project-folders" /></>}>
       {project ? <ProjectPage key={project.path} />
         : <div className="proj-none">
           <NoProjectCard text="Create or open a project, or open a pack." recent={false} />
@@ -93,6 +89,7 @@ function RecentProjects() {
 
 function ProjectPage() {
   const { project, actions, revision, quick, jobs } = useEditor();
+  const shown = useShownTabs();
   const p = project!;
   const busy = Object.values(jobs).some((j) => j.state === "running"); // the folder's files may be changing
   // what is on disk now: an image deleted since the last change shows as a problem here at once
@@ -162,6 +159,11 @@ function ProjectPage() {
           </div>
         </section>
 
+        <section className="set-sec">
+          <h2>Tabs <Help tip="The tabs this project shows. A new project starts with the ones Settings ▸ System shows." page="how-audiodiver-works#tabs" /></h2>
+          <TabChecks value={shown} onChange={(tabs) => actions.settings({ tabs })} />
+        </section>
+
         <FolderSection busy={busy} />
         <UnusedFiles busy={busy} />
 
@@ -174,6 +176,11 @@ function ProjectPage() {
       </div>
 
       <aside className="bld-side">
+        <div className="side-actions">
+          <button className="btn" onClick={() => actions.importPatch()}
+            data-tip="Import the replaced and added sounds from a mod's .patch_0 file into this project">Import patches…</button>
+          <button className="btn quiet" onClick={actions.closeProject} data-tip="Close the project" data-tip-cmd="closeProject">Close project</button>
+        </div>
         <IconPreview preview={same(icon, p.icon) ? undefined : icon} bust={String(revision)} name={name.trim() || p.name}
           description={description.trim()} />
       </aside>

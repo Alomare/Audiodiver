@@ -238,7 +238,7 @@ export function ExportForm({ onDone, onCancel }: { onDone?: () => void; onCancel
                   onClick={() => setWhose(id)} data-tip={id === "mine" && kind !== "slots" ? "As the mod plays it, with Make-Up Gain, timing and cue points" : undefined}>{name}</button>
               ))}
             </div>
-            {(readOnly || !project || !canMine) && <small>{readOnly ? "The replaced audio exports from the Audio Editor." : !project ? "Open a project to export the replaced audio."
+            {(readOnly || !project || !canMine) && <small>{readOnly ? "The replaced audio exports from the Audio tab." : !project ? "Open a project to export the replaced audio."
               : "Nothing replaced here yet."}</small>}
           </div>
           <label className="field">

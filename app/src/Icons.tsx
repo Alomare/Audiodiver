@@ -116,6 +116,15 @@ export const LinkIcon = () => (
   <Icon size={1.05} stroke={2.4}><path d="m9.5 14.5 5-5M11 6.6l1.4-1.4a3.9 3.9 0 0 1 5.5 5.5l-1.4 1.4M13 17.4l-1.4 1.4a3.9 3.9 0 0 1-5.5-5.5l1.4-1.4" /></Icon>
 );
 
+/** Two arrows passing each other: music that plays into and out of this music (transitions, stingers). */
+export const TransitionIcon = () => (
+  <Icon size={1.05} stroke={2}><path d="M4 8.5h13.5M14 5l3.5 3.5L14 12M20 15.5H6.5M10 12l-3.5 3.5L10 19" /></Icon>
+);
+/** Steps down a list in another order: the order the game plays the slots in. */
+export const OrderIcon = () => (
+  <Icon size={1.05} stroke={2}><path d="M4 6h7M4 12h4M4 18h7" /><path d="M14 5.5c4.5 0 4.5 6.5 0 6.5s-4.5 6.5 0 6.5" /><path d="m12 16.5 2 2-2 2" /></Icon>
+);
+
 /** Fold everything: a box with a minus, another box behind it (as code editors draw it). */
 export const CollapseAllIcon = () => (
   <Icon size={1.05}><rect x="3.5" y="8.5" width="12" height="12" rx="1" /><path d="M7 14.5h5M7.5 8.5v-4h12v12h-4" /></Icon>
@@ -143,10 +152,24 @@ export const LibraryIcon = () => (
   </Icon>
 );
 
-/** The Audio Editor: a waveform. */
+/** The Audio tab: a waveform. */
 export const AudioIcon = () => <Icon><path d="M4 10v4M7.2 7v10M10.4 4v16M13.6 8v8M16.8 5.5v13M20 9.5v5" /></Icon>;
 
-/** The Text Editor: a letter T beside lines of text. */
+/** The Soundtrack: lines of a playlist beside a note. */
+export const SoundtrackIcon = () => (
+  <Icon><path d="M3.5 6.5h9M3.5 11h9M3.5 15.5h5.5" /><path d="M18 17V4.5c1 1.6 2.4 2.4 3.5 2.6" /><ellipse cx="15.6" cy="17.2" rx="2.4" ry="2" /></Icon>
+);
+
+/** The header above the slots, or the waveforms below them: a window with its top or bottom band, filled while it
+    shows. */
+export const HeaderIcon = ({ on }: { on: boolean }) => (
+  <Icon size={1.05}><rect x="3.5" y="4.5" width="17" height="15" rx="1.5" />{on && <rect x="3.5" y="4.5" width="17" height="5" rx="1.5" fill="currentColor" stroke="none" opacity={0.55} />}<path d="M3.5 9.5h17" /></Icon>
+);
+export const WavesIcon = ({ on }: { on: boolean }) => (
+  <Icon size={1.05}><rect x="3.5" y="4.5" width="17" height="15" rx="1.5" />{on && <rect x="3.5" y="13.5" width="17" height="6" rx="1.5" fill="currentColor" stroke="none" opacity={0.55} />}<path d="M3.5 13.5h17" /></Icon>
+);
+
+/** The Text tab: a letter T beside lines of text. */
 export const TextIcon = () => <Icon><path d="M3.5 5.5H14M8.75 5.5V19M16.5 11h4M16.5 15h4M16.5 19h4" /></Icon>;
 
 /** Updates: an arrow coming down into a tray. */

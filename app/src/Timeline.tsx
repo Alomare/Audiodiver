@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { audioUrl, fmtTime } from "./api";
+import { audioUrl, fmtTime, type Cue } from "./api";
 import { audible, rowName, rowsOf, SILENCE_TIP } from "./CueView";
 import { throughHead, throughSeek, type Through } from "./PlayThrough";
 import { player, usePlayer, type PlayedAt } from "./player";
@@ -13,12 +13,20 @@ import { usePeaks, Waveform, type Marker } from "./Waveform";
     The Library has the original alone. A click plays from that spot (the slot's row has the play buttons).
 
     While the cue plays through (`through`), the playhead shows where the play-through is in this slot's audio, and a
-    click on a waveform moves the play-through to that spot. */
+    click on a waveform moves the play-through to that spot.
+
+    `cue` and `source` show a slot of another cue than the tab's (the Soundtrack's segment), else the tab's own cue
+    and its selected slot. */
 const HEIGHT = 210;
 const HEIGHT_ONE = 190; // the Library's: the game's waveform under the slot's facts
 
-export function Timeline({ room, through, at }: { room: () => number; through: Through | null; at: PlayedAt | null }) {
-  const { cue, selected, project, revision, actions, readOnly, scope } = useEditor();
+export function Timeline({ room, through, at, cue: given, source: picked }: {
+  room: () => number; through: Through | null; at: PlayedAt | null; cue?: Cue; source?: string | null;
+}) {
+  const editor = useEditor();
+  const { project, revision, actions, readOnly, scope } = editor;
+  const cue = given ?? editor.cue;
+  const selected = given ? (picked ? [picked] : []) : editor.selected;
   const [h, setH] = useStoredHeight(`audiodiver.waveHeight${readOnly ? ".libraryFacts" : ""}`, readOnly ? HEIGHT_ONE : HEIGHT);
   const p = usePlayer();
   const rows = useMemo(() => (cue ? rowsOf(cue.segments_detail) : []), [cue]);

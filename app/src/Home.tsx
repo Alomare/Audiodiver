@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { call } from "./api";
 import { DISCORD_URL, HOME_ART, KOFI_URL, TICKER_URL } from "./content";
 import { DiscordIcon, KofiIcon, NextIcon, PrevIcon } from "./Icons";
 import { nav } from "./nav";
@@ -6,8 +7,9 @@ import { openUrl } from "./platform";
 import { useEditor } from "./store";
 import { DEFAULT_SIZE, motionOn, useTheme, useThemeValue } from "./theme";
 
-/** Where the app starts, laid out like the game's menu: a project to make or open (and which one is loaded), and
-    under Tools, Repatch and Combine. The recent projects are on the Project tab. Audiodiver Utils has no Home. */
+/** Where the app starts, laid out like the game's menu: a project to make or open (the last ones opened, and which
+    one is loaded), and under Tools, Repatch and Combine. With no project open, the Project tab lists all the recent
+    projects. Audiodiver Utils has no Home. */
 export function Home() {
   const { project, actions } = useEditor();
   return (
@@ -23,6 +25,7 @@ export function Home() {
           <nav className="home-menu" aria-label="Start">
             <button className="menu-item hot" onClick={actions.newProject} data-tip="Start a mod" data-tip-cmd="newProject">New project</button>
             <button className="menu-item" onClick={() => actions.openProject()} data-tip="Open a .audi project or a .audipack pack" data-tip-cmd="openProject">Open project</button>
+            <Recent />
             {project && (
               <p className="home-loaded">
                 <span>Loaded: <b data-tip={project.path} data-tip-clip>{project.name}</b></span>
@@ -45,6 +48,36 @@ export function Home() {
         : <><div className="home-art" aria-hidden><Meters /></div><div className="home-corner"><Community /></div></>}
       <Ticker />
     </section>
+  );
+}
+
+type Info = { path: string; exists: boolean; readable: boolean; name: string };
+const RECENT_SHOWN = 3;
+
+/** The last projects opened, under Open project: each name opens it (the loaded one isn't among them). Projects
+    that are gone or can't be read are left out. */
+function Recent() {
+  const { recent, project, actions } = useEditor();
+  const paths = recent.filter((p) => p !== project?.path).slice(0, RECENT_SHOWN + 3);
+  const key = paths.join("\n");
+  const [info, setInfo] = useState<Record<string, Info>>({});
+  useEffect(() => {
+    if (!paths.length) return;
+    let live = true;
+    call<Info[]>("projects_info", { paths }).then((list) => { if (live) setInfo(Object.fromEntries(list.map((i) => [i.path, i]))); }).catch(() => {});
+    return () => { live = false; };
+  }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
+  const shown = paths.filter((p) => info[p]?.exists && info[p].readable).slice(0, RECENT_SHOWN);
+  if (!shown.length) return null;
+  return (
+    <p className="home-loaded home-recent">
+      <span>Recent:</span>
+      <span className="home-recent-list">
+        {shown.map((p) => (
+          <button key={p} className="link-text" onClick={() => actions.openProject(p)} data-tip={p}>{info[p].name}</button>
+        ))}
+      </span>
+    </p>
   );
 }
 

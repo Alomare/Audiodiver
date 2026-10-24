@@ -1,10 +1,10 @@
 ---
 title: Text and subtitles
 group: Making a mod
-summary: Changing subtitles and any other line of the game's text in the Text Editor, including words, colours and sizes, and what to keep intact.
+summary: Changing subtitles and any other line of the game's text on the Text tab, including words, colours and sizes, and what to keep intact.
 ---
 
-The [Text Editor](app:text) has every line of game text in every language, including voice line subtitles, mission and menu text, and names. Search for a line to change it, and the mod includes the change.
+The [Text](app:text) tab has every line of game text in every language, including voice line subtitles, mission and menu text, and names. Search for a line to change it, and the mod includes the change.
 
 ## Finding a line
 
@@ -35,10 +35,10 @@ A mod contains whole text tables. A build takes each table from the installed ga
 > **Use only one text mod per table and language.** If two mods change lines in the same table, their changes don't combine. The mod that the mod manager deploys later replaces the other copy of the table.
 
 > [!NOTE]
-> **Build again after a game update.** A built mod contains the table as it was at build time, so lines that the game adds or rewrites later are hidden behind it. A new build takes the new table and puts the project's lines back into it. If the game rewrote a line that the project changes, the Text Editor shows a warning.
+> **Build again after a game update.** A built mod contains the table as it was at build time, so lines that the game adds or rewrites later are hidden behind it. A new build takes the new table and puts the project's lines back into it. If the game rewrote a line that the project changes, the Text tab shows a warning.
 
 ## Subtitles of voice lines
 
 The game files don't link voice lines to subtitles. Audiodiver matched them by what each line says and how long it is. Select a voice line and click the **Subtitle** link to open the subtitle here.
 
-Often several subtitles have the same words. For example, the game has 32 subtitles that say *Reloading.* For many of them, the length of the recording isn't enough to tell them apart. A line like this is marked **one of several**. The Text Editor lists every subtitle with those words and opens the most likely one. Change all of them to make sure the new words appear.
+Often several subtitles have the same words. For example, the game has 32 subtitles that say *Reloading.* For many of them, the length of the recording isn't enough to tell them apart. A line like this is marked **one of several**. The Text tab lists every subtitle with those words and opens the most likely one. Change all of them to make sure the new words appear.

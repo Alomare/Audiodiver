@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import { HIDEABLE, type Hideable } from "./nav";
 
 /** How the app behaves (Settings ▸ System, and the build switches on the Build tab). Kept per user in
     localStorage, like the theme. Where the game is lives in the core's settings instead (Session.set_game_folder):
@@ -12,9 +13,14 @@ export type Settings = {
   updates: UpdateMode;   // what a new version of Audiodiver found at startup does
   bumpVersion: boolean;  // raise the mod's version by one after each build
   revealBuild: boolean;  // show the built ZIP in its folder when a build finishes
+  tabs: Hideable[];      // the hideable tabs that show (a project can choose its own on the Project tab)
 };
 
-export const DEFAULT_SETTINGS: Settings = { openLast: false, tips: "normal", updates: "prompt", bumpVersion: true, revealBuild: false };
+export const DEFAULT_SETTINGS: Settings = { openLast: false, tips: "normal", updates: "prompt", bumpVersion: true, revealBuild: false,
+  tabs: [...HIDEABLE] };
+/** A list of hideable tabs in the bar's order, or null for anything else. */
+export const tabList = (v: unknown): Hideable[] | null =>
+  Array.isArray(v) && v.every((t) => (HIDEABLE as readonly unknown[]).includes(t)) ? HIDEABLE.filter((t) => v.includes(t)) : null;
 /** How long the pointer rests on something before its tooltip shows, in ms. */
 export const TIP_DELAY: Record<Exclude<TipSpeed, "off">, number> = { quick: 150, normal: 500, slow: 1100 };
 export const TIP_SPEEDS: [TipSpeed, string][] = [["off", "Off"], ["quick", "Quick"], ["normal", "Normal"], ["slow", "Slow"]];
@@ -34,7 +40,8 @@ function load(): Settings {
       const flag = (k: "openLast" | "bumpVersion" | "revealBuild") => (typeof s[k] === "boolean" ? s[k] : DEFAULT_SETTINGS[k]);
       return { openLast: flag("openLast"), bumpVersion: flag("bumpVersion"), revealBuild: flag("revealBuild"),
         tips: TIP_SPEEDS.some(([t]) => t === s.tips) ? s.tips : DEFAULT_SETTINGS.tips,
-        updates: UPDATE_MODES.some(([m]) => m === s.updates) ? s.updates : DEFAULT_SETTINGS.updates };
+        updates: UPDATE_MODES.some(([m]) => m === s.updates) ? s.updates : DEFAULT_SETTINGS.updates,
+        tabs: tabList(s.tabs) ?? DEFAULT_SETTINGS.tabs };
     }
   } catch { /* storage off or bad value */ }
   return DEFAULT_SETTINGS;

@@ -22,10 +22,11 @@ The tab bar along the top of the window holds the main tabs in two groups. Home 
 
 - {icon:home} **Home** starts a new project or opens one, and leads to Repatch and Combine.
 - {icon:tools} **Tools** works on existing mods, without a project. [Repatch](wiki:repatching) rebuilds a mod for the current game version, and [Combine Mods](wiki:combining-mods) makes one mod out of several. Both produce a new ZIP.
-- {icon:project} **Project** holds the mod name, description, icon and id, and the project folder, with **Import patches…** and **Close project** by its title. With no project open, it lists the recent projects. The tab shows the project icon and name.
+- {icon:project} **Project** holds the mod name, description, icon and id, the tabs the project shows, and the project folder, with **Import patches…** and **Close project** over the icon. With no project open, it lists the recent projects. The tab shows the project icon and name.
 - {icon:library} **Library** lists everything the game plays, so you can find it and listen to it. Browsing changes nothing. **Add to the project** puts an entry in the project. **Index** sorts the audio that has a name, and **All Archives** lists every archive that contains audio.
-- {icon:audio} **Audio Editor** shows what the project works on. Slots get new audio here.
-- {icon:text} **Text Editor** has all in-game text in every language, including subtitles. See [Text and subtitles](wiki:text).
+- {icon:audio} **Audio** shows the slots of what the project works on. Slots get new audio here.
+- {icon:soundtrack} **Soundtrack** sets how each piece of music plays: in its original order, as one song, as a playlist, or silent. See [Soundtrack](wiki:soundtrack).
+- {icon:text} **Text** has all in-game text in every language, including subtitles. See [Text and subtitles](wiki:text).
 - {icon:build} **Build** holds the next version, the Build options and the Build button. A dot on the tab means the project isn't built yet, or it changed or the game updated since the last build. A red number counts the problems that block a build.
 - {icon:updates} **Updates**, {icon:wiki} **Wiki** ({key:wiki}) and {icon:settings} **Settings** are at the end of the tab bar. Updates is highlighted when a new version of Audiodiver is available, and it lists the changes in every version.
 
@@ -33,7 +34,11 @@ The version number at the right end of the status bar also opens Updates. The {i
 
 The window title is the name of the open project.
 
-The Library and the Audio Editor share the same layout, and both have {icon:export} **Export**. Find something in the Library and work on it in the Audio Editor.
+The Library and the Audio tab share the same layout, and both have {icon:export} **Export**. Find something in the Library and work on it in the Audio tab.
+
+## Tabs
+
+Audio, Soundtrack and Text can be hidden. Untick them under **Tabs** in [Settings ▸ System](app:settings/system), for example to keep only Text for a mod that changes subtitles. A new project starts with the tabs that Settings shows. Each project can then choose its own under **Tabs** on the [Project](app:project) tab, and keeps that choice.
 
 ## New versions of Audiodiver
 
@@ -53,7 +58,7 @@ An update replaces only the app. Projects, audio files and settings are kept.
 
 ### Startup
 
-With **Open the last project when Audiodiver starts** on, Audiodiver opens the last project in the Audio Editor. With it off, Audiodiver starts on Home.
+With **Open the last project when Audiodiver starts** on, Audiodiver opens the last project on the Audio tab. With it off, Audiodiver starts on Home.
 
 ### Disk space
 

@@ -9,7 +9,8 @@ export type CommandId =
   | "silence"
   | "search" | "back" | "forward"
   | "save" | "undo" | "redo" | "build" | "newProject" | "openProject" | "closeProject"
-  | "tabHome" | "tabProject" | "tabLibrary" | "tabEditor" | "tabText" | "tabBuild" | "tabTools" | "updates" | "wiki" | "settings" | "shortcuts";
+  | "tabHome" | "tabProject" | "tabLibrary" | "tabEditor" | "tabSoundtrack" | "tabText" | "tabBuild" | "tabTools"
+  | "updates" | "wiki" | "settings" | "shortcuts";
 
 export type Command = {
   id: CommandId; group: string; label: string;
@@ -52,9 +53,10 @@ export const COMMANDS: Command[] = [
   { id: "tabTools", group: "Tabs", label: "Go to Tools", keys: ["Ctrl+2"], inputs: true },
   { id: "tabProject", group: "Tabs", label: "Go to Project", keys: ["Ctrl+3"], inputs: true },
   { id: "tabLibrary", group: "Tabs", label: "Go to the Library", keys: ["Ctrl+4"], inputs: true },
-  { id: "tabEditor", group: "Tabs", label: "Go to the Audio Editor", keys: ["Ctrl+5"], inputs: true },
-  { id: "tabText", group: "Tabs", label: "Go to the Text Editor", keys: ["Ctrl+6"], inputs: true },
-  { id: "tabBuild", group: "Tabs", label: "Go to Build", keys: ["Ctrl+7"], inputs: true },
+  { id: "tabEditor", group: "Tabs", label: "Go to Audio", keys: ["Ctrl+5"], inputs: true },
+  { id: "tabSoundtrack", group: "Tabs", label: "Go to Soundtrack", keys: ["Ctrl+6"], inputs: true },
+  { id: "tabText", group: "Tabs", label: "Go to Text", keys: ["Ctrl+7"], inputs: true },
+  { id: "tabBuild", group: "Tabs", label: "Go to Build", keys: ["Ctrl+8"], inputs: true },
   { id: "updates", group: "Tabs", label: "Open or close Updates", keys: [], inputs: true },
   { id: "wiki", group: "Tabs", label: "Open or close the Wiki", keys: ["F1"], inputs: true },
   { id: "settings", group: "Tabs", label: "Open or close Settings", keys: ["Ctrl+,"], inputs: true },
@@ -66,9 +68,10 @@ const BY_ID = new Map(COMMANDS.map((c) => [c.id, c]));
 export const FIXED: [string, string][] = [
   ["Click ▶", "play, and select the slot"],
   ["Double-click a slot", "play the new audio, or the original if there is none"],
-  ["Ctrl+click, Shift+click", "add a slot to the selection, or select a range"],
+  ["Ctrl+click, Shift+click, a slot's tick", "add a slot to the selection, or select a range"],
   ["Right-click", "every other action"],
-  ["Drop files on a piece, a part or a slot in the Audio Editor", "fill it, in file-name order"],
+  ["Drop files on a piece, a part or a slot in the Audio tab", "fill it, in file-name order"],
+  ["Drop files on a place of a playlist in the Soundtrack", "put the songs there and in the places after it"],
   ["↑ ↓ then Enter in the search box", "open a match"],
   ["Mouse back / forward", "go back or forward"],
   ["Esc", "close a dialog or a menu"],

@@ -143,12 +143,13 @@ class SegmentPlan:
 
 class Renderer:
     """Renders segments and cues of one cue-map cue. `vanilla(sid)` returns the path of a source's game audio;
-    `mine` maps replaced source ids to Mine and `overrides` segment ids to cue-point overrides (both empty to render
-    the game's own music)."""
+    `mine` maps replaced source ids to Mine, `overrides` segment ids to cue-point overrides and `levels` music tracks
+    to the Make-Up Gain a piece's level puts on them (all empty to render the game's own music)."""
 
-    def __init__(self, cue: dict, vanilla, mine: dict[int, Mine] | None = None, overrides: dict | None = None):
+    def __init__(self, cue: dict, vanilla, mine: dict[int, Mine] | None = None, overrides: dict | None = None,
+                 levels: dict[int, float] | None = None):
         self.cue, self.vanilla = cue, vanilla
-        self.mine, self.overrides = mine or {}, overrides or {}
+        self.mine, self.overrides, self.levels = mine or {}, overrides or {}, levels or {}
         self.segments = {}
         for s in cue["segments"]:
             self.segments.setdefault(s["segment"], s)
@@ -206,7 +207,8 @@ class Renderer:
             sub = self._subtrack(st, variants, take)
             gains = [self.mine[sl["source"]].gain_db for sl in st["slots"]
                      if sl["source"] in self.mine and self.mine[sl["source"]].gain_db]
-            gain = max(gains) if gains else 0.0  # make-up gain sits on the track, so it lifts every clip of it
+            gain = (max(gains) if gains else 0.0) + self.levels.get(st["track"], 0.0)  # make-up gain sits on the
+            # track, so it lifts every clip of it
             for c in st["clips"]:
                 sid = c["source"]
                 m = self.mine.get(sid)
@@ -287,13 +289,14 @@ class Renderer:
         tree = self.cue.get("playlist")
         return bool(tree and walk(tree))
 
-    def layout(self, variants=None, loops=1) -> tuple[list, list[float], float, list[dict]]:
-        """How the cue plays through: (plans with their take, each one's start ms, total ms, marks). The marks say
+    def layout(self, variants=None, loops=1, order=None) -> tuple[list, list[float], float, list[dict]]:
+        """How the cue plays through (or the segments of `order`, one fight's: soundtrack.fight): (plans with their
+        take, each one's start ms, total ms, marks). The marks say
         where each segment's Entry and Exit fall (ms), and where each of its clips plays: `at_ms` in the
         play-through, from `offset_ms` of its source, for `length_ms`. That is what lets a slot's waveform show
         where the play-through is in it."""
         takes, plans = {}, []
-        for seg in self.order(loops):
+        for seg in self.order(loops) if order is None else order:
             take = takes.get(seg, 0)
             takes[seg] = take + 1
             plans.append((self.plan(seg, variants, take), take))

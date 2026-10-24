@@ -1,9 +1,42 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { call, type Place } from "./api";
 import type { CommandId } from "./keys";
-import { SearchIcon } from "./Icons";
+import { HeaderIcon, SearchIcon, WavesIcon } from "./Icons";
 import { where } from "./music";
+import { RESET_LAYOUT } from "./settings";
 import { useEditor } from "./store";
+
+/** Whether a view's header and waveforms show (the Audio tab, the Library, the Soundtrack), kept between sessions.
+    Reset panel sizes (Settings ▸ System) shows both again. */
+export type Panels = { head: boolean; waves: boolean };
+export function usePanels(view: string) {
+  const key = `audiodiver.panels.${view}`;
+  const [v, setV] = useState<Panels>(() => {
+    try { const s = JSON.parse(localStorage.getItem(key) ?? "{}"); return { head: s.head !== false, waves: s.waves !== false }; }
+    catch { return { head: true, waves: true }; }
+  });
+  useEffect(() => { try { localStorage.setItem(key, JSON.stringify(v)); } catch { /* storage off */ } }, [key, v]);
+  useEffect(() => {
+    const reset = () => setV({ head: true, waves: true });
+    window.addEventListener(RESET_LAYOUT, reset);
+    return () => window.removeEventListener(RESET_LAYOUT, reset);
+  }, []);
+  return [v, setV] as const;
+}
+
+/** The two buttons at the end of the toolbar that show or hide the header and the waveforms. */
+export function PanelToggles({ panels, set }: { panels: Panels; set: (p: Panels) => void }) {
+  return (
+    <div className="panel-toggles">
+      <button className={`icon-btn${panels.head ? " on" : ""}`} aria-pressed={panels.head} aria-label="Header"
+        onClick={() => set({ ...panels, head: !panels.head })} data-tip={panels.head ? "Hide the header" : "Show the header"}>
+        <HeaderIcon on={panels.head} /></button>
+      <button className={`icon-btn${panels.waves ? " on" : ""}`} aria-pressed={panels.waves} aria-label="Waveforms"
+        onClick={() => set({ ...panels, waves: !panels.waves })} data-tip={panels.waves ? "Hide the waveforms" : "Show the waveforms"}>
+        <WavesIcon on={panels.waves} /></button>
+    </div>
+  );
+}
 
 /** A button of the toolbar above the slots: an icon, with the tool's name and what it does in its tooltip. */
 export function ToolButton({ icon, name, about, cmd, primary, disabled, onClick }: {
@@ -31,7 +64,7 @@ export function SlotSearch({ value, onChange, sounds }: { value: string; onChang
 type Named = Place & { label?: string };
 
 /** Where else a search of the slots leads, when nothing here matches: an id or a community label, anywhere in the
-    game. A place in the project opens in the Audio Editor, any other in the Library. */
+    game. A place in the project opens in the Audio tab, any other in the Library. */
 export function Elsewhere({ query, here }: { query: string; here: string }) {
   const { itemIndex, project, goTo } = useEditor();
   const [places, setPlaces] = useState<Named[] | null>(null);

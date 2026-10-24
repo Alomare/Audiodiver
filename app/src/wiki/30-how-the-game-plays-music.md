@@ -10,7 +10,7 @@ Helldivers 2 doesn't play songs from start to end. It plays music in pieces and 
 
 A piece of music is a chain of **segments**, and each segment holds one or more **slots** (clips). When a segment reaches the **Exit** point, the next segment starts and the rest of the first one rings out over it.
 
-For example, the drop location screen plays a start segment once, then fourteen loops in order. It repeats the loops until the screen closes. Where a piece starts depends on what played before. The loadout screen that comes next skips the start segment and continues the loops from where the drop location music stopped.
+For example, the drop location screen plays a start segment once, then fourteen loops in order. It repeats the loops until the screen closes. Where a piece starts depends on what played before. The loadout screen that comes next skips the start segment and continues the loops from where the drop location music stopped. The [Soundtrack](wiki:soundtrack) shows the order of each piece and can change it.
 
 ## Layers
 
@@ -22,7 +22,7 @@ A slot with a condition, such as a biome, plays only when that condition is met.
 
 ## Transitions and stingers
 
-**Transitions** (↝) play between two pieces of music, for example from the ship music into the hellpod. A transition plays the original until it is replaced, so an original transition can end up between two pieces of new music. The Audio Editor warns about this above the list and marks those transitions with **!**. **Skip** adds them to the project and replaces them with silence, so the game moves straight on.
+**Transitions** (↝) play between two pieces of music, for example from the ship music into the hellpod. A transition plays the original until it is replaced, so an original transition can end up between two pieces of new music. The Audio tab warns about this above the list and marks those transitions with **!**. **Skip** adds them to the project and replaces them with silence, so the game moves straight on.
 
 **Stingers** (✦) play over the music at certain moments, like the fanfare when you complete a main objective.
 

@@ -2,17 +2,13 @@ import { useEffect, useState, type ReactNode } from "react";
 import { nav } from "./nav";
 import { useEditor } from "./store";
 
-/** The frame the Build and Settings tabs share: a page that scrolls, with one big title, and `actions` on the
-    title's line at the right (the Project tab's Import patches and Close project). */
-export function Page({ title, lead, wide, actions, children }: { title: string; lead?: ReactNode; wide?: boolean; actions?: ReactNode; children: ReactNode }) {
+/** The frame the Project, Build and Settings tabs share: a page that scrolls, with one big title. */
+export function Page({ title, lead, wide, children }: { title: string; lead?: ReactNode; wide?: boolean; children: ReactNode }) {
   return (
     <section className="page" aria-label={title}>
       <div className={`page-inner view-in${wide ? " wide" : ""}`}>
         <header className="page-head">
-          <div className="page-title">
-            <h1>{title}</h1>
-            {actions && <div className="page-actions">{actions}</div>}
-          </div>
+          <h1>{title}</h1>
           {lead && <p className="page-lead">{lead}</p>}
         </header>
         {children}

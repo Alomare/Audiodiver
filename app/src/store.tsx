@@ -1,15 +1,15 @@
 import { createContext, use, useCallback, useContext, useEffect, useMemo, useRef, useState, type Context, type ReactNode } from "react";
-import { call, plural, type ArchiveRow, type Assignment, type Cue, type Index, type Job, type MusicItem, type Place as Found, type ProjectState, type Status } from "./api";
+import { call, plural, type ArchiveRow, type Assignment, type Cue, type Index, type Job, type MusicItem, type Piece, type Place as Found, type ProjectState, type Status } from "./api";
 import { choose, confirm } from "./Confirm";
 import { JOB_NAMES } from "./jobs";
 import { keyHint, keyLabel } from "./keys";
 import { indexItems } from "./music";
-import { FOLD_LIBRARY, nav as tabs } from "./nav";
+import { FOLD_LIBRARY, nav as tabs, type Hideable } from "./nav";
 import { notes } from "./noteStore";
 import { UTILS } from "./edition";
 import * as platform from "./platform";
 import type { PlayedAt } from "./player";
-import { settings } from "./settings";
+import { settings, useSettings } from "./settings";
 import { motionMs } from "./theme";
 
 export type Notice = {
@@ -43,6 +43,10 @@ export const EDIT_NAMES: Record<string, string> = {
   move: "move", segment: "cue points", settings: "mod details", import: "import", add: "add to the project",
   unlist: "remove from the project", text: "text change", "add take": "new takes", "add layer": "new layer",
   "own clip": "only this sound", "shared clip": "every sound that plays it", note: "note", collect: "collect files",
+  tabs: "tabs", song: "song", playlist: "playlist", soundtrack: "soundtrack", level: "level", "leave out": "leave out",
+  "put back": "put back", shuffle: "shuffle", resume: "playlist order", Original: "Original", "One song": "One song",
+  Playlist: "Playlist", Silent: "Silent", "Same as Battle": "Same as Battle", "Battle songs": "Battle songs",
+  "Quiet exploring": "Quiet exploring", "No openings": "No openings", "Original soundtrack": "Original soundtrack",
 };
 
 /** "a.wav, b.wav and 3 more". */
@@ -276,10 +280,12 @@ function useEditorState() {
     if (changed) { coreRevision.current = rev; editSeq.current++; }
     setProject(p);
     notes.setProject(p?.notes);
+    if (!UTILS) tabs.setShown(p?.tabs ?? settings.get().tabs); // before any tab opens for it
     // previews and waveforms are fetched again only when the audio itself may have changed: another file, silence,
-    // the icon, or files chosen again (they may have been rewritten on disk). A gain or a cue point keeps them.
+    // the icon, or files chosen again (they may have been rewritten on disk: a song cut again). A gain or a cue point
+    // keeps them.
     const sig = p ? JSON.stringify([Object.entries(p.assignments).map(([s, a]) => [s, a.audio, a.silence, a.exists, a.duration_ms]), p.icon]) : "";
-    if (sig !== audioSig.current || (changed && ["assign", "fill", "import"].includes(p?.undo_label ?? ""))) {
+    if (sig !== audioSig.current || (changed && ["assign", "fill", "import", "song", "playlist"].includes(p?.undo_label ?? ""))) {
       audioSig.current = sig;
       setRevision((r) => r + 1);
     }
@@ -346,13 +352,13 @@ function useEditorState() {
                 } else {
                   const p = await call<ProjectState>("project_open", { path: launched });
                   if (stop) return;
-                  applyProject(p); remember(p.path); tabs.go("editor");
+                  applyProject(p); remember(p.path); tabs.go(tabs.work());
                   if (p.repairs.length) notify("info", repairNote(p), undefined, true);
                 }
               } catch (e: any) {
                 if (!stop) notify("bad", String(e?.message ?? e), undefined, true);
               }
-            } else if (s.project) { applyProject(s.project); tabs.go("editor"); } // the core kept it open (the window reloaded)
+            } else if (s.project) { applyProject(s.project); tabs.go(tabs.work()); } // the core kept it open (the window reloaded)
             else if (!UTILS && settings.get().openLast) {
               const last = recentProjects()[0];
               if (last) {
@@ -360,7 +366,7 @@ function useEditorState() {
                   const p = await call<ProjectState>("project_open", { path: last });
                   if (stop) return;
                   applyProject(p);
-                  tabs.go("editor");
+                  tabs.go(tabs.work());
                   quick(`**${p.name}** opened`, "info");
                   // sticky, these two: at startup the update question may be over them
                   if (p.repairs.length) notify("info", repairNote(p), undefined, true);
@@ -520,7 +526,7 @@ function useEditorState() {
       const brought = [r.imported ? plural(r.imported, "replaced sound") : "", r.added ? plural(r.added, "added sound") : "",
         r.settings ? `Settings on ${plural(r.settings, "sound or container", "sounds and containers")}` : ""].filter(Boolean);
       const lines = [
-        brought.length ? "Imported from the patch into the Audio Editor:" : "Imported nothing from the patch.",
+        brought.length ? "Imported from the patch into the Audio tab:" : "Imported nothing from the patch.",
         ...brought,
         r.skipped ? `${plural(r.skipped, "sound")} couldn't be decoded` : "",
         // sounds the patch still had from an older game version: not the mod's, so not imported (Wiki: Repatching)
@@ -541,7 +547,7 @@ function useEditorState() {
     } else if (j.kind === "unpack") {
       // the pack's project, in a new folder where new projects go: it opens where it landed
       const p = await run<ProjectState>("project_open", { path: j.result.project });
-      if (p) { applyProject(p); remember(p.path); tabs.go("editor"); }
+      if (p) { applyProject(p); remember(p.path); tabs.go(tabs.work()); }
       notify("good", `Unpacked into ${j.result.folder}.`, { label: "Show in folder", run: () => platform.reveal(j.result.folder) });
       if (p?.repairs.length) notify("info", repairNote(p), undefined, true);
     } else {
@@ -578,7 +584,8 @@ function useEditorState() {
       if (!path) return;
       const name = path.split(/[\\/]/).pop()!.replace(/\.audi$/i, "");
       const from = tabs.get().tab;
-      const p = await run<ProjectState>("project_new", { path, name });
+      // it shows the tabs Settings ▸ System shows now, and keeps that choice
+      const p = await run<ProjectState>("project_new", { path, name, tabs: settings.get().tabs });
       if (p) {
         applyProject(p); remember(p.path);
         window.dispatchEvent(new Event(FOLD_LIBRARY)); // the Library starts folded for it
@@ -587,7 +594,7 @@ function useEditorState() {
       }
     },
     /** Writes the project file now. Edits save themselves; Ctrl+S also commits a field being typed in (the Project
-        tab's name, a line on the Text Editor), which saves when it loses focus. */
+        tab's name, a line on the Text tab), which saves when it loses focus. */
     async save() {
       if (!project) { quick("No project open", "info"); return; }
       const field = document.activeElement as HTMLElement | null;
@@ -603,7 +610,7 @@ function useEditorState() {
       if (/\.audipack$/i.test(path)) return openPack(path);
       const p = await run<ProjectState>("project_open", { path });
       if (p) {
-        applyProject(p); remember(p.path); tabs.go("editor");
+        applyProject(p); remember(p.path); tabs.go(tabs.work());
         if (p.repairs.length) notify("info", repairNote(p), undefined, true); // a list to read: it waits for its ✕
       }
     },
@@ -725,6 +732,12 @@ function useEditorState() {
         const n = changed(p);
         editNotice("good", `Filled ${plural(n, "slot")} across ${what}, by file name.${fitNote(files.length, n)}`);
       }
+    },
+    /** One file into every one of these slots (several selected slots, the details panel's Choose a file for all). */
+    async assignAll(sources: string[], file: string) {
+      if (!needProject() || !sources.length) return;
+      const p = await run<ProjectState>("fill_sources", { sources, files: sources.map(() => file) });
+      if (p && edited(p)) quick(`**${file.split(/[\\/]/).pop()}** in ${plural(sources.length, "slot")}`);
     },
     async unassign(sources: string[]) {
       // asked again before the core's answer took the row away (the dialog gives the focus back to ✕: Enter twice)
@@ -853,6 +866,38 @@ function useEditorState() {
       editNotice("good", `Sliced into ${boundsMs.length - 1} pieces, filled in play order.`);
       return true;
     },
+    /** Sets how pieces of music play (null: as the game plays them), as one undo step; `done` confirms it. */
+    async soundtrackSet(pieces: Record<string, Piece | null>, label: string, done?: string) {
+      if (!needProject()) return false;
+      if (!edited(await run<ProjectState>("soundtrack_set", { pieces, label }))) return false;
+      if (done) quick(done);
+      return true;
+    },
+    /** A song cut into a piece of music's segments, played from the first every time the music starts. */
+    async songFill(cue: string, audio: string, boundsMs: number[], segments: string[]) {
+      if (!needProject()) return false;
+      if (!edited(await run<ProjectState>("song_fill", { cue, audio, bounds_ms: boundsMs, segments }))) return false;
+      editNotice("good", `Cut into ${plural(boundsMs.length - 1, "piece")}.`);
+      return true;
+    },
+    /** A playlist's songs place by place (core playlist_set): each place empty (null), a new file, or the song at
+        another place now (`keep`). `done` confirms it. */
+    async playlistSet(cue: string, places: ({ file: string } | { keep: number } | null)[], done?: string, options: { shuffle?: boolean; resume?: boolean } = {}) {
+      if (!needProject()) return false;
+      if (!edited(await run<ProjectState>("playlist_set", { cue, places, ...options }))) return false;
+      if (done) quick(done);
+      return true;
+    },
+    /** Sets other music as this one is set (core soundtrack_copy): `to` maps each to what it follows (Same as Battle)
+        or null. `what` names them for the note. */
+    async soundtrackCopy(cue: string, to: Record<string, string | null>, what: string) {
+      if (!needProject()) return false;
+      const p = await run<ProjectState & { short: string[] }>("soundtrack_copy", { cue, to });
+      if (!edited(p)) return false;
+      if (p!.short.length) editNotice("info", `Copied to ${what}. ${plural(p!.short.length, "of them has", "of them have")} fewer places, so the last songs or pieces were left out there.`);
+      else editNotice("good", `Copied to ${what}.`);
+      return true;
+    },
     async undo() {
       if (!project) return;
       const p = await run<ProjectState>("undo"); // after any save still on its way: that is what it undoes
@@ -898,8 +943,8 @@ function useEditorState() {
           { label: "Build tab", run: () => tabs.go("build") });
         return;
       }
-      if (!Object.keys(fresh.assignments).length && !fresh.texts.length) {
-        notify("info", "Nothing to build yet. Replace some audio or change a line of text first.");
+      if (!Object.keys(fresh.assignments).length && !fresh.texts.length && !Object.keys(fresh.soundtrack ?? {}).length) {
+        notify("info", "Nothing to build yet. Replace some audio, set a piece in the Soundtrack or change a line of text first.");
         return;
       }
       const job = await run<Job>("build", { bump: settings.get().bumpVersion });
@@ -1046,7 +1091,7 @@ const BROWSING = Object.fromEntries((["library", "editor"] as const).map((scope)
 })) as Record<ScopeName, Browse>;
 
 /** The app's state, with the browsing of the tab this component is in (what is open and selected there). Outside
-    the two tabs that browse, that is the Audio Editor's. The browsing comes from the tab's own contexts as its fields
+    the two tabs that browse, that is the Audio tab's. The browsing comes from the tab's own contexts as its fields
     are read (see BROWSING): a component that takes only `project` and `actions` isn't drawn again when a slot is
     selected. So take the fields while rendering, as `const { cue, selected } = useEditor()` does: one read only in a
     handler gets the tab's browsing as it is then, but doesn't draw the component again when it changes. */
@@ -1066,4 +1111,13 @@ export function useEditor() {
     return scopes[scope].openItem(itemId, part, select);
   };
   return Object.assign(Object.create(BROWSING[scope]) as Browse, e, { scope, readOnly: scope === "library", show });
+}
+
+/** The tabs that can be hidden that show now: the open project's choice, else Settings ▸ System's. */
+export function useShownTabs(): Hideable[] {
+  const project = useContext(Ctx)?.project;
+  const system = useSettings().tabs;
+  const list = project?.tabs ?? system;
+  const key = list.join();
+  return useMemo(() => list, [key]); // eslint-disable-line react-hooks/exhaustive-deps
 }

@@ -3,6 +3,7 @@ undone, plus background jobs (game loading, builds, patch imports). The HTTP ser
 this, so everything here is testable without a browser.
 """
 import collections
+import copy
 import logging
 import math
 import os
@@ -19,7 +20,7 @@ from types import SimpleNamespace
 from . import wem
 from .errors import os_error, plain  # noqa: F401 (server.py takes them from here too)
 from .index import AudioIndex, CACHE_DIR
-from .project import GAIN_DB, Addition, Project, ProjectFormatError, Replacement, TextEdit, write_whole
+from .project import GAIN_DB, TABS, Addition, Project, ProjectFormatError, Replacement, TextEdit, tab_list, write_whole
 
 log = logging.getLogger("audiodiver")
 LOG_FILE = CACHE_DIR / "logs" / "core.log"
@@ -187,6 +188,7 @@ class Session:
         self._facts = {}  # what project_state found out about the project's folder (_folder_facts)
         # Combine: each patch read (combine.Part) by its digest, and the digest of a patch by where it is and its time
         self._combine_parts, self._combine_ids = collections.OrderedDict(), {}
+        self._music_objs = None  # (index, the game's music objects): read when the Soundtrack first needs them
         if load:
             threading.Thread(target=self._load_game, daemon=True).start()
 
@@ -305,7 +307,7 @@ class Session:
     def cue(self, cue_id, mine=False):
         """What opens in the middle: a music cue by its id, a bank's sounds as "bank:<id>", an archive's loose
         streams as "streams:<archive>", or one sound as "sfx:<source>". mine: a bank's sounds with the audio the open
-        project adds to them (the Audio Editor's view; the Library shows the game's)."""
+        project adds to them (the Audio tab's view; the Library shows the game's)."""
         self.require_game()
         try:
             cue_id = str(cue_id)
@@ -313,6 +315,12 @@ class Session:
                 self.lib.view(cue_id, self._overlay() if mine else None)
         except KeyError:
             raise EditorError(f"No cue {cue_id}") from None
+        # a playlist says whether it plays its slots top to bottom (the Soundtrack shows the order when it doesn't)
+        if cue_id.isdigit() and view.get("kind") == "playlist":
+            from . import music, soundtrack as st
+            pl = self._music().get(int(cue_id))
+            if isinstance(pl, music.MusicPlaylist):
+                view["ordered"] = st.in_order(pl.root, st.entry_item(self._music(), pl.id))
         # every slot also says the file id of the stream that holds its audio ("" when it is only inside banks): the
         # 64-bit id modders often go by
         for seg in view.get("segments_detail", []):
@@ -343,9 +351,9 @@ class Session:
         cat, out, seen = self.catalog, [], set()
         named = [*cat.labels.items(), *((k, [c["label"]]) for k, c in cat.clips.items() if c.get("label"))]
         for key, labels in named:
-            if not has(" ".join(labels)):
+            label = next((l for l in labels if has(l)), None)  # one label has every word: it says why it matched
+            if label is None:
                 continue
-            label = next((l for l in labels if has(l)), labels[0])
             places = [p for p in self.lib.places(int(key)) if p["item"]]
             for p in [p for p in places if p["cue"].isdigit()] or places:
                 at = (p["item"], p["cue"], p["source"])
@@ -456,12 +464,15 @@ class Session:
         return self.fill(cue_id, [str(p) for p in pieces], start_source=start_source)
 
     # --- project lifecycle
-    def new_project(self, path, name, folder=False):
+    def new_project(self, path, name, folder=False, tabs=None):
         """A new, empty project at path. folder: the project gets a folder of its own there, named like the file
-        (`Dune.audi` chosen in Mods is Mods/Dune/Dune.audi), unless the folder chosen is named like it already."""
+        (`Dune.audi` chosen in Mods is Mods/Dune/Dune.audi), unless the folder chosen is named like it already.
+        tabs: the hideable tabs it shows (project.TABS), as Settings has them; None leaves it to Settings."""
         from .projectfiles import folder_name
         if not given(path) or not Path(path).is_absolute():
             raise EditorError("Choose where to save the project (a full path)")
+        if tabs is not None and (tabs := tab_list(tabs)) is None:
+            raise EditorError("The tabs are some of " + ", ".join(TABS))
         path = Path(path).resolve()
         if path.suffix.lower() != ".audi":
             path = path.with_name(path.name + ".audi")  # "Dune 2.0" is Dune 2.0.audi, not Dune 2.audi
@@ -475,7 +486,7 @@ class Session:
             raise EditorError(f"Can't make the folder {path.parent}: {os_error(e)}") from None
         name = str(name or "").strip() or path.stem.strip() or "My mod"
         with self.lock:
-            self.project = Project(name=name, path=path, library=[])  # blank: nothing to edit yet
+            self.project = Project(name=name, path=path, library=[], tabs=tabs)  # blank: nothing to edit yet
             self.project.save()
             self.undo_stack, self.redo_stack = [], []
             self.revision += 1
@@ -948,6 +959,7 @@ class Session:
                 "segment_overrides": {str(k): v for k, v in p.segment_overrides.items()},
                 "texts": [{"table": str(t.table), "id": t.id, "text": t.text, "was": t.was} for t in p.texts],
                 "additions": p.to_json().get("additions", []), "settings": len(p.settings), "notes": dict(p.notes),
+                "soundtrack": {str(k): v.to_json() for k, v in p.soundtrack.items()}, "tabs": p.tabs,
                 "problems": problems, "can_undo": bool(self.undo_stack), "can_redo": bool(self.redo_stack),
                 "undo_label": self.undo_stack[-1][0] if self.undo_stack else None,
                 "redo_label": self.redo_stack[-1][0] if self.redo_stack else None}
@@ -1257,11 +1269,11 @@ class Session:
             return str(folder)
 
     def settings(self, **fields):
-        """Changes what the build packages the mod as (name, version, description, icon, a new id) and where its
-        builds go. Every value is checked before any is changed."""
+        """Changes what the build packages the mod as (name, version, description, icon, a new id), where its
+        builds go, and the tabs the project shows. Every value is checked before any is changed."""
         from . import akd
         bad = set(fields) - {"name", "version", "description", "icon", "build_folder", "guid", "loudness_analysis",
-                             "every_bank"}
+                             "every_bank", "tabs"}
         if bad:
             raise EditorError(f"Unknown setting {sorted(bad)[0]}")
         checked = {}
@@ -1285,6 +1297,8 @@ class Session:
                     raise EditorError(f"Loudness analysis: {why}")
             elif k == "every_bank" and not isinstance(v, bool):
                 raise EditorError("Every bank is on or off")
+            elif k == "tabs" and v is not None and (v := tab_list(v)) is None:
+                raise EditorError("The tabs are some of " + ", ".join(TABS))
             checked[k] = v
 
         def apply(p):
@@ -1306,7 +1320,9 @@ class Session:
                     p.loudness_analysis = v
                 elif k == "every_bank":
                     p.every_bank = v
-        return self._edit("settings", apply)
+                elif k == "tabs":  # None: as Settings says again
+                    p.tabs = v
+        return self._edit("tabs" if set(checked) == {"tabs"} else "settings", apply)
 
     def set_note(self, key, project_text):
         """Writes the open project's note on one thing (notes.py's keys); "" removes it. One undoable edit. Returns
@@ -1623,8 +1639,8 @@ class Session:
         with self.build_lock:  # two builds sent together both started, and wrote one .partial ZIP
             if any(j.kind == "build" and j.state == "running" for j in self.jobs.values()):
                 raise EditorError("A build is already running")
-            if not p.replacements and not p.texts:
-                raise EditorError("Nothing to build yet. Replace some audio or change a line of text first.")
+            if not p.replacements and not p.texts and not p.soundtrack:
+                raise EditorError("Nothing to build yet. Replace some audio, set a piece in the Soundtrack or change a line of text first.")
             if problems := self.project_state()["problems"]:
                 raise EditorError(f"Fix the problems on the Build tab first: {problems[0]}"
                                   + (f" (and {len(problems) - 1} more)" if len(problems) > 1 else ""))
@@ -2494,16 +2510,34 @@ class Session:
                 if p.audio_path(r).exists()}
 
     def _renderer(self, cue_id, side):
-        """A renderer for the game's own music ("game") or the music as the open project changes it ("mine")."""
+        """A renderer for the game's own music ("game") or the music as the open project changes it ("mine"): its
+        new audio and cue points, and the order and level the Soundtrack gives the piece (a piece that plays another
+        renders that one)."""
+        from . import soundtrack as st
         from .render import Renderer
         self.require_game()
         cue = self.catalog.cm.cues.get(int(cue_id)) if str(cue_id).isdigit() else None
         if not cue:
             raise EditorError(f"{cue_id} is not a piece of music. Only music has segments to mix and play through.")
-        mine, overrides = {}, {}
+        mine, overrides, levels = {}, {}, {}
         if side == "mine":
-            mine, overrides = self._mine(), self._need_project().segment_overrides
-        return Renderer(cue, self.vanilla_wav, mine, overrides)
+            p = self._need_project()
+            piece = p.soundtrack.get(cue["id"])
+            if piece and piece.mode == "silent":
+                raise EditorError("This piece is set to Silent, so it plays nothing")
+            if piece and piece.mode == "same" and piece.follows in self.catalog.cm.cues:
+                cue = self.catalog.cm.cues[piece.follows]
+                piece = p.soundtrack.get(cue["id"])
+            if piece and cue.get("playlist"):
+                try:
+                    new = st.tree(self._music(), cue["id"], piece)
+                except ValueError:
+                    new = None
+                if new is not None:
+                    cue = {**cue, "playlist": st.as_dict(new)}
+            mine, overrides = self._mine(), p.segment_overrides
+            levels = st.levels(self._music(), p.soundtrack) if p.soundtrack else {}
+        return Renderer(cue, self.vanilla_wav, mine, overrides, levels)
 
     def _variant_name(self, group, value) -> str:
         return self.catalog.variant(group, value).split(": ", 1)[-1]
@@ -2522,16 +2556,24 @@ class Session:
         return {"music": True, "groups": groups, "random": r.has_random(), "playlist": bool(r.cue.get("playlist")),
                 "segments": len(r.segments)}
 
-    def play_through(self, cue_id, side="game", variants=None, loops=1):
+    def play_through(self, cue_id, side="game", variants=None, loops=1, fight=None):
         """Renders the whole cue to a preview file. Returns its path, its length and its marks: where each segment
-        starts and ends, by name, and where each of its clips plays (render.Renderer.layout)."""
+        starts and ends, by name, and where each of its clips plays (render.Renderer.layout). fight ({"ms", "state"})
+        renders one fight as the game plays it instead: from where the music starts, for about ms, with step groups
+        and random picks going on from state (soundtrack.fight); the answer's "state" is for the next fight."""
         from . import render
         r = self._renderer(cue_id, side)
-        names = {s["segment"]: s["name"] for s in self.catalog.cue(int(cue_id))["segments_detail"]}
+        names = {}
+        for s in self.catalog.cue(r.cue["id"])["segments_detail"]:
+            names.setdefault(s["segment"], s["name"])
+        state = None
         try:
             v = choices(variants)
             loops = loop_count(loops)
-            layout = r.layout(v, loops)
+            order = None
+            if fight is not None:
+                order, state = self._fight(r, side, fight)
+            layout = r.layout(v, loops, order)
             out = CACHE_DIR / "render" / f"{cue_id}-{side}.wav"
             render.write(out, r.stream(v, int(loops), layout), "preview")
         except (render.RenderError, subprocess.CalledProcessError) as e:
@@ -2539,7 +2581,345 @@ class Session:
         marks = layout[3]
         for m in marks:
             m["name"] = names.get(m["segment"], "")
-        return {"path": str(out), "duration_ms": round(layout[2], 1), "marks": marks, "random": r.has_random()}
+        return {"path": str(out), "duration_ms": round(layout[2], 1), "marks": marks, "random": r.has_random(),
+                **({"state": state} if state is not None else {})}
+
+    def _fight(self, r, side, fight):
+        """(segments, state) of one fight of the renderer's cue (play_through's fight)."""
+        from . import music, soundtrack as st
+        if not isinstance(fight, dict):
+            raise EditorError("A fight is {ms, state}")
+        objs = self._music()
+        pid = r.cue["id"]
+        pl = objs.get(pid)
+        if not isinstance(pl, music.MusicPlaylist):
+            raise EditorError("Only a playlist plays a fight")
+        root = pl.root
+        if side == "mine" and (piece := self._need_project().soundtrack.get(pid)):
+            try:
+                root = st.tree(objs, pid, piece) or root
+            except ValueError:
+                pass
+        entry = st.entry_item(objs, pid)
+        if entry and not st.path_to(root, entry):
+            entry = 0  # gone from this tree: the music starts at its top
+        state = fight.get("state")
+        state = {k: {str(i): int(n) for i, n in v.items() if isinstance(n, int)} for k, v in state.items()
+                 if k in ("step", "last") and isinstance(v, dict)} if isinstance(state, dict) else {}
+        try:
+            ms = max(10_000.0, min(600_000.0, float(fight.get("ms", 150_000))))
+        except (TypeError, ValueError):
+            raise EditorError("A fight's length is in milliseconds") from None
+
+        def length(seg):
+            p = r.plan(seg)
+            return p.exit_ms - p.entry_ms
+        return st.fight(root, entry, state, ms, length), state
+
+    # --- the Soundtrack (soundtrack.py): how each piece of music plays
+    def _music(self):
+        """The game's music objects (cuemap.load_music), read once for each game version."""
+        from . import cuemap
+        self.require_game()
+        cached = self._music_objs
+        if cached is None or cached[0] is not self.ix:
+            cached = self._music_objs = (self.ix, cuemap.load_music(self.ix)[0])
+        return cached[1]
+
+    def _playlist(self, cue_id) -> int:
+        """The playlist a cue id names, checked."""
+        from . import music
+        try:
+            pid = int(cue_id)
+        except (TypeError, ValueError, OverflowError):
+            raise EditorError(f"{cue_id!r} isn't a piece of music") from None
+        if not isinstance(self._music().get(pid), music.MusicPlaylist):
+            raise EditorError("Only a playlist has an order to change")
+        return pid
+
+    def playlist_map(self, cue_id):
+        """How a piece of music plays: its playlist's tree (soundtrack.as_dict), the item the music starts on, the tree
+        as the open project plays it ("mine", or None while that is the game's), the segments a song fills in order,
+        each segment's name, and the piece as the project sets it."""
+        from . import soundtrack as st
+        objs = self._music()
+        pid = self._playlist(cue_id)
+        root = objs[pid].root
+        names = {}
+        for s in self.catalog.cue(pid)["segments_detail"]:
+            names.setdefault(s["segment"], {"name": s["name"], "ms": round((s["exit_ms"] if s["exit_ms"] is not None
+                                                                           else s["duration_ms"]) - (s["entry_ms"] or 0), 1)})
+        piece = self.project.soundtrack.get(pid) if self.project else None
+        try:
+            mine = st.tree(objs, pid, piece)
+        except ValueError:
+            mine = None
+        entry = st.entry_item(objs, pid)
+        return {"cue": str(pid), "tree": st.as_dict(root), "mine": st.as_dict(mine) if mine is not None else None,
+                "entry": str(entry), "song": [str(s) for s in st.song_segments(root, entry)], "segments": names,
+                "piece": piece.to_json() if piece else {"mode": "original"}}
+
+    def _check_piece(self, pid, d):
+        """A piece as the window sends it (Piece.to_json), checked against the game's playlist."""
+        from . import music, soundtrack as st
+        objs = self._music()
+        try:
+            piece = st.Piece.from_json(d, GAIN_DB)
+        except (TypeError, ValueError, OverflowError) as e:
+            raise EditorError(f"Can't set that piece: {e}") from None
+        pl = objs[pid]
+        if bad := [s for s in piece.segments if s not in set(pl.segments())]:
+            raise EditorError(f"Segments {bad[:3]} aren't in this piece of music")
+        if bad := [i for i in piece.left_out if i not in st.items(pl.root)]:
+            raise EditorError(f"Items {bad[:3]} aren't in this piece of music")
+        if piece.mode == "same" and (piece.follows == pid or not isinstance(objs.get(piece.follows), music.MusicPlaylist)):
+            raise EditorError("Same song needs another piece of music to follow")
+        try:
+            st.tree(objs, pid, piece)
+        except ValueError as e:
+            try:
+                name = self.catalog.cue(pid)["name"]
+            except KeyError:
+                name = str(pid)
+            raise EditorError(f"{name}: {e}") from None
+        return piece
+
+    def soundtrack_set(self, pieces, label="soundtrack"):
+        """Sets how pieces of music play ({cue id: a piece as Piece.to_json, or None for the game's own}), as one
+        undo step (a template sets many at once)."""
+        if not isinstance(pieces, dict) or not pieces:
+            raise EditorError("Choose the pieces of music to set")
+        self._need_project()
+        checked = {}
+        for k, d in pieces.items():
+            pid = self._playlist(k)
+            checked[pid] = None if d is None else self._check_piece(pid, d)
+
+        def apply(p):
+            for pid, piece in checked.items():
+                if piece is None or piece.plain():
+                    p.soundtrack.pop(pid, None)
+                else:
+                    p.soundtrack[pid] = piece
+        return self._edit(str(label)[:60] or "soundtrack", apply)
+
+    def _segment_slots(self, pid):
+        """{segment id: [(slot, variant)]} of a playlist: the slots that can take audio, layer by layer. A slot's
+        variant is the switch value it plays at ("" for one that always plays)."""
+        out = {}
+        for s in self.catalog.cue(pid)["segments_detail"]:
+            if s["segment"] not in out:
+                out[s["segment"]] = [(int(sl["source"]), sl["variant"]) for st in s["stems"] for sl in st["slots"]
+                                     if not sl["unused"] and not sl["locked"] and not sl.get("absent")]
+        return out
+
+    def _whole_segments(self, p, pid, segments, files):
+        """Puts files[i] into segments[i], whole: into the first layer that plays at each switch value (low and high
+        intensity in the Extraction music), with the timing fitted to the file, and silence into the other layers
+        (keeping their timing). So the file plays alone, whatever the switch."""
+        slots = self._segment_slots(pid)
+        for seg, f in zip(segments, files):
+            first = {}
+            for sid, variant in slots.get(str(seg), []):
+                first.setdefault(variant, sid)
+            whole = set(first.values())
+            for sid in whole:
+                self._set(p, sid, f)
+                self._replacement(p, sid).fit_timing = True
+            for sid in {sid for sid, _ in slots.get(str(seg), [])} - whole:
+                r = self._replacement(p, sid)
+                if not r:
+                    r = Replacement(target=sid, audio="")
+                    p.replacements.append(r)
+                r.audio, r.label, r.silence, r.gain_db, r.fit_timing = "", "", True, 0.0, False
+
+    def _song_of(self, p, pid, seg):
+        """The song a segment holds (as _whole_segments puts it): a copy of its first slot's replacement, or None."""
+        for sid, _ in self._segment_slots(pid).get(str(seg), [])[:1]:
+            r = self._replacement(p, sid)
+            if r and not r.silence and r.audio:
+                return copy.copy(r)
+        return None
+
+    def _put_song(self, p, pid, seg, song):
+        """A song into a segment whole, as _whole_segments puts a file: the audio, label and Make-Up Gain of `song`
+        (a Replacement) on the first layer at each switch value, silence on the other layers."""
+        slots = self._segment_slots(pid).get(str(seg), [])
+        first = {}
+        for sid, variant in slots:
+            first.setdefault(variant, sid)
+        whole = set(first.values())
+        for sid, _ in slots:
+            r = self._replacement(p, sid)
+            if not r:
+                r = Replacement(target=sid, audio="")
+                p.replacements.append(r)
+            if sid in whole:
+                r.audio, r.label, r.silence, r.gain_db, r.fit_timing = song.audio, song.label, False, song.gain_db, True
+            else:
+                r.audio, r.label, r.silence, r.gain_db, r.fit_timing = "", "", True, 0.0, False
+
+    def _clear_song(self, p, pid, seg):
+        """Takes what a song put into a segment off its slots (the song and the silence on the other layers)."""
+        sids = {sid for sid, _ in self._segment_slots(pid).get(str(seg), [])}
+        p.replacements = [r for r in p.replacements if self._target(r.target) not in sids]
+
+    def _songs_of(self, p, pid):
+        """The segments the piece's song or playlist fills now (to clear what a new one leaves out)."""
+        old = p.soundtrack.get(pid)
+        return set(old.segments) if old and old.mode in ("song", "tracks") else set()
+
+    def playlist_set(self, cue_id, places, shuffle=None, resume=None):
+        """A piece of music's songs place by place, as one undo step (the Soundtrack's Playlist). `places` lists the
+        places for songs in play order (soundtrack.song_segments: a segment each), each None (empty), {"file": a
+        full path} (a new song) or {"keep": i} (the song at place i now). The piece plays the filled places in that
+        order, shuffled with shuffle, going on with the next song at each start with resume (None keeps either as
+        it was). A place the playlist leaves empty loses the song it had."""
+        from . import soundtrack as st
+        p = self._need_project()
+        pid = self._playlist(cue_id)
+        objs = self._music()
+        order = st.song_segments(objs[pid].root, st.entry_item(objs, pid))
+        if not isinstance(places, list) or len(places) > len(order):
+            raise EditorError(f"This music has {len(order)} places for songs")
+        listed = self._songs_of(p, pid) if (old := p.soundtrack.get(pid)) and old.mode == "tracks" else set()
+        now = [self._song_of(p, pid, seg) if seg in listed else None for seg in order]
+        songs = []
+        for x in places + [None] * (len(order) - len(places)):
+            if x is None:
+                songs.append(None)
+            elif isinstance(x, dict) and "file" in x:
+                songs.append(Replacement(target=0, audio=self._relative(p, x["file"]), label=Path(str(x["file"])).stem))
+            elif isinstance(x, dict) and type(k := x.get("keep")) is int and 0 <= k < len(order) and now[k]:
+                songs.append(now[k])
+            else:
+                raise EditorError("A place for a song is empty, a new file or one of the songs there now")
+        keep = old if old and old.mode == "tracks" else st.Piece("tracks")
+        piece = st.Piece("tracks", [seg for seg, s in zip(order, songs) if s],
+                         shuffle=keep.shuffle if shuffle is None else shuffle is True,
+                         resume=keep.resume if resume is None else resume is True, gain_db=old.gain_db if old else 0.0)
+        cleared = self._songs_of(p, pid) - set(piece.segments)  # a song or another playlist before: what it filled
+
+        def apply(p):
+            for seg in cleared:
+                self._clear_song(p, pid, seg)
+            for seg, song in zip(order, songs):
+                if song:
+                    self._put_song(p, pid, seg, song)
+            p.soundtrack[pid] = piece
+        return self._edit("playlist", apply)
+
+    def soundtrack_copy(self, cue_id, to):
+        """Sets other pieces of music as this one is set, as one undo step: the same mode, options and level, and for
+        a song or a playlist the same audio, place by place, as far as each one has places. `to` maps each piece to
+        set ({cue id: the piece it follows, for Same song; else None}). Answers the project, and in "short" the
+        pieces with too few places for every song or piece of the song."""
+        from . import soundtrack as st
+        p = self._need_project()
+        pid = self._playlist(cue_id)
+        objs = self._music()
+        src = p.soundtrack.get(pid)
+        if not src or src.mode == "original":
+            raise EditorError("Set this music to another mode first")
+        if not isinstance(to, dict) or not to:
+            raise EditorError("Choose the music to set")
+        mine = st.song_segments(objs[pid].root, st.entry_item(objs, pid))
+        held = {seg: self._song_of(p, pid, seg) for seg in src.segments}
+        plans, short = {}, []
+        for k, follows in to.items():
+            tid = self._playlist(k)
+            if tid == pid:
+                continue
+            order = st.song_segments(objs[tid].root, st.entry_item(objs, tid))
+            if src.mode == "song":  # the pieces in order, from the first place on
+                songs = [held[s] for s in src.segments][:len(order)]
+                fill = list(zip(order, songs))
+            elif src.mode == "tracks":  # each song at the place it has here
+                at = {s: i for i, s in enumerate(mine)}
+                fill = [(order[at[s]], held[s]) for s in src.segments if at.get(s, len(order)) < len(order)]
+            else:
+                fill = []
+            if len(fill) < len(src.segments):
+                short.append(str(tid))
+            fill = [(seg, song) for seg, song in fill if song]
+            d = {"mode": src.mode, "gain_db": src.gain_db, "shuffle": src.shuffle, "resume": src.resume,
+                 "song": src.song, "segments": [str(seg) for seg, _ in fill]}
+            if src.mode == "same":
+                if follows is None:
+                    continue
+                d["follows"] = str(follows)
+            plans[tid] = (self._check_piece(tid, d), fill)
+        if not plans:
+            raise EditorError("No other music to set")
+
+        def apply(p):
+            for tid, (piece, fill) in plans.items():
+                for seg in self._songs_of(p, tid) - set(piece.segments):
+                    self._clear_song(p, tid, seg)
+                for seg, song in fill:
+                    self._put_song(p, tid, seg, song)
+                p.soundtrack[tid] = piece
+        state = self._edit("soundtrack", apply)
+        return {**state, "short": short}
+
+    def song_fill(self, cue_id, audio_path, bounds_ms, segments=None):
+        """A song for a piece of music, as one undo step: cut at bounds_ms, one piece per segment (segments: those
+        the song fills, in order; the piece's song segments by default), each into its segment whole
+        (_whole_segments). The piece then plays the song from its first segment every time the music starts. The
+        segments an earlier song or playlist filled that this one doesn't lose that audio."""
+        from . import audio, soundtrack as st
+        self._need_project()
+        pid = self._playlist(cue_id)
+        objs = self._music()
+        order = [int(s) for s in segments] if segments else st.song_segments(objs[pid].root, st.entry_item(objs, pid))
+        rel = self._relative(self.project, audio_path)
+        if not isinstance(bounds_ms, list):
+            raise EditorError("The cut points are a list of milliseconds")
+        if len(bounds_ms) - 1 > len(order):
+            raise EditorError(f"This music has {len(order)} segments for a song, so cut it into {len(order)} pieces at most")
+        try:
+            pieces = audio.slice_song(Path(audio_path), bounds_ms, self._slice_dir(audio_path))
+        except ValueError as e:
+            raise EditorError(str(e)) from None
+        except OSError as e:
+            raise EditorError(os_error(e)) from None
+        song = order[:len(pieces)]
+        piece = self._check_piece(pid, {"mode": "song", "segments": [str(s) for s in song], "song": rel})
+
+        def apply(p):
+            for seg in self._songs_of(p, pid) - set(song):
+                self._clear_song(p, pid, seg)
+            self._whole_segments(p, pid, song, [str(f) for f in pieces])
+            piece.gain_db = p.soundtrack[pid].gain_db if pid in p.soundtrack else 0.0
+            p.soundtrack[pid] = piece
+        return self._edit("song", apply)
+
+    def tracks_fill(self, cue_id, files, shuffle=False, segments=None):
+        """Whole songs for a piece of music, as one undo step: each file into a segment of its own, whole
+        (_whole_segments), in file-name order; the piece plays them in that order, or in a random order (shuffle)."""
+        from . import soundtrack as st
+        from .audio import natural
+        self._need_project()
+        pid = self._playlist(cue_id)
+        objs = self._music()
+        if not isinstance(files, list) or not files:
+            raise EditorError("Choose the songs")
+        files = sorted((str(f) for f in files), key=natural)
+        for f in files:
+            self._relative(self.project, f)
+        order = [int(s) for s in segments] if segments else st.song_segments(objs[pid].root, st.entry_item(objs, pid))
+        if len(files) > len(order):
+            raise EditorError(f"This music has {len(order)} segments for songs, so choose {len(order)} songs at most")
+        chosen = order[:len(files)]
+        piece = self._check_piece(pid, {"mode": "tracks", "segments": [str(s) for s in chosen], "shuffle": shuffle is True})
+
+        def apply(p):
+            for seg in self._songs_of(p, pid) - set(chosen):
+                self._clear_song(p, pid, seg)
+            self._whole_segments(p, pid, chosen, files)
+            piece.gain_db = p.soundtrack[pid].gain_db if pid in p.soundtrack else 0.0
+            p.soundtrack[pid] = piece
+        return self._edit("playlist", apply)
 
     def export(self, cue_id, folder, what="segments", whose="game", fmt="wav", sources=None, variants=None,
                all_variants=False, loops=1, tails=True, title=None):
@@ -2895,7 +3275,7 @@ def build_inputs(p: Project) -> str:
     import hashlib
     import json
     d = p.to_json()
-    for k in ("version", "built_for", "built_from", "build_folder", "notes"):
+    for k in ("version", "built_for", "built_from", "build_folder", "notes", "tabs"):
         d.pop(k, None)
     files = {r.audio for r in p.replacements if not r.silence and r.audio} | {p.icon.get("image") or ""}
     stats = {}
@@ -2912,7 +3292,7 @@ def _rebuild(p: Project, game_updated: bool, last) -> str | None:
     """Why the mod in the build folder isn't the project as it is now: "new" (no build yet), "game" (the game updated
     since), "changed" (the project did), or None. A build from before projects noted what it was made from says
     nothing until the next one."""
-    if not p.replacements and not p.texts:
+    if not p.replacements and not p.texts and not p.soundtrack:
         return None  # nothing to build
     if not last:
         return "new"

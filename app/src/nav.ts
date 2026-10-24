@@ -1,10 +1,10 @@
 import { useSyncExternalStore } from "react";
 import { UTILS } from "./edition";
 
-/** Which master tab shows. Home and Tools lead the tab bar, then Project, Library, the two editors and Build in the
-    project's band (App.tsx Rail); Updates, Wiki and Settings sit at its end, and those lead back to where you were
-    when pressed again. */
-export type Tab = "home" | "project" | "library" | "editor" | "text" | "build" | "tools" | "updates" | "settings" | "wiki";
+/** Which master tab shows. Home and Tools lead the tab bar, then Project, Library, Audio, Soundtrack, Text and Build
+    in the project's band (App.tsx Rail); Updates, Wiki and Settings sit at its end, and those lead back to where you
+    were when pressed again. In the code, Audio is `editor`. */
+export type Tab = "home" | "project" | "library" | "editor" | "soundtrack" | "text" | "build" | "tools" | "updates" | "settings" | "wiki";
 export type SettingsTab = "system" | "shortcuts" | "theme";
 export type LibraryTab = "index" | "archives";
 export type ToolsTab = "repatch" | "combine";
@@ -20,7 +20,11 @@ export type Nav = {
                          // another goes back to that one)
 };
 
-const MAIN: Tab[] = ["home", "project", "library", "editor", "text", "build", "tools"];
+/** The tabs that can be hidden (Settings ▸ System, and each project on the Project tab), in the bar's order. */
+export const HIDEABLE = ["editor", "soundtrack", "text"] as const;
+export type Hideable = typeof HIDEABLE[number];
+
+const MAIN: Tab[] = ["home", "project", "library", "editor", "soundtrack", "text", "build", "tools"];
 const SETTINGS: SettingsTab[] = ["system", "shortcuts", "theme"];
 const LIBRARY: LibraryTab[] = ["index", "archives"];
 const TOOLS: ToolsTab[] = ["repatch", "combine"];
@@ -37,13 +41,16 @@ function lastWikiPage(): string {
 
 const START: Tab = UTILS ? "tools" : "home"; // Audiodiver Utils has no Home
 let current: Nav = { tab: START, settings: "system", library: lastLibraryTab(), tools: "repatch", wiki: lastWikiPage(), anchor: "", from: START, origin: {} };
+let hidden = new Set<Tab>(); // the hideable tabs that are off now (App.tsx keeps it up to date)
 const listeners = new Set<() => void>();
 
 export const nav = {
   get: () => current,
   /** Shows a tab. `sub` picks the Settings, Library or Tools sub-tab, or the Wiki page ("page#heading" for a part of it).
-      `back`: going back to where a tab was opened from, which keeps where that one was opened from in turn. */
+      `back`: going back to where a tab was opened from, which keeps where that one was opened from in turn. A tab
+      that is hidden doesn't open. */
   go(tab: Tab, sub?: string, back = false) {
+    if (hidden.has(tab)) return;
     const next = { ...current, tab };
     if (MAIN.includes(tab)) next.from = tab;
     else if (tab !== current.tab && !back) next.origin = { ...current.origin, [tab]: current.tab };
@@ -51,8 +58,8 @@ export const nav = {
     if (tab === "library" && LIBRARY.includes(sub as LibraryTab)) next.library = sub as LibraryTab;
     if (tab === "tools" && TOOLS.includes(sub as ToolsTab)) next.tools = sub as ToolsTab;
     if (tab === "wiki" && sub !== undefined) [next.wiki, next.anchor = ""] = sub.split("#");
-    if (next.tab === current.tab && next.settings === current.settings && next.library === current.library && next.tools === current.tools
-      && next.wiki === current.wiki && next.anchor === current.anchor) return;
+    if (next.tab === current.tab && next.settings === current.settings && next.library === current.library
+      && next.tools === current.tools && next.wiki === current.wiki && next.anchor === current.anchor) return;
     if (next.library !== current.library) try { localStorage.setItem(LIBRARY_KEY, next.library); } catch { /* storage off */ }
     if (next.wiki !== current.wiki) try { localStorage.setItem(WIKI_KEY, next.wiki); } catch { /* storage off */ }
     current = next;
@@ -63,7 +70,8 @@ export const nav = {
     const there = current.tab === tab && (tab !== "settings" || sub === undefined || current.settings === sub);
     if (!there) return nav.go(tab, sub);
     const back = current.origin[tab];
-    nav.go(back && back !== tab ? back : current.from, undefined, true);
+    const to = back && back !== tab && !hidden.has(back) ? back : !hidden.has(current.from) ? current.from : "project";
+    nav.go(to, undefined, true);
   },
   /** The Wiki has scrolled to the heading a link named: the page stays where it is, and opens at its top next time. */
   landed() {
@@ -71,6 +79,16 @@ export const nav = {
     current = { ...current, anchor: "" };
     listeners.forEach((f) => f());
   },
+  /** The hideable tabs that show now (the open project's choice, else Settings'). A hidden tab that shows moves
+      to the Project tab. */
+  setShown(shown: readonly Hideable[]) {
+    hidden = new Set(HIDEABLE.filter((t) => !shown.includes(t)));
+    if (hidden.has(current.tab)) nav.go("project");
+  },
+  /** Whether a tab is in the tab bar now. */
+  shown: (tab: Tab) => !hidden.has(tab),
+  /** Where a project opens: Audio, else the first hideable tab that shows, else the Project tab. */
+  work: (): Tab => HIDEABLE.find((t) => !hidden.has(t)) ?? "project",
   subscribe(f: () => void) { listeners.add(f); return () => { listeners.delete(f); }; },
 };
 

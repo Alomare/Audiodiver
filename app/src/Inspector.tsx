@@ -7,12 +7,12 @@ import { where } from "./music";
 import { nav } from "./nav";
 import { NoteSection } from "./Notes";
 import { noteKeys } from "./noteStore";
-import { fullPath, reveal } from "./platform";
-import { useEditor } from "./store";
+import { fullPath, pickAudio, reveal } from "./platform";
+import { useEditor, useShownTabs } from "./store";
 import { showLines } from "./TextTab";
 import { Help, WikiLink } from "./Wiki";
 
-/** The Audio Editor's right panel: the selected slot's settings. Each control has one home: the slot's row plays the
+/** The Audio tab's right panel: the selected slot's settings. Each control has one home: the slot's row plays the
     original and the replacement and takes or replaces its file; the waveforms below the list play from any spot; this
     panel sets up what replaces the slot (silence's timing, Make-Up Gain, timing, cue points) and says where else it
     plays. The Library has no such panel: SlotFacts says what a slot is, over its waveform. */
@@ -20,6 +20,7 @@ export function Inspector() {
   const { cue, selected, project, actions } = useEditor();
   const rows = useMemo(() => (cue ? rowsOf(cue.segments_detail) : []), [cue]);
   const sel = rows.filter((r) => selected.includes(r.slot.source));
+  const text = useShownTabs().includes("text"); // a subtitle shows while the Text tab does
   useKeymap();
   // the slot the panel showed last: what replaces it settles in when that changes, not when another slot is selected
   // (the whole panel settles in then)
@@ -72,7 +73,7 @@ export function Inspector() {
           {seg.segment && <><dt>Segment</dt><dd>{fmtTime(seg.duration_ms)}{seg.exit_ms != null && <> · exit at {fmtTime(seg.exit_ms)}</>}</dd></>}
           {slot.variant && <><dt>Variant</dt><dd>{slot.variant}</dd></>}
           {cue.language && <><dt>Language</dt><dd>{cue.language}</dd></>}
-          {slot.subtitle && <><dt>Subtitle</dt><dd><SubtitleLink slot={slot}>Open</SubtitleLink>{!slot.subtitle_sure &&
+          {slot.subtitle && text && <><dt>Subtitle</dt><dd><SubtitleLink slot={slot}>Open</SubtitleLink>{!slot.subtitle_sure &&
             <span className="muted" data-tip={SEVERAL}> · one of several</span>}</dd></>}
         </dl>
       </section>
@@ -108,7 +109,7 @@ function Empty() {
         </dl>
         <p className="keys">
           <button className="link-text" onClick={() => nav.go("settings", "shortcuts")}>All shortcuts</button>
-          {" · "}<WikiLink page="reading-the-screen" about="What the Audio Editor shows">Reading the screen</WikiLink>
+          {" · "}<WikiLink page="reading-the-screen" about="What the Audio tab shows">Reading the screen</WikiLink>
         </p>
       </div>
     </aside>
@@ -231,12 +232,13 @@ export function SlotFacts({ row }: { row: Row }) {
   );
 }
 
-const SEVERAL = "Several subtitles have these words, and the game files don't show which one matches this recording. The Text Editor lists them all and opens the most likely one";
+const SEVERAL = "Several subtitles have these words, and the game files don't show which one matches this recording. The Text tab lists them all and opens the most likely one";
 
-/** A voice line's subtitle, opened in the Text Editor: the one it says, or, where several subtitles have its words
+/** A voice line's subtitle, opened in the Text tab: the one it says, or, where several subtitles have its words
     and its length doesn't tell them apart, all of them (core: library.py `subtitle`, editor.py text_alike). */
 function SubtitleLink({ slot, children }: { slot: Slot; children: ReactNode }) {
   const { cue } = useEditor();
+  const text = useShownTabs().includes("text"); // the Text tab hidden: no way there
   const open = async () => {
     const id = Number(slot.subtitle);
     const ids = slot.subtitle_sure ? [id] : await call<number[]>("text_alike", { id }).catch(() => [id]);
@@ -245,7 +247,8 @@ function SubtitleLink({ slot, children }: { slot: Slot; children: ReactNode }) {
       ? `${ids.length} subtitles have the ${lang && lang !== "us" ? "English " : ""}words of this voice line. The open one is the most likely match.`
       : "The subtitle of this voice line." });
   };
-  return <button className="link-text" onClick={open} data-tip={slot.subtitle_sure ? "Open the subtitle in the Text Editor" : SEVERAL}>{children}</button>;
+  if (!text) return null;
+  return <button className="link-text" onClick={open} data-tip={slot.subtitle_sure ? "Open the subtitle in the Text tab" : SEVERAL}>{children}</button>;
 }
 
 /** Content that settles in when it takes the place of other content (its key changed). `still` is read once, when it
@@ -447,6 +450,12 @@ function Bulk({ sources, usable }: { sources: string[]; usable: string[] }) {
       )}
       {!mine.length && <p className="insp-empty">None of these is replaced yet.</p>}
       <section className="insp-sec">
+        <div className="row-btns">
+          <button className="btn" disabled={!usable.length} data-tip={`The same file in all ${slots(usable.length)}`}
+            onClick={async () => { const f = (await pickAudio(false))?.[0]; if (f) actions.assignAll(usable, f); }}>Choose one file for all…</button>
+          <button className="btn" disabled={!usable.length} data-tip="A file for each slot, in list order and file-name order"
+            onClick={async () => { const f = await pickAudio(true); if (f) actions.fillSources(usable, f, slots(usable.length)); }}>Choose files…</button>
+        </div>
         <div className="row-btns">
           <button className="btn" disabled={!toSilence.length} onClick={() => actions.silence(toSilence, true)} data-tip-cmd="silence"
             data-tip={toSilence.length ? "Play nothing in these slots" : usable.length ? "Already silent" : "Never played, or do not touch"}>

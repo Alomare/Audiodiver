@@ -4,7 +4,7 @@ import tempfile
 import time
 from pathlib import Path
 
-from . import addition, akd, arsenal, patch, strings, wem
+from . import addition, akd, arsenal, cuemap, patch, soundtrack, strings, wem
 from .errors import os_error
 from .game import in_game_folder
 from .index import AudioIndex, CACHE_DIR
@@ -123,6 +123,35 @@ def reach(project: Project, ix: AudioIndex, reps: list[patch.Replacement], setti
     return sounds, objects
 
 
+def soundtrack_plan(project: Project, ix: AudioIndex, reps: list[patch.Replacement], settings: dict, log=print) \
+        -> soundtrack.Plan:
+    """The Soundtrack's changes to the game's music objects (soundtrack.plan), and its levels: a piece's level goes
+    on top of the gain of the new audio in its tracks, and onto its other tracks as a setting (`settings`, changed
+    here)."""
+    if not project.soundtrack:
+        return soundtrack.Plan()
+    objs, tracks, *_ = cuemap.load_music(ix)
+    plan = soundtrack.plan(objs, project.soundtrack)
+    if plan.skipped:
+        log(f"soundtrack: {len(plan.skipped)} piece{'s' if len(plan.skipped) != 1 else ''} of music the project sets "
+            f"{'are' if len(plan.skipped) != 1 else 'is'} not in this game version; left out")
+    levels = soundtrack.levels(objs, project.soundtrack)
+    if levels:
+        by_source = {r.source: r for r in reps}
+        for tid, db in levels.items():
+            heard = [by_source[s] for s in tracks[tid].sources if s in by_source] if tid in tracks else []
+            for r in heard:
+                r.makeup_db += db
+            if not heard:
+                settings.setdefault(tid, {})[patch.MAKEUP_GAIN] = db
+    changed = len([o for o in plan.objects if o in plan.roots])
+    if plan:
+        log(f"soundtrack: {changed} playlist{'s' if changed != 1 else ''} in a new order, "
+            f"{len(plan.routes)} piece{'s' if len(plan.routes) != 1 else ''} led elsewhere"
+            + (f", levels on {len(levels)} tracks" if levels else ""))
+    return plan
+
+
 def text_tables(project: Project, texts, log=print) -> dict[int, bytes]:
     """{file id: table bytes} of the string tables the project changes: each the live table with the project's lines
     in it. A line the game no longer has is left out, and a line the game changed since it was edited is named."""
@@ -172,19 +201,20 @@ def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, ste
     if gone := len({o for o in project.settings if not ix.copies(o)}):
         log(f"settings: {gone} object{'s' if gone != 1 else ''} the mod set {'are' if gone != 1 else 'is'} not in "
             f"this game version; left out")
+    music_plan = soundtrack_plan(project, ix, reps, settings, log)
     where, set_where = reach(project, ix, reps, settings, listed)
     try:
         edits = patch.build_patch(str(patch_dir / PATCH), reps, ix, project.segment_overrides, tables, plan,
-                                  settings, where, set_where, carried)
+                                  settings, where, set_where, carried, music_plan)
     except patch.CueError as e:
         raise BuildError(f"Music segment {e.segment}: the Entry cue point ({e.entry_ms / 1000:.1f} s) is at or "
                          f"after the Exit ({e.exit_ms / 1000:.1f} s), so the game would play the music before it "
-                         f"until the Entry. Move the cue points in the Audio Editor, or reset them.") from None
+                         f"until the Entry. Move the cue points on the Audio tab, or reset them.") from None
     if unused := set(project.segment_overrides) - {s for e in edits.values() for s in e.segments}:
         log(f"cue points of {len(unused)} segment{'s' if len(unused) != 1 else ''} without new audio left out")
     if step:
         step("Checking the patch", steps - after - 1, steps)
-    if problems := patch.verify(str(patch_dir / PATCH), reps, ix, plan, settings, where) \
+    if problems := patch.verify(str(patch_dir / PATCH), reps, ix, plan, settings, where, music_plan) \
             + patch.verify_strings(str(patch_dir / PATCH), tables, [c.fid for c in carried if c.tid == strings.STRINGS]) \
             + (patch.verify_carried(str(patch_dir / PATCH), carried, tables) if carried else []):
         raise BuildError("The patch failed verification:\n  " + "\n  ".join(problems))

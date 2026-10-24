@@ -9,7 +9,7 @@ import os
 import struct
 from dataclasses import dataclass, field
 
-from . import addition, music
+from . import addition, music, soundtrack
 from . import bank as wbank
 from .bank import SOUND, MUSIC_SEGMENT, MUSIC_TRACK, TYPE_NAMES
 from .game import WWISE_STREAM, WWISE_BANK, WWISE_DEP, toc_entries
@@ -57,6 +57,7 @@ class BankEdit:
     mutes: list = field(default_factory=list)     # Sound ids taken out of the mix (Volume MUTE_DB)
     added: list = field(default_factory=list)     # ids of the objects added (addition.py)
     settings: list = field(default_factory=list)  # ids of the objects given the project's settings
+    music: list = field(default_factory=list)     # ids of the playlists and switches the Soundtrack changed
 
 
 @dataclass
@@ -392,11 +393,13 @@ def write_patch(path, streams: dict[int, bytes], banks: dict[int, bytes], deps: 
 
 
 def build_patch(path, reps: list[Replacement], ix: AudioIndex, overrides=None, strings=None,
-                plan: addition.Plan | None = None, settings=None, where=None, set_where=None, carried=None):
+                plan: addition.Plan | None = None, settings=None, where=None, set_where=None, carried=None,
+                music_plan: soundtrack.Plan | None = None):
     """Patches every bank that holds or plays a replaced source, gets new audio (the plan; reps hold the new
     clips' audio too) or has an object with settings ({object id: {prop id: value or None}}: an imported mod's,
     applied before the replacements' gain and silence), and adds string tables ({file id: table bytes}) and the
-    carried files (a mod's files besides its audio, Carried); returns {bank id: BankEdit}. where ({source: banks}) and set_where ({object: banks}) keep a source or an
+    carried files (a mod's files besides its audio, Carried); returns {bank id: BankEdit}. music_plan (the
+    Soundtrack's, soundtrack.plan) changes every copy of the playlists and switches it names. where ({source: banks}) and set_where ({object: banks}) keep a source or an
     object to those banks (build.reach); a bank patched for something else still gets them where it has them."""
     overrides, settings, where, set_where = overrides or {}, settings or {}, where or {}, set_where or {}
     by_source = {r.source: r for r in reps}
@@ -405,6 +408,8 @@ def build_patch(path, reps: list[Replacement], ix: AudioIndex, overrides=None, s
         banks |= where.get(r.source) or ix.banks_for(r.source)
     for oid in settings:
         banks |= set_where.get(oid) or set(ix.copies(oid))
+    for oid in music_plan.objects if music_plan else ():
+        banks |= set(ix.copies(oid))
     # a sound's stream goes by the index: a voice line's is filed under its language, and a stream no bank plays
     # is its own target
     streams = {ix.stream_file(r.source): r.wem for r in reps if ix.stream_file(r.source) is not None}
@@ -416,8 +421,9 @@ def build_patch(path, reps: list[Replacement], ix: AudioIndex, overrides=None, s
             raw, dep = ix.bank_files(bid)
             grown = addition.apply(raw, plan.banks[bid], plan) if plan and bid in plan.banks else raw
             grown, set_ids = apply_settings(grown, settings) if settings else (grown, [])
+            grown, music_ids = soundtrack.apply(grown, music_plan) if music_plan else (grown, [])
             new, edit = patch_bank(grown, by_source, overrides)
-            edit.settings = set_ids
+            edit.settings, edit.music = set_ids, music_ids
             if plan and bid in plan.banks:
                 edit.added = sorted(plan.banks[bid].added)
             if new is not raw:
@@ -537,12 +543,13 @@ def verify_carried(path, carried: list[Carried], strings_made=()) -> list[str]:
 
 
 def verify(path, reps: list[Replacement], ix: AudioIndex, plan: addition.Plan | None = None, settings=None,
-           where=None) -> list[str]:
+           where=None, music_plan: soundtrack.Plan | None = None) -> list[str]:
     """Problems with a written patch: it must change only the replaced audio, its size fields, the timing of the
     segments/tracks that play it, their gain and (silence) their Volume; put the new audio in every bank that holds
     the old (of those in where, {source: banks}, for a source kept to them); add exactly what the plan adds, where
     it belongs (addition.check); and give the objects with settings those settings (their Make-Up Gain and Volume a
-    replacement's gain or silence may set instead). Empty list = good."""
+    replacement's gain or silence may set instead); and give every copy of the music objects the Soundtrack
+    changes (music_plan) exactly that change. Empty list = good."""
     where, settings = where or {}, settings or {}
     by_source, planned = {r.source: r for r in reps}, plan.banks if plan else {}
     banks, unknown, problems, added_problems = {}, [], [], []
@@ -559,6 +566,15 @@ def verify(path, reps: list[Replacement], ix: AudioIndex, plan: addition.Plan | 
             if any(have.get(k) != v for k, v in settings[oid].items() if k not in (MAKEUP_GAIN, VOLUME)):
                 problems.append(f"bank {bid}: object {oid} doesn't have its settings")
         b["objects"] = [(t, i) for t, i in b["objects"] if i not in settings]
+        if music_plan:
+            game = b["read"][1][1]
+            for oid in music_plan.objects & set(game):
+                t, body = game[oid]
+                obj = music.PARSERS[t].read(oid, music.Reader(bytes(body)))
+                want = (t, obj.to_bytes()) if soundtrack.change(obj, music_plan) else game[oid]
+                if hirc.get(oid) != want:
+                    problems.append(f"bank {bid}: music object {oid} isn't as the Soundtrack sets it")
+            b["objects"] = [(t, i) for t, i in b["objects"] if i not in music_plan.objects]
         here = planned.get(bid)
         if here is not None:
             added_problems += [f"bank {bid}: {p}" for p in addition.check(*b["read"], here)]

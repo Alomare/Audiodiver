@@ -1,32 +1,38 @@
 ---
 title: Reading the screen
 group: Getting started
-summary: What each part of the Library and the Audio Editor shows, and what the tags and marks on a row mean.
+summary: What each part of the Library and the Audio tab shows, and what the tags and marks on a row mean.
 ---
 
-The Library and the Audio Editor share one layout. There is a list on the left and the open item in the middle. The Audio Editor also shows the settings of the selected slot on the right. Words in **bold** are explained in [Game audio, explained](wiki:game-audio).
+The Library and the Audio tab share one layout. There is a list on the left and the open item in the middle. The Audio tab also shows the settings of the selected slot on the right. The Soundtrack has a layout of its own, described in [Soundtrack](wiki:soundtrack). Words in **bold** are explained in [Game audio, explained](wiki:game-audio).
 
 ## The list on the left
 
 - **Index** sorts the audio by what it is. Categories such as Music, Weapons and Enemies contain sections such as *On the Ship* and *Primary Weapons*. Each section lists things you can open, either a **piece of music** or a **sound set**. The number at the end of a row is the length of a piece of music, or the number of sounds in a set.
 - **All Archives** shows every **archive** that contains audio, as a table. Click a column heading to sort by it, and click again to reverse the order. The icons in the *Index* column show which categories include the archive.
 - In the Library, the **+** at the end of a row adds it to the project, and **✓** means the project already has it. Category and section lines have a **+** as well, which adds everything visible under them. After a search, that **+** adds only the results.
-- In the Audio Editor, the list shows what the project has. **✕** on a row, or on a category or section line, removes it and its new audio from the project. Right-clicking does the same, and {key:undo} brings it back.
+- In the Audio tab, the list shows what the project has. **✕** on a row, or on a category or section line, removes it and its new audio from the project. Right-clicking does the same, and {key:undo} brings it back.
 - {icon:collapse} **Collapse all**, next to the search box, folds every category and section. A search unfolds whatever matches.
 
 ## The top of the middle panel
 
-- **The path and the title** show where the item is in the Index (*Weapons ▸ Primary Weapons*, *Helldivers ▸ Voices*) and its name.
-- **Original**, **Partly replaced** or **Replaced** shows what the item plays now, in the Audio Editor only.
+- **The path and the title** show where the item is in the Index (*Weapons ▸ Primary Weapons*, *Helldivers ▸ Voices*) and its name. ‹ and › at the end of the title go back and forward.
+- **Original**, **Partly replaced** or **Replaced** shows what the item plays now, in the Audio tab only.
 - **In the archive …** names the archive that contains the item, followed by the **bank** name from the game files. Click the archive to open it in All Archives.
-- **Shares audio with** lists other things that play some of the same clips.
-- **N transitions play next to this music** appears for music only. It counts the short pieces that lead into and out of the music. **Show** lists them and what each one plays now.
+
+Under the title, a row of boxes says more about the item. They sit side by side and stack when the panel is narrow:
+
+- {icon:transition} **N transitions play next to this music** appears for music only. It counts the short pieces that lead into and out of the music. **Show** lists them and what each one plays now.
+- {icon:order} **The game plays these slots in another order** appears for music whose playlist doesn't play the slots top to bottom. **Play order** opens it in the [Soundtrack](wiki:soundtrack).
+- {icon:link} **Shares audio with** lists other things that play some of the same clips.
+
+{icon:header} at the end of the toolbar hides the header, and shows it again.
 
 ## The toolbar
 
 {icon:through} **Play through** plays the whole piece of music segment by segment, in the same order the game uses. The grey button plays the **Original** audio, the yellow one the **Replaced** audio. While one plays, a bar shows where it is.
 
-In the Library, the toolbar has **Add to the project**. In the Audio Editor it has these tools:
+In the Library, the toolbar has **Add to the project**. In the Audio tab it starts with a tick that selects every slot, or clears the selection, and has these tools:
 
 | Tool | What it does |
 |---|---|
@@ -38,6 +44,8 @@ In the Library, the toolbar has **Add to the project**. In the Audio Editor it h
 | {icon:clear} **Clear this part** | Removes the new audio from every slot of the part. |
 
 {icon:search} **Search slots** narrows the list by name, label, note, file name or id. In a sound set it also finds the words of a voice line. When nothing in the list matches, **Elsewhere** lists the pieces of music and sound sets that have a match.
+
+{icon:header} and {icon:waves} at the end of the toolbar hide or show the header and the waveforms.
 
 ## Parts
 
@@ -51,7 +59,8 @@ Each row is one **slot**, a single game clip that can be replaced.
 
 - **Music** lists **segments** in play order. The first row of a segment shows the segment name, and the rows under it are the other **layers**.
 - **Sounds** are shown in **groups**, with one line per sound and the **takes** folded under it. ▶ on the line plays the first take. Files dropped on the line fill the takes in order. Right-click the line to fill, silence or clear all takes at once.
-- The left half of a row is the original. ▶ plays it, and the length is shown at the end. In the Audio Editor, the right half is the replacement. ▶ plays the new audio, clicking the file name picks another file, and ✕ removes it. An empty slot shows *Drop audio or choose a file*.
+- The left half of a row is the original. ▶ plays it, and the length is shown at the end. In the Audio tab, the right half is the replacement. ▶ plays the new audio, clicking the file name picks another file, and ✕ removes it. An empty slot shows *Drop audio or choose a file*.
+- In the Audio tab, the tick at the start of a row puts the slot in the selection, or takes it out, as Ctrl+click does. Shift on a tick selects a range. A group line has a tick for all its takes. With several slots selected, the right panel has **Choose one file for all…**, **Choose files…**, **Replace with silence** and the button that removes the new audio.
 - Double-click a row to play it. Right-click it for everything else, including copy, paste, silence and ids.
 - Copy audio files in Explorer, select slots and press **Ctrl+V**. One file goes into every selected slot. Several files go in file-name order, and on a single selected slot they fill on from there. Ctrl+V pastes whatever was copied last: files from Explorer or slots copied in Audiodiver.
 
@@ -84,11 +93,13 @@ Hover over a tag to read its note. The notes of a selected clip appear in the de
 
 ## Under the slots
 
-The **waveforms** of the selected slot are shown here. The original is on top, and in the Audio Editor the replacement is underneath, on the same time scale, with the **Entry** and **Exit** points marked. Click a waveform to play from that point, and drag its top edge to resize it. In the Library, the line above the waveforms describes the slot. It shows the id (click to copy it), the length, when the slot plays, and where else the game plays it.
+The **waveforms** of the selected slot are shown here. The original is on top, and in the Audio tab the replacement is underneath, on the same time scale, with the **Entry** and **Exit** points marked. Click a waveform to play from that point, and drag its top edge to resize it. {icon:waves} at the end of the toolbar hides them. In the Library, the line above the waveforms describes the slot. It shows the id (click to copy it), the length, when the slot plays, and where else the game plays it.
 
-## The right panel (Audio Editor)
+## The right panel (Audio tab)
 
-This panel holds the settings of the selected slot. It shows what replaces the slot, either a file or silence. A file has a button that shows it in its folder, and silence has **Keep original duration**. Below that are **Make-Up Gain** ([explained here](wiki:volume)), **Fit timing to the new audio**, the **cue points**, **Shared with** and the note. With several slots selected, the panel sets Make-Up Gain or silence for all of them. Play audio and choose files on the slot row.
+This panel holds the settings of the selected slot. It shows what replaces the slot, either a file or silence. A file has a button that shows it in its folder, and silence has **Keep original duration**. Below that are **Make-Up Gain** ([explained here](wiki:volume)), **Fit timing to the new audio**, the **cue points**, **Shared with** and the note. Play audio and choose files on the slot row.
+
+With several slots selected, the panel sets Make-Up Gain or silence for all of them. **Choose one file for all…** puts one file in every selected slot, and **Choose files…** puts a file in each, in list order and file-name order.
 
 With no slot selected, the panel shows the note of the open item and the keys of the slot list.
 

@@ -9,13 +9,14 @@ import { ExportListDialog } from "./ExportDialog";
 import { useExportList } from "./exportList";
 import { Home } from "./Home";
 import { AudioIcon, BuildIcon, CheckIcon, CopyIcon, GearIcon, GuideIcon, HomeIcon, InfoIcon, LibraryIcon, PlusIcon,
-  ProjectIcon, RedoIcon, SaveIcon, TextIcon, ToolsIcon, UndoIcon, UpdatesIcon } from "./Icons";
+  ProjectIcon, RedoIcon, SaveIcon, SoundtrackIcon, TextIcon, ToolsIcon, UndoIcon, UpdatesIcon } from "./Icons";
 import { Inspector } from "./Inspector";
 import { LibraryPanel, ProjectPanel } from "./Library";
 import { Logo } from "./Logo";
 import { ProjectTab } from "./ProjectTab";
 import { tabArrows } from "./Page";
 import { SettingsTab } from "./SettingsTab";
+import { soundtrackDrop, SoundtrackPanes } from "./Soundtrack";
 import { TextTab } from "./TextTab";
 import { ToolsTab } from "./ToolsTab";
 import { TooltipLayer } from "./Tooltip";
@@ -28,13 +29,13 @@ import { APP_LABEL, APP_VERSION, versionLabel } from "./content";
 import { JOB_NAMES } from "./jobs";
 import { keyLabel, useCommands, useKeymap, type CommandId } from "./keys";
 import { counted } from "./music";
-import { nav, useNav, type Tab } from "./nav";
+import { HIDEABLE, nav, useNav, type Hideable, type Tab } from "./nav";
 import { expandDropped, isImage, isTauri, onFileDrop, setTitle } from "./platform";
 import { player, usePlayer } from "./player";
 import { Splitter } from "./Resize";
 import { RESET_LAYOUT, useSettings } from "./settings";
 import { barIsVertical, useThemeValue, type BarSide } from "./theme";
-import { EDIT_NAMES, Scope, useEditor, type ScopeName, type ToastIcon } from "./store";
+import { EDIT_NAMES, Scope, useEditor, useShownTabs, type ScopeName, type ToastIcon } from "./store";
 
 export function App() {
   const { status, connectError } = useEditor();
@@ -90,11 +91,17 @@ const browsing = (): ScopeName | null => { const t = nav.get().tab; return t ===
 function Shell() {
   const { actions, quick, notify, itemIndex, jobs, scopes, project } = useEditor();
   const { tab } = useNav();
+  // the tabs that can be hidden: the open project's choice, else Settings' (a hidden tab that shows moves away)
+  const shown = useShownTabs();
+  useEffect(() => { if (!UTILS) nav.setShown(shown); }, [shown]);
+  // the Soundtrack is drawn when first shown, and stays as it was left
+  const [soundtrackSeen, setSoundtrackSeen] = useState(false);
+  useEffect(() => { if (tab === "soundtrack") setSoundtrackSeen(true); }, [tab]);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
-  // the Text Editor stays as it was left (search, filter, the open line) once it has been opened
+  // the Text tab stays as it was left (search, filter, the open line) once it has been opened
   const [textSeen, setTextSeen] = useState(false);
   useEffect(() => { if (tab === "text") setTextSeen(true); }, [tab]);
-  // the Library and the Audio Editor are drawn when first shown, or when the start is over, in a render a click can
+  // the Library and the Audio tab are drawn when first shown, or when the start is over, in a render a click can
   // interrupt: drawing the hidden one at the start too cost a slow PC most of a second before the window answered
   const [drawn, setDrawn] = useState<ReadonlySet<Tab>>(() => new Set([tab]));
   useEffect(() => { if (!drawn.has(tab)) setDrawn((d) => new Set([...d, tab])); }, [tab]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -156,7 +163,9 @@ function Shell() {
     if (patch) return actions.importPatch(patch);
     if (target?.kind === "icon") return images.length ? actions.setIcon(images[0]) : quick("Drop an image here to make it the icon", "info");
     if (!audio.length) return quick(images.length ? "Drop images on the icon on the Project tab" : "No audio files in the drop", "info");
-    // only the Editor has places to drop audio onto: a slot, a group of takes, a cue, a piece of music
+    // the Soundtrack's places: a place of a playlist, or One song
+    if (target?.kind === "place" || target?.kind === "song") return soundtrackDrop(target, audio);
+    // the Audio tab's: a slot, a group of takes, a cue, a piece of music
     if (target?.kind === "slot") { scopes.editor.setSelected([target.source]); return actions.assign(target.source, audio); }
     if (target?.kind === "sources") return actions.fillSources(target.sources, audio, target.what);
     if (target?.kind === "cue") return actions.fill(target.cue, audio);
@@ -165,9 +174,11 @@ function Shell() {
       if (it) return actions.fillSources(counted(it), audio, `the ${it.parts.length} parts of ${it.full}`);
     }
     const t = nav.get().tab;
-    quick(t === "editor" ? (project ? "Drop audio on a slot, a group of takes, a piece in the list or a title" : "Open a project first")
-      : t === "library" ? "Add it to the project, then drop audio on its slots in the Audio Editor"
-      : "Drop audio on a slot in the Audio Editor", "info");
+    quick(!project && (t === "editor" || t === "soundtrack") ? "Open a project first"
+      : t === "editor" ? "Drop audio on a slot, a group of takes, a piece in the list or a title"
+      : t === "soundtrack" ? "Drop songs on a place of a playlist, or a song on One song"
+      : t === "library" ? "Add it to the project, then drop audio on its slots in the Audio tab"
+      : "Drop audio on a slot in the Audio tab", "info");
   };
 
   useEffect(() => {
@@ -225,8 +236,8 @@ function Shell() {
     newProject: () => { actions.newProject(); },
     openProject: () => { actions.openProject(); },
     closeProject: () => { actions.closeProject(); },
-    search: () => { // the search box of the tab that shows (the Wiki, the Text Editor, Settings ▸ Shortcuts, the
-      // Library's and the Audio Editor's lists); from a tab without one, the Library's
+    search: () => { // the search box of the tab that shows (the Wiki, the Text tab, Settings ▸ Shortcuts, the
+      // Library's and the Audio tab's lists); from a tab without one, the Library's
       const own = { wiki: ".wiki-search input", text: ".text-tab:not([hidden]) .lib-search input[type=search]",
         settings: ".keys-bar input[type=search]" }[nav.get().tab as string];
       const box0 = own ? document.querySelector<HTMLInputElement>(own) : null;
@@ -256,10 +267,12 @@ function Shell() {
     tabHome: () => nav.go("home"),
     tabProject: () => nav.go("project"),
     tabLibrary: () => nav.go("library"),
-    tabEditor: () => nav.go("editor"),
+    // a hidden tab's key does nothing, and goes on to whatever else takes it
+    tabEditor: () => (nav.shown("editor") ? nav.go("editor") : false),
+    tabSoundtrack: () => (nav.shown("soundtrack") ? nav.go("soundtrack") : false),
+    tabText: () => (nav.shown("text") ? nav.go("text") : false),
     tabBuild: () => nav.go("build"),
     tabTools: () => nav.go("tools"),
-    tabText: () => nav.go("text"),
     updates: () => nav.toggle("updates"),
     wiki: () => nav.toggle("wiki"),
     settings: () => nav.toggle("settings"),
@@ -285,7 +298,8 @@ function Shell() {
         {(["library", "editor"] as const).map((scope) => {
           // the Library has two panels, half and half to start: what a slot is shows under its waveform, in the middle
           const lib = scope === "library";
-          if (tab !== scope && !drawn.has(scope)) return null;
+          // the Soundtrack works in the Audio tab's context (its project, its player places)
+          if (tab !== scope && !drawn.has(scope) && (lib || tab !== "soundtrack")) return null;
           return (
             <Scope key={scope} name={scope}>
               <div className={`panes${lib ? " two lib-split" : ""}`} hidden={tab !== scope}
@@ -298,6 +312,7 @@ function Shell() {
                 {!lib && <Splitter width={widths.right} onResize={(w) => setWidths((v) => ({ ...v, right: w }))} initial={WIDTHS.right} panel="right" label="Resize the details panel" />}
                 {!lib && <Inspector />}
               </div>
+              {!lib && (soundtrackSeen || tab === "soundtrack") && <SoundtrackPanes hidden={tab !== "soundtrack"} />}
             </Scope>
           );
         })}
@@ -349,8 +364,9 @@ const UTILS_TABS: MainTab[] = [APP_TABS[1]]; // Audiodiver Utils starts on Tools
 const MOD_TABS: MainTab[] = [
   { id: "project", name: "Project", about: "name, icon and files", cmd: "tabProject", Icon: ProjectIcon },
   { id: "library", name: "Library", about: "all game audio", cmd: "tabLibrary", Icon: LibraryIcon },
-  { id: "editor", name: "Audio Editor", about: "replace what the project lists", cmd: "tabEditor", Icon: AudioIcon },
-  { id: "text", name: "Text Editor", about: "subtitles and all other game text", cmd: "tabText", Icon: TextIcon },
+  { id: "editor", name: "Audio", about: "the slots of what the project lists", cmd: "tabEditor", Icon: AudioIcon },
+  { id: "soundtrack", name: "Soundtrack", about: "how each piece of music plays", cmd: "tabSoundtrack", Icon: SoundtrackIcon },
+  { id: "text", name: "Text", about: "subtitles and all other game text", cmd: "tabText", Icon: TextIcon },
   { id: "build", name: "Build", about: "the mod ZIP", cmd: "tabBuild", Icon: BuildIcon },
 ];
 /** Why the Build tab carries a dot: the ZIP in the build folder isn't the project as it is now. */
@@ -377,6 +393,7 @@ const iconKey = (icon: unknown) => {
 function Rail() {
   const { project } = useEditor();
   const { tab } = useNav();
+  const shown = useShownTabs();
   const u = useUpdates();
   const t = { bar: useThemeValue((x) => x.bar), labels: useThemeValue((x) => x.labels) }; // not every colour change
   const { tips } = useSettings();
@@ -429,7 +446,8 @@ function Rail() {
     <nav className="rail" aria-label="Main">
       <div className="rail-group" role="tablist" aria-orientation={orientation} aria-label="Tabs" onKeyDown={tabArrows}>
         <div className="rail-set">{(UTILS ? UTILS_TABS : APP_TABS).map(mainTab)}</div>
-        {!UTILS && <div className={`rail-set rail-mod${project ? "" : " idle"}`}>{MOD_TABS.map(mainTab)}</div>}
+        {!UTILS && <div className={`rail-set rail-mod${project ? "" : " idle"}`}>
+          {MOD_TABS.filter((t) => !(HIDEABLE as readonly Tab[]).includes(t.id) || shown.includes(t.id as Hideable)).map(mainTab)}</div>}
       </div>
       <div className="rail-group" role="tablist" aria-orientation={orientation} aria-label="More" onKeyDown={tabArrows}>
         {tabButton("updates", update ? `Updates, ${update}` : "Updates", update ? `Updates: ${update}` : "Updates: new versions and changelogs",

@@ -68,8 +68,8 @@ def load(path) -> Project:
 
 def cmd_build(a):
     p = load(a.project)
-    if not p.replacements and not p.texts:
-        sys.exit(f"{a.project} replaces no audio and changes no text: nothing to build")
+    if not p.replacements and not p.texts and not p.soundtrack:
+        sys.exit(f"{a.project} replaces no audio, sets no piece of music and changes no text: nothing to build")
     ix, listed = AudioIndex(), None
     if p.library and not p.every_bank:  # the banks of what it lists, where its sounds go (build.reach)
         from .catalog import Catalog
