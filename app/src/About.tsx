@@ -1,4 +1,5 @@
 import { useDialog } from "./dialog";
+import { APP_NAME } from "./edition";
 import { APP_LABEL, APP_VERSION, CREDITS, DISCORD_URL, HOME_ART, KOFI_URL, LICENCE, REPO_URL, versionLabel } from "./content";
 import { DiscordIcon, ExternalIcon, InfoIcon, KofiIcon } from "./Icons";
 import { Logo } from "./Logo";
@@ -13,8 +14,8 @@ import { useEditor } from "./store";
 /** The small circled "i" that opens About. */
 export function AboutButton({ className }: { className?: string }) {
   return (
-    <button className={`about-btn${className ? ` ${className}` : ""}`} onClick={about.open} aria-label="About Audiodiver"
-      data-tip="About Audiodiver" data-tip-more="Version, license, log file and credits"><InfoIcon /></button>
+    <button className={`about-btn${className ? ` ${className}` : ""}`} onClick={about.open} aria-label={`About ${APP_NAME}`}
+      data-tip={`About ${APP_NAME}`} data-tip-more="Version, license, log file and credits"><InfoIcon /></button>
   );
 }
 
@@ -26,7 +27,7 @@ function AboutBox() {
   const box = useDialog(about.close);
   return (
     <div className="modal-back" onPointerDown={(e) => { if (e.target === e.currentTarget) about.close(); }}>
-      <div className="modal narrow about" role="dialog" aria-modal="true" aria-label="About Audiodiver" ref={box} tabIndex={-1}>
+      <div className="modal narrow about" role="dialog" aria-modal="true" aria-label={`About ${APP_NAME}`} ref={box} tabIndex={-1}>
         <About />
       </div>
     </div>
@@ -42,7 +43,7 @@ function About() {
         <div className="about-brand">
           <Logo detail />
           <div>
-            <b>Audiodiver</b>
+            <b>{APP_NAME}</b>
             <span>{APP_LABEL}<span className="about-ver">{APP_VERSION}</span>{core && ` · core ${versionLabel(core)}`}</span>
           </div>
         </div>

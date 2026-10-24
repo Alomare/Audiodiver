@@ -23,6 +23,7 @@ import { UpdatePrompt, UpdatesTab } from "./UpdatesTab";
 import { updates, useUpdates } from "./updates";
 import { Wiki } from "./Wiki";
 import { fmtTime, iconUrl, type Job } from "./api";
+import { APP_NAME, UTILS } from "./edition";
 import { APP_LABEL, APP_VERSION, versionLabel } from "./content";
 import { JOB_NAMES } from "./jobs";
 import { keyLabel, useCommands, useKeymap, type CommandId } from "./keys";
@@ -50,7 +51,7 @@ function Startup({ error, stage }: { error: string | null; stage?: string }) {
     <main className="startup">
       <div className="startup-card">
         <Logo detail />
-        <h1>Audiodiver</h1>
+        <h1>{APP_NAME}</h1>
         {stage === "failed" ? (
           <>
             <p className="warn-box">{picked ?? error}</p>
@@ -98,6 +99,7 @@ function Shell() {
   const [drawn, setDrawn] = useState<ReadonlySet<Tab>>(() => new Set([tab]));
   useEffect(() => { if (!drawn.has(tab)) setDrawn((d) => new Set([...d, tab])); }, [tab]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
+    if (UTILS) return; // it has neither
     const id = requestIdleCallback(() => startTransition(() => setDrawn((d) => new Set([...d, "library", "editor"]))), { timeout: 4000 });
     return () => cancelIdleCallback(id);
   }, []);
@@ -135,6 +137,8 @@ function Shell() {
   handler.current = async (raw, target) => {
     // mods to combine: anything on the Combine Mods page
     if (target?.kind === "combine") return combineInbox.offer(raw);
+    // Audiodiver Utils takes no projects: whatever else is dropped is a mod to repatch
+    if (UTILS) { nav.go("tools", "repatch"); return repatchInbox.offer(raw[0]); }
     // a mod to repatch: anything on the Repatch page, or a ZIP anywhere else (nothing else takes one)
     const zip = raw.find((p) => /\.zip$/i.test(p));
     if (target?.kind === "repatch" || zip) {
@@ -203,7 +207,7 @@ function Shell() {
         ev.preventDefault();
         const { ask } = await import("@tauri-apps/plugin-dialog");
         const what = running.current.length > 1 ? "Some jobs are" : `A ${running.current[0]} is`;
-        if (await ask(`${what} still running. Closing Audiodiver stops it.`, { title: "Audiodiver", kind: "warning", okLabel: "Close anyway", cancelLabel: "Keep working" })) {
+        if (await ask(`${what} still running. Closing ${APP_NAME} stops it.`, { title: APP_NAME, kind: "warning", okLabel: "Close anyway", cancelLabel: "Keep working" })) {
           await w.destroy();
         }
       });
@@ -213,7 +217,7 @@ function Shell() {
   }, []);
 
   // what the keyboard does anywhere in the app (keys.ts has the keys; the slot lists add their own in CueView)
-  useCommands({
+  useCommands(UTILS ? UTILS_COMMANDS : {
     save: () => { actions.save(); },
     undo: () => { actions.undo(); },
     redo: () => { actions.redo(); },
@@ -316,12 +320,32 @@ function Shell() {
   );
 }
 
+/** What the keyboard does in Audiodiver Utils: no projects, so only playback, the Tools and the tabs at the end. */
+const UTILS_COMMANDS: Parameters<typeof useCommands>[0] = {
+  playPause: (e) => {
+    if ((e.key === " " || e.key === "Enter") && (e.target as Element).closest?.("button, a, summary, [role=slider]")) return false;
+    return player.toggle();
+  },
+  stop: () => { if (!player.state.key) return false; player.stop(); },
+  selectAll: (e) => ((e.target as Element).closest?.("input, textarea, [contenteditable=true]") ? false : undefined),
+  search: () => {
+    const box = document.querySelector<HTMLInputElement>(".wiki-search input");
+    if (!box) return false;
+    box.focus(); box.select();
+  },
+  tabTools: () => nav.go("tools"),
+  updates: () => nav.toggle("updates"),
+  wiki: () => nav.toggle("wiki"),
+  settings: () => nav.toggle("settings"),
+};
+
 type MainTab = { id: Tab; name: string; about: string; cmd: CommandId; Icon: () => React.JSX.Element };
 /** Home and Tools make projects; the rest work on the open one, in the order a mod is made. */
 const APP_TABS: MainTab[] = [
   { id: "home", name: "Home", about: "projects", cmd: "tabHome", Icon: HomeIcon },
   { id: "tools", name: "Tools", about: "repatch and combine existing mods", cmd: "tabTools", Icon: ToolsIcon },
 ];
+const UTILS_TABS: MainTab[] = [APP_TABS[1]]; // Audiodiver Utils starts on Tools and has no Home
 const MOD_TABS: MainTab[] = [
   { id: "project", name: "Project", about: "name, icon and files", cmd: "tabProject", Icon: ProjectIcon },
   { id: "library", name: "Library", about: "all game audio", cmd: "tabLibrary", Icon: LibraryIcon },
@@ -359,7 +383,7 @@ function Rail() {
   useKeymap(); // the keys in the side bar's labels follow a rebinding
   const problems = project?.problems.length ?? 0;
   const name = project?.name;
-  useEffect(() => { setTitle(name ? `${name} · Audiodiver` : "Audiodiver"); }, [name]);
+  useEffect(() => { setTitle(name && !UTILS ? `${name} · Audiodiver` : APP_NAME); }, [name]);
   const iconSig = project ? iconKey([project.path, project.icon]) : ""; // many projects have an "icon.png": the path tells them apart
   const [broken, setBroken] = useState(""); // the icon that didn't load: the Project tab's own icon stands in
   const vertical = barIsVertical(t.bar);
@@ -404,8 +428,8 @@ function Rail() {
   return (
     <nav className="rail" aria-label="Main">
       <div className="rail-group" role="tablist" aria-orientation={orientation} aria-label="Tabs" onKeyDown={tabArrows}>
-        <div className="rail-set">{APP_TABS.map(mainTab)}</div>
-        <div className={`rail-set rail-mod${project ? "" : " idle"}`}>{MOD_TABS.map(mainTab)}</div>
+        <div className="rail-set">{(UTILS ? UTILS_TABS : APP_TABS).map(mainTab)}</div>
+        {!UTILS && <div className={`rail-set rail-mod${project ? "" : " idle"}`}>{MOD_TABS.map(mainTab)}</div>}
       </div>
       <div className="rail-group" role="tablist" aria-orientation={orientation} aria-label="More" onKeyDown={tabArrows}>
         {tabButton("updates", update ? `Updates, ${update}` : "Updates", update ? `Updates: ${update}` : "Updates: new versions and changelogs",
@@ -426,23 +450,23 @@ function StatusBar() {
   const core = status?.version && status.version !== APP_VERSION ? `, core ${versionLabel(status.version)}` : "";
   return (
     <footer className="statusbar">
-      <div className="sb-undo">
+      {!UTILS && <div className="sb-undo">
         <button className="sb-btn" onClick={actions.undo} disabled={!project?.can_undo} aria-label="Undo" data-tip-cmd="undo"
           data-tip={project?.can_undo ? `Undo ${EDIT_NAMES[project.undo_label ?? ""] ?? "the last change"}` : "Nothing to undo"}><UndoIcon /></button>
         <button className="sb-btn" onClick={actions.redo} disabled={!project?.can_redo} aria-label="Redo" data-tip-cmd="redo"
           data-tip={project?.can_redo ? `Redo ${EDIT_NAMES[project.redo_label ?? ""] ?? "the change"}` : "Nothing to redo"}><RedoIcon /></button>
-      </div>
+      </div>}
       {running.length ? (
         <span className="busy sb-main">{JOB_NAMES[running[0].kind]?.[1] ?? "Working"}{running[0].total ? ` ${Math.round((running[0].done / running[0].total) * 100)}%` : ""}: {running[0].doing || running[0].log[running[0].log.length - 1] || "starting"}</span>
       ) : (
-        <span className="sb-main" data-tip={project?.path} data-tip-clip>{project ? `Autosaved · ${project.path}` : "No project open"}</span>
+        <span className="sb-main" data-tip={project?.path} data-tip-clip>{project ? `Autosaved · ${project.path}` : UTILS ? "" : "No project open"}</span>
       )}
       <span className="spacer" />
       <ExportListButton />
       <NowPlaying />
       <span className="sb-version">
         <button className={`sb-ver${u.latest ? " lit" : ""}`} onClick={() => nav.go("updates")} aria-label={u.latest ? `${APP_LABEL}: a new version is available` : undefined}
-          data-tip={u.latest ? `${versionLabel(u.latest.version)} is available` : `Audiodiver ${APP_LABEL}${core}`} data-tip-more="Updates and changelogs">
+          data-tip={u.latest ? `${versionLabel(u.latest.version)} is available` : `${APP_NAME} ${APP_LABEL}${core}`} data-tip-more="Updates and changelogs">
           {APP_LABEL}{u.latest && <span className="sb-dot" aria-hidden />}</button>
         <AboutButton />
       </span>

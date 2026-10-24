@@ -2,13 +2,17 @@ import { useEffect, useState, type ReactNode } from "react";
 import { nav } from "./nav";
 import { useEditor } from "./store";
 
-/** The frame the Build and Settings tabs share: a page that scrolls, with one big title. */
-export function Page({ title, lead, wide, children }: { title: string; lead?: ReactNode; wide?: boolean; children: ReactNode }) {
+/** The frame the Build and Settings tabs share: a page that scrolls, with one big title, and `actions` on the
+    title's line at the right (the Project tab's Import patches and Close project). */
+export function Page({ title, lead, wide, actions, children }: { title: string; lead?: ReactNode; wide?: boolean; actions?: ReactNode; children: ReactNode }) {
   return (
     <section className="page" aria-label={title}>
       <div className={`page-inner view-in${wide ? " wide" : ""}`}>
         <header className="page-head">
-          <h1>{title}</h1>
+          <div className="page-title">
+            <h1>{title}</h1>
+            {actions && <div className="page-actions">{actions}</div>}
+          </div>
           {lead && <p className="page-lead">{lead}</p>}
         </header>
         {children}
@@ -32,8 +36,9 @@ export function tabArrows(e: React.KeyboardEvent<HTMLElement>) {
   tabs[to].click();
 }
 
-/** What Build's This project page shows while no project is open, and the Project tab too. */
-export function NoProjectCard({ text }: { text: string }) {
+/** What Build's This project page shows while no project is open, and the Project tab too (which has the recent
+    projects under it, so no way to them). */
+export function NoProjectCard({ text, recent = true }: { text: string; recent?: boolean }) {
   const { actions } = useEditor();
   return (
     <div className="empty-card">
@@ -42,7 +47,7 @@ export function NoProjectCard({ text }: { text: string }) {
       <div className="row-btns">
         <button className="btn primary" onClick={actions.newProject}>New project…</button>
         <button className="btn" onClick={() => actions.openProject()}>Open project…</button>
-        <button className="btn quiet" onClick={() => nav.go("home")}>Recent projects</button>
+        {recent && <button className="btn quiet" onClick={() => nav.go("project")}>Recent projects</button>}
       </div>
     </div>
   );

@@ -245,6 +245,26 @@ def test_repatched_mods_go_to_documents_by_default():
 
 
 @pytest.mark.game
+@pytest.mark.skipif(not WARP.exists(), reason="the Warp Pack isn't here")
+def test_the_tools_work_without_numpy_and_pillow(tmp_path):
+    """Audiodiver Utils leaves numpy and Pillow out of its core (release.py utils): Repatch and Combine, from the
+    command line in a fresh process where neither can be imported."""
+    import shutil
+    import subprocess
+    import sys
+    other = tmp_path / "Other" / WARP.name
+    other.parent.mkdir()
+    shutil.copyfile(WARP, other)
+    run = "import sys; sys.modules.update(numpy=None, PIL=None); from audiodiver.cli import main; main(sys.argv[1:])"
+    for cmd in (["repatch", str(WARP)], ["combine", str(WARP), str(other)]):
+        out = tmp_path / cmd[0]
+        done = subprocess.run([sys.executable, "-c", run, *cmd, "--out", str(out), "--json"], capture_output=True,
+                              text=True, encoding="utf-8", timeout=600)
+        assert done.returncode == 0, done.stdout + done.stderr
+        assert list(out.glob("*.zip")), done.stdout
+
+
+@pytest.mark.game
 def test_objects_as_an_older_game_version_had_them_are_not_the_mods(monkeypatch):
     """A mod's copy of an object exactly as an earlier game version had it (bank_history's fingerprints) is that
     version's, not a change of the mod's: not listed as an other change, and no settings taken from it. Here the

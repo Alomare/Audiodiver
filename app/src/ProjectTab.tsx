@@ -1,23 +1,93 @@
 import { useEffect, useRef, useState } from "react";
-import { fmtBytes, iconUrl, nameProblem, plural, type Icon, type IconFrame } from "./api";
+import { call, fmtBytes, fmtWhen, iconUrl, nameProblem, plural, type Icon, type IconFrame } from "./api";
 import { confirm } from "./Confirm";
+import { FolderIcon } from "./Icons";
 import { NoProjectCard, Page, useDraft } from "./Page";
 import { copyText, fullPath, reveal } from "./platform";
 import { useEditor } from "./store";
+import { motionMs } from "./theme";
 import { Help } from "./Wiki";
 
 const FRAME_KEYS: (keyof IconFrame)[] = ["border", "border_color", "radius"];
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
 /** The Project tab: what the mod is (its name, description, icon and id) and where its files are (its folder, the
-    files nothing uses, and packs). Build keeps how the ZIP is made. */
+    files nothing uses, and packs), with Import patches and Close project by the title. Build keeps how the ZIP is
+    made. With no project open: New, Open and the recent projects. */
 export function ProjectTab() {
-  const { project } = useEditor();
+  const { project, actions } = useEditor();
   return (
     <Page title="Project" wide
-      lead={<>A project is one patch mod, in a folder with all associated files. <Help tip="Project folders" page="project-folders" /></>}>
-      {project ? <ProjectPage key={project.path} /> : <NoProjectCard text="Create or open a project, or open a pack." />}
+      lead={<>A project is one patch mod, in a folder with all associated files. <Help tip="Project folders" page="project-folders" /></>}
+      actions={project && <>
+        <button className="btn" onClick={() => actions.importPatch()}
+          data-tip="Import the replaced and added sounds from a mod's .patch_0 file into this project">Import patches…</button>
+        <button className="btn quiet" onClick={actions.closeProject} data-tip="Close the project" data-tip-cmd="closeProject">Close project</button>
+      </>}>
+      {project ? <ProjectPage key={project.path} />
+        : <div className="proj-none">
+          <NoProjectCard text="Create or open a project, or open a pack." recent={false} />
+          <RecentProjects />
+        </div>}
     </Page>
+  );
+}
+
+type Info = { path: string; exists: boolean; readable: boolean; name: string; modified: number | null };
+const fileName = (path: string) => path.split(/[\\/]/).pop()!.replace(/\.audi$/i, "");
+
+/** The projects opened before, newest first: each opens with a click, shows its folder, or leaves the list (the
+    file stays). A row says when its file was last changed, or that it is gone or can't be read. Nothing shows until
+    a project has been made or opened. */
+function RecentProjects() {
+  const { recent, actions } = useEditor();
+  const [info, setInfo] = useState<Record<string, Info>>({});
+  const [leaving, setLeaving] = useState<string[]>([]); // rows folding away after their ✕
+  const forget = (path: string) => {
+    setLeaving((l) => [...l, path]);
+    setTimeout(() => { actions.forgetRecent(path); setLeaving((l) => l.filter((p) => p !== path)); }, motionMs(160));
+  };
+
+  // the list says whether each file is still there, and shows the mod's name rather than the file's
+  useEffect(() => {
+    if (!recent.length) return;
+    let live = true;
+    call<Info[]>("projects_info", { paths: recent })
+      .then((list) => { if (live) setInfo(Object.fromEntries(list.map((i) => [i.path, i]))); })
+      .catch(() => { /* the list still works from the paths alone */ });
+    return () => { live = false; };
+  }, [recent]);
+
+  if (!recent.length) return null;
+  return (
+    <section className="set-sec recent" aria-label="Recent projects">
+      <h2>Recent projects</h2>
+      <ul>
+        {recent.map((path) => {
+          const i = info[path];
+          const name = i?.name ?? fileName(path);
+          const missing = i ? !i.exists : false;
+          const unreadable = !!i && i.exists && !i.readable;
+          const gone = leaving.includes(path);
+          return (
+            <li key={path} className={`recent-row${missing || unreadable ? " missing" : ""}${gone ? " leaving" : ""}`} inert={gone}>
+              <button className="recent-open" disabled={missing} onClick={() => actions.openProject(path)}>
+                <span className="recent-name">{name}</span>
+                <span className="recent-path" data-tip={path} data-tip-clip>{path}</span>
+              </button>
+              <span className="recent-when" data-tip={missing ? "Moved, renamed or deleted" : unreadable ? "Not an Audiodiver project, or damaged" : undefined}>
+                {missing ? "Not found" : unreadable ? "Can't be read" : fmtWhen(i?.modified)}</span>
+              <span className="recent-tools">
+                <button className="x" aria-label={`Show ${name} in folder`} disabled={missing}
+                  onClick={() => reveal(path)} data-tip="Show in folder"><FolderIcon /></button>
+                <button className="x" aria-label={`Remove ${name} from this list`} onClick={() => forget(path)}
+                  data-tip="Remove from this list" data-tip-more="The file stays where it is">✕</button>
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
   );
 }
 

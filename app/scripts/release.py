@@ -4,6 +4,7 @@
     python app/scripts/release.py notes v1.2.0   # the changelog's section for it: the release's text
     python app/scripts/release.py core           # app/src-tauri/core: Python, the core and its packages, the tools
     python app/scripts/release.py portable       # the portable ZIP, from the built exe and app/src-tauri/core
+    python app/scripts/release.py utils          # the Audiodiver Utils ZIP, from the same exe and core
 
 `core` puts together what the installer and the portable ZIP carry beside the exe (tauri.release.conf.json lists it
 as resources; the shell runs `core/python/python.exe` with `core/tools` on PATH):
@@ -162,7 +163,9 @@ def notes(tag):
     sys.stdout.write(section(v) + "\n\n" + (
         f"**Audiodiver_{v}_x64-setup.exe** installs Audiodiver and updates it from inside the app. "
         f"**Audiodiver-{v}-portable.zip** runs from any folder: unzip it and start Audiodiver.exe. A portable copy "
-        "keeps its settings and caches in the `data` folder beside it, and updates by downloading the new ZIP.\n"))
+        "keeps its settings and caches in the `data` folder beside it, and updates by downloading the new ZIP. "
+        f"**Audiodiver-Utils-{v}-portable.zip** is Repatch and Combine Mods alone, as a smaller portable window and "
+        "a command line (`audiodiver.cmd`), without projects.\n"))
 
 
 def portable():
@@ -183,6 +186,60 @@ def portable():
     print(f"{out}: {out.stat().st_size / 1e6:.0f} MB")
 
 
+def utils():
+    """Audiodiver-Utils-<version>-portable.zip: the same exe (a utils.txt beside it makes it show only the Tools) with
+    the core minus ffmpeg, ffprobe, numpy and Pillow (Repatch and Combine decode with vgmstream and play WAVs), and
+    audiodiver.cmd for the command line (`audiodiver repatch`, `combine`, `check`, `scan`), on the same data folder as
+    the window."""
+    exe = TAURI / "target" / "release" / "audiodiver.exe"
+    if not exe.is_file() or not (OUT / "python" / "python.exe").is_file():
+        sys.exit("build first: `release.py core`, then `tauri build`")
+    out = TAURI / "target" / "release" / "bundle" / "portable" / f"Audiodiver-Utils-{version()}-portable.zip"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    left_out = {"tools/ffmpeg.exe", "tools/ffprobe.exe", "licenses/ffmpeg.txt", "licenses/README.txt"}
+    # numpy and Pillow, more than half of the core: they render exports and frame icons, which the Tools don't
+    # (test_the_tools_work_without_numpy_and_pillow)
+    left_pkgs = re.compile(r"python/Lib/site-packages/(numpy|numpy\.libs|numpy-[^/]*\.dist-info|PIL|pillow-[^/]*\.dist-info)/")
+    top = "Audiodiver Utils"
+    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
+        z.write(exe, f"{top}/Audiodiver Utils.exe")
+        z.writestr(f"{top}/portable.txt", PORTABLE_TXT.replace("Audiodiver.exe", "Audiodiver Utils.exe")
+                   .replace("the new portable ZIP", "the new Audiodiver Utils ZIP").replace("This copy of Audiodiver", "This copy of Audiodiver Utils"))
+        z.writestr(f"{top}/utils.txt", UTILS_TXT)
+        z.writestr(f"{top}/audiodiver.cmd", UTILS_CMD.replace("\n", "\r\n"))
+        z.write(ROOT / "LICENSE", f"{top}/LICENSE.txt")
+        z.writestr(f"{top}/core/licenses/README.txt", re.sub(r"FFmpeg .*?\n(?:    .*\n)+", "", SOURCES)
+                   .replace("numpy, pillow, lz4                     their licences are in python/Lib/site-packages/*.dist-info",
+                            "lz4                                   its licence is in python/Lib/site-packages/lz4-*.dist-info")
+                   .replace(", ".join(PACKAGES), next(p for p in PACKAGES if p.startswith("lz4"))))
+        for f in sorted(OUT.rglob("*")):
+            rel = f.relative_to(OUT).as_posix()
+            if f.is_file() and rel not in left_out and not left_pkgs.match(rel):
+                z.write(f, f"{top}/core/{rel}")
+    print(f"{out}: {out.stat().st_size / 1e6:.0f} MB")
+
+
+UTILS_TXT = """This is Audiodiver Utils: the Tools of Audiodiver (Repatch, Combine Mods and the installed mods check) without
+projects. Audiodiver Utils.exe is the window; audiodiver.cmd runs the same tools from a command line:
+
+    audiodiver scan <mod>              what a mod holds: its patches, options and the choice it starts with
+    audiodiver repatch <mod> [--out DIR] [--name NAME] [--every-bank]
+    audiodiver combine <mod> <mod> ... [--plan FILE] [--clashes] [--out DIR] [--name NAME] [--every-bank]
+    audiodiver check                   the installed mods with sound banks of an older game version
+
+A mod is a ZIP, a folder or a .patch_0 file. --json prints the result as JSON; `audiodiver <command> --help` has
+the rest. Both read the game the same way and keep their files in the data folder here.
+"""
+
+UTILS_CMD = """@echo off
+rem Audiodiver's tools from a command line: audiodiver repatch|combine|check|scan ... (utils.txt has more)
+setlocal
+set "HERE=%~dp0"
+set "PATH=%HERE%core\\tools;%PATH%"
+if not defined AUDIODIVER_CACHE set "AUDIODIVER_CACHE=%HERE%data"
+"%HERE%core\\python\\python.exe" -X utf8 -m audiodiver %*
+"""
+
 PORTABLE_TXT = """This copy of Audiodiver is portable. It keeps its settings, caches, notes and logs in the data folder
 next to Audiodiver.exe, and nothing in the user's AppData folder. The folder can be moved or copied with its data.
 
@@ -192,4 +249,4 @@ Audiodiver.exe and the core folder. Keep the data folder.
 
 if __name__ == "__main__":
     what, *args = sys.argv[1:] or ["help"]
-    {"core": core, "portable": portable, "check": check, "notes": notes}.get(what, lambda *_: sys.exit(__doc__))(*args)
+    {"core": core, "portable": portable, "utils": utils, "check": check, "notes": notes}.get(what, lambda *_: sys.exit(__doc__))(*args)

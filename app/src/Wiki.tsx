@@ -1,11 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { WIKI, WIKI_GROUPS, wikiPicture } from "./content";
+import { WIKI as ALL_PAGES, WIKI_GROUPS, wikiPicture } from "./content";
+import { UTILS, UTILS_WIKI } from "./edition";
 import { Markdown } from "./Markdown";
 import { nav, useNav } from "./nav";
 import { Splitter, useStoredWidth } from "./Resize";
 import { scrollBehavior } from "./theme";
 
 const NAV_WIDTH = 270;
+/** The pages the list shows and Previous/Next step through: Audiodiver Utils lists only its own (a link still opens
+    any page). */
+const WIKI = UTILS ? ALL_PAGES.filter((p) => UTILS_WIKI.has(p.id)) : ALL_PAGES;
 
 /** The Wiki tab: guides, resources and good practice for making audio mods. Pages are Markdown files in src/wiki
     (see content.ts for how one is laid out); the list on the left, the page in the middle, its headings on the right. */
@@ -16,7 +20,7 @@ export function Wiki() {
   const [at, setAt] = useState(""); // the heading being read, for the outline
   const reader = useRef<HTMLDivElement>(null);
   const picked = useRef(""); // the heading last clicked in the outline
-  const page = WIKI.find((p) => p.id === id) ?? WIKI[0];
+  const page = ALL_PAGES.find((p) => p.id === id) ?? WIKI[0];
   const index = WIKI.indexOf(page);
 
   const words = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
@@ -25,6 +29,7 @@ export function Wiki() {
     return words.every((w) => hay.includes(w));
   }).map((p) => p.id)), [query]); // eslint-disable-line react-hooks/exhaustive-deps
   const groups = WIKI_GROUPS.map((g) => ({ ...g, pages: g.pages.filter((p) => found.has(p.id)) })).filter((g) => g.pages.length);
+  const step = (by: number) => (index >= 0 ? WIKI[index + by] : undefined);
 
   // another page starts at its top, or at the heading a link names (once: then the page is where the reader leaves it)
   const shown = useRef<string | null>(null);
@@ -94,8 +99,8 @@ export function Wiki() {
             </header>
             <Markdown tokens={page.tokens} images={wikiPicture} />
             <footer className="wiki-foot">
-              {index > 0 ? <button className="wiki-step" onClick={() => nav.go("wiki", WIKI[index - 1].id)}><small>Previous</small>{WIKI[index - 1].title}</button> : <span />}
-              {index < WIKI.length - 1 && <button className="wiki-step next" onClick={() => nav.go("wiki", WIKI[index + 1].id)}><small>Next</small>{WIKI[index + 1].title}</button>}
+              {step(-1) ? <button className="wiki-step" onClick={() => nav.go("wiki", step(-1)!.id)}><small>Previous</small>{step(-1)!.title}</button> : <span />}
+              {step(1) && <button className="wiki-step next" onClick={() => nav.go("wiki", step(1)!.id)}><small>Next</small>{step(1)!.title}</button>}
             </footer>
           </article>
           {outline.length > 1 && (

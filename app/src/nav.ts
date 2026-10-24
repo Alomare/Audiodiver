@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import { UTILS } from "./edition";
 
 /** Which master tab shows. Home and Tools lead the tab bar, then Project, Library, the two editors and Build in the
     project's band (App.tsx Rail); Updates, Wiki and Settings sit at its end, and those lead back to where you were
@@ -34,7 +35,8 @@ function lastWikiPage(): string {
   try { return (localStorage.getItem(WIKI_KEY) ?? "").split("#")[0]; } catch { return ""; }
 }
 
-let current: Nav = { tab: "home", settings: "system", library: lastLibraryTab(), tools: "repatch", wiki: lastWikiPage(), anchor: "", from: "home", origin: {} };
+const START: Tab = UTILS ? "tools" : "home"; // Audiodiver Utils has no Home
+let current: Nav = { tab: START, settings: "system", library: lastLibraryTab(), tools: "repatch", wiki: lastWikiPage(), anchor: "", from: START, origin: {} };
 const listeners = new Set<() => void>();
 
 export const nav = {
@@ -77,7 +79,7 @@ export const useNav = () => useSyncExternalStore(nav.subscribe, nav.get);
 /** Folds every category and section of the Library's Index (IndexTree listens): a new project starts from there. */
 export const FOLD_LIBRARY = "audiodiver:fold-library";
 
-/** Whether About (About.tsx) shows: it opens over any tab, from the ⓘ in the status bar and on Home. */
+/** Whether About (About.tsx) shows: it opens over any tab, from the ⓘ in the status bar. */
 let aboutOpen = false;
 const aboutListeners = new Set<() => void>();
 const showAbout = (v: boolean) => { aboutOpen = v; aboutListeners.forEach((f) => f()); };

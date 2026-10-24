@@ -8,6 +8,7 @@ summary: Where mods are installed and shared, and free audio tools that help wit
 
 - Builds install with a Helldivers 2 mod manager.
 - [Helldivers 2 on Nexus Mods](https://www.nexusmods.com/helldivers2) is where most mods are shared.
+- **Audiodiver Utils**, on Audiodiver's [releases page](https://github.com/Alomare/Audiodiver/releases/latest), is Repatch and Combine Mods without projects: a smaller portable window, and `audiodiver.cmd` for the command line. `audiodiver.cmd repatch <mod>` rebuilds a mod, `combine <mod> <mod>` combines mods, `check` lists the installed mods that need a repatch, and `scan <mod>` shows the options of a mod. Add `--json` for output that other programs read, and `--help` for the rest.
 
 ## Editing audio
 

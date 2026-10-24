@@ -1,5 +1,6 @@
 # A release: pushing a tag like v1.2.0 builds the installer (signed for the updater, with its .sig and latest.json)
-# and the portable ZIP, and puts them in a draft release whose text is the changelog's section for that version.
+# and the portable ZIPs (Audiodiver and Audiodiver Utils), and puts them in a draft release whose text is the
+# changelog's section for that version.
 # Publishing the draft makes it the release the app's updater and Updates tab see.
 #
 # Needs the repository secrets TAURI_SIGNING_PRIVATE_KEY (the content of the updater key file) and
@@ -77,7 +78,8 @@ jobs:
           args: --config src-tauri/tauri.release.conf.json
           releaseId: ${{ steps.draft.outputs.id }}
 
-      - name: The portable ZIP
+      - name: The portable ZIP and the Audiodiver Utils ZIP
         run: |
           python app/scripts/release.py portable
+          python app/scripts/release.py utils
           gh release upload "$GITHUB_REF_NAME" app/src-tauri/target/release/bundle/portable/*.zip

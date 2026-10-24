@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { call, fmtBytes } from "./api";
 import { confirm } from "./Confirm";
+import { UTILS } from "./edition";
 import { captureChord, COMMANDS, FIXED, fmtChord, keymap, useKeymap, type CommandId } from "./keys";
 import { nav, useNav, type SettingsTab as Sub } from "./nav";
 import { Page, tabArrows } from "./Page";
@@ -12,7 +13,10 @@ import { Help } from "./Wiki";
 import { accentFor, BAR_SIDES, barIsVertical, BLUE_HUE, contrastOn, DEFAULT_SIZE, DEFAULT_THEME, DEFAULT_WARMTH, DENSITIES, FONTS, modeOf, motionOn, nightTint,
   RESET_THEME, secondFor, SPEEDS, systemReducesMotion, systemWantsContrast, TEXT_SIZES, theme, useTheme, WARMTH, YELLOW_HUE, type FontId } from "./theme";
 
-const SUBS: [Sub, string, string][] = [
+const SUBS: [Sub, string, string][] = UTILS ? [
+  ["system", "System", "Game folder, updates, tooltips, disk space"],
+  ["theme", "Theme", "Dark or light, contrast, text size"],
+] : [
   ["system", "System", "Game folder, startup, updates, tooltips, disk space, layout"],
   ["shortcuts", "Shortcuts", "Shortcut keys and rebinding"],
   ["theme", "Theme", "Colours, text, spacing, the tab bar, animations"],
@@ -67,13 +71,13 @@ function System() {
     <div className="set-page">
       <GameFolder />
 
-      <section className="set-sec">
+      {!UTILS && <section className="set-sec">
         <h2>Startup</h2>
         <label className="check">
           <input type="checkbox" checked={s.openLast} onChange={(e) => settings.set({ openLast: e.target.checked })} />
-          <span>Open the last project when Audiodiver starts <Help tip="When on, the last project opens in the Audio Editor. When off, Audiodiver starts on Home with the recent projects." page="how-audiodiver-works#startup" /></span>
+          <span>Open the last project when Audiodiver starts <Help tip="When on, the last project opens in the Audio Editor. When off, Audiodiver starts on Home." page="how-audiodiver-works#startup" /></span>
         </label>
-      </section>
+      </section>}
 
       <section className="set-sec">
         <h2>Updates <Help tip="Audiodiver checks GitHub for a new version on every start. The Updates tab lists the changes in each version." page="how-audiodiver-works#new-versions-of-audiodiver" /></h2>
@@ -121,11 +125,11 @@ function System() {
         {cache && <button className="link-text" onClick={() => reveal(cache.folder)}>Show the folder</button>}
       </section>
 
-      <section className="set-sec">
+      {!UTILS && <section className="set-sec">
         <h2>Layout</h2>
         <button className="btn" onClick={() => { resetLayout(); quick("Panel sizes reset"); }}
           data-tip="The side panels, the header and the waveforms back to their default sizes">Reset panel sizes</button>
-      </section>
+      </section>}
 
       {changed && <button className="link-text set-reset" onClick={() => settings.set(defaults)}>Reset these settings to default</button>}
     </div>
@@ -215,7 +219,7 @@ function Shortcuts() {
       <div className="keys-bar">
         <input type="search" placeholder="Search a shortcut by function or key" value={query} aria-label="Search a shortcut"
           onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => { if (e.key === "Escape") setQuery(""); }} />
-        <button className="btn" disabled={keymap.allDefault()} onClick={resetAll}>Reset all…</button>
+        <button className="btn" disabled={keymap.allDefault()} onClick={resetAll}>Reset Key Binds</button>
       </div>
       <p className="set-note">Click on a key bind to change it. Press Esc to cancel.<br />
         Key functions are exclusive. If you assign a key to a function, all other functions that use that key will be emptied.</p>
@@ -288,14 +292,13 @@ function Theme() {
   const warm = useMemo(() => `linear-gradient(90deg, ${[0, 0.25, 0.5, 0.75, 1].map((w) => nightTint(w)).join(", ")})`, []);
   const changed = (Object.keys(RESET_THEME) as (keyof typeof RESET_THEME)[]).some((k) => t[k] !== RESET_THEME[k]);
   const reset = async () => {
-    const ok = await confirm({ title: "Reset the theme?", text: "Every theme setting goes back to its default. Dark or light, contrast and animations follow the system.", ok: "Reset", cancel: "Cancel" });
+    const ok = await confirm({ title: "Reset the theme?", text: UTILS ? "Text size goes back to its default. Dark or light and contrast follow the system."
+      : "Every theme setting goes back to its default. Dark or light, contrast and animations follow the system.", ok: "Reset", cancel: "Cancel" });
     if (ok) theme.reset();
   };
   return (
-    <div className="set-page">
-      <div className="set-top">
-        <button className="btn" disabled={!changed} onClick={reset}>Reset theme…</button>
-      </div>
+    <div className="set-split">
+      <div className="set-page">
       <section className="set-sec">
         <h2>Colours</h2>
         <div className="field">
@@ -323,6 +326,7 @@ function Theme() {
           <small>{t.contrast !== null ? "Set here, overriding the system setting."
             : systemWantsContrast() ? "High, because the system asks for more contrast." : "Following the system."}</small>
         </div>
+        {!UTILS && <>
         <div className="field">
           <span className="field-label">Night mode</span>
           <div className="segmented narrow" role="radiogroup" aria-label="Night mode">
@@ -358,10 +362,12 @@ function Theme() {
             onChange={(e) => theme.set({ hue2: Number(e.target.value) })} />
           <small>Links, the open tab, the selection and the focus ring{modeOf(t) === "light" ? ", and primary-coloured text and lines on the light theme" : ""}.</small>
         </div>
+        </>}
       </section>
 
       <section className="set-sec">
-        <h2>Text and spacing</h2>
+        <h2>{UTILS ? "Text" : "Text and spacing"}</h2>
+        {!UTILS && <>
         <div className="field">
           <span className="field-label">Typeface for text
             {t.bodyFont !== DEFAULT_THEME.bodyFont && <button className="link-inline" onClick={() => theme.set({ bodyFont: DEFAULT_THEME.bodyFont })}>Back to Archivo</button>}
@@ -376,6 +382,7 @@ function Theme() {
           <FontPicker label="Typeface for titles" value={t.titleFont} onChange={(f) => theme.set({ titleFont: f })} />
           <small>Page and panel titles, and the app name.</small>
         </div>
+        </>}
         <div className="field">
           <span className="field-label">Text size
             {t.size !== DEFAULT_SIZE && <button className="link-inline" onClick={() => theme.set({ size: DEFAULT_SIZE })}>Back to default</button>}
@@ -389,7 +396,7 @@ function Theme() {
             ))}
           </div>
         </div>
-        <div className="field">
+        {!UTILS && <div className="field">
           <span className="field-label">Spacing</span>
           <div className="segmented narrow" role="radiogroup" aria-label="Spacing">
             {DENSITIES.map(([d, name]) => (
@@ -398,9 +405,10 @@ function Theme() {
             ))}
           </div>
           <small>{t.density === "compact" ? "Fits the most on screen." : t.density === "relaxed" ? "More room around rows and buttons." : "The default."}</small>
-        </div>
+        </div>}
       </section>
 
+      {!UTILS && <>
       <section className="set-sec">
         <h2>Tab bar</h2>
         <div className="field">
@@ -455,7 +463,11 @@ function Theme() {
           <div className="motion-demo" aria-hidden><span key={`${t.speed}:${motionOn(t)}`} /></div>
         </div>
       </section>
-
+      </>}
+      </div>
+      <aside className="set-aside">
+        <button className="btn" disabled={!changed} onClick={reset}>Reset to Default</button>
+      </aside>
     </div>
   );
 }

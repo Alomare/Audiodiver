@@ -11,6 +11,10 @@
 //! The installer makes `.audi` projects and `.audipack` packs open in Audiodiver (`bundle.fileAssociations`). Windows
 //! starts the exe with the file: the window asks for it once it is ready (`launch_file`). Audiodiver runs once: a file
 //! opened while it runs goes to the window that is open (the `open-file` event), and no second core starts.
+//!
+//! Audiodiver Utils is this same exe with a `utils.txt` beside it (the release's Utils ZIP, always portable too): the
+//! window shows only the Tools, takes no projects, and runs beside Audiodiver (no single-instance hand-over). The page
+//! learns it from `window.__AUDIODIVER_EDITION__`, set before its scripts run.
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -38,6 +42,11 @@ fn portable_data() -> Option<PathBuf> {
     let exe = std::env::current_exe().ok()?;
     let dir = exe.parent()?;
     dir.join("portable.txt").is_file().then(|| dir.join("data"))
+}
+
+/// Audiodiver Utils: a `utils.txt` beside the exe.
+fn utils_edition() -> bool {
+    std::env::current_exe().ok().and_then(|exe| exe.parent().map(|d| d.join("utils.txt").is_file())).unwrap_or(false)
 }
 
 /// What the shell starts the core with: this computer's `core.json`, the core a release carries, and (portable) the
@@ -289,17 +298,21 @@ pub fn run() {
         return;
     }
     let portable = portable_data();
+    let utils = utils_edition();
     let cwd = std::env::current_dir().unwrap_or_default();
-    let mut builder = tauri::Builder::default()
+    let mut builder = tauri::Builder::default();
+    if !utils {
         // first, so a second start hands over its file and ends before anything else of it runs
-        .plugin(tauri_plugin_single_instance::init(|app, args, cwd| {
+        builder = builder.plugin(tauri_plugin_single_instance::init(|app, args, cwd| {
             let Some(window) = app.get_webview_window("main") else { return };
             let _ = window.unminimize();
             let _ = window.set_focus();
             if let Some(file) = file_arg(args, Path::new(&cwd)) {
                 let _ = window.emit("open-file", file);
             }
-        }))
+        }));
+    }
+    builder = builder
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init());
     if portable.is_none() {
@@ -312,12 +325,15 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(Core::default())
         .manage(Placed::default())
-        .manage(LaunchFile(Mutex::new(file_arg(std::env::args(), &cwd))))
+        .manage(LaunchFile(Mutex::new(if utils { None } else { file_arg(std::env::args(), &cwd) })))
         .setup(move |app| {
             // the window, built here (it has `create: false` in tauri.conf.json) so a portable copy can keep its
             // WebView2 profile in its own data folder
             let config = app.config().app.windows.iter().find(|w| w.label == "main").cloned().expect("the main window's config");
             let mut window = tauri::WebviewWindowBuilder::from_config(app.handle(), &config)?;
+            if utils {
+                window = window.title("Audiodiver Utils").initialization_script("window.__AUDIODIVER_EDITION__ = 'utils';");
+            }
             if let Some(data) = &portable {
                 window = window.data_directory(data.join("webview")).visible(false);
             }

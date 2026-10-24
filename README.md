@@ -26,7 +26,7 @@
 <br>
 
 <p align="center">
-  <img src="assets/readme/home.png" alt="Audiodiver's Home tab over a screenshot of a Helldiver aiming a stratagem ball under a blue sky: New project, Open project, Repatch a mod and Combine Mods, with Discord and Ko-fi in the corner" width="100%">
+  <img src="assets/readme/home.png" alt="Audiodiver's Home tab over a screenshot of a Helldiver kneeling in a desert sandstorm: New project, Open project with the loaded project under it, and Repatch and Combine under Tools, with Discord and Ko-fi in the corner" width="100%">
 </p>
 
 <p align="center">
@@ -115,6 +115,23 @@
   </tr>
 </table>
 
+### 🧰 Audiodiver Utils
+
+Repatch and Combine Mods on their own, for players who only need to fix or merge mods. The Utils ZIP is a 27 MB
+portable window with just the Tools, and `audiodiver.cmd` runs the same tools from a command line, so scripts and
+mod managers can call them:
+
+```
+audiodiver.cmd check --json                        installed mods that need a repatch
+audiodiver.cmd repatch "Old Mod.zip" --json        the mod rebuilt for the current game
+audiodiver.cmd combine "A.zip" "B.zip" --json      one mod out of several
+audiodiver.cmd scan "A.zip" --json                 a mod's options, for a combine plan
+```
+
+With `--json` the result is JSON on stdout and progress goes to stderr. A plan file sets each mod's options and who
+wins each clash. [core/command-line.md](core/command-line.md) has every option, the plan format and what each
+command returns.
+
 <br>
 
 ## How It Works
@@ -150,6 +167,7 @@ do after a game update.
 |---|---|
 | `Audiodiver_<version>_x64-setup.exe` | The installer. It adds Audiodiver to the Start menu, opens projects and packs from Explorer, and checks for new versions at startup, then installs them when you say so (or on its own, with Updates set to Automatic in Settings ▸ System). |
 | `Audiodiver-<version>-portable.zip` | The portable copy, with settings and caches in the same folder. Unzip it anywhere and start `Audiodiver.exe`. New versions are downloaded by hand. |
+| `Audiodiver-Utils-<version>-portable.zip` | Audiodiver Utils: Repatch and Combine Mods without projects, as a smaller portable window (`Audiodiver Utils.exe`) and a command line (`audiodiver.cmd repatch <mod>`, `combine`, `check`, `scan`, with `--json` for scripts and mod managers). |
 
 The window needs the Microsoft Edge WebView2 Runtime, which Windows 11 has and nearly every Windows 10 PC has too. If
 yours doesn't, Audiodiver shows a link to [Microsoft's free download](https://developer.microsoft.com/microsoft-edge/webview2/).

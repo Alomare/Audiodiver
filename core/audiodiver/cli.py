@@ -6,10 +6,24 @@
     audiodiver index [--rebuild]          (re)build the game's audio index
     audiodiver encode <audio> <out.wem>
     audiodiver serve [--port N] [--token T] [--project P]   the editor's local API (see server.py)
+
+Mods made for an older game version (Tools in the window; Audiodiver Utils ships these too):
+
+    audiodiver scan <mod>                 what a mod holds: its patches, options and the choice it starts with
+    audiodiver repatch <mod> [--name N] [--out DIR] [--every-bank]
+    audiodiver combine <mod> <mod> ... [--plan FILE] [--clashes] [--name N] [--out DIR] [--every-bank]
+    audiodiver check                      the installed mods with sound banks of an older game version
+
+A mod is a ZIP, a folder or a .patch_0 file. --json prints the result as JSON on stdout (progress goes to stderr);
+--game DIR reads the game from that folder. Without --out the ZIP goes where the window's Tools put it last.
+Combine's --plan is a JSON file {"mods": [{"source": path, "picks": [option ids]}], "winners": {clash id: mod}},
+the mods in order (a later one wins where two differ); `scan` lists a mod's option ids, `--clashes` the clash ids.
 """
 import argparse
+import json
 import os
 import sys
+import time
 from pathlib import Path
 
 from . import wem
@@ -103,6 +117,126 @@ def cmd_serve(a):
     serve(a.port, a.token, a.project, a.parent_pid)
 
 
+# --- the Tools: Repatch, Combine Mods, the installed mods check. They run the window's own jobs (editor.Session)
+def _session(a, game=True):
+    """A Session with the game read (the window's start, done here in the foreground)."""
+    from .editor import Session
+    s = Session(load=False)
+    if game:
+        _say(a, "Reading the game audio (the first run after a game update takes about a minute)")
+        s._load_game(a.game)
+        if s.stage != "ready":
+            _fail(a, s.load_error or "the game couldn't be read")
+    return s
+
+
+def _say(a, line):
+    if not a.json_out or a.verbose:
+        print(line, file=sys.stderr, flush=True)
+
+
+def _fail(a, msg):
+    if a.json_out:
+        print(json.dumps({"error": msg}))
+    sys.exit(f"audiodiver {a.func.__name__.removeprefix('cmd_')}: {msg}")
+
+
+def _run(a, s, call):
+    """Starts a job (call() returns its JSON, or raises EditorError), follows it on stderr and returns its result.
+    Ctrl+C asks it to stop, as Cancel does in the window."""
+    from .editor import EditorError
+    try:
+        job = s.jobs[call()["id"]]
+    except EditorError as e:
+        _fail(a, str(e))
+    shown = None
+    try:
+        while job.state == "running":
+            time.sleep(0.2)
+            now = (job.doing, job.done, job.total)
+            if job.doing and now != shown:
+                shown = now
+                _say(a, f"{job.doing}" + (f" ({100 * job.done // job.total}%)" if job.total else ""))
+    except KeyboardInterrupt:
+        job.cancel_requested = True
+        while job.state == "running":
+            time.sleep(0.2)
+    if job.state != "done":
+        _fail(a, job.error or job.state)
+    return job.result
+
+
+def _out(a, result, text):
+    print(json.dumps(result, indent=1, ensure_ascii=False) if a.json_out else text)
+
+
+def cmd_scan(a):
+    from .editor import EditorError
+    s = _session(a, game=False)
+    try:
+        got = {**s.repatch_scan(a.mod), **{k: v for k, v in s.combine_scan(a.mod).items() if k in ("options", "picks")}}
+    except EditorError as e:
+        _fail(a, str(e))
+    lines = [f"{got['name']}: {len(got['patches'])} patch{'es' if len(got['patches']) != 1 else ''}"
+             + (" (a mod manager manifest)" if got["manifest"] else "")]
+    lines += [f"  {p['label'] or p['key']}" + ("" if p["audio"] else " (no audio)") for p in got["patches"]]
+    for o in got["options"]:
+        lines.append(f"  option {o['id']}: {o['name']}" + "".join(f"\n    choice {x['id']}: {x['name']}" for x in o["sub"]))
+    if got["options"]:
+        lines.append(f"  starts with: {' '.join(got['picks']) or 'nothing on'}")
+    _out(a, got, "\n".join(lines))
+
+
+def cmd_repatch(a):
+    s = _session(a)
+    r = _run(a, s, lambda: s.repatch(a.mod, a.name or "", str(Path(a.out).resolve()) if a.out else "", a.every_bank,
+                                      remember=False))
+    lines = [f"{r['zip']} ({r['mb']} MB)" + (", the old mod's id kept" if r["kept_id"] else "")]
+    for p in r["parts"]:
+        label = p["label"] or r["name"]
+        lines.append(f"  {label}: kept as it was ({p['kept']})" if p["kept"] else
+                     f"  {label}: {p['imported']} sounds carried over" + (f", {len(p['left'])} changes left out" if p["left"] else ""))
+    _out(a, r, "\n".join(lines))
+
+
+def cmd_combine(a):
+    plan = {}
+    if a.plan:
+        try:
+            plan = json.loads(Path(a.plan).read_text(encoding="utf-8"))
+        except (OSError, ValueError) as e:
+            _fail(a, f"the plan {a.plan} can't be read: {e}")
+        if not isinstance(plan, dict):
+            _fail(a, "the plan is a JSON object with mods and winners")
+    mods = plan.get("mods") or [{"source": m} for m in a.mods]
+    if a.mods and plan.get("mods"):
+        _fail(a, "name the mods in the plan or on the command line, not both")
+    s = _session(a)
+    if a.clashes:
+        r = _run(a, s, lambda: s.combine_read(mods))
+        lines = [f"{len(r['mods'])} mods, {sum(len(g['clashes']) for g in r['groups'])} clashes"]
+        for g in r["groups"]:
+            lines.append(f"  {g['name']}")
+            lines += [f"    {c['id']}: {c['label']} (mods {', '.join(str(v['mod']) for v in c['versions'])}; "
+                      f"mod {c['winner']} wins)" for c in g["clashes"]]
+        return _out(a, r, "\n".join(lines))
+    r = _run(a, s, lambda: s.combine(mods, plan.get("winners"), a.name or plan.get("name") or "",
+                                      str(Path(a.out).resolve()) if a.out else "", a.every_bank, remember=False))
+    _out(a, r, f"{r['zip']} ({r['mb']} MB)\n" + "\n".join(f"  {m['name']}" for m in r["mods"]))
+
+
+def cmd_check(a):
+    s = _session(a)
+    r = _run(a, s, s.check_mods)
+    states = {"shared": "older shared settings", "older": "older sound banks", "current": "up to date",
+              "unreadable": "can't be read"}
+    lines = [f"  {m['name']}: {states.get(m['state'], m['state'])}" + (" (deployed)" if m["deployed"] else "")
+             for m in r["mods"]]
+    if not r["library"]:
+        lines.insert(0, "No mod manager's library was found, so only the game's folder was checked.")
+    _out(a, r, "\n".join(lines) or "No installed mod has sound banks.")
+
+
 def positive(text):
     """A whole number from 1 (argparse type)."""
     try:
@@ -144,6 +278,29 @@ def main(argv=None):
     p.add_argument("--project")
     p.add_argument("--parent-pid", type=int, help="exit when this process ends (set by the desktop app)")
     p.set_defaults(func=cmd_serve)
+
+    def tool(name, func, help):
+        p = sub.add_parser(name, help=help)
+        p.add_argument("--json", dest="json_out", action="store_true", help="the result as JSON on stdout")
+        p.add_argument("--verbose", action="store_true", help="progress on stderr also with --json")
+        p.add_argument("--game", help="the game's folder (else the one Settings has, $HD2_DATA, or Steam's)")
+        p.set_defaults(func=func)
+        return p
+    p = tool("scan", cmd_scan, "what a mod holds: patches, options, the choice it starts with")
+    p.add_argument("mod")
+    p = tool("repatch", cmd_repatch, "rebuild a mod for the current game version")
+    p.add_argument("mod")
+    p.add_argument("--name", help="the new mod's name (else the mod's own)")
+    p.add_argument("--out", help="the folder the ZIP goes into")
+    p.add_argument("--every-bank", action="store_true", help="the mod's sounds into every bank that has them")
+    p = tool("combine", cmd_combine, "make one mod out of several, built on the current game")
+    p.add_argument("mods", nargs="*")
+    p.add_argument("--plan", help="a JSON file with the mods, their options and the clashes' winners")
+    p.add_argument("--clashes", action="store_true", help="only read the mods and list where they clash")
+    p.add_argument("--name", help="the combined mod's name")
+    p.add_argument("--out", help="the folder the ZIP goes into")
+    p.add_argument("--every-bank", action="store_true", help="the sounds into every bank that has them")
+    tool("check", cmd_check, "the installed mods with sound banks of an older game version")
     a = ap.parse_args(argv)
     try:
         a.func(a)

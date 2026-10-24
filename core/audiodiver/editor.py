@@ -191,16 +191,21 @@ class Session:
             threading.Thread(target=self._load_game, daemon=True).start()
 
     # --- game data
-    def _load_game(self):
+    def _load_game(self, chosen=None):
+        """Reads the game: from `chosen` (a folder the command line names), else as Settings has it."""
         try:
             from .catalog import Catalog
             from .cuemap import CueMap
             from .game import Game, locate
             from .library import Library
-            from .render import clean_spool
-            clean_spool()
+            try:
+                from .render import clean_spool
+            except ImportError:
+                pass  # no renderer (Audiodiver Utils has no numpy), so no spool files either
+            else:
+                clean_spool()
             clean_temp()
-            folder, how = locate(load_settings().get("game_data"))
+            folder, how = locate(chosen or load_settings().get("game_data"))
             again = bool(self.game_where.get("path"))  # another folder was chosen: this isn't the start-up read
             self.game_where = {"path": str(folder), "how": how}
             self.stage = ("Reading the game audio from the new folder" if again
@@ -1841,14 +1846,14 @@ class Session:
                 raise EditorError(f"The files besides audio can't be read: {e}") from None
         return out
 
-    def repatch(self, path, name="", folder="", every_bank=False):
+    def repatch(self, path, name="", folder="", every_bank=False, remember=True):
         """Rebuilds a mod on the game as it is now, as the one mod it was. Each of its patches is imported into a
         project of its own (in a temp folder, gone after) and made again on the current game's banks; the new ZIP,
         the only thing left in the repatch folder, is the mod as it was, with a manifest's options, files and id kept
-        (repatch.repackage), those patches in place of the old ones. Without a manifest it is a ZIP for HD2 Arsenal,
+        (repatch.repackage), those patches in place of the old ones. Without a manifest it is a mod manager ZIP,
         one option per patch. A patch that can't be repatched stays as it was in a mod of several, and the result
         says so. every_bank: the mod's sounds go into every bank that has them, not only the banks the mod patched
-        (build.reach)."""
+        (build.reach). remember: a folder given becomes the one Repatch starts on (the command line leaves it)."""
         import tempfile
         from .arsenal import default_icon, name_problem, package
         from .build import PATCH, BuildError, make_patch
@@ -1869,7 +1874,7 @@ class Session:
             raise EditorError(f"{root} is inside the game folder, and Audiodiver never writes there")
         if any(j.kind in ("build", "repatch") and j.state == "running" for j in self.jobs.values()):
             raise EditorError("A build is already running")
-        if given(folder):
+        if given(folder) and remember:
             save_settings(repatch_folder=str(root))
         if not isinstance(every_bank, bool):
             raise EditorError("Every bank is on or off")
@@ -2264,13 +2269,13 @@ class Session:
             return self._combine_result(read, effects, found)
         return self._start("combine_read", run, title=f"{len(mods)} mods")
 
-    def combine(self, mods, winners=None, name="", folder="", every_bank=False):
+    def combine(self, mods, winners=None, name="", folder="", every_bank=False, remember=True):
         """Combines the mods ([{source, picks}], in order) into one, as a job: a project in a temp folder (gone after),
         with a new id, Audiodiver's icon and a description that lists the mods and their options, built into an HD2
         Arsenal ZIP, the only thing left in the combine folder (`<name>.zip`, `<name> 2.zip` beside an earlier one).
         winners: {clash id: the mod that wins it}; a clash not named goes to the last mod with a version. Takes and
         layers of every mod go in, and their files besides audio as they were (of two with one id, the later mod's).
-        every_bank: the sounds go into every bank that has them (build.reach)."""
+        every_bank: the sounds go into every bank that has them (build.reach). remember: as for repatch."""
         from . import combine as cb
         from .arsenal import name_problem
         import tempfile
@@ -2293,7 +2298,7 @@ class Session:
         chosen = {str(k): v for k, v in (winners or {}).items()}
         self._combine_busy(("build", "repatch", "combine", "combine_read"),
                            "Wait until the running build, repatch or combine is done")
-        if given(folder):
+        if given(folder) and remember:
             save_settings(combine_folder=str(root))
 
         def copy_in(pt, clips, into: Path) -> dict:

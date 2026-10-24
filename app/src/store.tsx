@@ -6,6 +6,7 @@ import { keyHint, keyLabel } from "./keys";
 import { indexItems } from "./music";
 import { FOLD_LIBRARY, nav as tabs } from "./nav";
 import { notes } from "./noteStore";
+import { UTILS } from "./edition";
 import * as platform from "./platform";
 import type { PlayedAt } from "./player";
 import { settings } from "./settings";
@@ -334,7 +335,7 @@ function useEditorState() {
             firstBoot.current = false;
             for (const j of s.jobs ?? []) resume.current(j); // a build or export still running: the window reloaded
             // a project or pack opened in Explorer (a double-click): it wins over the last one
-            const launched = await platform.launchFile();
+            const launched = UTILS ? null : await platform.launchFile();
             if (stop) return;
             if (launched) {
               try {
@@ -351,7 +352,7 @@ function useEditorState() {
                 if (!stop) notify("bad", String(e?.message ?? e), undefined, true);
               }
             } else if (s.project) { applyProject(s.project); tabs.go("editor"); } // the core kept it open (the window reloaded)
-            else if (settings.get().openLast) {
+            else if (!UTILS && settings.get().openLast) {
               const last = recentProjects()[0];
               if (last) {
                 try {

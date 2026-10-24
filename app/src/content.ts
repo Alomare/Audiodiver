@@ -39,7 +39,7 @@ export const HOME_ART = Object.entries(import.meta.glob("./art/*.{jpg,jpeg,png,w
 /** Where the art comes from: About ▸ Credits names it. */
 export const ART_CREDIT: { name: string; url?: string; for: string } = { name: "Alomare", for: "the screenshots of Helldivers 2 behind Home" };
 
-/** Everyone whose work Audiodiver builds on: About ▸ Credits (the ⓘ by the version and on Home), the one place the
+/** Everyone whose work Audiodiver builds on: About ▸ Credits (the ⓘ by the version), the one place the
     app names people and sources. Notes, tooltips, the Wiki and the core's data never do: they say what a thing is,
     not who found it. */
 export type Credit = { name: string; by?: string; url?: string; licence?: string; for: string };

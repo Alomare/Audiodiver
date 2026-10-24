@@ -20,9 +20,9 @@ Audiodiver never writes to the game folder. It reads the game audio from the Ste
 
 The tab bar along the top of the window holds the main tabs in two groups. Home and Tools come first. The darker band after them starts with the project icon and name, and holds the tabs for the open project in the order a mod is made. Hover over a tab to see its contents and shortcut. **Tab bar** in [Settings ▸ Theme](app:settings/theme) moves the bar to another side of the window and shows or hides tab names.
 
-- {icon:home} **Home** has new, open and recent projects.
+- {icon:home} **Home** starts a new project or opens one, and leads to Repatch and Combine.
 - {icon:tools} **Tools** works on existing mods, without a project. [Repatch](wiki:repatching) rebuilds a mod for the current game version, and [Combine Mods](wiki:combining-mods) makes one mod out of several. Both produce a new ZIP.
-- {icon:project} **Project** holds the mod name, description, icon and id, and the project folder. The tab shows the project icon and name.
+- {icon:project} **Project** holds the mod name, description, icon and id, and the project folder, with **Import patches…** and **Close project** by its title. With no project open, it lists the recent projects. The tab shows the project icon and name.
 - {icon:library} **Library** lists everything the game plays, so you can find it and listen to it. Browsing changes nothing. **Add to the project** puts an entry in the project. **Index** sorts the audio that has a name, and **All Archives** lists every archive that contains audio.
 - {icon:audio} **Audio Editor** shows what the project works on. Slots get new audio here.
 - {icon:text} **Text Editor** has all in-game text in every language, including subtitles. See [Text and subtitles](wiki:text).
@@ -53,7 +53,7 @@ An update replaces only the app. Projects, audio files and settings are kept.
 
 ### Startup
 
-With **Open the last project when Audiodiver starts** on, Audiodiver opens the last project in the Audio Editor. With it off, Audiodiver starts on Home with the recent projects.
+With **Open the last project when Audiodiver starts** on, Audiodiver opens the last project in the Audio Editor. With it off, Audiodiver starts on Home.
 
 ### Disk space
 

@@ -133,11 +133,11 @@ def default_icon(frame=None) -> bytes:
     (icon_frame): Audiodiver's logo on its dark tile (data/icon.png, which tools/import_logo.py makes from the
     official image in assets/logo)."""
     from importlib import resources
-    from PIL import Image
     frame = icon_frame(frame)
     data = resources.files('audiodiver').joinpath('data', 'icon.png').read_bytes()
     if not frame['border'] and not frame['radius']:
-        return data
+        return data  # without Pillow, as Repatch and Combine in Audiodiver Utils make it
+    from PIL import Image
     with Image.open(io.BytesIO(data)) as img:
         return _png(framed(img.convert('RGB'), frame))
 

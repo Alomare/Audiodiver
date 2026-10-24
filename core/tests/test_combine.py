@@ -1,5 +1,5 @@
 """Combining mods (combine.py, Session.combine_read and Session.combine): a mod's options and the patches they
-deploy, what HD2 Arsenal recorded as chosen, the clashes between mods and who wins them, and a combined mod built
+deploy, what a mod manager recorded as chosen, the clashes between mods and who wins them, and a combined mod built
 from three synthetic mods on the game."""
 import json
 import time
@@ -63,6 +63,28 @@ def test_a_mods_options_and_the_patches_a_choice_deploys(tmp_path):
     assert got["options"] == cb.shown(opts) and got["others"] == [] and got["description"] == "Two."
     with pytest.raises(EditorError, match="wasn't found"):
         Session(load=False).combine_scan(str(tmp_path / "gone.zip"))
+
+
+def test_the_command_line_scans_a_mod_and_says_what_is_wrong(tmp_path, capsys, monkeypatch):
+    from audiodiver import cli
+    monkeypatch.setattr(installed, "ARSENAL_DATA", tmp_path / "none.json")
+    monkeypatch.setattr(installed, "ECHELON_DATA", tmp_path / "none.json")
+    files = {f"Voices/{d}/{ARCHIVE}": b"x" for d in ("base", "voices/loud", "voices/soft", "extra")}
+    mod = _zip(tmp_path / "v.zip", files, MANIFEST)
+    cli.main(["scan", str(mod), "--json"])
+    got = json.loads(capsys.readouterr().out)
+    assert (got["name"], got["manifest"], len(got["patches"]), got["picks"]) == ("Voices", True, 4, ["0", "1.0", "2"])
+    assert [o["id"] for o in got["options"]] == ["0", "1", "2"]
+    cli.main(["scan", str(mod)])
+    assert capsys.readouterr().out.splitlines()[:2] == ["Voices: 4 patches (a mod manager manifest)", "  Base"]
+    # a failure is a message (JSON with --json), never a traceback, before anything reads the game
+    with pytest.raises(SystemExit, match="wasn't found"):
+        cli.main(["scan", str(tmp_path / "gone.zip"), "--json"])
+    assert "wasn't found" in json.loads(capsys.readouterr().out)["error"]
+    plan = tmp_path / "plan.json"
+    plan.write_text(json.dumps({"mods": [{"source": str(mod)}]}))
+    with pytest.raises(SystemExit, match="not both"):
+        cli.main(["combine", str(mod), "--plan", str(plan)])
 
 
 def test_what_the_mod_manager_recorded_as_chosen_is_the_start(tmp_path, monkeypatch):

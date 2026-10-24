@@ -1,40 +1,15 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { call, fmtWhen } from "./api";
 import { DISCORD_URL, HOME_ART, KOFI_URL, TICKER_URL } from "./content";
-import { Fold, useLastWhile } from "./Fold";
-import { DiscordIcon, FolderIcon, KofiIcon, NextIcon, PrevIcon } from "./Icons";
+import { DiscordIcon, KofiIcon, NextIcon, PrevIcon } from "./Icons";
 import { nav } from "./nav";
-import { openUrl, reveal } from "./platform";
+import { openUrl } from "./platform";
 import { useEditor } from "./store";
-import { DEFAULT_SIZE, motionMs, motionOn, useTheme, useThemeValue } from "./theme";
+import { DEFAULT_SIZE, motionOn, useTheme, useThemeValue } from "./theme";
 
-type Info = { path: string; exists: boolean; readable: boolean; name: string; modified: number | null };
-const fileName = (path: string) => path.split(/[\\/]/).pop()!.replace(/\.audi$/i, "");
-
-/** Where the app starts, laid out like the game's menu: the open project to continue (with its file, Import a mod's
-    patch and Close under it), a project to make or open, a mod to repatch or mods to combine; then the recent
-    projects. */
+/** Where the app starts, laid out like the game's menu: a project to make or open (and which one is loaded), and
+    under Tools, Repatch and Combine. The recent projects are on the Project tab. Audiodiver Utils has no Home. */
 export function Home() {
-  const { project, recent, actions } = useEditor();
-  const [info, setInfo] = useState<Record<string, Info>>({});
-  const shown = useLastWhile(project, !!project); // Continue still says which project while it folds away
-  const others = recent.filter((path) => path !== project?.path);
-  const [leaving, setLeaving] = useState<string[]>([]); // rows folding away after their ✕
-  const forget = (path: string) => {
-    setLeaving((l) => [...l, path]);
-    setTimeout(() => { actions.forgetRecent(path); setLeaving((l) => l.filter((p) => p !== path)); }, motionMs(160));
-  };
-
-  // the list says whether each file is still there, and shows the mod's name rather than the file's
-  useEffect(() => {
-    if (!recent.length) return;
-    let live = true;
-    call<Info[]>("projects_info", { paths: recent })
-      .then((list) => { if (live) setInfo(Object.fromEntries(list.map((i) => [i.path, i]))); })
-      .catch(() => { /* the list still works from the paths alone */ });
-    return () => { live = false; };
-  }, [recent, project?.path, project?.name]);
-
+  const { project, actions } = useEditor();
   return (
     <section className={`home${HOME_ART.length ? " with-art" : ""}`} aria-label="Home">
       <div className="home-scroll">
@@ -43,63 +18,27 @@ export function Home() {
             <h1>A new anthem<br />for Super Earth</h1>
           </header>
 
-          {/* a menu, as the game's own: the yellow item is the way in (Continue with a project open, else New project) */}
+          {/* a menu, as the game's own: the yellow item is the way in; the Tools tab's two pages under their own label.
+              It stays the same with a project open: a line under Open project says which, and leads to it */}
           <nav className="home-menu" aria-label="Start">
-            <Fold open={!!project}>
-              {shown && (
-                <>
-                  <button className="menu-item hot" onClick={() => nav.go("editor")} data-tip="Continue in the Audio Editor">
-                    <span>Continue<small>{shown.name}</small></span>
-                  </button>
-                  <div className="menu-sub">
-                    <span className="home-path-line">
-                      <span className="home-path" data-tip={shown.path} data-tip-clip>{shown.path}</span>
-                      <button className="x" onClick={() => reveal(shown.path)} aria-label="Show in folder" data-tip="Show in folder"><FolderIcon /></button>
-                    </span>
-                    <button className="link-text" onClick={() => actions.importPatch()}
-                      data-tip="Import the replaced and added sounds from a mod's .patch_0 file into this project">Import a mod's patch…</button>
-                    <button className="link-text" onClick={actions.closeProject} data-tip="Close the project" data-tip-cmd="closeProject">Close</button>
-                  </div>
-                </>
-              )}
-            </Fold>
-            <button className={`menu-item${project ? "" : " hot"}`} onClick={actions.newProject} data-tip="Start a mod" data-tip-cmd="newProject">New project</button>
+            <button className="menu-item hot" onClick={actions.newProject} data-tip="Start a mod" data-tip-cmd="newProject">New project</button>
             <button className="menu-item" onClick={() => actions.openProject()} data-tip="Open a .audi project or a .audipack pack" data-tip-cmd="openProject">Open project</button>
-            <button className="menu-item" onClick={() => nav.go("tools", "repatch")}
-              data-tip="Rebuild an existing audio mod for the current game version, without a project">Repatch a mod</button>
-            <button className="menu-item" onClick={() => nav.go("tools", "combine")}
-              data-tip="Make one mod out of several audio mods">Combine mods</button>
+            {project && (
+              <p className="home-loaded">
+                <span>Loaded: <b data-tip={project.path} data-tip-clip>{project.name}</b></span>
+                <button className="link-text" onClick={() => nav.go("project")}>Go to Project</button>
+              </p>
+            )}
           </nav>
 
-          {others.length > 0 && ( // nothing to show until a project has been made or opened
-            <div className="home-cols">
-              <section className="home-recent" aria-label="Recent projects">
-                <h2>Recent projects</h2>
-                <ul>
-                  {others.map((path) => {
-                    const i = info[path];
-                    const name = i?.name ?? fileName(path);
-                    const missing = i ? !i.exists : false;
-                    const unreadable = !!i && i.exists && !i.readable;
-                    const gone = leaving.includes(path);
-                    return (
-                      <li key={path} className={`recent-row${missing || unreadable ? " missing" : ""}${gone ? " leaving" : ""}`} inert={gone}>
-                        <button className="x recent-folder" aria-label={`Show ${name} in folder`} disabled={missing}
-                          onClick={() => reveal(path)} data-tip="Show in folder"><FolderIcon /></button>
-                        <button className="recent-open" disabled={missing} onClick={() => actions.openProject(path)}>
-                          <span className="recent-name" data-tip={path} data-tip-more={name}>{name}</span>
-                        </button>
-                        <span className="recent-when" data-tip={missing ? "Moved, renamed or deleted" : unreadable ? "Not an Audiodiver project, or damaged" : undefined}>
-                          {missing ? "Not found" : unreadable ? "Can't be read" : fmtWhen(i?.modified)}</span>
-                        <button className="x recent-forget" aria-label={`Remove ${name} from this list`} onClick={() => forget(path)}
-                          data-tip="Remove from this list" data-tip-more="The file stays where it is">✕</button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </section>
-            </div>
-          )}
+          <nav className="home-menu home-tools" aria-label="Tools">
+            <h2>Tools</h2>
+            <button className="menu-item" onClick={() => nav.go("tools", "repatch")}
+              data-tip="Rebuild an existing audio mod for the current game version, without a project">Repatch</button>
+            <button className="menu-item" onClick={() => nav.go("tools", "combine")}
+              data-tip="Make one mod out of several audio mods">Combine</button>
+          </nav>
+
         </div>
       </div>
       {HOME_ART.length ? <HomeArt><Community /></HomeArt>
