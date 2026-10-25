@@ -113,7 +113,8 @@ export function TextTab({ hidden }: { hidden?: boolean }) {
     <div className="panes two text-tab" hidden={hidden} style={{ ["--left" as any]: `${width}px` }}>
       <aside className="library" aria-label="Lines" onKeyDown={listKeys}>
         <div className="lib-search">
-          <select value={lang} onChange={(e) => setLang(e.target.value)} aria-label="Language" data-tip="Language. Each language is a separate table">
+          <select value={lang} onChange={(e) => setLang(e.target.value)} aria-label="Language" data-tip="The language to show and change"
+            data-tip-more="Each language is a separate table, and a change in one doesn't change the others">
             {(langs.length ? langs : [{ code: lang, name: lang }]).map((l) => <option key={l.code} value={l.code}>{l.name}</option>)}
           </select>
           <input type="search" placeholder="Search, or paste an id" value={query} onChange={(e) => { setOnly(null); setQuery(e.target.value); }}
@@ -149,7 +150,7 @@ export function TextTab({ hidden }: { hidden?: boolean }) {
             <button key={`${r.table}:${r.id}`} className={`tx-row${line === r ? " active" : ""}`} onClick={() => setPick({ table: r.table, id: r.id })}>
               <span className={`tx-kind ${r.kind}`}>{r.kind === "subtitles" ? "Subtitle" : "Text"}</span>
               <span className="tx-text" data-tip={plainText(r.yours ?? r.text) || undefined} data-tip-clip>{plainText(r.yours ?? r.text) || <i className="muted">(empty)</i>}</span>
-              {r.yours !== undefined && <Mark status="done" />}
+              {r.yours !== undefined && <Mark status="done" label="Changed" />}
             </button>
           ))}
           {found && found.total > found.results.length && <p className="slots-note">Showing {found.results.length} of {found.total}. Type more to narrow them down.</p>}
@@ -252,10 +253,11 @@ function LineEditor({ line, lang, canEdit, onSave, onRevert }: {
   return (
     <section className="cue tx-edit" aria-label="The line">
       <div className="cue-top"><header className="cue-head">
-        <div className="head-row"><div className="crumbs">{subtitle ? "Subtitle" : "Text"} · line {line.id} · table {line.table}</div>
+        <div className="head-row"><div className="crumbs">{subtitle ? "Subtitle" : "Text"} · line {line.id} · table {line.table}{" "}
+          <Help tip="A mod carries whole tables. When two mods change the same table, the one deployed later replaces the other" page="text#how-text-is-built" /></div>
           <button className="link-text small" onClick={() => copyText(String(line.id), quick, `**${line.id}**`)} data-tip="Copy the line id">Copy the id</button></div>
         <div className="item-title"><h1>{plainText(line.text).slice(0, 80) || "(empty)"}</h1>
-          {line.yours !== undefined && <span className="item-cov done"><Mark status="done" />Changed</span>}</div>
+          {line.yours !== undefined && <span className="item-cov done"><Mark status="done" label="Changed" />Changed</span>}</div>
       </header></div>
       <div className="tx-body">
         <div className="field">
@@ -266,7 +268,7 @@ function LineEditor({ line, lang, canEdit, onSave, onRevert }: {
         <div className="field">
           <span className="field-label">New text <Help tip="What each format does, with examples" page="formatting-text#applying-a-format" /></span>
           <div className="tx-bar" role="toolbar" aria-label="Formatting">
-            <label className="tx-color" data-tip="Colour for the selected words">
+            <label className="tx-color" data-tip="The colour that Colour applies">
               <input type="color" value={color} onChange={(e) => setColor(e.target.value)} aria-label="Colour" disabled={!canEdit} />
               <input className="tx-hex" value={hexDraft ?? hex} maxLength={7} aria-label="Colour as hex" disabled={!canEdit} spellCheck={false}
                 onChange={(e) => {
@@ -279,7 +281,7 @@ function LineEditor({ line, lang, canEdit, onSave, onRevert }: {
             <button className="btn small-btn" disabled={!canEdit} onClick={() => wrap(`<c=FF${hex}>`, "</c>")}
               data-tip="Colour the selection (the whole line when nothing is selected)">Colour</button>
             <input type="number" className="tx-size" min={10} max={60} value={sizeDraft ?? size} disabled={!canEdit} aria-label="Size, 10 to 60"
-              data-tip="Size from 10 to 60. The normal size is 20. No game line uses sizes, but chat does"
+              data-tip="The size that Size applies, from 10 to 60" data-tip-more="The normal size is 20. No game line uses sizes, but chat does"
               onChange={(e) => setSizeDraft(e.target.value)}
               onBlur={() => { const n = Number(sizeDraft); if (sizeDraft !== null && sizeDraft.trim() !== "" && Number.isFinite(n)) setSize(Math.round(Math.max(10, Math.min(60, n)))); setSizeDraft(null); }}
               onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }} />

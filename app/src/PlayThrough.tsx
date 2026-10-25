@@ -59,7 +59,7 @@ export function PlayThrough({ onThrough, onMark }: { onThrough?: (t: Through | n
     if (rendered.current === mine) return;
     rendered.current = mine;
     if (t?.side !== "mine") return;
-    if (player.state.key === t.key) { player.stop(); quick("Play through stopped because this cue changed", "info"); }
+    if (player.state.key === t.key) { player.stop(); quick("Play through stopped because this music changed", "info"); }
     setT(null);
   }, [mine, t, quick]);
 
@@ -93,9 +93,10 @@ export function PlayThrough({ onThrough, onMark }: { onThrough?: (t: Through | n
   const button = (side: "game" | "mine") => {
     const on = active?.side === side && p.playing;
     const name = side === "mine" ? "Play through · Replaced" : readOnly ? "Play through" : "Play through · Original";
-    const about = busy === side ? "Preparing…" : side === "mine" ? changed ? "The cue as the mod plays it" : "Nothing replaced in this cue yet"
+    const about = busy === side ? "Preparing…" : side === "mine" ? changed ? "The music with the new audio, segment by segment, to hear how the segments join"
+      : "Nothing replaced here yet"
       : cue.ordered === false ? "One round of the playlist, top to bottom. Play order shows how the game plays it"
-      : `The cue as the game plays it, segment by segment${t?.random ? ". The game shuffles parts of this cue" : ""}`;
+      : `The music with the original audio, segment by segment${t?.random ? ". The game shuffles some of these segments" : ""}`;
     return (
       <button className={`play ${side === "game" ? "vanilla" : "project"} through-btn${on ? " playing" : ""}`} disabled={busy !== null || (side === "mine" && !changed)}
         aria-label={on ? `Pause ${name}` : name} data-tip={on ? `Pause ${name}` : name} data-tip-more={about} onClick={() => start(side)}

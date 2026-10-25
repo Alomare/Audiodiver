@@ -650,7 +650,7 @@ class Library:
                               f"Voices installed: {', '.join(have)}.") +
                              " Other languages appear as tabs once Steam downloads their voice packs.")
         if borrowed:
-            notes.append("Not transcribed. Each line is named after what another Helldiver voice says in its place, "
+            notes.append("Not transcribed. Each line is named after what another Helldiver voice says at the same place, "
                          "and the words may differ.")
         # a sound's slot names the Sound object that plays it (the first, where several do), for reference and for a
         # clip of its own: `players` counts the Sounds here that play the clip, `sound_banks` the other banks that

@@ -7,16 +7,16 @@ call them. They are the same jobs the window runs, on the same game data and cac
 
 - **Audiodiver Utils** (`Audiodiver-Utils-<version>-portable.zip` on the
   [releases page](https://github.com/Alomare/Audiodiver/releases/latest)): unzip it anywhere and run
-  `audiodiver.cmd`. It needs no Python and no install, and keeps its files in the `data` folder beside it.
+  `audiodiver.cmd`. It needs no Python and no install, and keeps everything it writes in the `data` folder beside it.
 - **From source**: `pip install -e core`, then `python -m audiodiver`, with the tools [README.md](README.md) names.
 
-The examples below use `audiodiver.cmd`; with Python, put `python -m audiodiver` in its place.
+The examples below use `audiodiver.cmd`; with Python, use `python -m audiodiver` instead.
 
 ## Commands
 
 | Command | What it does |
 |---|---|
-| `scan <mod>` | Lists what a mod holds: its patches, its options with their ids, and the choice it starts with. Reads no game data, so it answers at once. |
+| `scan <mod>` | Lists what a mod holds: the patches, the options with their ids, and the choice it starts with. Reads no game data, so it answers at once. |
 | `repatch <mod>` | Rebuilds a mod made for an older game version on the current sound banks, with the same audio, settings, options and id. |
 | `combine <mod> <mod> …` | Builds one mod out of several. Where two mods change the same sound, the later one wins unless a plan says otherwise. |
 | `check` | Lists the installed mods (from the mod manager's library, else the game's folder) and whether each needs a repatch. |
@@ -44,8 +44,8 @@ takes about a minute; later ones start in seconds.
 
 ## Combining with a plan
 
-Without a plan, each mod starts with the options its mod manager recorded as chosen (Arsenal's or Echelon's
-library), else every option on with its first choice. A plan names the options and the winners:
+Without a plan, each mod starts with the options the mod manager recorded as chosen (Arsenal's or Echelon's
+library), else every option on, set to the first choice. A plan names the options and the winners:
 
 ```json
 {
@@ -62,8 +62,8 @@ library), else every option on with its first choice. A plan names the options a
   `picks` starts as above.
 - `picks` are option ids from `scan`: `"0"` turns on the first option, `"1.1"` picks the second choice of the second
   option.
-- `winners` maps a clash id from `--clashes` to the mod that wins it, by its place in `mods` (0 is the first).
-- `name` is optional, and `--name` takes its place when both are given.
+- `winners` maps a clash id from `--clashes` to the mod that wins it, by the index of that mod in `mods` (0 is the first).
+- `name` is optional, and `--name` wins when both are given.
 
 A typical run:
 

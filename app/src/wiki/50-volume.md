@@ -29,7 +29,7 @@ The game mixes audio with **HDR** (high dynamic range). At any moment, the sound
 A sound silenced in the usual way still affects the mix. With Make-Up Gain at −96 dB, or with a silent file, the speakers play nothing. The logical Volume is still loud, though, and the sounds around it still duck.
 
 > [!TIP]
-> **Silence in Audiodiver is taken out of the mix.** When you replace a sound effect or a voice line with silence, Audiodiver also sets the logical Volume to −60 dB. That level is too low for the mix to count, so nothing ducks. It is still high enough that the game doesn't stop the sound early, so it doesn't disrupt the sequence's timing. Music volume is unchanged, and a silenced music slot maintains its duration or skips according to the silence setting.
+> **Silence in Audiodiver is taken out of the mix.** When you replace a sound effect or a voice line with silence, Audiodiver also sets the logical Volume to −60 dB. That level is too low for the mix to count, so nothing ducks. It is still high enough that the game doesn't stop the sound early, so it doesn't disrupt the sequence's timing. Music volume is unchanged, and a silenced music slot keeps the same duration or moves straight on, depending on the silence setting.
 
 ## The game turns the music down on some screens
 

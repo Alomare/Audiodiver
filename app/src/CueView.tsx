@@ -17,7 +17,7 @@ import { ResizeEdge, useStoredHeight } from "./Resize";
 import { SliceTool } from "./SliceTool";
 import { openInSoundtrack } from "./Soundtrack";
 import { useStable } from "./stable";
-import { WikiLink } from "./Wiki";
+import { Help, WikiLink } from "./Wiki";
 import { useEditor, useLite, useShownTabs } from "./store";
 import { CatTag } from "./Tags";
 import { DEFAULT_SIZE, DENSITIES, scrollBehavior, useThemeValue } from "./theme";
@@ -561,7 +561,8 @@ function CueBody({ cue }: { cue: Cue }) {
       <button className="link-text" onClick={() => openInSoundtrack(item, part.cue)}>Play order</button></span></p>);
   }
   if (between && between.own.length < between.targets.length) {
-    facts.push(<p key="between" className="fact"><LinkIcon /><span>{between.own.length ? `${between.targets.length - between.own.length} of the ${between.targets.length} slots also play`
+    facts.push(<p key="between" className="fact" data-tip="Replacing these slots changes that music too" data-tip-more="Skip leaves them as they are">
+      <LinkIcon /><span>{between.own.length ? `${between.targets.length - between.own.length} of the ${between.targets.length} slots also play`
       : "This audio also plays"} in other music.</span></p>);
   }
   const folds = (r: Row) => r.takes > 1 && !!r.seg.group; // a group with a line of its own to fold it under
@@ -579,7 +580,8 @@ function CueBody({ cue }: { cue: Cue }) {
               <div className="item-title">
                 <h1>{cue.name}</h1>
                 {!readOnly && project && cov.total > 0 && (
-                  <span className={`item-cov ${statusOf(cov)}`}><Mark status={statusOf(cov)} />{COVERAGE[statusOf(cov)]}</span>
+                  <span className={`item-cov ${statusOf(cov)}`} data-tip={`${cov.n} of ${cov.total} slots replaced`}
+                    data-tip-more={statusOf(cov) === "part" ? "The other slots still play the original" : undefined}><Mark status={statusOf(cov)} />{COVERAGE[statusOf(cov)]}</span>
                 )}
                 {nav}
               </div>
@@ -620,7 +622,7 @@ function CueBody({ cue }: { cue: Cue }) {
         ))}
         <div className="tools">
           {!readOnly && music && cue.kind !== "sound" && (
-            <ToolButton icon={<FillIcon />} name="Fill from files" about="Choose files for the slots, in play order" primary disabled={!fillable}
+            <ToolButton icon={<FillIcon />} name="Fill from files" about="A file for each slot, in play order and file-name order" primary disabled={!fillable}
               onClick={async () => { const f = await pickAudio(true); if (f) actions.fill(cue.id, f); }} />
           )}
           {!readOnly && item && isMusicItem(item) && <ItemActions item={item} />}
@@ -637,7 +639,7 @@ function CueBody({ cue }: { cue: Cue }) {
           )}
           {!readOnly && mine > 0 && (() => {
             const silent = all.every((r) => !assigned[r.slot.source] || assigned[r.slot.source].silence);
-            const name = silent ? between ? "Undo the skip" : "Remove the silence" : part && item && item.parts.length > 1 ? "Clear this part" : "Clear this cue";
+            const name = silent ? between ? "Undo the skip" : "Remove the silence" : part && item && item.parts.length > 1 ? "Clear this part" : "Clear all";
             return <ToolButton icon={<ClearIcon />} name={name} about={silent ? "The original plays again" : "Remove the new audio from every slot here"}
               onClick={() => actions.unassign(all.map((r) => r.slot.source).filter((s) => assigned[s]))} />;
           })()}
@@ -652,6 +654,7 @@ function CueBody({ cue }: { cue: Cue }) {
             data-tip={shut ? "Every part is collapsed" : "Collapse all parts"}><CollapseAllIcon /></button>
         )}
         <PanelToggles panels={panels} set={setPanels} />
+        <Help tip="What each button on this bar does" page="reading-the-screen#the-toolbar" />
       </div>
       {item && part && item.parts.length > 1 && !folding && <PartTabs item={item} part={part} />}
 
@@ -704,9 +707,15 @@ function AddButton({ row, on }: { row: Row; on: RowHandlers }) {
     : shared ? ". Only this bank gets it. The other banks with this audio play it from separate sounds" : "";
   return (
     <button className="icon-btn grp-add" aria-label={`Add new audio to ${row.seg.name}`} data-tip="Add new audio"
-      data-tip-more={(row.seg.added === "layer" ? "New takes for this layer" : "New takes, or a layer that plays with it") + where}
+      data-tip-more={(row.seg.added === "layer" ? "New takes for this layer" : row.seg.layer ? "New takes, or a layer that plays with it"
+        : "New takes. This sound can't have a layer") + where}
       onClick={(e) => { e.stopPropagation(); on.add(e, row); }} onDoubleClick={(e) => e.stopPropagation()}>+</button>
   );
+}
+
+/** The tag on a clip that must stay as it is (fills and group actions leave it out). */
+function LockedTag() {
+  return <span className="tag warn" data-tip="Replacing this clip makes the music stutter" data-tip-more="Fills leave it out">do not touch</span>;
 }
 
 /** A tag on a row of audio the project adds: a new take, or a clip of its own. */
@@ -719,6 +728,13 @@ const ADDED_TIP = {
   take: "A take added by the project. The game picks it like the other takes. It has no original",
   own: "The new audio plays only in this sound. Other sounds that play the clip keep the original",
 };
+/** What a group name the Library makes up means: an unnamed sound, or the clips left over in a bank. */
+function madeUpName(name: string): { tip: string; more?: string } | null {
+  if (/^Sound \d+$/.test(name)) return { tip: "Not named yet", more: "Numbered in bank order. Play it to hear what it is" };
+  if (name.startsWith("Other Audio")) return { tip: "Clips that no sound in this bank plays", more: "A sound in another bank usually plays them" };
+  if (name.startsWith("No Audio")) return { tip: NO_AUDIO_TIP };
+  return null;
+}
 
 /** Where a row's slot is, for the now-playing bar to lead back to. */
 function useAt(itemId: string | null, cueId: string, source: string): PlayedAt {
@@ -741,6 +757,7 @@ const GroupHead = memo(function GroupHead({ row, open, shown, status, itemId, cu
   const shared = seg.shared ?? 0;
   // the takes of one sound, or (a run cut out of a long list) just sounds
   const unit = /^(Sounds|Other Audio|No Audio|Streams)\b/.test(seg.name) ? "sounds" : "takes";
+  const madeUp = madeUpName(seg.name);
   return (
     <div className={`grp${open ? " open" : ""}`} data-drop={drop} onContextMenu={(e) => on.groupMenu(e, row)}>
       {!readOnly && sources.length > 0 && (
@@ -750,8 +767,11 @@ const GroupHead = memo(function GroupHead({ row, open, shown, status, itemId, cu
       <PlayButton kind="vanilla" source={slot.source} label={`the first of ${seg.name}`} what={rowName(row)} small at={at} disabled={slot.absent || !!slot.added} />
       <button className="grp-head" aria-expanded={open} onClick={() => on.toggle(row.segIndex)}>
         <span className="caret" aria-hidden>▸</span>
-        <span className={`grp-name${seg.added ? " new" : ""}`} data-tip={seg.name} data-tip-clip>{seg.name}</span>
-        <span className="grp-n">{shown < takes ? `${shown} of ${takes}` : takes} {unit}</span>
+        <span className={`grp-name${seg.added ? " new" : ""}`} data-tip={madeUp?.tip ?? seg.name} data-tip-more={madeUp?.more}
+          data-tip-clip={madeUp ? undefined : true}>{seg.name}</span>
+        <span className="grp-n" data-tip={unit === "takes" ? "Recordings of one sound. The game plays one of them each time" : undefined}
+          data-tip-more={unit === "takes" ? "Give every take new audio to replace the sound completely" : undefined}>
+          {shown < takes ? `${shown} of ${takes}` : takes} {unit}</span>
       </button>
       <span className="grp-meta">
         {(seg.tags ?? []).map((t) => <CatTag key={t.item ?? t.name} tag={t} tip="Show in the Index" onOpen={t.item ? () => on.openTag(t.item!, seg.cue ?? "") : undefined} />)}
@@ -774,7 +794,8 @@ function SlotId({ slot }: { slot: Slot }) {
   const { quick } = useLite();
   const { id, what } = shownId(slot);
   return (
-    <button className="slot-id" data-tip={`Copy the ${what} id`} data-tip-more="Right-click the row for the other ids"
+    <button className="slot-id" data-tip={`Copy the ${what} id`}
+      data-tip-more={`${what === "stream" ? "The id other audio tools list this clip by" : "The clip id in the game files"}. Right-click the row for the other ids`}
       onClick={(e) => { e.stopPropagation(); copyId(id, quick); }} onDoubleClick={(e) => e.stopPropagation()}>{id}</button>
   );
 }
@@ -847,10 +868,10 @@ const SlotRow = memo(function SlotRow({ row, a, selected, now, itemId, cueId, on
           {!seg.added && <span className="grp-n" data-tip={gameMs ? fmtTime(gameMs) : undefined}>{label && !seg.name.includes(label) ? label : "1 take"}</span>}
           <span className="grp-meta">
             {slot.absent && <span className="tag" data-tip={NO_AUDIO_TIP}>no audio</span>}
-            {slot.locked && <span className="tag warn">do not touch</span>}
+            {slot.locked && <LockedTag />}
             {seg.added !== "layer" && <AddedTag slot={slot} />}
             <NoteTags slot={slot} />
-            {(seg.tags ?? []).map((t) => <CatTag key={t.item ?? t.name} tag={t} />)}
+            {(seg.tags ?? []).map((t) => <CatTag key={t.item ?? t.name} tag={t} tip="Show in the Index" onOpen={t.item ? () => on.openTag(t.item!, seg.cue ?? "") : undefined} />)}
             {also > 0 && <Linked>{banks >= also ? <OtherBanks n={also} /> : `+${also} ${banks ? "more" : `cue${also > 1 ? "s" : ""}`}`}</Linked>}
             <AddButton row={row} on={on} />
           </span>
@@ -868,17 +889,21 @@ const SlotRow = memo(function SlotRow({ row, a, selected, now, itemId, cueId, on
             </span>
           ) : <span className="seg-cont" aria-hidden />}
           <span className="slot-sub" data-tip={label ? [label, slot.variant].filter(Boolean).join(" · ") : undefined} data-tip-clip>
-            {label && <span className={`slot-label${label.length < 16 ? " nowrap" : ""}`}>{label}</span>}{slot.variant && <span className="tag">{slot.variant}</span>}
-            {loops && <span className="tag">{loops}</span>}
+            {label && <span className={`slot-label${label.length < 16 ? " nowrap" : ""}`}
+              data-tip={row.stems > 1 && !slot.label ? `One of ${row.stems} layers that play at the same time` : undefined}
+              data-tip-more={row.stems > 1 && !slot.label ? "A layer left original still plays under the new audio" : undefined}>{label}</span>}
+            {slot.variant && <span className="tag" data-tip="Plays only under this condition" data-tip-more="To change the piece everywhere, give each variant new audio">{slot.variant}</span>}
+            {loops && <span className="tag" data-tip={seg.loop === 0 ? "Repeats until the game moves on" : `Plays ${seg.loop} times in a row`}>{loops}</span>}
             {slot.unused && <span className="tag" data-tip="The game never plays this clip">never heard</span>}
             {slot.absent && <span className="tag" data-tip={NO_AUDIO_TIP}>no audio</span>}
-            {slot.locked && <span className="tag warn">do not touch</span>}
+            {slot.locked && <LockedTag />}
             <AddedTag slot={slot} />
             {audible(a) && slot.min_ms && a!.duration_ms != null && a!.duration_ms < slot.min_ms && (
               <span className="tag warn" data-tip={`The new audio is too short. This clip needs at least ${fmtTime(slot.min_ms)}`}>too short</span>
             )}
             <NoteTags slot={slot} />
-            {!inGroup && row.firstOfSeg && (seg.tags ?? []).map((t) => <CatTag key={t.item ?? t.name} tag={t} />)}
+            {!inGroup && row.firstOfSeg && (seg.tags ?? []).map((t) => <CatTag key={t.item ?? t.name} tag={t} tip="Show in the Index"
+              onOpen={t.item ? () => on.openTag(t.item!, seg.cue ?? "") : undefined} />)}
             {also > 0 && !(inGroup && (seg.shared ?? 0) > 0) && (
               <Linked>+{also} {banks >= also ? `bank${also > 1 ? "s" : ""}` : banks ? "more" : `cue${also > 1 ? "s" : ""}`}</Linked>
             )}
@@ -899,14 +924,16 @@ const SlotRow = memo(function SlotRow({ row, a, selected, now, itemId, cueId, on
               <span className="silence-mark" aria-hidden />
               <button className="file silent" data-tip="Replace the silence with a file" data-tip-more={a.fit_timing ? SILENCE_TIP.move : SILENCE_TIP.keep}
                 onClick={(e) => { e.stopPropagation(); on.choose(slot.source); }} onDoubleClick={(e) => e.stopPropagation()}>Silence</button>
-              <span className="tag">{a.fit_timing ? "moves on" : "keeps timing"}</span>
+              <span className="tag" data-tip={a.fit_timing ? SILENCE_TIP.move : SILENCE_TIP.keep}
+                data-tip-more="Keep original duration, in the details, sets this">{a.fit_timing ? "moves on" : "keeps timing"}</span>
               <button className="x" aria-label="Remove the silence" data-tip="Remove the silence" data-tip-cmd="remove"
                 onClick={(e) => { e.stopPropagation(); on.remove(slot.source); }}>✕</button>
             </>
           ) : a ? (
             <>
               <PlayButton kind="project" source={slot.source} label="the new audio" disabled={!a.exists} what={what} onPlay={onSelect} at={at} />
-              <button className={`file${a.exists ? "" : " missing"}`} data-tip="Replace with another file" data-tip-more={a.audio}
+              <button className={`file${a.exists ? "" : " missing"}`} data-tip={a.exists ? "Replace with another file" : "File not found. Click to choose another"}
+                data-tip-more={a.exists ? a.audio : `${a.audio}. The mod can't be built until the file is back or replaced`}
                 onClick={(e) => { e.stopPropagation(); on.choose(slot.source); }} onDoubleClick={(e) => e.stopPropagation()}>
                 {a.exists ? a.name : `Missing: ${a.name}`}</button>
               {a.duration_ms != null && (
@@ -914,7 +941,7 @@ const SlotRow = memo(function SlotRow({ row, a, selected, now, itemId, cueId, on
                   data-tip={slot.min_ms && a.duration_ms < slot.min_ms ? `Too short. This clip needs at least ${fmtTime(slot.min_ms)}` : gameMs ? `Original: ${fmtTime(gameMs)}` : undefined}>
                   {fmtTime(a.duration_ms)}</span>
               )}
-              {a.gain_db !== 0 && <span className="gain">{a.gain_db > 0 ? "+" : ""}{a.gain_db} dB</span>}
+              {a.gain_db !== 0 && <span className="gain" data-tip="Make-Up Gain" data-tip-more="Set in the details">{a.gain_db > 0 ? "+" : ""}{a.gain_db} dB</span>}
               <button className="x" aria-label="Remove the new audio" data-tip="Remove the new audio" data-tip-cmd="remove"
                 onClick={(e) => { e.stopPropagation(); on.remove(slot.source); }}>✕</button>
             </>

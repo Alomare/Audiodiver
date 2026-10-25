@@ -1,5 +1,5 @@
 name: Bug report
-description: Something in Audiodiver, or in a mod built with it, doesn't work as it should.
+description: Something in Audiodiver, or in a mod you exported, doesn't work as it should.
 labels: ["bug"]
 body:
   - type: markdown

@@ -370,7 +370,7 @@ class PatchWriter:
         for data in tail:
             f.write(data)
             f.write(_pad(len(data)))
-        assert f.tell() == toc_off, "the patch's files don't add up to its table of contents"
+        assert f.tell() == toc_off, "the files in the patch don't add up to the table of contents"
         if toc_off < nfiles * 256:  # a patch is never shorter than 256 bytes a file
             f.write(bytes(nfiles * 256 - toc_off))
         f.truncate()
@@ -532,7 +532,7 @@ def verify_carried(path, carried: list[Carried], strings_made=()) -> list[str]:
     try:
         got = {(c.tid, c.fid): c for c in carried_of(path)}
     except (ValueError, OSError, struct.error) as e:
-        return [f"its other files can't be read back: {e}"]
+        return [f"the other files in the patch can't be read back: {e}"]
     for key in [*want, *got]:
         if key[0] == STRINGS and key[1] in strings_made:
             continue
@@ -564,7 +564,7 @@ def verify(path, reps: list[Replacement], ix: AudioIndex, plan: addition.Plan | 
             t, body = hirc[oid]
             have = wbank.props(t, body)
             if any(have.get(k) != v for k, v in settings[oid].items() if k not in (MAKEUP_GAIN, VOLUME)):
-                problems.append(f"bank {bid}: object {oid} doesn't have its settings")
+                problems.append(f"bank {bid}: object {oid} doesn't have the settings given for it")
         b["objects"] = [(t, i) for t, i in b["objects"] if i not in settings]
         if music_plan:
             game = b["read"][1][1]

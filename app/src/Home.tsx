@@ -8,7 +8,7 @@ import { useEditor } from "./store";
 import { DEFAULT_SIZE, motionOn, useTheme, useThemeValue } from "./theme";
 
 /** Where the app starts, laid out like the game's menu: a project to make or open (the last ones opened, and which
-    one is loaded), and under Tools, Repatch and Combine. With no project open, the Project tab lists all the recent
+    one is loaded), and below, Repatch and Combine. With no project open, the Project tab lists all the recent
     projects. Audiodiver Utils has no Home. */
 export function Home() {
   const { project, actions } = useEditor();
@@ -20,11 +20,12 @@ export function Home() {
             <h1>A new anthem<br />for Super Earth</h1>
           </header>
 
-          {/* a menu, as the game's own: the yellow item is the way in; the Tools tab's two pages under their own label.
+          {/* a menu, as the game's own: the yellow item is the way in; the Tools tab's two pages after a gap.
               It stays the same with a project open: a line under Open project says which, and leads to it */}
           <nav className="home-menu" aria-label="Start">
             <button className="menu-item hot" onClick={actions.newProject} data-tip="Start a mod" data-tip-cmd="newProject">New project</button>
-            <button className="menu-item" onClick={() => actions.openProject()} data-tip="Open a .audi project or a .audipack pack" data-tip-cmd="openProject">Open project</button>
+            <button className="menu-item" onClick={() => actions.openProject()} data-tip="Open a .audi project or a .audipack pack" data-tip-cmd="openProject"
+              data-tip-more="A pack is a project and the files it uses, in one file">Open project</button>
             <Recent />
             {project && (
               <p className="home-loaded">
@@ -35,11 +36,12 @@ export function Home() {
           </nav>
 
           <nav className="home-menu home-tools" aria-label="Tools">
-            <h2>Tools</h2>
             <button className="menu-item" onClick={() => nav.go("tools", "repatch")}
-              data-tip="Rebuild an existing audio mod for the current game version, without a project">Repatch</button>
+              data-tip="Rebuild an existing audio mod for the current game version, without a project"
+              data-tip-more="For a mod that went silent or wrong after a game update, or that mutes other sounds">Repatch</button>
             <button className="menu-item" onClick={() => nav.go("tools", "combine")}
-              data-tip="Make one mod out of several audio mods">Combine</button>
+              data-tip="Make one mod out of several audio mods"
+              data-tip-more="For mods that change the same sound banks, where only the one deployed last plays">Combine Mods</button>
           </nav>
 
         </div>
@@ -113,8 +115,12 @@ function Ticker() {
   const scale = +(TICKER_SCALE * size / DEFAULT_SIZE).toFixed(3);
   if (!load) return null;
   return (
-    <iframe className={`home-ticker${ready ? " ready" : ""}`} src={`${TICKER_URL}?scale=${scale}`} title="Divershub news ticker"
-      aria-hidden tabIndex={-1} sandbox="allow-scripts allow-same-origin" referrerPolicy="no-referrer" onLoad={() => setReady(true)} />
+    <>
+      <iframe className={`home-ticker${ready ? " ready" : ""}`} src={`${TICKER_URL}?scale=${scale}`} title="Divershub news ticker"
+        aria-hidden tabIndex={-1} sandbox="allow-scripts allow-same-origin" referrerPolicy="no-referrer" onLoad={() => setReady(true)} />
+      {/* the frame takes no pointer, so the tooltip that says what the strip is sits over it */}
+      {ready && <div className="home-ticker-tip" aria-hidden data-tip="News and orders from the war" />}
+    </>
   );
 }
 

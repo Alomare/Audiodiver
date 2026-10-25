@@ -44,7 +44,7 @@ function About() {
           <Logo detail />
           <div>
             <b>{APP_NAME}</b>
-            <span>{APP_LABEL}<span className="about-ver">{APP_VERSION}</span>{core && ` · core ${versionLabel(core)}`}</span>
+            <span>{APP_LABEL}{core && ` · core ${versionLabel(core)}`}</span>
           </div>
         </div>
         <button className="x" onClick={about.close} aria-label="Close">✕</button>
@@ -61,7 +61,8 @@ function About() {
       </div>
       <dl className="set-facts">
         <dt>Log file</dt>
-        <dd>{status?.log ? <><span className="path-text">{status.log}</span><button className="link-inline" onClick={() => reveal(status.log)}>Show</button></> : "None"}</dd>
+        <dd>{status?.log ? <><span className="path-text">{status.log}</span><button className="link-inline" onClick={() => reveal(status.log)}
+          data-tip="Show the log file in Explorer" data-tip-more="Attach it to a bug report">Show</button></> : "None"}</dd>
       </dl>
       <section className="about-credits">
         <h2>Credits</h2>

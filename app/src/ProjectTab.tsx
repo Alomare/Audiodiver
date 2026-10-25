@@ -7,7 +7,8 @@ import { copyText, fullPath, reveal } from "./platform";
 import { TabChecks } from "./SettingsTab";
 import { useEditor, useShownTabs } from "./store";
 import { motionMs } from "./theme";
-import { Help } from "./Wiki";
+import { nav } from "./nav";
+import { Help, WikiLink } from "./Wiki";
 
 const FRAME_KEYS: (keyof IconFrame)[] = ["border", "border_color", "radius"];
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
@@ -19,7 +20,8 @@ export function ProjectTab() {
   const { project } = useEditor();
   return (
     <Page title="Project" wide
-      lead={<>A project is one patch mod, in a folder with all associated files. <Help tip="Project folders" page="project-folders" /></>}>
+      lead={<>A project is one mod, in a folder with the files it uses.{" "}
+        <Help tip="The project file records what the mod replaces and with which files. Audiodiver keeps what it makes for the project beside that file" page="project-folders" /></>}>
       {project ? <ProjectPage key={project.path} />
         : <div className="proj-none">
           <NoProjectCard text="Create or open a project, or open a pack." recent={false} />
@@ -129,6 +131,13 @@ function ProjectPage() {
   return (
     <div className="bld">
       <div className="bld-main">
+        {/* a new project: the first step is on other tabs */}
+        {shown.includes("editor") && !p.library.length && !Object.keys(p.assignments).length && (
+          <p className="info-box">Nothing in the project yet. Add music or sounds from
+            the <button className="link-text" onClick={() => nav.go("library")}>Library</button>, then replace them on
+            the <button className="link-text" onClick={() => nav.go("editor")}>Audio</button> tab.{" "}
+            <WikiLink page="first-mod" about="A first mod">A first mod, step by step</WikiLink></p>
+        )}
         <section className="set-sec">
           <h2>Name and description</h2>
           <label className="field">
@@ -155,12 +164,12 @@ function ProjectPage() {
             <code>{p.guid}</code>
             <button className="btn quiet" onClick={() => copyText(p.guid, quick, "the mod id")}>Copy</button>
             <button className="btn quiet" onClick={() => actions.newModId()}
-              data-tip="Use this when a copied project becomes a different mod" data-tip-more="Its next build installs as a separate mod">Make a new id</button>
+              data-tip="Use this when a copied project becomes a different mod" data-tip-more="The next build installs as a separate mod">Make a new id</button>
           </div>
         </section>
 
         <section className="set-sec">
-          <h2>Tabs <Help tip="The tabs this project shows. A new project starts with the ones Settings ▸ System shows." page="how-audiodiver-works#tabs" /></h2>
+          <h2>Tabs <Help tip="Hide the tabs this mod doesn't use, such as all but Text for a subtitle mod. What was changed in a hidden tab stays in the mod. A new project starts with the tabs Settings ▸ System shows." page="how-audiodiver-works#tabs" /></h2>
           <TabChecks value={shown} onChange={(tabs) => actions.settings({ tabs })} />
         </section>
 
@@ -178,7 +187,8 @@ function ProjectPage() {
       <aside className="bld-side">
         <div className="side-actions">
           <button className="btn" onClick={() => actions.importPatch()}
-            data-tip="Import the replaced and added sounds from a mod's .patch_0 file into this project">Import patches…</button>
+            data-tip="Import the replaced and added sounds from a mod's .patch_0 file into this project"
+            data-tip-more="To keep working on an existing mod, such as one made with another tool">Import patches…</button>
           <button className="btn quiet" onClick={actions.closeProject} data-tip="Close the project" data-tip-cmd="closeProject">Close project</button>
         </div>
         <IconPreview preview={same(icon, p.icon) ? undefined : icon} bust={String(revision)} name={name.trim() || p.name}
@@ -214,7 +224,7 @@ function FolderSection({ busy }: { busy: boolean }) {
           <p>{others
             ? `${others === 1 ? "Another project is" : `${others} other projects are`} in this folder and ${others === 1 ? "uses" : "use"} the same slices and imported folders.`
             : "This project is in a shared place, such as the Desktop or Documents."}
-            {" "}<Help tip="Moving a project into a new folder" page="project-folders#moving-a-project-into-a-new-folder" /></p>
+            {" "}<Help tip="Audiodiver puts the slices, the imported audio and the builds beside the project file. In a folder that holds only this project, they stay apart from other files." page="project-folders#moving-a-project-into-a-new-folder" /></p>
           <div className="row-btns">
             <button className="btn" onClick={move} disabled={busy}>Move to a new folder</button>
           </div>
@@ -222,8 +232,8 @@ function FolderSection({ busy }: { busy: boolean }) {
       )}
       {p.files_elsewhere > 0 && (
         <div className="info-box">
-          <p>{plural(p.files_elsewhere, "file")} the project uses {p.files_elsewhere === 1 ? "is" : "are"} outside its folder.
-            {" "}<Help tip="Collecting files into the project folder" page="project-folders#collecting-files" /></p>
+          <p>{plural(p.files_elsewhere, "file")} the project uses {p.files_elsewhere === 1 ? "is" : "are"} outside the project folder.
+            {" "}<Help tip="Copies them into the project folder, so the project can be moved or copied as one folder" page="project-folders#collecting-files" /></p>
           <div className="row-btns">
             <button className="btn" onClick={actions.collectFiles} disabled={busy}>Collect files</button>
           </div>

@@ -137,7 +137,8 @@ export function RepatchPage() {
               {scan.manifest && (
                 <p className="set-note">Kept from the manifest: {listed([scan.icon && "the icon", scan.description && "the description",
                   scan.patches.length > 1 && "the options", "the files beside the patches", scan.guid && "the mod id"])}.
-                  {scan.guid && " Importing the new ZIP in a mod manager updates the old mod."}</p>
+                  {scan.guid && " Importing the new ZIP in a mod manager updates the old mod."}{" "}
+                  <Help tip="The manifest is the file in a mod that gives the mod manager the name, icon, options and id" page="repatching#what-repatching-carries-over" /></p>
               )}
               <div className="row-btns">
                 <button className="btn quiet" disabled={running || reading} onClick={async () => read(await pickMod())}>Choose another mod…</button>
@@ -204,7 +205,7 @@ function Patches({ scan }: { scan: Scan }) {
   const audio = scan.patches.filter((p) => p.audio), plain = scan.patches.length - audio.length;
   return (
     <div className="rp-patches">
-      <span className="field-label">Patches <Help tip={scan.manifest ? "Each patch with audio is rebuilt in its original place, so the options stay the same." : "Without a manifest, each becomes an option of the new mod."} page="repatching#repatching-a-mod" /></span>
+      <span className="field-label">Patches <Help tip={scan.manifest ? "Each patch with audio is rebuilt where it was, so the options don't change." : "Without a manifest, each becomes an option of the new mod."} page="repatching#repatching-a-mod" /></span>
       {audio.length === 0 ? <p className="warn-box">The mod holds no audio, so there is nothing to repatch.</p> : (
         <ul>
           <li>{plural(audio.length, "patch", "patches")} with audio, rebuilt on the current game</li>
@@ -333,7 +334,7 @@ function InstalledMod({ m, busy, onPick }: { m: Installed; busy: boolean; onPick
   const mixed = m.patches.length > 1 && m.patches.some((p) => p.state !== m.state);
   return (
     <div className="rp-mod">
-      <p><b>{m.name}</b><span className={`tag${flagged ? " warn" : ""}`}>{STATE_TEXT[m.state]}</span>{m.deployed && <span className="tag">Deployed</span>}</p>
+      <p><b>{m.name}</b><span className={`tag${flagged ? " warn" : ""}`}>{STATE_TEXT[m.state]}</span>{m.deployed && <span className="tag" data-tip="In the game folder now, so the game loads it">Deployed</span>}</p>
       {m.state === "shared" && (
         <p className="set-note">Can mute sounds in {plural(widest.reach ?? 0, "other bank")}{widest.weapons ? `, ${widest.weapons} of them weapon banks` : ""}. <Help tip={SHARED} page={SHARED_PAGE} /></p>
       )}
@@ -383,9 +384,9 @@ function About() {
     <div className="rp-text">
       <h3>What it does</h3>
       <ul>
-        <li>Takes the audio that the mod replaces and adds, and its sound settings such as volume and delays.</li>
+        <li>Takes the audio that the mod replaces and adds, with sound settings such as volume and delays.</li>
         <li>Applies them to the game's current sound banks.</li>
-        <li>Builds a new ZIP of the same mod, with its options, files and id unchanged. The mod's audio isn't encoded again.</li>
+        <li>Builds a new ZIP of the same mod, with the same options, files and id. The audio isn't encoded again.</li>
         <li>Keeps what the patches hold besides audio, like text, models or textures, as it was.</li>
       </ul>
       <h3>When to use it</h3>
@@ -395,13 +396,13 @@ function About() {
       </ul>
       <h3>What it leaves out</h3>
       <ul>
-        <li>Changes of other kinds in the sound banks, like effects or how a container picks its sounds. Each repatch lists them.</li>
+        <li>Changes of other kinds in the sound banks, like effects or how a container picks sounds. Each repatch lists them.</li>
       </ul>
       <h3>Installing</h3>
       <ul>
         <li>Import the new ZIP in the mod manager in place of the old mod.</li>
       </ul>
-      <p className="set-note">A repatched mod is still its author's work. Keep it for personal use, and share it only with the author's permission.</p>
+      <p className="set-note">A repatched mod is still the work of the original author. Keep it for personal use, and share it only with the author's permission.</p>
       <p className="set-note"><button className="link-text" onClick={() => nav.go("wiki", "repatching")}>More in the Wiki</button></p>
     </div>
   );

@@ -919,7 +919,7 @@ class Session:
             by_sound.setdefault(self._target(r.target), {})[r.target] = r.label or r.audio or "silence"
         problems += [f"{' and '.join(names.values())} replace the same sound" for names in by_sound.values()
                      if len(names) > 1]  # the same target twice, problems() names already
-        problems += [f"{a['label'] or a['name']}: can't read its audio ({a['audio']})" for a in assignments.values()
+        problems += [f"{a['label'] or a['name']}: can't read the audio file ({a['audio']})" for a in assignments.values()
                      if a["exists"] and a["audio"] and not a["silence"] and not a["duration_ms"]]
         problems += [f"{a['label'] or 'a slot'}: no audio file named" for a in assignments.values()
                      if not a["audio"] and not a["silence"]]
@@ -1236,7 +1236,7 @@ class Session:
         icon."""
         from .arsenal import FRAME_KEYS, icon_frame
         if not isinstance(v, dict):
-            raise EditorError("The icon is its frame; set an image with set_icon")
+            raise EditorError("The icon setting holds the frame; set an image with set_icon")
         given = {k: v[k] for k in FRAME_KEYS if k in v}
         try:
             frame = icon_frame(given)
@@ -1678,7 +1678,7 @@ class Session:
         self.require_game()
         p = self._need_project()
         if mode not in ("add", "replace"):
-            raise EditorError("An import adds to the project or replaces its audio")
+            raise EditorError("An import adds to the project or replaces the audio in it")
         if not given(patch_path):
             raise EditorError("Choose a mod's .patch_0 file")
         patch_path = Path(patch_path)
@@ -1775,7 +1775,7 @@ class Session:
                 keep_encoding(wav, data)
                 files[sid] = wav
             except subprocess.CalledProcessError:
-                job.say(f"source {sid}: can't decode its audio; skipped")
+                job.say(f"source {sid}: can't decode the audio; skipped")
             finally:
                 wem_path.unlink(missing_ok=True)
             job.step(f"Decoding {i} of {len(found)}", i)
@@ -1784,7 +1784,7 @@ class Session:
             could = "couldn't" if len(found) == 1 else "could"
             raise EditorError(f"{what} in {patch_path.name} {could} be decoded. "
                               + (f"The folder {out_dir} has too long a path for the decoder. Choose a shorter one."
-                                 if len(str(out_dir)) > 230 else "Is its .stream file next to it?"))
+                                 if len(str(out_dir)) > 230 else "Is the .stream file next to the patch?"))
         if reuse:
             (out_dir / ".done").write_text("")
         return got, replaced, files, len(found) - len(files)
@@ -2058,7 +2058,7 @@ class Session:
         for name, folder, entry in manager_entries():
             if pf.key(folder) == pf.key(source):
                 picks = cb.recorded_picks(entry, opts)
-                log.info("combine: the library's entry for %s has the keys %s; its choice was %s", name,
+                log.info("combine: the library's entry for %s has the keys %s; the recorded choice was %s", name,
                          sorted(map(str, entry)), "read" if picks is not None else "not found")
                 return picks
         return None

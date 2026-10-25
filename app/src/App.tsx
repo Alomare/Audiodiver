@@ -61,7 +61,7 @@ function Startup({ error, stage }: { error: string | null; stage?: string }) {
               usually <code>…\steamapps\common\Helldivers 2</code>. Audiodiver only reads from it.</p>}
             <div className="row-btns">
               <button className="btn primary" onClick={() => choose()}>Choose the game folder…</button>
-              {where?.chosen && <button className="btn quiet" onClick={() => choose(null)}>Look in Steam again</button>}
+              {where?.chosen && <button className="btn quiet" onClick={() => choose(null)} data-tip="Forget the chosen folder">Find it through Steam again</button>}
             </div>
           </>
         ) : error && !stage ? (
@@ -177,7 +177,7 @@ function Shell() {
     quick(!project && (t === "editor" || t === "soundtrack") ? "Open a project first"
       : t === "editor" ? "Drop audio on a slot, a group of takes, a piece in the list or a title"
       : t === "soundtrack" ? "Drop songs on a place of a playlist, or a song on One song"
-      : t === "library" ? "Add it to the project, then drop audio on its slots in the Audio tab"
+      : t === "library" ? "Add it to the project, then drop audio on the slots in the Audio tab"
       : "Drop audio on a slot in the Audio tab", "info");
   };
 
@@ -236,9 +236,9 @@ function Shell() {
     newProject: () => { actions.newProject(); },
     openProject: () => { actions.openProject(); },
     closeProject: () => { actions.closeProject(); },
-    search: () => { // the search box of the tab that shows (the Wiki, the Text tab, Settings ▸ Shortcuts, the
-      // Library's and the Audio tab's lists); from a tab without one, the Library's
-      const own = { wiki: ".wiki-search input", text: ".text-tab:not([hidden]) .lib-search input[type=search]",
+    search: () => { // the search box of the tab that shows (the Soundtrack, the Text tab, Settings ▸ Shortcuts, the
+      // Library's and the Audio tab's lists; the Wiki has its own find bar); from a tab without one, the Library's
+      const own = { soundtrack: ".st-panes:not([hidden]) .lib-search input", text: ".text-tab:not([hidden]) .lib-search input[type=search]",
         settings: ".keys-bar input[type=search]" }[nav.get().tab as string];
       const box0 = own ? document.querySelector<HTMLInputElement>(own) : null;
       if (box0) { box0.focus(); box0.select(); return; }
@@ -271,7 +271,7 @@ function Shell() {
     tabEditor: () => (nav.shown("editor") ? nav.go("editor") : false),
     tabSoundtrack: () => (nav.shown("soundtrack") ? nav.go("soundtrack") : false),
     tabText: () => (nav.shown("text") ? nav.go("text") : false),
-    tabBuild: () => nav.go("build"),
+    tabBuild: () => (nav.shown("build") ? nav.go("build") : false),
     tabTools: () => nav.go("tools"),
     updates: () => nav.toggle("updates"),
     wiki: () => nav.toggle("wiki"),
@@ -343,11 +343,7 @@ const UTILS_COMMANDS: Parameters<typeof useCommands>[0] = {
   },
   stop: () => { if (!player.state.key) return false; player.stop(); },
   selectAll: (e) => ((e.target as Element).closest?.("input, textarea, [contenteditable=true]") ? false : undefined),
-  search: () => {
-    const box = document.querySelector<HTMLInputElement>(".wiki-search input");
-    if (!box) return false;
-    box.focus(); box.select();
-  },
+  // Search: only the Wiki has something to search here, and the find bar there takes the key
   tabTools: () => nav.go("tools"),
   updates: () => nav.toggle("updates"),
   wiki: () => nav.toggle("wiki"),
@@ -357,18 +353,18 @@ const UTILS_COMMANDS: Parameters<typeof useCommands>[0] = {
 type MainTab = { id: Tab; name: string; about: string; cmd: CommandId; Icon: () => React.JSX.Element };
 /** Home and Tools make projects; the rest work on the open one, in the order a mod is made. */
 const APP_TABS: MainTab[] = [
-  { id: "home", name: "Home", about: "projects", cmd: "tabHome", Icon: HomeIcon },
+  { id: "home", name: "Home", about: "new and recent projects", cmd: "tabHome", Icon: HomeIcon },
   { id: "tools", name: "Tools", about: "repatch and combine existing mods", cmd: "tabTools", Icon: ToolsIcon },
 ];
 const UTILS_TABS: MainTab[] = [APP_TABS[1]]; // Audiodiver Utils starts on Tools and has no Home
 const MOD_TABS: MainTab[] = [
   { id: "project", name: "Project", about: "name, icon and files", cmd: "tabProject", Icon: ProjectIcon },
-  { id: "library", name: "Library", about: "all game audio", cmd: "tabLibrary", Icon: LibraryIcon },
-  { id: "editor", name: "Audio", about: "the slots of what the project lists", cmd: "tabEditor", Icon: AudioIcon },
+  { id: "library", name: "Library", about: "all game audio, to find, hear and add to the project", cmd: "tabLibrary", Icon: LibraryIcon },
+  { id: "editor", name: "Audio", about: "replace the audio of what the project lists", cmd: "tabEditor", Icon: AudioIcon },
   { id: "soundtrack", name: "Soundtrack", about: "how each piece of music plays", cmd: "tabSoundtrack", Icon: SoundtrackIcon },
   { id: "text", name: "Text", about: "subtitles and all other game text", cmd: "tabText", Icon: TextIcon },
-  { id: "build", name: "Build", about: "the mod ZIP", cmd: "tabBuild", Icon: BuildIcon },
 ];
+const BUILD_TAB: MainTab = { id: "build", name: "Build", about: "the mod ZIP, to install with a mod manager", cmd: "tabBuild", Icon: BuildIcon };
 /** Why the Build tab carries a dot: the ZIP in the build folder isn't the project as it is now. */
 const REBUILD = { new: "not built yet", changed: "changed since the last build", game: "the game updated since the last build" };
 
@@ -383,13 +379,13 @@ const iconKey = (icon: unknown) => {
 
 /** The master tabs, along the side of the window Settings ▸ Theme puts them on (the top by default): an icon each.
     Home and Tools come first; then a band of the tabs that work on the open project, led by the Project tab with
-    the project's own icon and name, and ending with Build (a dot when the build folder's ZIP isn't the project as it
-    is now, a count when problems stop the build). Updates, the Wiki and Settings are at the far end (Updates lights
-    up when a new version is out). With names on, a top or bottom bar shows each main tab's name beside its icon,
-    and a side bar shows it when the pointer is on the tab, in a label that grows out of the button and holds what
-    the tooltip says. Updates, the Wiki and Settings never show a name. The open tab takes the colour of the page
-    beside it and covers the bar's edge, so it reads as holding that page. The open project's name is the window's
-    title. */
+    the project's own icon; then Build, outside the band like Home and Tools and only while a project is open (a dot
+    when the build folder's ZIP isn't the project as it is now, a count when problems stop the build). Updates, the
+    Wiki and Settings are at the far end (Updates lights up when a new version is out). With names on, a top or
+    bottom bar shows each main tab's name beside its icon, and a side bar shows it when the pointer is on the tab, in
+    a label that grows out of the button and holds what the tooltip says. Updates, the Wiki and Settings never show a
+    name. The open tab takes the colour of the page beside it and covers the bar's edge, so it reads as holding that
+    page. The open project's name is the window's title. */
 function Rail() {
   const { project } = useEditor();
   const { tab } = useNav();
@@ -426,9 +422,9 @@ function Rail() {
     );
   };
   const mainTab = ({ id, name, about, cmd, Icon }: MainTab) => {
-    let label = name, shown = name, icon = <Icon />, badge = 0, dot = false, cls = "";
-    if (id === "project" && project) { // the project's own icon and name
-      [label, shown, about, cls] = [`Project, ${project.name}`, project.name, "name, icon and files", " tab-mod"];
+    let label = name, icon = <Icon />, badge = 0, dot = false, cls = "";
+    if (id === "project" && project) { // the project's own icon
+      [label, cls] = [`Project, ${project.name}`, " tab-mod"];
       if (broken !== iconSig)
         icon = <img className="tab-mod-icon" src={iconUrl(iconSig)} alt="" draggable={false} onError={() => setBroken(iconSig)} />;
     }
@@ -438,7 +434,7 @@ function Rail() {
     } else if (id === "build" && project?.rebuild) {
       [label, about, dot] = [`${name}, ${REBUILD[project.rebuild]}`, REBUILD[project.rebuild], true];
     }
-    return tabButton(id, label, `${shown}: ${about}`, cmd, icon, () => nav.go(id), badge, dot && "dot", { name: shown, about }, cls);
+    return tabButton(id, label, `${name}: ${about}`, cmd, icon, () => nav.go(id), badge, dot && "dot", { name, about }, cls);
   };
   const update = u.latest ? `${versionLabel(u.latest.version)} is available` : "";
   const orientation = vertical ? "vertical" : "horizontal";
@@ -448,6 +444,7 @@ function Rail() {
         <div className="rail-set">{(UTILS ? UTILS_TABS : APP_TABS).map(mainTab)}</div>
         {!UTILS && <div className={`rail-set rail-mod${project ? "" : " idle"}`}>
           {MOD_TABS.filter((t) => !(HIDEABLE as readonly Tab[]).includes(t.id) || shown.includes(t.id as Hideable)).map(mainTab)}</div>}
+        {!UTILS && project && <div className="rail-set rail-out">{mainTab(BUILD_TAB)}</div>}
       </div>
       <div className="rail-group" role="tablist" aria-orientation={orientation} aria-label="More" onKeyDown={tabArrows}>
         {tabButton("updates", update ? `Updates, ${update}` : "Updates", update ? `Updates: ${update}` : "Updates: new versions and changelogs",
@@ -477,7 +474,8 @@ function StatusBar() {
       {running.length ? (
         <span className="busy sb-main">{JOB_NAMES[running[0].kind]?.[1] ?? "Working"}{running[0].total ? ` ${Math.round((running[0].done / running[0].total) * 100)}%` : ""}: {running[0].doing || running[0].log[running[0].log.length - 1] || "starting"}</span>
       ) : (
-        <span className="sb-main" data-tip={project?.path} data-tip-clip>{project ? `Autosaved · ${project.path}` : UTILS ? "" : "No project open"}</span>
+        <span className="sb-main" data-tip={project ? "Every change is saved to the project file as it is made" : undefined}
+          data-tip-more={project?.path}>{project ? `Autosaved · ${project.path}` : UTILS ? "" : "No project open"}</span>
       )}
       <span className="spacer" />
       <ExportListButton />

@@ -1,7 +1,7 @@
 ---
 title: Project folders
 group: Getting started
-summary: Where a project keeps its files, how to move one into a folder, and how a pack carries it to another computer.
+summary: Where a project stores files, how to move one into a folder, and how a pack carries a project to another computer.
 ---
 
 ## The project folder
@@ -14,19 +14,19 @@ A new project gets a folder named after it, with the project file inside, as in 
 
 Built ZIPs go in a `build` folder beside the project file.
 
-Audio picked from another folder stays there, and the project stores its path. Paths in a project file are relative to the project folder, so the whole folder can be moved or copied. A file on another drive is stored with its full path.
+Audio picked from another folder stays there, and the project stores the path to it. Paths in a project file are relative to the project folder, so the whole folder can be moved or copied. A file on another drive is stored with the full path.
 
 Older projects can share a folder, with `slices` and `imported` beside the `.audi` file. They keep working, and the [Project](app:project) tab offers to move them.
 
 ## Moving a project into a new folder
 
-The Project tab shows a warning when the project shares a folder with other projects, or is in a shared place such as the Desktop. **Move to a new folder** makes a folder named after the project beside the project file and moves these into it:
+The Project tab shows a warning when the project shares a folder with other projects, or is in a shared place such as the Desktop. Audiodiver puts the slices, the imported audio and the builds beside the project file, and in a folder that holds only this project they stay apart from other files. **Move to a new folder** makes a folder named after the project beside the project file and moves these into it:
 
 - the project file
 - the slices and imported audio Audiodiver made for it
 - builds in the default build folder
 
-Files picked from elsewhere stay where they are. A file that another project in the old folder uses is copied. The list of recent projects follows the project to its new path.
+Files picked from elsewhere stay where they are. A file that another project in the old folder uses is copied. The list of recent projects follows the project to the new path.
 
 ## Collecting files
 
@@ -34,11 +34,15 @@ Files picked from elsewhere stay where they are. A file that another project in 
 
 Once every file is inside the project folder, the project can be moved or copied as one folder.
 
+## Missing files
+
+A file the project uses goes missing when it is moved, renamed or deleted outside Audiodiver. The slot then shows **Missing:** before the file name, and the Build tab lists the file as a problem, because the mod can't be built without it. Put the file back where it was, or click the file name on the slot to choose another file. With every file inside the project folder ([Collecting files](wiki:project-folders#collecting-files)), the files move with the project.
+
 ## Unused files
 
 **Find unused files** lists what Audiodiver made for the project that nothing uses any more: slices of an older cut, decoded audio of an imported patch, collected files that no slot plays. **Remove** sends them to the Recycle Bin, and Windows can put them back. On a drive without a Recycle Bin, such as a network drive, Audiodiver asks before it deletes them for good.
 
-Audiodiver searches only the folders it makes, which are `audio\slices`, `audio\imported`, `audio\added` and the older `slices` and `imported`. Before removing anything, Audiodiver checks the list again and keeps any file that the project, its Undo history or another project in the folder uses.
+Audiodiver searches only the folders it makes, which are `audio\slices`, `audio\imported`, `audio\added` and the older `slices` and `imported`. Before removing anything, Audiodiver checks the list again and keeps any file used by the project, by the Undo history or by another project in the folder.
 
 ## Packs
 

@@ -181,7 +181,7 @@ function GameFolder() {
       {where?.how && FOUND[where.how] && <p className="set-note">{FOUND[where.how]}</p>}
       <div className="row-btns">
         <button className="btn" disabled={busy} onClick={() => change()}
-          data-tip={busy ? "Wait for the build or export to finish" : "The Helldivers 2 install folder, or its data folder"}>Choose another folder…</button>
+          data-tip={busy ? "Wait for the build or export to finish" : "The Helldivers 2 install folder, or the data folder inside it"}>Choose another folder…</button>
         {where?.chosen && <button className="btn quiet" disabled={busy} onClick={() => change(null)}>Find it through Steam again</button>}
         {where?.path && <button className="btn quiet" onClick={() => reveal(where.path!)}>Show in folder</button>}
       </div>
@@ -315,8 +315,8 @@ function Theme() {
   const warm = useMemo(() => `linear-gradient(90deg, ${[0, 0.25, 0.5, 0.75, 1].map((w) => nightTint(w)).join(", ")})`, []);
   const changed = (Object.keys(RESET_THEME) as (keyof typeof RESET_THEME)[]).some((k) => t[k] !== RESET_THEME[k]);
   const reset = async () => {
-    const ok = await confirm({ title: "Reset the theme?", text: UTILS ? "Text size goes back to its default. Dark or light and contrast follow the system."
-      : "Every theme setting goes back to its default. Dark or light, contrast and animations follow the system.", ok: "Reset", cancel: "Cancel" });
+    const ok = await confirm({ title: "Reset the theme?", text: UTILS ? "Text size goes back to the default. Dark or light and contrast follow the system."
+      : "Every theme setting goes back to the default. Dark or light, contrast and animations follow the system.", ok: "Reset", cancel: "Cancel" });
     if (ok) theme.reset();
   };
   return (

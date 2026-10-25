@@ -10,7 +10,7 @@ Audiodiver has the most information about music, but the Library contains all of
 
 Outside the music, the Index lists **sound sets**. A sound set holds the sounds of one weapon, stratagem, enemy, voice or type of planet, under the name players see in game.
 
-The sounds in a set are shown in groups. Each group is one sound with its **takes**, and the game picks one take at random each time the sound plays. To replace a sound completely, give every take new audio, or the game still mixes in the originals. Files dropped on a group's line fill the takes in order. Right-click the line to fill, silence or clear all takes.
+The sounds in a set are shown in groups. Each group is one sound and the **takes** it plays from. The game picks one take at random each time the sound plays. To replace a sound completely, give every take new audio, or the game still mixes in the originals. Files dropped on a group's line fill the takes in order. Right-click the line to fill, silence or clear all takes.
 
 Most groups have only numbers as names, like *Sound 1* and *Take 2* ([why this happens](wiki:game-audio)), so listen to tell them apart. ▶ on a group's line plays the first take. In a large set the groups start folded, and **Search sounds** finds a sound by a word or an id. The same page explains the **Other Audio** and **No Audio in the Game Files** groups.
 
@@ -45,7 +45,7 @@ Replacing a shared sound changes it everywhere it plays, and the details list th
 
 A voice has one part for each installed language, such as *English* and *Italian*, with separate recordings for each. A line replaced in the English part is heard only by players who play in English.
 
-A voice line is named after the words of its subtitle, and the filter finds it by those words. When several takes say the same line, the group and each take show the words.
+A voice line is named after the words of the matching subtitle, and the filter finds it by those words. When several takes say the same line, the group and each take show the words.
 
 Sounds without words are named after what they are, like *Grunt 1* or *Panting 3*, and numbered separately for each voice. Grunts are short sounds of effort. **Panting** covers the longer breathing, sighs and laughs. Most of these sounds are at the end of a Helldiver voice and in **Helldiver Exertions**, in groups called **Grunts** and **Panting**. Each of these clips is shared by two Helldiver voices, voices 1 and 3, and voices 2 and 4.
 

@@ -30,7 +30,7 @@ body:
         - The name is wrong
         - It has no name
         - It's in the wrong place
-        - The voice line's text is wrong
+        - The voice line's linked text is wrong
     validations:
       required: true
 

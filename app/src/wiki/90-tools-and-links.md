@@ -12,7 +12,7 @@ summary: Where mods are installed and shared, and free audio tools that help wit
 
 ## Editing audio
 
-- [Audacity](https://www.audacityteam.org) is a free editor for cutting, fading and exporting WAV or FLAC. Its *Loudness Normalization* effect sets a file to a LUFS target.
+- [Audacity](https://www.audacityteam.org) is a free editor for cutting, fading and exporting WAV or FLAC. The *Loudness Normalization* effect in Audacity sets a file to a LUFS target.
 - [Youlean Loudness Meter](https://youlean.co/youlean-loudness-meter/) is a free loudness meter. Use it to compare new music with the original level of −13 to −15 LUFS.
 - [FFmpeg](https://ffmpeg.org) converts between almost any audio formats from the command line.
 

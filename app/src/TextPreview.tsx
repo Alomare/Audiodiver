@@ -8,7 +8,11 @@ export function TextPreview({ text }: { text: string }) {
   const re = /\{(\d+(?:\.\d+)?)->(\d+(?:\.\d+)?)\}|<([cifs])=([^>]*)>|<\/([cifs])>|(#[A-Z][A-Z0-9_]+)|(\n)/g;
   const style = () => Object.assign({}, ...stack.map((f) => f.style)) as CSSProperties;
   let last = 0, k = 0, m: RegExpExecArray | null;
-  const words = (s: string) => { if (s) out.push(<span key={k++} style={style()}>{s}</span>); };
+  const words = (s: string) => {
+    if (!s) return;
+    const st = style(); // a dotted underline: a colour the game picks as the line shows
+    out.push(<span key={k++} style={st} data-tip={st.textDecoration ? "A colour the game picks, such as a player colour" : undefined}>{s}</span>);
+  };
   while ((m = re.exec(text))) {
     words(text.slice(last, m.index));
     last = re.lastIndex;
@@ -25,7 +29,7 @@ export function TextPreview({ text }: { text: string }) {
     } else if (m[5]) {
       const i = stack.map((f) => f.tag).lastIndexOf(m[5]);
       if (i >= 0) stack.splice(i, 1);
-    } else if (m[6]) out.push(<span key={k++} className="tx-fill" data-tip="The game fills this in">{m[6]}</span>);
+    } else if (m[6]) out.push(<span key={k++} className="tx-fill" data-tip="The game fills this in as the line shows, such as a name or a number">{m[6]}</span>);
     else out.push(<br key={k++} />);
   }
   words(text.slice(last));

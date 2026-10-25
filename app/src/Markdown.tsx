@@ -66,7 +66,13 @@ const ICONS: Record<string, () => ReactNode> = {
   header: () => <HeaderIcon on />, waves: () => <WavesIcon on />,
 };
 
-/** Text with {key:command} turned into the key that command is on now, and {icon:name} into that icon. */
+/** A word joiner: the line can break on either side of an icon (an svg) even next to a letter or a bracket, but never
+    beside this character. */
+const JOIN = "⁠";
+const joins = (ch: string | undefined) => (ch && /\S/.test(ch) ? JOIN : "");
+
+/** Text with {key:command} turned into the key that command is on now, and {icon:name} into that icon. An icon stays
+    on the line of the word or bracket it touches. */
 function withKeys(text: string): ReactNode {
   const parts = text.split(REF); // [text, kind, id, text, kind, id, …]
   if (parts.length === 1) return text;
@@ -77,7 +83,7 @@ function withKeys(text: string): ReactNode {
     const [kind, p] = [parts[i + 1], parts[i + 2]];
     if (kind === "icon") {
       const Icon = ICONS[p];
-      out.push(Icon ? <span key={i} className="md-icon" role="img" aria-label={p}><Icon /></span> : `{icon:${p}}`);
+      out.push(Icon ? <span key={i} className="md-icon" role="img" aria-label={p}>{joins(parts[i].slice(-1))}<Icon />{joins(parts[i + 3]?.[0])}</span> : `{icon:${p}}`);
     } else if (!COMMANDS.some((c) => c.id === p)) {
       out.push(`{key:${p}}`);
     } else {
@@ -88,18 +94,27 @@ function withKeys(text: string): ReactNode {
   return out;
 }
 
+/** A link to a place in the app. An inline element, not a button: a button can't wrap, and the line may break
+    between it and the bracket before it. Enter opens it, as a click does. */
+function InApp({ go, children }: { go: () => void; children: ReactNode }) {
+  return (
+    <a className="link-text" role="link" tabIndex={0} onClick={(e) => { e.preventDefault(); go(); }}
+      onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); go(); } }}>{children}</a>
+  );
+}
+
 function Link({ href, children }: { href: string; children: ReactNode }) {
   if (/^https?:\/\//i.test(href)) {
-    return <a className="link-text" href={href} data-tip={href} onClick={(e) => { e.preventDefault(); openUrl(href); }}>{children}<ExternalIcon /></a>;
+    return <a className="link-text" href={href} data-tip={href} onClick={(e) => { e.preventDefault(); openUrl(href); }}>{children}{JOIN}<ExternalIcon /></a>;
   }
   if (href.startsWith("#")) {
     return <a className="link-text" href={href} onClick={(e) => { e.preventDefault(); document.getElementById(href.slice(1))?.scrollIntoView({ block: "start" }); }}>{children}</a>;
   }
   const [scheme, rest = ""] = href.split(":", 2);
   const [first, sub] = rest.split("/");
-  if (scheme === "wiki") return <button className="link-text" onClick={() => nav.go("wiki", first)}>{children}</button>;
-  if (scheme === "app" && first === "about") return <button className="link-text" onClick={about.open}>{children}</button>;
-  if (scheme === "app" && TABS.includes(first as Tab)) return <button className="link-text" onClick={() => nav.go(first as Tab, sub)}>{children}</button>;
+  if (scheme === "wiki") return <InApp go={() => nav.go("wiki", first)}>{children}</InApp>;
+  if (scheme === "app" && first === "about") return <InApp go={about.open}>{children}</InApp>;
+  if (scheme === "app" && TABS.includes(first as Tab)) return <InApp go={() => nav.go(first as Tab, sub)}>{children}</InApp>;
   return <>{children}</>;
 }
 

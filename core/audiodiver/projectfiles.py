@@ -395,7 +395,7 @@ def unpack(src: Path, into: Path, job=None) -> Path:
         for i in files:
             p = PurePosixPath(i.filename.replace("\\", "/"))
             if p.is_absolute() or ".." in p.parts or ":" in i.filename:
-                raise FilesError(f"{src.name} has a file that would go outside its folder ({i.filename})")
+                raise FilesError(f"{src.name} has a file that would go outside the folder it unpacks to ({i.filename})")
         projects = [i for i in files if i.filename.lower().endswith(".audi") and len(PurePosixPath(i.filename).parts) <= 2]
         if len(projects) != 1:
             raise FilesError(f"{src.name} holds {'no project' if not projects else 'more than one project'}")

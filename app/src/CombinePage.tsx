@@ -22,6 +22,11 @@ type Clash = {
   id: string; kind: "sound" | "clip" | "setting"; label: string; source?: string;
   versions: { mod: number; audio?: string; ms?: number; value?: number }[]; winner: number;
 };
+/** A setting's unit, by the setting's name at the end of the conflict's label (core combine.PROP_NAMES); the
+    filters go from 0 to 100 and have none. */
+const UNITS: Record<string, string> = { Volume: " dB", "Make-Up Gain": " dB", Pitch: " cents", "Initial Delay": " s" };
+const unitOf = (label: string) => UNITS[label.split(" · ").pop() ?? ""] ?? "";
+const fmtValue = (x: number) => `${x < 0 ? "−" : ""}${+Math.abs(x).toFixed(2)}`;
 type Read = { mods: { source: string; name: string; left: string[]; sounds: number }[]; groups: { item: string; name: string; clashes: Clash[] }[] };
 type Made = {
   name: string; zip: string; mb: number;
@@ -151,8 +156,10 @@ export function CombinePage() {
                   <div className="cmb-mod-head">
                     <span className="cmb-n" aria-hidden>{i + 1}</span>
                     <b className="cmb-name" data-tip={m.scan.source}>{m.scan.name}</b>
-                    <button className="icon-btn" disabled={i === 0 || checking || combining} onClick={() => move(i, -1)} aria-label={`Move ${m.scan.name} up`} data-tip="Move up">↑</button>
-                    <button className="icon-btn" disabled={i === mods.length - 1 || checking || combining} onClick={() => move(i, 1)} aria-label={`Move ${m.scan.name} down`} data-tip="Move down">↓</button>
+                    <button className="icon-btn" disabled={i === 0 || checking || combining} onClick={() => move(i, -1)} aria-label={`Move ${m.scan.name} up`}
+                      data-tip="Move up" data-tip-more="A mod lower in the list wins conflicts by default">↑</button>
+                    <button className="icon-btn" disabled={i === mods.length - 1 || checking || combining} onClick={() => move(i, 1)} aria-label={`Move ${m.scan.name} down`}
+                      data-tip="Move down" data-tip-more="A mod lower in the list wins conflicts by default">↓</button>
                     <button className="icon-btn" disabled={checking || combining} onClick={() => setMods((list) => list.filter((_, j) => j !== i))}
                       aria-label={`Remove ${m.scan.name} from the list`} data-tip="Remove from the list">✕</button>
                   </div>
@@ -181,7 +188,7 @@ export function CombinePage() {
                     return (
                       <li key={m.source}>
                         <button className="link-text" disabled={on || combining} onClick={() => add([m.source])} data-tip={on ? "On the list" : "Add to the list"}>{m.name}</button>
-                        {m.deployed && <span className="tag">Deployed</span>}
+                        {m.deployed && <span className="tag" data-tip="In the game folder now, so the game loads it">Deployed</span>}
                       </li>
                     );
                   })}
@@ -258,6 +265,7 @@ function Options({ mod, disabled, onChange }: { mod: Mod; disabled: boolean; onC
   const { scan, picks } = mod;
   return (
     <div className="cmb-options">
+      <span className="field-label">Options <Help tip="The options of this mod that go into the combined mod. They start as the mod manager has them, or all on" page="combining-mods#combining-mods" /></span>
       {scan.options.map((o) => {
         const chosen = o.sub.find((s) => picks.includes(s.id));
         const on = o.sub.length ? !!chosen : picks.includes(o.id);
@@ -313,7 +321,8 @@ function Conflicts({ read, winners, choose }: { read: Read; winners: Record<stri
                 <div className="cmb-all">
                   <span>All from</span>
                   {involved.map((m) => (
-                    <ModChip key={m} n={m} name={modName(m)} on={g.clashes.every((c) => winners[c.id] === m || !c.versions.some((v) => v.mod === m))}
+                    <ModChip key={m} n={m} name={modName(m)} about="Use this mod for every conflict in this item"
+                      on={g.clashes.every((c) => winners[c.id] === m || !c.versions.some((v) => v.mod === m))}
                       pick={() => choose(Object.fromEntries(g.clashes.filter((c) => c.versions.some((v) => v.mod === m)).map((c) => [c.id, m])))} />
                   ))}
                 </div>
@@ -338,14 +347,16 @@ function ClashLine({ c, winner, modName, pick }: { c: Clash; winner: number; mod
       <div className="cmb-clash-head">
         {c.source ? <Play url={audioUrl("vanilla", c.source)} k={`vanilla:${c.source}`} label={`the original ${c.label}`} />
           : <span className="play-gap" />}
-        <span className="cmb-label" data-tip={c.label} data-tip-clip>{c.label}{what && <small> · {what}</small>}</span>
+        <span className="cmb-label" data-tip={c.label} data-tip-clip>{c.label}{what && <small data-tip={c.kind === "clip"
+          ? "A separate clip that a mod added for this sound only" : undefined}> · {what}</small>}</span>
       </div>
       <div className="cmb-versions" role="radiogroup" aria-label={`Which mod's ${c.label}`}>
         {c.versions.map((v) => (
           <span key={v.mod} className="cmb-version">
             {v.audio ? <Play url={fileUrl(v.audio)} k={`file:${v.audio}`} label={`${modName(v.mod)}'s ${c.label}`} /> : <span className="play-gap" />}
             <ModChip n={v.mod} name={modName(v.mod)} on={winner === v.mod} pick={() => pick(v.mod)} radio
-              more={v.ms != null ? fmtTime(v.ms) : v.value != null ? String(v.value) : undefined} />
+              more={v.ms != null ? fmtTime(v.ms) : v.value != null ? `${fmtValue(v.value)}${unitOf(c.label)}` : undefined}
+              about={v.ms != null ? `Length ${fmtTime(v.ms)}` : v.value != null ? `${c.label.split(" · ").pop()} ${fmtValue(v.value)}${unitOf(c.label)}` : undefined} />
           </span>
         ))}
       </div>
@@ -354,10 +365,12 @@ function ClashLine({ c, winner, modName, pick }: { c: Clash; winner: number; mod
 }
 
 /** A mod to choose: its number in the list and its name, cut short to fit. */
-function ModChip({ n, name, on, pick, radio, more }: { n: number; name: string; on: boolean; pick: () => void; radio?: boolean; more?: string }) {
+function ModChip({ n, name, on, pick, radio, more, about }: {
+  n: number; name: string; on: boolean; pick: () => void; radio?: boolean; more?: string; about?: string;
+}) {
   return (
     <button role={radio ? "radio" : undefined} aria-checked={radio ? on : undefined} aria-pressed={radio ? undefined : on}
-      className={`chip cmb-chip${on ? " on" : ""}`} onClick={pick} data-tip={name} data-tip-more={more}>
+      className={`chip cmb-chip${on ? " on" : ""}`} onClick={pick} data-tip={name} data-tip-more={about ?? more}>
       <span className="cmb-chip-n">{n + 1}</span><span className="cmb-chip-name">{name}</span>
       {more && <span className="cmb-chip-more">{more}</span>}
     </button>
@@ -423,7 +436,7 @@ function About() {
     <div className="rp-text">
       <h3>What it does</h3>
       <ul>
-        <li>Takes each mod's audio and sound settings with the chosen options, and its other files, like text or textures, as they are.</li>
+        <li>Takes the audio and sound settings of each mod with the chosen options, and copies other files, like text or textures, unchanged.</li>
         <li>Lists the sounds that more than one mod changes, to play and choose from.</li>
         <li>Builds one mod on the current sound banks.</li>
       </ul>
@@ -441,7 +454,7 @@ function About() {
       <ul>
         <li>Turn off the combined mods in the mod manager, then import and deploy the new ZIP.</li>
       </ul>
-      <p className="set-note">A combined mod is still its authors' work. Keep it for personal use, and share it only with their permission.</p>
+      <p className="set-note">A combined mod is still the work of the original authors. Keep it for personal use, and share it only with their permission.</p>
       <p className="set-note"><button className="link-text" onClick={() => nav.go("wiki", "combining-mods")}>More in the Wiki</button></p>
     </div>
   );

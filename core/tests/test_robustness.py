@@ -67,9 +67,9 @@ def test_a_new_project_keeps_the_dots_in_its_name(tmp_path):
 
 @pytest.mark.parametrize("content, words", [
     ('["a list"]', "isn't an Audiodiver project"),
-    ('{"audiodiver": 1, "name": 123, "guid": "x", "library": []}', "damaged (its name)"),
+    ('{"audiodiver": 1, "name": 123, "guid": "x", "library": []}', "damaged (the name)"),
     ('{"audiodiver": 1, "name": "A", "replacements": [{"target": "x", "audio": "a.wav"}]}', "damaged"),
-    ('{"audiodiver": 1, "name": "A", "segment_overrides": [1]}', "damaged (its cue points)"),
+    ('{"audiodiver": 1, "name": "A", "segment_overrides": [1]}', "damaged (the cue points)"),
     ('{"audiodiver": 9, "name": "A"}', "newer version of Audiodiver"),
     ('{"name": "A"}', "isn't an Audiodiver project"),
     ('not json', "is damaged (it can't be read)"),

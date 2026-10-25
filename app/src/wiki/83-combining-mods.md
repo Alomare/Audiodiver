@@ -15,7 +15,7 @@ A mod contains complete copies of the sound banks it changes. When two mods chan
 
 1. Open [Tools ▸ Combine Mods](app:tools/combine).
 2. Drop the mods on the page. You can drop the downloaded ZIPs, the mod folders, or the `.patch_0` files with the `.stream` files next to them. **Add ZIPs or patch files…** and **Add a folder…** do the same, and **Installed mods…** lists the mods in a mod manager's library and the game folder.
-3. Choose the options for each mod. A mod with options lists them under its name, starting from the choices that the mod manager recorded. An option with several choices takes one of them.
+3. Choose the options for each mod. A mod with options lists them under the mod name, starting from the choices that the mod manager recorded. An option with several choices takes one of them.
 4. Put the mods in order with ↑ and ↓. See [Order and conflicts](#order-and-conflicts).
 5. Press **Check for conflicts**, and choose a mod for each conflict it finds.
 6. Check the name, then press **Combine**.
@@ -26,9 +26,9 @@ After a check, changing the list, the order or the options requires another chec
 
 A conflict is a sound that more than one mod changes in different ways. The mods give the same clip different audio, or set the same setting, such as a sound's volume, to different values. Mods that give a clip the same audio don't conflict. New takes and layers that several mods add to the same sound are all kept.
 
-Conflicts are grouped by their item in the Index, such as a piece of music or a weapon. Each line plays the original first, then the version from each mod. The highlighted mod goes in. **All from** on an item's line picks one mod for all of its conflicts. By default the mod lower in the list wins, as if it were deployed later.
+Conflicts are grouped by their item in the Index, such as a piece of music or a weapon. Each line plays the original first, then the version from each mod. The highlighted mod goes in. **All from** on an item's line picks one mod for every conflict in that item. By default the mod lower in the list wins, as if it were deployed later.
 
-A setting on a sound in conflict follows the sound, so the mod whose audio goes in also brings its volume.
+A setting on a sound in conflict follows the sound, so the mod whose audio goes in also brings the volume set on that sound.
 
 ## Destination folder
 
@@ -38,11 +38,11 @@ After a game update, combine the mods again. To change the audio further, make a
 
 ## What combining leaves out
 
-- Changes Audiodiver doesn't carry over, such as effects or how a container picks its sounds, and sounds a mod still has from an older game version. The result lists them for each mod, as [Repatch](wiki:repatching#what-repatching-leaves-out) does.
+- Changes Audiodiver doesn't carry over, such as effects or how a container picks sounds, and sounds a mod still has from an older game version. The result lists them for each mod, as [Repatch](wiki:repatching#what-repatching-leaves-out) does.
 - A file besides audio, such as a texture or a string table, that two mods both have: the copy of the mod higher in the list. The copy of the lower mod goes in, as if that mod were deployed later, and the result notes this.
 
 Everything else in the patches, such as text, models and textures, goes in as it was.
 
 ## Installing the result
 
-The combined mod is a new mod with a new id. In the mod manager, turn off the mods it combines, then import the new ZIP and deploy it. A combined mod is still the work of its authors, so keep it for personal use, and share it only with their permission.
+The combined mod is a new mod with a new id. In the mod manager, turn off the mods it combines, then import the new ZIP and deploy it. A combined mod is still the work of the original authors, so keep it for personal use, and share it only with their permission.

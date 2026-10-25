@@ -19,6 +19,9 @@ import { usePeaks, Waveform, type Marker } from "./Waveform";
     and its selected slot. */
 const HEIGHT = 210;
 const HEIGHT_ONE = 190; // the Library's: the game's waveform under the slot's facts
+// what the cue points do, in the flags' tooltips
+const ENTRY_ABOUT = "The segment counts as started here. Audio before it plays under the end of the segment before";
+const EXIT_ABOUT = "The next segment starts here. Audio after it rings out over the next one";
 
 export function Timeline({ room, through, at, cue: given, source: picked }: {
   room: () => number; through: Through | null; at: PlayedAt | null; cue?: Cue; source?: string | null;
@@ -67,10 +70,10 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
   const exit = o.exit_marker ?? autoExit;
 
   const gameMarkers: Marker[] = hasCues && seg.exit_ms != null
-    ? [{ id: "entry", ms: seg.entry_ms ?? 0, label: "Entry" }, { id: "exit", ms: seg.exit_ms, label: "Exit" }] : [];
+    ? [{ id: "entry", ms: seg.entry_ms ?? 0, label: "Entry", about: ENTRY_ABOUT }, { id: "exit", ms: seg.exit_ms, label: "Exit", about: EXIT_ABOUT }] : [];
   const myMarkers: Marker[] = hasCues && mine
-    ? [{ id: "entry", ms: entry, label: "Entry", draggable: true, min: 0, max: exit - 50 },
-       { id: "exit", ms: exit, label: "Exit", draggable: true, min: entry + 50, max: mine.duration_ms }] : [];
+    ? [{ id: "entry", ms: entry, label: "Entry", about: `${ENTRY_ABOUT}. Drag to move it`, draggable: true, min: 0, max: exit - 50 },
+       { id: "exit", ms: exit, label: "Exit", about: `${EXIT_ABOUT}. Drag to move it`, draggable: true, min: entry + 50, max: mine.duration_ms }] : [];
 
   const commit = (id: string, ms: number, how: "drag" | "key") => {
     // a drag that ends near the automatic spot snaps back onto it, clearing the override; a key's 10 ms step never does

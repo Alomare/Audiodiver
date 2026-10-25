@@ -12,6 +12,7 @@ import { CollapseAllIcon, SearchIcon } from "./Icons";
 import { CatMark } from "./Tags";
 import { motionMs, scrollBehavior } from "./theme";
 import { FOLD_LIBRARY } from "./nav";
+import { Help } from "./Wiki";
 
 type Filter = "all" | "mine" | "game";
 /** A top-level group of the tree: an Index category, or the archives a project lists. `flat`: it has one section,
@@ -274,7 +275,8 @@ export function IndexTree() {
     <>
       <div className="lib-search">
         <input type="search" placeholder={`Search, or paste an id${searchKey ? `  ( ${searchKey} )` : ""}`} value={query}
-          onChange={(e) => setQuery(e.target.value)} aria-label={editing ? "Search the project" : "Search the Index"} onKeyDown={searchKeys} />
+          onChange={(e) => setQuery(e.target.value)} aria-label={editing ? "Search the project" : "Search the Index"} onKeyDown={searchKeys}
+          data-tip="Names, descriptions and slot labels" data-tip-more="Or paste a source, stream, bank or cue id to find where it plays" />
         <button className="icon-btn" onClick={collapseAll} aria-label="Collapse all" data-tip="Collapse all"><CollapseAllIcon /></button>
       </div>
       {editing && project && <Filters filter={filter} setFilter={setFilter} />}
@@ -371,7 +373,7 @@ const ItemRow = memo(function ItemRow({ item, deep, active, hi, status, clash, a
             data-tip="Remove from the project" data-tip-more="Also removes the new audio. Undo brings both back.">✕</button>
         )}
         {/* the Audio tab's list leaves out lengths and counts, so its marks and buttons line up from row to row */}
-        {!editing && (music ? <span className="dur">{fmtTime(item.duration_ms || null)}</span>
+        {!editing && (music ? <span className="dur" data-tip={item.parts.length > 1 ? `The ${item.parts.length} parts together` : undefined}>{fmtTime(item.duration_ms || null)}</span>
           : <span className="dur" data-tip={`${sounds} sound${sounds === 1 ? "" : "s"}`}>{sounds}</span>)}
       </span>
     </div>
@@ -379,8 +381,8 @@ const ItemRow = memo(function ItemRow({ item, deep, active, hi, status, clash, a
 });
 
 /** What something plays: a hollow dot for the original, a half for partly replaced, a full one for replaced. */
-export function Mark({ status }: { status: Status }) {
-  return <span className={`mark-dot ${status}`} role="img" data-tip={COVERAGE[status]} aria-label={COVERAGE[status]} />;
+export function Mark({ status, label }: { status: Status; label?: string /* the Text tab says Changed */ }) {
+  return <span className={`mark-dot ${status}`} role="img" data-tip={label ?? COVERAGE[status]} aria-label={label ?? COVERAGE[status]} />;
 }
 
 /** An id that leads to something this list doesn't show: an archive nobody has named (the Library's Index), or
@@ -458,7 +460,8 @@ function Filters({ filter, setFilter }: { filter: Filter; setFilter: (f: Filter)
       </div>
       <Fold open={count > 0}>
         <div className="mus-clash">
-          <span><b>{n}</b> transition{n === 1 ? "" : "s"} or stinger{n === 1 ? "" : "s"} still play{n === 1 ? "s" : ""} the original next to new music.</span>
+          <span><b>{n}</b> transition{n === 1 ? "" : "s"} or stinger{n === 1 ? "" : "s"} still play{n === 1 ? "s" : ""} the original next to new music.{" "}
+            <Help tip="A transition plays between two pieces of music, and a stinger over one. Left original, they play a stretch of the original music next to the new music. Skip replaces them with a short silence" page="how-the-game-plays-music#transitions-and-stingers" /></span>
           <div className="row-btns">
             <button className="btn quiet small-btn" onClick={review} data-tip="Open the first one and add it to the project">Review</button>
             <button className="btn small-btn" onClick={skipAll}

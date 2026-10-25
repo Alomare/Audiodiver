@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { call, fmtTime, isMusic, shownId, type Assignment, type Place, type Slot } from "./api";
 import { rowsOf, SILENCE_TIP, type Row } from "./CueView";
-import { FolderIcon } from "./Icons";
+import { ClearIcon, FillIcon, FillPieceIcon, FolderIcon, SilenceIcon } from "./Icons";
 import { keyLabel, useKeymap, type CommandId } from "./keys";
 import { where } from "./music";
 import { nav } from "./nav";
@@ -70,8 +70,10 @@ export function Inspector() {
       <section className="insp-sec facts">
         <dl>
           <dt>Original</dt><dd>{slot.duration_ms || seg.duration_ms ? fmtTime(slot.duration_ms || seg.duration_ms) : "–"}</dd>
-          {seg.segment && <><dt>Segment</dt><dd>{fmtTime(seg.duration_ms)}{seg.exit_ms != null && <> · exit at {fmtTime(seg.exit_ms)}</>}</dd></>}
-          {slot.variant && <><dt>Variant</dt><dd>{slot.variant}</dd></>}
+          {seg.segment && <><dt>Segment <Help tip="A stretch of music that plays as a unit. The next segment starts at the Exit" page="how-the-game-plays-music#segments-and-slots" /></dt>
+            <dd>{fmtTime(seg.duration_ms)}{seg.exit_ms != null && <> · <span data-tip="The next segment starts here">exit at {fmtTime(seg.exit_ms)}</span></>}</dd></>}
+          {slot.variant && <><dt>Variant <Help tip="This slot plays only under a condition, such as a biome. Give each variant new audio to change the piece everywhere" page="how-the-game-plays-music#variants" /></dt>
+            <dd>{slot.variant}</dd></>}
           {cue.language && <><dt>Language</dt><dd>{cue.language}</dd></>}
           {slot.subtitle && text && <><dt>Subtitle</dt><dd><SubtitleLink slot={slot}>Open</SubtitleLink>{!slot.subtitle_sure &&
             <span className="muted" data-tip={SEVERAL}> · one of several</span>}</dd></>}
@@ -217,11 +219,11 @@ export function SlotFacts({ row }: { row: Row }) {
         <b>{seg.name}{sub && <span className="muted"> · {sub}</span>}</b>
         <CopyId slot={slot} />
         {length > 0 && <span>{fmtTime(length)}</span>}
-        {seg.segment && seg.exit_ms != null && <span>exit at {fmtTime(seg.exit_ms)}</span>}
+        {seg.segment && seg.exit_ms != null && <span data-tip="The next segment starts here">exit at {fmtTime(seg.exit_ms)}</span>}
         {slot.variant && <span>plays when {slot.variant}</span>}
         {cue?.language && <span>{cue.language}</span>}
         {slot.locked && <span className="warn" data-tip="Replacing it makes the music stutter">do not touch</span>}
-        {slot.unused && <span data-tip="Nothing in the game data plays it">never played</span>}
+        {slot.unused && <span data-tip="The game never plays this clip">never heard</span>}
         {slot.absent && <span data-tip="Not in the installed game files">no audio</span>}
         {slot.subtitle && <SubtitleLink slot={slot}>{slot.subtitle_sure ? "subtitle" : "subtitle: one of several"}</SubtitleLink>}
         {(slot.notes ?? []).map((n) => n.tag && <span key={n.tag} className={n.warn ? "warn" : undefined} data-tip={n.text}>{n.tag}</span>)}
@@ -337,8 +339,8 @@ const GAIN_MAX = 96; // dB either way, as the core takes it (project.GAIN_DB)
 const fmtGain = (x: number) => `${x > 0 ? "+" : ""}${x}`;
 
 /** Make-Up Gain of one replaced slot or of several; `value` is null while several differ (the box says Mixed and the
-    slider rests at 0 until moved). */
-function Gain({ sources, value, title = "Make-Up Gain" }: { sources: string[]; value: number | null; title?: string }) {
+    slider rests at 0 until moved). `note` says which of the selected slots it sets, when not all. */
+function Gain({ sources, value, note }: { sources: string[]; value: number | null; note?: string }) {
   const { actions } = useEditor();
   const [v, setV] = useState(value ?? 0);
   const [typed, setTyped] = useState<string | null>(null); // the value box while it is typed in
@@ -368,11 +370,12 @@ function Gain({ sources, value, title = "Make-Up Gain" }: { sources: string[]; v
   const shown = value === null && !moved ? "Mixed" : fmtGain(v);
   return (
     <section className="insp-sec">
-      <h3>{title} <Help tip="Louder or quieter, without changing the file or the mix." page="volume#make-up-gain-per-slot" />
+      <h3>Make-Up Gain <Help tip="Louder or quieter, without changing the file or the mix." page="volume#make-up-gain-per-slot" />
         <span className="val"><input className="gain-val" value={typed ?? shown} aria-label="Make-Up Gain in dB, typed" inputMode="decimal"
           onFocus={(e) => { setTyped(value === null && !moved ? "" : fmtGain(v)); e.currentTarget.select(); }} onChange={(e) => setTyped(e.target.value)} onBlur={takeTyped}
           onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); else if (e.key === "Escape") { escaped.current = true; e.currentTarget.blur(); } }}
           data-tip={`Type a value from −${GAIN_MAX} to +${GAIN_MAX}`} /> dB</span></h3>
+      {note && <p className="muted small insp-note">{note}</p>}
       <input type="range" min={-GAIN_MAX} max={GAIN_MAX} step={0.5} value={v} aria-label="Make-Up Gain in dB"
         onChange={(e) => { setV(Number(e.target.value)); setMoved(true); }} onPointerUp={() => commit(v)}
         onKeyUp={(e) => { if (/^(Arrow|Home|End|Page)/.test(e.key)) commitSoon(v); }} onBlur={() => commit(v)}
@@ -422,7 +425,9 @@ function Markers({ segment, gameEntry, gameExit, fit, lengthMs }: {
   );
 }
 
-/** Several slots selected. `usable`: the ones of them the game plays and nobody marked do-not-touch. */
+/** Several slots selected: what can replace them all, as a column of buttons with an icon each (the order of the
+    one-slot view: what replaces it first, then the settings), Make-Up Gain of the replaced ones, the timing of the
+    silent ones, and Remove apart at the end. `usable`: the ones the game plays and nobody marked do-not-touch. */
 function Bulk({ sources, usable }: { sources: string[]; usable: string[] }) {
   const { project, actions } = useEditor();
   const a = project?.assignments ?? {};
@@ -433,9 +438,18 @@ function Bulk({ sources, usable }: { sources: string[]; usable: string[] }) {
   return (
     <aside className="inspector" aria-label="Details">
       <div className="insp-title"><h2>{sources.length} slots selected</h2></div>
+      <section className="insp-sec insp-actions">
+        <button className="btn" disabled={!usable.length} data-tip={`The same file in all ${slots(usable.length)}`}
+          onClick={async () => { const f = (await pickAudio(false))?.[0]; if (f) actions.assignAll(usable, f); }}><FillIcon />Choose one file for all…</button>
+        <button className="btn" disabled={!usable.length} data-tip="A file for each slot, in list order and file-name order"
+          onClick={async () => { const f = await pickAudio(true); if (f) actions.fillSources(usable, f, slots(usable.length)); }}><FillPieceIcon />Choose files…</button>
+        <button className="btn" disabled={!toSilence.length} onClick={() => actions.silence(toSilence, true)} data-tip-cmd="silence"
+          data-tip={toSilence.length ? "Play nothing in these slots" : usable.length ? "Already silent" : "Never played, or do not touch"}>
+          <SilenceIcon />Replace {toSilence.length > 0 && toSilence.length < sources.length ? `${slots(toSilence.length)} ` : ""}with silence</button>
+      </section>
       {files.length > 0 && (
         <Gain sources={files} value={files.every((s) => a[s].gain_db === a[files[0]].gain_db) ? a[files[0]].gain_db : null}
-          title={`Make-Up Gain${files.length < sources.length ? ` of the ${files.length} replaced` : ""}`} />
+          note={files.length < sources.length ? `Applies to the ${slots(files.length)} with new audio.` : undefined} />
       )}
       {silent.length > 0 && (
         <section className="insp-sec">
@@ -448,24 +462,12 @@ function Bulk({ sources, usable }: { sources: string[]; usable: string[] }) {
           </label>
         </section>
       )}
-      {!mine.length && <p className="insp-empty">None of these is replaced yet.</p>}
-      <section className="insp-sec">
-        <div className="row-btns">
-          <button className="btn" disabled={!usable.length} data-tip={`The same file in all ${slots(usable.length)}`}
-            onClick={async () => { const f = (await pickAudio(false))?.[0]; if (f) actions.assignAll(usable, f); }}>Choose one file for all…</button>
-          <button className="btn" disabled={!usable.length} data-tip="A file for each slot, in list order and file-name order"
-            onClick={async () => { const f = await pickAudio(true); if (f) actions.fillSources(usable, f, slots(usable.length)); }}>Choose files…</button>
-        </div>
-        <div className="row-btns">
-          <button className="btn" disabled={!toSilence.length} onClick={() => actions.silence(toSilence, true)} data-tip-cmd="silence"
-            data-tip={toSilence.length ? "Play nothing in these slots" : usable.length ? "Already silent" : "Never played, or do not touch"}>
-            Replace {toSilence.length > 0 && toSilence.length < sources.length ? `${slots(toSilence.length)} ` : ""}with silence</button>
-          {mine.length > 0 && (
-            <button className="btn quiet" onClick={() => actions.unassign(mine)}>
-              Remove {silent.length === mine.length ? "the silence" : "the new audio"} from {slots(mine.length)}</button>
-          )}
-        </div>
-      </section>
+      {mine.length > 0 ? (
+        <section className="insp-sec insp-actions">
+          <button className="btn quiet" onClick={() => actions.unassign(mine)}>
+            <ClearIcon />Remove {silent.length === mine.length ? "the silence" : "the new audio"} from {slots(mine.length)}</button>
+        </section>
+      ) : <p className="insp-empty insp-sec">None of these is replaced yet.</p>}
     </aside>
   );
 }

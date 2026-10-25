@@ -12,6 +12,7 @@ import { Help } from "./Wiki";
 const fileName = (path: string) => path.split(/[\\/]/).pop()!;
 /** Problems that the Project tab fixes (the core's Project.problems): the name, the icon, the mod id. */
 const ON_PROJECT_TAB = /^(name "|icon: |mod id: )/;
+const MISSING = /: the audio file wasn't found \(/; // core project.py: a file the project uses is gone
 
 /** Why a typed version can't be used, or null. */
 function versionProblem(v: string): string | null {
@@ -23,7 +24,8 @@ function versionProblem(v: string): string | null {
 export function BuildTab() {
   const { project } = useEditor();
   return (
-    <Page title="Build" wide lead={<>A build is a ZIP to install with a mod manager. <Help tip="Building and installing" page="build-and-install" /></>}>
+    <Page title="Build" wide lead={<>A build is a ZIP to install with a mod manager.{" "}
+      <Help tip="Import the ZIP in a mod manager, then deploy it to hear the mod in the game" page="build-and-install" /></>}>
       {project ? <BuildPage key={project.path} /> : <NoProjectCard text="Open a project to build it." />}
     </Page>
   );
@@ -91,7 +93,8 @@ function BuildBox() {
         <div className="warn-box">
           <b>Fix {p.problems.length === 1 ? "this" : "these"} before building</b>
           <ul className="problems">{p.problems.map((x, i) => (
-            <li key={i}>{x}{ON_PROJECT_TAB.test(x) && <> <button className="link-inline" onClick={() => nav.go("project")}>Project tab</button></>}</li>
+            <li key={i}>{x}{ON_PROJECT_TAB.test(x) && <> <button className="link-inline" onClick={() => nav.go("project")}>Project tab</button></>}
+              {MISSING.test(x) && <> <Help tip="Put the file back where it was, or choose another file on the slot in the Audio tab" page="project-folders#missing-files" /></>}</li>
           ))}</ul>
           {p.unresolved.length > 0 && (
             <button className="btn" onClick={() => actions.unassign(p.unresolved.map((u) => u.target))}>
@@ -125,7 +128,7 @@ function BuildBox() {
           <button className="link-inline" onClick={() => reveal(p.last_build!.zip)}>Show in folder</button></p>
       )}
       {p.last_build && p.game_updated && (
-        <p className="warn-box">The game updated after this build, so its sound banks are outdated. Build again before playing or sharing it.
+        <p className="warn-box">The game updated after this build, so the sound banks in the ZIP are outdated. Build again before playing or sharing it.
           {" "}<Help tip="An older build can mute sounds it never changed, like all gunfire." page="repatching#shared-settings-from-an-older-game-version" /></p>
       )}
     </div>
@@ -143,11 +146,11 @@ function BuildOptions() {
       <div className="set-list">
         <label className="check">
           <input type="checkbox" checked={s.bumpVersion} onChange={(e) => settings.set({ bumpVersion: e.target.checked })} />
-          <span>Raise the version after each build <Help tip="The mod manager then sees every build as an update." page="build-and-install#build-options" /></span>
+          <span>Raise the version after each build <Help tip="Each build then gets a new ZIP name, and the earlier ZIPs stay. With it off, the next build replaces the last ZIP." page="build-and-install#build-options" /></span>
         </label>
         <label className="check">
           <input type="checkbox" checked={s.revealBuild} onChange={(e) => settings.set({ revealBuild: e.target.checked })} />
-          <span>Show the ZIP in its folder when a build finishes</span>
+          <span>Show the ZIP in Explorer when a build finishes</span>
         </label>
         <label className="check" data-tip={missing && !p.loudness_analysis ? missing : undefined}>
           <input type="checkbox" checked={p.loudness_analysis} disabled={!!missing && !p.loudness_analysis}
@@ -173,7 +176,8 @@ function Log() {
       {list.length ? (
         <div className="log">{list.map((j) => <LogJob key={j.id} job={j} />)}</div>
       ) : <p className="set-note">This session's builds, imports and exports.</p>}
-      {status?.log && <button className="link-inline log-file" onClick={() => reveal(status.log)}>Show the core log file</button>}
+      {status?.log && <button className="link-inline log-file" onClick={() => reveal(status.log)}
+        data-tip="Show the log file in Explorer" data-tip-more="Attach it to a bug report">Show the log file</button>}
     </section>
   );
 }

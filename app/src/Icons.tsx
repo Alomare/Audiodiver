@@ -79,6 +79,8 @@ export const ExportIcon = () => (
 );
 /** Skip forward: a short silence instead, so the next music comes at once. */
 export const SkipIcon = () => <Icon><path d="M6 6.5v11l8.5-5.5z" /><path d="M18 6.5v11" /></Icon>;
+/** A speaker with a cross: silence in place of the original. */
+export const SilenceIcon = () => <Icon><path d="M4.5 9.5h3l4.5-4v13l-4.5-4h-3z" /><path d="m16 9.5 5 5m0-5-5 5" /></Icon>;
 /** Skip forward twice: every part at once. */
 export const SkipAllIcon = () => <Icon><path d="M3.5 6.5v11l6.5-5.5zM11 6.5v11l6.5-5.5z" /><path d="M20.5 6.5v11" /></Icon>;
 /** An eraser: the new audio taken off. */
@@ -96,6 +98,8 @@ export const ExternalIcon = () => <Icon size={0.85}><path d="M10 5H5v14h14v-5" /
 
 export const PrevIcon = () => <Icon size={0.95}><path d="m14.5 6-6 6 6 6" /></Icon>;
 export const NextIcon = () => <Icon size={0.95}><path d="m9.5 6 6 6-6 6" /></Icon>;
+export const UpIcon = () => <Icon size={0.95}><path d="m6 14.5 6-6 6 6" /></Icon>;
+export const DownIcon = () => <Icon size={0.95}><path d="m6 9.5 6 6 6-6" /></Icon>;
 
 /** Discord's logo, filled and unchanged (their brand rules): it marks the button to the modding community's server. */
 export const DiscordIcon = () => (

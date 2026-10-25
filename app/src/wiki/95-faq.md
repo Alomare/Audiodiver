@@ -1,5 +1,5 @@
 ---
-title: Frequently asked questions
+title: Frequently Asked Questions
 group: FAQ
 summary: Short answers to common questions, each with a link to the page that covers it in full.
 ---
@@ -8,23 +8,23 @@ summary: Short answers to common questions, each with a link to the page that co
 
 ### How accurate is the Library Index?
 
-The music is the most reliable part. Helldivers 2 names the states that choose its music, such as the screen, the enemy, and whether a fight is on, and the Index sorts the music by those names. Sound sets, weapons and clip labels come from research by the modding community, listed in [About ▸ Credits](app:about), and some of those names are educated guesses. Voice lines are named after the subtitle that matches their words, and a line whose subtitle isn't certain says **one of several**.
+The music is the most reliable part. Helldivers 2 names the states that choose the music, such as the screen, the enemy, and whether a fight is on, and the Index sorts the music by those names. Sound sets, weapons and clip labels come from research by the modding community, listed in [About ▸ Credits](app:about), and some of those names are educated guesses. Voice lines are named after the subtitle that matches their words, and a line whose subtitle isn't certain says **one of several**.
 
 A sound without a name shows as *Sound 3* or *Take 2*. [Game audio, explained](wiki:game-audio#why-many-things-are-called-sound-3-or-take-2) says why. To report a wrong or missing name, use the [Wrong or missing name](https://github.com/Alomare/Audiodiver/issues/new?template=wrong_name.yml) form on GitHub.
 
 ### How does Audiodiver know what music plays in which scenario?
 
-The game chooses its music with named states: the ship, the drop, the enemy faction, exploring, a battle and how heavy it is. Audiodiver reads those states and the rules that switch between them from the sound banks, and lists the music in the order a mission meets it, from *On the Ship* to *Credits*. Music that no state places is listed under *Not identified yet*. Transitions are named by what they connect, and stingers by what they play over. The order inside a piece of music comes from its playlist, which the [Soundtrack](wiki:soundtrack) shows.
+The game chooses music with named states: the ship, the drop, the enemy faction, exploring, a battle and how heavy it is. Audiodiver reads those states and the rules that switch between them from the sound banks, and lists the music in the order a mission meets it, from *On the Ship* to *Credits*. Music that no state places is listed under *Not identified yet*. Transitions are named by what they connect, and stingers by what they play over. The order inside a piece of music comes from the playlist of the piece, which the [Soundtrack](wiki:soundtrack) shows.
 
 ### What are slots, segments and takes?
 
-A **slot** is one clip that can be replaced. Music is made of **segments** that play one after another, each with one or more slots. A sound plays one of its **takes** each time. [Game audio, explained](wiki:game-audio) has the full glossary.
+A **slot** is one clip that can be replaced. Music is made of **segments** that play one after another, each with one or more slots. A sound has **takes** and plays one of them each time. [Game audio, explained](wiki:game-audio) has the full glossary.
 
 ## Making a mod
 
 ### How can I add new audio to existing segments?
 
-Drop an audio file on a segment's slot in the [Audio](app:editor) tab. The new audio replaces the original, and the segment's timing follows the new length ([Timing, cue points and loops](wiki:timing-and-loops#fitting-the-timing-to-the-new-audio)). Several files dropped on a piece fill its slots in play order. To put one song across a whole piece, use **Slice a song**, or **One song** in the [Soundtrack](wiki:soundtrack#one-song). For a playlist of whole songs, use **Playlist** there.
+Drop an audio file on a segment's slot in the [Audio](app:editor) tab. The new audio replaces the original, and the segment's timing follows the new length ([Timing, cue points and loops](wiki:timing-and-loops#fitting-the-timing-to-the-new-audio)). Several files dropped on a piece fill the slots in play order. To put one song across a whole piece, use **Slice a song**, or **One song** in the [Soundtrack](wiki:soundtrack#one-song). For a playlist of whole songs, use **Playlist** there.
 
 Music can't get extra takes or layers. Those are for sounds and voices, see [Adding audio](wiki:adding-audio).
 

@@ -44,8 +44,8 @@ To slice a song:
 1. Choose the slots in **From** and **To**. Each segment between them gets one piece, and **To** lists how many pieces that makes.
 2. Place the cuts. **Original proportions** spreads the original lengths over the whole song. **Original lengths** cuts at exactly the original lengths, so the last piece can end before the song does. **Even** cuts the song into equal pieces.
 3. Adjust the cuts. Drag a cut to move it, and hold Shift to stop it from snapping to the original length. Double-click the song to add a cut. Select a cut and press Delete to remove it, or nudge it with ←/→ (Shift moves 100 ms, Alt moves 1 ms). **Start** and **End** can skip an intro or an outro.
-4. Listen. **Song** plays the song, and **Originals** plays the original audio of the slots one after another. Click the song or the original to play from that point, or press ▶ on a piece or its original in the table. Space plays and pauses.
-5. Zoom with Ctrl+wheel or the buttons. Scroll with the wheel or the strip under the lanes. Click a row of the table to bring its piece into view.
+4. Listen. **Song** plays the song, and **Originals** plays the original audio of the slots one after another. Click the song or the original to play from that point, or press ▶ on a piece or on the original beside it in the table. Space plays and pauses.
+5. Zoom with Ctrl+wheel or the buttons. Scroll with the wheel or the strip under the lanes. Click a row of the table to bring that piece into view.
 6. Press **Slice and fill**. Audiodiver saves the pieces in the `audio\slices` folder of the project and fills the slots.
 
 Audiodiver keeps the cuts for each song, so you can slice the same song again from where you left off.

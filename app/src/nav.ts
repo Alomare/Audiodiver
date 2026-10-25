@@ -1,9 +1,9 @@
 import { useSyncExternalStore } from "react";
 import { UTILS } from "./edition";
 
-/** Which master tab shows. Home and Tools lead the tab bar, then Project, Library, Audio, Soundtrack, Text and Build
-    in the project's band (App.tsx Rail); Updates, Wiki and Settings sit at its end, and those lead back to where you
-    were when pressed again. In the code, Audio is `editor`. */
+/** Which master tab shows. Home and Tools lead the tab bar, then Project, Library, Audio, Soundtrack and Text in the
+    project's band, then Build while a project is open (App.tsx Rail); Updates, Wiki and Settings sit at its end, and
+    those lead back to where you were when pressed again. In the code, Audio is `editor`. */
 export type Tab = "home" | "project" | "library" | "editor" | "soundtrack" | "text" | "build" | "tools" | "updates" | "settings" | "wiki";
 export type SettingsTab = "system" | "shortcuts" | "theme";
 export type LibraryTab = "index" | "archives";
@@ -41,8 +41,15 @@ function lastWikiPage(): string {
 
 const START: Tab = UTILS ? "tools" : "home"; // Audiodiver Utils has no Home
 let current: Nav = { tab: START, settings: "system", library: lastLibraryTab(), tools: "repatch", wiki: lastWikiPage(), anchor: "", from: START, origin: {} };
-let hidden = new Set<Tab>(); // the hideable tabs that are off now (App.tsx keeps it up to date)
+let off: readonly Tab[] = []; // the hideable tabs that are off now (App.tsx keeps it up to date)
+let open = false;             // a project is open: Build shows only then (the store keeps it up to date)
+let hidden = new Set<Tab>(["build"]);
 const listeners = new Set<() => void>();
+/** The tabs out of the bar now; the one that shows, if hidden, moves to the Project tab. */
+function hide() {
+  hidden = new Set<Tab>(open ? off : [...off, "build"]);
+  if (hidden.has(current.tab)) nav.go("project");
+}
 
 export const nav = {
   get: () => current,
@@ -81,10 +88,9 @@ export const nav = {
   },
   /** The hideable tabs that show now (the open project's choice, else Settings'). A hidden tab that shows moves
       to the Project tab. */
-  setShown(shown: readonly Hideable[]) {
-    hidden = new Set(HIDEABLE.filter((t) => !shown.includes(t)));
-    if (hidden.has(current.tab)) nav.go("project");
-  },
+  setShown(shown: readonly Hideable[]) { off = HIDEABLE.filter((t) => !shown.includes(t)); hide(); },
+  /** Whether a project is open, which Build needs. */
+  setProject(isOpen: boolean) { open = isOpen; hide(); },
   /** Whether a tab is in the tab bar now. */
   shown: (tab: Tab) => !hidden.has(tab),
   /** Where a project opens: Audio, else the first hideable tab that shows, else the Project tab. */

@@ -16,7 +16,7 @@ The game's music is at about **−13 to −15 LUFS** (integrated loudness). Musi
 
 - Measure loudness with a loudness meter. The height of the waveform is a poor guide. [Tools and links](wiki:tools-and-links) lists free meters.
 - Keep peaks below about **−1 dBTP** so that the conversion doesn't clip.
-- If a slot still sounds too quiet or too loud in game, change its Make-Up Gain instead of exporting the file again. See [Make-Up Gain and the mix](wiki:volume).
+- If a slot still sounds too quiet or too loud in game, change the Make-Up Gain of the slot instead of exporting the file again. See [Make-Up Gain and the mix](wiki:volume).
 
 ## Length and cuts
 

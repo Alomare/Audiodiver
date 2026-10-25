@@ -15,8 +15,10 @@ export function ToolsTab() {
   const { tools: sub } = useNav();
   return (
     <Page title="Tools" wide lead={sub === "repatch"
-      ? <>Rebuild an audio mod made for an older version of the game, or by another tool. <Help tip="Repatching" page="repatching" /></>
-      : <>Make one mod out of several audio mods, built on the current game. <Help tip="Combining mods" page="combining-mods" /></>}>
+      ? <>Rebuild an audio mod made for an older version of the game, or by another tool.{" "}
+        <Help tip="A mod holds copies of the sound banks from the game version it was made for. Repatching puts the mod's audio into the current banks" page="repatching" /></>
+      : <>Make one mod out of several audio mods, built on the current game.{" "}
+        <Help tip="When two mods change the same sound bank, only the one deployed later plays. Combining puts both into one mod" page="combining-mods" /></>}>
       <div className="sub-tabs" role="tablist" aria-label="Tools" onKeyDown={tabArrows}>
         {SUBS.map(([id, name, about]) => (
           <button key={id} role="tab" aria-selected={sub === id} className={sub === id ? "on" : ""} data-tip={about}

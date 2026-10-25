@@ -72,6 +72,7 @@ export const FIXED: [string, string][] = [
   ["Right-click", "every other action"],
   ["Drop files on a piece, a part or a slot in the Audio tab", "fill it, in file-name order"],
   ["Drop files on a place of a playlist in the Soundtrack", "put the songs there and in the places after it"],
+  ["Drag a song in a playlist", "move it to another place"],
   ["↑ ↓ then Enter in the search box", "open a match"],
   ["Mouse back / forward", "go back or forward"],
   ["Esc", "close a dialog or a menu"],

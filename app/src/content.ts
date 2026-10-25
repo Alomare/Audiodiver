@@ -73,6 +73,9 @@ export const CREDITS: { group: string; items: Credit[] }[] = [
     { name: "Home art", by: ART_CREDIT.name, url: ART_CREDIT.url, for: ART_CREDIT.for },
     { name: "Archivo, Noto Serif and Roboto Mono", url: "https://openfontlicense.org", licence: "SIL Open Font License", for: "the typefaces" },
   ] },
+  { group: "News", items: [
+    { name: "Divershub", url: "https://divershub.app", for: "the ticker of war news along the bottom of Home" },
+  ] },
 ];
 
 // ---- the Wiki. A page is one Markdown file, listed in file-name order ("20-preparing-audio.md" before "30-…"). It starts

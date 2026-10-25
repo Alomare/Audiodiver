@@ -19,8 +19,8 @@ const FOLDER_KEY = "audiodiver.exportFolder";
 const PREFS_KEY = "audiodiver.exportPrefs";
 const WHAT: { id: What; title: string; text: string }[] = [
   { id: "slots", title: "Each slot", text: "Each slot as a separate, unchanged file" },
-  { id: "segments", title: "Each segment", text: "Each segment with its layers mixed, as the game plays it" },
-  { id: "cue", title: "The whole cue", text: "One track with the segments in play order, joined at their Exit points" },
+  { id: "segments", title: "Each segment", text: "Each segment as one file, with the layers mixed" },
+  { id: "cue", title: "The whole piece", text: "One track with the segments in play order, joined at their Exit points" },
 ];
 const FORMATS = [
   { id: "wav", name: "WAV (24-bit)" }, { id: "flac", name: "FLAC (lossless, smaller)" },
@@ -116,7 +116,7 @@ export function ExportListDialog({ onClose }: { onClose: () => void }) {
             <div className="segmented" role="radiogroup" aria-label="Audio">
               {SIDES.map(([id, name]) => (
                 <button key={id} role="radio" aria-checked={side === id} className={side === id ? "on" : ""} disabled={id !== "game" && !project}
-                  onClick={() => setWhose(id)}>{name}</button>
+                  onClick={() => setWhose(id)} data-tip={id === "both" ? "Files of both, named (original) and (replaced)" : undefined}>{name}</button>
               ))}
             </div>
             {!project && <small>Open a project to export the replaced audio.</small>}
@@ -223,6 +223,7 @@ export function ExportForm({ onDone, onCancel }: { onDone?: () => void; onCancel
                 </button>
               ))}
             </div>
+            <small>{WHAT.find((w) => w.id === what)?.text}.</small>
           </div>
         ) : (
           <p className="set-note">
@@ -235,7 +236,8 @@ export function ExportForm({ onDone, onCancel }: { onDone?: () => void; onCancel
             <div className="segmented" role="radiogroup" aria-label="Audio">
               {SIDES.map(([id, name]) => (
                 <button key={id} role="radio" aria-checked={side === id} className={side === id ? "on" : ""} disabled={id !== "game" && !canMine}
-                  onClick={() => setWhose(id)} data-tip={id === "mine" && kind !== "slots" ? "As the mod plays it, with Make-Up Gain, timing and cue points" : undefined}>{name}</button>
+                  onClick={() => setWhose(id)} data-tip={id === "mine" && kind !== "slots" ? "As the mod plays it, with Make-Up Gain, timing and cue points"
+                    : id === "both" ? "Files of both, named (original) and (replaced)" : undefined}>{name}</button>
               ))}
             </div>
             {(readOnly || !project || !canMine) && <small>{readOnly ? "The replaced audio exports from the Audio tab." : !project ? "Open a project to export the replaced audio."
@@ -252,7 +254,8 @@ export function ExportForm({ onDone, onCancel }: { onDone?: () => void; onCancel
         {(groups.length > 0 || kind !== "slots" || selected.length > 1) && (
           <div className="field export-more">
             {groups.map((g) => (
-              <label key={g.group} className="inline">Variant ({g.name})
+              <label key={g.group} className="inline">Variant ({g.name}){" "}
+                <Help tip="Some slots play only under a condition, such as a biome. The export uses the one chosen here" page="how-the-game-plays-music#variants" />
                 <select disabled={allVariants} value={variants[g.group] ?? g.values[0].value}
                   onChange={(e) => setVariants({ ...variants, [g.group]: e.target.value })}>
                   {g.values.map((v) => <option key={v.value} value={v.value}>{v.name}</option>)}

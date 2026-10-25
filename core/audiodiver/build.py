@@ -163,7 +163,7 @@ def text_tables(project: Project, texts, log=print) -> dict[int, bytes]:
         try:
             live = texts.table(fid).texts
         except KeyError:
-            log(f"text: table {fid} is not in this game version; its {len(edits)} lines are left out")
+            log(f"text: table {fid} is not in this game version; the {len(edits)} lines changed in it are left out")
             continue
         changed = [i for i, t in edits.items() if i in live and t.was and live[i] != t.was]
         if changed:

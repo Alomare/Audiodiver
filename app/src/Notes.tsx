@@ -48,7 +48,7 @@ export function NoteSection({ k, name }: { k: string; name: string }) {
 
   return (
     <section className="insp-sec note-sec" aria-label="Note">
-      <h3>Note <Help tip="A note saved in the project. Markdown formats headings, lists, bold and links." page="reading-the-screen#notes" /></h3>
+      <h3>Note <Help tip="A note kept in the project file. Builds leave notes out. A note on a slot shows wherever the clip plays. Markdown formats headings, lists, bold and links." page="reading-the-screen#notes" /></h3>
       {!has && <div className="row-btns"><button className="btn quiet" onClick={() => setEditing(true)}>Add note</button></div>}
       {editing && (
         <div className="note-editor" onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) save(); }}>

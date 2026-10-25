@@ -83,7 +83,6 @@ function UpdateCard({ u }: { u: UpdateState }) {
           <Logo detail />
           <div className="upd-app-name">
             <b>Audiodiver {APP_LABEL}</b>
-            <span className="upd-ver">{APP_VERSION}</span>
           </div>
           {/* after GitHub's hourly limit, another check now would only fail again */}
           <button className={`btn${u.phase === "failed" ? "" : " quiet"}`} disabled={u.phase === "checking" || working || limited}
@@ -166,7 +165,6 @@ function Changelog({ releases, waiting, failed }: { releases: RemoteRelease[]; w
                 <button className="upd-entry-head" aria-expanded={shown} onClick={() => setOpen((o) => ({ ...o, [e.version]: !shown }))}>
                   <span className="caret" aria-hidden>▸</span>
                   <b>{versionLabel(e.version)}</b>
-                  <span className="upd-ver">{e.version}</span>
                   {e.when === "new" && <span className="upd-badge new">New</span>}
                   {e.when === "installed" && <span className="upd-badge installed">Installed</span>}
                   <span className="spacer" />

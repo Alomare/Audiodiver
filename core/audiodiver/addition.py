@@ -536,7 +536,7 @@ def check(patched: tuple, vanilla: tuple, here: BankPlan) -> list[str]:
         if hirc.get(lay.id, (None,))[0] != RANSEQ:
             problems.append(f"layer {lay.id} isn't a container")
         elif ptype in (SWITCH, LAYER, MIXER) and parent in hirc and lay.id not in children(ptype, hirc[parent][1]):
-            problems.append(f"layer {lay.id} isn't in its parent {parent}")
+            problems.append(f"layer {lay.id} isn't a child of {parent}")
     for lay_id, _action, twin in here.actions:
         t, body = hirc.get(twin, (None, b""))
         if t != ACTION or play_target(body) != lay_id:
@@ -552,7 +552,7 @@ def check(patched: tuple, vanilla: tuple, here: BankPlan) -> list[str]:
     for o in here.own:
         t, body = hirc.get(o.sound, (None, b""))
         if t != SOUND or wbank.SOURCE.unpack_from(body, 0)[2] != o.source:
-            problems.append(f"Sound {o.sound} doesn't play its own clip {o.source}")
+            problems.append(f"Sound {o.sound} doesn't play the clip {o.source} made for it")
     for sid, wem in here.media.items():
         if media.get(sid) != wem:
             problems.append(f"new clip {sid} isn't held whole")
@@ -826,6 +826,6 @@ def from_patch(ix, d: dict) -> Found:
         other = [i for t, i in b["objects"] if i not in explained]
         if other:
             out.left.append(f"{len(other)} other change{'s' if len(other) != 1 else ''} in bank {bid} (settings such as "
-                            f"effects, positioning or how a container picks its sounds)")
+                            f"effects, positioning or how a container picks sounds)")
         # objects the copy doesn't have aren't listed: mods don't take the game's out, so the game added them since
     return out

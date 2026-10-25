@@ -21,7 +21,7 @@ A mod's patch contains complete copies of the sound banks it changes, as they we
 
 The page then sums up the result: what was carried over, what was kept as it was, and what was left out. **Show all** lists every patch and the log. **Repatch another mod** clears the page.
 
-Some mods have several options, with one patch for each. Such a mod stays one mod with the same options. The page counts the patches, and Audiodiver rebuilds each patch that holds audio in its original place. A patch without audio, such as an option that only changes a texture, stays as it is. **Show all** lists them one by one.
+Some mods have several options, with one patch for each. Such a mod stays one mod with the same options. The page counts the patches, and Audiodiver rebuilds each patch that holds audio where it was. A patch without audio, such as an option that only changes a texture, stays as it is. **Show all** lists them one by one.
 
 Some mods have several patch files in one folder, such as `.patch_0`, `.patch_1` and `.patch_2`. The game loads them over each other as one mod. Audiodiver reads them in the same order and builds them into one patch.
 
@@ -56,7 +56,7 @@ To change a mod further, make a project and import the mod's patch into it, as [
 
 ## What repatching leaves out
 
-A mod's copy of a bank can also have different effects or positioning, or a different way for a container to pick its sounds. Most of these differences come from the banks as they were when the mod was made, before later updates changed them. Audiodiver leaves them out, and the page lists them. A difference that Audiodiver knows from an earlier game version isn't listed. If the repatched mod sounds different, compare it with the old version in game.
+A mod's copy of a bank can also have different effects or positioning, or a different way for a container to pick sounds. Most of these differences come from the banks as they were when the mod was made, before later updates changed them. Audiodiver leaves them out, and the page lists them. A difference that Audiodiver knows from an earlier game version isn't listed. If the repatched mod sounds different, compare it with the old version in game.
 
 Text, models and textures go in unchanged. A string table holds every line of the table, so a table from an older game version also brings back that version's lines, as the old mod did.
 
@@ -65,7 +65,7 @@ Sound settings are copied as they were. One of them may override a value that th
 > [!NOTE]
 > Audiodiver keeps track of what each game update changes, starting with the update of 20 October 2026. For a mod made before that update, some items under **Left out** and some of the copied settings can be Original values from that time that the mod didn't change.
 
-In a mod with several options, a patch with audio that can't be repatched stays in the ZIP unchanged, and the page names it. This happens when its sound banks can't be read, or hold nothing that Audiodiver can bring over.
+In a mod with several options, a patch with audio that can't be repatched stays in the ZIP unchanged, and the page names it. This happens when the sound banks in the patch can't be read, or hold nothing that Audiodiver can bring over.
 
 ## Sounds from an older game version
 
@@ -84,7 +84,7 @@ If the mod replaced the audio of a sound that the game has since removed, there 
 
 Many sounds take their volume, priority and other settings from groups shared between banks. Every weapon sound goes through one group that is in more than a hundred banks. A mod's bank copy has these groups as they were when the mod was made. When the game loads that bank, the old copy of a group can replace the current one, and every sound in the group changes with it. After the update of 20 October 2026, mods like this silenced all gunfire.
 
-Updates change the curves, effects and mix settings of these groups, such as priority. Mods change at most the volume, pitch, filters and delay. When a group in the mod differs in curves or effects, Audiodiver treats it as an older game version and keeps the current group. From the other settings of a shared group, it takes only the volume, pitch, filters and delay, and keeps the current values for the rest. A setting that the current game has and the mod lacks came with a later update. A shared copy without it is from an older game version, so none of its settings are carried over. The page shows how many sound objects were updated this way. [Importing a mod's patch](wiki:game-updates) works the same.
+Updates change the curves, effects and mix settings of these groups, such as priority. Mods change at most the volume, pitch, filters and delay. When a group in the mod differs in curves or effects, Audiodiver treats it as an older game version and keeps the current group. From the other settings of a shared group, it takes only the volume, pitch, filters and delay, and keeps the current values for the rest. A setting that the current game has and the mod lacks came with a later update. A shared copy without it is from an older game version, so none of the settings in that copy are carried over. The page shows how many sound objects were updated this way. [Importing a mod's patch](wiki:game-updates) works the same.
 
 A mod can have these old copies even when it was updated after the game. Some modding tools carry the mod's settings over to the new banks, and with them the old values of the shared groups. The installed mods check finds these as well.
 
@@ -92,7 +92,7 @@ A mod built with Audiodiver has the same copies. Build it again after every game
 
 ## Installing the result
 
-Import the new ZIP in the mod manager. If the page says the mod kept its id, the new ZIP replaces the old mod. Otherwise, remove the old mod first.
+Import the new ZIP in the mod manager. If the page says the mod id was kept, the new ZIP replaces the old mod. Otherwise, remove the old mod first.
 
 > [!NOTE]
 > A repatched mod is still the author's work. Keep it for personal use, and share it only with the author's permission. Better still, point the author to Audiodiver to update the mod.

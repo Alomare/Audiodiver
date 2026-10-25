@@ -1,4 +1,5 @@
 """Unit tests (no game needed) and golden builds of the three mods (marked `game`; need the installed game)."""
+import ast
 import hashlib
 import json
 import re
@@ -35,7 +36,29 @@ def test_clip_notes_merge_by_clip():
 
 # the app's wording (app/README.md, Writing): what the screen shows names no people or sources (they are in
 # About ▸ Credits), says nothing about testing, and speaks of the original and the new audio
-SHOWN_NOT = re.compile(r"geoffrey|dekr0|community|\btested\b|untested|\byours?\b|\bmy audio\b", re.I)
+SHOWN_NOT = re.compile(r"geoffrey|dekr0|community|\btested\b|untested|\byours?\b|\bmy audio\b|\bits\b", re.I)
+ITS = re.compile(r"\bits\b", re.I)
+
+
+def test_no_its_in_shown_text():
+    """"its" never shows (the user's rule): not in the Wiki or the changelog, the app's strings or the core's messages.
+    Comments and docstrings aren't shown. The game's own lines (subtitles, voice transcriptions) are quotes."""
+    app = HERE.parents[1] / "app"
+    found = []
+    for f in [*sorted((app / "src" / "wiki").glob("*.md")), app / "CHANGELOG.md"]:
+        found += [f"{f.name}:{i}" for i, line in enumerate(f.read_text(encoding="utf-8").splitlines(), 1) if ITS.search(line)]
+    for f in sorted((app / "src").glob("*.ts*")):
+        code = re.sub(r"/\*.*?\*/", "", f.read_text(encoding="utf-8"), flags=re.S)
+        code = re.sub(r"(?<![:\\])//[^\n]*", "", code)
+        found += [f"{f.name}: {m.group(0).strip()}" for m in re.finditer(r"[^\n]*\bits\b[^\n]*", code, re.I)]
+    for f in sorted((HERE.parent / "audiodiver").glob("*.py")):
+        tree = ast.parse(f.read_text(encoding="utf-8"))
+        docs = {id(n.body[0].value) for n in ast.walk(tree)
+                if isinstance(n, (ast.Module, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) and n.body
+                and isinstance(n.body[0], ast.Expr) and isinstance(n.body[0].value, ast.Constant)}
+        found += [f"{f.name}:{n.lineno}" for n in ast.walk(tree)
+                  if isinstance(n, ast.Constant) and isinstance(n.value, str) and id(n) not in docs and ITS.search(n.value)]
+    assert found == []
 
 
 def test_shown_data_texts_keep_the_writing_rules():

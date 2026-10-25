@@ -280,7 +280,7 @@ function useEditorState() {
     if (changed) { coreRevision.current = rev; editSeq.current++; }
     setProject(p);
     notes.setProject(p?.notes);
-    if (!UTILS) tabs.setShown(p?.tabs ?? settings.get().tabs); // before any tab opens for it
+    if (!UTILS) { tabs.setProject(!!p); tabs.setShown(p?.tabs ?? settings.get().tabs); } // before any tab opens for it
     // previews and waveforms are fetched again only when the audio itself may have changed: another file, silence,
     // the icon, or files chosen again (they may have been rewritten on disk: a song cut again). A gain or a cue point
     // keeps them.

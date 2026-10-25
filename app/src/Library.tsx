@@ -241,6 +241,7 @@ function ArchiveList() {
     <>
       <div className="lib-search">
         <input type="search" placeholder={`Search, or paste an id${searchKey ? `  ( ${searchKey} )` : ""}`} value={query} onChange={(e) => setQuery(e.target.value)}
+          data-tip="Names, categories, languages or an archive name" data-tip-more="Or paste a source, stream or bank id to find the archives that hold it"
           aria-label="Search the archives" onKeyDown={(e) => {
             if (e.key === "Escape") { if (query) setQuery(""); else e.currentTarget.blur(); }
             else if (e.key === "Enter" && sorted.length) { e.preventDefault(); openItem(`archive:${sorted[0].id}`); }
@@ -280,7 +281,8 @@ function ArchiveList() {
                   </td>
                   <td className="arc-name-cell">
                     <button className="arc-open" onClick={(e) => { e.stopPropagation(); openItem(id); }}>
-                      <span className="arc-name" data-tip={a.names.length ? name : undefined} data-tip-clip>{a.names.length ? name : "Not named yet"}</span>
+                      <span className="arc-name" data-tip={a.names.length ? name : "The Index has no name for this archive"} data-tip-clip={a.names.length ? true : undefined}
+                        data-tip-more={a.names.length ? undefined : "Play the sample or open it to hear what it holds"}>{a.names.length ? name : "Not named yet"}</span>
                     </button>
                   </td>
                   <td className="arc-cats">{(() => {

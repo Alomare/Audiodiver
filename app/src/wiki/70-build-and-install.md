@@ -6,7 +6,7 @@ summary: What a build makes, how to install it with a mod manager, and how updat
 
 ## Building
 
-On [Build](app:build), press **Build** ({key:build}). Audiodiver converts the new audio for the game and patches the sound banks that hold or play the replaced sounds ([which ones](#every-bank-with-the-sounds)). It then checks the result and packs it into a ZIP named after the mod and its version.
+On [Build](app:build), press **Build** ({key:build}). Audiodiver converts the new audio for the game and patches the sound banks that hold or play the replaced sounds ([which ones](#every-bank-with-the-sounds)). It then checks the result and packs it into a ZIP named after the mod name and version.
 
 Building doesn't change the project, the audio files or the game.
 
@@ -30,18 +30,18 @@ Use only letters, digits and spaces in the name, and leave the version out. The 
 
 ### Icon
 
-The icon is the default Audiodiver icon until you choose an image. An image is cropped to a square around its centre and resized to 540 × 540, the size mod managers use. You can also drop an image on the preview. **Border**, **Border colour** and **Corners** frame the icon, default or chosen.
+The icon is the default Audiodiver icon until you choose an image. An image is cropped to a square around the centre and resized to 540 × 540, the size mod managers use. You can also drop an image on the preview. **Border**, **Border colour** and **Corners** frame the icon, default or chosen.
 
 ### Mod id
 
-A mod manager recognises a mod by its id. While the id stays the same, a new build updates the installed mod. When you copy a project to make a different mod, press **Make a new id**, and the copy installs as a separate mod.
+A mod manager recognises a mod by the mod id. While the id stays the same, a new build updates the installed mod. When you copy a project to make a different mod, press **Make a new id**, and the copy installs as a separate mod.
 
 ## Build options
 
 These settings are under **Build options** on the Build tab.
 
-- **Raise the version after each build** makes every build an update in the mod manager. It applies to all projects.
-- **Show the ZIP in its folder when a build finishes** opens the folder in Explorer.
+- **Raise the version after each build** gives each build a new ZIP name, and the earlier ZIPs stay. With it off, the next build replaces the last ZIP. The [mod id](wiki:build-and-install#mod-id), not the version, decides whether a mod manager takes a build as an update. The setting applies to all projects.
+- **Show the ZIP in Explorer when a build finishes** opens Explorer with the ZIP selected.
 
 ### Wwise loudness analysis
 

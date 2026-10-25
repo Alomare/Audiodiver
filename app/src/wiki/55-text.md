@@ -8,7 +8,7 @@ The [Text](app:text) tab has every line of game text in every language, includin
 
 ## Finding a line
 
-Pick the **language** first. Each language is a separate table, so a change to *English (US)* doesn't change *English (UK)* or *French*. Then search for a word from the line, or paste its id. **Changed** lists the lines that the project changes.
+Pick the **language** first. Each language is a separate table, so a change to *English (US)* doesn't change *English (UK)* or *French*. Then search for a word from the line, or paste the line id. **Changed** lists the lines that the project changes.
 
 Each row shows whether the line is a **Subtitle** or other **Text**. The right panel shows the **Original**, the **New text** box under it, and a **Preview** of the line as shown in game.
 

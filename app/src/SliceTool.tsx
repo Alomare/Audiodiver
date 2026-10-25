@@ -320,13 +320,14 @@ export function SliceTool({ onClose, target, file: given }: { onClose: () => voi
               <button className="btn small-btn" onClick={choose} data-tip="Choose another song">Change…</button>
               <span className="spacer" />
               {!target && (
-                <label className="slice-field">From
+                <label className="slice-field" data-tip="The slot that gets the first piece">From
                   <select value={start} onChange={(e) => setStart(e.target.value)}>
                     {rows.map((r) => <option key={r.slot.source} value={r.slot.source}>{slotName(r)}</option>)}
                   </select>
                 </label>
               )}
-              <label className="slice-field">To
+              <label className="slice-field" data-tip="The slot that gets the last piece"
+                data-tip-more={target ? "Each segment up to here gets one piece of the song" : "Each slot from From to here gets one piece of the song"}>To
                 <select value={targets[targets.length - 1]?.slot.source ?? ""} onChange={(e) => setStop(e.target.value)}>
                   {reach.map((r, i) => <option key={r.slot.source} value={r.slot.source}>{slotName(r)} · {i + 1} piece{i ? "s" : ""}</option>)}
                 </select>
@@ -340,10 +341,10 @@ export function SliceTool({ onClose, target, file: given }: { onClose: () => voi
               <button className={`btn small-btn play-btn${originalsOn ? " on" : ""}`} onClick={() => (originalsOn ? player.toggle() : playOriginal(0, 0, true))}
                 data-tip="Play the originals one after another">{originalsOn ? "❚❚" : "▶"} Originals</button>
               <div className="segmented" role="radiogroup" aria-label="Place the cuts">
-                {([["proportions", "Original proportions", "The original lengths, stretched over the song"],
-                  ["lengths", "Original lengths", "The original lengths as they are, from the first cut"],
-                  ["even", "Even", "Pieces of equal length"]] as const).map(([how, label, tip]) => (
-                  <button key={how} role="radio" aria-checked={layout === how} className={layout === how ? "on" : ""} data-tip={tip}
+                {([["proportions", "Original proportions", "The whole song, cut in the proportions of the originals", ""],
+                  ["lengths", "Original lengths", "Each piece as long as the original, so the timing stays the same", "The song after the last piece is left out"],
+                  ["even", "Even", "The whole song, in pieces of equal length", ""]] as const).map(([how, label, tip, more]) => (
+                  <button key={how} role="radio" aria-checked={layout === how} className={layout === how ? "on" : ""} data-tip={tip} data-tip-more={more || undefined}
                     disabled={how !== "even" && !known} onClick={() => apply(how)}>{label}</button>
                 ))}
               </div>
@@ -360,7 +361,9 @@ export function SliceTool({ onClose, target, file: given }: { onClose: () => voi
 
             <div className="slice-list" role="table" aria-label="Pieces">
               <div className="slice-piece head" role="row">
-                <span /><span>#</span><span>Slot</span><span>Cut</span><span className="num">New</span><span /><span className="num">Original</span><span className="num">Difference</span>
+                <span /><span>#</span><span>Slot</span><span data-tip="Where the piece starts and ends in the song">Cut</span>
+                <span className="num" data-tip="How long the piece is">New</span><span /><span className="num" data-tip="How long the original is">Original</span>
+                <span className="num" data-tip="How much longer (+) or shorter (−) the piece is than the original">Difference</span>
               </div>
               {targets.slice(0, n).map((r, i) => {
                 const len = bounds[i + 1] - bounds[i], orig = lens[i], d = len - orig;
@@ -562,8 +565,9 @@ function Lanes({ info, bounds, targets, view, sel, setSel, clampView, setView, z
     <div className="slice-lanes">
       <div className="slice-lane-labels" aria-hidden>
         <span style={{ height: LANES.ruler }} />
-        <b className="mine" style={{ height: LANES.song }}>New audio</b>
-        <b className="game" style={{ height: LANES.original }}>Original</b>
+        <b className="mine" style={{ height: LANES.song }} data-tip="The song, cut into pieces" data-tip-more="A click plays from there, and a double-click adds a cut">New audio</b>
+        <b className="game" style={{ height: LANES.original }} data-tip="Each original starts at the cut of the piece that replaces it"
+          data-tip-more="A red edge marks an original that runs past the next cut, and a dashed line one that ends before it">Original</b>
       </div>
       <div className="slice-canvas" ref={wrap} style={{ height }}
         onPointerDown={(e) => {
@@ -599,6 +603,7 @@ function Lanes({ info, bounds, targets, view, sel, setSel, clampView, setView, z
               style={{ transform: `translateX(${px}px)`, top: LANES.ruler, height: LANES.song + LANES.original }}
               role="slider" tabIndex={0} aria-label={name} aria-valuenow={Math.round(ms)} aria-valuetext={fmtTime(ms)}
               data-tip={drag === null ? `${name} at ${fmtTime(ms)}` : undefined} data-tip-side="top"
+              data-tip-more={i === 0 ? "Drag it to leave out the start of the song" : i === n ? "Drag it to leave out the end of the song" : undefined}
               onFocus={() => setSel(i)}
               onPointerDown={(e) => { e.stopPropagation(); e.preventDefault(); (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); setDrag(i); setSel(i); }}
               onPointerMove={(e) => { if (drag === i) dragTo(i, e.clientX, e.shiftKey); }}

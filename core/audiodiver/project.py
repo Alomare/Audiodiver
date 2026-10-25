@@ -250,7 +250,7 @@ class Project:
                 out.append(f"{name}: same target as {seen[r.target]}")
             seen[r.target] = name
             if not r.silence and not self.audio_path(r).exists():
-                out.append(f"{name}: its audio file wasn't found ({os.path.normpath(self.audio_path(r))})")
+                out.append(f"{name}: the audio file wasn't found ({os.path.normpath(self.audio_path(r))})")
         for seg, o in self.segment_overrides.items():
             if set(o) - OVERRIDE_KEYS:
                 out.append(f"segment {seg}: unknown overrides {sorted(set(o) - OVERRIDE_KEYS)}")
@@ -305,8 +305,8 @@ class Project:
 
         if not isinstance(d, dict):
             raise ProjectFormatError("isn't an Audiodiver project")
-        need(isinstance(d.get("name"), str), "its name")
-        need(isinstance(d.get("replacements", []), list), "its replacements")
+        need(isinstance(d.get("name"), str), "the name")
+        need(isinstance(d.get("replacements", []), list), "the replacements")
         reps = []
         for r in d.get("replacements", []):
             need(isinstance(r, dict) and "target" in r, "a replacement")
@@ -327,28 +327,28 @@ class Project:
         if isinstance(icon, str):  # an image path, before the icon had a frame
             icon = {"image": icon}
         overrides = d.get("segment_overrides") or {}
-        need(isinstance(icon, dict), "its icon")
-        need(isinstance(overrides, dict) and all(isinstance(o, dict) for o in overrides.values()), "its cue points")
+        need(isinstance(icon, dict), "the icon")
+        need(isinstance(overrides, dict) and all(isinstance(o, dict) for o in overrides.values()), "the cue points")
         texts = d.get("texts", [])
         need(isinstance(texts, list) and all(isinstance(t, dict) and {"table", "id", "text"} <= set(t) for t in texts),
-             "its text changes")
+             "the text changes")
         settings = d.get("settings", {})
         need(isinstance(settings, dict) and all(isinstance(s, dict) and all(
             v is None or isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) for v in s.values())
-            for s in settings.values()), "its settings from a mod")
+            for s in settings.values()), "the settings from a mod")
         adds = d.get("additions", [])
         need(isinstance(adds, list) and all(isinstance(a, dict) and set(Addition.KINDS.get(a.get("kind"), ("?",))) <= set(a)
-                                            for a in adds), "its added audio")
+                                            for a in adds), "the added audio")
 
         notes, dropped = tidy_notes(d.get("notes"))
         if dropped:
             repairs.append("a note")
         soundtrack = d.get("soundtrack", {})
-        need(isinstance(soundtrack, dict), "its soundtrack")
+        need(isinstance(soundtrack, dict), "the soundtrack")
         try:
             pieces = {int(k): Piece.from_json(v, GAIN_DB) for k, v in soundtrack.items()}
         except (TypeError, ValueError, OverflowError):
-            raise ProjectFormatError("is damaged (its soundtrack)") from None
+            raise ProjectFormatError("is damaged (the soundtrack)") from None
         tabs = tab_list(d.get("tabs"))
         if tabs is None and "tabs" in d:
             repairs.append("the tabs")

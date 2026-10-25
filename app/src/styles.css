@@ -177,13 +177,14 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color])
 
 /* ---------- the rail: the master tabs, the tab bar */
 /* The rail is the window's chrome, darker than any page. The open master tab takes the colour of the page right
-   beside it (--under: the list panel in the Library, the Audio Editor, the Text Editor and the Wiki, the page
+   beside it (--under: the list panel in the Library, the Audio, Soundtrack and Text tabs and the Wiki, the page
    elsewhere) and covers the rail's edge, so it runs on into what it holds; a line of the secondary colour marks it
    on the window's side. The subtabs inside a page keep an underline. Down the left or right, the rail is a column of
    square buttons; along the top or bottom, a row, the main tabs' names beside their icons when names are on.
-   The main tabs come in two sets: Home and Tools, which make projects, then a band holding the tabs that work on the
-   open project, led by the project's own icon and name. The band is darker than the rail with an edge at each end,
-   keeps the rail's line along the page, and marks its open tab in the project's colour. */
+   The main tabs come in three sets: Home and Tools, which make projects, then a band holding the tabs that work on the
+   open project, led by the project's own icon, then Build (only while a project is open). The band is darker than the
+   rail with an edge at each end, keeps the rail's line along the page, and marks its open tab in the project's colour;
+   Build sits outside it on the rail, as Home and Tools do. */
 .app { --under: var(--bg); --bar: calc(40px * var(--fs) + 8px * var(--sp)); }
 .app[data-tab="library"], .app[data-tab="editor"], .app[data-tab="soundtrack"], .app[data-tab="text"], .app[data-tab="wiki"] { --under: var(--panel); }
 .rail { position: relative; z-index: 5; display: flex; justify-content: space-between; min-width: 0; min-height: 0;
@@ -193,7 +194,6 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color])
 .rail-mod { --tab-line: var(--accent-fg); background: var(--rail-band); }
 .rail-mod.idle .tab:not(.on):not(:hover) { color: var(--faint); } /* no project open: quieter */
 .tab-mod-icon { flex: none; width: 1.25em; height: 1.25em; }
-.rail .tab-mod .tab-name { max-width: calc(200px * var(--fs)); }
 .rail .tab { position: relative; display: flex; align-items: center; justify-content: center; gap: 8px;
   min-width: var(--bar); height: var(--bar); font-size: calc(17px * var(--fs)); color: var(--muted); border: 0 solid transparent; }
 .rail .tab:hover { color: var(--text); background: color-mix(in srgb, var(--under) 50%, var(--chrome)); }
@@ -214,14 +214,15 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color])
 :root:is([data-bar="top"], [data-bar="bottom"]) .rail { flex-direction: row; }
 :root:is([data-bar="top"], [data-bar="bottom"]) .rail-group { min-width: 0; } /* a narrow window cuts the names short */
 :root:is([data-bar="top"], [data-bar="bottom"]) .rail .tab { flex: 0 1 auto; border-width: 2px 0; }
-/* along the top or bottom, the tabs of a set (Home and Tools; the project's) are as wide as its widest. A narrow
-   window narrows the project's set only, its tabs together (the longest name is cut short first); Home, Tools and
-   the icons at the end keep their width */
-:root:is([data-bar="top"], [data-bar="bottom"]) .rail-set { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); flex-shrink: 0; }
+/* along the top or bottom, a named tab is at least as wide as Project needs, and a longer name (Soundtrack) widens
+   its own tab: one width for most tabs, without short names adrift in wide ones. A narrow window narrows the
+   project's band only, cutting its names short; Home, Tools, Build and the icons at the end keep their width. The
+   floor gives way first: below what 8 named tabs and the 3 icons take, it is a ninth of the room left */
+:root:is([data-bar="top"], [data-bar="bottom"]) .rail-set { flex-shrink: 0; }
 :root:is([data-bar="top"], [data-bar="bottom"]) .rail-set.rail-mod { flex-shrink: 1; }
 :root:is([data-bar="top"], [data-bar="bottom"]) .rail > .rail-group:last-child { flex-shrink: 0; }
-:root:is([data-bar="top"], [data-bar="bottom"]) .rail-set > .tab { min-width: 0; }
-:root:is([data-bar="top"], [data-bar="bottom"]) .rail-set > .tab.named { padding: 0 calc(10px + 2px * var(--sp)); }
+:root:is([data-bar="top"], [data-bar="bottom"]) .rail-set > .tab.named { --tab-min: calc(80px * var(--fs) + 24px + 4px * var(--sp));
+  min-width: min(var(--tab-min), calc((100vw - 3 * var(--bar)) / 9)); padding: 0 calc(10px + 2px * var(--sp)); }
 :root:is([data-bar="top"], [data-bar="bottom"]) .rail .tab > .icon { flex: none; }
 .tab-name { overflow: hidden; text-overflow: ellipsis; }
 :root:is([data-bar="top"], [data-bar="bottom"]) .rail .tab.named { padding: 0 calc(12px + 4px * var(--sp)) 0 calc(10px + 4px * var(--sp)); }
@@ -327,6 +328,7 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color])
 .cue-bar > .icon-btn { order: 4; }
 /* show or hide the header and the waveforms, at the end of the toolbar */
 .panel-toggles { order: 5; display: flex; gap: 2px; margin-left: auto; }
+.cue-bar > .wiki-q { order: 6; } /* what the bar's buttons do: after the toggles, at the very end */
 .panel-toggles .icon-btn { width: calc(28px + 2px * var(--sp)); height: calc(28px + 2px * var(--sp)); }
 .elsewhere { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 0 8px 12px; }
 .elsewhere > p:first-child { margin: 0 0 2px; color: var(--muted); font-size: calc(13px * var(--fs)); }
@@ -409,6 +411,14 @@ button.file:hover:not(:disabled) { text-decoration: underline dotted; text-under
 .id { font-size: calc(12px * var(--fs)); color: var(--faint); border: 1px solid var(--line-soft); padding: 1px 6px; border-radius: 2px; flex: none; }
 .id:hover { color: var(--text); }
 .insp-sec { border-top: 1px solid var(--line-soft); padding: calc(12px * var(--sp)) 0; }
+/* several slots: what can replace them all, a column of full-width buttons, an icon leading each */
+.insp-actions { display: flex; flex-direction: column; gap: calc(6px * var(--sp)); }
+.insp-actions .btn { justify-content: flex-start; gap: 10px; width: 100%; min-height: calc(30px * var(--fs) + 6px * var(--sp));
+  padding: calc(5px * var(--sp)) 12px; white-space: normal; text-align: left; line-height: 1.3; }
+.insp-actions .btn > .icon { flex: none; color: var(--muted); transition: color var(--t1); }
+.insp-actions .btn:hover:not(:disabled) > .icon { color: var(--text); }
+.insp-note { margin: -2px 0 6px; }
+.insp-empty.insp-sec { margin: 0; }
 .insp-sec h3 { font-size: calc(15px * var(--fs)); color: var(--text); margin-bottom: 6px; display: flex; align-items: center; gap: 2px; }
 .insp-sec h3 .val { margin-left: auto; color: var(--accent-fg); white-space: nowrap; } /* a value sits at the end; a "?" right after the words */
 .gain-val { width: 3.8em; padding: 0 3px; text-align: right; font: inherit; color: inherit; background: transparent; border: 1px solid transparent; border-radius: 2px; }
@@ -559,7 +569,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fg); }
 .segmented { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border: 1px solid var(--line); border-radius: 2px; padding: 2px; gap: 2px; background: var(--bg); }
 .segmented button { padding: calc(5px * var(--sp)) 0; color: var(--muted); border-radius: 1px; }
 .segmented button:hover { color: var(--text); }
-.segmented button.on { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.segmented button.on { background: var(--accent); color: var(--accent-ink); }
 .hue-slider { -webkit-appearance: none; appearance: none; height: 14px; border-radius: 2px; margin: 4px 0; accent-color: auto; }
 .hue-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 22px; border-radius: 1px; background: var(--accent); border: 2px solid var(--text); cursor: ew-resize; }
 .hue-slider.second::-webkit-slider-thumb { background: var(--second-fg); }
@@ -748,7 +758,7 @@ button.ctag:hover { background: color-mix(in oklch, var(--c) 24%, transparent); 
 .mus-item { display: flex; align-items: center; gap: 6px; padding: calc(2px * var(--sp)) 10px calc(2px * var(--sp)) 14px; border-left: 2px solid transparent; }
 .mus-item:hover { background: var(--raised); }
 .mus-item.active { background: var(--raised); border-left-color: var(--second-fg); }
-.mus-item.hi { outline: 1px solid var(--second-fg); outline-offset: -1px; }
+.mus-item.hi, .st-row.hi { outline: 1px solid var(--second-fg); outline-offset: -1px; }
 .mus-name { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 6px; text-align: left; padding: calc(3px * var(--sp)) 0; color: var(--muted); font-size: calc(14px * var(--fs)); }
 .mus-item:hover .mus-name, .mus-item.active .mus-name { color: var(--text); }
 .mus-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -779,7 +789,7 @@ button.ctag:hover { background: color-mix(in oklch, var(--c) 24%, transparent); 
   border: 1px solid var(--line); border-radius: 50%; font-size: calc(11px * var(--fs)); font-weight: 700; color: var(--muted); line-height: 1;
   transition: color var(--t1), border-color var(--t1); }
 .wiki-q:hover { color: var(--second-fg); border-color: var(--second-fg); }
-.link-text { color: var(--second-fg); text-decoration: underline; text-underline-offset: 2px; font-size: inherit; }
+.link-text { color: var(--second-fg); text-decoration: underline; text-underline-offset: 2px; font-size: inherit; cursor: pointer; }
 .link-text:hover { color: var(--text); }
 /* an item's parts: a strip of tabs between the toolbar and the slots they switch */
 .parts { flex: none; display: flex; flex-wrap: wrap; padding: 0 12px; border-bottom: 1px solid var(--line); background: var(--panel); }
@@ -1092,6 +1102,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .home-ticker { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; width: 100%; height: var(--ticker-h); border: 0;
   background: transparent; pointer-events: none; opacity: 0; transition: opacity calc(600ms * var(--anim)); }
 .home-ticker.ready { opacity: 1; }
+.home-ticker-tip { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; height: var(--ticker-h); }
 @keyframes art-left { from { transform: scaleX(0); } }
 /* the picture darkens towards the left, under the menu, so the menu's strips stand out from it; the bottom darkens
    for the corner's buttons and the ticker */
@@ -1132,7 +1143,6 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .home-recent-list { display: flex; flex-wrap: wrap; gap: 2px 12px; min-width: 0; }
 .home-recent .link-text { max-width: 24ch; overflow: hidden; text-overflow: ellipsis; }
 .home-tools { margin-top: calc(32px * var(--sp)); }
-.home-tools h2 { margin: 0 0 calc(6px * var(--sp)) 20px; font-size: calc(12px * var(--fs)); font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); }
 
 /* ---------- the Project tab with no project open: New and Open, then the recent projects as one list of rows, each
    the mod's name over its file, when it last changed, and Show in folder and the ✕ (off this list) at its end */
@@ -1349,13 +1359,15 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .wiki { display: grid; grid-template-columns: min(calc(var(--wiki-nav, 270px) * var(--fs)), 40vw) 5px minmax(0, 1fr); min-height: 0; }
 .wiki-nav { display: flex; flex-direction: column; min-height: 0; min-width: 0; background: var(--panel); }
 .wiki-list { flex: 1; overflow: auto; padding: 4px 0 24px; }
-/* the FAQ: an entry of its own above the groups, a box with a question mark, in the primary colour */
-.wiki-faq { display: flex; align-items: center; gap: 12px; width: calc(100% - 20px); margin: 8px 10px 4px; padding: calc(9px * var(--sp)) 12px;
-  text-align: left; background: color-mix(in srgb, var(--accent-fg) 8%, var(--raised)); border: 1px solid color-mix(in srgb, var(--accent-fg) 45%, var(--line));
-  border-left: 3px solid var(--accent-fg); border-radius: 2px; color: var(--text); transition: background var(--t1), border-color var(--t1); }
-.wiki-faq:hover, .wiki-faq.active { background: color-mix(in srgb, var(--accent-fg) 16%, var(--raised)); border-color: var(--accent-fg); }
+/* the FAQ: an entry above the groups, a box with a question mark, in a slightly dim white (a dark grey on the light
+   theme) */
+.wiki-faq { --faq: color-mix(in srgb, var(--text) 80%, var(--bg));
+  display: flex; align-items: center; gap: 12px; width: calc(100% - 20px); margin: 8px 10px 4px; padding: calc(9px * var(--sp)) 12px;
+  text-align: left; background: color-mix(in srgb, var(--faq) 8%, var(--raised)); border: 1px solid color-mix(in srgb, var(--faq) 45%, var(--line));
+  border-left: 3px solid var(--faq); border-radius: 2px; color: var(--text); transition: background var(--t1), border-color var(--t1); }
+.wiki-faq:hover, .wiki-faq.active { background: color-mix(in srgb, var(--faq) 16%, var(--raised)); border-color: var(--faq); }
 .wiki-faq-mark { flex: none; display: grid; place-items: center; width: calc(26px * var(--fs)); height: calc(26px * var(--fs)); border-radius: 50%;
-  background: var(--accent); color: var(--accent-ink); font-weight: 800; font-size: calc(15px * var(--fs)); }
+  background: var(--faq); color: var(--bg); font-weight: 800; font-size: calc(15px * var(--fs)); }
 .wiki-faq-text { min-width: 0; font-size: calc(15px * var(--fs)); line-height: 1.25; }
 .wiki-group { padding: calc(8px * var(--sp)) 0 2px; }
 .wiki-group h2 { padding: 4px 14px; font-size: calc(15px * var(--fs)); color: var(--text); }
@@ -1368,7 +1380,15 @@ kbd.none { color: var(--faint); font-weight: 400; }
   padding: calc(28px * var(--sp)) 32px 80px; }
 .wiki-cols:not(:has(.wiki-outline)) { grid-template-columns: minmax(0, calc(720px * var(--fs))); }
 .wiki-article { min-width: 0; }
-.wiki-article .md { max-width: 70ch; }
+/* a page's headings by level, in greys: the title over a rule; a section (##) a raised band reaching past the text on
+   both sides, the words in line with it; a subsection (###) under a hairline that parts it from what came before */
+.wiki-article .page-head { margin-bottom: calc(18px * var(--sp)); }
+.wiki-article .md { max-width: 70ch; padding-top: calc(26px * var(--sp)); border-top: 1px solid var(--line); }
+.wiki-article .md h2 { margin: calc(38px * var(--sp)) -14px 14px; padding: calc(6px + 3px * var(--sp)) 14px; background: var(--raised);
+  border-radius: 2px; font-size: calc(21px * var(--fs)); }
+.wiki-article .md > h2:first-child { margin-top: 0; }
+.wiki-article .md h3 { margin-top: calc(26px * var(--sp)); padding-top: calc(16px * var(--sp)); border-top: 1px solid var(--line-soft); }
+.wiki-article .md h2 + h3 { margin-top: calc(18px * var(--sp)); padding-top: 0; border-top: 0; }
 .wiki-outline { position: sticky; top: 24px; align-self: start; display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
   padding-left: 12px; border-left: 1px solid var(--line-soft); }
 .wiki-outline h2 { margin-bottom: 4px; font-size: calc(13px * var(--fs)); color: var(--muted); }
@@ -1385,6 +1405,20 @@ kbd.none { color: var(--faint); font-weight: 400; }
   .wiki-cols { grid-template-columns: minmax(0, 1fr); }
   .wiki-outline { display: none; }
 }
+/* find on the page (Ctrl+F): a bar over the top right of the page that stays there while it scrolls (a dock with no
+   height, so the page doesn't move); the outline steps down below it */
+.wiki-find-dock { position: sticky; top: 0; z-index: 3; height: 0; }
+.wiki-find { position: absolute; top: 10px; right: 16px; display: flex; align-items: center; gap: 4px; width: min(calc(390px * var(--fs)), calc(100% - 32px));
+  padding: 5px 6px 5px 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 3px; box-shadow: 0 8px 22px var(--shadow);
+  animation: fade-in var(--t1) ease-out; }
+.wiki-find > .icon { flex: none; color: var(--muted); }
+.wiki-find input { flex: 1; min-width: 0; padding: calc(4px * var(--sp)) 8px; background: var(--bg); border: 1px solid var(--line); border-radius: 2px; }
+.wiki-find-count { flex: none; min-width: 7ch; padding: 0 4px; text-align: right; font-size: calc(13px * var(--fs)); color: var(--muted); white-space: nowrap; }
+.wiki-find .x { display: inline-grid; place-items: center; width: 26px; height: 26px; }
+.wiki-read.finding .wiki-outline { margin-top: calc(48px + 10px * var(--fs)); top: calc(72px + 10px * var(--fs)); }
+/* the matches: a tint in the colour of the primary text, the current one filled; words in a link take the text colour */
+::highlight(wiki-find) { background-color: color-mix(in srgb, var(--accent-fg) 30%, transparent); color: var(--text); }
+::highlight(wiki-find-now) { background-color: var(--accent); color: var(--accent-ink); }
 
 /* ---------- Markdown (Markdown.tsx): the Wiki's pages and the changelog */
 .md { font-size: calc(15.5px * var(--fs)); line-height: 1.6; color: color-mix(in srgb, var(--text) 86%, var(--bg)); }
@@ -1594,7 +1628,6 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .about-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .about-head .about-brand .logo { width: 52px; height: 52px; }
 .about-head .about-brand b { font-size: calc(22px * var(--fs)); }
-.about-ver { margin-left: 8px; font-family: "Roboto Mono Variable", ui-monospace, monospace; font-size: calc(12px * var(--fs)); color: var(--faint); }
 .about-licence { margin: 0; color: var(--muted); font-size: calc(14px * var(--fs)); }
 .about-credits { padding-top: 12px; border-top: 1px solid var(--line-soft); }
 .about-credits h2 { font-size: calc(17px * var(--fs)); }
@@ -1613,7 +1646,6 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .upd-app .logo { width: calc(54px * var(--fs)); height: calc(54px * var(--fs)); }
 .upd-app-name { display: flex; flex-direction: column; flex: 1; min-width: 0; gap: 2px; }
 .upd-app-name b { font-family: var(--title); font-stretch: 125%; font-size: calc(24px * var(--fs)); line-height: 1.1; }
-.upd-ver { font-family: "Roboto Mono Variable", ui-monospace, monospace; font-size: calc(12px * var(--fs)); color: var(--faint); font-weight: 400; }
 .upd-state { display: flex; align-items: center; gap: 14px; padding: calc(14px * var(--sp)) 20px; border-top: 1px solid var(--line-soft); }
 .upd-icon { display: grid; place-items: center; flex: none; width: calc(36px * var(--fs)); height: calc(36px * var(--fs)); border-radius: 50%;
   font-size: calc(15px * var(--fs)); background: var(--raised); color: var(--muted); }
@@ -1737,9 +1769,10 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .st-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: calc(8px * var(--sp)); }
 .st-modes { grid-auto-columns: auto; flex: 0 1 auto; }
 .st-modes button { padding: calc(5px * var(--sp)) 14px; }
-.st-level { display: flex; align-items: center; gap: 8px; margin-left: auto; color: var(--muted); font-size: calc(13px * var(--fs)); }
-.st-level input { width: calc(150px * var(--fs)); accent-color: var(--accent-fg); }
-.st-db { min-width: 4.5em; text-align: right; color: var(--text); font-variant-numeric: tabular-nums; }
+.st-level { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: calc(13px * var(--fs)); }
+.st-level input[type=range] { width: calc(150px * var(--fs)); accent-color: var(--accent-fg); }
+.st-level.off { opacity: .5; }
+.st-db { display: inline-flex; align-items: center; gap: 3px; color: var(--text); font-variant-numeric: tabular-nums; }
 .st-body { flex: 1 1 0; min-height: 0; overflow: auto; padding: calc(12px * var(--sp)) 20px 40px; display: flex; flex-direction: column; gap: calc(14px * var(--sp)); }
 .st-note { margin: 0; color: var(--muted); max-width: 70ch; }
 .st-empty { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
@@ -1748,7 +1781,9 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .st-row-btns { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
 .st-row-btns .check { align-items: center; }
 .st-row-btns .check input { margin-top: 0; }
-.cue-bar > .st-length { width: auto; }
+.cue-bar > .st-length { display: inline-flex; align-items: center; gap: 6px; margin-left: 8px; color: var(--muted);
+  font-size: calc(13px * var(--fs)); white-space: nowrap; }
+.st-length select { width: auto; }
 .st-transcript { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: calc(12px * var(--fs)); }
 .st-transcript > .muted { margin-right: 4px; }
 .st-mark { padding: 1px 7px; border: 1px solid var(--line); border-radius: 2px; color: var(--muted); }
@@ -1770,6 +1805,12 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .st-new .drop-hint { flex: 1; }
 .st-tools { display: flex; gap: 2px; flex: none; }
 .st-tools .x:disabled { visibility: hidden; }
+/* a song dragged to another place: it follows the pointer above the other lines, and the songs it passes slide one
+   place along, opening the gap it lands in */
+.st-lines.reorder .st-line.assigned .st-new { cursor: grab; touch-action: none; }
+.st-lines.dragging, .st-lines.dragging * { cursor: grabbing !important; user-select: none; }
+.st-lines.dragging .st-new:not(.lifting) { transition: transform var(--t2) var(--ease); }
+.st-new.lifting { position: relative; z-index: 4; box-shadow: 0 6px 18px var(--shadow); }
 .st-none { color: var(--faint); font-size: calc(13px * var(--fs)); }
 .st-song { display: flex; flex-direction: column; gap: 10px; }
 .st-songname { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 40ch; }

@@ -3,7 +3,7 @@ import { call, fmtTime } from "./api";
 import { useTheme } from "./theme";
 
 export type Peaks = { duration_ms: number; peaks: number[] };
-export type Marker = { id: string; ms: number; label: string; draggable?: boolean; min?: number; max?: number };
+export type Marker = { id: string; ms: number; label: string; about?: string; draggable?: boolean; min?: number; max?: number };
 
 const cache = new Map<string, Promise<Peaks>>();
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -169,6 +169,7 @@ export function Waveform({ peaks, spanMs, tone, height: fixed, markers = [], pla
           <div key={m.id} className={`marker${m.draggable ? " draggable" : ""}${drag?.id === m.id ? " dragging" : ""}${left > width - 90 ? " flip" : ""}`}
             style={{ left }} role={m.draggable ? "slider" : undefined} tabIndex={m.draggable ? 0 : undefined}
             aria-label={m.label} aria-valuenow={m.draggable ? Math.round(ms) : undefined} data-tip={drag ? undefined : `${m.label} at ${fmtTime(ms)}`} data-tip-side="top"
+            data-tip-more={drag ? undefined : m.about}
             onPointerDown={(e) => startDrag(e, m)} onPointerMove={(e) => moveDrag(e, m)} onPointerUp={() => endDrag(m)}
             onKeyDown={(e) => {
               if (!m.draggable) return;

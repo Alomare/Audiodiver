@@ -310,7 +310,7 @@ class Renderer:
             cursor += max(0.0, p.exit_ms - p.entry_ms)
         shift = -min(0.0, min(starts))  # a long lead-in on a later segment can reach before the start
         if end + shift > MAX_MINUTES * 60000:
-            raise RenderError(f"this cue runs over {MAX_MINUTES} minutes when played through, so export its segments separately")
+            raise RenderError(f"this cue runs over {MAX_MINUTES} minutes when played through, so export the segments separately")
         starts = [s + shift for s in starts]
         marks = [{"segment": str(p.segment), "ms": round(s + p.entry_ms, 1), "exit_ms": round(s + p.exit_ms, 1),
                   "clips": [{"source": str(c.source), "mine": c.mine, "at_ms": round(s + c.start_ms, 1),

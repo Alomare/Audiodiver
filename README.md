@@ -26,7 +26,7 @@
 <br>
 
 <p align="center">
-  <img src="assets/readme/home.png" alt="Audiodiver's Home tab over a screenshot of a Helldiver kneeling in a desert sandstorm: New project, Open project with a recent project and the loaded one under it, and Repatch and Combine under Tools, with Discord and Ko-fi in the corner" width="100%">
+  <img src="assets/readme/home.png" alt="Audiodiver's Home tab over a screenshot of a Helldiver kneeling in a desert sandstorm: New project, Open project with a recent project and the loaded one under it, then Repatch and Combine Mods, with Discord and Ko-fi in the corner" width="100%">
 </p>
 
 <p align="center">
@@ -54,13 +54,13 @@
       <h3>🎚️ Audio</h3>
       The music and sounds of a project, one slot per clip. An audio file dropped on a slot, a sound or a whole piece replaces the original, and one song can be cut across a whole piece. Slots take silence and Make-Up Gain too, and sounds can get new takes and layers.
       <br><br>
-      <img src="assets/readme/audio.png" alt="Loadout Selection on the Audio tab: slots with new audio, the selected one ticked, its original and new waveforms on one time scale, and its settings on the right" width="100%">
+      <img src="assets/readme/audio.png" alt="Loadout Selection on the Audio tab: slots with new audio, the selected one ticked, the original and new waveforms of that slot on one time scale, and the slot settings on the right" width="100%">
     </td>
   </tr>
   <tr>
     <td width="50%">
       <h3>🎼 Soundtrack</h3>
-      How each piece of music plays in a mission: in its original order, as one song, as a playlist of whole songs, or silent. A fight plays back the way Helldivers 2 plays it, before anything is built.
+      How each piece of music plays in a mission: in the original order, as one song, as a playlist of whole songs, or silent. Drag songs to put a playlist in order, and listen to a whole fight with the original music or the new one before anything is built.
       <br><br>
       <img src="assets/readme/soundtrack.png" alt="Illuminate Battle as a playlist on the Soundtrack tab: four songs in the first places, Continue in the next fight ticked, and the second song's waveform under the original segment's" width="100%">
     </td>
@@ -102,9 +102,9 @@
   <tr>
     <td width="50%">
       <h3>📖 Wiki</h3>
-      Guides inside the app, from a first mod to what to do after a game update, and a page of frequently asked questions. Every ? next to a setting opens its section.
+      Guides inside the app, from a first mod to what to do after a game update, and a page of frequently asked questions. Every ? next to a setting opens the matching section, and Ctrl+F finds and marks words on a page.
       <br><br>
-      <img src="assets/readme/wiki.png" alt="The Wiki on Frequently asked questions: the questions grouped by topic, each answer linking to the page that covers it, and the list of guides on the left" width="100%">
+      <img src="assets/readme/wiki.png" alt="The Wiki on Frequently Asked Questions: the questions grouped by topic, each answer linking to the page that covers it, and the list of guides on the left" width="100%">
     </td>
     <td width="50%">
       <h3>⚙️ Settings</h3>
@@ -145,7 +145,7 @@ command returns.
 
 ## How It Works
 
-- Audiodiver finds Helldivers 2 through Steam and reads its archives.
+- Audiodiver finds Helldivers 2 through Steam and reads the game archives.
 - On first startup, the core indexes every sound bank, stream and object, with names
   from the modding community's research. It indexes again after each game update.
 - A build takes the current sound banks, puts the new audio and timing in, and reads the result back to check it
@@ -174,7 +174,7 @@ after a game update, and answers to frequent questions.
 
 | Download | What it is |
 |---|---|
-| `Audiodiver_<version>_x64-setup.exe` | The installer. It adds Audiodiver to the Start menu, opens projects and packs from Explorer, and checks for new versions at startup, then installs them when you say so (or on its own, with Updates set to Automatic in Settings ▸ System). |
+| `Audiodiver_<version>_x64-setup.exe` | The installer. It adds Audiodiver to the Start menu, opens projects and packs from Explorer, and checks for new versions at startup, then installs them when you say so (or without asking, with Updates set to Automatic in Settings ▸ System). |
 | `Audiodiver-<version>-portable.zip` | The portable copy, with settings and caches in the same folder. Unzip it anywhere and start `Audiodiver.exe`. New versions are downloaded by hand. |
 | `Audiodiver-Utils-<version>-portable.zip` | Audiodiver Utils: Repatch and Combine Mods without projects, as a smaller portable window (`Audiodiver Utils.exe`) and a command line (`audiodiver.cmd repatch <mod>`, `combine`, `check`, `scan`, with `--json` for scripts and mod managers). |
 
@@ -268,6 +268,7 @@ About ▸ Credits too.
 | [Audio Spectrogram Transformer](https://huggingface.co/MIT/ast-finetuned-audioset-10-10-0.4593) | MIT | Telling grunts, breaths and laughs from words. |
 | [FFmpeg](https://ffmpeg.org), [vgmstream](https://github.com/vgmstream/vgmstream), [wav2wem](https://github.com/pas2k/wav2wem) | | Reading, playing and encoding audio. They come with Audiodiver as separate programs. |
 | Archivo, Noto Serif and Roboto Mono | | The typefaces, under the [SIL Open Font License](https://openfontlicense.org). |
+| [Divershub](https://divershub.app) | | The ticker of war news along the bottom of Home. |
 
 ## License
 

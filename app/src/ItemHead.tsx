@@ -11,6 +11,7 @@ import { pickAudio } from "./platform";
 import { useEditor } from "./store";
 import { CatMark, CatTag } from "./Tags";
 import { ToolButton } from "./Tools";
+import { Help } from "./Wiki";
 
 const WAY = { in: "Into", out: "Out of", over: "Over" } as const;
 
@@ -65,7 +66,7 @@ export function ItemHead({ item, part, cue, nav, facts = [] }: { item: MusicItem
               <button className="link-text" onClick={() => show(other.id)} data-tip={other.full}>
                 {itemIndex.section.get(other.id) === section ? other.name : other.full}</button> ({s.count} slot{s.count === 1 ? "" : "s"})</span>
           ) : null;
-        })}.</span>
+        })}. <Help tip="Replacing one of these slots changes that music too" page="how-the-game-plays-music#shared-audio" /></span>
       </p>
     ),
   ].filter(Boolean);
@@ -81,7 +82,8 @@ export function ItemHead({ item, part, cue, nav, facts = [] }: { item: MusicItem
         <h1>{item.name}</h1>
         {item.about && <AboutToggle about={item.about} open={aboutOpen} onToggle={toggleAbout} />}
         {!readOnly && project && c.total > 0 && (
-          <span className={`item-cov ${statusOf(c)}`}><Mark status={statusOf(c)} />{COVERAGE[statusOf(c)]}</span>
+          <span className={`item-cov ${statusOf(c)}`} data-tip={`${c.n} of ${c.total} slots replaced`}
+            data-tip-more={statusOf(c) === "part" ? "The other slots still play the original" : undefined}><Mark status={statusOf(c)} />{COVERAGE[statusOf(c)]}</span>
         )}
         {readOnly && listed && <span className="item-cov done" data-tip={`In ${project!.name}`}>In the project</span>}
         {inside && <span className="item-cov done" data-tip="These sounds are in the project already" data-tip-more={`In ${listName(inside)}`}>In the project</span>}
@@ -117,7 +119,7 @@ export function ItemActions({ item }: { item: MusicItem }) {
   const total = counted(item).length;
   if (item.kind === "music") {
     return total > 1 ? (
-      <ToolButton icon={<FillPieceIcon />} name="Fill the whole piece" about={`Choose files for all ${total} slots in every part, in order`}
+      <ToolButton icon={<FillPieceIcon />} name="Fill the whole piece" about={`A file for each of the ${total} slots, part by part, in play order and file-name order`}
         onClick={async () => { const f = await pickAudio(true); if (f) actions.fillSources(counted(item), f, `the ${item.parts.length} parts of ${item.full}`); }} />
     ) : null;
   }
@@ -204,7 +206,8 @@ function Around({ item, a }: { item: MusicItem; a: Record<string, Assignment> })
     <div className={`fact around${warn ? " warn" : ""}`}>
       <div className="around-head">
         <TransitionIcon />
-        <span>{what} {rows.length === 1 ? "plays" : "play"} next to this music{warn ? <>. <b>{game.length}</b> still {game.length === 1 ? "plays" : "play"} the original next to new music.</> : "."}</span>
+        <span>{what} {rows.length === 1 ? "plays" : "play"} next to this music{warn ? <>. <b>{game.length}</b> still {game.length === 1 ? "plays" : "play"} the original next to new music.</> : "."}{" "}
+          <Help tip="A transition plays between two pieces of music, and a stinger over one. Left original, they play a stretch of the original music next to the new music. Skip replaces them with a short silence" page="how-the-game-plays-music#transitions-and-stingers" /></span>
         <button className="link-text" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? "Hide" : "Show"}</button>
         {warn && project && (
           <button className="btn quiet small-btn" data-tip="Replace them with a short silence, so the next music starts right away. This also adds them to the project."
