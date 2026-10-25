@@ -198,8 +198,8 @@ def test_patch_writer_that_fails_leaves_the_patch_as_it_was(tmp_path):
 
 
 # --- the game's archives
-def _bundle(folder: Path, resources) -> dict[int, int]:
-    """Writes folder/bundles.00.nxa as the game lays one out: a table of chunks, each stored as it is or
+def _bundle(folder: Path, resources, name="bundles.00.nxa") -> dict[int, int]:
+    """Writes folder/name as the game lays a bundle out: "DSAR", then a table of chunks, each stored as it is or
     LZ4-compressed, a resource's first chunk flagged. resources: [[(bytes, compressed)] per chunk]. Returns
     {uncompressed offset: chunk} (slim.bundle_offsets)."""
     from lz4 import block
@@ -215,7 +215,7 @@ def _bundle(folder: Path, resources) -> dict[int, int]:
         table += struct.pack("<QQIIBB6x", at, stored_at + len(blobs), len(data), len(stored),
                              slim.COMPRESSED if packed else slim.UNCOMPRESSED, slim.START if first else slim.CONTINUE)
         blobs += stored
-    (folder / "bundles.00.nxa").write_bytes(struct.pack("<QI", 0, len(chunks)).ljust(0x20, b"\0") + table + blobs)
+    (folder / name).write_bytes(struct.pack("<4s4xI", b"DSAR", len(chunks)).ljust(0x20, b"\0") + table + blobs)
     return offsets
 
 
@@ -252,6 +252,23 @@ def test_bundle_part_reads_what_the_whole_package_has(tmp_path, monkeypatch):
     # past the end, or parts out of order: only the whole rebuild reads those
     assert game.bundle_part(tmp_path, "pkg", 380, 6) is None
     assert game.bundle_part(tmp_path, "shuffled", 0, 10) is None
+
+
+def test_files_of_another_kind_beside_the_bundles_are_passed_over(tmp_path, monkeypatch):
+    """Only DSAR files are read as bundles. Before 1.1.1, one uncompressed file in the data folder that the game
+    doesn't ship (another tool's, left there) stopped the game from loading: "unpack requires a buffer of ... bytes"."""
+    from audiodiver import game
+    from audiodiver._vendor import slim
+    for name in ("package_contents", "bundle_offsets", "game_data_folder"):
+        monkeypatch.setattr(slim, name, getattr(slim, name))  # slim_init sets them for the whole core
+    _bundle(tmp_path, [[(bytes(0x20), False)]], "bundles.nxa")  # the index of packages: none
+    offsets = _bundle(tmp_path, [[(bytes(40), False)], [(bytes(30), True)]])
+    stray = struct.pack("<III", 0xF0000011, 0, 1000).ljust(600, b"\0")  # bytes 8-11 read as 1000 chunks
+    for name in ("0123456789abcdef", "0123456789abcdef.stream", "0123456789abcdef.gpu_resources"):
+        (tmp_path / name).write_bytes(stray)
+    g = game.Game(tmp_path)
+    assert slim.bundle_offsets == {"bundles.nxa": {0: 0}, "bundles.00.nxa": offsets}
+    assert g.packages == [] and g.loose == {}
 
 
 # --- project file
