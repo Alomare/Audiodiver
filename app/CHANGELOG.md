@@ -3,6 +3,10 @@
 The Updates tab shows this file. Each release starts with a second-level heading, `<version> - <date>`,
 newest first.
 
+## 1.1.1 - 2026-10-25
+
+Reading the game audio no longer fails on a stray file in the Helldivers 2 data folder. The error said "unpack requires a buffer of … bytes".
+
 ## 1.1.0 - 2026-10-25
 
 ### The Soundtrack tab
