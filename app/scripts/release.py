@@ -141,6 +141,9 @@ def check(tag):
         "app/package.json": json.loads((APP / "package.json").read_text(encoding="utf-8"))["version"],
         "app/src-tauri/Cargo.toml": tomllib.loads((TAURI / "Cargo.toml").read_text(encoding="utf-8"))["package"]["version"],
         "core/pyproject.toml": tomllib.loads((ROOT / "core" / "pyproject.toml").read_text(encoding="utf-8"))["project"]["version"],
+        # the core's own, which About compares with the app's
+        "core/audiodiver/__init__.py": re.search(r'__version__ = "([^"]+)"',
+                                                 (ROOT / "core" / "audiodiver" / "__init__.py").read_text(encoding="utf-8")).group(1),
     }
     wrong = [f"{f} has {v}" for f, v in found.items() if v != want]
     if wrong:

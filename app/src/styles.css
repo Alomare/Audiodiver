@@ -1689,9 +1689,12 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .upd-date { color: var(--faint); font-size: calc(13px * var(--fs)); white-space: nowrap; }
 .upd-entry-body { padding: 4px 10px 18px 32px; }
 .upd-entry-body .md { font-size: calc(14.5px * var(--fs)); }
-/* a release's own headings ("New", "Fixed") are labels under the version, not titles of their own */
-.upd-entry-body .md :is(h2, h3, h4) { margin: calc(14px * var(--sp)) 0 4px; font-family: var(--body); font-size: calc(12px * var(--fs));
+/* a release's headings: ### titles a big change (The Soundtrack tab) and the list of the rest (Other changes); the
+   other levels are labels under the version */
+.upd-entry-body .md :is(h2, h4) { margin: calc(14px * var(--sp)) 0 4px; font-family: var(--body); font-size: calc(12px * var(--fs));
   font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.upd-entry-body .md h3 { margin: calc(18px * var(--sp)) 0 6px; font-family: var(--title); font-size: calc(16px * var(--fs)); font-weight: 700;
+  color: var(--text); }
 .upd-entry-body .md > :first-child { margin-top: 0; }
 .upd-entry-body .md ul { margin-bottom: 4px; }
 .upd-entry-body > .link-text { display: inline-flex; align-items: center; gap: 4px; margin-top: 10px; font-size: calc(13px * var(--fs)); }
