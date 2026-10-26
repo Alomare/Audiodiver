@@ -426,7 +426,7 @@ def replacements_from_folder(folder, relative_to, skip=()) -> list[Replacement]:
     """A replacement for every audio file under folder whose name starts with an id (`<id>_<name>.wav`)."""
     folder, out = Path(folder), []
     for f in sorted(folder.rglob("*")):
-        if f.suffix.lower() not in {".wav", ".flac", ".mp3", ".ogg"} or f.name in skip:
+        if f.suffix.lower() not in {".wav", ".flac", ".mp3", ".ogg", ".wem"} or f.name in skip:
             continue
         head = f.name.split("_")[0].split(".")[0]
         if not head.isdigit():

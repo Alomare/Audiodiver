@@ -1,5 +1,7 @@
 """Builds a project into a verified patch and an HD2 Arsenal ZIP."""
 import hashlib
+import struct
+import subprocess
 import tempfile
 import time
 from pathlib import Path
@@ -23,9 +25,24 @@ def _encoded(wav: bytes, quality: float) -> Path:
     return CACHE_DIR / "wem" / f"{hashlib.sha1(wav + f'q{quality}'.encode()).hexdigest()[:16]}.wem"
 
 
+def ready_wem(src: Path, data: bytes) -> bytes | None:
+    """A .wem the game plays as it is: mono or stereo Wwise Vorbis as the game's clips are, the fmt chunk first (where
+    patch.Replacement reads it), and read whole by vgmstream; with the channel config set where its encoder left it
+    empty. None for any other file, which is encoded."""
+    fmt = wem.vorbis_fmt(data) if src.suffix.lower() == ".wem" else None
+    if fmt != 20 or struct.unpack_from("<H", data, fmt + 2)[0] not in (1, 2):
+        return None
+    wem.decoded(src)  # cached since the file was chosen, unless it changed since
+    return bytes(wem.fix_channel_config(bytearray(data)))
+
+
 def encode_cached(src: Path, quality: float = 6, log=None) -> bytes:
-    """The Vorbis .wem of src, encoded once per content (wav2wem + channel-config fix + vgmstream check)."""
-    out = _encoded(src.read_bytes(), quality)
+    """The Vorbis .wem of src, encoded once per content (wav2wem + channel-config fix + vgmstream check). A .wem the
+    game plays as it is goes in unchanged (ready_wem), not encoded a second time."""
+    data = src.read_bytes()
+    if (ready := ready_wem(src, data)) is not None:
+        return ready
+    out = _encoded(data, quality)
     key = out.stem
     if not out.exists():
         if log:
@@ -67,7 +84,10 @@ def replacements(project: Project, ix: AudioIndex, log=None, step=None) -> list[
             raise BuildError(f"{by_sound[sid]} and {name} replace the same sound")
         by_sound[sid] = name
         # an encoding cached before Audiodiver set the hash, or a mod's own, may give another setup's
-        data = wem.with_codebook_hash(encode_cached(src, log=log))
+        try:
+            data = wem.with_codebook_hash(encode_cached(src, log=log))
+        except subprocess.CalledProcessError:
+            raise BuildError(f"{name}: can't read the audio in {src.name}") from None
         if project.loudness_analysis and not r.silence and akd.get_chunk(data, b"akd ") is None:  # a mod's own may have it
             data = akd.insert(data, analysis[src])
         out.append(patch.Replacement(sid, data, fit_timing=r.fit_timing, makeup_db=r.gain_db, mute=r.silence))

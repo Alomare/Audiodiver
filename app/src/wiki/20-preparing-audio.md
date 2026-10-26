@@ -6,7 +6,9 @@ summary: Which files to use, how loud to make them, and how to cut them so they 
 
 ## Formats
 
-Audiodiver reads WAV, FLAC, MP3, OGG, Opus, M4A, AAC, AIFF and WMA. A build converts each file to the format the game plays, Vorbis at 48 kHz in stereo. Mono files stay mono, and surround files are mixed down to stereo.
+Audiodiver reads WAV, FLAC, MP3, OGG, Opus, M4A, AAC, AIFF, WMA and WEM. A build converts each file to the format the game plays, Vorbis at 48 kHz in stereo. Mono files stay mono, and surround files are mixed down to stereo.
+
+A WEM file in Wwise Vorbis, mono or stereo, goes into the mod unchanged, because the game plays it as it is. A build converts any other WEM file like the formats above.
 
 Start from the best copy you have. **WAV or FLAC at 48 kHz** goes through only one conversion. An MP3 also works, but it gets compressed a second time, which can add a slight haze to cymbals and reverb tails.
 

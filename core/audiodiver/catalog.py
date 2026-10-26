@@ -2,7 +2,8 @@
 and locks. Sources of names, in order: the curated catalog (data/catalog.json), the Music view's names
 (musiclist.py: "Terminid exploring · Idle", "Terminids: Battle → Exploring"), the community spreadsheet's labels
 (data/labels.json), cracked Wwise names (data/names.json), then the raw ids. Single clips can also have notes
-(data/notes.json): a label where the spreadsheet has none, what the clip is, and warnings found in game.
+(data/notes.json): a label where the spreadsheet has none, what the clip is, and warnings found in game. The
+Helldivers' exertions have theirs in data/exertions.json (tools/import_exertions.py), in the same shape.
 """
 import collections
 import json
@@ -47,7 +48,7 @@ class Catalog:
         self.names = {int(k): v for k, v in _data("names.json").items()}
         # a guess marked "(?)" in the workbooks is shown as a plain name (the app states what it knows; app/README.md)
         self.labels = {k: [re.sub(r"\s*\(\?\)", "", x).strip() for x in v] for k, v in _data("labels.json").items()}
-        self.clips = _clips(_data("notes.json")["groups"])
+        self.clips = _clips(_data("notes.json")["groups"] + _data("exertions.json")["groups"])
         self.curated = {int(k): v for k, v in cat["cues"].items()}
         self.factions, self.faction_group = cat["factions"], int(cat["faction_group"])
         self.events, self.values, self.groups = cat["events"], cat["values"], cat.get("groups", {})

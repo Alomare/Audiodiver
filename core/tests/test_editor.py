@@ -564,6 +564,25 @@ def test_peaks_are_the_same_with_numpy_or_without(tmp_path, monkeypatch):
     assert [audio._peaks(song, 333), audio._peaks(tiny, 200)] == fast
 
 
+def test_a_wem_is_heard_measured_drawn_and_sliced_like_any_file(tmp_path, monkeypatch):
+    """vgmstream reads a .wem wherever ffmpeg reads the other files; a .wem it can't read is refused."""
+    from audiodiver import audio, index, wem
+    from audiodiver.server import playable
+    monkeypatch.setattr(index, "CACHE_DIR", tmp_path / "cache")
+    monkeypatch.setattr(audio, "CACHE_DIR", tmp_path / "cache")
+    s = Session(load=False)
+    s.new_project(tmp_path / "proj" / "m.audi", "M")
+    clip = tmp_path / "proj" / "t.wem"
+    wem.encode(str(_tone(tmp_path / "t.wav", 0.5)), str(clip))
+    assert s._relative(s.project, clip) == "t.wem"
+    assert abs(audio.duration_ms(clip) - 500) < 2 and abs(audio.peaks(clip, buckets=50)["duration_ms"] - 500) < 2
+    assert playable(clip).suffix == ".wav"
+    assert len(audio.slice_song(clip, [0, 250, 500], tmp_path / "out")) == 2
+    (tmp_path / "bad.wem").write_bytes(b"RIFF\x04\x00\x00\x00WAVE")
+    with pytest.raises(EditorError):
+        s._relative(s.project, tmp_path / "bad.wem")
+
+
 @pytest.mark.game
 def test_a_sliced_song_goes_to_the_slots_given(game_session, tmp_path):
     """The slice tool sends one piece per segment, so layers that play together never get consecutive pieces."""

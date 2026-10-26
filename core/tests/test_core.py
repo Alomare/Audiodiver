@@ -63,9 +63,10 @@ def test_no_its_in_shown_text():
 
 def test_shown_data_texts_keep_the_writing_rules():
     data = HERE.parent / "audiodiver" / "data"
-    notes = json.loads((data / "notes.json").read_text(encoding="utf-8"))["groups"]
+    notes = [g for name in ("notes.json", "exertions.json")
+             for g in json.loads((data / name).read_text(encoding="utf-8"))["groups"]]
     music = json.loads((data / "music.json").read_text(encoding="utf-8"))
-    shown = [g.get("note", "") for g in notes]
+    shown = [t for g in notes for t in (g.get("note", ""), g.get("label", ""))]
 
     def walk(x, top=False):  # every "about" and "note" in music.json, but its own top-level "about" (for developers)
         if isinstance(x, dict):
@@ -206,6 +207,28 @@ def test_mono_and_stereo_encodings_give_hashes_of_their_own(tmp_path):
         assert wem.with_codebook_hash(data) is data
         hashes.add(struct.unpack_from("<I", data, wem.fmt_offset(data) + 0x3C)[0])
     assert len(hashes) == 2 and 0x20CEF588 not in hashes
+
+
+def test_a_wem_the_game_plays_goes_in_as_it_is_and_any_other_is_encoded(tmp_path, monkeypatch):
+    """A Wwise Vorbis .wem is built unchanged but for the channel config wav2wem leaves out; a PCM one (Wwise writes
+    those for authoring) is encoded like any other file."""
+    import wave
+    from audiodiver import build, index, wem
+    monkeypatch.setattr(index, "CACHE_DIR", tmp_path / "cache")
+    monkeypatch.setattr(build, "CACHE_DIR", tmp_path / "cache")
+    pcm = tmp_path / "pcm.wem"
+    with wave.open(str(pcm), "wb") as w:
+        w.setnchannels(2); w.setsampwidth(2); w.setframerate(48000)
+        w.writeframes(bytes(range(256)) * 375)  # 0.5 s
+    vorbis = tmp_path / "vorbis.wem"
+    wem.encode(str(pcm), str(vorbis))
+    data = bytearray(vorbis.read_bytes())
+    struct.pack_into("<I", data, wem.fmt_offset(data) + 0x14, 0)
+    vorbis.write_bytes(data)
+    fixed = bytes(wem.fix_channel_config(bytearray(data)))
+    assert build.encode_cached(vorbis) == fixed != bytes(data)
+    encoded = build.encode_cached(pcm)
+    assert wem.vorbis_fmt(encoded) == 20 and wem.length_ms(encoded) == 500
 
 
 @pytest.mark.game

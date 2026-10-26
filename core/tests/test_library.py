@@ -199,6 +199,20 @@ def test_voice_lines_say_their_subtitles_and_clips_without_words_are_named(sessi
 
 
 @pytest.mark.game
+def test_exertions_are_named_by_kind_and_voice(session):
+    """A group per kind and voice (data/exertions.json), listed by name, each take saying when it plays; the grunts
+    the bank holds for the voice banks stay grouped by what they are."""
+    view = session.cue(_items(session)["set:helldivers/voices/helldiver-exertions"]["parts"][0]["cue"])
+    names = [g["name"] for g in view["segments_detail"]]
+    assert names[:4] == [f"Bleeding Out · Voice {v}" for v in (1, 2, 3, 4)]
+    assert len([n for n in names if " · Voice " in n]) == 108
+    assert names.index("Death · Voice 4") + 1 == names.index("Death Scream, Long · Voice 1")
+    drowning = next(g for g in view["segments_detail"] if g["name"] == "Drowning · Voice 1")
+    assert all(sl["label"].startswith("Take") and sl["notes"] for st in drowning["stems"] for sl in st["slots"])
+    assert any(n.startswith("Grunts") for n in names) and "Panting" in names
+
+
+@pytest.mark.game
 def test_music_banks_open_with_their_segments_tagged(session):
     bid = murmur64_hash(b"content/audio/music_ship")
     view = session.cue(f"bank:{bid}")

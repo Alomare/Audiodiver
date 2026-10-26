@@ -63,7 +63,7 @@ def peaks(path: Path, buckets: int = 1200) -> dict:
 
 
 def _peaks(path: Path, buckets: int) -> dict:
-    raw = subprocess.run([wem.FFMPEG, "-v", "error", "-i", str(path), "-ac", "1", "-ar", str(PEAK_RATE),
+    raw = subprocess.run([wem.FFMPEG, "-v", "error", "-i", wem.decoded(path), "-ac", "1", "-ar", str(PEAK_RATE),
                           "-f", "s16le", "-"], capture_output=True, check=True).stdout
     try:  # numpy (installed with the renderer) does a song's 100,000 buckets at once; the loop below is the same
         import numpy as np
@@ -100,6 +100,10 @@ def duration_ms(path) -> float | None:
 
 
 def _probe_ms(path: Path) -> float | None:
+    try:
+        path = Path(wem.decoded(path))
+    except (subprocess.CalledProcessError, OSError):
+        return None
     try:  # PCM WAV: from the header, no process
         with wave.open(str(path)) as w:
             return round(w.getnframes() * 1000 / w.getframerate(), 1)

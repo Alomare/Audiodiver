@@ -36,7 +36,8 @@ LEGACY_DIRS = {
 }
 PACK = ".audipack"
 # kept as they are in a pack: compressing them again saves nothing
-PACKED_ALREADY = {".flac", ".mp3", ".ogg", ".opus", ".m4a", ".aac", ".wma", ".png", ".jpg", ".jpeg", ".webp", ".gif"}
+PACKED_ALREADY = {".flac", ".mp3", ".ogg", ".opus", ".m4a", ".aac", ".wma", ".wem", ".png", ".jpg", ".jpeg", ".webp",
+                  ".gif"}
 
 
 class FilesError(ValueError):

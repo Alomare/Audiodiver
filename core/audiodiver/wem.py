@@ -2,11 +2,12 @@
 
 Pipeline: ffmpeg (decode, resample to 48 kHz, fold to mono/stereo) -> wav2wem (Vorbis) -> set the AkChannelConfig
 wav2wem leaves zeroed (the game drops a source whose config is 0) and the codebook hash of the clip's own setup
-(wav2wem writes one hash for every setup) -> vgmstream check.
+(wav2wem writes one hash for every setup) -> vgmstream check. A .wem given as audio is read through vgmstream
+(`decoded`): ffmpeg reads no Wwise audio.
 
-    python -m audiodiver.wem input.(wav|flac|mp3|ogg|...) output.wem [-q 6]
+    python -m audiodiver.wem input.(wav|flac|mp3|ogg|wem|...) output.wem [-q 6]
 """
-import glob, os, re, shutil, struct, subprocess, sys, tempfile, wave
+import glob, hashlib, os, re, shutil, struct, subprocess, sys, tempfile, wave
 
 RATE = 48000
 WAV2WEM = shutil.which("wav2wem") or os.path.expanduser("~/go/bin/wav2wem.exe")
@@ -33,6 +34,18 @@ def fmt_offset(data: bytes) -> int:
             return pos + 8
         pos += 8 + size + (size & 1)
     raise ValueError("no fmt chunk")
+
+
+def vorbis_fmt(data: bytes) -> int | None:
+    """Where the fmt chunk's payload is in a clip that is Wwise Vorbis as the game has it (tag 0xFFFF in a 0x42-byte
+    fmt chunk), else None."""
+    try:
+        fmt = fmt_offset(data)
+        if struct.unpack_from("<H", data, fmt)[0] == 0xFFFF and struct.unpack_from("<I", data, fmt - 4)[0] == 0x42:
+            return fmt
+    except (AssertionError, ValueError, struct.error):
+        pass
+    return None
 
 
 def length_ms(head: bytes) -> float | None:
@@ -63,10 +76,9 @@ def prefetch_size(data: bytes, mem: int) -> int:
     short piece has a longer seek table. A clip that isn't Wwise Vorbis as the game has it keeps min(mem, size)."""
     if len(data) <= mem:
         return len(data)
+    if (fmt := vorbis_fmt(data)) is None:
+        return mem
     try:
-        fmt = fmt_offset(data)
-        if struct.unpack_from("<H", data, fmt)[0] != 0xFFFF or struct.unpack_from("<I", data, fmt - 4)[0] != 0x42:
-            return mem
         start, size = _data_chunk(data)
         end = min(len(data), start + size)
         at = start + struct.unpack_from("<I", data, fmt + 0x2C)[0]  # the first packet
@@ -102,17 +114,16 @@ def with_codebook_hash(data: bytes) -> bytes:
     hash with one copy of the codebooks; wav2wem writes the hash of its 24 kHz mono setup on every clip, so a 48 kHz
     voice line played over a 24 kHz one decoded with the wrong codebooks and screeched. A clip that isn't Wwise
     Vorbis as the game has it, or has the right hash (the game's, Wwise's), is returned as it is."""
+    if (fmt := vorbis_fmt(data)) is None:
+        return data
     try:
-        fmt = fmt_offset(data)
-        if struct.unpack_from("<H", data, fmt)[0] != 0xFFFF or struct.unpack_from("<I", data, fmt - 4)[0] != 0x42:
-            return data
         start, size = _data_chunk(data)
         at = start + struct.unpack_from("<I", data, fmt + 0x28)[0]  # after the seek table: the setup packet
         n = struct.unpack_from("<H", data, at)[0]
         if at + 2 + n > min(len(data), start + size):
             return data
         h = codebook_hash(data[at + 2:at + 2 + n])
-    except (AssertionError, ValueError, struct.error):
+    except (ValueError, struct.error):
         return data
     if struct.unpack_from("<I", data, fmt + 0x3C)[0] == h:
         return data
@@ -139,8 +150,30 @@ def probe(wem: str) -> dict:
             "samples": get(r"stream total samples: (\d+)")}
 
 
+def decoded(path) -> str:
+    """A path ffmpeg can read for an audio file: the file itself, or for a .wem the WAV vgmstream decodes from it,
+    played once whatever loop points it has, cached by content with the previews. Raises CalledProcessError when
+    vgmstream can't read it."""
+    path = str(path)
+    if not path.lower().endswith(".wem"):
+        return path
+    from .audio import cache_lock
+    from .index import CACHE_DIR
+    with open(path, "rb") as f:
+        key = hashlib.sha1(f.read()).hexdigest()[:16]
+    out = CACHE_DIR / "preview" / f"wem-{key}.wav"
+    with cache_lock(out):
+        if not out.exists():
+            out.parent.mkdir(parents=True, exist_ok=True)
+            tmp = out.with_name(f"wem-{key}.partial.wav")
+            subprocess.run([VGMSTREAM, "-i", "-o", str(tmp), path], check=True, capture_output=True)
+            tmp.replace(out)
+    return str(out)
+
+
 def prepare_wav(src: str, wav: str) -> tuple[int, int]:
     """Decodes src to the 16-bit 48 kHz mono/stereo WAV the encoder takes; returns (channels, samples)."""
+    src = decoded(src)
     channels = int(subprocess.run(
         [FFPROBE, "-v", "error", "-select_streams", "a:0", "-show_entries", "stream=channels", "-of", "csv=p=0", src],
         capture_output=True, text=True, check=True).stdout.strip())

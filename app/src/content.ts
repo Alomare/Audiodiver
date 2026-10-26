@@ -50,6 +50,7 @@ export const CREDITS: { group: string; items: Credit[] }[] = [
     { name: "Helldivers 2 Music Stuff", by: "the HD2 modding community",
       url: "https://docs.google.com/spreadsheets/d/1drg0VRwn1c247GwBOEgFBIJmBQxy2Ik-ZLuSjbWbK4o/edit?gid=329417206#gid=329417206", for: "names of music clips and the do-not-touch marks" },
     { name: "Music notes", by: "geoffreyhdt1", for: "Illuminate Void and Automaton clip names, when clips play, warnings and minimum lengths" },
+    { name: "EVIL Helldivers Pains and Groans", by: "contemporary and RaidingForPants", for: "the Helldivers' exertions by kind and voice" },
     { name: "FileDiver", by: "xypwn", url: "https://github.com/xypwn/filediver", for: "the name lists behind bank path names" },
   ] },
   { group: "Code and research", items: [

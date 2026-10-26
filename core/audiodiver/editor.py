@@ -25,7 +25,7 @@ from .project import GAIN_DB, TABS, Addition, Project, ProjectFormatError, Repla
 log = logging.getLogger("audiodiver")
 LOG_FILE = CACHE_DIR / "logs" / "core.log"
 SETTINGS_FILE = CACHE_DIR / "settings.json"  # the core's own settings: where the game is
-AUDIO_TYPES = {".wav", ".flac", ".mp3", ".ogg", ".opus", ".m4a", ".aac", ".aif", ".aiff", ".wma"}
+AUDIO_TYPES = {".wav", ".flac", ".mp3", ".ogg", ".opus", ".m4a", ".aac", ".aif", ".aiff", ".wma", ".wem"}
 UNDO_LIMIT = 200
 
 

@@ -560,6 +560,14 @@ class Library:
         # what this bank has to itself (or shares with a variant or two) comes first; the sounds a whole family of
         # banks has copies of (every weapon's handling sounds) go last. Within each, the bank's own order.
         made.sort(key=lambda m: min(r["banks"] for r in m[0]) >= WIDELY)
+        # a sound nothing says, named by the notes on its takes (data/notes.json: "Ready"), numbered when several are.
+        # Where the notes name every sound (the Helldivers' exertions), the sounds go by name, part by part ("Death"
+        # before "Death Scream, Long · Voice 1").
+        notes_of = {key: collections.Counter(l for r in rows if (l := self.cat.clip(int(r.get("was") or r["source"])).get("label")))
+                    for rows, _, key in made}
+        if all(notes_of[m[2]] for m in made if m[2] not in layer_of):
+            noted_name = lambda key: notes_of[key].most_common(1)[0][0] if notes_of[key] else ""
+            made.sort(key=lambda m: [part.casefold() for part in noted_name(m[2]).split(" · ")])
         for m in [m for m in made if m[2] in layer_of]:  # a layer after the sound it plays with, and its other layers
             made.remove(m)
             beside = home.get(layer_of[m[2]])
@@ -574,9 +582,7 @@ class Library:
             ptype = kinds.get(parent.get(key))
             return ptype in (SWITCH, LAYER) or (key in plays and ptype != RANSEQ)
 
-        # a sound nothing says, named by the notes on its takes (data/notes.json: "Ready"), numbered when several are
-        noted = [collections.Counter(l for r in rows if (l := self.cat.clip(int(r.get("was") or r["source"])).get("label")))
-                 for rows, _, _ in made]
+        noted = [notes_of[key] for _, _, key in made]
         noted_n, noted_seen = collections.Counter(c.most_common(1)[0][0] for c in noted if c), collections.Counter()
         n, borrowed, named, layers = 0, False, {}, []
         for (rows, called, key), notes in zip(made, noted):

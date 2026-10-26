@@ -161,8 +161,7 @@ def list_audio(folder):
         raise EditorError("Choose a folder")
     f = Path(folder)
     try:
-        files = [p for p in f.iterdir()
-                 if p.suffix.lower() in BROWSER_AUDIO or p.suffix.lower() in (".aif", ".aiff", ".wma")]
+        files = [p for p in f.iterdir() if p.suffix.lower() in AUDIO_TYPES]
     except OSError as e:
         raise EditorError(os_error(e, folder)) from None
     return sorted((str(p) for p in files), key=natural)
@@ -202,9 +201,11 @@ def clipboard_files():
 
 
 def playable(path: Path) -> Path:
-    """path itself if a browser plays it, else a cached WAV transcode."""
+    """path itself if a browser plays it, else a cached WAV transcode (a .wem: the WAV vgmstream decodes)."""
     if path.suffix.lower() in BROWSER_AUDIO:
         return path
+    if path.suffix.lower() == ".wem":
+        return Path(wem.decoded(path))
     key = hashlib.sha1(f"{path.resolve()}:{path.stat().st_mtime_ns}".encode()).hexdigest()[:16]
     out = CACHE_DIR / "preview" / f"file-{key}.wav"
     with cache_lock(out):

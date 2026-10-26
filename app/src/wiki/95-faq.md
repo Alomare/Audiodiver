@@ -44,7 +44,7 @@ Usually one of these:
 
 ### Which audio files can I use?
 
-WAV, FLAC, MP3, OGG, Opus, M4A, AAC, AIFF and WMA. WAV or FLAC at 48 kHz gives the best result. See [Preparing the audio](wiki:preparing-audio#formats).
+WAV, FLAC, MP3, OGG, Opus, M4A, AAC, AIFF, WMA and WEM. WAV or FLAC at 48 kHz gives the best result, and a WEM in Wwise Vorbis goes into the mod unchanged. See [Preparing the audio](wiki:preparing-audio#formats).
 
 ### How do I make new audio louder or quieter?
 

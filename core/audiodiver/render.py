@@ -45,15 +45,16 @@ def frames(ms: float) -> int:
 
 def load(path) -> np.ndarray:
     """Any audio file as float32 stereo at 48 kHz, shape (frames, 2). Mono goes to both sides at full level."""
-    path = str(path)
+    name = Path(path).name
     try:
+        path = wem.decoded(path)
         probe = subprocess.run([wem.FFPROBE, "-v", "error", "-select_streams", "a:0", "-show_entries",
                                 "stream=channels", "-of", "csv=p=0", path], capture_output=True, text=True, check=True)
         ch = 1 if probe.stdout.strip().split(",")[0] == "1" else 2
         raw = subprocess.run([wem.FFMPEG, "-v", "error", "-i", path, "-ac", str(ch), "-ar", str(RATE),
                               "-f", "f32le", "-"], capture_output=True, check=True).stdout
     except subprocess.CalledProcessError as e:
-        raise RenderError(f"can't read the audio in {Path(path).name}") from e
+        raise RenderError(f"can't read the audio in {name}") from e
     a = np.frombuffer(raw[:len(raw) // (4 * ch) * 4 * ch], dtype="<f4").reshape(-1, ch)
     return np.repeat(a, 2, axis=1) if ch == 1 else a
 
@@ -105,7 +106,11 @@ def clean_spool(age_s: float = 3600):
 def transcode(src: Path, dst: Path, fmt: str, tags: dict | None = None):
     """A file as it is (its own channels and rate), in another format."""
     dst.parent.mkdir(parents=True, exist_ok=True)
-    p = subprocess.run([wem.FFMPEG, "-v", "error", "-y", "-i", str(src), "-vn", *FORMATS[fmt][1], *_tags(tags),
+    try:
+        src = wem.decoded(src)
+    except subprocess.CalledProcessError as e:
+        raise RenderError(f"can't read the audio in {Path(src).name}") from e
+    p = subprocess.run([wem.FFMPEG, "-v", "error", "-y", "-i", src, "-vn", *FORMATS[fmt][1], *_tags(tags),
                         str(dst)], capture_output=True)
     if p.returncode:
         dst.unlink(missing_ok=True)

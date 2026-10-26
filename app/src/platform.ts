@@ -4,7 +4,7 @@ import { call, isTauri } from "./api";
 
 export { isTauri };
 
-const AUDIO = ["wav", "flac", "mp3", "ogg", "opus", "m4a", "aac", "aif", "aiff", "wma"];
+const AUDIO = ["wav", "flac", "mp3", "ogg", "opus", "m4a", "aac", "aif", "aiff", "wma", "wem"];
 const AUDIO_DIR_KEY = "audiodiver.audioDir"; // the file picker opens where you picked audio last time
 
 const folderOf = (path?: string | null) => (path ? path.replace(/[\\/][^\\/]*$/, "") : undefined);
