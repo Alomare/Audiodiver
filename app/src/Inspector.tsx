@@ -29,7 +29,7 @@ export function Inspector() {
   useEffect(() => { shown.current = one; });
   if (!cue || !sel.length) return <Empty />;
   if (sel.length > 1) {
-    return <Bulk sources={sel.map((r) => r.slot.source)} usable={sel.filter((r) => !r.slot.unused && !r.slot.locked && !r.slot.absent).map((r) => r.slot.source)} />;
+    return <Bulk rows={sel} sources={sel.map((r) => r.slot.source)} usable={sel.filter((r) => !r.slot.unused && !r.slot.locked && !r.slot.absent).map((r) => r.slot.source)} />;
   }
   const { slot, seg } = sel[0];
   const a = project?.assignments[slot.source];
@@ -63,7 +63,7 @@ export function Inspector() {
           </section>
         )}
         {a && !a.silence && seg.segment && <Markers segment={seg.segment} gameEntry={seg.entry_ms} gameExit={seg.exit_ms}
-          fit={a.fit_timing} lengthMs={a.duration_ms} />}
+          fit={a.fit_timing} lengthMs={a.duration_ms} source={slot.source} more={(a.file_segments ?? 1) - 1} />}
       </Settle>
 
       {also > 0 && <section className="insp-sec"><SharedWith slot={slot} also={also} /></section>}
@@ -384,8 +384,10 @@ function Gain({ sources, value, note }: { sources: string[]; value: number | nul
   );
 }
 
-function Markers({ segment, gameEntry, gameExit, fit, lengthMs }: {
+/** A segment's cue points, and the same ones on the `more` other segments that play the slot's file. */
+function Markers({ segment, gameEntry, gameExit, fit, lengthMs, source, more }: {
   segment: string; gameEntry: number | null; gameExit: number | null; fit: boolean; lengthMs: number | null;
+  source: string; more: number;
 }) {
   const { project, actions } = useEditor();
   const o = project?.segment_overrides[segment] ?? {};
@@ -405,11 +407,13 @@ function Markers({ segment, gameEntry, gameExit, fit, lengthMs }: {
   const problem = [e1, e2].some((x) => x !== null && (!Number.isFinite(x) || x < 0)) ? "Cue points are milliseconds from 0."
     : (e1 ?? autoEntry) >= (e2 ?? autoExit ?? Infinity) ? "Entry comes before Exit."
     : Math.max(e1 ?? 0, e2 ?? 0) > end ? `The new audio is ${Math.round(end)} ms long.` : null;
-  const save = () => {
+  const save = async () => {
     if (problem) return;
     if (e1 === (o.entry_marker ?? null) && e2 === (o.exit_marker ?? null)) return; // as they were: no change
-    actions.segmentOverride(segment, e1, e2);
+    await actions.segmentOverride(segment, e1, e2);
   };
+  // what was just typed goes in first (the click comes before the box's own save is back)
+  const spread = async () => { await save(); actions.sameCuePoints(segment, source); };
   const auto = (x: number | null | undefined) => (x == null ? "auto" : `${Math.round(x)} (${fit ? "fitted" : "original"})`);
   return (
     <details className="insp-sec" open={open} onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
@@ -421,6 +425,13 @@ function Markers({ segment, gameEntry, gameExit, fit, lengthMs }: {
           onChange={(e) => setExit(e.target.value)} onBlur={save} aria-invalid={!!problem || undefined} /></label>
       </div>
       {problem && <small className="bad" role="alert">{problem}</small>}
+      {more > 0 && !problem && (
+        <p className="markers-more">
+          <button className="link-text" onClick={spread} data-tip={e1 === null && e2 === null
+            ? "The other segments go back to automatic cue points" : "The other segments get these cue points"}>
+            Apply to {more} more segment{more === 1 ? "" : "s"} with this file</button>
+        </p>
+      )}
     </details>
   );
 }
@@ -428,11 +439,12 @@ function Markers({ segment, gameEntry, gameExit, fit, lengthMs }: {
 /** Several slots selected: what can replace them all, as a column of buttons with an icon each (the order of the
     one-slot view: what replaces it first, then the settings), Make-Up Gain of the replaced ones, the timing of the
     silent ones, and Remove apart at the end. `usable`: the ones the game plays and nobody marked do-not-touch. */
-function Bulk({ sources, usable }: { sources: string[]; usable: string[] }) {
+function Bulk({ rows, sources, usable }: { rows: Row[]; sources: string[]; usable: string[] }) {
   const { project, actions } = useEditor();
   const a = project?.assignments ?? {};
   const mine = sources.filter((s) => a[s]);
   const files = mine.filter((s) => !a[s].silence), silent = mine.filter((s) => a[s].silence);
+  const cued = rows.filter((r) => r.seg.segment && a[r.slot.source] && !a[r.slot.source].silence); // music with new audio
   const toSilence = usable.filter((s) => !a[s]?.silence);
   const slots = (n: number) => `${n} slot${n === 1 ? "" : "s"}`;
   return (
@@ -451,6 +463,7 @@ function Bulk({ sources, usable }: { sources: string[]; usable: string[] }) {
         <Gain sources={files} value={files.every((s) => a[s].gain_db === a[files[0]].gain_db) ? a[files[0]].gain_db : null}
           note={files.length < sources.length ? `Applies to the ${slots(files.length)} with new audio.` : undefined} />
       )}
+      {cued.length > 0 && <BulkMarkers rows={cued} partial={cued.length < sources.length} />}
       {silent.length > 0 && (
         <section className="insp-sec">
           <h3>Silence in {slots(silent.length)}</h3>
@@ -469,5 +482,57 @@ function Bulk({ sources, usable }: { sources: string[]; usable: string[] }) {
         </section>
       ) : <p className="insp-empty insp-sec">None of these is replaced yet.</p>}
     </aside>
+  );
+}
+
+type CueKey = "entry_marker" | "exit_marker";
+/** Cue points for the segments of several selected slots with new audio. A box with a value shows what all of them
+    have: changed, the value goes on all of them, and emptied, comes off all of them. An empty box over values that
+    differ (Mixed) leaves each segment as it is. */
+function BulkMarkers({ rows, partial }: { rows: Row[]; partial: boolean }) {
+  const { project, actions } = useEditor();
+  const segments = useMemo(() => [...new Set(rows.map((r) => r.seg.segment))], [rows]);
+  const over = project?.segment_overrides ?? {};
+  const shared = (k: CueKey) => { // undefined: the segments differ; null: none has one
+    const vals = new Set(segments.map((s) => over[s]?.[k] ?? null));
+    return vals.size === 1 ? [...vals][0] : undefined;
+  };
+  const was = { entry_marker: shared("entry_marker"), exit_marker: shared("exit_marker") };
+  const text = (v: number | null | undefined) => (v == null ? "" : String(v));
+  const [entry, setEntry] = useState(text(was.entry_marker));
+  const [exit, setExit] = useState(text(was.exit_marker));
+  const entryBox = useRef<HTMLInputElement>(null), exitBox = useRef<HTMLInputElement>(null);
+  useEffect(() => { if (document.activeElement !== entryBox.current) setEntry(text(was.entry_marker)); }, [was.entry_marker]);
+  useEffect(() => { if (document.activeElement !== exitBox.current) setExit(text(was.exit_marker)); }, [was.exit_marker]);
+  const num = (t: string) => (t.trim() === "" ? null : Number(t));
+  const e1 = num(entry), e2 = num(exit);
+  const shortest = Math.min(...rows.map((r) => project?.assignments[r.slot.source]?.duration_ms ?? Infinity));
+  const problem = [e1, e2].some((x) => x !== null && (!Number.isFinite(x) || x < 0)) ? "Cue points are milliseconds from 0."
+    : e1 !== null && e2 !== null && e1 >= e2 ? "Entry comes before Exit."
+    : Math.max(e1 ?? 0, e2 ?? 0) > shortest ? `The shortest new audio is ${Math.round(shortest)} ms long.` : null;
+  const save = (k: CueKey, v: number | null) => {
+    if (problem || v === was[k] || (v === null && was[k] === undefined)) return; // as it was, or empty over Mixed
+    actions.segmentOverrides(segments, { [k]: v });
+  };
+  const hint = (v: number | null | undefined) => (v === undefined ? "Mixed" : "auto");
+  const n = segments.length;
+  return (
+    <section className="insp-sec">
+      <h3>Cue points in {n} segment{n === 1 ? "" : "s"} <Help tip="Entry is where the segment counts as started. Exit is where the next segment starts." page="timing-and-loops#entry-and-exit" /></h3>
+      {partial && <p className="muted small insp-note">Applies to the slots with new audio.</p>}
+      <div className="markers">
+        <label>Entry (ms)<input ref={entryBox} type="number" min={0} value={entry} placeholder={hint(was.entry_marker)}
+          onChange={(e) => setEntry(e.target.value)} onBlur={() => save("entry_marker", e1)} aria-invalid={!!problem || undefined} /></label>
+        <label>Exit (ms)<input ref={exitBox} type="number" min={0} value={exit} placeholder={hint(was.exit_marker)}
+          onChange={(e) => setExit(e.target.value)} onBlur={() => save("exit_marker", e2)} aria-invalid={!!problem || undefined} /></label>
+      </div>
+      {problem && <small className="bad" role="alert">{problem}</small>}
+      {segments.some((s) => over[s]) && (
+        <p className="markers-more">
+          <button className="link-text" onClick={() => actions.segmentOverrides(segments, { entry_marker: null, exit_marker: null })}>
+            Reset cue points</button>
+        </p>
+      )}
+    </section>
   );
 }

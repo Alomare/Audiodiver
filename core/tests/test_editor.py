@@ -578,6 +578,28 @@ def test_a_sliced_song_goes_to_the_slots_given(game_session, tmp_path):
 
 
 @pytest.mark.game
+def test_cue_points_go_to_every_segment_that_plays_the_file(game_session, tmp_path):
+    """One song in many slots (Lytatroan's request): a segment's cue points go to the other segments that play the
+    same file, or come off them where the segment has none; a segment with another file keeps its own."""
+    s = game_session
+    s.new_project(tmp_path / "f.audi", "F")
+    segs = s.cue(716451767)["segments_detail"]
+    (first, second, third), ids = (x["stems"][0]["slots"][0]["source"] for x in segs[:3]), [x["segment"] for x in segs[:3]]
+    a, b = str(_tone(tmp_path / "a.wav", 0.5)), str(_tone(tmp_path / "b.wav", 0.5))
+    st = s.fill_sources([first, second, third], [a, a, b])
+    assert st["assignments"][first]["file_segments"] == st["assignments"][second]["file_segments"] >= 2
+    s.segment_override(ids[2], entry_marker=50)
+    s.segment_override(ids[0], exit_marker=300)
+    st = s.same_cue_points(ids[0], first)
+    assert st["segments"] >= 1 and st["segment_overrides"][ids[1]] == {"exit_marker": 300.0}
+    assert st["segment_overrides"][ids[2]] == {"entry_marker": 50.0} and st["undo_label"] == "segment"
+    s.segment_override(ids[0])
+    st = s.same_cue_points(ids[0], first)
+    assert ids[1] not in st["segment_overrides"] and ids[2] in st["segment_overrides"]
+    assert s.same_cue_points(ids[0], first)["segments"] == 0
+
+
+@pytest.mark.game
 def test_cue_points_go_with_their_segments_new_audio(game_session, tmp_path):
     """Cue points are in ms of a segment's new audio. Taking the last of it off takes them off too; a build leaves
     out those of a segment without new audio (an older project can have them) and keeps the game's; and it refuses

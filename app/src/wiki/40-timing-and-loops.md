@@ -19,6 +19,8 @@ The waveforms under the slots show the original above the replacement, on the sa
 
 Drag the Exit on the replacement to move the hand-over. To undo, drag it back to the automatic position or press **Reset cue points**. The details show the same values in milliseconds under **Cue points**.
 
+When one file plays in several segments, **Apply to … more segments with this file** under **Cue points** gives all of them the cue points of the selected one. To set cue points on a selection, select the slots and type the values in the details. A box that shows **Mixed** leaves each segment as it is until you type a value.
+
 > [!TIP]
 > Place reverb tails and final hits after the Exit. They overlap the next segment there, which avoids a gap.
 

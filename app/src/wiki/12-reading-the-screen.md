@@ -77,6 +77,8 @@ Each row is one **slot**, a single game clip that can be replaced.
 | **no audio** | The game data names this clip, but the installed game files don't include it. There is nothing to play or replace. |
 | **quiet drums** | A barely audible drum layer under another layer of the segment. |
 | **never plays** | The clip is in the game files, but the game never plays it. The Illuminate Void's death music is one example. |
+| **only this sound** | The new audio plays in this sound only. The other sounds that play the clip keep the Original. See [Only this sound](wiki:adding-audio#only-this-sound). |
+| **replaced in another sound** | Another sound plays new audio in place of this clip, with **Only this sound**. This one keeps the Original. |
 | a coloured tag | An Index entry related to this slot. Click the tag to open it. |
 
 Hover over a tag to read the note. The notes of a selected clip appear in the details panel. They describe when the clip plays, or give a warning such as a minimum length for new audio.
@@ -99,7 +101,7 @@ The **waveforms** of the selected slot are shown here. The original is on top, a
 
 This panel holds the settings of the selected slot. It shows what replaces the slot, either a file or silence. A file has a button that shows it in Explorer, and silence has **Keep original duration**. Below that are **Make-Up Gain** ([explained here](wiki:volume)), **Fit timing to the new audio**, the **cue points**, **Shared with** and the note. Play audio and choose files on the slot row.
 
-With several slots selected, the panel sets Make-Up Gain or silence for all of them. **Choose one file for all…** puts one file in every selected slot, and **Choose files…** puts a file in each, in list order and file-name order.
+With several slots selected, the panel sets Make-Up Gain, cue points or silence for all of them. **Choose one file for all…** puts one file in every selected slot, and **Choose files…** puts a file in each, in list order and file-name order.
 
 With no slot selected, the panel shows the note of the open item and the keys of the slot list.
 

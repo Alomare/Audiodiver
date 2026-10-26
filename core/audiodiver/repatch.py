@@ -97,16 +97,18 @@ class Found:
                 shutil.copyfileobj(src, dst)
 
 
-SUFFIXES = ("", ".stream", ".gpu_resources")  # a patch's files (a missing one ships empty, as arsenal.py does)
+SUFFIXES = ("", ".stream", ".gpu_resources")  # a patch's files (an empty one isn't packed, as in arsenal.py)
 
 
 def repackage(found: Found, out_zip: Path, rebuilt: dict[str, Path], name: str, gone=()) -> Path:
     """The mod as it was, as a ZIP for its mod manager: every file where it was, each rebuilt patch ({key: the new
     patch_0 on disk, its .stream next to it}) in place of the old one, the patches in `gone` (built into another's
-    place) left out, and the manifest with `name` for its Name and nothing else changed. Written under another name
-    first, so a failure leaves no broken ZIP."""
-    swap = {key + s: Path(str(made) + s) for key, made in rebuilt.items() for s in SUFFIXES}
-    gone = {key + s for key in gone for s in SUFFIXES}
+    place) left out, and the manifest with `name` for its Name and nothing else changed. A rebuilt patch's .stream
+    or .gpu_resources goes in when it holds data. Written under another name first, so a failure leaves no broken
+    ZIP."""
+    made = {key + s: Path(str(new) + s) for key, new in rebuilt.items() for s in SUFFIXES}
+    swap = {k: f for k, f in made.items() if f.is_file() and (k in rebuilt or f.stat().st_size)}
+    gone = {key + s for key in gone for s in SUFFIXES} | (set(made) - set(swap))  # and the old patch's own
     manifest = dict(found.manifest, Name=name) if found.manifest else None
     out_zip.parent.mkdir(parents=True, exist_ok=True)
     partial = out_zip.with_name(out_zip.name + ".partial")
@@ -117,9 +119,8 @@ def repackage(found: Found, out_zip: Path, rebuilt: dict[str, Path], name: str, 
                 info.compress_type = zipfile.ZIP_STORED if ".patch_" in key else zipfile.ZIP_DEFLATED  # as package()
                 with z.open(info, "w", force_zip64=True) as dst:
                     if key in swap:
-                        if swap[key].is_file():
-                            with open(swap[key], "rb") as src:
-                                shutil.copyfileobj(src, dst)
+                        with open(swap[key], "rb") as src:
+                            shutil.copyfileobj(src, dst)
                     elif key == found.manifest_key and manifest is not None:
                         dst.write((json.dumps(manifest, indent=4, ensure_ascii=False) + "\n").encode("utf-8"))
                     else:

@@ -64,6 +64,7 @@ def methods(s: Session) -> dict:
         "projects_info": lambda paths: projects_info(paths),
         "projects_folder": lambda: s.projects_folder(),
         "project_move": lambda: s.move_to_own_folder(),
+        "project_move_to": lambda folder, check=False: s.move_project(folder, check),
         "unused_files": lambda: s.unused_files(),
         "unused_remove": lambda paths: s.remove_unused_files(paths),
         "collect_files": lambda: s.collect_files(),
@@ -84,6 +85,8 @@ def methods(s: Session) -> dict:
         "note_set": lambda key, project_text: s.set_note(key, project_text),
         "segment_override": lambda segment, entry_marker=None, exit_marker=None:
             s.segment_override(segment, entry_marker, exit_marker),
+        "segment_overrides": lambda segments, **cues: s.segment_overrides(segments, **cues),
+        "same_cue_points": lambda segment, source: s.same_cue_points(segment, source),
         "peaks": lambda kind, source=None, path=None, buckets=1200: s.peaks(kind, source, path, buckets),
         "slice_info": lambda audio: s.slice_info(audio),
         "slice_fill": lambda cue, audio, bounds_ms, start_source=None, sources=None: s.slice_fill(cue, audio, bounds_ms, start_source, sources),

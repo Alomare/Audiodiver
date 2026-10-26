@@ -172,6 +172,7 @@ class Session:
         self.texts = None  # strings.Texts: the game's text, read when first asked for
         self._cue_sets = {}  # part cue id -> its sounds, for the parts of what projects list
         self._clips = {}     # object id -> the game's clip it plays (_clip_of)
+        self._segments = {}  # source -> the music segments that play it (_segments_of)
         self.stage, self.load_error = "starting", None
         self.game_where = {"path": None, "how": None}  # the data folder in use (or tried) and how it was found
         self.project: Project | None = None
@@ -242,7 +243,7 @@ class Session:
         save_settings(game_data=chosen)
         with self.lock:
             self.ix, self.catalog, self.lib, self.load_error, self.texts = None, None, None, None, None
-            self._cue_sets, self._clips = {}, {}
+            self._cue_sets, self._clips, self._segments = {}, {}, {}
             self.__dict__.pop("_music_json", None)
             self.stage = "starting"
             self.game_where = {"path": chosen, "how": "chosen" if chosen else None}
@@ -567,6 +568,20 @@ class Session:
         if oid not in self._clips:
             self._clips[oid] = first_clip(self.ix, oid)
         return self._clips[oid]
+
+    def _stand_ins(self, p: Project) -> dict:
+        """{the game's clip: [{"place", "banks"}]}, one entry per Sound that plays a clip of its own in place of
+        it: the Audio tab tags the other Sounds that play the clip, which keep the Original. place: the Library's
+        name of the Sound's first bank."""
+        out = {}
+        if not self.ix or not self.lib:
+            return out
+        for a in p.additions:
+            if a.kind == "own" and (clip := self._clip_of(a.sound)) is not None:
+                banks = self.ix.copies(a.sound)
+                out.setdefault(str(clip), []).append({"place": self.lib.bank_label(banks[0]) if banks else "",
+                                                      "banks": [str(b) for b in banks]})
+        return out
 
     def _original(self, sid: int) -> int | None:
         """The game's clip an added clip stands in for: a clip of its own's; None for a new take."""
@@ -912,6 +927,12 @@ class Session:
                 "fit_timing": r.fit_timing, "silence": r.silence, "exists": exists,
                 "name": "Silence" if r.silence else Path(r.audio).name, "cues": [str(c) for c in cues],
                 "duration_ms": SILENCE_MS if r.silence else duration_ms(p.audio_path(r)) if exists else None}
+        by_file = {}  # a file -> the music segments that play it: where one slot's cue points can go too
+        for sid, a in assignments.items():
+            if not a["silence"]:
+                by_file.setdefault(a["audio"], set()).update(self._segments_of(int(sid)))
+        for a in assignments.values():
+            a["file_segments"] = 0 if a["silence"] else len(by_file[a["audio"]])
         problems = p.problems() + [f"{u['label'] or u['audio'] or 'silence'}: sound {u['target']} isn't in this "
                                    f"version of the game (remove it, or replace another sound)" for u in unresolved]
         by_sound = {}
@@ -950,7 +971,7 @@ class Session:
                 "path": str(p.path), "folder": str(p.path.parent), "name": p.name, "guid": p.guid,
                 **self._folder_facts(p),
                 "revision": self.revision, "version": p.version, "description": p.description, "icon": p.icon, "icon_frame": frame,
-                "loudness_analysis": p.loudness_analysis, "every_bank": p.every_bank,
+                "loudness_analysis": p.loudness_analysis, "every_bank": p.every_bank, "patch_files": p.patch_files,
                 "build_folder": str(p.build_dir()), "build_folder_default": str(p.default_build_dir()),
                 "zip_name": zip_name(p), "last_build": (last := _last_build(p.build_dir(), slug(p.name))),
                 "game_updated": (updated := bool(self.ix) and _game_updated(p, self.ix.game, last)),
@@ -958,7 +979,8 @@ class Session:
                 "assignments": assignments, "unresolved": unresolved,
                 "segment_overrides": {str(k): v for k, v in p.segment_overrides.items()},
                 "texts": [{"table": str(t.table), "id": t.id, "text": t.text, "was": t.was} for t in p.texts],
-                "additions": p.to_json().get("additions", []), "settings": len(p.settings), "notes": dict(p.notes),
+                "additions": p.to_json().get("additions", []), "stand_ins": self._stand_ins(p),
+                "settings": len(p.settings), "notes": dict(p.notes),
                 "soundtrack": {str(k): v.to_json() for k, v in p.soundtrack.items()}, "tabs": p.tabs,
                 "problems": problems, "can_undo": bool(self.undo_stack), "can_redo": bool(self.redo_stack),
                 "undo_label": self.undo_stack[-1][0] if self.undo_stack else None,
@@ -1269,11 +1291,12 @@ class Session:
             return str(folder)
 
     def settings(self, **fields):
-        """Changes what the build packages the mod as (name, version, description, icon, a new id), where its
-        builds go, and the tabs the project shows. Every value is checked before any is changed."""
+        """Changes what the build packages the mod as (name, version, description, icon, a new id or one given),
+        where its builds go and whether they also save the patch files, and the tabs the project shows. Every value
+        is checked before any is changed."""
         from . import akd
         bad = set(fields) - {"name", "version", "description", "icon", "build_folder", "guid", "loudness_analysis",
-                             "every_bank", "tabs"}
+                             "every_bank", "patch_files", "tabs"}
         if bad:
             raise EditorError(f"Unknown setting {sorted(bad)[0]}")
         checked = {}
@@ -1297,6 +1320,8 @@ class Session:
                     raise EditorError(f"Loudness analysis: {why}")
             elif k == "every_bank" and not isinstance(v, bool):
                 raise EditorError("Every bank is on or off")
+            elif k == "patch_files" and not isinstance(v, bool):
+                raise EditorError("Patch files are on or off")
             elif k == "tabs" and v is not None and (v := tab_list(v)) is None:
                 raise EditorError("The tabs are some of " + ", ".join(TABS))
             checked[k] = v
@@ -1320,6 +1345,8 @@ class Session:
                     p.loudness_analysis = v
                 elif k == "every_bank":
                     p.every_bank = v
+                elif k == "patch_files":
+                    p.patch_files = v
                 elif k == "tabs":  # None: as Settings says again
                     p.tabs = v
         return self._edit("tabs" if set(checked) == {"tabs"} else "settings", apply)
@@ -1375,34 +1402,91 @@ class Session:
         except BuildError as e:
             raise EditorError(str(e)) from None
 
-    def segment_override(self, segment, entry_marker=None, exit_marker=None):
-        """Sets (or, with neither, clears) a music segment's cue points in ms of its new audio."""
+    @staticmethod
+    def _segment_id(segment) -> int:
         try:
-            seg = int(segment)
+            return int(segment)
         except (TypeError, ValueError, OverflowError):
             raise EditorError(f"{segment!r} isn't a segment id") from None
-        o = {}
-        for k, v in (("entry_marker", entry_marker), ("exit_marker", exit_marker)):
-            if v is None or v == "":
-                continue
-            if isinstance(v, bool) or not isinstance(v, (int, float, str)):
-                raise EditorError("A cue point is a number of milliseconds")
-            try:
-                ms = float(v)
-            except ValueError:
-                raise EditorError("A cue point is a number of milliseconds") from None
-            if not math.isfinite(ms) or ms < 0 or ms > 3_600_000:
-                raise EditorError("A cue point is a number of milliseconds from 0")
-            o[k] = ms
+
+    @staticmethod
+    def _cue_ms(v) -> float | None:
+        """A cue point the UI sends, in ms; None for an empty one."""
+        if v is None or v == "":
+            return None
+        if isinstance(v, bool) or not isinstance(v, (int, float, str)):
+            raise EditorError("A cue point is a number of milliseconds")
+        try:
+            ms = float(v)
+        except ValueError:
+            raise EditorError("A cue point is a number of milliseconds") from None
+        if not math.isfinite(ms) or ms < 0 or ms > 3_600_000:
+            raise EditorError("A cue point is a number of milliseconds from 0")
+        return ms
+
+    @staticmethod
+    def _cues_ok(o: dict) -> dict:
         if "entry_marker" in o and "exit_marker" in o and o["entry_marker"] >= o["exit_marker"]:
             raise EditorError("The Entry cue point comes before the Exit")
+        return o
 
-        def apply(p):
-            if o:
-                p.segment_overrides[seg] = o
-            else:
-                p.segment_overrides.pop(seg, None)
+    @staticmethod
+    def _put_cues(p: Project, seg: int, o: dict):
+        if o:
+            p.segment_overrides[seg] = dict(o)
+        else:
+            p.segment_overrides.pop(seg, None)
+
+    def segment_override(self, segment, entry_marker=None, exit_marker=None):
+        """Sets (or, with neither, clears) a music segment's cue points in ms of its new audio."""
+        seg = self._segment_id(segment)
+        o = self._cues_ok({k: ms for k, v in (("entry_marker", entry_marker), ("exit_marker", exit_marker))
+                           if (ms := self._cue_ms(v)) is not None})
+        return self._edit("segment", lambda p: self._put_cues(p, seg, o))
+
+    def segment_overrides(self, segments, **cues):
+        """Cue points for several music segments at once, in ms of each one's new audio: one given (entry_marker,
+        exit_marker) goes on every segment, an empty one comes off every segment, and one not given stays as each
+        segment has it."""
+        if not isinstance(segments, list) or not segments:
+            raise EditorError("Choose the segments to change")
+        if unknown := set(cues) - {"entry_marker", "exit_marker"}:
+            raise EditorError(f"Not a cue point: {', '.join(sorted(unknown))}")
+        segs, given = [self._segment_id(s) for s in segments], {k: self._cue_ms(v) for k, v in cues.items()}
+
+        def apply(p):  # a segment whose Entry would come after its Exit stops the whole edit
+            for seg in segs:
+                o = {k: v for k, v in {**p.segment_overrides.get(seg, {}), **given}.items() if v is not None}
+                self._put_cues(p, seg, self._cues_ok(o))
         return self._edit("segment", apply)
+
+    def _segments_of(self, sid: int) -> frozenset:
+        """The music segments that play a source (none without the game)."""
+        if not self.catalog:
+            return frozenset()
+        if sid not in self._segments:
+            cm = self.catalog.cm
+            self._segments[sid] = frozenset(s["segment"] for c in cm.by_source.get(sid, []) for s in cm.cues[c]["segments"]
+                                            if any(sl["source"] == sid for st in s["stems"] for sl in st["slots"]))
+        return self._segments[sid]
+
+    def same_cue_points(self, segment, source):
+        """Gives the cue points of `segment` (none, where it has none) to every other segment that plays the file
+        replacing `source`. Returns the project's state, with `segments`: how many changed."""
+        self.require_game()
+        seg, r, p = self._segment_id(segment), self._rep(source), self._need_project()
+        if r.silence:
+            raise EditorError("Silence has no cue points")
+        sources = {self._target(x.target) for x in p.replacements if x.audio == r.audio and not x.silence}
+        segs, changed = sorted(set().union(*(self._segments_of(sid) for sid in sources)) - {seg}), []
+
+        def apply(proj):  # read under the edit's lock: a cue point typed just before is in
+            o = dict(proj.segment_overrides.get(seg, {}))
+            for s in segs:
+                if proj.segment_overrides.get(s, {}) != o:
+                    self._put_cues(proj, s, o)
+                    changed.append(s)
+        return {**self._edit("segment", apply), "segments": len(changed)}
 
     # --- the project's folder (projectfiles.py)
     def _history(self) -> list[dict]:
@@ -1473,6 +1557,79 @@ class Session:
             log.info("project moved from %s to %s: %d files moved, %d copied", old_file, moved.path,
                      sum(m for *_, m in done), sum(not m for *_, m in done))
             return self.project_state()
+
+    def move_project(self, folder, check=False):
+        """Moves the project's folder, with everything in it, into `folder` (made when it isn't there), under the
+        name it has, or "<name> 2"... when that is taken there. Paths to files outside the project's folder are
+        written again, so the project finds every file as before. A project without a folder of its own gets one
+        first (move_to_own_folder). On one drive the folder is renamed; to another, it is copied and the old one
+        taken away ({…project, old_left} says when some of it stayed). The undo history moves with the project.
+        check: only {dest, copy}, where it would go and whether it is copied there."""
+        from . import projectfiles as pf
+        from .game import in_game_folder
+        if not isinstance(folder, str) or not folder.strip() or not Path(folder).is_absolute():
+            raise EditorError("Choose a folder to move the project to (a full path)")
+        to = pf.norm(folder)
+        with self.lock:
+            p = self._need_project()
+            self._files_busy()
+            if self.ix and in_game_folder(to, self.ix.game.data):
+                raise EditorError("That folder is inside the game folder, and Audiodiver never writes there")
+            own = pf.own_folder(p.path)
+            old = p.path.parent if own else pf.move_dest(p.path)  # the folder that moves
+            if pf.key(to) == pf.key(old.parent):
+                raise EditorError("The project is in that folder already")
+            if pf.inside(to, old) is not None:
+                raise EditorError("Choose a folder outside the project's folder")
+            if to.exists() and not to.is_dir():
+                raise EditorError("That is a file, not a folder")
+            dest = pf.free(to / old.name)
+            other_drive = os.path.splitdrive(old)[0].lower() != os.path.splitdrive(dest)[0].lower()
+            if check:
+                return {"dest": str(dest), "copy": other_drive}
+            if not own:
+                self.move_to_own_folder()
+                p, old = self.project, self.project.path.parent
+                dest = pf.free(to / old.name)
+            made = not to.exists()
+
+            def back():  # a failed move takes away the folder it made for the project
+                if other_drive:
+                    shutil.rmtree(dest, ignore_errors=True)
+                if made:
+                    try:
+                        to.rmdir()
+                    except OSError:
+                        pass
+            try:
+                to.mkdir(parents=True, exist_ok=True)
+                if other_drive:
+                    shutil.copytree(old, dest)
+                else:
+                    os.replace(old, dest)
+            except OSError as e:
+                back()
+                raise EditorError(f"The project couldn't move: {os_error(e)}") from None
+            try:
+                moved = Project.from_json(pf.rebase(p.to_json(), old, dest, whole=True), dest / p.path.name)
+                moved.save()
+            except BaseException as e:
+                if not other_drive:
+                    os.replace(dest, old)
+                back()
+                if isinstance(e, OSError):
+                    raise EditorError(f"The project couldn't move: {os_error(e)}") from None
+                raise
+            self.project = moved
+            self.undo_stack = [(label, pf.rebase(d, old, dest, whole=True)) for label, d in self.undo_stack]
+            self.redo_stack = [(label, pf.rebase(d, old, dest, whole=True)) for label, d in self.redo_stack]
+            self.revision += 1
+            left = False
+            if other_drive:
+                shutil.rmtree(old, ignore_errors=True)
+                left = old.exists()
+            log.info("project moved from %s to %s%s", old, dest, " (some of the old folder stays)" if left else "")
+            return {**self.project_state(), "old_left": left}
 
     def unused_files(self):
         """The files in Audiodiver's folders beside the project that nothing uses (projectfiles.unused):
@@ -1715,7 +1872,7 @@ class Session:
         reuse: out_dir is this patch's alone (Combine's cache), and the WAVs a finished reading left there (it writes
         `.done`) are used again, not decoded again."""
         import struct
-        from .addition import from_patch, same_audio
+        from .addition import cue_points, from_patch, same_audio
         from .build import keep_encoding
         from .patch import diff
         job.say(f"reading {patch_path.name}")
@@ -1743,6 +1900,7 @@ class Session:
             replaced[sid] = data
         for sid, data in got.replaced.items():
             replaced.setdefault(sid, data)
+        got.cues = cue_points(d, replaced)
         new = {src: data for *_, src, data in got.takes} | {src: data for _, src, data in got.own}
         for line in got.left:
             job.say(f"left out: {line}")
@@ -1790,12 +1948,15 @@ class Session:
         return got, replaced, files, len(found) - len(files)
 
     def _fill_from_patch(self, p: Project, got, replaced: dict, files: dict) -> int:
-        """Puts a patch's audio (_patch_audio) into a project: what it replaces, then what it adds, and its settings
-        on the game's objects (a later import's go over an earlier one's). Returns how many slots it added or
-        changed."""
+        """Puts a patch's audio (_patch_audio) into a project: what it replaces, then what it adds, its settings on
+        the game's objects and its cue points (a later import's go over an earlier one's). Returns how many slots it
+        added or changed."""
         for sid, wav in files.items():
             if sid in replaced:
                 self._set(p, sid, str(wav), label=f"imported {sid}")
+        for seg, (cues, clips) in got.cues.items():  # a segment the patch gives new audio takes its cue points too
+            if clips & files.keys():
+                self._put_cues(p, seg, cues)
         for oid, changes in got.settings.items():
             p.settings[oid] = {**p.settings.get(oid, {}), **changes}
         p.imported_banks = sorted(set(p.imported_banks) | got.banks)  # where its sounds go (build.reach)
@@ -2389,6 +2550,9 @@ class Session:
                             for sid in sorted(wins & set(local)):
                                 self._set(p, sid, str(local[sid]), label=f"{m['name']} {sid}")
                                 stats[i]["imported"] += 1
+                            for seg, (cues, seg_clips) in pt.cues.items():  # where all of its new audio won
+                                if seg_clips and all(clips.get(s) == (i, k) for s in seg_clips):
+                                    self._put_cues(p, seg, cues)
                             got = SimpleNamespace(layers=pt.layers, takes=pt.takes, own=own_here)
                             stats[i]["added"] += self._take_in(p, got, local, mine, tag=m["name"])
                             p.imported_banks = sorted(set(p.imported_banks) | pt.banks)  # where its sounds go

@@ -32,4 +32,4 @@ To bring the mod into an existing project instead, use **Import patches…** on 
 
 The import also brings in audio that the mod adds. This can be new takes for a sound, a new sound that plays with an existing one (a layer), or a separate clip for one sound. Each one becomes the same kind of addition that [Adding audio](wiki:adding-audio) makes. A layer goes next to the sound it was built from, and plays wherever that sound plays.
 
-Sound settings come in too, such as the volume of a sound or a container, or a delay before it plays. The build applies them with the values the mod used. Other kinds of change, such as effects or how a container picks sounds, aren't imported. The import shows how many were left out.
+Sound settings come in too, such as the volume of a sound or a container, or a delay before it plays. The build applies them with the values the mod used. So do the cue points of the music segments the patch gives new audio. Other kinds of change, such as effects or how a container picks sounds, aren't imported. The import shows how many were left out.

@@ -66,7 +66,8 @@ def replacements(project: Project, ix: AudioIndex, log=None, step=None) -> list[
         if sid in by_sound:
             raise BuildError(f"{by_sound[sid]} and {name} replace the same sound")
         by_sound[sid] = name
-        data = encode_cached(src, log=log)
+        # an encoding cached before Audiodiver set the hash, or a mod's own, may give another setup's
+        data = wem.with_codebook_hash(encode_cached(src, log=log))
         if project.loudness_analysis and not r.silence and akd.get_chunk(data, b"akd ") is None:  # a mod's own may have it
             data = akd.insert(data, analysis[src])
         out.append(patch.Replacement(sid, data, fit_timing=r.fit_timing, makeup_db=r.gain_db, mute=r.silence))
@@ -237,8 +238,9 @@ def build(project: Project, ix: AudioIndex, out_dir=None, version=None, log=prin
           carried=None) -> Path:
     """Writes <out_dir>/<name>-<version>.zip and returns its path; out_dir defaults to the project's build folder.
     step(doing, done, total), when given, follows the build (the job's progress; it may stop the build there).
-    The patch and the icon are made and checked in a scratch folder, so the ZIP is all a build adds to out_dir:
-    any folder can take builds, also one that other mods build into."""
+    The patch and the icon are made and checked in a scratch folder, so the ZIP is all a build adds to out_dir
+    (with the project's patch_files, also a folder named like the ZIP holding the patch files): any folder can take
+    builds, also one that other mods build into."""
     out_dir = Path(out_dir or project.build_dir())
     if in_game_folder(out_dir, ix.game.data):  # a project file can name any folder; the editor refuses this one
         raise BuildError(f"{out_dir} is inside the game folder, and Audiodiver never writes there. Choose another "
@@ -263,7 +265,14 @@ def build(project: Project, ix: AudioIndex, out_dir=None, version=None, log=prin
                                        options=[{"name": project.name, "description": "", "folder": patch_dir}])
         except OSError as e:
             raise BuildError(f"Can't write the ZIP into {out_dir}: {os_error(e)}") from None
-    log(f"{zip_path} ({zip_path.stat().st_size / 1e6:.1f} MB)")
+        log(f"{zip_path} ({zip_path.stat().st_size / 1e6:.1f} MB)")
+        if project.patch_files:
+            folder = out_dir / zip_path.stem
+            try:
+                arsenal.save_patch_files(patch_dir, folder)
+            except OSError as e:
+                raise BuildError(f"Can't save the patch files into {folder}: {os_error(e)}") from None
+            log(f"patch files in {folder}")
     return zip_path
 
 

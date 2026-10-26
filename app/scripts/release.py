@@ -161,14 +161,9 @@ def section(v) -> str:
 
 
 def notes(tag):
-    v = tag.removeprefix("v")
+    """The release text on GitHub and in the Updates tab: the changelog section alone."""
     sys.stdout.reconfigure(encoding="utf-8")
-    sys.stdout.write(section(v) + "\n\n" + (
-        f"**Audiodiver_{v}_x64-setup.exe** installs Audiodiver and updates it from inside the app. "
-        f"**Audiodiver-{v}-portable.zip** runs from any folder: unzip it and start Audiodiver.exe. A portable copy "
-        "keeps its settings and caches in the `data` folder beside it, and updates by downloading the new ZIP. "
-        f"**Audiodiver-Utils-{v}-portable.zip** is Repatch and Combine Mods alone, as a smaller portable window and "
-        "a command line (`audiodiver.cmd`), without projects.\n"))
+    sys.stdout.write(section(tag.removeprefix("v")) + "\n")
 
 
 def portable():

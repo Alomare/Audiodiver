@@ -1,8 +1,9 @@
 """Packages HD2 patch archives into an HD2 Arsenal mod ZIP.
 
 Layout matches the Script workspace's packager (Mods/Script/tools/package.py): manifest.json at the root, every Include folder
-holds a full 9ba626afa44a3aa3.patch_0 trio (.patch_0, .stream, .gpu_resources; missing ones ship empty).
-Arsenal renumbers patch_0 to a free slot on deploy, so every folder uses patch_0.
+holds a 9ba626afa44a3aa3.patch_0, with its .stream and .gpu_resources when they hold data (most audio mods ship
+without an empty one, and audio has no GPU data). Arsenal renumbers patch_0 to a free slot on deploy, so every
+folder uses patch_0.
 
 Manifest rules (BSL CLAUDE.md, hd2-lua-mod skill 6.16):
   - Name is plain ASCII without \\ / : * ? " < > | or edge spaces (managers use it as a folder name), and no
@@ -62,14 +63,28 @@ def slug(text):
 
 
 def archive_files(folder):
-    """The patch's files in folder as the ZIP takes them: {name: its path}, or b'' for one the build didn't write."""
+    """The patch's files in folder as the ZIP takes them: {name: its path}, without a .stream or .gpu_resources that
+    is missing or empty."""
     folder = Path(folder)
     if not (folder / ARCHIVE).is_file():
         raise FileNotFoundError(f'{folder} has no {ARCHIVE}')
     extra = [p.name for p in folder.iterdir() if p.name not in {ARCHIVE + s for s in SUFFIXES}]
     if extra:
         raise ValueError(f'{folder} has files a mod manager would not expect: {extra}')
-    return {ARCHIVE + s: (folder / (ARCHIVE + s)) if (folder / (ARCHIVE + s)).exists() else b'' for s in SUFFIXES}
+    return {ARCHIVE + s: f for s in SUFFIXES if (f := folder / (ARCHIVE + s)).is_file() and (not s or f.stat().st_size)}
+
+
+def save_patch_files(folder, to):
+    """Copies the patch's files in folder, as the ZIP takes them, into the folder `to`, in place of those there: a
+    file this patch lacks is taken away from there too."""
+    to = Path(to)
+    to.mkdir(parents=True, exist_ok=True)
+    files = archive_files(folder)
+    for name in (ARCHIVE + s for s in SUFFIXES):
+        if name in files:
+            shutil.copyfile(files[name], to / name)
+        else:
+            (to / name).unlink(missing_ok=True)
 
 
 def icon_frame(icon=None) -> dict:

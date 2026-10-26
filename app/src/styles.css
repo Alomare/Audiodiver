@@ -433,6 +433,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fg); }
 .markers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .markers label { font-size: calc(13px * var(--fs)); color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
 .markers input[aria-invalid="true"] { border-color: var(--red); }
+.markers-more { margin: 8px 0 0; font-size: calc(13px * var(--fs)); }
 .insp-sec small.bad { color: var(--red); font-size: calc(12px * var(--fs)); }
 .insp-sec .cards { margin: 8px 0 10px; }
 .facts dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; font-size: calc(14px * var(--fs)); }
@@ -1269,6 +1270,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .rp-text .set-note { margin-top: 8px; font-size: calc(13px * var(--fs)); }
 
 .pkg-id { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pkg-id input { flex: 0 1 calc(340px * var(--fs)); min-width: 0; }
 .pkg-id code { padding: 4px 8px; font-family: inherit; font-size: calc(14px * var(--fs)); background: var(--bg); border: 1px solid var(--line-soft); user-select: all; }
 .pkg-preview { display: flex; flex-direction: column; gap: 10px; }
 /* the checks behind the icon show where rounded corners leave it see-through */

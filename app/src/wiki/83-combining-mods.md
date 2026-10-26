@@ -28,7 +28,7 @@ A conflict is a sound that more than one mod changes in different ways. The mods
 
 Conflicts are grouped by their item in the Index, such as a piece of music or a weapon. Each line plays the original first, then the version from each mod. The highlighted mod goes in. **All from** on an item's line picks one mod for every conflict in that item. By default the mod lower in the list wins, as if it were deployed later.
 
-A setting on a sound in conflict follows the sound, so the mod whose audio goes in also brings the volume set on that sound.
+A setting on a sound in conflict follows the sound, so the mod whose audio goes in also brings the volume set on that sound. Cue points follow the audio the same way: a music segment takes the cue points of the mod whose audio it plays.
 
 ## Destination folder
 

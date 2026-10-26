@@ -114,6 +114,131 @@ def test_silence_takes_a_sound_out_of_the_mix():
     assert unchanged is raw and not edit.mutes  # a replacement that isn't silence keeps the Volume
 
 
+# --- streamed clips: the start a bank keeps
+def _vorbis(seek: int, setup: int, packets: list[int]) -> bytes:
+    """A Wwise Vorbis WEM laid out as the game's: fmt of 0x42 bytes with the Vorbis fields, then data holding the
+    seek table, the setup packet and packets of the sizes given (each a 2-byte size, then its bytes). Data at 94."""
+    fmt = bytearray(0x42)
+    struct.pack_into("<HHI", fmt, 0, 0xFFFF, 2, 48000)
+    struct.pack_into("<II", fmt, 0x28, seek, seek + setup)  # seek table size, first packet (from data)
+    audio = b"".join(struct.pack("<H", n) + bytes([k + 1]) * n for k, n in enumerate(packets))
+    return _riff((b"fmt ", bytes(fmt)), (b"data", bytes(seek + setup) + audio))
+
+
+def test_a_kept_start_holds_the_whole_header_and_ends_on_a_packet():
+    """As in every prefetch the game has: a start cut inside the header (a long song in place of a short piece has a
+    longer seek table) crashed the game's decoder. Packets end at 947, 1249, 1551, 1853 (the header at 924)."""
+    from audiodiver.wem import prefetch_size
+    wem = _vorbis(600, 230, [21, 300, 300, 300])
+    assert [prefetch_size(wem, mem) for mem in (642, 924, 947, 1000, 1249, 1852)] == [947, 947, 947, 1249, 1249, 1853]
+    assert prefetch_size(wem, len(wem) + 5) == len(wem)
+    pcm = _riff((b"fmt ", struct.pack("<HHI", 1, 2, 48000) + bytes(8)), (b"data", bytes(4000)))
+    assert prefetch_size(pcm, 642) == 642  # not Wwise Vorbis: as before
+
+
+def test_every_copy_of_a_streamed_clip_gives_the_start_the_bank_keeps():
+    wem = _vorbis(600, 230, [21, 300, 300, 300])
+    sounds = []
+    for oid, mem in ((7, 642), (8, 1000)):
+        body = bytes(_sound([]))
+        sounds.append((oid, bank.SOURCE.pack(0x40001, patch.PREFETCH, 1234, 0, mem, 0) + body[bank.SOURCE.size:]))
+    hirc = struct.pack("<I", 2) + b"".join(struct.pack("<BII", bank.SOUND, 4 + len(b), i) + b for i, b in sounds)
+    old = b"RIFF" + bytes(1100)
+    didx, data = struct.pack("<III", 1234, 0, len(old)), old
+    raw = (b"BKHD" + struct.pack("<I", 4) + bytes(4) + b"DIDX" + struct.pack("<I", 12) + didx
+           + b"DATA" + struct.pack("<I", len(data)) + data + b"HIRC" + struct.pack("<I", len(hirc)) + hirc)
+    new, edit = patch.patch_bank(raw, {1234: patch.Replacement(1234, wem, fit_timing=False)}, {})
+    media, objects = bank.parse(new)
+    assert media == {1234: wem[:1249]} and edit.media == [1234] and sorted(edit.sounds) == [7, 8]
+    assert [bank.SOURCE.unpack_from(objects[i][1], 0)[4] for i in (7, 8)] == [1249, 1249]
+
+
+def test_clips_nothing_in_the_bank_plays_get_the_new_audio_too():
+    """Footsteps keep their clips in banks that another bank's Sounds play from, and a Sound given a clip of its own
+    leaves its old clip in its bank. The game plays the first copy loaded, so each copy gets the new audio, as the
+    bank had it: the whole file, or the start of a streamed one."""
+    whole, start = _riff((b"fmt ", bytes(16)), (b"data", bytes(100))), b"RIFF" + struct.pack("<I", 5000) + bytes(634)
+    didx = struct.pack("<III", 1234, 0, len(whole)) + struct.pack("<III", 5678, 128, len(start))
+    data = whole.ljust(128, b"\0") + start
+    raw = (b"BKHD" + struct.pack("<I", 4) + bytes(4) + b"DIDX" + struct.pack("<I", len(didx)) + didx
+           + b"DATA" + struct.pack("<I", len(data)) + data)
+    wem = _vorbis(600, 230, [21, 300, 300, 300])
+    new, edit = patch.patch_bank(raw, {s: patch.Replacement(s, wem) for s in (1234, 5678)}, {})
+    assert bank.parse(new)[0] == {1234: wem, 5678: wem[:947]} and edit.media == [1234, 5678]
+
+
+def _wav2wem_hash(setup: bytes) -> bytes:
+    """A Wwise Vorbis WEM with this setup packet and the codebook hash wav2wem writes on every clip (fmt at 20)."""
+    wem = bytearray(_vorbis(8, 2 + len(setup), [21, 30]))
+    struct.pack_into("<H", wem, 94 + 8, len(setup))  # data at 94: the seek table, then the setup packet
+    wem[94 + 10:94 + 10 + len(setup)] = setup
+    struct.pack_into("<I", wem, 20 + 0x3C, 0x20CEF588)
+    return bytes(wem)
+
+
+def test_a_clip_gives_the_codebook_hash_of_its_own_setup():
+    """The game decodes the clips playing at once that give one codebook hash with one copy of the codebooks (Wwise
+    writes FNV-1 of the setup packet). wav2wem gives every clip the hash of its 24 kHz mono setup: a 48 kHz voice
+    line played over a 24 kHz one screeched."""
+    from audiodiver.wem import codebook_hash, with_codebook_hash
+    assert codebook_hash(b"") == 0x811C9DC5 and codebook_hash(b"a") == 0x050C5D7E  # FNV-1, not FNV-1a
+    setup = bytes(range(7, 47))
+    wem = _wav2wem_hash(setup)
+    fixed = with_codebook_hash(wem)
+    assert struct.unpack_from("<I", fixed, 20 + 0x3C)[0] == codebook_hash(setup)
+    assert fixed[:20 + 0x3C] == wem[:20 + 0x3C] and fixed[20 + 0x40:] == wem[20 + 0x40:]
+    assert with_codebook_hash(fixed) is fixed  # a clip with the right hash (the game's, Wwise's) stays as it is
+    pcm = _riff((b"fmt ", struct.pack("<HHI", 1, 2, 48000) + bytes(8)), (b"data", bytes(400)))
+    assert with_codebook_hash(pcm) is pcm and with_codebook_hash(b"RIFF") == b"RIFF"
+
+
+def test_mono_and_stereo_encodings_give_hashes_of_their_own(tmp_path):
+    import wave
+    from audiodiver import wem
+    hashes = set()
+    for channels in (1, 2):
+        src, out = tmp_path / f"{channels}.wav", tmp_path / f"{channels}.wem"
+        with wave.open(str(src), "wb") as w:
+            w.setnchannels(channels); w.setsampwidth(2); w.setframerate(48000)
+            w.writeframes(bytes(2 * channels * 4800))
+        wem.encode(str(src), str(out))
+        data = out.read_bytes()
+        assert wem.with_codebook_hash(data) is data
+        hashes.add(struct.unpack_from("<I", data, wem.fmt_offset(data) + 0x3C)[0])
+    assert len(hashes) == 2 and 0x20CEF588 not in hashes
+
+
+@pytest.mark.game
+def test_the_games_clips_give_the_codebook_hash_of_their_setup():
+    """What with_codebook_hash writes is what Wwise wrote in the game's own clips."""
+    from audiodiver import wem
+    from audiodiver.index import AudioIndex
+    ix = AudioIndex()
+    vorbis = 0
+    for bid in sorted(ix.banks)[:60]:
+        for data in bank.parse(ix.bank_files(bid)[0])[0].values():
+            if data[:4] == b"RIFF" and len(data) >= struct.unpack_from("<I", data, 4)[0] + 8 \
+                    and struct.unpack_from("<H", data, wem.fmt_offset(data))[0] == 0xFFFF:
+                assert wem.with_codebook_hash(data) is data
+                vorbis += 1
+    assert vorbis > 100
+
+
+@pytest.mark.game
+def test_a_build_gives_each_clip_the_codebook_hash_of_its_setup(tmp_path, monkeypatch):
+    """Encodings cached before the fix, and a mod's own clips, go into the patch with the hash of their setup."""
+    from audiodiver import build
+    from audiodiver.index import AudioIndex
+    from audiodiver.wem import with_codebook_hash
+    ix = AudioIndex()
+    wrong = _wav2wem_hash(bytes(range(7, 47)))
+    monkeypatch.setattr(build, "encode_cached", lambda src, quality=6, log=None: wrong)
+    (tmp_path / "a.wav").write_bytes(b"")
+    p = Project(name="Test", path=tmp_path / "t.audi", replacements=[Replacement(min(ix.holders), "a.wav")])
+    [r] = build.replacements(p, ix)
+    assert r.wem == with_codebook_hash(wrong) != wrong
+
+
 # --- WEM analysis chunk
 def _riff(*chunks):
     body = b"WAVE" + b"".join(tag + struct.pack("<I", len(d)) + d for tag, d in chunks)
@@ -287,12 +412,12 @@ def test_project_keeps_its_banks_setting_and_an_imported_mods_banks(tmp_path):
     p = Project(name="Test", path=tmp_path / "t.audi")
     p.save()
     text = (tmp_path / "t.audi").read_text()
-    assert "every_bank" not in text and "imported_banks" not in text  # files stay as they were while unused
-    p.every_bank, p.imported_banks = True, [6187728386225981464]
+    assert "every_bank" not in text and "imported_banks" not in text and "patch_files" not in text  # as they were
+    p.every_bank, p.imported_banks, p.patch_files = True, [6187728386225981464], True
     p.save()
     assert '"6187728386225981464"' in (tmp_path / "t.audi").read_text()
     q = Project.load(tmp_path / "t.audi")
-    assert q.every_bank and q.imported_banks == [6187728386225981464]
+    assert q.every_bank and q.imported_banks == [6187728386225981464] and q.patch_files
 
 
 def test_a_sound_goes_into_the_projects_banks():
@@ -333,9 +458,7 @@ def test_package_writes_the_zip_whole_or_not_at_all(tmp_path, monkeypatch):
                 options=[{"name": "Mod", "description": "", "folder": tmp_path / "patch"}])
     arsenal.package(out, **args)
     with zipfile.ZipFile(out) as z:
-        assert sorted(z.namelist()) == ["icon.png", "manifest.json", "mod/9ba626afa44a3aa3.patch_0",
-                                        "mod/9ba626afa44a3aa3.patch_0.gpu_resources",
-                                        "mod/9ba626afa44a3aa3.patch_0.stream"]
+        assert sorted(z.namelist()) == ["icon.png", "manifest.json", "mod/9ba626afa44a3aa3.patch_0"]
         assert json.loads(z.read("manifest.json"))["IconPath"] == "icon.png"
         assert z.getinfo("mod/9ba626afa44a3aa3.patch_0").compress_type == zipfile.ZIP_STORED  # Vorbis barely deflates
         assert z.read("mod/9ba626afa44a3aa3.patch_0") == b"patch"
@@ -356,6 +479,20 @@ def test_package_writes_the_zip_whole_or_not_at_all(tmp_path, monkeypatch):
     Image.new("RGB", (8, 8)).save(tmp_path / "icon.jpg")
     with pytest.raises(ValueError):
         arsenal.package(out, **{**args, "icon": tmp_path / "icon.jpg"})
+
+
+def test_a_patch_ships_without_empty_parts_and_its_files_can_be_saved(tmp_path):
+    """Audio has no GPU data, and most audio mods ship without an empty .gpu_resources or .stream."""
+    from audiodiver import arsenal
+    names = [arsenal.ARCHIVE + s for s in arsenal.SUFFIXES]
+    patch_dir, out = tmp_path / "patch", tmp_path / "mod-2"
+    patch_dir.mkdir(); out.mkdir()
+    for name, data in zip(names, (b"patch", b"streams", b"")):
+        (patch_dir / name).write_bytes(data)
+    assert sorted(arsenal.archive_files(patch_dir)) == names[:2]
+    (out / names[2]).write_bytes(b"gpu")  # left by a build with data there
+    arsenal.save_patch_files(patch_dir, out)
+    assert sorted(f.name for f in out.iterdir()) == names[:2] and (out / names[0]).read_bytes() == b"patch"
 
 
 def test_a_build_never_goes_into_the_games_folder(tmp_path):
@@ -398,11 +535,11 @@ def test_golden_build(key, tmp_path):
     g = GOLDEN["projects"][key]
     zip_path = build(Project.load(MODS / g["project"]), ix, tmp_path, log=lambda *_: None)
     assert [f.name for f in tmp_path.iterdir()] == [zip_path.name]  # the ZIP is all a build leaves in its folder
-    with zipfile.ZipFile(zip_path) as z:  # one option folder with the patch trio; the parts a patch lacks ship empty
+    with zipfile.ZipFile(zip_path) as z:  # one option folder with the patch's files; an empty part is left out
         patch_files = {Path(n).name: z.read(n) for n in z.namelist() if "/" in n}
         assert _png_size(z.read("icon.png")) == (540, 540)
     got = {name: hashlib.sha256(data).hexdigest() for name, data in patch_files.items() if data}
-    assert got == g["files"] and len(patch_files) == 3
+    assert got == g["files"] and all(patch_files.values())
 
 
 @pytest.mark.game
@@ -421,3 +558,20 @@ def test_a_shared_clip_goes_into_the_projects_banks_or_every_bank(tmp_path):
         (tmp_path / f"{every}").mkdir()
         edits = build.make_patch(p, ix, tmp_path / f"{every}", log=lambda *_: None)
         assert set(edits) == (ix.banks_for(sid) if every else {home})
+
+
+@pytest.mark.game
+def test_a_build_can_save_the_patch_files_beside_the_zip(tmp_path):
+    """For packing the mod another way: a folder named like the ZIP, with the files the ZIP holds."""
+    from audiodiver import build
+    from audiodiver.index import AudioIndex
+    ix = AudioIndex()
+    sid = next(s for s, h in sorted(ix.holders.items()) if len(h) == 1 and ix.stream_file(s) is None)
+    p = Project(name="Test", path=tmp_path / "t.audi", imported_banks=[min(ix.holders[sid])], patch_files=True,
+                replacements=[Replacement(sid, "", silence=True)])
+    zip_path = build.build(p, ix, tmp_path / "out", log=lambda *_: None)
+    folder = tmp_path / "out" / "test-1"
+    assert sorted(f.name for f in (tmp_path / "out").iterdir()) == ["test-1", "test-1.zip"]
+    with zipfile.ZipFile(zip_path) as z:
+        assert {f.name: f.read_bytes() for f in folder.iterdir()} == \
+            {Path(n).name: z.read(n) for n in z.namelist() if "/" in n}

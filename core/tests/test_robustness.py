@@ -164,6 +164,28 @@ def test_cue_points_are_checked(tmp_path):
     assert s.project.segment_overrides[123] == {"entry_marker": 100.0, "exit_marker": 500.0}
 
 
+def test_cue_points_for_several_segments_keep_what_isnt_given(tmp_path):
+    """A cue point given goes on every segment, an empty one comes off every one, one not given stays as each has
+    it; a segment whose Entry would come after its Exit stops the whole edit, which undoes in one step."""
+    s = Session(load=False)
+    s.new_project(str(tmp_path / "c.audi"), "C")
+    s.segment_override(1, entry_marker=100, exit_marker=900)
+    s.segment_override(2, exit_marker=400)
+    s.segment_overrides([1, "2", 3], exit_marker=800)
+    want = {1: {"entry_marker": 100.0, "exit_marker": 800.0}, 2: {"exit_marker": 800.0}, 3: {"exit_marker": 800.0}}
+    assert s.project.segment_overrides == want
+    with pytest.raises(EditorError, match="before the Exit"):
+        s.segment_overrides([3, 1], entry_marker=850)
+    assert s.project.segment_overrides == want
+    s.segment_overrides([1, 2], entry_marker="")
+    assert s.project.segment_overrides[1] == {"exit_marker": 800.0}
+    s.segment_overrides([1, 2, 3], entry_marker=None, exit_marker=None)
+    assert s.project.segment_overrides == {} and s.undo()["segment_overrides"]["3"] == {"exit_marker": 800.0}
+    for args, kw in (([], {"exit_marker": 5}), ([1], {"start": 5}), (["x"], {"exit_marker": 5}), ([1], {"exit_marker": -1})):
+        with pytest.raises(EditorError):
+            s.segment_overrides(args, **kw)
+
+
 # --- slicing
 def test_slicing_again_never_takes_pieces_away(tmp_path):
     song = _wav(tmp_path / "song.wav", 2.0)

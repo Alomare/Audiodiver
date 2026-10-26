@@ -14,7 +14,7 @@ If the project has problems, such as a missing file or a name that mod managers 
 
 ### Destination folder
 
-The ZIP goes into the `build` folder next to the project file. To build into another folder, press **Change…** under **Destination folder**. **Back to the default** returns to the `build` folder. A build adds only the ZIP, so several mods can share one folder. Audiodiver doesn't build into the game folder.
+The ZIP goes into the `build` folder next to the project file. To build into another folder, press **Change…** under **Destination folder**. **Back to the default** returns to the `build` folder. A build adds only the ZIP, and the [patch files](#patch-files) when you turn them on, so several mods can share one folder. Audiodiver doesn't build into the game folder.
 
 ## What the mod manager shows
 
@@ -36,12 +36,20 @@ The icon is the default Audiodiver icon until you choose an image. An image is c
 
 A mod manager recognises a mod by the mod id. While the id stays the same, a new build updates the installed mod. When you copy a project to make a different mod, press **Make a new id**, and the copy installs as a separate mod.
 
+To make the builds update a mod you made before, press **Change…** and paste the id of that mod: the `Guid` in the `manifest.json` of the mod. Undo puts the old id back.
+
 ## Build options
 
 These settings are under **Build options** on the Build tab.
 
 - **Raise the version after each build** gives each build a new ZIP name, and the earlier ZIPs stay. With it off, the next build replaces the last ZIP. The [mod id](wiki:build-and-install#mod-id), not the version, decides whether a mod manager takes a build as an update. The setting applies to all projects.
 - **Show the ZIP in Explorer when a build finishes** opens Explorer with the ZIP selected.
+
+### Patch files
+
+**Also save the patch files in a folder** puts the mod's patch files next to each ZIP, in a folder with the same name as the ZIP. They are the `.patch_0` file and, when the mod has streamed audio, the `.patch_0.stream` file. Use them to pack the mod yourself, for example in a 7z archive with a manifest of your own. To install them, pack them for a mod manager rather than copying them into the game folder ([Installing](#installing)). The setting applies to the open project.
+
+A build has a `.patch_0.gpu_resources` file only when the project carries an imported mod's textures or models. Audio needs none.
 
 ### Wwise loudness analysis
 

@@ -3,7 +3,7 @@ import { call, fmtBytes, fmtWhen, iconUrl, nameProblem, plural, type Icon, type 
 import { confirm } from "./Confirm";
 import { FolderIcon } from "./Icons";
 import { NoProjectCard, Page, useDraft } from "./Page";
-import { copyText, fullPath, reveal } from "./platform";
+import { copyText, fullPath, pickFolder, reveal } from "./platform";
 import { TabChecks } from "./SettingsTab";
 import { useEditor, useShownTabs } from "./store";
 import { motionMs } from "./theme";
@@ -20,7 +20,7 @@ export function ProjectTab() {
   const { project } = useEditor();
   return (
     <Page title="Project" wide
-      lead={<>A project is one mod, in a folder with the files it uses.{" "}
+      lead={<>Projects are folders containing the mod and all associated files.{" "}
         <Help tip="The project file records what the mod replaces and with which files. Audiodiver keeps what it makes for the project beside that file" page="project-folders" /></>}>
       {project ? <ProjectPage key={project.path} />
         : <div className="proj-none">
@@ -90,7 +90,7 @@ function RecentProjects() {
 }
 
 function ProjectPage() {
-  const { project, actions, revision, quick, jobs } = useEditor();
+  const { project, actions, revision, jobs } = useEditor();
   const shown = useShownTabs();
   const p = project!;
   const busy = Object.values(jobs).some((j) => j.state === "running"); // the folder's files may be changing
@@ -158,15 +158,7 @@ function ProjectPage() {
 
         <IconEditor icon={icon} frame={frame} setIcon={setIcon} saveIcon={saveIcon} />
 
-        <section className="set-sec">
-          <h2>Mod id <Help tip="Mod managers recognise the mod by this id. While it stays the same, a new build updates the installed mod." page="build-and-install#mod-id" /></h2>
-          <div className="pkg-id">
-            <code>{p.guid}</code>
-            <button className="btn quiet" onClick={() => copyText(p.guid, quick, "the mod id")}>Copy</button>
-            <button className="btn quiet" onClick={() => actions.newModId()}
-              data-tip="Use this when a copied project becomes a different mod" data-tip-more="The next build installs as a separate mod">Make a new id</button>
-          </div>
-        </section>
+        <ModId />
 
         <section className="set-sec">
           <h2>Tabs <Help tip="Hide the tabs this mod doesn't use, such as all but Text for a subtitle mod. What was changed in a hidden tab stays in the mod. A new project starts with the tabs Settings ▸ System shows." page="how-audiodiver-works#tabs" /></h2>
@@ -198,11 +190,72 @@ function ProjectPage() {
   );
 }
 
-/** Where the project and the files it uses are: the folder, a move into a new folder, and collecting files that are
-    outside it. Each action sits in the box that says why it is offered. */
+const GUID = /^\{?[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}\}?$/i;
+
+/** The mod id: copied, made new, or changed to the id of a mod made before (such as the Guid in its manifest.json),
+    so that a build updates that mod. */
+function ModId() {
+  const { project, actions, quick } = useEditor();
+  const p = project!;
+  const [draft, setDraft] = useState<string | null>(null); // the id being typed; null while the id shows
+  const typed = draft?.trim() ?? "";
+  const problem = typed && !GUID.test(typed) ? "A mod id looks like this: 613bc667-1b2d-4f5e-8a9b-0c1d2e3f4a5b" : null;
+  const save = async () => {
+    if (!typed || typed.replace(/[{}]/g, "").toLowerCase() === p.guid) setDraft(null);
+    else if (!problem && await actions.setModId(typed)) setDraft(null);
+  };
+  return (
+    <section className="set-sec">
+      <h2>Mod id <Help tip="Mod managers recognise the mod by this id. While it stays the same, a new build updates the installed mod." page="build-and-install#mod-id" /></h2>
+      {draft === null ? (
+        <div className="pkg-id">
+          <code>{p.guid}</code>
+          <button className="btn quiet" onClick={() => copyText(p.guid, quick, "the mod id")}>Copy</button>
+          <button className="btn quiet" onClick={() => setDraft(p.guid)}
+            data-tip="Use the id of a mod made before, such as the Guid in the manifest.json of the mod" data-tip-more="Mod managers then treat a build as an update to that mod">Change…</button>
+          <button className="btn quiet" onClick={() => actions.newModId()}
+            data-tip="Use this when a copied project becomes a different mod" data-tip-more="The next build installs as a separate mod">Make a new id</button>
+        </div>
+      ) : (
+        <div className="field">
+          <div className="pkg-id">
+            <input value={draft} autoFocus spellCheck={false} aria-label="Mod id" aria-invalid={!!problem}
+              onChange={(e) => setDraft(e.target.value)} onFocus={(e) => e.currentTarget.select()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") save();
+                else if (e.key === "Escape") setDraft(null);
+              }} />
+            <button className="btn" onClick={save} disabled={!!problem}>Save</button>
+            <button className="btn quiet" onClick={() => setDraft(null)}>Cancel</button>
+          </div>
+          {problem && <small className="bad">{problem}</small>}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/** Where the project and the files it uses are: the folder, moving it to another place or into a new folder, and
+    collecting files that are outside it. Each action sits in the box that says why it is offered. */
 function FolderSection({ busy }: { busy: boolean }) {
-  const { project: p, actions } = useEditor();
+  const { project: p, actions, run } = useEditor();
   if (!p) return null;
+  const moveTo = async () => {
+    const parent = p.folder.replace(/[\\/][^\\/]*$/, "") || p.folder;
+    const folder = await pickFolder(parent, "Choose where to move the project");
+    if (!folder) return;
+    const where = await run<{ dest: string; copy: boolean }>("project_move_to", { folder, check: true });
+    if (!where) return;
+    const ok = await confirm({
+      title: "Move the project?",
+      text: (p.own_folder ? `The project folder moves to ${where.dest}, with everything in it.`
+        : `The project moves to ${where.dest}, with the slices, imported audio and builds Audiodiver made for it.`)
+        + " Files you picked from elsewhere stay where they are, and the project still finds them."
+        + (where.copy ? " That is another drive, so the files are copied there first, which takes a while for a big project." : ""),
+      ok: "Move", cancel: "Keep it here",
+    });
+    if (ok) await actions.moveProject(folder);
+  };
   const move = async () => {
     const ok = await confirm({
       title: "Move the project into a new folder?",
@@ -218,6 +271,8 @@ function FolderSection({ busy }: { busy: boolean }) {
       <p className="path" data-tip={p.path} data-tip-clip>{p.folder}</p>
       <div className="row-btns">
         <button className="btn quiet" onClick={() => reveal(p.path)}>Show in folder</button>
+        <button className="btn quiet" onClick={moveTo} disabled={busy} data-tip="Move the project to another folder"
+          data-tip-more="The project still finds every file it uses">Move project…</button>
       </div>
       {!p.own_folder && (
         <div className="warn-box">

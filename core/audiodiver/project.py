@@ -41,7 +41,8 @@ without one, in a frame (arsenal.icon_frame; keys left out take the defaults). I
 older projects store that text (and an image as a plain path): loading keeps only the image and the frame.
 
 build_folder is where builds go, relative to the project file (absolute on another drive); "" is the build folder
-next to it. built_for is the game version its last build was made on (Steam's build id), so the Build tab can say
+next to it. "patch_files": true makes each build also save the patch files in a folder named like its ZIP, for
+packing the mod another way (left out while unused). built_for is the game version its last build was made on (Steam's build id), so the Build tab can say
 when the game updated since: a build carries whole banks, and their copies of what many banks share go stale.
 built_from is a fingerprint of what that build was made from (editor.build_inputs), so the tab bar can say when the
 project changed since.
@@ -186,6 +187,7 @@ class Project:
     icon: dict = field(default_factory=dict)
     loudness_analysis: bool = False
     every_bank: bool = False  # a replaced sound goes into every bank that has it, not only the project's (build.reach)
+    patch_files: bool = False  # each build also saves the patch files beside the ZIP (build.build)
     imported_banks: list[int] = field(default_factory=list)  # the banks the mods imported into it patched
     built_for: str = ""     # the game version (Game.version) its last build was made on; "" before one
     built_from: str = ""    # a fingerprint of what its last build was made from (editor.build_inputs); "" before one
@@ -367,6 +369,7 @@ class Project:
                        icon={k: v for k, v in icon.items() if k in ICON_KEYS},
                        loudness_analysis=kind(d, "loudness_analysis", bool, False, "Loudness analysis"), replacements=reps,
                        every_bank=kind(d, "every_bank", bool, False, "Banks"),
+                       patch_files=kind(d, "patch_files", bool, False, "Patch files"),
                        imported_banks=[int(b) for b in kind(d, "imported_banks", list, [], "the imported mods' banks")],
                        built_for=kind(d, "built_for", str, "", "the game version of the last build"),
                        built_from=kind(d, "built_from", str, "", "what the last build was made from"),
@@ -396,6 +399,7 @@ class Project:
             "description": self.description, "icon": dict(self.icon), "build_folder": self.build_folder,
             "loudness_analysis": self.loudness_analysis,
             **({"every_bank": True} if self.every_bank else {}),
+            **({"patch_files": True} if self.patch_files else {}),
             **({"imported_banks": [str(b) for b in self.imported_banks]} if self.imported_banks else {}),
             **({"built_for": self.built_for} if self.built_for else {}),
             **({"built_from": self.built_from} if self.built_from else {}),

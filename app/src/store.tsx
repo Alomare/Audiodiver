@@ -640,6 +640,19 @@ function useEditorState() {
       remember(p.path, old);
       quick(`**${p.name}** moved into a new folder`);
     },
+    /** Moves the project's folder into another folder (Project tab, Move project). The recent list follows its new
+        path. */
+    async moveProject(folder: string) {
+      if (!project) return;
+      const old = project.path;
+      const r = await run<ProjectState & { old_left: boolean }>("project_move_to", { folder });
+      if (!r) return;
+      const { old_left, ...p } = r;
+      applyProject(p);
+      remember(p.path, old);
+      if (old_left) notify("info", `${p.name} moved. Some files stayed in the old folder because they were in use. The project no longer uses them.`, undefined, true);
+      else quick(`**${p.name}** moved`);
+    },
     /** Copies the files the project uses from outside its folder into audio\added (Project tab). */
     async collectFiles() {
       const r = await run<ProjectState & { collected: number }>("collect_files");
@@ -839,6 +852,12 @@ function useEditorState() {
     async newModId() {
       if (edited(await run<ProjectState>("settings", { guid: "new" }))) editNotice("info", "New mod id created. Mod managers install the next build as a separate mod.");
     },
+    /** A mod id typed or pasted, such as the one in a manifest made for the mod before. True when the core took it. */
+    async setModId(guid: string) {
+      const ok = edited(await run<ProjectState>("settings", { guid }));
+      if (ok) editNotice("info", "Mod id changed. Mod managers treat the next build as an update to the mod with this id.");
+      return ok;
+    },
     /** The project as it is on disk now (a file deleted meanwhile becomes a problem); quiet when it can't be asked. */
     async refresh() {
       if (!project) return;
@@ -857,6 +876,17 @@ function useEditorState() {
     },
     async segmentOverride(segment: string, entry: number | null, exit: number | null) {
       edited(await run<ProjectState>("segment_override", { segment, entry_marker: entry, exit_marker: exit }));
+    },
+    /** Cue points on several segments: a key given is set (a number) or taken off (null) on every one, a key left
+        out stays as each segment has it. */
+    async segmentOverrides(segments: string[], cues: { entry_marker?: number | null; exit_marker?: number | null }) {
+      edited(await run<ProjectState>("segment_overrides", { segments, ...cues }));
+    },
+    /** The segment's cue points (or none) on every other segment that plays the file replacing `source`. */
+    async sameCuePoints(segment: string, source: string) {
+      const p = await run<ProjectState & { segments: number }>("same_cue_points", { segment, source });
+      if (edited(p)) quick(p!.segments ? `Cue points set in ${p!.segments} more segment${p!.segments === 1 ? "" : "s"}`
+        : "The other segments have these cue points already", p!.segments ? "done" : "info");
     },
     /** Cuts one song at boundsMs and assigns the pieces to `sources`, in order; true when it worked. */
     async sliceFill(cue: string, audio: string, boundsMs: number[], sources: string[]) {

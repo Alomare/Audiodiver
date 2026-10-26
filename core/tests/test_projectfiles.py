@@ -208,6 +208,62 @@ def test_moving_a_project_with_nothing_to_carry(tmp_path):
     assert not (tmp_path / "mine.audi").exists()
 
 
+def test_moving_a_project_elsewhere_takes_its_folder_and_finds_every_file(tmp_path):
+    """Move project: the folder goes whole into the folder chosen (one that isn't there yet too), a file of the
+    person's in it as well; a file picked from elsewhere is found as before, by the undo history too."""
+    home, away = tmp_path / "Dune", tmp_path / "Projects"
+    picked, take = _wav(tmp_path / "my music" / "drop.wav"), _wav(home / "takes" / "take.wav")
+    s = _session(home / "Dune.audi", "Dune")
+    _assign(s, 1, picked)
+    _assign(s, 2, take)
+    (home / "build").mkdir()
+    (home / "build" / "dune-1.zip").write_bytes(b"zip")
+    assert s.move_project(str(away), check=True) == {"dest": str(away / "Dune"), "copy": False}
+    (away / "Dune").mkdir(parents=True)  # a folder of that name there already
+    assert s.move_project(str(away), check=True)["dest"] == str(away / "Dune 2")
+    (away / "Dune").rmdir()
+    st = s.move_project(str(away))
+    new = away / "Dune"
+    assert st["path"] == str(new / "Dune.audi") and not home.exists() and not st["old_left"] and not st["problems"]
+    saved = json.loads((new / "Dune.audi").read_text())
+    assert {r["target"]: r["audio"] for r in saved["replacements"]} == {"1": "../../my music/drop.wav",
+                                                                        "2": "takes/take.wav"}
+    assert (new / "build" / "dune-1.zip").exists() and picked.exists()
+    st = s.undo()
+    assert st["assignments"]["1"]["exists"] and "2" not in st["assignments"]
+    with pytest.raises(EditorError, match="already"):
+        s.move_project(str(away))
+    for inside in (new, new / "takes"):
+        with pytest.raises(EditorError, match="outside"):
+            s.move_project(str(inside))
+
+
+def test_moving_a_project_elsewhere_from_a_shared_folder(tmp_path):
+    """A project beside another gets a folder of its own first, and that folder moves."""
+    elsewhere = _wav(tmp_path / "music" / "drop.wav")
+    _session(tmp_path / "other.audi", "Other")
+    s = _session(tmp_path / "mine.audi", "Mine")
+    _assign(s, 1, elsewhere)
+    new = tmp_path / "away" / "mine"
+    assert s.move_project(str(tmp_path / "away"), check=True)["dest"] == str(new)
+    st = s.move_project(str(tmp_path / "away"))
+    assert st["path"] == str(new / "mine.audi") and st["own_folder"]
+    assert json.loads((new / "mine.audi").read_text())["replacements"][0]["audio"] == "../../music/drop.wav"
+    assert (tmp_path / "other.audi").exists() and not (tmp_path / "mine.audi").exists() and not (tmp_path / "mine").exists()
+
+
+def test_a_move_elsewhere_that_fails_leaves_the_project_where_it_was(tmp_path, monkeypatch):
+    s = _session(tmp_path / "p" / "p.audi")
+
+    def refuse(self, path=None):
+        raise PermissionError(13, "Access is denied", str(path or self.path))
+    monkeypatch.setattr(Project, "save", refuse)
+    with pytest.raises(EditorError, match="couldn't move"):
+        s.move_project(str(tmp_path / "q"))
+    assert (tmp_path / "p" / "p.audi").exists() and not (tmp_path / "q").exists()
+    assert s.project.path == tmp_path / "p" / "p.audi"
+
+
 def test_unused_files_are_those_nothing_uses(tmp_path):
     used = _wav(tmp_path / "p" / "audio" / "slices" / "s-1" / "a" / "01 s.wav")
     _wav(tmp_path / "p" / "audio" / "slices" / "s-1" / "b" / "01 s.wav")  # a set of cuts made before

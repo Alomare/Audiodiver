@@ -174,12 +174,15 @@ def test_takes_layers_and_clips_of_their_own_show_where_they_play(session, tmp_p
     st = s.own_clip(row["source"], row["object"])
     mine = st["source"]
     assert row["source"] not in st["assignments"] and st["assignments"][mine]["name"] == "d.wav"
+    # the other Sounds that play the clip keep the Original: the Audio tab tags them, with where the new audio is
+    (stand_in,) = st["stand_ins"][row["source"]]
+    assert stand_in["place"] and set(stand_in["banks"]) == {str(b) for b in s.ix.copies(int(row["object"]))}
     moved = next(r for x in _groups(s) for r in x["stems"][0]["slots"] if r["source"] == mine)
     assert moved["was"] == row["source"] and moved["banks"] == row["sound_banks"]
     assert s.vanilla_wav(int(mine)) == s.vanilla_wav(int(row["source"]))  # its original is the clip it stood in for
     st = s.shared_clip(mine)
     assert st["source"] == row["source"] and st["assignments"][row["source"]]["name"] == "d.wav"
-    assert not any(a["kind"] == "own" for a in st["additions"])
+    assert not any(a["kind"] == "own" for a in st["additions"]) and st["stand_ins"] == {}
 
     st = s.unassign([new[0]])  # a take is its audio: without it, it goes
     assert len([a for a in st["additions"] if a["kind"] == "take"]) == 2
@@ -361,3 +364,32 @@ def test_a_segment_whose_timing_follows_new_audio_is_not_a_change_left_out(sessi
     assert add._timing_only(body, seg.to_bytes()) and add._timing_only(body, body)
     seg.node.grid_offset += 10  # anything else of the segment is a change of its own
     assert not add._timing_only(body, seg.to_bytes())
+
+
+@pytest.mark.game
+def test_a_patch_gives_its_segments_the_cue_points_a_build_wouldnt_put_there(session):
+    """Import and Repatch keep a mod's cue points (a repatch had lost 143 Exits): the ones that aren't where a build
+    puts them for the new audio (Entry at 0, Exit at its end), and none a build can't take. Of a segment's copies,
+    the cue points that differ from a build's win: a tool may have changed one bank's copy only."""
+    from audiodiver import wem
+    ix, loadout_1 = session.ix, 371453169
+    vanilla = wbank.parse(ix.bank_files(ix.copies(loadout_1)[0])[0])[1]
+    seg = music.MusicSegment.read(loadout_1, music.Reader(vanilla[loadout_1][1]))
+    track = next(c for c in seg.node.children if vanilla.get(c, (None,))[0] == wbank.MUSIC_TRACK)
+    clip = wbank.source_ids(wbank.MUSIC_TRACK, vanilla[track][1])[0]
+    new = ix.wem(clip)  # any audio does: its length is what counts
+    end = wem.length_ms(new)
+
+    def copy(entry, exit_):
+        seg.markers = [(i, entry if i == music.ENTRY_CUE else exit_ if i == music.EXIT_CUE else p, n)
+                       for i, p, n in seg.markers]
+        return {**vanilla, loadout_1: (wbank.MUSIC_SEGMENT, seg.to_bytes())}
+
+    def found(*copies):
+        d = {"banks": {b: {"read": (({}, hirc), ({}, vanilla))} for b, hirc in enumerate(copies)}}
+        return add.cue_points(d, {clip: new})[loadout_1]
+
+    assert found(copy(0.0, end)) == ({}, frozenset({clip}))
+    assert found(copy(250.0, end - 1000))[0] == {"entry_marker": 250.0, "exit_marker": round(end - 1000, 3)}
+    assert found(copy(0.0, end + 500))[0] == {} and found(copy(900.0, 400.0))[0] == {}
+    assert found(copy(0.0, end), copy(0.0, 1234.0), copy(0.0, end))[0] == {"exit_marker": 1234.0}

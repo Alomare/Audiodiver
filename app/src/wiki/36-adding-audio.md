@@ -20,7 +20,9 @@ A layer plays along with a sound every time, like a deeper boom under a gunshot.
 
 ## Only this sound
 
-Several sounds often play the same clip, and replacing the clip changes it in all of them. To limit a replacement, set **Scope** in the details of a replaced slot to **Only this sound**. The other sounds then keep the original. Each option shows how many banks it changes.
+Several sounds often play the same clip, and replacing the clip changes it in all of them. To limit a replacement, set **Scope** in the details of a replaced slot to **Only this sound**. The other sounds then keep the original, and their slots show **replaced in another sound**. Each option shows how many banks it changes.
+
+The new audio goes into the mod under a new id. Tools that list clips by id show the old id with the Original, though the game plays the new audio in that sound.
 
 This option works per sound. When the game copies a whole sound into other banks, like the weapon handling sounds in every weapon bank, the copies are the same sound and all of them change.
 

@@ -139,7 +139,8 @@ def test_an_old_mod_comes_back_on_the_current_game_as_it_was(session, tmp_path):
         assert json.loads(z.read("WoS/manifest.json")) == dict(manifest, Name="WoS Again")
         assert z.read("WoS/readme.txt") == b"hi" and z.read("WoS/pic.png") == b"png"
         assert z.read("WoS/extras/broken/9ba626afa44a3aa3.patch_0") == b"not a patch"  # kept as it was
-        assert {f"WoS/extras/warp/9ba626afa44a3aa3.patch_0{x}" for x in ("", ".stream", ".gpu_resources")} <= names
+        warp = {n for n in names if n.startswith("WoS/extras/warp/")}  # the rebuilt patch, without an empty part
+        assert "WoS/extras/warp/9ba626afa44a3aa3.patch_0" in warp and all(z.getinfo(n).file_size for n in warp)
     banks, streams = read_patch(str(_patch_of(got["zip"], "WoS/descent/9ba626afa44a3aa3.patch_0", tmp_path / "d")))
     old_banks, old_streams = read_patch(str(WOS))
     for bid, (media, hirc) in banks.items():  # the game's banks of today, each object at least once
@@ -221,7 +222,8 @@ def test_a_repatch_keeps_what_a_patch_holds_besides_audio(session, tmp_path):
         out = tmp_path / "built"
         out.mkdir()
         for s in ("", ".stream", ".gpu_resources"):
-            (out / ("9ba626afa44a3aa3.patch_0" + s)).write_bytes(z.read(key + s))
+            if key + s in z.namelist():
+                (out / ("9ba626afa44a3aa3.patch_0" + s)).write_bytes(z.read(key + s))
     built = str(out / "9ba626afa44a3aa3.patch_0")
     assert sorted(patch.carried_of(built), key=lambda c: c.fid) == others  # byte for byte
     assert read_patch(built)[0]  # and the banks, rebuilt

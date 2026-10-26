@@ -67,7 +67,11 @@ export type Assignment = {
   name: string; cues: string[];
   silence: boolean; // plays the built-in silence: with fit_timing the game moves straight on, else it keeps its timing
   duration_ms: number | null; // the file's length
+  file_segments: number; // the music segments that play the file, in this slot and others (0 for silence)
 };
+/** A Sound with a clip of its own (Only this sound) in place of one of the game's clips: where it is (the Library's
+    name of its first bank) and every bank that has it. */
+export type StandIn = { place: string; banks: string[] };
 /** The Library's Index (core library.py): categories (the music first, then the named sound sets),
     their sections, and items a player would recognise. A piece of music's parts are cues, in mission order
     (core musiclist.py); a sound set's are its banks; an archive (All Archives) is an item too, with the banks it
@@ -142,6 +146,7 @@ export type ProjectState = {
   icon_frame: IconFrame; // the icon's full frame, defaults included
   loudness_analysis: boolean;
   every_bank: boolean;   // a replaced sound goes into every bank that has it (Patch every bank with the sounds)
+  patch_files: boolean;  // each build also saves the patch files in a folder named like the ZIP
   build_folder: string; zip_name: string; // where the next build goes, and what it is called
   build_folder_default: string;           // the build folder next to the project file: where builds go unless another is chosen
   last_build: { zip: string; mb: number; modified: number } | null; // this mod's newest ZIP there (modified: Unix seconds)
@@ -155,6 +160,7 @@ export type ProjectState = {
   segment_overrides: Record<string, { entry_marker?: number; exit_marker?: number }>;
   texts: TextLine[];     // lines of the game's text the project changes (the Text tab)
   additions: { kind: "take" | "layer" | "own"; [key: string]: string }[]; // audio it adds (core project.py)
+  stand_ins: Record<string, StandIn[]>; // by the game's clip: the Sounds with a clip of their own in place of it
   settings: number;      // the game's objects an imported mod's settings go on (core project.py)
   notes: Record<string, string>; // the project's notes, by key (notes.ts; core notes.py)
   soundtrack: Record<string, Piece>; // how pieces of music play, by playlist cue (core soundtrack.py); the others play as the game does

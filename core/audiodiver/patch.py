@@ -15,6 +15,7 @@ from .bank import SOUND, MUSIC_SEGMENT, MUSIC_TRACK, TYPE_NAMES
 from .game import WWISE_STREAM, WWISE_BANK, WWISE_DEP, toc_entries
 from .index import AudioIndex
 from .strings import STRINGS
+from .wem import prefetch_size
 
 BANK, PREFETCH = 0, 1  # source stream types (2 = streamed only, no media in the bank)
 # prop ids (bank v154; older Wwise numbers them differently). Make-Up Gain is applied after the game's HDR mix, so it
@@ -162,6 +163,15 @@ def patch_bank(bank: bytes, reps: dict[int, Replacement], overrides: dict[int, d
     # 1. HIRC: source sizes, track timing, then segment timing
     hirc = get(b"HIRC")
     entries = [[t, id, bytearray(b)] for t, id, b in music.iter_hirc(hirc[1])] if hirc else []
+    # a streamed clip's start kept in the bank: the most any of its copies here kept, laid out as Wwise lays out a
+    # prefetch (prefetch_size), so that every copy gives the size the bank holds
+    keep = {}
+    for t, id, body in entries:
+        for o in wbank.source_offsets(t, body):
+            _plugin, stype, sid, _cache, mem = struct.unpack_from("<IBIII", body, o)
+            if stype == PREFETCH and sid in reps:
+                keep[sid] = max(keep.get(sid, 0), mem)
+    keep = {sid: prefetch_size(reps[sid].wem, mem) for sid, mem in keep.items()}
     mem_sizes = {}   # source id -> media size this bank must hold
     retimed = {}     # track id -> new length
     replaced = set()  # track ids that play new audio: only their segments take the project's cue points
@@ -179,8 +189,10 @@ def patch_bank(bank: bytes, reps: dict[int, Replacement], overrides: dict[int, d
                 continue
             if t == MUSIC_TRACK:
                 replaced.add(id)
-            if stype == BANK or (stype == PREFETCH and len(r.wem) < mem):
+            if stype == BANK:
                 mem = len(r.wem)
+            elif stype == PREFETCH:
+                mem = keep[sid]
             if stype in (BANK, PREFETCH):
                 mem_sizes[sid] = mem
                 if struct.unpack_from("<I", body, o + 13)[0] != mem:
@@ -240,8 +252,15 @@ def patch_bank(bank: bytes, reps: dict[int, Replacement], overrides: dict[int, d
         new_rows, pieces, off = [], [], 0  # pieces: the new DATA, its clips with the alignment between them
         for sid, o, n in rows:
             blob = data[1][o:o + n]
-            if sid in reps and sid in mem_sizes:
-                blob = reps[sid].wem[:mem_sizes[sid]]
+            if sid in reps:
+                # a clip nothing here plays (a bank of clips another bank's Sounds play, a Sound given a clip of its
+                # own) still serves other banks: the game plays the first copy loaded. It gets the new audio too, the
+                # whole file or the start, as the bank had it
+                size = mem_sizes.get(sid)
+                if size is None:
+                    whole = n >= 8 and blob[:4] == b"RIFF" and n >= struct.unpack_from("<I", blob, 4)[0] + 8
+                    size = len(reps[sid].wem) if whole else prefetch_size(reps[sid].wem, n)
+                blob = reps[sid].wem[:size]
                 edit.media.append(sid)
             if (at := _align(off, align)) > off:
                 pieces.append(bytes(at - off))

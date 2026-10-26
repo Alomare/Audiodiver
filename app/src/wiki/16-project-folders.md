@@ -1,7 +1,7 @@
 ---
 title: Project folders
 group: Getting started
-summary: Where a project stores files, how to move one into a folder, and how a pack carries a project to another computer.
+summary: Where a project stores files, how to move one, and how a pack carries a project to another computer.
 ---
 
 ## The project folder
@@ -14,9 +14,17 @@ A new project gets a folder named after it, with the project file inside, as in 
 
 Built ZIPs go in a `build` folder beside the project file.
 
-Audio picked from another folder stays there, and the project stores the path to it. Paths in a project file are relative to the project folder, so the whole folder can be moved or copied. A file on another drive is stored with the full path.
+Audio picked from another folder stays there, and the project stores the path to it. Paths in a project file are relative to the project folder, and a file on another drive is stored with the full path. A folder moved by hand still has the files inside it, but the project can lose those outside it. [Move project…](#moving-a-project) keeps them.
 
 Older projects can share a folder, with `slices` and `imported` beside the `.audi` file. They keep working, and the [Project](app:project) tab offers to move them.
+
+## Moving a project
+
+**Move project…**, under **Folder** on the Project tab, moves the project folder into a folder you choose: choosing `D:\Mods` for `Dune` makes it `D:\Mods\Dune`. When `D:\Mods` already has a folder named `Dune`, the project folder becomes `Dune 2`.
+
+Everything in the project folder goes along: the project file, the audio Audiodiver made, files you put there, and the builds. Files picked from outside the folder stay where they are, and the project still finds them. On the same drive the move takes a moment. To another drive, the files are copied first, which takes longer for a big project. The list of recent projects follows the project to the new path.
+
+A project that [shares a folder](#moving-a-project-into-a-new-folder) with other projects or files first moves into a new folder, and that folder moves.
 
 ## Moving a project into a new folder
 

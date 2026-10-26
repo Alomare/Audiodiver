@@ -94,15 +94,18 @@ def uses(d: dict, base: Path) -> set[Path]:
     return {norm(Path(base) / rel) for rel in rels if isinstance(rel, str) and rel.strip()}
 
 
-def rebase(d: dict, old: Path, new: Path, moved: dict | None = None) -> dict:
+def rebase(d: dict, old: Path, new: Path, moved: dict | None = None, whole=False) -> dict:
     """d (a to_json() dict of a project file in the folder old) as a project file in the folder new: every path
-    points at the same file, or at where `moved` ({from: to}) says it went."""
+    points at the same file, or at where `moved` ({from: to}) says it went. whole: the folder old became new, with
+    everything in it."""
     moved = {key(f): t for f, t in (moved or {}).items()}
 
     def again(rel):
         if not isinstance(rel, str) or not rel.strip():
             return rel
         f = norm(Path(old) / rel)
+        if whole and (r := inside(f, old)) is not None:
+            f = norm(Path(new) / r)
         return stored(moved.get(key(f), f), new)
 
     out = json.loads(json.dumps(d))

@@ -1,7 +1,8 @@
 """Encodes any audio file to a Wwise Vorbis .wem that HD2 plays, without a Wwise install.
 
 Pipeline: ffmpeg (decode, resample to 48 kHz, fold to mono/stereo) -> wav2wem (Vorbis) -> set the AkChannelConfig
-wav2wem leaves zeroed (the game drops a source whose config is 0) -> vgmstream check.
+wav2wem leaves zeroed (the game drops a source whose config is 0) and the codebook hash of the clip's own setup
+(wav2wem writes one hash for every setup) -> vgmstream check.
 
     python -m audiodiver.wem input.(wav|flac|mp3|ogg|...) output.wem [-q 6]
 """
@@ -55,6 +56,71 @@ def length_ms(head: bytes) -> float | None:
     return None
 
 
+def prefetch_size(data: bytes, mem: int) -> int:
+    """How much of a streamed clip a bank keeps for a zero-latency start, in place of a clip that kept mem bytes:
+    at least as much, and, as in every prefetch Wwise lays out, the whole header (seek table and setup packet) and
+    whole packets after it. Cut inside the header, the game's Vorbis decoder crashed: a long song in place of a
+    short piece has a longer seek table. A clip that isn't Wwise Vorbis as the game has it keeps min(mem, size)."""
+    if len(data) <= mem:
+        return len(data)
+    try:
+        fmt = fmt_offset(data)
+        if struct.unpack_from("<H", data, fmt)[0] != 0xFFFF or struct.unpack_from("<I", data, fmt - 4)[0] != 0x42:
+            return mem
+        start, size = _data_chunk(data)
+        end = min(len(data), start + size)
+        at = start + struct.unpack_from("<I", data, fmt + 0x2C)[0]  # the first packet
+        while True:
+            at += 2 + struct.unpack_from("<H", data, at)[0]  # a packet: its size, then its bytes
+            if at >= mem or at >= end:
+                return min(at, len(data))
+    except (ValueError, struct.error):
+        return mem
+
+
+def _data_chunk(data: bytes) -> tuple[int, int]:
+    """(payload offset, size) of the data chunk."""
+    pos = 12
+    while True:
+        cid, size = data[pos:pos + 4], struct.unpack_from("<I", data, pos + 4)[0]
+        if cid == b"data":
+            return pos + 8, size
+        pos += 8 + size + (size & 1)
+
+
+def codebook_hash(setup: bytes) -> int:
+    """uHashCodebook as Wwise writes it: FNV-1 (32-bit) of the setup packet's bytes (all of the game's clips have
+    it so)."""
+    h = 0x811C9DC5
+    for b in setup:
+        h = ((h * 0x01000193) & 0xFFFFFFFF) ^ b
+    return h
+
+
+def with_codebook_hash(data: bytes) -> bytes:
+    """The clip with the codebook hash of its own setup. The game decodes the clips playing at once that give one
+    hash with one copy of the codebooks; wav2wem writes the hash of its 24 kHz mono setup on every clip, so a 48 kHz
+    voice line played over a 24 kHz one decoded with the wrong codebooks and screeched. A clip that isn't Wwise
+    Vorbis as the game has it, or has the right hash (the game's, Wwise's), is returned as it is."""
+    try:
+        fmt = fmt_offset(data)
+        if struct.unpack_from("<H", data, fmt)[0] != 0xFFFF or struct.unpack_from("<I", data, fmt - 4)[0] != 0x42:
+            return data
+        start, size = _data_chunk(data)
+        at = start + struct.unpack_from("<I", data, fmt + 0x28)[0]  # after the seek table: the setup packet
+        n = struct.unpack_from("<H", data, at)[0]
+        if at + 2 + n > min(len(data), start + size):
+            return data
+        h = codebook_hash(data[at + 2:at + 2 + n])
+    except (AssertionError, ValueError, struct.error):
+        return data
+    if struct.unpack_from("<I", data, fmt + 0x3C)[0] == h:
+        return data
+    out = bytearray(data)
+    struct.pack_into("<I", out, fmt + 0x3C, h)
+    return bytes(out)
+
+
 def fix_channel_config(data: bytearray) -> bytearray:
     """Sets AkChannelConfig (fmt+0x14) from the channel count if the encoder left it empty."""
     fmt = fmt_offset(data)
@@ -91,7 +157,7 @@ def encode(src: str, dst: str, quality: float = 6) -> dict:
         channels, samples = prepare_wav(src, wav)
         subprocess.run([WAV2WEM, "-q", str(quality), "-o", dst, wav], check=True, capture_output=True)
     with open(dst, "r+b") as f:
-        data = fix_channel_config(bytearray(f.read()))
+        data = with_codebook_hash(fix_channel_config(bytearray(f.read())))
         f.seek(0); f.write(data)
     info = probe(dst)
     assert info["channels"] == channels and info["rate"] == RATE, info

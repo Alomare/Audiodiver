@@ -1,5 +1,5 @@
 import { Fragment, memo, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
-import { audioUrl, fmtTime, isMusic, shownId, type Assignment, type Cue, type Segment, type Slot } from "./api";
+import { audioUrl, fmtTime, isMusic, shownId, type Assignment, type Cue, type Segment, type Slot, type StandIn } from "./api";
 import { useContextMenu, type MenuEntry } from "./ContextMenu";
 import { ExportDialog } from "./ExportDialog";
 import { addedNote, exportList } from "./exportList";
@@ -153,6 +153,7 @@ function useMineWidth(all: Row[], assigned: Record<string, Assignment>, on: bool
 
 const NONE: string[] = [];
 const NO_ASSIGNMENTS: Record<string, Assignment> = {}; // one empty object, so the memos below keep without a project
+const NO_STAND_INS: Record<string, StandIn[]> = {};
 const OPEN_ALL = 200;    // a bank with more sounds than this opens with its groups folded
 const MAX_SHOWN = 300;    // a filter shows at most this many sounds at once
 const WINDOW_FROM = 150;  // a list with more lines than this draws only those near the view (useListWindow)
@@ -170,6 +171,7 @@ function CueBody({ cue }: { cue: Cue }) {
   const [mark, setMark] = useState<ThroughMark | null>(null);    // where it is: the segment whose Entry it passed last
   const [menu, openMenu] = useContextMenu();
   const assigned = project?.assignments ?? NO_ASSIGNMENTS;
+  const standIns = project?.stand_ins ?? NO_STAND_INS;
   const cueRef = useRef<HTMLElement>(null);
   const [headH, setHeadH] = useStoredHeight("audiodiver.headHeight", null); // null: as tall as its content
   const [panels, setPanels] = usePanels(scope); // whether the header and the waveforms show
@@ -539,6 +541,7 @@ function CueBody({ cue }: { cue: Cue }) {
   const selSet = useMemo(() => new Set(selected), [selected]);
   const slot = (r: Row) => (
     <SlotRow key={r.slot.source} row={r} a={readOnly ? undefined : assigned[r.slot.source]} selected={selSet.has(r.slot.source)}
+      standIns={readOnly ? undefined : standIns[r.slot.source]}
       now={r.seg.segment !== "" && r.seg.segment === nowSeg} itemId={shownItemId} cueId={cue.id} on={on} />
   );
   /** A line of the list: a slot, or a group's line, which folds its takes, says how many there are and plays the first. */
@@ -728,6 +731,18 @@ const ADDED_TIP = {
   take: "A take added by the project. The game picks it like the other takes. It has no original",
   own: "The new audio plays only in this sound. Other sounds that play the clip keep the original",
 };
+/** The tag on a clip that other sounds play new audio in place of (Only this sound, there), on the sounds that keep
+    the Original: without it the row looks as if the replacement had failed. A sound in the bank on screen is said
+    to be here. */
+function StandInTag({ standIns, cueId }: { standIns: StandIn[]; cueId: string }) {
+  const here = cueId.startsWith("bank:") ? cueId.slice(5) : "";
+  const places = [...new Set(standIns.map((s) => (here && s.banks.includes(here) ? "another sound here" : s.place || "another sound")))];
+  const where = places.length > 1 ? `${places.slice(0, -1).join(", ")} and ${places[places.length - 1]}` : places[0];
+  return (
+    <span className="tag" data-tip={`New audio only in ${where}`} data-tip-more="This sound keeps the Original">
+      {standIns.length === 1 ? "replaced in another sound" : `replaced in ${standIns.length} other sounds`}</span>
+  );
+}
 /** What a group name the Library makes up means: an unnamed sound, or the clips left over in a bank. */
 function madeUpName(name: string): { tip: string; more?: string } | null {
   if (/^Sound \d+$/.test(name)) return { tip: "Not named yet", more: "Numbered in bank order. Play it to hear what it is" };
@@ -826,8 +841,9 @@ function useFlash(value: string) {
 
 /** One slot. Memoised: it draws again only when something it shows changes (its audio, its selection, playback),
     not whenever the list does. */
-const SlotRow = memo(function SlotRow({ row, a, selected, now, itemId, cueId, on }: {
-  row: Row; a?: Assignment; selected: boolean; now: boolean; itemId: string | null; cueId: string; on: RowHandlers;
+const SlotRow = memo(function SlotRow({ row, a, standIns, selected, now, itemId, cueId, on }: {
+  row: Row; a?: Assignment; standIns?: StandIn[]; selected: boolean; now: boolean; itemId: string | null; cueId: string;
+  on: RowHandlers;
 }) {
   const { revision, readOnly } = useLite();
   const { seg, slot } = row;
@@ -870,6 +886,7 @@ const SlotRow = memo(function SlotRow({ row, a, selected, now, itemId, cueId, on
             {slot.absent && <span className="tag" data-tip={NO_AUDIO_TIP}>no audio</span>}
             {slot.locked && <LockedTag />}
             {seg.added !== "layer" && <AddedTag slot={slot} />}
+            {!a && standIns && <StandInTag standIns={standIns} cueId={cueId} />}
             <NoteTags slot={slot} />
             {(seg.tags ?? []).map((t) => <CatTag key={t.item ?? t.name} tag={t} tip="Show in the Index" onOpen={t.item ? () => on.openTag(t.item!, seg.cue ?? "") : undefined} />)}
             {also > 0 && <Linked>{banks >= also ? <OtherBanks n={also} /> : `+${also} ${banks ? "more" : `cue${also > 1 ? "s" : ""}`}`}</Linked>}
@@ -898,6 +915,7 @@ const SlotRow = memo(function SlotRow({ row, a, selected, now, itemId, cueId, on
             {slot.absent && <span className="tag" data-tip={NO_AUDIO_TIP}>no audio</span>}
             {slot.locked && <LockedTag />}
             <AddedTag slot={slot} />
+            {!a && standIns && <StandInTag standIns={standIns} cueId={cueId} />}
             {audible(a) && slot.min_ms && a!.duration_ms != null && a!.duration_ms < slot.min_ms && (
               <span className="tag warn" data-tip={`The new audio is too short. This clip needs at least ${fmtTime(slot.min_ms)}`}>too short</span>
             )}

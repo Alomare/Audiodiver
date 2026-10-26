@@ -114,7 +114,8 @@ function BuildBox() {
       <div className="bld-out">
         <p>Destination folder <span className="path" data-tip={p.build_folder} data-tip-clip>{p.build_folder}</span></p>
         <div className="row-btns">
-          <button className="btn" onClick={chooseFolder} disabled={building} data-tip="Choose another folder for builds. Only the ZIP is written there.">Change…</button>
+          <button className="btn" onClick={chooseFolder} disabled={building}
+            data-tip={`Choose another folder for builds. Only the ZIP${p.patch_files ? " and the patch files are" : " is"} written there.`}>Change…</button>
           {elsewhere && <button className="btn" onClick={() => actions.settings({ build_folder: null })} disabled={building}
             data-tip={p.build_folder_default}>Back to the default</button>}
         </div>
@@ -157,6 +158,10 @@ function BuildOptions() {
             onChange={(e) => actions.settings({ loudness_analysis: e.target.checked })} />
           <span>Add Wwise loudness analysis <Help tip="Applies to this project. The game's audio includes this data, but it makes no audible difference. It needs Wwise installed and makes builds slower." page="build-and-install#wwise-loudness-analysis" />
             {missing && <small>{p.loudness_analysis ? `${missing}. Builds fail until you turn this off.` : missing}</small>}</span>
+        </label>
+        <label className="check">
+          <input type="checkbox" checked={p.patch_files} onChange={(e) => actions.settings({ patch_files: e.target.checked })} />
+          <span>Also save the patch files in a folder <Help tip="Applies to this project. Beside each ZIP, a folder with the same name holds the mod's .patch_0 files, for packing the mod yourself." page="build-and-install#build-options" /></span>
         </label>
         <label className="check">
           <input type="checkbox" checked={p.every_bank} onChange={(e) => actions.settings({ every_bank: e.target.checked })} />

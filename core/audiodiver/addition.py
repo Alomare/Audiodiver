@@ -19,6 +19,7 @@ silence) are the replacements' business: patch.patch_bank sets them on the new S
 
 Ids for new objects and clips are 30-bit, like the ids Wwise makes, and none the game uses (index.taken).
 """
+import collections
 import functools
 import json
 import secrets
@@ -30,6 +31,7 @@ from importlib import resources
 from . import music
 from . import bank as wbank
 from .bank import MUSIC_TRACK, SOUND
+from .wem import length_ms
 
 ACTION, EVENT, RANSEQ, SWITCH, MIXER, LAYER = 0x03, 0x04, 0x05, 0x06, 0x07, 0x09
 CONTAINERS = (RANSEQ, SWITCH, MIXER, LAYER)
@@ -579,9 +581,49 @@ class Found:
     older: set = field(default_factory=set)       # the game's objects (and clips) that the mod's copies have as an older version had them
     merged: set = field(default_factory=set)      # the game's objects whose copy is another bank's (a merging tool's)
     banks: set = field(default_factory=set)       # the game's banks the patch has (Project.imported_banks)
+    cues: dict = field(default_factory=dict)      # {segment: (its cue points, the new audio's clips it plays)} (cue_points)
 
 
 NO_HISTORY = (frozenset(), frozenset(), {})
+CUE_TOLERANCE_MS = 1.0  # a cue point this close to where a build puts it is the build's own
+
+
+def cue_points(d: dict, replaced: dict[int, bytes]) -> dict[int, tuple[dict, frozenset]]:
+    """The cue points a patch (patch.diff) gives the music segments that play its new audio ({the game's clip:
+    wem}): {segment: ({"entry_marker", "exit_marker"} where they aren't where a build puts them, the clips of new
+    audio it plays)}. A build puts the Entry at 0 and the Exit where the longest new audio of the segment's tracks
+    ends, so an empty dict is a segment that has those. Cue points a build can't take (past that end, an Entry after
+    the Exit) are left out. Of a segment's copies in several banks, the cue points most of them have that differ
+    from a build's: a tool may have changed one bank's copy only."""
+    lengths = {sid: ms for sid, w in replaced.items() if (ms := length_ms(w))}
+    found = collections.defaultdict(list)  # segment -> [(cue points, clips)], one per copy
+    for b in d["banks"].values():
+        hirc = b["read"][0][1]
+        for i, (t, body) in hirc.items():
+            if t != wbank.MUSIC_SEGMENT:
+                continue
+            try:
+                seg = music.MusicSegment.read(i, music.Reader(body))
+            except (struct.error, IndexError, ValueError):
+                continue
+            clips = {s for c in seg.node.children if hirc.get(c, (None,))[0] == MUSIC_TRACK
+                     for s in wbank.source_ids(MUSIC_TRACK, hirc[c][1]) if s in lengths}
+            if not clips:
+                continue
+            end, cues = max(lengths[s] for s in clips), {}
+            entry, exit_ = seg.cue(music.ENTRY_CUE), seg.cue(music.EXIT_CUE)
+            if entry is not None and abs(entry) > CUE_TOLERANCE_MS:
+                cues["entry_marker"] = round(entry, 3)
+            if exit_ is not None and abs(exit_ - end) > CUE_TOLERANCE_MS:
+                cues["exit_marker"] = round(exit_, 3)
+            if not 0 <= cues.get("entry_marker", 0.0) < cues.get("exit_marker", end) <= end + CUE_TOLERANCE_MS:
+                cues = {}
+            found[i].append((cues, frozenset(clips)))
+    out = {}
+    for i, copies in found.items():
+        tally = collections.Counter(tuple(sorted(c.items())) for c, _ in copies if c)
+        out[i] = (dict(tally.most_common(1)[0][0]) if tally else {}, frozenset().union(*(c for _, c in copies)))
+    return out
 
 
 @functools.cache
