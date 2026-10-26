@@ -60,9 +60,10 @@ type Props = {
   label?: string;                // shown while there are no peaks yet
   error?: string | null;         // shown instead when they failed, with a way to ask again
   onRetry?: () => void;
+  gainDb?: number;               // drawn this much louder or quieter (Make-Up Gain); past full scale in red
 };
 
-export function Waveform({ peaks, spanMs, tone, height: fixed, markers = [], playheadMs, activeFrom, activeTo, bands, onSeek, onMarkerMove, onMarkerCommit, label, error, onRetry }: Props) {
+export function Waveform({ peaks, spanMs, tone, height: fixed, markers = [], playheadMs, activeFrom, activeTo, bands, onSeek, onMarkerMove, onMarkerCommit, label, error, onRetry, gainDb = 0 }: Props) {
   // where key nudges put each marker, until the project's answer puts it there too
   const nudged = useRef<Record<string, number>>({});
   for (const m of markers) if (nudged.current[m.id] === m.ms) delete nudged.current[m.id];
@@ -107,18 +108,20 @@ export function Waveform({ peaks, spanMs, tone, height: fixed, markers = [], pla
     if (!peaks) return;
     const w = x(peaks.duration_ms), n = peaks.peaks.length, mid = height / 2;
     const from = activeFrom ?? 0, to = activeTo ?? peaks.duration_ms;
+    const k = 10 ** (gainDb / 20), red = css.getPropertyValue("--red").trim();
     for (let px = 0; px < w; px++) {
       const a = Math.floor((px / w) * n), b = Math.max(a + 1, Math.floor(((px + 1) / w) * n));
       let v = 0;
       for (let i = a; i < b && i < n; i++) v = Math.max(v, peaks.peaks[i]);
+      v *= k;
       const ms = (px / w) * peaks.duration_ms;
-      const h = Math.max(1, (v / 255) * (height - 6));
-      g.fillStyle = ms >= from && ms <= to ? bright : dim;
+      const h = Math.max(1, (Math.min(v, 255) / 255) * (height - 6));
+      g.fillStyle = v > 255 ? red : ms >= from && ms <= to ? bright : dim;
       g.globalAlpha = ms >= from && ms <= to ? 0.9 : 0.45;
       g.fillRect(px, mid - h / 2, 1, h);
     }
     g.globalAlpha = 1;
-  }, [peaks, width, height, spanMs, tone, activeFrom, activeTo, bands?.join(","), look]);
+  }, [peaks, width, height, spanMs, tone, activeFrom, activeTo, bands?.join(","), look, gainDb]);
 
   const startDrag = (e: React.PointerEvent, m: Marker) => {
     if (!m.draggable) return;

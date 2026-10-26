@@ -158,6 +158,27 @@ def test_a_bank_opens_as_its_sounds_grouped_by_take(session):
 
 
 @pytest.mark.game
+def test_container_ids_list_a_bank_as_its_tree(session):
+    """By container id (Settings): each group is the container right above its Sounds, named by its id, in the bank's
+    tree order, under the containers over it; a run of Actor-Mixers that each hold only the next shares a line. The
+    same sounds as by name, and the view by name stays as it was."""
+    by_name, by_id = session.cue(AUTOCANNON), session.cue(AUTOCANNON, ids=True)
+    assert sorted(r["source"] for r in _rows(by_id)) == sorted(r["source"] for r in _rows(by_name))
+    assert by_name["segments_detail"][0]["name"] == "Sound 1" and "above" not in by_name["segments_detail"][0]
+    groups = [g for g in by_id["segments_detail"] if "key" in g]  # not the Sounds without a container, nor the rest
+    assert len(groups) > 40 and all(g["name"] == g["key"] and g["ctype"] in ("Random", "Sequence", "Switch", "Layer", "Actor-Mixer")
+                                    for g in groups)
+    lines = [tuple("/".join(a["ids"]) for a in g["above"]) for g in groups]
+    assert any(len(a["ids"]) > 1 and a["type"] == "Actor-Mixer" for g in groups for a in g["above"])
+    assert {a["type"] for g in groups for a in g["above"]} >= {"Actor-Mixer", "Switch", "Layer"}
+    # a depth-first walk: the groups under any container come one after another
+    for path in {p[:d] for p in lines for d in range(1, len(p) + 1)}:
+        at = [i for i, p in enumerate(lines) if p[:len(path)] == path]
+        assert at == list(range(at[0], at[-1] + 1)), path
+    assert session.cue(AUTOCANNON, ids=True) is by_id and session.cue(AUTOCANNON) is by_name
+
+
+@pytest.mark.game
 def test_voice_lines_say_what_they_say_and_play_from_their_language(session):
     it = _items(session)
     part = next(p for p in it["set:helldivers/voices/helldiver-voice-2"]["parts"] if p["name"] in ("English", ""))

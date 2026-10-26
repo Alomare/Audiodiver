@@ -79,6 +79,7 @@ Each row is one **slot**, a single game clip that can be replaced.
 | **never plays** | The clip is in the game files, but the game never plays it. The Illuminate Void's death music is one example. |
 | **only this sound** | The new audio plays in this sound only. The other sounds that play the clip keep the Original. See [Only this sound](wiki:adding-audio#only-this-sound). |
 | **replaced in another sound** | Another sound plays new audio in place of this clip, with **Only this sound**. This one keeps the Original. |
+| **−6 dB** | Make-Up Gain on the Original, in a slot without new audio. See [Make-Up Gain per slot](wiki:volume#make-up-gain-per-slot). |
 | a coloured tag | An Index entry related to this slot. Click the tag to open it. |
 
 Hover over a tag to read the note. The notes of a selected clip appear in the details panel. They describe when the clip plays, or give a warning such as a minimum length for new audio.
@@ -95,11 +96,11 @@ Hover over a tag to read the note. The notes of a selected clip appear in the de
 
 ## Under the slots
 
-The **waveforms** of the selected slot are shown here. The original is on top, and in the Audio tab the replacement is underneath, on the same time scale, with the **Entry** and **Exit** points marked. Click a waveform to play from that point, and drag the top edge of the panel to resize it. {icon:waves} at the end of the toolbar hides them. In the Library, the line above the waveforms describes the slot. It shows the id (click to copy it), the length, when the slot plays, and where else the game plays it.
+The **waveforms** of the selected slot are shown here. The original is on top, and in the Audio tab the replacement is underneath, on the same time and level scales, with the **Entry** and **Exit** points marked. Both are drawn at their [Make-Up Gain](wiki:volume#make-up-gain-per-slot), and red marks audio pushed past full scale. Click a waveform to play from that point, and drag the top edge of the panel to resize it. {icon:waves} at the end of the toolbar hides them. In the Library, the line above the waveforms describes the slot. It shows the id (click to copy it), the length, when the slot plays, and where else the game plays it.
 
 ## The right panel (Audio tab)
 
-This panel holds the settings of the selected slot. It shows what replaces the slot, either a file or silence. A file has a button that shows it in Explorer, and silence has **Keep original duration**. Below that are **Make-Up Gain** ([explained here](wiki:volume)), **Fit timing to the new audio**, the **cue points**, **Shared with** and the note. Play audio and choose files on the slot row.
+This panel holds the settings of the selected slot. It shows what replaces the slot, either a file or silence. A file has a button that shows it in Explorer, and silence has **Keep original duration**. Below that are **Make-Up Gain** ([explained here](wiki:volume)), **Fit timing to the new audio**, the **cue points**, **Shared with** and the note. A slot without new audio has **Use silence** and Make-Up Gain for the Original. Play audio and choose files on the slot row.
 
 With several slots selected, the panel sets Make-Up Gain, cue points or silence for all of them. **Choose one file for all…** puts one file in every selected slot, and **Choose files…** puts a file in each, in list order and file-name order.
 
@@ -128,9 +129,14 @@ Every slot shows a **stream id** at the end of the row, the id other audio tools
 - the 64-bit **stream** id of the file that holds the audio
 - the **source** id of the clip
 - the **Sound** in a bank that plays the clip
+- the **container** that holds the takes of the sound
 - the music **track** that the clip is a layer of
 
 Both search boxes take any of them.
+
+## Container ids
+
+Set **Sound names** in [Settings ▸ System](app:settings/system) to **Container ids** to list the sounds of a bank as Wwise tools list it. Each sound is then named by the id of the container right above the takes, with the kind of container before the id (Random, Sequence, Switch, Layer or Actor-Mixer) and the usual name after it. The containers above sit on lines of their own, one step further in for each level, in bank order. Actor-Mixers that hold only the next one share a line. Click an id on these lines to copy it. The slot search finds container ids too.
 
 ## Exporting
 

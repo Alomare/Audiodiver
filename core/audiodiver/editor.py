@@ -305,15 +305,16 @@ class Session:
         except KeyError:
             raise EditorError(f"{item_id} is not in this game version") from None
 
-    def cue(self, cue_id, mine=False):
+    def cue(self, cue_id, mine=False, ids=False):
         """What opens in the middle: a music cue by its id, a bank's sounds as "bank:<id>", an archive's loose
         streams as "streams:<archive>", or one sound as "sfx:<source>". mine: a bank's sounds with the audio the open
-        project adds to them (the Audio tab's view; the Library shows the game's)."""
+        project adds to them (the Audio tab's view; the Library shows the game's). ids: a bank's sounds by container
+        id, as the bank's tree (Settings, Sound names)."""
         self.require_game()
         try:
             cue_id = str(cue_id)
             view = self.catalog.cue(int(cue_id)) if cue_id.isdigit() else \
-                self.lib.view(cue_id, self._overlay() if mine else None)
+                self.lib.view(cue_id, self._overlay() if mine else None, ids is True)
         except KeyError:
             raise EditorError(f"No cue {cue_id}") from None
         # a playlist says whether it plays its slots top to bottom (the Soundtrack shows the order when it doesn't)
@@ -977,6 +978,7 @@ class Session:
                 "game_updated": (updated := bool(self.ix) and _game_updated(p, self.ix.game, last)),
                 "rebuild": _rebuild(p, updated, last),
                 "assignments": assignments, "unresolved": unresolved,
+                "gains": {str(self._target(t)): db for t, db in p.gains.items()},
                 "segment_overrides": {str(k): v for k, v in p.segment_overrides.items()},
                 "texts": [{"table": str(t.table), "id": t.id, "text": t.text, "was": t.was} for t in p.texts],
                 "additions": p.to_json().get("additions", []), "stand_ins": self._stand_ins(p),
@@ -1250,6 +1252,52 @@ class Session:
                 for k, v in checked.items():
                     setattr(r, k, v)
         return self._edit("update", apply)
+
+    def match_loudness(self, sources):
+        """Make-Up Gain that makes the new audio of each slot as loud as its original (loudness.match_gain), in steps
+        of 0.5 dB, as one undo step; the project state comes back with `matched` ({source: dB}). Silence, a new take
+        (no original) and audio without sound keep their gain."""
+        from . import loudness
+        self.require_game()
+        if not isinstance(sources, list):
+            raise EditorError("Choose the slots to match")
+        p = self._need_project()
+        reps, gains = self._sources(), {}
+        for sid in dict.fromkeys(self._source(s) for s in sources):
+            r = reps.get(sid)
+            if not r or r.silence or not p.audio_path(r).exists():
+                continue
+            try:
+                db = loudness.match_gain(self.vanilla_wav(sid), p.audio_path(r))
+            except (EditorError, subprocess.CalledProcessError):
+                continue
+            if db is not None:
+                gains[sid] = max(GAIN_DB[0], min(GAIN_DB[1], round(db * 2) / 2))
+        if not gains:
+            raise EditorError("Nothing to match: no slot here has new audio and an original, both with sound")
+
+        def apply(p):
+            for sid, db in gains.items():
+                self._rep(sid).gain_db = db
+        st = self._edit("match", apply)
+        st["matched"] = {str(s): db for s, db in gains.items()}
+        return st
+
+    def original_gain(self, sources, gain_db):
+        """Make-Up Gain on the original audio of slots (Project.gains), as one undo step; 0 takes it off."""
+        if not isinstance(sources, list):
+            raise EditorError("Choose the slots to change")
+        db = self._field("gain_db", gain_db)
+        self._need_project()
+        sids = [self._source(s) for s in sources]
+
+        def apply(p):
+            for sid in sids:
+                for t in [t for t in p.gains if self._target(t) == sid]:  # a stream's file id and its source are one sound
+                    del p.gains[t]
+                if db:
+                    p.gains[sid] = db
+        return self._edit("gain", apply)
 
     @staticmethod
     def _icon(p: Project, v) -> dict:
@@ -1796,7 +1844,7 @@ class Session:
         with self.build_lock:  # two builds sent together both started, and wrote one .partial ZIP
             if any(j.kind == "build" and j.state == "running" for j in self.jobs.values()):
                 raise EditorError("A build is already running")
-            if not p.replacements and not p.texts and not p.soundtrack:
+            if not p.replacements and not p.gains and not p.texts and not p.soundtrack:
                 raise EditorError("Nothing to build yet. Replace some audio, set a piece in the Soundtrack or change a line of text first.")
             if problems := self.project_state()["problems"]:
                 raise EditorError(f"Fix the problems on the Build tab first: {problems[0]}"
@@ -2683,7 +2731,7 @@ class Session:
         cue = self.catalog.cm.cues.get(int(cue_id)) if str(cue_id).isdigit() else None
         if not cue:
             raise EditorError(f"{cue_id} is not a piece of music. Only music has segments to mix and play through.")
-        mine, overrides, levels = {}, {}, {}
+        mine, overrides, levels, originals = {}, {}, {}, {}
         if side == "mine":
             p = self._need_project()
             piece = p.soundtrack.get(cue["id"])
@@ -2701,7 +2749,8 @@ class Session:
                     cue = {**cue, "playlist": st.as_dict(new)}
             mine, overrides = self._mine(), p.segment_overrides
             levels = st.levels(self._music(), p.soundtrack) if p.soundtrack else {}
-        return Renderer(cue, self.vanilla_wav, mine, overrides, levels)
+            originals = {self._target(t): db for t, db in p.gains.items()}
+        return Renderer(cue, self.vanilla_wav, mine, overrides, levels, originals)
 
     def _variant_name(self, group, value) -> str:
         return self.catalog.variant(group, value).split(": ", 1)[-1]
@@ -3456,7 +3505,7 @@ def _rebuild(p: Project, game_updated: bool, last) -> str | None:
     """Why the mod in the build folder isn't the project as it is now: "new" (no build yet), "game" (the game updated
     since), "changed" (the project did), or None. A build from before projects noted what it was made from says
     nothing until the next one."""
-    if not p.replacements and not p.texts and not p.soundtrack:
+    if not p.replacements and not p.gains and not p.texts and not p.soundtrack:
         return None  # nothing to build
     if not last:
         return "new"

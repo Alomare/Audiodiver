@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { call, fmtTime, isMusic, shownId, type Assignment, type Place, type Slot } from "./api";
 import { rowsOf, SILENCE_TIP, type Row } from "./CueView";
+import { liveGain } from "./gain";
 import { ClearIcon, FillIcon, FillPieceIcon, FolderIcon, SilenceIcon } from "./Icons";
 import { keyLabel, useKeymap, type CommandId } from "./keys";
 import { where } from "./music";
@@ -14,8 +15,9 @@ import { Help, WikiLink } from "./Wiki";
 
 /** The Audio tab's right panel: the selected slot's settings. Each control has one home: the slot's row plays the
     original and the replacement and takes or replaces its file; the waveforms below the list play from any spot; this
-    panel sets up what replaces the slot (silence's timing, Make-Up Gain, timing, cue points) and says where else it
-    plays. The Library has no such panel: SlotFacts says what a slot is, over its waveform. */
+    panel sets up what replaces the slot (silence's timing, Make-Up Gain, timing, cue points), or the Make-Up Gain of
+    the original where nothing does, and says where else it plays. The Library has no such panel: SlotFacts says what
+    a slot is, over its waveform. */
 export function Inspector() {
   const { cue, selected, project, actions } = useEditor();
   const rows = useMemo(() => (cue ? rowsOf(cue.segments_detail) : []), [cue]);
@@ -33,6 +35,7 @@ export function Inspector() {
   }
   const { slot, seg } = sel[0];
   const a = project?.assignments[slot.source];
+  const usable = !slot.unused && !slot.locked && !slot.absent && !slot.added;
   const also = slot.also_n ?? slot.also_in.length;
   const sub = slot.label && !seg.name.includes(slot.label) ? slot.label : null;
   return (
@@ -53,7 +56,8 @@ export function Inspector() {
         <Replacement slot={slot} a={a} music={isMusic(cue)} what={seg.name} />
         {a && (slot.was || (!slot.added && slot.object && ((slot.players ?? 1) > 1 || (slot.sound_banks ?? 0) < (slot.banks ?? 0)))) &&
           <Reach slot={slot} />}
-        {a && !a.silence && <Gain sources={[slot.source]} value={a.gain_db} />}
+        {a && !a.silence && <Gain sources={[slot.source]} value={a.gain_db} match={slot.added ? undefined : "one"} />}
+        {!a && project && usable && <Gain original sources={[slot.source]} value={project.gains[slot.source] ?? 0} />}
         {a && !a.silence && seg.segment && (
           <section className="insp-sec">
             <label className="check">
@@ -338,21 +342,30 @@ function PlaceLink({ id, source, mono, children }: { id: string; source: string;
 const GAIN_MAX = 96; // dB either way, as the core takes it (project.GAIN_DB)
 const fmtGain = (x: number) => `${x > 0 ? "+" : ""}${x}`;
 
-/** Make-Up Gain of one replaced slot or of several; `value` is null while several differ (the box says Mixed and the
-    slider rests at 0 until moved). `note` says which of the selected slots it sets, when not all. */
-function Gain({ sources, value, note }: { sources: string[]; value: number | null; note?: string }) {
+/** Make-Up Gain of one replaced slot or of several, or (`original`) of the original audio of slots without new audio;
+    `value` is null while several differ (the box says Mixed and the slider rests at 0 until moved). `note` says which
+    of the selected slots it sets, when not all. The waveforms and the player follow the slider as it moves (liveGain).
+    `match`: a button that sets the gain that makes each new audio as loud as its original. */
+function Gain({ sources, value, note, original, match }: {
+  sources: string[]; value: number | null; note?: string; original?: boolean; match?: "one" | "each";
+}) {
   const { actions } = useEditor();
   const [v, setV] = useState(value ?? 0);
   const [typed, setTyped] = useState<string | null>(null); // the value box while it is typed in
   const [moved, setMoved] = useState(false); // mixed values: the slider has been moved, so its value shows
+  const [matching, setMatching] = useState(false);
   const escaped = useRef(false);
-  useEffect(() => { setV(value ?? 0); setMoved(false); }, [value, sources.join()]);
+  const key = sources.join();
+  useEffect(() => { setV(value ?? 0); setMoved(false); liveGain.clear(sources); }, [value, key]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => () => liveGain.clear(sources), [key]); // eslint-disable-line react-hooks/exhaustive-deps
   const later = useRef(0);
   useEffect(() => () => clearTimeout(later.current), []);
+  const move = (x: number) => { setV(x); setMoved(true); liveGain.set(sources, x); };
   const commit = (x: number, typedIn = false) => {
     clearTimeout(later.current);
-    if (x === value || (value === null && !moved && !typedIn)) return;
-    if (sources.length === 1) actions.update(sources[0], { gain_db: x });
+    if (x === value || (value === null && !moved && !typedIn)) { liveGain.clear(sources); return; }
+    if (original) actions.originalGain(sources, x);
+    else if (sources.length === 1) actions.update(sources[0], { gain_db: x });
     else actions.updateMany(sources, { gain_db: x });
   };
   // arrow keys on the slider step it; the steps become one change (one undo) once the keys rest
@@ -363,23 +376,36 @@ function Gain({ sources, value, note }: { sources: string[]; value: number | nul
     if (escaped.current) { escaped.current = false; return; } // Esc: as it was
     if (typed === null || typed.trim() === "" || !Number.isFinite(x)) return;
     const g = Math.round(Math.max(-GAIN_MAX, Math.min(GAIN_MAX, x)) * 2) / 2;
-    setV(g);
-    setMoved(true);
+    move(g);
     commit(g, true);
+  };
+  const matchAll = async () => {
+    setMatching(true);
+    try { await actions.matchLoudness(sources); } finally { setMatching(false); }
   };
   const shown = value === null && !moved ? "Mixed" : fmtGain(v);
   return (
     <section className="insp-sec">
-      <h3>Make-Up Gain <Help tip="Louder or quieter, without changing the file or the mix." page="volume#make-up-gain-per-slot" />
+      <h3>Make-Up Gain <Help tip={original ? "The original, louder or quieter, without new audio or a change to the mix."
+        : "Louder or quieter, without changing the file or the mix."} page="volume#make-up-gain-per-slot" />
         <span className="val"><input className="gain-val" value={typed ?? shown} aria-label="Make-Up Gain in dB, typed" inputMode="decimal"
           onFocus={(e) => { setTyped(value === null && !moved ? "" : fmtGain(v)); e.currentTarget.select(); }} onChange={(e) => setTyped(e.target.value)} onBlur={takeTyped}
           onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); else if (e.key === "Escape") { escaped.current = true; e.currentTarget.blur(); } }}
           data-tip={`Type a value from −${GAIN_MAX} to +${GAIN_MAX}`} /> dB</span></h3>
       {note && <p className="muted small insp-note">{note}</p>}
       <input type="range" min={-GAIN_MAX} max={GAIN_MAX} step={0.5} value={v} aria-label="Make-Up Gain in dB"
-        onChange={(e) => { setV(Number(e.target.value)); setMoved(true); }} onPointerUp={() => commit(v)}
+        onChange={(e) => move(Number(e.target.value))} onPointerUp={() => commit(v)}
         onKeyUp={(e) => { if (/^(Arrow|Home|End|Page)/.test(e.key)) commitSoon(v); }} onBlur={() => commit(v)}
         onKeyDown={(e) => { if (e.ctrlKey || e.metaKey || e.altKey) commit(v); }} /* a nudge on its way goes first: then Ctrl+Z undoes it */ />
+      {match && (
+        <p className="gain-match">
+          <button className="link-text" disabled={matching} onClick={matchAll}
+            data-tip={match === "one" ? "The Make-Up Gain that makes the new audio as loud as the original"
+              : "Each slot gets the Make-Up Gain that makes the new audio as loud as the original"}
+            data-tip-more="Short sounds by the loudest moment, longer ones by the whole">
+            {matching ? "Measuring…" : match === "one" ? "Match the original" : "Match each to the original"}</button>
+        </p>
+      )}
     </section>
   );
 }
@@ -444,6 +470,7 @@ function Bulk({ rows, sources, usable }: { rows: Row[]; sources: string[]; usabl
   const a = project?.assignments ?? {};
   const mine = sources.filter((s) => a[s]);
   const files = mine.filter((s) => !a[s].silence), silent = mine.filter((s) => a[s].silence);
+  const plain = usable.filter((s) => !a[s]), kept = project?.gains ?? {}; // the originals: their Make-Up Gain
   const cued = rows.filter((r) => r.seg.segment && a[r.slot.source] && !a[r.slot.source].silence); // music with new audio
   const toSilence = usable.filter((s) => !a[s]?.silence);
   const slots = (n: number) => `${n} slot${n === 1 ? "" : "s"}`;
@@ -459,9 +486,12 @@ function Bulk({ rows, sources, usable }: { rows: Row[]; sources: string[]; usabl
           data-tip={toSilence.length ? "Play nothing in these slots" : usable.length ? "Already silent" : "Never played, or do not touch"}>
           <SilenceIcon />Replace {toSilence.length > 0 && toSilence.length < sources.length ? `${slots(toSilence.length)} ` : ""}with silence</button>
       </section>
-      {files.length > 0 && (
+      {files.length > 0 ? (
         <Gain sources={files} value={files.every((s) => a[s].gain_db === a[files[0]].gain_db) ? a[files[0]].gain_db : null}
-          note={files.length < sources.length ? `Applies to the ${slots(files.length)} with new audio.` : undefined} />
+          note={files.length < sources.length ? `Applies to the ${slots(files.length)} with new audio.` : undefined} match="each" />
+      ) : project && plain.length > 0 && (
+        <Gain original sources={plain} value={plain.every((s) => (kept[s] ?? 0) === (kept[plain[0]] ?? 0)) ? kept[plain[0]] ?? 0 : null}
+          note={plain.length < sources.length ? `Applies to the ${slots(plain.length)} with the original audio.` : undefined} />
       )}
       {cued.length > 0 && <BulkMarkers rows={cued} partial={cued.length < sources.length} />}
       {silent.length > 0 && (

@@ -381,6 +381,8 @@ button.file:hover:not(:disabled) { text-decoration: underline dotted; text-under
 .file.silent { flex: none; }
 .file.silent ~ .x { margin-left: auto; }
 .gain { font-size: calc(12px * var(--fs)); color: var(--accent-fg); font-weight: 500; }
+/* the button under Make-Up Gain that sets the gain matching the original */
+.gain-match { margin: calc(6px * var(--sp)) 0 0; font-size: calc(13px * var(--fs)); }
 .drop-hint { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; color: var(--faint); font-size: calc(13px * var(--fs)); padding: 6px 10px; border: 1px dashed var(--line); border-radius: 2px; }
 .drop-hint:hover { color: var(--text); border-color: var(--muted); }
 .slot.locked .drop-hint { border-color: color-mix(in srgb, var(--red) 40%, transparent); }
@@ -511,7 +513,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fg); }
 /* The rows of long lists (a bank's sounds, the Index, the Text tab's lines) are skipped when out of view: the browser
    paints the whole page as one list each frame, so anything that changes while something plays had it walk every
    row, on screen or not. The heights are remembered once a row has been seen. */
-.slots > .grp, .slots > .slot, .lib-tree .mus-item, .tx-row { content-visibility: auto; contain-intrinsic-size: auto 34px; }
+.slots > .grp, .slots > .slot, .slots > .tree-line, .lib-tree .mus-item, .tx-row { content-visibility: auto; contain-intrinsic-size: auto 34px; }
 /* a long slot list draws only the rows near the view (useListWindow): those are drawn in full, so their heights are
    measured as they are */
 .slots.windowed > .grp, .slots.windowed > .slot { content-visibility: visible; }
@@ -637,7 +639,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fg); }
 .lib-pane { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .lib-pane[hidden] { display: none; }
 .lib-title { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: calc(6px * var(--sp)) 6px calc(6px * var(--sp)) 12px; border-bottom: 1px solid var(--line); }
-.lib-title h2 { font-size: calc(15px * var(--fs)); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lib-title h2 { margin-right: auto; font-size: calc(15px * var(--fs)); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lib-empty { padding: 18px 16px; color: var(--muted); font-size: calc(14px * var(--fs)); }
 .lib-empty h2 { font-size: calc(17px * var(--fs)); color: var(--text); margin-bottom: 6px; }
 .lib-empty p { margin: 0; }
@@ -740,6 +742,22 @@ button.ctag:hover { background: color-mix(in oklch, var(--c) 24%, transparent); 
 /* a take sits under its group's name (its play button where the name starts), and says what a voice line says in full */
 .slot.take { padding-left: calc(54px + 4px * var(--sp)); }
 .slot.take .slot-sub { white-space: normal; color: var(--text); }
+/* by container id (Settings ▸ System): each group sits under the lines of the containers over it, --depth of them,
+   as Wwise tools draw a bank's tree. A container line says its kind and its id (several in a row when each holds only
+   the next); a group's line says its kind before the id, and what names it otherwise after */
+.slots > .grp, .slots > .slot { padding-left: calc(8px + var(--depth, 0) * 14px); }
+.slots > .slot.take { padding-left: calc(54px + 4px * var(--sp) + var(--depth, 0) * 14px); }
+.tree-line { display: flex; align-items: baseline; gap: 5px; min-width: 0; overflow: hidden; white-space: nowrap; margin-top: 2px;
+  padding: calc(5px * var(--sp)) 8px calc(1px * var(--sp)) calc(8px + var(--depth, 0) * 14px); border-top: 1px solid var(--line-soft);
+  font-size: calc(12px * var(--fs)); color: var(--muted); }
+.tree-type, .tree-sep { flex: none; color: var(--faint); }
+.tree-type { margin-right: 2px; }
+.tree-id { flex: none; padding: 0 3px; border-radius: 2px; color: var(--muted); font: calc(12px * var(--fs)) "Roboto Mono Variable", Consolas, monospace; }
+.tree-id:hover { color: var(--second-fg); background: var(--hover); }
+.grp-type { flex: none; font-size: calc(12px * var(--fs)); color: var(--faint); }
+.grp-alias { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: calc(13px * var(--fs)); color: var(--muted); }
+/* Make-Up Gain on a slot's original audio: the project's, in its colour */
+.tag.gain-tag { color: var(--accent-fg); border-color: color-mix(in srgb, var(--accent-fg) 50%, transparent); }
 .slot-sub .ctag { margin-left: 6px; }
 .slots-note { margin: 0; padding: 12px 8px; color: var(--muted); font-size: calc(13px * var(--fs)); }
 .cue-loading { width: min(320px, 80%); }
@@ -1758,7 +1776,6 @@ kbd.none { color: var(--faint); font-weight: 400; }
    segments, and the segments are chips that light up while a fight plays them. Grey is the game's, yellow the
    project's */
 .panes.st-panes { grid-template-columns: min(calc(var(--left, 330px) * var(--fs)), calc(100% - 20px - var(--mid))) 5px minmax(var(--mid), 1fr); }
-.pane-rule { background: var(--line-soft); }
 .st-list { padding-top: 2px; }
 .st-row { display: flex; align-items: baseline; gap: 8px; width: 100%; padding: calc(4px * var(--sp)) 10px calc(4px * var(--sp)) 26px; text-align: left;
   border-left: 2px solid transparent; color: var(--muted); font-size: calc(14px * var(--fs)); }
@@ -1770,6 +1787,8 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .st-mode.song, .st-mode.tracks { color: var(--accent-fg); font-weight: 600; }
 .st-mode.silent, .st-mode.same, .st-mode.mixed { color: var(--text); }
 .st-slots { display: inline-flex; align-items: center; gap: 5px; flex: none; font-size: calc(13px * var(--fs)); }
+/* beside the music name, on the caps as the Audio tab's status is */
+.item-title > .st-slots { align-self: center; margin-top: calc(-4.5px * var(--fs)); }
 .st-head .parts { padding: 0; margin: 6px 0 0; background: none; }
 .st-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: calc(8px * var(--sp)); }
 .st-modes { grid-auto-columns: auto; flex: 0 1 auto; }

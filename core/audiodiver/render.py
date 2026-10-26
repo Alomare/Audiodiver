@@ -148,13 +148,15 @@ class SegmentPlan:
 
 class Renderer:
     """Renders segments and cues of one cue-map cue. `vanilla(sid)` returns the path of a source's game audio;
-    `mine` maps replaced source ids to Mine, `overrides` segment ids to cue-point overrides and `levels` music tracks
-    to the Make-Up Gain a piece's level puts on them (all empty to render the game's own music)."""
+    `mine` maps replaced source ids to Mine, `overrides` segment ids to cue-point overrides, `levels` music tracks
+    to the Make-Up Gain a piece's level puts on them and `originals` source ids to the Make-Up Gain on their original
+    audio (Project.gains; new audio's own applies instead) (all empty to render the game's own music)."""
 
     def __init__(self, cue: dict, vanilla, mine: dict[int, Mine] | None = None, overrides: dict | None = None,
-                 levels: dict[int, float] | None = None):
+                 levels: dict[int, float] | None = None, originals: dict[int, float] | None = None):
         self.cue, self.vanilla = cue, vanilla
         self.mine, self.overrides, self.levels = mine or {}, overrides or {}, levels or {}
+        self.originals = originals or {}
         self.segments = {}
         for s in cue["segments"]:
             self.segments.setdefault(s["segment"], s)
@@ -210,10 +212,13 @@ class Renderer:
         retimed = []
         for st in s["stems"]:
             sub = self._subtrack(st, variants, take)
+            kept = [self.originals[s] for s in (sl["source"] for sl in st["slots"])
+                    if s not in self.mine and self.originals.get(s)]
             gains = [self.mine[sl["source"]].gain_db for sl in st["slots"]
-                     if sl["source"] in self.mine and self.mine[sl["source"]].gain_db]
+                     if sl["source"] in self.mine and self.mine[sl["source"]].gain_db] + kept
             gain = (max(gains) if gains else 0.0) + self.levels.get(st["track"], 0.0)  # make-up gain sits on the
             # track, so it lifts every clip of it
+            plan.changed |= bool(kept)
             for c in st["clips"]:
                 sid = c["source"]
                 m = self.mine.get(sid)

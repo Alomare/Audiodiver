@@ -72,6 +72,13 @@ top. The key is left out while there are none:
 
       "settings": {"372068234": {"5": 12.0, "12": 0.0}}
 
+gains are Make-Up Gain on sounds that keep the original audio, by target as a replacement names it: the build puts
+it on the Sounds and music tracks that play the clip and leaves the clip as it is. While a slot has new audio, the
+new audio's own gain applies instead, and the entry stays for when the new audio is removed. The key is left out
+while there are none:
+
+      "gains": {"15204189411560306296": -6.0}
+
 notes are the project's notes on what the Audio tab shows, in Markdown, keyed as notes.py says (the global notes,
 for every project, are in notes.py's file). A note that isn't valid is left out when the file opens. The key is left
 out while there are none:
@@ -150,7 +157,7 @@ class Replacement:
     target: int
     audio: str               # relative to the project file; "" for silence
     label: str = ""
-    gain_db: float = 0.0     # Make-Up Gain on the Sounds/MusicTracks that play it
+    gain_db: float = 0.0     # Make-Up Gain added to that of the Sounds/MusicTracks that play it
     fit_timing: bool = True  # fit the track/segment timing to the new clip's length
     silence: bool = False    # plays the built-in silence: with fit_timing the game moves straight on, without it
                              # the slot stays silent for as long as the game's audio would play
@@ -200,6 +207,7 @@ class Project:
     texts: list[TextEdit] = field(default_factory=list)  # lines of the game's text it changes
     additions: list[Addition] = field(default_factory=list)  # audio it adds to the game's (addition.py)
     settings: dict[int, dict[int, float | None]] = field(default_factory=dict)  # an imported mod's, on the game's objects
+    gains: dict[int, float] = field(default_factory=dict)  # Make-Up Gain on the original audio, by target
     notes: dict[str, str] = field(default_factory=dict)  # the project's notes ({key: Markdown}, notes.py)
     soundtrack: dict[int, Piece] = field(default_factory=dict)  # how pieces of music play, by playlist (soundtrack.py)
     tabs: list[str] | None = None  # the hideable tabs it shows (TABS); None: as Settings says
@@ -338,6 +346,8 @@ class Project:
         need(isinstance(settings, dict) and all(isinstance(s, dict) and all(
             v is None or isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) for v in s.values())
             for s in settings.values()), "the settings from a mod")
+        gains = d.get("gains", {})
+        need(isinstance(gains, dict), "the Make-Up Gain on the original audio")
         adds = d.get("additions", [])
         need(isinstance(adds, list) and all(isinstance(a, dict) and set(Addition.KINDS.get(a.get("kind"), ("?",))) <= set(a)
                                             for a in adds), "the added audio")
@@ -382,6 +392,8 @@ class Project:
                        additions=[Addition(a["kind"], **{k: int(a[k]) for k in Addition.KINDS[a["kind"]]}) for a in adds],
                        settings={int(o): {int(k): None if v is None else float(v) for k, v in s.items()}
                                  for o, s in settings.items() if s},
+                       gains={int(t): db for t, v in gains.items()
+                              if (db := number(v, 0.0, *GAIN_DB, f"the Make-Up Gain of sound {t}"))},
                        notes=notes, soundtrack={k: v for k, v in pieces.items() if not v.plain()}, tabs=tabs)
             p.repairs = list(dict.fromkeys(repairs))  # not saved: what opening it put right (project_state says it)
             return p
@@ -412,6 +424,7 @@ class Project:
                               for a in self.additions]} if self.additions else {}),
             **({"settings": {str(o): {str(k): v for k, v in s.items()} for o, s in self.settings.items()}}
                if self.settings else {}),
+            **({"gains": {str(k): v for k, v in self.gains.items()}} if self.gains else {}),
             **({"notes": dict(self.notes)} if self.notes else {}),
             **({"soundtrack": {str(k): v.to_json() for k, v in self.soundtrack.items()}} if self.soundtrack else {}),
             **({"tabs": list(self.tabs)} if self.tabs is not None else {}),

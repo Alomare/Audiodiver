@@ -22,6 +22,10 @@ come with the audio the project adds (Added, addition.py): its new takes after t
 as a group after the sound it plays with (`added: "layer"`), a clip of its own in place of the clip it stood in for
 (`was`). A group whose takes a random container picks says which (`container`), and whether a layer can go beside it.
 
+The Container ids view (Settings ▸ System, Sound names) shows a bank as Wwise tools list its hierarchy: a group is
+the container right above its Sounds, named by its id (`alias`: what names it otherwise), in the bank's tree order,
+with the kind of container it is (`ctype`) and the containers above it (`above`).
+
 A project lists the Index items and archives it works on (project.py, "library"); `home` finds the one a sound
 belongs to, for a project that has replacements but no list yet.
 """
@@ -36,7 +40,7 @@ from importlib import resources
 
 from . import bank as wbank
 from . import music, wem
-from .addition import ACTION, LAYER, RANSEQ, SWITCH, play_target
+from .addition import ACTION, LAYER, MIXER, RANSEQ, SWITCH, base_end, play_target
 from .cuemap import slots
 from .game import murmur64_hash
 from .index import LANGUAGES
@@ -340,17 +344,17 @@ class Library:
         return out
 
     # --- a bank's sounds, as something to open
-    def view(self, cue_id: str, added: "Added | None" = None) -> dict:
-        """The cue-shaped view of `bank:<id>` or `streams:<archive>`, a bank's with the audio a project adds to it.
-        KeyError when there is no such thing."""
+    def view(self, cue_id: str, added: "Added | None" = None, ids=False) -> dict:
+        """The cue-shaped view of `bank:<id>` or `streams:<archive>`, a bank's with the audio a project adds to it
+        (ids: as the bank's tree of containers, _bank). KeyError when there is no such thing."""
         kind, _, key = cue_id.partition(":")
-        at = (cue_id, added if kind == "bank" and added else None)
+        at = (cue_id, added if kind == "bank" and added else None, bool(ids) and kind == "bank")
         with self._lock:
             if at in self._views:
                 self._views.move_to_end(at)
                 return self._views[at]
         try:
-            v = (self._bank(int(key), at[1]) if kind == "bank" else self._streams(key) if kind == "streams"
+            v = (self._bank(int(key), at[1], at[2]) if kind == "bank" else self._streams(key) if kind == "streams"
                  else self._sound(int(key)) if kind == "sfx" else None)
         except (ValueError, KeyError):
             v = None
@@ -409,6 +413,50 @@ class Library:
                 "stems": [{"track": "", "type": "sound", "switch_group": "", "slots": slots_}], "tags": [], "group": True,
                 "shared": min((s["banks"] for s in slots_), default=0), **more}
 
+    @staticmethod
+    def _tree_order(parent: dict, kinds: dict) -> dict[int, int]:
+        """{container: where a depth-first walk of the bank's tree meets it}, children in the bank's order: the
+        order a Wwise tool lists the hierarchy in."""
+        kids = collections.defaultdict(list)
+        for oid, p in parent.items():
+            if oid in kinds:
+                kids[p if p in kinds else None].append(oid)
+        out, todo = {}, list(reversed(kids[None]))
+        while todo:
+            c = todo.pop()
+            if c in out:
+                continue
+            out[c] = len(out)
+            todo.extend(reversed(kids.get(c, [])))
+        return out
+
+    @staticmethod
+    def _tree(key, parent: dict, kinds: dict, bodies: dict, held_by) -> dict:
+        """A group's place in the bank's tree (Container ids): `ctype`, the kind of container it is, and `above`,
+        the containers over it from the top down ({ids, type}), where an Actor-Mixer that holds nothing but the
+        next Actor-Mixer shares its line."""
+        def kind(c):
+            t = kinds.get(c)
+            if t == RANSEQ:  # the playlist's mode, after the loop, transition and avoid-repeat settings: 1 = sequence
+                body = bodies.get(c)
+                try:
+                    return "Sequence" if body is not None and body[base_end(RANSEQ, body) + 22] == 1 else "Random"
+                except Exception:  # a body cut short reads as random
+                    return "Random"
+            return {SWITCH: "Switch", MIXER: "Actor-Mixer", LAYER: "Layer"}.get(t, "")
+        chain, cur = [], parent.get(key)
+        while cur in kinds and cur not in chain:
+            chain.append(cur)
+            cur = parent.get(cur)
+        above = []
+        for c in reversed(chain):
+            last = above[-1] if above else None
+            if last and last["type"] == "Actor-Mixer" and kinds[c] == MIXER and held_by[int(last["ids"][-1])] == 1:
+                last["ids"].append(str(c))
+            else:
+                above.append({"ids": [str(c)], "type": kind(c)})
+        return {"ctype": kind(key), "above": above}
+
     def _languages(self, bid: int) -> list[int]:
         """The same voice's bank in every installed language (the bank alone for one that isn't a voice)."""
         tail, lang = self.bank_names.get(bid), self.ix.banks[bid].get("lang")
@@ -444,7 +492,10 @@ class Library:
                     self._en[bid] = {o: e for (o, _), (e, _) in zip(mine, theirs) if o != e}
         return self._en[bid]
 
-    def _bank(self, bid: int, added: "Added | None" = None) -> dict:
+    def _bank(self, bid: int, added: "Added | None" = None, ids=False) -> dict:
+        """A bank's sounds as groups: music segments first, then the takes of each sound, then the audio no Sound
+        here plays. ids (the Container ids view, Settings): each group is the container right above its Sounds,
+        named by its id, in the bank's tree order, with the containers above it (_tree)."""
         ix = self.ix
         info = ix.banks[bid]
         didx, data, hirc = [], b"", bytes(4)  # a bank that only stores audio has no objects at all
@@ -456,7 +507,7 @@ class Library:
             elif tag == b"HIRC":
                 hirc = body
         held = {sid: wem.length_ms(data[off:off + min(n, 96)]) for sid, off, n in didx}  # source -> ms, of what is in here
-        sounds, parent, segments, kinds, plays = [], {}, [], {}, set()
+        sounds, parent, segments, kinds, plays, bodies = [], {}, [], {}, set(), {}
         for t, oid, body in music.iter_hirc(hirc):
             if t == wbank.SOUND:
                 plugin, _stype, sid, _cache, _mem, _bits = wbank.SOURCE.unpack_from(body, 0)
@@ -469,6 +520,8 @@ class Library:
                 sounds.append((oid, sid))
             elif t in CONTAINERS:
                 kinds[oid] = t
+                if ids:
+                    bodies[oid] = body
                 try:
                     parent[oid] = music.read_node_base_params(music.Reader(body, 0))[1]
                 except Exception:
@@ -534,7 +587,7 @@ class Library:
                 continue  # in the music above, or played by a Sound that came before: one thing to replace
             listed.add(sid)
             key, seen = parent.get(oid, 0), set()
-            while key not in layer_of and key in parent and leaves[key] < 2 and key not in seen:
+            while not ids and key not in layer_of and key in parent and leaves[key] < 2 and key not in seen:
                 seen.add(key)
                 key = parent[key]
             home.setdefault(parent.get(oid, 0), key)
@@ -559,13 +612,18 @@ class Library:
                 for key in order]
         # what this bank has to itself (or shares with a variant or two) comes first; the sounds a whole family of
         # banks has copies of (every weapon's handling sounds) go last. Within each, the bank's own order.
-        made.sort(key=lambda m: min(r["banks"] for r in m[0]) >= WIDELY)
+        # Container ids go by the tree instead, as a depth-first walk from the top meets each container.
+        if ids:
+            place = self._tree_order(parent, kinds)
+            made.sort(key=lambda m: place.get(m[2], len(place)))
+        else:
+            made.sort(key=lambda m: min(r["banks"] for r in m[0]) >= WIDELY)
         # a sound nothing says, named by the notes on its takes (data/notes.json: "Ready"), numbered when several are.
         # Where the notes name every sound (the Helldivers' exertions), the sounds go by name, part by part ("Death"
         # before "Death Scream, Long · Voice 1").
         notes_of = {key: collections.Counter(l for r in rows if (l := self.cat.clip(int(r.get("was") or r["source"])).get("label")))
                     for rows, _, key in made}
-        if all(notes_of[m[2]] for m in made if m[2] not in layer_of):
+        if not ids and all(notes_of[m[2]] for m in made if m[2] not in layer_of):
             noted_name = lambda key: notes_of[key].most_common(1)[0][0] if notes_of[key] else ""
             made.sort(key=lambda m: [part.casefold() for part in noted_name(m[2]).split(" · ")])
         for m in [m for m in made if m[2] in layer_of]:  # a layer after the sound it plays with, and its other layers
@@ -585,18 +643,23 @@ class Library:
         noted = [notes_of[key] for _, _, key in made]
         noted_n, noted_seen = collections.Counter(c.most_common(1)[0][0] for c in noted if c), collections.Counter()
         n, borrowed, named, layers = 0, False, {}, []
+        held_by = collections.Counter(parent.values()) if ids else None  # how many things each container holds
         for (rows, called, key), notes in zip(made, noted):
+            tree = self._tree(key, parent, kinds, bodies, held_by) if ids else {}
+            by_id = str(key) if key else "No container"
             if len(rows) > BIG_GROUP:
                 for at in range(0, len(rows), CHUNK):
-                    groups.append(self._group(f"Sounds {at + 1}–{min(len(rows), at + CHUNK)}", rows[at:at + CHUNK]))
+                    run = f"{at + 1}–{min(len(rows), at + CHUNK)}"
+                    groups.append(self._group(f"{by_id} · {run}" if ids else f"Sounds {run}", rows[at:at + CHUNK], **tree))
                 continue
             said = collections.Counter(r["label"] for r in rows if r["label"] and r["label"] != r.get("sound"))
             wordless = collections.Counter(r.get("sound") for r in rows)
             for k, r in enumerate(rows, 1):  # the takes of one sound, told apart by number where nothing says more
                 r["label"] = r["label"] or (f"Take {k}" if len(rows) > 1 else "")
             if key in layer_of:
-                layers.append((self._group("", rows, added="layer", container=str(key), key=str(key), beside=str(layer_of[key]),
-                                           copies=len(self.ix.copies(layer_of[key])) - 1), key))
+                layers.append((self._group(by_id if ids else "", rows, added="layer", container=str(key), key=str(key),
+                                           beside=str(layer_of[key]), copies=len(self.ix.copies(layer_of[key])) - 1,
+                                           **tree), key))
                 groups.append(layers[-1][0])
                 continue
             n += 1
@@ -609,16 +672,19 @@ class Library:
                 name = KIND_GROUP.get(k := wordless.most_common(1)[0][0], k)
             elif notes:
                 name = notes.most_common(1)[0][0]
-                if noted_n[name] > 1:
+                if noted_n[name] > 1 and not ids:  # beside an id, the note's name alone
                     noted_seen[name] += 1
                     name += f" {noted_seen[name]}"
             named[key] = name
+            if ids:  # the id, and what names the sound otherwise beside it (a number says nothing)
+                tree["alias"] = "" if name == f"Sound {n}" else name
+                name = by_id
             more = ({"container": str(key), "layer": can_layer(key), "copies": len(self.ix.copies(key)) - 1}
                     if kinds.get(key) == RANSEQ else {})
-            groups.append(self._group(name, rows, **more, **({"key": str(key)} if key else {})))
+            groups.append(self._group(name, rows, **more, **({"key": str(key)} if key else {}), **tree))
         per_sound = collections.Counter(home.get(layer_of[k]) for _, k in layers)
         seen_layers = collections.Counter()
-        for g, key in layers:  # "Sound 3 · Layer", or numbered when it has several
+        for g, key in [] if ids else layers:  # "Sound 3 · Layer", or numbered when it has several
             beside = home.get(layer_of[key])
             seen_layers[beside] += 1
             g["name"] = f"{named.get(beside, 'Sound')} · Layer" + (f" {seen_layers[beside]}" if per_sound[beside] > 1 else "")

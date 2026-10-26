@@ -119,6 +119,16 @@ def test_project_changes_are_rendered(cue):
     assert at(audio, 1700) == pytest.approx(0.2 + 0.5, abs=1e-3)
 
 
+def test_gain_on_the_original_is_rendered(cue):
+    """Make-Up Gain on an original clip (Project.gains) lifts it as a build would; new audio there plays with its own."""
+    cue, vanilla, tmp = cue
+    r = Renderer(cue, vanilla, originals={1: 6.0206})
+    assert r.plan(10).changed and not r.plan(20).changed
+    assert at(r.render()[0], 300) == pytest.approx(0.5, abs=1e-3)  # the original, 6 dB up
+    mine = {1: Mine(tone(tmp / "mine.wav", 1, 0.1), fit_timing=False)}
+    assert at(Renderer(cue, vanilla, mine, originals={1: 6.0206}).render()[0], 300) == pytest.approx(0.1, abs=1e-3)
+
+
 def test_playlist_order():
     leaf = lambda s, loop=1: {"segment": s, "loop": loop}
     segs = [segment(i, []) for i in (1, 2, 3)]

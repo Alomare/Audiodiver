@@ -6,7 +6,13 @@ summary: Setting a slot's loudness, how the game's HDR mix works, and why some s
 
 ## Make-Up Gain per slot
 
-Select a replaced slot and set **Make-Up Gain** in the details, from −96 to +96 dB, with the slider or by typing a value. Several selected slots all get the same value. Make-Up Gain doesn't change the audio file, so you can adjust it at any time.
+Select a slot and set **Make-Up Gain** in the details, from −96 to +96 dB, with the slider or by typing a value. Several selected slots all get the same value. Make-Up Gain doesn't change the audio file, so you can adjust it at any time.
+
+On a slot without new audio, Make-Up Gain makes the Original louder or quieter. The mod changes only that setting, so it holds no copy of the audio. The row shows the value as a tag. While the slot has new audio, the gain set on the new audio applies instead.
+
+The waveforms under the slots are drawn at the gain and follow the slider as it moves, on the same scale as the Original, so the new audio can be set as loud as the Original by eye. Red marks audio pushed past full scale, which clips. ▶ plays the new audio at the gain too, and the Original at the gain on it.
+
+**Match the original** sets the Make-Up Gain that makes the new audio as loud as the Original. Audiodiver measures the loudness of both (as broadcast loudness meters do): a sound shorter than 3 seconds, such as a shot or a voice line, by the loudest moment, and longer audio, such as music, by the whole. With several slots selected, **Match each to the original** sets a separate gain for each slot.
 
 > [!NOTE]
 > A few clips ignore Make-Up Gain in game, including the Illuminate calm stingers. Their details show a warning. Set the loudness of these clips in the audio file.
@@ -20,7 +26,7 @@ Wwise, the game's audio engine, has two settings that both sound like "volume":
 - **Volume** is the *logical* volume, how loud the game considers a sound to be. The mix uses this value to decide which sounds to turn down.
 - **Make-Up Gain** is applied *after* that decision. It makes the sound louder or quieter to the ear without changing how loud the mix considers it.
 
-Audiodiver sets Make-Up Gain, which changes only the loudness of the new audio.
+Audiodiver sets Make-Up Gain, which changes only the loudness. The value in the details is added to the Make-Up Gain the game already gives the sound, so 0 dB plays the sound as the game does.
 
 ## The game's HDR mix
 

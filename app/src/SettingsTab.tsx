@@ -7,7 +7,7 @@ import { HIDEABLE, nav, useNav, type Hideable, type SettingsTab as Sub } from ".
 import { Page, tabArrows } from "./Page";
 import { reveal } from "./platform";
 import { player } from "./player";
-import { DEFAULT_SETTINGS, resetLayout, settings, TIP_SPEEDS, UPDATE_MODES, UPDATE_NOTES, useSettings } from "./settings";
+import { DEFAULT_SETTINGS, resetLayout, settings, SOUND_NAMES, TIP_SPEEDS, UPDATE_MODES, UPDATE_NOTES, useSettings } from "./settings";
 import { useEditor } from "./store";
 import { Help } from "./Wiki";
 import { accentFor, BAR_SIDES, barIsVertical, BLUE_HUE, contrastOn, DEFAULT_SIZE, DEFAULT_THEME, DEFAULT_WARMTH, DENSITIES, FONTS, modeOf, motionOn, nightTint,
@@ -80,9 +80,10 @@ function System() {
     setClearing(null);
   };
   // the settings on this page (the build switches live on the Build tab)
-  const defaults = { openLast: DEFAULT_SETTINGS.openLast, tips: DEFAULT_SETTINGS.tips, updates: DEFAULT_SETTINGS.updates, tabs: DEFAULT_SETTINGS.tabs };
+  const defaults = { openLast: DEFAULT_SETTINGS.openLast, tips: DEFAULT_SETTINGS.tips, updates: DEFAULT_SETTINGS.updates, tabs: DEFAULT_SETTINGS.tabs,
+    soundNames: DEFAULT_SETTINGS.soundNames };
   const changed = s.openLast !== defaults.openLast || s.tips !== defaults.tips || s.updates !== defaults.updates
-    || s.tabs.join() !== defaults.tabs.join();
+    || s.tabs.join() !== defaults.tabs.join() || s.soundNames !== defaults.soundNames;
 
   return (
     <div className="set-page">
@@ -100,6 +101,21 @@ function System() {
           <input type="checkbox" checked={s.openLast} onChange={(e) => settings.set({ openLast: e.target.checked })} />
           <span>Open the last project when Audiodiver starts <Help tip="When on, the last project opens on the Audio tab. When off, Audiodiver starts on Home." page="how-audiodiver-works#startup" /></span>
         </label>
+      </section>}
+
+      {!UTILS && <section className="set-sec">
+        <h2>Sound names <Help tip="How the Audio tab and the Library list the sounds of a bank." page="reading-the-screen#container-ids" /></h2>
+        <div className="field">
+          <span className="field-label">Show</span>
+          <div className="segmented narrow" role="radiogroup" aria-label="Sound names">
+            {SOUND_NAMES.map(([id, name]) => (
+              <button key={id} role="radio" aria-checked={s.soundNames === id} className={s.soundNames === id ? "on" : ""}
+                onClick={() => settings.set({ soundNames: id })}>{name}</button>
+            ))}
+          </div>
+          <small>{s.soundNames === "ids" ? "Each sound by the id of the container that holds it, under the containers above, as Wwise tools list them."
+            : "Each sound by what it says or what it is. Sounds nothing names are numbered."}</small>
+        </div>
       </section>}
 
       <section className="set-sec">

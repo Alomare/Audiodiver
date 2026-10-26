@@ -115,6 +115,33 @@ def test_silence_takes_a_sound_out_of_the_mix():
     assert unchanged is raw and not edit.mutes  # a replacement that isn't silence keeps the Volume
 
 
+def test_a_gain_on_the_original_changes_the_sounds_that_play_it_and_not_the_clip():
+    """Make-Up Gain on an original clip (Project.gains) is a replacement without audio: the Sounds that play the clip
+    get the gain, and the bank keeps the clip as the game has it."""
+    sound, other = bytes(_sound([(0, -3.0)])), bytes(_sound([]))
+    other = other[:5] + struct.pack("<I", 999) + other[9:]  # plays source 999
+    hirc = struct.pack("<I", 2) + b"".join(struct.pack("<BII", bank.SOUND, 4 + len(b), i) + b for i, b in ((7, sound), (8, other)))
+    clip = b"RIFF" + bytes(28)
+    raw = (b"BKHD" + struct.pack("<I", 4) + bytes(4) + b"DIDX" + struct.pack("<I", 12) + struct.pack("<III", 1234, 0, len(clip))
+           + b"DATA" + struct.pack("<I", len(clip)) + clip + b"HIRC" + struct.pack("<I", len(hirc)) + hirc)
+    new, edit = patch.patch_bank(raw, {1234: patch.Replacement(1234, None, makeup_db=-6.0)}, {})
+    media, objects = bank.parse(new)
+    assert edit.gains == [7] and not (edit.media or edit.sounds or edit.mutes)
+    assert media == {1234: clip}
+    assert objects == {7: (bank.SOUND, bytes(_sound([(0, -3.0), (5, -6.0)]))), 8: (bank.SOUND, other)}
+
+
+def test_make_up_gain_goes_on_top_of_the_one_a_sound_has():
+    """A slot's Make-Up Gain is louder or quieter than the game plays the sound: about 1 Sound in 12 has a Make-Up
+    Gain of its own (+3 dB here), and −1 dB on the slot makes it +2 dB, not −1."""
+    sound = bytes(_sound([(5, 3.0)]))
+    hirc = struct.pack("<I", 1) + struct.pack("<BII", bank.SOUND, 4 + len(sound), 7) + sound
+    raw = b"BKHD" + struct.pack("<I", 4) + bytes(4) + b"HIRC" + struct.pack("<I", len(hirc)) + hirc
+    for wem in (None, bytes(64)):  # on the original, and on new audio
+        new, edit = patch.patch_bank(raw, {1234: patch.Replacement(1234, wem, makeup_db=-1.0)}, {})
+        assert edit.gains == [7] and bank.parse(new)[1][7] == (bank.SOUND, bytes(_sound([(5, 2.0)])))
+
+
 # --- streamed clips: the start a bank keeps
 def _vorbis(seek: int, setup: int, packets: list[int]) -> bytes:
     """A Wwise Vorbis WEM laid out as the game's: fmt of 0x42 bytes with the Vorbis fields, then data holding the
@@ -443,6 +470,20 @@ def test_project_keeps_its_banks_setting_and_an_imported_mods_banks(tmp_path):
     assert q.every_bank and q.imported_banks == [6187728386225981464] and q.patch_files
 
 
+def test_project_keeps_make_up_gain_on_the_original_audio(tmp_path):
+    """Project.gains: saved by target, left out while there are none; on opening, a value out of range is brought into
+    it, one that isn't a number goes, and 0 means none (each but the 0 a repair)."""
+    p = Project(name="Test", path=tmp_path / "t.audi")
+    p.save()
+    assert "gains" not in (tmp_path / "t.audi").read_text()
+    p.gains = {18446744073709551557: -6.0, 1234: 3.5}
+    p.save()
+    assert json.loads((tmp_path / "t.audi").read_text())["gains"] == {"18446744073709551557": -6.0, "1234": 3.5}
+    assert Project.load(tmp_path / "t.audi").gains == p.gains
+    q = Project.from_json({**p.to_json(), "gains": {"5": 200, "6": 0, "7": "loud"}})
+    assert q.gains == {5: 96.0} and len(q.repairs) == 2
+
+
 def test_a_sound_goes_into_the_projects_banks():
     """build.reach: an imported mod's banks first, then those of what the project lists; the holders join a bank
     that only plays the sound, a stream's holders always; music and a sound no such bank has keep every bank."""
@@ -581,6 +622,29 @@ def test_a_shared_clip_goes_into_the_projects_banks_or_every_bank(tmp_path):
         (tmp_path / f"{every}").mkdir()
         edits = build.make_patch(p, ix, tmp_path / f"{every}", log=lambda *_: None)
         assert set(edits) == (ix.banks_for(sid) if every else {home})
+
+
+@pytest.mark.game
+def test_a_gain_on_the_original_builds_without_new_audio(tmp_path):
+    """Make-Up Gain on an original sound: its Sounds in the project's bank get the gain, the clip stays the game's
+    (the patch verifies), and new audio on the sound takes the gain's place."""
+    from audiodiver import build
+    from audiodiver.index import AudioIndex
+    ix = AudioIndex()
+    music = set(ix.music_banks)
+    sid = next(s for s, h in sorted(ix.holders.items()) if len(h) == 1 and h <= ix.users.get(s, set())
+               and ix.stream_file(s) is None and not ix.banks_for(s) & music)
+    home = min(ix.holders[sid])
+    p = Project(name="Test", path=tmp_path / "t.audi", imported_banks=[home], gains={sid: -6.0})
+    edits = build.make_patch(p, ix, tmp_path, log=lambda *_: None)
+    assert set(edits) == {home} and edits[home].gains and not edits[home].media
+    banks, streams = patch.read_patch(str(tmp_path / build.PATCH))
+    media, objects = banks[home]
+    assert not streams and media[sid] == bank.parse(ix.bank_files(home)[0])[0][sid]
+    assert all(bank.props(*objects[o]).get(patch.MAKEUP_GAIN) == -6.0 for o in edits[home].gains)
+    p.replacements = [Replacement(sid, "", silence=True)]
+    reps = build.replacements(p, ix)
+    assert len(reps) == 1 and reps[0].wem is not None and reps[0].makeup_db == 0.0
 
 
 @pytest.mark.game

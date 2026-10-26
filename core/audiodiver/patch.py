@@ -37,9 +37,9 @@ CARRIED_ALIGN = 64  # where a carried file's .stream and .gpu_resources data sta
 @dataclass
 class Replacement:
     source: int          # Wwise source (short) id
-    wem: bytes
+    wem: bytes | None    # None keeps the game's clip: only its Make-Up Gain changes (Project.gains)
     fit_timing: bool = True
-    makeup_db: float = 0.0  # Make-Up Gain on the Sounds/MusicTracks that play it (what hd2-audio-modder's dB box sets)
+    makeup_db: float = 0.0  # Make-Up Gain added to that of the Sounds/MusicTracks that play it
     mute: bool = False      # a silence that also leaves the mix: the Sounds that play it get the Volume MUTE_DB
 
     @property
@@ -169,7 +169,7 @@ def patch_bank(bank: bytes, reps: dict[int, Replacement], overrides: dict[int, d
     for t, id, body in entries:
         for o in wbank.source_offsets(t, body):
             _plugin, stype, sid, _cache, mem = struct.unpack_from("<IBIII", body, o)
-            if stype == PREFETCH and sid in reps:
+            if stype == PREFETCH and sid in reps and reps[sid].wem is not None:
                 keep[sid] = max(keep.get(sid, 0), mem)
     keep = {sid: prefetch_size(reps[sid].wem, mem) for sid, mem in keep.items()}
     mem_sizes = {}   # source id -> media size this bank must hold
@@ -185,7 +185,7 @@ def patch_bank(bank: bytes, reps: dict[int, Replacement], overrides: dict[int, d
         for o in offs:
             _plugin, stype, sid, _cache, mem = struct.unpack_from("<IBIII", body, o)
             r = reps.get(sid)
-            if r is None:
+            if r is None or r.wem is None:
                 continue
             if t == MUSIC_TRACK:
                 replaced.add(id)
@@ -213,8 +213,8 @@ def patch_bank(bank: bytes, reps: dict[int, Replacement], overrides: dict[int, d
             offs = [0] if t == SOUND else [4 + 18 * i for i in range(struct.unpack_from("<I", body)[0])]
             gains = [reps[s].makeup_db for s in (struct.unpack_from("<I", body, o + 5)[0] for o in offs)
                      if s in reps and reps[s].makeup_db]
-            if gains:
-                e[2] = set_prop(t, body, MAKEUP_GAIN, max(gains))
+            if gains:  # on top of the Make-Up Gain the object has: the game's (1 Sound in 12 has one) or a mod's
+                e[2] = set_prop(t, body, MAKEUP_GAIN, wbank.props(t, body).get(MAKEUP_GAIN, 0.0) + max(gains))
                 edit.gains.append(id)
             # a silenced Sound leaves the mix; a MusicTrack keeps its Volume (music silence keeps or skips its time)
             if t == SOUND and (r := reps.get(struct.unpack_from("<I", body, 5)[0])) is not None and r.mute:
@@ -252,7 +252,7 @@ def patch_bank(bank: bytes, reps: dict[int, Replacement], overrides: dict[int, d
         new_rows, pieces, off = [], [], 0  # pieces: the new DATA, its clips with the alignment between them
         for sid, o, n in rows:
             blob = data[1][o:o + n]
-            if sid in reps:
+            if sid in reps and reps[sid].wem is not None:
                 # a clip nothing here plays (a bank of clips another bank's Sounds play, a Sound given a clip of its
                 # own) still serves other banks: the game plays the first copy loaded. It gets the new audio too, the
                 # whole file or the start, as the bank had it
@@ -431,7 +431,7 @@ def build_patch(path, reps: list[Replacement], ix: AudioIndex, overrides=None, s
         banks |= set(ix.copies(oid))
     # a sound's stream goes by the index: a voice line's is filed under its language, and a stream no bank plays
     # is its own target
-    streams = {ix.stream_file(r.source): r.wem for r in reps if ix.stream_file(r.source) is not None}
+    streams = {ix.stream_file(r.source): r.wem for r in reps if r.wem is not None and ix.stream_file(r.source) is not None}
     order, deps, edits = sorted(banks), {}, {}
     # each bank goes to the disk once patched. The patch's table is laid out for all of them, and nearly always all
     # come: a bank that only plays a streamed sound, without a new gain, stays as the game has it
@@ -570,7 +570,8 @@ def verify(path, reps: list[Replacement], ix: AudioIndex, plan: addition.Plan | 
     replacement's gain or silence may set instead); and give every copy of the music objects the Soundtrack
     changes (music_plan) exactly that change. Empty list = good."""
     where, settings = where or {}, settings or {}
-    by_source, planned = {r.source: r for r in reps}, plan.banks if plan else {}
+    # the new audio (a gain on an original clip changes no media)
+    by_source, planned = {r.source: r for r in reps if r.wem is not None}, plan.banks if plan else {}
     banks, unknown, problems, added_problems = {}, [], [], []
     # a bank at a time, each let go once checked: all of them parsed, the patch's and the game's, took twice the
     # patch's size

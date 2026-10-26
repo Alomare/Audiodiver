@@ -80,7 +80,7 @@ function BuildBox() {
   const { project, actions, jobs } = useEditor();
   const p = project!;
   const building = Object.values(jobs).some((j) => j.kind === "build" && j.state === "running");
-  const empty = !Object.keys(p.assignments).length && !p.texts.length && !p.settings && !Object.keys(p.soundtrack ?? {}).length;
+  const empty = !Object.keys(p.assignments).length && !Object.keys(p.gains ?? {}).length && !p.texts.length && !p.settings && !Object.keys(p.soundtrack ?? {}).length;
   const elsewhere = p.build_folder !== p.build_folder_default;
   const chooseFolder = async () => {
     // the picker starts in a folder that is there: the default build folder isn't, before the first build

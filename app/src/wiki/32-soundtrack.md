@@ -64,7 +64,7 @@ Each line has the original on the left and the new audio on the right, each with
 
 The round buttons at the top play a whole fight, the grey one with the original music and the yellow one with the project's order and audio. **Fight length** sets how long the fight lasts. The fight ends with the segment playing at that time, and **Next fight** goes on from there. For music outside combat these are **Plays for** and **Play again**. While a fight plays, a bar shows where it is (click it to move there), and the segment playing lights up and is selected, so the waveforms follow the fight. A line under the bar lists the segments of the fight in the order they played.
 
-{icon:header} and {icon:waves} at the end of that bar hide or show the header and the waveforms. **Slots**, at the top right, opens the music in the [Audio](app:editor) tab.
+{icon:header} and {icon:waves} at the end of that bar hide or show the header and the waveforms. Drag the edges under the header, above the waveforms and beside the list to resize them. **Slots**, beside the name of the music, opens it in the [Audio](app:editor) tab.
 
 ## Play order
 

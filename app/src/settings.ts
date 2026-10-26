@@ -7,6 +7,8 @@ import { HIDEABLE, type Hideable } from "./nav";
 export type TipSpeed = "off" | "quick" | "normal" | "slow";
 /** What a new version of Audiodiver does at startup (updates.ts): wait in the Updates tab, ask, or install. */
 export type UpdateMode = "manual" | "prompt" | "auto";
+/** How a bank's sounds are named and laid out: by what names them, or by container id in the bank's tree. */
+export type SoundNames = "names" | "ids";
 export type Settings = {
   openLast: boolean;     // open the project you had open last when the app starts
   tips: TipSpeed;        // hover tooltips: off, or how long the pointer rests before one shows
@@ -14,10 +16,12 @@ export type Settings = {
   bumpVersion: boolean;  // raise the mod's version by one after each build
   revealBuild: boolean;  // show the built ZIP in its folder when a build finishes
   tabs: Hideable[];      // the hideable tabs that show (a project can choose its own on the Project tab)
+  soundNames: SoundNames; // a bank's sounds by name, or by container id as Wwise tools list them
 };
 
 export const DEFAULT_SETTINGS: Settings = { openLast: false, tips: "normal", updates: "prompt", bumpVersion: true, revealBuild: false,
-  tabs: [...HIDEABLE] };
+  tabs: [...HIDEABLE], soundNames: "names" };
+export const SOUND_NAMES: [SoundNames, string][] = [["names", "Names"], ["ids", "Container ids"]];
 /** A list of hideable tabs in the bar's order, or null for anything else. */
 export const tabList = (v: unknown): Hideable[] | null =>
   Array.isArray(v) && v.every((t) => (HIDEABLE as readonly unknown[]).includes(t)) ? HIDEABLE.filter((t) => v.includes(t)) : null;
@@ -41,7 +45,8 @@ function load(): Settings {
       return { openLast: flag("openLast"), bumpVersion: flag("bumpVersion"), revealBuild: flag("revealBuild"),
         tips: TIP_SPEEDS.some(([t]) => t === s.tips) ? s.tips : DEFAULT_SETTINGS.tips,
         updates: UPDATE_MODES.some(([m]) => m === s.updates) ? s.updates : DEFAULT_SETTINGS.updates,
-        tabs: tabList(s.tabs) ?? DEFAULT_SETTINGS.tabs };
+        tabs: tabList(s.tabs) ?? DEFAULT_SETTINGS.tabs,
+        soundNames: SOUND_NAMES.some(([n]) => n === s.soundNames) ? s.soundNames : DEFAULT_SETTINGS.soundNames };
     }
   } catch { /* storage off or bad value */ }
   return DEFAULT_SETTINGS;
@@ -70,7 +75,8 @@ export const RESET_LAYOUT = "audiodiver:reset-layout";
 /** Every size kept between sessions: cleared too, so a panel that isn't on screen now (the Wiki's list, say) opens
     at its default size next time. */
 const LAYOUT_KEYS = ["audiodiver.widths", "audiodiver.headHeight", "audiodiver.textLeft", "audiodiver.waveHeight",
-  "audiodiver.waveHeight.libraryFacts", "audiodiver.wikiWidth", "audiodiver.archiveColumnWidths"];
+  "audiodiver.waveHeight.libraryFacts", "audiodiver.wikiWidth", "audiodiver.archiveColumnWidths", "audiodiver.soundtrackLeft",
+  "audiodiver.soundtrackHead"];
 export const resetLayout = () => {
   for (const k of LAYOUT_KEYS) try { localStorage.removeItem(k); } catch { /* storage off */ }
   window.dispatchEvent(new Event(RESET_LAYOUT));

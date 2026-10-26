@@ -154,6 +154,7 @@ function useMineWidth(all: Row[], assigned: Record<string, Assignment>, on: bool
 const NONE: string[] = [];
 const NO_ASSIGNMENTS: Record<string, Assignment> = {}; // one empty object, so the memos below keep without a project
 const NO_STAND_INS: Record<string, StandIn[]> = {};
+const NO_GAINS: Record<string, number> = {};
 const OPEN_ALL = 200;    // a bank with more sounds than this opens with its groups folded
 const MAX_SHOWN = 300;    // a filter shows at most this many sounds at once
 const WINDOW_FROM = 150;  // a list with more lines than this draws only those near the view (useListWindow)
@@ -171,6 +172,7 @@ function CueBody({ cue }: { cue: Cue }) {
   const [mark, setMark] = useState<ThroughMark | null>(null);    // where it is: the segment whose Entry it passed last
   const [menu, openMenu] = useContextMenu();
   const assigned = project?.assignments ?? NO_ASSIGNMENTS;
+  const gains = project?.gains ?? NO_GAINS;
   const standIns = project?.stand_ins ?? NO_STAND_INS;
   const cueRef = useRef<HTMLElement>(null);
   const [headH, setHeadH] = useStoredHeight("audiodiver.headHeight", null); // null: as tall as its content
@@ -194,7 +196,8 @@ function CueBody({ cue }: { cue: Cue }) {
     const words = q.split(/\s+/);
     return all.filter((r) => {
       const sl = r.slot, a = assigned[sl.source];
-      const hay = `${r.seg.name} ${sl.label} ${sl.source} ${sl.stream ?? ""} ${sl.object ?? ""} ${r.seg.stems[r.stemIndex]?.track ?? ""} ${sl.was ?? ""}
+      const hay = `${r.seg.name} ${r.seg.alias ?? ""} ${r.seg.key ?? ""} ${(r.seg.above ?? []).map((x) => x.ids.join(" ")).join(" ")}
+        ${sl.label} ${sl.source} ${sl.stream ?? ""} ${sl.object ?? ""} ${r.seg.stems[r.stemIndex]?.track ?? ""} ${sl.was ?? ""}
         ${(sl.notes ?? []).map((n) => `${n.tag ?? ""} ${n.text}`).join(" ")} ${a && !a.silence ? a.audio : ""}`.toLowerCase();
       return words.every((w) => hay.includes(w));
     });
@@ -349,15 +352,22 @@ function CueBody({ cue }: { cue: Cue }) {
     if (folding) listRef.current?.querySelector(".part-grp.open")?.scrollIntoView({ block: "nearest" });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   /** The list's lines, top to bottom: a bank's sounds, each group under a line that folds it (or the ones the filter
-      finds, under their groups' lines), or a music cue's slots. */
+      finds, under their groups' lines), or a music cue's slots. By container id, the containers over each group
+      come first where they differ from the last group's, a line each (as Wwise tools draw the tree). */
   const lines = useMemo(() => {
     const out: Line[] = [];
     const add = (r: Row) => out.push({ key: r.slot.source, kind: !r.seg.group ? "slot" : r.takes > 1 ? "take" : "solo", row: r });
     if (!grouped) { rows.forEach(add); return out; }
     const list = hits ? rows : all;
+    let path: string[] = []; // the container lines over the last group, top down
     for (let i = 0, j = 0; i < list.length; i = j) {
       const first = list[i];
       while (j < list.length && list[j].segIndex === first.segIndex) j++;
+      const above = first.seg.above ?? [], at = above.map((a) => a.ids.join("/"));
+      let k = 0;
+      while (k < at.length && at[k] === path[k]) k++;
+      for (let d = k; d < at.length; d++) out.push({ key: `t${at.slice(0, d + 1).join("/")}`, kind: "tree", row: first, tree: { ...above[d], depth: d } });
+      path = at;
       if (first.takes === 1 || !first.seg.group) { list.slice(i, j).forEach(add); continue; }
       const open = !!hits || isOpen(first);
       out.push({ key: `g${first.segIndex}`, kind: "group", row: first, group: { open, shown: hits ? j - i : first.takes } });
@@ -417,7 +427,7 @@ function CueBody({ cue }: { cue: Cue }) {
   });
 
   /** The ids of a slot, each to copy, with the id shown next to it: the ones modders go by when they write about a
-      sound (the source, the stream that holds it, the Sound or the music track that plays it). */
+      sound (the source, the stream that holds it, the Sound, its container or the music track that plays it). */
   const copyIds = (r: Row): MenuEntry[] => {
     const sl = r.slot, track = r.seg.stems[r.stemIndex]?.track;
     const entry = (what: string, id: string): MenuEntry => ({ label: `Copy the ${what} id`, keys: id, run: () => copyId(id, quick) });
@@ -425,6 +435,7 @@ function CueBody({ cue }: { cue: Cue }) {
       ...(sl.stream ? [entry("stream", sl.stream)] : []),
       entry("source", sl.source),
       ...(sl.object ? [entry("Sound", sl.object)] : []),
+      ...(r.seg.key ? [entry("container", r.seg.key)] : []),
       ...(track && track !== "0" ? [entry("track", track)] : []),
     ];
   };
@@ -535,17 +546,19 @@ function CueBody({ cue }: { cue: Cue }) {
           "-"] as MenuEntry[]),
         { label: `Add the ${first.takes} ${first.takes === 1 ? "take" : "takes"} to the export list`,
           run: () => toExport(all.filter((r) => r.segIndex === first.segIndex).map((r) => r.slot.source), `${item?.full ?? cue.name} - ${name}`) },
+        ...(first.seg.key ? [{ label: "Copy the container id", keys: first.seg.key, run: () => copyId(first.seg.key!, quick) }] : []),
       ]);
     },
   });
   const selSet = useMemo(() => new Set(selected), [selected]);
   const slot = (r: Row) => (
     <SlotRow key={r.slot.source} row={r} a={readOnly ? undefined : assigned[r.slot.source]} selected={selSet.has(r.slot.source)}
-      standIns={readOnly ? undefined : standIns[r.slot.source]}
+      standIns={readOnly ? undefined : standIns[r.slot.source]} gain={readOnly ? undefined : gains[r.slot.source]}
       now={r.seg.segment !== "" && r.seg.segment === nowSeg} itemId={shownItemId} cueId={cue.id} on={on} />
   );
   /** A line of the list: a slot, or a group's line, which folds its takes, says how many there are and plays the first. */
   const line = (l: Line) => {
+    if (l.tree) return <TreeLine key={l.key} {...l.tree} />;
     if (!l.group) return slot(l.row);
     const sources = takesOf.get(l.row.segIndex) ?? NONE, n = sources.filter((s) => selSet.has(s)).length;
     return (
@@ -656,7 +669,7 @@ function CueBody({ cue }: { cue: Cue }) {
           <button className="icon-btn parts-collapse" disabled={shut} onClick={() => setShut(true)} aria-label="Collapse all"
             data-tip={shut ? "Every part is collapsed" : "Collapse all parts"}><CollapseAllIcon /></button>
         )}
-        <PanelToggles panels={panels} set={setPanels} />
+        <PanelToggles panels={panels} set={setPanels} waves={selected.length === 1} />
         <Help tip="What each button on this bar does" page="reading-the-screen#the-toolbar" />
       </div>
       {item && part && item.parts.length > 1 && !folding && <PartTabs item={item} part={part} />}
@@ -688,8 +701,9 @@ function CueBody({ cue }: { cue: Cue }) {
   );
 }
 
-/** A line of the slot list: a slot (its row), or the line above a group's takes (`group`, with `row` its first take). */
-type Line = WindowLine & { row: Row; group?: { open: boolean; shown: number } };
+/** A line of the slot list: a slot (its row), the line above a group's takes (`group`, with `row` its first take), or
+    by container id a container over the group of `row` (`tree`). */
+type Line = WindowLine & { row: Row; group?: { open: boolean; shown: number }; tree?: { ids: string[]; type: string; depth: number } };
 
 /** What a list's rows do, from the list (useStable keeps one identity for each). */
 type RowHandlers = {
@@ -714,6 +728,11 @@ function AddButton({ row, on }: { row: Row; on: RowHandlers }) {
         : "New takes. This sound can't have a layer") + where}
       onClick={(e) => { e.stopPropagation(); on.add(e, row); }} onDoubleClick={(e) => e.stopPropagation()}>+</button>
   );
+}
+
+/** The Make-Up Gain on a slot's original audio, as a tag on its row. */
+function GainTag({ db }: { db: number }) {
+  return <span className="tag gain-tag" data-tip="Make-Up Gain on the original" data-tip-more="Set in the details">{db > 0 ? "+" : ""}{db} dB</span>;
 }
 
 /** The tag on a clip that must stay as it is (fills and group actions leave it out). */
@@ -774,7 +793,7 @@ const GroupHead = memo(function GroupHead({ row, open, shown, status, itemId, cu
   const unit = /^(Sounds|Other Audio|No Audio|Streams)\b/.test(seg.name) ? "sounds" : "takes";
   const madeUp = madeUpName(seg.name);
   return (
-    <div className={`grp${open ? " open" : ""}`} data-drop={drop} onContextMenu={(e) => on.groupMenu(e, row)}>
+    <div className={`grp${open ? " open" : ""}`} style={depthStyle(seg)} data-drop={drop} onContextMenu={(e) => on.groupMenu(e, row)}>
       {!readOnly && sources.length > 0 && (
         <input type="checkbox" className="slot-check" checked={picked === "all"} readOnly tabIndex={-1} aria-label={`Select the ${unit} of ${seg.name}`}
           ref={(el) => { if (el) el.indeterminate = picked === "some"; }} onClick={(e) => { e.stopPropagation(); on.checkGroup(sources); }} />
@@ -782,8 +801,10 @@ const GroupHead = memo(function GroupHead({ row, open, shown, status, itemId, cu
       <PlayButton kind="vanilla" source={slot.source} label={`the first of ${seg.name}`} what={rowName(row)} small at={at} disabled={slot.absent || !!slot.added} />
       <button className="grp-head" aria-expanded={open} onClick={() => on.toggle(row.segIndex)}>
         <span className="caret" aria-hidden>▸</span>
+        {seg.ctype && <span className="grp-type">{seg.ctype}</span>}
         <span className={`grp-name${seg.added ? " new" : ""}`} data-tip={madeUp?.tip ?? seg.name} data-tip-more={madeUp?.more}
           data-tip-clip={madeUp ? undefined : true}>{seg.name}</span>
+        {seg.alias && <span className="grp-alias" data-tip={seg.alias} data-tip-clip>{seg.alias}</span>}
         <span className="grp-n" data-tip={unit === "takes" ? "Recordings of one sound. The game plays one of them each time" : undefined}
           data-tip-more={unit === "takes" ? "Give every take new audio to replace the sound completely" : undefined}>
           {shown < takes ? `${shown} of ${takes}` : takes} {unit}</span>
@@ -798,6 +819,26 @@ const GroupHead = memo(function GroupHead({ row, open, shown, status, itemId, cu
     </div>
   );
 });
+
+/** By container id, a container over the groups below it: its kind and id (several Actor-Mixers that each hold only
+    the next share a line), indented by how deep it sits. Each id copies. */
+function TreeLine({ ids, type, depth }: { ids: string[]; type: string; depth: number }) {
+  const { quick } = useLite();
+  return (
+    <div className="tree-line" style={{ ["--depth" as any]: depth }}>
+      <span className="tree-type">{type}</span>
+      {ids.map((id, i) => (
+        <Fragment key={id}>
+          {i > 0 && <span className="tree-sep" aria-hidden>›</span>}
+          <button className="tree-id" data-tip="Copy the id" onClick={() => copyId(id, quick)}>{id}</button>
+        </Fragment>
+      ))}
+    </div>
+  );
+}
+
+/** How deep a group sits by container id: its row's indent (none in the list by name). */
+const depthStyle = (seg: Segment) => (seg.above?.length ? { ["--depth" as any]: seg.above.length } : undefined);
 
 /** Copies an id and says so. */
 function copyId(id: string, quick: (text: string, icon?: "copy" | "info") => void) {
@@ -841,8 +882,9 @@ function useFlash(value: string) {
 
 /** One slot. Memoised: it draws again only when something it shows changes (its audio, its selection, playback),
     not whenever the list does. */
-const SlotRow = memo(function SlotRow({ row, a, standIns, selected, now, itemId, cueId, on }: {
+const SlotRow = memo(function SlotRow({ row, a, standIns, gain, selected, now, itemId, cueId, on }: {
   row: Row; a?: Assignment; standIns?: StandIn[]; selected: boolean; now: boolean; itemId: string | null; cueId: string;
+  gain?: number; // Make-Up Gain on the original audio (it applies while the slot has no new audio)
   on: RowHandlers;
 }) {
   const { revision, readOnly } = useLite();
@@ -864,7 +906,8 @@ const SlotRow = memo(function SlotRow({ row, a, standIns, selected, now, itemId,
   const banks = slot.banks ?? 0;
   return (
     <div className={`slot${solo ? " solo" : ""}${selected ? " selected" : ""}${a ? " assigned" : ""}${slot.unused || slot.absent ? " unused" : ""}${slot.locked ? " locked" : ""}${row.firstOfSeg && !inGroup ? " seg-start" : ""}${inGroup ? " take" : ""}${playing ? " playing-row" : ""}${now ? " now" : ""}`}
-      role="option" aria-selected={selected} data-source={slot.source} data-seg={row.firstOfSeg ? seg.segment : undefined} onClick={(e) => on.click(e, slot.source)}
+      role="option" aria-selected={selected} data-source={slot.source} data-seg={row.firstOfSeg ? seg.segment : undefined} style={depthStyle(seg)}
+      onClick={(e) => on.click(e, slot.source)}
       onMouseDown={(e) => { if (e.shiftKey) e.preventDefault(); }} // Shift+click selects a range of slots, not the text between them
       onDoubleClick={() => { if (audible(a) || !slot.absent) playSlot(audible(a) ? "project" : "vanilla", slot.source, revision, what, at); }}
       onContextMenu={(e) => on.menu(e, row)}
@@ -879,14 +922,17 @@ const SlotRow = memo(function SlotRow({ row, a, standIns, selected, now, itemId,
         <div className="slot-name solo-line">
           <PlayButton kind="vanilla" source={slot.source} label="the original" what={what} onPlay={onSelect} at={at} disabled={slot.absent || !!slot.added} small />
           <span className="caret ghost" aria-hidden>▸</span>
+          {seg.ctype && <span className="grp-type">{seg.ctype}</span>}
           <span className={`grp-name${seg.added ? " new" : ""}`} data-tip={seg.name} data-tip-more={seg.added ? LAYER_TIP : undefined}
             data-tip-clip={seg.added ? undefined : true}>{seg.name}</span>
+          {seg.alias && <span className="grp-alias" data-tip={seg.alias} data-tip-clip>{seg.alias}</span>}
           {!seg.added && <span className="grp-n" data-tip={gameMs ? fmtTime(gameMs) : undefined}>{label && !seg.name.includes(label) ? label : "1 take"}</span>}
           <span className="grp-meta">
             {slot.absent && <span className="tag" data-tip={NO_AUDIO_TIP}>no audio</span>}
             {slot.locked && <LockedTag />}
             {seg.added !== "layer" && <AddedTag slot={slot} />}
             {!a && standIns && <StandInTag standIns={standIns} cueId={cueId} />}
+            {!a && !!gain && <GainTag db={gain} />}
             <NoteTags slot={slot} />
             {(seg.tags ?? []).map((t) => <CatTag key={t.item ?? t.name} tag={t} tip="Show in the Index" onOpen={t.item ? () => on.openTag(t.item!, seg.cue ?? "") : undefined} />)}
             {also > 0 && <Linked>{banks >= also ? <OtherBanks n={also} /> : `+${also} ${banks ? "more" : `cue${also > 1 ? "s" : ""}`}`}</Linked>}
@@ -916,6 +962,7 @@ const SlotRow = memo(function SlotRow({ row, a, standIns, selected, now, itemId,
             {slot.locked && <LockedTag />}
             <AddedTag slot={slot} />
             {!a && standIns && <StandInTag standIns={standIns} cueId={cueId} />}
+            {!a && !!gain && <GainTag db={gain} />}
             {audible(a) && slot.min_ms && a!.duration_ms != null && a!.duration_ms < slot.min_ms && (
               <span className="tag warn" data-tip={`The new audio is too short. This clip needs at least ${fmtTime(slot.min_ms)}`}>too short</span>
             )}

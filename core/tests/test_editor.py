@@ -105,6 +105,47 @@ def test_save_writes_the_project_file_now(tmp_path):
         s.save_project()
 
 
+def test_make_up_gain_on_the_original_is_one_step_and_off_at_zero(tmp_path):
+    """Make-Up Gain on slots without new audio (Project.gains): several slots in one undo step, 0 takes it off, new
+    audio on a slot leaves the entry (its own gain applies), and a value out of range is refused."""
+    s = Session(load=False)
+    s.new_project(tmp_path / "m.audi", "M")
+    st = s.original_gain(["1234", "5678"], -6)
+    assert st["gains"] == {"1234": -6.0, "5678": -6.0} and st["undo_label"] == "gain"
+    s.original_gain(["5678"], 0)
+    s._edit("assign", lambda p: s._set(p, 1234, str(_wav(tmp_path / "a.wav"))))
+    st = s.project_state()
+    assert st["gains"] == {"1234": -6.0} and st["assignments"]["1234"]["gain_db"] == 0.0
+    s.undo()
+    s.undo()
+    assert s.project_state()["gains"] == {"1234": -6.0, "5678": -6.0}
+    with pytest.raises(EditorError):
+        s.original_gain(["1234"], 200)
+    assert json.loads((tmp_path / "m.audi").read_text())["gains"] == {"1234": -6.0, "5678": -6.0}
+
+
+def test_match_loudness_gives_each_slot_the_gain_of_its_original(tmp_path, monkeypatch):
+    """Match the original: new audio 12 dB louder than the original gets -12 dB, in one undo step; silent new audio
+    and a slot without new audio are left as they are, and with nothing to match the answer says so."""
+    from test_loudness import sine
+    s = Session(load=False)
+    s.new_project(tmp_path / "m.audi", "M")
+    original = sine(tmp_path / "o.wav", 1, 0.1)
+    monkeypatch.setattr(s, "require_game", lambda: None)
+    monkeypatch.setattr(s, "vanilla_wav", lambda sid: original)
+
+    def put(p):
+        s._set(p, 1, str(sine(tmp_path / "loud.wav", 1, 0.4)))
+        s._set(p, 2, str(sine(tmp_path / "mute.wav", 1, 0.0)))
+    s._edit("assign", put)
+    st = s.match_loudness(["1", "2", "3"])
+    assert st["matched"] == {"1": -12.0} and st["undo_label"] == "match"
+    assert st["assignments"]["1"]["gain_db"] == -12.0 and st["assignments"]["2"]["gain_db"] == 0.0
+    assert s.undo()["assignments"]["1"]["gain_db"] == 0.0
+    with pytest.raises(EditorError, match="Nothing to match"):
+        s.match_loudness(["2", "3"])
+
+
 def test_a_save_that_fails_changes_nothing(tmp_path, monkeypatch):
     from audiodiver import project
     s = Session(load=False)

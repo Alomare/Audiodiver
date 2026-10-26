@@ -1,6 +1,7 @@
 import { createContext, use, useCallback, useContext, useEffect, useMemo, useRef, useState, type Context, type ReactNode } from "react";
 import { call, plural, type ArchiveRow, type Assignment, type Cue, type Index, type Job, type MusicItem, type Piece, type Place as Found, type ProjectState, type Status } from "./api";
 import { choose, confirm } from "./Confirm";
+import { liveGain } from "./gain";
 import { JOB_NAMES } from "./jobs";
 import { keyHint, keyLabel } from "./keys";
 import { indexItems } from "./music";
@@ -8,7 +9,7 @@ import { FOLD_LIBRARY, nav as tabs, type Hideable } from "./nav";
 import { notes } from "./noteStore";
 import { UTILS } from "./edition";
 import * as platform from "./platform";
-import type { PlayedAt } from "./player";
+import { player, type PlayedAt } from "./player";
 import { settings, useSettings } from "./settings";
 import { motionMs } from "./theme";
 
@@ -39,7 +40,7 @@ function saveRecent(list: string[]) {
 
 /** Plain words for the core's edit labels: "Undo fill", "Undone: move". */
 export const EDIT_NAMES: Record<string, string> = {
-  assign: "assign", fill: "fill", unassign: "remove", update: "change", skip: "skip", silence: "silence", paste: "paste",
+  assign: "assign", fill: "fill", unassign: "remove", update: "change", gain: "Make-Up Gain", match: "match loudness", skip: "skip", silence: "silence", paste: "paste",
   move: "move", segment: "cue points", settings: "mod details", import: "import", add: "add to the project",
   unlist: "remove from the project", text: "text change", "add take": "new takes", "add layer": "new layer",
   "own clip": "only this sound", "shared clip": "every sound that plays it", note: "note", collect: "collect files",
@@ -108,25 +109,27 @@ function useBrowse(scope: ScopeName, deps: {
   const [slow, setSlow] = useState(false); // the open cue is taking a while to come: stop showing the last one
   const [selected, setSelected] = useState<string[]>([]);
   const cueId = place?.cueId ?? null;
+  const ids = useSettings().soundNames === "ids"; // a bank's sounds by container id, as its tree
 
   // the cue follows what is open (and is fetched again after the game data is). A big bank takes a second or two
   // the first time, so the one that showed before stays for a moment, then gives way to a note that says so.
   useEffect(() => {
     if (!place) { setLoaded(null); setSlow(false); return; }
     const { cueId: id, itemId } = place;
-    const rev = `${gameRev}|${id.startsWith("bank:") ? added : ""}`;
+    const bank = id.startsWith("bank:");
+    const rev = `${gameRev}|${bank ? added : ""}|${bank && ids ? "ids" : ""}`;
     if (last.current?.cue.id === id && last.current.rev === rev) { // the same cue, reached another way
       if (last.current.itemId !== itemId) setLoaded({ ...last.current, itemId });
       return;
     }
     let live = true;
     const t = setTimeout(() => { if (live) setSlow(true); }, 180);
-    call<Cue>("cue", { id, mine: scope === "editor" })
+    call<Cue>("cue", { id, mine: scope === "editor", ...(bank && ids ? { ids } : {}) })
       .then((c) => { if (live) { setLoaded({ cue: c, itemId, rev }); setSlow(false); } })
       .catch((e) => { if (live) { setPlace(null); setSlow(false); notify("bad", e.message); } }) // nothing to show: nothing is open
       .finally(() => clearTimeout(t));
     return () => { live = false; clearTimeout(t); };
-  }, [place, notify, gameRev, added, scope]);
+  }, [place, notify, gameRev, added, scope, ids]);
   const loading = !!place && loaded?.cue.id !== place.cueId;
   const cue = loading && slow ? null : loaded?.cue ?? null;
   /** The item the cue that shows was opened as a part of. While the next one loads that is still the last one's. */
@@ -204,6 +207,19 @@ function useEditorState() {
   const [archiveItems, setArchiveItems] = useState<Record<string, MusicItem>>({}); // archives as items, fetched as needed
   const itemIndex = useMemo(() => indexItems(index, archiveItems), [index, archiveItems]);
   const [project, setProject] = useState<ProjectState | null>(null);
+  // the player plays a slot at its Make-Up Gain, as the mod does: the new audio at its own, the original at the gain on
+  // it while the slot has no new audio, and a value being set at once. The Library plays the game's audio as it is.
+  useEffect(() => {
+    const apply = () => player.setGains((key, at) => {
+      const [kind, source] = key.split(":");
+      if (!project || at?.scope === "library" || (kind !== "vanilla" && kind !== "project")) return 0;
+      const a = project.assignments[source], live = liveGain.get(source);
+      if (kind === "project") return a && !a.silence ? live ?? a.gain_db : 0;
+      return a ? 0 : live ?? project.gains[source] ?? 0;
+    });
+    apply();
+    return liveGain.subscribe(apply);
+  }, [project]);
   // the projects opened lately, newest first: the Home tab's list. Opening one puts it back on top, also after it
   // was taken off the list by hand.
   const [recent, setRecent] = useState<string[]>(recentProjects);
@@ -847,6 +863,18 @@ function useEditorState() {
     async updateMany(sources: string[], fields: Record<string, unknown>) {
       edited(await run<ProjectState>("update_many", { sources, ...fields }));
     },
+    /** Make-Up Gain on the original audio of slots without new audio; 0 takes it off. */
+    async originalGain(sources: string[], gain_db: number) {
+      edited(await run<ProjectState>("original_gain", { sources, gain_db }));
+    },
+    /** Make-Up Gain that makes the new audio of each slot as loud as its original (core loudness.py). */
+    async matchLoudness(sources: string[]) {
+      const st = await run<ProjectState & { matched?: Record<string, number> }>("match_loudness", { sources });
+      if (!edited(st)) return;
+      const got = Object.values(st!.matched ?? {});
+      quick(got.length === 1 ? `Make-Up Gain set to **${got[0] > 0 ? "+" : ""}${got[0]} dB**`
+        : `Make-Up Gain set on ${plural(got.length, "slot")}${got.length < sources.length ? ` of ${sources.length}` : ""}`);
+    },
     async settings(fields: Record<string, unknown>) { edited(await run<ProjectState>("settings", fields)); },
     /** A new mod id: a mod manager then sees the next build as another mod. Undo puts the old id back. */
     async newModId() {
@@ -973,7 +1001,7 @@ function useEditorState() {
           { label: "Build tab", run: () => tabs.go("build") });
         return;
       }
-      if (!Object.keys(fresh.assignments).length && !fresh.texts.length && !Object.keys(fresh.soundtrack ?? {}).length) {
+      if (!Object.keys(fresh.assignments).length && !Object.keys(fresh.gains ?? {}).length && !fresh.texts.length && !Object.keys(fresh.soundtrack ?? {}).length) {
         notify("info", "Nothing to build yet. Replace some audio, set a piece in the Soundtrack or change a line of text first.");
         return;
       }

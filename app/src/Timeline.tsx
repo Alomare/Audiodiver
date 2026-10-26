@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { audioUrl, fmtTime, type Cue } from "./api";
 import { audible, rowName, rowsOf, SILENCE_TIP } from "./CueView";
+import { useLiveGain } from "./gain";
 import { throughHead, throughSeek, type Through } from "./PlayThrough";
 import { player, usePlayer, type PlayedAt } from "./player";
 import { SlotFacts } from "./Inspector";
@@ -10,7 +11,9 @@ import { usePeaks, Waveform, type Marker } from "./Waveform";
 
 /** The selected slot as two waveforms on one time scale: the original above, the replacement below, with the
     segment's entry and exit cue points. The replacement's can be dragged; the original's show where the game's sit.
-    The Library has the original alone. A click plays from that spot (the slot's row has the play buttons).
+    The Library has the original alone. A click plays from that spot (the slot's row has the play buttons). Both
+    share one level scale and are drawn at the Make-Up Gain the mod plays them at (past full scale in red), following
+    the slider while it moves, so the new audio can be set as loud as the original by eye.
 
     While the cue plays through (`through`), the playhead shows where the play-through is in this slot's audio, and a
     click on a waveform moves the play-through to that spot.
@@ -22,6 +25,11 @@ const HEIGHT_ONE = 190; // the Library's: the game's waveform under the slot's f
 // what the cue points do, in the flags' tooltips
 const ENTRY_ABOUT = "The segment counts as started here. Audio before it plays under the end of the segment before";
 const EXIT_ABOUT = "The next segment starts here. Audio after it rings out over the next one";
+
+/** The Make-Up Gain a waveform is drawn at, under its label. */
+function Db({ db }: { db: number }) {
+  return <span className="gain" data-tip="Make-Up Gain" data-tip-more="Drawn and played at this gain">{db > 0 ? "+" : ""}{db} dB</span>;
+}
 
 export function Timeline({ room, through, at, cue: given, source: picked }: {
   room: () => number; through: Through | null; at: PlayedAt | null; cue?: Cue; source?: string | null;
@@ -36,6 +44,11 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
   const row = selected.length === 1 ? rows.find((r) => r.slot.source === selected[0]) : undefined;
   const source = row?.slot.source ?? null;
   const a = source && !readOnly ? project?.assignments[source] : undefined;
+  // drawn at the Make-Up Gain the mod plays them at, and at the one being set while the slider moves: the new
+  // audio at its own, the original at the gain on it while the slot has no new audio
+  const live = useLiveGain(readOnly ? null : source);
+  const mineDb = audible(a) ? live ?? a!.gain_db : 0;
+  const gameDb = !a && source && !readOnly ? live ?? project?.gains[source] ?? 0 : 0;
   const none = !!(row?.slot.absent || row?.slot.added); // "No audio", or a new take: no original to draw
   const gameWave = usePeaks("vanilla", none ? null : source);
   const mineWave = usePeaks("project", audible(a) ? source : null, String(revision));
@@ -90,8 +103,8 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
       <ResizeEdge edge="top" label="Resize the waveforms" min={readOnly ? 120 : 140} max={room} onResize={setH} onReset={() => setH(readOnly ? HEIGHT_ONE : HEIGHT)} />
       {readOnly && <SlotFacts row={row} />}
       <div className="tl-row">
-        <div className="tl-label game"><b>Original</b><span>{fmtTime(game?.duration_ms)}</span></div>
-        <Waveform peaks={game} spanMs={span} tone="game" markers={gameMarkers} playheadMs={head(kGame, false, game?.duration_ms)}
+        <div className="tl-label game"><b>Original</b><span>{fmtTime(game?.duration_ms)}</span>{gameDb !== 0 && <Db db={gameDb} />}</div>
+        <Waveform peaks={game} spanMs={span} tone="game" markers={gameMarkers} playheadMs={head(kGame, false, game?.duration_ms)} gainDb={gameDb}
           activeFrom={hasCues ? seg.entry_ms ?? 0 : undefined} activeTo={hasCues ? seg.exit_ms ?? undefined : undefined}
           onSeek={none ? undefined : (ms) => seek("vanilla", ms)}
           label={row.slot.added ? "A new take has no original" : row.slot.absent ? "Not in the installed game files" : "Loading the original…"}
@@ -99,11 +112,11 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
       </div>
       {!readOnly && (
         <div className="tl-row">
-          <div className="tl-label mine"><b>Replaced</b><span>{a?.silence ? "silence" : a ? fmtTime(mine?.duration_ms) : ""}</span></div>
+          <div className="tl-label mine"><b>Replaced</b><span>{a?.silence ? "silence" : a ? fmtTime(mine?.duration_ms) : ""}</span>{mineDb !== 0 && <Db db={mineDb} />}</div>
           {a?.silence ? (
             <div className="wave placeholder">Silence: {a.fit_timing ? SILENCE_TIP.move.toLowerCase() : SILENCE_TIP.keep.toLowerCase()}</div>
           ) : a?.exists ? (
-            <Waveform peaks={mine} spanMs={span} tone="mine" markers={myMarkers} playheadMs={head(kMine, true, mine?.duration_ms)}
+            <Waveform peaks={mine} spanMs={span} tone="mine" markers={myMarkers} playheadMs={head(kMine, true, mine?.duration_ms)} gainDb={mineDb}
               activeFrom={hasCues ? entry : undefined} activeTo={hasCues ? exit : undefined}
               onSeek={(ms) => seek("project", ms)}
               onMarkerCommit={commit} label="Reading the new audio…" error={mineWave.error} onRetry={mineWave.retry} />

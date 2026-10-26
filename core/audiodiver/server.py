@@ -49,7 +49,7 @@ def methods(s: Session) -> dict:
         "skip": lambda sources: s.skip(sources),
         "silence": lambda sources, keep_timing=False: s.silence(sources, keep_timing),
         "set_game_folder": lambda path=None: s.set_game_folder(path),
-        "cue": lambda id, mine=False: s.cue(id, mine),
+        "cue": lambda id, mine=False, ids=False: s.cue(id, mine, ids),
         "add_takes": lambda container, files: s.add_takes(container, files),
         "add_layer": lambda beside, files: s.add_layer(beside, files),
         "own_clip": lambda source, sound: s.own_clip(source, sound),
@@ -81,6 +81,8 @@ def methods(s: Session) -> dict:
         "unassign": lambda sources: s.unassign(sources),
         "update": lambda source, **f: s.update(source, **f),
         "update_many": lambda sources, **f: s.update_many(sources, **f),
+        "original_gain": lambda sources, gain_db: s.original_gain(sources, gain_db),
+        "match_loudness": lambda sources: s.match_loudness(sources),
         "settings": lambda **f: s.settings(**f),
         "note_set": lambda key, project_text: s.set_note(key, project_text),
         "segment_override": lambda segment, entry_marker=None, exit_marker=None:

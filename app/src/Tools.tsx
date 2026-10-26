@@ -24,15 +24,17 @@ export function usePanels(view: string) {
   return [v, setV] as const;
 }
 
-/** The two buttons at the end of the toolbar that show or hide the header and the waveforms. */
-export function PanelToggles({ panels, set }: { panels: Panels; set: (p: Panels) => void }) {
+/** The two buttons at the end of the toolbar that show or hide the header and the waveforms. `waves`: whether there
+    is a waveform to show (one slot selected); without one the button waits. */
+export function PanelToggles({ panels, set, waves }: { panels: Panels; set: (p: Panels) => void; waves: boolean }) {
   return (
     <div className="panel-toggles">
       <button className={`icon-btn${panels.head ? " on" : ""}`} aria-pressed={panels.head} aria-label="Header"
         onClick={() => set({ ...panels, head: !panels.head })} data-tip={panels.head ? "Hide the header" : "Show the header"}>
         <HeaderIcon on={panels.head} /></button>
-      <button className={`icon-btn${panels.waves ? " on" : ""}`} aria-pressed={panels.waves} aria-label="Waveforms"
-        onClick={() => set({ ...panels, waves: !panels.waves })} data-tip={panels.waves ? "Hide the waveforms" : "Show the waveforms"}>
+      <button className={`icon-btn${panels.waves ? " on" : ""}`} aria-pressed={panels.waves} aria-label="Waveforms" disabled={!waves}
+        onClick={() => set({ ...panels, waves: !panels.waves })}
+        data-tip={!waves ? "Select a slot to see the waveforms" : panels.waves ? "Hide the waveforms" : "Show the waveforms"}>
         <WavesIcon on={panels.waves} /></button>
     </div>
   );

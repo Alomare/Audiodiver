@@ -23,6 +23,7 @@ const savedVolume = (() => {
 const audio = new Audio();
 audio.preload = "auto";
 audio.volume = savedVolume;
+audio.crossOrigin = "anonymous"; // the core allows it, and Web Audio hears only what is allowed (level below)
 let state: PlayerState = { key: null, playing: false, loading: false, time: 0, duration: 0, error: null, label: "", at: null, volume: savedVolume };
 const listeners = new Set<() => void>();            // what follows everything that plays (the now-playing bar)
 const byKey = new Map<string, Set<() => void>>();    // what follows one key (a play button, a slot's row)
@@ -99,7 +100,29 @@ function open(l: Load) {
 function start(key: string, url: string, startSec: number, label: string, at: PlayedAt | null) {
   load = { n: ++loads, url, start: startSec, tries: 0 };
   set({ key, label, at, loading: true, playing: false, time: startSec, duration: 0, error: null });
+  level();
   open(load);
+}
+
+// Make-Up Gain on what plays (the new audio's, the original's where it has one), so it sounds as the mod plays it.
+// An audio element can't go past full volume, so the gain goes through Web Audio, set up the first time a gain other
+// than 0 plays; from then on the volume slider is part of the same gain. `gainOf` (the store's) says each key's gain.
+let graph: { ctx: AudioContext; gain: GainNode } | null = null;
+let gainOf: (key: string, at: PlayedAt | null) => number = () => 0;
+function level() {
+  const db = state.key ? gainOf(state.key, state.at) : 0;
+  if (!graph && db) {
+    try {
+      const ctx = new AudioContext();
+      const gain = ctx.createGain();
+      ctx.createMediaElementSource(audio).connect(gain).connect(ctx.destination);
+      graph = { ctx, gain };
+    } catch { /* no Web Audio: the volume alone, as before */ }
+  }
+  if (!graph) { audio.volume = state.volume; return; }
+  audio.volume = 1;
+  if (graph.ctx.state === "suspended") graph.ctx.resume().catch(() => {});
+  graph.gain.gain.value = state.volume * 10 ** (db / 20);
 }
 
 export const player = {
@@ -137,9 +160,14 @@ export const player = {
   },
   seek(fraction: number) { if (audio.duration) audio.currentTime = Math.max(0, Math.min(1, fraction)) * audio.duration; },
   setVolume(v: number) {
-    audio.volume = Math.max(0, Math.min(1, v));
-    set({ volume: audio.volume });
-    try { localStorage.setItem(VOLUME_KEY, String(audio.volume)); } catch { /* storage off */ }
+    set({ volume: Math.max(0, Math.min(1, v)) });
+    level();
+    try { localStorage.setItem(VOLUME_KEY, String(state.volume)); } catch { /* storage off */ }
+  },
+  /** How loud each key plays (the store's Make-Up Gain, in dB); what plays follows a change at once. */
+  setGains(f: (key: string, at: PlayedAt | null) => number) {
+    gainOf = f;
+    level();
   },
   /** Calls back with the key of whatever plays to its end; returns the way to stop listening. */
   onEnded(f: (key: string) => void) { enders.add(f); return () => { enders.delete(f); }; },

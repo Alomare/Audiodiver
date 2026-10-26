@@ -52,7 +52,7 @@ export function PlayThrough({ onThrough, onMark }: { onThrough?: (t: Through | n
 
   // an edit to this cue's replacements (audio, gain, timing, cue points) makes the render of the replaced version
   // stale: it stops, and says so. The original stays as it is.
-  const mine = !project || !cue ? "" : JSON.stringify([revision, cue.slots.map((s) => project.assignments[s] ?? null),
+  const mine = !project || !cue ? "" : JSON.stringify([revision, cue.slots.map((s) => project.assignments[s] ?? project.gains[s] ?? null),
     cue.segments_detail.map((s) => project.segment_overrides[s.segment] ?? null)]);
   const rendered = useRef(mine);
   useEffect(() => {

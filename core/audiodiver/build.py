@@ -66,7 +66,9 @@ def keep_encoding(wav: Path, data: bytes, quality: float = 6):
 
 
 def replacements(project: Project, ix: AudioIndex, log=None, step=None) -> list[patch.Replacement]:
-    """step(doing, done, total), when given, hears of each file as it is encoded (the job's progress; it may stop
+    """The project's new audio, encoded, then its Make-Up Gain on original audio (Project.gains) as replacements
+    that keep the game's clip; a gain on a sound with new audio is left out, as the new audio's own applies.
+    step(doing, done, total), when given, hears of each file as it is encoded (the job's progress; it may stop
     the build there)."""
     sources = [project.audio_path(r) for r in project.replacements]  # silence: the built-in silence file
     heard = sorted({src for r, src in zip(project.replacements, sources) if not r.silence})
@@ -91,6 +93,19 @@ def replacements(project: Project, ix: AudioIndex, log=None, step=None) -> list[
         if project.loudness_analysis and not r.silence and akd.get_chunk(data, b"akd ") is None:  # a mod's own may have it
             data = akd.insert(data, analysis[src])
         out.append(patch.Replacement(sid, data, fit_timing=r.fit_timing, makeup_db=r.gain_db, mute=r.silence))
+    gone = 0
+    for target, db in project.gains.items():
+        try:
+            sid = target if target in added else ix.resolve(target)
+        except KeyError:
+            gone += 1
+            continue
+        if sid not in by_sound:
+            by_sound[sid] = f"sound {target}"
+            out.append(patch.Replacement(sid, None, makeup_db=db))
+    if gone and log:
+        log(f"gain: {gone} sound{'s' if gone != 1 else ''} with Make-Up Gain on the original "
+            f"{'are' if gone != 1 else 'is'} not in this game version; left out")
     return out
 
 
@@ -99,7 +114,7 @@ def additions(project: Project, ix: AudioIndex, reps: list[patch.Replacement]) -
     without audio adds nothing, and a layer without takes neither."""
     if not project.additions:
         return addition.Plan()
-    wem_of = {r.source: r.wem for r in reps}
+    wem_of = {r.source: r.wem for r in reps if r.wem is not None}
     clash = sorted(project.made_ids() & ix.taken)
     if clash:
         raise BuildError(f"Since the last game update, the game uses some ids that the added audio also uses "
@@ -243,7 +258,7 @@ def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, ste
     mutes = sum(len(e.mutes) for e in edits.values())
     set_on = len({i for e in edits.values() for i in e.settings})
     grown = sum(bool(e.added) for e in edits.values())
-    log(f"{len(reps)} replacements -> {len(edits)} banks patched"
+    log(f"{sum(r.wem is not None for r in reps)} replacements -> {len(edits)} banks patched"
         + (f", added audio in {grown}" if grown else "")
         + (f", make-up gain on {gains} objects" if gains else "")
         + (f", {mutes} silenced sounds taken out of the mix" if mutes else "")

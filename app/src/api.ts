@@ -53,6 +53,10 @@ export type Segment = {
   copies?: number;  // how many other banks have its container: new takes and layers go there too
   added?: "layer";  // a layer the project adds, beside the sound in `beside`
   beside?: string;
+  // Container ids (Settings): the group is the container right above its Sounds, named by its id
+  ctype?: string;   // what kind of container: "Random", "Sequence", "Switch", "Layer" or "Actor-Mixer"
+  above?: { ids: string[]; type: string }[]; // the containers over it, from the top down (a run of Actor-Mixers that each hold only the next on one line)
+  alias?: string;   // what names the sound otherwise ("“Reloading!”", a note's name)
 };
 /** What opens in the middle: a music cue (kind playlist, segment, bridge or stinger), a bank's sounds ("sounds",
     id "bank:<id>" or "streams:<archive>") or one sound on its own ("sound", id "sfx:<source>"). */
@@ -153,7 +157,8 @@ export type ProjectState = {
   game_updated: boolean; // the game updated since that build: its banks are stale (core editor._game_updated)
   rebuild: "new" | "game" | "changed" | null; // why that build isn't the project as it is now (core editor._rebuild)
   assignments: Record<string, Assignment>; unresolved: { target: string; audio: string; label: string }[];
-  library: string[];                // what the project works on: Index items and archives ("archive:<name>"), as added
+  gains: Record<string, number>;    // Make-Up Gain on the original audio, by source; new audio's own applies while it is there
+  library: string[];               // what the project works on: Index items and archives ("archive:<name>"), as added
   library_missing: string[];        // of what it lists, the ones this game version has nothing for
   in_banks: Record<string, number>; // per listed bank ("bank:<id>"): how many of its sounds are replaced
   outside: string[];                // the replaced slots that nothing on the list holds

@@ -10,6 +10,7 @@ import { tabArrows } from "./Page";
 import { fullPath, pickAudio } from "./platform";
 import { player, usePlayer, type PlayedAt } from "./player";
 import type { Mark, Through } from "./PlayThrough";
+import { ResizeEdge, Splitter, useStoredHeight, useStoredWidth } from "./Resize";
 import { SliceTool } from "./SliceTool";
 import { useEditor, useShownTabs } from "./store";
 import { motionMs, scrollBehavior } from "./theme";
@@ -61,6 +62,7 @@ const byName = (files: string[]) => [...files].sort((a, b) => fileName(a).locale
 
 type Pick = { item: string; part: number };
 const PICK_KEY = "audiodiver.soundtrack";
+const LIST_WIDTH = 330; // the music list's width to start with (px at the default text size)
 const OPEN = "audiodiver:soundtrack-open";
 const DROP = "audiodiver:soundtrack-drop";
 
@@ -94,8 +96,9 @@ export function SoundtrackPanes({ hidden }: { hidden: boolean }) {
   }, []);
   const item = pick ? itemIndex.items.get(pick.item) : undefined;
   const count = item ? playlists(item).length : 0;
+  const [width, setWidth] = useStoredWidth("audiodiver.soundtrackLeft", LIST_WIDTH);
   return (
-    <div className="panes st-panes" hidden={hidden}>
+    <div className="panes st-panes" hidden={hidden} style={{ ["--left" as any]: `${width}px` }}>
       <aside className="library" aria-label="Music">
         {project ? <MusicList sections={sections} pick={pick} setPick={setPick} /> : (
           <div className="lib-empty">
@@ -108,7 +111,7 @@ export function SoundtrackPanes({ hidden }: { hidden: boolean }) {
           </div>
         )}
       </aside>
-      <div className="pane-rule" aria-hidden />
+      <Splitter width={width} onResize={setWidth} initial={LIST_WIDTH} panel="left" label="Resize the list" />
       <main className="center">
         {project && item && count ? (
           <PieceView key={item.id} item={item} part={Math.min(pick!.part, count - 1)} sections={sections}
@@ -281,6 +284,7 @@ function PieceView({ item, part, setPart, sections, open }: {
   const [run, setRun] = useState<FightRun | null>(null);
   const [now, setNow] = useState<Mark | null>(null);    // the segment a fight is at
   const [panels, setPanels] = usePanels("soundtrack");
+  const [headH, setHeadH] = useStoredHeight("audiodiver.soundtrackHead", null); // null: as tall as its content
   const [menu, openMenu] = useContextMenu();
   const box = useRef<HTMLElement>(null);
   const body = useRef<HTMLDivElement>(null);
@@ -421,26 +425,29 @@ function PieceView({ item, part, setPart, sections, open }: {
     ]);
   };
   const inAudio = shown.includes("editor") && !!project?.library.includes(item.id);
-  const room = () => {
+  // how tall the header or the waveforms may get: the lines in between keep at least 120px
+  const room = (panel: "top" | "wave") => {
     const c = box.current;
     if (!c) return 400;
     const h = (q: string) => c.querySelector(q)?.getBoundingClientRect().height ?? 0;
-    return c.getBoundingClientRect().height - h(".cue-bar") - h(".cue-top") - 120;
+    return c.getBoundingClientRect().height - h(".cue-bar") - h(panel === "top" ? ".timeline" : ".cue-top") - 120;
   };
 
   return (
     <section className="cue st-piece" aria-label={item.full} ref={box}>
       {panels.head && (
-        <div className="cue-top">
+        <div className={`cue-top${headH != null ? " sized" : ""}`} style={headH != null ? { height: headH } : undefined}>
           <header className="cue-head st-head">
             <div className="head-row">
               <div className="crumbs">{itemIndex.section.get(item.id)?.name}</div>
+            </div>
+            <div className="item-title">
+              <h1>{item.name}</h1>
               {inAudio && (
                 <button className="link-text st-slots" onClick={() => goTo({ scope: "editor", itemId: item.id, cueId, source: sel })}
                   data-tip="The slots of this music in Audio"><AudioIcon />Slots</button>
               )}
             </div>
-            <div className="item-title"><h1>{item.name}</h1></div>
             {parts.length > 1 && (
               <div className="parts" role="tablist" aria-label="Parts" onKeyDown={tabArrows}>
                 {parts.map((p, i) => (
@@ -468,11 +475,13 @@ function PieceView({ item, part, setPart, sections, open }: {
               )}
             </div>
           </header>
+          <ResizeEdge edge="bottom" label="Resize the header" min={56} max={() => room("top")}
+            onResize={setHeadH} onReset={() => setHeadH(null)} />
         </div>
       )}
       <div className="cue-bar">
         {map && plays && <FightBar map={map} item={item} run={run} setRun={setRun} onNow={setNow} />}
-        <PanelToggles panels={panels} set={setPanels} />
+        <PanelToggles panels={panels} set={setPanels} waves={!!cue && !!sel} />
       </div>
       {failed ? <p className="slots-note">{failed}</p> : !map || !cue ? <p className="slots-note">Reading the music…</p> : (
         <div className="st-body" ref={body}>
@@ -497,7 +506,7 @@ function PieceView({ item, part, setPart, sections, open }: {
           )}
         </div>
       )}
-      {panels.waves && cue && <Timeline room={room} through={run} at={sel ? at(sel) : null} cue={cue} source={sel} />}
+      {panels.waves && cue && <Timeline room={() => room("wave")} through={run} at={sel ? at(sel) : null} cue={cue} source={sel} />}
       {slicing && songTarget && <SliceTool target={songTarget} file={slicing.file} onClose={() => setSlicing(null)} />}
       {menu}
     </section>
