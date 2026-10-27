@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { fmtWhen, type Job } from "./api";
-import { EVERY_BANK_PAGE } from "./content";
+import { EVERY_BANK_PAGE, OWN_BANKS_PAGE } from "./content";
 import { JOB_NAMES } from "./jobs";
 import { nav } from "./nav";
 import { NoProjectCard, Page, useDraft } from "./Page";
@@ -166,6 +166,11 @@ function BuildOptions() {
         <label className="check">
           <input type="checkbox" checked={p.every_bank} onChange={(e) => actions.settings({ every_bank: e.target.checked })} />
           <span>Patch every bank with the sounds <Help tip="A sound is often in many banks, such as a clip that several weapons share. With this on, the new audio goes into all of them and plays wherever the sound is used, but the mod gets bigger. With it off, only the banks of the listed items get it." page={EVERY_BANK_PAGE} /></span>
+        </label>
+        <label className="check" data-tip={p.every_bank ? "Patch every bank with the sounds is on" : undefined}>
+          <input type="checkbox" checked={p.project_banks_only} disabled={p.every_bank}
+            onChange={(e) => actions.settings({ project_banks_only: e.target.checked })} />
+          <span>Keep added audio to the project's banks <Help tip="New takes, layers and new audio set to Only this sound go into every bank with a copy of the sound, as the game plays the copy it loads first. With this on, they go only into the banks of the listed items. The mod gets smaller, but where the game loads another bank's copy first, the original plays." page={OWN_BANKS_PAGE} /></span>
         </label>
       </div>
     </section>

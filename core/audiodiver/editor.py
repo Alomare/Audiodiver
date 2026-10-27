@@ -1036,7 +1036,8 @@ class Session:
                 "path": str(p.path), "folder": str(p.path.parent), "name": p.name, "guid": p.guid,
                 **self._folder_facts(p),
                 "revision": self.revision, "version": p.version, "description": p.description, "icon": p.icon, "icon_frame": frame,
-                "loudness_analysis": p.loudness_analysis, "every_bank": p.every_bank, "patch_files": p.patch_files,
+                "loudness_analysis": p.loudness_analysis, "every_bank": p.every_bank,
+                "project_banks_only": p.project_banks_only, "patch_files": p.patch_files,
                 "build_folder": str(p.build_dir()), "build_folder_default": str(p.default_build_dir()),
                 "zip_name": zip_name(p), "last_build": (last := _last_build(p.build_dir(), slug(p.name))),
                 "game_updated": (updated := bool(self.ix) and _game_updated(p, self.ix.game, last)),
@@ -1409,7 +1410,7 @@ class Session:
         is checked before any is changed."""
         from . import akd
         bad = set(fields) - {"name", "version", "description", "icon", "build_folder", "guid", "loudness_analysis",
-                             "every_bank", "patch_files", "tabs"}
+                             "every_bank", "project_banks_only", "patch_files", "tabs"}
         if bad:
             raise EditorError(f"Unknown setting {sorted(bad)[0]}")
         checked = {}
@@ -1433,6 +1434,8 @@ class Session:
                     raise EditorError(f"Loudness analysis: {why}")
             elif k == "every_bank" and not isinstance(v, bool):
                 raise EditorError("Every bank is on or off")
+            elif k == "project_banks_only" and not isinstance(v, bool):
+                raise EditorError("Only the project's banks is on or off")
             elif k == "patch_files" and not isinstance(v, bool):
                 raise EditorError("Patch files are on or off")
             elif k == "tabs" and v is not None and (v := tab_list(v)) is None:
@@ -1458,6 +1461,8 @@ class Session:
                     p.loudness_analysis = v
                 elif k == "every_bank":
                     p.every_bank = v
+                elif k == "project_banks_only":
+                    p.project_banks_only = v
                 elif k == "patch_files":
                     p.patch_files = v
                 elif k == "tabs":  # None: as Settings says again
@@ -3635,6 +3640,19 @@ def projects_info(paths):
             pass  # moved, deleted or not a project: the list says which
         out.append(info)
     return out
+
+
+def project_icon(path) -> bytes:
+    """The icon of a project that isn't open (Home's recent project), as the build packages it (PNG bytes). Only an
+    Audiodiver project file is read."""
+    from .build import BuildError, icon_bytes
+    f = Path(str(path))
+    if f.suffix.lower() != ".audi" or not f.is_absolute() or not f.is_file():
+        raise EditorError(f"{f.name} isn't a project")
+    try:
+        return icon_bytes(Project.load(f))
+    except (OSError, ValueError, BuildError) as e:  # ValueError: not a project, or a newer one
+        raise EditorError(f"{f.name}: {os_error(e) if isinstance(e, OSError) else e}") from None
 
 
 # What Audiodiver keeps on disk to save time, by what it costs to lose: previews are made again as you listen,

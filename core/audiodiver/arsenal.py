@@ -19,6 +19,7 @@ import io
 import json
 import re
 import shutil
+import time
 import uuid
 import zipfile
 from pathlib import Path
@@ -212,10 +213,12 @@ def package(out_zip, *, name, guid, icon, options, description=''):
     out_zip = Path(out_zip)
     out_zip.parent.mkdir(parents=True, exist_ok=True)
     partial = out_zip.with_name(out_zip.name + '.partial')
+    # the files are dated when the ZIP is made: a fixed 1980-01-01 00:00 showed in Windows as 31 December 1979, 23:00
+    made = time.localtime()[:6]
     try:
         with zipfile.ZipFile(partial, 'w', compression=zipfile.ZIP_DEFLATED) as z:
             for path, data in sorted(files.items()):
-                info = zipfile.ZipInfo(path, date_time=(1980, 1, 1, 0, 0, 0))
+                info = zipfile.ZipInfo(path, date_time=made)
                 info.external_attr = 0o100644 << 16
                 # a patch file is stored, copied from disk: Vorbis barely deflates (3% for half of a build's time)
                 if isinstance(data, Path):

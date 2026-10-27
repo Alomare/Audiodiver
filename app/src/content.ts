@@ -24,6 +24,8 @@ export const KOFI_URL = "https://ko-fi.com/alomare";
 export const TICKER_URL = "https://divershub.app/overlay/ticker";
 /** Patch every bank with the sounds (Build's options, and Tools ▸ Repatch): its Wiki section. */
 export const EVERY_BANK_PAGE = "build-and-install#every-bank-with-the-sounds";
+/** Keep added audio to the project's banks (Build's options): its Wiki section. */
+export const OWN_BANKS_PAGE = "build-and-install#added-audio-in-other-banks";
 
 /** "2026-10-05" as "5 Oct 2026"; anything else as it is. */
 export function fmtDate(iso: string) {

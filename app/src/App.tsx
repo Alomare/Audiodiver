@@ -19,7 +19,7 @@ import { SettingsTab } from "./SettingsTab";
 import { soundtrackDrop, SoundtrackPanes } from "./Soundtrack";
 import { TextTab } from "./TextTab";
 import { ToolsTab } from "./ToolsTab";
-import { TooltipLayer } from "./Tooltip";
+import { ScaleTipLayer, TooltipLayer } from "./Tooltip";
 import { UpdatePrompt, UpdatesTab } from "./UpdatesTab";
 import { updates, useUpdates } from "./updates";
 import { Wiki } from "./Wiki";
@@ -345,6 +345,7 @@ function Shell() {
       <ConfirmDialog />
       {prompt && <UpdatePrompt onClose={() => setPrompt(false)} />}
       <TooltipLayer />
+      <ScaleTipLayer />
     </div>
   );
 }
@@ -544,7 +545,7 @@ function NowPlaying() {
       )}
       <label className="np-vol" data-tip={`Preview volume: ${Math.round(p.volume * 100)}% (not part of the mod)`}>
         <span aria-hidden>Vol</span>
-        <input type="range" className="r-volume" style={rangeVars(p.volume, 0, 1)} min={0} max={1} step={0.05} value={p.volume} aria-label="Preview volume"
+        <input type="range" className="r-volume" style={rangeVars(p.volume, 0, 1)} min={0} max={1} step={0.05} value={p.volume} aria-label="Preview volume" data-scale-tip
           onChange={(e) => player.setVolume(Number(e.target.value))} />
       </label>
     </span>

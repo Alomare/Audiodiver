@@ -33,7 +33,10 @@ gives it one from its replacements when it opens it.
 A sound is often in many banks (a weapon's clip in every weapon's bank that plays it). The build puts a replaced
 sound into the project's banks: those the mods imported into it patched ("imported_banks"), else those of what its
 list holds, else every bank that has it (build.reach). "every_bank" puts it into every bank that has it: the new
-audio then plays wherever the game uses the sound, and the mod is bigger. Both keys are left out while unused.
+audio then plays wherever the game uses the sound, and the mod is bigger. Added audio (new takes, layers, a sound's
+own clip) and settings go into every bank with a copy of what they change, as the game plays the copy it loaded
+first; "project_banks_only" keeps them to the project's banks too (build.own_banks), for a smaller mod in which
+another bank's copy can play the original. These keys are left out while unused.
 
 name, guid, description and icon are what HD2 Arsenal shows and keys the mod by (arsenal.py). The icon is the
 "image" (relative to the project file, like the audio) fitted to Arsenal's 540x540 PNG, or Audiodiver's default icon
@@ -194,6 +197,7 @@ class Project:
     icon: dict = field(default_factory=dict)
     loudness_analysis: bool = False
     every_bank: bool = False  # a replaced sound goes into every bank that has it, not only the project's (build.reach)
+    project_banks_only: bool = False  # added audio and settings keep to the project's banks too (build.own_banks)
     patch_files: bool = False  # each build also saves the patch files beside the ZIP (build.build)
     imported_banks: list[int] = field(default_factory=list)  # the banks the mods imported into it patched
     built_for: str = ""     # the game version (Game.version) its last build was made on; "" before one
@@ -379,6 +383,7 @@ class Project:
                        icon={k: v for k, v in icon.items() if k in ICON_KEYS},
                        loudness_analysis=kind(d, "loudness_analysis", bool, False, "Loudness analysis"), replacements=reps,
                        every_bank=kind(d, "every_bank", bool, False, "Banks"),
+                       project_banks_only=kind(d, "project_banks_only", bool, False, "Banks"),
                        patch_files=kind(d, "patch_files", bool, False, "Patch files"),
                        imported_banks=[int(b) for b in kind(d, "imported_banks", list, [], "the imported mods' banks")],
                        built_for=kind(d, "built_for", str, "", "the game version of the last build"),
@@ -411,6 +416,7 @@ class Project:
             "description": self.description, "icon": dict(self.icon), "build_folder": self.build_folder,
             "loudness_analysis": self.loudness_analysis,
             **({"every_bank": True} if self.every_bank else {}),
+            **({"project_banks_only": True} if self.project_banks_only else {}),
             **({"patch_files": True} if self.patch_files else {}),
             **({"imported_banks": [str(b) for b in self.imported_banks]} if self.imported_banks else {}),
             **({"built_for": self.built_for} if self.built_for else {}),

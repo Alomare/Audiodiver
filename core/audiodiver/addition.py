@@ -356,10 +356,13 @@ class Plan:
         return bool(self.banks)
 
 
-def plan(ix, takes: list[Take], layers: list[Layer], own: list[Own], taken=frozenset()) -> Plan:
+def plan(ix, takes: list[Take], layers: list[Layer], own: list[Own], taken=frozenset(), keep=None) -> Plan:
     """Which banks get what. ix is the AudioIndex; `taken` adds the ids the project uses to the game's, so the new
-    actions' ids clash with neither. AdditionError when the game no longer has what an addition hangs from."""
+    actions' ids clash with neither. Each addition goes into every bank with a copy of what it hangs from, or into
+    those `keep` keeps of them (build.own_banks). AdditionError when the game no longer has what an addition hangs
+    from."""
     out, parsed = Plan(), {}
+    keep = keep or list
 
     def objects(bid):
         if bid not in parsed:
@@ -394,6 +397,7 @@ def plan(ix, takes: list[Take], layers: list[Layer], own: list[Own], taken=froze
         out.bodies[lay.id], out.templates[lay.id] = body, template(lay.beside, banks)
         if ptype in (SWITCH, LAYER):
             banks = sorted(set(banks) | set(ix.copies(parent)))
+        banks = keep(banks)
         layer_banks[lay.id], twins = banks, 0
         for bid in banks:
             here = at(bid)
@@ -419,6 +423,7 @@ def plan(ix, takes: list[Take], layers: list[Layer], own: list[Own], taken=froze
         else:
             banks = first(take.to, RANSEQ, "Container")[0]
             out.templates.setdefault(take.to, template(take.to, banks))
+            banks = keep(banks)
             for bid in banks:
                 at(bid).changed.add(take.to)
         for bid in banks:
@@ -430,7 +435,7 @@ def plan(ix, takes: list[Take], layers: list[Layer], own: list[Own], taken=froze
         banks, body = first(o.sound, SOUND, "Sound")
         if not is_audio(body):
             raise AdditionError(f"Sound {o.sound} plays no clip")
-        for bid in banks:
+        for bid in keep(banks):
             here = at(bid)
             here.own.append(o)
             here.changed.add(o.sound)

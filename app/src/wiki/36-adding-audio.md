@@ -28,4 +28,4 @@ This option works per sound. When the game copies a whole sound into other banks
 
 ## Size
 
-Added audio goes into every bank that contains the sound. As with replacements, adding audio to a widely shared sound makes the mod large.
+Added audio goes into every bank that contains the sound. As with replacements, adding audio to a widely shared sound makes the mod large. To keep it to the project's banks, see [Added audio in other banks](wiki:build-and-install#added-audio-in-other-banks).

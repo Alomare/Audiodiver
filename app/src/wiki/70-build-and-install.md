@@ -69,6 +69,12 @@ Some sounds go into every bank either way:
 
 A project with an imported mod also counts the banks that mod patched. On [Tools ▸ Repatch](app:tools/repatch), the same checkbox applies to the repatched mod. With it off, the audio goes only into the banks the mod patched.
 
+### Added audio in other banks
+
+New takes, layers and new audio set to **Only this sound** go into every bank that has a copy of the sound, also banks the project doesn't list, because the game plays the copy it loads first. The sounds of the AC-8 Autocannon, for example, also have copies in the banks of the Oil Rig and the Shuttle. A project that adds audio to these sounds patches those two banks too, which puts about 30 MB of the banks' own audio into the mod.
+
+**Keep added audio to the project's banks** puts added audio only into the banks of the project's list, and of a mod imported into it. The mod gets smaller, but wherever the game loads another bank's copy of the sound first, the original plays. Leave it off unless the size of the mod matters more than the sound in those places. A sound that no bank on the list has still goes into every bank that has it. The setting applies to the open project and does nothing while **Patch every bank with the sounds** is on.
+
 ## Installing
 
 Builds are ZIPs in the shared manifest format that Helldivers 2 mod managers import.

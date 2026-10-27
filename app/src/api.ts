@@ -152,6 +152,7 @@ export type ProjectState = {
   icon_frame: IconFrame; // the icon's full frame, defaults included
   loudness_analysis: boolean;
   every_bank: boolean;   // a replaced sound goes into every bank that has it (Patch every bank with the sounds)
+  project_banks_only: boolean; // added audio keeps to the project's banks (Keep added audio to the project's banks)
   patch_files: boolean;  // each build also saves the patch files in a folder named like the ZIP
   build_folder: string; zip_name: string; // where the next build goes, and what it is called
   build_folder_default: string;           // the build folder next to the project file: where builds go unless another is chosen
@@ -247,6 +248,11 @@ export function fileUrl(path: string) {
 export function iconUrl(bust: string, preview?: Icon) {
   const icon = preview ? `&icon=${encodeURIComponent(JSON.stringify(preview))}` : "";
   return `${audioBase}/project/icon?token=${encodeURIComponent(audioToken)}&v=${bust}${icon}`;
+}
+
+/** The icon of a project that isn't open (Home's recent project); `bust` changes when the project file does. */
+export function projectIconUrl(path: string, bust: string) {
+  return `${audioBase}/projects/icon?token=${encodeURIComponent(audioToken)}&path=${encodeURIComponent(path)}&v=${bust}`;
 }
 
 /** "today, 14:05", "yesterday, 09:30" or "12 Mar 2026" for a time in Unix seconds. */

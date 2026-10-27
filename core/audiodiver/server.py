@@ -10,6 +10,7 @@ Prints one line, `AUDIODIVER_SERVER {"port": ..., "token": ...}`, once it listen
     GET  /audio/file?path=…   a local audio file of a type projects take (the slice tool's song, a play-through)
     GET  /project/icon        the open project's icon as the build packages it (PNG); ?icon=<JSON> previews an
                               icon that isn't saved yet (its frame, as the settings method takes it)
+    GET  /projects/icon?path=…  the icon of a project file that isn't open (Home's recent project)
 
 GET URLs take the token as ?token=, since <audio> and <img> elements can't send headers.
 """
@@ -28,7 +29,7 @@ from pathlib import Path
 
 from . import updates, wem
 from .audio import cache_lock, natural
-from .editor import AUDIO_TYPES, EditorError, Session, cache_clear, cache_info, log, os_error, plain, projects_info, reveal
+from .editor import AUDIO_TYPES, EditorError, Session, cache_clear, cache_info, log, os_error, plain, project_icon, projects_info, reveal
 from .index import CACHE_DIR
 
 BROWSER_AUDIO = {".wav": "audio/wav", ".mp3": "audio/mpeg", ".ogg": "audio/ogg", ".opus": "audio/ogg",
@@ -314,6 +315,8 @@ def make_handler(session: Session, token: str):
                     except ValueError:
                         raise EditorError("Bad icon preview") from None
                     return self._bytes(session.icon(preview), "image/png")
+                if parts == ["projects", "icon"]:
+                    return self._bytes(project_icon(q.get("path", [""])[0]), "image/png")
                 if len(parts) != 3 and parts[:2] != ["audio", "file"]:
                     return self._json(404, {"error": "not found"})
                 if parts[:2] == ["audio", "vanilla"]:

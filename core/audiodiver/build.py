@@ -109,9 +109,27 @@ def replacements(project: Project, ix: AudioIndex, log=None, step=None) -> list[
     return out
 
 
-def additions(project: Project, ix: AudioIndex, reps: list[patch.Replacement]) -> addition.Plan:
+def own_banks(project: Project, ix: AudioIndex, listed=None):
+    """With project_banks_only (and every_bank off), what keeps a list of banks with copies of something to the
+    project's: those the imported mods patched, else those of what the list holds (listed: Library.banks of it), as
+    reach keeps a sound; all of them when none is, or when one is a music bank (music keeps every copy, see reach).
+    None without project_banks_only: added audio and settings go into every copy."""
+    if project.every_bank or not project.project_banks_only:
+        return None
+    mod, listed, music = set(project.imported_banks), set(listed or ()), set(ix.music_banks)
+
+    def keep(banks):
+        banks = list(banks)
+        if music & set(banks):
+            return banks
+        return [b for b in banks if b in mod] or [b for b in banks if b in listed] or banks
+    return keep
+
+
+def additions(project: Project, ix: AudioIndex, reps: list[patch.Replacement], listed=None) -> addition.Plan:
     """What the project adds to the game's banks, with the new clips' audio (reps, encoded). A take or own clip
-    without audio adds nothing, and a layer without takes neither."""
+    without audio adds nothing, and a layer without takes neither. Each goes into every bank with a copy of what it
+    changes, or only into the project's banks (own_banks; listed as there)."""
     if not project.additions:
         return addition.Plan()
     wem_of = {r.source: r.wem for r in reps if r.wem is not None}
@@ -126,7 +144,7 @@ def additions(project: Project, ix: AudioIndex, reps: list[patch.Replacement]) -
     own = [addition.Own(a.sound, a.source, wem_of[a.source]) for a in project.additions
            if a.kind == "own" and a.source in wem_of]
     try:
-        return addition.plan(ix, takes, layers, own, project.made_ids())
+        return addition.plan(ix, takes, layers, own, project.made_ids(), own_banks(project, ix, listed))
     except addition.AdditionError as e:
         raise BuildError(f"Added audio: {e}") from None
 
@@ -142,7 +160,8 @@ def reach(project: Project, ix: AudioIndex, reps: list[patch.Replacement], setti
     has copies of every faction's music, and music_init, loaded first, has copies of much of it (nearly all of the
     second Automaton set's): a track retimed in one bank can play with another's old timing and cut off. Which
     copies a mission loads isn't known, so all of them get the new timing. Settings, from imported mods, go into the
-    copies in the banks those mods patched. A sound or object left out goes into every bank that has it."""
+    copies in the banks those mods patched; with project_banks_only, every setting keeps to the project's banks
+    (own_banks). A sound or object left out goes into every bank that has it."""
     if project.every_bank:
         return {}, {}
     mod, listed, music = set(project.imported_banks), set(listed or ()), set(ix.music_banks)
@@ -155,7 +174,10 @@ def reach(project: Project, ix: AudioIndex, reps: list[patch.Replacement], setti
         if ix.stream_file(r.source) is not None or not mine & holders:
             mine |= holders
         sounds[r.source] = mine
-    objects = {o: mine for o in settings if (mine := set(ix.copies(o)) & mod)}
+    if keep := own_banks(project, ix, listed):
+        objects = {o: set(keep(copies)) for o in settings if (copies := ix.copies(o))}
+    else:
+        objects = {o: mine for o in settings if (mine := set(ix.copies(o)) & mod)}
     return sounds, objects
 
 
@@ -229,7 +251,7 @@ def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, ste
         step("Patching the sound banks", steps - after - 2, steps)
     log(f"patching the {'' if project.every_bank else "project's "}banks that hold or play {len(reps)} "
         f"sound{'s' if len(reps) != 1 else ''}")
-    plan = additions(project, ix, reps)
+    plan = additions(project, ix, reps, listed)
     tables = text_tables(project, strings.Texts(ix.game), log) if project.texts else {}
     # a setting taken away (None) came from a copy older than the game, in projects imported before that was known
     settings = {o: kept for o, s in project.settings.items()

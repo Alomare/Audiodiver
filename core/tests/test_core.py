@@ -4,6 +4,7 @@ import hashlib
 import json
 import re
 import struct
+import time
 import zipfile
 from pathlib import Path
 
@@ -58,6 +59,22 @@ def test_no_its_in_shown_text():
                 and isinstance(n.body[0], ast.Expr) and isinstance(n.body[0].value, ast.Constant)}
         found += [f"{f.name}:{n.lineno}" for n in ast.walk(tree)
                   if isinstance(n, ast.Constant) and isinstance(n.value, str) and id(n) not in docs and ITS.search(n.value)]
+    assert found == []
+
+
+def test_the_app_keeps_square_corners():
+    """The app's boxes have sharp corners (the user's rule): a border-radius is 2px at most, or 50% for something
+    round (a ▶, a dot, the spinner). The Build tab's count of problems is a round badge that grows with two digits."""
+    css = (HERE.parents[1] / "app" / "src" / "styles.css").read_text(encoding="utf-8")
+    css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
+    found = []
+    for m in re.finditer(r"([^{}]*)\{([^{}]*)\}", css):
+        selector = " ".join(m.group(1).split())
+        for value in re.findall(r"border-radius:\s*([^;}]+)", m.group(2)):
+            if selector == ".rail-badge" and value.strip() == "8px":
+                continue
+            if any(v not in ("0", "1px", "2px", "50%") for v in value.split()):
+                found.append(f"{selector}: {value.strip()}")
     assert found == []
 
 
@@ -462,12 +479,12 @@ def test_project_keeps_its_banks_setting_and_an_imported_mods_banks(tmp_path):
     p = Project(name="Test", path=tmp_path / "t.audi")
     p.save()
     text = (tmp_path / "t.audi").read_text()
-    assert "every_bank" not in text and "imported_banks" not in text and "patch_files" not in text  # as they were
-    p.every_bank, p.imported_banks, p.patch_files = True, [6187728386225981464], True
+    assert not {"every_bank", "project_banks_only", "imported_banks", "patch_files"} & set(json.loads(text))  # as they were
+    p.every_bank, p.imported_banks, p.patch_files, p.project_banks_only = True, [6187728386225981464], True, True
     p.save()
     assert '"6187728386225981464"' in (tmp_path / "t.audi").read_text()
     q = Project.load(tmp_path / "t.audi")
-    assert q.every_bank and q.imported_banks == [6187728386225981464] and q.patch_files
+    assert q.every_bank and q.imported_banks == [6187728386225981464] and q.patch_files and q.project_banks_only
 
 
 def test_project_keeps_make_up_gain_on_the_original_audio(tmp_path):
@@ -486,7 +503,8 @@ def test_project_keeps_make_up_gain_on_the_original_audio(tmp_path):
 
 def test_a_sound_goes_into_the_projects_banks():
     """build.reach: an imported mod's banks first, then those of what the project lists; the holders join a bank
-    that only plays the sound, a stream's holders always; music and a sound no such bank has keep every bank."""
+    that only plays the sound, a stream's holders always; music and a sound no such bank has keep every bank. A
+    setting keeps to an imported mod's banks, and with project_banks_only to the list's too."""
     from types import SimpleNamespace
     from audiodiver.build import reach
     R = lambda s: patch.Replacement(s, b"")
@@ -494,13 +512,16 @@ def test_a_sound_goes_into_the_projects_banks():
         holders={1: {10, 11, 12}, 2: {10, 11}, 3: {30}, 4: {40, 41}, 5: {50}},
         users={1: {10, 11, 12, 13}, 2: {14}, 3: {30, 31}, 4: {40}, 5: {50, 51}},
         music_banks=[50, 51], stream_file=lambda s: 99 if s == 4 else None,
-        copies=lambda o: [10, 11, 12] if o == 7 else [])
+        copies=lambda o: {7: [10, 11, 12], 9: [31, 32]}.get(o, []))
     ix.banks_for = lambda s: ix.holders.get(s, set()) | ix.users.get(s, set())
     reps = [R(1), R(2), R(3), R(4), R(5)]
     p = Project(name="Test", imported_banks=[10, 14])
-    sounds, objects = reach(p, ix, reps, {7: {0: 1.0}, 8: {0: 1.0}}, listed={31, 40})
+    settings = {7: {0: 1.0}, 8: {0: 1.0}, 9: {0: 1.0}}
+    sounds, objects = reach(p, ix, reps, settings, listed={31, 40})
     assert sounds == {1: {10}, 2: {10, 14}, 3: {31, 30}, 4: {40, 41}}  # 5: music
-    assert objects == {7: {10}}  # 8: no copy in the mod's banks, so every copy
+    assert objects == {7: {10}}  # 8 and 9: no copy in the mod's banks, so every copy
+    p.project_banks_only = True
+    assert reach(p, ix, reps, settings, listed={31, 40}) == (sounds, {7: {10}, 9: {31}})
     assert reach(Project(name="Test", every_bank=True, imported_banks=[10]), ix, reps, {7: {0: 1.0}}) == ({}, {})
 
 
@@ -526,6 +547,8 @@ def test_package_writes_the_zip_whole_or_not_at_all(tmp_path, monkeypatch):
         assert json.loads(z.read("manifest.json"))["IconPath"] == "icon.png"
         assert z.getinfo("mod/9ba626afa44a3aa3.patch_0").compress_type == zipfile.ZIP_STORED  # Vorbis barely deflates
         assert z.read("mod/9ba626afa44a3aa3.patch_0") == b"patch"
+        # dated when built (a fixed 1980 showed in Windows as 31 December 1979)
+        assert {i.date_time[:3] for i in z.infolist()} == {tuple(time.localtime()[:3])}
     before, written = out.read_bytes(), []
     real = zipfile.ZipFile.open
 

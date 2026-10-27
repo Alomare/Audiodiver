@@ -19,20 +19,20 @@
 
 <p align="center">
   <a href="https://github.com/Alomare/Audiodiver/releases/latest"><b>Download</b></a> ·
-  <a href="#get-started">Get Started</a> ·
+  <a href="#how-to-use">How to Use</a> ·
   <a href="https://github.com/Alomare/Audiodiver/issues">Report a Bug</a>
 </p>
 
 <br>
 
 <p align="center">
-  <img src="assets/readme/home.png" alt="Audiodiver's Home tab over a screenshot of a Helldiver kneeling in a desert sandstorm: New project, Open project with a recent project and the loaded one under it, then Repatch and Combine Mods, with Discord and Ko-fi in the corner" width="100%">
+  <img src="assets/readme/home.png" alt="Audiodiver's Home tab over a screenshot of a Helldiver kneeling in a desert sandstorm: New project, Open project with the last project opened in it and the loaded one under it, then Repatch and Combine Mods, with Discord and Ko-fi in the corner" width="100%">
 </p>
 
 <p align="center">
   <a href="#features">Features</a> ·
   <a href="#how-it-works">How It Works</a> ·
-  <a href="#get-started">Get Started</a> ·
+  <a href="#how-to-use">How to Use</a> ·
   <a href="#questions-and-feedback">Questions and Feedback</a> ·
   <a href="#contributing">Contributing</a> ·
   <a href="#credits">Credits</a>
@@ -42,93 +42,73 @@
 
 ## Features
 
-<table>
-  <tr>
-    <td width="50%">
-      <h3>📚 Library</h3>
-      Every sound in Helldivers 2, sorted. Music goes by when it plays, from the ship to extraction, and weapons by loadout slot, then stratagems, enemies and planets. Search takes a name, a label or an ID.
-      <br><br>
-      <img src="assets/readme/library.png" alt="The Library's Index with On the Ship, Bridge and War Map open: two parts, their segments, and the transitions and stingers that play next to them" width="100%">
-    </td>
-    <td width="50%">
-      <h3>🎚️ Audio</h3>
-      The music and sounds of a project, one slot per clip. An audio file dropped on a slot, a sound or a whole piece replaces the original, and one song can be cut across a whole piece. Slots take silence and Make-Up Gain too, and sounds can get new takes and layers.
-      <br><br>
-      <img src="assets/readme/audio.png" alt="Loadout Selection on the Audio tab: slots with new audio, the selected one ticked, the original and new waveforms of that slot on one time scale, and the slot settings on the right" width="100%">
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <h3>🎼 Soundtrack</h3>
-      How each piece of music plays in a mission: in the original order, as one song, as a playlist of whole songs, or silent. Drag songs to put a playlist in order, and listen to a whole fight with the original music or the new one before anything is built.
-      <br><br>
-      <img src="assets/readme/soundtrack.png" alt="Illuminate Battle as a playlist on the Soundtrack tab: four songs in the first places, Continue in the next fight ticked, and the second song's waveform under the original segment's" width="100%">
-    </td>
-    <td width="50%">
-      <h3>📝 Text</h3>
-      All text in Helldivers 2, in 15 languages, subtitles included. A formatting bar, a preview as the line shows in game, and links between voice lines and subtitles.
-      <br><br>
-      <img src="assets/readme/text.png" alt="The Text tab with a changed subtitle: the original, the new text with colour and emphasis tags, and a preview as it shows in game" width="100%">
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <h3>📁 Project</h3>
-      The mod's name, description, icon and ID, with a preview as a mod manager shows them. The project folder has <b>Collect files</b>, a clean-up to the Recycle Bin, and packs (<code>.audipack</code>) for another computer.
-      <br><br>
-      <img src="assets/readme/project.png" alt="The Project tab: the name, description, icon and mod ID, beside a preview of the mod in a mod manager with Import patches and Close project above it" width="100%">
-    </td>
-    <td width="50%">
-      <h3>📦 Build</h3>
-      A ZIP for mod managers, checked before it's packed, with only the banks the project lists or every bank with the sounds. A dot on the tab means something changed since the last build.
-      <br><br>
-      <img src="assets/readme/build.png" alt="The Build tab after a build: the next version, the build options, the Build button with the destination folder and the last build, and the build log" width="100%">
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <h3>🔧 Tools ▸ Repatch</h3>
-      A mod for an older game version, rebuilt on the current sound banks with the same audio, settings, options and ID. Text, models and textures stay as they were. <b>Installed mods</b> finds the mods that need it.
-      <br><br>
-      <img src="assets/readme/repatch.png" alt="Tools, Repatch, after rebuilding a mod: the new ZIP, Show in folder and Repatch another mod, then what was carried over, a string table included" width="100%">
-    </td>
-    <td width="50%">
-      <h3>🔀 Tools ▸ Combine Mods</h3>
-      Several mods that change the same sound banks, built as one with the options chosen in the mod manager, text, models and textures included. Where two change the same sound, you play both versions and pick one.
-      <br><br>
-      <img src="assets/readme/combine.png" alt="Combine Mods with two mods that both change Loadout Selection: six conflicts, each with both versions to play and the chosen one marked" width="100%">
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <h3>📖 Wiki</h3>
-      Guides inside the app, from a first mod to what to do after a game update, and a page of frequently asked questions. Every ? next to a setting opens the matching section, and Ctrl+F finds and marks words on a page.
-      <br><br>
-      <img src="assets/readme/wiki.png" alt="The Wiki on Frequently Asked Questions: the questions grouped by topic, each answer linking to the page that covers it, and the list of guides on the left" width="100%">
-    </td>
-    <td width="50%">
-      <h3>⚙️ Settings</h3>
-      The game folder, the tabs that show, startup, tooltips and disk space. Every shortcut key can be rebound, and the theme sets dark or light, the colours, the text size, the spacing and where the tab bar goes.
-      <br><br>
-      <img src="assets/readme/settings.png" alt="Settings, System: the game folder found through Steam, ticks for the Audio, Soundtrack and Text tabs, startup, updates and tooltips" width="100%">
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <h3>🔄 Updates</h3>
-      New versions, looked for at every start. Audiodiver asks before installing one, installs it by itself, or only lights up this tab, as set in Settings. The tab also lists the changes in every version.
-      <br><br>
-      <img src="assets/readme/updates.png" alt="The Updates tab: Audiodiver v1.0.0 up to date, what happens at startup, and the changelog" width="100%">
-    </td>
-    <td width="50%"></td>
-  </tr>
-</table>
+### 📁 Project
+
+The mod's name, description, icon and ID, with a preview as a mod manager shows them. The project folder has **Collect files**, a clean-up to the Recycle Bin, and packs (`.audipack`) for another computer.
+
+<img src="assets/readme/project.png" alt="The Project tab: the name, description, icon and mod ID, beside a preview of the mod in a mod manager with Import patches and Close project above it" width="100%">
+
+### 📚 Library
+
+Every sound in Helldivers 2, sorted. Music goes by when it plays, from the ship to extraction, and weapons by loadout slot, then stratagems, enemies and planets. Search takes a name, a label or an ID.
+
+<img src="assets/readme/library.png" alt="The Library's Index with On the Ship, Bridge and War Map open: two parts, their segments, and the transitions and stingers that play next to them" width="100%">
+
+### 🎚️ Audio
+
+The music and sounds of a project, one slot per clip. An audio file dropped on a slot, a sound or a whole piece replaces the original, and one song can be cut across a whole piece. Slots take silence and Make-Up Gain too, and sounds can get new takes and layers. Under the slots, the original and the new audio are drawn on one time scale, with a zoom in time and level.
+
+<img src="assets/readme/audio.png" alt="Loadout Selection on the Audio tab: slots with new audio, the selected one ticked, the original and new waveforms of that slot on one time scale with the zoom sliders beside them, and the slot settings on the right" width="100%">
+
+### 🎼 Soundtrack
+
+How each piece of music plays in a mission: in the original order, as one song, as a playlist of whole songs, or silent. Drag songs to put a playlist in order, and listen to a whole fight with the original music or the new one before anything is built.
+
+<img src="assets/readme/soundtrack.png" alt="Illuminate Battle as a playlist on the Soundtrack tab: four songs in the first places, Continue in the next fight ticked, and the second song's waveform under the original segment's" width="100%">
+
+### 📝 Text
+
+All text in Helldivers 2, in 15 languages, subtitles included. A formatting bar, a preview as the line shows in game, and links between voice lines and subtitles.
+
+<img src="assets/readme/text.png" alt="The Text tab with a changed subtitle: the original, the new text with colour and emphasis tags, and a preview as it shows in game" width="100%">
+
+### 📖 Wiki
+
+Guides inside the app, from a first mod to what to do after a game update, and a page of frequently asked questions. Every ? next to a setting opens the matching section, and Ctrl+F finds and marks words on a page.
+
+<img src="assets/readme/wiki.png" alt="The Wiki on the Soundtrack page, with the list of guides on the left" width="100%">
+
+### ⚙️ Settings
+
+The theme sets dark or light, high contrast, a night mode that warms every colour, the two colours of the app, the typefaces, the text size, the spacing and where the tab bar goes. The other settings hold the game folder, the tabs that show, autosave, tooltips and disk space, and every shortcut key can be rebound.
+
+<img src="assets/readme/settings.png" alt="Settings, Theme: Dark or Light, contrast, night mode with the warmth slider, the primary and secondary colours, and the typefaces" width="100%">
+
+### 🔄 Updates
+
+New versions, looked for at every start. Audiodiver asks before installing one, installs it by itself, or only lights up this tab, as set in Settings. The tab also lists the changes in every version.
+
+<img src="assets/readme/updates.png" alt="The Updates tab: Audiodiver up to date, what happens at startup, and the changelog" width="100%">
 
 ### 🧰 Audiodiver Utils
 
-Repatch and Combine Mods on their own, for players who only need to fix or merge mods. The Utils ZIP is a 27 MB
-portable window with just the Tools, and `audiodiver.cmd` runs the same tools from a command line, so scripts and
-mod managers can call them:
+The two tools of the Tools tab on their own, for players who only need to fix or merge mods: a 27 MB portable window, and a command line.
+
+#### Repatch
+
+A mod for an older game version, rebuilt on the current sound banks with the same audio, settings, options and ID. Text, models and textures stay as they were. **Installed mods** finds the mods that need it.
+
+<img src="assets/readme/repatch.png" alt="Tools, Repatch, after rebuilding a mod: the new ZIP, Show in folder and Repatch another mod, then what was carried over, a string table included" width="100%">
+
+#### Combine Mods
+
+Several mods that change the same sound banks, built as one with the options chosen in the mod manager, text, models and textures included. Where two change the same sound, you play both versions and pick one.
+
+<img src="assets/readme/combine.png" alt="Combine Mods with two mods that both change Loadout Selection: six conflicts, each with both versions to play and the chosen one marked" width="100%">
+
+#### Command Line
+
+`audiodiver.cmd` runs the same tools from a command line, so scripts and mod managers can call them:
 
 ```
 audiodiver.cmd check --json                        installed mods that need a repatch
@@ -156,7 +136,7 @@ command returns.
   protected by a token.
 - More than 200 tests, among them byte-for-byte builds of three complete music mods.
 
-## Get Started
+## How to Use
 
 You need Windows 10 or 11, Helldivers 2 installed through Steam, and a Helldivers 2 mod manager to install the mods
 you build.

@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { call, fileUrl, fmtTime, plural, type Assignment, type Cue, type MusicItem, type Piece, type PlaylistMap, type PlayNode } from "./api";
 import { confirm } from "./Confirm";
 import { useContextMenu, type MenuEntry } from "./ContextMenu";
@@ -14,6 +14,7 @@ import { player, usePlayer, type PlayedAt } from "./player";
 import type { Mark, Through } from "./PlayThrough";
 import { ResizeEdge, Splitter, useStoredHeight, useStoredWidth } from "./Resize";
 import { SliceTool } from "./SliceTool";
+import { useStable } from "./stable";
 import { useEditor, useShownTabs } from "./store";
 import { motionMs, scrollBehavior } from "./theme";
 import { Timeline } from "./Timeline";
@@ -29,7 +30,6 @@ const MODES: { mode: Mode; name: string; tip: string }[] = [
   { mode: "same", name: "Same as Battle", tip: "The battle music plays on here, from where it is" },
 ];
 const NAME = Object.fromEntries(MODES.map((m) => [m.mode, m.name])) as Record<Mode, string>;
-/** What each kind of group does with its children (core soundtrack.py, music.RS_TYPES). */
 /** How a group of the play order picks what plays: its name, what it does, its icon, and what joins the things in it
     (`join` between segments on a line, `then` between groups). */
 const KIND = [
@@ -51,7 +51,8 @@ function useMusic(): Sections {
 }
 
 const playlists = (it: MusicItem) => it.parts.filter((p) => p.kind === "playlist");
-const pieceOf = (soundtrack: Record<string, Piece> | undefined, cue: string): Piece => soundtrack?.[cue] ?? { mode: "original" };
+const ORIGINAL: Piece = { mode: "original" }; // one object, so what is worked out from a piece keeps while it does
+const pieceOf = (soundtrack: Record<string, Piece> | undefined, cue: string): Piece => soundtrack?.[cue] ?? ORIGINAL;
 /** The battle music an intense piece can follow: the Battle of its section. */
 function partnerOf(sections: Sections, it: MusicItem): string | null {
   if (it.role !== "intense") return null;
@@ -287,6 +288,9 @@ function PieceView({ item, part, setPart, sections, open }: {
   const [sel, setSel] = useState<string | null>(null);  // the slot selected: a segment's first, or a layer's
   const [run, setRun] = useState<FightRun | null>(null);
   const [now, setNow] = useState<Mark | null>(null);    // the segment a fight is at
+  // both as the lines below read them, each for itself
+  const [marks] = useState(() => markStore({ sel: null, now: null }));
+  useLayoutEffect(() => marks.set({ sel, now: now?.segment ?? null }), [marks, sel, now]);
   const [panels, setPanels] = usePanels("soundtrack");
   const [headH, setHeadH] = useStoredHeight("audiodiver.soundtrackHead", null); // null: as tall as its content
   const [menu, openMenu] = useContextMenu();
@@ -309,7 +313,21 @@ function PieceView({ item, part, setPart, sections, open }: {
   const keep = (p: Piece): Piece => (gain ? { ...p, gain_db: gain } : p);
   const firsts = useMemo(() => (cue ? firstSlots(cue) : new Map<string, string>()), [cue]);
   const lengths = useMemo(() => (cue ? originalLengths(cue) : new Map<string, number>()), [cue]);
-  const at = (source: string | null): PlayedAt => ({ scope: "editor", itemId: item.id, cueId, source });
+  // one identity for the life of the view, so the play order's segments (PoSeg) don't draw again on each click
+  const { at, toggle } = useStable({
+    at: (source: string | null): PlayedAt => ({ scope: "editor", itemId: item.id, cueId, source }),
+    // a segment leaves (or comes back) wherever the piece plays it
+    toggle: (it: string) => {
+      if (!map) return;
+      const all = leaves(map.tree);
+      const seg = all.find((l) => l.item === it)?.segment;
+      const same = all.filter((l) => l.segment === seg).map((l) => l.item);
+      const out = new Set(piece.left_out ?? []);
+      const leaving = !same.some((i) => out.has(i));
+      for (const i of same) if (leaving) out.add(i); else out.delete(i);
+      set(out.size || gain ? keep({ mode: "original", left_out: [...out] }) : null, leaving ? "leave out" : "put back");
+    },
+  });
 
   /** The slots of some segments that have new audio: what One song or a playlist left in them. */
   const filled = (segs: string[]) => {
@@ -329,17 +347,6 @@ function PieceView({ item, part, setPart, sections, open }: {
       notify("info", `The ${piece.mode === "song" ? "song pieces stay" : "songs stay"} as new audio in ${plural(piece.segments?.length ?? 0, "segment")}${mode === "original" ? ", in the original order" : ""}.`,
         { label: "Remove", run: () => actions.unassign(left) });
     }
-  };
-  // a segment leaves (or comes back) wherever the piece plays it
-  const toggle = (it: string) => {
-    if (!map) return;
-    const all = leaves(map.tree);
-    const seg = all.find((l) => l.item === it)?.segment;
-    const same = all.filter((l) => l.segment === seg).map((l) => l.item);
-    const out = new Set(piece.left_out ?? []);
-    const leaving = !same.some((i) => out.has(i));
-    for (const i of same) if (leaving) out.add(i); else out.delete(i);
-    set(out.size || gain ? keep({ mode: "original", left_out: [...out] }) : null, leaving ? "leave out" : "put back");
   };
   const songTarget = map && cue ? {
     cue, segments: map.song, fill: (file: string, bounds: number[]) => actions.songFill(cueId, file, bounds, map.song),
@@ -362,6 +369,12 @@ function PieceView({ item, part, setPart, sections, open }: {
     actions.playlistSet(cueId, next, fit.length > 1 ? `${plural(fit.length, "song")} from place ${k + 1}` : undefined);
     if (files.length > fit.length) notify("info", `${plural(files.length - fit.length, "song")} left over. This music has ${plural(places.length, "place")}.`);
   };
+  // the bodies below are memo: they draw again when the piece changes, not on each click
+  const pass = useStable({
+    current, put, onSet: set,
+    onChoose: () => setSlicing({}),
+    onRecut: () => setSlicing({ file: project && piece.song ? fullPath(project.folder, piece.song) : undefined }),
+  });
   // a drop on One song or on a place (App.tsx hands it over)
   const latest = useRef({ put, cueId });
   latest.current = { put, cueId };
@@ -490,22 +503,22 @@ function PieceView({ item, part, setPart, sections, open }: {
       {failed ? <p className="slots-note">{failed}</p> : !map || !cue ? <p className="slots-note">Reading the music…</p> : (
         <div className="st-body" ref={body}>
           {run && <Transcript run={run} now={now} fight={fight} />}
-          {piece.mode === "song" && <SongBody map={map} cue={cue} piece={piece} firsts={firsts} lengths={lengths} sel={sel} onPick={setSel} at={at} now={now?.segment ?? null}
-            fight={fight} onChoose={() => setSlicing({})} onRecut={() => setSlicing({ file: project && piece.song ? fullPath(project.folder, piece.song) : undefined })} />}
-          {piece.mode === "tracks" && <PlaylistBody map={map} piece={piece} places={places} cueId={cueId} lengths={lengths} sel={sel} onPick={setSel} at={at}
-            now={now?.segment ?? null} current={current} put={put} onSet={set} fight={fight} />}
+          {piece.mode === "song" && <SongBody map={map} cue={cue} piece={piece} firsts={firsts} lengths={lengths} marks={marks} onPick={setSel} at={at}
+            fight={fight} onChoose={pass.onChoose} onRecut={pass.onRecut} />}
+          {piece.mode === "tracks" && <PlaylistBody map={map} piece={piece} places={places} cueId={cueId} lengths={lengths} marks={marks} onPick={setSel} at={at}
+            current={pass.current} put={pass.put} onSet={pass.onSet} fight={fight} />}
           {piece.mode === "silent" && <p className="st-note">Nothing plays while the game would play this music.</p>}
           {piece.mode === "same" && partner && (
             <p className="st-note">The{" "}<button className="link-text" onClick={() => open(itemIndex.byCue.get(partner)?.item.id ?? item.id)}>Battle</button>{" "}
               music plays on here, from where it is.</p>
           )}
-          {piece.mode === "original" && <Layers cue={cue} sel={sel} onPick={setSel} at={at} lengths={lengths} />}
+          {piece.mode === "original" && <Layers cue={cue} marks={marks} onPick={setSel} at={at} lengths={lengths} />}
           {plays && (
             <div className="st-order">
               <h2>Play order{piece.mode === "original" ? "" : " in the project"} <Help tip="How the game picks the next segment" page="soundtrack#play-order" /></h2>
               {piece.mode === "original"
-                ? <PlayOrder map={map} tree={map.tree} firsts={firsts} lengths={lengths} leftOut={new Set(piece.left_out ?? [])} onToggle={toggle} now={now?.segment ?? null} sel={sel} onPick={setSel} at={at} fight={fight} />
-                : <PlayOrder map={map} tree={map.mine ?? map.tree} firsts={firsts} lengths={lengths} now={now?.segment ?? null} sel={sel} onPick={setSel} at={at} fight={fight} />}
+                ? <PlayOrder map={map} tree={map.tree} firsts={firsts} lengths={lengths} leftOut={piece.left_out} onToggle={toggle} marks={marks} onPick={setSel} at={at} fight={fight} />
+                : <PlayOrder map={map} tree={map.mine ?? map.tree} firsts={firsts} lengths={lengths} marks={marks} onPick={setSel} at={at} fight={fight} />}
             </div>
           )}
         </div>
@@ -599,8 +612,30 @@ function originalLengths(cue: Cue): Map<string, number> {
   return out;
 }
 
-type Pickable = { sel: string | null; onPick: (source: string) => void; at: (source: string | null) => PlayedAt; now: string | null;
-  lengths: Map<string, number> };
+/** What the lines of a piece share. onPick and at keep one identity (useStable in PieceView), and the slot selected
+    and the segment a fight is at come through `marks`, so the lines draw again only when their own look changes. */
+type Pickable = { marks: MarkStore; onPick: (source: string) => void; at: (source: string | null) => PlayedAt; lengths: Map<string, number> };
+
+/** The slot selected and the segment a fight is at, as the lines of a piece look at them: each line asks whether it
+    is the one (useMarked) and draws again only when that answer changes, so a click on a battle's music draws two
+    or three lines, not hundreds. */
+type Marks = { sel: string | null; now: string | null };
+function markStore(first: Marks) {
+  let v = first;
+  const subs = new Set<() => void>();
+  return {
+    get: () => v,
+    set(next: Marks) { if (next.sel !== v.sel || next.now !== v.now) { v = next; subs.forEach((f) => f()); } },
+    subscribe(f: () => void) { subs.add(f); return () => { subs.delete(f); }; },
+  };
+}
+type MarkStore = ReturnType<typeof markStore>;
+/** Whether the slot `source` is selected, and whether a fight is at the segment `seg`. */
+function useMarked(marks: MarkStore, source: string | null, seg?: string) {
+  const sel = useSyncExternalStore(marks.subscribe, () => !!source && marks.get().sel === source);
+  const now = useSyncExternalStore(marks.subscribe, () => seg !== undefined && marks.get().now === seg);
+  return { sel, now };
+}
 
 /** The play order as people read it, playing as the game's does: a group with one thing in it, played once, is that
     thing, and a group in order inside another, played once, runs on in it. The item the music starts on stays. */
@@ -620,89 +655,106 @@ function readable(n: PlayNode, entry: string): PlayNode {
     Laid out to be read at a glance, as the Wiki is: a group is a card under a header with the icon and name of what
     it does (bigger at the top, smaller further in, each level a shade darker), and what it holds is joined by what
     it means: "→" for in order, "or" for one at random. Segments flow on a line; a short choice of segments (`pick`)
-    and a run of segments in order (`run`) take a line or less of their own, without a header. */
-function PlayOrder({ map, tree, firsts, leftOut, onToggle, now, sel, onPick, at, fight }: Pickable & {
-  map: PlaylistMap; tree: PlayNode; firsts: Map<string, string>; leftOut?: Set<string>; onToggle?: (item: string) => void; fight: boolean;
+    and a run of segments in order (`run`) take a line or less of their own, without a header.
+
+    Drawn once for the piece and its audio (a battle's music has over a thousand elements); a click reaches only the
+    segments it changes (`marks`). onToggle keeps one identity too. */
+function PlayOrder({ map, tree, firsts, leftOut, onToggle, marks, onPick, at, fight }: Pickable & {
+  map: PlaylistMap; tree: PlayNode; firsts: Map<string, string>; leftOut?: string[]; onToggle?: (item: string) => void; fight: boolean;
 }) {
   const { project } = useEditor();
+  const assignments = project?.assignments;
   const shown = useMemo(() => readable(tree, map.entry), [tree, map.entry]);
-  const segments = (n: PlayNode) => !!n.children?.length && n.children.every((c) => c.segment !== undefined);
-  const plain = (n: PlayNode) => n.segment === undefined && n.loop === 1 && n.item !== map.entry;
-  const isPick = (n: PlayNode) => plain(n) && (n.rs === 2 || n.rs === 3) && segments(n) && n.children!.length <= 4;
-  const isRun = (n: PlayNode) => plain(n) && !n.rs && segments(n);
-  const inline = (n: PlayNode) => n.segment !== undefined || isPick(n);
+  return useMemo(() => {
+    const away = new Set(leftOut ?? []);
+    const segments = (n: PlayNode) => !!n.children?.length && n.children.every((c) => c.segment !== undefined);
+    const plain = (n: PlayNode) => n.segment === undefined && n.loop === 1 && n.item !== map.entry;
+    const isPick = (n: PlayNode) => plain(n) && (n.rs === 2 || n.rs === 3) && segments(n) && n.children!.length <= 4;
+    const isRun = (n: PlayNode) => plain(n) && !n.rs && segments(n);
+    const inline = (n: PlayNode) => n.segment !== undefined || isPick(n);
 
-  const seg = (n: PlayNode) => {
-    const start = n.item === map.entry, out = leftOut?.has(n.item);
-    const info = map.segments[n.segment!], name = segName(map, n.segment!), source = firsts.get(n.segment!);
-    const a = source ? project?.assignments[source] : undefined;
-    const repeat = n.loop === 1 ? "" : n.loop ? `, ${n.loop} times` : ", repeats";
-    return (
-      <div key={n.item} className={`po-seg${out ? " out" : ""}${now === n.segment ? " now" : ""}${start ? " start" : ""}${source && sel === source ? " sel" : ""}`}
-        data-source={source} data-tip={`${name}, ${fmtTime(info?.ms ?? 0)}${repeat}`} onClick={() => source && onPick(source)}>
-        {onToggle && <input type="checkbox" checked={!out} onChange={() => onToggle(n.item)} onClick={(e) => e.stopPropagation()}
-          aria-label={`Play ${name}`} data-tip={out ? "Put it back" : "Leave it out"} />}
-        {source && <PlayButton kind={audible(a) ? "project" : "vanilla"} source={source} label={name} small at={at(source)} onPlay={() => onPick(source)} />}
-        <span className="po-name">{name}</span>
-        {info?.ms ? <span className="po-len">{fmtTime(info.ms)}</span> : null}
-        {n.loop !== 1 && <span className="po-again" aria-label={n.loop ? `${n.loop} times` : "repeats"}><RepeatIcon />{n.loop || ""}</span>}
-      </div>
-    );
-  };
-  /** Things joined by what the group does with them: segments and short choices on lines, the rest under each other. */
-  const joined = (kids: PlayNode[], k: (typeof KIND)[number], depth: number) => {
-    const out: React.ReactNode[] = [];
-    let line: React.ReactNode[] = [];
-    const flush = () => { if (line.length) out.push(<div key={`l${out.length}`} className="po-line">{line}</div>); line = []; };
-    const then = (i: number) => out.push(<div key={`t${i}`} className="po-then" aria-hidden><span>{k.then}</span></div>);
-    kids.forEach((c, i) => {
-      if (inline(c)) {
-        if (line.length) line.push(<span key={`j${i}`} className={`po-join${k.join === "or" ? " word" : ""}`} aria-hidden>{k.join}</span>);
-        else if (out.length) then(i); // a line after a group
-        line.push(c.segment !== undefined ? seg(c) : pick(c));
-      } else {
-        flush();
-        if (out.length) then(i);
-        out.push(node(c, depth + 1));
+    const seg = (n: PlayNode) => {
+      const source = firsts.get(n.segment!) ?? null;
+      return <PoSeg key={n.item} n={n} name={segName(map, n.segment!)} ms={map.segments[n.segment!]?.ms ?? 0} source={source}
+        kind={audible(source ? assignments?.[source] : undefined) ? "project" : "vanilla"} start={n.item === map.entry}
+        out={away.has(n.item)} marks={marks} onPick={onPick} onToggle={onToggle} at={at} />;
+    };
+    /** Things joined by what the group does with them: segments and short choices on lines, the rest under each other. */
+    const joined = (kids: PlayNode[], k: (typeof KIND)[number], depth: number) => {
+      const out: React.ReactNode[] = [];
+      let line: React.ReactNode[] = [];
+      const flush = () => { if (line.length) out.push(<div key={`l${out.length}`} className="po-line">{line}</div>); line = []; };
+      const then = (i: number) => out.push(<div key={`t${i}`} className="po-then" aria-hidden><span>{k.then}</span></div>);
+      kids.forEach((c, i) => {
+        if (inline(c)) {
+          if (line.length) line.push(<span key={`j${i}`} className={`po-join${k.join === "or" ? " word" : ""}`} aria-hidden>{k.join}</span>);
+          else if (out.length) then(i); // a line after a group
+          line.push(c.segment !== undefined ? seg(c) : pick(c));
+        } else {
+          flush();
+          if (out.length) then(i);
+          out.push(node(c, depth + 1));
+        }
+      });
+      flush();
+      return out;
+    };
+    const pick = (n: PlayNode) => {
+      const k = KIND[n.rs ?? 0];
+      return (
+        <span key={n.item} className={`po-pick k${n.rs}`} data-tip={k.name} data-tip-more={k.tip}>
+          <k.Icon />{n.children!.flatMap((c, i) => [i ? <span key={`o${i}`} className="po-join word" aria-hidden>{k.join}</span> : null, seg(c)])}
+        </span>
+      );
+    };
+    const node = (n: PlayNode, depth: number): React.ReactNode => {
+      if (n.segment !== undefined) return seg(n);
+      const k = KIND[n.rs ?? 0], start = n.item === map.entry;
+      if (isRun(n)) {
+        return <div key={n.item} className="po-run" data-tip={k.name} data-tip-more={k.tip}><k.Icon />{joined(n.children!, k, depth)}</div>;
       }
-    });
-    flush();
-    return out;
-  };
-  const pick = (n: PlayNode) => {
-    const k = KIND[n.rs ?? 0];
-    return (
-      <span key={n.item} className={`po-pick k${n.rs}`} data-tip={k.name} data-tip-more={k.tip}>
-        <k.Icon />{n.children!.flatMap((c, i) => [i ? <span key={`o${i}`} className="po-join word" aria-hidden>{k.join}</span> : null, seg(c)])}
-      </span>
-    );
-  };
-  const node = (n: PlayNode, depth: number): React.ReactNode => {
-    if (n.segment !== undefined) return seg(n);
-    const k = KIND[n.rs ?? 0], start = n.item === map.entry;
-    if (isRun(n)) {
-      return <div key={n.item} className="po-run" data-tip={k.name} data-tip-more={k.tip}><k.Icon />{joined(n.children!, k, depth)}</div>;
-    }
-    return (
-      <section key={n.item} className={`po-group k${n.rs ?? 0} d${Math.min(depth, 3)}${start ? " start" : ""}`}>
-        <header className="po-head">
-          <span className="po-kind" data-tip={k.tip}><k.Icon />{k.name}</span>
-          {n.loop !== 1 && <span className="po-pill" data-tip={n.loop ? `Plays ${n.loop} times, then moves on` : "Plays again and again until the music changes"}>
-            <RepeatIcon />{n.loop ? `${n.loop} times` : "repeats"}</span>}
-          {start && <span className="po-pill start" data-tip={fight ? "Where the music starts when a fight begins" : "Where the music starts each time it comes on"}>
-            {fight ? "Fights start here" : "Starts here"}</span>}
-        </header>
-        <div className="po-kids">{joined(n.children ?? [], k, depth)}</div>
-      </section>
-    );
-  };
-  return <div className="po">{node(shown, 0)}</div>;
+      return (
+        <section key={n.item} className={`po-group k${n.rs ?? 0} d${Math.min(depth, 3)}${start ? " start" : ""}`}>
+          <header className="po-head">
+            <span className="po-kind" data-tip={k.tip}><k.Icon />{k.name}</span>
+            {n.loop !== 1 && <span className="po-pill" data-tip={n.loop ? `Plays ${n.loop} times, then moves on` : "Plays again and again until the music changes"}>
+              <RepeatIcon />{n.loop ? `${n.loop} times` : "repeats"}</span>}
+            {start && <span className="po-pill start" data-tip={fight ? "Where the music starts when a fight begins" : "Where the music starts each time it comes on"}>
+              {fight ? "Fights start here" : "Starts here"}</span>}
+          </header>
+          <div className="po-kids">{joined(n.children ?? [], k, depth)}</div>
+        </section>
+      );
+    };
+    return <div className="po">{node(shown, 0)}</div>;
+  }, [shown, map, firsts, leftOut, assignments, marks, onPick, onToggle, at, fight]);
 }
+
+/** A segment of the play order: ▶ plays what the project plays there, a click selects it, and with onToggle
+    (Original) a tick leaves it in or out. */
+const PoSeg = memo(function PoSeg({ n, name, ms, source, kind, start, out, marks, onPick, onToggle, at }: {
+  n: PlayNode; name: string; ms: number; source: string | null; kind: "vanilla" | "project"; start: boolean; out: boolean;
+  marks: MarkStore; onPick: (source: string) => void; onToggle?: (item: string) => void; at: (source: string | null) => PlayedAt;
+}) {
+  const { sel, now } = useMarked(marks, source, n.segment);
+  const repeat = n.loop === 1 ? "" : n.loop ? `, ${n.loop} times` : ", repeats";
+  return (
+    <div className={`po-seg${out ? " out" : ""}${now ? " now" : ""}${start ? " start" : ""}${sel ? " sel" : ""}`}
+      data-source={source ?? undefined} data-tip={`${name}, ${fmtTime(ms)}${repeat}`} onClick={() => source && onPick(source)}>
+      {onToggle && <input type="checkbox" checked={!out} onChange={() => onToggle(n.item)} onClick={(e) => e.stopPropagation()}
+        aria-label={`Play ${name}`} data-tip={out ? "Put it back" : "Leave it out"} />}
+      {source && <PlayButton kind={kind} source={source} label={name} small at={at(source)} onPlay={() => onPick(source)} />}
+      <span className="po-name">{name}</span>
+      {ms ? <span className="po-len">{fmtTime(ms)}</span> : null}
+      {n.loop !== 1 && <span className="po-again" aria-label={n.loop ? `${n.loop} times` : "repeats"}><RepeatIcon />{n.loop || ""}</span>}
+    </div>
+  );
+});
 
 /** Music whose segments play several layers at once (the Extraction music): the segments as rows, and as columns
     the layers that play at each switch value (low and high intensity), the slot in each cell. Shown when some
     segment has more than one layer. A cell selects its slot. */
-function Layers({ cue, sel, onPick, at }: Omit<Pickable, "now"> & { cue: Cue }) {
+const Layers = memo(function Layers({ cue, marks, onPick, at }: Pickable & { cue: Cue }) {
   const { project } = useEditor();
   const rows = useMemo(() => {
     const seen = new Set<string>(), out: { name: string; cells: Map<string, { source: string; label: string }> }[] = [];
@@ -742,31 +794,39 @@ function Layers({ cue, sel, onPick, at }: Omit<Pickable, "now"> & { cue: Cue }) 
             {cols.map((c) => {
               const cell = r.cells.get(c);
               if (!cell) return <span key={c} role="cell" />;
-              const a = project?.assignments[cell.source];
-              return (
-                <span key={c} role="cell" className={`st-cell${a ? " mine" : ""}${sel === cell.source ? " sel" : ""}`} data-tip={cell.label || undefined}
-                  data-source={cell.source} onClick={() => onPick(cell.source)}>
-                  <PlayButton kind={audible(a) ? "project" : "vanilla"} source={cell.source} label={`${r.name}, ${head(c)}`} small at={at(cell.source)} onPlay={() => onPick(cell.source)} />
-                  <span className="st-cname">{a ? (a.silence ? "Silence" : a.name) : "Original"}</span>
-                </span>
-              );
+              return <LayerCell key={c} source={cell.source} label={cell.label} a={project?.assignments[cell.source]}
+                name={`${r.name}, ${head(c)}`} marks={marks} onPick={onPick} at={at} />;
             })}
           </div>
         ))}
       </div>
     </div>
   );
+});
+
+function LayerCell({ source, label, a, name, marks, onPick, at }: Omit<Pickable, "lengths"> & {
+  source: string; label: string; a?: Assignment; name: string;
+}) {
+  const { sel } = useMarked(marks, source);
+  return (
+    <span role="cell" className={`st-cell${a ? " mine" : ""}${sel ? " sel" : ""}`} data-tip={label || undefined}
+      data-source={source} onClick={() => onPick(source)}>
+      <PlayButton kind={audible(a) ? "project" : "vanilla"} source={source} label={name} small at={at(source)} onPlay={() => onPick(source)} />
+      <span className="st-cname">{a ? (a.silence ? "Silence" : a.name) : "Original"}</span>
+    </span>
+  );
 }
 
 /** A segment as a line, as a slot's in Audio: its original (▶, number, name, length) and what the project puts
     there, which `children` draw. A click selects it. */
-function SegLine({ n, seg, map, source, a, sel, onPick, at, now, lengths, drop, place, children }: Pickable & {
+function SegLine({ n, seg, map, source, a, marks, onPick, at, lengths, drop, place, children }: Pickable & {
   n: number; seg: string; map: PlaylistMap; source: string | null; a?: Assignment; drop?: string; place?: number; children: React.ReactNode;
 }) {
   const name = segName(map, seg), ms = lengths.get(seg) ?? 0;
+  const { sel, now } = useMarked(marks, source, seg);
   return (
-    <div className={`st-line${source && sel === source ? " selected" : ""}${now === seg ? " now" : ""}${a ? " assigned" : ""}`}
-      data-source={source ?? undefined} data-drop={drop} data-place={place} onClick={() => source && onPick(source)} role="option" aria-selected={!!source && sel === source}>
+    <div className={`st-line${sel ? " selected" : ""}${now ? " now" : ""}${a ? " assigned" : ""}`}
+      data-source={source ?? undefined} data-drop={drop} data-place={place} onClick={() => source && onPick(source)} role="option" aria-selected={sel}>
       <div className="st-orig">
         {source ? <PlayButton kind="vanilla" source={source} label={`the original ${name}`} at={at(source)} onPlay={() => onPick(source)} /> : <span className="play-gap" />}
         <span className="st-n">{n}</span>
@@ -794,7 +854,7 @@ function NewAudio({ source, a, name, at, onPick, children }: {
 
 /** One song: the song, the pieces in the segments they went into, and the ways to cut it again or choose another. A
     song dropped here opens the slice tool with it. */
-function SongBody({ map, cue, piece, firsts, fight, onChoose, onRecut, ...pick }: Pickable & {
+const SongBody = memo(function SongBody({ map, cue, piece, firsts, fight, onChoose, onRecut, ...pick }: Pickable & {
   map: PlaylistMap; cue: Cue; piece: Piece; firsts: Map<string, string>; fight: boolean; onChoose: () => void; onRecut: () => void;
 }) {
   const { project } = useEditor();
@@ -833,7 +893,7 @@ function SongBody({ map, cue, piece, firsts, fight, onChoose, onRecut, ...pick }
       </div>
     </div>
   );
-}
+});
 
 type Place = { seg: string; source: string | null; a?: Assignment };
 type PlaceSet = ({ keep: number } | { file: string } | null)[];
@@ -964,7 +1024,7 @@ function usePlaceDrag(places: Place[], move: (from: number, to: number) => void)
 /** Playlist: a line per place for a song, in play order. A place takes a song with a click or a drop (several fill
     the places after it too), plays it, moves it up or down (the arrows, Alt+↑ ↓, or a drag), or empties it. Add
     songs fills the empty places. */
-function PlaylistBody({ map, piece, places, cueId, current, put, onSet, fight, ...pick }: Pickable & {
+const PlaylistBody = memo(function PlaylistBody({ map, piece, places, cueId, current, put, onSet, fight, ...pick }: Pickable & {
   map: PlaylistMap; piece: Piece; places: Place[]; cueId: string; current: () => PlaceSet;
   put: (k: number, files: string[]) => void; onSet: (p: Piece | null, label: string) => void; fight: boolean;
 }) {
@@ -999,7 +1059,7 @@ function PlaylistBody({ map, piece, places, cueId, current, put, onSet, fight, .
   };
   /** Alt+↑ ↓ on the selected song, while the Soundtrack shows. */
   const moveSelected = (d: -1 | 1) => {
-    const k = places.findIndex((x) => x.source === pick.sel);
+    const k = places.findIndex((x) => x.source === pick.marks.get().sel);
     if (nav.get().tab !== "soundtrack" || k < 0 || !places[k].a || !places[k + d]?.source) return false;
     move(k, d);
   };
@@ -1051,7 +1111,7 @@ function PlaylistBody({ map, piece, places, cueId, current, put, onSet, fight, .
       </div>
     </div>
   );
-}
+});
 
 const LENGTHS = [[60_000, "1 min"], [150_000, "2½ min"], [300_000, "5 min"]] as const;
 

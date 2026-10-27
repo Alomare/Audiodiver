@@ -387,7 +387,7 @@ function Theme() {
           <span className="field-label">Warmth
             {t.warmth !== DEFAULT_WARMTH && <button className="link-inline" onClick={() => theme.set({ warmth: DEFAULT_WARMTH })}>Back to default</button>}
           </span>
-          <input type="range" className="hue-slider" style={{ background: warm }} min={WARMTH[0]} max={WARMTH[1]} step={0.05} value={t.warmth}
+          <input type="range" className="hue-slider" style={{ background: warm }} min={WARMTH[0]} max={WARMTH[1]} step={0.05} value={t.warmth} data-scale-tip
             disabled={!t.night} aria-label="Night mode warmth" aria-valuetext={`${Math.round(t.warmth * 100)}%`}
             onChange={(e) => theme.set({ warmth: Number(e.target.value) })} />
           {!t.night && <small>Night mode is off.</small>}
@@ -396,7 +396,7 @@ function Theme() {
           <span className="field-label">Primary colour
             {t.hue !== YELLOW_HUE && <button className="link-inline" onClick={() => theme.set({ hue: YELLOW_HUE })}>Back to yellow</button>}
           </span>
-          <input type="range" className="hue-slider" style={{ background: rainbow }} min={0} max={359} step={1} value={t.hue} aria-label="Primary colour hue"
+          <input type="range" className="hue-slider" style={{ background: rainbow }} min={0} max={359} step={1} value={t.hue} aria-label="Primary colour hue" data-scale-tip
             onChange={(e) => theme.set({ hue: Number(e.target.value) })} />
           <small>Main buttons, new audio and edits.</small>
         </div>
@@ -404,7 +404,7 @@ function Theme() {
           <span className="field-label">Secondary colour
             {t.hue2 !== BLUE_HUE && <button className="link-inline" onClick={() => theme.set({ hue2: BLUE_HUE })}>Back to blue</button>}
           </span>
-          <input type="range" className="hue-slider second" style={{ background: rainbow2 }} min={0} max={359} step={1} value={t.hue2} aria-label="Secondary colour hue"
+          <input type="range" className="hue-slider second" style={{ background: rainbow2 }} min={0} max={359} step={1} value={t.hue2} aria-label="Secondary colour hue" data-scale-tip
             onChange={(e) => theme.set({ hue2: Number(e.target.value) })} />
           <small>Links, the open tab, the selection and the focus ring{modeOf(t) === "light" ? ", and primary-coloured text and lines on the light theme" : ""}.</small>
         </div>

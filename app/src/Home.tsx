@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { call } from "./api";
+import { call, projectIconUrl } from "./api";
 import { DISCORD_URL, HOME_ART, KOFI_URL, TICKER_URL } from "./content";
 import { DiscordIcon, KofiIcon, NextIcon, PrevIcon } from "./Icons";
 import { nav } from "./nav";
@@ -7,7 +7,7 @@ import { openUrl } from "./platform";
 import { useEditor } from "./store";
 import { DEFAULT_SIZE, motionOn, useTheme, useThemeValue } from "./theme";
 
-/** Where the app starts, laid out like the game's menu: a project to make or open (the last ones opened, and which
+/** Where the app starts, laid out like the game's menu: a project to make or open (the last one opened, and which
     one is loaded), and below, Repatch and Combine. With no project open, the Project tab lists all the recent
     projects. Audiodiver Utils has no Home. */
 export function Home() {
@@ -21,12 +21,15 @@ export function Home() {
           </header>
 
           {/* a menu, as the game's own: the yellow item is the way in; the Tools tab's two pages after a gap.
-              It stays the same with a project open: a line under Open project says which, and leads to it */}
+              Open project holds the last project opened, after its words. It stays the same with a project open: a
+              line under Open project says which, and leads to it */}
           <nav className="home-menu" aria-label="Start">
             <button className="menu-item hot" onClick={actions.newProject} data-tip="Start a mod" data-tip-cmd="newProject">New project</button>
-            <button className="menu-item" onClick={() => actions.openProject()} data-tip="Open a .audi project or a .audipack pack" data-tip-cmd="openProject"
-              data-tip-more="A pack is a project and the files it uses, in one file">Open project</button>
-            <Recent />
+            <div className="menu-item menu-open">
+              <button className="menu-open-btn" onClick={() => actions.openProject()} data-tip="Open a .audi project or a .audipack pack" data-tip-cmd="openProject"
+                data-tip-more="A pack is a project and the files it uses, in one file">Open project</button>
+              <Recent />
+            </div>
             {project && (
               <p className="home-loaded">
                 <span>Loaded: <b data-tip={project.path} data-tip-clip>{project.name}</b></span>
@@ -53,33 +56,33 @@ export function Home() {
   );
 }
 
-type Info = { path: string; exists: boolean; readable: boolean; name: string };
-const RECENT_SHOWN = 3;
+type Info = { path: string; exists: boolean; readable: boolean; name: string; modified: number | null };
+const RECENT_ASKED = 4; // the last projects looked at, for one that is still there
 
-/** The last projects opened, under Open project: each name opens it (the loaded one isn't among them). Projects
-    that are gone or can't be read are left out. */
+/** The last project opened (not the loaded one), inside Open project: the mod's icon and name, and a click opens it.
+    A project that is gone or can't be read gives way to the one before. The Project tab lists them all. */
 function Recent() {
   const { recent, project, actions } = useEditor();
-  const paths = recent.filter((p) => p !== project?.path).slice(0, RECENT_SHOWN + 3);
+  const paths = recent.filter((p) => p !== project?.path).slice(0, RECENT_ASKED);
   const key = paths.join("\n");
   const [info, setInfo] = useState<Record<string, Info>>({});
+  const [noIcon, setNoIcon] = useState("");
   useEffect(() => {
     if (!paths.length) return;
     let live = true;
     call<Info[]>("projects_info", { paths }).then((list) => { if (live) setInfo(Object.fromEntries(list.map((i) => [i.path, i]))); }).catch(() => {});
     return () => { live = false; };
   }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
-  const shown = paths.filter((p) => info[p]?.exists && info[p].readable).slice(0, RECENT_SHOWN);
-  if (!shown.length) return null;
+  const p = paths.find((x) => info[x]?.exists && info[x].readable);
+  if (!p) return null;
   return (
-    <p className="home-loaded home-recent">
-      <span>Recent:</span>
-      <span className="home-recent-list">
-        {shown.map((p) => (
-          <button key={p} className="link-text" onClick={() => actions.openProject(p)} data-tip={p}>{info[p].name}</button>
-        ))}
-      </span>
-    </p>
+    <button className="menu-recent" onClick={() => actions.openProject(p)} data-tip={`Open ${info[p].name}`} data-tip-more={p}>
+      {/* a project whose image is gone keeps the space, so the name doesn't move */}
+      {noIcon === p ? <span className="menu-recent-icon" /> : (
+        <img className="menu-recent-icon" src={projectIconUrl(p, String(info[p].modified ?? 0))} alt="" draggable={false} onError={() => setNoIcon(p)} />
+      )}
+      <span className="menu-recent-name">{info[p].name}</span>
+    </button>
   );
 }
 

@@ -286,14 +286,14 @@ export function WaveZoom({ zoom, foot }: { zoom: WaveZoomState; foot?: ReactNode
   return (
     <>
       <div className="zoom-level">
-        <input type="range" className="r-zoom" style={rangeVars(y, 0, 100)} min={0} max={100} step={0.1} value={y}
+        <input type="range" className="r-zoom" style={rangeVars(y, 0, 100)} min={0} max={100} step={0.1} value={y} data-scale-tip
           onChange={(e) => zoom.zoomY(fromSlider(Number(e.target.value), ZOOM_Y_MAX))} aria-label="Level zoom" aria-orientation="vertical"
           aria-valuetext={`${Math.round(zoom.y * 10) / 10} times as tall`} data-tip="Level zoom" data-tip-side="left"
           data-tip-more="Taller, to see quiet audio. It plays as loud as before. Ctrl+wheel on the waveforms zooms too" />
       </div>
       <div className="zoom-foot">
         {foot}
-        <input type="range" className="r-zoom zoom-time" style={rangeVars(x, 0, 100)} min={0} max={100} step={0.1} value={x} disabled={zoom.maxX <= 1}
+        <input type="range" className="r-zoom zoom-time" style={rangeVars(x, 0, 100)} min={0} max={100} step={0.1} value={x} disabled={zoom.maxX <= 1} data-scale-tip
           onChange={(e) => zoom.zoomX(fromSlider(Number(e.target.value), zoom.maxX))} aria-label="Time zoom"
           aria-valuetext={`${Math.round(zoom.x * 10) / 10} times as wide`} data-tip="Time zoom" data-tip-side="top"
           data-tip-more="Wider, to place cue points closely. The wheel on the waveforms zooms too, and Shift+wheel scrolls" />

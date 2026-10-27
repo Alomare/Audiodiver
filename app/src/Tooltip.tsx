@@ -143,3 +143,58 @@ export function TooltipLayer() {
     </div>
   );
 }
+
+type Scale = { left: number; top: number; side: "top" | "left"; value: number };
+const SCALE_MS = 900; // how long the number stays after a key moved the slider
+
+/** Where a slider is, from 0 to 100, beside its knob while it is dragged (and for a moment after a key moves it): for
+    the sliders that have no number of their own next to them (zoom, the preview volume, the colours). A slider gets
+    it with `data-scale-tip`. One layer mounted once, as the tooltips. */
+export function ScaleTipLayer() {
+  const [tip, setTip] = useState<Scale | null>(null);
+  useEffect(() => {
+    let held: HTMLInputElement | null = null, timer = 0;
+    const scaled = (t: EventTarget | null) =>
+      t instanceof HTMLInputElement && t.type === "range" && t.dataset.scaleTip !== undefined && !t.disabled ? t : null;
+    const place = (input: HTMLInputElement) => {
+      const r = input.getBoundingClientRect(), min = Number(input.min || 0), max = Number(input.max || 100);
+      const p = Math.max(0, Math.min(1, (Number(input.value) - min) / (max - min || 1)));
+      const thumb = parseFloat(getComputedStyle(input).getPropertyValue("--thumb")) || 16;
+      const value = Math.round(p * 100);
+      // a slider turned upright (the level zoom) is taller than wide: the number goes to the left of its knob
+      setTip(r.height > r.width
+        ? { side: "left", value, left: r.left, top: r.bottom - thumb / 2 - p * (r.height - thumb) }
+        : { side: "top", value, top: r.top, left: r.left + thumb / 2 + p * (r.width - thumb) });
+    };
+    const down = (e: PointerEvent) => {
+      const input = scaled(e.target);
+      if (!input || e.button !== 0) return;
+      held = input;
+      clearTimeout(timer);
+      requestAnimationFrame(() => held === input && place(input)); // after the press has moved the knob
+    };
+    const up = () => { if (held) { held = null; setTip(null); } };
+    const moved = (e: Event) => {
+      const input = scaled(e.target);
+      if (!input) return;
+      place(input);
+      clearTimeout(timer);
+      if (held !== input) timer = window.setTimeout(() => setTip(null), SCALE_MS);
+    };
+    document.addEventListener("pointerdown", down, true);
+    window.addEventListener("pointerup", up, true);
+    window.addEventListener("pointercancel", up, true);
+    window.addEventListener("blur", up);
+    document.addEventListener("input", moved, true);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener("pointerdown", down, true);
+      window.removeEventListener("pointerup", up, true);
+      window.removeEventListener("pointercancel", up, true);
+      window.removeEventListener("blur", up);
+      document.removeEventListener("input", moved, true);
+    };
+  }, []);
+  if (!tip) return null;
+  return <div className={`tooltip scale-tip ${tip.side}`} aria-hidden style={{ left: Math.round(tip.left), top: Math.round(tip.top) }}>{tip.value}</div>;
+}

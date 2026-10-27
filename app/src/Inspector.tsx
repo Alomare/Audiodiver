@@ -274,7 +274,7 @@ function CopyId({ slot }: { slot: Slot }) {
     catch { quick("Couldn't copy to the clipboard", "info"); }
   };
   return (
-    <button className="id" data-tip={`Copy the ${what} id`} onClick={copy}>
+    <button className="id" data-tip={`Copy the ${what} ID`} onClick={copy}>
       {done ? "Copied" : id}
     </button>
   );

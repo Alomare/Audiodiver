@@ -243,8 +243,8 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color])
   padding: 0 16px; background: inherit; border: 1px solid var(--line); box-shadow: 0 8px 22px var(--shadow);
   color: var(--text); text-align: left; white-space: nowrap; pointer-events: none; opacity: 0; visibility: hidden;
   transition: opacity var(--t1), visibility 0s linear var(--t1); }
-:root[data-bar="left"] .tab-fly { left: 100%; border-left: 0; border-radius: 0 4px 4px 0; }
-:root[data-bar="right"] .tab-fly { right: 100%; border-right: 0; border-radius: 4px 0 0 4px; }
+:root[data-bar="left"] .tab-fly { left: 100%; border-left: 0; border-radius: 0 2px 2px 0; }
+:root[data-bar="right"] .tab-fly { right: 100%; border-right: 0; border-radius: 2px 0 0 2px; }
 .tab-fly b { font-family: var(--title); font-size: calc(15px * var(--fs)); font-weight: 700; }
 .tab-fly-tip { display: flex; align-items: baseline; gap: 10px; font-size: calc(13px * var(--fs)); color: var(--muted); }
 .tab-fly-tip kbd { font-size: calc(12px * var(--fs)); }
@@ -445,11 +445,11 @@ input[type="range"] {
 input[type="range"]:disabled { cursor: default; opacity: .45; }
 input[type="range"]:focus-visible { outline: none; }
 input[type="range"]::-webkit-slider-runnable-track {
-  height: var(--track); border-radius: 999px; background: linear-gradient(to right, var(--fill) 0 var(--at), var(--rest) 0);
+  height: var(--track); border-radius: 0; background: linear-gradient(to right, var(--fill) 0 var(--at), var(--rest) 0);
 }
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none; box-sizing: border-box; width: var(--thumb); height: var(--thumb); margin-top: calc((var(--track) - var(--thumb)) / 2);
-  border-radius: 50%; background: var(--raised); border: 3px solid var(--fill); transition: background var(--t1, .12s), transform var(--t1, .12s);
+  border-radius: 2px; background: var(--raised); border: 3px solid var(--fill); transition: background var(--t1, .12s), transform var(--t1, .12s);
 }
 input[type="range"]:hover:not(:disabled)::-webkit-slider-thumb { background: var(--fill); }
 input[type="range"]:active:not(:disabled)::-webkit-slider-thumb { transform: scale(1.12); }
@@ -463,7 +463,7 @@ input.r-fader::-webkit-slider-runnable-track {
     linear-gradient(to right, var(--rest) min(var(--at), var(--zero)), var(--fill) 0 max(var(--at), var(--zero)), var(--rest) 0);
 }
 input.r-fader::-webkit-slider-thumb {
-  width: var(--thumb); height: 24px; margin-top: calc((var(--track) - 24px) / 2); border-radius: 3px; border: 1px solid var(--muted);
+  width: var(--thumb); height: 24px; margin-top: calc((var(--track) - 24px) / 2); border-radius: 1px; border: 1px solid var(--muted);
   background: linear-gradient(to bottom, var(--raised) 0 calc(50% - 1.5px), var(--fill) 0 calc(50% + 1.5px), var(--raised) 0);
   box-shadow: 0 1px 3px var(--shadow);
 }
@@ -474,13 +474,12 @@ input.r-volume { --thumb: 10px; --track: 3px; --fill: var(--muted); height: 16px
 input.r-volume::-webkit-slider-thumb { background: var(--text); border: 0; }
 input.r-volume:hover:not(:disabled)::-webkit-slider-thumb { background: var(--text); transform: scale(1.2); }
 
-/* a zoom: a dotted rail, nothing filled, a hollow ring */
-input.r-zoom { --thumb: 13px; --track: 2px; --fill: var(--steel); height: 18px; }
-input.r-zoom::-webkit-slider-runnable-track { background: repeating-linear-gradient(to right, var(--steel-dim) 0 2px, transparent 2px 5px); border-radius: 0; }
+/* a zoom: a thin flat line, lit in the text colour up to a hollow knob, as it changes only the view */
+input.r-zoom { --thumb: 13px; --track: 3px; --fill: color-mix(in srgb, var(--text) 72%, transparent); height: 18px; }
 input.r-zoom::-webkit-slider-thumb { background: var(--bg); border-width: 2px; }
 
 /* a colour: the hue or warmth is the track itself, and the knob is a swatch of the colour chosen */
-input.hue-slider { height: 14px; border-radius: 7px; margin: 4px 0; --thumb: 20px; --track: 14px; }
+input.hue-slider { height: 14px; border-radius: 2px; margin: 4px 0; --thumb: 20px; --track: 14px; }
 input.hue-slider::-webkit-slider-runnable-track { background: none; }
 input.hue-slider::-webkit-slider-thumb { background: var(--accent); border: 3px solid #fff; box-shadow: 0 0 0 1px rgb(0 0 0 / .45), 0 2px 4px rgb(0 0 0 / .35); cursor: ew-resize; }
 input.hue-slider:hover:not(:disabled)::-webkit-slider-thumb { background: var(--accent); }
@@ -600,8 +599,8 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .tl-rows { grid-area: 1 / 1; min-height: 0; display: flex; flex-direction: column; gap: calc(6px * var(--sp)); }
 .timeline .zoom-foot { padding-left: calc(64px * var(--fs) + 10px); } /* under the waveforms, past the labels */
 /* under zoomed-in waveforms: the whole audio, the stretch in view as a handle */
-.wave-scroll { flex: 1 1 0; position: relative; height: 9px; background: var(--bg); border: 1px solid var(--line-soft); border-radius: 5px; cursor: pointer; }
-.wave-thumb { position: absolute; top: 1px; bottom: 1px; min-width: 10px; background: var(--muted); opacity: .55; border-radius: 4px; cursor: grab; }
+.wave-scroll { flex: 1 1 0; position: relative; height: 9px; background: var(--bg); border: 1px solid var(--line-soft); border-radius: 2px; cursor: pointer; }
+.wave-thumb { position: absolute; top: 1px; bottom: 1px; min-width: 10px; background: var(--muted); opacity: .55; border-radius: 1px; cursor: grab; }
 .wave-thumb:hover, .wave-thumb:active { opacity: .9; }
 .tl-row { flex: 1 1 0; min-height: calc(32px * var(--fs)); display: grid; grid-template-columns: calc(64px * var(--fs)) 1fr; grid-template-rows: minmax(0, 1fr); gap: 10px; align-items: stretch; }
 .tl-label { align-self: center; display: flex; flex-direction: column; font-size: calc(12px * var(--fs)); color: var(--muted); }
@@ -794,7 +793,7 @@ button.ctag:hover { background: color-mix(in oklch, var(--c) 24%, transparent); 
 .grp-meta .tag { margin-left: 0; }
 /* new takes or a layer: drawn, not typed, so it sits centred on the line like the dot beside it */
 .grp-add { width: calc(22px * var(--fs)); height: calc(22px * var(--fs)); font-size: calc(13px * var(--fs)); color: var(--second-fg);
-  border: 1px solid color-mix(in srgb, var(--second-fg) 45%, transparent); border-radius: 4px; }
+  border: 1px solid color-mix(in srgb, var(--second-fg) 45%, transparent); border-radius: 2px; }
 .grp-add:hover:not(:disabled) { color: var(--second-fg); background: color-mix(in srgb, var(--second-fg) 16%, transparent); border-color: var(--second-fg); }
 /* a transition's or stinger's parts as lines of the slot list (ItemHead's PartHead): the open one is marked like an
    open tab, its slots under it */
@@ -1121,6 +1120,10 @@ details.insp-sec[open]::details-content { block-size: auto; opacity: 1; }
 .tooltip.right { --tip-dx: -3px; }
 .tooltip.left { --tip-dx: 3px; }
 .tooltip.in { animation: tip-in var(--t1) var(--ease) both; }
+/* where a slider is, 0 to 100, over its knob while it moves (ScaleTipLayer): above it, or left of an upright one */
+.tooltip.scale-tip { justify-content: center; min-width: 3.2ch; padding: 2px 7px 3px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.tooltip.scale-tip.top { transform: translate(-50%, calc(-100% - 6px)); }
+.tooltip.scale-tip.left { transform: translate(calc(-100% - 8px), -50%); }
 @keyframes tip-in { from { opacity: 0; transform: translate(var(--tip-dx, 0), var(--tip-dy, 0)); } }
 
 /* a key, wherever one is named */
@@ -1220,7 +1223,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
   color: var(--text); border-left: 3px solid transparent;
   background: linear-gradient(90deg, color-mix(in srgb, var(--raised) 92%, transparent), color-mix(in srgb, var(--raised) 50%, transparent) 70%, transparent);
   transition: background var(--t1), border-color var(--t1); }
-.menu-item:hover, .menu-item:focus-visible { border-left-color: var(--accent-fg);
+.menu-item:hover, .menu-item:focus-visible, .menu-open:has(> .menu-open-btn:focus-visible) { border-left-color: var(--accent-fg);
   background: linear-gradient(90deg, color-mix(in srgb, var(--accent-fg) 16%, transparent), transparent 80%); }
 .menu-item.hot { min-height: calc(53px * var(--fs)); font-size: calc(15.3px * var(--fs)); font-weight: 800; color: var(--accent-ink); border-left-color: var(--accent);
   background: linear-gradient(90deg, var(--accent) 12%, color-mix(in srgb, var(--accent) 70%, transparent) 50%, color-mix(in srgb, var(--accent) 25%, transparent) 80%, transparent); }
@@ -1232,11 +1235,21 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .home-loaded > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .home-loaded b { color: var(--text); font-weight: 600; }
 .home-loaded .link-text { white-space: nowrap; }
-/* the last projects opened, under Open project: each name opens it */
-.home-recent { gap: 12px; }
-.home-recent > span:first-child { flex: none; }
-.home-recent-list { display: flex; flex-wrap: wrap; gap: 2px 12px; min-width: 0; }
-.home-recent .link-text { max-width: 24ch; overflow: hidden; text-overflow: ellipsis; }
+/* Open project with the last project opened in it, right after the words: a solid block with the mod's icon and
+   name, which opens that project. The words' button stretches over the whole strip, under the block. */
+.menu-open { position: relative; gap: 16px; }
+.menu-open-btn { flex: none; font: inherit; font-stretch: inherit; letter-spacing: inherit; text-transform: inherit; }
+.menu-open-btn::after { content: ""; position: absolute; inset: 0; }
+.menu-open-btn:focus-visible { outline: none; } /* the strip shows it */
+.menu-recent { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 9px; min-width: 0;
+  height: calc(32px * var(--fs)); padding: 0 12px 0 4px; background: var(--bg); border: 1px solid var(--line); border-radius: 2px;
+  font: 600 calc(13.5px * var(--fs)) var(--body); letter-spacing: normal; text-transform: none; color: var(--text);
+  transition: border-color var(--t1), background-color var(--t1); }
+.menu-recent:hover { border-color: var(--second-fg); background: color-mix(in srgb, var(--second-fg) 14%, var(--bg)); }
+.menu-open:has(> .menu-recent:hover) { border-left-color: transparent; /* the block lights up, the strip stays as it rests */
+  background: linear-gradient(90deg, color-mix(in srgb, var(--raised) 92%, transparent), color-mix(in srgb, var(--raised) 50%, transparent) 70%, transparent); }
+.menu-recent-icon { flex: none; width: calc(24px * var(--fs)); height: calc(24px * var(--fs)); }
+.menu-recent-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .home-tools { margin-top: calc(32px * var(--sp)); }
 
 /* ---------- the Project tab with no project open: New and Open, then the recent projects as one list of rows, each
@@ -1505,7 +1518,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
    height, so the page doesn't move); the outline steps down below it */
 .wiki-find-dock { position: sticky; top: 0; z-index: 3; height: 0; }
 .wiki-find { position: absolute; top: 10px; right: 16px; display: flex; align-items: center; gap: 4px; width: min(calc(390px * var(--fs)), calc(100% - 32px));
-  padding: 5px 6px 5px 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 3px; box-shadow: 0 8px 22px var(--shadow);
+  padding: 5px 6px 5px 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 2px; box-shadow: 0 8px 22px var(--shadow);
   animation: fade-in var(--t1) ease-out; }
 .wiki-find > .icon { flex: none; color: var(--muted); }
 .wiki-find input { flex: 1; min-width: 0; padding: calc(4px * var(--sp)) 8px; background: var(--bg); border: 1px solid var(--line); border-radius: 2px; }
@@ -1604,7 +1617,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
    bottom middle, in the tooltip's colours. A new one replaces the last. */
 .toast-slot { position: fixed; left: 50%; bottom: calc(44px + 8px * var(--sp)); transform: translateX(-50%); z-index: 35; pointer-events: none; }
 :root[data-bar="bottom"] .toast-slot { bottom: calc(44px + 8px * var(--sp) + var(--bar)); }
-.toast { display: flex; align-items: center; gap: 8px; max-width: min(640px, 80vw); padding: 7px 16px 7px 11px; border-radius: 999px;
+.toast { display: flex; align-items: center; gap: 8px; max-width: min(640px, 80vw); padding: 7px 16px 7px 11px; border-radius: 2px;
   background: var(--text); color: var(--bg); font-size: calc(14px * var(--fs)); font-weight: 500; box-shadow: 0 8px 24px var(--shadow);
   animation: toast-in var(--t2) var(--ease) both; }
 .toast span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1927,7 +1940,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
    under each other are joined by a word between rules ("then", "or") */
 .po { font-size: calc(13px * var(--fs)); }
 .po-group { display: flex; flex-direction: column; gap: 7px; }
-.po-group:not(.d0) { padding: 7px 10px 9px; border: 1px solid var(--line-soft); border-left: 3px solid var(--line); border-radius: 4px;
+.po-group:not(.d0) { padding: 7px 10px 9px; border: 1px solid var(--line-soft); border-left: 3px solid var(--line); border-radius: 2px;
   background: color-mix(in srgb, var(--text) 4%, transparent); }
 .po-group.start { border-left-color: var(--second-fg); }
 .po-head { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; }
@@ -1937,7 +1950,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .po-group.d1 > .po-head .po-kind { font-size: calc(14px * var(--fs)); }
 .po-group.d2 > .po-head .po-kind, .po-group.d3 > .po-head .po-kind { font-size: calc(11.5px * var(--fs)); font-weight: 600; letter-spacing: .06em;
   text-transform: uppercase; color: var(--muted); }
-.po-pill { display: inline-flex; align-items: center; gap: 4px; padding: 0 8px; border: 1px solid var(--line); border-radius: 999px;
+.po-pill { display: inline-flex; align-items: center; gap: 4px; padding: 0 8px; border: 1px solid var(--line); border-radius: 2px;
   color: var(--muted); font-size: calc(12px * var(--fs)); line-height: 1.7; }
 .po-pill.start { border-color: var(--second-fg); color: var(--second-fg); font-weight: 600; }
 .po-kids { display: flex; flex-direction: column; gap: 6px; }
@@ -1950,9 +1963,9 @@ kbd.none { color: var(--faint); font-weight: 400; }
 /* a run of segments in order, and a short choice of segments: a line, without a card */
 .po-run { display: flex; align-items: center; gap: 8px; }
 .po-run > .icon { flex: none; color: var(--faint); }
-.po-pick { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 5px; padding: 2px 6px; border: 1px dashed var(--line); border-radius: 6px; }
+.po-pick { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 5px; padding: 2px 6px; border: 1px dashed var(--line); border-radius: 2px; }
 .po-pick > .icon { color: var(--muted); }
-.po-seg { display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px 2px 3px; border: 1px solid var(--line); border-radius: 4px; background: var(--raised); cursor: pointer; }
+.po-seg { display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px 2px 3px; border: 1px solid var(--line); border-radius: 2px; background: var(--raised); cursor: pointer; }
 .po-seg:has(input) { padding-left: 6px; }
 .po-seg:hover { background: var(--hover); }
 .po-seg.sel { background: var(--sel-bg); border-color: var(--second-fg); }

@@ -97,6 +97,28 @@ def test_a_take_goes_into_a_bank_without_media_and_checks_out():
     assert add.check(wbank.parse(bank), wbank.parse(bank), here)  # without it: the check says what is missing
 
 
+def test_added_audio_goes_into_every_copy_or_keeps_to_the_projects_banks():
+    """plan with build.own_banks: a take and a clip of its own go into every bank with a copy of what they hang from;
+    with project_banks_only, into the project's banks (an imported mod's, else those of its list) that have a copy,
+    and into every copy when none has. Music keeps every copy."""
+    from types import SimpleNamespace
+    from audiodiver.build import own_banks
+    bank = _bank([(2, 10, _sound(30, 100)), (2, 11, _sound(30, 101)), (5, 30, _ranseq(1, [10, 11]))])
+    ix = SimpleNamespace(copies=lambda o: [1, 2, 3] if o in (10, 11, 30) else [], bank_files=lambda b: [bank],
+                         taken=set(), music_banks=[9])
+    wem = b"RIFF" + bytes(60)
+    takes, own = [add.Take(30, 12, 200, wem)], [add.Own(10, 201, wem)]
+    assert set(add.plan(ix, takes, [], own).banks) == {1, 2, 3}
+    p = Project(name="A", project_banks_only=True, imported_banks=[2])
+    assert set(add.plan(ix, takes, [], own, keep=own_banks(p, ix, listed={3})).banks) == {2}
+    p.imported_banks = []
+    assert set(add.plan(ix, takes, [], own, keep=own_banks(p, ix, listed={3, 7})).banks) == {3}
+    assert set(add.plan(ix, takes, [], own, keep=own_banks(p, ix, listed={7})).banks) == {1, 2, 3}
+    assert own_banks(p, ix, listed={3})([3, 9]) == [3, 9]
+    assert own_banks(Project(name="A", project_banks_only=True, every_bank=True), ix) is None
+    assert own_banks(Project(name="A"), ix) is None
+
+
 def test_project_keeps_its_additions_and_a_file_without_them_stays_without(tmp_path):
     p = Project(name="A", path=tmp_path / "a.audi")
     p.save()
@@ -212,6 +234,25 @@ def test_a_build_adds_the_audio_and_verifies_it(session, tmp_path, monkeypatch):
     patch.build_patch(str(out), reps, ix, plan=plan)
     assert patch.verify(str(out), reps, ix, plan) == []
     assert patch.verify(str(out), reps, ix)  # without the plan, the new objects are changes beyond the replacements
+
+
+@pytest.mark.game
+def test_a_clip_of_its_own_can_keep_to_the_projects_bank(session, tmp_path, monkeypatch):
+    """A clip of its own for an autocannon Sound with copies in other banks (issue .xiao12: the Oil Rig's and the
+    Shuttle's): it goes into every copy, and only into the autocannon's bank with project_banks_only."""
+    from audiodiver import build
+    s, ix = session, session.ix
+    s.new_project(tmp_path / "k.audi", "K")
+    row = next(r for x in _groups(s) for r in x["stems"][0]["slots"]
+               if not r.get("added") and not r.get("was") and r.get("object") and len(ix.copies(int(r["object"]))) > 1)
+    s.assign(row["source"], str(_wav(tmp_path / "a.wav")))
+    s.own_clip(row["source"], row["object"])
+    wem = ix.wem(int(row["source"]))  # no encoder needed: a clip of the game's stands in
+    monkeypatch.setattr(build, "encode_cached", lambda src, quality=6, log=None: wem)
+    reps, home = build.replacements(s.project, ix), int(AUTOCANNON.split(":")[1])
+    assert set(build.additions(s.project, ix, reps, {home}).banks) == set(ix.copies(int(row["object"])))
+    s.project.project_banks_only = True
+    assert set(build.additions(s.project, ix, reps, {home}).banks) == {home}
 
 
 def _with_prop(t, body: bytes, pid: int, value: float) -> bytes:

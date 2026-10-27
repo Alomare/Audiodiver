@@ -439,7 +439,7 @@ function CueBody({ cue }: { cue: Cue }) {
       sound (the source, the stream that holds it, the Sound, its container or the music track that plays it). */
   const copyIds = (r: Row): MenuEntry[] => {
     const sl = r.slot, track = r.seg.stems[r.stemIndex]?.track;
-    const entry = (what: string, id: string): MenuEntry => ({ label: `Copy the ${what} id`, keys: id, run: () => copyId(id, quick) });
+    const entry = (what: string, id: string): MenuEntry => ({ label: `Copy the ${what} ID`, keys: id, run: () => copyId(id, quick) });
     return [
       ...(sl.stream ? [entry("stream", sl.stream)] : []),
       entry("source", sl.source),
@@ -865,7 +865,7 @@ function SlotId({ slot }: { slot: Slot }) {
   const { quick } = useLite();
   const { id, what } = shownId(slot);
   return (
-    <button className="slot-id" data-tip={`Copy the ${what} id`}
+    <button className="slot-id" data-tip={`Copy the ${what} ID`}
       data-tip-more={`${what === "stream" ? "The ID other audio tools list this clip by" : "The clip ID in the game files"}. Right-click the row for the other IDs`}
       onClick={(e) => { e.stopPropagation(); copyId(id, quick); }} onDoubleClick={(e) => e.stopPropagation()}>{id}</button>
   );
