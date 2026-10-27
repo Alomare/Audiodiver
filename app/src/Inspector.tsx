@@ -12,6 +12,7 @@ import { fullPath, pickAudio, reveal } from "./platform";
 import { useEditor, useShownTabs } from "./store";
 import { showLines } from "./TextTab";
 import { Help, WikiLink } from "./Wiki";
+import { rangeVars } from "./range";
 
 /** The Audio tab's right panel: the selected slot's settings. Each control has one home: the slot's row plays the
     original and the replacement and takes or replaces its file; the waveforms below the list play from any spot; this
@@ -407,7 +408,7 @@ function Gain({ sources, value, note, original, match, base }: {
           data-tip={`Type a value from −${GAIN_MAX} to +${GAIN_MAX}`} /> dB
           <ResetLevel off={value === 0 && v === 0} onReset={reset} more={kept ?? (sources.length > 1 ? "0 dB on every selected slot" : undefined)} /></span></h3>
       {note && <p className="muted small insp-note">{note}</p>}
-      <input type="range" min={-GAIN_MAX} max={GAIN_MAX} step={0.5} value={v} aria-label="Make-Up Gain in dB"
+      <input type="range" className="r-fader" style={rangeVars(v, -GAIN_MAX, GAIN_MAX, 0)} min={-GAIN_MAX} max={GAIN_MAX} step={0.5} value={v} aria-label="Make-Up Gain in dB"
         onChange={(e) => move(Number(e.target.value))} onPointerUp={() => commit(v)}
         onKeyUp={(e) => { if (/^(Arrow|Home|End|Page)/.test(e.key)) commitSoon(v); }} onBlur={() => commit(v)}
         onKeyDown={(e) => { if (e.ctrlKey || e.metaKey || e.altKey) commit(v); }} /* a nudge on its way goes first: then Ctrl+Z undoes it */ />
@@ -417,7 +418,7 @@ function Gain({ sources, value, note, original, match, base }: {
             data-tip={match === "one" ? "The Make-Up Gain that makes the new audio as loud as the original"
               : "Each slot gets the Make-Up Gain that makes the new audio as loud as the original"}
             data-tip-more="Short sounds by the loudest moment, longer ones by the whole">
-            {matching ? "Measuring…" : match === "one" ? "Match the original" : "Match each to the original"}</button>
+            {matching ? "Measuring…" : match === "one" ? "Match the original loudness" : "Match each to the original loudness"}</button>
         </p>
       )}
     </section>

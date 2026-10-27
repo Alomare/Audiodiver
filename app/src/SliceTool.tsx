@@ -6,7 +6,7 @@ import { pickAudio } from "./platform";
 import { player, usePlayer, usePlayerLook } from "./player";
 import { useEditor } from "./store";
 import { useTheme } from "./theme";
-import { loadPeaks, WaveZoom, ZOOM_Y_MAX, type Peaks, type WaveZoomState } from "./Waveform";
+import { loadPeaks, wheelZoom, WaveZoom, ZOOM_Y_MAX, type Peaks, type WaveZoomState } from "./Waveform";
 import { Help } from "./Wiki";
 
 /** The slice tool: cuts one song into consecutive pieces and fills a cue's slots with them in play order, one piece
@@ -14,7 +14,7 @@ import { Help } from "./Wiki";
 
     The song and the original sit on one time scale. The song's lane shows the cuts and the slot each piece goes to;
     the original lane shows each slot's original audio starting at its piece's cut, so a piece longer or shorter than
-    the clip it replaces shows at a glance, and by how much. Ctrl+wheel or the zoom column zoom, the wheel or the
+    the clip it replaces shows at a glance, and by how much. The wheel (time; Ctrl: the level) or the zoom beside the lanes zoom, Shift+wheel or the
     overview strip scroll; cuts drag (snapping to the original's length), a double-click adds one, Delete removes the
     selected one, the arrow keys nudge it. */
 
@@ -313,7 +313,7 @@ export function SliceTool({ onClose, target, file: given }: { onClose: () => voi
       <div className="modal slice" role="dialog" aria-modal="true" aria-label="Slice a song into this cue" ref={box} tabIndex={-1}>
         <div className="pop-head">
           <h2>Slice a song into {cue.name}</h2>
-          <Help tip="Drag a cut to move it, and hold Shift to stop it snapping to the original length. Double-click the song to add a cut. Delete removes the selected cut, and ←/→ nudge it (Shift moves 100 ms, Alt moves 1 ms). Ctrl+wheel zooms, the wheel scrolls, and Space plays." page="timing-and-loops#slicing-one-long-song" />
+          <Help tip="Drag a cut to move it, and hold Shift to stop it snapping to the original length. Double-click the song to add a cut. Delete removes the selected cut, and ←/→ nudge it (Shift moves 100 ms, Alt moves 1 ms). The wheel zooms in on time, Ctrl+wheel on the level, Shift+wheel scrolls, and Space plays." page="timing-and-loops#slicing-one-long-song" />
           <span className="spacer" />
           <button className="x" onClick={onClose} aria-label="Close">✕</button>
         </div>
@@ -361,10 +361,10 @@ export function SliceTool({ onClose, target, file: given }: { onClose: () => voi
               {layout === "custom" && <span className="muted small">Placed by hand</span>}
             </div>
 
-            <div className="slice-zoomed">
+            <div className="slice-zoomed zoom-grid">
               <div className="slice-view">
-                <Lanes info={info} bounds={bounds} targets={targets} view={view} tall={tall} sel={sel} setSel={setSel} clampView={clampView} setView={setView}
-                  zoom={zoom} moveCut={moveCut} addCut={addCut} playSong={playSong} playOriginal={playOriginal} />
+                <Lanes info={info} bounds={bounds} targets={targets} view={view} tall={tall} sel={sel} setSel={setSel} waveZoom={sliceZoom}
+                  moveCut={moveCut} addCut={addCut} playSong={playSong} playOriginal={playOriginal} />
                 <Overview info={info} bounds={bounds} view={view} setView={(v) => setView(clampView(v))} />
               </div>
               <WaveZoom zoom={sliceZoom} />
@@ -421,9 +421,9 @@ function PieceButton({ k, label, onPlay, tone }: { k: string; label: string; onP
 
 /** The song and the originals on one time scale, with a ruler, the cuts (dragged, added, nudged) and the playheads.
     Drawn on a canvas: a song's waveform is up to 120,000 peaks, and only the part in view is drawn. */
-function Lanes({ info, bounds, targets, view, tall, sel, setSel, clampView, setView, zoom, moveCut, addCut, playSong, playOriginal }: {
+function Lanes({ info, bounds, targets, view, tall, sel, setSel, waveZoom, moveCut, addCut, playSong, playOriginal }: {
   info: Info; bounds: number[]; targets: Row[]; view: View; tall: number /* the level zoom */; sel: number | null; setSel: (i: number | null) => void;
-  clampView: (v: View) => View; setView: (f: (v: View) => View) => void; zoom: (factor: number, atMs?: number) => void;
+  waveZoom: WaveZoomState; // the zoom beside the lanes: the wheel works it too
   moveCut: (i: number, ms: number) => void; addCut: (ms: number) => void;
   playSong: (fromMs: number, toMs?: number, piece?: number) => void; playOriginal: (i: number, offsetMs?: number) => void;
 }) {
@@ -459,22 +459,15 @@ function Lanes({ info, bounds, targets, view, tall, sel, setSel, clampView, setV
     return () => ro.disconnect();
   }, []);
 
-  // wheel: Ctrl zooms about the pointer, otherwise it scrolls (a vertical wheel scrolls sideways here)
+  // the wheel as on the waveforms (wheelZoom): time about the pointer, Ctrl the level, Shift scrolls
+  const wz = useRef(waveZoom);
+  wz.current = waveZoom;
   useEffect(() => {
     const el = wrap.current!;
-    const wheel = (e: WheelEvent) => {
-      e.preventDefault();
-      const r = el.getBoundingClientRect();
-      if (e.ctrlKey || e.metaKey) {
-        zoom(Math.exp(-e.deltaY * 0.002), view.from + ((e.clientX - r.left) / r.width) * view.span);
-        return;
-      }
-      const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-      setView((v) => clampView({ ...v, from: v.from + (d / r.width) * v.span }));
-    };
+    const wheel = (e: WheelEvent) => { e.preventDefault(); wheelZoom(e, wz.current, el.getBoundingClientRect()); };
     el.addEventListener("wheel", wheel, { passive: false });
     return () => el.removeEventListener("wheel", wheel);
-  }, [view, zoom, setView, clampView]);
+  }, []);
 
   useEffect(() => {
     const c = canvas.current;

@@ -3,8 +3,9 @@ import { call, fileUrl, fmtTime, plural, type Assignment, type Cue, type MusicIt
 import { confirm } from "./Confirm";
 import { useContextMenu, type MenuEntry } from "./ContextMenu";
 import { audible, PlayButton, playSlot } from "./CueView";
-import { AudioIcon, CollapseAllIcon, PauseIcon, ThroughIcon } from "./Icons";
+import { AudioIcon, CollapseAllIcon, InOrderIcon, NextEachIcon, PauseIcon, RandomIcon, RepeatIcon, ShuffleIcon, ThroughIcon } from "./Icons";
 import { ResetLevel } from "./Inspector";
+import { rangeVars } from "./range";
 import { keyLabel, useCommands, useKeymap } from "./keys";
 import { nav } from "./nav";
 import { tabArrows } from "./Page";
@@ -29,11 +30,13 @@ const MODES: { mode: Mode; name: string; tip: string }[] = [
 ];
 const NAME = Object.fromEntries(MODES.map((m) => [m.mode, m.name])) as Record<Mode, string>;
 /** What each kind of group does with its children (core soundtrack.py, music.RS_TYPES). */
+/** How a group of the play order picks what plays: its name, what it does, its icon, and what joins the things in it
+    (`join` between segments on a line, `then` between groups). */
 const KIND = [
-  { name: "In order", tip: "Plays these one after another" },
-  { name: "Next each time", tip: "Plays one of these each time, the next in order, going on from where the music last stopped" },
-  { name: "Shuffled", tip: "Plays all of these in a random order" },
-  { name: "One at random", tip: "Plays one of these, picked at random" },
+  { name: "In order", tip: "Plays these one after another", Icon: InOrderIcon, join: "→", then: "then" },
+  { name: "Next each time", tip: "Plays one of these each time, the next in order, going on from where the music last stopped", Icon: NextEachIcon, join: "→", then: "next time" },
+  { name: "Shuffled", tip: "Plays all of these in a random order", Icon: ShuffleIcon, join: "·", then: "and" },
+  { name: "One at random", tip: "Plays one of these, picked at random", Icon: RandomIcon, join: "or", then: "or" },
 ];
 
 type Sections = { section: { id: string; name: string }; items: MusicItem[] }[];
@@ -541,7 +544,7 @@ function Level({ db, onSet, off }: { db: number; onSet: (db: number) => void; of
   return (
     <div className={`st-level${off ? " off" : ""}`} data-tip={off ?? "The level of the whole piece, on top of each slot's Make-Up Gain"}>
       <span>Level</span>
-      <input type="range" min={-LEVEL_MAX} max={LEVEL_MAX} step={0.5} value={v} aria-label="Level in dB" disabled={!!off}
+      <input type="range" className="r-fader" style={rangeVars(v, -LEVEL_MAX, LEVEL_MAX, 0)} min={-LEVEL_MAX} max={LEVEL_MAX} step={0.5} value={v} aria-label="Level in dB" disabled={!!off}
         onChange={(e) => setV(Number(e.target.value))} onPointerUp={() => commit(v)} onBlur={() => commit(v)}
         onKeyUp={(e) => { if (/^(Arrow|Home|End|Page)/.test(e.key)) commitSoon(v); }}
         onKeyDown={(e) => { if (e.ctrlKey || e.metaKey || e.altKey) commit(v); }} /* a nudge on its way goes first: then Ctrl+Z undoes it */ />
@@ -599,45 +602,101 @@ function originalLengths(cue: Cue): Map<string, number> {
 type Pickable = { sel: string | null; onPick: (source: string) => void; at: (source: string | null) => PlayedAt; now: string | null;
   lengths: Map<string, number> };
 
+/** The play order as people read it, playing as the game's does: a group with one thing in it, played once, is that
+    thing, and a group in order inside another, played once, runs on in it. The item the music starts on stays. */
+function readable(n: PlayNode, entry: string): PlayNode {
+  if (n.segment !== undefined || !n.children) return n;
+  const plain = (c: PlayNode) => c.segment === undefined && c.loop === 1 && c.item !== entry;
+  let kids = n.children.map((c) => readable(c, entry));
+  if (!n.rs) kids = kids.flatMap((c) => (plain(c) && !c.rs && c.children ? c.children : [c]));
+  if (kids.length === 1 && n.loop === 1 && n.item !== entry) return kids[0];
+  return { ...n, children: kids };
+}
+
 /** The play order: the playlist as groups of segments, each group saying what it does with them, and the item fights
     start on flagged. Each segment plays what the project plays there (▶) and selects with a click; with onToggle
-    (Original) a tick leaves it in or out. */
+    (Original) a tick leaves it in or out.
+
+    Laid out to be read at a glance, as the Wiki is: a group is a card under a header with the icon and name of what
+    it does (bigger at the top, smaller further in, each level a shade darker), and what it holds is joined by what
+    it means: "→" for in order, "or" for one at random. Segments flow on a line; a short choice of segments (`pick`)
+    and a run of segments in order (`run`) take a line or less of their own, without a header. */
 function PlayOrder({ map, tree, firsts, leftOut, onToggle, now, sel, onPick, at, fight }: Pickable & {
   map: PlaylistMap; tree: PlayNode; firsts: Map<string, string>; leftOut?: Set<string>; onToggle?: (item: string) => void; fight: boolean;
 }) {
   const { project } = useEditor();
-  const node = (n: PlayNode, depth: number) => {
-    const start = n.item === map.entry;
-    if (n.segment !== undefined) {
-      const out = leftOut?.has(n.item);
-      const seg = map.segments[n.segment], name = segName(map, n.segment), source = firsts.get(n.segment);
-      const a = source ? project?.assignments[source] : undefined;
-      const repeat = n.loop === 1 ? "" : n.loop ? `, ${n.loop} times` : ", repeats";
-      return (
-        <div key={n.item} className={`po-seg${out ? " out" : ""}${now === n.segment ? " now" : ""}${start ? " start" : ""}${source && sel === source ? " sel" : ""}`}
-          data-source={source} data-tip={`${name}, ${fmtTime(seg?.ms ?? 0)}${repeat}`} onClick={() => source && onPick(source)}>
-          {onToggle && <input type="checkbox" checked={!out} onChange={() => onToggle(n.item)} onClick={(e) => e.stopPropagation()}
-            aria-label={`Play ${name}`} data-tip={out ? "Put it back" : "Leave it out"} />}
-          {source && <PlayButton kind={audible(a) ? "project" : "vanilla"} source={source} label={name} small at={at(source)} onPlay={() => onPick(source)} />}
-          <span className="po-name">{name}</span>
-        </div>
-      );
-    }
-    const kind = KIND[n.rs ?? 0];
+  const shown = useMemo(() => readable(tree, map.entry), [tree, map.entry]);
+  const segments = (n: PlayNode) => !!n.children?.length && n.children.every((c) => c.segment !== undefined);
+  const plain = (n: PlayNode) => n.segment === undefined && n.loop === 1 && n.item !== map.entry;
+  const isPick = (n: PlayNode) => plain(n) && (n.rs === 2 || n.rs === 3) && segments(n) && n.children!.length <= 4;
+  const isRun = (n: PlayNode) => plain(n) && !n.rs && segments(n);
+  const inline = (n: PlayNode) => n.segment !== undefined || isPick(n);
+
+  const seg = (n: PlayNode) => {
+    const start = n.item === map.entry, out = leftOut?.has(n.item);
+    const info = map.segments[n.segment!], name = segName(map, n.segment!), source = firsts.get(n.segment!);
+    const a = source ? project?.assignments[source] : undefined;
+    const repeat = n.loop === 1 ? "" : n.loop ? `, ${n.loop} times` : ", repeats";
     return (
-      <div key={n.item} className={`po-group k${n.rs ?? 0}${start ? " start" : ""}${depth ? "" : " root"}`}>
-        <div className="po-head">
-          <span className="po-kind" data-tip={kind.tip}>{kind.name}</span>
-          {n.loop !== 1 && <span className="po-loop" data-tip={n.loop ? `Plays ${n.loop} times, then moves on` : "Plays again and again until the music changes"}>
-            {n.loop ? `${n.loop} times` : "repeats"}</span>}
-          {start && <span className="po-start" data-tip={fight ? "Where the music starts when a fight begins" : "Where the music starts each time it comes on"}>
-            {fight ? "Fights start here" : "Starts here"}</span>}
-        </div>
-        <div className="po-kids">{(n.children ?? []).map((c) => node(c, depth + 1))}</div>
+      <div key={n.item} className={`po-seg${out ? " out" : ""}${now === n.segment ? " now" : ""}${start ? " start" : ""}${source && sel === source ? " sel" : ""}`}
+        data-source={source} data-tip={`${name}, ${fmtTime(info?.ms ?? 0)}${repeat}`} onClick={() => source && onPick(source)}>
+        {onToggle && <input type="checkbox" checked={!out} onChange={() => onToggle(n.item)} onClick={(e) => e.stopPropagation()}
+          aria-label={`Play ${name}`} data-tip={out ? "Put it back" : "Leave it out"} />}
+        {source && <PlayButton kind={audible(a) ? "project" : "vanilla"} source={source} label={name} small at={at(source)} onPlay={() => onPick(source)} />}
+        <span className="po-name">{name}</span>
+        {info?.ms ? <span className="po-len">{fmtTime(info.ms)}</span> : null}
+        {n.loop !== 1 && <span className="po-again" aria-label={n.loop ? `${n.loop} times` : "repeats"}><RepeatIcon />{n.loop || ""}</span>}
       </div>
     );
   };
-  return <div className="po">{node(tree, 0)}</div>;
+  /** Things joined by what the group does with them: segments and short choices on lines, the rest under each other. */
+  const joined = (kids: PlayNode[], k: (typeof KIND)[number], depth: number) => {
+    const out: React.ReactNode[] = [];
+    let line: React.ReactNode[] = [];
+    const flush = () => { if (line.length) out.push(<div key={`l${out.length}`} className="po-line">{line}</div>); line = []; };
+    const then = (i: number) => out.push(<div key={`t${i}`} className="po-then" aria-hidden><span>{k.then}</span></div>);
+    kids.forEach((c, i) => {
+      if (inline(c)) {
+        if (line.length) line.push(<span key={`j${i}`} className={`po-join${k.join === "or" ? " word" : ""}`} aria-hidden>{k.join}</span>);
+        else if (out.length) then(i); // a line after a group
+        line.push(c.segment !== undefined ? seg(c) : pick(c));
+      } else {
+        flush();
+        if (out.length) then(i);
+        out.push(node(c, depth + 1));
+      }
+    });
+    flush();
+    return out;
+  };
+  const pick = (n: PlayNode) => {
+    const k = KIND[n.rs ?? 0];
+    return (
+      <span key={n.item} className={`po-pick k${n.rs}`} data-tip={k.name} data-tip-more={k.tip}>
+        <k.Icon />{n.children!.flatMap((c, i) => [i ? <span key={`o${i}`} className="po-join word" aria-hidden>{k.join}</span> : null, seg(c)])}
+      </span>
+    );
+  };
+  const node = (n: PlayNode, depth: number): React.ReactNode => {
+    if (n.segment !== undefined) return seg(n);
+    const k = KIND[n.rs ?? 0], start = n.item === map.entry;
+    if (isRun(n)) {
+      return <div key={n.item} className="po-run" data-tip={k.name} data-tip-more={k.tip}><k.Icon />{joined(n.children!, k, depth)}</div>;
+    }
+    return (
+      <section key={n.item} className={`po-group k${n.rs ?? 0} d${Math.min(depth, 3)}${start ? " start" : ""}`}>
+        <header className="po-head">
+          <span className="po-kind" data-tip={k.tip}><k.Icon />{k.name}</span>
+          {n.loop !== 1 && <span className="po-pill" data-tip={n.loop ? `Plays ${n.loop} times, then moves on` : "Plays again and again until the music changes"}>
+            <RepeatIcon />{n.loop ? `${n.loop} times` : "repeats"}</span>}
+          {start && <span className="po-pill start" data-tip={fight ? "Where the music starts when a fight begins" : "Where the music starts each time it comes on"}>
+            {fight ? "Fights start here" : "Starts here"}</span>}
+        </header>
+        <div className="po-kids">{joined(n.children ?? [], k, depth)}</div>
+      </section>
+    );
+  };
+  return <div className="po">{node(shown, 0)}</div>;
 }
 
 /** Music whose segments play several layers at once (the Extraction music): the segments as rows, and as columns

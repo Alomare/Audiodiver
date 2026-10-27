@@ -36,6 +36,7 @@ import { Splitter } from "./Resize";
 import { RESET_LAYOUT, useSettings } from "./settings";
 import { barIsVertical, useThemeValue, type BarSide } from "./theme";
 import { EDIT_NAMES, Scope, useEditor, useShownTabs, type ScopeName, type ToastIcon } from "./store";
+import { rangeVars } from "./range";
 
 export function App() {
   const { status, connectError } = useEditor();
@@ -543,7 +544,7 @@ function NowPlaying() {
       )}
       <label className="np-vol" data-tip={`Preview volume: ${Math.round(p.volume * 100)}% (not part of the mod)`}>
         <span aria-hidden>Vol</span>
-        <input type="range" min={0} max={1} step={0.05} value={p.volume} aria-label="Preview volume"
+        <input type="range" className="r-volume" style={rangeVars(p.volume, 0, 1)} min={0} max={1} step={0.05} value={p.volume} aria-label="Preview volume"
           onChange={(e) => player.setVolume(Number(e.target.value))} />
       </label>
     </span>

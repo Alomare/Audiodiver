@@ -100,7 +100,7 @@ Hover over a tag to read the note. The notes of a selected clip appear in the de
 
 The **waveforms** of the selected slot are shown here. The original is on top, and in the Audio tab the replacement is underneath, on the same time and level scales, with the **Entry** and **Exit** points marked. Both are drawn at their [Make-Up Gain](wiki:volume#make-up-gain-per-slot), and red marks audio pushed past full scale. Click a waveform to play from that point, and drag the top edge of the panel to resize it. {icon:waves} at the end of the toolbar hides them. In the Library, the line above the waveforms describes the slot. It shows the ID (click to copy it), the length, when the slot plays, and where else the game plays it.
 
-The column at the right zooms both waveforms. The tall slider draws them taller, to show quiet audio, and the short one zooms in on time, to place Entry and Exit closely. Zoomed in on time, the strip under the waveforms and the mouse wheel scroll, and Ctrl+wheel zooms. {icon:reset} shows the whole audio at full scale again. Zoom stays as set when another slot is selected, and the slice tool has the same column.
+Two sliders zoom both waveforms. The one up the right side draws them taller, to show quiet audio, and the one under them, at the right, zooms in on time, to place Entry and Exit closely. On the waveforms, the mouse wheel zooms in on time, Ctrl+wheel draws them taller, and Shift+wheel scrolls. Zoomed in on time, the strip under the waveforms scrolls too. {icon:reset}, in the corner between the sliders, shows the whole audio at full scale again. Zoom stays as set when another slot is selected, and the slice tool has the same sliders.
 
 ## The right panel (Audio tab)
 

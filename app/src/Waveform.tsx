@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 import { call, fmtTime } from "./api";
 import { ResetIcon } from "./Icons";
+import { rangeVars } from "./range";
 import { useTheme } from "./theme";
 
 /** The loudest sample of each slice of the audio, from 0 to `full` (255, or 32767 for a waveform zoomed in on). */
@@ -246,8 +247,8 @@ export function useWaveZoom(total: number, minSpan: number, slot: string | null 
   };
 }
 
-/** The wheel on zoomed-in waveforms: it scrolls them sideways, and with Ctrl it zooms in on the moment under the
-    pointer. Without zoom the wheel is left alone. */
+/** The wheel on waveforms: it zooms in on time about the moment under the pointer, with Ctrl it zooms the level, and
+    with Shift (or sideways, on a touchpad) it scrolls. */
 export function useWheelZoom(el: RefObject<HTMLElement | null>, zoom: WaveZoomState, on: boolean) {
   const now = useRef(zoom);
   now.current = zoom;
@@ -257,40 +258,49 @@ export function useWheelZoom(el: RefObject<HTMLElement | null>, zoom: WaveZoomSt
     const wheel = (e: WheelEvent) => {
       const z = now.current, wave = box.querySelector(".wave")?.getBoundingClientRect();
       if (!wave?.width) return;
-      if (e.ctrlKey || e.metaKey) {
-        e.preventDefault();
-        z.zoomX(z.x * Math.exp(-e.deltaY * 0.002), z.from + ((e.clientX - wave.left) / wave.width) * z.span);
-      } else if (z.x > 1) {
-        e.preventDefault();
-        const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-        z.scroll(z.from + (d / wave.width) * z.span);
-      }
+      e.preventDefault();
+      wheelZoom(e, z, wave);
     };
     box.addEventListener("wheel", wheel, { passive: false });
     return () => box.removeEventListener("wheel", wheel);
   }, [el, on]);
 }
 
+/** What a turn of the wheel does to a zoom (useWheelZoom, and the slice tool's lanes): `box` is the waveform's. */
+export function wheelZoom(e: WheelEvent, z: WaveZoomState, box: DOMRect) {
+  const sideways = e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY);
+  if (e.ctrlKey || e.metaKey) z.zoomY(z.y * Math.exp(-e.deltaY * 0.002));
+  else if (sideways) z.scroll(z.from + ((e.deltaX || e.deltaY) / box.width) * z.span);
+  else z.zoomX(z.x * Math.exp(-e.deltaY * 0.002), z.from + ((e.clientX - box.left) / box.width) * z.span);
+}
+
 /** The finer peaks a waveform needs once zoomed in (on time or on the level): about one slice per half millisecond. */
 export const finePeaks = (zoom: WaveZoomState, durationMs: number | undefined) =>
   zoom.zoomed && durationMs ? { buckets: Math.round(Math.max(1200, Math.min(120_000, durationMs * 2))) } : undefined;
 
-/** To the right of waveforms: the level zoom (the tall slider), the time zoom (the short one) and a button back to
-    the whole audio at full scale. */
-export function WaveZoom({ zoom }: { zoom: WaveZoomState }) {
+/** The zoom of waveforms, as a mirrored L around them: the level zoom up the right side, the time zoom at the right
+    end of the foot (after `foot`, the scroll strip when there is one), and the button back to the whole audio at full
+    scale in the corner where the two meet. It goes in a .zoom-grid, after the waveforms. */
+export function WaveZoom({ zoom, foot }: { zoom: WaveZoomState; foot?: ReactNode }) {
+  const y = toSlider(zoom.y, ZOOM_Y_MAX), x = toSlider(zoom.x, zoom.maxX);
   return (
-    <div className="wave-zoom">
-      <input type="range" className="zoom-y" min={0} max={100} step={0.1} value={toSlider(zoom.y, ZOOM_Y_MAX)}
-        onChange={(e) => zoom.zoomY(fromSlider(Number(e.target.value), ZOOM_Y_MAX))} aria-label="Level zoom"
-        aria-valuetext={`${Math.round(zoom.y * 10) / 10} times as tall`} data-tip="Level zoom" data-tip-side="left"
-        data-tip-more="Taller, to see quiet audio. It plays as loud as before" />
-      <input type="range" className="zoom-x" min={0} max={100} step={0.1} value={toSlider(zoom.x, zoom.maxX)} disabled={zoom.maxX <= 1}
-        onChange={(e) => zoom.zoomX(fromSlider(Number(e.target.value), zoom.maxX))} aria-label="Time zoom"
-        aria-valuetext={`${Math.round(zoom.x * 10) / 10} times as wide`} data-tip="Time zoom" data-tip-side="left"
-        data-tip-more="Wider, to place cue points closely. The wheel scrolls, and Ctrl+wheel zooms" />
+    <>
+      <div className="zoom-level">
+        <input type="range" className="r-zoom" style={rangeVars(y, 0, 100)} min={0} max={100} step={0.1} value={y}
+          onChange={(e) => zoom.zoomY(fromSlider(Number(e.target.value), ZOOM_Y_MAX))} aria-label="Level zoom" aria-orientation="vertical"
+          aria-valuetext={`${Math.round(zoom.y * 10) / 10} times as tall`} data-tip="Level zoom" data-tip-side="left"
+          data-tip-more="Taller, to see quiet audio. It plays as loud as before. Ctrl+wheel on the waveforms zooms too" />
+      </div>
+      <div className="zoom-foot">
+        {foot}
+        <input type="range" className="r-zoom zoom-time" style={rangeVars(x, 0, 100)} min={0} max={100} step={0.1} value={x} disabled={zoom.maxX <= 1}
+          onChange={(e) => zoom.zoomX(fromSlider(Number(e.target.value), zoom.maxX))} aria-label="Time zoom"
+          aria-valuetext={`${Math.round(zoom.x * 10) / 10} times as wide`} data-tip="Time zoom" data-tip-side="top"
+          data-tip-more="Wider, to place cue points closely. The wheel on the waveforms zooms too, and Shift+wheel scrolls" />
+      </div>
       <button className="icon-btn zoom-reset" disabled={!zoom.zoomed} onClick={zoom.reset} aria-label="Reset zoom"
         data-tip={zoom.zoomed ? "Reset zoom" : "Not zoomed in"} data-tip-side="left"><ResetIcon /></button>
-    </div>
+    </>
   );
 }
 

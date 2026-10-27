@@ -6,6 +6,7 @@ import { captureChord, COMMANDS, FIXED, fmtChord, keyLabel, keymap, useKeymap, t
 import { HIDEABLE, nav, useNav, type Hideable, type SettingsTab as Sub } from "./nav";
 import { Page, tabArrows } from "./Page";
 import { reveal } from "./platform";
+import { rangeVars } from "./range";
 import { player } from "./player";
 import { AUTOSAVE_DEFAULT, AUTOSAVE_MAX, DEFAULT_SETTINGS, resetLayout, settings, TIP_SPEEDS, UPDATE_MODES, UPDATE_NOTES, useSettings } from "./settings";
 import { useEditor } from "./store";
@@ -115,7 +116,7 @@ function System() {
               onClick={() => { if (!s.autosave) settings.set({ autosave: AUTOSAVE_DEFAULT }); }}>On a timer</button>
           </div>
           {s.autosave > 0 && <>
-            <input type="range" className="size-slider" min={1} max={AUTOSAVE_MAX} step={1} value={s.autosave} aria-label="Minutes between saves"
+            <input type="range" className="size-slider" style={rangeVars(s.autosave, 1, AUTOSAVE_MAX)} min={1} max={AUTOSAVE_MAX} step={1} value={s.autosave} aria-label="Minutes between saves"
               aria-valuetext={minutes(s.autosave)} onChange={(e) => settings.set({ autosave: Number(e.target.value) })} />
             <span className="autosave-val">Every {minutes(s.autosave)}</span>
           </>}
@@ -432,7 +433,7 @@ function Theme() {
           <span className="field-label">Text size
             {t.size !== DEFAULT_SIZE && <button className="link-inline" onClick={() => theme.set({ size: DEFAULT_SIZE })}>Back to default</button>}
           </span>
-          <input type="range" className="size-slider" min={0} max={TEXT_SIZES.length - 1} step={1} value={TEXT_SIZES.indexOf(t.size)}
+          <input type="range" className="size-slider" style={rangeVars(TEXT_SIZES.indexOf(t.size), 0, TEXT_SIZES.length - 1)} min={0} max={TEXT_SIZES.length - 1} step={1} value={TEXT_SIZES.indexOf(t.size)}
             aria-label="Text size" aria-valuetext={`${t.size} pixels`} onChange={(e) => theme.set({ size: TEXT_SIZES[Number(e.target.value)] })} />
           <div className="size-ticks">
             {TEXT_SIZES.map((px) => (
@@ -496,7 +497,7 @@ function Theme() {
           <span className="field-label">Animation speed
             {t.speed !== 1 && <button className="link-inline" onClick={() => theme.set({ speed: 1 })}>Back to normal</button>}
           </span>
-          <input type="range" className="size-slider" min={0} max={SPEEDS.length - 1} step={1} value={SPEEDS.indexOf(t.speed)}
+          <input type="range" className="size-slider" style={rangeVars(SPEEDS.indexOf(t.speed), 0, SPEEDS.length - 1)} min={0} max={SPEEDS.length - 1} step={1} value={SPEEDS.indexOf(t.speed)}
             disabled={!motionOn(t)} aria-label="Animation speed" aria-valuetext={`${t.speed} times normal`}
             onChange={(e) => theme.set({ speed: SPEEDS[Number(e.target.value)] })} />
           <div className="size-ticks">

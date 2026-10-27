@@ -135,6 +135,24 @@ export const OrderIcon = () => (
   <Icon size={1.05} stroke={2}><path d="M4 6h7M4 12h4M4 18h7" /><path d="M14 5.5c4.5 0 4.5 6.5 0 6.5s-4.5 6.5 0 6.5" /><path d="m12 16.5 2 2-2 2" /></Icon>
 );
 
+// How a group of the Soundtrack's play order picks what plays (Soundtrack.tsx, PlayOrder), and a group that repeats.
+/** In order: steps along a line. */
+export const InOrderIcon = () => <Icon size={1} stroke={2}><path d="M3.5 12h15M14.5 7.5 19 12l-4.5 4.5" /><path d="M6 9.5v5M10 9.5v5" /></Icon>;
+/** The next each time: an arrow coming round. */
+export const NextEachIcon = () => <Icon size={1} stroke={2}><path d="M19 12a7 7 0 1 1-2.05-4.95" /><path d="M17.5 3.5v4h-4" /></Icon>;
+/** Shuffled: two crossing arrows. */
+export const ShuffleIcon = () => (
+  <Icon size={1} stroke={2}><path d="M3.5 7.5h3.5l9 9h3.5M3.5 16.5h3.5l2.5-2.5M14 10l2-2.5h3.5" /><path d="m17.5 5 2 2.5-2 2.5M17.5 14l2 2.5-2 2.5" /></Icon>
+);
+/** One at random: a die. */
+export const RandomIcon = () => (
+  <Icon size={1} stroke={2}><rect x="4.5" y="4.5" width="15" height="15" rx="3" /><path d="M9 9h.01M15 9h.01M12 12h.01M9 15h.01M15 15h.01" strokeWidth={3} /></Icon>
+);
+/** Plays again: two arrows chasing each other. */
+export const RepeatIcon = () => (
+  <Icon size={0.95} stroke={2}><path d="M4.5 11V9.5a3 3 0 0 1 3-3h11M15.5 3.5l3 3-3 3M19.5 13v1.5a3 3 0 0 1-3 3h-11M8.5 20.5l-3-3 3-3" /></Icon>
+);
+
 /** Fold everything: a box with a minus, another box behind it (as code editors draw it). */
 export const CollapseAllIcon = () => (
   <Icon size={1.05}><rect x="3.5" y="8.5" width="12" height="12" rx="1" /><path d="M7 14.5h5M7.5 8.5v-4h12v12h-4" /></Icon>

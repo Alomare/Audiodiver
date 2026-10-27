@@ -111,7 +111,7 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
     <section className={`timeline${readOnly ? " one" : ""}`} aria-label="Waveforms" style={{ height: h ?? (readOnly ? HEIGHT_ONE : HEIGHT) }}>
       <ResizeEdge edge="top" label="Resize the waveforms" min={readOnly ? 120 : 140} max={room} onResize={setH} onReset={() => setH(readOnly ? HEIGHT_ONE : HEIGHT)} />
       {readOnly && <SlotFacts row={row} />}
-      <div className="tl-body">
+      <div className="tl-body zoom-grid">
         <div className="tl-rows" ref={waves}>
           <div className="tl-row">
             <div className="tl-label game"><b>Original</b><span>{fmtTime(game?.duration_ms)}</span>{gameDb !== 0 && <Db db={gameDb} />}</div>
@@ -136,9 +136,8 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
               )}
             </div>
           )}
-          {zoom.x > 1 && <WaveScroll zoom={zoom} />}
         </div>
-        <WaveZoom zoom={zoom} />
+        <WaveZoom zoom={zoom} foot={zoom.x > 1 ? <WaveScroll zoom={zoom} /> : null} />
       </div>
       {audible(a) && hasCues && (
         <p className="tl-note">

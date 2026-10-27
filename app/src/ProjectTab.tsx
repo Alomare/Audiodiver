@@ -9,6 +9,7 @@ import { useEditor, useShownTabs } from "./store";
 import { motionMs } from "./theme";
 import { nav } from "./nav";
 import { Help, WikiLink } from "./Wiki";
+import { rangeVars } from "./range";
 
 const FRAME_KEYS: (keyof IconFrame)[] = ["border", "border_color", "radius"];
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
@@ -385,7 +386,7 @@ function IconEditor({ icon, frame, setIcon, saveIcon }: IconProps) {
       <div className="ico-grid ico-frame">
         <label className="ico-label" htmlFor="ico-border">Border</label>
         <div className="ico-cell ico-slide">
-          <input id="ico-border" type="range" min={0} max={48} step={1} value={frame.border}
+          <input id="ico-border" type="range" style={rangeVars(frame.border, 0, 48)} min={0} max={48} step={1} value={frame.border}
             onChange={(e) => slide({ border: Number(e.target.value) })} onPointerUp={() => saveIcon()} onKeyUp={() => saveIcon()} />
           <span className="val">{frame.border ? `${frame.border} px` : "None"}</span>
         </div>
@@ -395,7 +396,7 @@ function IconEditor({ icon, frame, setIcon, saveIcon }: IconProps) {
         </div>
         <label className="ico-label" htmlFor="ico-radius">Corners</label>
         <div className="ico-cell ico-slide">
-          <input id="ico-radius" type="range" min={0} max={270} step={2} value={frame.radius}
+          <input id="ico-radius" type="range" style={rangeVars(frame.radius, 0, 270)} min={0} max={270} step={2} value={frame.radius}
             onChange={(e) => slide({ radius: Number(e.target.value) })} onPointerUp={() => saveIcon()} onKeyUp={() => saveIcon()} />
           <span className="val">{frame.radius >= 270 ? "Circle" : frame.radius ? `${frame.radius} px` : "Square"}</span>
         </div>

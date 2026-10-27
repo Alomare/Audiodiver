@@ -125,32 +125,38 @@ function textWidth(text: string, px: number, weight = 400) {
 }
 const DROP_HINT = "Drop audio or choose a file";
 
-/** How wide the new audio column is: what its widest line needs (a file with its length, gain and ✕, silence, or
-    the drop hint), so the column lines up from row to row and leaves the rest of the row to the names. It is worked
-    out from the text rather than from what is drawn, so the rows a long list leaves undrawn count too. */
+/** How wide the new audio column is (`mine`): what its widest line needs (a file with its gain box, length and ✕,
+    silence, or the drop hint), so the column lines up from row to row and leaves the rest of the row to the names. It
+    is worked out from the text rather than from what is drawn, so the rows a long list leaves undrawn count too.
+    `gain`: the width of the gain box. */
 function useMineWidth(all: Row[], assigned: Record<string, Assignment>, on: boolean) {
   const t = useThemeValue((x) => `${x.size}|${x.density}|${x.bodyFont}`);
   const [fonts, setFonts] = useState(() => document.fonts?.status === "loaded");
   useEffect(() => { if (!fonts) document.fonts?.ready.then(() => setFonts(true)); }, [fonts]);
   return useMemo(() => {
-    if (!on) return 0;
+    if (!on) return { mine: 0, gain: 0 };
     const [size, density] = t.split("|");
     const fs = Number(size) / DEFAULT_SIZE, sp = DENSITIES.find(([d]) => d === density)?.[2] ?? 1;
     const play = 24 + 6 * sp, gap = 8, x = 24, frame = 12; // .play, .slot-mine's gap, .x, its padding
+    // Make-Up Gain has a box as wide as its widest value on every line with new audio, set or not: moving the slider
+    // never changes the width of the column
+    const gain = gainBox(fs);
     let w = frame + 22 + textWidth(DROP_HINT, 13 * fs);   // .drop-hint: its padding and border
     for (const r of all) {
       const a = assigned[r.slot.source];
       if (!a) continue;
       const len = a.duration_ms != null ? gap + textWidth(fmtTime(a.duration_ms), 13 * fs) : 0;
-      const gain = a.gain_db ? gap + textWidth(`${a.gain_db > 0 ? "+" : ""}${a.gain_db} dB`, 12 * fs, 500) : 0;
       const line = a.silence
         ? play + gap + textWidth("Silence", 14 * fs) + gap + 14 + textWidth(a.fit_timing ? "moves on" : "keeps timing", 12 * fs) + gap + x
-        : play + gap + textWidth(a.exists ? a.name : `Missing: ${a.name}`, 14 * fs) + len + gain + gap + x;
+        : play + gap + textWidth(a.exists ? a.name : `Missing: ${a.name}`, 14 * fs) + len + gap + gain + gap + x;
       w = Math.max(w, frame + 3 + line); // + the replaced line's left border
     }
-    return Math.ceil(w) + 2;
+    return { mine: Math.ceil(w) + 2, gain };
   }, [all, assigned, on, t, fonts]);
 }
+
+/** The width of the Make-Up Gain box on a line with new audio: the widest value, "−88.5 dB". */
+const gainBox = (fs: number) => Math.ceil(textWidth("−88.5 dB", 12 * fs, 500)) + 2;
 
 const NONE: string[] = [];
 const NO_ASSIGNMENTS: Record<string, Assignment> = {}; // one empty object, so the memos below keep without a project
@@ -181,7 +187,7 @@ function CueBody({ cue }: { cue: Cue }) {
   const [headH, setHeadH] = useStoredHeight("audiodiver.headHeight", null); // null: as tall as its content
   const [panels, setPanels] = usePanels(scope); // whether the header and the waveforms show
   const shown = useShownTabs();
-  const mineW = useMineWidth(all, assigned, !readOnly);
+  const column = useMineWidth(all, assigned, !readOnly);
 
   // a bank's sounds come in groups (the takes of one sound) that fold, and a filter narrows them
   const [filter, setFilter] = useState("");
@@ -684,7 +690,7 @@ function CueBody({ cue }: { cue: Cue }) {
       {item && part && item.parts.length > 1 && !folding && <PartTabs item={item} part={part} />}
 
       <div className={`slots view-in${windowed ? " windowed" : ""}`} key={folding ? item!.id : cue.id} ref={listRef} role="listbox" aria-multiselectable
-        aria-label={grouped ? "Sounds" : "Slots"} style={readOnly ? undefined : { ["--mine-w" as any]: `${mineW}px` }}>
+        aria-label={grouped ? "Sounds" : "Slots"} style={readOnly ? undefined : { ["--mine-w" as any]: `${column.mine}px`, ["--gain-w" as any]: `${column.gain}px` }}>
         {folding ? item!.parts.map((p, i) => (
           <Fragment key={p.cue}>
             <PartHead item={item!} part={p} index={i} open={p === part && !shut}
@@ -1010,8 +1016,10 @@ const SlotRow = memo(function SlotRow({ row, a, standIns, gain, selected, now, i
                 data-tip-more={a.exists ? a.audio : `${a.audio}. The mod can't be built until the file is back or replaced`}
                 onClick={(e) => { e.stopPropagation(); on.choose(slot.source); }} onDoubleClick={(e) => e.stopPropagation()}>
                 {a.exists ? a.name : `Missing: ${a.name}`}</button>
-              {/* before the length, so a gain takes room from the file's name and the lengths stay in one column */}
-              {a.gain_db !== 0 && <span className="gain" data-tip="Make-Up Gain" data-tip-more="Set in the details">{a.gain_db > 0 ? "+" : ""}{a.gain_db} dB</span>}
+              {/* a box of one width, set or not, before the length: the lengths stay in one column, and moving the
+                  slider changes neither the file name's room nor the column's width */}
+              <span className="gain mine-gain" data-tip={a.gain_db ? "Make-Up Gain" : undefined} data-tip-more={a.gain_db ? "Set in the details" : undefined}>
+                {a.gain_db ? `${a.gain_db > 0 ? "+" : ""}${a.gain_db} dB` : ""}</span>
               {a.duration_ms != null && (
                 <span className={`len mine-len${slot.min_ms && a.duration_ms < slot.min_ms ? " short" : ""}`}
                   data-tip={slot.min_ms && a.duration_ms < slot.min_ms ? `Too short. This clip needs at least ${fmtTime(slot.min_ms)}` : gameMs ? `Original: ${fmtTime(gameMs)}` : undefined}>
