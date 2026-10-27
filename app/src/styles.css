@@ -173,7 +173,8 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color])
 /* the Library's two panels share the width: --split is the list's share, a third to start */
 .panes.lib-split { grid-template-columns: clamp(200px, calc((100% - 5px) * var(--split, 0.3333)), calc(100% - 20px - var(--mid))) 5px minmax(var(--mid), 1fr); }
 .splitter { cursor: col-resize; background: var(--line-soft); touch-action: none; }
-.splitter:hover, .splitter.active { background: var(--accent); }
+/* a divider lights up light gray under the pointer and while it drags, never in the primary colour */
+.splitter:hover, .splitter.active { background: var(--muted); }
 .center { min-width: 0; min-height: 0; display: flex; flex-direction: column; background: var(--bg); }
 
 /* ---------- the rail: the master tabs, the tab bar */
@@ -342,7 +343,8 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color])
 .resize-edge.top { top: -5px; }
 .resize-edge.bottom { bottom: -5px; }
 .resize-edge::after { content: ""; position: absolute; left: 0; right: 0; top: 3px; height: 3px; background: transparent; }
-.resize-edge:hover::after, .resize-edge.active::after, .resize-edge:focus-visible::after { background: var(--accent); }
+.resize-edge:hover::after, .resize-edge.active::after { background: var(--muted); }
+.resize-edge:focus-visible::after { background: var(--accent); }
 .resize-edge:focus-visible { outline: none; }
 
 /* a slot: the game's play button and its name, the game's length, then the new audio, in a column as wide as the
@@ -365,6 +367,13 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color])
 .slot-text { display: flex; flex-direction: column; min-width: 0; }
 .seg-name { font-size: calc(15px * var(--fs)); font-weight: 700; line-height: 1.25; }
 .seg-cont { height: 0; }
+/* a music segment of several slots: its name on a line of its own, then its tracks, a row each, under it */
+.seg-head { display: flex; align-items: baseline; gap: 8px; min-width: 0; margin-top: 2px; padding: calc(7px * var(--sp)) 8px calc(1px * var(--sp));
+  border-top: 1px solid var(--line-soft); border-left: 2px solid transparent; }
+.seg-head .seg-name { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.seg-head .ctag { flex: none; }
+.slots > .seg-head { padding-left: calc(8px + var(--depth, 0) * 14px); }
+.cue:not(.ro) .seg-head { padding-left: calc(8px + 22px * var(--fs)); }
 .slot-sub { font-size: calc(13px * var(--fs)); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .slot-sub .tag:first-child { margin-left: 0; } /* a tag that leads the line; after .slot-label it keeps its space */
 .slot-game { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
@@ -743,7 +752,7 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .arc-table th { position: sticky; top: 0; z-index: 1; padding: 0; background: var(--panel); border-bottom: 1px solid var(--line); text-align: left; }
 .col-grip { position: absolute; top: 0; right: 0; bottom: 0; width: 7px; z-index: 2; cursor: col-resize; touch-action: none; }
 .col-grip::after { content: ""; position: absolute; top: 25%; bottom: 25%; right: 0; width: 1px; background: var(--line); transition: background-color var(--t1); }
-.col-grip:hover::after { top: 0; bottom: 0; background: var(--accent); }
+.col-grip:hover::after { top: 0; bottom: 0; background: var(--muted); }
 .arc-table th button { display: flex; align-items: center; gap: 3px; width: 100%; padding: calc(7px * var(--sp)) 6px calc(6px * var(--sp));
   font-size: calc(12px * var(--fs)); font-weight: 700; color: var(--muted); text-align: left; }
 .arc-table th.num button { justify-content: flex-end; }
@@ -1180,7 +1189,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
    wheel through between its buttons. */
 /* Home is laid out at Compact's spacing whatever Settings ▸ Theme ▸ Spacing says (theme.ts DENSITIES): the menu
    was drawn for it, and wider gaps pull its strips apart */
-.home { --sp: .55; --home-m: calc(64px * var(--sp)); --ticker-h: calc(35px * var(--fs)); }
+.home { --sp: .55; --home-m: calc(83px * var(--sp)); --ticker-h: calc(35px * var(--fs)); }
 .home-corner { position: absolute; left: var(--home-m); right: var(--home-m); bottom: calc(var(--ticker-h) + 12px); z-index: 2;
   display: flex; align-items: center; justify-content: space-between; gap: 8px; pointer-events: none; }
 .home-corner > * { pointer-events: auto; }
@@ -1229,12 +1238,16 @@ kbd.none { color: var(--faint); font-weight: 400; }
   background: linear-gradient(90deg, var(--accent) 12%, color-mix(in srgb, var(--accent) 70%, transparent) 50%, color-mix(in srgb, var(--accent) 25%, transparent) 80%, transparent); }
 .menu-item.hot:hover, .menu-item.hot:focus-visible {
   background: linear-gradient(90deg, var(--accent-hover) 12%, color-mix(in srgb, var(--accent-hover) 76%, transparent) 50%, color-mix(in srgb, var(--accent-hover) 30%, transparent) 80%, transparent); }
-/* with a project open, one quiet line under Open project: which, and the way to it */
-.home-loaded { display: flex; align-items: baseline; gap: 14px; margin: calc(6px * var(--sp)) 0 0; padding: 0 20px; min-width: 0;
+/* with a project open, one line under Open Project: which, then Go to Project and Close, each with an icon on its
+   left. The buttons sit on the picture as the corner's do, half see-through and blurred */
+.home-loaded { display: flex; align-items: center; gap: 8px; margin: calc(8px * var(--sp)) 0 0; padding: 0 0 0 20px; min-width: 0;
   font-size: calc(13px * var(--fs)); color: var(--muted); }
-.home-loaded > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.home-loaded-name { flex: 0 1 auto; min-width: 0; margin-right: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .home-loaded b { color: var(--text); font-weight: 600; }
-.home-loaded .link-text { white-space: nowrap; }
+.home-loaded .btn { flex: none; gap: 7px; padding: calc(5px * var(--sp)) 11px calc(5px * var(--sp)) 8px; color: var(--text);
+  background: color-mix(in srgb, var(--panel) 72%, transparent); backdrop-filter: blur(6px); }
+.home-loaded .btn > .icon { flex: none; color: var(--muted); transition: color var(--t1); }
+.home-loaded .btn:hover > .icon { color: var(--text); }
 /* Open project with the last project opened in it, right after the words: a solid block with the mod's icon and
    name, which opens that project. The words' button stretches over the whole strip, under the block. */
 .menu-open { position: relative; gap: 16px; }
@@ -1465,7 +1478,8 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .key-fixed { font-size: calc(14px * var(--fs)); font-weight: 500; }
 
 /* ---------- Wiki: the guides on the left, the page in the middle, its headings on the right */
-.wiki { display: grid; grid-template-columns: min(calc(var(--wiki-nav, 270px) * var(--fs)), 40vw) 5px minmax(0, 1fr); min-height: 0; }
+/* --wiki-nav is the list's share of the tab, a quarter to start (Wiki.tsx), as the Library's --split is */
+.wiki { display: grid; grid-template-columns: clamp(200px, calc((100% - 5px) * var(--wiki-nav, 0.25)), calc(100% - 385px)) 5px minmax(0, 1fr); min-height: 0; }
 .wiki-nav { display: flex; flex-direction: column; min-height: 0; min-width: 0; background: var(--panel); }
 .wiki-list { flex: 1; overflow: auto; padding: 4px 0 24px; }
 /* the FAQ: an entry above the groups, a box with a question mark, in a slightly dim white (a dark grey on the light

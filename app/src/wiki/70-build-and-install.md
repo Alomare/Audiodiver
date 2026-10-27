@@ -14,7 +14,7 @@ If the project has problems, such as a missing file or a name that mod managers 
 
 ### Destination folder
 
-The ZIP goes into the `build` folder next to the project file. To build into another folder, press **Change…** under **Destination folder**. **Back to the default** returns to the `build` folder. A build adds only the ZIP, and the [patch files](#patch-files) when you turn them on, so several mods can share one folder. Audiodiver doesn't build into the game folder.
+The ZIP goes into the `build` folder next to the project file. To build into another folder, press **Change** under **Destination folder**. **Back to the Default** returns to the `build` folder. A build adds only the ZIP, and the [patch files](#patch-files) when you turn them on, so several mods can share one folder. Audiodiver doesn't build into the game folder.
 
 ## What the mod manager shows
 
@@ -34,9 +34,9 @@ The icon is the default Audiodiver icon until you choose an image. An image is c
 
 ### Mod ID
 
-A mod manager recognises a mod by the mod ID. While the ID stays the same, a new build updates the installed mod. When you copy a project to make a different mod, press **Make a new ID**, and the copy installs as a separate mod.
+A mod manager recognises a mod by the mod ID. While the ID stays the same, a new build updates the installed mod. When you copy a project to make a different mod, press **Make a New ID**, and the copy installs as a separate mod.
 
-To make the builds update a mod you made before, press **Change…** and paste the ID of that mod: the `Guid` in the `manifest.json` of the mod. Undo puts the old ID back.
+To make the builds update a mod you made before, press **Change** and paste the ID of that mod: the `Guid` in the `manifest.json` of the mod. Undo puts the old ID back.
 
 ## Build options
 
@@ -71,7 +71,7 @@ A project with an imported mod also counts the banks that mod patched. On [Tools
 
 ### Added audio in other banks
 
-New takes, layers and new audio set to **Only this sound** go into every bank that has a copy of the sound, also banks the project doesn't list, because the game plays the copy it loads first. The sounds of the AC-8 Autocannon, for example, also have copies in the banks of the Oil Rig and the Shuttle. A project that adds audio to these sounds patches those two banks too, which puts about 30 MB of the banks' own audio into the mod.
+New takes, layers and new audio set to **Only This Sound** go into every bank that has a copy of the sound, also banks the project doesn't list, because the game plays the copy it loads first. The sounds of the AC-8 Autocannon, for example, also have copies in the banks of the Oil Rig and the Shuttle. A project that adds audio to these sounds patches those two banks too, which puts about 30 MB of the banks' own audio into the mod.
 
 **Keep added audio to the project's banks** puts added audio only into the banks of the project's list, and of a mod imported into it. The mod gets smaller, but wherever the game loads another bank's copy of the sound first, the original plays. Leave it off unless the size of the mod matters more than the sound in those places. A sound that no bank on the list has still goes into every bank that has it. The setting applies to the open project and does nothing while **Patch every bank with the sounds** is on.
 

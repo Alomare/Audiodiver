@@ -14,12 +14,12 @@ A mod's patch contains complete copies of the sound banks it changes, as they we
 ## Repatching a mod
 
 1. Open [Tools ▸ Repatch](app:tools/repatch).
-2. Drop the mod on the page. You can drop the downloaded ZIP, the mod folder, or the `.patch_0` file with the `.stream` file next to it. **Choose a ZIP or patch file…** and **Choose a folder…** do the same. A ZIP dropped anywhere in Audiodiver also opens on this page.
+2. Drop the mod on the page. You can drop the downloaded ZIP, the mod folder, or the `.patch_0` file with the `.stream` file next to it. **Choose a ZIP or Patch File** and **Choose a Folder** do the same. A ZIP dropped anywhere in Audiodiver also opens on this page.
 3. Check the name. Audiodiver takes it from the manifest if there is one, and otherwise from the file or folder name, without the numbers and dates that Nexus Mods adds to downloads.
 4. Tick **Patch every bank with the sounds** to play the mod's audio wherever those sounds are used. Left off, the audio goes only into the banks the mod patched, as in the original, and the size stays about the same. [More about it](wiki:build-and-install#every-bank-with-the-sounds).
 5. Press **Repatch**.
 
-The page then sums up the result: what was carried over, what was kept as it was, and what was left out. **Show all** lists every patch and the log. **Repatch another mod** clears the page.
+The page then sums up the result: what was carried over, what was kept as it was, and what was left out. **Show All** lists every patch and the log. **Repatch Another Mod** clears the page.
 
 Some mods have several options, with one patch for each. Such a mod stays one mod with the same options. The page counts the patches, and Audiodiver rebuilds each patch that holds audio where it was. A patch without audio, such as an option that only changes a texture, stays as it is. **Show all** lists them one by one.
 
@@ -27,14 +27,14 @@ Some mods have several patch files in one folder, such as `.patch_0`, `.patch_1`
 
 ## Checking installed mods
 
-**Installed mods**, at the bottom of the Repatch page, finds the mods that need a repatch. **Check installed mods** looks through the mods in a mod manager's library, deployed or not, and the patch files in the game's `data` folder. It lists every mod with sound banks:
+**Installed mods**, at the bottom of the Repatch page, finds the mods that need a repatch. **Check Installed Mods** looks through the mods in a mod manager's library, deployed or not, and the patch files in the game's `data` folder. It lists every mod with sound banks:
 
 - **Older shared settings.** The banks have older copies of [settings that other banks share](#shared-settings-from-an-older-game-version). While deployed, the mod can mute or change sounds it never touched. The line below shows how many other banks it reaches.
 - **Older sound banks.** The banks are from an older game version. The mod's sounds can be wrong or missing.
 - **Up to date.** Nothing in the banks is older than the current game. Either the mod was made for this version, or later updates didn't touch those banks.
 - **Can't be read.** Audiodiver couldn't read the patch file.
 
-**Deployed** marks the mods currently in the game folder. A mod with options is listed once, with **Options** showing each option when they differ. **Repatch…** opens a flagged mod in the form at the top of the page, ready to repatch.
+**Deployed** marks the mods currently in the game folder. A mod with options is listed once, with **Options** showing each option when they differ. **Repatch** opens a flagged mod in the form at the top of the page, ready to repatch.
 
 The check only reports what a mod's author wouldn't have changed on purpose, so a mod made for the current game never shows up as older.
 
@@ -51,7 +51,7 @@ If the mod has a mod manager manifest, the new ZIP keeps everything else from th
 
 ## Destination folder
 
-The new ZIP goes into the **Destination folder**. The default location is `Documents\Audiodiver\Repatched`, and **Change…** picks another. If a ZIP with the same name is already there, it stays, and the new one gets a number.
+The new ZIP goes into the **Destination folder**. The default location is `Documents\Audiodiver\Repatched`, and **Change** picks another. If a ZIP with the same name is already there, it stays, and the new one gets a number.
 
 To change a mod further, make a project and import the mod's patch into it, as [When the game updates](wiki:game-updates#mods-made-with-older-tools) explains. Then build it from [Build](app:build) like any other project.
 

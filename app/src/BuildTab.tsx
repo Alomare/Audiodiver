@@ -93,12 +93,12 @@ function BuildBox() {
         <div className="warn-box">
           <b>Fix {p.problems.length === 1 ? "this" : "these"} before building</b>
           <ul className="problems">{p.problems.map((x, i) => (
-            <li key={i}>{x}{ON_PROJECT_TAB.test(x) && <> <button className="link-inline" onClick={() => nav.go("project")}>Project tab</button></>}
+            <li key={i}>{x}{ON_PROJECT_TAB.test(x) && <> <button className="link-inline" onClick={() => nav.go("project")}>Project Tab</button></>}
               {MISSING.test(x) && <> <Help tip="Put the file back where it was, or choose another file on the slot in the Audio tab" page="project-folders#missing-files" /></>}</li>
           ))}</ul>
           {p.unresolved.length > 0 && (
             <button className="btn" onClick={() => actions.unassign(p.unresolved.map((u) => u.target))}>
-              Remove the {p.unresolved.length === 1 ? "sound" : `${p.unresolved.length} sounds`} the game no longer has</button>
+              Remove the {p.unresolved.length === 1 ? "Sound" : `${p.unresolved.length} Sounds`} the Game No Longer Has</button>
           )}
         </div>
       )}
@@ -109,15 +109,15 @@ function BuildBox() {
       )}
       <button className="btn primary build" onClick={actions.build} disabled={building || empty || p.problems.length > 0} data-tip-cmd="build"
         data-tip={p.problems.length ? "Fix the problems first" : empty ? "Nothing to build yet" : "Encode, patch the sound banks, verify and pack the ZIP"}>
-        {building ? "Building…" : `Build v${p.version}`}
+        {building ? "Building" : `Build v${p.version}`}
       </button>
       <div className="bld-out">
         <p>Destination folder <span className="path" data-tip={p.build_folder} data-tip-clip>{p.build_folder}</span></p>
         <div className="row-btns">
           <button className="btn" onClick={chooseFolder} disabled={building}
-            data-tip={`Choose another folder for builds. Only the ZIP${p.patch_files ? " and the patch files are" : " is"} written there.`}>Change…</button>
+            data-tip={`Choose another folder for builds. Only the ZIP${p.patch_files ? " and the patch files are" : " is"} written there.`}>Change</button>
           {elsewhere && <button className="btn" onClick={() => actions.settings({ build_folder: null })} disabled={building}
-            data-tip={p.build_folder_default}>Back to the default</button>}
+            data-tip={p.build_folder_default}>Back to the Default</button>}
         </div>
       </div>
       {p.settings > 0 && (
@@ -126,7 +126,7 @@ function BuildBox() {
       )}
       {p.last_build && (
         <p className="build-last">Last build: <b>{fileName(p.last_build.zip)}</b>, {p.last_build.mb} MB, {fmtWhen(p.last_build.modified)}
-          <button className="link-inline" onClick={() => reveal(p.last_build!.zip)}>Show in folder</button></p>
+          <button className="link-inline" onClick={() => reveal(p.last_build!.zip)}>Show in Folder</button></p>
       )}
       {p.last_build && p.game_updated && (
         <p className="warn-box">The game updated after this build, so the sound banks in the ZIP are outdated. Build again before playing or sharing it.
@@ -170,7 +170,7 @@ function BuildOptions() {
         <label className="check" data-tip={p.every_bank ? "Patch every bank with the sounds is on" : undefined}>
           <input type="checkbox" checked={p.project_banks_only} disabled={p.every_bank}
             onChange={(e) => actions.settings({ project_banks_only: e.target.checked })} />
-          <span>Keep added audio to the project's banks <Help tip="New takes, layers and new audio set to Only this sound go into every bank with a copy of the sound, as the game plays the copy it loads first. With this on, they go only into the banks of the listed items. The mod gets smaller, but where the game loads another bank's copy first, the original plays." page={OWN_BANKS_PAGE} /></span>
+          <span>Keep added audio to the project's banks <Help tip="New takes, layers and new audio set to Only This Sound go into every bank with a copy of the sound, as the game plays the copy it loads first. With this on, they go only into the banks of the listed items. The mod gets smaller, but where the game loads another bank's copy first, the original plays." page={OWN_BANKS_PAGE} /></span>
         </label>
       </div>
     </section>
@@ -187,7 +187,7 @@ function Log() {
         <div className="log">{list.map((j) => <LogJob key={j.id} job={j} />)}</div>
       ) : <p className="set-note">This session's builds, imports and exports.</p>}
       {status?.log && <button className="link-inline log-file" onClick={() => reveal(status.log)}
-        data-tip="Show the log file in Explorer" data-tip-more="Attach it to a bug report">Show the log file</button>}
+        data-tip="Show the log file in Explorer" data-tip-more="Attach it to a bug report">Show the Log File</button>}
     </section>
   );
 }

@@ -171,7 +171,7 @@ export function Waveform({ peaks, spanMs, fromMs = 0, zoomY = 1, tone, height: f
       <canvas ref={canvas} style={{ width: "100%", height }} />
       {!peaks && error ? (
         <span className="wave-empty failed" onPointerDown={(e) => e.stopPropagation()}>
-          <span>Couldn't read this audio{onRetry && <>. <button className="link-inline" onClick={onRetry}>Try again</button></>}</span>
+          <span>Couldn't read this audio{onRetry && <>. <button className="link-inline" onClick={onRetry}>Try Again</button></>}</span>
         </span>
       ) : !peaks && label && <span className="wave-empty">{label}</span>}
       {/* moved by a transform: it moves on every frame of playback, and a transform needs no layout or paint */}

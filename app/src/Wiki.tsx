@@ -8,7 +8,7 @@ import { nav, useNav } from "./nav";
 import { Splitter, useStoredWidth } from "./Resize";
 import { scrollBehavior } from "./theme";
 
-const NAV_WIDTH = 270;
+const NAV_SHARE = 0.25; // the list of guides takes a quarter of the tab to start, the page the rest
 /** The pages the list shows and Previous/Next step through: Audiodiver Utils lists only its own (a link still opens
     any page). The FAQ (group "FAQ") has an entry of its own above the groups, and isn't one of the steps. */
 const WIKI = UTILS ? ALL_PAGES.filter((p) => UTILS_WIKI.has(p.id)) : ALL_PAGES.filter((p) => p.group !== "FAQ");
@@ -19,7 +19,7 @@ const FAQ = UTILS ? undefined : ALL_PAGES.find((p) => p.group === "FAQ");
 export function Wiki() {
   const { wiki: id, anchor } = useNav(); // anchor: a heading a link to part of the page names
   const [query, setQuery] = useState("");
-  const [width, setWidth] = useStoredWidth("audiodiver.wikiWidth", NAV_WIDTH);
+  const [share, setShare] = useStoredWidth("audiodiver.wikiShare", NAV_SHARE);
   const [at, setAt] = useState(""); // the heading being read, for the outline
   const reader = useRef<HTMLDivElement>(null);
   const article = useRef<HTMLElement>(null);
@@ -88,7 +88,7 @@ export function Wiki() {
   };
 
   return (
-    <section className="wiki" aria-label="Wiki" style={{ ["--wiki-nav" as any]: `${width}px` }}>
+    <section className="wiki" aria-label="Wiki" style={{ ["--wiki-nav" as any]: String(share) }}>
       <nav className="wiki-nav" aria-label="Guides">
         <div className="lib-search wiki-search">
           <input type="search" placeholder="Search the guides" value={query} aria-label="Search the guides" onChange={(e) => setQuery(e.target.value)}
@@ -119,7 +119,7 @@ export function Wiki() {
           {!groups.length && !faqFound && <p className="empty-note">No guide mentions “{query}”.</p>}
         </div>
       </nav>
-      <Splitter width={width} onResize={setWidth} initial={NAV_WIDTH} panel="left" label="Resize the list of guides" cssVar="--wiki-nav" />
+      <Splitter fraction width={share} onResize={setShare} initial={NAV_SHARE} panel="left" label="Resize the list of guides" cssVar="--wiki-nav" />
       <div className={`wiki-read${find ? " finding" : ""}`} ref={reader} onScroll={follow}>
         {find && <FindBar article={article} reader={reader} page={page.id} open={find} onClose={() => setFind(null)} />}
         <div className="wiki-cols">

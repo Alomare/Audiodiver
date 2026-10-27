@@ -14,9 +14,9 @@ Each row shows whether the line is a **Subtitle** or other **Text**. The right p
 
 ## Changing a line
 
-Type in **New text**. The change is saved shortly after you stop typing, or immediately with {key:save}, and each save is one step for {key:undo}. **Restore the original** puts the original line back.
+Type in **New text**. The change is saved shortly after you stop typing, or immediately with {key:save}, and each save is one step for {key:undo}. **Restore the Original** puts the original line back.
 
-To format part of a line, select the words and use the bar above the box. It has **Colour**, **Size** and **Emphasis**, and **Timing** for subtitles. With nothing selected, a button formats the whole line. **Clear formatting** removes every colour, size and style.
+To format part of a line, select the words and use the bar above the box. It has **Colour**, **Size** and **Emphasis**, and **Timing** for subtitles. With nothing selected, a button formats the whole line. **Clear Formatting** removes every colour, size and style.
 
 [Formatting text](wiki:formatting-text) describes each format, with examples you can copy.
 

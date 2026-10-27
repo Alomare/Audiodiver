@@ -12,7 +12,7 @@ On a slot without new audio, Make-Up Gain makes the Original louder or quieter. 
 
 The waveforms under the slots are drawn at the gain and follow the slider as it moves, on the same scale as the Original, so the new audio can be set as loud as the Original by eye. Red marks audio pushed past full scale, which clips. ▶ plays the new audio at the gain too, and the Original at the gain on it.
 
-**Match the original loudness** sets the Make-Up Gain that makes the new audio as loud as the Original. Audiodiver measures the loudness of both (as broadcast loudness meters do): a sound shorter than 3 seconds, such as a shot or a voice line, by the loudest moment, and longer audio, such as music, by the whole. With several slots selected, **Match each to the original loudness** sets a separate gain for each slot.
+**Match the Original Loudness** sets the Make-Up Gain that makes the new audio as loud as the Original. Audiodiver measures the loudness of both (as broadcast loudness meters do): a sound shorter than 3 seconds, such as a shot or a voice line, by the loudest moment, and longer audio, such as music, by the whole. With several slots selected, **Match Each to the Original Loudness** sets a separate gain for each slot.
 
 > [!NOTE]
 > A few clips ignore Make-Up Gain in game, including the Illuminate calm stingers. Their details show a warning. Set the loudness of these clips in the audio file.

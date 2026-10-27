@@ -212,7 +212,7 @@ function Around({ item, a }: { item: MusicItem; a: Record<string, Assignment> })
         {warn && project && (
           <button className="btn quiet small-btn" data-tip="Replace them with a short silence, so the next music starts right away. This also adds them to the project."
             onClick={() => actions.skip([...new Set(game.flatMap((r) => r.part.own.filter((t) => !a[t])))], `${game.length} around ${item.full}`)}>
-            Skip {game.length === 1 ? "it" : "them"}</button>
+            Skip {game.length === 1 ? "It" : "Them"}</button>
         )}
       </div>
       <Fold open={open}>

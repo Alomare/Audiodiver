@@ -172,7 +172,7 @@ function ProjectPage() {
         <section className="set-sec">
           <h2>Export <Help tip="A pack is one .audipack file with the project and all associated files, for moving it to another computer or keeping a copy." page="project-folders#packs" /></h2>
           <div className="row-btns">
-            <button className="btn" onClick={actions.exportPack} disabled={busy}>Export as pack…</button>
+            <button className="btn" onClick={actions.exportPack} disabled={busy}>Export as Pack</button>
           </div>
         </section>
       </div>
@@ -181,8 +181,8 @@ function ProjectPage() {
         <div className="side-actions">
           <button className="btn" onClick={() => actions.importPatch()}
             data-tip="Import the replaced and added sounds from a mod's .patch_0 file into this project"
-            data-tip-more="To keep working on an existing mod, such as one made with another tool">Import patches…</button>
-          <button className="btn quiet" onClick={actions.closeProject} data-tip="Close the project" data-tip-cmd="closeProject">Close project</button>
+            data-tip-more="To keep working on an existing mod, such as one made with another tool">Import Patches</button>
+          <button className="btn quiet" onClick={actions.closeProject} data-tip="Close the project" data-tip-cmd="closeProject">Close Project</button>
         </div>
         <IconPreview preview={same(icon, p.icon) ? undefined : icon} bust={String(revision)} name={name.trim() || p.name}
           description={description.trim()} />
@@ -213,9 +213,9 @@ function ModId() {
           <code>{p.guid}</code>
           <button className="btn quiet" onClick={() => copyText(p.guid, quick, "the mod ID")}>Copy</button>
           <button className="btn quiet" onClick={() => setDraft(p.guid)}
-            data-tip="Use the ID of a mod made before, such as the Guid in the manifest.json of the mod" data-tip-more="Mod managers then treat a build as an update to that mod">Change…</button>
+            data-tip="Use the ID of a mod made before, such as the Guid in the manifest.json of the mod" data-tip-more="Mod managers then treat a build as an update to that mod">Change</button>
           <button className="btn quiet" onClick={() => actions.newModId()}
-            data-tip="Use this when a copied project becomes a different mod" data-tip-more="The next build installs as a separate mod">Make a new ID</button>
+            data-tip="Use this when a copied project becomes a different mod" data-tip-more="The next build installs as a separate mod">Make a New ID</button>
         </div>
       ) : (
         <div className="field">
@@ -253,7 +253,7 @@ function FolderSection({ busy }: { busy: boolean }) {
         : `The project moves to ${where.dest}, with the slices, imported audio and builds Audiodiver made for it.`)
         + " Files you picked from elsewhere stay where they are, and the project still finds them."
         + (where.copy ? " That is another drive, so the files are copied there first, which takes a while for a big project." : ""),
-      ok: "Move", cancel: "Keep it here",
+      ok: "Move", cancel: "Keep It Here",
     });
     if (ok) await actions.moveProject(folder);
   };
@@ -261,7 +261,7 @@ function FolderSection({ busy }: { busy: boolean }) {
     const ok = await confirm({
       title: "Move the project into a new folder?",
       text: `The project moves to ${p.move_to ?? "a new folder"}, with the slices, imported audio and builds Audiodiver made for it. Files you picked from elsewhere stay where they are.`,
-      ok: "Move", cancel: "Keep it here",
+      ok: "Move", cancel: "Keep It Here",
     });
     if (ok) await actions.moveToOwnFolder();
   };
@@ -271,9 +271,9 @@ function FolderSection({ busy }: { busy: boolean }) {
       <h2>Folder <Help tip="Where the project file and the files it uses are kept" page="project-folders#the-project-folder" /></h2>
       <p className="path" data-tip={p.path} data-tip-clip>{p.folder}</p>
       <div className="row-btns">
-        <button className="btn quiet" onClick={() => reveal(p.path)}>Show in folder</button>
+        <button className="btn quiet" onClick={() => reveal(p.path)}>Show in Folder</button>
         <button className="btn quiet" onClick={moveTo} disabled={busy} data-tip="Move the project to another folder"
-          data-tip-more="The project still finds every file it uses">Move project…</button>
+          data-tip-more="The project still finds every file it uses">Move Project</button>
       </div>
       {!p.own_folder && (
         <div className="warn-box">
@@ -282,7 +282,7 @@ function FolderSection({ busy }: { busy: boolean }) {
             : "This project is in a shared place, such as the Desktop or Documents."}
             {" "}<Help tip="Audiodiver puts the slices, the imported audio and the builds beside the project file. In a folder that holds only this project, they stay apart from other files." page="project-folders#moving-a-project-into-a-new-folder" /></p>
           <div className="row-btns">
-            <button className="btn" onClick={move} disabled={busy}>Move to a new folder</button>
+            <button className="btn" onClick={move} disabled={busy}>Move to a New Folder</button>
           </div>
         </div>
       )}
@@ -291,7 +291,7 @@ function FolderSection({ busy }: { busy: boolean }) {
           <p>{plural(p.files_elsewhere, "file")} the project uses {p.files_elsewhere === 1 ? "is" : "are"} outside the project folder.
             {" "}<Help tip="Copies them into the project folder, so the project can be moved or copied as one folder" page="project-folders#collecting-files" /></p>
           <div className="row-btns">
-            <button className="btn" onClick={actions.collectFiles} disabled={busy}>Collect files</button>
+            <button className="btn" onClick={actions.collectFiles} disabled={busy}>Collect Files</button>
           </div>
         </div>
       )}
@@ -334,7 +334,7 @@ function UnusedFiles({ busy: working }: { busy: boolean }) {
     <section className="set-sec">
       <h2>Unused files <Help tip="Files Audiodiver made for the project that nothing uses any more" page="project-folders#unused-files" /></h2>
       <div className="row-btns">
-        <button className="btn" onClick={find} disabled={busy || working}>{busy ? "Looking…" : "Find unused files"}</button>
+        <button className="btn" onClick={find} disabled={busy || working}>{busy ? "Looking" : "Find Unused Files"}</button>
         {!!found?.files.length && <button className="btn quiet" onClick={remove} disabled={working}>Remove</button>}
       </div>
       {found && (found.files.length ? (
@@ -376,10 +376,10 @@ function IconEditor({ icon, frame, setIcon, saveIcon }: IconProps) {
       <div className="ico-body view-in" key={image ? "image" : "default"}>
         <p className="path" data-tip={image} data-tip-clip>{image ?? "Default icon"}</p>
         <div className="row-btns">
-          <button className="btn" onClick={() => actions.setIcon()}>{image ? "Choose another image…" : "Choose an image…"}</button>
+          <button className="btn" onClick={() => actions.setIcon()}>{image ? "Choose Another Image" : "Choose an Image"}</button>
           {image && <button className="btn quiet" disabled={p.problems.some((x) => x.startsWith("icon: image not found"))}
-            onClick={() => reveal(fullPath(p.folder, image))}>Show in folder</button>}
-          {image && <button className="btn quiet" onClick={toDefault} data-tip="The image file stays where it is">Use the default icon</button>}
+            onClick={() => reveal(fullPath(p.folder, image))}>Show in Folder</button>}
+          {image && <button className="btn quiet" onClick={toDefault} data-tip="The image file stays where it is">Use the Default Icon</button>}
         </div>
       </div>
 

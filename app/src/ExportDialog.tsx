@@ -18,9 +18,9 @@ type Whose = "game" | "mine" | "both";
 const FOLDER_KEY = "audiodiver.exportFolder";
 const PREFS_KEY = "audiodiver.exportPrefs";
 const WHAT: { id: What; title: string; text: string }[] = [
-  { id: "slots", title: "Each slot", text: "Each slot as a separate, unchanged file" },
-  { id: "segments", title: "Each segment", text: "Each segment as one file, with the layers mixed" },
-  { id: "cue", title: "The whole piece", text: "One track with the segments in play order, joined at their Exit points" },
+  { id: "slots", title: "Each Slot", text: "Each slot as a separate, unchanged file" },
+  { id: "segments", title: "Each Segment", text: "Each segment as one file, with the layers mixed" },
+  { id: "cue", title: "The Whole Piece", text: "One track with the segments in play order, joined at their Exit points" },
 ];
 const FORMATS = [
   { id: "wav", name: "WAV (24-bit)" }, { id: "flac", name: "FLAC (lossless, smaller)" },
@@ -108,7 +108,7 @@ export function ExportListDialog({ onClose }: { onClose: () => void }) {
             ))}
           </ul>
         ) : (
-          <p className="set-note">The list is empty. Right-click slots, groups, Index entries or archives and choose <b>Add to the export list</b>.</p>
+          <p className="set-note">The list is empty. Right-click slots, groups, Index entries or archives and choose <b>Add to the Export List</b>.</p>
         )}
         <div className="export-grid">
           <div className="field">
@@ -134,15 +134,15 @@ export function ExportListDialog({ onClose }: { onClose: () => void }) {
           <span className="field-label">Destination folder</span>
           <div className="folder-row">
             <span className={`folder${folder ? "" : " none"}`} data-tip={folder} data-tip-clip>{folder || "No folder chosen yet"}</span>
-            <button className="btn" onClick={async () => { const f = await pickFolder(folder || project?.folder); if (f) setFolder(f); }}>Choose…</button>
+            <button className="btn" onClick={async () => { const f = await pickFolder(folder || project?.folder); if (f) setFolder(f); }}>Choose</button>
           </div>
         </div>
         <div className="modal-foot">
-          {list.length > 0 && <button className="btn quiet" onClick={() => exportList.clear()}>Clear the list</button>}
+          {list.length > 0 && <button className="btn quiet" onClick={() => exportList.clear()}>Clear the List</button>}
           <span className="spacer" />
           <button className="btn quiet" onClick={onClose}>Cancel</button>
           <button className="btn primary" disabled={!list.length} onClick={submit}>
-            Export {list.length} {list.length === 1 ? "entry" : "entries"}{slots ? ` (${slots} slots)` : ""}</button>
+            Export {list.length} {list.length === 1 ? "Entry" : "Entries"}{slots ? ` (${slots} Slots)` : ""}</button>
         </div>
       </div>
     </div>
@@ -288,7 +288,7 @@ export function ExportForm({ onDone, onCancel }: { onDone?: () => void; onCancel
           <span className="field-label">Destination folder</span>
           <div className="folder-row">
             <span className={`folder${folder ? "" : " none"}`} data-tip={folder} data-tip-clip>{folder || "No folder chosen yet"}</span>
-            <button className="btn" onClick={choose}>Choose…</button>
+            <button className="btn" onClick={choose}>Choose</button>
           </div>
         </div>
 
@@ -296,7 +296,7 @@ export function ExportForm({ onDone, onCancel }: { onDone?: () => void; onCancel
           <span className="spacer" />
           {onCancel && <button className="btn quiet" onClick={onCancel}>Cancel</button>}
           <button className="btn" onClick={toList} data-tip="Collect with other items to export together from the status bar">
-            Add to the export list</button>
+            Add to the Export List</button>
           <button className="btn primary" onClick={submit}>Export</button>
         </div>
     </>

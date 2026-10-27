@@ -41,9 +41,9 @@ export function NoProjectCard({ text, recent = true }: { text: string; recent?: 
       <h2>No project is open</h2>
       <p>{text}</p>
       <div className="row-btns">
-        <button className="btn primary" onClick={actions.newProject}>New project…</button>
-        <button className="btn" onClick={() => actions.openProject()}>Open project…</button>
-        {recent && <button className="btn quiet" onClick={() => nav.go("project")}>Recent projects</button>}
+        <button className="btn primary" onClick={actions.newProject}>New Project</button>
+        <button className="btn" onClick={() => actions.openProject()}>Open Project</button>
+        {recent && <button className="btn quiet" onClick={() => nav.go("project")}>Recent Projects</button>}
       </div>
     </div>
   );

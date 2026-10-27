@@ -78,6 +78,39 @@ def test_the_app_keeps_square_corners():
     assert found == []
 
 
+def test_buttons_are_in_title_case():
+    """Every button says what it does in Title Case, without three dots, even one that opens a dialog or a menu (the
+    user's rule). Checked here: a button's own words, a menu entry's label and a confirm's answers. Articles,
+    conjunctions and prepositions of four letters or fewer stay lower case inside a label; a busy state ("Building")
+    has no dots either. Words in a sentence (a search to try, a place) and names from data aren't labels."""
+    small = {"a", "an", "the", "and", "but", "or", "nor", "for", "so", "yet", "as", "at", "by", "from", "in", "into",
+             "of", "off", "on", "onto", "per", "to", "via", "with", "than"}
+    src = HERE.parents[1] / "app" / "src"
+    labels = []
+    for f in sorted(src.glob("*.tsx")):
+        t = f.read_text(encoding="utf-8")
+        # a button's words: plain text up to the first tag or expression, on the same line as the end of the tag
+        for m in re.finditer(r"<button\b([^\n]*?[^=])>([A-Za-z][^<>{}\n]*)</button>", t):
+            if "setQuery(" not in m.group(1):  # the Text tab's searches to try, words in a sentence
+                labels.append((f.name, m.group(2).strip()))
+        for m in re.finditer(r"\b(?:label|ok|alt|cancel): \"([^\"\n]+)\"", t):
+            labels.append((f.name, m.group(1)))
+        # a menu entry's label built as it opens: each string in it, with what ${...} puts in left out
+        for m in re.finditer(r"\blabel: (?!string)([^\n]*?)(?:, (?:run|keys|disabled|tip|draw|about):|$)", t, re.M):
+            value = m.group(1)
+            while re.search(r"\$\{[^{}]*\}", value):
+                value = re.sub(r"\$\{[^{}]*\}", "X", value)
+            labels += [(f.name, s) for s in re.findall(r"`([^`]*)`|\"([^\"]*)\"", value) for s in s if s.strip()]
+    found = []
+    for name, label in labels:
+        words = re.findall(r"[A-Za-z][\w'-]*", label)
+        low = [w for i, w in enumerate(words) if w[0].islower() and (w not in small or i in (0, len(words) - 1))]
+        if "…" in label or low:
+            found.append(f"{name}: {label}")
+    assert len(labels) > 100  # the scan still finds the app's buttons
+    assert found == []
+
+
 def test_shown_data_texts_keep_the_writing_rules():
     data = HERE.parent / "audiodiver" / "data"
     notes = [g for name in ("notes.json", "exertions.json")

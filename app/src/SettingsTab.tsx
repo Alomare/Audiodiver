@@ -111,9 +111,9 @@ function System() {
         <div className="field">
           <span className="field-label">Save</span>
           <div className="segmented narrow" role="radiogroup" aria-label="Autosave">
-            <button role="radio" aria-checked={!s.autosave} className={!s.autosave ? "on" : ""} onClick={() => settings.set({ autosave: 0 })}>With each change</button>
+            <button role="radio" aria-checked={!s.autosave} className={!s.autosave ? "on" : ""} onClick={() => settings.set({ autosave: 0 })}>With Each Change</button>
             <button role="radio" aria-checked={!!s.autosave} className={s.autosave ? "on" : ""}
-              onClick={() => { if (!s.autosave) settings.set({ autosave: AUTOSAVE_DEFAULT }); }}>On a timer</button>
+              onClick={() => { if (!s.autosave) settings.set({ autosave: AUTOSAVE_DEFAULT }); }}>On a Timer</button>
           </div>
           {s.autosave > 0 && <>
             <input type="range" className="size-slider" style={rangeVars(s.autosave, 1, AUTOSAVE_MAX)} min={1} max={AUTOSAVE_MAX} step={1} value={s.autosave} aria-label="Minutes between saves"
@@ -160,24 +160,24 @@ function System() {
           <div className="set-row">
             <div><b>Previews</b><small>Decoded originals, waveforms and Play through renders</small></div>
             <span className="set-value">{cache ? fmtBytes(cache.previews) : "…"}</span>
-            <button className="btn" disabled={!cache?.previews || clearing !== null} onClick={() => clear("previews")}>{clearing === "previews" ? "Clearing…" : "Clear"}</button>
+            <button className="btn" disabled={!cache?.previews || clearing !== null} onClick={() => clear("previews")}>{clearing === "previews" ? "Clearing" : "Clear"}</button>
           </div>
           <div className="set-row">
             <div><b>Encoded audio</b><small>New audio converted for the game, reused by builds</small></div>
             <span className="set-value">{cache ? fmtBytes(cache.encoded) : "…"}</span>
-            <button className="btn" disabled={!cache?.encoded || clearing !== null} onClick={() => clear("encoded")}>{clearing === "encoded" ? "Clearing…" : "Clear"}</button>
+            <button className="btn" disabled={!cache?.encoded || clearing !== null} onClick={() => clear("encoded")}>{clearing === "encoded" ? "Clearing" : "Clear"}</button>
           </div>
         </div>
-        {cache && <button className="link-text" onClick={() => reveal(cache.folder)}>Show the folder</button>}
+        {cache && <button className="link-text" onClick={() => reveal(cache.folder)}>Show the Folder</button>}
       </section>
 
       {!UTILS && <section className="set-sec">
         <h2>Layout</h2>
         <button className="btn" onClick={() => { resetLayout(); quick("Panel sizes reset"); }}
-          data-tip="The side panels, the header and the waveforms back to their default sizes">Reset panel sizes</button>
+          data-tip="The side panels, the header and the waveforms back to their default sizes">Reset Panel Sizes</button>
       </section>}
 
-      {changed && <button className="link-text set-reset" onClick={() => settings.set(defaults)}>Reset these settings to default</button>}
+      {changed && <button className="link-text set-reset" onClick={() => settings.set(defaults)}>Reset These Settings to Default</button>}
     </div>
   );
 }
@@ -204,9 +204,9 @@ function GameFolder() {
       {where?.how && FOUND[where.how] && <p className="set-note">{FOUND[where.how]}</p>}
       <div className="row-btns">
         <button className="btn" disabled={busy} onClick={() => change()}
-          data-tip={busy ? "Wait for the build or export to finish" : "The Helldivers 2 install folder, or the data folder inside it"}>Choose another folder…</button>
-        {where?.chosen && <button className="btn quiet" disabled={busy} onClick={() => change(null)}>Find it through Steam again</button>}
-        {where?.path && <button className="btn quiet" onClick={() => reveal(where.path!)}>Show in folder</button>}
+          data-tip={busy ? "Wait for the build or export to finish" : "The Helldivers 2 install folder, or the data folder inside it"}>Choose Another Folder</button>
+        {where?.chosen && <button className="btn quiet" disabled={busy} onClick={() => change(null)}>Find It Through Steam Again</button>}
+        {where?.path && <button className="btn quiet" onClick={() => reveal(where.path!)}>Show in Folder</button>}
       </div>
       {error && <p className="warn-box" role="alert">{error}</p>}
     </section>
@@ -285,12 +285,12 @@ function Shortcuts() {
                     const waiting = capture?.id === c.id && capture.replacing === chord;
                     return (
                       <span key={chord} className={`key-chip${waiting ? " waiting" : ""}`}>
-                        <button onClick={() => rebind(c.id, chord)} data-tip="Change this key">{waiting ? "Press a key…" : fmtChord(chord)}</button>
+                        <button onClick={() => rebind(c.id, chord)} data-tip="Change this key">{waiting ? "Press a Key" : fmtChord(chord)}</button>
                         <button className="key-x" aria-label={`Remove ${fmtChord(chord)}`} data-tip="Remove this key" onClick={() => keymap.unbind(c.id, chord)}>✕</button>
                       </span>
                     );
                   })}
-                  {capture?.id === c.id && !capture.replacing ? <span className="key-chip waiting"><button>Press a key…</button></span>
+                  {capture?.id === c.id && !capture.replacing ? <span className="key-chip waiting"><button>Press a Key</button></span>
                     : !map[c.id].length && <span className="key-none">No key</span>}
                   <button className="key-add" onClick={() => rebind(c.id)} aria-label={`Add a key for: ${c.label}`}
                     data-tip={map[c.id].length ? "Add another key for this" : "Give this a key"}>+</button>
@@ -349,7 +349,7 @@ function Theme() {
         <h2>Colours</h2>
         <div className="field">
           <span className="field-label">Theme
-            {t.mode !== null && <button className="link-inline" onClick={() => theme.set({ mode: null })}>Follow the system</button>}
+            {t.mode !== null && <button className="link-inline" onClick={() => theme.set({ mode: null })}>Follow the System</button>}
           </span>
           <div className="segmented narrow" role="radiogroup" aria-label="Theme">
             {(["dark", "light"] as const).map((m) => (
@@ -361,7 +361,7 @@ function Theme() {
         </div>
         <div className="field">
           <span className="field-label">Contrast
-            {t.contrast !== null && <button className="link-inline" onClick={() => theme.set({ contrast: null })}>Follow the system</button>}
+            {t.contrast !== null && <button className="link-inline" onClick={() => theme.set({ contrast: null })}>Follow the System</button>}
           </span>
           <div className="segmented narrow" role="radiogroup" aria-label="Contrast">
             {([false, true] as const).map((high) => (
@@ -385,7 +385,7 @@ function Theme() {
         </div>
         <div className="field">
           <span className="field-label">Warmth
-            {t.warmth !== DEFAULT_WARMTH && <button className="link-inline" onClick={() => theme.set({ warmth: DEFAULT_WARMTH })}>Back to default</button>}
+            {t.warmth !== DEFAULT_WARMTH && <button className="link-inline" onClick={() => theme.set({ warmth: DEFAULT_WARMTH })}>Back to Default</button>}
           </span>
           <input type="range" className="hue-slider" style={{ background: warm }} min={WARMTH[0]} max={WARMTH[1]} step={0.05} value={t.warmth} data-scale-tip
             disabled={!t.night} aria-label="Night mode warmth" aria-valuetext={`${Math.round(t.warmth * 100)}%`}
@@ -394,7 +394,7 @@ function Theme() {
         </div>
         <div className="field">
           <span className="field-label">Primary colour
-            {t.hue !== YELLOW_HUE && <button className="link-inline" onClick={() => theme.set({ hue: YELLOW_HUE })}>Back to yellow</button>}
+            {t.hue !== YELLOW_HUE && <button className="link-inline" onClick={() => theme.set({ hue: YELLOW_HUE })}>Back to Yellow</button>}
           </span>
           <input type="range" className="hue-slider" style={{ background: rainbow }} min={0} max={359} step={1} value={t.hue} aria-label="Primary colour hue" data-scale-tip
             onChange={(e) => theme.set({ hue: Number(e.target.value) })} />
@@ -402,7 +402,7 @@ function Theme() {
         </div>
         <div className="field">
           <span className="field-label">Secondary colour
-            {t.hue2 !== BLUE_HUE && <button className="link-inline" onClick={() => theme.set({ hue2: BLUE_HUE })}>Back to blue</button>}
+            {t.hue2 !== BLUE_HUE && <button className="link-inline" onClick={() => theme.set({ hue2: BLUE_HUE })}>Back to Blue</button>}
           </span>
           <input type="range" className="hue-slider second" style={{ background: rainbow2 }} min={0} max={359} step={1} value={t.hue2} aria-label="Secondary colour hue" data-scale-tip
             onChange={(e) => theme.set({ hue2: Number(e.target.value) })} />
@@ -431,7 +431,7 @@ function Theme() {
         </>}
         <div className="field">
           <span className="field-label">Text size
-            {t.size !== DEFAULT_SIZE && <button className="link-inline" onClick={() => theme.set({ size: DEFAULT_SIZE })}>Back to default</button>}
+            {t.size !== DEFAULT_SIZE && <button className="link-inline" onClick={() => theme.set({ size: DEFAULT_SIZE })}>Back to Default</button>}
           </span>
           <input type="range" className="size-slider" style={rangeVars(TEXT_SIZES.indexOf(t.size), 0, TEXT_SIZES.length - 1)} min={0} max={TEXT_SIZES.length - 1} step={1} value={TEXT_SIZES.indexOf(t.size)}
             aria-label="Text size" aria-valuetext={`${t.size} pixels`} onChange={(e) => theme.set({ size: TEXT_SIZES[Number(e.target.value)] })} />
@@ -482,7 +482,7 @@ function Theme() {
         <h2>Animations</h2>
         <div className="field">
           <span className="field-label">Animations
-            {t.motion !== null && <button className="link-inline" onClick={() => theme.set({ motion: null })}>Follow the system</button>}
+            {t.motion !== null && <button className="link-inline" onClick={() => theme.set({ motion: null })}>Follow the System</button>}
           </span>
           <div className="segmented narrow" role="radiogroup" aria-label="Animations">
             {([true, false] as const).map((on) => (
@@ -495,7 +495,7 @@ function Theme() {
         </div>
         <div className="field">
           <span className="field-label">Animation speed
-            {t.speed !== 1 && <button className="link-inline" onClick={() => theme.set({ speed: 1 })}>Back to normal</button>}
+            {t.speed !== 1 && <button className="link-inline" onClick={() => theme.set({ speed: 1 })}>Back to Normal</button>}
           </span>
           <input type="range" className="size-slider" style={rangeVars(SPEEDS.indexOf(t.speed), 0, SPEEDS.length - 1)} min={0} max={SPEEDS.length - 1} step={1} value={SPEEDS.indexOf(t.speed)}
             disabled={!motionOn(t)} aria-label="Animation speed" aria-valuetext={`${t.speed} times normal`}

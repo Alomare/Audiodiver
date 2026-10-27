@@ -22,8 +22,8 @@ The tab bar along the top of the window holds the main tabs. Home and Tools come
 
 - {icon:home} **Home** starts a new project or opens one, and leads to Repatch and Combine.
 - {icon:tools} **Tools** works on existing mods, without a project. [Repatch](wiki:repatching) rebuilds a mod for the current game version, and [Combine Mods](wiki:combining-mods) makes one mod out of several. Both produce a new ZIP.
-- {icon:project} **Project** holds the mod name, description, icon and ID, the tabs the project shows, and the project folder, with **Import patches…** and **Close project** over the icon. With no project open, it lists the recent projects. The tab shows the project icon and name.
-- {icon:library} **Library** lists everything the game plays, so you can find it and listen to it. Browsing changes nothing. **Add to the project** puts an entry in the project. **Index** sorts the audio that has a name, and **All Archives** lists every archive that contains audio.
+- {icon:project} **Project** holds the mod name, description, icon and ID, the tabs the project shows, and the project folder, with **Import Patches** and **Close Project** over the icon. With no project open, it lists the recent projects. The tab shows the project icon and name.
+- {icon:library} **Library** lists everything the game plays, so you can find it and listen to it. Browsing changes nothing. **Add to the Project** puts an entry in the project. **Index** sorts the audio that has a name, and **All Archives** lists every archive that contains audio.
 - {icon:audio} **Audio** shows the slots of what the project works on. Slots get new audio here.
 - {icon:soundtrack} **Soundtrack** sets how each piece of music plays: in the original order, as one song, as a playlist, or silent. See [Soundtrack](wiki:soundtrack).
 - {icon:text} **Text** has all in-game text in every language, including subtitles. See [Text and subtitles](wiki:text).
@@ -44,8 +44,8 @@ Audio, Soundtrack and Text can be hidden. Untick them under **Tabs** in [Setting
 
 Audiodiver checks GitHub for a new version every time it starts. [Settings ▸ System](app:settings/system) controls what happens when there is one:
 
-- **Prompt on startup** (the default) asks first, with **Update now**, **Read the changelog** and **Not now**.
-- **Manual** doesn't ask. The Updates tab and the version in the status bar are highlighted, and **Update now** is on the Updates tab.
+- **Prompt on Startup** (the default) asks first, with **Update Now**, **Read the Changelog** and **Not Now**.
+- **Manual** doesn't ask. The Updates tab and the version in the status bar are highlighted, and **Update Now** is on the Updates tab.
 - **Automatic** installs the new version at startup and restarts Audiodiver.
 
 An update replaces only the app. Projects, audio files and settings are kept.
@@ -54,7 +54,7 @@ An update replaces only the app. Projects, audio files and settings are kept.
 
 ### Game folder
 
-**Game** in [Settings ▸ System](app:settings/system) shows the folder Audiodiver reads the game from. Audiodiver finds it through Steam. If the game is somewhere else, press **Choose another folder…** and pick the Helldivers 2 install folder, or the `data` folder inside it. Audiodiver then reads the game again, which takes about a minute the first time. It only reads from this folder and never writes to it.
+**Game** in [Settings ▸ System](app:settings/system) shows the folder Audiodiver reads the game from. Audiodiver finds it through Steam. If the game is somewhere else, press **Choose Another Folder** and pick the Helldivers 2 install folder, or the `data` folder inside it. Audiodiver then reads the game again, which takes about a minute the first time. It only reads from this folder and never writes to it.
 
 ### Startup
 
@@ -62,7 +62,7 @@ With **Open the last project when Audiodiver starts** on, Audiodiver opens the l
 
 ### Autosave
 
-**Autosave** sets when changes go into the project file. **With each change**, the default, saves every change as it is made. **On a timer** saves every 1 to 30 minutes instead, and until then the status bar says *Unsaved changes*. A build, closing the project and closing Audiodiver save the changes first. {key:save} saves at any time.
+**Autosave** sets when changes go into the project file. **With Each Change**, the default, saves every change as it is made. **On a Timer** saves every 1 to 30 minutes instead, and until then the status bar says *Unsaved changes*. A build, closing the project and closing Audiodiver save the changes first. {key:save} saves at any time.
 
 ### Disk space
 

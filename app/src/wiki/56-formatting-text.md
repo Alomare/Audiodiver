@@ -22,7 +22,7 @@ Tags can be nested. Close them in reverse order:
 Use the <c=FFFFE900><i=1>Hellbomb</i></c> on the nest.
 ```
 
-**Clear formatting** removes every colour, size and style tag from the line and keeps the words and the timing. It also removes the colours that the game fills in, described below. The editor warns when that happens, and {key:undo} restores them.
+**Clear Formatting** removes every colour, size and style tag from the line and keeps the words and the timing. It also removes the colours that the game fills in, described below. The editor warns when that happens, and {key:undo} restores them.
 
 ## Colour
 

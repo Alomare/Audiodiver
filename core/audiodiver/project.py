@@ -271,7 +271,7 @@ class Project:
         try:
             uuid.UUID(self.guid)
         except (ValueError, TypeError, AttributeError):
-            out.append("mod ID: damaged in the project file (Make a new ID, on the Project tab)")
+            out.append("mod ID: damaged in the project file (Make a New ID, on the Project tab)")
         return out
 
     # --- file I/O

@@ -123,7 +123,7 @@ export function TextTab({ hidden }: { hidden?: boolean }) {
         </div>
         <div className="mus-filters">
           <div className="segmented mus-filter" role="radiogroup" aria-label="Show">
-            <button role="radio" aria-checked={!mine} className={!mine ? "on" : ""} onClick={() => { setOnly(null); setMine(false); }}>All lines</button>
+            <button role="radio" aria-checked={!mine} className={!mine ? "on" : ""} onClick={() => { setOnly(null); setMine(false); }}>All Lines</button>
             <button role="radio" aria-checked={mine} className={mine ? "on" : ""} disabled={!project} onClick={() => { setOnly(null); setMine(true); }}
               data-tip={project ? "Only the lines the project changes in this language" : "Open a project to change lines"}>Changed{count ? ` (${count})` : ""}</button>
           </div>
@@ -294,7 +294,7 @@ function LineEditor({ line, lang, canEdit, onSave, onRevert }: {
             )}
             <span className="spacer" />
             <button className="btn quiet small-btn" disabled={!canEdit || !MARKUP.test(draft)} onClick={() => edit(draft.replace(MARKUP, ""), true)}
-              data-tip="Remove every colour, size and style">Clear formatting</button>
+              data-tip="Remove every colour, size and style">Clear Formatting</button>
           </div>
           <textarea ref={box} className="tx-input" value={draft} rows={5} readOnly={!canEdit} spellCheck
             onChange={(e) => edit(e.target.value)} onBlur={() => save(draft, true)} onKeyDown={projectKeys} aria-label="New text" />
@@ -307,7 +307,7 @@ function LineEditor({ line, lang, canEdit, onSave, onRevert }: {
           <div className="tx-preview"><TextPreview text={draft} /></div>
         </div>
         <div className="row-btns">
-          {line.yours !== undefined && <button className="btn" onClick={onRevert} disabled={!canEdit}>Restore the original</button>}
+          {line.yours !== undefined && <button className="btn" onClick={onRevert} disabled={!canEdit}>Restore the Original</button>}
           {changed && pending && <span className="muted small">Saving…</span>}
         </div>
       </div>

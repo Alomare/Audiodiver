@@ -190,21 +190,21 @@ export function IndexTree() {
     const added = listed.has(it.id), inside = held(it);
     const entries: MenuEntry[] = [
       { label: "Open", run: () => openItem(it.id) },
-      { label: "Play a sample", disabled: !it.preview, run: () => playSlot("vanilla", it.preview, revision, `${it.full} (sample)`, { scope, itemId: it.id, cueId: null, source: it.preview }) },
-      { label: "Add to the export list", run: () => toExport([it]) },
-      ...(editing && skippable.length ? [{ label: it.parts.length > 1 ? `Skip all ${it.parts.length}` : "Skip it",
+      { label: "Play a Sample", disabled: !it.preview, run: () => playSlot("vanilla", it.preview, revision, `${it.full} (sample)`, { scope, itemId: it.id, cueId: null, source: it.preview }) },
+      { label: "Add to the Export List", run: () => toExport([it]) },
+      ...(editing && skippable.length ? [{ label: it.parts.length > 1 ? `Skip All ${it.parts.length}` : "Skip It",
         run: () => actions.skip(skippable, it.parts.length > 1 ? `${it.parts.length} in ${it.full}` : it.full) } as MenuEntry] : []),
       "-",
       ...(editing ? [
         { label: "Show in the Library", run: () => goTo({ scope: "library", itemId: it.id, cueId: null, source: null }) } as MenuEntry,
-        { label: "Remove from the project", run: () => actions.removeFromProject([it.id], it.full) } as MenuEntry,
+        { label: "Remove from the Project", run: () => actions.removeFromProject([it.id], it.full) } as MenuEntry,
       ] : added ? [
-        { label: "Open in the Audio tab", run: () => goTo({ scope: "editor", itemId: it.id, cueId: null, source: null }) } as MenuEntry,
-        { label: "Remove from the project", run: () => actions.removeFromProject([it.id], it.full) } as MenuEntry,
+        { label: "Open in the Audio Tab", run: () => goTo({ scope: "editor", itemId: it.id, cueId: null, source: null }) } as MenuEntry,
+        { label: "Remove from the Project", run: () => actions.removeFromProject([it.id], it.full) } as MenuEntry,
       ] : inside ? [
-        { label: "Open in the Audio tab", run: () => goTo({ scope: "editor", itemId: inside.id, cueId: it.parts[0].cue, source: null }) } as MenuEntry,
+        { label: "Open in the Audio Tab", run: () => goTo({ scope: "editor", itemId: inside.id, cueId: it.parts[0].cue, source: null }) } as MenuEntry,
       ] : [
-        { label: "Add to the project", run: () => actions.addToProject([it.id], it.full) } as MenuEntry,
+        { label: "Add to the Project", run: () => actions.addToProject([it.id], it.full) } as MenuEntry,
       ]),
     ];
     openMenu(e, entries);
@@ -235,31 +235,36 @@ export function IndexTree() {
       off. A right-click has the same and more. The + is always there, so it can be found; with no
       project open, it says to open one. */
   const groupLine = (head: ReactNode, items: MusicItem[], name: string) => {
-    const exporting: MenuEntry = { label: `Add ${items.length === 1 ? "it" : `all ${items.length}`} to the export list`, run: () => toExport(items) };
+    const exporting: MenuEntry = { label: `Add ${items.length === 1 ? "It" : `All ${items.length}`} to the Export List`, run: () => toExport(items) };
     const inProject = items.filter((it) => listed.has(it.id));
     const what = (some: MusicItem[]) => (some.length === 1 ? some[0].full : some.length === items.length ? name : `${some.length} from ${name}`);
     const remove = () => actions.removeFromProject(inProject.map((it) => it.id), what(inProject));
-    const removeLabel = inProject.length === items.length ? `Remove ${items.length === 1 ? "it" : `all ${items.length}`} from the project`
+    // the menu says it in Title Case, as buttons do; the ✕ and the + say the same as a tip
+    const removeTip = inProject.length === items.length ? `Remove ${items.length === 1 ? "it" : `all ${items.length}`} from the project`
       : `Remove the ${inProject.length} in the project`;
+    const removeLabel = inProject.length === items.length ? `Remove ${items.length === 1 ? "It" : `All ${items.length}`} from the Project`
+      : `Remove the ${inProject.length} in the Project`;
     if (editing) {
       return (
         <div className="lib-group-line" onContextMenu={(e) => openMenu(e, [{ label: removeLabel, run: remove }, "-", exporting])}>
           {head}
-          <button className="row-act remove" onClick={remove} aria-label={`${removeLabel}: ${name}`} data-tip={removeLabel}>✕</button>
+          <button className="row-act remove" onClick={remove} aria-label={`${removeTip}: ${name}`} data-tip={removeTip}>✕</button>
         </div>
       );
     }
     const fresh = items.filter((it) => !listed.has(it.id) && !held(it));
     const add = () => actions.addToProject(fresh.map((it) => it.id), what(fresh));
-    const label = !fresh.length ? "All in the project" : fresh.length === items.length ? `Add all ${fresh.length} to the project`
+    const tip = !fresh.length ? "All in the project" : fresh.length === items.length ? `Add all ${fresh.length} to the project`
       : `Add the ${fresh.length} not in the project`;
+    const label = !fresh.length ? "All in the Project" : fresh.length === items.length ? `Add All ${fresh.length} to the Project`
+      : `Add the ${fresh.length} Not in the Project`;
     return (
       <div className="lib-group-line" onContextMenu={(e) => openMenu(e, [
         { label, disabled: !fresh.length, run: add },
         ...(inProject.length ? [{ label: removeLabel, run: remove } as MenuEntry] : []),
         "-", exporting])}>
         {head}
-        {fresh.length ? <button className="row-act" onClick={add} aria-label={`${label}: ${name}`} data-tip={label}
+        {fresh.length ? <button className="row-act" onClick={add} aria-label={`${tip}: ${name}`} data-tip={tip}
           data-tip-more={project ? undefined : "Open or create a project first"}>+</button>
           : <span className="in-proj" role="img" aria-label="All in the project" data-tip="All in the project">✓</span>}
       </div>
@@ -465,7 +470,7 @@ function Filters({ filter, setFilter }: { filter: Filter; setFilter: (f: Filter)
           <div className="row-btns">
             <button className="btn quiet small-btn" onClick={review} data-tip="Open the first one and add it to the project">Review</button>
             <button className="btn small-btn" onClick={skipAll}
-              data-tip={`Replace them with a short silence, so the next music starts right away${keyHint("undo") ? `. Undo${keyHint("undo")} brings them back` : ""}`}>Skip them all</button>
+              data-tip={`Replace them with a short silence, so the next music starts right away${keyHint("undo") ? `. Undo${keyHint("undo")} brings them back` : ""}`}>Skip Them All</button>
           </div>
         </div>
       </Fold>

@@ -14,10 +14,10 @@ A mod contains complete copies of the sound banks it changes. When two mods chan
 ## Combining mods
 
 1. Open [Tools ▸ Combine Mods](app:tools/combine).
-2. Drop the mods on the page. You can drop the downloaded ZIPs, the mod folders, or the `.patch_0` files with the `.stream` files next to them. **Add ZIPs or patch files…** and **Add a folder…** do the same, and **Installed mods…** lists the mods in a mod manager's library and the game folder.
+2. Drop the mods on the page. You can drop the downloaded ZIPs, the mod folders, or the `.patch_0` files with the `.stream` files next to them. **Add ZIPs or Patch Files** and **Add a Folder** do the same, and **Installed mods…** lists the mods in a mod manager's library and the game folder.
 3. Choose the options for each mod. A mod with options lists them under the mod name, starting from the choices that the mod manager recorded. An option with several choices takes one of them.
 4. Put the mods in order with ↑ and ↓. See [Order and conflicts](#order-and-conflicts).
-5. Press **Check for conflicts**, and choose a mod for each conflict it finds.
+5. Press **Check for Conflicts**, and choose a mod for each conflict it finds.
 6. Check the name, then press **Combine**.
 
 After a check, changing the list, the order or the options requires another check before **Combine** works. A second check is quick, because Audiodiver keeps what it read from each mod.
@@ -32,7 +32,7 @@ A setting on a sound in conflict follows the sound, so the mod whose audio goes 
 
 ## Destination folder
 
-The new ZIP goes into the **Destination folder**. The default location is `Documents\Audiodiver\Combined`, and **Change…** picks another. If a ZIP with the same name is already there, it stays, and the new one gets a number.
+The new ZIP goes into the **Destination folder**. The default location is `Documents\Audiodiver\Combined`, and **Change** picks another. If a ZIP with the same name is already there, it stays, and the new one gets a number.
 
 After a game update, combine the mods again. To change the audio further, make a project and import the combined patch into it, as [When the game updates](wiki:game-updates#mods-made-with-older-tools) explains. A project takes only the audio.
 

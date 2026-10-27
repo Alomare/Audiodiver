@@ -172,9 +172,9 @@ export function CombinePage() {
           <div className={mods.length ? "row-btns" : "rp-drop drop-zone"}>
             {!mods.length && <p>Drop mods here as <b>ZIPs</b>, <b>folders</b> or <b>.patch_0</b> files.</p>}
             <div className="row-btns">
-              <button className="btn" disabled={combining} onClick={async () => { const p = await pickMods(); if (p) add(p); }}>Add ZIPs or patch files…</button>
-              <button className="btn" disabled={combining} onClick={async () => { const f = await pickFolder(undefined, "Choose a mod folder"); if (f) add([f]); }}>Add a folder…</button>
-              <button className="btn quiet" disabled={combining} onClick={findInstalled}>Installed mods…</button>
+              <button className="btn" disabled={combining} onClick={async () => { const p = await pickMods(); if (p) add(p); }}>Add ZIPs or Patch Files</button>
+              <button className="btn" disabled={combining} onClick={async () => { const f = await pickFolder(undefined, "Choose a mod folder"); if (f) add([f]); }}>Add a Folder</button>
+              <button className="btn quiet" disabled={combining} onClick={findInstalled}>Installed Mods</button>
             </div>
             {reading > 0 && <p className="set-note">Reading…</p>}
           </div>
@@ -203,7 +203,7 @@ export function CombinePage() {
           <h2>Conflicts <Help tip="Sounds that more than one mod changes. Choose which mod's version goes in." page="combining-mods#order-and-conflicts" /></h2>
           <div className="row-btns">
             <button className="btn" onClick={check} disabled={mods.length < 2 || checking || combining}
-              data-tip={mods.length < 2 ? "Add at least two mods" : undefined}>{checking ? "Checking…" : fresh ? "Check again" : "Check for conflicts"}</button>
+              data-tip={mods.length < 2 ? "Add at least two mods" : undefined}>{checking ? "Checking" : fresh ? "Check Again" : "Check for Conflicts"}</button>
             {checking && (waiting || !readJob ? <span className="set-note">Starting…</span> : (
               <>
                 <span className="set-note">{readJob.doing || "Starting…"}</span>
@@ -227,7 +227,7 @@ export function CombinePage() {
           <span className="field-label">Destination folder <Help tip="The new ZIP goes here. A ZIP with the same name stays, and the new one gets a number." page="combining-mods#destination-folder" /></span>
           <p className="path" data-tip={folder} data-tip-clip>{folder || "Documents\\Audiodiver\\Combined"}</p>
           <div className="row-btns">
-            <button className="btn" disabled={combining} onClick={async () => { const f = await pickFolder(folder || undefined, "Choose where combined mods go"); if (f) setFolder(f); }}>Change…</button>
+            <button className="btn" disabled={combining} onClick={async () => { const f = await pickFolder(folder || undefined, "Choose where combined mods go"); if (f) setFolder(f); }}>Change</button>
           </div>
           <div className="set-list">
             <label className="check">
@@ -240,7 +240,7 @@ export function CombinePage() {
         <div className="bld-box rp-go">
           <button className="btn primary build" onClick={go} disabled={!fresh || !!problem || busy}
             data-tip={mods.length < 2 ? "Add at least two mods" : !fresh ? "Check for conflicts first" : "Build one mod from these on the current sound banks"}>
-            {combining ? "Combining…" : "Combine"}
+            {combining ? "Combining" : "Combine"}
           </button>
           {combining && job && (
             <div className="rp-progress">
@@ -411,7 +411,7 @@ function Outcome({ job }: { job: Job }) {
       <h2>Combined</h2>
       <p><b>{m.name}</b>: {fileName(m.zip)}, {m.mb} MB. In the mod manager, turn off the mods it combines before deploying it.</p>
       <div className="row-btns">
-        <button className="btn" onClick={() => reveal(m.zip)}>Show in folder</button>
+        <button className="btn" onClick={() => reveal(m.zip)}>Show in Folder</button>
       </div>
       {lines.map((x) => (
         <div key={x.name} className="rp-mod">

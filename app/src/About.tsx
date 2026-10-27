@@ -53,7 +53,7 @@ function About() {
         Free software under the <button className="link-text" onClick={() => openUrl(LICENCE.url)}>{LICENCE.name}</button>.
       </p>
       <div className="row-btns">
-        <button className="btn" onClick={() => openUrl(REPO_URL)}>Source code <ExternalIcon /></button>
+        <button className="btn" onClick={() => openUrl(REPO_URL)}>Source Code <ExternalIcon /></button>
         <button className="btn" onClick={() => openUrl(DISCORD_URL)} data-tip="Helldivers 2 Modding on Discord"
           data-tip-more="Questions, feedback and help"><DiscordIcon /> Discord <ExternalIcon /></button>
         <button className="btn" onClick={() => openUrl(KOFI_URL)} data-tip="Support Audiodiver on Ko-fi"

@@ -45,9 +45,9 @@ export const EDIT_NAMES: Record<string, string> = {
   unlist: "remove from the project", text: "text change", "add take": "new takes", "add layer": "new layer",
   "own clip": "only this sound", "shared clip": "every sound that plays it", note: "note", collect: "collect files",
   tabs: "tabs", song: "song", playlist: "playlist", soundtrack: "soundtrack", level: "level", "leave out": "leave out",
-  "put back": "put back", shuffle: "shuffle", resume: "playlist order", Original: "Original", "One song": "One song",
-  Playlist: "Playlist", Silent: "Silent", "Same as Battle": "Same as Battle", "Battle songs": "Battle songs",
-  "Quiet exploring": "Quiet exploring", "No openings": "No openings", "Original soundtrack": "Original soundtrack",
+  "put back": "put back", shuffle: "shuffle", resume: "playlist order", Original: "Original", "One Song": "One Song",
+  Playlist: "Playlist", Silent: "Silent", "Same as Battle": "Same as Battle", "Battle Songs": "Battle Songs",
+  "Quiet Exploring": "Quiet Exploring", "No Openings": "No Openings", "Original soundtrack": "Original soundtrack",
 };
 
 /** "a.wav, b.wav and 3 more". */
@@ -266,7 +266,7 @@ function useEditorState() {
   const logPath = useRef("");
   /** A job failed: say so until dismissed, with a way to the core's log. */
   const jobFailed = useCallback((what: string, j: Job) => {
-    notify("bad", `${what} failed: ${j.error}`, logPath.current ? { label: "Open log", run: () => platform.reveal(logPath.current) } : undefined, true);
+    notify("bad", `${what} failed: ${j.error}`, logPath.current ? { label: "Open Log", run: () => platform.reveal(logPath.current) } : undefined, true);
   }, [notify]);
 
   /** Runs an API call; errors become notices instead of exceptions. These calls (edits, mostly) go to the core one at
@@ -538,12 +538,12 @@ function useEditorState() {
       // the Repatch and Combine Mods pages show what it found
     } else if (j.kind === "build") {
       notify("good", `Built ${j.result.zip.split(/[\\/]/).pop()} (${j.result.mb} MB).`,
-        { label: "Show in folder", run: () => platform.reveal(j.result.zip) });
+        { label: "Show in Folder", run: () => platform.reveal(j.result.zip) });
       if (settings.get().revealBuild) platform.reveal(j.result.zip).catch(() => {});
     } else if (j.kind === "repatch" || j.kind === "combine") { // the Repatch and Combine Mods pages show the rest
       const zip: string = j.result.zip;
       notify("good", `${j.kind === "repatch" ? "Repatched" : "Combined"} ${j.title}: ${zip.split(/[\\/]/).pop()} (${j.result.mb} MB).`,
-        { label: "Show in folder", run: () => platform.reveal(zip) });
+        { label: "Show in Folder", run: () => platform.reveal(zip) });
       if (settings.get().revealBuild) platform.reveal(zip).catch(() => {});
     } else if (j.kind === "import") {
       // replacements, and what the mod adds (new takes, layers, sounds with a clip of their own); what can't come
@@ -570,18 +570,18 @@ function useEditorState() {
       const r = j.result;
       const missed = r.missing ? ` ${plural(r.missing, "file")} the project uses ${r.missing === 1 ? "was" : "were"} not found.` : "";
       notify("good", `Packed ${plural(r.files, "file")} into ${r.pack.split(/[\\/]/).pop()} (${r.mb} MB).${missed}`,
-        { label: "Show in folder", run: () => platform.reveal(r.pack) }, r.missing > 0); // files left out: it waits to be read
+        { label: "Show in Folder", run: () => platform.reveal(r.pack) }, r.missing > 0); // files left out: it waits to be read
     } else if (j.kind === "unpack") {
       // the pack's project, in a new folder where new projects go: it opens where it landed
       const p = await run<ProjectState>("project_open", { path: j.result.project });
       if (p) { applyProject(p); remember(p.path); tabs.go(tabs.work()); }
-      notify("good", `Unpacked into ${j.result.folder}.`, { label: "Show in folder", run: () => platform.reveal(j.result.folder) });
+      notify("good", `Unpacked into ${j.result.folder}.`, { label: "Show in Folder", run: () => platform.reveal(j.result.folder) });
       if (p?.repairs.length) notify("info", repairNote(p), undefined, true);
     } else {
       // the export list's slots that have no audio in the game's files: why fewer files came out than it counts
       const absent = j.result.absent ? ` ${plural(j.result.absent, "slot")} on it ${j.result.absent === 1 ? "has" : "have"} no audio in the game files.` : "";
       notify("good", `Exported ${plural(j.result.files, "file")} of ${j.title}.${absent}`,
-        { label: "Show in folder", run: () => platform.reveal(j.result.first) }, true);
+        { label: "Show in Folder", run: () => platform.reveal(j.result.first) }, true);
     }
     if (j.kind === "build" || j.kind === "import") await refresh();
   }, [applyProject, run, quick, jobFailed, notify, remember]);
@@ -1009,7 +1009,7 @@ function useEditorState() {
       applyProject(fresh);
       if (fresh.problems.length) {
         notify("bad", `Fix ${fresh.problems.length === 1 ? "the problem" : `the ${fresh.problems.length} problems`} on the Build tab first.`,
-          { label: "Build tab", run: () => tabs.go("build") });
+          { label: "Build Tab", run: () => tabs.go("build") });
         return;
       }
       if (!Object.keys(fresh.assignments).length && !Object.keys(fresh.gains ?? {}).length && !fresh.texts.length && !Object.keys(fresh.soundtrack ?? {}).length) {
@@ -1070,7 +1070,7 @@ function useEditorState() {
           text: "Add the patch's audio to this project, or replace the current audio? Adding keeps everything, and where "
             + "both have audio for a slot, the patch's version is used. Replacing first removes the new audio, added sounds, "
             + `cue points and list. The text and audio files stay. ${undoHint()} brings them back.`,
-          ok: "Add to the project", alt: "Replace the project's audio",
+          ok: "Add to the Project", alt: "Replace the Project's Audio",
         });
         if (!answer) return;
         if (answer === "alt") mode = "replace";

@@ -99,6 +99,9 @@ export const SearchIcon = () => <Icon size={1}><circle cx="10.5" cy="10.5" r="6"
 export const ThroughIcon = () => <Icon size={1}><path d="M4 6.5v11l7.5-5.5z" /><path d="M14.5 8.5v7M18 8.5v7M21.5 8.5v7" /></Icon>;
 export const PauseIcon = () => <Icon size={1}><path d="M8.5 6v12M15.5 6v12" /></Icon>;
 
+/** A cross: close (the project, on Home). */
+export const CloseIcon = () => <Icon size={1}><path d="m6.5 6.5 11 11M17.5 6.5l-11 11" /></Icon>;
+
 /** Marks a link that opens in the web browser. */
 export const ExternalIcon = () => <Icon size={0.85}><path d="M10 5H5v14h14v-5" /><path d="M14 4h6v6M20 4l-9 9" /></Icon>;
 

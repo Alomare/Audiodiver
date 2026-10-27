@@ -24,7 +24,7 @@ import { Help } from "./Wiki";
 type Mode = Piece["mode"];
 const MODES: { mode: Mode; name: string; tip: string }[] = [
   { mode: "original", name: "Original", tip: "The segments in their original order. Untick one to leave it out" },
-  { mode: "song", name: "One song", tip: "One song cut into the segments, played from the beginning each time the music starts" },
+  { mode: "song", name: "One Song", tip: "One song cut into the segments, played from the beginning each time the music starts" },
   { mode: "tracks", name: "Playlist", tip: "Whole songs, one after another or shuffled" },
   { mode: "silent", name: "Silent", tip: "Nothing plays" },
   { mode: "same", name: "Same as Battle", tip: "The battle music plays on here, from where it is" },
@@ -110,8 +110,8 @@ export function SoundtrackPanes({ hidden }: { hidden: boolean }) {
             <h2>No project open</h2>
             <p>Open or create a project to set how the music plays.</p>
             <div className="row-btns">
-              <button className="btn primary" onClick={actions.newProject}>New project…</button>
-              <button className="btn" onClick={() => actions.openProject()}>Open project…</button>
+              <button className="btn primary" onClick={actions.newProject}>New Project</button>
+              <button className="btn" onClick={() => actions.openProject()}>Open Project</button>
             </div>
           </div>
         )}
@@ -155,26 +155,26 @@ function MusicList({ sections, pick, setPick }: { sections: Sections; pick: Pick
     Object.keys(set).length ? actions.soundtrackSet(set, label, done) : quick("No music needed a change", "info");
   const templates: MenuEntry[] = [
     {
-      label: "Battle songs: every Intense Battle set to Same as Battle", run: () => {
+      label: "Battle Songs: Every Intense Battle Set to Same as Battle", run: () => {
         const set: Record<string, Piece> = {};
         for (const g of combat) for (const it of g.items) {
           const follows = partnerOf(sections, it);
           if (follows) for (const p of playlists(it)) set[p.cue] = { mode: "same", follows, ...gainOf(st, p.cue) };
         }
-        apply(set, "Battle songs", `Intense Battle follows Battle for ${plural(combat.length, "enemy", "enemies")}`);
+        apply(set, "Battle Songs", `Intense Battle follows Battle for ${plural(combat.length, "enemy", "enemies")}`);
       },
     },
     {
-      label: "Quiet exploring: every Exploring set to Silent", run: () => {
+      label: "Quiet Exploring: Every Exploring Set to Silent", run: () => {
         const set: Record<string, Piece> = {};
         for (const g of combat) for (const it of g.items) {
           if (it.role === "exploring") for (const p of playlists(it)) set[p.cue] = { mode: "silent", ...gainOf(st, p.cue) };
         }
-        apply(set, "Quiet exploring", "Exploring set to Silent");
+        apply(set, "Quiet Exploring", "Exploring set to Silent");
       },
     },
     {
-      label: "No openings: fights start on the music itself", run: async () => {
+      label: "No Openings: Fights Start on the Music Itself", run: async () => {
         const set: Record<string, Piece> = {};
         for (const g of combat) for (const it of g.items) {
           if (it.role !== "battle" && it.role !== "intense") continue;
@@ -188,12 +188,12 @@ function MusicList({ sections, pick, setPick }: { sections: Sections; pick: Pick
             if (leaves(m.tree).some((l) => !out.has(l.item))) set[p.cue] = { mode: "original", left_out: [...out], ...gainOf(st, p.cue) };
           }
         }
-        apply(set, "No openings", `Fights start on the music itself in ${plural(Object.keys(set).length, "piece")}`);
+        apply(set, "No Openings", `Fights start on the music itself in ${plural(Object.keys(set).length, "piece")}`);
       },
     },
     "-",
     {
-      label: "Original: all music back to Original", disabled: !Object.keys(st).length, run: () => {
+      label: "Original: All Music Back to Original", disabled: !Object.keys(st).length, run: () => {
         actions.soundtrackSet(Object.fromEntries(Object.keys(st).map((cue) => [cue, null])), "Original soundtrack", "All music set back to Original");
       },
     },
@@ -436,7 +436,7 @@ function PieceView({ item, part, setPart, sections, open }: {
     const target = (it: MusicItem) => { const ps = playlists(it); return ps[Math.min(part, ps.length - 1)].cue; };
     const to = (list: MusicItem[]) => Object.fromEntries(list.map((it) => [target(it), piece.mode === "same" ? partnerOf(sections, it) : null]));
     openMenu(e, [
-      { label: `Every other ${item.name} (${others.length})`, run: () => actions.soundtrackCopy(cueId, to(others), `every other ${item.name}`) },
+      { label: `Every Other ${item.name} (${others.length})`, run: () => actions.soundtrackCopy(cueId, to(others), `every other ${item.name}`) },
       "-",
       ...others.map((it): MenuEntry => ({ label: it.full, run: () => actions.soundtrackCopy(cueId, to([it]), it.full) })),
     ]);
@@ -488,7 +488,7 @@ function PieceView({ item, part, setPart, sections, open }: {
                   : piece.mode === "same" ? "The Battle music plays here, at the Battle level" : undefined} />
               {piece.mode !== "original" && others.length > 0 && (
                 <button className="btn quiet small-btn" onClick={copyTo} data-tip={`Sets other ${item.name} music to ${NAME[piece.mode]} too`}
-                  data-tip-more={piece.mode === "song" ? "With the song and the level" : piece.mode === "tracks" ? "With the songs, Shuffle, Continue and the level" : "With the level"}>Copy to…</button>
+                  data-tip-more={piece.mode === "song" ? "With the song and the level" : piece.mode === "tracks" ? "With the songs, Shuffle, Continue and the level" : "With the level"}>Copy To</button>
               )}
             </div>
           </header>
@@ -865,7 +865,7 @@ const SongBody = memo(function SongBody({ map, cue, piece, firsts, fight, onChoo
     return (
       <div className="st-empty st-drop" data-drop={drop}>
         <p>Choose a song to cut into up to {plural(map.song.length, "piece")}, or drop one here.</p>
-        <button className="btn primary" onClick={onChoose}>Choose a song…</button>
+        <button className="btn primary" onClick={onChoose}>Choose a Song</button>
       </div>
     );
   }
@@ -873,8 +873,8 @@ const SongBody = memo(function SongBody({ map, cue, piece, firsts, fight, onChoo
     <div className="st-song" data-drop={drop}>
       <div className="st-row-btns">
         {piece.song && <span className="st-songname" data-tip={piece.song}>{fileName(piece.song)}</span>}
-        {piece.song && <button className="btn small-btn" onClick={onRecut}>Change the cuts…</button>}
-        <button className="btn quiet small-btn" onClick={onChoose}>Choose another song…</button>
+        {piece.song && <button className="btn small-btn" onClick={onRecut}>Change the Cuts</button>}
+        <button className="btn quiet small-btn" onClick={onChoose}>Choose Another Song</button>
       </div>
       <p className="st-note">{fight
         ? opens ? "Each fight starts on one of the openings, then plays the song from piece 1." : "Each fight plays the song from piece 1."
@@ -1076,7 +1076,7 @@ const PlaylistBody = memo(function PlaylistBody({ map, piece, places, cueId, cur
   return (
     <div className="st-song">
       <div className="st-row-btns">
-        <button className={`btn small-btn${used ? "" : " primary"}`} onClick={add} disabled={used === places.length}>Add songs…</button>
+        <button className={`btn small-btn${used ? "" : " primary"}`} onClick={add} disabled={used === places.length}>Add Songs</button>
         <label className="check" data-tip="A random order, and no song plays twice before the others have played">
           <input type="checkbox" checked={!!piece.shuffle} disabled={!used}
             onChange={(e) => onSet({ ...piece, shuffle: e.target.checked }, "shuffle")} /> Shuffle</label>
@@ -1104,7 +1104,7 @@ const PlaylistBody = memo(function PlaylistBody({ map, piece, places, cueId, cur
                 </span>
               </NewAudio>
             ) : x.source ? (
-              <button className="drop-hint" onClick={(e) => { e.stopPropagation(); pick.onPick(x.source!); choose(k); }}>Drop a song or choose a file</button>
+              <button className="drop-hint" onClick={(e) => { e.stopPropagation(); pick.onPick(x.source!); choose(k); }}>Drop a Song or Choose a File</button>
             ) : <span className="st-none" data-tip="No song can go here" data-tip-more="This segment holds no audio that can be replaced. Places without a song don't play">No slot for audio</span>}
           </SegLine>
         ))}
@@ -1177,14 +1177,14 @@ function FightBar({ map, item, run, setRun, onNow }: {
     <>
       <div className="through-btns" role="group" aria-label={fight ? "Fights" : "Play"}>{button("game")}{button("mine")}</div>
       <label className="st-length" data-tip={fight ? "How long the fight lasts" : "How long the music plays"}
-        data-tip-more={`It ends with the segment playing at that time, and ${fight ? "Next fight" : "Play again"} goes on from there`}>
+        data-tip-more={`It ends with the segment playing at that time, and ${fight ? "Next Fight" : "Play Again"} goes on from there`}>
         {fight ? "Fight length" : "Plays for"}
         <select value={ms} onChange={(e) => setMs(Number(e.target.value))}>
           {LENGTHS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
         </select>
       </label>
       <button className="btn small-btn" disabled={!run || busy !== null} onClick={() => run && play(run.side, true)}
-        data-tip="Goes on from where the last one stopped">{fight ? "Next fight" : "Play again"}</button>
+        data-tip="Goes on from where the last one stopped">{fight ? "Next Fight" : "Play Again"}</button>
       {active && (
         <div className="through">
           <div className={`through-bar ${active.side}`} role="slider" aria-label="Position" aria-valuemin={0}

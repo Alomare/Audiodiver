@@ -17,7 +17,7 @@ The waveforms under the slots show the original above the replacement, on the sa
 - **Entry** is where the segment counts as started. Audio before the Entry is a lead-in that plays under the end of the previous segment.
 - **Exit** is where the next segment starts. Audio after the Exit rings out over the next segment.
 
-Drag the Exit on the replacement to move the hand-over. To undo, drag it back to the automatic position or press **Reset cue points**. The details show the same values in milliseconds under **Cue points**.
+Drag the Exit on the replacement to move the hand-over. To undo, drag it back to the automatic position or press **Reset Cue Points**. The details show the same values in milliseconds under **Cue points**.
 
 When one file plays in several segments, **Apply to … more segments with this file** under **Cue points** gives all of them the cue points of the selected one. To set cue points on a selection, select the slots and type the values in the details. A box that shows **Mixed** leaves each segment as it is until you type a value.
 
@@ -44,7 +44,7 @@ The window shows the song and the original on one time scale:
 To slice a song:
 
 1. Choose the slots in **From** and **To**. Each segment between them gets one piece, and **To** lists how many pieces that makes.
-2. Place the cuts. **Original proportions** spreads the original lengths over the whole song. **Original lengths** cuts at exactly the original lengths, so the last piece can end before the song does. **Even** cuts the song into equal pieces.
+2. Place the cuts. **Original Proportions** spreads the original lengths over the whole song. **Original Lengths** cuts at exactly the original lengths, so the last piece can end before the song does. **Even** cuts the song into equal pieces.
 3. Adjust the cuts. Drag a cut to move it, and hold Shift to stop it from snapping to the original length. Double-click the song to add a cut. Select a cut and press Delete to remove it, or nudge it with ←/→ (Shift moves 100 ms, Alt moves 1 ms). **Start** and **End** can skip an intro or an outro.
 4. Listen. **Song** plays the song, and **Originals** plays the original audio of the slots one after another. Click the song or the original to play from that point, or press ▶ on a piece or on the original beside it in the table. Space plays and pauses.
 5. Zoom with the wheel or the slider under the lanes, and draw the lanes taller for a quiet song with Ctrl+wheel or the slider at the right. Scroll with Shift+wheel or the strip under the lanes. {icon:reset}, in the corner, shows the whole song again. Click a row of the table to bring that piece into view.

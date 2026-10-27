@@ -24,13 +24,13 @@ A **slot** is one clip that can be replaced. Music is made of **segments** that 
 
 ### How can I add new audio to existing segments?
 
-Drop an audio file on a segment's slot in the [Audio](app:editor) tab. The new audio replaces the original, and the segment's timing follows the new length ([Timing, cue points and loops](wiki:timing-and-loops#fitting-the-timing-to-the-new-audio)). Several files dropped on a piece fill the slots in play order. To put one song across a whole piece, use **Slice a song**, or **One song** in the [Soundtrack](wiki:soundtrack#one-song). For a playlist of whole songs, use **Playlist** there.
+Drop an audio file on a segment's slot in the [Audio](app:editor) tab. The new audio replaces the original, and the segment's timing follows the new length ([Timing, cue points and loops](wiki:timing-and-loops#fitting-the-timing-to-the-new-audio)). Several files dropped on a piece fill the slots in play order. To put one song across a whole piece, use **Slice a song**, or **One Song** in the [Soundtrack](wiki:soundtrack#one-song). For a playlist of whole songs, use **Playlist** there.
 
 Music can't get extra takes or layers. Those are for sounds and voices, see [Adding audio](wiki:adding-audio).
 
 ### Why does my song play out of order in game?
 
-The game rarely plays a piece of music top to bottom. Most combat music opens each fight on a short opening, picks some segments at random, and goes on from where the last fight stopped. The [Soundtrack](wiki:soundtrack) shows the play order of each piece, and **One song** makes every fight play the song from the start. [How the game plays music](wiki:how-the-game-plays-music) explains the parts.
+The game rarely plays a piece of music top to bottom. Most combat music opens each fight on a short opening, picks some segments at random, and goes on from where the last fight stopped. The [Soundtrack](wiki:soundtrack) shows the play order of each piece, and **One Song** makes every fight play the song from the start. [How the game plays music](wiki:how-the-game-plays-music) explains the parts.
 
 ### Why do I still hear the original audio?
 
@@ -52,7 +52,7 @@ Set **Make-Up Gain** on the slot, in the details on the right. Several selected 
 
 ### How do I silence a sound or a piece of music?
 
-Right-click a slot and choose **Replace with silence**. **Keep original duration** sets whether the game waits for the original length or moves on at once ([Silence](wiki:how-the-game-plays-music#silence)). A whole piece of music goes silent with **Silent** in the [Soundtrack](wiki:soundtrack#modes).
+Right-click a slot and choose **Replace with Silence**. **Keep original duration** sets whether the game waits for the original length or moves on at once ([Silence](wiki:how-the-game-plays-music#silence)). A whole piece of music goes silent with **Silent** in the [Soundtrack](wiki:soundtrack#modes).
 
 ### Can I change subtitles and other text?
 
@@ -78,7 +78,7 @@ A mod carries a full copy of every sound bank it changes. Music is in every miss
 
 ### How do I move a project to another computer?
 
-**Export as pack…** on the Project tab saves the project and every file it uses as one `.audipack` file. Open it on the other computer ([Project folders](wiki:project-folders)).
+**Export as Pack** on the Project tab saves the project and every file it uses as one `.audipack` file. Open it on the other computer ([Project folders](wiki:project-folders)).
 
 ### How do I share my mod?
 

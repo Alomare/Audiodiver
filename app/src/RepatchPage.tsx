@@ -141,15 +141,15 @@ export function RepatchPage() {
                   <Help tip="The manifest is the file in a mod that gives the mod manager the name, icon, options and ID" page="repatching#what-repatching-carries-over" /></p>
               )}
               <div className="row-btns">
-                <button className="btn quiet" disabled={running || reading} onClick={async () => read(await pickMod())}>Choose another mod…</button>
+                <button className="btn quiet" disabled={running || reading} onClick={async () => read(await pickMod())}>Choose Another Mod</button>
               </div>
             </div>
           ) : (
             <div className="rp-drop drop-zone">
               <p>Drop a mod here as a <b>ZIP</b>, a <b>folder</b> or a <b>.patch_0</b> file.</p>
               <div className="row-btns">
-                <button className="btn" disabled={reading} onClick={async () => read(await pickMod())}>Choose a ZIP or patch file…</button>
-                <button className="btn" disabled={reading} onClick={async () => read(await pickFolder(undefined, "Choose the mod folder"))}>Choose a folder…</button>
+                <button className="btn" disabled={reading} onClick={async () => read(await pickMod())}>Choose a ZIP or Patch File</button>
+                <button className="btn" disabled={reading} onClick={async () => read(await pickFolder(undefined, "Choose the mod folder"))}>Choose a Folder</button>
               </div>
               {reading && <p className="set-note">Reading…</p>}
             </div>
@@ -160,7 +160,7 @@ export function RepatchPage() {
           <h2>Destination folder <Help tip="The new ZIP goes here. A ZIP with the same name stays, and the new one gets a number." page="repatching#destination-folder" /></h2>
           <p className="path" data-tip={folder || scan?.folder} data-tip-clip>{folder || scan?.folder || "Documents\\Audiodiver\\Repatched"}</p>
           <div className="row-btns">
-            <button className="btn" onClick={chooseFolder} disabled={running}>Change…</button>
+            <button className="btn" onClick={chooseFolder} disabled={running}>Change</button>
           </div>
         </section>
 
@@ -177,7 +177,7 @@ export function RepatchPage() {
         <div className="bld-box rp-go">
           <button className="btn primary build" onClick={go} disabled={!scan || !!problem || busy || silent}
             data-tip={!scan ? "Choose a mod first" : silent ? "The mod holds no audio" : "Apply the mod's audio and settings to the current sound banks and build a new ZIP"}>
-            {running ? "Repatching…" : "Repatch"}
+            {running ? "Repatching" : "Repatch"}
           </button>
           {running && job && (
             <div className="rp-progress">
@@ -213,7 +213,7 @@ function Patches({ scan }: { scan: Scan }) {
         </ul>
       )}
       <details className="rp-log">
-        <summary>Show all</summary>
+        <summary>Show All</summary>
         <ul>
           {scan.patches.map((p) => (
             <li key={p.key}>{p.label || fileName(p.key)}{!p.audio ? <small>No audio, kept as it is.</small> : (
@@ -253,8 +253,8 @@ function Outcome({ job, again }: { job: Job; again: () => void }) {
       <p><b>{m.name}</b>: {fileName(m.zip)}, {m.mb} MB.
         {m.kept_id ? " It keeps the old mod ID, so importing it in a mod manager updates the old mod." : " Remove the old mod in the mod manager before importing this one."}</p>
       <div className="row-btns">
-        <button className="btn" onClick={() => reveal(m.zip)}>Show in folder</button>
-        <button className="btn quiet" onClick={again}>Repatch another mod</button>
+        <button className="btn" onClick={() => reveal(m.zip)}>Show in Folder</button>
+        <button className="btn quiet" onClick={again}>Repatch Another Mod</button>
       </div>
       <dl className="set-facts rp-sum">
         <dt>Carried over</dt>
@@ -277,7 +277,7 @@ function Outcome({ job, again }: { job: Job; again: () => void }) {
         </div>
       )}
       <details className="rp-log rp-all">
-        <summary>Show all</summary>
+        <summary>Show All</summary>
         {built.map((p) => (
           <div key={p.label} className="rp-mod">
             {several && <h3>{p.label}</h3>}
@@ -312,7 +312,7 @@ function InstalledMods({ busy, onPick }: { busy: boolean; onPick: (path: string)
     <section className="set-sec">
       <h2>Installed mods <Help tip="Finds mods with sound banks from an older game version, in mod manager libraries and the game folder. Such a mod can mute sounds it never changed, like all gunfire." page="repatching#checking-installed-mods" /></h2>
       <div className="row-btns">
-        <button className="btn" onClick={actions.checkMods} disabled={checking}>{checking ? "Checking…" : r ? "Check again" : "Check installed mods"}</button>
+        <button className="btn" onClick={actions.checkMods} disabled={checking}>{checking ? "Checking" : r ? "Check Again" : "Check Installed Mods"}</button>
         {checking && <span className="set-note">{job?.doing || "Starting…"}</span>}
       </div>
       {job?.state === "failed" && <p className="warn-box">{job.error}</p>}
@@ -347,7 +347,7 @@ function InstalledMod({ m, busy, onPick }: { m: Installed; busy: boolean; onPick
       )}
       {flagged && (
         <div className="row-btns">
-          <button className="btn quiet" disabled={busy} onClick={() => onPick(m.source)} data-tip="Open it in the form above, ready to repatch">Repatch…</button>
+          <button className="btn quiet" disabled={busy} onClick={() => onPick(m.source)} data-tip="Open it in the form above, ready to repatch">Repatch</button>
         </div>
       )}
     </div>

@@ -23,7 +23,7 @@ The Library and the Audio tab share one layout. There is a list on the left and 
 Under the title, a row of boxes says more about the item. They sit side by side and stack when the panel is narrow:
 
 - {icon:transition} **N transitions play next to this music** appears for music only. It counts the short pieces that lead into and out of the music. **Show** lists them and what each one plays now.
-- {icon:order} **The game plays these slots in another order** appears for music whose playlist doesn't play the slots top to bottom. **Play order** opens it in the [Soundtrack](wiki:soundtrack).
+- {icon:order} **The game plays these slots in another order** appears for music whose playlist doesn't play the slots top to bottom. **Play Order** opens it in the [Soundtrack](wiki:soundtrack).
 - {icon:link} **Shares audio with** lists other things that play some of the same clips.
 
 {icon:header} at the end of the toolbar hides the header, and shows it again.
@@ -32,7 +32,7 @@ Under the title, a row of boxes says more about the item. They sit side by side 
 
 {icon:through} **Play through** plays the whole piece of music segment by segment, in the same order the game uses. The grey button plays the **Original** audio, the yellow one the **Replaced** audio. While one plays, a bar shows where it is.
 
-In the Library, the toolbar has **Add to the project**. In the Audio tab it starts with a tick that selects every slot, or clears the selection, and has these tools:
+In the Library, the toolbar has **Add to the Project**. In the Audio tab it starts with a tick that selects every slot, or clears the selection, and has these tools:
 
 | Tool | What it does |
 |---|---|
@@ -62,7 +62,7 @@ Each row is one **slot**, a single game clip that can be replaced.
 - **Music** lists **segments** in play order. The first row of a segment shows the segment name, and the rows under it are the other **layers**.
 - **Sounds** are shown in **groups**, with one line per sound and the **takes** folded under it. ▶ on the line plays the first take. Files dropped on the line fill the takes in order. Right-click the line to fill, silence or clear all takes at once.
 - The left half of a row is the original. ▶ plays it, and the length is shown at the end. In the Audio tab, the right half is the replacement. ▶ plays the new audio, clicking the file name picks another file, and ✕ removes it. An empty slot shows *Drop audio or choose a file*.
-- In the Audio tab, the tick at the start of a row puts the slot in the selection, or takes it out, as Ctrl+click does. Shift on a tick selects a range. A group line has a tick for all the takes in the group. With several slots selected, the right panel has **Choose one file for all…**, **Choose files…**, **Replace with silence** and the button that removes the new audio.
+- In the Audio tab, the tick at the start of a row puts the slot in the selection, or takes it out, as Ctrl+click does. Shift on a tick selects a range. A group line has a tick for all the takes in the group. With several slots selected, the right panel has **Choose One File for All**, **Choose Files**, **Replace with Silence** and the button that removes the new audio.
 - Double-click a row to play it. Right-click it for everything else, including copy, paste, silence and IDs.
 - Copy audio files in Explorer, select slots and press **Ctrl+V**. One file goes into every selected slot. Several files go in file-name order, and on a single selected slot they fill on from there. Ctrl+V pastes whatever was copied last: files from Explorer or slots copied in Audiodiver.
 
@@ -80,7 +80,7 @@ Each row is one **slot**, a single game clip that can be replaced.
 | **quiet drums** | A barely audible drum layer under another layer of the segment. |
 | **never plays** | The clip is in the game files, but the game never plays it. The Illuminate Void's death music is one example. |
 | **only this sound** | The new audio plays in this sound only. The other sounds that play the clip keep the Original. See [Only this sound](wiki:adding-audio#only-this-sound). |
-| **replaced in another sound** | Another sound plays new audio in place of this clip, with **Only this sound**. This one keeps the Original. |
+| **replaced in another sound** | Another sound plays new audio in place of this clip, with **Only This Sound**. This one keeps the Original. |
 | **−6 dB** | Make-Up Gain on the Original, in a slot without new audio. See [Make-Up Gain per slot](wiki:volume#make-up-gain-per-slot). |
 | a coloured tag | An Index entry related to this slot. Click the tag to open it. |
 
@@ -104,17 +104,17 @@ Two sliders zoom both waveforms. The one up the right side draws them taller, to
 
 ## The right panel (Audio tab)
 
-This panel holds the settings of the selected slot. It shows what replaces the slot, either a file or silence. A file has a button that shows it in Explorer, and silence has **Keep original duration**. Below that are **Make-Up Gain** ([explained here](wiki:volume)), **Fit timing to the new audio**, the **cue points**, **Shared with** and the note. A slot without new audio has **Use silence** and Make-Up Gain for the Original. Play audio and choose files on the slot row.
+This panel holds the settings of the selected slot. It shows what replaces the slot, either a file or silence. A file has a button that shows it in Explorer, and silence has **Keep original duration**. Below that are **Make-Up Gain** ([explained here](wiki:volume)), **Fit timing to the new audio**, the **cue points**, **Shared with** and the note. A slot without new audio has **Use Silence** and Make-Up Gain for the Original. Play audio and choose files on the slot row.
 
-With several slots selected, the panel sets Make-Up Gain, cue points or silence for all of them. **Choose one file for all…** puts one file in every selected slot, and **Choose files…** puts a file in each, in list order and file-name order.
+With several slots selected, the panel sets Make-Up Gain, cue points or silence for all of them. **Choose One File for All** puts one file in every selected slot, and **Choose Files** puts a file in each, in list order and file-name order.
 
 With no slot selected, the panel shows the note of the open item and the keys of the slot list.
 
 ## Notes
 
-Slots, and items in the list on the left, can have notes. Notes are at the bottom of the right panel. Select a slot to see the note on it, or select nothing to see the note on the item. **Add note** opens the editor. Notes are saved in the project file, and Undo reverts a change to a note.
+Slots, and items in the list on the left, can have notes. Notes are at the bottom of the right panel. Select a slot to see the note on it, or select nothing to see the note on the item. **Add Note** opens the editor. Notes are saved in the project file, and Undo reverts a change to a note.
 
-Notes are written in Markdown. `#` starts a heading, `-` starts a list item, `**bold**` and `*italic*` mark words, and `[text](https://…)` makes a link. The buttons above the box do the same for the selected words, and pressing one again takes the mark off. {key:undo} works in the box while you type. Click elsewhere to save the note and show it formatted. Click it to edit it again. **Delete note** removes it, and asks first if it has any words.
+Notes are written in Markdown. `#` starts a heading, `-` starts a list item, `**bold**` and `*italic*` mark words, and `[text](https://…)` makes a link. The buttons above the box do the same for the selected words, and pressing one again takes the mark off. {key:undo} works in the box while you type. Click elsewhere to save the note and show it formatted. Click it to edit it again. **Delete Note** removes it, and asks first if it has any words.
 
 A clip that plays in several places has one note, shown in every place. When a game update gives a clip a new ID, the note no longer shows. It stays in the file and shows again if the ID comes back.
 
@@ -122,9 +122,9 @@ A clip that plays in several places has one note, shown in every place. When a g
 
 The tab bar holds the main tabs. Home and Tools come first. The darker band after them holds the tabs for the open project, from Project to Text, and the Project tab shows the project icon. Build comes after the band while a project is open, and {icon:updates} Updates, the Wiki and Settings are at the end. The bar runs along the top of the window, and **Tab bar** in [Settings ▸ Theme](app:settings/theme) puts it on another side. With tab names on, a bar at the top or bottom shows the names beside the icons, and a bar at the left or right shows a name when the pointer is on the tab. The open tab takes the colour of the page it opens, and in the band the open tab has an edge in the primary colour. Tabs inside a page, such as Index and All Archives, the parts of a piece, or the sections of Settings, are underlined instead. A dot on Build means the project needs a new build, and a dot on Updates means a new version of Audiodiver is available.
 
-The status bar at the bottom has undo and redo, the project file and the audio that is playing. Click the playing audio to go to that slot. The **Export list** button appears once the list has something on it. **Vol** sets the preview volume, which doesn't affect the mod. The version number opens Updates, and the {icon:info} next to it opens [About](app:about).
+The status bar at the bottom has undo and redo, the project file and the audio that is playing. Click the playing audio to go to that slot. The **Export List** button appears once the list has something on it. **Vol** sets the preview volume, which doesn't affect the mod. The version number opens Updates, and the {icon:info} next to it opens [About](app:about).
 
-Short confirmations such as *Loadout Selection added to My Mod* or *My Mod saved* appear briefly at the bottom of the window. Notices that need reading, or that have a button such as Undo or Show in folder, appear at the bottom right.
+Short confirmations such as *Loadout Selection added to My Mod* or *My Mod saved* appear briefly at the bottom of the window. Notices that need reading, or that have a button such as Undo or Show in Folder, appear at the bottom right.
 
 ## Ids
 
@@ -156,7 +156,7 @@ Exporting a piece of music by segment saves one file per segment. **Lead-in and 
 
 ## The export list
 
-Collect things from different places to export them together. Right-click a slot, a group of takes, an Index entry, a category or section line, or an archive, and choose **Add to the export list**. The **Export list** button in the status bar opens the list. There you can rename an entry to name the folder it goes to, remove entries, and export everything as a single job. The list is kept until you clear it.
+Collect things from different places to export them together. Right-click a slot, a group of takes, an Index entry, a category or section line, or an archive, and choose **Add to the Export List**. The **Export List** button in the status bar opens the list. There you can rename an entry to name the folder it goes to, remove entries, and export everything as a single job. The list is kept until you clear it.
 
 ## Colours
 

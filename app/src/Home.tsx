@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { call, projectIconUrl } from "./api";
 import { DISCORD_URL, HOME_ART, KOFI_URL, TICKER_URL } from "./content";
-import { DiscordIcon, KofiIcon, NextIcon, PrevIcon } from "./Icons";
+import { CloseIcon, DiscordIcon, KofiIcon, NextIcon, PrevIcon, ProjectIcon } from "./Icons";
 import { nav } from "./nav";
 import { openUrl } from "./platform";
 import { useEditor } from "./store";
@@ -21,20 +21,21 @@ export function Home() {
           </header>
 
           {/* a menu, as the game's own: the yellow item is the way in; the Tools tab's two pages after a gap.
-              Open project holds the last project opened, after its words. It stays the same with a project open: a
-              line under Open project says which, and leads to it */}
+              Open Project holds the last project opened, after its words. It stays the same with a project open: a
+              line under Open Project says which, with Go to Project and Close */}
           <nav className="home-menu" aria-label="Start">
-            <button className="menu-item hot" onClick={actions.newProject} data-tip="Start a mod" data-tip-cmd="newProject">New project</button>
+            <button className="menu-item hot" onClick={actions.newProject} data-tip="Start a mod" data-tip-cmd="newProject">New Project</button>
             <div className="menu-item menu-open">
               <button className="menu-open-btn" onClick={() => actions.openProject()} data-tip="Open a .audi project or a .audipack pack" data-tip-cmd="openProject"
-                data-tip-more="A pack is a project and the files it uses, in one file">Open project</button>
+                data-tip-more="A pack is a project and the files it uses, in one file">Open Project</button>
               <Recent />
             </div>
             {project && (
-              <p className="home-loaded">
-                <span>Loaded: <b data-tip={project.path} data-tip-clip>{project.name}</b></span>
-                <button className="link-text" onClick={() => nav.go("project")}>Go to Project</button>
-              </p>
+              <div className="home-loaded">
+                <span className="home-loaded-name">Loaded: <b data-tip={project.path} data-tip-clip>{project.name}</b></span>
+                <button className="btn quiet" onClick={() => nav.go("project")}><ProjectIcon />Go to Project</button>
+                <button className="btn quiet" onClick={actions.closeProject} data-tip="Close the project" data-tip-cmd="closeProject"><CloseIcon />Close</button>
+              </div>
             )}
           </nav>
 

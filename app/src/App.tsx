@@ -61,8 +61,8 @@ function Startup({ error, stage }: { error: string | null; stage?: string }) {
             {!picked && <p className="muted">Choose the Helldivers 2 install folder,
               usually <code>…\steamapps\common\Helldivers 2</code>. Audiodiver only reads from it.</p>}
             <div className="row-btns">
-              <button className="btn primary" onClick={() => choose()}>Choose the game folder…</button>
-              {where?.chosen && <button className="btn quiet" onClick={() => choose(null)} data-tip="Forget the chosen folder">Find it through Steam again</button>}
+              <button className="btn primary" onClick={() => choose()}>Choose the Game Folder</button>
+              {where?.chosen && <button className="btn quiet" onClick={() => choose(null)} data-tip="Forget the chosen folder">Find It Through Steam Again</button>}
             </div>
           </>
         ) : error && !stage ? (
@@ -177,7 +177,7 @@ function Shell() {
     const t = nav.get().tab;
     quick(!project && (t === "editor" || t === "soundtrack") ? "Open a project first"
       : t === "editor" ? "Drop audio on a slot, a group of takes, a piece in the list or a title"
-      : t === "soundtrack" ? "Drop songs on a place of a playlist, or a song on One song"
+      : t === "soundtrack" ? "Drop songs on a place of a playlist, or a song on One Song"
       : t === "library" ? "Add it to the project, then drop audio on the slots in the Audio tab"
       : "Drop audio on a slot in the Audio tab", "info");
   };
@@ -518,7 +518,7 @@ function ExportListButton() {
   return (
     <>
       <button className="sb-list" onClick={() => setOpen(true)} data-tip="Things collected to export together">
-        Export list · {list.length}</button>
+        Export List · {list.length}</button>
       {open && <ExportListDialog onClose={() => setOpen(false)} />}
     </>
   );

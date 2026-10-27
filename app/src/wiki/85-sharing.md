@@ -20,7 +20,7 @@ Keep the mod's name and ID the same for the life of the mod ([Project](app:proje
 
 ## Moving a project
 
-A pack (`.audipack`) carries a project and the files it uses to another computer. It is for backing up or moving a project, and players don't need it. **Export as pack…** on the [Project](app:project) tab writes one. See [Project folders](wiki:project-folders#packs).
+A pack (`.audipack`) carries a project and the files it uses to another computer. It is for backing up or moving a project, and players don't need it. **Export as Pack** on the [Project](app:project) tab writes one. See [Project folders](wiki:project-folders#packs).
 
 ## Rights
 

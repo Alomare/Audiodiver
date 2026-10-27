@@ -32,7 +32,7 @@ export const tabList = (v: unknown): Hideable[] | null =>
 /** How long the pointer rests on something before its tooltip shows, in ms. */
 export const TIP_DELAY: Record<Exclude<TipSpeed, "off">, number> = { quick: 150, normal: 500, slow: 1100 };
 export const TIP_SPEEDS: [TipSpeed, string][] = [["off", "Off"], ["quick", "Quick"], ["normal", "Normal"], ["slow", "Slow"]];
-export const UPDATE_MODES: [UpdateMode, string][] = [["manual", "Manual"], ["prompt", "Prompt on startup"], ["auto", "Automatic"]];
+export const UPDATE_MODES: [UpdateMode, string][] = [["manual", "Manual"], ["prompt", "Prompt on Startup"], ["auto", "Automatic"]];
 /** What each mode does, under the choice (Settings ▸ System) and at the foot of the Updates tab. */
 export const UPDATE_NOTES: Record<UpdateMode, string> = {
   manual: "Checks at startup and lists new versions in the Updates tab.",
@@ -80,7 +80,7 @@ export const RESET_LAYOUT = "audiodiver:reset-layout";
 /** Every size kept between sessions: cleared too, so a panel that isn't on screen now (the Wiki's list, say) opens
     at its default size next time. */
 const LAYOUT_KEYS = ["audiodiver.widths", "audiodiver.headHeight", "audiodiver.textLeft", "audiodiver.waveHeight",
-  "audiodiver.waveHeight.libraryFacts", "audiodiver.wikiWidth", "audiodiver.archiveColumnWidths", "audiodiver.soundtrackLeft",
+  "audiodiver.waveHeight.libraryFacts", "audiodiver.wikiShare", "audiodiver.archiveColumnWidths", "audiodiver.soundtrackLeft",
   "audiodiver.soundtrackHead"];
 export const resetLayout = () => {
   for (const k of LAYOUT_KEYS) try { localStorage.removeItem(k); } catch { /* storage off */ }

@@ -115,7 +115,7 @@ function Empty() {
           {hint(["undo"], "undo")}
         </dl>
         <p className="keys">
-          <button className="link-text" onClick={() => nav.go("settings", "shortcuts")}>All shortcuts</button>
+          <button className="link-text" onClick={() => nav.go("settings", "shortcuts")}>All Shortcuts</button>
           {" · "}<WikiLink page="reading-the-screen" about="What the Audio tab shows">Reading the screen</WikiLink>
         </p>
       </div>
@@ -166,7 +166,7 @@ function Replacement({ slot, a, music, what }: { slot: Slot; a?: Assignment; mus
       {usable && <p className="muted small">Drop audio on the slot{choose ? `, or press ${choose} to choose a file` : ""}.</p>}
       <div className="row-btns">
         <button className="btn" disabled={!usable} onClick={() => actions.silence([slot.source], true, what)} data-tip-cmd="silence"
-          data-tip="Play nothing here instead of the original">Use silence</button>
+          data-tip="Play nothing here instead of the original">Use Silence</button>
       </div>
     </section>
   );
@@ -179,9 +179,9 @@ function Reach({ slot }: { slot: Slot }) {
   const own = !!slot.was;
   const banks = (others: number) => `${others + 1} bank${others ? "s" : ""}`;
   const choices = [
-    [false, "Every sound that plays it", own ? "Every sound that plays this clip gets the new audio"
+    [false, "Every Sound That Plays It", own ? "Every sound that plays this clip gets the new audio"
       : `Changes it in ${banks(slot.banks ?? 0)}`],
-    [true, "Only this sound", `Changes it in ${banks(own ? slot.banks ?? 0 : slot.sound_banks ?? 0)}. Other sounds that play the clip keep the original.`],
+    [true, "Only This Sound", `Changes it in ${banks(own ? slot.banks ?? 0 : slot.sound_banks ?? 0)}. Other sounds that play the clip keep the original.`],
   ] as const;
   return (
     <section className="insp-sec">
@@ -315,7 +315,7 @@ function SharedWith({ slot, also }: { slot: Slot; also: number }) {
             <dt>Unnamed music</dt>
             <dd>
               <button className="link-text shared-fold" aria-expanded={cuesOpen} onClick={() => setCuesOpen(!cuesOpen)}>
-                <span className="caret" aria-hidden>▸</span>{cues.length} cue{cues.length === 1 ? "" : "s"}</button>
+                <span className="caret" aria-hidden>▸</span>{cues.length} Cue{cues.length === 1 ? "" : "s"}</button>
               {cuesOpen && cues.map((id) => <PlaceLink key={id} id={id} source={slot.source} mono>{id}</PlaceLink>)}
             </dd>
           </div>
@@ -418,7 +418,7 @@ function Gain({ sources, value, note, original, match, base }: {
             data-tip={match === "one" ? "The Make-Up Gain that makes the new audio as loud as the original"
               : "Each slot gets the Make-Up Gain that makes the new audio as loud as the original"}
             data-tip-more="Short sounds by the loudest moment, longer ones by the whole">
-            {matching ? "Measuring…" : match === "one" ? "Match the original loudness" : "Match each to the original loudness"}</button>
+            {matching ? "Measuring" : match === "one" ? "Match the Original Loudness" : "Match Each to the Original Loudness"}</button>
         </p>
       )}
     </section>
@@ -470,7 +470,7 @@ function Markers({ segment, gameEntry, gameExit, fit, lengthMs, source, more }: 
         <p className="markers-more">
           <button className="link-text" onClick={spread} data-tip={e1 === null && e2 === null
             ? "The other segments go back to automatic cue points" : "The other segments get these cue points"}>
-            Apply to {more} more segment{more === 1 ? "" : "s"} with this file</button>
+            Apply to {more} More Segment{more === 1 ? "" : "s"} with This File</button>
         </p>
       )}
     </details>
@@ -488,18 +488,18 @@ function Bulk({ rows, sources, usable }: { rows: Row[]; sources: string[]; usabl
   const plain = usable.filter((s) => !a[s]), kept = project?.gains ?? {}; // the originals: their Make-Up Gain
   const cued = rows.filter((r) => r.seg.segment && a[r.slot.source] && !a[r.slot.source].silence); // music with new audio
   const toSilence = usable.filter((s) => !a[s]?.silence);
-  const slots = (n: number) => `${n} slot${n === 1 ? "" : "s"}`;
+  const slots = (n: number, title = false) => `${n} ${title ? "Slot" : "slot"}${n === 1 ? "" : "s"}`;
   return (
     <aside className="inspector" aria-label="Details">
       <div className="insp-title"><h2>{sources.length} slots selected</h2></div>
       <section className="insp-sec insp-actions">
         <button className="btn" disabled={!usable.length} data-tip={`The same file in all ${slots(usable.length)}`}
-          onClick={async () => { const f = (await pickAudio(false))?.[0]; if (f) actions.assignAll(usable, f); }}><FillIcon />Choose one file for all…</button>
+          onClick={async () => { const f = (await pickAudio(false))?.[0]; if (f) actions.assignAll(usable, f); }}><FillIcon />Choose One File for All</button>
         <button className="btn" disabled={!usable.length} data-tip="A file for each slot, in list order and file-name order"
-          onClick={async () => { const f = await pickAudio(true); if (f) actions.fillSources(usable, f, slots(usable.length)); }}><FillPieceIcon />Choose files…</button>
+          onClick={async () => { const f = await pickAudio(true); if (f) actions.fillSources(usable, f, slots(usable.length)); }}><FillPieceIcon />Choose Files</button>
         <button className="btn" disabled={!toSilence.length} onClick={() => actions.silence(toSilence, true)} data-tip-cmd="silence"
           data-tip={toSilence.length ? "Play nothing in these slots" : usable.length ? "Already silent" : "Never played, or do not touch"}>
-          <SilenceIcon />Replace {toSilence.length > 0 && toSilence.length < sources.length ? `${slots(toSilence.length)} ` : ""}with silence</button>
+          <SilenceIcon />Replace {toSilence.length > 0 && toSilence.length < sources.length ? `${slots(toSilence.length, true)} ` : ""}with Silence</button>
       </section>
       {files.length > 0 ? (
         <Gain sources={files} value={files.every((s) => a[s].gain_db === a[files[0]].gain_db) ? a[files[0]].gain_db : null}
@@ -523,7 +523,7 @@ function Bulk({ rows, sources, usable }: { rows: Row[]; sources: string[]; usabl
       {mine.length > 0 ? (
         <section className="insp-sec insp-actions">
           <button className="btn quiet" onClick={() => actions.unassign(mine)}>
-            <ClearIcon />Remove {silent.length === mine.length ? "the silence" : "the new audio"} from {slots(mine.length)}</button>
+            <ClearIcon />Remove {silent.length === mine.length ? "the Silence" : "the New Audio"} from {slots(mine.length, true)}</button>
         </section>
       ) : <p className="insp-empty insp-sec">None of these is replaced yet.</p>}
     </aside>
@@ -575,7 +575,7 @@ function BulkMarkers({ rows, partial }: { rows: Row[]; partial: boolean }) {
       {segments.some((s) => over[s]) && (
         <p className="markers-more">
           <button className="link-text" onClick={() => actions.segmentOverrides(segments, { entry_marker: null, exit_marker: null })}>
-            Reset cue points</button>
+            Reset Cue Points</button>
         </p>
       )}
     </section>

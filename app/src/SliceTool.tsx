@@ -320,14 +320,14 @@ export function SliceTool({ onClose, target, file: given }: { onClose: () => voi
         {!file || !info ? (
           <div className="slice-empty">
             <p>{file ? "Reading the song…" : "Choose a song to cut into the slots."}</p>
-            {!file && <button className="btn primary" onClick={choose}>Choose a song…</button>}
+            {!file && <button className="btn primary" onClick={choose}>Choose a Song</button>}
           </div>
         ) : (
           <>
             <div className="slice-bar">
               <span className="slice-file" data-tip={file} data-tip-clip>{file.split(/[\\/]/).pop()}</span>
               <span className="muted">{fmtTime(info.duration_ms)}</span>
-              <button className="btn small-btn" onClick={choose} data-tip="Choose another song">Change…</button>
+              <button className="btn small-btn" onClick={choose} data-tip="Choose another song">Change</button>
               <span className="spacer" />
               {!target && (
                 <label className="slice-field" data-tip="The slot that gets the first piece">From
@@ -351,8 +351,8 @@ export function SliceTool({ onClose, target, file: given }: { onClose: () => voi
               <button className={`btn small-btn play-btn${originalsOn ? " on" : ""}`} onClick={() => (originalsOn ? player.toggle() : playOriginal(0, 0, true))}
                 data-tip="Play the originals one after another">{originalsOn ? "❚❚" : "▶"} Originals</button>
               <div className="segmented" role="radiogroup" aria-label="Place the cuts">
-                {([["proportions", "Original proportions", "The whole song, cut in the proportions of the originals", ""],
-                  ["lengths", "Original lengths", "Each piece as long as the original, so the timing stays the same", "The song after the last piece is left out"],
+                {([["proportions", "Original Proportions", "The whole song, cut in the proportions of the originals", ""],
+                  ["lengths", "Original Lengths", "Each piece as long as the original, so the timing stays the same", "The song after the last piece is left out"],
                   ["even", "Even", "The whole song, in pieces of equal length", ""]] as const).map(([how, label, tip, more]) => (
                   <button key={how} role="radio" aria-checked={layout === how} className={layout === how ? "on" : ""} data-tip={tip} data-tip-more={more || undefined}
                     disabled={how !== "even" && !known} onClick={() => apply(how)}>{label}</button>
@@ -399,7 +399,7 @@ export function SliceTool({ onClose, target, file: given }: { onClose: () => voi
               <span className="spacer" />
               <button className="btn quiet" onClick={onClose}>Cancel</button>
               <button className="btn primary" disabled={busy || n < 1 || tooShort} onClick={submit}>
-                {busy ? "Slicing…" : target ? `Cut into ${n} piece${n === 1 ? "" : "s"}` : `Slice and fill ${n} slot${n === 1 ? "" : "s"}`}</button>
+                {busy ? "Slicing" : target ? `Cut into ${n} Piece${n === 1 ? "" : "s"}` : `Slice and Fill ${n} Slot${n === 1 ? "" : "s"}`}</button>
             </div>
           </>
         )}

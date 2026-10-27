@@ -143,7 +143,7 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
         <p className="tl-note">
           {fit ? "Drag Exit to move where the next segment starts" : "Fit timing is off, so the original cue points apply until one is moved"}
           {tail > 30 && <>. The last <b>{fmtTime(tail)}</b> rings out over the next segment</>}.
-          {overridden && <button className="link-inline" onClick={() => actions.segmentOverride(seg.segment, null, null)}>Reset cue points</button>}
+          {overridden && <button className="link-inline" onClick={() => actions.segmentOverride(seg.segment, null, null)}>Reset Cue Points</button>}
         </p>
       )}
     </section>

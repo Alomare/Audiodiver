@@ -13,7 +13,7 @@ The waveforms zoom in on time, to place cue points closely, and in level, to sho
 
 #### Make-Up Gain
 
-Make-Up Gain also works on sounds without new audio, so an original sound can play louder or quieter. **Match the original loudness** sets the gain that makes new audio as loud as the original. The waveforms are drawn at the gain, with anything past full scale in red, and ▶ plays at it, as the mod does.
+Make-Up Gain also works on sounds without new audio, so an original sound can play louder or quieter. **Match the Original Loudness** sets the gain that makes new audio as loud as the original. The waveforms are drawn at the gain, with anything past full scale in red, and ▶ plays at it, as the mod does.
 
 #### Play Order
 
@@ -33,13 +33,19 @@ A toolbar button lists a sound bank by container ID, as the bank's tree, the way
 - A button after Make-Up Gain and after the level of a Soundtrack piece that sets them back to 0 dB.
 - The Make-Up Gain the game gives a sound, in the ? of Make-Up Gain.
 - WEM files as audio for a slot. A WEM in Wwise Vorbis goes into the mod unchanged, and other WEM files are converted like any audio.
-- **Keep added audio to the project's banks**, a build option, off by default. New takes, layers and new audio set to Only this sound then stay out of the other banks that have a copy of the sound: the mod gets smaller, but the original can play where one of those banks loads first.
+- **Keep added audio to the project's banks**, a build option, off by default. New takes, layers and new audio set to Only This Sound then stay out of the other banks that have a copy of the sound: the mod gets smaller, but the original can play where one of those banks loads first.
 - A number from 0 to 100 over the knob of the zoom, preview volume and colour sliders while they move.
 
 ### Changes
 
 - Each kind of slider looks different: Make-Up Gain and levels are faders lit from 0 dB, zoom is a thin line, the preview volume is thin and grey, and settings fill up to a square knob.
-- Open project on Home holds the last project opened, with the icon and name of that project, in place of the Recent line under it.
+- Open Project on Home holds the last project opened, with the icon and name of that project, in place of the Recent line under it.
+- With a project loaded, Home has Go to Project and Close under Open Project, each with an icon. Close works like Close Project on the Project tab.
+- The Home menu sits further from the edges of the window.
+- Buttons are in Title Case, and none ends in three dots, including the ones that open a dialog or a menu.
+- A music segment with several tracks shows the segment name on a separate line, with a row for each track under it.
+- The list of guides in the Wiki takes a quarter of the width, and the page the rest. Dragging the edge keeps the share when the window changes size.
+- Panel dividers turn light gray under the pointer, in place of the primary colour.
 - The music list and the header of the Soundtrack resize by dragging their edges, as in the other tabs.
 - The Slots link of the Soundtrack sits beside the name of the music.
 - The waveforms button on the toolbar works only while one slot is selected.
@@ -55,6 +61,7 @@ A toolbar button lists a sound bank by container ID, as the bank's tree, the way
 - Selecting a segment in the Soundtrack was slow on music with many segments, such as a Battle.
 - The Templates button of the Soundtrack sat in the middle of the Music row instead of at the right.
 - The files in a built ZIP were dated 31 December 1979.
+- New takes or a layer added to a folded sound were selected but stayed hidden, as the sound didn't open.
 
 ## 1.2.0 - 2026-10-26
 

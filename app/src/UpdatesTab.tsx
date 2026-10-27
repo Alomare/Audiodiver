@@ -63,7 +63,7 @@ function UpdateCard({ u }: { u: UpdateState }) {
     tone = "new"; icon = <UpdatesIcon />;
     title = `${versionLabel(latest.version)} is available`;
     sub = [latest.date && `Released ${fmtDate(latest.date)}`, size && fmtBytes(size)].filter(Boolean).join(" · ");
-    action = <button className="btn primary" onClick={install}>{u.portable ? "Open the download page" : "Update now"}</button>;
+    action = <button className="btn primary" onClick={install}>{u.portable ? "Open the Download Page" : "Update Now"}</button>;
   } else if (u.phase === "failed") {
     tone = "warn"; icon = <span className="upd-bang" aria-hidden>!</span>;
     title = CHECK_ERRORS[u.error ?? ""] ?? "Couldn't check for updates";
@@ -86,7 +86,7 @@ function UpdateCard({ u }: { u: UpdateState }) {
           </div>
           {/* after GitHub's hourly limit, another check now would only fail again */}
           <button className={`btn${u.phase === "failed" ? "" : " quiet"}`} disabled={u.phase === "checking" || working || limited}
-            onClick={() => updates.check(true)}>{u.phase === "failed" ? "Try again" : u.phase === "checking" && u.checked !== null ? "Checking…" : "Check now"}</button>
+            onClick={() => updates.check(true)}>{u.phase === "failed" ? "Try Again" : u.phase === "checking" && u.checked !== null ? "Checking" : "Check Now"}</button>
         </div>
         <div className="upd-state" role="status" aria-live="polite">
           <span className={`upd-icon ${tone}`}>{icon}</span>
@@ -107,7 +107,7 @@ function UpdateCard({ u }: { u: UpdateState }) {
         )}
         {u.installError && latest && (
           <p className="warn-box" role="alert">Couldn't install: {u.installError}{" "}
-            <button className="link-inline" onClick={() => openUrl(latest.url)}>Download it from GitHub</button></p>
+            <button className="link-inline" onClick={() => openUrl(latest.url)}>Download It from GitHub</button></p>
         )}
       </section>
       <p className="upd-foot">
@@ -207,10 +207,10 @@ export function UpdatePrompt({ onClose }: { onClose: () => void }) {
           </div>
         </div>
         <div className="modal-foot">
-          <button className="btn primary" onClick={() => { onClose(); nav.go("updates"); install(); }}>{updates.get().portable ? "Open the download page" : "Update now"}</button>
-          <button className="btn" onClick={() => { onClose(); nav.go("updates"); }}>Read the changelog</button>
+          <button className="btn primary" onClick={() => { onClose(); nav.go("updates"); install(); }}>{updates.get().portable ? "Open the Download Page" : "Update Now"}</button>
+          <button className="btn" onClick={() => { onClose(); nav.go("updates"); }}>Read the Changelog</button>
           <span className="spacer" />
-          <button className="btn quiet" onClick={onClose}>Not now</button>
+          <button className="btn quiet" onClick={onClose}>Not Now</button>
         </div>
       </div>
     </div>

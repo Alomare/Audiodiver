@@ -219,8 +219,8 @@ function ArchiveList() {
     const id = `archive:${a.id}`;
     const entries: MenuEntry[] = [
       { label: "Open", run: () => openItem(id) },
-      { label: "Play a sample", run: () => playSlot("vanilla", a.preview, revision, `${title(a)} (sample)`, { scope, itemId: id, cueId: null, source: a.preview }) },
-      { label: "Add to the export list", run: async () => {
+      { label: "Play a Sample", run: () => playSlot("vanilla", a.preview, revision, `${title(a)} (sample)`, { scope, itemId: id, cueId: null, source: a.preview }) },
+      { label: "Add to the Export List", run: async () => {
         const it = itemIndex.items.get(id) ?? await resolveItem(id);
         if (!it) return;
         const all = itemEntries({ ...it, full: a.names.length ? `${title(a)} (${a.id})` : `Archive ${a.id}` }, "All Archives");
@@ -228,10 +228,10 @@ function ArchiveList() {
       } },
       "-",
       ...(listed.has(id) ? [
-        { label: "Open in the Audio tab", run: () => goTo({ scope: "editor", itemId: id, cueId: null, source: null }) } as MenuEntry,
-        { label: "Remove from the project", run: () => actions.removeFromProject([id], title(a)) } as MenuEntry,
-      ] : [{ label: "Add to the project", run: () => actions.addToProject([id], title(a)) } as MenuEntry]),
-      { label: "Copy the archive name", run: () => copyText(a.id, quick) },
+        { label: "Open in the Audio Tab", run: () => goTo({ scope: "editor", itemId: id, cueId: null, source: null }) } as MenuEntry,
+        { label: "Remove from the Project", run: () => actions.removeFromProject([id], title(a)) } as MenuEntry,
+      ] : [{ label: "Add to the Project", run: () => actions.addToProject([id], title(a)) } as MenuEntry]),
+      { label: "Copy the Archive Name", run: () => copyText(a.id, quick) },
     ];
     openMenu(e, entries);
   };
@@ -322,8 +322,8 @@ export function ProjectPanel() {
           <h2>No project open</h2>
           <p>Open or create a project, then add music or sounds to it from the Library.</p>
           <div className="row-btns">
-            <button className="btn primary" onClick={actions.newProject}>New project…</button>
-            <button className="btn" onClick={() => actions.openProject()}>Open project…</button>
+            <button className="btn primary" onClick={actions.newProject}>New Project</button>
+            <button className="btn" onClick={() => actions.openProject()}>Open Project</button>
           </div>
         </div>
       </aside>
