@@ -47,7 +47,7 @@ The check only reports what a mod's author wouldn't have changed on purpose, so 
 
 Audiodiver applies all of this to the current sound banks and builds a new ZIP of the same mod. Banks the mod didn't patch get the audio only when **Patch every bank with the sounds** is ticked.
 
-If the mod has a mod manager manifest, the new ZIP keeps everything else from the original: the name, the description, the icon, the options, the files next to the patches, and the id. With the same id, importing the new ZIP in a mod manager updates the old mod and doesn't add another copy. Only the patches are new. The audio goes in without being converted again, so it sounds the same.
+If the mod has a mod manager manifest, the new ZIP keeps everything else from the original: the name, the description, the icon, the options, the files next to the patches, and the ID. With the same ID, importing the new ZIP in a mod manager updates the old mod and doesn't add another copy. Only the patches are new. The audio goes in without being converted again, so it sounds the same.
 
 ## Destination folder
 
@@ -93,7 +93,7 @@ A mod built with Audiodiver has the same copies. Build it again after every game
 
 ## Installing the result
 
-Import the new ZIP in the mod manager. If the page says the mod id was kept, the new ZIP replaces the old mod. Otherwise, remove the old mod first.
+Import the new ZIP in the mod manager. If the page says the mod ID was kept, the new ZIP replaces the old mod. Otherwise, remove the old mod first.
 
 > [!NOTE]
 > A repatched mod is still the author's work. Keep it for personal use, and share it only with the author's permission. Better still, point the author to Audiodiver to update the mod.

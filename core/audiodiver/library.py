@@ -44,6 +44,7 @@ from .addition import ACTION, LAYER, MIXER, RANSEQ, SWITCH, base_end, play_targe
 from .cuemap import slots
 from .game import murmur64_hash
 from .index import LANGUAGES
+from .patch import MAKEUP_GAIN
 from .titles import title
 
 PREFIX = "content/audio/"
@@ -508,6 +509,7 @@ class Library:
                 hirc = body
         held = {sid: wem.length_ms(data[off:off + min(n, 96)]) for sid, off, n in didx}  # source -> ms, of what is in here
         sounds, parent, segments, kinds, plays, bodies = [], {}, [], {}, set(), {}
+        own_gain = {}  # Sound -> the Make-Up Gain the game gives it, where it has one (a slot's gain adds to it)
         for t, oid, body in music.iter_hirc(hirc):
             if t == wbank.SOUND:
                 plugin, _stype, sid, _cache, _mem, _bits = wbank.SOURCE.unpack_from(body, 0)
@@ -517,6 +519,11 @@ class Library:
                     parent[oid] = music.read_node_base_params(music.Reader(body, 18))[1]
                 except Exception:
                     parent[oid] = 0
+                try:
+                    if g := wbank.props(t, body).get(MAKEUP_GAIN):
+                        own_gain[oid] = round(g, 2)
+                except Exception:
+                    pass
                 sounds.append((oid, sid))
             elif t in CONTAINERS:
                 kinds[oid] = t
@@ -605,6 +612,8 @@ class Library:
                                line, was.get(sid, sid))
             if sid in was:  # a clip of its own: the Sound plays it wherever the Sound is
                 slot.update(self._reach(self.ix.copies(oid), bid), source=str(sid), was=str(was[sid]), object=str(oid))
+            if oid in own_gain:
+                slot["game_gain"] = own_gain[oid]
             return slot
         made = [([row(oid, sid) for oid, sid in by_key[key]],
                  collections.Counter(self.calls[en.get(oid, oid)] for oid, _ in by_key[key] if en.get(oid, oid) in self.calls),

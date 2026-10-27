@@ -43,9 +43,11 @@ In the Library, the toolbar has **Add to the project**. In the Audio tab it star
 | {icon:skip} **Skip it**, {icon:skipall} **Skip all** | Replace a transition or stinger with a short silence. |
 | {icon:clear} **Clear all**, **Clear this part** | Removes the new audio from every slot shown, or from every slot of the part. |
 
-{icon:search} **Search slots** narrows the list by name, label, note, file name or id. In a sound set it also finds the words of a voice line. When nothing in the list matches, **Elsewhere** lists the pieces of music and sound sets that have a match.
+{icon:search} **Search slots** narrows the list by name, label, note, file name or ID. In a sound set it also finds the words of a voice line. When nothing in the list matches, **Elsewhere** lists the pieces of music and sound sets that have a match.
 
-{icon:header} and {icon:waves} at the end of the toolbar hide or show the header and the waveforms, and the **?** after them opens this section.
+{icon:id} after the search lists the sounds of a bank by [container ID](#container-ids). Press it again to go back to names.
+
+{icon:header} and {icon:waves} at the end of the toolbar hide or show the header and the waveforms, and the **?** after them opens this section. The waveforms button works while one slot is selected.
 
 ## Parts
 
@@ -61,7 +63,7 @@ Each row is one **slot**, a single game clip that can be replaced.
 - **Sounds** are shown in **groups**, with one line per sound and the **takes** folded under it. ▶ on the line plays the first take. Files dropped on the line fill the takes in order. Right-click the line to fill, silence or clear all takes at once.
 - The left half of a row is the original. ▶ plays it, and the length is shown at the end. In the Audio tab, the right half is the replacement. ▶ plays the new audio, clicking the file name picks another file, and ✕ removes it. An empty slot shows *Drop audio or choose a file*.
 - In the Audio tab, the tick at the start of a row puts the slot in the selection, or takes it out, as Ctrl+click does. Shift on a tick selects a range. A group line has a tick for all the takes in the group. With several slots selected, the right panel has **Choose one file for all…**, **Choose files…**, **Replace with silence** and the button that removes the new audio.
-- Double-click a row to play it. Right-click it for everything else, including copy, paste, silence and ids.
+- Double-click a row to play it. Right-click it for everything else, including copy, paste, silence and IDs.
 - Copy audio files in Explorer, select slots and press **Ctrl+V**. One file goes into every selected slot. Several files go in file-name order, and on a single selected slot they fill on from there. Ctrl+V pastes whatever was copied last: files from Explorer or slots copied in Audiodiver.
 
 ### Tags on a row
@@ -96,7 +98,9 @@ Hover over a tag to read the note. The notes of a selected clip appear in the de
 
 ## Under the slots
 
-The **waveforms** of the selected slot are shown here. The original is on top, and in the Audio tab the replacement is underneath, on the same time and level scales, with the **Entry** and **Exit** points marked. Both are drawn at their [Make-Up Gain](wiki:volume#make-up-gain-per-slot), and red marks audio pushed past full scale. Click a waveform to play from that point, and drag the top edge of the panel to resize it. {icon:waves} at the end of the toolbar hides them. In the Library, the line above the waveforms describes the slot. It shows the id (click to copy it), the length, when the slot plays, and where else the game plays it.
+The **waveforms** of the selected slot are shown here. The original is on top, and in the Audio tab the replacement is underneath, on the same time and level scales, with the **Entry** and **Exit** points marked. Both are drawn at their [Make-Up Gain](wiki:volume#make-up-gain-per-slot), and red marks audio pushed past full scale. Click a waveform to play from that point, and drag the top edge of the panel to resize it. {icon:waves} at the end of the toolbar hides them. In the Library, the line above the waveforms describes the slot. It shows the ID (click to copy it), the length, when the slot plays, and where else the game plays it.
+
+The column at the right zooms both waveforms. The tall slider draws them taller, to show quiet audio, and the short one zooms in on time, to place Entry and Exit closely. Zoomed in on time, the strip under the waveforms and the mouse wheel scroll, and Ctrl+wheel zooms. {icon:reset} shows the whole audio at full scale again. Zoom stays as set when another slot is selected, and the slice tool has the same column.
 
 ## The right panel (Audio tab)
 
@@ -112,7 +116,7 @@ Slots, and items in the list on the left, can have notes. Notes are at the botto
 
 Notes are written in Markdown. `#` starts a heading, `-` starts a list item, `**bold**` and `*italic*` mark words, and `[text](https://…)` makes a link. The buttons above the box do the same for the selected words, and pressing one again takes the mark off. {key:undo} works in the box while you type. Click elsewhere to save the note and show it formatted. Click it to edit it again. **Delete note** removes it, and asks first if it has any words.
 
-A clip that plays in several places has one note, shown in every place. When a game update gives a clip a new id, the note no longer shows. It stays in the file and shows again if the id comes back.
+A clip that plays in several places has one note, shown in every place. When a game update gives a clip a new ID, the note no longer shows. It stays in the file and shows again if the ID comes back.
 
 ## The bars
 
@@ -124,19 +128,19 @@ Short confirmations such as *Loadout Selection added to My Mod* or *My Mod saved
 
 ## Ids
 
-Every slot shows a **stream id** at the end of the row, the id other audio tools list it by. A slot with audio stored only inside a bank shows the **source id** instead. Click the id to copy it. Right-click the row to see all ids of the slot:
+Every slot shows a **stream ID** at the end of the row, the ID other audio tools list it by. A slot with audio stored only inside a bank shows the **source ID** instead. Click the ID to copy it. Right-click the row to see all IDs of the slot:
 
-- the 64-bit **stream** id of the file that holds the audio
-- the **source** id of the clip
+- the 64-bit **stream** ID of the file that holds the audio
+- the **source** ID of the clip
 - the **Sound** in a bank that plays the clip
 - the **container** that holds the takes of the sound
 - the music **track** that the clip is a layer of
 
 Both search boxes take any of them.
 
-## Container ids
+## Container IDs
 
-Set **Sound names** in [Settings ▸ System](app:settings/system) to **Container ids** to list the sounds of a bank as Wwise tools list it. Each sound is then named by the id of the container right above the takes, with the kind of container before the id (Random, Sequence, Switch, Layer or Actor-Mixer) and the usual name after it. The containers above sit on lines of their own, one step further in for each level, in bank order. Actor-Mixers that hold only the next one share a line. Click an id on these lines to copy it. The slot search finds container ids too.
+Press {icon:id} on the toolbar to list the sounds of a bank as Wwise tools list it. Each sound is then named by the ID of the container right above the takes, with the kind of container before the ID (Random, Sequence, Switch, Layer or Actor-Mixer) and the usual name after it. The containers above sit on lines of their own, one step further in for each level, in bank order. Actor-Mixers that hold only the next one share a line. Click an ID on these lines to copy it. The slot search finds container IDs too.
 
 ## Exporting
 

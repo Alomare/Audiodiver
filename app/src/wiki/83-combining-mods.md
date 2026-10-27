@@ -45,4 +45,4 @@ Everything else in the patches, such as text, models and textures, goes in as it
 
 ## Installing the result
 
-The combined mod is a new mod with a new id. In the mod manager, turn off the mods it combines, then import the new ZIP and deploy it. A combined mod is still the work of the original authors, so keep it for personal use, and share it only with their permission.
+The combined mod is a new mod with a new ID. In the mod manager, turn off the mods it combines, then import the new ZIP and deploy it. A combined mod is still the work of the original authors, so keep it for personal use, and share it only with their permission.

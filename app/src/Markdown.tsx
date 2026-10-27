@@ -12,8 +12,8 @@
 import { marked, type Token, type Tokens } from "marked";
 import { Fragment, type ReactNode } from "react";
 import { AudioIcon, BuildIcon, ClearIcon, CollapseAllIcon, ExportIcon, ExternalIcon, FillIcon, FillPieceIcon, GearIcon, GuideIcon, HeaderIcon,
-  HomeIcon, InfoIcon, LibraryIcon, LinkIcon, NoteIcon, OrderIcon, ProjectIcon, SearchIcon, SkipAllIcon, SkipIcon, SliceIcon, SoundtrackIcon,
-  TextIcon, ThroughIcon, ToolsIcon, TransitionIcon, UpdatesIcon, WavesIcon } from "./Icons";
+  HomeIcon, IdIcon, InfoIcon, LibraryIcon, LinkIcon, NoteIcon, OrderIcon, PlusIcon, ProjectIcon, ResetIcon, SearchIcon, SkipAllIcon, SkipIcon,
+  SliceIcon, SoundtrackIcon, TextIcon, ThroughIcon, ToolsIcon, TransitionIcon, UpdatesIcon, WavesIcon } from "./Icons";
 import { COMMANDS, keyLabel, useKeymap, type CommandId } from "./keys";
 import { about, nav, type Tab } from "./nav";
 import { openUrl } from "./platform";
@@ -62,7 +62,7 @@ const ICONS: Record<string, () => ReactNode> = {
   home: HomeIcon, library: LibraryIcon, audio: AudioIcon, soundtrack: SoundtrackIcon, text: TextIcon, build: BuildIcon, updates: UpdatesIcon,
   wiki: GuideIcon, settings: GearIcon, info: InfoIcon, note: NoteIcon, project: ProjectIcon, tools: ToolsIcon,
   fill: FillIcon, fillpiece: FillPieceIcon, slice: SliceIcon, export: ExportIcon, skip: SkipIcon, skipall: SkipAllIcon, clear: ClearIcon,
-  search: SearchIcon, through: ThroughIcon, transition: TransitionIcon, order: OrderIcon,
+  search: SearchIcon, through: ThroughIcon, transition: TransitionIcon, order: OrderIcon, id: IdIcon, reset: ResetIcon, add: PlusIcon,
   header: () => <HeaderIcon on />, waves: () => <WavesIcon on />,
 };
 

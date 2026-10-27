@@ -6,7 +6,7 @@ summary: Setting a slot's loudness, how the game's HDR mix works, and why some s
 
 ## Make-Up Gain per slot
 
-Select a slot and set **Make-Up Gain** in the details, from −96 to +96 dB, with the slider or by typing a value. Several selected slots all get the same value. Make-Up Gain doesn't change the audio file, so you can adjust it at any time.
+Select a slot and set **Make-Up Gain** in the details, from −96 to +96 dB, with the slider or by typing a value. Several selected slots all get the same value. Make-Up Gain doesn't change the audio file, so you can adjust it at any time. {icon:reset} after the value sets it back to 0 dB, the level the game plays the sound at. Some sounds have a Make-Up Gain of their own in the game, which the **?** shows. It stays, since the value here adds to it. The **Level** of a piece in the [Soundtrack](wiki:soundtrack) has the same button.
 
 On a slot without new audio, Make-Up Gain makes the Original louder or quieter. The mod changes only that setting, so it holds no copy of the audio. The row shows the value as a tag. While the slot has new audio, the gain set on the new audio applies instead.
 

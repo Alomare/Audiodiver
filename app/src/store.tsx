@@ -306,6 +306,17 @@ function useEditorState() {
       setRevision((r) => r + 1);
     }
   }, []);
+  // autosave on a timer (Settings ▸ System): the core keeps edits in memory and says so (project.unsaved), and they
+  // are saved once the first of them has waited the minutes set. Ctrl+S, a build and closing save them sooner.
+  const autosave = useSettings().autosave;
+  const connected = status !== null;
+  useEffect(() => { if (!UTILS && connected) call("autosave", { minutes: autosave }).catch(() => {}); }, [autosave, connected]);
+  const unsaved = !!project?.unsaved;
+  useEffect(() => {
+    if (!unsaved || !autosave) return;
+    const t = window.setTimeout(() => { run<ProjectState>("project_save").then(applyProject); }, autosave * 60_000);
+    return () => clearTimeout(t);
+  }, [unsaved, autosave, project?.path, run, applyProject]);
   /** applyProject for an edit; true when the core took it (it may have changed nothing). */
   const edited = useCallback((p: ProjectState | null | undefined) => {
     if (!p) return false;
@@ -878,12 +889,12 @@ function useEditorState() {
     async settings(fields: Record<string, unknown>) { edited(await run<ProjectState>("settings", fields)); },
     /** A new mod id: a mod manager then sees the next build as another mod. Undo puts the old id back. */
     async newModId() {
-      if (edited(await run<ProjectState>("settings", { guid: "new" }))) editNotice("info", "New mod id created. Mod managers install the next build as a separate mod.");
+      if (edited(await run<ProjectState>("settings", { guid: "new" }))) editNotice("info", "New mod ID created. Mod managers install the next build as a separate mod.");
     },
     /** A mod id typed or pasted, such as the one in a manifest made for the mod before. True when the core took it. */
     async setModId(guid: string) {
       const ok = edited(await run<ProjectState>("settings", { guid }));
-      if (ok) editNotice("info", "Mod id changed. Mod managers treat the next build as an update to the mod with this id.");
+      if (ok) editNotice("info", "Mod ID changed. Mod managers treat the next build as an update to the mod with this ID.");
       return ok;
     },
     /** The project as it is on disk now (a file deleted meanwhile becomes a problem); quiet when it can't be asked. */

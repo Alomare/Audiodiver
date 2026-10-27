@@ -94,7 +94,7 @@ def test_odd_values_in_a_project_file_are_brought_into_range(tmp_path):
     r = p.replacements[0]
     assert r.audio == "" and r.gain_db == 0.0 and p.version == 1  # infinite numbers fall back, unknown keys go
     assert p.repairs == ["the Make-Up Gain of sound 5", "the version"]  # and opening says what it put right
-    assert any("mod id" in x for x in p.problems())  # a damaged id is a problem to fix, not a crash
+    assert any("mod ID" in x for x in p.problems())  # a damaged id is a problem to fix, not a crash
 
 
 def test_values_of_the_wrong_kind_are_set_back_and_said(tmp_path):
@@ -145,7 +145,7 @@ def test_an_edit_that_fails_half_way_changes_nothing(tmp_path):
 
 @pytest.mark.parametrize("fields, words", [
     ({"version": 0}, "whole number from 1"), ({"version": "2.7"}, "whole number"), ({"version": 10 ** 9}, "99999"),
-    ({"name": None}, "text"), ({"loudness_analysis": "no"}, "on or off"), ({"guid": "nope"}, "isn't a mod id"),
+    ({"name": None}, "text"), ({"loudness_analysis": "no"}, "on or off"), ({"guid": "nope"}, "isn't a mod ID"),
 ])
 def test_settings_say_what_they_take(tmp_path, fields, words):
     s = Session(load=False)

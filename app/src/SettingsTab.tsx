@@ -2,16 +2,18 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { call, fmtBytes } from "./api";
 import { confirm } from "./Confirm";
 import { UTILS } from "./edition";
-import { captureChord, COMMANDS, FIXED, fmtChord, keymap, useKeymap, type CommandId } from "./keys";
+import { captureChord, COMMANDS, FIXED, fmtChord, keyLabel, keymap, useKeymap, type CommandId } from "./keys";
 import { HIDEABLE, nav, useNav, type Hideable, type SettingsTab as Sub } from "./nav";
 import { Page, tabArrows } from "./Page";
 import { reveal } from "./platform";
 import { player } from "./player";
-import { DEFAULT_SETTINGS, resetLayout, settings, SOUND_NAMES, TIP_SPEEDS, UPDATE_MODES, UPDATE_NOTES, useSettings } from "./settings";
+import { AUTOSAVE_DEFAULT, AUTOSAVE_MAX, DEFAULT_SETTINGS, resetLayout, settings, TIP_SPEEDS, UPDATE_MODES, UPDATE_NOTES, useSettings } from "./settings";
 import { useEditor } from "./store";
 import { Help } from "./Wiki";
 import { accentFor, BAR_SIDES, barIsVertical, BLUE_HUE, contrastOn, DEFAULT_SIZE, DEFAULT_THEME, DEFAULT_WARMTH, DENSITIES, FONTS, modeOf, motionOn, nightTint,
   RESET_THEME, secondFor, SPEEDS, systemReducesMotion, systemWantsContrast, TEXT_SIZES, theme, useTheme, WARMTH, YELLOW_HUE, type FontId } from "./theme";
+
+const minutes = (n: number) => `${n} minute${n === 1 ? "" : "s"}`;
 
 const SUBS: [Sub, string, string][] = UTILS ? [
   ["system", "System", "Game folder, updates, tooltips, disk space"],
@@ -81,9 +83,9 @@ function System() {
   };
   // the settings on this page (the build switches live on the Build tab)
   const defaults = { openLast: DEFAULT_SETTINGS.openLast, tips: DEFAULT_SETTINGS.tips, updates: DEFAULT_SETTINGS.updates, tabs: DEFAULT_SETTINGS.tabs,
-    soundNames: DEFAULT_SETTINGS.soundNames };
+    autosave: DEFAULT_SETTINGS.autosave };
   const changed = s.openLast !== defaults.openLast || s.tips !== defaults.tips || s.updates !== defaults.updates
-    || s.tabs.join() !== defaults.tabs.join() || s.soundNames !== defaults.soundNames;
+    || s.tabs.join() !== defaults.tabs.join() || s.autosave !== defaults.autosave;
 
   return (
     <div className="set-page">
@@ -104,17 +106,21 @@ function System() {
       </section>}
 
       {!UTILS && <section className="set-sec">
-        <h2>Sound names <Help tip="How the Audio tab and the Library list the sounds of a bank." page="reading-the-screen#container-ids" /></h2>
+        <h2>Autosave <Help tip={`When changes go into the project file.${keyLabel("save") ? ` ${keyLabel("save")} saves at any time.` : ""}`} page="how-audiodiver-works#autosave" /></h2>
         <div className="field">
-          <span className="field-label">Show</span>
-          <div className="segmented narrow" role="radiogroup" aria-label="Sound names">
-            {SOUND_NAMES.map(([id, name]) => (
-              <button key={id} role="radio" aria-checked={s.soundNames === id} className={s.soundNames === id ? "on" : ""}
-                onClick={() => settings.set({ soundNames: id })}>{name}</button>
-            ))}
+          <span className="field-label">Save</span>
+          <div className="segmented narrow" role="radiogroup" aria-label="Autosave">
+            <button role="radio" aria-checked={!s.autosave} className={!s.autosave ? "on" : ""} onClick={() => settings.set({ autosave: 0 })}>With each change</button>
+            <button role="radio" aria-checked={!!s.autosave} className={s.autosave ? "on" : ""}
+              onClick={() => { if (!s.autosave) settings.set({ autosave: AUTOSAVE_DEFAULT }); }}>On a timer</button>
           </div>
-          <small>{s.soundNames === "ids" ? "Each sound by the id of the container that holds it, under the containers above, as Wwise tools list them."
-            : "Each sound by what it says or what it is. Sounds nothing names are numbered."}</small>
+          {s.autosave > 0 && <>
+            <input type="range" className="size-slider" min={1} max={AUTOSAVE_MAX} step={1} value={s.autosave} aria-label="Minutes between saves"
+              aria-valuetext={minutes(s.autosave)} onChange={(e) => settings.set({ autosave: Number(e.target.value) })} />
+            <span className="autosave-val">Every {minutes(s.autosave)}</span>
+          </>}
+          <small>{s.autosave ? "Changes are also saved before a build and when the project or Audiodiver closes."
+            : "Every change goes into the project file as it is made."}</small>
         </div>
       </section>}
 

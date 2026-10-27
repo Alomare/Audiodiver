@@ -27,6 +27,7 @@ LOG_FILE = CACHE_DIR / "logs" / "core.log"
 SETTINGS_FILE = CACHE_DIR / "settings.json"  # the core's own settings: where the game is
 AUDIO_TYPES = {".wav", ".flac", ".mp3", ".ogg", ".opus", ".m4a", ".aac", ".aif", ".aiff", ".wma", ".wem"}
 UNDO_LIMIT = 200
+AUTOSAVE_MAX = 30  # minutes: the longest wait Settings offers between saves
 
 
 def load_settings() -> dict:
@@ -184,6 +185,12 @@ class Session:
         self.built_for: dict[str, str] = {}  # the same for the game version a build was made on (Project.built_for)
         self.built_from: dict[str, str] = {}  # and for what it was made from (Project.built_from)
         self.revision = 0  # counts the changes to what is open (edits, undo, redo, another project): project_state
+        # Autosave (set_autosave): 0 writes the project file with every edit. Otherwise edits wait in memory until
+        # the app saves them (its timer, Ctrl+S) or something needs the file (flush); unsaved_since is when the
+        # oldest change the file doesn't have was made
+        self.autosave_s = 0
+        self.unsaved_since: float | None = None
+        self._autosaver: threading.Thread | None = None
         self.jobs: dict[str, Job] = {}
         self.build_lock = threading.Lock()  # a build's "already running" check and its start, as one step
         self._facts = {}  # what project_state found out about the project's folder (_folder_facts)
@@ -400,14 +407,17 @@ class Session:
             raise EditorError(f"{path} wasn't found")
         return path
 
-    def peaks(self, kind, source=None, path=None, buckets=1200):
-        """Waveform peaks of the game's audio ("vanilla"), the assigned audio ("project") or any file ("file")."""
+    def peaks(self, kind, source=None, path=None, buckets=1200, full=255):
+        """Waveform peaks of the game's audio ("vanilla"), the assigned audio ("project") or any file ("file"), on a
+        scale of 0 to `full`: 255, or 32767 for a waveform zoomed in on a quiet sound."""
         from . import audio
         try:
             buckets = int(buckets)
         except (TypeError, ValueError, OverflowError):
             raise EditorError("The waveform's width is a whole number") from None
         buckets = max(1, min(120_000, buckets))
+        if full not in (255, 32767):
+            raise EditorError("Peaks go up to 255 or 32767")
         if kind == "vanilla":
             f = self.vanilla_wav(self._source(source))
         elif kind == "project":
@@ -421,7 +431,7 @@ class Session:
         else:
             raise EditorError(f"Unknown waveform kind {kind}")
         try:
-            return audio.peaks(f, buckets)
+            return audio.peaks(f, buckets, full)
         except (subprocess.CalledProcessError, ValueError, OSError):
             raise EditorError(f"Can't read the audio in {f.name}") from None
 
@@ -442,7 +452,7 @@ class Session:
         # then where cuts were kept before: the slices folder beside the project file, by song, and before songs had
         # a folder each
         places = [self._slice_dir(audio_path), audio.slice_folder(home, song, legacy=True), home / "slices" / song.stem]
-        return {**self.peaks("file", path=audio_path, buckets=buckets),
+        return {**self.peaks("file", path=audio_path, buckets=buckets, full=32767),  # 16-bit: quiet songs zoom in
                 "previous": next(filter(None, (audio.previous_cuts(d, song) for d in places)), None)}
 
     def slice_fill(self, cue_id, audio_path, bounds_ms, start_source=None, sources=None):
@@ -488,6 +498,7 @@ class Session:
             raise EditorError(f"Can't make the folder {path.parent}: {os_error(e)}") from None
         name = str(name or "").strip() or path.stem.strip() or "My mod"
         with self.lock:
+            self.flush()  # the project open until now keeps what waits
             self.project = Project(name=name, path=path, library=[], tabs=tabs)  # blank: nothing to edit yet
             self.project.save()
             self.undo_stack, self.redo_stack = [], []
@@ -516,19 +527,72 @@ class Session:
             raise EditorError(f"{path.name} " + ("is damaged (it can't be read)" if path.suffix.lower() == ".audi"
                                                   else "isn't an Audiodiver project")) from None
         with self.lock:
+            self.flush()
             self.project, self.undo_stack, self.redo_stack = p, [], []
             self.revision += 1
         return self.project_state()
 
     def save_project(self):
-        """Writes the project file now (Ctrl+S). Every edit saves it already; this is for peace of mind, and for a
-        file that was changed on disk meanwhile."""
+        """Writes the project file now (Ctrl+S, and the app's autosave timer). With autosave at once every edit saves
+        it already; then this is for a file that was changed on disk meanwhile."""
         with self.lock:
-            self._need_project().save()
+            try:
+                self._need_project().save()
+            except OSError as e:
+                raise EditorError(_unsaved(e, self.project.path)) from None
+            self.unsaved_since = None
             return self.project_state()
+
+    def set_autosave(self, minutes=0):
+        """How often edits go into the project file: 0 with each edit, else every 1 to AUTOSAVE_MAX minutes. The
+        app's timer saves (save_project); a thread here saves a minute after that if the app hasn't (a window that
+        sleeps). Going back to 0 saves what waits."""
+        if isinstance(minutes, bool) or not isinstance(minutes, int) or not 0 <= minutes <= AUTOSAVE_MAX:
+            raise EditorError(f"Autosave is 0 (with each change) to {AUTOSAVE_MAX} minutes")
+        with self.lock:
+            self.autosave_s = minutes * 60
+            if not minutes:
+                self.flush()
+            elif not self._autosaver:
+                self._autosaver = threading.Thread(target=self._autosave_loop, daemon=True, name="autosave")
+                self._autosaver.start()
+        return {"minutes": minutes}
+
+    def _autosave_loop(self):
+        while True:
+            time.sleep(5)
+            with self.lock:
+                due = (self.autosave_s and self.unsaved_since is not None
+                       and time.monotonic() - self.unsaved_since >= self.autosave_s + 60)
+            if due:
+                try:
+                    self.flush()
+                except EditorError as e:
+                    log.warning("autosave: %s", e)
+
+    def _store(self, p: Project):
+        """An edited project: written now (autosave with each change), or left waiting for the next save."""
+        if self.autosave_s:
+            if self.unsaved_since is None:
+                self.unsaved_since = time.monotonic()
+        else:
+            p.save()
+            self.unsaved_since = None
+
+    def flush(self):
+        """Writes the open project's waiting changes, before anything that reads the project file or leaves the
+        project (a build, a move, closing it, the app closing)."""
+        with self.lock:
+            if self.project and self.unsaved_since is not None:
+                try:
+                    self.project.save()
+                except OSError as e:
+                    raise EditorError(_unsaved(e, self.project.path)) from None
+                self.unsaved_since = None
 
     def close_project(self):
         with self.lock:
+            self.flush()
             self.project, self.undo_stack, self.redo_stack = None, [], []
             self.revision += 1
 
@@ -722,13 +786,13 @@ class Session:
         try:
             return int(v)
         except (TypeError, ValueError, OverflowError):
-            raise EditorError(f"{v!r} isn't an object id") from None
+            raise EditorError(f"{v!r} isn't an object ID") from None
 
     def _rep(self, sid) -> Replacement:
         try:
             key = int(sid)
         except (TypeError, ValueError, OverflowError):
-            raise EditorError(f"{sid!r} isn't a sound id") from None
+            raise EditorError(f"{sid!r} isn't a sound ID") from None
         r = self._sources().get(key)
         if not r:
             raise EditorError(f"Slot {sid} has no new audio")
@@ -985,6 +1049,7 @@ class Session:
                 "settings": len(p.settings), "notes": dict(p.notes),
                 "soundtrack": {str(k): v.to_json() for k, v in p.soundtrack.items()}, "tabs": p.tabs,
                 "problems": problems, "can_undo": bool(self.undo_stack), "can_redo": bool(self.redo_stack),
+                "unsaved": self.unsaved_since is not None,
                 "undo_label": self.undo_stack[-1][0] if self.undo_stack else None,
                 "redo_label": self.redo_stack[-1][0] if self.redo_stack else None}
 
@@ -1004,7 +1069,7 @@ class Session:
                 raise
             if p.to_json() != before:
                 try:
-                    p.save()
+                    self._store(p)
                 except OSError as e:  # memory and the file stay the same: the edit didn't happen
                     self.project = Project.from_json(before, p.path)
                     raise EditorError(_unsaved(e, p.path)) from None
@@ -1021,7 +1086,7 @@ class Session:
         self.project.version = max(self.project.version, floor)
         self.project.built_for = self.built_for.get(self.project.guid, self.project.built_for)
         self.project.built_from = self.built_from.get(self.project.guid, self.project.built_from)
-        self.project.save()
+        self._store(self.project)
 
     def undo(self):
         with self.lock:
@@ -1082,7 +1147,7 @@ class Session:
         try:
             sid = int(s)
         except (TypeError, ValueError, OverflowError):
-            raise EditorError(f"{s!r} isn't a sound id") from None
+            raise EditorError(f"{s!r} isn't a sound ID") from None
         if not self.ix or sid in self._added():
             return sid
         try:
@@ -1203,7 +1268,7 @@ class Session:
         try:
             sids = {int(s) for s in sources}
         except (TypeError, ValueError, OverflowError):
-            raise EditorError("Those aren't sound ids") from None
+            raise EditorError("Those aren't sound IDs") from None
         if self.ix:
             sids |= {self._target(s) for s in sids}
 
@@ -1360,7 +1425,7 @@ class Session:
                 try:
                     v = str(uuid.UUID(str(v)))
                 except ValueError:
-                    raise EditorError("That isn't a mod id (a GUID like 3f2a…-…)") from None
+                    raise EditorError("That isn't a mod ID (a GUID like 3f2a…-…)") from None
             elif k == "loudness_analysis":
                 if not isinstance(v, bool):
                     raise EditorError("Loudness analysis is on or off")
@@ -1455,7 +1520,7 @@ class Session:
         try:
             return int(segment)
         except (TypeError, ValueError, OverflowError):
-            raise EditorError(f"{segment!r} isn't a segment id") from None
+            raise EditorError(f"{segment!r} isn't a segment ID") from None
 
     @staticmethod
     def _cue_ms(v) -> float | None:
@@ -1574,6 +1639,7 @@ class Session:
             if pf.own_folder(p.path):
                 raise EditorError("The project already has a folder to itself")
             self._files_busy()
+            self.flush()  # the move plan reads the project file
             old_file, old = p.path, p.path.parent
             dest = pf.move_dest(old_file)
             plan = pf.move_plan(old_file, dest, self._history())
@@ -1621,6 +1687,7 @@ class Session:
         with self.lock:
             p = self._need_project()
             self._files_busy()
+            self.flush()  # the folder moves with the project file in it
             if self.ix and in_game_folder(to, self.ix.game.data):
                 raise EditorError("That folder is inside the game folder, and Audiodiver never writes there")
             own = pf.own_folder(p.path)
@@ -1686,6 +1753,7 @@ class Session:
         with self.lock:
             p = self._need_project()
             self._files_busy()
+            self.flush()  # what the project uses is read from the file
             try:
                 found = pf.unused(p.path, self._history())
             except pf.FilesError as e:
@@ -1708,6 +1776,7 @@ class Session:
         with self.lock:
             p = self._need_project()
             self._files_busy()
+            self.flush()
             try:
                 now = {pf.key(f): f for f in pf.unused(p.path, self._history())}
             except pf.FilesError as e:
@@ -1754,6 +1823,7 @@ class Session:
         if not dest.parent.is_dir():
             raise EditorError(f"{dest.parent} is not a folder")
         with self.lock:
+            self.flush()  # the pack holds the project file as saved
             d, folder, name = p.to_json(), p.path.parent, p.path.stem
 
         def run(job):
@@ -1823,6 +1893,7 @@ class Session:
         from .build import BuildError, build
         self.require_game()
         p = self._need_project()
+        self.flush()  # the build reads the project file
 
         def run(job):
             with self.lock:
@@ -1873,6 +1944,8 @@ class Session:
                 p.built_for = built_for or p.built_for
                 p.built_from = built_from or p.built_from
                 p.save()
+                if p is self.project:  # written whole: what waited is in the file too
+                    self.unsaved_since = None
                 self.revision += 1
 
     def import_patch(self, patch_path, mode="add"):
@@ -2322,7 +2395,7 @@ class Session:
                 raise EditorError("Each mod to combine is a patch file, a folder or a ZIP")
             picks = m.get("picks")
             if picks is not None and (not isinstance(picks, list) or not all(isinstance(x, str) for x in picks)):
-                raise EditorError("A mod's options are a list of their ids")
+                raise EditorError("A mod's options are a list of their IDs")
             out.append((str(m["source"]), picks))
         return out
 
@@ -3335,7 +3408,7 @@ class Session:
         try:
             ids = [int(i) for i in ids]
         except (TypeError, ValueError, OverflowError):
-            raise EditorError("Subtitle ids are whole numbers") from None
+            raise EditorError("Subtitle IDs are whole numbers") from None
         return self.lib.subtitle_lines(ids, str(language))
 
     def text_set(self, table, id, text):

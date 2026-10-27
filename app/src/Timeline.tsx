@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { audioUrl, fmtTime, type Cue } from "./api";
 import { audible, rowName, rowsOf, SILENCE_TIP } from "./CueView";
 import { useLiveGain } from "./gain";
@@ -7,7 +7,7 @@ import { player, usePlayer, type PlayedAt } from "./player";
 import { SlotFacts } from "./Inspector";
 import { ResizeEdge, useStoredHeight } from "./Resize";
 import { useEditor } from "./store";
-import { usePeaks, Waveform, type Marker } from "./Waveform";
+import { finePeaks, usePeaks, useWaveZoom, useWheelZoom, WaveScroll, Waveform, WaveZoom, type Marker } from "./Waveform";
 
 /** The selected slot as two waveforms on one time scale: the original above, the replacement below, with the
     segment's entry and exit cue points. The replacement's can be dragged; the original's show where the game's sit.
@@ -22,6 +22,7 @@ import { usePeaks, Waveform, type Marker } from "./Waveform";
     and its selected slot. */
 const HEIGHT = 210;
 const HEIGHT_ONE = 190; // the Library's: the game's waveform under the slot's facts
+const MIN_SPAN = 20;    // ms: the closest the time zoom goes
 // what the cue points do, in the flags' tooltips
 const ENTRY_ABOUT = "The segment counts as started here. Audio before it plays under the end of the segment before";
 const EXIT_ABOUT = "The next segment starts here. Audio after it rings out over the next one";
@@ -52,12 +53,20 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
   const none = !!(row?.slot.absent || row?.slot.added); // "No audio", or a new take: no original to draw
   const gameWave = usePeaks("vanilla", none ? null : source);
   const mineWave = usePeaks("project", audible(a) ? source : null, String(revision));
-  const game = gameWave.peaks, mine = mineWave.peaks;
+  // one zoom for both, from the controls at the right; zoomed in, finer peaks take over once they come
+  const span = Math.max(gameWave.peaks?.duration_ms ?? 0, mineWave.peaks?.duration_ms ?? 0, 1);
+  const zoom = useWaveZoom(span, MIN_SPAN, source);
+  const fineGame = finePeaks(zoom, gameWave.peaks?.duration_ms), fineMine = finePeaks(zoom, mineWave.peaks?.duration_ms);
+  const gameFine = usePeaks("vanilla", fineGame && !none ? source : null, "", fineGame);
+  const mineFine = usePeaks("project", fineMine && audible(a) ? source : null, String(revision), fineMine);
+  const game = gameFine.peaks ?? gameWave.peaks, mine = mineFine.peaks ?? mineWave.peaks;
+  const waves = useRef<HTMLDivElement>(null);
+  useWheelZoom(waves, zoom, !!row);
   if (!row || !source) return null;
 
   const { seg } = row;
   const what = rowName(row);
-  const span = Math.max(game?.duration_ms ?? 0, mine?.duration_ms ?? 0, 1);
+  const view = { spanMs: zoom.span, fromMs: zoom.from, zoomY: zoom.y };
   const kGame = `vanilla:${source}`, kMine = `project:${source}`;
   // the play-through that plays in this tab, and how far it is
   const playing = through && p.key === through.key ? through : null;
@@ -102,29 +111,35 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
     <section className={`timeline${readOnly ? " one" : ""}`} aria-label="Waveforms" style={{ height: h ?? (readOnly ? HEIGHT_ONE : HEIGHT) }}>
       <ResizeEdge edge="top" label="Resize the waveforms" min={readOnly ? 120 : 140} max={room} onResize={setH} onReset={() => setH(readOnly ? HEIGHT_ONE : HEIGHT)} />
       {readOnly && <SlotFacts row={row} />}
-      <div className="tl-row">
-        <div className="tl-label game"><b>Original</b><span>{fmtTime(game?.duration_ms)}</span>{gameDb !== 0 && <Db db={gameDb} />}</div>
-        <Waveform peaks={game} spanMs={span} tone="game" markers={gameMarkers} playheadMs={head(kGame, false, game?.duration_ms)} gainDb={gameDb}
-          activeFrom={hasCues ? seg.entry_ms ?? 0 : undefined} activeTo={hasCues ? seg.exit_ms ?? undefined : undefined}
-          onSeek={none ? undefined : (ms) => seek("vanilla", ms)}
-          label={row.slot.added ? "A new take has no original" : row.slot.absent ? "Not in the installed game files" : "Loading the original…"}
-          error={gameWave.error} onRetry={gameWave.retry} />
-      </div>
-      {!readOnly && (
-        <div className="tl-row">
-          <div className="tl-label mine"><b>Replaced</b><span>{a?.silence ? "silence" : a ? fmtTime(mine?.duration_ms) : ""}</span>{mineDb !== 0 && <Db db={mineDb} />}</div>
-          {a?.silence ? (
-            <div className="wave placeholder">Silence: {a.fit_timing ? SILENCE_TIP.move.toLowerCase() : SILENCE_TIP.keep.toLowerCase()}</div>
-          ) : a?.exists ? (
-            <Waveform peaks={mine} spanMs={span} tone="mine" markers={myMarkers} playheadMs={head(kMine, true, mine?.duration_ms)} gainDb={mineDb}
-              activeFrom={hasCues ? entry : undefined} activeTo={hasCues ? exit : undefined}
-              onSeek={(ms) => seek("project", ms)}
-              onMarkerCommit={commit} label="Reading the new audio…" error={mineWave.error} onRetry={mineWave.retry} />
-          ) : (
-            <div className="wave placeholder">{a ? "File missing" : "Not replaced"}</div>
+      <div className="tl-body">
+        <div className="tl-rows" ref={waves}>
+          <div className="tl-row">
+            <div className="tl-label game"><b>Original</b><span>{fmtTime(game?.duration_ms)}</span>{gameDb !== 0 && <Db db={gameDb} />}</div>
+            <Waveform peaks={game} {...view} tone="game" markers={gameMarkers} playheadMs={head(kGame, false, game?.duration_ms)} gainDb={gameDb}
+              activeFrom={hasCues ? seg.entry_ms ?? 0 : undefined} activeTo={hasCues ? seg.exit_ms ?? undefined : undefined}
+              onSeek={none ? undefined : (ms) => seek("vanilla", ms)}
+              label={row.slot.added ? "A new take has no original" : row.slot.absent ? "Not in the installed game files" : "Loading the original…"}
+              error={gameWave.error} onRetry={gameWave.retry} />
+          </div>
+          {!readOnly && (
+            <div className="tl-row">
+              <div className="tl-label mine"><b>Replaced</b><span>{a?.silence ? "silence" : a ? fmtTime(mine?.duration_ms) : ""}</span>{mineDb !== 0 && <Db db={mineDb} />}</div>
+              {a?.silence ? (
+                <div className="wave placeholder">Silence: {a.fit_timing ? SILENCE_TIP.move.toLowerCase() : SILENCE_TIP.keep.toLowerCase()}</div>
+              ) : a?.exists ? (
+                <Waveform peaks={mine} {...view} tone="mine" markers={myMarkers} playheadMs={head(kMine, true, mine?.duration_ms)} gainDb={mineDb}
+                  activeFrom={hasCues ? entry : undefined} activeTo={hasCues ? exit : undefined}
+                  onSeek={(ms) => seek("project", ms)}
+                  onMarkerCommit={commit} label="Reading the new audio…" error={mineWave.error} onRetry={mineWave.retry} />
+              ) : (
+                <div className="wave placeholder">{a ? "File missing" : "Not replaced"}</div>
+              )}
+            </div>
           )}
+          {zoom.x > 1 && <WaveScroll zoom={zoom} />}
         </div>
-      )}
+        <WaveZoom zoom={zoom} />
+      </div>
       {audible(a) && hasCues && (
         <p className="tl-note">
           {fit ? "Drag Exit to move where the next segment starts" : "Fit timing is off, so the original cue points apply until one is moved"}

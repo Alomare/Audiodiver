@@ -274,9 +274,9 @@ export function IndexTree() {
   return (
     <>
       <div className="lib-search">
-        <input type="search" placeholder={`Search, or paste an id${searchKey ? `  ( ${searchKey} )` : ""}`} value={query}
+        <input type="search" placeholder={`Search, or paste an ID${searchKey ? `  ( ${searchKey} )` : ""}`} value={query}
           onChange={(e) => setQuery(e.target.value)} aria-label={editing ? "Search the project" : "Search the Index"} onKeyDown={searchKeys}
-          data-tip="Names, descriptions and slot labels" data-tip-more="Or paste a source, stream, bank or cue id to find where it plays" />
+          data-tip="Names, descriptions and slot labels" data-tip-more="Or paste a source, stream, bank or cue ID to find where it plays" />
         <button className="icon-btn" onClick={collapseAll} aria-label="Collapse all" data-tip="Collapse all"><CollapseAllIcon /></button>
       </div>
       {editing && project && <Filters filter={filter} setFilter={setFilter} />}

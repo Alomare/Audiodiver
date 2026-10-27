@@ -87,6 +87,12 @@ export const SkipAllIcon = () => <Icon><path d="M3.5 6.5v11l6.5-5.5zM11 6.5v11l6
 export const ClearIcon = () => (
   <Icon><path d="M13.9 4.6 19.4 10a1.5 1.5 0 0 1 0 2.1L12.5 19H7.6l-3-3a1.5 1.5 0 0 1 0-2.1l7.2-7.3a1.5 1.5 0 0 1 2.1 0z" /><path d="m8.6 9.9 5.5 5.5M12.5 19h7" /></Icon>
 );
+/** The letters ID in a box: sounds named by container ID. */
+export const IdIcon = () => (
+  <Icon size={1.1}><rect x="2.5" y="5.5" width="19" height="13" rx="2" /><path d="M7.5 9v6M11 9h2.25a3 3 0 0 1 0 6H11z" strokeWidth={2} /></Icon>
+);
+/** An arrow turning back: a value back to where it started. */
+export const ResetIcon = () => <Icon size={1}><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3" /><path d="M4.5 4v4.5H9" /></Icon>;
 /** A magnifier: a search box. */
 export const SearchIcon = () => <Icon size={1}><circle cx="10.5" cy="10.5" r="6" /><path d="m15 15 5 5" /></Icon>;
 /** A play sign before three bars: the segments played one after another. */

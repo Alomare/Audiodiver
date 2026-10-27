@@ -117,8 +117,8 @@ export function TextTab({ hidden }: { hidden?: boolean }) {
             data-tip-more="Each language is a separate table, and a change in one doesn't change the others">
             {(langs.length ? langs : [{ code: lang, name: lang }]).map((l) => <option key={l.code} value={l.code}>{l.name}</option>)}
           </select>
-          <input type="search" placeholder="Search, or paste an id" value={query} onChange={(e) => { setOnly(null); setQuery(e.target.value); }}
-            aria-label="Search lines" data-tip="Words in this language, or a line id" data-tip-side="bottom"
+          <input type="search" placeholder="Search, or paste an ID" value={query} onChange={(e) => { setOnly(null); setQuery(e.target.value); }}
+            aria-label="Search lines" data-tip="Words in this language, or a line ID" data-tip-side="bottom"
             onKeyDown={(e) => { if (e.key === "Escape") setQuery(""); }} />
         </div>
         <div className="mus-filters">
@@ -255,7 +255,7 @@ function LineEditor({ line, lang, canEdit, onSave, onRevert }: {
       <div className="cue-top"><header className="cue-head">
         <div className="head-row"><div className="crumbs">{subtitle ? "Subtitle" : "Text"} · line {line.id} · table {line.table}{" "}
           <Help tip="A mod carries whole tables. When two mods change the same table, the one deployed later replaces the other" page="text#how-text-is-built" /></div>
-          <button className="link-text small" onClick={() => copyText(String(line.id), quick, `**${line.id}**`)} data-tip="Copy the line id">Copy the id</button></div>
+          <button className="link-text small" onClick={() => copyText(String(line.id), quick, `**${line.id}**`)} data-tip="Copy the line ID">Copy the ID</button></div>
         <div className="item-title"><h1>{plainText(line.text).slice(0, 80) || "(empty)"}</h1>
           {line.yours !== undefined && <span className="item-cov done"><Mark status="done" label="Changed" />Changed</span>}</div>
       </header></div>

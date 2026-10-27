@@ -16,7 +16,7 @@ On the mod page, include:
 
 ## Updates
 
-Keep the mod's name and id the same for the life of the mod ([Project](app:project)). Importing the new ZIP then updates the mod and keeps one copy.
+Keep the mod's name and ID the same for the life of the mod ([Project](app:project)). Importing the new ZIP then updates the mod and keeps one copy.
 
 ## Moving a project
 

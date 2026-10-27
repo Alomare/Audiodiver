@@ -1,13 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { audioUrl, call, fileUrl, fmtTime, type Cue } from "./api";
 import { rowName, rowsOf, type Row } from "./CueView";
-import { FitIcon, ZoomInIcon, ZoomOutIcon } from "./Icons";
 import { useDialog } from "./dialog";
 import { pickAudio } from "./platform";
 import { player, usePlayer, usePlayerLook } from "./player";
 import { useEditor } from "./store";
 import { useTheme } from "./theme";
-import { loadPeaks, type Peaks } from "./Waveform";
+import { loadPeaks, WaveZoom, ZOOM_Y_MAX, type Peaks, type WaveZoomState } from "./Waveform";
 import { Help } from "./Wiki";
 
 /** The slice tool: cuts one song into consecutive pieces and fills a cue's slots with them in play order, one piece
@@ -15,7 +14,7 @@ import { Help } from "./Wiki";
 
     The song and the original sit on one time scale. The song's lane shows the cuts and the slot each piece goes to;
     the original lane shows each slot's original audio starting at its piece's cut, so a piece longer or shorter than
-    the clip it replaces shows at a glance, and by how much. Ctrl+wheel or the buttons zoom, the wheel or the
+    the clip it replaces shows at a glance, and by how much. Ctrl+wheel or the zoom column zoom, the wheel or the
     overview strip scroll; cuts drag (snapping to the original's length), a double-click adds one, Delete removes the
     selected one, the arrow keys nudge it. */
 
@@ -198,6 +197,17 @@ export function SliceTool({ onClose, target, file: given }: { onClose: () => voi
     return clampView({ span, from: at - ((at - v.from) / v.span) * span });
   }), [clampView]);
   const fit = () => setView({ from: 0, span: total });
+  // the zoom column at the right of the lanes, as beside the waveforms (Waveform.tsx): time zooms this view, and
+  // the level zoom draws both lanes taller
+  const [tall, setTall] = useState(1);
+  const sliceZoom: WaveZoomState = {
+    x: total / view.span, y: tall, maxX: Math.max(1, total / MIN_SPAN), from: view.from, span: view.span, total,
+    zoomed: view.span < total || tall > 1,
+    zoomX: (x, atMs) => zoom(x / (total / view.span), atMs),
+    zoomY: (y) => setTall(Math.max(1, Math.min(ZOOM_Y_MAX, y))),
+    scroll: (from) => setView((v) => clampView({ ...v, from })),
+    reset: () => { fit(); setTall(1); },
+  };
   /** Brings a stretch into view, zooming out only when it doesn't fit. */
   const reveal = (from: number, to: number) => setView((v) => {
     if (from >= v.from && to <= v.from + v.span) return v;
@@ -349,15 +359,16 @@ export function SliceTool({ onClose, target, file: given }: { onClose: () => voi
                 ))}
               </div>
               {layout === "custom" && <span className="muted small">Placed by hand</span>}
-              <span className="spacer" />
-              <button className="icon-btn" onClick={() => zoom(1 / 1.5)} aria-label="Zoom out" data-tip="Zoom out" disabled={view.span >= total}><ZoomOutIcon /></button>
-              <button className="icon-btn" onClick={() => zoom(1.5)} aria-label="Zoom in" data-tip="Zoom in" disabled={view.span <= MIN_SPAN}><ZoomInIcon /></button>
-              <button className="icon-btn" onClick={fit} aria-label="Show the whole song" data-tip="Whole song" disabled={view.span >= total}><FitIcon /></button>
             </div>
 
-            <Lanes info={info} bounds={bounds} targets={targets} view={view} sel={sel} setSel={setSel} clampView={clampView} setView={setView}
-              zoom={zoom} moveCut={moveCut} addCut={addCut} playSong={playSong} playOriginal={playOriginal} />
-            <Overview info={info} bounds={bounds} view={view} setView={(v) => setView(clampView(v))} />
+            <div className="slice-zoomed">
+              <div className="slice-view">
+                <Lanes info={info} bounds={bounds} targets={targets} view={view} tall={tall} sel={sel} setSel={setSel} clampView={clampView} setView={setView}
+                  zoom={zoom} moveCut={moveCut} addCut={addCut} playSong={playSong} playOriginal={playOriginal} />
+                <Overview info={info} bounds={bounds} view={view} setView={(v) => setView(clampView(v))} />
+              </div>
+              <WaveZoom zoom={sliceZoom} />
+            </div>
 
             <div className="slice-list" role="table" aria-label="Pieces">
               <div className="slice-piece head" role="row">
@@ -410,8 +421,8 @@ function PieceButton({ k, label, onPlay, tone }: { k: string; label: string; onP
 
 /** The song and the originals on one time scale, with a ruler, the cuts (dragged, added, nudged) and the playheads.
     Drawn on a canvas: a song's waveform is up to 120,000 peaks, and only the part in view is drawn. */
-function Lanes({ info, bounds, targets, view, sel, setSel, clampView, setView, zoom, moveCut, addCut, playSong, playOriginal }: {
-  info: Info; bounds: number[]; targets: Row[]; view: View; sel: number | null; setSel: (i: number | null) => void;
+function Lanes({ info, bounds, targets, view, tall, sel, setSel, clampView, setView, zoom, moveCut, addCut, playSong, playOriginal }: {
+  info: Info; bounds: number[]; targets: Row[]; view: View; tall: number /* the level zoom */; sel: number | null; setSel: (i: number | null) => void;
   clampView: (v: View) => View; setView: (f: (v: View) => View) => void; zoom: (factor: number, atMs?: number) => void;
   moveCut: (i: number, ms: number) => void; addCut: (ms: number) => void;
   playSong: (fromMs: number, toMs?: number, piece?: number) => void; playOriginal: (i: number, offsetMs?: number) => void;
@@ -500,7 +511,7 @@ function Lanes({ info, bounds, targets, view, sel, setSel, clampView, setView, z
 
     // a waveform over [x0, x1): peaks spread over durationMs, starting at startMs on the time scale
     const wave = (p: Peaks, startMs: number, top: number, h: number, from: number, to: number, bright: string, dim: string, inside: (ms: number) => boolean) => {
-      const N = p.peaks.length, mid = top + h / 2;
+      const N = p.peaks.length, mid = top + h / 2, full = p.full ?? 255;
       const x0 = Math.max(0, Math.floor(x(Math.max(from, startMs)))), x1 = Math.min(width, Math.ceil(x(Math.min(to, startMs + p.duration_ms))));
       for (let px = x0; px < x1; px++) {
         const a = view.from + (px / width) * view.span - startMs, b = view.from + ((px + 1) / width) * view.span - startMs;
@@ -508,7 +519,7 @@ function Lanes({ info, bounds, targets, view, sel, setSel, clampView, setView, z
         i0 = Math.max(0, i0); i1 = Math.min(N, Math.max(i0 + 1, i1));
         let peak = 0;
         for (let i = i0; i < i1; i++) if (p.peaks[i] > peak) peak = p.peaks[i];
-        const ms = startMs + a, hh = Math.max(1, (peak / 255) * (h - 8));
+        const ms = startMs + a, hh = Math.max(1, Math.min(1, (peak / full) * tall) * (h - 8));
         const on = inside(ms);
         g.fillStyle = on ? bright : dim; g.globalAlpha = on ? 0.9 : 0.4;
         g.fillRect(px, mid - hh / 2, 1, hh);
@@ -545,7 +556,7 @@ function Lanes({ info, bounds, targets, view, sel, setSel, clampView, setView, z
         g.fillText(label, x(to) - lw, origTop + LANES.original - 10);
       }
     }
-  }, [info, bounds, targets, orig, view, width, height, sel, n, look]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [info, bounds, targets, orig, view, tall, width, height, sel, n, look]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /** Where the cut `i` may go, and the spot it snaps to: where the original before it ends. */
   const limits = (i: number) => ({

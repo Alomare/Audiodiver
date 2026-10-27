@@ -23,7 +23,7 @@ import { TooltipLayer } from "./Tooltip";
 import { UpdatePrompt, UpdatesTab } from "./UpdatesTab";
 import { updates, useUpdates } from "./updates";
 import { Wiki } from "./Wiki";
-import { fmtTime, iconUrl, type Job } from "./api";
+import { call, fmtTime, iconUrl, type Job } from "./api";
 import { APP_NAME, UTILS } from "./edition";
 import { APP_LABEL, APP_VERSION, versionLabel } from "./content";
 import { JOB_NAMES } from "./jobs";
@@ -203,9 +203,12 @@ function Shell() {
     return () => { gone = true; off(); window.removeEventListener("dragover", block); window.removeEventListener("drop", block); };
   }, [quick]);
 
-  // closing the window while a build or export runs asks first: closing stops the core, and the job with it
+  // closing the window saves what autosave on a timer keeps waiting, and asks first while a build or export runs:
+  // closing stops the core, and the job with it
   const running = useRef<string[]>([]);
   running.current = Object.values(jobs).filter((j) => j.state === "running").map((j) => JOB_NAMES[j.kind]?.[0].toLowerCase() ?? j.kind);
+  const unsaved = useRef(false);
+  unsaved.current = !!project?.unsaved;
   useEffect(() => {
     if (!isTauri()) return;
     let off = () => {};
@@ -214,6 +217,16 @@ function Shell() {
       const { getCurrentWindow } = await import("@tauri-apps/api/window");
       const w = getCurrentWindow();
       const stop = await w.onCloseRequested(async (ev) => {
+        if (unsaved.current) {
+          try { await call("project_save"); } catch (e: any) {
+            ev.preventDefault();
+            const { ask } = await import("@tauri-apps/plugin-dialog");
+            if (await ask(`The project couldn't be saved. ${e?.message ?? e}`, { title: APP_NAME, kind: "warning", okLabel: "Close anyway", cancelLabel: "Keep working" })) {
+              await w.destroy();
+            }
+            return;
+          }
+        }
         if (!running.current.length) return;
         ev.preventDefault();
         const { ask } = await import("@tauri-apps/plugin-dialog");
@@ -461,8 +474,13 @@ function Rail() {
 function StatusBar() {
   const { status, jobs, project, actions } = useEditor();
   const u = useUpdates();
+  const { autosave } = useSettings();
   const running = Object.values(jobs).filter((j) => j.state === "running");
   const core = status?.version && status.version !== APP_VERSION ? `, core ${versionLabel(status.version)}` : "";
+  const save = keyLabel("save");
+  const saved = !project ? "" : project.unsaved ? "Unsaved changes" : autosave ? "Saved" : "Autosaved";
+  const savedTip = !autosave ? "Every change is saved to the project file as it is made"
+    : `Saved every ${autosave} minute${autosave === 1 ? "" : "s"}${save ? `. ${save} saves now` : ""}`;
   return (
     <footer className="statusbar">
       {!UTILS && <div className="sb-undo">
@@ -474,8 +492,8 @@ function StatusBar() {
       {running.length ? (
         <span className="busy sb-main">{JOB_NAMES[running[0].kind]?.[1] ?? "Working"}{running[0].total ? ` ${Math.round((running[0].done / running[0].total) * 100)}%` : ""}: {running[0].doing || running[0].log[running[0].log.length - 1] || "starting"}</span>
       ) : (
-        <span className="sb-main" data-tip={project ? "Every change is saved to the project file as it is made" : undefined}
-          data-tip-more={project?.path}>{project ? `Autosaved · ${project.path}` : UTILS ? "" : "No project open"}</span>
+        <span className="sb-main" data-tip={project ? savedTip : undefined}
+          data-tip-more={project?.path}>{project ? `${saved} · ${project.path}` : UTILS ? "" : "No project open"}</span>
       )}
       <span className="spacer" />
       <ExportListButton />

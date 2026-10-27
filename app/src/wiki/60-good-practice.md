@@ -10,4 +10,4 @@ summary: Habits that make a mod easier to test, update and share.
 - **Use Play through** before you build. It catches most hand-over problems without starting the game.
 - **Check the transitions** that the Audio tab marks with **!**. An original transition between two pieces of new music is the most common thing that sounds out of place.
 - **Listen at quiet moments and during a firefight.** Loudness problems show up in both situations.
-- **Keep the mod's id and name** on [Project](app:project) for the life of the mod, so that the mod manager updates the installed mod each time. Use **Make a new id** only when you copy a project to make a different mod.
+- **Keep the mod's ID and name** on [Project](app:project) for the life of the mod, so that the mod manager updates the installed mod each time. Use **Make a new ID** only when you copy a project to make a different mod.

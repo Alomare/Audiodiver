@@ -57,7 +57,7 @@ export const CREDITS: { group: string; items: Credit[] }[] = [
     { name: "hd2-audio-modder", by: "RaidingForPants", url: "https://github.com/RaidingForPants/hd2-audio-modder", licence: "MIT",
       for: "reading game archives, and how HD2 stores sound banks" },
     { name: "wwise-teller", by: "Dekr0", url: "https://github.com/Dekr0/wwise-teller", licence: "MIT",
-      for: "Wwise property ids, the difference between Volume and Make-Up Gain, and how new takes, layers and clips go into a bank" },
+      for: "Wwise property IDs, the difference between Volume and Make-Up Gain, and how new takes, layers and clips go into a bank" },
     { name: "Sound Systems Rebalanced", by: "CowboyBingus", url: "https://github.com/CowboyBingus/SoundSystemsRebalanced",
       for: "the music drop at the war table" },
     { name: "wwiser", by: "bnnm", url: "https://github.com/bnnm/wwiser", for: "the reference for Wwise sound bank structures" },

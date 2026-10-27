@@ -32,17 +32,17 @@ Use only letters, digits and spaces in the name, and leave the version out. The 
 
 The icon is the default Audiodiver icon until you choose an image. An image is cropped to a square around the centre and resized to 540 × 540, the size mod managers use. You can also drop an image on the preview. **Border**, **Border colour** and **Corners** frame the icon, default or chosen.
 
-### Mod id
+### Mod ID
 
-A mod manager recognises a mod by the mod id. While the id stays the same, a new build updates the installed mod. When you copy a project to make a different mod, press **Make a new id**, and the copy installs as a separate mod.
+A mod manager recognises a mod by the mod ID. While the ID stays the same, a new build updates the installed mod. When you copy a project to make a different mod, press **Make a new ID**, and the copy installs as a separate mod.
 
-To make the builds update a mod you made before, press **Change…** and paste the id of that mod: the `Guid` in the `manifest.json` of the mod. Undo puts the old id back.
+To make the builds update a mod you made before, press **Change…** and paste the ID of that mod: the `Guid` in the `manifest.json` of the mod. Undo puts the old ID back.
 
 ## Build options
 
 These settings are under **Build options** on the Build tab.
 
-- **Raise the version after each build** gives each build a new ZIP name, and the earlier ZIPs stay. With it off, the next build replaces the last ZIP. The [mod id](wiki:build-and-install#mod-id), not the version, decides whether a mod manager takes a build as an update. The setting applies to all projects.
+- **Raise the version after each build** gives each build a new ZIP name, and the earlier ZIPs stay. With it off, the next build replaces the last ZIP. The [mod ID](wiki:build-and-install#mod-id), not the version, decides whether a mod manager takes a build as an update. The setting applies to all projects.
 - **Show the ZIP in Explorer when a build finishes** opens Explorer with the ZIP selected.
 
 ### Patch files
@@ -86,4 +86,4 @@ A mod contains complete copies of the sound banks it changes. If two mods change
 
 ## Updating
 
-Import the new ZIP in the mod manager. With the same id, it replaces the installed version and doesn't add another copy. Deploy again and restart the game.
+Import the new ZIP in the mod manager. With the same ID, it replaces the installed version and doesn't add another copy. Deploy again and restart the game.

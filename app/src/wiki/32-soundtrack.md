@@ -31,7 +31,7 @@ Undo takes back a whole template. A template that finds nothing to change says s
 | **Silent** | Nothing. |
 | **Same as Battle** | For Intense Battle. The battle music plays on from the segment it is at, so the song doesn't start over when a fight gets heavier. |
 
-**Level** raises or lowers the whole piece by up to 96 dB, on top of each slot's Make-Up Gain. Drag the slider, or type a value in the box beside it. Silent music and music set to Same as Battle don't play, so Level is off for them.
+**Level** raises or lowers the whole piece by up to 96 dB, on top of each slot's Make-Up Gain. Drag the slider, or type a value in the box beside it. {icon:reset} sets it back to 0 dB. Silent music and music set to Same as Battle don't play, so Level is off for them.
 
 **Copy to…** sets the music of the same name in other places the same way, for example the Battle music of every enemy. A playlist puts each song at the same place, and One song puts the pieces in order. Where there are fewer places, the last songs or pieces are left out, and a note says so.
 

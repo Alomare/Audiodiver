@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { call, fmtTime, isMusic, shownId, type Assignment, type Place, type Slot } from "./api";
 import { rowsOf, SILENCE_TIP, type Row } from "./CueView";
 import { liveGain } from "./gain";
-import { ClearIcon, FillIcon, FillPieceIcon, FolderIcon, SilenceIcon } from "./Icons";
+import { ClearIcon, FillIcon, FillPieceIcon, FolderIcon, ResetIcon, SilenceIcon } from "./Icons";
 import { keyLabel, useKeymap, type CommandId } from "./keys";
 import { where } from "./music";
 import { nav } from "./nav";
@@ -56,8 +56,8 @@ export function Inspector() {
         <Replacement slot={slot} a={a} music={isMusic(cue)} what={seg.name} />
         {a && (slot.was || (!slot.added && slot.object && ((slot.players ?? 1) > 1 || (slot.sound_banks ?? 0) < (slot.banks ?? 0)))) &&
           <Reach slot={slot} />}
-        {a && !a.silence && <Gain sources={[slot.source]} value={a.gain_db} match={slot.added ? undefined : "one"} />}
-        {!a && project && usable && <Gain original sources={[slot.source]} value={project.gains[slot.source] ?? 0} />}
+        {a && !a.silence && <Gain sources={[slot.source]} value={a.gain_db} match={slot.added ? undefined : "one"} base={slot.game_gain} />}
+        {!a && project && usable && <Gain original sources={[slot.source]} value={project.gains[slot.source] ?? 0} base={slot.game_gain} />}
         {a && !a.silence && seg.segment && (
           <section className="insp-sec">
             <label className="check">
@@ -342,12 +342,22 @@ function PlaceLink({ id, source, mono, children }: { id: string; source: string;
 const GAIN_MAX = 96; // dB either way, as the core takes it (project.GAIN_DB)
 const fmtGain = (x: number) => `${x > 0 ? "+" : ""}${x}`;
 
+/** The button after a Make-Up Gain or a level that sets it back to 0 dB: the level the game plays it at. A Sound's
+    own gain in the game stays, since a slot's gain adds to it. `off`: at 0 already. */
+export function ResetLevel({ off, onReset, more }: { off: boolean; onReset: () => void; more?: string }) {
+  return (
+    <button className="icon-btn level-reset" disabled={off} onClick={onReset} aria-label="Back to the original level"
+      data-tip={off ? "At the original level" : "Back to the original level"} data-tip-more={off ? undefined : more}><ResetIcon /></button>
+  );
+}
+
 /** Make-Up Gain of one replaced slot or of several, or (`original`) of the original audio of slots without new audio;
     `value` is null while several differ (the box says Mixed and the slider rests at 0 until moved). `note` says which
     of the selected slots it sets, when not all. The waveforms and the player follow the slider as it moves (liveGain).
-    `match`: a button that sets the gain that makes each new audio as loud as its original. */
-function Gain({ sources, value, note, original, match }: {
-  sources: string[]; value: number | null; note?: string; original?: boolean; match?: "one" | "each";
+    `match`: a button that sets the gain that makes each new audio as loud as its original. `base`: the Make-Up Gain
+    the game gives the one slot's Sound, which this adds to. */
+function Gain({ sources, value, note, original, match, base }: {
+  sources: string[]; value: number | null; note?: string; original?: boolean; match?: "one" | "each"; base?: number;
 }) {
   const { actions } = useEditor();
   const [v, setV] = useState(value ?? 0);
@@ -384,14 +394,18 @@ function Gain({ sources, value, note, original, match }: {
     try { await actions.matchLoudness(sources); } finally { setMatching(false); }
   };
   const shown = value === null && !moved ? "Mixed" : fmtGain(v);
+  const reset = () => { move(0); commit(0, true); };
+  const kept = base ? `The ${fmtGain(base)} dB the game gives this sound stays` : undefined;
   return (
     <section className="insp-sec">
-      <h3>Make-Up Gain <Help tip={original ? "The original, louder or quieter, without new audio or a change to the mix."
-        : "Louder or quieter, without changing the file or the mix."} page="volume#make-up-gain-per-slot" />
+      <h3>Make-Up Gain <Help tip={(original ? "The original, louder or quieter, without new audio or a change to the mix."
+        : "Louder or quieter, without changing the file or the mix.") + (base ? ` Added to the ${fmtGain(base)} dB the game gives this sound.` : "")}
+        page="volume#make-up-gain-per-slot" />
         <span className="val"><input className="gain-val" value={typed ?? shown} aria-label="Make-Up Gain in dB, typed" inputMode="decimal"
           onFocus={(e) => { setTyped(value === null && !moved ? "" : fmtGain(v)); e.currentTarget.select(); }} onChange={(e) => setTyped(e.target.value)} onBlur={takeTyped}
           onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); else if (e.key === "Escape") { escaped.current = true; e.currentTarget.blur(); } }}
-          data-tip={`Type a value from −${GAIN_MAX} to +${GAIN_MAX}`} /> dB</span></h3>
+          data-tip={`Type a value from −${GAIN_MAX} to +${GAIN_MAX}`} /> dB
+          <ResetLevel off={value === 0 && v === 0} onReset={reset} more={kept ?? (sources.length > 1 ? "0 dB on every selected slot" : undefined)} /></span></h3>
       {note && <p className="muted small insp-note">{note}</p>}
       <input type="range" min={-GAIN_MAX} max={GAIN_MAX} step={0.5} value={v} aria-label="Make-Up Gain in dB"
         onChange={(e) => move(Number(e.target.value))} onPointerUp={() => commit(v)}

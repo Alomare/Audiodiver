@@ -380,7 +380,7 @@ button.file:hover:not(:disabled) { text-decoration: underline dotted; text-under
 .silence-mark::after { content: ""; position: absolute; left: 28%; right: 28%; top: calc(50% - 1px); height: 2px; background: var(--accent-fg); }
 .file.silent { flex: none; }
 .file.silent ~ .x { margin-left: auto; }
-.gain { font-size: calc(12px * var(--fs)); color: var(--accent-fg); font-weight: 500; }
+.gain { flex: none; white-space: nowrap; font-size: calc(12px * var(--fs)); color: var(--accent-fg); font-weight: 500; }
 /* the button under Make-Up Gain that sets the gain matching the original */
 .gain-match { margin: calc(6px * var(--sp)) 0 0; font-size: calc(13px * var(--fs)); }
 .drop-hint { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; color: var(--faint); font-size: calc(13px * var(--fs)); padding: 6px 10px; border: 1px dashed var(--line); border-radius: 2px; }
@@ -422,7 +422,10 @@ button.file:hover:not(:disabled) { text-decoration: underline dotted; text-under
 .insp-note { margin: -2px 0 6px; }
 .insp-empty.insp-sec { margin: 0; }
 .insp-sec h3 { font-size: calc(15px * var(--fs)); color: var(--text); margin-bottom: 6px; display: flex; align-items: center; gap: 2px; }
-.insp-sec h3 .val { margin-left: auto; color: var(--accent-fg); white-space: nowrap; } /* a value sits at the end; a "?" right after the words */
+.insp-sec h3 .val { margin-left: auto; color: var(--accent-fg); white-space: nowrap; display: inline-flex; align-items: center; } /* a value sits at the end; a "?" right after the words */
+/* back to 0 dB, after a gain's or a level's value */
+.level-reset { width: calc(22px * var(--fs)); height: calc(22px * var(--fs)); margin-left: 4px; font-size: calc(14px * var(--fs)); color: var(--muted); }
+.level-reset:disabled { opacity: .35; }
 .gain-val { width: 3.8em; padding: 0 3px; text-align: right; font: inherit; color: inherit; background: transparent; border: 1px solid transparent; border-radius: 2px; }
 .gain-val:hover { border-color: var(--line); }
 .gain-val:focus { border-color: var(--muted); background: var(--bg); outline: none; }
@@ -528,6 +531,19 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fg); }
 .marker.dragging .marker-flag { z-index: 2; }
 /* each lane keeps room for its label (name and length), whatever the text size */
 .timeline { position: relative; border-top: 1px solid var(--line); background: var(--panel); padding: calc(8px * var(--sp)) 16px calc(6px * var(--sp)); display: flex; flex-direction: column; gap: calc(6px * var(--sp)); flex: 0 1 auto; min-height: max(120px, calc(82px * var(--fs) + 30px)); }
+/* the waveforms, and at their right the zoom they share (Waveform.tsx, WaveZoom) */
+.tl-body { flex: 1 1 0; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
+.tl-rows { min-height: 0; display: flex; flex-direction: column; gap: calc(6px * var(--sp)); }
+/* the level slider the whole height, the reset beside it, the time slider across the foot: it fits a short panel too */
+.wave-zoom { display: grid; grid-template-columns: 18px 1fr; grid-template-rows: minmax(0, 1fr) auto; gap: 4px 4px; width: calc(64px * var(--fs)); min-height: 0; }
+.wave-zoom .zoom-y { grid-area: 1 / 1; width: 18px; height: 100%; min-height: 0; writing-mode: vertical-lr; direction: rtl; }
+.wave-zoom .zoom-x { grid-area: 2 / 1 / 3 / 3; width: 100%; }
+.zoom-reset { grid-area: 1 / 2; align-self: end; justify-self: center; width: calc(24px * var(--fs)); height: calc(24px * var(--fs)); font-size: calc(14px * var(--fs)); }
+.zoom-reset:disabled { opacity: .35; }
+/* under zoomed-in waveforms: the whole audio, the stretch in view as a handle */
+.wave-scroll { flex: none; position: relative; height: 9px; margin-left: calc(64px * var(--fs) + 10px); background: var(--bg); border: 1px solid var(--line-soft); border-radius: 5px; cursor: pointer; }
+.wave-thumb { position: absolute; top: 1px; bottom: 1px; min-width: 10px; background: var(--muted); opacity: .55; border-radius: 4px; cursor: grab; }
+.wave-thumb:hover, .wave-thumb:active { opacity: .9; }
 .tl-row { flex: 1 1 0; min-height: calc(32px * var(--fs)); display: grid; grid-template-columns: calc(64px * var(--fs)) 1fr; grid-template-rows: minmax(0, 1fr); gap: 10px; align-items: stretch; }
 .tl-label { align-self: center; display: flex; flex-direction: column; font-size: calc(12px * var(--fs)); color: var(--muted); }
 .wave.fill { min-height: 0; }
@@ -722,7 +738,10 @@ button.ctag:hover { background: color-mix(in oklch, var(--c) 24%, transparent); 
 .grp-n { flex: none; font-size: calc(12px * var(--fs)); color: var(--faint); }
 .grp-meta { display: flex; align-items: center; gap: 6px; flex: none; }
 .grp-meta .tag { margin-left: 0; }
-.grp-add { width: 24px; height: 24px; font-size: calc(17px * var(--fs)); color: var(--faint); }
+/* new takes or a layer: drawn, not typed, so it sits centred on the line like the dot beside it */
+.grp-add { width: calc(22px * var(--fs)); height: calc(22px * var(--fs)); font-size: calc(13px * var(--fs)); color: var(--second-fg);
+  border: 1px solid color-mix(in srgb, var(--second-fg) 45%, transparent); border-radius: 4px; }
+.grp-add:hover:not(:disabled) { color: var(--second-fg); background: color-mix(in srgb, var(--second-fg) 16%, transparent); border-color: var(--second-fg); }
 /* a transition's or stinger's parts as lines of the slot list (ItemHead's PartHead): the open one is marked like an
    open tab, its slots under it */
 .part-grp.open { border-left-color: var(--second-fg); }
@@ -1582,6 +1601,9 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .slice-tools { display: flex; align-items: center; gap: 8px; }
 .slice-tools .segmented { grid-auto-columns: auto; max-width: none; }
 .slice-tools .segmented button { padding: calc(4px * var(--sp)) 12px; white-space: nowrap; font-size: calc(13px * var(--fs)); }
+/* the lanes and the overview, with the zoom column at their right */
+.slice-zoomed { flex: none; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
+.slice-view { min-width: 0; display: flex; flex-direction: column; gap: calc(8px * var(--sp)); }
 .slice-lanes { flex: none; display: grid; grid-template-columns: calc(84px * var(--fs)) minmax(0, 1fr); background: var(--bg); border: 1px solid var(--line-soft); }
 .slice-lane-labels { display: flex; flex-direction: column; border-right: 1px solid var(--line-soft); }
 .slice-lane-labels > * { display: flex; align-items: center; padding: 0 10px; font-size: calc(13px * var(--fs)); }

@@ -61,6 +61,7 @@ def methods(s: Session) -> dict:
         "project_open": lambda path: s.open_project(path),
         "project_close": lambda: s.close_project(),
         "project_save": lambda: s.save_project(),
+        "autosave": lambda minutes=0: s.set_autosave(minutes),
         "projects_info": lambda paths: projects_info(paths),
         "projects_folder": lambda: s.projects_folder(),
         "project_move": lambda: s.move_to_own_folder(),
@@ -89,7 +90,7 @@ def methods(s: Session) -> dict:
             s.segment_override(segment, entry_marker, exit_marker),
         "segment_overrides": lambda segments, **cues: s.segment_overrides(segments, **cues),
         "same_cue_points": lambda segment, source: s.same_cue_points(segment, source),
-        "peaks": lambda kind, source=None, path=None, buckets=1200: s.peaks(kind, source, path, buckets),
+        "peaks": lambda kind, source=None, path=None, buckets=1200, full=255: s.peaks(kind, source, path, buckets, full),
         "slice_info": lambda audio: s.slice_info(audio),
         "slice_fill": lambda cue, audio, bounds_ms, start_source=None, sources=None: s.slice_fill(cue, audio, bounds_ms, start_source, sources),
         "undo": lambda: s.undo(),
@@ -379,12 +380,18 @@ def make_handler(session: Session, token: str):
     return Handler
 
 
-def _exit_with_parent(pid: int):
-    """Ends the process when process `pid` (the desktop app) ends, a crash included.
+def _exit_with_parent(pid: int, last=None):
+    """Ends the process when process `pid` (the desktop app) ends, a crash included, after `last()` (the project's
+    unsaved changes written), which gets 5 seconds.
 
     It waits on the process itself. The first version blocked a thread on reading stdin until the app closed it,
     and on Windows a blocked read on a standard handle deadlocks any native library loaded later whose start-up
     looks at the standard handles: `import numpy` hung forever, and with it the first export."""
+    def finish():
+        try:
+            last()
+        except Exception as e:  # noqa: BLE001 - the core exits either way
+            log.warning("before exiting: %s", e)
     def watch():
         try:
             if os.name == "nt":
@@ -403,6 +410,10 @@ def _exit_with_parent(pid: int):
             pass
         finally:
             log.info("the app (pid %s) is gone; core exiting", pid)
+            if last:
+                t = threading.Thread(target=finish, daemon=True)
+                t.start()
+                t.join(5)
             os._exit(0)
     threading.Thread(target=watch, daemon=True, name="parent-watch").start()
 
@@ -450,9 +461,11 @@ def serve(port=0, token=None, project=None, parent_pid=None):
     watch_slow_calls()
     log.info("core starting (pid %s, python %s)", os.getpid(), sys.version.split()[0])
     token = token or secrets.token_urlsafe(16)
+    made = []  # the session, once there is one: the watch starts first, so the core never outlives the app
     if parent_pid:
-        _exit_with_parent(int(parent_pid))
+        _exit_with_parent(int(parent_pid), lambda: made and made[0].flush())
     session = Session()
+    made.append(session)
     if project:
         session.open_project(project)
     httpd = ThreadingHTTPServer(("127.0.0.1", port), make_handler(session, token))

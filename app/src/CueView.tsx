@@ -3,7 +3,7 @@ import { audioUrl, fmtTime, isMusic, shownId, type Assignment, type Cue, type Se
 import { useContextMenu, type MenuEntry } from "./ContextMenu";
 import { ExportDialog } from "./ExportDialog";
 import { addedNote, exportList } from "./exportList";
-import { ClearIcon, CollapseAllIcon, ExportIcon, FillIcon, LinkIcon, OrderIcon, SkipIcon, SliceIcon } from "./Icons";
+import { ClearIcon, CollapseAllIcon, ExportIcon, FillIcon, IdIcon, LinkIcon, OrderIcon, PlusIcon, SkipIcon, SliceIcon } from "./Icons";
 import { Mark } from "./IndexTree";
 import { ItemActions, ItemHead, PartHead, partsFold, PartTabs } from "./ItemHead";
 import { keyHint, keyLabel, useCommands, useKeymap } from "./keys";
@@ -14,6 +14,7 @@ import { copyText, fullPath, pickAudio, reveal } from "./platform";
 import { PlayThrough, type Mark as ThroughMark, type Through } from "./PlayThrough";
 import { player, usePlayerLook, type PlayedAt } from "./player";
 import { ResizeEdge, useStoredHeight } from "./Resize";
+import { settings, useSettings } from "./settings";
 import { SliceTool } from "./SliceTool";
 import { openInSoundtrack } from "./Soundtrack";
 import { useStable } from "./stable";
@@ -164,6 +165,8 @@ function CueBody({ cue }: { cue: Cue }) {
     scope, readOnly, quick } = useEditor();
   const music = isMusic(cue);
   const grouped = cue.kind === "sounds";
+  const bank = cue.id.startsWith("bank:");
+  const ids = useSettings().soundNames === "ids"; // a bank's sounds by container ID: the toggle beside the search
   const all = useMemo(() => rowsOf(cue.segments_detail), [cue]);
   const listRef = useRef<HTMLDivElement>(null);
   const [slicing, setSlicing] = useState(false);
@@ -546,7 +549,7 @@ function CueBody({ cue }: { cue: Cue }) {
           "-"] as MenuEntry[]),
         { label: `Add the ${first.takes} ${first.takes === 1 ? "take" : "takes"} to the export list`,
           run: () => toExport(all.filter((r) => r.segIndex === first.segIndex).map((r) => r.slot.source), `${item?.full ?? cue.name} - ${name}`) },
-        ...(first.seg.key ? [{ label: "Copy the container id", keys: first.seg.key, run: () => copyId(first.seg.key!, quick) }] : []),
+        ...(first.seg.key ? [{ label: "Copy the container ID", keys: first.seg.key, run: () => copyId(first.seg.key!, quick) }] : []),
       ]);
     },
   });
@@ -661,6 +664,12 @@ function CueBody({ cue }: { cue: Cue }) {
           })()}
         </div>
         <SlotSearch value={filter} onChange={setFilter} sounds={grouped} />
+        {bank && (
+          <button className={`icon-btn${ids ? " on" : ""}`} aria-pressed={ids} aria-label="Container IDs"
+            onClick={() => settings.set({ soundNames: ids ? "names" : "ids" })} data-tip={ids ? "Show names" : "Show container IDs"}
+            data-tip-more={ids ? "Each sound by what it says or what it is"
+              : "Each sound by the ID of the container that holds it, under the containers above, as Wwise tools list them"}><IdIcon /></button>
+        )}
         {grouped && !hits && all.some(folds) && (
           <button className="icon-btn" disabled={!anyOpen} onClick={collapseAll} aria-label="Collapse all"
             data-tip={anyOpen ? "Collapse all sounds" : "Every sound is collapsed"}><CollapseAllIcon /></button>
@@ -726,7 +735,7 @@ function AddButton({ row, on }: { row: Row; on: RowHandlers }) {
     <button className="icon-btn grp-add" aria-label={`Add new audio to ${row.seg.name}`} data-tip="Add new audio"
       data-tip-more={(row.seg.added === "layer" ? "New takes for this layer" : row.seg.layer ? "New takes, or a layer that plays with it"
         : "New takes. This sound can't have a layer") + where}
-      onClick={(e) => { e.stopPropagation(); on.add(e, row); }} onDoubleClick={(e) => e.stopPropagation()}>+</button>
+      onClick={(e) => { e.stopPropagation(); on.add(e, row); }} onDoubleClick={(e) => e.stopPropagation()}><PlusIcon /></button>
   );
 }
 
@@ -830,7 +839,7 @@ function TreeLine({ ids, type, depth }: { ids: string[]; type: string; depth: nu
       {ids.map((id, i) => (
         <Fragment key={id}>
           {i > 0 && <span className="tree-sep" aria-hidden>›</span>}
-          <button className="tree-id" data-tip="Copy the id" onClick={() => copyId(id, quick)}>{id}</button>
+          <button className="tree-id" data-tip="Copy the ID" onClick={() => copyId(id, quick)}>{id}</button>
         </Fragment>
       ))}
     </div>
@@ -851,7 +860,7 @@ function SlotId({ slot }: { slot: Slot }) {
   const { id, what } = shownId(slot);
   return (
     <button className="slot-id" data-tip={`Copy the ${what} id`}
-      data-tip-more={`${what === "stream" ? "The id other audio tools list this clip by" : "The clip id in the game files"}. Right-click the row for the other ids`}
+      data-tip-more={`${what === "stream" ? "The ID other audio tools list this clip by" : "The clip ID in the game files"}. Right-click the row for the other IDs`}
       onClick={(e) => { e.stopPropagation(); copyId(id, quick); }} onDoubleClick={(e) => e.stopPropagation()}>{id}</button>
   );
 }
@@ -1001,12 +1010,13 @@ const SlotRow = memo(function SlotRow({ row, a, standIns, gain, selected, now, i
                 data-tip-more={a.exists ? a.audio : `${a.audio}. The mod can't be built until the file is back or replaced`}
                 onClick={(e) => { e.stopPropagation(); on.choose(slot.source); }} onDoubleClick={(e) => e.stopPropagation()}>
                 {a.exists ? a.name : `Missing: ${a.name}`}</button>
+              {/* before the length, so a gain takes room from the file's name and the lengths stay in one column */}
+              {a.gain_db !== 0 && <span className="gain" data-tip="Make-Up Gain" data-tip-more="Set in the details">{a.gain_db > 0 ? "+" : ""}{a.gain_db} dB</span>}
               {a.duration_ms != null && (
                 <span className={`len mine-len${slot.min_ms && a.duration_ms < slot.min_ms ? " short" : ""}`}
                   data-tip={slot.min_ms && a.duration_ms < slot.min_ms ? `Too short. This clip needs at least ${fmtTime(slot.min_ms)}` : gameMs ? `Original: ${fmtTime(gameMs)}` : undefined}>
                   {fmtTime(a.duration_ms)}</span>
               )}
-              {a.gain_db !== 0 && <span className="gain" data-tip="Make-Up Gain" data-tip-more="Set in the details">{a.gain_db > 0 ? "+" : ""}{a.gain_db} dB</span>}
               <button className="x" aria-label="Remove the new audio" data-tip="Remove the new audio" data-tip-cmd="remove"
                 onClick={(e) => { e.stopPropagation(); on.remove(slot.source); }}>✕</button>
             </>

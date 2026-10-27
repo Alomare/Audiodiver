@@ -179,6 +179,17 @@ def test_container_ids_list_a_bank_as_its_tree(session):
 
 
 @pytest.mark.game
+def test_a_slot_says_the_make_up_gain_the_game_gives_its_sound(session):
+    """A slot's Make-Up Gain adds to the one the Sound has in the game (about 1 Sound in 12): the row says what that
+    is (game_gain), for the details panel. The LAS-5 Scythe's beam has three takes with −4, −5 and −17 dB."""
+    part = _items(session)["set:weapons/primary/las-5-scythe"]["parts"][0]
+    view = session.cue(part["cue"])
+    beam = next(g for g in view["segments_detail"] if g["name"] == "Sound 7")
+    assert sorted(s.get("game_gain") for s in beam["stems"][0]["slots"]) == [-17, -5, -4]
+    assert any("game_gain" not in r for r in _rows(view))
+
+
+@pytest.mark.game
 def test_voice_lines_say_what_they_say_and_play_from_their_language(session):
     it = _items(session)
     part = next(p for p in it["set:helldivers/voices/helldiver-voice-2"]["parts"] if p["name"] in ("English", ""))

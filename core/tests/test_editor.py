@@ -124,6 +124,35 @@ def test_make_up_gain_on_the_original_is_one_step_and_off_at_zero(tmp_path):
     assert json.loads((tmp_path / "m.audi").read_text())["gains"] == {"1234": -6.0, "5678": -6.0}
 
 
+def test_autosave_on_a_timer_keeps_edits_until_a_save(tmp_path):
+    """Autosave every few minutes: edits and undo wait in memory (`unsaved`) until a save, a flush before anything
+    that reads the file (closing, another project, back to saving each change), and the file never loses them."""
+    s = Session(load=False)
+    s.new_project(tmp_path / "m.audi", "M")
+    on_disk = lambda: json.loads((tmp_path / "m.audi").read_text()).get("gains", {})
+    assert s.set_autosave(5) == {"minutes": 5}
+    s.original_gain(["1234"], -6)
+    assert on_disk() == {} and s.project_state()["unsaved"]
+    assert not s.save_project()["unsaved"] and on_disk() == {"1234": -6.0}
+    s.undo()
+    assert on_disk() == {"1234": -6.0} and s.project_state()["unsaved"]
+    s.set_autosave(0)  # back to each change: what waits is saved
+    assert on_disk() == {} and not s.project_state()["unsaved"]
+    s.original_gain(["1234"], -3)
+    assert on_disk() == {"1234": -3.0}
+    s.set_autosave(1)
+    s.original_gain(["1234"], -9)
+    s.new_project(tmp_path / "n.audi", "N")  # the first project keeps its change
+    assert on_disk() == {"1234": -9.0}
+    s.open_project(tmp_path / "m.audi")
+    s.original_gain(["1234"], -12)
+    s.close_project()
+    assert on_disk() == {"1234": -12.0}
+    for bad in (-1, 31, 2.5, "5", True):
+        with pytest.raises(EditorError):
+            s.set_autosave(bad)
+
+
 def test_match_loudness_gives_each_slot_the_gain_of_its_original(tmp_path, monkeypatch):
     """Match the original: new audio 12 dB louder than the original gets -12 dB, in one undo step; silent new audio
     and a slot without new audio are left as they are, and with nothing to match the answer says so."""
@@ -590,7 +619,10 @@ def test_peaks_follow_the_loudness(tmp_path, monkeypatch):
     from audiodiver import audio
     monkeypatch.setattr(audio, "CACHE_DIR", tmp_path / "cache")
     d = audio.peaks(_tone(tmp_path / "t.wav", 0.5), buckets=50)
-    assert len(d["peaks"]) == 50 and abs(d["duration_ms"] - 500) < 2 and 40 < max(d["peaks"]) < 90
+    assert len(d["peaks"]) == 50 and abs(d["duration_ms"] - 500) < 2 and 40 < max(d["peaks"]) < 90 and d["full"] == 255
+    # on the 16-bit scale a zoomed-in waveform asks for: the same loudness, finer
+    fine = audio.peaks(_tone(tmp_path / "t.wav", 0.5), buckets=50, full=32767)
+    assert fine["full"] == 32767 and abs(max(fine["peaks"]) / 32767 - max(d["peaks"]) / 255) < 1 / 255
 
 
 def test_peaks_are_the_same_with_numpy_or_without(tmp_path, monkeypatch):

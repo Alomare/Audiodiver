@@ -12,7 +12,7 @@ Build a mod again to fix two problems that mods built with earlier versions can 
 ### Other changes
 
 - Added **Move project…** to the Project tab. It moves the project folder into another folder, and the project still finds every file it uses.
-- Added **Change…** to the mod id on the Project tab, so that builds can update a mod made before, such as one packed by hand.
+- Added **Change…** to the mod ID on the Project tab, so that builds can update a mod made before, such as one packed by hand.
 - Added the build option **Also save the patch files in a folder**, for packing a mod by hand.
 - Added cue points for several selected slots at once, and **Apply to … more segments with this file** under Cue points.
 - Added the tag **replaced in another sound** to slots that keep the Original while another sound has **Only this sound**.
@@ -36,10 +36,10 @@ A new tab sets how each piece of music plays in a mission: in the original order
 - Added Audiodiver Utils: Repatch and Combine Mods on their own, as a 27 MB portable window and a command line that scripts and mod managers can call.
 - Added Ctrl+V for audio files copied in Explorer: they paste into the selected slots.
 - Added a tick to each slot that selects it, and the selected slots take one file or several at once.
-- Added Search slots, which finds slots by name, label, note, file name or id in every piece of music and sound set.
-- Changed the Index search to also find music by slot labels, and to open a pasted id at the slot.
+- Added Search slots, which finds slots by name, label, note, file name or ID in every piece of music and sound set.
+- Changed the Index search to also find music by slot labels, and to open a pasted ID at the slot.
 - Changed Make-Up Gain to go from −96 to +96 dB, dragged or typed, with one slider for several slots.
-- Added the stream id to the slots, the id other audio tools use.
+- Added the stream ID to the slots, the ID other audio tools use.
 - Changed the toolbar above the slots to a row of icons, with Play through as two round buttons at the start.
 - Added two buttons at the end of the toolbar that hide or show the header and the waveforms.
 - Shortened the header above the slots, with the facts side by side.

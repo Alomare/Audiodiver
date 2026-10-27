@@ -45,16 +45,17 @@ def silence_wav() -> Path:
     return out
 
 
-def peaks(path: Path, buckets: int = 1200) -> dict:
-    """{duration_ms, peaks: [0..255] * buckets}: the loudest sample in each slice of the file (cached)."""
+def peaks(path: Path, buckets: int = 1200, full: int = 255) -> dict:
+    """{duration_ms, full, peaks: [0..full] * buckets}: the loudest sample in each slice of the file (cached).
+    full 255 draws a waveform; a zoomed-in one asks for 32767, so a quiet sound keeps its shape when drawn taller."""
     path = Path(path)
     st = path.stat()
-    key = hashlib.sha1(f"{path.resolve()}:{st.st_mtime_ns}:{st.st_size}:{buckets}".encode()).hexdigest()[:16]
+    key = hashlib.sha1(f"{path.resolve()}:{st.st_mtime_ns}:{st.st_size}:{buckets}:{full}".encode()).hexdigest()[:16]
     cache = CACHE_DIR / "peaks" / f"{key}.json"
     with cache_lock(cache):
         if cache.exists():
             return json.loads(cache.read_text())
-        d = _peaks(path, buckets)
+        d = _peaks(path, buckets, full)
         cache.parent.mkdir(parents=True, exist_ok=True)
         tmp = cache.with_suffix(".partial")
         tmp.write_text(json.dumps(d))
@@ -62,7 +63,7 @@ def peaks(path: Path, buckets: int = 1200) -> dict:
     return d
 
 
-def _peaks(path: Path, buckets: int) -> dict:
+def _peaks(path: Path, buckets: int, full: int = 255) -> dict:
     raw = subprocess.run([wem.FFMPEG, "-v", "error", "-i", wem.decoded(path), "-ac", "1", "-ar", str(PEAK_RATE),
                           "-f", "s16le", "-"], capture_output=True, check=True).stdout
     try:  # numpy (installed with the renderer) does a song's 100,000 buckets at once; the loop below is the same
@@ -74,16 +75,16 @@ def _peaks(path: Path, buckets: int) -> dict:
         n = len(a)
         starts = np.minimum((np.arange(buckets) * n) // buckets, n - 1)  # an empty bucket takes its first sample
         top = np.maximum.reduceat(a, starts)
-        return {"duration_ms": round(n * 1000 / PEAK_RATE, 1),
-                "peaks": np.minimum(255, top * 255 // 32767).astype(int).tolist()}
+        return {"duration_ms": round(n * 1000 / PEAK_RATE, 1), "full": full,
+                "peaks": np.minimum(full, top * full // 32767).astype(int).tolist()}
     samples = array.array("h")
     samples.frombytes(raw[:len(raw) // 2 * 2])
     n = len(samples)
     out = []
     for i in range(buckets):
         chunk = samples[i * n // buckets:max((i + 1) * n // buckets, i * n // buckets + 1)]
-        out.append(min(255, max(max(chunk, default=0), -min(chunk, default=0)) * 255 // 32767) if chunk else 0)
-    return {"duration_ms": round(n * 1000 / PEAK_RATE, 1), "peaks": out}
+        out.append(min(full, max(max(chunk, default=0), -min(chunk, default=0)) * full // 32767) if chunk else 0)
+    return {"duration_ms": round(n * 1000 / PEAK_RATE, 1), "full": full, "peaks": out}
 
 
 def duration_ms(path) -> float | None:

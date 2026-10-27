@@ -46,7 +46,7 @@
   <tr>
     <td width="50%">
       <h3>📚 Library</h3>
-      Every sound in Helldivers 2, sorted. Music goes by when it plays, from the ship to extraction, and weapons by loadout slot, then stratagems, enemies and planets. Search takes a name, a label or an id.
+      Every sound in Helldivers 2, sorted. Music goes by when it plays, from the ship to extraction, and weapons by loadout slot, then stratagems, enemies and planets. Search takes a name, a label or an ID.
       <br><br>
       <img src="assets/readme/library.png" alt="The Library's Index with On the Ship, Bridge and War Map open: two parts, their segments, and the transitions and stingers that play next to them" width="100%">
     </td>
@@ -74,9 +74,9 @@
   <tr>
     <td width="50%">
       <h3>📁 Project</h3>
-      The mod's name, description, icon and id, with a preview as a mod manager shows them. The project folder has <b>Collect files</b>, a clean-up to the Recycle Bin, and packs (<code>.audipack</code>) for another computer.
+      The mod's name, description, icon and ID, with a preview as a mod manager shows them. The project folder has <b>Collect files</b>, a clean-up to the Recycle Bin, and packs (<code>.audipack</code>) for another computer.
       <br><br>
-      <img src="assets/readme/project.png" alt="The Project tab: the name, description, icon and mod id, beside a preview of the mod in a mod manager with Import patches and Close project above it" width="100%">
+      <img src="assets/readme/project.png" alt="The Project tab: the name, description, icon and mod ID, beside a preview of the mod in a mod manager with Import patches and Close project above it" width="100%">
     </td>
     <td width="50%">
       <h3>📦 Build</h3>
@@ -88,7 +88,7 @@
   <tr>
     <td width="50%">
       <h3>🔧 Tools ▸ Repatch</h3>
-      A mod for an older game version, rebuilt on the current sound banks with the same audio, settings, options and id. Text, models and textures stay as they were. <b>Installed mods</b> finds the mods that need it.
+      A mod for an older game version, rebuilt on the current sound banks with the same audio, settings, options and ID. Text, models and textures stay as they were. <b>Installed mods</b> finds the mods that need it.
       <br><br>
       <img src="assets/readme/repatch.png" alt="Tools, Repatch, after rebuilding a mod: the new ZIP, Show in folder and Repatch another mod, then what was carried over, a string table included" width="100%">
     </td>
@@ -257,7 +257,7 @@ About ▸ Credits too.
 | | By | What Audiodiver takes from it |
 |---|---|---|
 | [hd2-audio-modder](https://github.com/RaidingForPants/hd2-audio-modder) | RaidingForPants | Reading Helldivers 2 archives, and how they store sound banks. The archive reader in Audiodiver comes from it. |
-| [wwise-teller](https://github.com/Dekr0/wwise-teller) | Dekr0 | Wwise property ids, Volume against Make-Up Gain, and how new takes, layers and clips go into a bank. |
+| [wwise-teller](https://github.com/Dekr0/wwise-teller) | Dekr0 | Wwise property IDs, Volume against Make-Up Gain, and how new takes, layers and clips go into a bank. |
 | [wwiser](https://github.com/bnnm/wwiser) | bnnm | The reference for Wwise sound bank structures. |
 | [FileDiver](https://github.com/xypwn/filediver) | xypwn | The name lists behind the banks' path names. |
 | [Sound Systems Rebalanced](https://github.com/CowboyBingus/SoundSystemsRebalanced) | CowboyBingus | The music's drop at the war table. |

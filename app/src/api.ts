@@ -28,6 +28,7 @@ export type Slot = {
   was?: string;      // a clip of its own: the clip this sound played, its original
   players?: number;  // how many Sounds of this bank play the clip
   sound_banks?: number; // the other banks that have the Sound: where a clip of its own would change it
+  game_gain?: number;   // the Make-Up Gain the game gives the Sound that plays it: a slot's gain adds to it
   // a voice line: the subtitle it says (an id of the game's text), false where it is one of several with its words;
   // or, for a clip without words, what it is ("Grunt")
   subtitle?: string; subtitle_sure?: boolean; sound?: string;
@@ -145,6 +146,7 @@ export type ProjectState = {
   files_elsewhere: number;  // files it uses from outside its folder (Collect files copies them in)
   move_to: string | null;   // where Move would put the project file; null when the folder is its own
   revision: number;      // the core's count of changes to what is open: a no-op edit leaves it
+  unsaved: boolean;      // edits wait for the next save (autosave on a timer, Settings ▸ System)
   description: string;   // the text a mod manager shows with the mod
   icon: Icon;
   icon_frame: IconFrame; // the icon's full frame, defaults included

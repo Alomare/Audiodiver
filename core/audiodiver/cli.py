@@ -191,7 +191,7 @@ def cmd_repatch(a):
     s = _session(a)
     r = _run(a, s, lambda: s.repatch(a.mod, a.name or "", str(Path(a.out).resolve()) if a.out else "", a.every_bank,
                                       remember=False))
-    lines = [f"{r['zip']} ({r['mb']} MB)" + (", the old mod's id kept" if r["kept_id"] else "")]
+    lines = [f"{r['zip']} ({r['mb']} MB)" + (", the old mod's ID kept" if r["kept_id"] else "")]
     for p in r["parts"]:
         label = p["label"] or r["name"]
         lines.append(f"  {label}: kept as it was ({p['kept']})" if p["kept"] else

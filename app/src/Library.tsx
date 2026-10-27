@@ -240,8 +240,8 @@ function ArchiveList() {
   return (
     <>
       <div className="lib-search">
-        <input type="search" placeholder={`Search, or paste an id${searchKey ? `  ( ${searchKey} )` : ""}`} value={query} onChange={(e) => setQuery(e.target.value)}
-          data-tip="Names, categories, languages or an archive name" data-tip-more="Or paste a source, stream or bank id to find the archives that hold it"
+        <input type="search" placeholder={`Search, or paste an ID${searchKey ? `  ( ${searchKey} )` : ""}`} value={query} onChange={(e) => setQuery(e.target.value)}
+          data-tip="Names, categories, languages or an archive name" data-tip-more="Or paste a source, stream or bank ID to find the archives that hold it"
           aria-label="Search the archives" onKeyDown={(e) => {
             if (e.key === "Escape") { if (query) setQuery(""); else e.currentTarget.blur(); }
             else if (e.key === "Enter" && sorted.length) { e.preventDefault(); openItem(`archive:${sorted[0].id}`); }

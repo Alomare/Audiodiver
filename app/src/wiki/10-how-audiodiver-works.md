@@ -4,7 +4,7 @@ group: Getting started
 summary: What Audiodiver does, what a project is, and what each tab is for.
 ---
 
-Audiodiver replaces Helldivers 2 audio by **what it is and where it plays**. Find a piece of music or a set of sounds in the Library, add it to a project and give it new audio. Audiodiver then works out the sound banks, ids and timing values the game needs.
+Audiodiver replaces Helldivers 2 audio by **what it is and where it plays**. Find a piece of music or a set of sounds in the Library, add it to a project and give it new audio. Audiodiver then works out the sound banks, IDs and timing values the game needs.
 
 [Game audio, explained](wiki:game-audio) covers archives, banks, takes, cues, segments and slots. [Reading the screen](wiki:reading-the-screen) describes every part of the window.
 
@@ -12,7 +12,7 @@ Audiodiver replaces Helldivers 2 audio by **what it is and where it plays**. Fin
 
 A project is a folder named after the project, with a `.audi` file in it. The file records what the mod changes, which files replace which clips, and the Make-Up Gain and timing. Audio files are in that folder, or the project stores their paths. [Project folders](wiki:project-folders) covers what is in it.
 
-Changes are saved automatically. {key:save} saves at any time, and {key:undo} undoes the last change.
+Changes are saved automatically, as they are made or every few minutes ([Autosave](wiki:how-audiodiver-works#autosave)). {key:save} saves at any time, and {key:undo} undoes the last change.
 
 Audiodiver never writes to the game folder. It reads the game audio from the Steam library, or from another folder chosen under **Game** in [Settings](app:settings/system). A build produces a ZIP that a mod manager imports and installs.
 
@@ -22,7 +22,7 @@ The tab bar along the top of the window holds the main tabs. Home and Tools come
 
 - {icon:home} **Home** starts a new project or opens one, and leads to Repatch and Combine.
 - {icon:tools} **Tools** works on existing mods, without a project. [Repatch](wiki:repatching) rebuilds a mod for the current game version, and [Combine Mods](wiki:combining-mods) makes one mod out of several. Both produce a new ZIP.
-- {icon:project} **Project** holds the mod name, description, icon and id, the tabs the project shows, and the project folder, with **Import patches…** and **Close project** over the icon. With no project open, it lists the recent projects. The tab shows the project icon and name.
+- {icon:project} **Project** holds the mod name, description, icon and ID, the tabs the project shows, and the project folder, with **Import patches…** and **Close project** over the icon. With no project open, it lists the recent projects. The tab shows the project icon and name.
 - {icon:library} **Library** lists everything the game plays, so you can find it and listen to it. Browsing changes nothing. **Add to the project** puts an entry in the project. **Index** sorts the audio that has a name, and **All Archives** lists every archive that contains audio.
 - {icon:audio} **Audio** shows the slots of what the project works on. Slots get new audio here.
 - {icon:soundtrack} **Soundtrack** sets how each piece of music plays: in the original order, as one song, as a playlist, or silent. See [Soundtrack](wiki:soundtrack).
@@ -59,6 +59,10 @@ An update replaces only the app. Projects, audio files and settings are kept.
 ### Startup
 
 With **Open the last project when Audiodiver starts** on, Audiodiver opens the last project on the Audio tab. With it off, Audiodiver starts on Home.
+
+### Autosave
+
+**Autosave** sets when changes go into the project file. **With each change**, the default, saves every change as it is made. **On a timer** saves every 1 to 30 minutes instead, and until then the status bar says *Unsaved changes*. A build, closing the project and closing Audiodiver save the changes first. {key:save} saves at any time.
 
 ### Disk space
 

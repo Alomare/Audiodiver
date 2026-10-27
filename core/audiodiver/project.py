@@ -267,7 +267,7 @@ class Project:
         try:
             uuid.UUID(self.guid)
         except (ValueError, TypeError, AttributeError):
-            out.append("mod id: damaged in the project file (Make a new id, on the Project tab)")
+            out.append("mod ID: damaged in the project file (Make a new ID, on the Project tab)")
         return out
 
     # --- file I/O
@@ -323,7 +323,7 @@ class Project:
             try:
                 target = int(r["target"])
             except (TypeError, ValueError, OverflowError):
-                raise ProjectFormatError("is damaged (a replacement's sound id)") from None
+                raise ProjectFormatError("is damaged (a replacement's sound ID)") from None
             audio = r.get("audio") if isinstance(r.get("audio"), str) else ""
             silence = r.get("silence") is True or Path(audio).name == LEGACY_SILENCE  # what Skip wrote: now silence
             # a repair names the slot by its new audio, as the screen does

@@ -117,7 +117,7 @@ def additions(project: Project, ix: AudioIndex, reps: list[patch.Replacement]) -
     wem_of = {r.source: r.wem for r in reps if r.wem is not None}
     clash = sorted(project.made_ids() & ix.taken)
     if clash:
-        raise BuildError(f"Since the last game update, the game uses some ids that the added audio also uses "
+        raise BuildError(f"Since the last game update, the game uses some IDs that the added audio also uses "
                          f"({', '.join(map(str, clash[:3]))}). Remove that audio and add it again.")
     takes = [addition.Take(a.container, a.sound, a.source, wem_of[a.source]) for a in project.additions
              if a.kind == "take" and a.source in wem_of]
@@ -203,11 +203,11 @@ def text_tables(project: Project, texts, log=print) -> dict[int, bytes]:
             continue
         changed = [i for i, t in edits.items() if i in live and t.was and live[i] != t.was]
         if changed:
-            log(f"text: the game changed {len(changed)} line(s) since the project changed them (ids {changed[:5]}); the project's are used")
+            log(f"text: the game changed {len(changed)} line(s) since the project changed them (IDs {changed[:5]}); the project's are used")
         out[fid], missing = texts.apply(fid, {i: t.text for i, t in edits.items()})
         applied += len(edits) - len(missing)
         if missing:
-            log(f"text: {len(missing)} line(s) are not in table {fid} any more and are left out (ids {missing[:5]})")
+            log(f"text: {len(missing)} line(s) are not in table {fid} any more and are left out (IDs {missing[:5]})")
     if out:
         log(f"text: {applied} line{'s' if applied != 1 else ''} in {len(out)} table{'s' if len(out) != 1 else ''}")
     return out

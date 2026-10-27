@@ -199,27 +199,27 @@ function ModId() {
   const p = project!;
   const [draft, setDraft] = useState<string | null>(null); // the id being typed; null while the id shows
   const typed = draft?.trim() ?? "";
-  const problem = typed && !GUID.test(typed) ? "A mod id looks like this: 613bc667-1b2d-4f5e-8a9b-0c1d2e3f4a5b" : null;
+  const problem = typed && !GUID.test(typed) ? "A mod ID looks like this: 613bc667-1b2d-4f5e-8a9b-0c1d2e3f4a5b" : null;
   const save = async () => {
     if (!typed || typed.replace(/[{}]/g, "").toLowerCase() === p.guid) setDraft(null);
     else if (!problem && await actions.setModId(typed)) setDraft(null);
   };
   return (
     <section className="set-sec">
-      <h2>Mod id <Help tip="Mod managers recognise the mod by this id. While it stays the same, a new build updates the installed mod." page="build-and-install#mod-id" /></h2>
+      <h2>Mod ID <Help tip="Mod managers recognise the mod by this ID. While it stays the same, a new build updates the installed mod." page="build-and-install#mod-id" /></h2>
       {draft === null ? (
         <div className="pkg-id">
           <code>{p.guid}</code>
-          <button className="btn quiet" onClick={() => copyText(p.guid, quick, "the mod id")}>Copy</button>
+          <button className="btn quiet" onClick={() => copyText(p.guid, quick, "the mod ID")}>Copy</button>
           <button className="btn quiet" onClick={() => setDraft(p.guid)}
-            data-tip="Use the id of a mod made before, such as the Guid in the manifest.json of the mod" data-tip-more="Mod managers then treat a build as an update to that mod">Change…</button>
+            data-tip="Use the ID of a mod made before, such as the Guid in the manifest.json of the mod" data-tip-more="Mod managers then treat a build as an update to that mod">Change…</button>
           <button className="btn quiet" onClick={() => actions.newModId()}
-            data-tip="Use this when a copied project becomes a different mod" data-tip-more="The next build installs as a separate mod">Make a new id</button>
+            data-tip="Use this when a copied project becomes a different mod" data-tip-more="The next build installs as a separate mod">Make a new ID</button>
         </div>
       ) : (
         <div className="field">
           <div className="pkg-id">
-            <input value={draft} autoFocus spellCheck={false} aria-label="Mod id" aria-invalid={!!problem}
+            <input value={draft} autoFocus spellCheck={false} aria-label="Mod ID" aria-invalid={!!problem}
               onChange={(e) => setDraft(e.target.value)} onFocus={(e) => e.currentTarget.select()}
               onKeyDown={(e) => {
                 if (e.key === "Enter") save();

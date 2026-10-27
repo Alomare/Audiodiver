@@ -57,7 +57,7 @@ export function SlotSearch({ value, onChange, sounds }: { value: string; onChang
     <label className="slot-search">
       <SearchIcon />
       <input type="search" placeholder={`Search ${what}`} value={value} onChange={(e) => onChange(e.target.value)} aria-label={`Search ${what}`}
-        data-tip={sounds ? "Name, words of a voice line, label, note, file name or id" : "Name, label, note, file name or id"} data-tip-side="top"
+        data-tip={sounds ? "Name, words of a voice line, label, note, file name or ID" : "Name, label, note, file name or ID"} data-tip-side="top"
         onKeyDown={(e) => { if (e.key === "Escape") { if (value) onChange(""); else e.currentTarget.blur(); } }} />
     </label>
   );

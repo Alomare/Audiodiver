@@ -11,7 +11,7 @@ import { Help } from "./Wiki";
 
 const fileName = (path: string) => path.split(/[\\/]/).pop()!;
 /** Problems that the Project tab fixes (the core's Project.problems): the name, the icon, the mod id. */
-const ON_PROJECT_TAB = /^(name "|icon: |mod id: )/;
+const ON_PROJECT_TAB = /^(name "|icon: |mod ID: )/;
 const MISSING = /: the audio file wasn't found \(/; // core project.py: a file the project uses is gone
 
 /** Why a typed version can't be used, or null. */

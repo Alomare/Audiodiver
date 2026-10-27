@@ -4,6 +4,7 @@ import { confirm } from "./Confirm";
 import { useContextMenu, type MenuEntry } from "./ContextMenu";
 import { audible, PlayButton, playSlot } from "./CueView";
 import { AudioIcon, CollapseAllIcon, PauseIcon, ThroughIcon } from "./Icons";
+import { ResetLevel } from "./Inspector";
 import { keyLabel, useCommands, useKeymap } from "./keys";
 import { nav } from "./nav";
 import { tabArrows } from "./Page";
@@ -550,6 +551,7 @@ function Level({ db, onSet, off }: { db: number; onSet: (db: number) => void; of
           onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); else if (e.key === "Escape") { escaped.current = true; e.currentTarget.blur(); } }}
           data-tip={off ? undefined : `Type a value from −${LEVEL_MAX} to +${LEVEL_MAX}`} /> dB
       </span>
+      <ResetLevel off={!!off || (db === 0 && v === 0)} onReset={() => { setV(0); commit(0); }} more="0 dB on every track of the piece" />
     </div>
   );
 }

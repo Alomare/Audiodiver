@@ -136,9 +136,9 @@ export function RepatchPage() {
               </label>
               {scan.manifest && (
                 <p className="set-note">Kept from the manifest: {listed([scan.icon && "the icon", scan.description && "the description",
-                  scan.patches.length > 1 && "the options", "the files beside the patches", scan.guid && "the mod id"])}.
+                  scan.patches.length > 1 && "the options", "the files beside the patches", scan.guid && "the mod ID"])}.
                   {scan.guid && " Importing the new ZIP in a mod manager updates the old mod."}{" "}
-                  <Help tip="The manifest is the file in a mod that gives the mod manager the name, icon, options and id" page="repatching#what-repatching-carries-over" /></p>
+                  <Help tip="The manifest is the file in a mod that gives the mod manager the name, icon, options and ID" page="repatching#what-repatching-carries-over" /></p>
               )}
               <div className="row-btns">
                 <button className="btn quiet" disabled={running || reading} onClick={async () => read(await pickMod())}>Choose another mod…</button>
@@ -251,7 +251,7 @@ function Outcome({ job, again }: { job: Job; again: () => void }) {
     <section className="set-sec view-in rp-made" aria-label="Repatched">
       <h2>Repatched</h2>
       <p><b>{m.name}</b>: {fileName(m.zip)}, {m.mb} MB.
-        {m.kept_id ? " It keeps the old mod id, so importing it in a mod manager updates the old mod." : " Remove the old mod in the mod manager before importing this one."}</p>
+        {m.kept_id ? " It keeps the old mod ID, so importing it in a mod manager updates the old mod." : " Remove the old mod in the mod manager before importing this one."}</p>
       <div className="row-btns">
         <button className="btn" onClick={() => reveal(m.zip)}>Show in folder</button>
         <button className="btn quiet" onClick={again}>Repatch another mod</button>
@@ -386,7 +386,7 @@ function About() {
       <ul>
         <li>Takes the audio that the mod replaces and adds, with sound settings such as volume and delays.</li>
         <li>Applies them to the game's current sound banks.</li>
-        <li>Builds a new ZIP of the same mod, with the same options, files and id. The audio isn't encoded again.</li>
+        <li>Builds a new ZIP of the same mod, with the same options, files and ID. The audio isn't encoded again.</li>
         <li>Keeps what the patches hold besides audio, like text, models or textures, as it was.</li>
       </ul>
       <h3>When to use it</h3>
