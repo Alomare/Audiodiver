@@ -5,7 +5,7 @@ import { useContextMenu, type MenuEntry } from "./ContextMenu";
 import { PlayButton, playSlot } from "./CueView";
 import { addedNote, exportList, itemEntries } from "./exportList";
 import { Fold } from "./Fold";
-import { IndexTree } from "./IndexTree";
+import { AddToggle, IndexTree } from "./IndexTree";
 import { keyLabel, useKeymap } from "./keys";
 import { nav, useNav } from "./nav";
 import { tabArrows } from "./Page";
@@ -44,7 +44,7 @@ const COLUMNS: [SortKey, string, string][] = [
 ];
 const SORT_KEY = "audiodiver.archiveSort";
 /** The columns' widths at the default text size; each heading's right edge drags its column wider or narrower. */
-const WIDTHS = { play: 30, name: 230, cat: 76, archive: 100, language: 68, banks: 52, sounds: 58, act: 30 };
+const WIDTHS = { play: 30, name: 230, cat: 76, archive: 100, language: 68, banks: 52, sounds: 58, act: 50 };
 type Col = keyof typeof WIDTHS;
 const WIDTHS_KEY = "audiodiver.archiveColumnWidths"; // only the columns dragged: a new default reaches the rest
 try { localStorage.removeItem("audiodiver.archiveColumns"); } catch { /* storage off */ } // every width, before
@@ -295,9 +295,9 @@ function ArchiveList() {
                   <td className="num">{a.banks}</td>
                   <td className="num">{a.sounds}</td>
                   <td className="arc-act" onClick={(e) => e.stopPropagation()}>
-                    {added ? <span className="in-proj" role="img" aria-label="In the project" data-tip="In the project">✓</span>
-                      : <button className="row-act" onClick={() => actions.addToProject([id], name)} aria-label={`Add ${name} to the project`} data-tip="Add to the project"
-                        data-tip-more={project ? undefined : "Open or create a project first"}>+</button>}
+                    <AddToggle added={added} run={() => (added ? actions.removeFromProject([id], name) : actions.addToProject([id], name))}
+                      label={`${added ? "Remove" : "Add"} ${name} ${added ? "from" : "to"} the project`} tip={added ? "Remove from the project" : "Add to the project"}
+                      more={added ? "Also removes the new audio. Undo brings both back." : project ? undefined : "Open or create a project first"} />
                   </td>
                 </tr>
               );

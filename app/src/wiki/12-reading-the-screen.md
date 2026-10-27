@@ -32,14 +32,14 @@ Under the title, a row of boxes says more about the item. They sit side by side 
 
 {icon:through} **Play through** plays the whole piece of music segment by segment, in the same order the game uses. The grey button plays the **Original** audio, the yellow one the **Replaced** audio. While one plays, a bar shows where it is.
 
-In the Library, the toolbar has **Add to the Project**. In the Audio tab it starts with a tick that selects every slot, or clears the selection, and has these tools:
+The toolbar starts with a tick that selects every slot, or clears the selection. In the Library it then has **Add to the Project**, and in the Audio tab these tools:
 
 | Tool | What it does |
 |---|---|
 | {icon:fill} **Fill from files** | Fills the slots with files, one file per slot, in play order and file-name order. |
 | {icon:fillpiece} **Fill the whole piece** | Fills the slots of every part the same way, part by part. |
 | {icon:slice} **Slice a song** | Cuts one song into pieces, one per slot. |
-| {icon:export} **Export** | Saves the audio as WAV, FLAC or MP3. |
+| {icon:export} **Export** | Saves the item, or the selected slots, as WAV, FLAC, MP3 or WEM files. **Export List** beside it opens the [export list](#the-export-list) once something is on it. |
 | {icon:skip} **Skip it**, {icon:skipall} **Skip all** | Replace a transition or stinger with a short silence. |
 | {icon:clear} **Clear all**, **Clear this part** | Removes the new audio from every slot shown, or from every slot of the part. |
 
@@ -62,7 +62,7 @@ Each row is one **slot**, a single game clip that can be replaced.
 - **Music** lists **segments** in play order. The first row of a segment shows the segment name, and the rows under it are the other **layers**.
 - **Sounds** are shown in **groups**, with one line per sound and the **takes** folded under it. ▶ on the line plays the first take. Files dropped on the line fill the takes in order. Right-click the line to fill, silence or clear all takes at once.
 - The left half of a row is the original. ▶ plays it, and the length is shown at the end. In the Audio tab, the right half is the replacement. ▶ plays the new audio, clicking the file name picks another file, and ✕ removes it. An empty slot shows *Drop audio or choose a file*.
-- In the Audio tab, the tick at the start of a row puts the slot in the selection, or takes it out, as Ctrl+click does. Shift on a tick selects a range. A group line has a tick for all the takes in the group. With several slots selected, the right panel has **Choose One File for All**, **Choose Files**, **Replace with Silence** and the button that removes the new audio.
+- The tick at the start of a row puts the slot in the selection, or takes it out, as Ctrl+click does. Shift on a tick selects a range. A group line has a tick for all the takes in the group, and the group stays folded. In the Library, **Export** can save only the selected slots. In the Audio tab, with several slots selected, the right panel has **Choose One File for All**, **Choose Files**, **Replace with Silence** and the button that removes the new audio.
 - Double-click a row to play it. Right-click it for everything else, including copy, paste, silence and IDs.
 - Copy audio files in Explorer, select slots and press **Ctrl+V**. One file goes into every selected slot. Several files go in file-name order, and on a single selected slot they fill on from there. Ctrl+V pastes whatever was copied last: files from Explorer or slots copied in Audiodiver.
 
@@ -122,7 +122,7 @@ A clip that plays in several places has one note, shown in every place. When a g
 
 The tab bar holds the main tabs. Home and Tools come first. The darker band after them holds the tabs for the open project, from Project to Text, and the Project tab shows the project icon. Build comes after the band while a project is open, and {icon:updates} Updates, the Wiki and Settings are at the end. The bar runs along the top of the window, and **Tab bar** in [Settings ▸ Theme](app:settings/theme) puts it on another side. With tab names on, a bar at the top or bottom shows the names beside the icons, and a bar at the left or right shows a name when the pointer is on the tab. The open tab takes the colour of the page it opens, and in the band the open tab has an edge in the primary colour. Tabs inside a page, such as Index and All Archives, the parts of a piece, or the sections of Settings, are underlined instead. A dot on Build means the project needs a new build, and a dot on Updates means a new version of Audiodiver is available.
 
-The status bar at the bottom has undo and redo, the project file and the audio that is playing. Click the playing audio to go to that slot. The **Export List** button appears once the list has something on it. **Vol** sets the preview volume, which doesn't affect the mod. The version number opens Updates, and the {icon:info} next to it opens [About](app:about).
+The status bar at the bottom has undo and redo, the project file and the audio that is playing. Click the playing audio to go to that slot. **Vol** sets the preview volume, which doesn't affect the mod. The version number opens Updates, and the {icon:info} next to it opens [About](app:about).
 
 Short confirmations such as *Loadout Selection added to My Mod* or *My Mod saved* appear briefly at the bottom of the window. Notices that need reading, or that have a button such as Undo or Show in Folder, appear at the bottom right.
 
@@ -144,11 +144,17 @@ Press {icon:id} on the toolbar to list the sounds of a bank as Wwise tools list 
 
 ## Exporting
 
-{icon:export} **Export** saves the open item as audio files, the **Original** audio, the **Replaced** audio or **Both**, in the format you pick. Each file name ends in *(original)* or *(replaced)*. For music, **Contents** sets whether each slot, each segment or the whole piece becomes a file, and the line under the choices describes the one chosen.
+{icon:export} **Export** on the toolbar opens the Export panel. The first tab saves the open item, and the second the [export list](#the-export-list). On the right, the panel lists the folders and files the export writes, with the names they will have, before anything is written.
 
-### A folder for each
+- **Sounds** or **Slots**: **Selected** (tick slots in the list first), **Replaced** (in the Audio tab) or **All**.
+- **Contents**, for music: **Each Slot**, **Each Segment** with the layers mixed, or **The Whole Piece** played through. In the Soundtrack, **A Fight** saves a fight as the game plays it ([Exporting music](wiki:soundtrack#exporting)).
+- **Audio**, in the Audio tab and the Soundtrack: **As the Mod Plays It** saves the new audio where a slot has some, at the Make-Up Gain set, and the Original everywhere else. **Both** adds the replaced version beside the Original wherever the mod changes something, and those names end in *(original)* and *(replaced)*. The Library saves the Original.
+- **File names**: **Full Names** start with the name of the item, **Short Names** leave it out, and **Source IDs** name each slot by the source ID, as other modding tools name game audio.
+- **Format**: WAV, FLAC, MP3, or WEM for Original slots. A WEM is the file exactly as the game has it, and it goes into another slot as new audio without being encoded again.
 
-With **A folder for each** on, the files of each entry go into a separate folder. With it off, all files go into one folder, and each file is named after the place it comes from.
+### A folder for each item
+
+With **A folder for each item** on, the files of each entry go into a folder named after it. With it off, all files go into the destination folder.
 
 ### Lead-in and ring-out
 
@@ -156,7 +162,7 @@ Exporting a piece of music by segment saves one file per segment. **Lead-in and 
 
 ## The export list
 
-Collect things from different places to export them together. Right-click a slot, a group of takes, an Index entry, a category or section line, or an archive, and choose **Add to the Export List**. The **Export List** button in the status bar opens the list. There you can rename an entry to name the folder it goes to, remove entries, and export everything as a single job. The list is kept until you clear it.
+Collect things from different places to export them together. Right-click a slot, a group of takes, an Index entry, a category or section line, or an archive, and choose **Add to the Export List**. **Add to the Export List** in the Export panel adds the open item with the choices made there. **Export List** on the toolbar opens the list. Rename an entry to name the folder it goes to, change what it saves and which audio, remove entries, and export everything as one job. The list is kept until you clear it.
 
 ## Colours
 

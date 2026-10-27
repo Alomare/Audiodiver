@@ -39,6 +39,8 @@ export const UndoIcon = () => <Icon><path d="M9 6 4 11l5 5" /><path d="M4 11h10.
 // The quick notes' icons (App.tsx, QuickNote): what just happened, at a glance.
 export const CheckIcon = () => <Icon size={1.1} stroke={2.2}><path d="m5 12.5 4.5 4.5L19 7.5" /></Icon>;
 export const PlusIcon = () => <Icon size={1.1} stroke={2.2}><path d="M12 5v14M5 12h14" /></Icon>;
+/** The ✕ that takes back what a + added, as heavy as the +. */
+export const RemoveIcon = () => <Icon size={1.1} stroke={2.2}><path d="m6.5 6.5 11 11M17.5 6.5l-11 11" /></Icon>;
 /** A disk with its label and shutter. */
 export const SaveIcon = () => (
   <Icon size={1.1}><path d="M5 4h11.5L20 7.5V20H4V4z" /><path d="M8 4v5h7V4M7.5 20v-6h9v6" /></Icon>

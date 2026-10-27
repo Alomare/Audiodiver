@@ -138,14 +138,6 @@ class Library:
         b = self.ix.banks.get(bid)
         return bool(b and (b["refs"] or b["media"]))
 
-    def _shared(self, archives: list[str]) -> list[int]:
-        """The banks the archives the community lists for a thing have in common: those in every one of them this
-        game has, else those in at least half."""
-        here = [a for a in archives if a in self.ix.by_archive]
-        count = collections.Counter(b for a in here for b in self.ix.by_archive[a] if self._has_audio(b))
-        common = [b for b, n in count.items() if n == len(here)] or [b for b, n in count.items() if n * 2 >= len(here)]
-        return sorted(common, key=lambda b: (-len(self.ix.banks[b]["refs"]), b))
-
     def bank_label(self, bid: int) -> str:
         """A bank's name for people: the sound set it is (with its language, for a voice), else its path name, else
         its number."""
@@ -168,10 +160,6 @@ class Library:
                 bid = murmur64_hash(f"{PREFIX}{code}/{e['voice']}".encode())
                 if self._has_audio(bid):
                     out.append((language, bid))
-        # the one voice without a known name: in each language, the voice bank of its archives that has no name
-        for code, archives in e.get("archives_by_language", {}).items():
-            out += [(LANGUAGES.get(code, code), b) for b in self._shared(archives)
-                    if self.ix.banks[b].get("lang") == code and b not in self.bank_names]
         if len(out) > 1:  # several banks: tell them apart
             named = []
             for n, (name, bid) in enumerate(out, 1):

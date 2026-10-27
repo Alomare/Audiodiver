@@ -5,9 +5,9 @@ import { BuildTab } from "./BuildTab";
 import { combineInbox } from "./CombinePage";
 import { repatchInbox } from "./RepatchPage";
 import { CueView } from "./CueView";
-import { ExportListDialog } from "./ExportDialog";
-import { useExportList } from "./exportList";
 import { Home } from "./Home";
+import { ImportModHost } from "./ImportMod";
+import { TUTORIALS_PAGE, TutorialLayer, TutorialPrompt } from "./Tutorial";
 import { AudioIcon, BuildIcon, CheckIcon, CopyIcon, GearIcon, GuideIcon, HomeIcon, InfoIcon, LibraryIcon, PlusIcon,
   ProjectIcon, RedoIcon, SaveIcon, SoundtrackIcon, TextIcon, ToolsIcon, UndoIcon, UpdatesIcon } from "./Icons";
 import { Inspector } from "./Inspector";
@@ -289,6 +289,7 @@ function Shell() {
     tabTools: () => nav.go("tools"),
     updates: () => nav.toggle("updates"),
     wiki: () => nav.toggle("wiki"),
+    tutorials: () => nav.go("wiki", TUTORIALS_PAGE),
     settings: () => nav.toggle("settings"),
     shortcuts: () => nav.toggle("settings", "shortcuts"),
   });
@@ -342,8 +343,11 @@ function Shell() {
       <StatusBar />
       <Notices />
       <AboutDialog />
+      <ImportModHost />
+      <TutorialLayer />
       <ConfirmDialog />
       {prompt && <UpdatePrompt onClose={() => setPrompt(false)} />}
+      <TutorialPrompt blocked={prompt} />
       <TooltipLayer />
       <ScaleTipLayer />
     </div>
@@ -471,8 +475,9 @@ function Rail() {
   );
 }
 
-/** Along the bottom: undo and redo, what the core is doing or where the project is saved, the export list, what
-    plays, and the version (it leads to Updates, and carries a dot when a new one is out) with About beside it. */
+/** Along the bottom: undo and redo, what the core is doing or where the project is saved, what plays, and the
+    version (it leads to Updates, and carries a dot when a new one is out) with About beside it. The export list is on
+    the toolbars, beside Export. */
 function StatusBar() {
   const { status, jobs, project, actions } = useEditor();
   const u = useUpdates();
@@ -498,7 +503,6 @@ function StatusBar() {
           data-tip-more={project?.path}>{project ? `${saved} · ${project.path}` : UTILS ? "" : "No project open"}</span>
       )}
       <span className="spacer" />
-      <ExportListButton />
       <NowPlaying />
       <span className="sb-version">
         <button className={`sb-ver${u.latest ? " lit" : ""}`} onClick={() => nav.go("updates")} aria-label={u.latest ? `${APP_LABEL}: a new version is available` : undefined}
@@ -507,20 +511,6 @@ function StatusBar() {
         <AboutButton />
       </span>
     </footer>
-  );
-}
-
-/** The export list's button, once something is on it: opens the list to export it all at once. */
-function ExportListButton() {
-  const list = useExportList();
-  const [open, setOpen] = useState(false);
-  if (!list.length && !open) return null;
-  return (
-    <>
-      <button className="sb-list" onClick={() => setOpen(true)} data-tip="Things collected to export together">
-        Export List · {list.length}</button>
-      {open && <ExportListDialog onClose={() => setOpen(false)} />}
-    </>
   );
 }
 

@@ -11,6 +11,7 @@ Prints one line, `AUDIODIVER_SERVER {"port": ..., "token": ...}`, once it listen
     GET  /project/icon        the open project's icon as the build packages it (PNG); ?icon=<JSON> previews an
                               icon that isn't saved yet (its frame, as the settings method takes it)
     GET  /projects/icon?path=…  the icon of a project file that isn't open (Home's recent project)
+    GET  /mods/icon?path=…  the image a mod's manifest names as the mod's icon (Import Mod), as it is
 
 GET URLs take the token as ?token=, since <audio> and <img> elements can't send headers.
 """
@@ -29,7 +30,8 @@ from pathlib import Path
 
 from . import updates, wem
 from .audio import cache_lock, natural
-from .editor import AUDIO_TYPES, EditorError, Session, cache_clear, cache_info, log, os_error, plain, project_icon, projects_info, reveal
+from .editor import (AUDIO_TYPES, EditorError, Session, cache_clear, cache_info, log, mod_icon, os_error, plain,
+                     project_icon, projects_info, reveal)
 from .index import CACHE_DIR
 
 BROWSER_AUDIO = {".wav": "audio/wav", ".mp3": "audio/mpeg", ".ogg": "audio/ogg", ".opus": "audio/ogg",
@@ -98,6 +100,10 @@ def methods(s: Session) -> dict:
         "redo": lambda: s.redo(),
         "build": lambda bump=True: s.build(bump),
         "import_patch": lambda path, mode="add": s.import_patch(path, mode),
+        "mod_scan": lambda path: s.mod_scan(path),
+        "mod_preview": lambda path, picks=None: s.mod_preview(path, picks),
+        "import_mod": lambda path, picks=None, name="", folder="", texts=None, keep_id=True, icon=True, mode="add",
+            tabs=None: s.import_mod(path, picks, name, folder, texts, keep_id, icon, mode, tabs),
         "repatch_scan": lambda path: s.repatch_scan(path),
         "repatch": lambda path, name="", folder="", every_bank=False: s.repatch(path, name, folder, every_bank),
         "combine_scan": lambda path: s.combine_scan(path),
@@ -117,6 +123,8 @@ def methods(s: Session) -> dict:
         "soundtrack_copy": lambda cue, to: s.soundtrack_copy(cue, to),
         "export": lambda cue, folder, **o: s.export(cue, folder, **o),
         "export_list": lambda entries, folder, **o: s.export_list(entries, folder, **o),
+        "export_preview": lambda entries, **o: s.export_preview(entries, **o),
+        "tutorial_audio": lambda kind: s.tutorial_audio(kind),
         "text_languages": lambda: s.text_languages(),
         "text_search": lambda language, query="", mine=False, limit=300, ids=None: s.text_search(language, query, mine, limit, ids),
         "text_alike": lambda id: s.text_alike(id),
@@ -317,6 +325,8 @@ def make_handler(session: Session, token: str):
                     return self._bytes(session.icon(preview), "image/png")
                 if parts == ["projects", "icon"]:
                     return self._bytes(project_icon(q.get("path", [""])[0]), "image/png")
+                if parts == ["mods", "icon"]:
+                    return self._bytes(*mod_icon(q.get("path", [""])[0]))
                 if len(parts) != 3 and parts[:2] != ["audio", "file"]:
                     return self._json(404, {"error": "not found"})
                 if parts[:2] == ["audio", "vanilla"]:

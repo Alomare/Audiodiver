@@ -180,8 +180,8 @@ function ProjectPage() {
       <aside className="bld-side">
         <div className="side-actions">
           <button className="btn" onClick={() => actions.importPatch()}
-            data-tip="Import the replaced and added sounds from a mod's .patch_0 file into this project"
-            data-tip-more="To keep working on an existing mod, such as one made with another tool">Import Patches</button>
+            data-tip="Import the audio, added sounds and text of a mod into this project"
+            data-tip-more="A ZIP or a .patch_0 file, such as a mod made with another tool">Import Patches</button>
           <button className="btn quiet" onClick={actions.closeProject} data-tip="Close the project" data-tip-cmd="closeProject">Close Project</button>
         </div>
         <IconPreview preview={same(icon, p.icon) ? undefined : icon} bust={String(revision)} name={name.trim() || p.name}
@@ -433,8 +433,9 @@ function ColorPick({ label, value, onChange, onTry, disabled }: {
   );
 }
 
-/** The icon as a build would package it, redrawn shortly after a change. An image dropped on it becomes the icon. */
-function IconPreview({ preview, bust, name, description }: { preview?: Icon; bust: string; name: string; description: string }) {
+/** The icon as a build would package it, redrawn shortly after a change. An image dropped on it becomes the icon.
+    The Build tab shows it too, over the Build button. */
+export function IconPreview({ preview, bust, name, description }: { preview?: Icon; bust: string; name: string; description: string }) {
   const { project } = useEditor();
   // sliding redraws the icon after a short pause, not on every step
   const key = preview ? JSON.stringify(preview) : "";

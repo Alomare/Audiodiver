@@ -476,20 +476,27 @@ class Session:
         return self.fill(cue_id, [str(p) for p in pieces], start_source=start_source)
 
     # --- project lifecycle
-    def new_project(self, path, name, folder=False, tabs=None):
-        """A new, empty project at path. folder: the project gets a folder of its own there, named like the file
-        (`Dune.audi` chosen in Mods is Mods/Dune/Dune.audi), unless the folder chosen is named like it already.
-        tabs: the hideable tabs it shows (project.TABS), as Settings has them; None leaves it to Settings."""
+    @staticmethod
+    def _project_path(path, folder: bool) -> Path:
+        """Where a new project chosen at path (a full path) goes: the .audi file, with a folder of its own there when
+        folder is set, named like the file, unless the folder chosen is named like it already."""
         from .projectfiles import folder_name
-        if not given(path) or not Path(path).is_absolute():
-            raise EditorError("Choose where to save the project (a full path)")
-        if tabs is not None and (tabs := tab_list(tabs)) is None:
-            raise EditorError("The tabs are some of " + ", ".join(TABS))
         path = Path(path).resolve()
         if path.suffix.lower() != ".audi":
             path = path.with_name(path.name + ".audi")  # "Dune 2.0" is Dune 2.0.audi, not Dune 2.audi
         if folder and path.parent.name.casefold() != path.stem.casefold():
             path = path.parent / folder_name(path.stem) / path.name
+        return path
+
+    def new_project(self, path, name, folder=False, tabs=None):
+        """A new, empty project at path. folder: the project gets a folder of its own there, named like the file
+        (`Dune.audi` chosen in Mods is Mods/Dune/Dune.audi), unless the folder chosen is named like it already.
+        tabs: the hideable tabs it shows (project.TABS), as Settings has them; None leaves it to Settings."""
+        if not given(path) or not Path(path).is_absolute():
+            raise EditorError("Choose where to save the project (a full path)")
+        if tabs is not None and (tabs := tab_list(tabs)) is None:
+            raise EditorError("The tabs are some of " + ", ".join(TABS))
+        path = self._project_path(path, folder)
         if path.exists():
             raise EditorError(f"{path.name} already exists in {path.parent}")
         try:
@@ -1955,9 +1962,11 @@ class Session:
 
     def import_patch(self, patch_path, mode="add"):
         """Turns an existing .patch_0 (any mod, old tool or Audiodiver) into assignments: every replaced source's
-        audio is decoded to <project>/imported/<source>.wav. mode "add": it joins what the project has (where both
-        have audio for a slot, the patch's goes in); "replace": the project's audio goes first (its new audio,
-        additions, cue points, settings and list; its text edits stay). One edit either way, so Undo takes it back."""
+        audio is decoded to <project>/audio/imported/<archive>-<digest>/<source>.wav, and every line of the game text
+        its string tables change becomes a text edit (a patch of text alone comes in too). mode "add": it joins what
+        the project has (where both have audio for a slot, the patch's goes in); "replace": the project's audio goes
+        first (its new audio, additions, cue points, settings and list; its text edits stay). One edit either way,
+        so Undo takes it back. The job's result is import_mod's."""
         self.require_game()
         p = self._need_project()
         if mode not in ("add", "replace"):
@@ -1972,24 +1981,27 @@ class Session:
                               f"next to it.")
 
         def run(job):
-            # a folder per patch: two mods' patches of one archive have the same name, so the name of the folder
-            # carries what is in them too (the same mod imported twice uses the same folder)
-            out_dir = p.path.parent / "audio" / "imported" / f"{patch_path.stem.split('.')[0]}-{_digest(patch_path)}"
-            got, replaced, files, skipped = self._patch_audio(patch_path, out_dir, job)
+            read = self._import_read(job, [patch_path], p.path.parent)
+            self._something_in(read.reads, read.lines, read.lines, read.failed, patch_path.name)
             if not self.project or self.project.path != p.path:
                 raise EditorError("Another project was opened during the import. Open this project again and import again.")
-            counts = {"added": 0}
+            count = {}
 
             def apply(proj):  # what the patch replaces joins the project's list (_cover), so the Editor shows it
-                if mode == "replace":  # the files stay on disk
-                    proj.replacements, proj.additions, proj.settings, proj.segment_overrides = [], [], {}, {}
-                    proj.library, proj.imported_banks = [], []
-                counts["added"] = self._fill_from_patch(proj, got, replaced, files)
+                if mode == "replace":
+                    self._without_audio(proj)
+                count["added"] = self._put_import(proj, read, read.lines)
             self._edit("import", apply)
-            return {"imported": sum(s in files for s in replaced), "added": counts["added"], "skipped": skipped,
-                    "settings": len(got.settings), "left": got.left, "stale": len(got.stale), "older": len(got.older),
-                    "folder": str(out_dir)}
+            return self._import_result(read, count["added"], read.lines, p.path,
+                                       read.dirs[0] if read.dirs else p.path.parent)
         return self._start("import", run)
+
+    @staticmethod
+    def _without_audio(p: Project):
+        """An import's "replace": the project's audio goes first (new audio, additions, cue points, settings and the
+        list). The files stay on disk, and so do the project's text edits."""
+        p.replacements, p.additions, p.settings, p.segment_overrides = [], [], {}, {}
+        p.library, p.imported_banks = [], []
 
     def _patch_audio(self, patch_path: Path, out_dir: Path, job, reuse=False):
         """What a mod's patch replaces, adds and sets (addition.from_patch), its audio decoded into out_dir as WAVs, each
@@ -2087,6 +2099,325 @@ class Session:
             p.settings[oid] = {**p.settings.get(oid, {}), **changes}
         p.imported_banks = sorted(set(p.imported_banks) | got.banks)  # where its sounds go (build.reach)
         return self._take_in(p, got, files)
+
+    # --- importing a mod (Import Mod): a ZIP, a folder or a patch, with the options chosen in it, into a new project
+    # or the open one, with the lines of the game text it changes
+    @staticmethod
+    def _patch_contents(f) -> tuple[bool, dict[int, bytes], int]:
+        """(holds audio, {string table: the table's bytes}, how many other files) of a patch, from the open file f.
+        Only the table of contents and the string tables are read (a patch's banks can run to hundreds of MB).
+        Raises ValueError for a file that is no game patch."""
+        from .game import PATCH_MAGIC, WWISE_BANK, WWISE_DEP, WWISE_STREAM, toc_entries
+        from .strings import STRINGS
+        head = f.read(72)
+        if len(head) < 72 or struct.unpack_from("<I", head)[0] != PATCH_MAGIC:
+            raise ValueError("not a game patch")
+        nt, nf = struct.unpack_from("<II", head, 4)
+        rows = f.read(32 * nt + 80 * nf)
+        if len(rows) < 32 * nt + 80 * nf:
+            raise ValueError("cut short")
+        entries, audio, tables = toc_entries(head + rows), (WWISE_BANK, WWISE_DEP, WWISE_STREAM), {}
+        for fid, tid, off, size, *_ in sorted(entries, key=lambda e: e[2]):  # forward through the file
+            if tid == STRINGS:
+                f.seek(off)
+                tables[fid] = f.read(size)
+        return any(e[1] in audio for e in entries), tables, sum(e[1] not in (*audio, STRINGS) for e in entries)
+
+    def _mod_lines(self, tables: dict[int, bytes]) -> tuple[list[dict], int, int]:
+        """The lines of the game text that a mod's string tables ({table: the table's bytes}) change: [{table, id,
+        kind, language, game, mod}] where the mod's text differs from the game's, subtitles first, then the other
+        text, each in table and ID order. Also how many of the mod's lines the game doesn't have (they can't come
+        in), and how many tables can't be read. Lip-sync tables are left out: they hold timing, not text."""
+        from . import strings
+        tx = self._texts()
+        out, missing, unread = [], 0, 0
+        for fid in sorted(tables):
+            try:
+                mod = strings.parse(tables[fid]).texts
+            except (ValueError, struct.error):  # UnicodeDecodeError is a ValueError
+                unread += 1
+                continue
+            try:
+                game, kind = tx.table(fid), tx.kind(fid)
+            except KeyError:  # a table this game version doesn't have
+                missing += len(mod)
+                continue
+            if kind == "lipsync":
+                continue
+            for i in sorted(mod):
+                if i not in game.texts:
+                    missing += 1
+                elif mod[i] != game.texts[i]:
+                    out.append({"table": str(fid), "id": i, "kind": kind, "language": game.code,
+                                "game": game.texts[i], "mod": mod[i]})
+        out.sort(key=lambda x: x["kind"] != "subtitles")  # stable: table and ID order stay within each kind
+        return out, missing, unread
+
+    def _import_read(self, job, patches: list[Path], home: Path, made: list | None = None) -> SimpleNamespace:
+        """Patches on disk, read in the order they apply for an import into the project in the folder home: the lines
+        of the game text their string tables change (_mod_lines; of two tables with one ID, the later patch's), and
+        what each patch that holds audio replaces, adds and sets, its audio decoded into
+        home/audio/imported/<archive>-<digest> (_patch_audio). A folder per patch: two mods' patches of one archive
+        have the same name, so the name of the folder carries what is in them too (the same patch imported again
+        uses the same folder). Returns reads (_patch_audio's answers), dirs (their folders), failed (why a patch's
+        audio can't come in), lines, missing, others (files neither audio nor text: a project can't hold them).
+        made: gets the folders of audio this reading makes."""
+        tables, others, holds = {}, 0, []
+        for path in patches:
+            try:
+                with open(path, "rb") as fh:
+                    audio, found, rest = self._patch_contents(fh)
+            except (OSError, ValueError):  # _patch_audio says what is wrong with it
+                audio, found, rest = True, {}, 0
+            tables.update(found)
+            others, holds = others + rest, [*holds, audio]
+        lines, missing, unread = self._mod_lines(tables) if tables else ([], 0, 0)
+        if lines:
+            job.say(f"the mod changes {len(lines)} line{'s' if len(lines) != 1 else ''} of text")
+        if missing:
+            job.say(f"{missing} line{'s' if missing != 1 else ''} of text that the game doesn't have, left out")
+        read = SimpleNamespace(reads=[], dirs=[], failed=[], lines=lines, missing=missing, others=others + unread)
+        for path, audio in zip(patches, holds):
+            if not audio:
+                continue
+            out_dir = home / "audio" / "imported" / f"{path.stem.split('.')[0]}-{_digest(path)}"
+            if made is not None and not out_dir.exists():
+                made.append(out_dir)
+            try:
+                read.reads.append(self._patch_audio(path, out_dir, job))
+                read.dirs.append(out_dir)
+            except EditorError as e:  # the rest of the mod can still come in
+                read.failed.append(str(e))
+        return read
+
+    @staticmethod
+    def _something_in(audio, found, lines, failed, what: str):
+        """Refuses an import that would bring nothing in. audio: whether audio comes in (or may, before it is read);
+        found: the lines of text the mod changes; lines: those chosen; failed: why a patch's audio couldn't come in
+        (the first reason is the message when nothing else can); what: the mod or patch file, as the message names
+        it."""
+        if audio or lines:
+            return
+        if found:
+            raise EditorError("Choose a line of text to import. The mod has no audio that Audiodiver can bring in.")
+        if failed:
+            raise EditorError(failed[0])
+        raise EditorError(f"{what} holds no audio or text that Audiodiver can bring in")
+
+    def _put_import(self, p: Project, read, lines, tabs=None) -> int:
+        """Puts what _import_read found into a project: each patch's audio (_fill_from_patch, a later patch's over an
+        earlier one's) and the lines chosen as text edits, with the game's text as `was`. A project whose tabs leave
+        out the Text tab gets it when lines come in (tabs: Settings' list, for a project that leaves the tabs to
+        Settings). Returns how many slots it added or changed."""
+        added = sum(self._fill_from_patch(p, got, replaced, files) for got, replaced, files, _ in read.reads)
+        edits = {(t.table, t.id): t for t in p.texts}
+        for x in lines:
+            key = (int(x["table"]), x["id"])
+            if key in edits:
+                edits[key].text, edits[key].was = x["mod"], x["game"]
+            else:
+                p.texts.append(TextEdit(*key, x["mod"], x["game"]))
+        shown = p.tabs if p.tabs is not None else tabs
+        if lines and shown is not None and "text" not in shown:
+            p.tabs = tab_list([*shown, "text"])
+        return added
+
+    def _import_result(self, read, added: int, lines, project: Path, folder: Path, left=()) -> dict:
+        """What an import brought in, as its job's result: {project, imported (the game's sounds given new audio),
+        added (the slots of audio the mod adds), skipped (sounds that couldn't be decoded), settings (objects with
+        the mod's settings), texts (lines of text), left (what couldn't come in, a line each), stale, older, others
+        (files neither audio nor text, left out), folder}."""
+        n, reads = read.missing, read.reads
+        return {"project": str(project),
+                "imported": len({s for _, replaced, files, _ in reads for s in replaced if s in files}),
+                "added": added, "skipped": sum(r[3] for r in reads),
+                "settings": len(set().union(*(got.settings for got, *_ in reads))), "texts": len(lines),
+                "left": [*dict.fromkeys(x for got, *_ in reads for x in got.left), *read.failed,
+                         *([f"{n} line{'s' if n != 1 else ''} of text that the game doesn't have"] if n else []), *left],
+                "stale": len(set().union(*(got.stale for got, *_ in reads))),
+                "older": len(set().union(*(got.older for got, *_ in reads))),
+                "others": self._file_lines(0, read.others), "folder": str(folder)}
+
+    def mod_scan(self, path):
+        """A mod to import (a .patch_N, a folder or a mod's ZIP): {source, name, description, guid ("" without one),
+        icon (whether the manifest names an image: GET /mods/icon serves it), manifest, options (a manifest's, as
+        combine_scan gives them), picks (the choice it starts with: the mod manager's, else every Option on with
+        its first SubOption), folder (where new projects go)}."""
+        from . import combine as cb
+        f = self._scan(path)
+        opts = cb.options(f.manifest)
+        return {"source": str(f.source), "name": f.name or "Imported mod", "description": f.description,
+                "guid": f.guid, "icon": bool(f.icon), "manifest": bool(f.manifest), "options": cb.shown(opts),
+                "picks": cb.default_picks(opts, self._manager_recorded(f.source, opts)),
+                "folder": self.projects_folder()}
+
+    def _mod_parts(self, path, picks):
+        """(repatch.Found, the keys of the patches the picks deploy, in the order they apply) of a mod to import;
+        picks None: the choice mod_scan starts with."""
+        from . import combine as cb
+        f = self._scan(path)
+        if picks is not None and (not isinstance(picks, list) or not all(isinstance(x, str) for x in picks)):
+            raise EditorError("A mod's options are a list of their IDs")
+        opts = cb.options(f.manifest)
+        if picks is None:
+            picks = cb.default_picks(opts, self._manager_recorded(f.source, opts))
+        return f, cb.parts(f, opts, picks)
+
+    def mod_preview(self, path, picks=None):
+        """What importing a mod with these options brings in, read without decoding any audio: {parts (the patches
+        the options deploy, in the order they apply, as "<option> · <file>"), audio (how many of them hold audio),
+        texts (the lines of the game text the mod changes, as _mod_lines has them), missing (lines the game doesn't
+        have, left out), others (what the patches hold besides audio and text, which a project can't hold)}. A mod
+        made for an older game version carries the text of that version too, and nothing in the files tells those
+        lines from the mod's own: the window lists them to choose from (import_mod's texts)."""
+        self.require_game()
+        f, keys = self._mod_parts(path, picks)
+        labels = {k: pt.label for pt in f.patches for k in pt.keys}
+        audio, tables, others = self._mod_contents(f, keys)
+        lines, missing, unread = self._mod_lines(tables) if tables else ([], 0, 0)
+        return {"parts": [" · ".join(x for x in (labels.get(k, ""), PurePosixPath(k).name) if x) for k in keys],
+                "audio": audio, "texts": lines, "missing": missing, "others": self._file_lines(0, others + unread)}
+
+    def _mod_contents(self, f, keys) -> tuple[int, dict[int, bytes], int]:
+        """(how many hold audio, {string table: the table's bytes}, how many other files) of a mod's patches (keys
+        of repatch.scan's Found f, in the order they apply; of two tables with one ID, the later patch's), read from
+        where they are without decoding any audio. A patch that can't be read counts as audio: the import says what
+        is wrong with it."""
+        import zipfile
+        audio, tables, others = 0, {}, 0
+        for key in keys:
+            try:
+                with f.opened(key) as fh:
+                    has, found, rest = self._patch_contents(fh)
+            except (OSError, KeyError, ValueError, zipfile.BadZipFile):
+                has, found, rest = True, {}, 0
+            tables.update(found)
+            audio, others = audio + has, others + rest
+        return audio, tables, others
+
+    def import_mod(self, path, picks=None, name="", folder="", texts=None, keep_id=True, icon=True, mode="add",
+                   tabs=None):
+        """Imports a mod (a .patch_N, a folder or a mod's ZIP) with the options picked (None: the choice mod_scan
+        starts with), as a job: the audio of every patch the options deploy, in the order they apply (as
+        import_patch brings it in), and the lines of the game text it changes as text edits (texts: [{table, id}]
+        of mod_preview's lines; None: all of them).
+
+        folder: a new project, <folder>/<name>/<name>.audi by new_project's rules, with the mod's description, the
+        mod ID of the manifest (keep_id; else a new one) and the manifest's icon image copied beside it (icon). It
+        opens once made, as open_project leaves a project; a failed import leaves nothing of it behind. tabs: the
+        tabs it shows, as new_project takes them. Without a folder, the mod goes into the open project as one edit,
+        mode "add" or "replace" as import_patch has it (text edits are added either way). A project whose tabs leave
+        out the Text tab gets it when lines of text come in. The job's result: _import_result's."""
+        from .arsenal import icon_png, name_problem
+        import tempfile
+        self.require_game()
+        f, keys = self._mod_parts(path, picks)
+        try:
+            chosen = None if texts is None else {(int(x["table"]), int(x["id"])) for x in texts}
+        except (TypeError, ValueError, KeyError, OverflowError):
+            raise EditorError("Each line of text to import has a table and an ID") from None
+
+        def picked(lines):  # the lines of text chosen of those the mod changes
+            return [x for x in lines if chosen is None or (int(x["table"]), x["id"]) in chosen]
+        if not isinstance(keep_id, bool) or not isinstance(icon, bool):
+            raise EditorError("The choices to keep the mod ID and the icon are on or off")
+        if mode not in ("add", "replace"):
+            raise EditorError("An import adds to the project or replaces the audio in it")
+        if tabs is not None and (tabs := tab_list(tabs)) is None:
+            raise EditorError("The tabs are some of " + ", ".join(TABS))
+        if not keys:
+            raise EditorError("No patch is in the chosen options")
+        audio, tables, _ = self._mod_contents(f, keys)  # a mod with nothing to bring in is refused before the job
+        if not audio:
+            found = self._mod_lines(tables)[0] if tables else []
+            self._something_in(0, found, picked(found), (), f.source.name)
+        new = given(folder)
+        if new:
+            name = str(name or "").strip() or f.name or "Imported mod"
+            if problem := name_problem(name):
+                raise EditorError(problem)
+            audi = self._project_path(out_folder(folder) / f"{name}.audi", True)
+            if audi.exists():
+                raise EditorError(f"{audi.name} already exists in {audi.parent}")
+        else:
+            audi = self._need_project().path
+        home = audi.parent
+
+        def run(job):
+            fresh, made, copied, left = new and not home.exists(), [], [], []
+            try:
+                if new:
+                    try:
+                        home.mkdir(parents=True, exist_ok=True)
+                    except OSError as e:
+                        raise EditorError(f"Can't make the folder {home}: {os_error(e)}") from None
+                with tempfile.TemporaryDirectory(prefix="audiodiver-import-", ignore_cleanup_errors=True) as tmp:
+                    placed = [f.place(key, Path(tmp) / str(n)) for n, key in enumerate(keys)]
+                    read = self._import_read(job, placed, home, made)
+                lines = picked(read.lines)
+                self._something_in(read.reads, read.lines, lines, read.failed, f.source.name)
+                if not new:
+                    if not self.project or self.project.path != audi:
+                        raise EditorError("Another project was opened during the import. Open this project again and "
+                                          "import again.")
+                    count = {}
+
+                    def apply(proj):  # as import_patch
+                        if mode == "replace":
+                            self._without_audio(proj)
+                        count["added"] = self._put_import(proj, read, lines, tabs)
+                    self._edit("import", apply)
+                    return self._import_result(read, count["added"], lines, audi, home)
+                p = Project(name=name, path=audi, library=[], tabs=tabs, description=f.description,
+                            **({"guid": f.guid} if keep_id and f.guid else {}))
+                if icon and f.icon:  # beside the project file, under a plain name (any image of that name stays)
+                    ext, n = PurePosixPath(f.icon).suffix.lower(), 2
+                    to = home / f"icon{ext}"
+                    while to.exists():
+                        to, n = home / f"icon {n}{ext}", n + 1
+                    try:
+                        to.write_bytes(f.read(f.icon) or b"")
+                        copied.append(to)
+                        icon_png(to)  # an image Audiodiver can read
+                        p.icon = {"image": to.name}
+                    except (OSError, ValueError) as e:
+                        to.unlink(missing_ok=True)
+                        left.append(f"the icon ({os_error(e) if isinstance(e, OSError) else e})")
+                with self.lock:
+                    added = self._put_import(p, read, lines)
+                    self._tidy(p)
+                    self._tidy_cues(p)
+                    self._cover(p)
+                if audi.exists():  # made meanwhile: that project stays, and only what this import made goes
+                    fresh = False
+                    raise EditorError(f"{audi.name} already exists in {home}")
+                p.save()
+            except BaseException:
+                if new and fresh:
+                    shutil.rmtree(home, ignore_errors=True)
+                elif new:
+                    for d in made:
+                        shutil.rmtree(d, ignore_errors=True)
+                    for c in copied:
+                        c.unlink(missing_ok=True)
+                    for d in (home / "audio" / "imported", home / "audio"):
+                        try:
+                            d.rmdir()  # only an empty one
+                        except OSError:
+                            pass
+                raise
+            with self.lock:  # opened, as open_project leaves it: the window reads project_state
+                try:
+                    self.flush()
+                except EditorError:
+                    raise EditorError(f"The new project is in {home}. It wasn't opened, because the open project "
+                                      f"couldn't be saved.") from None
+                self.project, self.undo_stack, self.redo_stack = p, [], []
+                self.revision += 1
+            save_settings(projects_folder=str(home.parent))  # the next new project is offered the same place
+            job.say(f"project {audi}")
+            return self._import_result(read, added, lines, audi, home, left)
+        return self._start("import", run, title=name if new else f.name or f.source.name)
 
     # --- repatching (repatch.py): an existing mod rebuilt on the game as it is now
     @staticmethod
@@ -3213,129 +3544,30 @@ class Session:
         return self._edit("playlist", apply)
 
     def export(self, cue_id, folder, what="segments", whose="game", fmt="wav", sources=None, variants=None,
-               all_variants=False, loops=1, tails=True, title=None):
-        """Exports a cue's audio to folder as a background job.
-        what: "slots" (each slot's own audio), "segments" (each segment as the game mixes it) or "cue" (the whole
-        cue played through). whose: "game", "mine" or "both". sources limits slots/segments to those slots."""
-        from . import render
-        self.require_game()
-        if what not in ("slots", "segments", "cue") or whose not in ("game", "mine", "both"):
-            raise EditorError("Unknown export choice")
-        if fmt not in render.FORMATS or fmt == "preview":
-            raise EditorError(f"Unknown format {fmt}")
-        if whose != "game":
-            self._need_project()
-        detail = self.cue(cue_id, mine=whose != "game")
-        if detail["kind"] in ("sounds", "sound") and what != "slots":
-            raise EditorError("A bank's sounds export one by one, because there are no segments to mix")
-        folder, loops = out_folder(folder), loop_count(loops)
-        only = {int(s) for s in sources} if sources else None
-        chosen = choices(variants)
-        ext = render.FORMATS[fmt][0]
-        # "Weapons - AC-8 Autocannon": where it is in the Library, a name said once
-        # the names the Library shows when the window sends them ("Before the Drop - Loadout Selection")
-        title = (title.strip() if isinstance(title, str) and title.strip() else
-                 " - ".join(dict.fromkeys(x for x in [*detail["path"], detail["name"]] if x)))
-        album = f"Helldivers 2 - {title}"
+               all_variants=False, loops=1, tails=True, title=None, names="full", fight_ms=None):
+        """Exports a cue's audio to folder as a background job: export_list with this one entry, written straight
+        into folder. what: "slots" (each slot's own audio), "segments" (each segment as the game mixes it), "cue"
+        (the whole cue played through) or "fight" (one fight as the game plays it). whose: "game", "mod" (as the
+        mod plays it) or "both". sources limits slots and segments to those slots."""
+        return self.export_list([{"cue": cue_id, "sources": sources or [], "name": title, "what": what, "whose": whose,
+                                  "variants": variants, "all_variants": all_variants, "loops": loops, "tails": tails,
+                                  "fight_ms": fight_ms}], folder, fmt=fmt, apart=False, names=names)
 
-        seg_names = {s["segment"]: s["name"] for s in detail["segments_detail"]}
-
-        def run(job):
-            folder.mkdir(parents=True, exist_ok=True)
-            used, files = set(), []
-            sides = ["game", "mine"] if whose == "both" else [whose]
-            job.step("Getting ready")
-
-            def target(stem):
-                stem = _filename(stem)
-                name, n = stem, 2
-                while name.lower() in used:
-                    name, n = f"{stem} {n}", n + 1
-                used.add(name.lower())
-                return folder / f"{name}.{ext}"
-
-            def label(v):
-                return "".join(f" ({self._variant_name(g, x)})" for g, x in sorted(v.items()))
-
-            def pick(groups, limit=64):
-                if all_variants:
-                    return render.variant_sets(groups, limit)
-                return [{g: chosen.get(g, vals[0]) for g, vals in groups.items() if vals}]
-
-            def save(path, audio, n=None):
-                job.check()
-                change = render.write(path, audio, fmt, {"title": path.stem, "album": album, "track": n})
-                job.say(path.name + (f" (turned down {-change:.1f} dB to avoid clipping)" if change else ""))
-                files.append(str(path))
-
-            slots = list(_slots_of(detail)) if what == "slots" else []
-            if what == "slots":
-                job.total, digits = len(sides) * len(slots), max(2, len(str(len(slots))))
-            for side_no, side in enumerate(sides):
-                tag = "original" if side == "game" else "replaced"
-                whose_label = tag
-                if what == "slots":  # each slot's own audio: the same for music and for a bank's sounds
-                    mine = self._mine() if side == "mine" else {}
-                    for n, (seg, sl) in enumerate(slots, 1):
-                        sid = int(sl["source"])
-                        job.step(f"{seg['name']} ({whose_label})", job.done + 1)
-                        if (only and sid not in only) or (side == "mine" and sid not in mine) or \
-                                (side == "game" and (sl.get("absent") or sl.get("added"))):  # a new take: no original
-                            continue
-                        path = target(_slot_stem(title, n, digits, seg, sl, tag))
-                        src = mine[sid].path if side == "mine" else self.vanilla_wav(sid)
-                        render.transcode(src, path, fmt, {"title": path.stem, "album": album, "track": n})
-                        job.say(path.name)
-                        files.append(str(path))
-                    continue
-                r = self._renderer(cue_id, side)
-                if what == "segments":
-                    job.total = len(sides) * len(r.segments)
-                    for n, (seg_id, seg) in enumerate(r.segments.items(), 1):
-                        job.step(f"{seg_names.get(str(seg_id), 'segment')} ({whose_label})",
-                                 side_no * len(r.segments) + n - 1)
-                        if only and not only & {sl["source"] for st in seg["stems"] for sl in st["slots"]}:
-                            continue
-                        name = next(s["name"] for s in detail["segments_detail"] if s["segment"] == str(seg_id))
-                        for v in pick(r.switch_groups(seg_id)):
-                            plan = r.plan(seg_id, v)
-                            if side == "mine" and whose == "both" and not plan.changed:
-                                continue  # the same as the game's, which is exported already
-                            if not plan.clips:
-                                continue
-                            audio = r.segment(seg_id, v, plan=plan)
-                            if not tails:
-                                audio = audio[render.frames(plan.entry_ms):render.frames(plan.exit_ms)]
-                            save(target(f"{title} - {n:02d} {name}{label(v)} ({tag})"), audio, n)
-                else:
-                    sets = pick(r.switch_groups(), 16)
-                    for k, v in enumerate(sets):
-                        layout = r.layout(v, int(loops))
-                        plays = len(layout[0])
-                        job.total = len(sides) * len(sets) * (plays + 1)
-                        before = (side_no * len(sets) + k) * (plays + 1)
-
-                        def on_segment(i, count, plan, before=before):
-                            job.step(f"{seg_names.get(str(plan.segment), 'segment')} ({whose_label}), "
-                                     f"{i + 1} of {count}", before + i)
-                        path = target(f"{title}{label(v)} ({tag})")
-                        pieces = r.stream(v, int(loops), layout, on_segment)
-                        change = render.write(path, _then(pieces, lambda: job.step(
-                            f"Writing {path.name}", before + plays)), fmt, {"title": path.stem, "album": album})
-                        job.say(path.name + (f" (turned down {-change:.1f} dB to avoid clipping)" if change else ""))
-                        files.append(str(path))
-            if not files:
-                # the job's notice reads "Export failed: …"
-                raise EditorError("None of these slots is replaced yet" if whose == "mine" else "There was nothing to export")
-            job.done, job.doing = job.total, ""
-            return {"files": len(files), "folder": str(folder), "first": files[0]}
-
-        def guarded(job):
+    # --- the in-app tutorials (tutorial.py)
+    def tutorial_audio(self, kind):
+        """A file of audio a tutorial puts in slots (tutorial.KINDS), made in the open project's folder
+        (audio/tutorial/<kind>.wav, once) so the project keeps it like any other file. Returns its path."""
+        from . import tutorial
+        p = self._need_project()
+        if kind not in tutorial.KINDS:
+            raise EditorError("Unknown tutorial audio")
+        out = p.path.parent / "audio" / "tutorial" / f"{kind}.wav"
+        if not out.is_file():
             try:
-                return run(job)
-            except (render.RenderError, subprocess.CalledProcessError) as e:
-                raise EditorError(str(e)) from None
-        return self._start("export", guarded, title)
+                tutorial.write(out, kind)
+            except OSError as e:
+                raise EditorError(f"Can't write {out.name}: {os_error(e)}") from None
+        return str(out)
 
     # --- the game's text (strings.py): subtitles and every other line, in each language
     def _texts(self):
@@ -3448,76 +3680,231 @@ class Session:
             p.texts = [t for t in p.texts if (t.table, t.id) not in gone]
         return self._edit("text", apply)
 
-    def export_list(self, entries, folder, whose="game", fmt="wav", apart=True):
-        """Exports the export list, what the user collected from anywhere in the Library and the Editor, as one
-        background job. Each entry is a cue (a bank's sounds, a piece of music's slots), optionally only some of its
-        slots ("sources"), and a "name". Every slot's own audio is saved as it is, as "Each slot" does; apart: one
-        folder per entry, named after it, else all in folder."""
+    def _export_entry(self, e, whose="game") -> dict:
+        """One entry of an export as the window sends it, checked and filled in: the cue's slots as the Library or the
+        Audio tab lists them (detail), the name that names its folder and starts its files' names (title), what to
+        write and which audio ("mine", the name before "mod", still reads)."""
+        if not isinstance(e, dict) or isinstance(e.get("cue"), bool) or not isinstance(e.get("cue"), (str, int)):
+            raise EditorError("The export list can't be read. Clear it and add the items again.")
+        what, side = e.get("what") or "slots", e.get("whose") or whose
+        side = "mod" if side == "mine" else side
+        if what not in ("slots", "segments", "cue", "fight") or side not in ("game", "mod", "both"):
+            raise EditorError("Unknown export choice")
+        if side != "game":
+            self._need_project()
+        detail = self.cue(e["cue"], mine=side != "game")
+        if detail["kind"] in ("sounds", "sound") and what != "slots":
+            raise EditorError("A bank's sounds export one by one, because there are no segments to mix")
+        sources = e.get("sources") or ()
+        if not isinstance(sources, (list, tuple)):
+            raise EditorError("The slots to export are a list of source IDs")
+        try:
+            fight_ms = max(10_000.0, min(600_000.0, float(e.get("fight_ms") or 180_000)))
+        except (TypeError, ValueError):
+            raise EditorError("A fight's length is in milliseconds") from None
+        # the name the window sends ("AR-23 Liberator", or one typed on the list), else where the cue is
+        title = (str(e.get("name") or "").strip()
+                 or " - ".join(dict.fromkeys(x for x in [*detail["path"], detail["name"]] if x)))
+        return {"cue": str(e["cue"]), "detail": detail, "title": title, "what": what, "whose": side,
+                "only": {str(s) for s in sources}, "tails": e.get("tails", True) is not False,
+                "loops": loop_count(e.get("loops", 1)), "variants": choices(e.get("variants")),
+                "all_variants": bool(e.get("all_variants")), "fight_ms": fight_ms}
+
+    def _export_files(self, e, names, mine, renderer) -> list[tuple[str, tuple]]:
+        """The files an entry writes, in order, as (name without extension, what goes in it): ("slot", side, source,
+        track number), ("segment", side, segment, variants, track number), ("cue", side, variants) or ("fight", side,
+        variants). No audio is read: the names come from the cue and the project alone, so the Export panel can show
+        them before anything is written (export_preview). A slot keeps its number in the whole list whichever slots
+        are exported, and the Original and the replaced version of one slot or segment sit side by side."""
+        from . import render
+        what, whose, title = e["what"], e["whose"], e["title"]
+        sides = ["game", "mod"] if whose == "both" else [whose]
+        tag = {"game": " (original)", "mod": " (replaced)"} if whose == "both" else {"game": "", "mod": ""}
+        lead = f"{title} - " if names == "full" else ""
+        out = []
+        if what == "slots":
+            slots = list(_slots_of(e["detail"]))
+            digits = max(2, len(str(len(slots))))
+            for n, (seg, sl) in enumerate(slots, 1):
+                sid = int(sl["source"])
+                if e["only"] and str(sid) not in e["only"]:
+                    continue
+                for side in sides:
+                    replaced = side == "mod" and sid in mine
+                    if not replaced and (sl.get("absent") or sl.get("added")):
+                        continue  # nothing in the game files to write: a new take has no Original
+                    if side == "mod" and whose == "both" and not replaced:
+                        continue  # the same as the Original beside it
+                    stem = str(sid) if names == "ids" else f"{lead}{n:0{digits}d} {_slot_name(seg, sl)}"
+                    out.append((stem + tag[side], ("slot", side, sid, n)))
+            return out
+
+        def label(v):
+            return "".join(f" ({self._variant_name(g, x)})" for g, x in sorted(v.items()))
+
+        def pick(groups, limit):
+            if e["all_variants"]:
+                return render.variant_sets(groups, limit)
+            return [{g: e["variants"].get(g, vals[0]) for g, vals in groups.items() if vals}]
+        if what == "segments":
+            named = {s["segment"]: s["name"] for s in e["detail"]["segments_detail"]}
+            first = renderer(e["cue"], sides[0])
+            for n, (seg_id, seg) in enumerate(first.segments.items(), 1):
+                if e["only"] and not e["only"] & {str(sl["source"]) for st in seg["stems"] for sl in st["slots"]}:
+                    continue
+                if not any(st["clips"] for st in seg["stems"]):
+                    continue
+                for v in pick(first.switch_groups(seg_id), 64):
+                    for side in sides:
+                        if side == "mod" and whose == "both" and not _changed(renderer(e["cue"], side), seg_id, seg):
+                            continue  # the same as the Original beside it
+                        out.append((f"{lead}{n:02d} {named.get(str(seg_id), 'Segment')}{label(v)}{tag[side]}",
+                                    ("segment", side, seg_id, v, n)))
+            return out
+        if what == "cue":
+            for v in pick(renderer(e["cue"], sides[0]).switch_groups(), 16):
+                for side in sides:
+                    out.append((f"{title}{label(v)}{tag[side]}", ("cue", side, v)))
+            return out
+        v = {g: e["variants"].get(g, vals[0]) for g, vals in renderer(e["cue"], sides[0]).switch_groups().items() if vals}
+        minutes = round(e["fight_ms"] / 60_000, 1)
+        return [(f"{title} - Fight ({minutes:g} min){label(v)}{tag[side]}", ("fight", side, v)) for side in sides]
+
+    def _export_renderers(self):
+        """A renderer per cue and side for one export or preview (side "mod" renders the mod's version)."""
+        made = {}
+
+        def renderer(cue, side):
+            if (cue, side) not in made:
+                made[(cue, side)] = self._renderer(cue, "mine" if side == "mod" else side)
+            return made[(cue, side)]
+        return renderer
+
+    def export_preview(self, entries, fmt="wav", names="full", apart=True, limit=8):
+        """What export_list would write, without writing anything: {folders: [{name, files (the first `limit`, with
+        their extension), total, error}], total}. The Export panel shows it while the choices change; an entry that
+        can't be exported says why in its folder."""
         from . import render
         self.require_game()
-        if whose not in ("game", "mine", "both"):
-            raise EditorError("Unknown export choice")
-        if fmt not in render.FORMATS or fmt == "preview":
-            raise EditorError(f"Unknown format {fmt}")
-        if whose != "game":
-            self._need_project()
-        if not isinstance(entries, list) or not all(isinstance(e, dict) and "cue" in e for e in entries):
+        if not isinstance(entries, list):
             raise EditorError("The export list can't be read. Clear it and add the items again.")
-        plan = []  # (folder name, title, [(segment, slot)])
-        for e in entries:
-            detail = self.cue(e["cue"], mine=whose != "game")
-            only = {str(s) for s in e.get("sources") or ()}
-            # the name it has on the list (the Index's, or one typed) names its folder and starts its files' names
-            title = str(e.get("name") or "").strip() or " - ".join(dict.fromkeys(x for x in [*detail["path"], detail["name"]] if x))
-            plan.append((_filename(title), title,
-                         [(seg, sl) for seg, sl in _slots_of(detail) if not only or str(sl["source"]) in only]))
-        if not any(slots for *_, slots in plan):
+        ext = "wem" if fmt == "wem" else render.FORMATS.get(fmt, ("wav",))[0]
+        names = names if names in ("full", "short", "ids") else "full"
+        renderer, folders = self._export_renderers(), []
+        mine = None
+        for raw in entries:
+            try:
+                e = self._export_entry(raw)
+                if mine is None and e["whose"] != "game":
+                    mine = self._mine()
+                files = self._export_files(e, names, mine or {}, renderer)
+            except EditorError as err:
+                name = raw.get("name") if isinstance(raw, dict) else ""
+                folders.append({"name": _filename(str(name or "Export")), "files": [], "total": 0, "error": str(err)})
+                continue
+            folders.append({"name": _filename(e["title"]), "files": [f"{_filename(s)}.{ext}" for s, _ in files[:limit]],
+                            "total": len(files)})
+        return {"folders": folders, "total": sum(f["total"] for f in folders)}
+
+    def export_list(self, entries, folder, whose="game", fmt="wav", apart=True, names="full"):
+        """Exports entries (the export list, or the open item from the Export panel) as one background job. Each entry
+        is a cue (a bank's sounds, a piece of music), optionally only some of its slots ("sources"), a "name" (its
+        folder's, and the start of its files' names), what to write ("what": slots, segments, cue or fight; slots when
+        not given) and which audio ("whose": game, mod or both; `whose` when not given), with a segment's lead-in and
+        ring-out ("tails"), how many times a whole piece plays the part that repeats ("loops"), its variants, and a
+        fight's length ("fight_ms"). apart: a folder for each entry, named after it, else all in folder. names: "full"
+        (the entry's name, a number, the sound or segment), "short" (without the entry's name) or "ids" (a slot by its
+        source ID). fmt "wem" writes the game's own files of the Original, slot by slot. "mod" writes new audio where
+        a slot has some and the Original elsewhere, each at the Make-Up Gain the mod gives it."""
+        from . import render
+        self.require_game()
+        if fmt not in (*render.FORMATS, "wem") or fmt == "preview":
+            raise EditorError(f"Unknown format {fmt}")
+        if names not in ("full", "short", "ids"):
+            raise EditorError("File names are full, short or source IDs")
+        if not isinstance(entries, list) or not entries:
             raise EditorError("The export list is empty")
-        folder, ext = out_folder(folder), render.FORMATS[fmt][0]
-        sides = ["game", "mine"] if whose == "both" else [whose]
+        checked = [self._export_entry(e, whose) for e in entries]
+        if fmt == "wem" and any(e["what"] != "slots" or e["whose"] != "game" for e in checked):
+            raise EditorError("WEM files are the Original, slot by slot. Choose another format for the rest.")
+        folder = out_folder(folder)
+        ext = "wem" if fmt == "wem" else render.FORMATS[fmt][0]
+        modded = any(e["whose"] != "game" for e in checked)
+        p = self.project if modded else None
+        originals = {self._target(t): db for t, db in p.gains.items()} if p else {}
 
         def run(job):
-            mine = self._mine() if whose != "game" else {}
-            # what is written: the original of a slot the game's files have audio for, the new audio of a replaced one
-            heard = lambda side, sl: int(sl["source"]) in mine if side == "mine" else not (sl.get("absent") or sl.get("added"))
-            job.total = sum(heard(side, sl) for *_, slots in plan for side in sides for _, sl in slots)
-            absent = sum(bool(sl.get("absent")) for *_, slots in plan for _, sl in slots) if "game" in sides else 0
+            mine = self._mine() if modded else {}
+            renderer = self._export_renderers()
             job.step("Getting ready")
-            used, files = set(), []
-            for name, title, slots in plan:
-                where = folder / name if apart else folder
+            plan = [(e, folder / _filename(e["title"]) if apart else folder, self._export_files(e, names, mine, renderer))
+                    for e in checked]
+            if not any(files for *_, files in plan):
+                raise EditorError("There was nothing to export")  # the job's notice reads "Export failed: …"
+            # the slots the game files have no audio for: why fewer files came out than the list counts
+            absent = sum(bool(sl.get("absent")) for e in checked if e["what"] == "slots" and e["whose"] != "mod"
+                         for _, sl in _slots_of(e["detail"]) if not e["only"] or str(sl["source"]) in e["only"])
+            job.total = 100 * sum(len(files) for *_, files in plan)
+            used, written = set(), []
+
+            def unique(where, stem):
+                stem = base = _filename(stem)
+                k = 2
+                while str(where / stem).lower() in used:  # the same slot listed twice into one folder
+                    stem, k = f"{base} {k}", k + 1
+                used.add(str(where / stem).lower())
+                return where / f"{stem}.{ext}"
+            for e, where, files in plan:
                 where.mkdir(parents=True, exist_ok=True)
-                digits = max(2, len(str(len(slots))))
-                for side in sides:
-                    tag = "original" if side == "game" else "replaced"
-                    for n, (seg, sl) in enumerate(slots, 1):
-                        sid = int(sl["source"])
-                        if not heard(side, sl):
-                            continue
-                        job.step(f"{name}: {seg['name']}", job.done + 1)
-                        stem = base = _filename(_slot_stem(title, n, digits, seg, sl, tag))
-                        k = 2
-                        while str(where / stem).lower() in used:  # the same slot listed twice into one folder
-                            stem, k = f"{base} {k}", k + 1
-                        used.add(str(where / stem).lower())
-                        path = where / f"{stem}.{ext}"
-                        job.check()
-                        src = mine[sid].path if side == "mine" else self.vanilla_wav(sid)
-                        render.transcode(src, path, fmt, {"title": path.stem, "album": f"Helldivers 2 - {title}", "track": n})
+                album = f"Helldivers 2 - {e['title']}"
+                seg_names = {s["segment"]: s["name"] for s in e["detail"]["segments_detail"]}
+                for stem, how in files:
+                    job.check()
+                    path, base = unique(where, stem), 100 * len(written)
+                    kind, side = how[0], how[1]
+                    job.step(path.stem, base)
+                    if kind == "slot":
+                        sid, n = how[2], how[3]
+                        if fmt == "wem":
+                            path.write_bytes(self.ix.wem(sid))
+                        else:
+                            m = mine.get(sid) if side == "mod" else None
+                            gain = m.gain_db if m else originals.get(sid, 0.0) if side == "mod" else 0.0
+                            render.transcode(m.path if m else self.vanilla_wav(sid), path, fmt,
+                                             {"title": path.stem, "album": album, "track": n}, gain_db=gain)
                         job.say(path.name)
-                        files.append(str(path))
-            if not files:
-                # the job's notice reads "Export failed: …"
-                raise EditorError("None of these slots is replaced yet" if whose == "mine" else "There was nothing to export")
+                    else:
+                        r = renderer(e["cue"], side)
+                        if kind == "segment":
+                            seg_id, v, n = how[2], how[3], how[4]
+                            plan_ = r.plan(seg_id, v)
+                            audio = r.segment(seg_id, v, plan=plan_)
+                            if not e["tails"]:
+                                audio = audio[render.frames(plan_.entry_ms):render.frames(plan_.exit_ms)]
+                            change = render.write(path, audio, fmt, {"title": path.stem, "album": album, "track": n})
+                        else:
+                            v, fight = how[2], kind == "fight"
+                            order = self._fight(r, "mine" if side == "mod" else side, {"ms": e["fight_ms"]})[0] if fight else None
+                            loops = 1 if fight else e["loops"]
+                            layout = r.layout(v, loops, order)
+
+                            def on_segment(i, count, seg_plan, base=base):
+                                job.step(f"{seg_names.get(str(seg_plan.segment), 'segment')}, {i + 1} of {count}",
+                                         base + int(90 * i / max(1, count)))
+                            pieces = _then(r.stream(v, loops, layout, on_segment),
+                                           lambda base=base, name=path.name: job.step(f"Writing {name}", base + 90))
+                            change = render.write(path, pieces, fmt, {"title": path.stem, "album": album})
+                        job.say(path.name + (f" (turned down {-change:.1f} dB to avoid clipping)" if change else ""))
+                    written.append(str(path))
             job.done, job.doing = job.total, ""
-            return {"files": len(files), "folder": str(folder), "first": files[0], "absent": absent}
+            return {"files": len(written), "folder": str(folder), "first": written[0], "absent": absent}
 
         def guarded(job):
             try:
                 return run(job)
             except (render.RenderError, subprocess.CalledProcessError) as e:
                 raise EditorError(str(e)) from None
-        return self._start("export", guarded, "the export list")
+        return self._start("export", guarded, checked[0]["title"] if len(checked) == 1 else "the export list")
 
 
 def _slots_of(detail):
@@ -3533,12 +3920,20 @@ def _slots_of(detail):
                 yield seg, sl
 
 
-def _slot_stem(title, n, digits, seg, sl, tag):
-    """A slot's exported file name: where it is, its place in the list, its segment or group, the take (a take is told
-    apart by its label: "Take 3", or what a voice line says), its variant, and whose audio it is."""
+def _slot_name(seg, sl) -> str:
+    """A slot as an exported file names it: its segment or group, the take (told apart by its label: "Take 3", or
+    what a voice line says) and its variant."""
     var = f" ({sl['variant'].split(': ', 1)[-1]})" if sl["variant"] else ""
     take = sl["label"] if seg.get("group") and sl["label"] not in seg["name"] else ""
-    return f"{title} - {n:0{digits}d} {seg['name']}{' ' + take if take else ''}{var} ({tag})"
+    return f"{seg['name']}{' ' + take if take else ''}{var}"
+
+
+def _changed(r, seg_id, seg) -> bool:
+    """Whether the mod plays a segment otherwise than the game (render.SegmentPlan.changed), from the renderer's
+    settings alone, without reading any audio: new audio or a gain on a slot, a level on a track, moved cue points."""
+    return bool(r.overrides.get(seg_id)) or any(sl["source"] in r.mine or r.originals.get(sl["source"])
+                                                for st in seg["stems"] for sl in st["slots"]) \
+        or any(r.levels.get(st["track"]) for st in seg["stems"])
 
 
 def _then(pieces, after):
@@ -3653,6 +4048,31 @@ def project_icon(path) -> bytes:
         return icon_bytes(Project.load(f))
     except (OSError, ValueError, BuildError) as e:  # ValueError: not a project, or a newer one
         raise EditorError(f"{f.name}: {os_error(e) if isinstance(e, OSError) else e}") from None
+
+
+# the media types of the images a mod's manifest can name as the icon (repatch.IMAGE_TYPES)
+IMAGE_MEDIA = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp",
+               ".bmp": "image/bmp", ".gif": "image/gif"}
+
+
+def mod_icon(path) -> tuple[bytes, str]:
+    """The image a mod's manifest names as the mod's icon (Import Mod shows it), as it is, and its media type. Only
+    a mod (a ZIP, a folder or a patch file) is read, and of it only the image the manifest names among the mod's
+    own files."""
+    from .repatch import RepatchError, scan
+    f = Path(str(path))
+    if not f.is_absolute() or not f.exists():
+        raise EditorError(f"{f} wasn't found")
+    try:
+        found = scan(f)
+        data = found.read(found.icon) if found.icon else None
+    except RepatchError as e:
+        raise EditorError(str(e)) from None
+    except OSError as e:
+        raise EditorError(f"Can't read {f.name}: {os_error(e)}") from None
+    if not data:
+        raise EditorError(f"{f.name} has no icon")
+    return data, IMAGE_MEDIA.get(PurePosixPath(found.icon).suffix.lower(), "application/octet-stream")
 
 
 # What Audiodiver keeps on disk to save time, by what it costs to lose: previews are made again as you listen,

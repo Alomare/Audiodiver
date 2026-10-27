@@ -5,6 +5,7 @@ import { JOB_NAMES } from "./jobs";
 import { nav } from "./nav";
 import { NoProjectCard, Page, useDraft } from "./Page";
 import { pickFolder, reveal } from "./platform";
+import { IconPreview } from "./ProjectTab";
 import { settings, useSettings } from "./settings";
 import { useEditor } from "./store";
 import { Help } from "./Wiki";
@@ -19,8 +20,9 @@ function versionProblem(v: string): string | null {
   return /^\s*\d+\s*$/.test(v) && Number(v) >= 1 && Number(v) <= 99999 ? null : "A whole number from 1 to 99999.";
 }
 
-/** The Build tab: the open project's next version, how the ZIP is made, and what builds logged. The mod's name, icon
-    and id are on the Project tab; Repatch and Combine Mods on Tools. */
+/** The Build tab: the open project's next version, how the ZIP is made, and what builds logged, with the icon as the
+    mod manager shows it over the Build button. The mod's name, icon and id are set on the Project tab; Repatch and
+    Combine Mods are on Tools. */
 export function BuildTab() {
   const { project } = useEditor();
   return (
@@ -32,7 +34,7 @@ export function BuildTab() {
 }
 
 function BuildPage() {
-  const { project, actions } = useEditor();
+  const { project, actions, revision } = useEditor();
   const p = project!;
   // what is on disk now: a file deleted since the last edit is a problem here at once
   useEffect(() => { actions.refresh(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -66,6 +68,7 @@ function BuildPage() {
       </div>
 
       <aside className="bld-side">
+        <IconPreview bust={String(revision)} name={p.name} description={p.description} />
         <BuildBox />
       </aside>
     </div>

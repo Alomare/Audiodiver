@@ -339,6 +339,32 @@ def test_a_set_renamed_in_the_index_is_found_by_its_old_name(session, tmp_path):
 
 
 @pytest.mark.game
+def test_seaf_and_civilian_voices_are_two_sets(session, tmp_path):
+    """The SEAF's voice lines and the civilians' are two banks in each language (Mission_SEAF_VO, Mission_Civilian_VO)
+    with no clip in common, so two sets, and an archive with both banks is named after both. A project that listed
+    the civilians' voices as "Civilians", or the SEAF's as "SEAF Soldier" (from before the bank had a known name),
+    finds them under the new names."""
+    s = session
+    it = _items(s)
+    civ, seaf = it["set:allies/civilians/civilian-voices"], it["set:allies/civilians/seaf-voices"]
+    banks = lambda item: [int(p["cue"][5:]) for p in item["parts"]]
+    assert {s.lib.bank_names[b] for b in banks(civ)} == {"Mission_Civilian_VO"}
+    assert {s.lib.bank_names[b] for b in banks(seaf)} == {"Mission_SEAF_VO"}
+    clips = lambda item: {x for b in banks(item) for x in s.lib.sources(b)}
+    assert clips(civ) and clips(seaf) and not clips(civ) & clips(seaf)
+    archives = lambda item: {a for b in banks(item) for a in s.ix.banks[b]["archives"]}
+    for a in archives(civ) & archives(seaf):
+        names = next(r["names"] for r in s.archives() if r["id"] == a)
+        assert any(n.startswith("Civilian Voices") for n in names) and any(n.startswith("SEAF Voices") for n in names)
+    assert s.lib.home(next(iter(clips(seaf)))) == seaf["id"] and s.lib.home(next(iter(clips(civ)))) == civ["id"]
+    old = Project(name="Voices", path=tmp_path / "v.audi",
+                  library=["set:allies/civilians/civilians", "set:allies/civilians/seaf-soldier"])
+    old.save()
+    st = s.open_project(tmp_path / "v.audi")
+    assert st["library"] == [civ["id"], seaf["id"]] and st["library_missing"] == []
+
+
+@pytest.mark.game
 def test_weapons_by_loadout_slot_keep_the_ids_projects_listed(session, tmp_path):
     """Weapons was one section once. Its sets are in their loadout slots now, some under their in-game names and
     some in other categories, and a project that listed one by its id of that time still finds it."""
@@ -413,8 +439,8 @@ def test_a_banks_sounds_export_one_file_each(session, tmp_path):
     done = s.job(job["id"])
     assert done["state"] == "done" and done["result"]["files"] == 2, done
     names = sorted(f.name for f in (tmp_path / "out").iterdir())
-    assert names == ["Weapons - Support Weapons - AC-8 Autocannon - 001 Sound 1 Take 1 (original).wav",
-                     "Weapons - Support Weapons - AC-8 Autocannon - 002 Sound 1 Take 2 (original).wav"]
+    assert names == ["Weapons - Support Weapons - AC-8 Autocannon - 001 Sound 1 Take 1.wav",
+                     "Weapons - Support Weapons - AC-8 Autocannon - 002 Sound 1 Take 2.wav"]
 
 
 @pytest.mark.game
@@ -431,11 +457,66 @@ def test_the_export_list_exports_what_was_collected_from_several_places(session,
     assert done["state"] == "done", done
     folders = {f.name: sorted(x.name for x in f.iterdir()) for f in tmp_path.iterdir()}
     # the entry's name on the list names its folder and starts its files' names (":" can't be in a name)
-    assert folders["Autocannon first"] == ["Autocannon first - 01 Sound 1 Take 1 (original).flac"]
-    assert folders["Second"] == ["Second - 01 Sound 1 Take 2 (original).flac"]
+    assert folders["Autocannon first"] == ["Autocannon first - 001 Sound 1 Take 1.flac"]
+    assert folders["Second"] == ["Second - 002 Sound 1 Take 2.flac"]
     assert len(folders["Loadout"]) == 15 and done["result"]["files"] == 17  # no sources: all of it
     with pytest.raises(EditorError, match="empty"):
         s.export_list([], str(tmp_path))
+
+
+@pytest.mark.game
+def test_the_export_preview_names_the_files_an_export_writes(session, tmp_path):
+    """The Export panel's preview: each entry's files, named as export_list writes them (full names, short names or
+    source IDs), and why an entry can't be exported. WEM files are the game's own, byte for byte."""
+    import time
+    s = session
+    rows = _rows(s.cue(AUTOCANNON))
+    two = [rows[0]["source"], rows[1]["source"]]
+    entry = {"cue": AUTOCANNON, "sources": two, "name": "Cannon"}
+    assert s.export_preview([entry])["folders"] == [
+        {"name": "Cannon", "files": ["Cannon - 001 Sound 1 Take 1.wav", "Cannon - 002 Sound 1 Take 2.wav"], "total": 2}]
+    assert s.export_preview([entry], names="short", fmt="flac")["folders"][0]["files"] == ["001 Sound 1 Take 1.flac",
+                                                                                           "002 Sound 1 Take 2.flac"]
+    assert s.export_preview([entry], names="ids", fmt="wem")["folders"][0]["files"] == [f"{x}.wem" for x in two]
+    loadout = {"cue": "716451767", "sources": [], "name": "Loadout"}
+    assert s.export_preview([{**loadout, "what": "cue"}])["folders"][0]["files"] == ["Loadout.wav"]
+    segs = s.export_preview([{**loadout, "what": "segments"}], limit=2)["folders"][0]
+    assert segs["total"] == 15 and segs["files"][0] == "Loadout - 01 Loadout Start.wav"
+    bad = s.export_preview([{**entry, "what": "segments"}])
+    assert bad["total"] == 0 and "one by one" in bad["folders"][0]["error"]
+    with pytest.raises(EditorError, match="WEM"):
+        s.export_list([{**loadout, "what": "segments"}], str(tmp_path), fmt="wem")
+    job = s.export_list([entry], str(tmp_path / "wem"), fmt="wem", names="ids", apart=False)
+    while s.job(job["id"])["state"] == "running":
+        time.sleep(0.1)
+    assert s.job(job["id"])["state"] == "done"
+    for x in two:
+        assert (tmp_path / "wem" / f"{x}.wem").read_bytes() == s.ix.wem(int(x))
+
+
+@pytest.mark.game
+def test_an_export_as_the_mod_plays_it_has_new_audio_where_a_slot_has_some(session, own, tmp_path):
+    """As the mod plays it (whose "mod"): every slot, the new audio where a slot has some, the Original elsewhere;
+    Both: the replaced version beside the Original, each tagged."""
+    import time
+    s = session
+    gun, bank, sound = own
+    s.new_project(tmp_path / "p.audi", "P")
+    s.library_add([gun])
+    s.assign(sound, str(_wav(tmp_path / "a.wav")))
+    entry = {"cue": bank, "sources": [], "name": "Gun"}
+    original = s.export_preview([entry], limit=1000)["folders"][0]
+    mod = s.export_preview([{**entry, "whose": "mod"}], limit=1000)["folders"][0]
+    both = s.export_preview([{**entry, "whose": "both"}], limit=1000)["folders"][0]
+    assert mod["files"] == original["files"]  # the same names: one of them now holds the new audio
+    assert both["total"] == original["total"] + 1 and sum(f.endswith("(replaced).wav") for f in both["files"]) == 1
+    job = s.export_list([{**entry, "whose": "both", "sources": [sound]}], str(tmp_path / "out"), fmt="flac")
+    while s.job(job["id"])["state"] == "running":
+        time.sleep(0.1)
+    assert s.job(job["id"])["state"] == "done", s.job(job["id"])
+    names = sorted(f.name for f in (tmp_path / "out" / "Gun").iterdir())
+    assert len(names) == 2 and names[0].endswith("(original).flac") and names[1].endswith("(replaced).flac")
+    s.close_project()
 
 
 @pytest.mark.game

@@ -64,6 +64,10 @@ Each line has the original on the left and the new audio on the right, each with
 
 The round buttons at the top play a whole fight, the grey one with the original music and the yellow one with the project's order and audio. **Fight length** sets how long the fight lasts. The fight ends with the segment playing at that time, and **Next Fight** goes on from there. For music outside combat these are **Plays for** and **Play Again**. While a fight plays, a bar shows where it is (click it to move there), and the segment playing lights up and is selected, so the waveforms follow the fight. A line under the bar lists the segments of the fight in the order they played.
 
+## Exporting
+
+{icon:export} **Export** on the bar above the music saves the piece as audio files ([Exporting](wiki:reading-the-screen#exporting)). **The Whole Piece** plays it through once, and **A Fight** records a fight as the round buttons play one, for the length set in minutes. Each export of a fight is a new fight. **Each Segment** and **Each Slot** save the parts. With **As the Mod Plays It**, the export follows the mode, the songs and the level set here.
+
 {icon:header} and {icon:waves} at the end of that bar hide or show the header and the waveforms. Drag the edges under the header, above the waveforms and beside the list to resize them. **Slots**, beside the name of the music, opens it in the [Audio](app:editor) tab.
 
 ## Play order

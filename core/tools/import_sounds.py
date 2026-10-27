@@ -104,7 +104,8 @@ VOICES = [
     ("allies/ship", "Service Technician", "Shiphub_Service_Technician_VO"),
     ("allies/ship", "Hellbot", "Shiphub_Hellbot_VO"),
     ("allies/ship", "PA System and Ship TV", "Ship_Hub"),
-    ("allies/civilians", "Civilians", "Mission_Civilian_VO"),
+    ("allies/civilians", "Civilian Voices", "Mission_Civilian_VO"),
+    ("allies/civilians", "SEAF Voices", "Mission_SEAF_VO"),
     ("allies/training", "General Brasch", "Tutorial_Instructor_VO"),
     ("allies/training", "Training Dummy", "Tutorial_Dummy_VO"),
     ("allies/training", "Training Extraction Pilot", "Tutorial_Extraction_Pilot_VO"),
@@ -159,8 +160,10 @@ PLACED = {
     "music_mission_tutorial": None,
 }
 # names a set had before (renamed by the user): written as its "was", so a project that listed it by the old name
-# finds it under the new one (library.py, Library.renamed)
-WAS = {"Vox Engine": ["Cyborg Siege Engine"], "Game Init": ["Game Start"]}
+# finds it under the new one (library.py, Library.renamed). "SEAF Soldier" was the SEAF's voice while its bank had no
+# known name, found through the archives the community lists it in
+WAS = {"Vox Engine": ["Cyborg Siege Engine"], "Game Init": ["Game Start"], "Civilian Voices": ["Civilians"],
+       "SEAF Voices": ["SEAF Soldier"]}
 # named rows of the Audio tab placed by hand: the community's name -> (section, name)
 RENAMED = {
     "SEAF Exertions": ("allies/civilians", "SEAF Exertions"),
@@ -431,11 +434,11 @@ def main():
         for k, v in entry.items():
             e[k] = sorted(set(e.get(k, [])) | set(v)) if isinstance(v, list) else v
 
+    voiced = lambda tail: any(has_audio(murmur64_hash(f"{PREFIX}{code}/{tail}".encode())) for code in LANGUAGES)
     for section, name, tail in VOICES:
         claimed.add(tail)
-        if any(has_audio(murmur64_hash(f"{PREFIX}{code}/{tail}".encode())) for code in LANGUAGES):
-            add(section, name, voice=tail)
-    seaf = collections.defaultdict(list)       # the one voice whose bank name isn't known: by the archives it is in
+        if voiced(tail):
+            add(section, name, voice=tail, **({"was": WAS[name]} if name in WAS else {}))
     rows = []                                  # (the community's name, section, name shown, archives): things named by archive
     for block, where in zip(blocks, BLOCKS):
         for name, archives in block:
@@ -446,10 +449,7 @@ def main():
                     add(place[0], place[1], banks=[PREFIX + tail], **({"was": WAS[place[1]]} if place[1] in WAS else {}))
                     claimed.add(tail)
                 continue
-            m = SPOKEN.match(name)
-            if m:  # a voice in one language: the VOICES above cover them by bank name, except the SEAF soldiers
-                if m.group(1).startswith("SEAF Soldier"):
-                    seaf[LANGUAGE_NAMES[m.group(2)]] += archives
+            if SPOKEN.match(name):  # a voice in one language: the VOICES above cover them by bank name
                 continue
             if name in DROPPED:
                 continue
@@ -502,20 +502,18 @@ def main():
         add(section, ", ".join(names_), **({"banks": [PREFIX + t for t in named]} if named else {}),
             **({"ids": [str(b) for b in bs if b not in by_id]} if len(named) < len(bs) else {}))
         claimed.update(named)
-    if seaf:
-        add("allies/civilians", "SEAF Soldier", archives_by_language={k: sorted(set(v)) for k, v in sorted(seaf.items())})
     for tail in tails:  # banks nobody listed: placed by their own name, if this game version has them
         if tail not in claimed and in_game(tail) and (place := pretty(tail)):
             add(place[0], place[1], banks=[PREFIX + tail])
             claimed.add(tail)
-    left = [t for t in tails if t not in claimed and t not in PLACED and in_game(t)]
+    # a voice bank (content/audio/<language>/<name>) VOICES doesn't list is left out too: add it there
+    left = [t for t in tails if t not in claimed and t not in PLACED and (in_game(t) or voiced(t))]
     slot_weapons(sections)
 
     out = {"about": "The Index's sound sets (library.py), written by tools/import_sounds.py from the HD2 modding community's "
                     "archive labeling workbook and filediver's name lists. A set is the banks it names: 'banks' by path "
                     "name, 'ids' by file id where the path name isn't known, 'voice' one bank per language "
-                    "(content/audio/<language>/<name>). The one voice without a known name lists the archives the "
-                    "community found it in, per language ('archives_by_language'). 'hue' colours a category's tags.",
+                    "(content/audio/<language>/<name>). 'hue' colours a category's tags.",
            "categories": []}
     for cid, cname, hue, about, secs in CATEGORIES:
         cat = {"id": cid, "name": cname, "hue": hue, "about": about, "sections": []}

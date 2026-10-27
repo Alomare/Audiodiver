@@ -7,6 +7,7 @@ import { Markdown } from "./Markdown";
 import { nav, useNav } from "./nav";
 import { Splitter, useStoredWidth } from "./Resize";
 import { scrollBehavior } from "./theme";
+import { TUTORIALS_PAGE, TutorialsPage } from "./Tutorial";
 
 const NAV_SHARE = 0.25; // the list of guides takes a quarter of the tab to start, the page the rest
 /** The pages the list shows and Previous/Next step through: Audiodiver Utils lists only its own (a link still opens
@@ -24,6 +25,7 @@ export function Wiki() {
   const reader = useRef<HTMLDivElement>(null);
   const article = useRef<HTMLElement>(null);
   const picked = useRef(""); // the heading last clicked in the outline
+  const tutorials = !UTILS && id === TUTORIALS_PAGE; // the page of tutorials, which isn't Markdown (Tutorial.tsx)
   const page = ALL_PAGES.find((p) => p.id === id) ?? WIKI[0];
   const index = WIKI.indexOf(page);
   // the find bar: open, how many times Ctrl+F opened it (each one goes back to its box), and words selected then;
@@ -100,6 +102,13 @@ export function Wiki() {
             }} />
         </div>
         <div className="wiki-list">
+          {!UTILS && (!words.length || words.every((w) => "tutorials walkthroughs".includes(w))) && (
+            <button className={`wiki-faq wiki-tut${tutorials ? " active" : ""}`} aria-current={tutorials ? "page" : undefined}
+              onClick={() => nav.go("wiki", TUTORIALS_PAGE)} data-tip="Walkthroughs that show where to click, one step at a time" data-tip-side="right">
+              <span className="wiki-faq-mark" aria-hidden>▶</span>
+              <b className="wiki-faq-text">Tutorials</b>
+            </button>
+          )}
           {FAQ && faqFound && (
             <button className={`wiki-faq${FAQ.id === page.id ? " active" : ""}`} aria-current={FAQ.id === page.id ? "page" : undefined}
               onClick={() => openFound(FAQ.id)} data-tip={FAQ.summary} data-tip-side="right">
@@ -111,7 +120,7 @@ export function Wiki() {
             <div key={g.name} className="wiki-group">
               <h2>{g.name}</h2>
               {g.pages.map((p) => (
-                <button key={p.id} className={`wiki-link${p.id === page.id ? " active" : ""}`} aria-current={p.id === page.id ? "page" : undefined}
+                <button key={p.id} className={`wiki-link${p.id === page.id && !tutorials ? " active" : ""}`} aria-current={p.id === page.id && !tutorials ? "page" : undefined}
                   onClick={() => openFound(p.id)} data-tip={p.summary} data-tip-side="right">{p.title}</button>
               ))}
             </div>
@@ -122,7 +131,7 @@ export function Wiki() {
       <Splitter fraction width={share} onResize={setShare} initial={NAV_SHARE} panel="left" label="Resize the list of guides" cssVar="--wiki-nav" />
       <div className={`wiki-read${find ? " finding" : ""}`} ref={reader} onScroll={follow}>
         {find && <FindBar article={article} reader={reader} page={page.id} open={find} onClose={() => setFind(null)} />}
-        <div className="wiki-cols">
+        {tutorials ? <div className="wiki-cols"><TutorialsPage /></div> : <div className="wiki-cols">
           <article className="wiki-article view-in" key={page.id} ref={article}>
             <header className="page-head">
               <h1>{page.title}</h1>
@@ -142,7 +151,7 @@ export function Wiki() {
               ))}
             </aside>
           )}
-        </div>
+        </div>}
       </div>
     </section>
   );

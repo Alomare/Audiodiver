@@ -1,11 +1,12 @@
 import { createContext, use, useCallback, useContext, useEffect, useMemo, useRef, useState, type Context, type ReactNode } from "react";
 import { call, plural, type ArchiveRow, type Assignment, type Cue, type Index, type Job, type MusicItem, type Piece, type Place as Found, type ProjectState, type Status } from "./api";
-import { choose, confirm } from "./Confirm";
+import { confirm } from "./Confirm";
+import { importAsk } from "./importAsk";
 import { liveGain } from "./gain";
 import { JOB_NAMES } from "./jobs";
 import { keyHint, keyLabel } from "./keys";
 import { indexItems } from "./music";
-import { FOLD_LIBRARY, nav as tabs, type Hideable } from "./nav";
+import { FOLD_LIBRARY, HIDEABLE, nav as tabs, type Hideable } from "./nav";
 import { notes } from "./noteStore";
 import { UTILS } from "./edition";
 import * as platform from "./platform";
@@ -509,6 +510,7 @@ function useEditorState() {
   }, [project, ed.open.itemId, ed.open.cueId, scopes]);
 
   // --- jobs (build, import): poll until done
+  const madeByImport = useRef(new Set<string>()); // imports that make a new project: it opens when they end
   const watchJob = useCallback((job: Job, onDone: (j: Job) => void) => {
     setJobs((js) => ({ ...js, [job.id]: job }));
     let misses = 0;
@@ -546,14 +548,22 @@ function useEditorState() {
         { label: "Show in Folder", run: () => platform.reveal(zip) });
       if (settings.get().revealBuild) platform.reveal(zip).catch(() => {});
     } else if (j.kind === "import") {
-      // replacements, and what the mod adds (new takes, layers, sounds with a clip of their own); what can't come
-      // in is said, and then the notice waits to be read
-      // (a heading, then one line each)
-      const r = j.result, left: string[] = r.left ?? [];
+      // replacements, what the mod adds (new takes, layers, sounds with a clip of their own) and the lines of text;
+      // what can't come in is said, and then the notice waits to be read (a heading, then one line each). A new
+      // project made from a mod is open in the core by now: it joins the recent projects and shows its audio
+      const r = j.result, left: string[] = [...(r.left ?? []), ...(r.others ?? [])];
+      if (madeByImport.current.delete(j.id)) {
+        const p = await run<ProjectState>("project");
+        if (p) {
+          applyProject(p); remember(p.path);
+          tabs.go(r.imported || r.added ? "editor" : r.texts ? "text" : "project");
+        }
+      }
       const brought = [r.imported ? plural(r.imported, "replaced sound") : "", r.added ? plural(r.added, "added sound") : "",
-        r.settings ? `Settings on ${plural(r.settings, "sound or container", "sounds and containers")}` : ""].filter(Boolean);
+        r.settings ? `Settings on ${plural(r.settings, "sound or container", "sounds and containers")}` : "",
+        r.texts ? plural(r.texts, "line of text", "lines of text") : ""].filter(Boolean);
       const lines = [
-        brought.length ? "Imported from the patch into the Audio tab:" : "Imported nothing from the patch.",
+        brought.length ? `Imported from ${j.title || "the mod"}:` : `Imported nothing from ${j.title || "the mod"}.`,
         ...brought,
         r.skipped ? `${plural(r.skipped, "sound")} couldn't be decoded` : "",
         // sounds the patch still had from an older game version: not the mod's, so not imported (Wiki: Repatching)
@@ -619,6 +629,16 @@ function useEditorState() {
         if (tabs.get().tab === from) tabs.go("project");
         quick(`**${p.name}** created`, "add");
       }
+    },
+    /** A new project at a path, in a folder of its own, without a dialog (a tutorial's practice project), showing
+        every tab. Null, and nothing said, when the core refuses it (one of that name is there), so the caller can
+        try another name. */
+    async newProjectAt(path: string, name: string) {
+      const p = await call<ProjectState>("project_new", { path, name, tabs: [...HIDEABLE] }).catch(() => null);
+      if (!p) return null;
+      applyProject(p); remember(p.path);
+      window.dispatchEvent(new Event(FOLD_LIBRARY));
+      return p;
     },
     /** Writes the project file now. Edits save themselves; Ctrl+S also commits a field being typed in (the Project
         tab's name, a line on the Text tab), which saves when it loses focus. */
@@ -1055,28 +1075,27 @@ function useEditorState() {
       const job = await run<Job>("check_mods");
       if (job) watchJob(job, finishJob);
     },
+    /** A mod's patches into the open project (the Project tab's Import Patches, a patch file dropped on the window):
+        the Import Mod panel opens on the mod chosen, and says what comes in first. Without a project open, the
+        panel makes a new one. */
     async importPatch(path?: string) {
-      if (!needProject()) return;
-      path ??= (await platform.pickPatch()) ?? undefined;
-      if (!path) return;
-      // a project with something in it: the patch's audio joins it, or takes the place of its audio
-      const p = project!;
-      const empty = !Object.keys(p.assignments).length && !p.additions.length && !p.settings
-        && !Object.keys(p.segment_overrides).length && !p.library.length;
-      let mode: "add" | "replace" = "add";
-      if (!empty) {
-        const answer = await choose({
-          title: `Import ${path.split(/[\\/]/).pop()}`,
-          text: "Add the patch's audio to this project, or replace the current audio? Adding keeps everything, and where "
-            + "both have audio for a slot, the patch's version is used. Replacing first removes the new audio, added sounds, "
-            + `cue points and list. The text and audio files stay. ${undoHint()} brings them back.`,
-          ok: "Add to the Project", alt: "Replace the Project's Audio",
-        });
-        if (!answer) return;
-        if (answer === "alt") mode = "replace";
-      }
-      const job = await run<Job>("import_patch", { path, mode });
-      if (job) watchJob(job, finishJob);
+      path ??= (await platform.pickMod("Choose a mod to import")) ?? undefined;
+      if (path) importAsk.open({ path, into: !!project });
+    },
+    /** Import Mod (Home, the Project tab): a new project made from a mod (a ZIP, a folder or a patch file), set up
+        in the Import Mod panel. */
+    async importMod(path?: string) {
+      path ??= (await platform.pickMod("Choose a mod to import")) ?? undefined;
+      if (path) importAsk.open({ path, into: false });
+    },
+    /** Runs an import the Import Mod panel set up (core import_mod). A new project opens once it is made. True when
+        the core took it (a name or folder it refuses keeps the panel open). */
+    async runImport(args: Record<string, unknown>) {
+      const job = await run<Job>("import_mod", args);
+      if (!job) return false;
+      if (args.folder) madeByImport.current.add(job.id);
+      watchJob(job, finishJob);
+      return true;
     },
   }), [run, applyProject, edited, editNotice, notify, quick, needProject, scopes, project, watchJob, finishJob, clip, remember, status, jobs, openPack]);
   undoRef.current = actions.undo;

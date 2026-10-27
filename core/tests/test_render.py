@@ -179,11 +179,11 @@ def test_export_game_music(tmp_path):
 
     first = s.cue(loadout)["segments_detail"][1]["stems"][0]["slots"][0]["source"]
     result, names = run(what="slots", fmt="mp3", sources=[first])
-    assert result["files"] == 1 and names == ["Hellpod - Loadout Selection - 02 Loadout #1 (original).mp3"]
+    assert result["files"] == 1 and names == ["Hellpod - Loadout Selection - 02 Loadout #1.mp3"]
     result, names = run(what="segments", fmt="flac")
-    assert result["files"] == 15 and names[0] == "Hellpod - Loadout Selection - 01 Loadout Start (original).flac"
+    assert result["files"] == 15 and names[0] == "Hellpod - Loadout Selection - 01 Loadout Start.flac"
     result, names = run(what="cue", fmt="wav")
-    assert names == ["Hellpod - Loadout Selection (original).wav"]
+    assert names == ["Hellpod - Loadout Selection.wav"]
     with wave.open(result["first"]) as w:  # played through, hand-overs make it shorter than the slots laid end to end
         assert 150 < w.getnframes() / w.getframerate() < 200
     with pytest.raises(Exception):

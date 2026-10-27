@@ -18,6 +18,7 @@ import shutil
 import time
 import uuid
 import zipfile
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 
@@ -69,6 +70,17 @@ class Found:
         root = self.source.parent if self.source.is_file() else self.source
         f = root / key
         return f.read_bytes() if f.is_file() else None
+
+    @contextmanager
+    def opened(self, key: str):
+        """A file of the mod by its key, open for reading, so a part of it can be read without the rest (a patch's
+        table of contents, before its banks). Raises KeyError or OSError when it isn't there."""
+        if self.is_zip:
+            with zipfile.ZipFile(self.source) as z, z.open(key) as f:
+                yield f
+        else:
+            with open((self.source.parent if self.source.is_file() else self.source) / key, "rb") as f:
+                yield f
 
     def place(self, key: str, folder: Path) -> Path:
         """The patch file `key` with its .stream and .gpu_resources next to it, as files on disk: where they are in a

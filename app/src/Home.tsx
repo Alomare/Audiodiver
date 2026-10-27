@@ -7,9 +7,9 @@ import { openUrl } from "./platform";
 import { useEditor } from "./store";
 import { DEFAULT_SIZE, motionOn, useTheme, useThemeValue } from "./theme";
 
-/** Where the app starts, laid out like the game's menu: a project to make or open (the last one opened, and which
-    one is loaded), and below, Repatch and Combine. With no project open, the Project tab lists all the recent
-    projects. Audiodiver Utils has no Home. */
+/** Where the app starts, laid out like the game's menu: a project to make, open (the last one opened) or import from
+    a mod, and which one is loaded; below, Repatch and Combine. With no project open, the Project tab lists all the
+    recent projects. Audiodiver Utils has no Home. */
 export function Home() {
   const { project, actions } = useEditor();
   return (
@@ -30,6 +30,8 @@ export function Home() {
                 data-tip-more="A pack is a project and the files it uses, in one file">Open Project</button>
               <Recent />
             </div>
+            <button className="menu-item" onClick={() => actions.importMod()} data-tip="Make a project from an existing mod"
+              data-tip-more="A ZIP or a .patch_0 file, with the audio, the sounds it adds and the text">Import Mod</button>
             {project && (
               <div className="home-loaded">
                 <span className="home-loaded-name">Loaded: <b data-tip={project.path} data-tip-clip>{project.name}</b></span>

@@ -1,7 +1,7 @@
 import { Fragment, memo, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { audioUrl, fmtTime, isMusic, shownId, type Assignment, type Cue, type Segment, type Slot, type StandIn } from "./api";
 import { useContextMenu, type MenuEntry } from "./ContextMenu";
-import { ExportDialog } from "./ExportDialog";
+import { ExportListChip, ExportPanel, useExportName, type ExportTarget } from "./ExportDialog";
 import { addedNote, exportList } from "./exportList";
 import { ClearIcon, CollapseAllIcon, ExportIcon, FillIcon, IdIcon, LinkIcon, OrderIcon, PlusIcon, SkipIcon, SliceIcon } from "./Icons";
 import { Mark } from "./IndexTree";
@@ -179,7 +179,7 @@ function CueBody({ cue }: { cue: Cue }) {
   const all = useMemo(() => rowsOf(cue.segments_detail), [cue]);
   const listRef = useRef<HTMLDivElement>(null);
   const [slicing, setSlicing] = useState(false);
-  const [exporting, setExporting] = useState(false);
+  const [exporting, setExporting] = useState<"item" | "list" | null>(null); // the Export panel, on its first tab or on the list
   const [through, setThrough] = useState<Through | null>(null);  // the play-through that is playing, if one is
   const [mark, setMark] = useState<ThroughMark | null>(null);    // where it is: the segment whose Entry it passed last
   const [menu, openMenu] = useContextMenu();
@@ -217,14 +217,15 @@ function CueBody({ cue }: { cue: Cue }) {
   /** The slots that show: all of a music cue's; of a bank's, those of the open groups or the ones the filter finds. */
   const rows = useMemo(() => (hits ? hits.slice(0, MAX_SHOWN) : grouped ? all.filter(isOpen) : all), [hits, grouped, all, isOpen]);
   // a slot that gets selected from elsewhere (a search, the now-playing bar, "also plays in") shows: its group opens,
-  // and the list scrolls to it if none of it is on screen. One clicked here stays where it is.
+  // and the list scrolls to it if none of it is on screen. One clicked or ticked here stays where it is, and a folded
+  // sound ticked as a whole stays folded.
   const picked = useRef(false); // the selection is the list's own: a click, a key, the play-through moving on
   // a selection made before the list has its slots (new takes, selected as the bank reloads): shown once it has them
   const waiting = useRef<{ sel: string[]; own: boolean } | null>(null);
   const showSelected = (sel: string[], own: boolean) => {
     if (grouped && !all.some((r) => sel.includes(r.slot.source))) { waiting.current = { sel, own }; return; }
     waiting.current = null;
-    const shut = grouped ? all.filter((r) => sel.includes(r.slot.source) && !isOpen(r)).map((r) => r.segIndex) : [];
+    const shut = grouped && !own ? all.filter((r) => sel.includes(r.slot.source) && !isOpen(r)).map((r) => r.segIndex) : [];
     if (shut.length) setFlipped((f) => { const next = new Set(f); for (const i of shut) if (openByDefault) next.delete(i); else next.add(i); return next; });
     if (!own && sel.length === 1) win.reveal(sel[0], { block: "center", hidden: true });
   };
@@ -443,13 +444,16 @@ function CueBody({ cue }: { cue: Cue }) {
     if (f) actions.assign(source, f);
   };
 
-  /** Puts some slots of this cue on the export list (in list order), named after the one or after the cue. */
+  /** Puts some slots of this cue on the export list (in list order), named after the one or after the cue: in the
+      Audio tab as the mod plays them. */
   const toExport = (sources: string[], name: string) => {
     const ordered = all.filter((x) => sources.includes(x.slot.source)).map((x) => x.slot.source);
-    const n = exportList.add([{ cue: cue.id, sources: ordered, name, count: ordered.length,
+    const n = exportList.add([{ cue: cue.id, sources: ordered, name, count: ordered.length, whose: readOnly ? "game" : "mod",
       where: item ? where(itemIndex, item) : cue.path.join(" ▸ ") }]);
     quick(addedNote(n, 1), "add");
   };
+  const named = useExportName();
+  const target: ExportTarget = { context: readOnly ? "library" : "audio", cue, selected, ...named(cue) };
   const exportEntry = (sel: string[], r: Row): MenuEntry => ({
     label: sel.length > 1 ? `Add ${sel.length} Slots to the Export List` : "Add to the Export List",
     run: () => toExport(sel, sel.length > 1 ? `${item?.full ?? cue.name} (${sel.length} slots)` : `${item?.full ?? cue.name} - ${rowName(r)}`),
@@ -648,14 +652,13 @@ function CueBody({ cue }: { cue: Cue }) {
           onResize={setHeadH} onReset={() => setHeadH(null)} />
       </div>}
       <div className="cue-bar" data-drop={drop}>
-        {!readOnly && (
-          <input type="checkbox" className="slot-check all" checked={ticked > 0 && ticked === shownSources.length} disabled={!shownSources.length}
-            ref={(el) => { if (el) el.indeterminate = ticked > 0 && ticked < shownSources.length; }}
-            onChange={() => { picked.current = true; setSelected(ticked === shownSources.length ? [] : shownSources); }}
-            aria-label={ticked === shownSources.length ? "Clear the selection" : "Select every slot"}
-            data-tip={ticked === shownSources.length ? "Clear the selection" : `Select every ${grouped ? "sound shown" : "slot"}`}
-            data-tip-cmd={ticked === shownSources.length ? undefined : "selectAll"} />
-        )}
+        {/* ticks select slots in both tabs: to replace in the Audio tab, to export in either */}
+        <input type="checkbox" className="slot-check all" checked={ticked > 0 && ticked === shownSources.length} disabled={!shownSources.length}
+          ref={(el) => { if (el) el.indeterminate = ticked > 0 && ticked < shownSources.length; }}
+          onChange={() => { picked.current = true; setSelected(ticked === shownSources.length ? [] : shownSources); }}
+          aria-label={ticked === shownSources.length ? "Clear the selection" : "Select every slot"}
+          data-tip={ticked === shownSources.length ? "Clear the selection" : `Select every ${grouped ? "sound shown" : "slot"}`}
+          data-tip-cmd={ticked === shownSources.length ? undefined : "selectAll"} />
         {music && cue.kind !== "sound" && <PlayThrough onThrough={setThrough} onMark={setMark} />}
         {readOnly && item && (listed ? (
           <button className="btn primary" data-tip="Replace audio there"
@@ -678,8 +681,10 @@ function CueBody({ cue }: { cue: Cue }) {
               disabled={!project} onClick={() => setSlicing(true)} />
           )}
           {cue.kind !== "sound" && (
-            <ToolButton icon={<ExportIcon />} name="Export" about="Save as WAV, FLAC or MP3" onClick={() => setExporting(true)} />
+            <ToolButton icon={<ExportIcon />} name="Export" about={selected.length > 1 ? `All of it or the ${selected.length} selected, as WAV, FLAC, MP3 or WEM`
+              : "Save as WAV, FLAC, MP3 or WEM"} onClick={() => setExporting("item")} />
           )}
+          <ExportListChip onOpen={() => setExporting("list")} />
           {between && project && skip.length > 0 && (
             <ToolButton icon={<SkipIcon />} name="Skip it" onClick={() => actions.skip(skip, between.name || item?.name || cue.name)}
               about={`Replace with a short silence, so the next music starts right away${keyHint("undo") ? `. Undo${keyHint("undo")} brings it back` : ""}`} />
@@ -733,7 +738,7 @@ function CueBody({ cue }: { cue: Cue }) {
       {panels.waves && <Timeline room={() => room("wave")} through={through} at={selected.length === 1 ? at(selected[0]) : null} />}
       {menu}
       {slicing && <SliceTool onClose={() => setSlicing(false)} />}
-      {exporting && <ExportDialog onClose={() => setExporting(false)} />}
+      {exporting && <ExportPanel target={cue.kind !== "sound" ? target : null} start={exporting} onClose={() => setExporting(null)} />}
     </section>
   );
 }
@@ -833,8 +838,8 @@ const GroupHead = memo(function GroupHead({ row, open, shown, status, itemId, cu
   const unit = /^(Sounds|Other Audio|No Audio|Streams)\b/.test(seg.name) ? "sounds" : "takes";
   const madeUp = madeUpName(seg.name);
   return (
-    <div className={`grp${open ? " open" : ""}`} style={depthStyle(seg)} data-drop={drop} onContextMenu={(e) => on.groupMenu(e, row)}>
-      {!readOnly && sources.length > 0 && (
+    <div className={`grp${open ? " open" : ""}`} style={depthStyle(seg)} data-drop={drop} data-key={seg.key} onContextMenu={(e) => on.groupMenu(e, row)}>
+      {sources.length > 0 && (
         <input type="checkbox" className="slot-check" checked={picked === "all"} readOnly tabIndex={-1} aria-label={`Select the ${unit} of ${seg.name}`}
           ref={(el) => { if (el) el.indeterminate = picked === "some"; }} onClick={(e) => { e.stopPropagation(); on.checkGroup(sources); }} />
       )}
@@ -967,11 +972,9 @@ const SlotRow = memo(function SlotRow({ row, a, standIns, gain, selected, now, i
       onContextMenu={(e) => on.menu(e, row)}
       data-drop={readOnly || slot.absent ? undefined : JSON.stringify({ kind: "slot", source: slot.source })}>
       {flash > flashed && <span key={flash} className="slot-flash" aria-hidden onAnimationEnd={() => setFlashed(flash)} />}
-      {!readOnly && (
-        <input type="checkbox" className="slot-check" checked={selected} readOnly tabIndex={-1} aria-hidden
-          onClick={(e) => { e.stopPropagation(); on.check(e, slot.source); }} onDoubleClick={(e) => e.stopPropagation()}
-          onMouseDown={(e) => { if (e.shiftKey) e.preventDefault(); }} />
-      )}
+      <input type="checkbox" className="slot-check" checked={selected} readOnly tabIndex={-1} aria-hidden
+        onClick={(e) => { e.stopPropagation(); on.check(e, slot.source); }} onDoubleClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => { if (e.shiftKey) e.preventDefault(); }} />
       {solo ? (
         <div className="slot-name solo-line">
           <PlayButton kind="vanilla" source={slot.source} label="the original" what={what} onPlay={onSelect} at={at} disabled={slot.absent || !!slot.added} small />

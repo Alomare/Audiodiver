@@ -255,6 +255,11 @@ export function projectIconUrl(path: string, bust: string) {
   return `${audioBase}/projects/icon?token=${encodeURIComponent(audioToken)}&path=${encodeURIComponent(path)}&v=${bust}`;
 }
 
+/** The image a mod's manifest names as the icon (a ZIP, a folder or a patch file's mod), for Import Mod. */
+export function modIconUrl(path: string) {
+  return `${audioBase}/mods/icon?token=${encodeURIComponent(audioToken)}&path=${encodeURIComponent(path)}`;
+}
+
 /** "today, 14:05", "yesterday, 09:30" or "12 Mar 2026" for a time in Unix seconds. */
 export function fmtWhen(seconds: number | null | undefined) {
   if (!seconds) return "";

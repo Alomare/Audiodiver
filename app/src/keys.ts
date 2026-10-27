@@ -10,7 +10,7 @@ export type CommandId =
   | "search" | "back" | "forward"
   | "save" | "undo" | "redo" | "build" | "newProject" | "openProject" | "closeProject"
   | "tabHome" | "tabProject" | "tabLibrary" | "tabEditor" | "tabSoundtrack" | "tabText" | "tabBuild" | "tabTools"
-  | "updates" | "wiki" | "settings" | "shortcuts";
+  | "updates" | "wiki" | "tutorials" | "settings" | "shortcuts";
 
 export type Command = {
   id: CommandId; group: string; label: string;
@@ -59,6 +59,7 @@ export const COMMANDS: Command[] = [
   { id: "tabBuild", group: "Tabs", label: "Go to Build", keys: ["Ctrl+8"], inputs: true },
   { id: "updates", group: "Tabs", label: "Open or close Updates", keys: [], inputs: true },
   { id: "wiki", group: "Tabs", label: "Open or close the Wiki", keys: ["F1"], inputs: true },
+  { id: "tutorials", group: "Tabs", label: "Open the tutorials", keys: [], inputs: true },
   { id: "settings", group: "Tabs", label: "Open or close Settings", keys: ["Ctrl+,"], inputs: true },
   { id: "shortcuts", group: "Tabs", label: "Show these shortcuts", keys: ["?"] },
 ];

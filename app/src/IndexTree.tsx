@@ -1,5 +1,5 @@
 import { memo, useDeferredValue, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { call, fmtTime, type MusicItem, type MusicSection, type Place } from "./api";
+import { call, type MusicItem, type MusicSection, type Place } from "./api";
 import { useContextMenu, type MenuEntry } from "./ContextMenu";
 import { PlayButton, playSlot } from "./CueView";
 import { Fold, useLastWhile, useLinger } from "./Fold";
@@ -8,7 +8,7 @@ import { clashes, COVERAGE, heldBy, isMusicItem, itemCoverage, listedBanks, list
 import { useEditor, useLite } from "./store";
 import { useStable } from "./stable";
 import { addedNote, exportList, itemEntries } from "./exportList";
-import { CollapseAllIcon, SearchIcon } from "./Icons";
+import { CheckIcon, CollapseAllIcon, PlusIcon, RemoveIcon, SearchIcon } from "./Icons";
 import { CatMark } from "./Tags";
 import { motionMs, scrollBehavior } from "./theme";
 import { FOLD_LIBRARY } from "./nav";
@@ -179,9 +179,9 @@ export function IndexTree() {
     }
   };
 
-  /** Puts items on the export list, all their parts, and says so. */
+  /** Puts items on the export list, all their parts, and says so: in the Audio tab as the mod plays them. */
   const toExport = (items: MusicItem[]) => {
-    const all = items.flatMap((it) => itemEntries(it, where(itemIndex, it)));
+    const all = items.flatMap((it) => itemEntries(it, where(itemIndex, it), editing ? "mod" : "game"));
     quick(addedNote(exportList.add(all), all.length, items.length), "add");
   };
   /** The right-click menu of an item. */
@@ -215,8 +215,8 @@ export function IndexTree() {
   const on = useStable({
     open: (it: MusicItem) => openHit(it),
     menu: (e: React.MouseEvent, it: MusicItem) => itemMenu(e, it),
-    add: (it: MusicItem) => { actions.addToProject([it.id], it.full); },
-    remove: (it: MusicItem) => { actions.removeFromProject([it.id], it.full); },
+    add: (it: MusicItem) => actions.addToProject([it.id], it.full),
+    remove: (it: MusicItem) => actions.removeFromProject([it.id], it.full),
   });
   const narrowed = q.length > 0 || filter !== "all";
   const instant = useLinger(narrowed); // a search or a filter opens and closes groups at once
@@ -258,15 +258,16 @@ export function IndexTree() {
       : `Add the ${fresh.length} not in the project`;
     const label = !fresh.length ? "All in the Project" : fresh.length === items.length ? `Add All ${fresh.length} to the Project`
       : `Add the ${fresh.length} Not in the Project`;
+    // the + while something here can be added; once all of it is in, the ✕ that takes it off
     return (
       <div className="lib-group-line" onContextMenu={(e) => openMenu(e, [
         { label, disabled: !fresh.length, run: add },
         ...(inProject.length ? [{ label: removeLabel, run: remove } as MenuEntry] : []),
         "-", exporting])}>
         {head}
-        {fresh.length ? <button className="row-act" onClick={add} aria-label={`${tip}: ${name}`} data-tip={tip}
-          data-tip-more={project ? undefined : "Open or create a project first"}>+</button>
-          : <span className="in-proj" role="img" aria-label="All in the project" data-tip="All in the project">✓</span>}
+        {fresh.length ? <AddToggle added={false} run={add} label={`${tip}: ${name}`} tip={tip} more={project ? undefined : "Open or create a project first"} />
+          : inProject.length ? <AddToggle added run={remove} label={`${removeTip}: ${name}`} tip={removeTip} />
+          : <span className="lib-add held" role="img" aria-label="All in the project" data-tip="All in the project"><CheckIcon /></span>}
       </div>
     );
   };
@@ -351,7 +352,6 @@ const ItemRow = memo(function ItemRow({ item, deep, active, hi, status, clash, a
   const music = isMusicItem(item);
   // files can be dropped onto a piece of music in the Editor: onto its one cue, or across its parts
   const drop = !editing || !music ? undefined : single ? { kind: "cue", cue: item.parts[0].cue } : item.kind === "music" ? { kind: "item", item: item.id } : undefined;
-  const sounds = item.count ?? 0;
   return (
     <div className={`mus-item ${item.kind}${deep ? " deep" : ""}${active ? " active" : ""}${hi ? " hi" : ""}`} onContextMenu={(e) => on.menu(e, item)}
       data-drop={drop ? JSON.stringify(drop) : undefined}>
@@ -361,29 +361,55 @@ const ItemRow = memo(function ItemRow({ item, deep, active, hi, status, clash, a
         {GLYPH[item.kind] && <span className="glyph" aria-hidden>{GLYPH[item.kind]}</span>}
         <span className="mus-label" data-tip={item.full} data-tip-clip>{item.name}</span>
         {hint && <span className="mus-hint"><SearchIcon />{hint}</span>}
-        {item.parts.length > 1 && <span className="parts-n" data-tip={`${item.parts.length} parts`}>×{item.parts.length}</span>}
       </button>
+      {/* the Library's rows hold the name and the + alone; the Audio tab's add whether each plays new audio */}
       <span className="mus-meta">
         {clash && <span className="clash" data-tip="Plays the original next to new music">!</span>}
         {status !== "na" && <Mark status={status} />}
-        {added && <span className="in-proj" role="img" aria-label="In the project" data-tip="In the project">✓</span>}
-        {held && <span className="in-proj held" role="img" aria-label={`In the project, in ${listName(held)}`} data-tip="In the project already"
-          data-tip-more={`The sounds are in ${listName(held)}`}>✓</span>}
-        {!editing && !added && !held && (
-          <button className="row-act" onClick={() => on.add(item)} aria-label={`Add ${item.full} to the project`} data-tip="Add to the project"
-            data-tip-more={noProject ? "Open or create a project first" : undefined}>+</button>
-        )}
+        {!editing && (held ? <HeldMark held={held} />
+          : <AddToggle added={added} run={() => (added ? on.remove(item) : on.add(item))}
+            label={`${added ? "Remove" : "Add"} ${item.full} ${added ? "from" : "to"} the project`}
+            tip={added ? "Remove from the project" : "Add to the project"}
+            more={added ? "Also removes the new audio. Undo brings both back." : noProject ? "Open or create a project first" : undefined} />)}
         {editing && (
           <button className="row-act" onClick={() => on.remove(item)} aria-label={`Remove ${item.full} from the project`}
             data-tip="Remove from the project" data-tip-more="Also removes the new audio. Undo brings both back.">✕</button>
         )}
-        {/* the Audio tab's list leaves out lengths and counts, so its marks and buttons line up from row to row */}
-        {!editing && (music ? <span className="dur" data-tip={item.parts.length > 1 ? `The ${item.parts.length} parts together` : undefined}>{fmtTime(item.duration_ms || null)}</span>
-          : <span className="dur" data-tip={`${sounds} sound${sounds === 1 ? "" : "s"}`}>{sounds}</span>)}
       </span>
     </div>
   );
 });
+
+/** How long the + and ✕ ignore clicks after one: longer than a double click takes. */
+const SETTLE_MS = 500;
+
+/** The + that adds to the project and the ✕ it turns into, which takes it off again: on the Library's items, the
+    lines of its groups and All Archives. Clicks right after one do nothing (the second click of a double click, a
+    press while the first is still on its way), so one quick double click never adds and removes at once. */
+export function AddToggle({ added, run, label, tip, more }: {
+  added: boolean; run: () => unknown; label: string; tip: string; more?: string;
+}) {
+  const settling = useRef(false);
+  const click = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (settling.current || e.detail > 1) return;
+    settling.current = true;
+    const done = () => { setTimeout(() => { settling.current = false; }, SETTLE_MS); };
+    Promise.resolve(run()).then(done, done);
+  };
+  return (
+    <button className={`lib-add${added ? " on" : ""}`} onClick={click} onDoubleClick={(e) => e.stopPropagation()}
+      aria-label={label} data-tip={tip} data-tip-more={more}>{added ? <RemoveIcon /> : <PlusIcon />}</button>
+  );
+}
+
+/** In place of the + on an item the project has inside another it lists (all of its banks are there already). */
+function HeldMark({ held }: { held: MusicItem }) {
+  return (
+    <span className="lib-add held" role="img" aria-label={`In the project, in ${listName(held)}`} data-tip="In the project already"
+      data-tip-more={`The sounds are in ${listName(held)}`}><CheckIcon /></span>
+  );
+}
 
 /** What something plays: a hollow dot for the original, a half for partly replaced, a full one for replaced. */
 export function Mark({ status, label }: { status: Status; label?: string /* the Text tab says Changed */ }) {

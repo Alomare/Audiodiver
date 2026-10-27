@@ -103,14 +103,15 @@ def clean_spool(age_s: float = 3600):
             pass
 
 
-def transcode(src: Path, dst: Path, fmt: str, tags: dict | None = None):
-    """A file as it is (its own channels and rate), in another format."""
+def transcode(src: Path, dst: Path, fmt: str, tags: dict | None = None, gain_db: float = 0.0):
+    """A file as it is (its own channels and rate), in another format, at gain_db (a Make-Up Gain)."""
     dst.parent.mkdir(parents=True, exist_ok=True)
     try:
         src = wem.decoded(src)
     except subprocess.CalledProcessError as e:
         raise RenderError(f"can't read the audio in {Path(src).name}") from e
-    p = subprocess.run([wem.FFMPEG, "-v", "error", "-y", "-i", src, "-vn", *FORMATS[fmt][1], *_tags(tags),
+    level = ["-af", f"volume={gain_db}dB"] if gain_db else []
+    p = subprocess.run([wem.FFMPEG, "-v", "error", "-y", "-i", src, "-vn", *level, *FORMATS[fmt][1], *_tags(tags),
                         str(dst)], capture_output=True)
     if p.returncode:
         dst.unlink(missing_ok=True)

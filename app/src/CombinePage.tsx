@@ -260,12 +260,17 @@ export function CombinePage() {
   );
 }
 
-/** A mod's options as a mod manager has them: each can be on or off, and one with choices of its own takes one. */
-function Options({ mod, disabled, onChange }: { mod: Mod; disabled: boolean; onChange: (picks: string[]) => void }) {
+/** A mod's options as a mod manager has them: each can be on or off, and one with choices of its own takes one.
+    Import Mod shows them too, with its own `help`. */
+export function Options({ mod, disabled, onChange, help }: {
+  mod: { scan: Pick<ModScan, "options">; picks: string[] }; disabled: boolean; onChange: (picks: string[]) => void;
+  help?: { tip: string; page: string };
+}) {
   const { scan, picks } = mod;
+  const h = help ?? { tip: "The options of this mod that go into the combined mod. They start as the mod manager has them, or all on", page: "combining-mods#combining-mods" };
   return (
     <div className="cmb-options">
-      <span className="field-label">Options <Help tip="The options of this mod that go into the combined mod. They start as the mod manager has them, or all on" page="combining-mods#combining-mods" /></span>
+      <span className="field-label">Options <Help tip={h.tip} page={h.page} /></span>
       {scan.options.map((o) => {
         const chosen = o.sub.find((s) => picks.includes(s.id));
         const on = o.sub.length ? !!chosen : picks.includes(o.id);

@@ -83,10 +83,10 @@ export async function pickPatch(): Promise<string | null> {
 }
 
 /** A mod to repatch: its ZIP or its patch file (a folder: pickFolder). */
-export async function pickMod(): Promise<string | null> {
+export async function pickMod(title = "Choose a mod to repatch"): Promise<string | null> {
   if (!isTauri()) return promptPaths("Mod ZIP or .patch_0 file", false)?.[0] ?? null;
   const { open } = await import("@tauri-apps/plugin-dialog");
-  const r = await open({ multiple: false, title: "Choose a mod to repatch",
+  const r = await open({ multiple: false, title,
     filters: [{ name: "Mods (.zip, .patch_0)", extensions: ["zip", "patch_0", "patch_1", "patch_2", "patch_3", "patch_4"] }, { name: "All files", extensions: ["*"] }] });
   return (r as string) ?? null;
 }

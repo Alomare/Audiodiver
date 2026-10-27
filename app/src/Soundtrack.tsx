@@ -3,7 +3,7 @@ import { call, fileUrl, fmtTime, plural, type Assignment, type Cue, type MusicIt
 import { confirm } from "./Confirm";
 import { useContextMenu, type MenuEntry } from "./ContextMenu";
 import { audible, PlayButton, playSlot } from "./CueView";
-import { AudioIcon, CollapseAllIcon, InOrderIcon, NextEachIcon, PauseIcon, RandomIcon, RepeatIcon, ShuffleIcon, ThroughIcon } from "./Icons";
+import { AudioIcon, CollapseAllIcon, ExportIcon, InOrderIcon, NextEachIcon, PauseIcon, RandomIcon, RepeatIcon, ShuffleIcon, ThroughIcon } from "./Icons";
 import { ResetLevel } from "./Inspector";
 import { rangeVars } from "./range";
 import { keyLabel, useCommands, useKeymap } from "./keys";
@@ -18,7 +18,8 @@ import { useStable } from "./stable";
 import { useEditor, useShownTabs } from "./store";
 import { motionMs, scrollBehavior } from "./theme";
 import { Timeline } from "./Timeline";
-import { PanelToggles, usePanels } from "./Tools";
+import { PanelToggles, ToolButton, usePanels } from "./Tools";
+import { ExportListChip, ExportPanel } from "./ExportDialog";
 import { Help } from "./Wiki";
 
 type Mode = Piece["mode"];
@@ -285,6 +286,7 @@ function PieceView({ item, part, setPart, sections, open }: {
   const [cue, setCue] = useState<Cue | null>(null);
   const [failed, setFailed] = useState("");
   const [slicing, setSlicing] = useState<{ file?: string } | null>(null); // the slice tool, and the song it starts on
+  const [exporting, setExporting] = useState<"item" | "list" | null>(null); // the Export panel, on the piece or on the list
   const [sel, setSel] = useState<string | null>(null);  // the slot selected: a segment's first, or a layer's
   const [run, setRun] = useState<FightRun | null>(null);
   const [now, setNow] = useState<Mark | null>(null);    // the segment a fight is at
@@ -498,6 +500,11 @@ function PieceView({ item, part, setPart, sections, open }: {
       )}
       <div className="cue-bar">
         {map && plays && <FightBar map={map} item={item} run={run} setRun={setRun} onNow={setNow} />}
+        <div className="tools">
+          <ToolButton icon={<ExportIcon />} name="Export" disabled={!cue} onClick={() => setExporting("item")}
+            about="The whole piece, a fight or the segments, as WAV, FLAC or MP3" />
+          <ExportListChip onOpen={() => setExporting("list")} />
+        </div>
         <PanelToggles panels={panels} set={setPanels} waves={!!cue && !!sel} />
       </div>
       {failed ? <p className="slots-note">{failed}</p> : !map || !cue ? <p className="slots-note">Reading the music…</p> : (
@@ -525,6 +532,12 @@ function PieceView({ item, part, setPart, sections, open }: {
       )}
       {panels.waves && cue && <Timeline room={() => room("wave")} through={run} at={sel ? at(sel) : null} cue={cue} source={sel} />}
       {slicing && songTarget && <SliceTool target={songTarget} file={slicing.file} onClose={() => setSlicing(null)} />}
+      {exporting && (
+        <ExportPanel start={exporting} onClose={() => setExporting(null)}
+          target={cue ? { context: "soundtrack", cue, selected: sel ? [sel] : [], fight: fight && plays,
+            name: parts.length > 1 ? `${item.full} · ${parts[part].name || `Part ${part + 1}`}` : item.full,
+            where: itemIndex.section.get(item.id)?.name ?? "" } : null} />
+      )}
       {menu}
     </section>
   );

@@ -1,5 +1,5 @@
 {
- "about": "The Index's sound sets (library.py), written by tools/import_sounds.py from the HD2 modding community's archive labeling workbook and filediver's name lists. A set is the banks it names: 'banks' by path name, 'ids' by file id where the path name isn't known, 'voice' one bank per language (content/audio/<language>/<name>). The one voice without a known name lists the archives the community found it in, per language ('archives_by_language'). 'hue' colours a category's tags.",
+ "about": "The Index's sound sets (library.py), written by tools/import_sounds.py from the HD2 modding community's archive labeling workbook and filediver's name lists. A set is the banks it names: 'banks' by path name, 'ids' by file id where the path name isn't known, 'voice' one bank per language (content/audio/<language>/<name>). 'hue' colours a category's tags.",
  "categories": [
   {"id": "weapons", "name": "Weapons", "hue": 60, "about": "Everything a Helldiver carries and fires: primaries, sidearms, grenades and support weapons.", "sections": [
    {"id": "weapons/primary", "name": "Primary Weapons", "about": "", "entries": [
@@ -274,7 +274,7 @@
    ]},
    {"id": "allies/civilians", "name": "Civilians and SEAF", "about": "", "entries": [
     {"name": "Civilian Exertions", "banks": ["content/audio/Mission_Civilian_Exertions"]},
-    {"name": "Civilians", "voice": "Mission_Civilian_VO"},
+    {"name": "Civilian Voices", "voice": "Mission_Civilian_VO", "was": ["Civilians"]},
     {"name": "NPC Movement", "banks": ["content/audio/foley_npcs"]},
     {"name": "SEAF Defender", "banks": ["content/audio/seaf_weapons_defender"], "was": ["set:weapons/seaf-defender"]},
     {"name": "SEAF Exertions", "banks": ["content/audio/Mission_SEAF_Exertions"]},
@@ -283,8 +283,8 @@
     {"name": "SEAF Liberator", "banks": ["content/audio/seaf_weapons_liberator"], "was": ["set:weapons/seaf-liberator"]},
     {"name": "SEAF Machinegun", "banks": ["content/audio/seaf_weapons_machinegun"], "was": ["set:weapons/seaf-machinegun"]},
     {"name": "SEAF Movement", "banks": ["content/audio/foley_seafs"]},
-    {"name": "SEAF Soldier", "archives_by_language": {"bp": ["b469160518360645"], "cn": ["39bcc0a878b5dec5"], "de": ["95e5b2f672b1b1bd"], "es": ["0f8bf2608bb6d871"], "fr": ["66b0aca985ac832a"], "it": ["1f63080e1cf2c6d7"], "jp": ["efdab187762db020"], "ms": ["8664ec59a3adcf59"], "us": ["7cf43b5d4c63838b"]}},
-    {"name": "SEAF Stim Pistol", "banks": ["content/audio/seaf_weapons_stim_pistol"], "was": ["set:weapons/seaf-stim-pistol"]}
+    {"name": "SEAF Stim Pistol", "banks": ["content/audio/seaf_weapons_stim_pistol"], "was": ["set:weapons/seaf-stim-pistol"]},
+    {"name": "SEAF Voices", "voice": "Mission_SEAF_VO", "was": ["SEAF Soldier"]}
    ]},
    {"id": "allies/training", "name": "Training", "about": "The training mission's voices and sounds.", "entries": [
     {"name": "General Brasch", "voice": "Tutorial_Instructor_VO"},
