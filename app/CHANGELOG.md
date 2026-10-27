@@ -45,7 +45,7 @@ A toolbar button lists a sound bank by container ID, as the bank's tree, the way
 - Buttons are in Title Case, and none ends in three dots, including the ones that open a dialog or a menu.
 - A music segment with several tracks shows the segment name on a separate line, with a row for each track under it.
 - The list of guides in the Wiki takes a quarter of the width, and the page the rest. Dragging the edge keeps the share when the window changes size.
-- Panel dividers turn light gray under the pointer, in place of the primary colour.
+- Panel dividers turn light grey under the pointer, in place of the primary colour.
 - The music list and the header of the Soundtrack resize by dragging their edges, as in the other tabs.
 - The Slots link of the Soundtrack sits beside the name of the music.
 - The waveforms button on the toolbar works only while one slot is selected.
