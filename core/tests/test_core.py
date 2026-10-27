@@ -82,7 +82,9 @@ def test_buttons_are_in_title_case():
     """Every button says what it does in Title Case, without three dots, even one that opens a dialog or a menu (the
     user's rule). Checked here: a button's own words, a menu entry's label and a confirm's answers. Articles,
     conjunctions and prepositions of four letters or fewer stay lower case inside a label; a busy state ("Building")
-    has no dots either. Words in a sentence (a search to try, a place) and names from data aren't labels."""
+    has no dots either. Words in a sentence (a search to try, a place) and names from data aren't labels. A menu
+    entry that is a name and what it does ("Battle Songs: every Intense Battle set to Same as Battle") has the name in
+    Title Case and the rest as a sentence."""
     small = {"a", "an", "the", "and", "but", "or", "nor", "for", "so", "yet", "as", "at", "by", "from", "in", "into",
              "of", "off", "on", "onto", "per", "to", "via", "with", "than"}
     src = HERE.parents[1] / "app" / "src"
@@ -103,6 +105,7 @@ def test_buttons_are_in_title_case():
             labels += [(f.name, s) for s in re.findall(r"`([^`]*)`|\"([^\"]*)\"", value) for s in s if s.strip()]
     found = []
     for name, label in labels:
+        label = label.split(": ")[0]  # a name, then what it does
         words = re.findall(r"[A-Za-z][\w'-]*", label)
         low = [w for i, w in enumerate(words) if w[0].islower() and (w not in small or i in (0, len(words) - 1))]
         if "…" in label or low:

@@ -98,7 +98,8 @@ Writing rules (`core/tests/test_core.py` checks the core's shown data against th
 - Buttons are in Title Case and never end in three dots, even when they open a dialog or a menu: *Choose Another
   Folder*, *Add to the Export List*, *Building* while busy. That covers segmented options, cards, link buttons, menu
   entries, the buttons of notices and the answers of a confirm. Articles, conjunctions and prepositions of four letters
-  or fewer stay lower case inside a label. Checkboxes, tooltips, headings and the Wiki stay in sentence case, and the
+  or fewer stay lower case inside a label. A menu entry that gives a name and then what it does keeps only the name in
+  Title Case (*Battle Songs: every Intense Battle set to Same as Battle*). Checkboxes, tooltips, headings and the Wiki stay in sentence case, and the
   Wiki names a button in bold as the button reads (`test_buttons_are_in_title_case`).
 - Every "?" (`Help`) opens its Wiki section (`page="page#heading"`). A new "?" gets a section to land on.
 - Everything clickable looks clickable. Buttons have an outline (`.btn.quiet` too), links are underlined.

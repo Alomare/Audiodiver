@@ -155,7 +155,7 @@ function MusicList({ sections, pick, setPick }: { sections: Sections; pick: Pick
     Object.keys(set).length ? actions.soundtrackSet(set, label, done) : quick("No music needed a change", "info");
   const templates: MenuEntry[] = [
     {
-      label: "Battle Songs: Every Intense Battle Set to Same as Battle", run: () => {
+      label: "Battle Songs: every Intense Battle set to Same as Battle", run: () => {
         const set: Record<string, Piece> = {};
         for (const g of combat) for (const it of g.items) {
           const follows = partnerOf(sections, it);
@@ -165,7 +165,7 @@ function MusicList({ sections, pick, setPick }: { sections: Sections; pick: Pick
       },
     },
     {
-      label: "Quiet Exploring: Every Exploring Set to Silent", run: () => {
+      label: "Quiet Exploring: every Exploring set to Silent", run: () => {
         const set: Record<string, Piece> = {};
         for (const g of combat) for (const it of g.items) {
           if (it.role === "exploring") for (const p of playlists(it)) set[p.cue] = { mode: "silent", ...gainOf(st, p.cue) };
@@ -174,7 +174,7 @@ function MusicList({ sections, pick, setPick }: { sections: Sections; pick: Pick
       },
     },
     {
-      label: "No Openings: Fights Start on the Music Itself", run: async () => {
+      label: "No Openings: fights start on the music itself", run: async () => {
         const set: Record<string, Piece> = {};
         for (const g of combat) for (const it of g.items) {
           if (it.role !== "battle" && it.role !== "intense") continue;
@@ -193,7 +193,7 @@ function MusicList({ sections, pick, setPick }: { sections: Sections; pick: Pick
     },
     "-",
     {
-      label: "Original: All Music Back to Original", disabled: !Object.keys(st).length, run: () => {
+      label: "Original: all music back to Original", disabled: !Object.keys(st).length, run: () => {
         actions.soundtrackSet(Object.fromEntries(Object.keys(st).map((cue) => [cue, null])), "Original soundtrack", "All music set back to Original");
       },
     },
