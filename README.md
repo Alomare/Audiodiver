@@ -98,13 +98,9 @@ The two tools of the Tools tab on their own, for players who only need to fix or
 
 A mod for an older game version, rebuilt on the current sound banks with the same audio, settings, options and ID. Text, models and textures stay as they were. **Installed mods** finds the mods that need it.
 
-<img src="assets/readme/repatch.png" alt="Tools, Repatch, after rebuilding a mod: the new ZIP, Show in Folder and Repatch Another Mod, then what was carried over, a string table included" width="100%">
-
 #### Combine Mods
 
 Several mods that change the same sound banks, built as one with the options chosen in the mod manager, text, models and textures included. Where two change the same sound, you play both versions and pick one.
-
-<img src="assets/readme/combine.png" alt="Combine Mods with two mods that both change Loadout Selection: six conflicts, each with both versions to play and the chosen one marked" width="100%">
 
 #### Command Line
 
