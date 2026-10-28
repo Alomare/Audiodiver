@@ -17,6 +17,7 @@ from types import SimpleNamespace
 
 import pytest
 
+from audiodiver import bank as wbank
 from audiodiver import editor, installed, patch, strings
 from audiodiver.editor import EditorError, Session
 from audiodiver.project import Replacement
@@ -313,3 +314,31 @@ def test_a_patch_brings_the_lines_of_text_it_changes(session, mod, tmp_path):
     texture = _patch(tmp_path / "texture" / TEXTS, carried=[patch.Carried(5, TEXTURE, b"tex", gpu=b"g" * 64)])
     j = _wait(s, s.import_patch(str(texture)))
     assert j["state"] == "failed" and j["error"] == f"{TEXTS} holds no audio or text that Audiodiver can bring in"
+
+
+@pytest.mark.game
+def test_a_patchs_make_up_gain_comes_in_on_the_slot(session, tmp_path):
+    """A patch that changes only a Sound's Make-Up Gain, as hd2-audio-modder writes it: the gain comes in on the slot
+    of the clip, over the game's own (the Original's while the slot has no new audio, else the new audio's), not as
+    a setting the details panel can't show."""
+    s, ix = session, session.ix
+    (clip, _), _ = _voices(ix)
+    bid = sorted(ix.banks_for(clip))[0]
+    bank, dep = ix.bank_files(bid)
+    hirc = wbank.parse(bank)[1]
+    sound = next(i for i, (t, b) in hirc.items() if t == wbank.SOUND and wbank.source_ids(t, bytes(b)) == [clip])
+    own = wbank.props(wbank.SOUND, bytes(hirc[sound][1])).get(patch.MAKEUP_GAIN, 0.0)
+    made = tmp_path / "gain" / AUDIO
+    made.parent.mkdir()
+    patch.write_patch(str(made), {}, {bid: patch.apply_settings(bank, {sound: {patch.MAKEUP_GAIN: own - 1.0}})[0]},
+                      {bid: dep} if dep else {})
+    s.new_project(tmp_path / "gain.audi", "Gain")
+    j = _wait(s, s.import_patch(str(made)))
+    assert j["state"] == "done", j["error"]
+    assert (j["result"]["gains"], j["result"]["settings"]) == (1, 0)
+    st = s.project_state()
+    assert st["gains"] == {str(clip): -1.0} and st["settings"] == 0 and not st["assignments"]
+    s.project.replacements.append(Replacement(target=clip, audio="mine.wav"))
+    j = _wait(s, s.import_patch(str(made)))
+    assert j["state"] == "done", j["error"]
+    assert next(r for r in s.project.replacements if r.target == clip).gain_db == -1.0 and not s.project.settings

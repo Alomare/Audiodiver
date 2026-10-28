@@ -126,13 +126,13 @@ The status bar at the bottom has undo and redo, the project file and the audio t
 
 ### History
 
-The clock beside undo and redo opens **History**, the list of changes made since the project opened, oldest first. The change the project is at is marked. Click an earlier one to undo every change after it at once, or one further down, in grey, to redo up to it. **As opened** undoes them all. Undo and redo keep working from wherever the list went, and the list keeps the last 200 changes.
+The clock beside undo and redo opens **History**, the list of changes made since the project opened, oldest first, each with the time it was made. The change the project is at is marked. Click an earlier one to undo every change after it at once, or one further down, in grey, to redo up to it. **As opened** undoes them all and shows when the project opened. Undo and redo keep working from wherever the list went, and the list keeps the last 200 changes.
 
 ### Notifications
 
-Short confirmations such as *Loadout Selection added to My Mod* or *My Mod saved* appear briefly at the bottom of the window. Notices that need reading, or that have a button such as Undo or Show in Folder, appear at the bottom right.
+Short confirmations such as *Loadout Selection added to My Mod* or *My Mod saved* appear briefly at the bottom of the window. Notices that need reading, or that have a button such as Undo or Show in Folder, appear at the bottom right, or in the corner set under **Notifications** in [Settings ▸ System](app:settings/system).
 
-The bell at the right end of the status bar lists the notices shown so far, newest first, with the time of each, to read one again after it is gone. The list keeps the last 100, also after Audiodiver restarts, and **Clear** empties it. It only lists them, and never shows anything by itself.
+The bell at the right end of the status bar lists the notices shown so far, newest first, with the time of each, to read one again after it is gone. A notice that led somewhere, such as the offer of the tutorials or one with **Show in Folder**, leads there again when clicked in the list. The list keeps the last 100, also after Audiodiver restarts. It only lists them, and never shows anything by itself.
 
 ## Ids
 

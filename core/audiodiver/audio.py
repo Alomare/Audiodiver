@@ -3,6 +3,7 @@ import array
 import hashlib
 import json
 import math
+import os
 import re
 import shutil
 import subprocess
@@ -88,14 +89,16 @@ def _peaks(path: Path, buckets: int, full: int = 255) -> dict:
     return {"duration_ms": round(n * 1000 / PEAK_RATE, 1), "full": full, "peaks": out}
 
 
-def duration_ms(path) -> float | None:
-    """The length of an audio file in ms (cached by path, time and size), or None when it can't be read."""
+def duration_ms(path, st: os.stat_result | None = None) -> float | None:
+    """The length of an audio file in ms (cached by path, time and size), or None when it can't be read. st: the
+    file's stat when the caller has it (project_state stats each file once)."""
     path = Path(path)
     try:
-        st = path.stat()
+        st = st or path.stat()
     except OSError:
         return None
-    key = (str(path.resolve()), st.st_mtime_ns, st.st_size)
+    # normpath, not resolve: the same key for "a/../b" without the system calls resolve makes for every file
+    key = (os.path.normpath(os.path.abspath(path)), st.st_mtime_ns, st.st_size)
     if key not in _durations:
         _durations[key] = _probe_ms(path)
     return _durations[key]

@@ -37,6 +37,7 @@ from .wem import length_ms
 ACTION, EVENT, RANSEQ, SWITCH, MIXER, LAYER = 0x03, 0x04, 0x05, 0x06, 0x07, 0x09
 CONTAINERS = (RANSEQ, SWITCH, MIXER, LAYER)
 PLAY = 0x04          # an action's kind (the high byte of its type)
+MAKEUP_GAIN = 0x05   # in a prop bundle, as hd2-audio-modder writes it (patch.MAKEUP_GAIN)
 WEIGHT = 50000       # a playlist item's weight, where there is none to copy (the game's are all this)
 BANK = 0             # a source held in the bank
 _AFTER_BASE = {RANSEQ: 24, SWITCH: 10, MIXER: 0, LAYER: 0}  # bytes between the base params and the child list
@@ -642,6 +643,9 @@ class Found:
     layers: list = field(default_factory=list)    # (layer id, the game's container it plays with, its Make-Up Gain over that one's)
     own: list = field(default_factory=list)       # (the game's Sound, its new clip, wem)
     settings: dict = field(default_factory=dict)  # {the game's object: {prop id: the mod's value, or None}} (Project.settings)
+    gains: dict = field(default_factory=dict)     # {the game's Sound or MusicTrack among settings: (the clips it plays in
+                                                  # the mod, the mod's Make-Up Gain over the game's)}: an import puts
+                                                  # it on those slots, where the details panel shows it
     left: list = field(default_factory=list)      # what can't be brought in, in words for people
     other: dict = field(default_factory=dict)     # {bank: how many other changes the patch makes in it} (left out too;
                                                   # Session._patch_audio says them, with the bank's name)
@@ -781,7 +785,8 @@ def from_patch(ix, d: dict) -> Found:
     new takes; a new random container with new Sounds, played with one of the game's, is a layer beside it; a
     Sound of the game that plays a clip it didn't is a clip of its own; new audio for one of the game's clips is a
     replacement. The same addition in several banks counts once. Settings the mod changes on the game's objects (a
-    Sound's, a container's or a MusicTrack's prop bundle: Make-Up Gain, delays, sends...) are `settings`. What
+    Sound's, a container's or a MusicTrack's prop bundle: Make-Up Gain, delays, sends...) are `settings`, and a
+    Sound's or MusicTrack's Make-Up Gain is also in `gains`, by the clips it plays. What
     doesn't map is said in `left`, and the other changes in a bank are counted in `other`. A patch made for an older game version
     still has the game's objects of that version: those aren't the mod's (older_version), its Sounds are counted in
     `stale`, the objects the game added since aren't ones the mod took out, nor the settings it added ones the mod
@@ -918,6 +923,9 @@ def from_patch(ix, d: dict) -> Found:
                                                     (k in wbank.MIX_PROPS or not (lacks or shared))}
                 if kept:
                     out.settings.setdefault(i, kept)
+                    if MAKEUP_GAIN in kept and t in (SOUND, MUSIC_TRACK) and i not in out.gains:
+                        out.gains[i] = (wbank.source_ids(t, body),
+                                        kept[MAKEUP_GAIN] - wbank.props(t, vanilla[i][1]).get(MAKEUP_GAIN, 0.0))
                 if kept != changes:
                     out.older.add(i)
                 if i in explained:

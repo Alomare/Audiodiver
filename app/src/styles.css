@@ -568,14 +568,22 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .sb-pop-head h2 { font-size: calc(15px * var(--fs)); }
 .sb-pop-empty { margin: 0; padding: 12px; color: var(--muted); font-size: calc(14px * var(--fs)); }
 .hist-list, .note-log { list-style: none; margin: 0; padding: 4px 0; }
-.hist-row { display: block; width: 100%; padding: calc(4px * var(--sp)) 12px calc(4px * var(--sp)) 10px; text-align: left; color: var(--muted);
-  font-size: calc(14px * var(--fs)); border-left: 2px solid transparent; }
+.hist-row { display: flex; align-items: baseline; gap: 12px; width: 100%; padding: calc(4px * var(--sp)) 12px calc(4px * var(--sp)) 10px;
+  text-align: left; color: var(--muted); font-size: calc(14px * var(--fs)); border-left: 2px solid transparent; }
+.hist-name { min-width: 0; overflow-wrap: anywhere; }
+.hist-time { flex: none; margin-left: auto; color: var(--faint); font-size: calc(12px * var(--fs)); font-variant-numeric: tabular-nums; }
 .hist-row:hover { background: var(--hover); color: var(--text); }
 .hist-row.now { background: var(--sel-bg); color: var(--text); border-left-color: var(--second-fg); }
 .hist-row.undone { color: var(--faint); }
 .note-row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; padding: calc(7px * var(--sp)) 12px; font-size: calc(14px * var(--fs)); }
 .note-row + .note-row { border-top: 1px solid var(--line-soft); }
-.note-row > span:last-child, .note-row > .notice-text { min-width: 0; overflow-wrap: anywhere; }
+.note-body { min-width: 0; overflow-wrap: anywhere; }
+/* one that leads somewhere (Notifications in the status bar): the whole row is the button, named under its words */
+.note-row.leads { cursor: pointer; }
+.note-row.leads:hover { background: var(--hover); }
+.note-go { display: block; margin-top: 3px; color: var(--muted); font-size: calc(13px * var(--fs)); font-weight: 600;
+  text-decoration: underline; text-underline-offset: 3px; }
+.note-row.leads:hover .note-go { color: var(--text); }
 .note-time { padding-top: 1px; color: var(--faint); font-size: calc(12px * var(--fs)); white-space: nowrap; }
 .note-time::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: var(--steel); vertical-align: 1px; }
 .note-row.good .note-time::before { background: var(--accent-fg); }
@@ -583,6 +591,13 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .statusbar .busy { color: var(--accent-fg); }
 .notices { position: fixed; bottom: calc(38px + 8px * var(--sp)); right: 16px; display: flex; flex-direction: column; gap: 8px; z-index: 30; max-width: 460px; }
 :root[data-bar="bottom"] .notices { bottom: calc(38px + 8px * var(--sp) + var(--bar)); } /* above the tab bar too */
+/* the corner Settings ▸ System ▸ Notifications puts them in (bottom right by default), clear of a tab bar beside it;
+   at the top, the newest is nearest the corner too */
+.notices.top, :root[data-bar="bottom"] .notices.top { top: calc(8px + 8px * var(--sp)); bottom: auto; flex-direction: column-reverse; }
+:root[data-bar="top"] .notices.top { top: calc(8px + 8px * var(--sp) + var(--bar)); }
+.notices.left { right: auto; left: 16px; }
+:root[data-bar="left"] .notices.left { left: calc(16px + var(--bar)); }
+:root[data-bar="right"] .notices.right { right: calc(16px + var(--bar)); }
 .notice { display: flex; gap: 10px; align-items: center; background: var(--raised); border: 1px solid var(--line); border-left: 3px solid var(--steel); padding: calc(10px * var(--sp)) 10px calc(10px * var(--sp)) 14px; box-shadow: 0 10px 30px var(--shadow); font-size: calc(14px * var(--fs)); }
 .notice span, .notice-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .notice:has(.notice-text) { align-items: flex-start; } /* a notice of several lines keeps its buttons by its first line */
@@ -1048,6 +1063,8 @@ button.ctag:hover { background: color-mix(in oklch, var(--c) 24%, transparent); 
 @keyframes menu-in { from { opacity: 0; transform: scale(.96); } }
 @keyframes slide-in { from { opacity: 0; transform: translateX(28px); } }
 @keyframes slide-out { to { opacity: 0; transform: translateX(28px); } }
+@keyframes slide-in-left { from { opacity: 0; transform: translateX(-28px); } }
+@keyframes slide-out-left { to { opacity: 0; transform: translateX(-28px); } }
 @keyframes view-in { from { opacity: 0; transform: translateY(4px); } }
 @keyframes flash { from { background: color-mix(in srgb, var(--accent-fg) 24%, transparent); } to { background: transparent; } }
 @keyframes pulse { 50% { opacity: .5; } }
@@ -1080,6 +1097,9 @@ button.ctag:hover { background: color-mix(in oklch, var(--c) 24%, transparent); 
   70%, 100% { box-shadow: 0 10px 30px var(--shadow), 0 0 0 14px color-mix(in srgb, var(--accent) 0%, transparent); }
 }
 .notice.leaving { animation: slide-out var(--t2) var(--ease-in) both; pointer-events: none; }
+.notices.left .notice { animation-name: slide-in-left; }
+.notices.left .notice.lead { animation-name: slide-in-left, lead-glow; }
+.notices.left .notice.leaving { animation-name: slide-out-left; }
 .np { animation: fade-in var(--t2) ease-out both; }
 /* the window once the game is read, the Editor coming back from another tab, the library changing view, the
    waveforms and the Build tab's problem count showing up. No fill: an animation that stays in effect would keep these
@@ -1752,7 +1772,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .tut-panel { position: absolute; left: 0; top: 0; width: min(calc(360px * var(--fs)), calc(100vw - 24px)); padding: 10px 14px 14px;
   pointer-events: auto; background: var(--accent); color: var(--accent-ink); border: 1px solid var(--accent); box-shadow: 0 18px 44px var(--shadow);
   transition: background-color var(--t2), color var(--t2), border-color var(--t2); }
-.tut-panel:hover { background: var(--raised); color: var(--text); border-color: var(--line); }
+.tut-panel:is(:hover, .seen) { background: var(--raised); color: var(--text); border-color: var(--line); }
 .tut-top { display: flex; align-items: center; gap: 10px; font-size: calc(12px * var(--fs)); }
 .tut-count { opacity: .75; }
 .tut-stop { margin-left: auto; padding: 2px 8px; border: 1px solid currentColor; border-radius: 2px; opacity: .8; }
@@ -1767,7 +1787,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .tut-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 .tut-panel .btn { background: transparent; color: inherit; border: 1px solid currentColor; }
 .tut-panel .btn.tut-act { background: var(--accent-ink); color: var(--accent); border-color: var(--accent-ink); font-weight: 700; }
-.tut-panel:hover .btn.tut-act { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.tut-panel:is(:hover, .seen) .btn.tut-act { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 /* the Wiki's page of interactive tutorials (the offer at startup is an announcement, .notice.lead) */
 .tut-cards { display: flex; flex-direction: column; gap: 14px; margin-top: 22px; }
 .tut-card { padding: 14px 16px; background: var(--panel); border: 1px solid var(--line-soft); }
@@ -1776,6 +1796,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .tut-card ul { margin: 0 0 12px; padding-left: 20px; }
 .tut-card-foot { display: flex; align-items: center; gap: 12px; }
 .tut-len { color: var(--muted); font-size: calc(13px * var(--fs)); }
+.tut-more { margin: 12px 0 0; color: var(--muted); font-size: calc(13px * var(--fs)); }
 .tut-card-foot .btn { margin-left: auto; }
 .wiki-tut { --faq: var(--accent-fg); }
 
@@ -1947,6 +1968,9 @@ kbd.none { color: var(--faint); font-weight: 400; }
 
 /* Settings ▸ System ▸ Updates */
 .segmented.updates-mode { max-width: calc(470px * var(--fs)); }
+/* the corners of notices: each as wide as its words (Superior esquerdo would be cut short in equal columns) */
+.segmented.corners { grid-auto-columns: auto; align-self: flex-start; }
+.segmented.corners button { padding-left: 12px; padding-right: 12px; }
 
 /* ---------- the Updates tab (UpdatesTab.tsx): this version and what is new in a card, the foot line, then every
    version's changes as a timeline. Tones: current (up to date, neutral with a green check), new (primary colour),

@@ -11,7 +11,7 @@ O Helldivers 2 toca o áudio com o **Wwise**, um motor de áudio que muitos jogo
 
 Do maior para o menor:
 
-1. Um **pacote** é um dos arquivos da pasta `data` do jogo, nomeado com um código de 16 caracteres como `2e24ba9dd702da24`. Um pacote geralmente contém o áudio de uma coisa, como uma arma, a música de uma facção ou uma voz num idioma. **Todos os pacotes** os lista.
+1. Um **pacote** é um dos arquivos da pasta `data` do jogo, nomeado com um código de 16 caracteres como `2e24ba9dd702da24`. Um pacote geralmente contém o áudio de uma coisa, como uma arma, a música de uma facção ou uma voz num idioma. **Todos os Pacotes** os lista.
 2. Um **banco** é um banco de sons do Wwise dentro de um pacote. Ele contém clipes e os **sons** que os tocam. A linha *No pacote …* no topo do painel do meio nomeia tanto o pacote quanto o banco.
 3. Um **som** é uma coisa que o jogo pode disparar, como *tiro de canhão automático* ou *"Reloading!"*. Um som tem um ou mais **takes** e toca um deles a cada vez.
 4. Um **take** é uma gravação de um som. Um tiro de fuzil tem vários takes, e o jogo escolhe um ao acaso para que dois tiros nunca soem iguais. O take é o clipe que uma substituição muda.

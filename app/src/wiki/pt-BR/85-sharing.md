@@ -26,4 +26,4 @@ Um pack (`.audipack`) leva um projeto e os arquivos que ele usa para outro compu
 ## Direitos {#rights}
 
 - Compartilhe só músicas que você tem o direito de compartilhar, e dê o crédito aos artistas.
-- As exportações do áudio original (**Exportar** na Biblioteca, ou **Original** e **Ambos** no painel de exportação da aba Áudio e da Trilha sonora) servem como referência e para o trabalho no mod. Não as envie.
+- As exportações do áudio original (**Exportar** na Biblioteca, ou **Original** e **Ambos** no painel de exportação da aba Áudio e da Trilha Sonora) servem como referência e para o trabalho no mod. Não as envie.

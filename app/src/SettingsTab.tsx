@@ -11,7 +11,7 @@ import { Page, tabArrows } from "./Page";
 import { reveal } from "./platform";
 import { rangeVars } from "./range";
 import { player } from "./player";
-import { AUTOSAVE_DEFAULT, AUTOSAVE_MAX, DEFAULT_SETTINGS, resetLayout, settings, TIP_SPEEDS, UPDATE_MODES, UPDATE_NOTES, useSettings } from "./settings";
+import { AUTOSAVE_DEFAULT, AUTOSAVE_MAX, DEFAULT_SETTINGS, NOTICE_CORNERS, resetLayout, settings, TIP_SPEEDS, UPDATE_MODES, UPDATE_NOTES, useSettings } from "./settings";
 import { useEditor } from "./store";
 import { Help } from "./Wiki";
 import { autoLanguage, chooseLanguage, chosenLanguage, languageName, LANGUAGES, PSEUDO, type Choice } from "./i18n";
@@ -27,7 +27,7 @@ const SUBS: [Sub, string, string][] = UTILS ? [
   ["system", t`System`, t`Game folder, updates, tooltips, disk space`],
   ["theme", t`Theme`, t`Dark or light, contrast, text size`],
 ] : [
-  ["system", t`System`, t`Game folder, tabs, startup, updates, tooltips, disk space, layout`],
+  ["system", t`System`, t`Game folder, tabs, startup, updates, tooltips, notifications, disk space, layout`],
   ["shortcuts", t`Shortcuts`, t`Shortcut keys and rebinding`],
   ["theme", t`Theme`, t`Colours, text, spacing, the tab bar, animations`],
 ];
@@ -110,9 +110,9 @@ function System() {
   };
   // the settings on this page (the build switches live on the Build tab)
   const defaults = { openLast: DEFAULT_SETTINGS.openLast, tips: DEFAULT_SETTINGS.tips, updates: DEFAULT_SETTINGS.updates, tabs: DEFAULT_SETTINGS.tabs,
-    autosave: DEFAULT_SETTINGS.autosave };
+    autosave: DEFAULT_SETTINGS.autosave, noticeCorner: DEFAULT_SETTINGS.noticeCorner };
   const changed = s.openLast !== defaults.openLast || s.tips !== defaults.tips || s.updates !== defaults.updates
-    || s.tabs.join() !== defaults.tabs.join() || s.autosave !== defaults.autosave;
+    || s.tabs.join() !== defaults.tabs.join() || s.autosave !== defaults.autosave || s.noticeCorner !== defaults.noticeCorner;
   const saveKey = keyLabel("save");
 
   return (
@@ -179,6 +179,19 @@ function System() {
           </div>
           <small>{s.tips === "off" ? t`Off. The “?” buttons still show their text.`
             : s.tips === "quick" ? t`Almost immediately.` : s.tips === "slow" ? t`After the pointer rests for a second.` : t`After the pointer rests for half a second.`}</small>
+        </div>
+      </section>
+
+      <section className="set-sec">
+        <h2><Trans>Notifications</Trans></h2>
+        <div className="field">
+          <span className="field-label"><Trans comment="Field label: the corner of the window notifications show in">Corner</Trans></span>
+          <div className="segmented corners" role="radiogroup" aria-label={t`Notifications`}>
+            {NOTICE_CORNERS.map(([id, name]) => (
+              <button key={id} role="radio" aria-checked={s.noticeCorner === id} className={s.noticeCorner === id ? "on" : ""}
+                onClick={() => settings.set({ noticeCorner: id })}>{name}</button>
+            ))}
+          </div>
         </div>
       </section>
 

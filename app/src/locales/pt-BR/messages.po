@@ -1344,7 +1344,7 @@ msgstr "Todos"
 #: src/ItemHead.tsx
 #: src/Library.tsx
 msgid "All Archives"
-msgstr "Todos os pacotes"
+msgstr "Todos os Pacotes"
 
 #: src/SettingsTab.tsx
 msgid "All commands go back to their default keys."
@@ -1740,6 +1740,14 @@ msgstr "Ambos"
 #: src/theme.ts
 msgid "Bottom"
 msgstr "Inferior"
+
+#: src/settings.ts
+msgid "Bottom Left"
+msgstr "Inferior esquerdo"
+
+#: src/settings.ts
+msgid "Bottom Right"
+msgstr "Inferior direito"
 
 #. The name of the Build tab, as the title of a tutorial step
 #. Title of the Build tab
@@ -2213,7 +2221,6 @@ msgstr "Círculo"
 
 #. Button: deletes these files
 #. Button: deletes these files
-#: src/App.tsx
 #: src/SettingsTab.tsx
 msgid "Clear"
 msgstr "Limpar"
@@ -2386,7 +2393,7 @@ msgstr "A combinação falhou: {why}"
 #: src/Home.tsx
 #: src/ToolsTab.tsx
 msgid "Combine Mods"
-msgstr "Combinar mods"
+msgstr "Combinar Mods"
 
 #: src/CombinePage.tsx
 msgid "Combined"
@@ -2561,6 +2568,11 @@ msgstr "Copiar para"
 #: src/About.tsx
 msgid "core {core}"
 msgstr "núcleo {core}"
+
+#. Field label: the corner of the window notifications show in
+#: src/SettingsTab.tsx
+msgid "Corner"
+msgstr "Canto"
 
 #. The icon frame: how round the corners are
 #: src/ProjectTab.tsx
@@ -2823,7 +2835,7 @@ msgstr "Soltar arquivos em uma peça, uma parte ou um slot na aba Áudio"
 
 #: src/keys.ts
 msgid "Drop files on a place of a playlist in the Soundtrack"
-msgstr "Soltar arquivos em uma posição de uma playlist na Trilha sonora"
+msgstr "Soltar arquivos em uma posição de uma playlist na Trilha Sonora"
 
 #: src/App.tsx
 msgid "Drop images on the icon on the Project tab"
@@ -3135,11 +3147,11 @@ msgstr "A exportação falhou: {why}"
 
 #: src/ExportDialog.tsx
 msgid "Export list"
-msgstr "Lista de exportação"
+msgstr "Lista de Exportação"
 
 #: src/ExportDialog.tsx
 msgid "Export List"
-msgstr "Lista de exportação"
+msgstr "Lista de Exportação"
 
 #: src/platform.ts
 msgid "Export the project as a pack"
@@ -3405,8 +3417,8 @@ msgid "Game audio, explained"
 msgstr "O áudio do jogo, explicado"
 
 #: src/SettingsTab.tsx
-msgid "Game folder, tabs, startup, updates, tooltips, disk space, layout"
-msgstr "Pasta do jogo, abas, inicialização, atualizações, dicas, espaço em disco, layout"
+msgid "Game folder, tabs, startup, updates, tooltips, notifications, disk space, layout"
+msgstr "Pasta do jogo, abas, inicialização, atualizações, dicas, notificações, espaço em disco, layout"
 
 #: src/SettingsTab.tsx
 msgid "Game folder, updates, tooltips, disk space"
@@ -3467,7 +3479,7 @@ msgstr "Ir para Projeto"
 
 #: src/keys.ts
 msgid "Go to Soundtrack"
-msgstr "Ir para Trilha sonora"
+msgstr "Ir para Trilha Sonora"
 
 #: src/keys.ts
 msgid "Go to Text"
@@ -3796,12 +3808,12 @@ msgstr "Batalha intensa segue Batalha para {enemies, plural, one {# inimigo} oth
 
 #: src/Tutorial.tsx
 msgid "Interactive tutorials"
-msgstr "Tutoriais interativos"
+msgstr "Tutoriais Interativos"
 
 #: src/Tutorial.tsx
 #: src/Wiki.tsx
 msgid "Interactive Tutorials"
-msgstr "Tutoriais interativos"
+msgstr "Tutoriais Interativos"
 
 #. Search words in lower case. Typing them in the Wiki's guide search shows the Interactive Tutorials entry.
 #: src/Wiki.tsx
@@ -4162,6 +4174,10 @@ msgstr "Make-Up Gain em dB"
 msgid "Make-Up Gain in dB, typed"
 msgstr "Make-Up Gain em dB, digitado"
 
+#: src/store.tsx
+msgid "Make-Up Gain on {gains, plural, one {# sound} other {# sounds}}"
+msgstr "Make-Up Gain em {gains, plural, one {# som} other {# sons}}"
+
 #: src/CueView.tsx
 msgid "Make-Up Gain on the original"
 msgstr "Make-Up Gain no original"
@@ -4280,6 +4296,10 @@ msgstr "Mais"
 #: src/RepatchPage.tsx
 msgid "More in the Wiki"
 msgstr "Mais na Wiki"
+
+#: src/Tutorial.tsx
+msgid "More interactive tutorials may be added in the future."
+msgstr "Mais tutoriais interativos podem ser adicionados no futuro."
 
 #: src/SettingsTab.tsx
 msgid "More room around rows and buttons."
@@ -4918,7 +4938,7 @@ msgstr "Nada para gerar ainda"
 
 #: src/store.tsx
 msgid "Nothing to build yet. Replace some audio, set a piece in the Soundtrack or change a line of text first."
-msgstr "Nada para gerar ainda. Primeiro substitua algum áudio, configure uma peça na Trilha sonora ou altere uma linha de texto."
+msgstr "Nada para gerar ainda. Primeiro substitua algum áudio, configure uma peça na Trilha Sonora ou altere uma linha de texto."
 
 #: src/RepatchPage.tsx
 msgid "nothing to carry over"
@@ -4959,6 +4979,7 @@ msgid "Nothing went in"
 msgstr "Nada foi incluído"
 
 #: src/App.tsx
+#: src/SettingsTab.tsx
 msgid "Notifications"
 msgstr "Notificações"
 
@@ -6661,7 +6682,7 @@ msgstr "Mostrar IDs de contêiner"
 #: src/IndexTree.tsx
 #: src/ItemHead.tsx
 msgid "Show in All Archives"
-msgstr "Mostrar em Todos os pacotes"
+msgstr "Mostrar em Todos os Pacotes"
 
 #: src/Inspector.tsx
 #: src/ProjectTab.tsx
@@ -6943,7 +6964,7 @@ msgstr "trilha sonora"
 #: src/App.tsx
 #: src/SettingsTab.tsx
 msgid "Soundtrack"
-msgstr "Trilha sonora"
+msgstr "Trilha Sonora"
 
 #: src/About.tsx
 msgid "Source Code"
@@ -7984,6 +8005,14 @@ msgstr "Dicas"
 msgid "Top"
 msgstr "Superior"
 
+#: src/settings.ts
+msgid "Top Left"
+msgstr "Superior esquerdo"
+
+#: src/settings.ts
+msgid "Top Right"
+msgstr "Superior direito"
+
 #: src/content.ts
 msgid "transcribing voice lines to match them to subtitles"
 msgstr "transcrição de falas para associá-las às legendas"
@@ -8358,7 +8387,7 @@ msgstr "Branco"
 
 #: src/IndexTree.tsx
 msgid "Whole archives, from All Archives"
-msgstr "Pacotes inteiros, de Todos os pacotes"
+msgstr "Pacotes inteiros, de Todos os Pacotes"
 
 #: src/Soundtrack.tsx
 msgid "Whole songs, one after another or shuffled"

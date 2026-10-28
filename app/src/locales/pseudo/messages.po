@@ -1741,6 +1741,14 @@ msgstr ""
 msgid "Bottom"
 msgstr ""
 
+#: src/settings.ts
+msgid "Bottom Left"
+msgstr ""
+
+#: src/settings.ts
+msgid "Bottom Right"
+msgstr ""
+
 #. The name of the Build tab, as the title of a tutorial step
 #. Title of the Build tab
 #: src/BuildTab.tsx
@@ -2213,7 +2221,6 @@ msgstr ""
 
 #. Button: deletes these files
 #. Button: deletes these files
-#: src/App.tsx
 #: src/SettingsTab.tsx
 msgid "Clear"
 msgstr ""
@@ -2560,6 +2567,11 @@ msgstr ""
 #. The version of the Audiodiver core, the program behind the window
 #: src/About.tsx
 msgid "core {core}"
+msgstr ""
+
+#. Field label: the corner of the window notifications show in
+#: src/SettingsTab.tsx
+msgid "Corner"
 msgstr ""
 
 #. The icon frame: how round the corners are
@@ -3405,7 +3417,7 @@ msgid "Game audio, explained"
 msgstr ""
 
 #: src/SettingsTab.tsx
-msgid "Game folder, tabs, startup, updates, tooltips, disk space, layout"
+msgid "Game folder, tabs, startup, updates, tooltips, notifications, disk space, layout"
 msgstr ""
 
 #: src/SettingsTab.tsx
@@ -4162,6 +4174,10 @@ msgstr ""
 msgid "Make-Up Gain in dB, typed"
 msgstr ""
 
+#: src/store.tsx
+msgid "Make-Up Gain on {gains, plural, one {# sound} other {# sounds}}"
+msgstr ""
+
 #: src/CueView.tsx
 msgid "Make-Up Gain on the original"
 msgstr ""
@@ -4279,6 +4295,10 @@ msgstr ""
 #: src/CombinePage.tsx
 #: src/RepatchPage.tsx
 msgid "More in the Wiki"
+msgstr ""
+
+#: src/Tutorial.tsx
+msgid "More interactive tutorials may be added in the future."
 msgstr ""
 
 #: src/SettingsTab.tsx
@@ -4959,6 +4979,7 @@ msgid "Nothing went in"
 msgstr ""
 
 #: src/App.tsx
+#: src/SettingsTab.tsx
 msgid "Notifications"
 msgstr ""
 
@@ -7982,6 +8003,14 @@ msgstr ""
 
 #: src/theme.ts
 msgid "Top"
+msgstr ""
+
+#: src/settings.ts
+msgid "Top Left"
+msgstr ""
+
+#: src/settings.ts
+msgid "Top Right"
 msgstr ""
 
 #: src/content.ts

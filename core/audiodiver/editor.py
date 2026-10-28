@@ -66,6 +66,10 @@ def _unsaved(e: OSError, path) -> str:
     return tr("Nothing changed, because the project file couldn't be saved. {why}.").format(why=why)
 
 
+def _now_ms() -> int:
+    return int(time.time() * 1000)
+
+
 class EditorError(Exception):
     """A message for the person using the app: the UI shows it as it is."""
     for_people = True
@@ -178,7 +182,8 @@ class Session:
         self.stage, self.load_error = "starting", None
         self.game_where = {"path": None, "how": None}  # the data folder in use (or tried) and how it was found
         self.project: Project | None = None
-        self.undo_stack, self.redo_stack = [], []
+        self.undo_stack, self.redo_stack = [], []  # (label, the project before or after it, when it was made in ms)
+        self.opened_at = _now_ms()  # when the project open now was opened (the History list)
         # {mod id: the version its last build moved it on to}: undo and redo never take a project below it, so the
         # next build never overwrites a ZIP already made (see _bump_version). By id, not path: another project made
         # later at the same path is another mod.
@@ -582,7 +587,7 @@ class Session:
             self.flush()  # the project open until now keeps what waits
             self.project = Project(name=name, path=path, library=[], tabs=tabs)  # blank: nothing to edit yet
             self.project.save()
-            self.undo_stack, self.redo_stack = [], []
+            self.undo_stack, self.redo_stack, self.opened_at = [], [], _now_ms()
             self.revision += 1
         if folder:  # the next new project is offered the same place
             save_settings(projects_folder=str(path.parent.parent))
@@ -609,7 +614,7 @@ class Session:
                                else tr("{file} isn't an Audiodiver project")).format(file=path.name)) from None
         with self.lock:
             self.flush()
-            self.project, self.undo_stack, self.redo_stack = p, [], []
+            self.project, self.undo_stack, self.redo_stack, self.opened_at = p, [], [], _now_ms()
             self.revision += 1
         return self.project_state()
 
@@ -674,7 +679,7 @@ class Session:
     def close_project(self):
         with self.lock:
             self.flush()
-            self.project, self.undo_stack, self.redo_stack = None, [], []
+            self.project, self.undo_stack, self.redo_stack, self.opened_at = None, [], [], _now_ms()
             self.revision += 1
 
     def _need_project(self):
@@ -1097,6 +1102,15 @@ class Session:
         p = self._need_project()
         self._adopt(p)
         assignments, unresolved, added = {}, [], p.added()
+        stats = {}  # each audio file's stat (None: not there), taken once: this runs after every edit
+
+        def stat(path: Path):
+            if (k := str(path)) not in stats:
+                try:
+                    stats[k] = path.stat()
+                except OSError:
+                    stats[k] = None
+            return stats[k]
         for r in p.replacements:
             try:
                 sid = self.ix.resolve(r.target) if self.ix and r.target not in added else r.target
@@ -1104,12 +1118,14 @@ class Session:
                 unresolved.append({"target": str(r.target), "audio": r.audio, "label": r.label})
                 continue
             cues = self.catalog.cm.by_source.get(sid, []) if self.catalog else []
-            exists = r.silence or p.audio_path(r).exists()
+            audio = None if r.silence else p.audio_path(r)
+            st = audio and stat(audio)
+            exists = r.silence or st is not None
             assignments[str(sid)] = {
                 "target": str(r.target), "audio": r.audio, "label": r.label, "gain_db": r.gain_db,
                 "fit_timing": r.fit_timing, "silence": r.silence, "exists": exists,
                 "name": tr("Silence") if r.silence else Path(r.audio).name, "cues": [str(c) for c in cues],
-                "duration_ms": SILENCE_MS if r.silence else duration_ms(p.audio_path(r)) if exists else None}
+                "duration_ms": SILENCE_MS if r.silence else duration_ms(audio, st) if exists else None}
         by_file = {}  # a file -> the music segments that play it: where one slot's cue points can go too
         for sid, a in assignments.items():
             if not a["silence"]:
@@ -1118,7 +1134,7 @@ class Session:
             a["file_segments"] = 0 if a["silence"] else len(by_file[a["audio"]])
         # what stops a build, as (kind, sentence): Project.problem_list's, and "unresolved", "same_sound",
         # "unreadable", "no_file" and "loudness" from here. The app goes by the kinds (problem_kinds)
-        problems = p.problem_list() + [("unresolved", tr(
+        problems = p.problem_list(exists=lambda path: stat(path) is not None) + [("unresolved", tr(
             "{name}: sound {id} isn't in this version of the game (remove it, or replace another sound)").format(
                 name=u["label"] or u["audio"] or tr("silence"), id=u["target"])) for u in unresolved]
         by_sound = {}
@@ -1173,7 +1189,7 @@ class Session:
                 "gains": {str(self._target(t)): db for t, db in p.gains.items()},
                 "segment_overrides": {str(k): v for k, v in p.segment_overrides.items()},
                 "texts": [{"table": str(t.table), "id": t.id, "text": t.text, "was": t.was} for t in p.texts],
-                "additions": p.to_json().get("additions", []), "stand_ins": self._stand_ins(p),
+                "additions": p.additions_json(), "stand_ins": self._stand_ins(p),
                 "settings": len(p.settings), "notes": dict(p.notes),
                 "soundtrack": {str(k): v.to_json() for k, v in p.soundtrack.items()}, "tabs": p.tabs,
                 "problems": [text for _, text in problems], "problem_kinds": [kind for kind, _ in problems],
@@ -1181,9 +1197,11 @@ class Session:
                 "unsaved": self.unsaved_since is not None,
                 "undo_label": self.undo_stack[-1][0] if self.undo_stack else None,
                 "redo_label": self.redo_stack[-1][0] if self.redo_stack else None,
-                # the History list: the edits done, oldest first, and those undone, the next one to redo first
-                "history": [label for label, _ in self.undo_stack],
-                "future": [label for label, _ in reversed(self.redo_stack)]}
+                # the History list: the edits done, oldest first, and those undone, the next one to redo first,
+                # each with when it was made (ms), and when the project was opened
+                "history": [e[0] for e in self.undo_stack], "history_at": [e[2] for e in self.undo_stack],
+                "future": [e[0] for e in reversed(self.redo_stack)],
+                "future_at": [e[2] for e in reversed(self.redo_stack)], "opened_at": self.opened_at}
 
     # --- edits (each one is undoable and autosaves)
     def _edit(self, label, fn):
@@ -1206,7 +1224,7 @@ class Session:
                     self.project = Project.from_json(before, p.path)
                     raise EditorError(_unsaved(e, p.path)) from None
                 self.revision += 1
-                self.undo_stack.append((label, before))
+                self.undo_stack.append((label, before, _now_ms()))
                 del self.undo_stack[:-UNDO_LIMIT]
                 self.redo_stack.clear()
             return self.project_state()
@@ -1246,8 +1264,8 @@ class Session:
                 return self.project_state()
             before = self.project.to_json()
             cur, moved = before, []
-            for label, d in reversed(src[-n:]):
-                moved.append((label, cur))
+            for label, d, at in reversed(src[-n:]):
+                moved.append((label, cur, at))
                 cur = d
             try:
                 self._restore(cur)
@@ -1260,7 +1278,7 @@ class Session:
 
     def _step(self, src, dst):
         """Moves one step from src to dst (undo or redo). A project file that can't be saved keeps both as they were."""
-        label, d = src[-1]
+        label, d, at = src[-1]
         now = self.project.to_json()
         try:
             self._restore(d)
@@ -1268,7 +1286,7 @@ class Session:
             self.project = Project.from_json(now, self.project.path)
             raise EditorError(_unsaved(e, self.project.path)) from None
         src.pop()
-        dst.append((label, now))
+        dst.append((label, now, at))
 
     def _relative(self, p: Project, audio) -> str:
         from .audio import duration_ms
@@ -1765,7 +1783,7 @@ class Session:
     # --- the project's folder (projectfiles.py)
     def _history(self) -> list[dict]:
         """The open project and every step of its undo history, as to_json() dicts: what may still use a file."""
-        return [self.project.to_json(), *(d for _, d in self.undo_stack), *(d for _, d in self.redo_stack)]
+        return [self.project.to_json(), *(e[1] for e in self.undo_stack), *(e[1] for e in self.redo_stack)]
 
     def projects_folder(self) -> str:
         """Where new projects go: the folder the last one was made in, else Documents/Audiodiver/Projects (made when
@@ -1821,8 +1839,8 @@ class Session:
                     raise EditorError(tr("The project couldn't move: {why}").format(why=os_error(e))) from None
                 raise
             self.project = moved
-            self.undo_stack = [(label, pf.rebase(d, old, dest, plan)) for label, d in self.undo_stack]
-            self.redo_stack = [(label, pf.rebase(d, old, dest, plan)) for label, d in self.redo_stack]
+            self.undo_stack = [(label, pf.rebase(d, old, dest, plan), at) for label, d, at in self.undo_stack]
+            self.redo_stack = [(label, pf.rebase(d, old, dest, plan), at) for label, d, at in self.redo_stack]
             self.revision += 1
             try:
                 old_file.unlink()
@@ -1897,8 +1915,8 @@ class Session:
                     raise EditorError(tr("The project couldn't move: {why}").format(why=os_error(e))) from None
                 raise
             self.project = moved
-            self.undo_stack = [(label, pf.rebase(d, old, dest, whole=True)) for label, d in self.undo_stack]
-            self.redo_stack = [(label, pf.rebase(d, old, dest, whole=True)) for label, d in self.redo_stack]
+            self.undo_stack = [(label, pf.rebase(d, old, dest, whole=True), at) for label, d, at in self.undo_stack]
+            self.redo_stack = [(label, pf.rebase(d, old, dest, whole=True), at) for label, d, at in self.redo_stack]
             self.revision += 1
             left = False
             if other_drive:
@@ -2263,8 +2281,10 @@ class Session:
 
     def _fill_from_patch(self, p: Project, got, replaced: dict, files: dict) -> int:
         """Puts a patch's audio (_patch_audio) into a project: what it replaces, then what it adds, its settings on
-        the game's objects and its cue points (a later import's go over an earlier one's). Returns how many slots it
-        added or changed."""
+        the game's objects and its cue points (a later import's go over an earlier one's). A Sound's or MusicTrack's
+        Make-Up Gain goes on the slots of the clips it plays: the new audio's where the slot has some, else the
+        Original's. Returns how many slots it added or changed."""
+        from .addition import MAKEUP_GAIN
         for sid, wav in files.items():
             if sid in replaced:
                 self._set(p, sid, str(wav), label=tr("imported {id}").format(id=sid))
@@ -2272,9 +2292,33 @@ class Session:
             if clips & files.keys():
                 self._put_cues(p, seg, cues)
         for oid, changes in got.settings.items():
-            p.settings[oid] = {**p.settings.get(oid, {}), **changes}
+            moved = oid in got.gains  # the gain is the slot's now, not a setting beside it
+            kept = {k: v for k, v in {**p.settings.get(oid, {}), **changes}.items() if not (moved and k == MAKEUP_GAIN)}
+            if kept:
+                p.settings[oid] = kept
+            else:
+                p.settings.pop(oid, None)
         p.imported_banks = sorted(set(p.imported_banks) | got.banks)  # where its sounds go (build.reach)
-        return self._take_in(p, got, files)
+        added = self._take_in(p, got, files)
+        own = {a.sound: a.source for a in p.additions if a.kind == "own"}  # its clip may have a new ID (_take_in)
+        gains = {}  # of two objects that play one clip, the higher gain, as a build gives the clip
+        for oid, (clips, db) in got.gains.items():
+            for c in [own[oid]] if oid in own else clips:
+                gains[c] = max(gains.get(c, db), db)
+        current = {self._target(r.target): r for r in p.replacements}
+        for c, db in gains.items():
+            db = max(GAIN_DB[0], min(GAIN_DB[1], round(db, 2)))
+            sid = self._target(c)
+            if (r := current.get(sid)) and not r.silence:
+                r.gain_db = db
+                continue
+            if sid in p.added() or not self.ix.banks_for(sid):
+                continue  # no Original to set
+            for t in [t for t in p.gains if self._target(t) == sid]:
+                del p.gains[t]
+            if db:
+                p.gains[sid] = db
+        return added
 
     # --- importing a mod (Import Mod): a ZIP, a folder or a patch, with the options chosen in it, into a new project
     # or the open one, with the lines of the game text it changes
@@ -2402,14 +2446,16 @@ class Session:
 
     def _import_result(self, read, added: int, lines, project: Path, folder: Path, left=()) -> dict:
         """What an import brought in, as its job's result: {project, imported (the game's sounds given new audio),
-        added (the slots of audio the mod adds), skipped (sounds that couldn't be decoded), settings (objects with
-        the mod's settings), texts (lines of text), left (what couldn't come in, a line each), stale, older, others
-        (files neither audio nor text, left out), folder}."""
+        added (the slots of audio the mod adds), skipped (sounds that couldn't be decoded), gains (slots given the
+        mod's Make-Up Gain), settings (objects with the mod's other settings), texts (lines of text), left (what
+        couldn't come in, a line each), stale, older, others (files neither audio nor text, left out), folder}."""
         n, reads = read.missing, read.reads
         return {"project": str(project),
                 "imported": len({s for _, replaced, files, _ in reads for s in replaced if s in files}),
                 "added": added, "skipped": sum(r[3] for r in reads),
-                "settings": len(set().union(*(got.settings for got, *_ in reads))), "texts": len(lines),
+                "gains": len({c for got, *_ in reads for clips, _ in got.gains.values() for c in clips}),
+                "settings": len({o for got, *_ in reads for o, s in got.settings.items() if o not in got.gains or len(s) > 1}),
+                "texts": len(lines),
                 "left": [*dict.fromkeys(x for got, *_ in reads for x in got.left), *read.failed,
                          *([ntr("{n} line of text that the game doesn't have",
                                 "{n} lines of text that the game doesn't have", n).format(n=n)] if n else []), *left],
@@ -2592,7 +2638,7 @@ class Session:
                 except EditorError:
                     raise EditorError(tr("The new project is in {folder}. It wasn't opened, because the open project "
                                          "couldn't be saved.").format(folder=home)) from None
-                self.project, self.undo_stack, self.redo_stack = p, [], []
+                self.project, self.undo_stack, self.redo_stack, self.opened_at = p, [], [], _now_ms()
                 self.revision += 1
             save_settings(projects_folder=str(home.parent))  # the next new project is offered the same place
             job.say(tr("project {path}").format(path=audi))

@@ -1,6 +1,6 @@
 ---
-title: Perguntas frequentes
-group: Perguntas frequentes
+title: Perguntas Frequentes
+group: Perguntas Frequentes
 summary: Respostas curtas a perguntas comuns, cada uma com um link para a página que trata do assunto por completo.
 source: df4f962e1978
 ---
@@ -15,7 +15,7 @@ Um som sem nome aparece como *Som 3* ou *Take 2*. [O áudio do jogo, explicado](
 
 ### Como o Audiodiver sabe qual música toca em cada situação? {#how-does-audiodiver-know-what-music-plays-in-which-scenario}
 
-O jogo escolhe a música com estados que têm nome: a nave, o lançamento, a facção inimiga, a exploração, uma batalha e o quanto ela está pesada. O Audiodiver lê esses estados, e as regras que alternam entre eles, nos bancos de sons, e lista as músicas na ordem em que uma missão passa por elas, de *Na nave* a *Créditos*. As músicas que nenhum estado posiciona ficam em *Ainda não identificadas*. As transições recebem o nome do que elas ligam, e os stingers, do que eles tocam por cima. A ordem dentro de uma peça musical vem da playlist da peça, que a [Trilha sonora](wiki:soundtrack) mostra.
+O jogo escolhe a música com estados que têm nome: a nave, o lançamento, a facção inimiga, a exploração, uma batalha e o quanto ela está pesada. O Audiodiver lê esses estados, e as regras que alternam entre eles, nos bancos de sons, e lista as músicas na ordem em que uma missão passa por elas, de *Na nave* a *Créditos*. As músicas que nenhum estado posiciona ficam em *Ainda não identificadas*. As transições recebem o nome do que elas ligam, e os stingers, do que eles tocam por cima. A ordem dentro de uma peça musical vem da playlist da peça, que a [Trilha Sonora](wiki:soundtrack) mostra.
 
 ### O que são slots, segmentos e takes? {#what-are-slots-segments-and-takes}
 
@@ -25,13 +25,13 @@ Um **slot** é um clipe que pode ser substituído. A música é feita de **segme
 
 ### Como adiciono áudio novo a segmentos existentes? {#how-can-i-add-new-audio-to-existing-segments}
 
-Solte um arquivo de áudio no slot de um segmento na aba [Áudio](app:editor). O áudio novo substitui o original, e o tempo do segmento acompanha a nova duração ([Tempo, pontos de cue e loops](wiki:timing-and-loops#fitting-the-timing-to-the-new-audio)). Vários arquivos soltos numa peça preenchem os slots na ordem de reprodução. Para espalhar uma música por uma peça inteira, use **Fatiar uma música**, ou **Música única** na [Trilha sonora](wiki:soundtrack#one-song). Para uma playlist de músicas inteiras, use **Playlist** ali.
+Solte um arquivo de áudio no slot de um segmento na aba [Áudio](app:editor). O áudio novo substitui o original, e o tempo do segmento acompanha a nova duração ([Tempo, pontos de cue e loops](wiki:timing-and-loops#fitting-the-timing-to-the-new-audio)). Vários arquivos soltos numa peça preenchem os slots na ordem de reprodução. Para espalhar uma música por uma peça inteira, use **Fatiar uma música**, ou **Música única** na [Trilha Sonora](wiki:soundtrack#one-song). Para uma playlist de músicas inteiras, use **Playlist** ali.
 
 A música não pode ganhar takes ou camadas extras. Eles são para sons e vozes; veja [Adicionando áudio](wiki:adding-audio).
 
 ### Por que minha música toca fora de ordem no jogo? {#why-does-my-song-play-out-of-order-in-game}
 
-O jogo raramente toca uma peça musical de cima para baixo. A maioria das músicas de combate começa cada combate numa abertura curta, escolhe alguns segmentos ao acaso e continua de onde o último combate parou. A [Trilha sonora](wiki:soundtrack) mostra a ordem de reprodução de cada peça, e **Música única** faz todo combate tocar a música desde o início. [Como o jogo toca música](wiki:how-the-game-plays-music) explica as partes.
+O jogo raramente toca uma peça musical de cima para baixo. A maioria das músicas de combate começa cada combate numa abertura curta, escolhe alguns segmentos ao acaso e continua de onde o último combate parou. A [Trilha Sonora](wiki:soundtrack) mostra a ordem de reprodução de cada peça, e **Música única** faz todo combate tocar a música desde o início. [Como o jogo toca música](wiki:how-the-game-plays-music) explica as partes.
 
 ### Por que ainda ouço o áudio original? {#why-do-i-still-hear-the-original-audio}
 
@@ -49,11 +49,11 @@ WAV, FLAC, MP3, OGG, Opus, M4A, AAC, AIFF, WMA e WEM. WAV ou FLAC a 48 kHz dá o
 
 ### Como deixo o áudio novo mais alto ou mais baixo? {#how-do-i-make-new-audio-louder-or-quieter}
 
-Defina o **Make-Up Gain** no slot, nos detalhes à direita. Vários slots selecionados recebem um único valor, e o **Nível** de uma peça na Trilha sonora aumenta ou diminui a peça toda. [Make-Up Gain e a mixagem](wiki:volume) trata dos níveis, e [Preparando o áudio](wiki:preparing-audio#loudness), do volume percebido a buscar.
+Defina o **Make-Up Gain** no slot, nos detalhes à direita. Vários slots selecionados recebem um único valor, e o **Nível** de uma peça na Trilha Sonora aumenta ou diminui a peça toda. [Make-Up Gain e a mixagem](wiki:volume) trata dos níveis, e [Preparando o áudio](wiki:preparing-audio#loudness), do volume percebido a buscar.
 
 ### Como silencio um som ou uma peça musical? {#how-do-i-silence-a-sound-or-a-piece-of-music}
 
-Clique com o botão direito num slot e escolha **Substituir por silêncio**. **Manter a duração original** define se o jogo espera a duração original ou segue na hora ([Silêncio](wiki:how-the-game-plays-music#silence)). Uma peça musical inteira fica em silêncio com **Silêncio** na [Trilha sonora](wiki:soundtrack#modes).
+Clique com o botão direito num slot e escolha **Substituir por silêncio**. **Manter a duração original** define se o jogo espera a duração original ou segue na hora ([Silêncio](wiki:how-the-game-plays-music#silence)). Uma peça musical inteira fica em silêncio com **Silêncio** na [Trilha Sonora](wiki:soundtrack#modes).
 
 ### Posso mudar legendas e outros textos? {#can-i-change-subtitles-and-other-text}
 
@@ -71,7 +71,7 @@ Abra o projeto, gere-o de novo e depois importe o novo ZIP no gerenciador de mod
 
 ### Meu mod funciona junto com outros mods de áudio? {#can-my-mod-run-with-other-audio-mods}
 
-Dois mods que mudam o mesmo banco de sons não se combinam, e o implantado por último vence ([Dois mods que mudam o mesmo banco](wiki:build-and-install#two-mods-that-change-the-same-bank)). [Combinar mods](wiki:combining-mods) os junta num único mod.
+Dois mods que mudam o mesmo banco de sons não se combinam, e o implantado por último vence ([Dois mods que mudam o mesmo banco](wiki:build-and-install#two-mods-that-change-the-same-bank)). [Combinar Mods](wiki:combining-mods) os junta num único mod.
 
 ### Por que meu mod é tão grande? {#why-is-my-mod-so-big}
 

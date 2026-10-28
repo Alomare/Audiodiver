@@ -49,7 +49,7 @@ function around(els: Element[], vw: number, vh: number): Box | null {
 const list = (t: Element | Element[] | null | undefined) => (!t ? [] : Array.isArray(t) ? t : [t]);
 
 /** The running tutorial over the window: everything dark but the part the step is about, with a pulsing outline in
-    the primary colour, and beside it the panel with the step (in the primary colour until the pointer is on it). A
+    the primary colour, and beside it the panel with the step (in the primary colour until the pointer is first on it). A
     step to do takes clicks there (or in its wider `room`) and nowhere else, and is done when the app shows it done
     (its `done`), or with its button. A step to look takes no clicks and no keys outside the panel, its outline
     stands still, and Next goes on. */
@@ -77,6 +77,7 @@ function Steps({ tutorial, at }: { tutorial: Tutorial; at: number }) {
   const latest = useRef<() => TutorialState>(() => ({ tab, project, jobs, libraryItem: null, audioItem: null }));
   latest.current = () => ({ tab, project, jobs, libraryItem: scopes.library.itemId, audioItem: scopes.editor.itemId });
   const [working, setWorking] = useState(false);
+  const [seen, setSeen] = useState(false); // the pointer was on the panel: it keeps the plain colours from then on
   const step = at >= 0 ? tutorial.steps[at] : undefined;
   const look = !!step?.look;
   const nextLabel = step?.next ?? (look ? t({ message: "Next", context: "tutorial step", comment: "The button that goes on to the next step of a tutorial" }) : undefined);
@@ -185,7 +186,8 @@ function Steps({ tutorial, at }: { tutorial: Tutorial; at: number }) {
       <div className="tut-mask" ref={mask} aria-hidden />
       {look && <div className="tut-block" aria-hidden />}
       <div className="tut-ring" ref={ring} aria-hidden />
-      <div className="tut-panel" ref={panel} role="dialog" aria-live="polite" aria-label={tutorial.title}>
+      <div className={`tut-panel${seen ? " seen" : ""}`} ref={panel} role="dialog" aria-live="polite" aria-label={tutorial.title}
+        onPointerEnter={() => setSeen(true)}>
         {!step ? <p className="tut-wait"><Trans>Making the practice project</Trans></p> : (
           <>
             <div className="tut-top">
@@ -225,8 +227,9 @@ export function TutorialPrompt({ blocked }: { blocked: boolean }) {
       const all = fresh.length === TUTORIALS.length, count = fresh.length, titles = andList(fresh.map((x) => x.title));
       announce(all ? t`Interactive tutorials` : plural(count, { one: "A new interactive tutorial", other: "New interactive tutorials" }),
         all ? t`Walkthroughs that show where to click, one step at a time.` : t({ message: `${titles}.`, comment: "The names of the new tutorials, as a list" }),
-        () => nav.go("wiki", TUTORIALS_PAGE),
-        all ? t`Click here to see them in the Wiki.` : plural(count, { one: "Click here to see it in the Wiki.", other: "Click here to see them in the Wiki." }));
+        { tab: "wiki", sub: TUTORIALS_PAGE },
+        all ? t`Click here to see them in the Wiki.` : plural(count, { one: "Click here to see it in the Wiki.", other: "Click here to see them in the Wiki." }),
+        t`Interactive Tutorials`);
     }, 1200);
     return () => clearTimeout(timer);
   }, [blocked]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -257,6 +260,7 @@ export function TutorialsPage() {
           </section>
         ))}
       </div>
+      <p className="tut-more"><Trans>More interactive tutorials may be added in the future.</Trans></p>
     </article>
   );
 }

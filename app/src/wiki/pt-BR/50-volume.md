@@ -7,7 +7,7 @@ source: 34bc5e953c4b
 
 ## Make-Up Gain por slot {#make-up-gain-per-slot}
 
-Selecione um slot e defina o **Make-Up Gain** nos detalhes, de −96 a +96 dB, com o controle deslizante ou digitando um valor. Vários slots selecionados recebem todos o mesmo valor. O Make-Up Gain não muda o arquivo de áudio, então você pode ajustá-lo a qualquer momento. {icon:reset} depois do valor o volta para 0 dB, o nível em que o jogo toca o som. Alguns sons têm um Make-Up Gain próprio no jogo, que o **?** mostra. Ele se mantém, já que o valor daqui se soma a ele. O **Nível** de uma peça na [Trilha sonora](wiki:soundtrack) tem o mesmo botão.
+Selecione um slot e defina o **Make-Up Gain** nos detalhes, de −96 a +96 dB, com o controle deslizante ou digitando um valor. Vários slots selecionados recebem todos o mesmo valor. O Make-Up Gain não muda o arquivo de áudio, então você pode ajustá-lo a qualquer momento. {icon:reset} depois do valor o volta para 0 dB, o nível em que o jogo toca o som. Alguns sons têm um Make-Up Gain próprio no jogo, que o **?** mostra. Ele se mantém, já que o valor daqui se soma a ele. O **Nível** de uma peça na [Trilha Sonora](wiki:soundtrack) tem o mesmo botão.
 
 Num slot sem áudio novo, o Make-Up Gain deixa o Original mais alto ou mais baixo. O mod muda só essa configuração, então não leva nenhuma cópia do áudio. A linha mostra o valor como uma tag. Enquanto o slot tem áudio novo, vale o ganho definido no áudio novo.
 

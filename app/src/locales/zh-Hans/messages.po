@@ -1741,6 +1741,14 @@ msgstr "两者"
 msgid "Bottom"
 msgstr "底部"
 
+#: src/settings.ts
+msgid "Bottom Left"
+msgstr "左下"
+
+#: src/settings.ts
+msgid "Bottom Right"
+msgstr "右下"
+
 #. The name of the Build tab, as the title of a tutorial step
 #. Title of the Build tab
 #: src/BuildTab.tsx
@@ -2213,7 +2221,6 @@ msgstr "圆形"
 
 #. Button: deletes these files
 #. Button: deletes these files
-#: src/App.tsx
 #: src/SettingsTab.tsx
 msgid "Clear"
 msgstr "清除"
@@ -2561,6 +2568,11 @@ msgstr "复制到"
 #: src/About.tsx
 msgid "core {core}"
 msgstr "核心 {core}"
+
+#. Field label: the corner of the window notifications show in
+#: src/SettingsTab.tsx
+msgid "Corner"
+msgstr "位置"
 
 #. The icon frame: how round the corners are
 #: src/ProjectTab.tsx
@@ -3405,8 +3417,8 @@ msgid "Game audio, explained"
 msgstr "游戏音频详解"
 
 #: src/SettingsTab.tsx
-msgid "Game folder, tabs, startup, updates, tooltips, disk space, layout"
-msgstr "游戏文件夹、选项卡、启动、更新、工具提示、磁盘空间、布局"
+msgid "Game folder, tabs, startup, updates, tooltips, notifications, disk space, layout"
+msgstr "游戏文件夹、选项卡、启动、更新、工具提示、通知、磁盘空间、布局"
 
 #: src/SettingsTab.tsx
 msgid "Game folder, updates, tooltips, disk space"
@@ -4162,6 +4174,10 @@ msgstr "Make-Up Gain（dB）"
 msgid "Make-Up Gain in dB, typed"
 msgstr "Make-Up Gain（dB），手动输入"
 
+#: src/store.tsx
+msgid "Make-Up Gain on {gains, plural, one {# sound} other {# sounds}}"
+msgstr "{gains, plural, other {# 个声音}}上的 Make-Up Gain"
+
 #: src/CueView.tsx
 msgid "Make-Up Gain on the original"
 msgstr "原版上的 Make-Up Gain"
@@ -4280,6 +4296,10 @@ msgstr "更多"
 #: src/RepatchPage.tsx
 msgid "More in the Wiki"
 msgstr "在 Wiki 中了解更多"
+
+#: src/Tutorial.tsx
+msgid "More interactive tutorials may be added in the future."
+msgstr "今后可能会添加更多互动教程。"
 
 #: src/SettingsTab.tsx
 msgid "More room around rows and buttons."
@@ -4959,6 +4979,7 @@ msgid "Nothing went in"
 msgstr "未加入任何内容"
 
 #: src/App.tsx
+#: src/SettingsTab.tsx
 msgid "Notifications"
 msgstr "通知"
 
@@ -7983,6 +8004,14 @@ msgstr "工具提示"
 #: src/theme.ts
 msgid "Top"
 msgstr "顶部"
+
+#: src/settings.ts
+msgid "Top Left"
+msgstr "左上"
+
+#: src/settings.ts
+msgid "Top Right"
+msgstr "右上"
 
 #: src/content.ts
 msgid "transcribing voice lines to match them to subtitles"

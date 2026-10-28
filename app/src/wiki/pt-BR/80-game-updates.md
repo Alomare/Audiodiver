@@ -21,7 +21,7 @@ A nova geração aplica patch nos bancos de sons atuais, então inclui todas as 
 
 Se um som substituído não existe mais, a aba [Gerar](app:build) o lista como problema, e você não consegue gerar até corrigi-lo. Encontre o novo local na [Biblioteca](app:library), adicione-o ao projeto e atribua o arquivo ali.
 
-As músicas novas aparecem no Índice automaticamente. As músicas que o Audiodiver ainda não consegue identificar ficam em **Ainda não identificadas**. Outros áudios novos aparecem em **Todos os pacotes** na hora, sem nome. Veja [Sons e vozes](wiki:sounds-and-voices).
+As músicas novas aparecem no Índice automaticamente. As músicas que o Audiodiver ainda não consegue identificar ficam em **Ainda não identificadas**. Outros áudios novos aparecem em **Todos os Pacotes** na hora, sem nome. Veja [Sons e vozes](wiki:sounds-and-voices).
 
 ## Mods feitos com ferramentas antigas {#mods-made-with-older-tools}
 

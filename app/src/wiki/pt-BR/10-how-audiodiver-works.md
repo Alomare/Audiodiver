@@ -22,11 +22,11 @@ O Audiodiver nunca grava na pasta do jogo. Ele lê o áudio do jogo na bibliotec
 A barra de abas no topo da janela contém as abas principais. Início e Ferramentas vêm primeiro. A faixa mais escura depois delas contém as abas do projeto aberto, na ordem em que um mod é feito, começando por Projeto, que mostra o ícone do projeto. Gerar vem depois da faixa e aparece enquanto há um projeto aberto. Passe o mouse sobre uma aba para ver o que ela contém e o atalho. **Barra de abas** em [Configurações ▸ Tema](app:settings/theme) move a barra para outro lado da janela e mostra ou oculta os nomes das abas.
 
 - {icon:home} **Início** cria um projeto novo ou abre um, e leva ao Repatch e ao Combinar.
-- {icon:tools} **Ferramentas** trabalha com mods existentes, sem projeto. [Repatch](wiki:repatching) gera de novo um mod para a versão atual do jogo, e [Combinar mods](wiki:combining-mods) faz um único mod a partir de vários. Os dois produzem um ZIP novo.
+- {icon:tools} **Ferramentas** trabalha com mods existentes, sem projeto. [Repatch](wiki:repatching) gera de novo um mod para a versão atual do jogo, e [Combinar Mods](wiki:combining-mods) faz um único mod a partir de vários. Os dois produzem um ZIP novo.
 - {icon:project} **Projeto** contém o nome, a descrição, o ícone e o ID do mod, as abas que o projeto mostra e a pasta do projeto, com **Importar patches** e **Fechar projeto** sobre o ícone. Sem projeto aberto, lista os projetos recentes. A aba mostra o ícone e o nome do projeto.
-- {icon:library} **Biblioteca** lista tudo o que o jogo toca, para você encontrar e ouvir. Navegar não muda nada. **Adicionar ao projeto** coloca uma entrada no projeto. **Índice** organiza o áudio que tem nome, e **Todos os pacotes** lista cada pacote que contém áudio.
+- {icon:library} **Biblioteca** lista tudo o que o jogo toca, para você encontrar e ouvir. Navegar não muda nada. **Adicionar ao projeto** coloca uma entrada no projeto. **Índice** organiza o áudio que tem nome, e **Todos os Pacotes** lista cada pacote que contém áudio.
 - {icon:audio} **Áudio** mostra os slots daquilo em que o projeto trabalha. É aqui que os slots recebem áudio novo.
-- {icon:soundtrack} **Trilha sonora** define como cada peça musical toca: na ordem original, como uma única música, como playlist ou em silêncio. Veja [Trilha sonora](wiki:soundtrack).
+- {icon:soundtrack} **Trilha Sonora** define como cada peça musical toca: na ordem original, como uma única música, como playlist ou em silêncio. Veja [Trilha Sonora](wiki:soundtrack).
 - {icon:text} **Texto** tem todo o texto do jogo em todos os idiomas, incluindo as legendas. Veja [Texto e legendas](wiki:text).
 - {icon:build} **Gerar** contém a próxima versão, as Opções de geração e o botão Gerar. Um ponto na aba indica que o projeto ainda não foi gerado, ou que ele mudou ou o jogo foi atualizado desde a última geração. Um número vermelho conta os problemas que impedem a geração.
 - {icon:updates} **Atualizações**, {icon:wiki} **Wiki** ({key:wiki}) e {icon:settings} **Configurações** ficam no fim da barra de abas. Atualizações fica destacada quando há uma versão nova do Audiodiver, e lista as mudanças de cada versão. Numa página da Wiki, {key:search} procura palavras nessa página.
@@ -39,7 +39,7 @@ A Biblioteca e a aba Áudio têm o mesmo layout, e as duas têm {icon:export} **
 
 ## Abas {#tabs}
 
-Áudio, Trilha sonora e Texto podem ser ocultadas. Desmarque-as em **Abas** em [Configurações ▸ Sistema](app:settings/system), por exemplo para manter só Texto num mod que muda legendas. Um projeto novo começa com as abas que as Configurações mostram. Depois, cada projeto pode escolher outras em **Abas** na aba [Projeto](app:project) e mantém essa escolha. Ocultar uma aba não remove nada, e o que foi alterado nela continua no mod.
+Áudio, Trilha Sonora e Texto podem ser ocultadas. Desmarque-as em **Abas** em [Configurações ▸ Sistema](app:settings/system), por exemplo para manter só Texto num mod que muda legendas. Um projeto novo começa com as abas que as Configurações mostram. Depois, cada projeto pode escolher outras em **Abas** na aba [Projeto](app:project) e mantém essa escolha. Ocultar uma aba não remove nada, e o que foi alterado nela continua no mod.
 
 ## Novas versões do Audiodiver {#new-versions-of-audiodiver}
 
@@ -68,6 +68,10 @@ Com **Abrir o último projeto quando o Audiodiver iniciar** ligado, o Audiodiver
 ### Salvamento automático {#autosave}
 
 **Salvamento automático** define quando as alterações vão para o arquivo do projeto. **A cada alteração**, o padrão, salva cada alteração assim que ela é feita. **Em intervalos** salva a cada 1 a 30 minutos, e até lá a barra de status mostra *Alterações não salvas*. Uma geração, fechar o projeto e fechar o Audiodiver salvam as alterações antes. {key:save} salva a qualquer momento.
+
+### Notificações {#notifications}
+
+**Canto** em **Notificações** em [Configurações ▸ Sistema](app:settings/system) define o canto da janela onde os avisos aparecem. **Inferior direito** é o padrão.
 
 ### Espaço em disco {#disk-space}
 

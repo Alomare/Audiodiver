@@ -52,10 +52,10 @@ Os sons sem palavras recebem o nome do que são, como *Grunhido 1* ou *Ofego 3*,
 
 Uma fala com legenda mostra um link **Legenda** nos detalhes. O link abre a fala na aba [Texto](wiki:text) para mudar as palavras.
 
-## Todos os pacotes {#all-archives}
+## Todos os Pacotes {#all-archives}
 
-O Índice contém só o áudio com nome. **Todos os pacotes** contém cada pacote com áudio. Os pacotes que estão no Índice mostram um nome e ícones de categoria, e os outros mostram *Ainda sem nome*. Ordene por **Sons** para encontrar os maiores pacotes, ou por **Idioma** para encontrar um pacote de voz.
+O Índice contém só o áudio com nome. **Todos os Pacotes** contém cada pacote com áudio. Os pacotes que estão no Índice mostram um nome e ícones de categoria, e os outros mostram *Ainda sem nome*. Ordene por **Sons** para encontrar os maiores pacotes, ou por **Idioma** para encontrar um pacote de voz.
 
-Quando uma atualização do jogo adiciona áudio, procure-o em Todos os pacotes. Ele pode ser tocado, adicionado ao projeto e substituído na hora.
+Quando uma atualização do jogo adiciona áudio, procure-o em Todos os Pacotes. Ele pode ser tocado, adicionado ao projeto e substituído na hora.
 
 As duas listas aceitam IDs, além de palavras. Cole um ID da fonte, um ID de arquivo de stream ou um ID de banco para ver onde ele está.

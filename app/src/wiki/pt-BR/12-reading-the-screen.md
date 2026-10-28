@@ -5,26 +5,26 @@ summary: O que cada parte da Biblioteca e da aba Áudio mostra, e o que signific
 source: 28d5f38a0bef
 ---
 
-A Biblioteca e a aba Áudio têm o mesmo layout. Há uma lista à esquerda e o item aberto no meio. A aba Áudio também mostra as configurações do slot selecionado à direita. A Trilha sonora tem outro layout, descrito em [Trilha sonora](wiki:soundtrack). As palavras em **negrito** são explicadas em [O áudio do jogo, explicado](wiki:game-audio).
+A Biblioteca e a aba Áudio têm o mesmo layout. Há uma lista à esquerda e o item aberto no meio. A aba Áudio também mostra as configurações do slot selecionado à direita. A Trilha Sonora tem outro layout, descrito em [Trilha Sonora](wiki:soundtrack). As palavras em **negrito** são explicadas em [O áudio do jogo, explicado](wiki:game-audio).
 
 ## A lista à esquerda {#the-list-on-the-left}
 
 - **Índice** organiza o áudio pelo que ele é. Categorias como Música, Armas e Inimigos contêm seções como *Na nave* e *Armas principais*. Cada seção lista coisas que você pode abrir, seja uma **peça musical** ou um **conjunto de sons**. O número no fim de uma linha é a duração de uma peça musical, ou o número de sons de um conjunto.
-- **Todos os pacotes** mostra, numa tabela, cada **pacote** que contém áudio. Clique no cabeçalho de uma coluna para ordenar por ela, e clique de novo para inverter a ordem. Os ícones na coluna *Índice* mostram quais categorias incluem o pacote.
+- **Todos os Pacotes** mostra, numa tabela, cada **pacote** que contém áudio. Clique no cabeçalho de uma coluna para ordenar por ela, e clique de novo para inverter a ordem. Os ícones na coluna *Índice* mostram quais categorias incluem o pacote.
 - Na Biblioteca, o **+** no fim de uma linha a adiciona ao projeto, e **✓** indica que o projeto já a tem. As linhas de categoria e de seção também têm um **+**, que adiciona tudo o que está visível abaixo delas. Depois de uma pesquisa, esse **+** adiciona só os resultados.
-- Na aba Áudio, a lista mostra o que o projeto tem. **✕** numa linha, ou numa linha de categoria ou seção, remove isso do projeto, junto com tudo o que o projeto muda ali: o áudio novo, inclusive em slots que outro item do projeto compartilha, takes e camadas adicionados, Make-Up Gain, e os pontos de cue e as configurações de Trilha sonora da música. O Audiodiver pergunta antes quando algum áudio novo seria removido. Clicar com o botão direito faz o mesmo, e {key:undo} traz de volta.
+- Na aba Áudio, a lista mostra o que o projeto tem. **✕** numa linha, ou numa linha de categoria ou seção, remove isso do projeto, junto com tudo o que o projeto muda ali: o áudio novo, inclusive em slots que outro item do projeto compartilha, takes e camadas adicionados, Make-Up Gain, e os pontos de cue e as configurações de Trilha Sonora da música. O Audiodiver pergunta antes quando algum áudio novo seria removido. Clicar com o botão direito faz o mesmo, e {key:undo} traz de volta.
 - {icon:collapse} **Recolher tudo**, ao lado da caixa de pesquisa, recolhe todas as categorias e seções. Uma pesquisa expande o que corresponder.
 
 ## O topo do painel do meio {#the-top-of-the-middle-panel}
 
 - **O caminho e o título** mostram onde o item fica no Índice (*Armas ▸ Armas principais*, *Helldivers ▸ Vozes*) e como ele se chama. ‹ e › no fim do título voltam e avançam.
 - **Original**, **Parcialmente substituído** ou **Substituído** mostra o que o item toca agora, só na aba Áudio.
-- **No pacote …** nomeia o pacote que contém o item, seguido do nome do **banco** nos arquivos do jogo. Clique no pacote para abri-lo em Todos os pacotes.
+- **No pacote …** nomeia o pacote que contém o item, seguido do nome do **banco** nos arquivos do jogo. Clique no pacote para abri-lo em Todos os Pacotes.
 
 Abaixo do título, uma fileira de caixas diz mais sobre o item. Elas ficam lado a lado e se empilham quando o painel é estreito:
 
 - {icon:transition} **N transições tocam ao lado desta música** aparece só para música. Conta as peças curtas que levam à música e saem dela. **Mostrar** as lista, junto com o que cada uma toca agora.
-- {icon:order} **O jogo toca estes slots em outra ordem** aparece para música cuja playlist não toca os slots de cima para baixo. **Ordem de reprodução** a abre na [Trilha sonora](wiki:soundtrack).
+- {icon:order} **O jogo toca estes slots em outra ordem** aparece para música cuja playlist não toca os slots de cima para baixo. **Ordem de reprodução** a abre na [Trilha Sonora](wiki:soundtrack).
 - {icon:link} **Compartilha áudio com** lista outras coisas que tocam alguns dos mesmos clipes.
 
 {icon:header} no fim da barra de ferramentas oculta o cabeçalho, e o mostra de novo.
@@ -40,7 +40,7 @@ A barra de ferramentas começa com uma caixa de seleção que seleciona todos os
 | {icon:fill} **Preencher com arquivos** | Preenche os slots com arquivos, um arquivo por slot, na ordem de reprodução e na ordem dos nomes de arquivo. |
 | {icon:fillpiece} **Preencher a peça inteira** | Preenche os slots de todas as partes do mesmo jeito, parte por parte. |
 | {icon:slice} **Fatiar uma música** | Corta uma música em pedaços, um por slot. |
-| {icon:export} **Exportar** | Salva o item, ou os slots selecionados, como arquivos WAV, FLAC, MP3 ou WEM. **Lista de exportação**, ao lado, abre a [lista de exportação](#the-export-list) quando há algo nela. |
+| {icon:export} **Exportar** | Salva o item, ou os slots selecionados, como arquivos WAV, FLAC, MP3 ou WEM. **Lista de Exportação**, ao lado, abre a [lista de exportação](#the-export-list) quando há algo nela. |
 | {icon:skip} **Pular**, {icon:skipall} **Pular todos** | Substituem uma transição ou um stinger por um silêncio curto. |
 | {icon:clear} **Limpar tudo**, **Limpar esta parte** | Remove o áudio novo de todos os slots mostrados, ou de todos os slots da parte. |
 
@@ -121,19 +121,19 @@ Um clipe que toca em vários lugares tem uma única nota, mostrada em todos esse
 
 ## As barras {#the-bars}
 
-A barra de abas contém as abas principais. Início e Ferramentas vêm primeiro. A faixa mais escura depois delas contém as abas do projeto aberto, de Projeto a Texto, e a aba Projeto mostra o ícone do projeto. Gerar vem depois da faixa enquanto há um projeto aberto, e {icon:updates} Atualizações, a Wiki e Configurações ficam no fim. A barra fica no topo da janela, e **Barra de abas** em [Configurações ▸ Tema](app:settings/theme) a coloca em outro lado. Com os nomes das abas ligados, uma barra no topo ou embaixo mostra os nomes ao lado dos ícones, e uma barra à esquerda ou à direita mostra o nome quando o ponteiro está sobre a aba. A aba aberta assume a cor da página que ela abre, e na faixa a aba aberta tem uma borda na cor principal. As abas dentro de uma página, como Índice e Todos os pacotes, as partes de uma peça ou as seções das Configurações, ficam sublinhadas. Um ponto em Gerar indica que o projeto precisa de uma nova geração, e um ponto em Atualizações indica que há uma nova versão do Audiodiver.
+A barra de abas contém as abas principais. Início e Ferramentas vêm primeiro. A faixa mais escura depois delas contém as abas do projeto aberto, de Projeto a Texto, e a aba Projeto mostra o ícone do projeto. Gerar vem depois da faixa enquanto há um projeto aberto, e {icon:updates} Atualizações, a Wiki e Configurações ficam no fim. A barra fica no topo da janela, e **Barra de abas** em [Configurações ▸ Tema](app:settings/theme) a coloca em outro lado. Com os nomes das abas ligados, uma barra no topo ou embaixo mostra os nomes ao lado dos ícones, e uma barra à esquerda ou à direita mostra o nome quando o ponteiro está sobre a aba. A aba aberta assume a cor da página que ela abre, e na faixa a aba aberta tem uma borda na cor principal. As abas dentro de uma página, como Índice e Todos os Pacotes, as partes de uma peça ou as seções das Configurações, ficam sublinhadas. Um ponto em Gerar indica que o projeto precisa de uma nova geração, e um ponto em Atualizações indica que há uma nova versão do Audiodiver.
 
-A barra de status, embaixo, tem desfazer e refazer, o arquivo do projeto e o áudio que está tocando. Clique no áudio que está tocando para voltar ao lugar onde ele foi tocado: o slot na Biblioteca ou na aba Áudio, ou a peça e o segmento na Trilha sonora. **Vol** define o volume da prévia, que não afeta o mod. O número da versão abre Atualizações, e o {icon:info} ao lado dele abre [Sobre](app:about).
+A barra de status, embaixo, tem desfazer e refazer, o arquivo do projeto e o áudio que está tocando. Clique no áudio que está tocando para voltar ao lugar onde ele foi tocado: o slot na Biblioteca ou na aba Áudio, ou a peça e o segmento na Trilha Sonora. **Vol** define o volume da prévia, que não afeta o mod. O número da versão abre Atualizações, e o {icon:info} ao lado dele abre [Sobre](app:about).
 
 ### Histórico {#history}
 
-O relógio ao lado de desfazer e refazer abre o **Histórico**, a lista das alterações feitas desde que o projeto foi aberto, da mais antiga para a mais recente. A alteração em que o projeto está fica marcada. Clique numa anterior para desfazer de uma vez todas as alterações depois dela, ou numa mais abaixo, em cinza, para refazer até ela. **Como foi aberto** desfaz todas. Desfazer e refazer continuam funcionando a partir de onde a lista parou, e a lista guarda as últimas 200 alterações.
+O relógio ao lado de desfazer e refazer abre o **Histórico**, a lista das alterações feitas desde que o projeto foi aberto, da mais antiga para a mais recente, cada uma com a hora em que foi feita. A alteração em que o projeto está fica marcada. Clique numa anterior para desfazer de uma vez todas as alterações depois dela, ou numa mais abaixo, em cinza, para refazer até ela. **Como foi aberto** desfaz todas e mostra quando o projeto foi aberto. Desfazer e refazer continuam funcionando a partir de onde a lista parou, e a lista guarda as últimas 200 alterações.
 
 ### Notificações {#notifications}
 
-Confirmações curtas, como *Meu mod agora inclui Seleção do aparato* ou *Meu mod salvo*, aparecem por um instante na parte de baixo da janela. Avisos que precisam ser lidos, ou que têm um botão como Desfazer ou Mostrar na pasta, aparecem no canto inferior direito.
+Confirmações curtas, como *Meu mod agora inclui Seleção do aparato* ou *Meu mod salvo*, aparecem por um instante na parte de baixo da janela. Avisos que precisam ser lidos, ou que têm um botão como Desfazer ou Mostrar na pasta, aparecem no canto inferior direito, ou no canto definido em **Notificações** em [Configurações ▸ Sistema](app:settings/system).
 
-O sino na ponta direita da barra de status lista os avisos mostrados até agora, do mais recente para o mais antigo, com a hora de cada um, para você ler um de novo depois que ele sumir. A lista guarda os últimos 100, mesmo depois que o Audiodiver reinicia, e **Limpar** a esvazia. Ela só os lista e nunca mostra nada sozinha.
+O sino na ponta direita da barra de status lista os avisos mostrados até agora, do mais recente para o mais antigo, com a hora de cada um, para você ler um de novo depois que ele sumir. Um aviso que levava a algum lugar, como a oferta dos tutoriais ou um com **Mostrar na pasta**, leva lá de novo quando clicado na lista. A lista guarda os últimos 100, mesmo depois que o Audiodiver reinicia. Ela só os lista e nunca mostra nada sozinha.
 
 ## IDs {#ids}
 
@@ -156,8 +156,8 @@ Pressione {icon:id} na barra de ferramentas para listar os sons de um banco como
 {icon:export} **Exportar** na barra de ferramentas abre o painel de exportação. A primeira aba salva o item aberto, e a segunda, a [lista de exportação](#the-export-list). À direita, o painel lista as pastas e os arquivos que a exportação grava, com os nomes que eles terão, antes de gravar qualquer coisa.
 
 - **Sons** ou **Slots**: **Selecionados** (marque os slots na lista antes), **Substituídos** (na aba Áudio) ou **Todos**.
-- **Conteúdo**, para música: **Cada slot**, **Cada segmento** com as camadas mixadas, ou **A peça inteira** em reprodução contínua. Na Trilha sonora, **Um combate** salva um combate como o jogo o toca ([Exportar música](wiki:soundtrack#exporting)).
-- **Áudio**, na aba Áudio e na Trilha sonora: **Como o mod toca** salva o áudio novo onde um slot tem algum, com o Make-Up Gain definido, e o Original em todos os outros. **Ambos** adiciona a versão substituída ao lado do Original onde quer que o mod mude algo, e esses nomes terminam em *(original)* e *(substituído)*. A Biblioteca salva o Original.
+- **Conteúdo**, para música: **Cada slot**, **Cada segmento** com as camadas mixadas, ou **A peça inteira** em reprodução contínua. Na Trilha Sonora, **Um combate** salva um combate como o jogo o toca ([Exportar música](wiki:soundtrack#exporting)).
+- **Áudio**, na aba Áudio e na Trilha Sonora: **Como o mod toca** salva o áudio novo onde um slot tem algum, com o Make-Up Gain definido, e o Original em todos os outros. **Ambos** adiciona a versão substituída ao lado do Original onde quer que o mod mude algo, e esses nomes terminam em *(original)* e *(substituído)*. A Biblioteca salva o Original.
 - **Nomes de arquivo**: **Nomes completos** começam com o nome do item, **Nomes curtos** o deixam de fora, e **IDs da fonte** nomeiam cada slot pelo ID da fonte, como outras ferramentas de modding nomeiam o áudio do jogo.
 - **Formato**: WAV, FLAC, MP3, ou WEM para slots Original. Um WEM é o arquivo exatamente como o jogo o tem, e ele entra em outro slot como áudio novo sem ser codificado de novo.
 
@@ -171,7 +171,7 @@ Exportar uma peça musical por segmento salva um arquivo por segmento. **Pré-en
 
 ## A lista de exportação {#the-export-list}
 
-Reúna coisas de lugares diferentes para exportá-las juntas. Clique com o botão direito num slot, num grupo de takes, numa entrada do Índice, numa linha de categoria ou seção, ou num pacote, e escolha **Adicionar à lista de exportação**. **Adicionar à lista de exportação** no painel de exportação adiciona o item aberto com as escolhas feitas ali. **Lista de exportação** na barra de ferramentas abre a lista. Renomeie uma entrada para dar nome à pasta para onde ela vai, mude o que ela salva e qual áudio, remova entradas e exporte tudo numa única tarefa. A lista fica guardada até você limpá-la.
+Reúna coisas de lugares diferentes para exportá-las juntas. Clique com o botão direito num slot, num grupo de takes, numa entrada do Índice, numa linha de categoria ou seção, ou num pacote, e escolha **Adicionar à lista de exportação**. **Adicionar à lista de exportação** no painel de exportação adiciona o item aberto com as escolhas feitas ali. **Lista de Exportação** na barra de ferramentas abre a lista. Renomeie uma entrada para dar nome à pasta para onde ela vai, mude o que ela salva e qual áudio, remova entradas e exporte tudo numa única tarefa. A lista fica guardada até você limpá-la.
 
 ## Cores {#colours}
 

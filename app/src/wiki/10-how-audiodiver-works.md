@@ -68,6 +68,10 @@ With **Open the last project when Audiodiver starts** on, Audiodiver opens the l
 
 **Autosave** sets when changes go into the project file. **With Each Change**, the default, saves every change as it is made. **On a Timer** saves every 1 to 30 minutes instead, and until then the status bar says *Unsaved changes*. A build, closing the project and closing Audiodiver save the changes first. {key:save} saves at any time.
 
+### Notifications
+
+**Corner** under **Notifications** in [Settings ▸ System](app:settings/system) sets the corner of the window where notices appear. **Bottom Right** is the default.
+
 ### Disk space
 
 Audiodiver keeps prepared copies of audio so that it doesn't prepare the same audio twice. **Previews** are the decoded originals, the waveforms and the Play through renders. **Encoded audio** is new audio converted for the game, which builds reuse. Clearing either one is safe. Audiodiver prepares the copies again when needed. Projects and audio files are never stored there.

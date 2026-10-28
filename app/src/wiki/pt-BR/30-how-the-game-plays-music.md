@@ -11,7 +11,7 @@ O Helldivers 2 não toca músicas do começo ao fim. Ele toca a música em peda�
 
 Uma peça musical é uma sequência de **segmentos**, e cada segmento contém um ou mais **slots** (clipes). Quando um segmento chega ao ponto de **Saída**, o segmento seguinte começa e o resto do primeiro ressoa por cima dele.
 
-Por exemplo, a tela do local de lançamento toca um segmento inicial uma vez e depois catorze loops em ordem. Ela repete os loops até a tela fechar. Onde uma peça começa depende do que tocou antes. A tela do aparato, que vem em seguida, pula o segmento inicial e continua os loops de onde a música do local de lançamento parou. A [Trilha sonora](wiki:soundtrack) mostra a ordem de cada peça e pode mudá-la.
+Por exemplo, a tela do local de lançamento toca um segmento inicial uma vez e depois catorze loops em ordem. Ela repete os loops até a tela fechar. Onde uma peça começa depende do que tocou antes. A tela do aparato, que vem em seguida, pula o segmento inicial e continua os loops de onde a música do local de lançamento parou. A [Trilha Sonora](wiki:soundtrack) mostra a ordem de cada peça e pode mudá-la.
 
 ## Camadas {#layers}
 

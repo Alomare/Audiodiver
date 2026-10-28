@@ -263,6 +263,10 @@ class Project:
         """{new clip: the take or own clip it is} of the additions."""
         return {a.source: a for a in self.additions if a.kind in ("take", "own")}
 
+    def additions_json(self) -> list[dict]:
+        """The additions as the project file writes them (and project_state sends them)."""
+        return [{"kind": a.kind, **{k: str(getattr(a, k)) for k in Addition.KINDS[a.kind]}} for a in self.additions]
+
     def made_ids(self) -> set[int]:
         """Every id Audiodiver made for this project's additions."""
         return {i for a in self.additions for i in a.ids()}
@@ -290,11 +294,13 @@ class Project:
         """The image the icon is made from, or None when the mod takes Audiodiver's default icon."""
         return self.file(self.icon["image"]) if self.icon.get("image") else None
 
-    def problem_list(self) -> list[tuple[str, str]]:
+    def problem_list(self, exists=None) -> list[tuple[str, str]]:
         """What stops a build, each as (kind, sentence). The app goes by the kind: the Project tab fixes "name",
         "icon" (a frame value a hand-edited file broke), "icon_missing" (the image is gone) and "mod_id";
-        "missing_file" is an audio file the project uses that is gone; "duplicate" and "overrides" are the others."""
+        "missing_file" is an audio file the project uses that is gone; "duplicate" and "overrides" are the others.
+        exists: whether an audio file is there, when the caller has looked already (project_state)."""
         out, seen = [], {}
+        exists = exists or Path.exists
         if problem := name_problem(self.name):
             out.append(("name", problem))
         if (icon := self.icon_path()) and not icon.exists():
@@ -308,7 +314,7 @@ class Project:
             if r.target in seen:
                 out.append(("duplicate", tr("{name}: same target as {other}").format(name=name, other=seen[r.target])))
             seen[r.target] = name
-            if not r.silence and not self.audio_path(r).exists():
+            if not r.silence and not exists(self.audio_path(r)):
                 out.append(("missing_file", tr("{name}: the audio file wasn't found ({path})").format(
                     name=name, path=os.path.normpath(self.audio_path(r)))))
         for seg, o in self.segment_overrides.items():
@@ -484,8 +490,7 @@ class Project:
             "segment_overrides": {str(k): v for k, v in self.segment_overrides.items()},
             **({"texts": [{"table": str(t.table), "id": t.id, "text": t.text, "was": t.was} for t in self.texts]}
                if self.texts else {}),
-            **({"additions": [{"kind": a.kind, **{k: str(getattr(a, k)) for k in Addition.KINDS[a.kind]}}
-                              for a in self.additions]} if self.additions else {}),
+            **({"additions": self.additions_json()} if self.additions else {}),
             **({"settings": {str(o): {str(k): v for k, v in s.items()} for o, s in self.settings.items()}}
                if self.settings else {}),
             **({"gains": {str(k): v for k, v in self.gains.items()}} if self.gains else {}),

@@ -1741,6 +1741,14 @@ msgstr "Both"
 msgid "Bottom"
 msgstr "Bottom"
 
+#: src/settings.ts
+msgid "Bottom Left"
+msgstr "Bottom Left"
+
+#: src/settings.ts
+msgid "Bottom Right"
+msgstr "Bottom Right"
+
 #. The name of the Build tab, as the title of a tutorial step
 #. Title of the Build tab
 #: src/BuildTab.tsx
@@ -2213,7 +2221,6 @@ msgstr "Circle"
 
 #. Button: deletes these files
 #. Button: deletes these files
-#: src/App.tsx
 #: src/SettingsTab.tsx
 msgid "Clear"
 msgstr "Clear"
@@ -2561,6 +2568,11 @@ msgstr "Copy To"
 #: src/About.tsx
 msgid "core {core}"
 msgstr "core {core}"
+
+#. Field label: the corner of the window notifications show in
+#: src/SettingsTab.tsx
+msgid "Corner"
+msgstr "Corner"
 
 #. The icon frame: how round the corners are
 #: src/ProjectTab.tsx
@@ -3405,8 +3417,8 @@ msgid "Game audio, explained"
 msgstr "Game audio, explained"
 
 #: src/SettingsTab.tsx
-msgid "Game folder, tabs, startup, updates, tooltips, disk space, layout"
-msgstr "Game folder, tabs, startup, updates, tooltips, disk space, layout"
+msgid "Game folder, tabs, startup, updates, tooltips, notifications, disk space, layout"
+msgstr "Game folder, tabs, startup, updates, tooltips, notifications, disk space, layout"
 
 #: src/SettingsTab.tsx
 msgid "Game folder, updates, tooltips, disk space"
@@ -4162,6 +4174,10 @@ msgstr "Make-Up Gain in dB"
 msgid "Make-Up Gain in dB, typed"
 msgstr "Make-Up Gain in dB, typed"
 
+#: src/store.tsx
+msgid "Make-Up Gain on {gains, plural, one {# sound} other {# sounds}}"
+msgstr "Make-Up Gain on {gains, plural, one {# sound} other {# sounds}}"
+
 #: src/CueView.tsx
 msgid "Make-Up Gain on the original"
 msgstr "Make-Up Gain on the original"
@@ -4280,6 +4296,10 @@ msgstr "More"
 #: src/RepatchPage.tsx
 msgid "More in the Wiki"
 msgstr "More in the Wiki"
+
+#: src/Tutorial.tsx
+msgid "More interactive tutorials may be added in the future."
+msgstr "More interactive tutorials may be added in the future."
 
 #: src/SettingsTab.tsx
 msgid "More room around rows and buttons."
@@ -4959,6 +4979,7 @@ msgid "Nothing went in"
 msgstr "Nothing went in"
 
 #: src/App.tsx
+#: src/SettingsTab.tsx
 msgid "Notifications"
 msgstr "Notifications"
 
@@ -7983,6 +8004,14 @@ msgstr "Tooltips"
 #: src/theme.ts
 msgid "Top"
 msgstr "Top"
+
+#: src/settings.ts
+msgid "Top Left"
+msgstr "Top Left"
+
+#: src/settings.ts
+msgid "Top Right"
+msgstr "Top Right"
 
 #: src/content.ts
 msgid "transcribing voice lines to match them to subtitles"

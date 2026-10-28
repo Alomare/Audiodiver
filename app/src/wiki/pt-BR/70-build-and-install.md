@@ -89,7 +89,7 @@ Os mods gerados são ZIPs no formato de manifesto compartilhado que os gerenciad
 
 ## Dois mods que mudam o mesmo banco {#two-mods-that-change-the-same-bank}
 
-Um mod contém cópias completas dos bancos de sons que ele muda. Se dois mods mudam o mesmo banco, as alterações deles não se combinam. O mod implantado por último substitui a cópia do banco do outro. Os mods de música dividem a maioria dos bancos, então dois mods de música não podem ser implantados juntos, seja qual for a ferramenta que os criou. [Combinar mods](wiki:combining-mods) faz um único mod com eles, com o áudio dos dois.
+Um mod contém cópias completas dos bancos de sons que ele muda. Se dois mods mudam o mesmo banco, as alterações deles não se combinam. O mod implantado por último substitui a cópia do banco do outro. Os mods de música dividem a maioria dos bancos, então dois mods de música não podem ser implantados juntos, seja qual for a ferramenta que os criou. [Combinar Mods](wiki:combining-mods) faz um único mod com eles, com o áudio dos dois.
 
 ## Atualizar {#updating}
 

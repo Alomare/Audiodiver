@@ -804,7 +804,7 @@ msgstr[1] "{n} arquivos empacotados em {pack}"
 
 #: editor.py
 msgid "Nothing to build yet. Replace some audio, set a piece in the Soundtrack or change a line of text first."
-msgstr "Nada para gerar ainda. Substitua algum áudio, defina uma peça na Trilha sonora ou altere uma linha de texto primeiro."
+msgstr "Nada para gerar ainda. Substitua algum áudio, defina uma peça na Trilha Sonora ou altere uma linha de texto primeiro."
 
 #: editor.py
 msgid "Another project was opened during the import. Open this project again and import again."
@@ -1466,7 +1466,7 @@ msgstr "Não transcrito. Cada fala recebe o nome do que outra voz de Helldiver d
 
 #: library.py
 msgid "All Archives"
-msgstr "Todos os pacotes"
+msgstr "Todos os Pacotes"
 
 #: library.py
 msgid "Archive {id}"

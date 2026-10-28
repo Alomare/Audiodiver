@@ -15,7 +15,9 @@ Wiki page names a button as the button reads, so a term keeps one translation ac
 - Names from the game (weapons, stratagems, enemies, planets, Super Earth) are written as the game writes them in
   that language. The game's own lines (subtitles, voice lines) are quotes and never change.
 - Plain and short, as the English is: say what a thing is or does, no flourish. Capitalise as the language does:
-  only English puts buttons in Title Case.
+  only English puts buttons in Title Case. The names of tabs and sub-tabs (Trilha Sonora, Todos os Pacotes, Combinar
+  Mods, Lista de Exportação) and the Wiki's Interactive Tutorials and FAQ entries are in Title Case in every language
+  with capitals, wherever they are named (the Wiki too).
 - One term, one translation (the tables below). Where a table gives an English term in brackets, keep the English.
 
 ## Address and buttons
@@ -135,16 +137,16 @@ What each term means in Audiodiver:
 | Project | Projeto | Projeto | Проект | プロジェクト | 프로젝트 | 项目 | 專案 |
 | Library | Biblioteca | Biblioteca | Библиотека | ライブラリ | 라이브러리 | 资源库 | 資源庫 |
 | Index | Índice | Índice | Указатель | インデックス | 색인 | 索引 | 索引 |
-| All Archives | Todos os pacotes | Todos os arquivos | Все архивы | すべてのアーカイブ | 모든 아카이브 | 所有归档 | 所有歸檔 |
+| All Archives | Todos os Pacotes | Todos os arquivos | Все архивы | すべてのアーカイブ | 모든 아카이브 | 所有归档 | 所有歸檔 |
 | Audio | Áudio | Áudio | Аудио | オーディオ | 오디오 | 音频 | 音訊 |
-| Soundtrack | Trilha sonora | Banda sonora | Саундтрек | サウンドトラック | 사운드트랙 | 配乐 | 原聲帶 |
+| Soundtrack | Trilha Sonora | Banda sonora | Саундтрек | サウンドトラック | 사운드트랙 | 配乐 | 原聲帶 |
 | Text | Texto | Texto | Текст | テキスト | 텍스트 | 文本 | 文字 |
 | Build | Gerar | Gerar | Сборка | ビルド | 빌드 | 构建 | 建置 |
 | Tools | Ferramentas | Ferramentas | Инструменты | ツール | 도구 | 工具 | 工具 |
 | Repatch | [Repatch] | [Repatch] | [Repatch] | [Repatch] | [Repatch] | [Repatch] | [Repatch] |
-| Combine Mods | Combinar mods | Combinar mods | Объединить моды | MODを統合 | 모드 합치기 | 合并模组 | 合併模組 |
+| Combine Mods | Combinar Mods | Combinar mods | Объединить моды | MODを統合 | 모드 합치기 | 合并模组 | 合併模組 |
 | Updates | Atualizações | Atualizações | Обновления | アップデート | 업데이트 | 更新 | 更新 |
 | Settings | Configurações | Definições | Настройки | 設定 | 설정 | 设置 | 設定 |
-| Interactive Tutorials | Tutoriais interativos | Tutoriais interativos | Интерактивные уроки | インタラクティブチュートリアル | 대화형 튜토리얼 | 互动教程 | 互動教學 |
+| Interactive Tutorials | Tutoriais Interativos | Tutoriais interativos | Интерактивные уроки | インタラクティブチュートリアル | 대화형 튜토리얼 | 互动教程 | 互動教學 |
 | Notifications | Notificações | Notificações | Уведомления | 通知 | 알림 | 通知 | 通知 |
 | History | Histórico | Histórico | История | 履歴 | 기록 | 历史记录 | 歷程記錄 |

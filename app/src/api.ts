@@ -194,6 +194,7 @@ export type ProjectState = {
   can_undo: boolean; can_redo: boolean;
   undo_label: string | null; redo_label: string | null; // what Undo / Redo would change ("fill", "move")
   history?: string[]; future?: string[]; // the History list: the edits done, oldest first, and those undone, the next to redo first
+  history_at?: number[]; future_at?: number[]; opened_at?: number; // when each was made, and when the project opened (ms)
 };
 export type Status = {
   version: string; stage: string; error: string | null; log: string;

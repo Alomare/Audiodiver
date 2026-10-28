@@ -10,6 +10,8 @@
   <img alt="Windows 10 and 11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-2f7bf5?style=flat-square">
   <img alt="Mods for Helldivers 2" src="https://img.shields.io/badge/mods%20for-Helldivers%202-ffe81f?style=flat-square">
   <img alt="License: MPL-2.0" src="https://img.shields.io/badge/license-MPL--2.0-3a3a3a?style=flat-square">
+  <!-- the count of LANGUAGES in app/src/i18n.ts, listed under Supported Languages -->
+  <a href="#-supported-languages"><img alt="3 languages" src="https://img.shields.io/badge/languages-3-3a3a3a?style=flat-square"></a>
   <a href="https://github.com/Alomare/Audiodiver/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/Alomare/Audiodiver?style=flat-square&label=release&color=3a3a3a"></a>
 </p>
 
@@ -117,6 +119,12 @@ With `--json` the result is JSON on stdout and progress goes to stderr. A plan f
 wins each clash. [core/command-line.md](core/command-line.md) has every option, the plan format and what each
 command returns.
 
+### 🌐 Supported Languages
+
+English, Portuguese (Brazil) and Simplified Chinese, for the window, the messages, the Wiki and the names in the
+Library. **Language** in Settings ▸ System picks one. Automatic follows the language Helldivers 2 is set to in Steam,
+then the language of Windows.
+
 <br>
 
 ## How It Works
@@ -194,6 +202,9 @@ Audiodiver is 100% free, no caveats. If you'd like to support it, buy me a [Ko-f
   [Wrong or missing name](https://github.com/Alomare/Audiodiver/issues/new?template=wrong_name.yml) issue.
 - Edit the Wiki. The pages are Markdown files in [`app/src/wiki/`](app/src/wiki/), and a clearer sentence or a
   missing step is a good first pull request.
+- Correct translations. Open a
+  [Translation feedback](https://github.com/Alomare/Audiodiver/issues/new?template=translation.yml) issue with the
+  words as they show and what they should say.
 - Help others on the Discord.
 
 ### With Code

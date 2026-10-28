@@ -7,7 +7,7 @@ import { liveGain } from "./gain";
 import { keyLabel } from "./keys";
 import { indexItems } from "./music";
 import { FOLD_LIBRARY, HIDEABLE, nav as tabs, type Hideable } from "./nav";
-import { noticeLog } from "./noticeLog";
+import { follow, noticeLog, type Go } from "./noticeLog";
 import { notes } from "./noteStore";
 import { UTILS } from "./edition";
 import * as platform from "./platform";
@@ -16,11 +16,14 @@ import { coreLanguage, followAuto } from "./i18n";
 import { settings, useSettings } from "./settings";
 import { motionMs } from "./theme";
 
+/** A notice's button: what it does now (run), or where it leads (go), which the notifications log keeps too. */
+export type NoticeAction = { label: string; run?: () => void; go?: Go };
+export const actOn = (a: NoticeAction) => (a.run ? a.run() : a.go && follow(a.go));
 export type Notice = {
-  id: number; tone: "info" | "good" | "bad"; text: string; action?: { label: string; run: () => void }; sticky?: boolean;
+  id: number; tone: "info" | "good" | "bad"; text: string; action?: NoticeAction; sticky?: boolean;
   leaving?: boolean;  // on its way out (animating)
-  title?: string; open?: () => void; hint?: string; // an announcement (announce): a title, where a click anywhere on it
-                                                     // leads, and a line that says so (not in the notifications log)
+  title?: string; open?: Go; hint?: string; // an announcement (announce): a title, where a click anywhere on it leads,
+                                            // and a line that says so (not in the notifications log)
 };
 /** A quick note: one short line that confirms what was just done ("**Loadout Selection** added to **My Mod**",
     "**My Mod** saved"), shown for a moment at the bottom of the window. `**words**` are drawn bold. A new one takes
@@ -28,6 +31,11 @@ export type Notice = {
 export type Toast = { id: number; text: string; icon: ToastIcon; leaving?: boolean };
 export type ToastIcon = "done" | "add" | "save" | "copy" | "undo" | "info";
 const TOAST_MS = 1800;
+/** Two answers about a job that show the same: its card counts whole seconds, so a tick within the same second with
+    no other change draws nothing. */
+const sameJob = (a: Job | undefined, b: Job) => !!a && a.state === b.state && a.done === b.done && a.total === b.total
+  && a.doing === b.doing && a.error === b.error && a.result === b.result && a.log.length === b.log.length
+  && a.log[a.log.length - 1] === b.log[b.log.length - 1] && Math.round(a.seconds) === Math.round(b.seconds);
 
 const RECENT_KEY = "audiodiver.recent";
 const RECENT_MAX = 10;
@@ -303,16 +311,16 @@ function useEditorState() {
     const id = nextId.current++;
     // the same words again (a button pressed twice) take the place of the notice already saying them
     setNotices((n) => [...n.filter((x) => x.text !== text || x.leaving).slice(-3), { id, tone, text, action, sticky }]);
-    noticeLog.add(tone, text);
+    noticeLog.add(tone, text, action?.go, action?.label);
     if (!sticky) setTimeout(() => dismiss(id), action ? 12000 : tone === "bad" ? 9000 : 4500);
   }, [dismiss]);
   /** An announcement: a notice in the primary colour with a title, which a click anywhere on it follows to `open`
-      (the offer of the interactive tutorials at the first start); `hint` says where it leads. It stays until clicked
-      or dismissed. */
-  const announce = useCallback((title: string, text: string, open: () => void, hint: string) => {
+      (the offer of the interactive tutorials at the first start); `hint` says where it leads, and `label` names it
+      in the notifications log. It stays until clicked or dismissed. */
+  const announce = useCallback((title: string, text: string, open: Go, hint: string, label: string) => {
     const id = nextId.current++;
     setNotices((n) => [...n.slice(-3), { id, tone: "info", text, title, open, hint, sticky: true }]);
-    noticeLog.add("info", `${title}: ${text}`);
+    noticeLog.add("info", `${title}: ${text}`, open, label);
   }, []);
   const [toast, setToast] = useState<Toast | null>(null);
   const toastTimers = useRef<number[]>([]);
@@ -329,7 +337,7 @@ function useEditorState() {
   const logPath = useRef("");
   /** A job failed: say so until dismissed, with a way to the core's log. */
   const jobFailed = useCallback((j: Job) => {
-    notify("bad", jobFailure(j.kind, j.error ?? ""), logPath.current ? { label: t`Open Log`, run: () => platform.reveal(logPath.current) } : undefined, true);
+    notify("bad", jobFailure(j.kind, j.error ?? ""), logPath.current ? { label: t`Open Log`, go: { reveal: logPath.current } } : undefined, true);
   }, [notify]);
 
   /** Runs an API call; errors become notices instead of exceptions. These calls (edits, mostly) go to the core one at
@@ -596,7 +604,8 @@ function useEditorState() {
         return;
       }
       misses = 0;
-      setJobs((js) => ({ ...js, [j.id]: j }));
+      // the same answer again keeps the state as it is: a new object would draw everything that reads useEditor()
+      setJobs((js) => (sameJob(js[j.id], j) ? js : { ...js, [j.id]: j }));
       if (j.state === "running") setTimeout(tick, 500);
       else onDone(j);
     };
@@ -614,13 +623,13 @@ function useEditorState() {
     } else if (j.kind === "build") {
       const file = j.result.zip.split(/[\\/]/).pop(), mb = fmtTenth(j.result.mb);
       notify("good", t`Built ${file} (${mb} MB).`,
-        { label: t`Show in Folder`, run: () => platform.reveal(j.result.zip) });
+        { label: t`Show in Folder`, go: { reveal: j.result.zip } });
       if (settings.get().revealBuild) platform.reveal(j.result.zip).catch(() => {});
     } else if (j.kind === "repatch" || j.kind === "combine") { // the Repatch and Combine Mods pages show the rest
       const zip: string = j.result.zip;
       const title = j.title, file = zip.split(/[\\/]/).pop()!, mb = fmtTenth(j.result.mb);
       notify("good", j.kind === "repatch" ? t`Repatched ${title}: ${file} (${mb} MB).` : t`Combined ${title}: ${file} (${mb} MB).`,
-        { label: t`Show in Folder`, run: () => platform.reveal(zip) });
+        { label: t`Show in Folder`, go: { reveal: zip } });
       if (settings.get().revealBuild) platform.reveal(zip).catch(() => {});
     } else if (j.kind === "import") {
       // replacements, what the mod adds (new takes, layers, sounds with a clip of their own) and the lines of text;
@@ -631,12 +640,13 @@ function useEditorState() {
         const p = await run<ProjectState>("project");
         if (p) {
           applyProject(p); remember(p.path);
-          tabs.go(r.imported || r.added ? "editor" : r.texts ? "text" : "project");
+          tabs.go(r.imported || r.added || r.gains ? "editor" : r.texts ? "text" : "project");
         }
       }
-      const { imported, added, texts, skipped, stale, older } = r, objects = r.settings, mod = j.title;
+      const { imported, added, gains, texts, skipped, stale, older } = r, objects = r.settings, mod = j.title;
       const brought = [imported ? plural(imported, { one: "# replaced sound", other: "# replaced sounds" }) : "",
         added ? plural(added, { one: "# added sound", other: "# added sounds" }) : "",
+        gains ? t`Make-Up Gain on ${plural(gains, { one: "# sound", other: "# sounds" })}` : "",
         objects ? t`Settings on ${plural(objects, { one: "# sound or container", other: "# sounds and containers" })}` : "",
         texts ? plural(texts, { one: "# line of text", other: "# lines of text" }) : ""].filter(Boolean);
       const lines = [
@@ -652,27 +662,27 @@ function useEditorState() {
       ].filter(Boolean);
       const why = r.stale ? "repatching#sounds-from-an-older-game-version"
         : r.older ? "repatching#shared-settings-from-an-older-game-version" : "";
-      notify("good", lines.join("\n"), why ? { label: t`Why?`, run: () => tabs.go("wiki", why) } : undefined,
+      notify("good", lines.join("\n"), why ? { label: t`Why?`, go: { tab: "wiki", sub: why } } : undefined,
         left.length > 0 || r.stale > 0 || r.older > 0);
     } else if (j.kind === "pack") {
       const r = j.result, pack = r.pack.split(/[\\/]/).pop(), mb = fmtTenth(r.mb);
       const { missing, files } = r;
       const missed = missing ? " " + plural(missing, { one: "# file the project uses was not found.", other: "# files the project uses were not found." }) : "";
       notify("good", t`Packed ${plural(files, { one: "# file", other: "# files" })} into ${pack} (${mb} MB).` + missed,
-        { label: t`Show in Folder`, run: () => platform.reveal(r.pack) }, r.missing > 0); // files left out: it waits to be read
+        { label: t`Show in Folder`, go: { reveal: r.pack } }, r.missing > 0); // files left out: it waits to be read
     } else if (j.kind === "unpack") {
       // the pack's project, in a new folder where new projects go: it opens where it landed
       const p = await run<ProjectState>("project_open", { path: j.result.project });
       if (p) { applyProject(p); remember(p.path); tabs.go(tabs.work()); }
       const folder = j.result.folder;
-      notify("good", t`Unpacked into ${folder}.`, { label: t`Show in Folder`, run: () => platform.reveal(j.result.folder) });
+      notify("good", t`Unpacked into ${folder}.`, { label: t`Show in Folder`, go: { reveal: j.result.folder } });
       if (p?.repairs.length) notify("info", repairNote(p), undefined, true);
     } else {
       // the export list's slots that have no audio in the game's files: why fewer files came out than it counts
       const { absent, files } = j.result, title = j.title;
       const noAudio = absent ? " " + plural(absent, { one: "# slot on it has no audio in the game files.", other: "# slots on it have no audio in the game files." }) : "";
       notify("good", t`Exported ${plural(files, { one: "# file", other: "# files" })} of ${title}.` + noAudio,
-        { label: t`Show in Folder`, run: () => platform.reveal(j.result.first) }, true);
+        { label: t`Show in Folder`, go: { reveal: j.result.first } }, true);
     }
     if (j.kind === "build" || j.kind === "import") await refresh();
   }, [applyProject, run, quick, jobFailed, notify, remember]);
@@ -686,7 +696,7 @@ function useEditorState() {
 
   const needProject = useCallback(() => {
     if (project) return true;
-    notify("info", t`Open or create a project first.`, { label: t`Home`, run: () => tabs.go("home") });
+    notify("info", t`Open or create a project first.`, { label: t`Home`, go: { tab: "home" } });
     return false;
   }, [project, notify]);
 
@@ -1157,7 +1167,7 @@ function useEditorState() {
       if (fresh.problems.length) {
         const problems = fresh.problems.length;
         notify("bad", plural(problems, { 1: "Fix the problem on the Build tab first.", other: "Fix the # problems on the Build tab first." }),
-          { label: t`Build Tab`, run: () => tabs.go("build") });
+          { label: t`Build Tab`, go: { tab: "build" } });
         return;
       }
       if (!Object.keys(fresh.assignments).length && !Object.keys(fresh.gains ?? {}).length && !fresh.texts.length && !Object.keys(fresh.soundtrack ?? {}).length) {

@@ -11,6 +11,8 @@ export type UpdateMode = "manual" | "prompt" | "auto";
 /** How a bank's sounds are named and laid out: by what names them, or by container ID in the bank's tree (the
     toolbar's toggle above the slots). */
 export type SoundNames = "names" | "ids";
+/** The corner of the window notices show in. */
+export type NoticeCorner = "bottom-right" | "bottom-left" | "top-right" | "top-left";
 /** The longest wait between saves Settings offers, in minutes (core editor.AUTOSAVE_MAX). */
 export const AUTOSAVE_MAX = 30;
 export const AUTOSAVE_DEFAULT = 5; // what On a timer starts at
@@ -23,10 +25,11 @@ export type Settings = {
   tabs: Hideable[];      // the hideable tabs that show (a project can choose its own on the Project tab)
   soundNames: SoundNames; // a bank's sounds by name, or by container ID as Wwise tools list them
   autosave: number;      // minutes between saves of the project file; 0 saves each change as it is made
+  noticeCorner: NoticeCorner; // where notices show
 };
 
 export const DEFAULT_SETTINGS: Settings = { openLast: false, tips: "normal", updates: "prompt", bumpVersion: true, revealBuild: false,
-  tabs: [...HIDEABLE], soundNames: "names", autosave: 0 };
+  tabs: [...HIDEABLE], soundNames: "names", autosave: 0, noticeCorner: "bottom-right" };
 /** A list of hideable tabs in the bar's order, or null for anything else. */
 export const tabList = (v: unknown): Hideable[] | null =>
   Array.isArray(v) && v.every((t) => (HIDEABLE as readonly unknown[]).includes(t)) ? HIDEABLE.filter((t) => v.includes(t)) : null;
@@ -42,6 +45,8 @@ export const UPDATE_NOTES: Record<UpdateMode, string> = {
   prompt: t`At startup, asks before installing a new version.`,
   auto: t`At startup, installs a new version and restarts.`,
 };
+export const NOTICE_CORNERS: [NoticeCorner, string][] = [["bottom-right", t`Bottom Right`], ["bottom-left", t`Bottom Left`],
+  ["top-right", t`Top Right`], ["top-left", t`Top Left`]];
 const KEY = "audiodiver.settings";
 
 function load(): Settings {
@@ -54,7 +59,8 @@ function load(): Settings {
         updates: UPDATE_MODES.some(([m]) => m === s.updates) ? s.updates : DEFAULT_SETTINGS.updates,
         tabs: tabList(s.tabs) ?? DEFAULT_SETTINGS.tabs,
         soundNames: s.soundNames === "ids" ? "ids" : "names",
-        autosave: Number.isInteger(s.autosave) && s.autosave >= 0 && s.autosave <= AUTOSAVE_MAX ? s.autosave : DEFAULT_SETTINGS.autosave };
+        autosave: Number.isInteger(s.autosave) && s.autosave >= 0 && s.autosave <= AUTOSAVE_MAX ? s.autosave : DEFAULT_SETTINGS.autosave,
+        noticeCorner: NOTICE_CORNERS.some(([c]) => c === s.noticeCorner) ? s.noticeCorner : DEFAULT_SETTINGS.noticeCorner };
     }
   } catch { /* storage off or bad value */ }
   return DEFAULT_SETTINGS;

@@ -12,7 +12,7 @@ import { ImportModHost } from "./ImportMod";
 import { TUTORIALS_PAGE, TutorialLayer, TutorialPrompt } from "./Tutorial";
 import { AudioIcon, BellIcon, BuildIcon, CheckIcon, CopyIcon, GearIcon, GuideIcon, HistoryIcon, HomeIcon, InfoIcon, LibraryIcon, PlayMarkIcon, PlusIcon,
   ProjectIcon, RedoIcon, SaveIcon, SoundtrackIcon, TextIcon, ToolsIcon, UndoIcon, UpdatesIcon } from "./Icons";
-import { noticeLog, useNoticeLog } from "./noticeLog";
+import { follow, useNoticeLog } from "./noticeLog";
 import { Inspector } from "./Inspector";
 import { LibraryPanel, ProjectPanel } from "./Library";
 import { Logo } from "./Logo";
@@ -38,7 +38,7 @@ import { player, usePlayer } from "./player";
 import { Splitter } from "./Resize";
 import { RESET_LAYOUT, useSettings } from "./settings";
 import { barIsVertical, useThemeValue, type BarSide } from "./theme";
-import { EDIT_NAMES, Scope, useEditor, useShownTabs, type ScopeName, type ToastIcon } from "./store";
+import { actOn, EDIT_NAMES, Scope, useEditor, useShownTabs, type ScopeName, type ToastIcon } from "./store";
 import { rangeVars } from "./range";
 
 export function App() {
@@ -151,7 +151,7 @@ function Shell() {
       if (r === "page") setPrompt(true); // this version can't install it: ask instead
       else if (r === "failed") {
         const why = updates.get().installError ?? "";
-        notify("bad", t`${label} didn't install: ${why}`, { label: t`Updates`, run: () => nav.go("updates") }, true);
+        notify("bad", t`${label} didn't install: ${why}`, { label: t`Updates`, go: { tab: "updates" } }, true);
       }
     });
     return () => { live = false; };
@@ -549,7 +549,7 @@ function StatusBar() {
         <button className={`about-btn sb-bell${pop === "notifications" ? " on" : ""}`} data-pop="notifications" onClick={() => toggle("notifications")}
           aria-label={t`Notifications`} aria-expanded={pop === "notifications"} data-tip={t`Notifications`} data-tip-more={t`The notifications shown so far, to read again`}><BellIcon /></button>
       </span>
-      {pop === "notifications" && <StatusPop side="right" label={t`Notifications`} onClose={() => setPop(null)}><NotificationList /></StatusPop>}
+      {pop === "notifications" && <StatusPop side="right" label={t`Notifications`} onClose={() => setPop(null)}><NotificationList onGo={() => setPop(null)} /></StatusPop>}
     </footer>
   );
 }
@@ -578,35 +578,44 @@ function StatusPop({ side, label, onClose, children }: { side: "left" | "right";
   return <div className={`sb-pop ${side}`} style={{ bottom }} role="dialog" aria-label={label} ref={box} tabIndex={-1}>{children}</div>;
 }
 
-/** The History list: the project as it was before the changes kept, each change since (oldest first) and those
-    undone (greyed, last). A click goes there: the changes after it are undone, or those up to it redone, at once. */
+/** When something happened, as the status bar's lists show it: the time today, the date and time before. */
+function shownTime(at: number, seconds = false) {
+  const d = new Date(at);
+  const time = d.toLocaleTimeString(intlLocale(), { hour: "2-digit", minute: "2-digit", ...(seconds ? { second: "2-digit" } : {}) });
+  return d.toDateString() === new Date().toDateString() ? time : `${d.toLocaleDateString(intlLocale(), { month: "short", day: "numeric" })} ${time}`;
+}
+
+/** The History list: the project as it was before the changes kept (with when it opened), each change since (oldest
+    first) and those undone (greyed, last), each with the time it was made, to the second. A click goes there: the
+    changes after it are undone, or those up to it redone, at once. */
 function HistoryList() {
   const { project, actions } = useEditor();
   const done = project?.history ?? [], future = project?.future ?? [];
+  const doneAt = project?.history_at ?? [], futureAt = project?.future_at ?? [];
   const count = done.length;
   const now = useRef<HTMLButtonElement>(null);
   useEffect(() => { now.current?.scrollIntoView({ block: "nearest" }); }, []);
   const name = (label: string) => { const w = EDIT_NAMES[label] ?? label; return w.charAt(0).toUpperCase() + w.slice(1); };
-  const row = (key: string, text: string, steps: number, cls: string, tip?: string) => (
+  const row = (key: string, text: string, at: number | undefined, steps: number, cls: string, tip?: string) => (
     <li key={key}>
       <button className={`hist-row${cls}`} ref={!steps ? now : undefined} onClick={() => actions.historyGo(steps)} aria-current={!steps ? "step" : undefined}
-        data-tip={tip} data-tip-side="right">{text}</button>
+        data-tip={tip} data-tip-side="right"><span className="hist-name">{text}</span>{at ? <span className="hist-time">{shownTime(at, true)}</span> : null}</button>
     </li>
   );
   return (
     <>
       <div className="sb-pop-head"><h2><Trans>History</Trans></h2></div>
       <ol className="hist-list">
-        {row("start", done.length >= 200 ? t`Before the oldest change kept` : t`As opened`, -done.length, done.length ? "" : " now",
-          count ? plural(count, { 1: "Undo the change", other: "Undo all # changes" }) : undefined)}
+        {row("start", done.length >= 200 ? t`Before the oldest change kept` : t`As opened`, done.length >= 200 ? undefined : project?.opened_at,
+          -done.length, done.length ? "" : " now", count ? plural(count, { 1: "Undo the change", other: "Undo all # changes" }) : undefined)}
         {done.map((l, i) => {
           const after = done.length - 1 - i;
-          return row(`d${i}`, name(l), i + 1 - done.length, i === done.length - 1 ? " now" : "",
+          return row(`d${i}`, name(l), doneAt[i], i + 1 - done.length, i === done.length - 1 ? " now" : "",
             i < done.length - 1 ? plural(after, { 1: "Undo the change after this one", other: "Undo the # changes after this one" }) : undefined);
         })}
         {future.map((l, j) => {
           const upTo = j + 1;
-          return row(`f${j}`, name(l), j + 1, " undone", plural(upTo, { 1: "Redo this change", other: "Redo the # changes up to this one" }));
+          return row(`f${j}`, name(l), futureAt[j], j + 1, " undone", plural(upTo, { 1: "Redo this change", other: "Redo the # changes up to this one" }));
         })}
       </ol>
       {!done.length && !future.length && <p className="sb-pop-empty"><Trans>No changes since the project opened.</Trans></p>}
@@ -614,28 +623,25 @@ function HistoryList() {
   );
 }
 
-/** The notifications shown so far (noticeLog.ts), newest first, to read again. It never shows anything by itself. */
-function NotificationList() {
+/** The notifications shown so far (noticeLog.ts), newest first, to read again. One that led somewhere (its button, or
+    an announcement) leads there again when clicked, with the button's name under its words. It never shows anything
+    by itself. onGo: closes the panel once one leads away. */
+function NotificationList({ onGo }: { onGo: () => void }) {
   const log = useNoticeLog();
-  const today = new Date().toDateString();
-  const when = (at: number) => {
-    const d = new Date(at), time = d.toLocaleTimeString(intlLocale(), { hour: "2-digit", minute: "2-digit" });
-    return d.toDateString() === today ? time : `${d.toLocaleDateString(intlLocale(), { month: "short", day: "numeric" })} ${time}`;
-  };
   return (
     <>
-      <div className="sb-pop-head">
-        <h2><Trans>Notifications</Trans></h2>
-        {log.length > 0 && <button className="link-text" onClick={noticeLog.clear}><Trans>Clear</Trans></button>}
-      </div>
+      <div className="sb-pop-head"><h2><Trans>Notifications</Trans></h2></div>
       {log.length ? (
         <ol className="note-log">
-          {[...log].reverse().map((n) => (
-            <li key={n.id} className={`note-row ${n.tone}`}>
-              <span className="note-time">{when(n.at)}</span>
-              <NoticeText text={n.text} />
-            </li>
-          ))}
+          {[...log].reverse().map((n) => {
+            const body = <><span className="note-time">{shownTime(n.at)}</span><div className="note-body"><NoticeText text={n.text} />
+              {n.go && n.label && <span className="note-go">{n.label}</span>}</div></>;
+            const go = () => { follow(n.go!); onGo(); };
+            return n.go ? (
+              <li key={n.id} className={`note-row ${n.tone} leads`} role="button" tabIndex={0} onClick={go}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } }}>{body}</li>
+            ) : <li key={n.id} className={`note-row ${n.tone}`}>{body}</li>;
+          })}
         </ol>
       ) : <p className="sb-pop-empty"><Trans>Notifications show here once the app has shown them.</Trans></p>}
     </>
@@ -718,16 +724,17 @@ function JobCard({ job }: { job: Job }) {
 
 function Notices() {
   const { notices, dismiss, jobs } = useEditor();
+  const { noticeCorner } = useSettings();
   const running = Object.values(jobs).filter((j) => j.state === "running");
   return (
     <>
-      <div className="notices" aria-live="polite">
+      <div className={`notices ${noticeCorner.replace("-", " ")}`} aria-live="polite">
         {running.map((j) => <JobCard key={j.id} job={j} />)}
         {notices.map((n) => n.open ? (
           // an announcement: in the primary colour, and a click anywhere on it follows it
           <div key={n.id} className={`notice lead${n.leaving ? " leaving" : ""}`} role="button" tabIndex={0} aria-label={`${n.title}. ${n.text}`}
-            onClick={() => { n.open!(); dismiss(n.id); }}
-            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); n.open!(); dismiss(n.id); } }}>
+            onClick={() => { follow(n.open!); dismiss(n.id); }}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); follow(n.open!); dismiss(n.id); } }}>
             <span className="notice-mark" aria-hidden><PlayMarkIcon /></span>
             <div className="notice-text"><b className="notice-title">{n.title}</b>{n.text}{n.hint && <small className="notice-hint">{n.hint}</small>}</div>
             <button className="x" onClick={(e) => { e.stopPropagation(); dismiss(n.id); }} aria-label={t`Dismiss`}>✕</button>
@@ -735,7 +742,7 @@ function Notices() {
         ) : (
           <div key={n.id} className={`notice ${n.tone}${n.leaving ? " leaving" : ""}`}>
             <NoticeText text={n.text} />
-            {n.action && <button className="btn quiet" onClick={() => { n.action!.run(); dismiss(n.id); }}>{n.action.label}</button>}
+            {n.action && <button className="btn quiet" onClick={() => { actOn(n.action!); dismiss(n.id); }}>{n.action.label}</button>}
             <button className="x" onClick={() => dismiss(n.id)} aria-label={t`Dismiss`}>✕</button>
           </div>
         ))}

@@ -1,0 +1,36 @@
+name: Translation feedback
+description: Words in a translation of Audiodiver that are wrong, unclear or still in English.
+labels: ["translation"]
+body:
+  - type: dropdown
+    id: language
+    attributes:
+      label: Language
+      options:
+        - Português (Brasil)
+        - 简体中文
+    validations:
+      required: true
+
+  - type: textarea
+    id: where
+    attributes:
+      label: Where it is
+      description: The tab, panel or Wiki page, and the words as they show now. A screenshot helps.
+    validations:
+      required: true
+
+  - type: textarea
+    id: should
+    attributes:
+      label: What it should say
+      description: The better wording, and why when it isn't obvious (a term players use, the word Helldivers 2 uses in game).
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Audiodiver version
+      description: At the bottom right of the window.
+      placeholder: v1.3.0
