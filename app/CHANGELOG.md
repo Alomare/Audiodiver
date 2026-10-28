@@ -9,56 +9,56 @@ newest first.
 
 #### Languages
 
-Audiodiver is in Portuguese (Brazil) and Simplified Chinese as well as English: the window, the messages, the Wiki and the names in the Library and the Soundtrack, with weapons and other items named as the game writes them. **Language** in Settings ▸ System picks one. Automatic follows the language Helldivers 2 is set to in Steam, then the language of Windows. The Library search also finds the English names.
+Added app-wide multi-language support, and 2 new languages on top of English: Brazilian Portuguese and Simplified Chinese. The window, the messages and the Wiki are translated, and so are the names in the Library and the Soundtrack, with weapons and other items named as the game names them in each language. Pick one under **Language** in Settings ▸ System, or leave it on Automatic to follow the language of Helldivers 2 in Steam. The Library search still finds the English names. More languages will be added based on demand.
 
 #### Import Mod
 
-**Import Mod** on Home and on the Project tab makes a new project from the ZIP or patch file of a mod. Before anything is written, it lists what comes in, with each line of text the mod changes to keep or leave out, and sets the name, folder, mod ID and icon. **Import Patches** opens the same panel and takes ZIP files too.
+Added **Import Mod**, on Home and on the Project tab, to turn the ZIP or patch file of an existing mod into a new project. Before writing anything, it shows what comes in, including each line of text the mod changes so you can keep or leave it out, and lets you set the name, folder, mod ID and icon. **Import Patches** now opens the same panel and takes ZIP files too.
 
 #### Export
 
-Export is one panel for the open item and the export list, and it lists the files it will write before writing them. It takes the selected, the replaced or all slots, and in the Audio tab and the Soundtrack the audio as the mod plays it, the Original or both. The Soundtrack also exports the whole piece, a fight of 1 to 10 minutes as the game plays it, each segment or each slot.
+Reworked Export into one panel for the open item and the export list, which shows the files it will write before writing anything. You can export the selected, the replaced or all slots, and in the Audio tab and the Soundtrack choose the audio as the mod plays it, the Original or both. The Soundtrack can also export a whole piece, a fight of 1 to 10 minutes as the game would play it, each segment or each slot.
 
 #### Interactive Tutorials
 
-Tutorials in the Wiki darken the window except where to click and say what to do there, one step at a time. The first one walks through replacing the firing sounds of the Liberator with audio the tutorial brings, then building the mod. A notice offers them at the first start.
+Added interactive tutorials to the Wiki. A tutorial darkens the window except where to click and tells you what to do there, one step at a time, in a practice project. The first one walks you through giving the Liberator new firing sounds and building the mod. Audiodiver offers them on the first start.
 
 #### Global Notes
 
-A **Global Note** on a slot or an item shows in every project and in the Library, and is kept in a notes file on this computer. The note in the details panel is now the **Project Note**, with the Global Note under it, and the Library has a details panel for the Global Note. The search in the list on the left finds words in global notes too. **Global Notes** in Settings ▸ System can keep the file in another folder, such as a synced one. **Export Notes** there saves notes as Markdown or JSON, and **Import Notes** brings in a notes file or the notes of a project.
+Added global notes: notes on a slot or an item that show in every project and in the Library, saved in a notes file on this computer. The note you had before became the **Project Note**, with the **Global Note** under it in the details panel, and the Library got a details panel to show global notes. The search in the list on the left finds words in global notes too. Under **Global Notes** in Settings ▸ System you can move the notes file to another folder, such as a synced one, export notes as Markdown or JSON, and import notes from a file or a project.
 
 #### History and Notifications
 
-**History** beside Undo and Redo lists the changes made since the project opened, with the time of each, and a click goes back or forward to any of them. **Notifications** at the right end of the status bar lists the notices shown so far and keeps the last 100 across restarts. A notice that led somewhere, such as one with **Show in Folder**, leads there again when clicked in the list.
+Added **History** next to Undo and Redo. It lists every change since the project opened, with the time it was made, and a click goes back or forward to any of them. Added **Notifications** to the status bar, a list of the notices shown so far that keeps the last 100 across restarts. Clicking a notice that led somewhere, such as one with **Show in Folder**, takes you there again.
 
 ### Additions
 
-- **Imported Settings** in the details panel of the Audio tab lists what an imported mod set on the sound of a slot, or on a container above it, that Audiodiver has no control for, such as Volume, Pitch or Initial Delay. Builds include these settings.
-- **Notifications** in Settings ▸ System sets the corner of the window where notices show. Bottom Right is the default.
-- Ticks on the slots in the Library, to export some sounds of an item.
-- Exported files get full names, short names or source IDs, and Original slots can export as the WEM files of the game.
-- The installer follows the language of Windows.
+- Added **Imported Settings** to the details panel of the Audio tab, listing settings from an imported mod that Audiodiver has no control for, such as Volume or Pitch. Builds keep them.
+- Added a setting for the corner where notices show, in Settings ▸ System.
+- Added ticks to Library slots, to export only some sounds of an item.
+- Added name choices for exported files (full names, short names or source IDs), and WEM export for Original slots.
+- The installer now follows the language of Windows.
 
 ### Changes
 
-- Changes are faster in projects with a lot of new audio, as Audiodiver checks each audio file once per change instead of four or five times. In a project with 391 replaced slots, a change followed by Undo takes about 85 ms, down from 245. A running build or import redraws the window only when the progress shows something new.
-- Rows in the Library hold the name and a + filled in the primary colour, which turns into a red ✕ once the item is in the project, to take it off again. The sound count and the length are gone.
-- The Export List button moved from the status bar to the toolbar, beside Export.
-- Exported file names end in (original) and (replaced) only when both versions are exported, and a slot keeps the number it has in the item whichever slots are exported.
-- The Library's export no longer has the Original, Replaced and Both choice, which could only export the Original.
-- Ticking a folded sound in the Audio tab selects the takes and leaves the sound folded.
-- The Build tab shows the icon, name and description as the mod manager shows them, above the Build button.
-- The Wiki entries above the guides have no outlines, and the open one is marked like any open page.
+- Made changes and Undo about 3 times faster in projects with a lot of new audio.
+- Library rows now show just the name and a +, which becomes a red ✕ once the item is in the project. The sound count and length are gone.
+- Moved the Export List button from the status bar to the toolbar.
+- Exported names get (original) and (replaced) only when both versions are exported, and slots keep their numbers from the item.
+- Removed the Original, Replaced and Both choice from the Library's export, which could only export the Original anyway.
+- Ticking a folded sound in the Audio tab now selects the takes without unfolding it.
+- The Build tab now previews the icon, name and description as the mod manager shows them.
+- Removed the outlines from the Wiki entries above the guides.
 
 ### Bug Fixes
 
-- Make-Up Gain that a patch sets on a sound, a music track or a container above sounds came in with **Import Patches** as a hidden setting, so the slots showed 0 dB and a gain set on a slot went on top of it. **Import Patches** and **Import Mod** now put it on the slots it reaches, on the new audio or on the Original, and a mod that only sets gains lists the items it changes. Where a mod gives two sounds that play the same clip different gains, those gains stay on the sounds and show under **Imported Settings**, since a slot has one gain.
-- Removing an item from the project kept the new audio in slots that another item in the project shares, and a build still put that audio in the mod. Removing now takes everything the project changes in the item: the new audio in every slot of the item, added takes and layers, Make-Up Gain on the original audio, and the cue points and Soundtrack settings of music. Audiodiver asks first when new audio would go.
-- The Library's + sat 2 pixels further left on items than on the lines of categories and sections.
-- Clicking what plays in the status bar after playing it in the Soundtrack opened the Audio tab. It now goes back to the Soundtrack, at the piece and the segment.
-- Small buttons were shorter than the fields beside them, as in the formatting bar of the Text tab. Buttons, fields and selects in a row now share one height, including the search rows and the language of the Text tab.
-- Listed by container ID in the Audio tab, sounds now sit further in under the containers above them, as in the Library.
-- The voice lines of SEAF soldiers are back in the Index as SEAF Voices (2,040 lines), beside Civilian Voices (1,414). Since a game update they showed only in All Archives, under the name of the civilians.
+- Fixed imported Make-Up Gain showing as 0 dB on slots while still adding to any gain set there. It now comes in on the slots it reaches, and mods that only change gains list the items they change. Where two sounds that share a clip get different gains, those stay on the sounds and show under Imported Settings.
+- Fixed removing an item leaving new audio in slots that another item shares, which still went into builds. Removing now clears everything the project changed in the item, and asks first when new audio would go.
+- Fixed the Library's + sitting 2 pixels off on items.
+- Fixed clicking what plays in the status bar opening the Audio tab after playing in the Soundtrack.
+- Fixed small buttons being shorter than the fields beside them.
+- Fixed the indent of sounds listed by container ID in the Audio tab.
+- Fixed SEAF voice lines missing from the Index since a game update. They're back as SEAF Voices.
 
 ## 1.3.0 - 2026-10-27
 
