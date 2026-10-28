@@ -3,6 +3,63 @@
 The Updates tab shows this file. Each release starts with a second-level heading, `<version> - <date>`,
 newest first.
 
+## 1.4.0 - 2026-10-28
+
+### Highlights
+
+#### Languages
+
+Audiodiver is in Portuguese (Brazil) and Simplified Chinese as well as English: the window, the messages, the Wiki and the names in the Library and the Soundtrack, with weapons and other items named as the game writes them. **Language** in Settings ▸ System picks one. Automatic follows the language Helldivers 2 is set to in Steam, then the language of Windows. The Library search also finds the English names.
+
+#### Import Mod
+
+**Import Mod** on Home and on the Project tab makes a new project from the ZIP or patch file of a mod. Before anything is written, it lists what comes in, with each line of text the mod changes to keep or leave out, and sets the name, folder, mod ID and icon. **Import Patches** opens the same panel and takes ZIP files too.
+
+#### Export
+
+Export is one panel for the open item and the export list, and it lists the files it will write before writing them. It takes the selected, the replaced or all slots, and in the Audio tab and the Soundtrack the audio as the mod plays it, the Original or both. The Soundtrack also exports the whole piece, a fight of 1 to 10 minutes as the game plays it, each segment or each slot.
+
+#### Interactive Tutorials
+
+Tutorials in the Wiki darken the window except where to click and say what to do there, one step at a time. The first one walks through replacing the firing sounds of the Liberator with audio the tutorial brings, then building the mod. A notice offers them at the first start.
+
+#### Global Notes
+
+A **Global Note** on a slot or an item shows in every project and in the Library, and is kept in a notes file on this computer. The note in the details panel is now the **Project Note**, with the Global Note under it, and the Library has a details panel for the Global Note. The search in the list on the left finds words in global notes too. **Global Notes** in Settings ▸ System can keep the file in another folder, such as a synced one. **Export Notes** there saves notes as Markdown or JSON, and **Import Notes** brings in a notes file or the notes of a project.
+
+#### History and Notifications
+
+**History** beside Undo and Redo lists the changes made since the project opened, with the time of each, and a click goes back or forward to any of them. **Notifications** at the right end of the status bar lists the notices shown so far and keeps the last 100 across restarts. A notice that led somewhere, such as one with **Show in Folder**, leads there again when clicked in the list.
+
+### Additions
+
+- **Imported Settings** in the details panel of the Audio tab lists what an imported mod set on the sound of a slot, or on a container above it, that Audiodiver has no control for, such as Volume, Pitch or Initial Delay. Builds include these settings.
+- **Notifications** in Settings ▸ System sets the corner of the window where notices show. Bottom Right is the default.
+- Ticks on the slots in the Library, to export some sounds of an item.
+- Exported files get full names, short names or source IDs, and Original slots can export as the WEM files of the game.
+- The installer follows the language of Windows.
+
+### Changes
+
+- Changes are faster in projects with a lot of new audio, as Audiodiver checks each audio file once per change instead of four or five times. In a project with 391 replaced slots, a change followed by Undo takes about 85 ms, down from 245. A running build or import redraws the window only when the progress shows something new.
+- Rows in the Library hold the name and a + filled in the primary colour, which turns into a red ✕ once the item is in the project, to take it off again. The sound count and the length are gone.
+- The Export List button moved from the status bar to the toolbar, beside Export.
+- Exported file names end in (original) and (replaced) only when both versions are exported, and a slot keeps the number it has in the item whichever slots are exported.
+- The Library's export no longer has the Original, Replaced and Both choice, which could only export the Original.
+- Ticking a folded sound in the Audio tab selects the takes and leaves the sound folded.
+- The Build tab shows the icon, name and description as the mod manager shows them, above the Build button.
+- The Wiki entries above the guides have no outlines, and the open one is marked like any open page.
+
+### Bug Fixes
+
+- Make-Up Gain that a patch sets on a sound, a music track or a container above sounds came in with **Import Patches** as a hidden setting, so the slots showed 0 dB and a gain set on a slot went on top of it. **Import Patches** and **Import Mod** now put it on the slots it reaches, on the new audio or on the Original, and a mod that only sets gains lists the items it changes. Where a mod gives two sounds that play the same clip different gains, those gains stay on the sounds and show under **Imported Settings**, since a slot has one gain.
+- Removing an item from the project kept the new audio in slots that another item in the project shares, and a build still put that audio in the mod. Removing now takes everything the project changes in the item: the new audio in every slot of the item, added takes and layers, Make-Up Gain on the original audio, and the cue points and Soundtrack settings of music. Audiodiver asks first when new audio would go.
+- The Library's + sat 2 pixels further left on items than on the lines of categories and sections.
+- Clicking what plays in the status bar after playing it in the Soundtrack opened the Audio tab. It now goes back to the Soundtrack, at the piece and the segment.
+- Small buttons were shorter than the fields beside them, as in the formatting bar of the Text tab. Buttons, fields and selects in a row now share one height, including the search rows and the language of the Text tab.
+- Listed by container ID in the Audio tab, sounds now sit further in under the containers above them, as in the Library.
+- The voice lines of SEAF soldiers are back in the Index as SEAF Voices (2,040 lines), beside Civilian Voices (1,414). Since a game update they showed only in All Archives, under the name of the civilians.
+
 ## 1.3.0 - 2026-10-27
 
 ### Highlights
