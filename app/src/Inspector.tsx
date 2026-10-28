@@ -4,13 +4,12 @@ import { Trans } from "@lingui/react/macro";
 import { call, fmtDecimal, fmtTime, intlLocale, isMusic, shownId, type Assignment, type Place, type Slot } from "./api";
 import { rowsOf, type Row } from "./CueView";
 import { liveGain } from "./gain";
-import { ClearIcon, FillIcon, FillPieceIcon, FolderIcon, PanelHideIcon, PanelShowIcon, ResetIcon, SilenceIcon } from "./Icons";
+import { ClearIcon, FillIcon, FillPieceIcon, FolderIcon, ResetIcon, SilenceIcon } from "./Icons";
 import { keyLabel, useKeymap, type CommandId } from "./keys";
 import { where } from "./music";
 import { nav } from "./nav";
 import { NoteSection } from "./Notes";
 import { noteKeys } from "./noteStore";
-import { panels, type PanelScope } from "./panels";
 import { fullPath, pickAudio, reveal } from "./platform";
 import { useEditor, useShownTabs } from "./store";
 import { showLines } from "./TextTab";
@@ -44,7 +43,6 @@ export function Inspector() {
   const sub = slot.label && !seg.name.includes(slot.label) ? slot.label : null;
   return (
     <aside className="inspector" aria-label={t`Details`}>
-      <PanelToggle />
       <div className="view-in" key={slot.source}>
       <div className="insp-title">
         <h2>{seg.name}{sub ? <span className="sub">{sub}</span> : null}</h2>
@@ -102,7 +100,6 @@ function Empty() {
   const item = shownItemId ? itemIndex.items.get(shownItemId) : undefined;
   return (
     <aside className="inspector" aria-label={t`Details`}>
-      <PanelToggle />
       {item && (
         <div className="insp-item view-in" key={item.id}>
           <div className="insp-title"><h2>{item.name}</h2></div>
@@ -276,23 +273,6 @@ function ModSettings({ list }: { list: NonNullable<Slot["mod_settings"]> }) {
   );
 }
 
-/** The button in the details panel's top right corner that folds the panel away to a strip at the window's edge, or
-    brings it back (panels.ts). It stays in view while the panel scrolls. */
-export function PanelToggle() {
-  const { scope } = useEditor();
-  const s: PanelScope = scope === "library" ? "library" : "editor";
-  return <FoldButton folded={false} onClick={() => panels.toggle(s)} />;
-}
-/** The strip a folded details panel leaves: its button, to bring the panel back. */
-export function FoldedPanel({ scope }: { scope: PanelScope }) {
-  return <aside className="inspector folded" aria-label={t`Details`}><FoldButton folded onClick={() => panels.toggle(scope)} /></aside>;
-}
-function FoldButton({ folded, onClick }: { folded: boolean; onClick: () => void }) {
-  const name = folded ? t`Show the details panel` : t`Hide the details panel`;
-  return <button className="icon-btn panel-toggle" onClick={onClick} aria-label={name} aria-expanded={!folded} data-tip={name}
-    data-tip-side="left">{folded ? <PanelShowIcon /> : <PanelHideIcon />}</button>;
-}
-
 /** The Library's right panel: what the selected slot is, or with none or several selected the open item, and its
     Global Note. The Library shows the game as it is, so a project's notes stay in the Audio tab. */
 export function LibraryDetails() {
@@ -305,7 +285,6 @@ export function LibraryDetails() {
     const sub = slot.label && !seg.name.includes(slot.label) ? slot.label : null;
     return (
       <aside className="inspector" aria-label={t`Details`}>
-        <PanelToggle />
         <div className="view-in" key={slot.source}>
           <div className="insp-title">
             <h2>{seg.name}{sub ? <span className="sub">{sub}</span> : null}</h2>
@@ -318,7 +297,6 @@ export function LibraryDetails() {
   }
   return (
     <aside className="inspector" aria-label={t`Details`}>
-      <PanelToggle />
       {item && (
         <div className="insp-item view-in" key={item.id}>
           <div className="insp-title"><h2>{item.name}</h2></div>
@@ -616,7 +594,6 @@ function Bulk({ rows, sources, usable }: { rows: Row[]; sources: string[]; usabl
     withOriginal = plain.length, silenced = silent.length, replaced = mine.length;
   return (
     <aside className="inspector" aria-label={t`Details`}>
-      <PanelToggle />
       <div className="insp-title"><h2>{plural(count, { one: "# slot selected", other: "# slots selected" })}</h2></div>
       <section className="insp-sec insp-actions">
         <button className="btn" disabled={!usable.length} data-tip={plural(fillable, { one: "The same file in all # slot", other: "The same file in all # slots" })}

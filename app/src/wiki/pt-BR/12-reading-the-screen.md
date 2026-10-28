@@ -113,8 +113,6 @@ Sem slot selecionado, o painel mostra as notas do item aberto e as teclas da lis
 
 Na Biblioteca, o painel mostra o nome e o ID do slot selecionado, ou o item aberto quando nenhum slot está selecionado, com a nota global dele.
 
-{icon:panel} no canto superior direito do painel o recolhe para uma faixa na borda da janela, e o mesmo botão na faixa o traz de volta. Enquanto um tutorial está em andamento, o painel da aba Áudio aparece.
-
 ## Notas {#notes}
 
 Slots e itens da lista à esquerda podem ter duas notas. A **Nota do projeto** é salva no arquivo do projeto, e Desfazer reverte uma alteração nela. A **Nota global** é salva num arquivo de notas neste computador e aparece em todos os projetos e na Biblioteca. Desfazer não reverte uma nota global, e [Notas globais](wiki:how-audiodiver-works#global-notes) nas Configurações diz onde fica o arquivo. As gerações deixam as notas de fora.

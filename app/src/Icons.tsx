@@ -49,9 +49,6 @@ export const CopyIcon = () => <Icon size={1.1}><rect x="8.5" y="8.5" width="11" 
 export const InfoIcon = () => <Icon size={1.1}><circle cx="12" cy="12" r="8.5" /><path d="M12 11v5.5M12 7.6v.1" strokeWidth={2.4} /></Icon>;
 /** A folder: show a file in its folder. */
 /** A page with a folded corner and lines of writing: a note. */
-/** The details panel's corner button: a window with its right panel, the arrow toward where the panel goes. */
-export const PanelHideIcon = () => <Icon size={1}><path d="M3.5 4.5h17v15h-17zM14.5 4.5v15" /><path d="m7.5 9 3 3-3 3" /></Icon>;
-export const PanelShowIcon = () => <Icon size={1}><path d="M3.5 4.5h17v15h-17zM14.5 4.5v15" /><path d="m10.5 9-3 3 3 3" /></Icon>;
 export const NoteIcon = () => <Icon size={1}><path d="M5.5 3.5h9l4 4v13h-13z" /><path d="M14.5 3.5v4h4M8.5 12h7M8.5 15.5h7M8.5 8.5h3" /></Icon>;
 export const FolderIcon = () => <Icon size={1}><path d="M3.5 6.5h6l2 2h9v10h-17z" /></Icon>;
 /** Zoom in and out (a magnifier with + or −), and fit the whole width. */

@@ -112,8 +112,6 @@ With no slot selected, the panel shows the notes of the open item and the keys o
 
 In the Library, the panel shows the name and ID of the selected slot, or the open item when no slot is selected, with the global note on it.
 
-{icon:panel} in the top right corner of the panel folds it away to a strip at the edge of the window, and the same button on the strip brings it back. While a tutorial runs, the panel of the Audio tab shows.
-
 ## Notes
 
 Slots, and items in the list on the left, can have two notes. The **Project Note** is saved in the project file, and Undo reverts a change to it. The **Global Note** is saved in a notes file on this computer and shows in every project and in the Library. Undo doesn't revert a global note, and [Global notes](wiki:how-audiodiver-works#global-notes) in Settings says where the file is. Builds leave notes out.

@@ -13,7 +13,7 @@ import { marked, type Token, type Tokens } from "marked";
 import { Fragment, type ReactNode } from "react";
 import { t } from "@lingui/core/macro";
 import { AudioIcon, BuildIcon, ClearIcon, CollapseAllIcon, ExportIcon, ExternalIcon, FillIcon, FillPieceIcon, GearIcon, GuideIcon, HeaderIcon,
-  HomeIcon, IdIcon, InfoIcon, LibraryIcon, LinkIcon, NoteIcon, OrderIcon, PanelHideIcon, PlusIcon, ProjectIcon, ResetIcon, SearchIcon, SkipAllIcon, SkipIcon,
+  HomeIcon, IdIcon, InfoIcon, LibraryIcon, LinkIcon, NoteIcon, OrderIcon, PlusIcon, ProjectIcon, ResetIcon, SearchIcon, SkipAllIcon, SkipIcon,
   SliceIcon, SoundtrackIcon, TextIcon, ThroughIcon, ToolsIcon, TransitionIcon, UpdatesIcon, WavesIcon } from "./Icons";
 import { COMMANDS, keyLabel, useKeymap, type CommandId } from "./keys";
 import { about, nav, type Tab } from "./nav";
@@ -74,7 +74,7 @@ const ICONS: Record<string, () => ReactNode> = {
   wiki: GuideIcon, settings: GearIcon, info: InfoIcon, note: NoteIcon, project: ProjectIcon, tools: ToolsIcon,
   fill: FillIcon, fillpiece: FillPieceIcon, slice: SliceIcon, export: ExportIcon, skip: SkipIcon, skipall: SkipAllIcon, clear: ClearIcon,
   search: SearchIcon, through: ThroughIcon, transition: TransitionIcon, order: OrderIcon, id: IdIcon, reset: ResetIcon, add: PlusIcon,
-  header: () => <HeaderIcon on />, waves: () => <WavesIcon on />, panel: PanelHideIcon,
+  header: () => <HeaderIcon on />, waves: () => <WavesIcon on />,
 };
 
 /** A word joiner: the line can break on either side of an icon (an svg) even next to a letter or a bracket, but never

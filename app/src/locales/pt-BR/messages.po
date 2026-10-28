@@ -3616,10 +3616,6 @@ msgstr "Ocultar"
 msgid "Hide the description"
 msgstr "Ocultar a descrição"
 
-#: src/Inspector.tsx
-msgid "Hide the details panel"
-msgstr "Ocultar o painel de detalhes"
-
 #: src/Tools.tsx
 msgid "Hide the header"
 msgstr "Ocultar o cabeçalho"
@@ -6849,10 +6845,6 @@ msgstr "Mostrar nomes"
 #: src/ItemHead.tsx
 msgid "Show the description"
 msgstr "Mostrar a descrição"
-
-#: src/Inspector.tsx
-msgid "Show the details panel"
-msgstr "Mostrar o painel de detalhes"
 
 #: src/SettingsTab.tsx
 msgid "Show the Folder"
