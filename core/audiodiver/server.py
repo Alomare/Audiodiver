@@ -98,6 +98,7 @@ def methods(s: Session) -> dict:
         "slice_fill": lambda cue, audio, bounds_ms, start_source=None, sources=None: s.slice_fill(cue, audio, bounds_ms, start_source, sources),
         "undo": lambda: s.undo(),
         "redo": lambda: s.redo(),
+        "history_go": lambda steps: s.history_go(steps),
         "build": lambda bump=True: s.build(bump),
         "import_patch": lambda path, mode="add": s.import_patch(path, mode),
         "mod_scan": lambda path: s.mod_scan(path),

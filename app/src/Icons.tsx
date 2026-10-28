@@ -56,6 +56,17 @@ export const ZoomInIcon = () => <Icon size={1}><circle cx="10.5" cy="10.5" r="6"
 export const ZoomOutIcon = () => <Icon size={1}><circle cx="10.5" cy="10.5" r="6" /><path d="m15 15 5 5M8 10.5h5" /></Icon>;
 export const FitIcon = () => <Icon size={1}><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></Icon>;
 export const RedoIcon = () => <Icon><path d="m15 6 5 5-5 5" /><path d="M20 11H9.5a4.75 4.75 0 0 0 0 9.5H14" /></Icon>;
+/** A clock with an arrow turning back: the list of changes to go back or forward to (History, by Undo and Redo).
+    It spans what the arrows of Undo and Redo span (4.75 to 19.25 across, 5.75 to 20.25 down), so the three line up. */
+export const HistoryIcon = () => (
+  <Icon><path d="M4.75 13a7.25 7.25 0 1 0 7.25-7.25 7.85 7.85 0 0 0-5.43 2.2L4.75 9.78" /><path d="M4.75 5.75v4.03h4.03M12 8.97V13l3.22 1.61" /></Icon>
+);
+/** A bell: the notifications shown so far (the status bar's right corner). Centred as the ⓘ beside it (4.2 to 20.2). */
+export const BellIcon = () => <Icon size={1.1}><path d="M6.4 15.6V9.8a5.6 5.6 0 0 1 11.2 0v5.8l1.6 2H4.8z" /><path d="M10.2 20.2h3.6" /></Icon>;
+/** A filled ▶ whose middle (the centroid, not the box) is the middle of the box, so it sits centred in a round mark. */
+export const PlayMarkIcon = () => (
+  <svg className="icon" viewBox="0 0 24 24" width="1.3em" height="1.3em" aria-hidden focusable="false"><path d="M9 6.4v11.2l9.1-5.6z" fill="currentColor" /></svg>
+);
 
 // The toolbar above the slots (CueView): one icon per tool.
 

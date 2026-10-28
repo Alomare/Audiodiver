@@ -1059,7 +1059,10 @@ class Session:
                 "problems": problems, "can_undo": bool(self.undo_stack), "can_redo": bool(self.redo_stack),
                 "unsaved": self.unsaved_since is not None,
                 "undo_label": self.undo_stack[-1][0] if self.undo_stack else None,
-                "redo_label": self.redo_stack[-1][0] if self.redo_stack else None}
+                "redo_label": self.redo_stack[-1][0] if self.redo_stack else None,
+                # the History list: the edits done, oldest first, and those undone, the next one to redo first
+                "history": [label for label, _ in self.undo_stack],
+                "future": [label for label, _ in reversed(self.redo_stack)]}
 
     # --- edits (each one is undoable and autosaves)
     def _edit(self, label, fn):
@@ -1108,6 +1111,30 @@ class Session:
             self._need_project()
             if self.redo_stack:
                 self._step(self.redo_stack, self.undo_stack)
+            return self.project_state()
+
+    def history_go(self, steps):
+        """Undoes (steps below 0) or redoes (above 0) that many edits at once: the History list going to one of
+        them. Each edit moves from one stack to the other as Undo and Redo would move it, and the project is restored
+        and saved once. A project file that can't be saved keeps everything as it was."""
+        with self.lock:
+            self._need_project()
+            src, dst = (self.undo_stack, self.redo_stack) if steps < 0 else (self.redo_stack, self.undo_stack)
+            n = min(abs(int(steps)), len(src))
+            if not n:
+                return self.project_state()
+            before = self.project.to_json()
+            cur, moved = before, []
+            for label, d in reversed(src[-n:]):
+                moved.append((label, cur))
+                cur = d
+            try:
+                self._restore(cur)
+            except OSError as e:
+                self.project = Project.from_json(before, self.project.path)
+                raise EditorError(_unsaved(e, self.project.path)) from None
+            del src[-n:]
+            dst.extend(moved)
             return self.project_state()
 
     def _step(self, src, dst):

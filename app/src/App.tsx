@@ -8,15 +8,16 @@ import { CueView } from "./CueView";
 import { Home } from "./Home";
 import { ImportModHost } from "./ImportMod";
 import { TUTORIALS_PAGE, TutorialLayer, TutorialPrompt } from "./Tutorial";
-import { AudioIcon, BuildIcon, CheckIcon, CopyIcon, GearIcon, GuideIcon, HomeIcon, InfoIcon, LibraryIcon, PlusIcon,
+import { AudioIcon, BellIcon, BuildIcon, CheckIcon, CopyIcon, GearIcon, GuideIcon, HistoryIcon, HomeIcon, InfoIcon, LibraryIcon, PlayMarkIcon, PlusIcon,
   ProjectIcon, RedoIcon, SaveIcon, SoundtrackIcon, TextIcon, ToolsIcon, UndoIcon, UpdatesIcon } from "./Icons";
+import { noticeLog, useNoticeLog } from "./noticeLog";
 import { Inspector } from "./Inspector";
 import { LibraryPanel, ProjectPanel } from "./Library";
 import { Logo } from "./Logo";
 import { ProjectTab } from "./ProjectTab";
 import { tabArrows } from "./Page";
 import { SettingsTab } from "./SettingsTab";
-import { soundtrackDrop, SoundtrackPanes } from "./Soundtrack";
+import { openInSoundtrack, soundtrackDrop, SoundtrackPanes } from "./Soundtrack";
 import { TextTab } from "./TextTab";
 import { ToolsTab } from "./ToolsTab";
 import { ScaleTipLayer, TooltipLayer } from "./Tooltip";
@@ -475,19 +476,22 @@ function Rail() {
   );
 }
 
-/** Along the bottom: undo and redo, what the core is doing or where the project is saved, what plays, and the
-    version (it leads to Updates, and carries a dot when a new one is out) with About beside it. The export list is on
-    the toolbars, beside Export. */
+/** Along the bottom: undo and redo with the History list, what the core is doing or where the project is saved,
+    what plays, the version (it leads to Updates, and carries a dot when a new one is out) with About beside it, and
+    in the corner the notifications shown so far. The export list is on the toolbars, beside Export. */
 function StatusBar() {
   const { status, jobs, project, actions } = useEditor();
   const u = useUpdates();
   const { autosave } = useSettings();
+  const [pop, setPop] = useState<"history" | "notifications" | null>(null);
+  const toggle = (which: "history" | "notifications") => setPop((p) => (p === which ? null : which));
   const running = Object.values(jobs).filter((j) => j.state === "running");
   const core = status?.version && status.version !== APP_VERSION ? `, core ${versionLabel(status.version)}` : "";
   const save = keyLabel("save");
   const saved = !project ? "" : project.unsaved ? "Unsaved changes" : autosave ? "Saved" : "Autosaved";
   const savedTip = !autosave ? "Every change is saved to the project file as it is made"
     : `Saved every ${autosave} minute${autosave === 1 ? "" : "s"}${save ? `. ${save} saves now` : ""}`;
+  const changes = (project?.history?.length ?? 0) + (project?.future?.length ?? 0);
   return (
     <footer className="statusbar">
       {!UTILS && <div className="sb-undo">
@@ -495,7 +499,11 @@ function StatusBar() {
           data-tip={project?.can_undo ? `Undo ${EDIT_NAMES[project.undo_label ?? ""] ?? "the last change"}` : "Nothing to undo"}><UndoIcon /></button>
         <button className="sb-btn" onClick={actions.redo} disabled={!project?.can_redo} aria-label="Redo" data-tip-cmd="redo"
           data-tip={project?.can_redo ? `Redo ${EDIT_NAMES[project.redo_label ?? ""] ?? "the change"}` : "Nothing to redo"}><RedoIcon /></button>
+        <button className={`sb-btn${pop === "history" ? " on" : ""}`} data-pop="history" onClick={() => toggle("history")} disabled={!project}
+          aria-label="History" aria-expanded={pop === "history"} data-tip={changes ? "History" : "History: no changes yet"}
+          data-tip-more="The changes made since the project opened, to go back or forward to"><HistoryIcon /></button>
       </div>}
+      {pop === "history" && project && <StatusPop side="left" label="History" onClose={() => setPop(null)}><HistoryList /></StatusPop>}
       {running.length ? (
         <span className="busy sb-main">{JOB_NAMES[running[0].kind]?.[1] ?? "Working"}{running[0].total ? ` ${Math.round((running[0].done / running[0].total) * 100)}%` : ""}: {running[0].doing || running[0].log[running[0].log.length - 1] || "starting"}</span>
       ) : (
@@ -509,17 +517,112 @@ function StatusBar() {
           data-tip={u.latest ? `${versionLabel(u.latest.version)} is available` : `${APP_NAME} ${APP_LABEL}${core}`} data-tip-more="Updates and changelogs">
           {APP_LABEL}{u.latest && <span className="sb-dot" aria-hidden />}</button>
         <AboutButton />
+        {/* drawn as the ⓘ beside it, the same size and spacing */}
+        <button className={`about-btn sb-bell${pop === "notifications" ? " on" : ""}`} data-pop="notifications" onClick={() => toggle("notifications")}
+          aria-label="Notifications" aria-expanded={pop === "notifications"} data-tip="Notifications" data-tip-more="The notifications shown so far, to read again"><BellIcon /></button>
       </span>
+      {pop === "notifications" && <StatusPop side="right" label="Notifications" onClose={() => setPop(null)}><NotificationList /></StatusPop>}
     </footer>
   );
 }
 
+/** A panel over the status bar, by the button that opened it (History, Notifications). Esc, a click outside it or
+    the button again closes it. It sits outside the bar's box (fixed), which clips what overflows. */
+function StatusPop({ side, label, onClose, children }: { side: "left" | "right"; label: string; onClose: () => void; children: React.ReactNode }) {
+  const box = useRef<HTMLDivElement>(null);
+  const close = useRef(onClose);
+  close.current = onClose;
+  const [bottom, setBottom] = useState(0);
+  useEffect(() => {
+    const place = () => setBottom(window.innerHeight - (document.querySelector(".statusbar")?.getBoundingClientRect().top ?? window.innerHeight));
+    place();
+    const away = (e: PointerEvent) => {
+      const t = e.target as Element;
+      if (!box.current?.contains(t) && !t.closest?.("[data-pop]")) close.current(); // its button toggles it itself
+    };
+    const key = (e: KeyboardEvent) => { if (e.key === "Escape") { e.stopPropagation(); close.current(); } };
+    window.addEventListener("resize", place);
+    document.addEventListener("pointerdown", away, true);
+    window.addEventListener("keydown", key, true);
+    box.current?.focus();
+    return () => { window.removeEventListener("resize", place); document.removeEventListener("pointerdown", away, true); window.removeEventListener("keydown", key, true); };
+  }, []);
+  return <div className={`sb-pop ${side}`} style={{ bottom }} role="dialog" aria-label={label} ref={box} tabIndex={-1}>{children}</div>;
+}
+
+/** The History list: the project as it was before the changes kept, each change since (oldest first) and those
+    undone (greyed, last). A click goes there: the changes after it are undone, or those up to it redone, at once. */
+function HistoryList() {
+  const { project, actions } = useEditor();
+  const done = project?.history ?? [], future = project?.future ?? [];
+  const now = useRef<HTMLButtonElement>(null);
+  useEffect(() => { now.current?.scrollIntoView({ block: "nearest" }); }, []);
+  const name = (label: string) => { const w = EDIT_NAMES[label] ?? label; return w.charAt(0).toUpperCase() + w.slice(1); };
+  const row = (key: string, text: string, steps: number, cls: string, tip?: string) => (
+    <li key={key}>
+      <button className={`hist-row${cls}`} ref={!steps ? now : undefined} onClick={() => actions.historyGo(steps)} aria-current={!steps ? "step" : undefined}
+        data-tip={tip} data-tip-side="right">{text}</button>
+    </li>
+  );
+  return (
+    <>
+      <div className="sb-pop-head"><h2>History</h2></div>
+      <ol className="hist-list">
+        {row("start", done.length >= 200 ? "Before the oldest change kept" : "As opened", -done.length, done.length ? "" : " now",
+          done.length ? (done.length === 1 ? "Undo the change" : `Undo all ${done.length} changes`) : undefined)}
+        {done.map((l, i) => row(`d${i}`, name(l), i + 1 - done.length, i === done.length - 1 ? " now" : "",
+          i < done.length - 1 ? `Undo the ${done.length - 1 - i === 1 ? "change" : `${done.length - 1 - i} changes`} after this one` : undefined))}
+        {future.map((l, j) => row(`f${j}`, name(l), j + 1, " undone", `Redo ${j ? `the ${j + 1} changes up to this one` : "this change"}`))}
+      </ol>
+      {!done.length && !future.length && <p className="sb-pop-empty">No changes since the project opened.</p>}
+    </>
+  );
+}
+
+/** The notifications shown so far (noticeLog.ts), newest first, to read again. It never shows anything by itself. */
+function NotificationList() {
+  const log = useNoticeLog();
+  const today = new Date().toDateString();
+  const when = (at: number) => {
+    const d = new Date(at), time = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    return d.toDateString() === today ? time : `${d.toLocaleDateString([], { month: "short", day: "numeric" })} ${time}`;
+  };
+  return (
+    <>
+      <div className="sb-pop-head">
+        <h2>Notifications</h2>
+        {log.length > 0 && <button className="link-text" onClick={noticeLog.clear}>Clear</button>}
+      </div>
+      {log.length ? (
+        <ol className="note-log">
+          {[...log].reverse().map((n) => (
+            <li key={n.id} className={`note-row ${n.tone}`}>
+              <span className="note-time">{when(n.at)}</span>
+              <NoticeText text={n.text} />
+            </li>
+          ))}
+        </ol>
+      ) : <p className="sb-pop-empty">Notifications show here once the app has shown them.</p>}
+    </>
+  );
+}
+
 /** What plays, wherever it was started from: pause, stop, position, and the preview volume. Its name leads to it:
-    the tab, the item and the slot it was started from. */
+    the tab, the item and the slot it was started from (in the Soundtrack, the piece, its part and the segment). */
 function NowPlaying() {
   const p = usePlayer();
-  const { goTo, quick } = useEditor();
-  const show = async () => { if (p.at && !(await goTo(p.at))) quick("That item no longer exists", "info"); };
+  const { goTo, quick, itemIndex } = useEditor();
+  const show = async () => {
+    const at = p.at;
+    if (!at) return;
+    if (at.scope === "soundtrack") {
+      const it = at.itemId ? itemIndex.items.get(at.itemId) : undefined;
+      if (it && at.cueId) openInSoundtrack(it, at.cueId, at.source);
+      else quick("That music no longer exists", "info");
+      return;
+    }
+    if (!(await goTo({ ...at, scope: at.scope }))) quick("That item no longer exists", "info");
+  };
   // a preview that fails (a file gone, audio the core can't read) says so: the button alone just went back to ▶
   useEffect(() => { if (p.error) quick(`Can't play ${p.label || "this audio"}`, "info"); }, [p.error, p.label, quick]);
   return (
@@ -575,7 +678,16 @@ function Notices() {
     <>
       <div className="notices" aria-live="polite">
         {running.map((j) => <JobCard key={j.id} job={j} />)}
-        {notices.map((n) => (
+        {notices.map((n) => n.open ? (
+          // an announcement: in the primary colour, and a click anywhere on it follows it
+          <div key={n.id} className={`notice lead${n.leaving ? " leaving" : ""}`} role="button" tabIndex={0} aria-label={`${n.title}. ${n.text}`}
+            onClick={() => { n.open!(); dismiss(n.id); }}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); n.open!(); dismiss(n.id); } }}>
+            <span className="notice-mark" aria-hidden><PlayMarkIcon /></span>
+            <div className="notice-text"><b className="notice-title">{n.title}</b>{n.text}{n.hint && <small className="notice-hint">{n.hint}</small>}</div>
+            <button className="x" onClick={(e) => { e.stopPropagation(); dismiss(n.id); }} aria-label="Dismiss">✕</button>
+          </div>
+        ) : (
           <div key={n.id} className={`notice ${n.tone}${n.leaving ? " leaving" : ""}`}>
             <NoticeText text={n.text} />
             {n.action && <button className="btn quiet" onClick={() => { n.action!.run(); dismiss(n.id); }}>{n.action.label}</button>}

@@ -122,9 +122,17 @@ A clip that plays in several places has one note, shown in every place. When a g
 
 The tab bar holds the main tabs. Home and Tools come first. The darker band after them holds the tabs for the open project, from Project to Text, and the Project tab shows the project icon. Build comes after the band while a project is open, and {icon:updates} Updates, the Wiki and Settings are at the end. The bar runs along the top of the window, and **Tab bar** in [Settings ▸ Theme](app:settings/theme) puts it on another side. With tab names on, a bar at the top or bottom shows the names beside the icons, and a bar at the left or right shows a name when the pointer is on the tab. The open tab takes the colour of the page it opens, and in the band the open tab has an edge in the primary colour. Tabs inside a page, such as Index and All Archives, the parts of a piece, or the sections of Settings, are underlined instead. A dot on Build means the project needs a new build, and a dot on Updates means a new version of Audiodiver is available.
 
-The status bar at the bottom has undo and redo, the project file and the audio that is playing. Click the playing audio to go to that slot. **Vol** sets the preview volume, which doesn't affect the mod. The version number opens Updates, and the {icon:info} next to it opens [About](app:about).
+The status bar at the bottom has undo and redo, the project file and the audio that is playing. Click the playing audio to go back to where it was played: the slot in the Library or the Audio tab, or the piece and the segment in the Soundtrack. **Vol** sets the preview volume, which doesn't affect the mod. The version number opens Updates, and the {icon:info} next to it opens [About](app:about).
+
+### History
+
+The clock beside undo and redo opens **History**, the list of changes made since the project opened, oldest first. The change the project is at is marked. Click an earlier one to undo every change after it at once, or one further down, in grey, to redo up to it. **As opened** undoes them all. Undo and redo keep working from wherever the list went, and the list keeps the last 200 changes.
+
+### Notifications
 
 Short confirmations such as *Loadout Selection added to My Mod* or *My Mod saved* appear briefly at the bottom of the window. Notices that need reading, or that have a button such as Undo or Show in Folder, appear at the bottom right.
+
+The bell at the right end of the status bar lists the notices shown so far, newest first, with the time of each, to read one again after it is gone. The list keeps the last 100, also after Audiodiver restarts, and **Clear** empties it. It only lists them, and never shows anything by itself.
 
 ## Ids
 

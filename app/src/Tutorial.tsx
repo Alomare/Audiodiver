@@ -1,16 +1,16 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { call } from "./api";
 import { confirm } from "./Confirm";
-import { useDialog } from "./dialog";
 import { UTILS } from "./edition";
 import { parse, Markdown } from "./Markdown";
 import { nav, useNav } from "./nav";
-import { reveal } from "./platform";
+import { reveal, startAudioPickerIn } from "./platform";
 import { useEditor } from "./store";
+import { CatMark } from "./Tags";
 import { motionOn, useTheme } from "./theme";
 import { markOffered, TUTORIALS, unoffered, type Tutorial, type TutorialKit, type TutorialState } from "./tutorials";
 
-/** The Wiki's page of tutorials (not a Markdown page): Wiki.tsx shows TutorialsPage for it. */
+/** The Wiki's page of interactive tutorials (not a Markdown page): Wiki.tsx shows TutorialsPage for it. */
 export const TUTORIALS_PAGE = "tutorials";
 
 // ---- the tutorial that runs, if one does: which, and at which step (-1 while it sets up)
@@ -21,7 +21,7 @@ const listeners = new Set<() => void>();
 const set = (next: Run) => { running = next; listeners.forEach((f) => f()); };
 const useRun = () => useSyncExternalStore((f) => { listeners.add(f); return () => { listeners.delete(f); }; }, () => running);
 
-/** Starts a tutorial (from the Tutorials page). TutorialLayer sets it up and shows its steps. */
+/** Starts a tutorial (from the tutorials page). TutorialLayer sets it up and shows its steps. */
 export function startTutorial(id: string) {
   if (!running) set({ id, step: -1 });
 }
@@ -31,13 +31,26 @@ async function askStop() {
 }
 
 const PAD = 6;      // the hole's margin around what it shows
-const GAP = 14;     // between the hole and the panel
+const GAP = 14;     // between what a step points at and the panel
 const EDGE = 12;    // the panel keeps this far from the window's edges
 
-/** The running tutorial over the window: everything dark but the part the step is about, which takes clicks and has
-    a pulsing outline in the primary colour, and beside it the panel with the step (in the primary colour until the
-    pointer is on it). The dark takes every other click. A step is done when the app shows it done (its `done`), or
-    with its button. */
+type Box = { left: number; top: number; right: number; bottom: number };
+/** The box around some elements, with the margin, inside the window; null when none shows. */
+function around(els: Element[], vw: number, vh: number): Box | null {
+  const rects = els.map((e) => e.getBoundingClientRect()).filter((r) => r.width || r.height);
+  if (!rects.length) return null;
+  return {
+    left: Math.max(0, Math.min(...rects.map((r) => r.left)) - PAD), top: Math.max(0, Math.min(...rects.map((r) => r.top)) - PAD),
+    right: Math.min(vw, Math.max(...rects.map((r) => r.right)) + PAD), bottom: Math.min(vh, Math.max(...rects.map((r) => r.bottom)) + PAD),
+  };
+}
+const list = (t: Element | Element[] | null | undefined) => (!t ? [] : Array.isArray(t) ? t : [t]);
+
+/** The running tutorial over the window: everything dark but the part the step is about, with a pulsing outline in
+    the primary colour, and beside it the panel with the step (in the primary colour until the pointer is on it). A
+    step to do takes clicks there (or in its wider `room`) and nowhere else, and is done when the app shows it done
+    (its `done`), or with its button. A step to look takes no clicks and no keys outside the panel, its outline
+    stands still, and Next goes on. */
 export function TutorialLayer() {
   const run = useRun();
   const tutorial = run ? TUTORIALS.find((t) => t.id === run.id) : undefined;
@@ -49,16 +62,22 @@ function Steps({ tutorial, at }: { tutorial: Tutorial; at: number }) {
   const { project, jobs, scopes, actions, notify, quick } = useEditor();
   const { tab } = useNav();
   const theme = useTheme();
+  const editor = useRef(scopes.editor);
+  editor.current = scopes.editor;
   const kit = useMemo<TutorialKit>(() => ({
     call: <T,>(method: string, params?: Record<string, unknown>) => call<T>(method, params),
     addToProject: actions.addToProject, assignAll: actions.assignAll, silence: actions.silence,
     newProjectAt: actions.newProjectAt, reveal: (path) => { reveal(path).catch(() => {}); },
+    select: (sources) => editor.current.setSelected(sources), pickFrom: startAudioPickerIn,
   }), [actions]);
+  useEffect(() => () => startAudioPickerIn(null), []); // the picker opens where it did before, once the tutorial ends
   // what the steps read, fresh on every check (the open items aren't React state here)
   const latest = useRef<() => TutorialState>(() => ({ tab, project, jobs, libraryItem: null, audioItem: null }));
   latest.current = () => ({ tab, project, jobs, libraryItem: scopes.library.itemId, audioItem: scopes.editor.itemId });
   const [working, setWorking] = useState(false);
   const step = at >= 0 ? tutorial.steps[at] : undefined;
+  const look = !!step?.look;
+  const nextLabel = step?.next ?? (look ? "Next" : undefined);
 
   // setting up, then each step as it comes
   useEffect(() => {
@@ -69,9 +88,17 @@ function Steps({ tutorial, at }: { tutorial: Tutorial; at: number }) {
         .catch((e) => { notify("bad", `The tutorial couldn't start: ${e.message ?? e}`); set(null); });
       return () => { live = false; };
     }
-    try { step?.enter?.(kit, latest.current()); } catch { /* the step still shows */ }
+    try { Promise.resolve(step?.enter?.(kit, latest.current())).catch(() => {}); } catch { /* the step still shows */ }
     return () => { live = false; };
   }, [at]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // a step that works in one tab: when something in its room led to another (a link in the details panel, a crumb),
+  // back to it, or the dark would cover the way back
+  useEffect(() => {
+    if (!step?.tab || tab === step.tab) return;
+    nav.go(step.tab);
+    quick("Back to the tutorial step", "info");
+  }, [tab, step]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // on to the next step once the app shows this one done
   useEffect(() => {
@@ -97,40 +124,50 @@ function Steps({ tutorial, at }: { tutorial: Tutorial; at: number }) {
     finally { setWorking(false); }
   };
 
+  // a step to look: the keys stay with the panel (Next has the focus), except in a dialog over it (Stop Tutorial's)
+  const nextBtn = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!look) return;
+    nextBtn.current?.focus();
+    const hold = (e: KeyboardEvent) => {
+      if (e.key === "Tab" || panel.current?.contains(e.target as Node) || document.querySelector(".modal-back")) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    };
+    window.addEventListener("keydown", hold, true);
+    return () => window.removeEventListener("keydown", hold, true);
+  }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // the hole, the ring and the panel follow the target as it moves (a list that scrolls, a window that resizes),
   // written straight to the page each frame rather than through React
   const mask = useRef<HTMLDivElement>(null), ring = useRef<HTMLDivElement>(null), panel = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    let frame = 0, found: Element[] = [], lastLook = 0;
+    let frame = 0, lastLook = 0, aim: Element[] = [], room: Element[] = [];
     const draw = (now: number) => {
       frame = requestAnimationFrame(draw);
-      if (now - lastLook > 200 || found.some((e) => !e.isConnected)) { // looked for again now and then: lists redraw
+      if (now - lastLook > 200 || [...aim, ...room].some((e) => !e.isConnected)) { // looked for again now and then: lists redraw
         lastLook = now;
-        const t = step?.target?.();
-        found = !t ? [] : Array.isArray(t) ? t : [t];
+        aim = list(step?.target?.());
+        room = step?.room ? list(step.room()) : aim;
       }
-      const rects = found.map((e) => e.getBoundingClientRect()).filter((r) => r.width || r.height);
       const vw = window.innerWidth, vh = window.innerHeight;
-      const hole = rects.length ? {
-        left: Math.max(0, Math.min(...rects.map((r) => r.left)) - PAD), top: Math.max(0, Math.min(...rects.map((r) => r.top)) - PAD),
-        right: Math.min(vw, Math.max(...rects.map((r) => r.right)) + PAD), bottom: Math.min(vh, Math.max(...rects.map((r) => r.bottom)) + PAD),
-      } : null;
+      const target = around(aim, vw, vh), hole = around(room, vw, vh) ?? target;
       if (mask.current) {
         mask.current.style.clipPath = hole
           ? `polygon(evenodd, 0 0, ${vw}px 0, ${vw}px ${vh}px, 0 ${vh}px, 0 0, ${hole.left}px ${hole.top}px, ${hole.left}px ${hole.bottom}px, ${hole.right}px ${hole.bottom}px, ${hole.right}px ${hole.top}px, ${hole.left}px ${hole.top}px)`
           : "none";
       }
       if (ring.current) {
-        ring.current.style.display = hole ? "block" : "none";
-        if (hole) Object.assign(ring.current.style, { left: `${hole.left}px`, top: `${hole.top}px`, width: `${hole.right - hole.left}px`, height: `${hole.bottom - hole.top}px` });
+        ring.current.style.display = target ? "block" : "none";
+        if (target) Object.assign(ring.current.style, { left: `${target.left}px`, top: `${target.top}px`, width: `${target.right - target.left}px`, height: `${target.bottom - target.top}px` });
       }
       const p = panel.current;
       if (p) {
         const w = p.offsetWidth, h = p.offsetHeight;
         let x = (vw - w) / 2, y = (vh - h) / 2; // in the middle when the step points nowhere
-        if (hole && hole.bottom + GAP + h <= vh - EDGE) [x, y] = [hole.left, hole.bottom + GAP];   // below
-        else if (hole && hole.top - GAP - h >= EDGE) [x, y] = [hole.left, hole.top - GAP - h];     // above
-        else if (hole) [x, y] = [hole.right + GAP + w <= vw - EDGE ? hole.right + GAP : hole.left - GAP - w, hole.top]; // beside
+        if (target && target.bottom + GAP + h <= vh - EDGE) [x, y] = [target.left, target.bottom + GAP];   // below
+        else if (target && target.top - GAP - h >= EDGE) [x, y] = [target.left, target.top - GAP - h];     // above
+        else if (target) [x, y] = [target.right + GAP + w <= vw - EDGE ? target.right + GAP : target.left - GAP - w, target.top]; // beside
         p.style.transform = `translate(${Math.round(Math.max(EDGE, Math.min(vw - w - EDGE, x)))}px, ${Math.round(Math.max(EDGE, Math.min(vh - h - EDGE, y)))}px)`;
       }
     };
@@ -141,8 +178,9 @@ function Steps({ tutorial, at }: { tutorial: Tutorial; at: number }) {
   const busy = step?.busy?.(latest.current()) ?? null;
   const doc = useMemo(() => (step ? parse(step.text) : null), [step]);
   return (
-    <div className={`tut${motionOn(theme) ? " moving" : ""}`}>
+    <div className={`tut${motionOn(theme) ? " moving" : ""}${look ? " look" : ""}`}>
       <div className="tut-mask" ref={mask} aria-hidden />
+      {look && <div className="tut-block" aria-hidden />}
       <div className="tut-ring" ref={ring} aria-hidden />
       <div className="tut-panel" ref={panel} role="dialog" aria-live="polite" aria-label={tutorial.title}>
         {!step ? <p className="tut-wait">Making the practice project</p> : (
@@ -154,10 +192,10 @@ function Steps({ tutorial, at }: { tutorial: Tutorial; at: number }) {
             <h3>{step.title}</h3>
             {doc && <div className="tut-text"><Markdown tokens={doc.tokens} /></div>}
             {busy && <p className="tut-wait">{busy}</p>}
-            {(step.action || step.next) && (
+            {(step.action || nextLabel) && (
               <div className="tut-btns">
                 {step.action && <button className="btn tut-act" onClick={act} disabled={working}>{step.action.label}</button>}
-                {step.next && <button className="btn tut-next" onClick={next}>{step.next}</button>}
+                {nextLabel && <button className="btn tut-next" ref={nextBtn} onClick={next}>{nextLabel}</button>}
               </div>
             )}
           </>
@@ -167,57 +205,44 @@ function Steps({ tutorial, at }: { tutorial: Tutorial; at: number }) {
   );
 }
 
-/** The first time Audiodiver starts, and after an update that brings new tutorials: an offer to see them, once.
-    `blocked`: another question is on screen (the update prompt); the offer waits for it. */
+/** The first time Audiodiver starts, and after an update that brings new tutorials: an announcement in the corner,
+    once, that opens the tutorials page when clicked anywhere. `blocked`: another question is on screen (the update
+    prompt); the announcement waits for it. */
 export function TutorialPrompt({ blocked }: { blocked: boolean }) {
-  const [list, setList] = useState<Tutorial[] | null>(null);
+  const { announce } = useEditor();
+  const made = useRef(false);
   useEffect(() => {
     // not under automation (the walk, probes, the README's screenshots), where it would cover what they click
-    if (UTILS || navigator.webdriver || blocked || list) return;
+    if (UTILS || navigator.webdriver || blocked || made.current) return;
     const fresh = unoffered();
     if (!fresh.length) return;
-    const t = setTimeout(() => { markOffered(fresh.map((x) => x.id)); setList(fresh); }, 1200);
+    const t = setTimeout(() => {
+      made.current = true;
+      markOffered(fresh.map((x) => x.id));
+      const all = fresh.length === TUTORIALS.length;
+      announce(all ? "Interactive tutorials" : fresh.length === 1 ? "A new interactive tutorial" : "New interactive tutorials",
+        all ? "Walkthroughs that show where to click, one step at a time." : `${fresh.map((x) => x.title).join(", ")}.`,
+        () => nav.go("wiki", TUTORIALS_PAGE), `Click here to see ${!all && fresh.length === 1 ? "it" : "them"} in the Wiki.`);
+    }, 1200);
     return () => clearTimeout(t);
   }, [blocked]); // eslint-disable-line react-hooks/exhaustive-deps
-  if (!list) return null;
-  return <Offer list={list} onClose={() => setList(null)} />;
+  return null;
 }
 
-function Offer({ list, onClose }: { list: Tutorial[]; onClose: () => void }) {
-  const box = useDialog(onClose);
-  const all = list.length === TUTORIALS.length;
-  return (
-    <div className="modal-back" onPointerDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="modal tut-offer" role="dialog" aria-modal="true" aria-label="Tutorials" ref={box} tabIndex={-1}>
-        <h2>{all ? "Tutorials" : list.length === 1 ? "A new tutorial" : "New tutorials"}</h2>
-        <p className="set-note">Walkthroughs that show where to click, one step at a time.</p>
-        <ul className="tut-offer-list">
-          {list.map((t) => <li key={t.id}><b>{t.title}</b><span>{t.minutes} min</span></li>)}
-        </ul>
-        <div className="modal-foot">
-          <span className="spacer" />
-          <button className="btn quiet" onClick={onClose}>Start Using the App</button>
-          <button className="btn primary" onClick={() => { onClose(); nav.go("wiki", TUTORIALS_PAGE); }}>Check Out Tutorials</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** The Wiki's Tutorials page: each walkthrough, what it teaches and how long it takes, to start. */
+/** The Wiki's page of interactive tutorials: each walkthrough, what it teaches and how long it takes, to start. */
 export function TutorialsPage() {
   const run = useRun();
   return (
     <article className="wiki-article view-in">
       <header className="page-head">
-        <h1>Tutorials</h1>
+        <h1>Interactive Tutorials</h1>
         <p className="page-lead">Walkthroughs that show where to click, one step at a time. Each one works in a new practice project, and the
           project that is open is saved and closed first.</p>
       </header>
       <div className="tut-cards">
         {TUTORIALS.map((t) => (
           <section key={t.id} className="tut-card">
-            <h2>{t.title}</h2>
+            <h2><CatMark category={t.category} />{t.title}</h2>
             <p>{t.summary}</p>
             <ul>{t.teaches.map((x) => <li key={x}>{x}</li>)}</ul>
             <div className="tut-card-foot">

@@ -18,10 +18,14 @@ function promptPaths(message: string, multiple: boolean): string[] | null {
   return raw.split("|").map((s) => s.trim().replace(/^"|"$/g, "")).filter(Boolean);
 }
 
+let audioStart: string | null = null;
+/** Where the audio picker opens while a tutorial runs (the folder of the audio it made); null: the last folder used. */
+export function startAudioPickerIn(folder: string | null) { audioStart = folder; }
+
 export async function pickAudio(multiple = true): Promise<string[] | null> {
   if (!isTauri()) return promptPaths("Audio file", multiple);
   const { open } = await import("@tauri-apps/plugin-dialog");
-  const r = await open({ multiple, defaultPath: lastAudioDir(), filters: [{ name: "Audio", extensions: AUDIO }] });
+  const r = await open({ multiple, defaultPath: audioStart ?? lastAudioDir(), filters: [{ name: "Audio", extensions: AUDIO }] });
   if (!r) return null;
   const files = Array.isArray(r) ? r : [r];
   try { localStorage.setItem(AUDIO_DIR_KEY, folderOf(files[0]) ?? ""); } catch { /* storage off */ }

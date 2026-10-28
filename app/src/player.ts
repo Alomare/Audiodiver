@@ -2,9 +2,10 @@
 // between the original and the replacement of one slot keeps the position (A/B comparison).
 import { useCallback, useMemo, useSyncExternalStore } from "react";
 
-/** Where what plays can be found: the tab it was started on (the Library or the Editor), the item and the cue that
-    were open, and the slot. The now-playing bar's label leads back there. */
-export type PlayedAt = { scope: "library" | "editor"; itemId: string | null; cueId: string | null; source: string | null };
+/** Where what plays can be found: the tab it was started on (the Library, the Editor or the Soundtrack), the item and
+    the cue that were open (in the Soundtrack, the piece and its part), and the slot. The now-playing bar's label
+    leads back there. */
+export type PlayedAt = { scope: "library" | "editor" | "soundtrack"; itemId: string | null; cueId: string | null; source: string | null };
 export type PlayerState = {
   key: string | null; playing: boolean; loading: boolean; time: number; duration: number; error: string | null;
   label: string;  // what is playing, for the now-playing bar ("Loadout #3 · game")

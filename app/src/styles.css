@@ -11,6 +11,7 @@
    since it is hard to read at small sizes. */
 
 :root {
+  --ctl-sm: calc(30px * var(--fs)); /* a small button, and a field in a row of them (the Text tab's formatting bar) */
   --bg: #151515;
   --panel: #1b1b1b;
   --raised: #252525;
@@ -271,6 +272,9 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color])
 .library { display: flex; flex-direction: column; min-height: 0; min-width: 0; background: var(--panel); }
 .lib-search { display: flex; align-items: center; gap: 4px; padding: calc(10px * var(--sp)) 10px; border-bottom: 1px solid var(--line-soft); }
 .lib-search input { flex: 1; min-width: 0; }
+/* as tall as the search box: the Text tab's language, and Collapse All (square) */
+.lib-search > select { align-self: stretch; }
+.lib-search > .icon-btn { align-self: stretch; width: auto; height: auto; aspect-ratio: 1; }
 .lib-tree { flex: 1; overflow: auto; padding: 4px 0 16px; }
 .lib-group-head { display: flex; align-items: center; gap: 6px; width: 100%; padding: calc(6px * var(--sp)) 10px calc(4px * var(--sp)); text-align: left; color: var(--text); }
 .lib-group-line:hover, .lib-group-head:hover { background: var(--raised); } /* a dim band, like an item's; the name keeps its colour */
@@ -437,6 +441,7 @@ button.file:hover:not(:disabled) { text-decoration: underline dotted; text-under
 /* back to 0 dB, after a gain's or a level's value */
 .level-reset { width: calc(22px * var(--fs)); height: calc(22px * var(--fs)); margin-left: 4px; font-size: calc(14px * var(--fs)); color: var(--muted); }
 .level-reset:disabled { opacity: .35; }
+.val > .level-reset { align-self: stretch; height: auto; } /* as tall as the value beside it */
 .gain-val { width: 3.8em; padding: 0 3px; text-align: right; font: inherit; color: inherit; background: transparent; border: 1px solid transparent; border-radius: 2px; }
 .gain-val:hover { border-color: var(--line); }
 .gain-val:focus { border-color: var(--muted); background: var(--bg); outline: none; }
@@ -550,6 +555,31 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .sb-btn { display: grid; place-items: center; width: calc(28px + 4px * var(--sp)); height: calc(22px + 4px * var(--sp)); font-size: calc(15px * var(--fs)); color: var(--muted); border-radius: 2px; }
 .sb-btn:hover:not(:disabled) { background: var(--raised); color: var(--text); }
 .sb-btn:disabled { opacity: .35; }
+.sb-btn.on, .about-btn.on { background: var(--sel-bg); color: var(--text); } /* its panel is open */
+/* the panels over the status bar (App.tsx StatusPop): History by Undo and Redo, the notifications in the right corner */
+.sb-pop { position: fixed; z-index: 31; display: flex; flex-direction: column; width: min(calc(300px * var(--fs)), calc(100vw - 16px));
+  max-height: min(60vh, calc(520px * var(--fs))); overflow: auto; background: var(--raised); border: 1px solid var(--line);
+  box-shadow: 0 10px 30px var(--shadow); color: var(--text); white-space: normal; animation: fade-in var(--t1) ease-out both; }
+.sb-pop.left { left: 8px; }
+.sb-pop.right { right: 8px; width: min(calc(420px * var(--fs)), calc(100vw - 16px)); }
+.sb-pop:focus { outline: none; }
+.sb-pop-head { position: sticky; top: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px;
+  background: var(--raised); border-bottom: 1px solid var(--line-soft); }
+.sb-pop-head h2 { font-size: calc(15px * var(--fs)); }
+.sb-pop-empty { margin: 0; padding: 12px; color: var(--muted); font-size: calc(14px * var(--fs)); }
+.hist-list, .note-log { list-style: none; margin: 0; padding: 4px 0; }
+.hist-row { display: block; width: 100%; padding: calc(4px * var(--sp)) 12px calc(4px * var(--sp)) 10px; text-align: left; color: var(--muted);
+  font-size: calc(14px * var(--fs)); border-left: 2px solid transparent; }
+.hist-row:hover { background: var(--hover); color: var(--text); }
+.hist-row.now { background: var(--sel-bg); color: var(--text); border-left-color: var(--second-fg); }
+.hist-row.undone { color: var(--faint); }
+.note-row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; padding: calc(7px * var(--sp)) 12px; font-size: calc(14px * var(--fs)); }
+.note-row + .note-row { border-top: 1px solid var(--line-soft); }
+.note-row > span:last-child, .note-row > .notice-text { min-width: 0; overflow-wrap: anywhere; }
+.note-time { padding-top: 1px; color: var(--faint); font-size: calc(12px * var(--fs)); white-space: nowrap; }
+.note-time::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: var(--steel); vertical-align: 1px; }
+.note-row.good .note-time::before { background: var(--accent-fg); }
+.note-row.bad .note-time::before { background: var(--red); }
 .statusbar .busy { color: var(--accent-fg); }
 .notices { position: fixed; bottom: calc(38px + 8px * var(--sp)); right: 16px; display: flex; flex-direction: column; gap: 8px; z-index: 30; max-width: 460px; }
 :root[data-bar="bottom"] .notices { bottom: calc(38px + 8px * var(--sp) + var(--bar)); } /* above the tab bar too */
@@ -561,6 +591,16 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .notice-text li + li { margin-top: 2px; }
 .notice.good { border-left-color: var(--accent-fg); }
 .notice.bad { border-left-color: var(--red); }
+/* an announcement (the offer of the interactive tutorials): in the primary colour, a click anywhere follows it */
+.notice.lead { align-items: flex-start; cursor: pointer; background: var(--accent); color: var(--accent-ink); border-color: var(--accent);
+  transition: background var(--t1); }
+.notice.lead:hover { background: color-mix(in srgb, var(--accent) 86%, var(--accent-ink)); }
+.notice.lead:focus-visible { outline-color: var(--accent-ink); }
+.notice.lead .x { color: inherit; }
+.notice .notice-mark { flex: none; display: grid; place-items: center; width: calc(26px * var(--fs)); height: calc(26px * var(--fs)); border-radius: 50%;
+  background: var(--accent-ink); color: var(--accent); font-size: calc(15px * var(--fs)); }
+.notice-title { display: block; margin-bottom: 2px; font: 700 calc(15px * var(--fs))/1.3 var(--title); }
+.notice-hint { display: block; margin-top: 6px; font-size: calc(13px * var(--fs)); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
 
 /* ---------- waveforms, timeline dock, slice tool */
 .wave { position: relative; background: var(--bg); border: 1px solid var(--line-soft); min-width: 0; user-select: none; }
@@ -725,18 +765,27 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 /* a group's head, with the Library's + (add all of it) or ✕ (take all of it off) at its end */
 .lib-group-line { display: flex; align-items: center; }
 .lib-group-line > .lib-group-head { flex: 1; min-width: 0; }
+/* the same distance from the edge on the lines of groups and on items (the item's padding makes up the rest) */
 .lib-group-line > .lib-add { margin-right: 10px; }
-.mus-item > .mus-meta > .lib-add { margin-right: 2px; }
+.mus-item > .mus-meta > .lib-add { margin-right: 0; }
 /* the Library's + and the ✕ it turns into once the item is in the project: always shown, wider than a row's other
-   buttons, outlined as the + for new takes is, and filled with the primary colour on hover */
+   buttons, on a light fill of its colour with the sign in the full colour (the primary colour for +, red for ✕),
+   filled with that colour on hover */
 .lib-add { display: inline-grid; place-items: center; flex: none; width: calc(36px * var(--fs)); height: calc(22px * var(--fs));
-  border-radius: 2px; color: var(--second-fg); font-size: calc(12px * var(--fs));
-  border: 1px solid color-mix(in srgb, var(--second-fg) 45%, transparent);
-  transition: background-color var(--t1), color var(--t1), border-color var(--t1); }
-.lib-add.on { color: var(--accent-fg); border-color: color-mix(in srgb, var(--accent-fg) 60%, transparent);
-  background: color-mix(in srgb, var(--accent-fg) 12%, transparent); }
-button.lib-add:hover { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
-.lib-add.held { color: var(--faint); border-color: var(--line-soft); } /* in the project inside something else it lists */
+  border-radius: 2px; color: var(--accent-fg); font-size: calc(12px * var(--fs));
+  background: color-mix(in srgb, var(--accent-fg) 16%, transparent);
+  transition: background-color var(--t1), color var(--t1); }
+button.lib-add:hover { color: var(--accent-ink); background: var(--accent); }
+.lib-add.on { color: var(--red); background: color-mix(in srgb, var(--red) 16%, transparent); }
+button.lib-add.on:hover { color: var(--bg); background: var(--red); }
+.lib-add.held { color: var(--faint); background: color-mix(in srgb, var(--faint) 12%, transparent); } /* in the project inside something else it lists */
+/* the light theme: yellow can't be read on white, so the + is dark on a stronger yellow fill (--accent-fg is the
+   second colour there) */
+:root[data-theme="light"] .lib-add { color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 60%, transparent); }
+:root[data-theme="light"] button.lib-add:hover { background: var(--accent); }
+:root[data-theme="light"] .lib-add.on { color: var(--red); background: color-mix(in srgb, var(--red) 14%, transparent); }
+:root[data-theme="light"] button.lib-add.on:hover { color: var(--bg); background: var(--red); }
+:root[data-theme="light"] .lib-add.held { color: var(--faint); background: color-mix(in srgb, var(--faint) 12%, transparent); }
 .arc-table td.arc-act .lib-add { vertical-align: middle; }
 .lib-group-head.sub { padding-left: 20px; }
 .lib-group.cat > .lib-group-body > .mus-item { padding-left: 26px; }
@@ -860,7 +909,8 @@ button.ctag:hover { background: color-mix(in oklch, var(--c) 24%, transparent); 
 .mus-filter button.check:not(.on) { color: var(--red); }
 .mus-clash { display: flex; flex-direction: column; gap: 6px; margin-top: calc(7px * var(--sp)); font-size: calc(13px * var(--fs)); color: var(--muted); border-left: 3px solid var(--red); padding: 4px 0 4px 10px; }
 .mus-clash b { color: var(--text); font-weight: 700; }
-.small-btn { padding: 3px 10px; font-size: calc(13px * var(--fs)); }
+/* small buttons share one height (--ctl-sm), with the fields beside them, whatever they hold (a primary one too) */
+.small-btn, .btn.small-btn { min-height: var(--ctl-sm); padding: 0 10px; font-size: calc(13px * var(--fs)); }
 
 .mus-item { display: flex; align-items: center; gap: 6px; padding: calc(2px * var(--sp)) 10px calc(2px * var(--sp)) 14px; border-left: 2px solid transparent; }
 .mus-item:hover { background: var(--raised); }
@@ -1023,6 +1073,12 @@ button.ctag:hover { background: color-mix(in oklch, var(--c) 24%, transparent); 
 .modal-back { animation: fade-in var(--t2) ease-out both; }
 .modal { animation: rise-in var(--t3) var(--ease) both; }
 .notice { animation: slide-in var(--t3) var(--ease) both; }
+/* an announcement glows twice as it comes, so it is seen */
+.notice.lead { animation: slide-in var(--t3) var(--ease) both, lead-glow 1.6s ease-out .5s 2; }
+@keyframes lead-glow {
+  0% { box-shadow: 0 10px 30px var(--shadow), 0 0 0 0 color-mix(in srgb, var(--accent) 70%, transparent); }
+  70%, 100% { box-shadow: 0 10px 30px var(--shadow), 0 0 0 14px color-mix(in srgb, var(--accent) 0%, transparent); }
+}
 .notice.leaving { animation: slide-out var(--t2) var(--ease-in) both; pointer-events: none; }
 .np { animation: fade-in var(--t2) ease-out both; }
 /* the window once the game is read, the Editor coming back from another tab, the library changing view, the
@@ -1095,7 +1151,8 @@ details.insp-sec[open]::details-content { block-size: auto; opacity: 1; }
 :root[data-contrast="high"] .fold { overflow-clip-margin: 5px; } /* room for the wider focus ring */
 :root[data-contrast="high"] button:disabled { opacity: .6; }
 :root[data-contrast="high"] .slot.selected, :root[data-contrast="high"] .mus-item.active, :root[data-contrast="high"] .lib-cue.active,
-:root[data-contrast="high"] .wiki-link.active, :root[data-contrast="high"] .st-row.active, :root[data-contrast="high"] .tx-row.active,
+:root[data-contrast="high"] .wiki-link.active, :root[data-contrast="high"] .wiki-faq.active, :root[data-contrast="high"] .hist-row.now,
+:root[data-contrast="high"] .st-row.active, :root[data-contrast="high"] .tx-row.active,
 :root[data-contrast="high"] .st-line.selected { border-left-width: 4px; }
 :root[data-contrast="high"] .arc-row.active { box-shadow: inset 4px 0 var(--second-fg); }
 :root[data-contrast="high"][data-bar="left"] .rail .tab.on { border-left-width: 4px; }
@@ -1487,13 +1544,14 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .wiki { display: grid; grid-template-columns: clamp(200px, calc((100% - 5px) * var(--wiki-nav, 0.25)), calc(100% - 385px)) 5px minmax(0, 1fr); min-height: 0; }
 .wiki-nav { display: flex; flex-direction: column; min-height: 0; min-width: 0; background: var(--panel); }
 .wiki-list { flex: 1; overflow: auto; padding: 4px 0 24px; }
-/* the FAQ: an entry above the groups, a box with a question mark, in a slightly dim white (a dark grey on the light
-   theme) */
+/* the interactive tutorials and the FAQ: entries above the groups, each with a round mark (a slightly dim white, a
+   dark grey on the light theme; the tutorials' in the primary colour), selected as a page of the list is */
 .wiki-faq { --faq: color-mix(in srgb, var(--text) 80%, var(--bg));
-  display: flex; align-items: center; gap: 12px; width: calc(100% - 20px); margin: 8px 10px 4px; padding: calc(9px * var(--sp)) 12px;
-  text-align: left; background: color-mix(in srgb, var(--faq) 8%, var(--raised)); border: 1px solid color-mix(in srgb, var(--faq) 45%, var(--line));
-  border-left: 3px solid var(--faq); border-radius: 2px; color: var(--text); transition: background var(--t1), border-color var(--t1); }
-.wiki-faq:hover, .wiki-faq.active { background: color-mix(in srgb, var(--faq) 16%, var(--raised)); border-color: var(--faq); }
+  display: flex; align-items: center; gap: 12px; width: 100%; padding: calc(7px * var(--sp)) 14px calc(7px * var(--sp)) 12px;
+  text-align: left; color: var(--text); border-left: 2px solid transparent; transition: background var(--t1); }
+.wiki-faq:first-child { margin-top: 4px; }
+.wiki-faq:hover { background: var(--raised); }
+.wiki-faq.active { background: var(--sel-bg); border-left-color: var(--second-fg); }
 .wiki-faq-mark { flex: none; display: grid; place-items: center; width: calc(26px * var(--fs)); height: calc(26px * var(--fs)); border-radius: 50%;
   background: var(--faq); color: var(--bg); font-weight: 800; font-size: calc(15px * var(--fs)); }
 .wiki-faq-text { min-width: 0; font-size: calc(15px * var(--fs)); line-height: 1.25; }
@@ -1683,8 +1741,10 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .tut { position: fixed; inset: 0; z-index: 29; pointer-events: none; }
 .tut-mask { position: absolute; inset: 0; background: rgb(0 0 0 / .62); pointer-events: auto; }
 .tut-ring { position: absolute; display: none; border: 2px solid var(--accent); border-radius: 2px; pointer-events: none; }
+.tut-block { position: absolute; inset: 0; pointer-events: auto; } /* a step to look: no clicks, also where it points */
 .tut.moving .tut-mask { animation: fade-in var(--t2) ease-out both; }
 .tut.moving .tut-ring { animation: tut-pulse 1.6s ease-out infinite; }
+.tut.look .tut-ring { animation: none; } /* still: a part to look at, not to click */
 @keyframes tut-pulse {
   0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 75%, transparent); }
   70%, 100% { box-shadow: 0 0 0 12px color-mix(in srgb, var(--accent) 0%, transparent); }
@@ -1708,14 +1768,10 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .tut-panel .btn { background: transparent; color: inherit; border: 1px solid currentColor; }
 .tut-panel .btn.tut-act { background: var(--accent-ink); color: var(--accent); border-color: var(--accent-ink); font-weight: 700; }
 .tut-panel:hover .btn.tut-act { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-/* the offer at startup, and the Wiki's page of tutorials */
-.modal.tut-offer { max-width: calc(520px * var(--fs)); gap: 12px; }
-.tut-offer-list { list-style: none; margin: 0; padding: 0; }
-.tut-offer-list li { display: flex; align-items: baseline; gap: 10px; padding: 8px 10px; background: var(--panel); border-left: 3px solid var(--accent-fg); }
-.tut-offer-list li span { margin-left: auto; color: var(--muted); font-size: calc(13px * var(--fs)); white-space: nowrap; }
+/* the Wiki's page of interactive tutorials (the offer at startup is an announcement, .notice.lead) */
 .tut-cards { display: flex; flex-direction: column; gap: 14px; margin-top: 22px; }
-.tut-card { padding: 14px 16px; background: var(--panel); border: 1px solid var(--line-soft); border-left: 3px solid var(--accent-fg); }
-.tut-card h2 { margin: 0 0 4px; font-size: calc(18px * var(--fs)); }
+.tut-card { padding: 14px 16px; background: var(--panel); border: 1px solid var(--line-soft); }
+.tut-card h2 { display: flex; align-items: center; gap: 10px; margin: 0 0 4px; font-size: calc(18px * var(--fs)); }
 .tut-card p { margin: 0 0 8px; color: var(--muted); }
 .tut-card ul { margin: 0 0 12px; padding-left: 20px; }
 .tut-card-foot { display: flex; align-items: center; gap: 12px; }
@@ -1747,8 +1803,8 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .tx-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 6px; }
 .tx-bar .inline input { width: calc(56px * var(--fs)); margin-left: 6px; }
 .tx-color { display: inline-flex; align-items: center; gap: 4px; }
-.tx-color input[type="color"] { width: 30px; height: 26px; padding: 0; border: 1px solid var(--line); background: none; cursor: pointer; }
-.tx-hex { width: calc(72px * var(--fs)); font-family: "Roboto Mono Variable", Consolas, monospace; text-transform: uppercase; background: var(--bg); border: 1px solid var(--line); border-radius: 2px; padding: 3px 6px; }
+.tx-color input[type="color"] { width: var(--ctl-sm); height: var(--ctl-sm); padding: 0; border: 1px solid var(--line); background: none; cursor: pointer; }
+.tx-hex { width: calc(72px * var(--fs)); height: var(--ctl-sm); font-family: "Roboto Mono Variable", Consolas, monospace; text-transform: uppercase; background: var(--bg); border: 1px solid var(--line); border-radius: 2px; padding: 0 6px; }
 .tx-input { width: 100%; resize: vertical; min-height: 96px; background: var(--bg); border: 1px solid var(--line); border-radius: 2px; padding: 8px 10px; font: calc(14px * var(--fs))/1.5 "Roboto Mono Variable", Consolas, monospace; }
 
 /* a slot's source id, at the end of its line: quiet until pointed at, click to copy */
@@ -1985,7 +2041,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .arc-more { font-size: calc(11px * var(--fs)); color: var(--muted); vertical-align: 2px; }
 /* the dialog box takes the focus when it opens: no ring around all of it */
 .modal:focus { outline: none; }
-.tx-bar .tx-size { width: calc(62px * var(--fs)); flex: none; }
+.tx-bar .tx-size { width: calc(62px * var(--fs)); height: var(--ctl-sm); padding-block: 0; flex: none; }
 .home-scroll:focus-visible { outline: 2px solid var(--second-fg); outline-offset: -2px; }
 .len.mine-len.short { color: var(--red); font-weight: 600; }
 

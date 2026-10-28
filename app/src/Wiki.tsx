@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { WIKI as ALL_PAGES, WIKI_GROUPS, wikiPicture } from "./content";
 import { UTILS, UTILS_WIKI } from "./edition";
-import { DownIcon, SearchIcon, UpIcon } from "./Icons";
+import { DownIcon, PlayMarkIcon, SearchIcon, UpIcon } from "./Icons";
 import { keyLabel, useCommands } from "./keys";
 import { Markdown } from "./Markdown";
 import { nav, useNav } from "./nav";
@@ -102,11 +102,11 @@ export function Wiki() {
             }} />
         </div>
         <div className="wiki-list">
-          {!UTILS && (!words.length || words.every((w) => "tutorials walkthroughs".includes(w))) && (
+          {!UTILS && (!words.length || words.every((w) => "interactive tutorials walkthroughs".includes(w))) && (
             <button className={`wiki-faq wiki-tut${tutorials ? " active" : ""}`} aria-current={tutorials ? "page" : undefined}
-              onClick={() => nav.go("wiki", TUTORIALS_PAGE)} data-tip="Walkthroughs that show where to click, one step at a time" data-tip-side="right">
-              <span className="wiki-faq-mark" aria-hidden>▶</span>
-              <b className="wiki-faq-text">Tutorials</b>
+              onClick={() => nav.go("wiki", TUTORIALS_PAGE)} data-tip="Walkthroughs in the app that show where to click, one step at a time" data-tip-side="right">
+              <span className="wiki-faq-mark" aria-hidden><PlayMarkIcon /></span>
+              <b className="wiki-faq-text">Interactive Tutorials</b>
             </button>
           )}
           {FAQ && faqFound && (

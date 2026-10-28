@@ -6,6 +6,8 @@
 # Without it the run stops with a message and nothing is uploaded. Run it by hand from the Actions tab (Run workflow)
 # to upload a release that is out already. Drafts and pre-releases are never uploaded. It runs apart from the
 # release workflow: a failure here never touches the GitHub release or the updater.
+# Never run it with debug logging on: the upload action writes the API key into the debug log. GitHub masks it, but
+# the logs of a public repository are open to anyone.
 name: Nexus Mods
 
 on:
@@ -96,9 +98,10 @@ jobs:
 
       # one step per file, each a new version of the file already on the page (Files tab, Advanced, API File ID).
       # The installer is the main download and carries the mod's version and the changelog; the names, the
-      # descriptions and the categories are those on the page
+      # descriptions and the categories are those on the page. The action gets the API key, so it is pinned to the
+      # commit of the tag v1.0.0-beta.11 (a tag can be moved); a new version of the action means a new commit here
       - name: Upload Audiodiver Setup
-        uses: Nexus-Mods/upload-action@v1.0.0-beta.11
+        uses: Nexus-Mods/upload-action@98532f7670c27cbecc78fae03fa3e278147827e2  # v1.0.0-beta.11
         with:
           api_key: ${{ secrets.NEXUSMODS_API_KEY }}
           file_id: '8245731'
@@ -115,7 +118,7 @@ jobs:
           changelog: ${{ steps.notes.outputs.text }}
 
       - name: Upload Audiodiver Portable
-        uses: Nexus-Mods/upload-action@v1.0.0-beta.11
+        uses: Nexus-Mods/upload-action@98532f7670c27cbecc78fae03fa3e278147827e2  # v1.0.0-beta.11
         with:
           api_key: ${{ secrets.NEXUSMODS_API_KEY }}
           file_id: '8245734'
@@ -129,7 +132,7 @@ jobs:
           allow_mod_manager_download: true
 
       - name: Upload Audiodiver Utils Portable
-        uses: Nexus-Mods/upload-action@v1.0.0-beta.11
+        uses: Nexus-Mods/upload-action@98532f7670c27cbecc78fae03fa3e278147827e2  # v1.0.0-beta.11
         with:
           api_key: ${{ secrets.NEXUSMODS_API_KEY }}
           file_id: '8245737'

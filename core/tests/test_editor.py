@@ -68,6 +68,25 @@ def test_project_edits_autosave_and_undo_without_the_game(tmp_path):
         s.update(1234, volume=3)
 
 
+def test_the_history_list_goes_back_and_forward_several_edits_at_once(tmp_path):
+    s = Session(load=False)
+    s.new_project(tmp_path / "m.audi", "M")
+    a = _wav(tmp_path / "a.wav")
+    s._edit("assign", lambda p: s._set(p, 1234, str(a)))
+    s.update(1234, gain_db=4)
+    st = s.update(1234, gain_db=8)
+    assert st["history"] == ["assign", "update", "update"] and st["future"] == []
+    st = s.history_go(-2)  # back to just after the assign: two updates undone, the next to redo first
+    assert st["assignments"]["1234"]["gain_db"] == 0.0 and st["history"] == ["assign"] and st["future"] == ["update", "update"]
+    assert json.loads((tmp_path / "m.audi").read_text())["replacements"][0].get("gain_db", 0) == 0
+    assert s.redo()["assignments"]["1234"]["gain_db"] == 4.0  # Redo after a jump redoes the next one, as after Undo
+    st = s.history_go(5)  # more steps than there are: all of them
+    assert st["assignments"]["1234"]["gain_db"] == 8.0 and st["future"] == []
+    st = s.history_go(-3)  # to the start
+    assert st["assignments"] == {} and st["history"] == [] and st["future"] == ["assign", "update", "update"]
+    assert s.history_go(0)["future"] == ["assign", "update", "update"]
+
+
 def test_notes_in_the_project(tmp_path):
     s = Session(load=False)
     s.new_project(tmp_path / "m.audi", "M")

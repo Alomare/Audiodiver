@@ -72,11 +72,17 @@ const LIST_WIDTH = 330; // the music list's width to start with (px at the defau
 const OPEN = "audiodiver:soundtrack-open";
 const DROP = "audiodiver:soundtrack-drop";
 
-/** Shows a piece of music in the Soundtrack, at its part `cue`. */
-export function openInSoundtrack(item: MusicItem, cue: string) {
+const SELECT = "audiodiver:soundtrack-select";
+let toSelect: { cue: string; source: string } | null = null; // a slot to select once the piece shows (PieceView takes it)
+
+/** Shows a piece of music in the Soundtrack, at its part `cue`, with the slot `select` selected (the now-playing
+    bar leads back to what plays this way). */
+export function openInSoundtrack(item: MusicItem, cue: string, select?: string | null) {
   const pick: Pick = { item: item.id, part: Math.max(0, playlists(item).findIndex((p) => p.cue === cue)) };
   try { localStorage.setItem(PICK_KEY, JSON.stringify(pick)); } catch { /* storage off */ }
+  toSelect = select ? { cue, source: select } : null;
   window.dispatchEvent(new CustomEvent<Pick>(OPEN, { detail: pick }));
+  window.dispatchEvent(new Event(SELECT));
   nav.go("soundtrack");
 }
 
@@ -308,6 +314,19 @@ function PieceView({ item, part, setPart, sections, open }: {
     return () => { live = false; };
   }, [cueId, changed]);
   useEffect(() => { setSel(null); setRun(null); }, [cueId]); // another part starts over
+  // the slot openInSoundtrack asked for, once this part shows (now, or when it comes). It is let go of a moment
+  // later, not at once: React runs a new view's effects twice in development
+  useEffect(() => {
+    const take = () => {
+      const want = toSelect;
+      if (want?.cue !== cueId) return;
+      setSel(want.source);
+      setTimeout(() => { if (toSelect === want) toSelect = null; });
+    };
+    take();
+    window.addEventListener(SELECT, take);
+    return () => window.removeEventListener(SELECT, take);
+  }, [cueId]);
   const partner = partnerOf(sections, item);
   const fight = inFights(item);
   const set = (next: Piece | null, label: string, done?: string) => actions.soundtrackSet({ [cueId]: next }, label, done);
@@ -317,7 +336,7 @@ function PieceView({ item, part, setPart, sections, open }: {
   const lengths = useMemo(() => (cue ? originalLengths(cue) : new Map<string, number>()), [cue]);
   // one identity for the life of the view, so the play order's segments (PoSeg) don't draw again on each click
   const { at, toggle } = useStable({
-    at: (source: string | null): PlayedAt => ({ scope: "editor", itemId: item.id, cueId, source }),
+    at: (source: string | null): PlayedAt => ({ scope: "soundtrack", itemId: item.id, cueId, source }),
     // a segment leaves (or comes back) wherever the piece plays it
     toggle: (it: string) => {
       if (!map) return;
@@ -1163,7 +1182,8 @@ function FightBar({ map, item, run, setRun, onNow }: {
       const url = `${fileUrl(r.path)}&v=${Date.now()}`;
       setRun({ key, side, url, duration_ms: r.duration_ms, marks: r.marks, random: r.random, n: from.n + 1 });
       player.stop();
-      player.play(key, url, false, `${item.full} · ${fight ? "fight" : "play"} ${from.n + 1} · ${side === "game" ? "original" : "replaced"}`);
+      player.play(key, url, false, `${item.full} · ${fight ? "fight" : "play"} ${from.n + 1} · ${side === "game" ? "original" : "replaced"}`,
+        { scope: "soundtrack", itemId: item.id, cueId: map.cue, source: null });
     } catch (e: any) { notify("bad", e.message ?? String(e)); }
     setBusy(null);
   };

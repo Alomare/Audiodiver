@@ -7,6 +7,7 @@ import { JOB_NAMES } from "./jobs";
 import { keyHint, keyLabel } from "./keys";
 import { indexItems } from "./music";
 import { FOLD_LIBRARY, HIDEABLE, nav as tabs, type Hideable } from "./nav";
+import { noticeLog } from "./noticeLog";
 import { notes } from "./noteStore";
 import { UTILS } from "./edition";
 import * as platform from "./platform";
@@ -17,6 +18,8 @@ import { motionMs } from "./theme";
 export type Notice = {
   id: number; tone: "info" | "good" | "bad"; text: string; action?: { label: string; run: () => void }; sticky?: boolean;
   leaving?: boolean;  // on its way out (animating)
+  title?: string; open?: () => void; hint?: string; // an announcement (announce): a title, where a click anywhere on it
+                                                     // leads, and a line that says so (not in the notifications log)
 };
 /** A quick note: one short line that confirms what was just done ("**Loadout Selection** added to **My Mod**",
     "**My Mod** saved"), shown for a moment at the bottom of the window. `**words**` are drawn bold. A new one takes
@@ -245,13 +248,23 @@ function useEditorState() {
     setNotices((n) => n.map((x) => (x.id === id ? { ...x, leaving: true } : x)));
     setTimeout(() => setNotices((n) => n.filter((x) => x.id !== id)), motionMs(160));
   }, []);
-  /** Shows a notice. Sticky ones stay until dismissed: a failed job must not vanish while nobody is looking. */
+  /** Shows a notice, and keeps it in the notifications log (the status bar). Sticky ones stay until dismissed: a
+      failed job must not vanish while nobody is looking. */
   const notify = useCallback((tone: Notice["tone"], text: string, action?: Notice["action"], sticky = false) => {
     const id = nextId.current++;
     // the same words again (a button pressed twice) take the place of the notice already saying them
     setNotices((n) => [...n.filter((x) => x.text !== text || x.leaving).slice(-3), { id, tone, text, action, sticky }]);
+    noticeLog.add(tone, text);
     if (!sticky) setTimeout(() => dismiss(id), action ? 12000 : tone === "bad" ? 9000 : 4500);
   }, [dismiss]);
+  /** An announcement: a notice in the primary colour with a title, which a click anywhere on it follows to `open`
+      (the offer of the interactive tutorials at the first start); `hint` says where it leads. It stays until clicked
+      or dismissed. */
+  const announce = useCallback((title: string, text: string, open: () => void, hint: string) => {
+    const id = nextId.current++;
+    setNotices((n) => [...n.slice(-3), { id, tone: "info", text, title, open, hint, sticky: true }]);
+    noticeLog.add("info", `${title}: ${text}`);
+  }, []);
   const [toast, setToast] = useState<Toast | null>(null);
   const toastTimers = useRef<number[]>([]);
   /** Shows a quick note (see Toast), in place of the one showing. */
@@ -464,7 +477,7 @@ function useEditorState() {
   }, []);
 
   /** Goes to where something is: the tab, the item and part, the slot. `at.cueId` alone opens that cue on its own. */
-  const goTo = useCallback(async (at: PlayedAt) => {
+  const goTo = useCallback(async (at: PlayedAt & { scope: ScopeName }) => { // the Soundtrack's own: openInSoundtrack
     const s = scopes[at.scope];
     tabs.go(at.scope, at.scope === "library" && at.itemId ? (at.itemId.startsWith("archive:") ? "archives" : "index") : undefined);
     if (at.itemId) return s.openItem(at.itemId, at.cueId, at.source);
@@ -1003,6 +1016,14 @@ function useEditorState() {
       applyProject(p);
       quick(did ? `Redone: ${EDIT_NAMES[p.undo_label ?? ""] ?? "the change"}` : "Nothing to redo", did ? "undo" : "info");
     },
+    /** Undoes (steps below 0) or redoes that many changes at once: the History list going to one of them. */
+    async historyGo(steps: number) {
+      if (!project || !steps) return;
+      const p = await run<ProjectState>("history_go", { steps });
+      if (!p) return;
+      applyProject(p);
+      quick(steps < 0 ? `Undone: ${plural(-steps, "change")}` : `Redone: ${plural(steps, "change")}`, "undo");
+    },
     /** Reads the game from another folder (asking which, without a path; null: find it through Steam again). The
         window shows the start-up screen while the game's audio is read again. Returns what went wrong, if anything:
         the caller shows it, since notices can't be seen from the start-up screen. */
@@ -1104,9 +1125,9 @@ function useEditorState() {
   // one object while these stay the same: selecting a slot or opening an item (each tab's contexts, below) leaves it
   // as it is, so what reads only this isn't drawn again
   const shared = useMemo(() => ({
-    status, connectError, index, archives, itemIndex, project, recent, clip, notices, dismiss, notify, toast, quick, jobs, revision,
+    status, connectError, index, archives, itemIndex, project, recent, clip, notices, dismiss, notify, announce, toast, quick, jobs, revision,
     actions, run, scopes, resolveItem, goTo, openFound,
-  }), [status, connectError, index, archives, itemIndex, project, recent, clip, notices, dismiss, notify, toast, quick, jobs, revision,
+  }), [status, connectError, index, archives, itemIndex, project, recent, clip, notices, dismiss, notify, announce, toast, quick, jobs, revision,
     actions, run, scopes, resolveItem, goTo, openFound]);
   return { shared, browse: { library: lib, editor: ed } };
 }

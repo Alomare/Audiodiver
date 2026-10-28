@@ -176,6 +176,7 @@ export type ProjectState = {
   repairs: string[];     // damaged values in its file that opening it set back (said once, when it opens)
   problems: string[]; can_undo: boolean; can_redo: boolean;
   undo_label: string | null; redo_label: string | null; // what Undo / Redo would change ("fill", "move")
+  history?: string[]; future?: string[]; // the History list: the edits done, oldest first, and those undone, the next to redo first
 };
 export type Status = {
   version: string; stage: string; error: string | null; log: string;
