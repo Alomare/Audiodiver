@@ -583,6 +583,22 @@ msgid "That folder is inside the game folder, and Audiodiver never writes there.
 msgstr "Essa pasta está dentro da pasta do jogo, e o Audiodiver nunca grava lá. Escolha outra pasta e importe o ZIP em um gerenciador de mods."
 
 #: editor.py
+msgid "Choose a folder (a full path)"
+msgstr "Escolha uma pasta (um caminho completo)"
+
+#: editor.py
+msgid "Choose where to save the notes"
+msgstr "Escolha onde salvar as notas"
+
+#: editor.py
+msgid "Open a project to export the project notes"
+msgstr "Abra um projeto para exportar as notas do projeto"
+
+#: editor.py
+msgid "Choose a notes file"
+msgstr "Escolha um arquivo de notas"
+
+#: editor.py
 msgid "Choose an image"
 msgstr "Escolha uma imagem"
 
@@ -775,6 +791,10 @@ msgstr "Silêncio"
 #: editor.py
 msgid "a slot: no audio file named"
 msgstr "um slot: nenhum arquivo de áudio indicado"
+
+#: editor.py
+msgid "Global Notes"
+msgstr "Notas globais"
 
 #: editor.py
 msgid "The project already has a folder to itself"
@@ -1049,6 +1069,26 @@ msgid "Make-Up Gain goes from {low} to {high} dB"
 msgstr "O Make-Up Gain vai de {low} a {high} dB"
 
 #: editor.py
+msgid "{file} can't be read, so global notes can't be shown or saved. Fix or move the file, or choose another folder in Settings ▸ System."
+msgstr "Não é possível ler {file}, então as notas globais não podem ser mostradas nem salvas. Corrija ou mova o arquivo, ou escolha outra pasta em Configurações ▸ Sistema."
+
+#: editor.py
+msgid "The global notes couldn't be saved: {why}"
+msgstr "Não foi possível salvar as notas globais: {why}"
+
+#: editor.py
+msgid "Project Notes: {name}"
+msgstr "Notas do projeto: {name}"
+
+#: editor.py
+msgid "The notes couldn't be saved: {why}"
+msgstr "Não foi possível salvar as notas: {why}"
+
+#: editor.py
+msgid "{file} isn't a notes file or an Audiodiver project"
+msgstr "{file} não é um arquivo de notas nem um projeto do Audiodiver"
+
+#: editor.py
 msgid "Fix the problems on the Build tab first: {problem} (and {n} more)"
 msgid_plural "Fix the problems on the Build tab first: {problem} (and {n} more)"
 msgstr[0] "Corrija os problemas na aba Gerar primeiro: {problem} (e mais {n})"
@@ -1135,6 +1175,14 @@ msgstr "Análise de volume percebido do Wwise: {why} (desative-a em Opções de 
 #: editor.py
 msgid "That isn't a mod ID (a GUID like 3f2a…-…)"
 msgstr "Isso não é um ID de mod (um GUID como 3f2a…-…)"
+
+#: editor.py
+msgid "{item}, clip {id}"
+msgstr "{item}, clipe {id}"
+
+#: editor.py
+msgid "Clip {id}"
+msgstr "Clipe {id}"
 
 #: editor.py
 msgid "The project couldn't move: {why}"
@@ -1673,6 +1721,10 @@ msgstr "Peça não identificada {n}"
 #: notes.py
 msgid "A note can be up to {n} characters long"
 msgstr "Uma nota pode ter até {n} caracteres"
+
+#: notes.py
+msgid "No notes."
+msgstr "Nenhuma nota."
 
 #: patch.py
 msgid "{file} is missing"

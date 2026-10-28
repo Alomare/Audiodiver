@@ -1,15 +1,16 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ph, plural, t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { call, fmtDecimal, fmtTime, isMusic, shownId, type Assignment, type Place, type Slot } from "./api";
+import { call, fmtDecimal, fmtTime, intlLocale, isMusic, shownId, type Assignment, type Place, type Slot } from "./api";
 import { rowsOf, type Row } from "./CueView";
 import { liveGain } from "./gain";
-import { ClearIcon, FillIcon, FillPieceIcon, FolderIcon, ResetIcon, SilenceIcon } from "./Icons";
+import { ClearIcon, FillIcon, FillPieceIcon, FolderIcon, PanelHideIcon, PanelShowIcon, ResetIcon, SilenceIcon } from "./Icons";
 import { keyLabel, useKeymap, type CommandId } from "./keys";
 import { where } from "./music";
 import { nav } from "./nav";
 import { NoteSection } from "./Notes";
 import { noteKeys } from "./noteStore";
+import { panels, type PanelScope } from "./panels";
 import { fullPath, pickAudio, reveal } from "./platform";
 import { useEditor, useShownTabs } from "./store";
 import { showLines } from "./TextTab";
@@ -19,8 +20,8 @@ import { rangeVars } from "./range";
 /** The Audio tab's right panel: the selected slot's settings. Each control has one home: the slot's row plays the
     original and the replacement and takes or replaces its file; the waveforms below the list play from any spot; this
     panel sets up what replaces the slot (silence's timing, Make-Up Gain, timing, cue points), or the Make-Up Gain of
-    the original where nothing does, and says where else it plays. The Library has no such panel: SlotFacts says what
-    a slot is, over its waveform. */
+    the original where nothing does, and says where else it plays. At the foot, the slot's Project Note and Global
+    Note. The Library's panel is LibraryDetails; there SlotFacts says what a slot is, over its waveform. */
 export function Inspector() {
   const { cue, selected, project, actions } = useEditor();
   const rows = useMemo(() => (cue ? rowsOf(cue.segments_detail) : []), [cue]);
@@ -43,6 +44,7 @@ export function Inspector() {
   const sub = slot.label && !seg.name.includes(slot.label) ? slot.label : null;
   return (
     <aside className="inspector" aria-label={t`Details`}>
+      <PanelToggle />
       <div className="view-in" key={slot.source}>
       <div className="insp-title">
         <h2>{seg.name}{sub ? <span className="sub">{sub}</span> : null}</h2>
@@ -73,6 +75,7 @@ export function Inspector() {
           fit={a.fit_timing} lengthMs={a.duration_ms} source={slot.source} more={(a.file_segments ?? 1) - 1} />}
       </Settle>
 
+      {slot.mod_settings?.length ? <ModSettings list={slot.mod_settings} /> : null}
       {also > 0 && <section className="insp-sec"><SharedWith slot={slot} also={also} /></section>}
       <section className="insp-sec facts">
         <dl>
@@ -86,22 +89,25 @@ export function Inspector() {
             <span className="muted" data-tip={SEVERAL}> · {t({ message: "one of several", comment: "The subtitle shown is one of several that have the words of the voice line" })}</span>}</dd></>}
         </dl>
       </section>
-      {!slot.absent && <NoteSection k={noteKeys.clip(slot.source)} name={sub ? `${seg.name}, ${sub}` : seg.name} />}
+      {!slot.absent && <NoteSection scope="project" k={noteKeys.clip(slot.source)} name={sub ? `${seg.name}, ${sub}` : seg.name} />}
+      {!slot.absent && <NoteSection scope="global" k={noteKeys.clip(slot.source)} name={sub ? `${seg.name}, ${sub}` : seg.name} />}
       </div>
     </aside>
   );
 }
 
-/** Nothing selected: the open item's note, and what the keys do, with the keys they are on now. */
+/** Nothing selected: the open item's notes, and what the keys do, with the keys they are on now. */
 function Empty() {
   const { shownItemId, itemIndex } = useEditor();
   const item = shownItemId ? itemIndex.items.get(shownItemId) : undefined;
   return (
     <aside className="inspector" aria-label={t`Details`}>
+      <PanelToggle />
       {item && (
         <div className="insp-item view-in" key={item.id}>
           <div className="insp-title"><h2>{item.name}</h2></div>
-          <NoteSection k={noteKeys.item(item.id)} name={item.full} />
+          <NoteSection scope="project" k={noteKeys.item(item.id)} name={item.full} />
+          <NoteSection scope="global" k={noteKeys.item(item.id)} name={item.full} />
         </div>
       )}
       <div className="insp-empty">
@@ -248,6 +254,81 @@ export function SlotFacts({ row }: { row: Row }) {
 }
 
 const SEVERAL = t`Several subtitles have these words, and the game files don't show which one matches this recording. The Text tab lists them all and opens the most likely one`;
+
+/** What an imported mod set on the Sound or MusicTrack that plays the slot, or on a container above it (core
+    Project.settings, Session._setting_reach): builds include it, and Audiodiver has no control for it, so it is only
+    listed. Make-Up Gain shows here only where the slot can't carry it (two sounds that play the clip, with different
+    gains from the mod). */
+function ModSettings({ list }: { list: NonNullable<Slot["mod_settings"]> }) {
+  const on = (x: (typeof list)[number]) => x.kind === "sound" ? t`this sound` : x.kind === "track" ? t`this music track`
+    : t({ message: `container ${ph({ id: x.object })}`, comment: "Where an imported setting is: a container above the slot, by the container ID" });
+  const value = (s: (typeof list)[number]["settings"][number]) => s.value.toLocaleString(intlLocale(),
+    { maximumFractionDigits: 2, signDisplay: s.unit === "dB" || s.unit === "cents" ? "exceptZero" : "auto" }) + (s.unit ? ` ${s.unit}` : "");
+  return (
+    <section className="insp-sec facts mod-settings">
+      <h3><Trans>Imported Settings</Trans> <Help tip={t`Set by the imported mod on this sound or on a container above it. Builds include them.`} page="importing-mods#what-comes-in" /></h3>
+      <dl>
+        {list.flatMap((x) => x.settings.map((s) => (
+          <Fragment key={`${x.object}:${s.name}`}><dt>{s.name}</dt><dd>{value(s)} <span className="muted">· {on(x)}</span></dd></Fragment>
+        )))}
+      </dl>
+    </section>
+  );
+}
+
+/** The button in the details panel's top right corner that folds the panel away to a strip at the window's edge, or
+    brings it back (panels.ts). It stays in view while the panel scrolls. */
+export function PanelToggle() {
+  const { scope } = useEditor();
+  const s: PanelScope = scope === "library" ? "library" : "editor";
+  return <FoldButton folded={false} onClick={() => panels.toggle(s)} />;
+}
+/** The strip a folded details panel leaves: its button, to bring the panel back. */
+export function FoldedPanel({ scope }: { scope: PanelScope }) {
+  return <aside className="inspector folded" aria-label={t`Details`}><FoldButton folded onClick={() => panels.toggle(scope)} /></aside>;
+}
+function FoldButton({ folded, onClick }: { folded: boolean; onClick: () => void }) {
+  const name = folded ? t`Show the details panel` : t`Hide the details panel`;
+  return <button className="icon-btn panel-toggle" onClick={onClick} aria-label={name} aria-expanded={!folded} data-tip={name}
+    data-tip-side="left">{folded ? <PanelShowIcon /> : <PanelHideIcon />}</button>;
+}
+
+/** The Library's right panel: what the selected slot is, or with none or several selected the open item, and its
+    Global Note. The Library shows the game as it is, so a project's notes stay in the Audio tab. */
+export function LibraryDetails() {
+  const { cue, selected, shownItemId, itemIndex } = useEditor();
+  const rows = useMemo(() => (cue ? rowsOf(cue.segments_detail) : []), [cue]);
+  const sel = rows.filter((r) => selected.includes(r.slot.source));
+  const item = shownItemId ? itemIndex.items.get(shownItemId) : undefined;
+  if (sel.length === 1 && !sel[0].slot.absent) {
+    const { slot, seg } = sel[0];
+    const sub = slot.label && !seg.name.includes(slot.label) ? slot.label : null;
+    return (
+      <aside className="inspector" aria-label={t`Details`}>
+        <PanelToggle />
+        <div className="view-in" key={slot.source}>
+          <div className="insp-title">
+            <h2>{seg.name}{sub ? <span className="sub">{sub}</span> : null}</h2>
+            <CopyId slot={slot} />
+          </div>
+          <NoteSection scope="global" k={noteKeys.clip(slot.source)} name={sub ? `${seg.name}, ${sub}` : seg.name} />
+        </div>
+      </aside>
+    );
+  }
+  return (
+    <aside className="inspector" aria-label={t`Details`}>
+      <PanelToggle />
+      {item && (
+        <div className="insp-item view-in" key={item.id}>
+          <div className="insp-title"><h2>{item.name}</h2></div>
+          <NoteSection scope="global" k={noteKeys.item(item.id)} name={item.full} />
+        </div>
+      )}
+      <div className="insp-empty"><p><Trans>Select a slot.</Trans></p></div>
+    </aside>
+  );
+}
 
 /** "exit at 1:23": where the next segment starts, in the facts about a segment. */
 const exitAt = (ms: number) => {
@@ -535,6 +616,7 @@ function Bulk({ rows, sources, usable }: { rows: Row[]; sources: string[]; usabl
     withOriginal = plain.length, silenced = silent.length, replaced = mine.length;
   return (
     <aside className="inspector" aria-label={t`Details`}>
+      <PanelToggle />
       <div className="insp-title"><h2>{plural(count, { one: "# slot selected", other: "# slots selected" })}</h2></div>
       <section className="insp-sec insp-actions">
         <button className="btn" disabled={!usable.length} data-tip={plural(fillable, { one: "The same file in all # slot", other: "The same file in all # slots" })}

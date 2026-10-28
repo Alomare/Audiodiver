@@ -4,7 +4,7 @@ group: Getting started
 summary: What each part of the Library and the Audio tab shows, and what the tags and marks on a row mean.
 ---
 
-The Library and the Audio tab share one layout. There is a list on the left and the open item in the middle. The Audio tab also shows the settings of the selected slot on the right. The Soundtrack has a different layout, described in [Soundtrack](wiki:soundtrack). Words in **bold** are explained in [Game audio, explained](wiki:game-audio).
+The Library and the Audio tab share one layout: a list on the left, the open item in the middle and the details panel on the right. The Soundtrack has a different layout, described in [Soundtrack](wiki:soundtrack). Words in **bold** are explained in [Game audio, explained](wiki:game-audio).
 
 ## The list on the left
 
@@ -102,21 +102,27 @@ The **waveforms** of the selected slot are shown here. The original is on top, a
 
 Two sliders zoom both waveforms. The one up the right side draws them taller, to show quiet audio, and the one under them, at the right, zooms in on time, to place Entry and Exit closely. On the waveforms, the mouse wheel zooms in on time, Ctrl+wheel draws them taller, and Shift+wheel scrolls. Zoomed in on time, the strip under the waveforms scrolls too. {icon:reset}, in the corner between the sliders, shows the whole audio at full scale again. While a slider moves, a number from 0 to 100 over the knob shows how far along it is. Zoom stays as set when another slot is selected, and the slice tool has the same sliders.
 
-## The right panel (Audio tab)
+## The details panel
 
-This panel holds the settings of the selected slot. It shows what replaces the slot, either a file or silence. A file has a button that shows it in Explorer, and silence has **Keep original duration**. Below that are **Make-Up Gain** ([explained here](wiki:volume)), **Fit timing to the new audio**, the **cue points**, **Shared with** and the note. A slot without new audio has **Use Silence** and Make-Up Gain for the Original. Play audio and choose files on the slot row.
+In the Audio tab, this panel holds the settings of the selected slot. It shows what replaces the slot, either a file or silence. A file has a button that shows it in Explorer, and silence has **Keep original duration**. Below that are **Make-Up Gain** ([explained here](wiki:volume)), **Fit timing to the new audio**, the **cue points**, **Shared with** and the notes. A slot without new audio has **Use Silence** and Make-Up Gain for the Original. Play audio and choose files on the slot row.
 
 With several slots selected, the panel sets Make-Up Gain, cue points or silence for all of them. **Choose One File for All** puts one file in every selected slot, and **Choose Files** puts a file in each, in list order and file-name order.
 
-With no slot selected, the panel shows the note of the open item and the keys of the slot list.
+With no slot selected, the panel shows the notes of the open item and the keys of the slot list.
+
+In the Library, the panel shows the name and ID of the selected slot, or the open item when no slot is selected, with the global note on it.
+
+{icon:panel} in the top right corner of the panel folds it away to a strip at the edge of the window, and the same button on the strip brings it back. While a tutorial runs, the panel of the Audio tab shows.
 
 ## Notes
 
-Slots, and items in the list on the left, can have notes. Notes are at the bottom of the right panel. Select a slot to see the note on it, or select nothing to see the note on the item. **Add Note** opens the editor. Notes are saved in the project file, and Undo reverts a change to a note.
+Slots, and items in the list on the left, can have two notes. The **Project Note** is saved in the project file, and Undo reverts a change to it. The **Global Note** is saved in a notes file on this computer and shows in every project and in the Library. Undo doesn't revert a global note, and [Global notes](wiki:how-audiodiver-works#global-notes) in Settings says where the file is. Builds leave notes out.
 
-Notes are written in Markdown. `#` starts a heading, `-` starts a list item, `**bold**` and `*italic*` mark words, and `[text](https://…)` makes a link. The buttons above the box do the same for the selected words, and pressing one again takes the mark off. {key:undo} works in the box while you type. Click elsewhere to save the note and show it formatted. Click it to edit it again. **Delete Note** removes it, and asks first if it has any words.
+Notes are at the bottom of the details panel. Select a slot to see the notes on it, or select nothing to see the notes on the item. The Library shows only the global note. **Add Project Note** and **Add Global Note** open the editor. A search in the list on the left also finds words in global notes, and marks what it found that way with {icon:note}.
 
-A clip that plays in several places has one note, shown in every place. When a game update gives a clip a new ID, the note no longer shows. It stays in the file and shows again if the ID comes back.
+Notes are written in Markdown. `#` starts a heading, `-` starts a list item, `**bold**` and `*italic*` mark words, and `[text](https://…)` makes a link. The buttons above the box do the same for the selected words, and pressing one again takes the mark off. {key:undo} works in the box while you type. Click elsewhere to save the note and show it formatted. Click it to edit it again. **Delete Project Note** and **Delete Global Note** remove a note, and ask first if it has any words.
+
+A clip that plays in several places has one note of each kind, shown in every place. When a game update gives a clip a new ID, the note no longer shows. It stays in the file and shows again if the ID comes back.
 
 ## The bars
 

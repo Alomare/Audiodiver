@@ -160,8 +160,9 @@ function useBrowse(scope: ScopeName, deps: {
   gameRev: number;                 // bumps when the game was read again: what is open is fetched again
   projectPath: () => string | null;
   added?: string;                  // the Editor: the audio the project adds, as a key (a bank is fetched again with it)
+  settingsKey?: string;            // the Editor: an imported mod's settings, as a key (what is open is fetched again)
 }) {
-  const { notify, resolveItem, gameRev, projectPath, added = "" } = deps;
+  const { notify, resolveItem, gameRev, projectPath, added = "", settingsKey = "" } = deps;
   const [place, setPlace] = useState<Place | null>(null);
   // the cue that shows, the item it was opened as a part of, and the read of the game (and of added audio) it came from
   const [loaded, setLoaded] = useState<{ cue: Cue; itemId: string | null; rev: string } | null>(null);
@@ -178,7 +179,7 @@ function useBrowse(scope: ScopeName, deps: {
     if (!place) { setLoaded(null); setSlow(false); return; }
     const { cueId: id, itemId } = place;
     const bank = id.startsWith("bank:");
-    const rev = `${gameRev}|${bank ? added : ""}|${bank && ids ? "ids" : ""}`;
+    const rev = `${gameRev}|${bank ? added : ""}|${bank && ids ? "ids" : ""}|${settingsKey}`;
     if (last.current?.cue.id === id && last.current.rev === rev) { // the same cue, reached another way
       if (last.current.itemId !== itemId) setLoaded({ ...last.current, itemId });
       return;
@@ -190,7 +191,7 @@ function useBrowse(scope: ScopeName, deps: {
       .catch((e) => { if (live) { setPlace(null); setSlow(false); notify("bad", e.message); } }) // nothing to show: nothing is open
       .finally(() => clearTimeout(t));
     return () => { live = false; clearTimeout(t); };
-  }, [place, notify, gameRev, added, scope, ids]);
+  }, [place, notify, gameRev, added, scope, ids, settingsKey]);
   const loading = !!place && loaded?.cue.id !== place.cueId;
   const cue = loading && slow ? null : loaded?.cue ?? null;
   /** The item the cue that shows was opened as a part of. While the next one loads that is still the last one's. */
@@ -425,6 +426,14 @@ function useEditorState() {
   const [gameRev, setGameRev] = useState(0);  // bumps when it has been read again (what is open is fetched again)
   const firstBoot = useRef(true);
   const toldLanguage = useRef(false);
+  // the global notes: once the core answers (they don't wait for the game), and again whenever the window comes back
+  // to the front, since a synced folder can bring another computer's changes
+  const notesRead = useRef(false);
+  useEffect(() => {
+    const again = () => { if (notesRead.current) notes.loadGlobal(); };
+    window.addEventListener("focus", again);
+    return () => window.removeEventListener("focus", again);
+  }, []);
   useEffect(() => {
     let stop = false;
     (async () => {
@@ -440,6 +449,7 @@ function useEditorState() {
             continue;
           }
           setStatus(s); setConnectError(null); logPath.current = s.log ?? "";
+          if (!notesRead.current) { notesRead.current = true; notes.loadGlobal(); }
           // Automatic follows the game's language once the core has found the game (or failed to)
           if (s.stage !== "starting" && s.languages) followAuto(s.languages.game, s.languages.system);
           if (s.stage === "ready") {
@@ -535,7 +545,7 @@ function useEditorState() {
   const getProjectPath = useCallback(() => projectPath.current, []);
   const lib = useBrowse("library", { notify, resolveItem, gameRev, projectPath: getProjectPath });
   const added = useMemo(() => JSON.stringify(project?.additions ?? []), [project?.additions]);
-  const ed = useBrowse("editor", { notify, resolveItem, gameRev, projectPath: getProjectPath, added });
+  const ed = useBrowse("editor", { notify, resolveItem, gameRev, projectPath: getProjectPath, added, settingsKey: project?.settings_key });
   const browseRef = useRef({ library: lib, editor: ed });
   browseRef.current = { library: lib, editor: ed };
   /** Each tab's browsing as it is when asked, for actions and handlers. It keeps one identity, so the shared state

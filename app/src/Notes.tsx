@@ -1,10 +1,9 @@
 import { t } from "@lingui/core/macro";
-import { Trans } from "@lingui/react/macro";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { confirm } from "./Confirm";
 import { LinkIcon } from "./Icons";
 import { Markdown, parse } from "./Markdown";
-import { useNote } from "./noteStore";
+import { notes, useGlobalNote, useGlobalNotes, useNote } from "./noteStore";
 import { useEditor } from "./store";
 import { Help } from "./Wiki";
 
@@ -17,42 +16,60 @@ const TOOLS: Tool[] = [
   { id: "link", label: t`Link`, tip: t({ message: "Link", comment: "Note editor button: makes the words a web link" }), keys: "Ctrl+K", draw: <LinkIcon /> },
 ];
 
-/** The project's note on what the details panel shows: a slot (its clip) or, with no slot selected, the open item.
-    Add note opens the editor; a note shows as it reads, and a click edits it. It is saved when the editor loses the
-    focus (and when the panel moves on to something else), one step of Undo; Delete note asks first when the note has
-    words in it. Written in Markdown, with buttons that mark the selected words. */
-export function NoteSection({ k, name }: { k: string; name: string }) {
-  const { project, actions } = useEditor();
-  const saved = useNote(k);
+/** A note on what the details panel shows: a slot (its clip) or, with no slot selected, the open item. The Project
+    Note is kept in the project file, one step of Undo; the Global Note in the global notes file (Settings ▸ System
+    says where), which every project and the Library see, outside Undo. Add opens the editor; a note shows as it
+    reads, and a click edits it. It is saved when the editor loses the focus (and when the panel moves on to something
+    else); Delete asks first when the note has words in it. Written in Markdown, with buttons that mark the selected
+    words. */
+export function NoteSection({ k, name, scope }: { k: string; name: string; scope: "project" | "global" }) {
+  const { project, actions, notify } = useEditor();
+  const global = scope === "global";
+  const projectNote = useNote(k), globalNote = useGlobalNote(k);
+  const { error } = useGlobalNotes();
+  const saved = global ? globalNote : projectNote;
   const [text, setText] = useState(saved);
   const [editing, setEditing] = useState(false);
   const box = useRef<HTMLTextAreaElement>(null);
   const doc = useMemo(() => (editing || !saved ? null : parse(saved)), [editing, saved]);
+  /** Writes the note ("" deletes it); true when it was kept. */
+  const write = async (value: string) => {
+    if (!global) return actions.setNote(k, value);
+    try { await notes.setGlobalNote(k, value); return true; } catch (e: any) { notify("bad", e.message ?? String(e)); return false; }
+  };
   // what is typed and what was saved, for the save on the way out (the panel can change under a focused editor)
-  const now = useRef({ text, saved });
-  now.current = { text, saved };
+  const now = useRef({ text, saved, write });
+  now.current = { text, saved, write };
   useEffect(() => { if (!editing) setText(saved); }, [saved, editing]); // an undo, another project
-  useEffect(() => () => { const n = now.current; if (n.text.trimEnd() !== n.saved) actions.setNote(k, n.text); }, [k]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => () => { const n = now.current; if (n.text.trimEnd() !== n.saved) n.write(n.text); }, [k]);
   useEffect(() => { if (editing) box.current?.focus(); }, [editing]);
-  if (!project) return null;
+  if (!global && !project) return null;
 
   const save = async () => {
-    if (text.trimEnd() !== saved) await actions.setNote(k, text);
+    if (text.trimEnd() !== saved) await write(text);
     setEditing(false);
   };
   const remove = async () => {
-    if (text.trim() && !(await confirm({ title: t`Delete the note?`, text: t`The note on ${name} will be deleted. Undo brings it back.`, ok: t`Delete`,
-      cancel: t({ message: "Keep", comment: "Answer to Delete the note?: the note stays" }) }))) return;
+    const keep = t({ message: "Keep", comment: "Answer to Delete the note?: the note stays" });
+    if (text.trim() && !(await confirm(global
+      ? { title: t`Delete the global note?`, text: t`The global note on ${name} will be deleted. Undo can't bring it back.`, ok: t`Delete`, cancel: keep }
+      : { title: t`Delete the project note?`, text: t`The project note on ${name} will be deleted. Undo brings it back.`, ok: t`Delete`, cancel: keep }))) return;
     setText("");
     setEditing(false);
-    if (saved) await actions.setNote(k, "");
+    if (saved) await write("");
   };
   const has = !!saved || editing;
+  const label = global ? t`Global Note` : t`Project Note`;
 
   return (
-    <section className="insp-sec note-sec" aria-label={t`Note`}>
-      <h3><Trans comment="A note written on a slot or an item, kept in the project file">Note</Trans> <Help tip={t`A note kept in the project file. Builds leave notes out. A note on a slot shows wherever the clip plays. Markdown formats headings, lists, bold and links.`} page="reading-the-screen#notes" /></h3>
-      {!has && <div className="row-btns"><button className="btn quiet" onClick={() => setEditing(true)}><Trans>Add Note</Trans></button></div>}
+    <section className="insp-sec note-sec" aria-label={label}>
+      <h3>{label} <Help tip={global
+        ? t`Shown in every project and in the Library, from the notes file in the folder set in Settings ▸ System. A note on a slot shows wherever the clip plays. Markdown formats headings, lists, bold and links.`
+        : t`Kept in the project file. Builds leave notes out. A note on a slot shows wherever the clip plays. Markdown formats headings, lists, bold and links.`}
+        page="reading-the-screen#notes" /></h3>
+      {global && error && <p className="warn-box">{error}</p>}
+      {!has && !(global && error) && <div className="row-btns"><button className="btn quiet" onClick={() => setEditing(true)}>
+        {global ? t`Add Global Note` : t`Add Project Note`}</button></div>}
       {editing && (
         <div className="note-editor" onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) save(); }}>
           <div className="note-tools" role="toolbar" aria-label={t`Formatting`}>
@@ -61,7 +78,7 @@ export function NoteSection({ k, name }: { k: string; name: string }) {
                 onMouseDown={(e) => e.preventDefault()} onClick={() => box.current && mark(box.current, t.id, setText)}>{t.draw}</button>
             ))}
           </div>
-          <textarea ref={box} className="note-text" value={text} spellCheck aria-label={t`Note on ${name}`} placeholder={t`Write a note`}
+          <textarea ref={box} className="note-text" value={text} spellCheck aria-label={global ? t`Global note on ${name}` : t`Project note on ${name}`} placeholder={t`Write a note`}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => {
               const tool = e.ctrlKey && !e.altKey && !e.shiftKey ? { b: "bold", i: "italic", k: "link" }[e.key.toLowerCase()] : undefined;
@@ -76,7 +93,7 @@ export function NoteSection({ k, name }: { k: string; name: string }) {
           <Markdown tokens={doc!.tokens} />
         </div>
       )}
-      {has && <div className="row-btns"><button className="btn quiet" onClick={remove}><Trans>Delete Note</Trans></button></div>}
+      {has && <div className="row-btns"><button className="btn quiet" onClick={remove}>{global ? t`Delete Global Note` : t`Delete Project Note`}</button></div>}
     </section>
   );
 }

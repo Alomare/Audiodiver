@@ -90,7 +90,7 @@ export const RESET_LAYOUT = "audiodiver:reset-layout";
     at its default size next time. */
 const LAYOUT_KEYS = ["audiodiver.widths", "audiodiver.headHeight", "audiodiver.textLeft", "audiodiver.waveHeight",
   "audiodiver.waveHeight.libraryFacts", "audiodiver.wikiShare", "audiodiver.archiveColumnWidths", "audiodiver.soundtrackLeft",
-  "audiodiver.soundtrackHead"];
+  "audiodiver.soundtrackHead", "audiodiver.foldedPanels"];
 export const resetLayout = () => {
   for (const k of LAYOUT_KEYS) try { localStorage.removeItem(k); } catch { /* storage off */ }
   window.dispatchEvent(new Event(RESET_LAYOUT));

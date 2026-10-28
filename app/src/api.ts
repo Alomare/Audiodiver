@@ -23,6 +23,8 @@ export type Slot = {
   banks?: number;    // how many of them are banks
   stream?: string;   // the file id of the stream that holds its audio (64-bit), "" when it is only inside banks
   object?: string;   // a bank's sound: the Sound object that plays it
+  // the Audio tab: an imported mod's settings on the Sound or MusicTrack that plays it, or on a container above it
+  mod_settings?: { object: string; kind: "sound" | "track" | "container"; settings: { name: string; value: number; unit: string }[] }[];
   notes?: ClipNote[]; // what the clip notes say about this clip (core data/notes.json)
   min_ms?: number;   // the shortest replacement that works here, as the notes found it
   // the Audio tab's view of a bank (core library.py, addition.py):
@@ -185,6 +187,7 @@ export type ProjectState = {
   additions: { kind: "take" | "layer" | "own"; [key: string]: string }[]; // audio it adds (core project.py)
   stand_ins: Record<string, StandIn[]>; // by the game's clip: the Sounds with a clip of their own in place of it
   settings: number;      // the game's objects an imported mod's settings go on (core project.py)
+  settings_key?: string; // changes when those settings do ("" with none)
   notes: Record<string, string>; // the project's notes, by key (notes.ts; core notes.py)
   soundtrack: Record<string, Piece>; // how pieces of music play, by playlist cue (core soundtrack.py); the others play as the game does
   tabs: ("editor" | "soundtrack" | "text")[] | null; // the hideable tabs it shows (nav.ts HIDEABLE); null: as Settings ▸ System says

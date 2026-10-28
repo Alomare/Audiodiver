@@ -14,6 +14,7 @@ import subprocess
 import threading
 import time
 import uuid
+import zlib
 from pathlib import Path, PurePosixPath
 from types import SimpleNamespace
 
@@ -199,10 +200,12 @@ class Session:
         self._autosaver: threading.Thread | None = None
         self.jobs: dict[str, Job] = {}
         self.build_lock = threading.Lock()  # a build's "already running" check and its start, as one step
+        self.notes_lock = threading.Lock()  # a change to the global notes file: read, change, write as one step
         self._facts = {}  # what project_state found out about the project's folder (_folder_facts)
         # Combine: each patch read (combine.Part) by its digest, and the digest of a patch by where it is and its time
         self._combine_parts, self._combine_ids = collections.OrderedDict(), {}
         self._music_objs = None  # (index, the game's music objects): read when the Soundtrack first needs them
+        self._reach = (None, {})  # (the project's settings, what they reach): _setting_reach, read again on a change
         self.game_language = None  # the language the game is set to in Steam ("brazilian"), once the game is found
         self.names_language = None  # the language the Index and the cue views are named in (the catalog, the library)
         if load:
@@ -401,14 +404,74 @@ class Session:
             if isinstance(pl, music.MusicPlaylist):
                 view["ordered"] = st.in_order(pl.root, st.entry_item(self._music(), pl.id))
         # every slot also says the file id of the stream that holds its audio ("" when it is only inside banks): the
-        # 64-bit id modders often go by
+        # 64-bit id modders often go by. In the Audio tab, a slot that an imported mod's settings reach lists them
+        # (`mod_settings`, _setting_reach): the details panel shows them, as builds include them
+        p = self.project
+        reach = self._setting_reach(p) if mine and p and p.settings else {}
         for seg in view.get("segments_detail", []):
             for st in seg["stems"]:
                 for sl in st["slots"]:
                     if "stream" not in sl:
                         fid = self.ix.stream_file(int(sl["source"]))
                         sl["stream"] = str(fid) if fid is not None else ""
+                    if reach and (got := reach.get(int(sl.get("was") or sl["source"]))):
+                        sl["mod_settings"] = got
         return view
+
+    def _setting_reach(self, p: Project) -> dict[int, list[dict]]:
+        """{the game's clip: [{object, kind, settings}]}: the settings an imported mod made (Project.settings) on the
+        Sounds and MusicTracks that play each clip and on the containers above them. kind: "sound", "track" or
+        "container"; settings: [{name, value, unit}] (combine.prop_name, prop_unit). Each object is read in the first
+        bank that has it. Kept until the settings change."""
+        from . import bank as wbank, combine as cb
+        from .addition import CONTAINERS, parent_of
+        from .bank import MUSIC_TRACK, SOUND
+        key = repr(sorted(p.settings.items()))
+        if self._reach[0] == key:
+            return self._reach[1]
+        out, trees = collections.defaultdict(list), {}
+
+        def tree(bid):  # a bank's objects, and the children of each Sound's and container's parent
+            if bid not in trees:
+                hirc = wbank.parse(self.ix.bank_files(bid)[0])[1]
+                kids = collections.defaultdict(list)
+                for o, (t, body) in hirc.items():
+                    if t in (SOUND, *CONTAINERS):
+                        try:
+                            kids[parent_of(t, body)].append(o)
+                        except (IndexError, struct.error):
+                            pass
+                trees[bid] = (hirc, kids)
+            return trees[bid]
+        for o, sset in p.settings.items():
+            shown = [{"name": cb.prop_name(k), "value": round(v, 2), "unit": cb.prop_unit(k)}
+                     for k, v in sorted(sset.items()) if v is not None]
+            if not shown or not (copies := self.ix.copies(o)):
+                continue
+            try:
+                hirc, kids = tree(copies[0])
+            except (KeyError, ValueError, struct.error):
+                continue
+            if o not in hirc:
+                continue
+            t, body = hirc[o]
+            entry = {"object": str(o), "kind": "sound" if t == SOUND else "track" if t == MUSIC_TRACK else "container",
+                     "settings": shown}
+            clips, todo, seen = set(), [o], set()
+            while todo:  # the object, and everything under a container
+                x = todo.pop()
+                if x in seen or x not in hirc:
+                    continue
+                seen.add(x)
+                tt, b = hirc[x]
+                if tt in (SOUND, MUSIC_TRACK):
+                    clips.update(wbank.source_ids(tt, b))
+                else:
+                    todo += kids.get(x, [])
+            for c in clips:
+                out[c].append(entry)
+        self._reach = (key, dict(out))
+        return self._reach[1]
 
     def find(self, query: str):
         """Where an id leads: [{cue, source, item}] for a source id, a stream's file id, a cue id or a bank id."""
@@ -420,15 +483,37 @@ class Session:
 
     def find_text(self, query: str, limit: int = 200):
         """Where a name leads: [{cue, source, item, archives, label}] for the slots and cues whose community label or
-        clip note has every word of the query. Places outside the Index (no item) are left out, and so are the banks
-        that hold a clip of music: its cues are where it is replaced."""
+        clip note has every word of the query, after the items and slots whose global note has them (`note`: true,
+        the note's first line as the label; an item's has no cue). Places outside the Index (no item) are left out,
+        and so are the banks that hold a clip of music: its cues are where it is replaced."""
         self.require_game()
         words = str(query).lower().split()
         if sum(map(len, words)) < 3:
             return []
+        from . import notes
         from .catalog import label_shown
         has = lambda text: all(w in text.lower() for w in words)
         cat, out, seen = self.catalog, [], set()
+        try:
+            mine = self._read_global()
+        except EditorError:  # Settings ▸ System says what is wrong with the file
+            mine = {}
+        for key, text in mine.items():
+            kind, _, rest = key.partition(":")
+            if not has(text):
+                continue
+            label = notes.first_line(text)
+            if kind == "item" and (rest, None, None) not in seen:
+                seen.add((rest, None, None))
+                out.append({"cue": None, "source": None, "item": rest, "archives": [], "label": label, "note": True})
+            elif kind == "clip" and rest.isdigit():
+                places = [p for p in self.lib.places(int(rest)) if p["item"]]
+                for p in [p for p in places if p["cue"].isdigit()] or places:
+                    if (at := (p["item"], p["cue"], p["source"])) not in seen:
+                        seen.add(at)
+                        out.append({**p, "label": label, "note": True})
+            if len(out) >= limit:
+                return out
         named = [*cat.labels.items(), *((k, [c["label"]]) for k, c in cat.clips.items() if c.get("label"))]
         for key, labels in named:
             # one label has every word, in English (players know the sounds by it) or in the language in use: it
@@ -939,11 +1024,14 @@ class Session:
     def _cover(self, p: Project):
         """Keeps the list in step with the replacements: what a project replaces, it lists, so the Editor shows it.
         A replacement in a slot nothing on the list holds adds the piece of music, sound set or archive it belongs
-        to (skipping a transition the project doesn't list yet, importing a mod's patch)."""
+        to (skipping a transition the project doesn't list yet, importing a mod's patch), and so does Make-Up Gain on
+        an Original (a mod's gain, imported)."""
         if p.library is None or not self.lib:
             return
         parts = self._listed(p.library)[0].values()
-        loose = [s for s in map(self._resolved, p.replacements) if s is not None and not any(s in part for part in parts)]
+        gained = [s for s in map(self._target, p.gains) if self.ix.banks_for(s)]
+        loose = [s for s in [*map(self._resolved, p.replacements), *gained]
+                 if s is not None and not any(s in part for part in parts)]
         if loose:
             p.library = [*p.library, *(h for h in self._homes(loose) if h not in p.library)]
 
@@ -1191,6 +1279,8 @@ class Session:
                 "texts": [{"table": str(t.table), "id": t.id, "text": t.text, "was": t.was} for t in p.texts],
                 "additions": p.additions_json(), "stand_ins": self._stand_ins(p),
                 "settings": len(p.settings), "notes": dict(p.notes),
+                # changes when the settings do: the Audio tab fetches what is open again, for its Imported Settings
+                "settings_key": f"{zlib.crc32(repr(sorted(p.settings.items())).encode()):08x}" if p.settings else "",
                 "soundtrack": {str(k): v.to_json() for k, v in p.soundtrack.items()}, "tabs": p.tabs,
                 "problems": [text for _, text in problems], "problem_kinds": [kind for kind, _ in problems],
                 "can_undo": bool(self.undo_stack), "can_redo": bool(self.redo_stack),
@@ -1660,6 +1750,149 @@ class Session:
             else:
                 p.notes.pop(key, None)
         return {"project": self._edit("note", apply)}
+
+    # --- global notes (notes.py): every project's and the Library's, in notes.json in a folder the person picks
+    def notes_folder(self) -> Path:
+        """Where the global notes file is: the folder Settings ▸ System chose, else the core's settings folder."""
+        chosen = load_settings().get("notes_folder")
+        return Path(chosen) if chosen else SETTINGS_FILE.parent
+
+    def _read_global(self, folder: Path | None = None) -> dict[str, str]:
+        from . import notes
+        path = (folder or self.notes_folder()) / notes.FILE
+        try:
+            return notes.read_file(path)
+        except (OSError, ValueError):
+            raise EditorError(tr("{file} can't be read, so global notes can't be shown or saved. Fix or move the file, "
+                                 "or choose another folder in Settings ▸ System.").format(file=path)) from None
+
+    def _write_global(self, folder: Path, got: dict[str, str]):
+        from . import notes
+        try:
+            folder.mkdir(parents=True, exist_ok=True)
+            write_whole(folder / notes.FILE, notes.file_json(got))
+        except OSError as e:
+            raise EditorError(tr("The global notes couldn't be saved: {why}").format(why=os_error(e))) from None
+
+    def global_notes(self):
+        """The global notes ({key: text}) and where they are kept: folder, file, whether that is the default folder,
+        and why the file can't be read (error, None when it can)."""
+        from . import notes
+        folder = self.notes_folder()
+        try:
+            got, error = self._read_global(folder), None
+        except EditorError as e:
+            got, error = {}, str(e)
+        return {"notes": got, "folder": str(folder), "file": str(folder / notes.FILE),
+                "default": folder == SETTINGS_FILE.parent, "error": error}
+
+    def set_global_note(self, key, text):
+        """Writes the global note on one thing (notes.py's keys); "" removes it. Not part of the project or its Undo:
+        the window asks before a note with words goes. Returns global_notes()."""
+        from . import notes
+        try:
+            key, text = notes.check(key, text)
+        except ValueError as e:
+            raise EditorError(str(e)) from None
+        with self.notes_lock:
+            folder = self.notes_folder()
+            got = self._read_global(folder)
+            if text:
+                got[key] = text
+            else:
+                got.pop(key, None)
+            self._write_global(folder, got)
+        return self.global_notes()
+
+    def set_notes_folder(self, folder=None):
+        """Keeps the global notes in another folder (None: the default one). Notes in a notes file there already come
+        together with these (notes.merge, these first); the file in the old folder stays as it is."""
+        from . import notes
+        new = Path(folder) if given(folder) else SETTINGS_FILE.parent
+        if not new.is_absolute():
+            raise EditorError(tr("Choose a folder (a full path)"))
+        with self.notes_lock:
+            old = self.notes_folder()
+            if os.path.normcase(os.path.abspath(new)) != os.path.normcase(os.path.abspath(old)):
+                try:
+                    mine = self._read_global(old)
+                except EditorError:  # a damaged file stays behind: moving away from it is the way out
+                    mine = {}
+                there = self._read_global(new)
+                if mine or (new / notes.FILE).exists():
+                    self._write_global(new, notes.merge(mine, there))
+            save_settings(notes_folder=None if new == SETTINGS_FILE.parent else str(new))
+        return self.global_notes()
+
+    def _note_name(self, key: str) -> str:
+        """What a note is on, in words, for an export: the item's name, or a clip's item and ID."""
+        kind, _, rest = key.partition(":")
+        if self.lib:
+            try:
+                if kind == "item":
+                    return self._list_name(rest)
+                if kind == "clip":
+                    home = self.lib.home(int(rest))
+                    return (tr("{item}, clip {id}").format(item=self._list_name(home), id=rest) if home
+                            else tr("Clip {id}").format(id=rest))
+            except (KeyError, ValueError):
+                pass
+        return key
+
+    def export_notes(self, path, what="global", form="md"):
+        """Writes notes to a file: the global ones, the open project's or both (what), as Markdown to read or as the
+        JSON that Import Notes reads (form; both sets in one, notes.merge). Returns {path, count}."""
+        from . import notes
+        if what not in ("global", "project", "both") or form not in ("md", "json"):
+            raise EditorError("Notes are exported as global, project or both, in md or json")
+        if not given(path) or not Path(path).is_absolute():
+            raise EditorError(tr("Choose where to save the notes"))
+        p = self.project
+        if what != "global" and not p:
+            raise EditorError(tr("Open a project to export the project notes"))
+        sets = []
+        if what != "project":
+            sets.append((tr("Global Notes"), self._read_global()))
+        if what != "global":  # the notes the details panel shows (older keys stay in the file, unseen)
+            sets.append((tr("Project Notes: {name}").format(name=p.name),
+                         {k: v for k, v in p.notes.items() if k.startswith(("clip:", "item:"))}))
+        if form == "json":
+            merged = {}
+            for _, got in sets:
+                merged = notes.merge(merged, got)
+            text, count = notes.file_json(merged), len(merged)
+        else:
+            text, count = notes.markdown(sets, self._note_name), sum(len(got) for _, got in sets)
+        try:
+            write_whole(path, text)
+        except OSError as e:
+            raise EditorError(tr("The notes couldn't be saved: {why}").format(why=os_error(e))) from None
+        return {"path": str(path), "count": count}
+
+    def import_notes(self, path):
+        """Brings the notes of a notes file (export_notes' JSON) or a project file into the global notes; a thing with
+        notes on both sides keeps both texts (notes.merge). Returns global_notes() with `added`: the things that got a
+        note or more words."""
+        from . import notes
+        if not given(path):
+            raise EditorError(tr("Choose a notes file"))
+        path = Path(path)
+        if not path.is_file():
+            raise EditorError(tr("{path} wasn't found").format(path=path))
+        try:
+            more = notes.read_file(path)
+        except OSError as e:
+            raise EditorError(tr("Can't read {file}: {why}").format(file=path.name, why=os_error(e))) from None
+        except ValueError:
+            raise EditorError(tr("{file} isn't a notes file or an Audiodiver project").format(file=path.name)) from None
+        with self.notes_lock:
+            folder = self.notes_folder()
+            got = self._read_global(folder)
+            merged = notes.merge(got, more)
+            added = sum(1 for k, v in merged.items() if v != got.get(k))
+            if added:
+                self._write_global(folder, merged)
+        return {**self.global_notes(), "added": added}
 
     def set_icon(self, image):
         """Uses an image file as the mod's icon. Like audio, it stays where it is and the project points at it;
@@ -2281,9 +2514,9 @@ class Session:
 
     def _fill_from_patch(self, p: Project, got, replaced: dict, files: dict) -> int:
         """Puts a patch's audio (_patch_audio) into a project: what it replaces, then what it adds, its settings on
-        the game's objects and its cue points (a later import's go over an earlier one's). A Sound's or MusicTrack's
-        Make-Up Gain goes on the slots of the clips it plays: the new audio's where the slot has some, else the
-        Original's. Returns how many slots it added or changed."""
+        the game's objects and its cue points (a later import's go over an earlier one's). Make-Up Gain on Sounds,
+        MusicTracks and the containers above Sounds goes on the slots of the clips they play (addition.Found.gains):
+        the new audio's where the slot has some, else the Original's. Returns how many slots it added or changed."""
         from .addition import MAKEUP_GAIN
         for sid, wav in files.items():
             if sid in replaced:
@@ -2292,7 +2525,7 @@ class Session:
             if clips & files.keys():
                 self._put_cues(p, seg, cues)
         for oid, changes in got.settings.items():
-            moved = oid in got.gains  # the gain is the slot's now, not a setting beside it
+            moved = oid in got.moved  # the gain is the slots' now, not a setting beside them
             kept = {k: v for k, v in {**p.settings.get(oid, {}), **changes}.items() if not (moved and k == MAKEUP_GAIN)}
             if kept:
                 p.settings[oid] = kept
@@ -2454,7 +2687,7 @@ class Session:
                 "imported": len({s for _, replaced, files, _ in reads for s in replaced if s in files}),
                 "added": added, "skipped": sum(r[3] for r in reads),
                 "gains": len({c for got, *_ in reads for clips, _ in got.gains.values() for c in clips}),
-                "settings": len({o for got, *_ in reads for o, s in got.settings.items() if o not in got.gains or len(s) > 1}),
+                "settings": len({o for got, *_ in reads for o, s in got.settings.items() if o not in got.moved or len(s) > 1}),
                 "texts": len(lines),
                 "left": [*dict.fromkeys(x for got, *_ in reads for x in got.left), *read.failed,
                          *([ntr("{n} line of text that the game doesn't have",

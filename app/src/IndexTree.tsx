@@ -10,7 +10,7 @@ import { clashes, COVERAGE, heldBy, isMusicItem, itemCoverage, listedBanks, list
 import { useEditor, useLite } from "./store";
 import { useStable } from "./stable";
 import { addedNote, exportList, itemEntries } from "./exportList";
-import { CheckIcon, CollapseAllIcon, PlusIcon, RemoveIcon, SearchIcon } from "./Icons";
+import { CheckIcon, CollapseAllIcon, NoteIcon, PlusIcon, RemoveIcon, SearchIcon } from "./Icons";
 import { CatMark } from "./Tags";
 import { motionMs, scrollBehavior } from "./theme";
 import { FOLD_LIBRARY } from "./nav";
@@ -129,7 +129,7 @@ export function IndexTree() {
   // hints: the items shown only for a slot's label, with that label
   const { shownGroups, hints } = useMemo(() => {
     const words = q.split(/\s+/).filter(Boolean);
-    const hints = new Map<string, string>();
+    const hints = new Map<string, Named>();
     const keep = (g: Group, s: MusicSection, it: MusicItem) => {
       if (numeric) return foundItems.has(it.id) || it.targets.includes(q) || it.archive === q;
       if (words.length) {
@@ -138,7 +138,7 @@ export function IndexTree() {
         if (!words.every((w) => hay.includes(w))) {
           const n = byLabel.get(it.id);
           if (!n) return false;
-          hints.set(it.id, n.label ?? "");
+          hints.set(it.id, n);
         }
       }
       if (filter === "all" || !editing || !project) return true;
@@ -339,14 +339,14 @@ export function IndexTree() {
 
 const GLYPH: Partial<Record<MusicItem["kind"], string>> = { transition: "↝", stinger: "✦" };
 /** A place a name leads to (core find_text): an id's place, with the label that matched. */
-type Named = Place & { label?: string };
+type Named = Place & { label?: string; note?: boolean };
 const KIND_TIP: Partial<Record<MusicItem["kind"], string>> = { transition: t`A transition between two pieces of music`, stinger: t`A stinger that plays over the music` };
 
 /** One item of the tree. Memoised: it draws again only when something it shows changes, not with every keystroke of
     a search or every selection. */
 const ItemRow = memo(function ItemRow({ item, deep, active, hi, status, clash, added, held, editing, noProject, hint, on }: {
   item: MusicItem; deep: boolean; active: boolean; hi: boolean; status: Status; clash: boolean;
-  hint?: string;             // a search found it by this label of a slot in it
+  hint?: Named;              // a search found it by this label of a slot in it, or by a global note
   added: boolean;            // the Library: the project lists it already
   held: MusicItem | null;    // the Library: what the project lists that has all its banks already (it can't be added)
   editing: boolean;          // the Audio tab's list (it can be taken off), else the Library's (it can be added)
@@ -367,7 +367,7 @@ const ItemRow = memo(function ItemRow({ item, deep, active, hi, status, clash, a
       <button className="mus-name" onClick={() => on.open(item)} data-tip={(item.kind === "music" || !music ? item.about : KIND_TIP[item.kind]) || undefined} data-tip-side="right">
         {GLYPH[item.kind] && <span className="glyph" aria-hidden>{GLYPH[item.kind]}</span>}
         <span className="mus-label" data-tip={item.full} data-tip-clip>{item.name}</span>
-        {hint && <span className="mus-hint"><SearchIcon />{hint}</span>}
+        {hint && <span className="mus-hint" data-tip={hint.note ? t`Found in a global note` : undefined}>{hint.note ? <NoteIcon /> : <SearchIcon />}{hint.label}</span>}
       </button>
       {/* the Library's rows hold the name and the + alone; the Audio tab's add whether each plays new audio */}
       <span className="mus-meta">

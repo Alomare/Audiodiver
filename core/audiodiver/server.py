@@ -91,6 +91,11 @@ def methods(s: Session) -> dict:
         "match_loudness": lambda sources: s.match_loudness(sources),
         "settings": lambda **f: s.settings(**f),
         "note_set": lambda key, project_text: s.set_note(key, project_text),
+        "notes_global": lambda: s.global_notes(),
+        "note_global_set": lambda key, text: s.set_global_note(key, text),
+        "notes_folder_set": lambda folder=None: s.set_notes_folder(folder),
+        "notes_export": lambda path, what="global", form="md": s.export_notes(path, what, form),
+        "notes_import": lambda path: s.import_notes(path),
         "segment_override": lambda segment, entry_marker=None, exit_marker=None:
             s.segment_override(segment, entry_marker, exit_marker),
         "segment_overrides": lambda segments, **cues: s.segment_overrides(segments, **cues),

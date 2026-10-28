@@ -317,6 +317,21 @@ def test_a_patch_brings_the_lines_of_text_it_changes(session, mod, tmp_path):
 
 
 @pytest.mark.game
+def test_the_library_search_finds_words_in_global_notes(session, tmp_path, monkeypatch):
+    monkeypatch.setattr(editor, "SETTINGS_FILE", tmp_path / "settings.json")
+    s = session
+    (clip, _), _ = _voices(s.ix)
+    s.set_global_note(f"clip:{clip}", "# Bandog barks\nloud")
+    s.set_global_note("item:deploy/loadout", "**Bandog** intro")
+    hits = s.find_text("bandog")
+    assert hits and all(h["note"] for h in hits)
+    assert {"item": "deploy/loadout", "cue": None, "label": "Bandog intro"}.items() <= next(
+        h for h in hits if h["item"] == "deploy/loadout").items()
+    assert any(h["source"] == str(clip) and h["label"] == "Bandog barks" for h in hits) or not [
+        p for p in s.lib.places(clip) if p["item"]]  # a clip outside the Index has no place to find
+
+
+@pytest.mark.game
 def test_a_patchs_make_up_gain_comes_in_on_the_slot(session, tmp_path):
     """A patch that changes only a Sound's Make-Up Gain, as hd2-audio-modder writes it: the gain comes in on the slot
     of the clip, over the game's own (the Original's while the slot has no new audio, else the new audio's), not as

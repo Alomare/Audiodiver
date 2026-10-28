@@ -9,11 +9,12 @@ import { repatchInbox } from "./RepatchPage";
 import { CueView } from "./CueView";
 import { Home } from "./Home";
 import { ImportModHost } from "./ImportMod";
-import { TUTORIALS_PAGE, TutorialLayer, TutorialPrompt } from "./Tutorial";
+import { TUTORIALS_PAGE, TutorialLayer, TutorialPrompt, useTutorialRunning } from "./Tutorial";
 import { AudioIcon, BellIcon, BuildIcon, CheckIcon, CopyIcon, GearIcon, GuideIcon, HistoryIcon, HomeIcon, InfoIcon, LibraryIcon, PlayMarkIcon, PlusIcon,
   ProjectIcon, RedoIcon, SaveIcon, SoundtrackIcon, TextIcon, ToolsIcon, UndoIcon, UpdatesIcon } from "./Icons";
 import { follow, useNoticeLog } from "./noticeLog";
-import { Inspector } from "./Inspector";
+import { FoldedPanel, Inspector, LibraryDetails } from "./Inspector";
+import { usePanelFolded } from "./panels";
 import { LibraryPanel, ProjectPanel } from "./Library";
 import { Logo } from "./Logo";
 import { ProjectTab } from "./ProjectTab";
@@ -82,8 +83,8 @@ function Startup({ error, stage }: { error: string | null; stage?: string }) {
   );
 }
 
-// libSplit: the Library's list, as a share of the window (it has no details panel), a third by default
-const WIDTHS = { left: 320, right: 340, libSplit: 1 / 3 };
+// libSplit: the Library's list, as a share of the window, a third by default; libRight: its details panel
+const WIDTHS = { left: 320, right: 340, libSplit: 1 / 3, libRight: 300 };
 type Widths = typeof WIDTHS;
 
 /** The tab that browses audio, if that is the one showing: the Library or the Editor. */
@@ -124,6 +125,8 @@ function Shell() {
     const id = requestIdleCallback(() => startTransition(() => setDrawn((d) => new Set([...d, "library", "editor"]))), { timeout: 4000 });
     return () => cancelIdleCallback(id);
   }, []);
+  // a details panel folded away by its corner button (a tutorial needs the Audio tab's, so it shows while one runs)
+  const libFolded = usePanelFolded("library"), editorFolded = usePanelFolded("editor") && !useTutorialRunning();
   const [widths, setWidths] = useState<Widths>(() => {
     try {
       const kept = { ...WIDTHS, ...JSON.parse(localStorage.getItem("audiodiver.widths") ?? "{}") };
@@ -332,21 +335,26 @@ function Shell() {
       <Rail />
       <div className="views">
         {(["library", "editor"] as const).map((scope) => {
-          // the Library has two panels, half and half to start: what a slot is shows under its waveform, in the middle
+          // the Library's list takes a share of the width (a third to start); what a slot is shows under its
+          // waveform, in the middle, and its Global Note in the details panel
           const lib = scope === "library";
+          const folded = lib ? libFolded : editorFolded;
           // the Soundtrack works in the Audio tab's context (its project, its player places)
           if (tab !== scope && !drawn.has(scope) && (lib || tab !== "soundtrack")) return null;
+          const right = lib ? "libRight" : "right";
           return (
             <Scope key={scope} name={scope}>
-              <div className={`panes${lib ? " two lib-split" : ""}`} hidden={tab !== scope}
-                style={lib ? { ["--split" as any]: String(widths.libSplit) } : { ["--left" as any]: `${widths.left}px`, ["--right" as any]: `${widths.right}px` }}>
+              <div className={`panes${lib ? " lib-split" : ""}${folded ? " panel-folded" : ""}`} hidden={tab !== scope}
+                style={lib ? { ["--split" as any]: String(widths.libSplit), ["--right" as any]: `${widths.libRight}px` }
+                  : { ["--left" as any]: `${widths.left}px`, ["--right" as any]: `${widths.right}px` }}>
                 {lib ? <LibraryPanel /> : <ProjectPanel />}
                 {lib ? <Splitter fraction width={widths.libSplit} onResize={(f) => setWidths((v) => ({ ...v, libSplit: f }))} initial={WIDTHS.libSplit}
                     panel="left" cssVar="--split" label={t`Resize the list`} />
                   : <Splitter width={widths.left} onResize={(w) => setWidths((v) => ({ ...v, left: w }))} initial={WIDTHS.left} panel="left" label={t`Resize the list`} />}
                 <main className="center"><CueView /></main>
-                {!lib && <Splitter width={widths.right} onResize={(w) => setWidths((v) => ({ ...v, right: w }))} initial={WIDTHS.right} panel="right" label={t`Resize the details panel`} />}
-                {!lib && <Inspector />}
+                {folded ? <div className="splitter off" aria-hidden />
+                  : <Splitter width={widths[right]} onResize={(w) => setWidths((v) => ({ ...v, [right]: w }))} initial={WIDTHS[right]} panel="right" label={t`Resize the details panel`} />}
+                {folded ? <FoldedPanel scope={scope} /> : lib ? <LibraryDetails /> : <Inspector />}
               </div>
               {!lib && (soundtrackSeen || tab === "soundtrack") && <SoundtrackPanes hidden={tab !== "soundtrack"} />}
             </Scope>

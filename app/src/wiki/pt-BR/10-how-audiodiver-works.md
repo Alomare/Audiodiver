@@ -73,6 +73,12 @@ Com **Abrir o último projeto quando o Audiodiver iniciar** ligado, o Audiodiver
 
 **Canto** em **Notificações** em [Configurações ▸ Sistema](app:settings/system) define o canto da janela onde os avisos aparecem. **Inferior direito** é o padrão.
 
+### Notas globais {#global-notes}
+
+**Notas globais** em [Configurações ▸ Sistema](app:settings/system) mostra o arquivo de notas, que começa na pasta das configurações do Audiodiver. **Escolher outra pasta** guarda as notas em outra, como uma pasta sincronizada entre dois computadores. Quando essa pasta já tem um arquivo de notas, as notas dele e estas se juntam, e uma coisa com uma nota diferente em cada um mantém os dois textos. **Usar a pasta padrão** volta à pasta de antes. O arquivo na pasta antiga continua como estava.
+
+**Exportar notas** salva as notas globais, as notas do projeto aberto ou as duas, como um documento Markdown para ler, com cada nota sob o nome daquilo a que se refere, ou como um arquivo de notas JSON. **Importar notas** traz para as notas globais as notas de um arquivo JSON desses, ou de um arquivo de projeto.
+
 ### Espaço em disco {#disk-space}
 
 O Audiodiver guarda cópias preparadas do áudio para não preparar o mesmo áudio duas vezes. **Prévias** são os originais decodificados, as formas de onda e as renderizações da Reprodução contínua. **Áudio codificado** é o áudio novo convertido para o jogo, que as gerações reaproveitam. Limpar qualquer um dos dois é seguro: o Audiodiver prepara as cópias de novo quando precisa. Projetos e arquivos de áudio nunca ficam guardados ali.

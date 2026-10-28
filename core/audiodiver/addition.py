@@ -643,9 +643,11 @@ class Found:
     layers: list = field(default_factory=list)    # (layer id, the game's container it plays with, its Make-Up Gain over that one's)
     own: list = field(default_factory=list)       # (the game's Sound, its new clip, wem)
     settings: dict = field(default_factory=dict)  # {the game's object: {prop id: the mod's value, or None}} (Project.settings)
-    gains: dict = field(default_factory=dict)     # {the game's Sound or MusicTrack among settings: (the clips it plays in
-                                                  # the mod, the mod's Make-Up Gain over the game's)}: an import puts
-                                                  # it on those slots, where the details panel shows it
+    gains: dict = field(default_factory=dict)     # {the game's Sound or MusicTrack: (the clips it plays in the mod, the
+                                                  # mod's Make-Up Gain over the game's, its own and that of the
+                                                  # containers above it added up)}: an import puts it on those slots,
+                                                  # where the details panel shows it
+    moved: set = field(default_factory=set)       # the objects among settings whose Make-Up Gain `gains` carries
     left: list = field(default_factory=list)      # what can't be brought in, in words for people
     other: dict = field(default_factory=dict)     # {bank: how many other changes the patch makes in it} (left out too;
                                                   # Session._patch_audio says them, with the bank's name)
@@ -785,8 +787,9 @@ def from_patch(ix, d: dict) -> Found:
     new takes; a new random container with new Sounds, played with one of the game's, is a layer beside it; a
     Sound of the game that plays a clip it didn't is a clip of its own; new audio for one of the game's clips is a
     replacement. The same addition in several banks counts once. Settings the mod changes on the game's objects (a
-    Sound's, a container's or a MusicTrack's prop bundle: Make-Up Gain, delays, sends...) are `settings`, and a
-    Sound's or MusicTrack's Make-Up Gain is also in `gains`, by the clips it plays. What
+    Sound's, a container's or a MusicTrack's prop bundle: Make-Up Gain, delays, sends...) are `settings`. Make-Up
+    Gain adds down the tree, so the gain of a Sound and of the containers above it, and that of a MusicTrack, is also
+    in `gains`, by the clips each Sound and MusicTrack plays (`moved`: the objects it came from). What
     doesn't map is said in `left`, and the other changes in a bank are counted in `other`. A patch made for an older game version
     still has the game's objects of that version: those aren't the mod's (older_version), its Sounds are counted in
     `stale`, the objects the game added since aren't ones the mod took out, nor the settings it added ones the mod
@@ -813,6 +816,7 @@ def from_patch(ix, d: dict) -> Found:
             new_audio.add(ix.resolve(fid))
         except KeyError:
             pass
+    chains, stuck = {}, set()  # Make-Up Gain: the objects each gain comes from; containers above a mod's new Sounds
     for bid, b in d["banks"].items():
         (media, hirc), (vmedia, vanilla) = b["read"]
         older = older_version(ix, bid, hirc, b["added"])
@@ -908,6 +912,7 @@ def from_patch(ix, d: dict) -> Found:
             if t == "MusicSegment" and i in vanilla and _timing_only(vanilla[i][1], hirc[i][1]) and any(
                     plays_new(c) for c in music.MusicSegment.read(i, music.Reader(hirc[i][1])).node.children):
                 explained.add(i)
+        deltas = {}  # the objects whose Make-Up Gain the mod changes: by how much
         for _, i in b["objects"]:  # the mod's settings on the game's objects
             t, body = hirc[i]
             if i not in vanilla or vanilla[i][0] != t or t not in wbank.SETTABLE or i in as_was:
@@ -923,9 +928,8 @@ def from_patch(ix, d: dict) -> Found:
                                                     (k in wbank.MIX_PROPS or not (lacks or shared))}
                 if kept:
                     out.settings.setdefault(i, kept)
-                    if MAKEUP_GAIN in kept and t in (SOUND, MUSIC_TRACK) and i not in out.gains:
-                        out.gains[i] = (wbank.source_ids(t, body),
-                                        kept[MAKEUP_GAIN] - wbank.props(t, vanilla[i][1]).get(MAKEUP_GAIN, 0.0))
+                    if MAKEUP_GAIN in kept:
+                        deltas[i] = kept[MAKEUP_GAIN] - wbank.props(t, vanilla[i][1]).get(MAKEUP_GAIN, 0.0)
                 if kept != changes:
                     out.older.add(i)
                 if i in explained:
@@ -935,6 +939,28 @@ def from_patch(ix, d: dict) -> Found:
                 at = 18 if clip in out.replaced or clip in same else 0  # its size follows the clip
                 if now[at:] == body[at:]:
                     explained.add(i)
+        if deltas:  # each of the game's Sounds and MusicTracks gets its own and the containers' above it, added up
+            up = {}
+            for o, (tt, body) in hirc.items():
+                if tt in (SOUND, *CONTAINERS):
+                    try:
+                        up[o] = parent_of(tt, body)
+                    except (IndexError, struct.error):
+                        pass
+            for o, (tt, body) in hirc.items():
+                if tt not in (SOUND, MUSIC_TRACK) or o in out.gains:
+                    continue
+                db, chain, at, seen = deltas.get(o, 0.0), {o} & deltas.keys(), up.get(o), set()
+                while at is not None and at not in seen:
+                    seen.add(at)
+                    if at in deltas:
+                        chain.add(at)
+                        db += deltas[at]
+                    at = up.get(at)
+                if chain and o in vanilla:
+                    out.gains[o], chains[o] = (wbank.source_ids(tt, body), db), chain
+                elif chain:  # a mod's new Sound under it: its slot can't carry the containers' gain
+                    stuck |= chain
         if older:  # an object that names one of the older version's (a container listing it) is that version's too
             names_older = lambda body: any(struct.unpack_from("<I", body, k)[0] in older for k in range(len(body) - 3))
             explained.update(i for _, i in b["objects"] if i not in explained and names_older(hirc[i][1]))
@@ -943,4 +969,56 @@ def from_patch(ix, d: dict) -> Found:
         if other:  # settings such as effects, positioning or how a container picks sounds
             out.other[bid] = len(other)
         # objects the copy doesn't have aren't listed: mods don't take the game's out, so the game added them since
+    if out.gains:
+        _settle_gains(ix, d, out, chains, stuck, game_hirc)
     return out
+
+
+def _settle_gains(ix, d, out: Found, chains: dict, stuck: set, game_hirc):
+    """Keeps in out.gains (and puts in out.moved) only the Make-Up Gain that slots can carry as the mod has it. A
+    project has one gain per clip, and a build gives it to every Sound and MusicTrack that plays the clip, so a clip
+    that two of them play with different gains from the mod (a game clip two weapons share, one muted; one the mod
+    leaves as it is counts as 0) keeps the gains where they are, as settings. So does whatever is tied to it: the
+    containers its gain comes from, and everything else under them, and a container above a mod's new Sound."""
+    plays = {}  # bank -> {clip: the objects that play it}
+
+    def players(bid):
+        if bid not in plays:
+            hirc = d["banks"][bid]["read"][0][1] if bid in d["banks"] else game_hirc(bid)
+            found = collections.defaultdict(set)
+            for o, (tt, body) in hirc.items():
+                if tt in (SOUND, MUSIC_TRACK):
+                    for c in wbank.source_ids(tt, body):
+                        found[c].add(o)
+            plays[bid] = found
+        return plays[bid]
+    parent = {}  # union-find over the objects with a gain and the objects it comes from
+
+    def top(x):
+        while parent.setdefault(x, x) != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+    by_clip = collections.defaultdict(dict)  # clip -> {object: its gain}
+    for o, (clips, db) in out.gains.items():
+        for x in chains[o]:
+            parent[top(x)] = top(o)
+        for c in clips:
+            by_clip[c][o] = round(db, 2)
+    bad = {top(x) for x in stuck}
+    for c, given in by_clip.items():
+        first = next(iter(given))
+        for o in given:
+            parent[top(o)] = top(first)
+        others = set()
+        for bid in ix.users.get(c, ()) or ix.holders.get(c, ()):
+            try:
+                others |= players(bid).get(c, set())
+            except (KeyError, ValueError, struct.error):  # a bank that can't be read: nothing is moved for it
+                bad.add(top(first))
+        if len(set(given.values())) > 1 or any(o not in given and o not in out.gains for o in others) and any(given.values()):
+            bad.add(top(first))
+    bad = {top(x) for x in bad}
+    for o in [o for o in out.gains if top(o) in bad]:
+        del out.gains[o]
+    out.moved = {x for o in out.gains for x in chains[o]}

@@ -5,7 +5,7 @@ summary: O que cada parte da Biblioteca e da aba Áudio mostra, e o que signific
 source: 28d5f38a0bef
 ---
 
-A Biblioteca e a aba Áudio têm o mesmo layout. Há uma lista à esquerda e o item aberto no meio. A aba Áudio também mostra as configurações do slot selecionado à direita. A Trilha Sonora tem outro layout, descrito em [Trilha Sonora](wiki:soundtrack). As palavras em **negrito** são explicadas em [O áudio do jogo, explicado](wiki:game-audio).
+A Biblioteca e a aba Áudio têm o mesmo layout: uma lista à esquerda, o item aberto no meio e o painel de detalhes à direita. A Trilha Sonora tem outro layout, descrito em [Trilha Sonora](wiki:soundtrack). As palavras em **negrito** são explicadas em [O áudio do jogo, explicado](wiki:game-audio).
 
 ## A lista à esquerda {#the-list-on-the-left}
 
@@ -103,21 +103,27 @@ As **formas de onda** do slot selecionado aparecem aqui. O original fica em cima
 
 Dois controles deslizantes dão zoom nas duas formas de onda. O que sobe pelo lado direito as desenha mais altas, para mostrar áudio baixo, e o que fica abaixo delas, à direita, dá zoom no tempo, para posicionar a Entrada e a Saída com precisão. Sobre as formas de onda, a roda do mouse dá zoom no tempo, Ctrl+roda as desenha mais altas, e Shift+roda rola. Com zoom no tempo, a faixa abaixo das formas de onda também rola. {icon:reset}, no canto entre os controles deslizantes, mostra de novo o áudio inteiro em escala máxima. Enquanto um controle deslizante se move, um número de 0 a 100 sobre o botão mostra em que ponto ele está. O zoom fica como foi definido quando outro slot é selecionado, e a ferramenta de fatiar tem os mesmos controles deslizantes.
 
-## O painel direito (aba Áudio) {#the-right-panel-audio-tab}
+## O painel de detalhes {#the-details-panel}
 
-Este painel contém as configurações do slot selecionado. Ele mostra o que substitui o slot, um arquivo ou silêncio. Um arquivo tem um botão que o mostra no Explorador de Arquivos, e o silêncio tem **Manter a duração original**. Abaixo ficam **Make-Up Gain** ([explicado aqui](wiki:volume)), **Ajustar o tempo ao áudio novo**, os **pontos de cue**, **Compartilhado com** e a nota. Um slot sem áudio novo tem **Usar silêncio** e Make-Up Gain para o Original. Toque o áudio e escolha arquivos na linha do slot.
+Na aba Áudio, este painel contém as configurações do slot selecionado. Ele mostra o que substitui o slot, um arquivo ou silêncio. Um arquivo tem um botão que o mostra no Explorador de Arquivos, e o silêncio tem **Manter a duração original**. Abaixo ficam **Make-Up Gain** ([explicado aqui](wiki:volume)), **Ajustar o tempo ao áudio novo**, os **pontos de cue**, **Compartilhado com** e as notas. Um slot sem áudio novo tem **Usar silêncio** e Make-Up Gain para o Original. Toque o áudio e escolha arquivos na linha do slot.
 
 Com vários slots selecionados, o painel define Make-Up Gain, pontos de cue ou silêncio para todos eles. **Escolher um arquivo para todos** coloca um arquivo em cada slot selecionado, e **Escolher arquivos** coloca um arquivo em cada um, na ordem da lista e na ordem dos nomes de arquivo.
 
-Sem slot selecionado, o painel mostra a nota do item aberto e as teclas da lista de slots.
+Sem slot selecionado, o painel mostra as notas do item aberto e as teclas da lista de slots.
+
+Na Biblioteca, o painel mostra o nome e o ID do slot selecionado, ou o item aberto quando nenhum slot está selecionado, com a nota global dele.
+
+{icon:panel} no canto superior direito do painel o recolhe para uma faixa na borda da janela, e o mesmo botão na faixa o traz de volta. Enquanto um tutorial está em andamento, o painel da aba Áudio aparece.
 
 ## Notas {#notes}
 
-Slots e itens da lista à esquerda podem ter notas. As notas ficam no fim do painel direito. Selecione um slot para ver a nota dele, ou não selecione nada para ver a nota do item. **Adicionar nota** abre o editor. As notas são salvas no arquivo do projeto, e Desfazer reverte uma alteração numa nota.
+Slots e itens da lista à esquerda podem ter duas notas. A **Nota do projeto** é salva no arquivo do projeto, e Desfazer reverte uma alteração nela. A **Nota global** é salva num arquivo de notas neste computador e aparece em todos os projetos e na Biblioteca. Desfazer não reverte uma nota global, e [Notas globais](wiki:how-audiodiver-works#global-notes) nas Configurações diz onde fica o arquivo. As gerações deixam as notas de fora.
 
-As notas são escritas em Markdown. `#` começa um título, `-` começa um item de lista, `**bold**` e `*italic*` marcam palavras, e `[text](https://…)` cria um link. Os botões acima da caixa fazem o mesmo com as palavras selecionadas, e pressionar um deles de novo tira a marcação. {key:undo} funciona na caixa enquanto você digita. Clique em outro lugar para salvar a nota e mostrá-la formatada. Clique nela para editá-la de novo. **Excluir nota** a remove, e pergunta antes se ela tiver alguma palavra.
+As notas ficam no fim do painel de detalhes. Selecione um slot para ver as notas dele, ou não selecione nada para ver as notas do item. A Biblioteca mostra só a nota global. **Adicionar nota do projeto** e **Adicionar nota global** abrem o editor. Uma busca na lista à esquerda também encontra palavras nas notas globais, e marca com {icon:note} o que encontrou assim.
 
-Um clipe que toca em vários lugares tem uma única nota, mostrada em todos esses lugares. Quando uma atualização do jogo dá um novo ID a um clipe, a nota deixa de aparecer. Ela continua no arquivo e volta a aparecer se o ID voltar.
+As notas são escritas em Markdown. `#` começa um título, `-` começa um item de lista, `**bold**` e `*italic*` marcam palavras, e `[text](https://…)` cria um link. Os botões acima da caixa fazem o mesmo com as palavras selecionadas, e pressionar um deles de novo tira a marcação. {key:undo} funciona na caixa enquanto você digita. Clique em outro lugar para salvar a nota e mostrá-la formatada. Clique nela para editá-la de novo. **Excluir nota do projeto** e **Excluir nota global** removem uma nota, e perguntam antes se ela tiver alguma palavra.
+
+Um clipe que toca em vários lugares tem uma única nota de cada tipo, mostrada em todos esses lugares. Quando uma atualização do jogo dá um novo ID a um clipe, a nota deixa de aparecer. Ela continua no arquivo e volta a aparecer se o ID voltar.
 
 ## As barras {#the-bars}
 

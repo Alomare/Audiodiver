@@ -12,6 +12,22 @@ msgstr ""
 msgid "(empty)"
 msgstr "(empty)"
 
+#. placeholder {0}: r.count
+#: src/SettingsTab.tsx
+msgid "{0, plural, one {Exported # note.} other {Exported # notes.}}"
+msgstr "{0, plural, one {Exported # note.} other {Exported # notes.}}"
+
+#. placeholder {0}: r.added
+#: src/SettingsTab.tsx
+msgid "{0, plural, one {Imported notes on # thing} other {Imported notes on # things}}"
+msgstr "{0, plural, one {Imported notes on # thing} other {Imported notes on # things}}"
+
+#. The suggested file name for a project's exported notes, without the extension
+#. placeholder {0}: project.name
+#: src/SettingsTab.tsx
+msgid "{0} notes"
+msgstr "{0} notes"
+
 #. Tooltip of words that open a Wiki page. about is the subject of the page.
 #: src/Wiki.tsx
 msgid "{about}: open the Wiki"
@@ -100,6 +116,10 @@ msgstr "{count, plural, one {# Cue} other {# Cues}}"
 #: src/ProjectTab.tsx
 msgid "{count, plural, one {# file is unused} other {# files are unused}} ({size})."
 msgstr "{count, plural, one {# file is unused} other {# files are unused}} ({size})."
+
+#: src/SettingsTab.tsx
+msgid "{count, plural, one {# global note} other {# global notes}}"
+msgstr "{count, plural, one {# global note} other {# global notes}}"
 
 #: src/SettingsTab.tsx
 msgid "{count, plural, one {# minute} other {# minutes}}"
@@ -943,6 +963,10 @@ msgstr "A combined mod is still the work of the original authors. Keep it for pe
 msgid "A conflict check is still running."
 msgstr "A conflict check is still running."
 
+#: src/SettingsTab.tsx
+msgid "A document to read, with each note under the name of what it is on."
+msgstr "A document to read, with each note under the name of what it is on."
+
 #: src/ExportDialog.tsx
 msgid "A fight"
 msgstr "A fight"
@@ -1045,9 +1069,9 @@ msgstr "A new take. The game picks it like the other takes."
 msgid "A new version of Audiodiver"
 msgstr "A new version of Audiodiver"
 
-#: src/Notes.tsx
-msgid "A note kept in the project file. Builds leave notes out. A note on a slot shows wherever the clip plays. Markdown formats headings, lists, bold and links."
-msgstr "A note kept in the project file. Builds leave notes out. A note on a slot shows wherever the clip plays. Markdown formats headings, lists, bold and links."
+#: src/SettingsTab.tsx
+msgid "A notes file that Import Notes brings into the global notes, on this computer or another."
+msgstr "A notes file that Import Notes brings into the global notes, on this computer or another."
 
 #: src/ExportDialog.tsx
 msgid "A number, then the sound or segment"
@@ -1222,6 +1246,10 @@ msgstr "Add at least two mods"
 msgid "Add from the Library"
 msgstr "Add from the Library"
 
+#: src/Notes.tsx
+msgid "Add Global Note"
+msgstr "Add Global Note"
+
 #: src/IndexTree.tsx
 msgid "Add It to the Export List"
 msgstr "Add It to the Export List"
@@ -1239,8 +1267,8 @@ msgid "Add new audio to {name}"
 msgstr "Add new audio to {name}"
 
 #: src/Notes.tsx
-msgid "Add Note"
-msgstr "Add Note"
+msgid "Add Project Note"
+msgstr "Add Project Note"
 
 #: src/Soundtrack.tsx
 msgid "Add Songs"
@@ -1579,6 +1607,11 @@ msgstr "Audiodiver checks GitHub for a new version on every start. The Updates t
 msgid "Audiodiver couldn't read the core's response (HTTP {status})"
 msgstr "Audiodiver couldn't read the core's response (HTTP {status})"
 
+#. The suggested file name for exported notes, without the extension
+#: src/SettingsTab.tsx
+msgid "Audiodiver notes"
+msgstr "Audiodiver notes"
+
 #: src/SettingsTab.tsx
 msgid "Audiodiver only reads from this folder. Choosing another folder reads the game again, which takes about a minute the first time."
 msgstr "Audiodiver only reads from this folder. Choosing another folder reads the game again, which takes about a minute the first time."
@@ -1733,7 +1766,9 @@ msgstr "Border"
 msgid "Border colour"
 msgstr "Border colour"
 
+#. Export Notes: the global notes and the project notes
 #: src/ExportDialog.tsx
+#: src/SettingsTab.tsx
 msgid "Both"
 msgstr "Both"
 
@@ -1748,6 +1783,10 @@ msgstr "Bottom Left"
 #: src/settings.ts
 msgid "Bottom Right"
 msgstr "Bottom Right"
+
+#: src/SettingsTab.tsx
+msgid "Bring the notes of an exported notes file or of a project into the global notes"
+msgstr "Bring the notes of an exported notes file or of a project into the global notes"
 
 #. The name of the Build tab, as the title of a tutorial step
 #. Title of the Build tab
@@ -2082,6 +2121,10 @@ msgstr "Choose a folder"
 #: src/RepatchPage.tsx
 msgid "Choose a Folder"
 msgstr "Choose a Folder"
+
+#: src/SettingsTab.tsx
+msgid "Choose a folder for the global notes"
+msgstr "Choose a folder for the global notes"
 
 #: src/ImportMod.tsx
 msgid "Choose a line of text to import"
@@ -2440,6 +2483,11 @@ msgstr "Conflict check failed: {why}"
 msgid "Conflicts"
 msgstr "Conflicts"
 
+#. Where an imported setting is: a container above the slot, by the container ID
+#: src/Inspector.tsx
+msgid "container {id}"
+msgstr "container {id}"
+
 #: src/CueView.tsx
 msgid "Container IDs"
 msgstr "Container IDs"
@@ -2698,12 +2746,20 @@ msgid "Delete"
 msgstr "Delete"
 
 #: src/Notes.tsx
-msgid "Delete Note"
-msgstr "Delete Note"
+msgid "Delete Global Note"
+msgstr "Delete Global Note"
 
 #: src/Notes.tsx
-msgid "Delete the note?"
-msgstr "Delete the note?"
+msgid "Delete Project Note"
+msgstr "Delete Project Note"
+
+#: src/Notes.tsx
+msgid "Delete the global note?"
+msgstr "Delete the global note?"
+
+#: src/Notes.tsx
+msgid "Delete the project note?"
+msgstr "Delete the project note?"
 
 #: src/ProjectTab.tsx
 msgid "Democracy blue"
@@ -3120,10 +3176,12 @@ msgstr "exit at {time}"
 msgid "Exploring set to Silent"
 msgstr "Exploring set to Silent"
 
+#. Export Notes: saves the file
 #. Heading: exporting the project as a pack
 #: src/CueView.tsx
 #: src/ExportDialog.tsx
 #: src/ProjectTab.tsx
+#: src/SettingsTab.tsx
 #: src/Soundtrack.tsx
 msgid "Export"
 msgstr "Export"
@@ -3152,6 +3210,11 @@ msgstr "Export list"
 #: src/ExportDialog.tsx
 msgid "Export List"
 msgstr "Export List"
+
+#: src/platform.ts
+#: src/SettingsTab.tsx
+msgid "Export Notes"
+msgstr "Export Notes"
 
 #: src/platform.ts
 msgid "Export the project as a pack"
@@ -3364,7 +3427,9 @@ msgstr "For mods that change the same sound banks, where only the one deployed l
 msgid "Forget the chosen folder"
 msgstr "Forget the chosen folder"
 
+#. Export Notes: the kind of file
 #: src/ExportDialog.tsx
+#: src/SettingsTab.tsx
 msgid "Format"
 msgstr "Format"
 
@@ -3378,6 +3443,10 @@ msgstr "Formatting"
 #: src/keys.ts
 msgid "Forward"
 msgstr "Forward"
+
+#: src/IndexTree.tsx
+msgid "Found in a global note"
+msgstr "Found in a global note"
 
 #: src/SettingsTab.tsx
 msgid "Found through Steam."
@@ -3417,8 +3486,8 @@ msgid "Game audio, explained"
 msgstr "Game audio, explained"
 
 #: src/SettingsTab.tsx
-msgid "Game folder, tabs, startup, updates, tooltips, notifications, disk space, layout"
-msgstr "Game folder, tabs, startup, updates, tooltips, notifications, disk space, layout"
+msgid "Game folder, tabs, startup, updates, tooltips, notifications, global notes, disk space, layout"
+msgstr "Game folder, tabs, startup, updates, tooltips, notifications, global notes, disk space, layout"
 
 #: src/SettingsTab.tsx
 msgid "Game folder, updates, tooltips, disk space"
@@ -3447,6 +3516,18 @@ msgstr "Give every take new audio to replace the sound completely"
 #: src/SettingsTab.tsx
 msgid "Give this a key"
 msgstr "Give this a key"
+
+#: src/Notes.tsx
+msgid "Global Note"
+msgstr "Global Note"
+
+#: src/Notes.tsx
+msgid "Global note on {name}"
+msgstr "Global note on {name}"
+
+#: src/SettingsTab.tsx
+msgid "Global Notes"
+msgstr "Global Notes"
 
 #: src/keys.ts
 msgid "go back or forward"
@@ -3534,6 +3615,10 @@ msgstr "Hide"
 #: src/ItemHead.tsx
 msgid "Hide the description"
 msgstr "Hide the description"
+
+#: src/Inspector.tsx
+msgid "Hide the details panel"
+msgstr "Hide the details panel"
 
 #: src/Tools.tsx
 msgid "Hide the header"
@@ -3672,6 +3757,11 @@ msgstr "Import into {projectName}"
 msgid "Import Mod"
 msgstr "Import Mod"
 
+#: src/platform.ts
+#: src/SettingsTab.tsx
+msgid "Import Notes"
+msgstr "Import Notes"
+
 #: src/ProjectTab.tsx
 msgid "Import Patches"
 msgstr "Import Patches"
@@ -3703,6 +3793,10 @@ msgstr "Imported nothing from {mod}."
 #: src/store.tsx
 msgid "Imported nothing from the mod."
 msgstr "Imported nothing from the mod."
+
+#: src/Inspector.tsx
+msgid "Imported Settings"
+msgstr "Imported Settings"
 
 #: src/jobs.ts
 msgid "Importing"
@@ -3917,6 +4011,10 @@ msgstr "Kept current: {older, plural, one {# sound object} other {# sound object
 #: src/RepatchPage.tsx
 msgid "Kept from the manifest: {items}."
 msgstr "Kept from the manifest: {items}."
+
+#: src/Notes.tsx
+msgid "Kept in the project file. Builds leave notes out. A note on a slot shows wherever the clip plays. Markdown formats headings, lists, bold and links."
+msgstr "Kept in the project file. Builds leave notes out. A note on a slot shows wherever the clip plays. Markdown formats headings, lists, bold and links."
 
 #: src/TextTab.tsx
 msgid "Korean"
@@ -4202,6 +4300,10 @@ msgstr "Making the practice project"
 #: src/settings.ts
 msgid "Manual"
 msgstr "Manual"
+
+#: src/platform.ts
+msgid "Markdown document"
+msgstr "Markdown document"
 
 #: src/Inspector.tsx
 msgid "Match Each to the Original Loudness"
@@ -4685,6 +4787,10 @@ msgstr "No files were removed"
 msgid "No folder chosen yet"
 msgstr "No folder chosen yet"
 
+#: src/SettingsTab.tsx
+msgid "No global notes yet"
+msgstr "No global notes yet"
+
 #: src/Wiki.tsx
 msgid "No guide mentions “{query}”."
 msgstr "No guide mentions “{query}”."
@@ -4867,20 +4973,28 @@ msgstr "Not zoomed in"
 msgid "note"
 msgstr "note"
 
-#. A note written on a slot or an item, kept in the project file
-#: src/Notes.tsx
-msgid "Note"
-msgstr "Note"
-
 #. The heading of a box with a note in a Wiki page
 #: src/Markdown.tsx
 msgctxt "Wiki callout"
 msgid "Note"
 msgstr "Note"
 
-#: src/Notes.tsx
-msgid "Note on {name}"
-msgstr "Note on {name}"
+#. Export Notes: which notes go into the file
+#: src/SettingsTab.tsx
+msgid "Notes"
+msgstr "Notes"
+
+#: src/platform.ts
+msgid "Notes file (JSON)"
+msgstr "Notes file (JSON)"
+
+#: src/platform.ts
+msgid "Notes files and projects"
+msgstr "Notes files and projects"
+
+#: src/SettingsTab.tsx
+msgid "Notes shown in every project and in the Library, kept in a notes file in this folder. A folder that already has a notes file, such as a synced folder, adds those notes to these."
+msgstr "Notes shown in every project and in the Library, kept in a notes file in this folder. A folder that already has a notes file, such as a synced folder, adds those notes to these."
 
 #: src/IndexTree.tsx
 msgid "Nothing here yet."
@@ -5155,6 +5269,10 @@ msgstr "Open a project to change lines"
 #: src/TextTab.tsx
 msgid "Open a project to change this line."
 msgstr "Open a project to change this line."
+
+#: src/SettingsTab.tsx
+msgid "Open a project to export the project notes"
+msgstr "Open a project to export the project notes"
 
 #: src/CueView.tsx
 msgid "Open an entry on the left and drop audio on the slots. Find more in the <0>Library</0>."
@@ -5848,6 +5966,18 @@ msgstr "Project"
 #: src/ImportMod.tsx
 msgid "Project name"
 msgstr "Project name"
+
+#: src/Notes.tsx
+msgid "Project Note"
+msgstr "Project Note"
+
+#: src/Notes.tsx
+msgid "Project note on {name}"
+msgstr "Project note on {name}"
+
+#: src/SettingsTab.tsx
+msgid "Project Notes"
+msgstr "Project Notes"
 
 #: src/BuildTab.tsx
 msgid "Project Tab"
@@ -6577,6 +6707,10 @@ msgstr "Selected"
 msgid "Set by the HD2_DATA environment variable."
 msgstr "Set by the HD2_DATA environment variable."
 
+#: src/Inspector.tsx
+msgid "Set by the imported mod on this sound or on a container above it. Builds include them."
+msgstr "Set by the imported mod on this sound or on a container above it. Builds include them."
+
 #: src/SettingsTab.tsx
 msgid "Set here, overriding the system setting."
 msgstr "Set here, overriding the system setting."
@@ -6716,6 +6850,10 @@ msgstr "Show names"
 msgid "Show the description"
 msgstr "Show the description"
 
+#: src/Inspector.tsx
+msgid "Show the details panel"
+msgstr "Show the details panel"
+
 #: src/SettingsTab.tsx
 msgid "Show the Folder"
 msgstr "Show the Folder"
@@ -6752,6 +6890,10 @@ msgstr "Show these shortcuts"
 #: src/TextTab.tsx
 msgid "Showing {shown} of {total}. Type more to narrow them down."
 msgstr "Showing {shown} of {total}. Type more to narrow them down."
+
+#: src/Notes.tsx
+msgid "Shown in every project and in the Library, from the notes file in the folder set in Settings ▸ System. A note on a slot shows wherever the clip plays. Markdown formats headings, lists, bold and links."
+msgstr "Shown in every project and in the Library, from the notes file in the folder set in Settings ▸ System. A note on a slot shows wherever the clip plays. Markdown formats headings, lists, bold and links."
 
 #. Edit in Undo, Redo and History: shuffle turned on or off for a playlist
 #: src/store.tsx
@@ -7389,6 +7531,14 @@ msgstr "The game updated after this build, so the sound banks in the ZIP are out
 msgid "the game updated since the last build"
 msgstr "the game updated since the last build"
 
+#: src/Notes.tsx
+msgid "The global note on {name} will be deleted. Undo can't bring it back."
+msgstr "The global note on {name} will be deleted. Undo can't bring it back."
+
+#: src/SettingsTab.tsx
+msgid "The global notes already have every note in that file"
+msgstr "The global notes already have every note in that file"
+
 #: src/content.ts
 msgid "the HD2 modding community"
 msgstr "the HD2 modding community"
@@ -7588,10 +7738,6 @@ msgstr "The next segment starts here. Audio after it rings out over the next one
 msgid "The normal size is 20. No game line uses sizes, but chat does"
 msgstr "The normal size is 20. No game line uses sizes, but chat does"
 
-#: src/Notes.tsx
-msgid "The note on {name} will be deleted. Undo brings it back."
-msgstr "The note on {name} will be deleted. Undo brings it back."
-
 #: src/App.tsx
 msgid "The notifications shown so far, to read again"
 msgstr "The notifications shown so far, to read again"
@@ -7707,6 +7853,10 @@ msgstr "The project moves to {dest}, with the slices, imported audio and builds 
 #: src/ProjectTab.tsx
 msgid "The project moves to a new folder, with the slices, imported audio and builds Audiodiver made for it. Files you picked from elsewhere stay where they are."
 msgstr "The project moves to a new folder, with the slices, imported audio and builds Audiodiver made for it. Files you picked from elsewhere stay where they are."
+
+#: src/Notes.tsx
+msgid "The project note on {name} will be deleted. Undo brings it back."
+msgstr "The project note on {name} will be deleted. Undo brings it back."
 
 #: src/ProjectTab.tsx
 msgid "The project still finds every file it uses"
@@ -7906,6 +8056,10 @@ msgstr "This bank is {sets} in the Index."
 msgid "This clip isn't in the installed game files, so there is nothing to play or replace."
 msgstr "This clip isn't in the installed game files, so there is nothing to play or replace."
 
+#: src/Inspector.tsx
+msgid "this music track"
+msgstr "this music track"
+
 #: src/ProjectTab.tsx
 msgid "This project is in a shared place, such as the Desktop or Documents."
 msgstr "This project is in a shared place, such as the Desktop or Documents."
@@ -7925,6 +8079,10 @@ msgstr "This slot plays only under a condition, such as a biome. Give each varia
 #: src/SliceTool.tsx
 msgid "This song is shorter than {MIN_PIECE} ms and can't be cut."
 msgstr "This song is shorter than {MIN_PIECE} ms and can't be cut."
+
+#: src/Inspector.tsx
+msgid "this sound"
+msgstr "this sound"
 
 #: src/CueView.tsx
 msgid "This sound keeps the Original"
@@ -8183,6 +8341,10 @@ msgstr "Updating to {label}. Audiodiver restarts when the update is installed."
 #: src/Inspector.tsx
 msgid "Use Silence"
 msgstr "Use Silence"
+
+#: src/SettingsTab.tsx
+msgid "Use the Default Folder"
+msgstr "Use the Default Folder"
 
 #: src/ProjectTab.tsx
 msgid "Use the Default Icon"

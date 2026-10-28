@@ -72,6 +72,12 @@ With **Open the last project when Audiodiver starts** on, Audiodiver opens the l
 
 **Corner** under **Notifications** in [Settings ▸ System](app:settings/system) sets the corner of the window where notices appear. **Bottom Right** is the default.
 
+### Global notes
+
+**Global Notes** in [Settings ▸ System](app:settings/system) shows the notes file, which starts in the folder of Audiodiver's settings. **Choose Another Folder** keeps the notes in another one, such as a folder synced between two computers. When that folder has a notes file already, the notes in it and these come together, and a thing with a different note in each keeps both texts. **Use the Default Folder** goes back. The file in the old folder stays as it was.
+
+**Export Notes** saves the global notes, the notes of the open project or both, either as a Markdown document to read, with each note under the name of what it is on, or as a JSON notes file. **Import Notes** brings the notes of such a JSON file, or of a project file, into the global notes.
+
 ### Disk space
 
 Audiodiver keeps prepared copies of audio so that it doesn't prepare the same audio twice. **Previews** are the decoded originals, the waveforms and the Play through renders. **Encoded audio** is new audio converted for the game, which builds reuse. Clearing either one is safe. Audiodiver prepares the copies again when needed. Projects and audio files are never stored there.

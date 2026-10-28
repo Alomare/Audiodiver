@@ -556,6 +556,22 @@ msgid "That folder is inside the game folder, and Audiodiver never writes there.
 msgstr "该文件夹位于游戏文件夹内，Audiodiver 从不向其中写入。请选择其他文件夹，并在模组管理器中导入 ZIP。"
 
 #: editor.py
+msgid "Choose a folder (a full path)"
+msgstr "请选择一个文件夹（完整路径）"
+
+#: editor.py
+msgid "Choose where to save the notes"
+msgstr "请选择备注的保存位置"
+
+#: editor.py
+msgid "Open a project to export the project notes"
+msgstr "请先打开项目，才能导出项目备注"
+
+#: editor.py
+msgid "Choose a notes file"
+msgstr "请选择备注文件"
+
+#: editor.py
 msgid "Choose an image"
 msgstr "选择图片"
 
@@ -747,6 +763,10 @@ msgstr "静音"
 #: editor.py
 msgid "a slot: no audio file named"
 msgstr "一个槽位：未指定音频文件"
+
+#: editor.py
+msgid "Global Notes"
+msgstr "全局备注"
 
 #: editor.py
 msgid "The project already has a folder to itself"
@@ -1009,6 +1029,26 @@ msgid "Make-Up Gain goes from {low} to {high} dB"
 msgstr "Make-Up Gain 的范围为 {low} 到 {high} dB"
 
 #: editor.py
+msgid "{file} can't be read, so global notes can't be shown or saved. Fix or move the file, or choose another folder in Settings ▸ System."
+msgstr "无法读取 {file}，因此无法显示或保存全局备注。请修复或移动该文件，或在“设置 ▸ 系统”中选择其他文件夹。"
+
+#: editor.py
+msgid "The global notes couldn't be saved: {why}"
+msgstr "无法保存全局备注：{why}"
+
+#: editor.py
+msgid "Project Notes: {name}"
+msgstr "项目备注：{name}"
+
+#: editor.py
+msgid "The notes couldn't be saved: {why}"
+msgstr "无法保存备注：{why}"
+
+#: editor.py
+msgid "{file} isn't a notes file or an Audiodiver project"
+msgstr "{file} 不是备注文件，也不是 Audiodiver 项目"
+
+#: editor.py
 msgid "Fix the problems on the Build tab first: {problem} (and {n} more)"
 msgid_plural "Fix the problems on the Build tab first: {problem} (and {n} more)"
 msgstr[0] "请先在构建选项卡中修复问题：{problem}（另有 {n} 个）"
@@ -1089,6 +1129,14 @@ msgstr "Wwise 响度分析：{why}（可在构建选项中关闭）"
 #: editor.py
 msgid "That isn't a mod ID (a GUID like 3f2a…-…)"
 msgstr "这不是模组 ID（应为类似 3f2a…-… 的 GUID）"
+
+#: editor.py
+msgid "{item}, clip {id}"
+msgstr "{item}，片段 {id}"
+
+#: editor.py
+msgid "Clip {id}"
+msgstr "片段 {id}"
 
 #: editor.py
 msgid "The project couldn't move: {why}"
@@ -1622,6 +1670,10 @@ msgstr "未识别曲目 {n}"
 #: notes.py
 msgid "A note can be up to {n} characters long"
 msgstr "备注最多 {n} 个字符"
+
+#: notes.py
+msgid "No notes."
+msgstr "没有备注。"
 
 #: patch.py
 msgid "{file} is missing"

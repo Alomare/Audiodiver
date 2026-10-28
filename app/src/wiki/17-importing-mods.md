@@ -18,7 +18,9 @@ summary: A mod made with any tool, as a project to keep working on: the audio, t
 
 - The audio the mod replaces, on the same sounds. It goes into builds without being converted again.
 - The audio the mod adds: new takes for a sound, a new sound that plays with an existing one (a layer), or a separate clip for one sound. Each one becomes the same kind of addition that [Adding audio](wiki:adding-audio) makes.
-- Sound settings, such as the volume of a sound or a container, or a delay before it plays, and the cue points of the music segments the mod gives new audio.
+- Make-Up Gain, on the slots of the sounds it reaches, also when the mod sets it on a container above them. A slot has one gain, so where the mod gives two sounds that play the same clip different gains, those gains stay on the sounds, with the other settings.
+- Other sound settings, such as the volume or pitch of a sound or a container, or a delay before it plays. Builds include them, and the details panel of the Audio tab lists them under **Imported Settings** on each slot they reach.
+- The cue points of the music segments the mod gives new audio.
 - The lines of the game text the mod changes, such as subtitles or names.
 
 Models, textures and other files that aren't audio or text stay out, because a project holds only audio and text. Other kinds of change, such as effects or how a container picks sounds, aren't imported either. The import lists what was left out.

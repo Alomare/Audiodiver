@@ -8,11 +8,13 @@ import { UTILS } from "./edition";
 import { captureChord, COMMANDS, FIXED, fmtChord, keyLabel, keymap, useKeymap, type CommandId } from "./keys";
 import { HIDEABLE, nav, useNav, type Hideable, type SettingsTab as Sub } from "./nav";
 import { Page, tabArrows } from "./Page";
-import { reveal } from "./platform";
+import { pickFolder, pickNotesFile, pickNotesToSave, reveal } from "./platform";
 import { rangeVars } from "./range";
 import { player } from "./player";
 import { AUTOSAVE_DEFAULT, AUTOSAVE_MAX, DEFAULT_SETTINGS, NOTICE_CORNERS, resetLayout, settings, TIP_SPEEDS, UPDATE_MODES, UPDATE_NOTES, useSettings } from "./settings";
 import { useEditor } from "./store";
+import { notes, useGlobalNotes, type GlobalNotes } from "./noteStore";
+import { useDialog } from "./dialog";
 import { Help } from "./Wiki";
 import { autoLanguage, chooseLanguage, chosenLanguage, languageName, LANGUAGES, PSEUDO, type Choice } from "./i18n";
 import { accentFor, BAR_SIDES, barIsVertical, BLUE_HUE, contrastOn, DEFAULT_SIZE, DEFAULT_THEME, DEFAULT_WARMTH, DENSITIES, FONTS, modeOf, motionOn, nightTint,
@@ -27,7 +29,7 @@ const SUBS: [Sub, string, string][] = UTILS ? [
   ["system", t`System`, t`Game folder, updates, tooltips, disk space`],
   ["theme", t`Theme`, t`Dark or light, contrast, text size`],
 ] : [
-  ["system", t`System`, t`Game folder, tabs, startup, updates, tooltips, notifications, disk space, layout`],
+  ["system", t`System`, t`Game folder, tabs, startup, updates, tooltips, notifications, global notes, disk space, layout`],
   ["shortcuts", t`Shortcuts`, t`Shortcut keys and rebinding`],
   ["theme", t`Theme`, t`Colours, text, spacing, the tab bar, animations`],
 ];
@@ -195,6 +197,8 @@ function System() {
         </div>
       </section>
 
+      {!UTILS && <GlobalNotesSettings />}
+
       <section className="set-sec">
         <h2>{t`Disk space`} <Help tip={t`Prepared copies of audio, kept for reuse. Projects and audio files are never stored here.`} page="how-audiodiver-works#disk-space" /></h2>
         <div className="set-rows">
@@ -232,6 +236,106 @@ const FOUND: Record<string, string> = {
 };
 
 /** Where the game is: found through Steam, or a folder chosen here. Changing it reads the game's audio again. */
+/** Settings ▸ System ▸ Global Notes: where the notes file is (a folder with a notes file in it, a synced one say,
+    brings its notes together with these; the core's set_notes_folder), and the export and import of notes. */
+function GlobalNotesSettings() {
+  const g = useGlobalNotes();
+  const { quick } = useEditor();
+  const [error, setError] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
+  const count = Object.keys(g.notes).length;
+  const move = async (folder: string | null) => {
+    setError(null);
+    try { notes.setGlobal(await call<GlobalNotes>("notes_folder_set", { folder })); } catch (e: any) { setError(e.message ?? String(e)); }
+  };
+  const choose = async () => {
+    const folder = await pickFolder(g.folder, t`Choose a folder for the global notes`);
+    if (folder) await move(folder);
+  };
+  const bringIn = async () => {
+    const path = await pickNotesFile();
+    if (!path) return;
+    setError(null);
+    try {
+      const r = await call<GlobalNotes & { added: number }>("notes_import", { path });
+      notes.setGlobal(r);
+      quick(r.added ? plural(r.added, { one: "Imported notes on # thing", other: "Imported notes on # things" }) : t`The global notes already have every note in that file`,
+        r.added ? "done" : "info");
+    } catch (e: any) { setError(e.message ?? String(e)); }
+  };
+  return (
+    <section className="set-sec">
+      <h2>{t`Global Notes`} <Help tip={t`Notes shown in every project and in the Library, kept in a notes file in this folder. A folder that already has a notes file, such as a synced folder, adds those notes to these.`} page="how-audiodiver-works#global-notes" /></h2>
+      <div className="game-folder"><span className="path-text">{g.file}</span></div>
+      <p className="set-note">{count ? plural(count, { one: "# global note", other: "# global notes" }) : t`No global notes yet`}</p>
+      <div className="row-btns">
+        <button className="btn" onClick={choose}><Trans>Choose Another Folder</Trans></button>
+        {!g.default && <button className="btn quiet" onClick={() => move(null)}><Trans>Use the Default Folder</Trans></button>}
+        {g.folder && <button className="btn quiet" onClick={() => reveal(count ? g.file : g.folder)}><Trans>Show in Folder</Trans></button>}
+      </div>
+      <div className="row-btns">
+        <button className="btn" onClick={() => setExporting(true)}><Trans>Export Notes</Trans></button>
+        <button className="btn" onClick={bringIn} data-tip={t`Bring the notes of an exported notes file or of a project into the global notes`}><Trans>Import Notes</Trans></button>
+      </div>
+      {(error || g.error) && <p className="warn-box" role="alert">{error ?? g.error}</p>}
+      {exporting && <NotesExport onClose={() => setExporting(false)} />}
+    </section>
+  );
+}
+
+type NotesWhat = "global" | "project" | "both";
+/** Export Notes: which notes (the global ones, the open project's, or both) and as what (Markdown to read, or a JSON
+    notes file that Import Notes takes), then where to save them. */
+function NotesExport({ onClose }: { onClose: () => void }) {
+  const { project, notify } = useEditor();
+  const [what, setWhat] = useState<NotesWhat>("global");
+  const [form, setForm] = useState<"md" | "json">("md");
+  const box = useDialog(onClose);
+  const name = what === "project" && project
+    ? t({ message: `${project.name} notes`, comment: "The suggested file name for a project's exported notes, without the extension" })
+    : t({ message: "Audiodiver notes", comment: "The suggested file name for exported notes, without the extension" });
+  const go = async () => {
+    const path = await pickNotesToSave(`${name}.${form}`, form);
+    if (!path) return;
+    try {
+      const r = await call<{ path: string; count: number }>("notes_export", { path, what, form });
+      onClose();
+      notify("good", plural(r.count, { one: "Exported # note.", other: "Exported # notes." }), { label: t`Show in Folder`, go: { reveal: r.path } });
+    } catch (e: any) { notify("bad", e.message ?? String(e)); }
+  };
+  const WHAT: [NotesWhat, string][] = [["global", t`Global Notes`], ["project", t`Project Notes`], ["both", t({ message: "Both", comment: "Export Notes: the global notes and the project notes" })]];
+  return (
+    <div className="modal-back" onPointerDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="modal narrow notes-export" role="dialog" aria-modal="true" aria-label={t`Export Notes`} ref={box} tabIndex={-1}>
+        <h2><Trans>Export Notes</Trans></h2>
+        <div className="field">
+          <span className="field-label"><Trans comment="Export Notes: which notes go into the file">Notes</Trans></span>
+          <div className="segmented" role="radiogroup" aria-label={t`Notes`}>
+            {WHAT.map(([id, label]) => (
+              <button key={id} role="radio" aria-checked={what === id} className={what === id ? "on" : ""} disabled={id !== "global" && !project}
+                data-tip={id !== "global" && !project ? t`Open a project to export the project notes` : undefined} onClick={() => setWhat(id)}>{label}</button>
+            ))}
+          </div>
+        </div>
+        <div className="field">
+          <span className="field-label"><Trans comment="Export Notes: the kind of file">Format</Trans></span>
+          <div className="segmented" role="radiogroup" aria-label={t`Format`}>
+            <button role="radio" aria-checked={form === "md"} className={form === "md" ? "on" : ""} onClick={() => setForm("md")}>Markdown</button>
+            <button role="radio" aria-checked={form === "json"} className={form === "json" ? "on" : ""} onClick={() => setForm("json")}>JSON</button>
+          </div>
+          <small>{form === "md" ? t`A document to read, with each note under the name of what it is on.`
+            : t`A notes file that Import Notes brings into the global notes, on this computer or another.`}</small>
+        </div>
+        <div className="modal-foot">
+          <button className="btn primary" onClick={go}><Trans comment="Export Notes: saves the file">Export</Trans></button>
+          <span className="spacer" />
+          <button className="btn quiet" onClick={onClose}><Trans>Cancel</Trans></button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function GameFolder() {
   const { status, actions, jobs } = useEditor();
   const [error, setError] = useState<string | null>(null);

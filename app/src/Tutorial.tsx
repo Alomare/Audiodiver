@@ -22,6 +22,8 @@ let running: Run = null;
 const listeners = new Set<() => void>();
 const set = (next: Run) => { running = next; listeners.forEach((f) => f()); };
 const useRun = () => useSyncExternalStore((f) => { listeners.add(f); return () => { listeners.delete(f); }; }, () => running);
+/** Whether a tutorial runs (App.tsx shows the Audio tab's details panel meanwhile: steps are in it). */
+export const useTutorialRunning = () => useRun() !== null;
 
 /** Starts a tutorial (from the tutorials page). TutorialLayer sets it up and shows its steps. */
 export function startTutorial(id: string) {

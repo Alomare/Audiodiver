@@ -12,6 +12,22 @@ msgstr ""
 msgid "(empty)"
 msgstr "（空）"
 
+#. placeholder {0}: r.count
+#: src/SettingsTab.tsx
+msgid "{0, plural, one {Exported # note.} other {Exported # notes.}}"
+msgstr "{0, plural, other {已导出 # 条备注。}}"
+
+#. placeholder {0}: r.added
+#: src/SettingsTab.tsx
+msgid "{0, plural, one {Imported notes on # thing} other {Imported notes on # things}}"
+msgstr "{0, plural, other {已导入 # 个对象的备注}}"
+
+#. The suggested file name for a project's exported notes, without the extension
+#. placeholder {0}: project.name
+#: src/SettingsTab.tsx
+msgid "{0} notes"
+msgstr "{0} 备注"
+
 #. Tooltip of words that open a Wiki page. about is the subject of the page.
 #: src/Wiki.tsx
 msgid "{about}: open the Wiki"
@@ -100,6 +116,10 @@ msgstr "{count, plural, other {# 段音乐}}"
 #: src/ProjectTab.tsx
 msgid "{count, plural, one {# file is unused} other {# files are unused}} ({size})."
 msgstr "{count, plural, other {# 个文件未使用}}（{size}）。"
+
+#: src/SettingsTab.tsx
+msgid "{count, plural, one {# global note} other {# global notes}}"
+msgstr "{count, plural, other {# 条全局备注}}"
 
 #: src/SettingsTab.tsx
 msgid "{count, plural, one {# minute} other {# minutes}}"
@@ -943,6 +963,10 @@ msgstr "合并后的模组仍是原作者的作品。请仅供个人使用，并
 msgid "A conflict check is still running."
 msgstr "冲突检查仍在进行中。"
 
+#: src/SettingsTab.tsx
+msgid "A document to read, with each note under the name of what it is on."
+msgstr "便于阅读的文档，每条备注位于其所属对象的名称下。"
+
 #: src/ExportDialog.tsx
 msgid "A fight"
 msgstr "一场战斗"
@@ -1045,9 +1069,9 @@ msgstr "新变体。游戏会像选取其他变体一样选取它。"
 msgid "A new version of Audiodiver"
 msgstr "Audiodiver 新版本"
 
-#: src/Notes.tsx
-msgid "A note kept in the project file. Builds leave notes out. A note on a slot shows wherever the clip plays. Markdown formats headings, lists, bold and links."
-msgstr "保存在项目文件中的备注。构建时不包含备注。槽位上的备注会显示在播放该片段的每个位置。可用 Markdown 设置标题、列表、粗体和链接。"
+#: src/SettingsTab.tsx
+msgid "A notes file that Import Notes brings into the global notes, on this computer or another."
+msgstr "可通过“导入备注”导入全局备注的备注文件，本机或其他电脑均可。"
 
 #: src/ExportDialog.tsx
 msgid "A number, then the sound or segment"
@@ -1222,6 +1246,10 @@ msgstr "请至少添加两个模组"
 msgid "Add from the Library"
 msgstr "从资源库添加"
 
+#: src/Notes.tsx
+msgid "Add Global Note"
+msgstr "添加全局备注"
+
 #: src/IndexTree.tsx
 msgid "Add It to the Export List"
 msgstr "将其添加到导出列表"
@@ -1239,8 +1267,8 @@ msgid "Add new audio to {name}"
 msgstr "为 {name} 添加新音频"
 
 #: src/Notes.tsx
-msgid "Add Note"
-msgstr "添加备注"
+msgid "Add Project Note"
+msgstr "添加项目备注"
 
 #: src/Soundtrack.tsx
 msgid "Add Songs"
@@ -1579,6 +1607,11 @@ msgstr "Audiodiver 每次启动时都会在 GitHub 上检查新版本。更新�
 msgid "Audiodiver couldn't read the core's response (HTTP {status})"
 msgstr "Audiodiver 无法读取核心的响应（HTTP {status}）"
 
+#. The suggested file name for exported notes, without the extension
+#: src/SettingsTab.tsx
+msgid "Audiodiver notes"
+msgstr "Audiodiver 备注"
+
 #: src/SettingsTab.tsx
 msgid "Audiodiver only reads from this folder. Choosing another folder reads the game again, which takes about a minute the first time."
 msgstr "Audiodiver 只会读取此文件夹。选择其他文件夹会重新读取游戏，首次大约需要一分钟。"
@@ -1733,7 +1766,9 @@ msgstr "边框"
 msgid "Border colour"
 msgstr "边框颜色"
 
+#. Export Notes: the global notes and the project notes
 #: src/ExportDialog.tsx
+#: src/SettingsTab.tsx
 msgid "Both"
 msgstr "两者"
 
@@ -1748,6 +1783,10 @@ msgstr "左下"
 #: src/settings.ts
 msgid "Bottom Right"
 msgstr "右下"
+
+#: src/SettingsTab.tsx
+msgid "Bring the notes of an exported notes file or of a project into the global notes"
+msgstr "将导出的备注文件或项目中的备注导入全局备注"
 
 #. The name of the Build tab, as the title of a tutorial step
 #. Title of the Build tab
@@ -2082,6 +2121,10 @@ msgstr "选择文件夹"
 #: src/RepatchPage.tsx
 msgid "Choose a Folder"
 msgstr "选择文件夹"
+
+#: src/SettingsTab.tsx
+msgid "Choose a folder for the global notes"
+msgstr "选择全局备注的文件夹"
 
 #: src/ImportMod.tsx
 msgid "Choose a line of text to import"
@@ -2440,6 +2483,11 @@ msgstr "冲突检查失败：{why}"
 msgid "Conflicts"
 msgstr "冲突"
 
+#. Where an imported setting is: a container above the slot, by the container ID
+#: src/Inspector.tsx
+msgid "container {id}"
+msgstr "容器 {id}"
+
 #: src/CueView.tsx
 msgid "Container IDs"
 msgstr "容器 ID"
@@ -2698,12 +2746,20 @@ msgid "Delete"
 msgstr "删除"
 
 #: src/Notes.tsx
-msgid "Delete Note"
-msgstr "删除备注"
+msgid "Delete Global Note"
+msgstr "删除全局备注"
 
 #: src/Notes.tsx
-msgid "Delete the note?"
-msgstr "删除此备注？"
+msgid "Delete Project Note"
+msgstr "删除项目备注"
+
+#: src/Notes.tsx
+msgid "Delete the global note?"
+msgstr "删除此全局备注？"
+
+#: src/Notes.tsx
+msgid "Delete the project note?"
+msgstr "删除此项目备注？"
 
 #: src/ProjectTab.tsx
 msgid "Democracy blue"
@@ -3120,10 +3176,12 @@ msgstr "出点 {time}"
 msgid "Exploring set to Silent"
 msgstr "探索已设为“静音”"
 
+#. Export Notes: saves the file
 #. Heading: exporting the project as a pack
 #: src/CueView.tsx
 #: src/ExportDialog.tsx
 #: src/ProjectTab.tsx
+#: src/SettingsTab.tsx
 #: src/Soundtrack.tsx
 msgid "Export"
 msgstr "导出"
@@ -3152,6 +3210,11 @@ msgstr "导出列表"
 #: src/ExportDialog.tsx
 msgid "Export List"
 msgstr "导出列表"
+
+#: src/platform.ts
+#: src/SettingsTab.tsx
+msgid "Export Notes"
+msgstr "导出备注"
 
 #: src/platform.ts
 msgid "Export the project as a pack"
@@ -3364,7 +3427,9 @@ msgstr "适用于更改相同音频库的多个模组，此时只有最后部署
 msgid "Forget the chosen folder"
 msgstr "忘记所选的文件夹"
 
+#. Export Notes: the kind of file
 #: src/ExportDialog.tsx
+#: src/SettingsTab.tsx
 msgid "Format"
 msgstr "格式"
 
@@ -3378,6 +3443,10 @@ msgstr "格式"
 #: src/keys.ts
 msgid "Forward"
 msgstr "前进"
+
+#: src/IndexTree.tsx
+msgid "Found in a global note"
+msgstr "在全局备注中找到"
 
 #: src/SettingsTab.tsx
 msgid "Found through Steam."
@@ -3417,8 +3486,8 @@ msgid "Game audio, explained"
 msgstr "游戏音频详解"
 
 #: src/SettingsTab.tsx
-msgid "Game folder, tabs, startup, updates, tooltips, notifications, disk space, layout"
-msgstr "游戏文件夹、选项卡、启动、更新、工具提示、通知、磁盘空间、布局"
+msgid "Game folder, tabs, startup, updates, tooltips, notifications, global notes, disk space, layout"
+msgstr "游戏文件夹、选项卡、启动、更新、工具提示、通知、全局备注、磁盘空间、布局"
 
 #: src/SettingsTab.tsx
 msgid "Game folder, updates, tooltips, disk space"
@@ -3447,6 +3516,18 @@ msgstr "为每个变体提供新音频，即可完全替换该声音"
 #: src/SettingsTab.tsx
 msgid "Give this a key"
 msgstr "为此分配按键"
+
+#: src/Notes.tsx
+msgid "Global Note"
+msgstr "全局备注"
+
+#: src/Notes.tsx
+msgid "Global note on {name}"
+msgstr "{name} 的全局备注"
+
+#: src/SettingsTab.tsx
+msgid "Global Notes"
+msgstr "全局备注"
 
 #: src/keys.ts
 msgid "go back or forward"
@@ -3534,6 +3615,10 @@ msgstr "隐藏"
 #: src/ItemHead.tsx
 msgid "Hide the description"
 msgstr "隐藏描述"
+
+#: src/Inspector.tsx
+msgid "Hide the details panel"
+msgstr "隐藏详情面板"
 
 #: src/Tools.tsx
 msgid "Hide the header"
@@ -3672,6 +3757,11 @@ msgstr "导入到 {projectName}"
 msgid "Import Mod"
 msgstr "导入模组"
 
+#: src/platform.ts
+#: src/SettingsTab.tsx
+msgid "Import Notes"
+msgstr "导入备注"
+
 #: src/ProjectTab.tsx
 msgid "Import Patches"
 msgstr "导入补丁"
@@ -3703,6 +3793,10 @@ msgstr "未从 {mod} 导入任何内容。"
 #: src/store.tsx
 msgid "Imported nothing from the mod."
 msgstr "未从模组导入任何内容。"
+
+#: src/Inspector.tsx
+msgid "Imported Settings"
+msgstr "导入的设置"
 
 #: src/jobs.ts
 msgid "Importing"
@@ -3917,6 +4011,10 @@ msgstr "已保持为当前版本：补丁中来自旧游戏版本的 {older, plu
 #: src/RepatchPage.tsx
 msgid "Kept from the manifest: {items}."
 msgstr "从清单中保留：{items}。"
+
+#: src/Notes.tsx
+msgid "Kept in the project file. Builds leave notes out. A note on a slot shows wherever the clip plays. Markdown formats headings, lists, bold and links."
+msgstr "保存在项目文件中。构建不包含备注。槽位上的备注会在该片段播放的每一处显示。可用 Markdown 设置标题、列表、粗体和链接。"
 
 #: src/TextTab.tsx
 msgid "Korean"
@@ -4202,6 +4300,10 @@ msgstr "正在创建练习项目"
 #: src/settings.ts
 msgid "Manual"
 msgstr "手动"
+
+#: src/platform.ts
+msgid "Markdown document"
+msgstr "Markdown 文档"
 
 #: src/Inspector.tsx
 msgid "Match Each to the Original Loudness"
@@ -4685,6 +4787,10 @@ msgstr "未移除任何文件"
 msgid "No folder chosen yet"
 msgstr "尚未选择文件夹"
 
+#: src/SettingsTab.tsx
+msgid "No global notes yet"
+msgstr "暂无全局备注"
+
 #: src/Wiki.tsx
 msgid "No guide mentions “{query}”."
 msgstr "没有指南提到“{query}”。"
@@ -4867,20 +4973,28 @@ msgstr "未缩放"
 msgid "note"
 msgstr "备注"
 
-#. A note written on a slot or an item, kept in the project file
-#: src/Notes.tsx
-msgid "Note"
-msgstr "备注"
-
 #. The heading of a box with a note in a Wiki page
 #: src/Markdown.tsx
 msgctxt "Wiki callout"
 msgid "Note"
 msgstr "备注"
 
-#: src/Notes.tsx
-msgid "Note on {name}"
-msgstr "{name} 的备注"
+#. Export Notes: which notes go into the file
+#: src/SettingsTab.tsx
+msgid "Notes"
+msgstr "备注"
+
+#: src/platform.ts
+msgid "Notes file (JSON)"
+msgstr "备注文件（JSON）"
+
+#: src/platform.ts
+msgid "Notes files and projects"
+msgstr "备注文件和项目"
+
+#: src/SettingsTab.tsx
+msgid "Notes shown in every project and in the Library, kept in a notes file in this folder. A folder that already has a notes file, such as a synced folder, adds those notes to these."
+msgstr "在每个项目和资源库中显示的备注，保存在此文件夹的备注文件中。如果所选文件夹（例如同步文件夹）中已有备注文件，其中的备注会与现有备注合并。"
 
 #: src/IndexTree.tsx
 msgid "Nothing here yet."
@@ -5155,6 +5269,10 @@ msgstr "打开项目即可更改行"
 #: src/TextTab.tsx
 msgid "Open a project to change this line."
 msgstr "打开项目即可更改此行。"
+
+#: src/SettingsTab.tsx
+msgid "Open a project to export the project notes"
+msgstr "请先打开项目，才能导出项目备注"
 
 #: src/CueView.tsx
 msgid "Open an entry on the left and drop audio on the slots. Find more in the <0>Library</0>."
@@ -5848,6 +5966,18 @@ msgstr "项目"
 #: src/ImportMod.tsx
 msgid "Project name"
 msgstr "项目名称"
+
+#: src/Notes.tsx
+msgid "Project Note"
+msgstr "项目备注"
+
+#: src/Notes.tsx
+msgid "Project note on {name}"
+msgstr "{name} 的项目备注"
+
+#: src/SettingsTab.tsx
+msgid "Project Notes"
+msgstr "项目备注"
 
 #: src/BuildTab.tsx
 msgid "Project Tab"
@@ -6577,6 +6707,10 @@ msgstr "所选"
 msgid "Set by the HD2_DATA environment variable."
 msgstr "由 HD2_DATA 环境变量设置。"
 
+#: src/Inspector.tsx
+msgid "Set by the imported mod on this sound or on a container above it. Builds include them."
+msgstr "由导入的模组在此声音或其上层容器上设置。构建会包含这些设置。"
+
 #: src/SettingsTab.tsx
 msgid "Set here, overriding the system setting."
 msgstr "在此处设置，覆盖系统设置。"
@@ -6716,6 +6850,10 @@ msgstr "显示名称"
 msgid "Show the description"
 msgstr "显示描述"
 
+#: src/Inspector.tsx
+msgid "Show the details panel"
+msgstr "显示详情面板"
+
 #: src/SettingsTab.tsx
 msgid "Show the Folder"
 msgstr "显示文件夹"
@@ -6752,6 +6890,10 @@ msgstr "显示这些快捷键"
 #: src/TextTab.tsx
 msgid "Showing {shown} of {total}. Type more to narrow them down."
 msgstr "显示 {total} 个中的 {shown} 个。输入更多内容以缩小范围。"
+
+#: src/Notes.tsx
+msgid "Shown in every project and in the Library, from the notes file in the folder set in Settings ▸ System. A note on a slot shows wherever the clip plays. Markdown formats headings, lists, bold and links."
+msgstr "在每个项目和资源库中显示，来自“设置 ▸ 系统”中所设文件夹里的备注文件。槽位上的备注会在该片段播放的每一处显示。可用 Markdown 设置标题、列表、粗体和链接。"
 
 #. Edit in Undo, Redo and History: shuffle turned on or off for a playlist
 #: src/store.tsx
@@ -7389,6 +7531,14 @@ msgstr "此次构建之后游戏已更新，ZIP 中的音频库已过时。请�
 msgid "the game updated since the last build"
 msgstr "游戏在上次构建后已更新"
 
+#: src/Notes.tsx
+msgid "The global note on {name} will be deleted. Undo can't bring it back."
+msgstr "{name} 的全局备注将被删除，且无法撤销。"
+
+#: src/SettingsTab.tsx
+msgid "The global notes already have every note in that file"
+msgstr "全局备注中已包含该文件中的所有备注"
+
 #: src/content.ts
 msgid "the HD2 modding community"
 msgstr "HD2 模组社区"
@@ -7588,10 +7738,6 @@ msgstr "下一个段落从这里开始。其后的音频会作为余音延续到
 msgid "The normal size is 20. No game line uses sizes, but chat does"
 msgstr "正常大小为 20。游戏文本中没有使用大小的行，但聊天会用到"
 
-#: src/Notes.tsx
-msgid "The note on {name} will be deleted. Undo brings it back."
-msgstr "{name} 的备注将被删除。撤销可将其恢复。"
-
 #: src/App.tsx
 msgid "The notifications shown so far, to read again"
 msgstr "目前显示过的通知，可再次查看"
@@ -7707,6 +7853,10 @@ msgstr "项目将移到 {dest}，Audiodiver 为其生成的切片、导入的音
 #: src/ProjectTab.tsx
 msgid "The project moves to a new folder, with the slices, imported audio and builds Audiodiver made for it. Files you picked from elsewhere stay where they are."
 msgstr "项目将移到新文件夹，Audiodiver 为其生成的切片、导入的音频和构建结果也会一起移动。从其他位置选取的文件会留在原处。"
+
+#: src/Notes.tsx
+msgid "The project note on {name} will be deleted. Undo brings it back."
+msgstr "{name} 的项目备注将被删除。撤销可恢复。"
 
 #: src/ProjectTab.tsx
 msgid "The project still finds every file it uses"
@@ -7906,6 +8056,10 @@ msgstr "此音频库在索引中为 {sets}。"
 msgid "This clip isn't in the installed game files, so there is nothing to play or replace."
 msgstr "此片段不在已安装的游戏文件中，因此无法播放或替换。"
 
+#: src/Inspector.tsx
+msgid "this music track"
+msgstr "此音乐轨道"
+
 #: src/ProjectTab.tsx
 msgid "This project is in a shared place, such as the Desktop or Documents."
 msgstr "此项目位于共享位置，例如桌面或文档。"
@@ -7925,6 +8079,10 @@ msgstr "此槽位仅在特定条件下播放，例如某个生物群系。为每
 #: src/SliceTool.tsx
 msgid "This song is shorter than {MIN_PIECE} ms and can't be cut."
 msgstr "这首歌曲短于 {MIN_PIECE} ms，无法切分。"
+
+#: src/Inspector.tsx
+msgid "this sound"
+msgstr "此声音"
 
 #: src/CueView.tsx
 msgid "This sound keeps the Original"
@@ -8183,6 +8341,10 @@ msgstr "正在更新到 {label}。更新安装完成后 Audiodiver 会重新启�
 #: src/Inspector.tsx
 msgid "Use Silence"
 msgstr "使用静音"
+
+#: src/SettingsTab.tsx
+msgid "Use the Default Folder"
+msgstr "使用默认文件夹"
 
 #: src/ProjectTab.tsx
 msgid "Use the Default Icon"

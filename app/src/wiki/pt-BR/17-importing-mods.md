@@ -19,7 +19,9 @@ source: 983102a68343
 
 - O áudio que o mod substitui, nos mesmos sons. Ele entra nas gerações sem ser convertido de novo.
 - O áudio que o mod adiciona: takes novos para um som, um som novo que toca junto com um existente (uma camada), ou um clipe separado para um único som. Cada um vira o mesmo tipo de adição que [Adicionando áudio](wiki:adding-audio) faz.
-- Configurações de som, como o volume de um som ou de um contêiner, ou um atraso antes de tocar, e os pontos de cue dos segmentos musicais a que o mod dá áudio novo.
+- O Make-Up Gain, nos slots dos sons que ele alcança, também quando o mod o define num contêiner acima deles. Um slot tem um único ganho, então, quando o mod dá ganhos diferentes a dois sons que tocam o mesmo clipe, esses ganhos ficam nos sons, junto com as outras configurações.
+- Outras configurações de som, como o volume ou o tom de um som ou de um contêiner, ou um atraso antes de tocar. As gerações as incluem, e o painel de detalhes da aba Áudio as lista em **Configurações importadas** em cada slot que elas alcançam.
+- Os pontos de cue dos segmentos musicais a que o mod dá áudio novo.
 - As linhas do texto do jogo que o mod muda, como legendas ou nomes.
 
 Modelos, texturas e outros arquivos que não são áudio nem texto ficam de fora, porque um projeto contém só áudio e texto. Outros tipos de alteração, como efeitos ou o modo como um contêiner escolhe os sons, também não são importados. A importação lista o que ficou de fora.

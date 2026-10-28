@@ -81,6 +81,23 @@ export async function pickFolder(startAt?: string, title?: string): Promise<stri
   return (r as string) ?? null;
 }
 
+/** Where exported notes go: a Markdown document or a JSON notes file (form). */
+export async function pickNotesToSave(suggested: string, form: "md" | "json"): Promise<string | null> {
+  if (!isTauri()) return promptPaths(`Where to save the notes (.${form})`, false)?.[0] ?? null;
+  const { save } = await import("@tauri-apps/plugin-dialog");
+  return await save({ title: t`Export Notes`, defaultPath: suggested, filters: [form === "md"
+    ? { name: t`Markdown document`, extensions: ["md"] } : { name: t`Notes file (JSON)`, extensions: ["json"] }] });
+}
+
+/** Notes to bring into the global notes: an exported notes file, or a project. */
+export async function pickNotesFile(): Promise<string | null> {
+  if (!isTauri()) return promptPaths("Notes file (.json) or project (.audi)", false)?.[0] ?? null;
+  const { open } = await import("@tauri-apps/plugin-dialog");
+  const r = await open({ multiple: false, title: t`Import Notes`,
+    filters: [{ name: t`Notes files and projects`, extensions: ["json", "audi"] }, { name: t`All files`, extensions: ["*"] }] });
+  return (r as string) ?? null;
+}
+
 export async function pickPatch(): Promise<string | null> {
   if (!isTauri()) return promptPaths("Patch file (.patch_0)", false)?.[0] ?? null;
   const { open } = await import("@tauri-apps/plugin-dialog");

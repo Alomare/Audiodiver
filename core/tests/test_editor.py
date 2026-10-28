@@ -106,6 +106,43 @@ def test_notes_in_the_project(tmp_path):
         s.set_note("item:deploy/loadout", "y")
 
 
+def test_global_notes_live_in_a_folder_of_their_own(tmp_path, monkeypatch):
+    from audiodiver import editor
+    monkeypatch.setattr(editor, "SETTINGS_FILE", tmp_path / "core" / "settings.json")
+    s = Session(load=False)
+    assert s.global_notes()["notes"] == {} and s.global_notes()["default"]
+    got = s.set_global_note("clip:1234", "Reload, *loud*\n\n")
+    assert got["notes"] == {"clip:1234": "Reload, *loud*"} and got["file"] == str(tmp_path / "core" / "notes.json")
+    s.new_project(tmp_path / "m.audi", "M")  # not the project's: no Undo step, nothing in the project file
+    s.set_global_note("item:deploy/loadout", "Drop")
+    assert s.project_state()["undo_label"] is None and "notes" not in json.loads((tmp_path / "m.audi").read_text())
+    other = tmp_path / "synced"
+    other.mkdir()
+    (other / "notes.json").write_text(json.dumps({"format": "audiodiver-notes", "version": 1,
+                                                  "notes": {"clip:1234": "From the other PC", "item:deploy/loadout": "Drop"}}))
+    got = s.set_notes_folder(str(other))  # the notes there come together with these
+    assert got["notes"] == {"clip:1234": "Reload, *loud*\n\n---\n\nFrom the other PC", "item:deploy/loadout": "Drop"}
+    assert not got["default"] and (tmp_path / "core" / "notes.json").exists()  # the old file stays
+    s.set_note("clip:99", "Mine")
+    md = tmp_path / "notes.md"
+    assert s.export_notes(str(md), "both", "md")["count"] == 3
+    text = md.read_text(encoding="utf-8")
+    assert "# Global Notes" in text and "# Project Notes: M" in text and "From the other PC" in text
+    js = tmp_path / "out.json"
+    assert s.export_notes(str(js), "project", "json")["count"] == 1
+    got = s.import_notes(str(js))
+    assert got["added"] == 1 and got["notes"]["clip:99"] == "Mine"
+    assert s.import_notes(str(js))["added"] == 0 and s.import_notes(str(tmp_path / "m.audi"))["added"] == 0  # twice
+    (tmp_path / "bad.json").write_text("{}")
+    with pytest.raises(EditorError, match="isn't a notes file"):
+        s.import_notes(str(tmp_path / "bad.json"))
+    (other / "notes.json").write_text("not json")  # damaged: nothing shows, nothing is written over it
+    assert s.global_notes()["error"] and s.global_notes()["notes"] == {}
+    with pytest.raises(EditorError, match="can't be read"):
+        s.set_global_note("clip:1", "x")
+    assert s.set_notes_folder(None)["default"] and s.global_notes()["notes"]["clip:1234"] == "Reload, *loud*"
+
+
 def test_project_notes_that_are_not_valid_are_left_out(tmp_path):
     from audiodiver.project import Project
     p = Project.from_json({"audiodiver": 1, "name": "M", "notes": {"clip:1": "ok", "nope": "x", "seg:2": 3, "obj:3": ""}})

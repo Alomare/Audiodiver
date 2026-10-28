@@ -28,7 +28,7 @@
 <br>
 
 <p align="center">
-  <img src="assets/readme/home.png" alt="Audiodiver's Home tab over a screenshot of a Helldiver kneeling in a desert sandstorm: New Project, Open Project with the last project opened in it, the loaded project with Go to Project and Close, then Repatch and Combine Mods, with Discord and Ko-fi in the corner" width="100%">
+  <img src="assets/logo/banner.jpg" alt="The Audiodiver banner: the yellow skull logo with a sound meter on its brow, over the word AUDIODIVER with a waveform dripping from the letters" width="100%">
 </p>
 
 <p align="center">
@@ -44,6 +44,12 @@
 
 ## Features
 
+### 🏠 Home
+
+The first screen. **New Project**, **Open Project** and **Import Mod** start or pick up a mod, and the open project has **Go to Project** and **Close**. **Repatch** and **Combine Mods** open the tools for existing mods. The corner has links to the Helldivers 2 Modding Discord and Ko-fi, and a ticker along the bottom brings news and orders from the war.
+
+<img src="assets/readme/home.png" alt="Audiodiver's Home tab over a screenshot of a Helldiver kneeling in a desert sandstorm: New Project, Open Project and Import Mod, the loaded project with Go to Project and Close, then Repatch and Combine Mods, with Discord and Ko-fi in the corner" width="100%">
+
 ### 📁 Project
 
 The mod's name, description, icon and ID, with a preview as a mod manager shows them. The project folder has **Collect Files**, a clean-up to the Recycle Bin, and packs (`.audipack`) for another computer.
@@ -54,13 +60,13 @@ The mod's name, description, icon and ID, with a preview as a mod manager shows 
 
 Every sound in Helldivers 2, sorted. Music goes by when it plays, from the ship to extraction, and weapons by loadout slot, then stratagems, enemies and planets. Search takes a name, a label or an ID.
 
-<img src="assets/readme/library.png" alt="The Library's Index with On the Ship, Bridge and War Map open: two parts, each segment with a row for each track under the segment name, and the transitions and stingers that play next to them" width="100%">
+<img src="assets/readme/library.png" alt="The Library's Index with On the Ship, Bridge and War Map open: two parts, each segment with a row for each track under the segment name, a note on the transitions and stingers that play next to them, and the details panel with the Global Note" width="100%">
 
 ### 🎚️ Audio
 
 The music and sounds of a project, one slot per clip. An audio file dropped on a slot, a sound or a whole piece replaces the original, and one song can be cut across a whole piece. Slots take silence and Make-Up Gain too, and sounds can get new takes and layers. Under the slots, the original and the new audio are drawn on one time scale, with a zoom in time and level.
 
-<img src="assets/readme/audio.png" alt="Loadout Selection on the Audio tab: slots with new audio, the selected one ticked, the original and new waveforms of that slot on one time scale with the zoom sliders beside them, and the slot settings on the right" width="100%">
+<img src="assets/readme/audio.png" alt="Loadout Selection on the Audio tab: slots with new audio, the selected one ticked, the original and new waveforms of that slot on one time scale with the zoom sliders beside them, and the slot settings on the right down to the Project Note and the Global Note" width="100%">
 
 ### 🎼 Soundtrack
 
@@ -79,6 +85,12 @@ All text in Helldivers 2, in 15 languages, subtitles included. A formatting bar,
 Guides inside the app, from a first mod to what to do after a game update, and a page of frequently asked questions. Every ? next to a setting opens the matching section, and Ctrl+F finds and marks words on a page.
 
 <img src="assets/readme/wiki.png" alt="The Wiki on the Soundtrack page, with the list of guides on the left quarter" width="100%">
+
+### 🎓 Tutorials
+
+Walkthroughs in the Wiki that dim the window except where to click and say what to do there, one step at a time, in a practice project. The first one gives the AR-23 Liberator new firing sounds and builds the mod.
+
+<img src="assets/readme/tutorials.png" alt="The Liberator tutorial at a step: the window dimmed except the part to use, outlined, with the step's panel beside it" width="100%">
 
 ### ⚙️ Settings
 

@@ -171,8 +171,17 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color])
   --rw: min(calc(var(--right, 340px) * var(--fs)), calc(100% - 220px - var(--mid))); --lw: min(calc(var(--left, 300px) * var(--fs)), calc(100% - 20px - var(--mid) - var(--rw)));
   display: grid; grid-template-columns: var(--lw) 5px minmax(var(--mid), 1fr) 5px var(--rw); min-height: 0; }
 .panes.two { grid-template-columns: min(calc(var(--left, 560px) * var(--fs)), calc(100% - 20px - var(--mid))) 5px minmax(var(--mid), 1fr); }
-/* the Library's two panels share the width: --split is the list's share, a third to start */
-.panes.lib-split { grid-template-columns: clamp(200px, calc((100% - 5px) * var(--split, 0.3333)), calc(100% - 20px - var(--mid))) 5px minmax(var(--mid), 1fr); }
+/* the Library: --split is the list's share of what the details panel leaves, a third to start */
+.panes.lib-split { grid-template-columns: clamp(200px, calc((100% - 10px - var(--rw)) * var(--split, 0.3333)), calc(100% - 25px - var(--mid) - var(--rw)))
+  5px minmax(var(--mid), 1fr) 5px var(--rw); }
+/* a details panel folded by its corner button: a strip with the button at the window's edge */
+.panes.panel-folded { --rw: calc(34px * var(--fs)); }
+.splitter.off { cursor: default; pointer-events: none; }
+.inspector.folded { display: flex; justify-content: center; padding: calc(10px * var(--sp)) 0; overflow: hidden; }
+/* the corner button: top right, kept in view while the panel scrolls; the title beside it makes room */
+.panel-toggle { float: right; position: sticky; top: 0; z-index: 2; margin: calc(-10px * var(--sp)) -12px 4px 8px; color: var(--muted); }
+.panel-toggle:hover { color: var(--text); }
+.inspector.folded .panel-toggle { float: none; position: static; margin: 0; }
 .splitter { cursor: col-resize; background: var(--line-soft); touch-action: none; }
 /* a divider lights up light gray under the pointer and while it drags, never in the primary colour */
 .splitter:hover, .splitter.active { background: var(--muted); }

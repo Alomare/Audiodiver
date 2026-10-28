@@ -139,6 +139,45 @@ def test_another_banks_copy_written_by_a_merging_tool_isnt_the_mods(ix, tmp_path
 
 
 @pytest.mark.game
+@pytest.mark.skipif(not AMBIENCE.exists(), reason="the Enhanced Ambience SFX download isn't here")
+def test_make_up_gain_on_containers_reaches_the_slots_under_them(ix, tmp_path):
+    """The mod sets only Make-Up Gain, on ambience containers: the Sounds under them get it, added down the tree,
+    where every Sound that plays the clip gets the same; the rest stays on the containers."""
+    with zipfile.ZipFile(AMBIENCE) as z:
+        (made := tmp_path / "9ba626afa44a3aa3.patch_0").write_bytes(
+            z.read("Enhanced Ambience SFX/Enhanced Ambience sfx/9ba626afa44a3aa3.patch_0"))
+    d = patch.diff(str(made), ix)
+    found = addition.from_patch(ix, d)
+    assert len(found.gains) > 100 and found.moved and all(0x05 in found.settings[o] for o in found.moved)
+    assert {o for o, s in found.settings.items() if 0x05 in s} - found.moved  # shared clips keep some where they are
+    by_clip = {}
+    for o, (clips, db) in found.gains.items():
+        for c in clips:
+            by_clip.setdefault(c, set()).add(round(db, 2))
+    assert all(len(v) == 1 for v in by_clip.values())  # one gain per clip, as a project holds it
+    for b in d["banks"].values():  # a container whose gain moved: every game Sound under it carries it
+        hirc, vanilla = b["read"][0][1], b["read"][1][1]
+        for o, (t, body) in hirc.items():
+            if t == wbank.SOUND and o in vanilla and addition.parent_of(t, body) in found.moved:
+                assert o in found.gains
+
+
+@pytest.mark.game
+@pytest.mark.skipif(not ODST.with_name("ODST Armoury SFX 9176 2.0 2026-10-21T15-51Z kg7eSMFE9.zip").exists(),
+                    reason="the ODST Armoury SFX download isn't here")
+def test_a_clip_two_weapons_share_keeps_the_gain_on_the_sound_the_mod_mutes(ix, tmp_path):
+    """The M45E patch mutes its Sounds (-103 dB); the CQS48 plays the same two clips, which a slot's gain would mute
+    too: those gains stay on the M45E's Sounds and containers, as settings."""
+    with zipfile.ZipFile(ODST.with_name("ODST Armoury SFX 9176 2.0 2026-10-21T15-51Z kg7eSMFE9.zip")) as z:
+        for s in ("", ".stream"):
+            if (key := f"M45E-Cookout/9ba626afa44a3aa3.patch_0{s}") in z.namelist():
+                (tmp_path / f"9ba626afa44a3aa3.patch_0{s}").write_bytes(z.read(key))
+    found = addition.from_patch(ix, patch.diff(str(tmp_path / "9ba626afa44a3aa3.patch_0"), ix))
+    assert not {1009506144, 1067804645} & {c for clips, _ in found.gains.values() for c in clips}
+    assert any(0x05 in s and o not in found.moved for o, s in found.settings.items())
+
+
+@pytest.mark.game
 @pytest.mark.skipif(not CYCLOPS.exists(), reason="the Cyclops mod isn't here")
 def test_an_old_mods_copies_of_shared_mixers_and_the_settings_the_game_added_since_arent_the_mods(ix):
     got = addition.from_patch(ix, patch.diff(str(CYCLOPS), ix))
