@@ -1,8 +1,6 @@
 <p align="center">
-  <img src="assets/logo/logo-fullres.png" alt="Audiodiver's logo" width="164">
+  <img src="assets/logo/banner.jpg" alt="Audiodiver: the yellow skull logo with a sound meter on its brow, over the word AUDIODIVER with a waveform dripping from the letters" width="100%">
 </p>
-
-<h1 align="center">Audiodiver</h1>
 
 <p align="center">Helldivers 2 audio and text archive explorer, editor and mod builder.</p>
 
@@ -28,7 +26,7 @@
 <br>
 
 <p align="center">
-  <img src="assets/logo/banner.jpg" alt="The Audiodiver banner: the yellow skull logo with a sound meter on its brow, over the word AUDIODIVER with a waveform dripping from the letters" width="100%">
+  <img src="assets/readme/home.png" alt="Audiodiver's Home tab over a screenshot of a Helldiver kneeling in a desert sandstorm: New Project, Open Project and Import Mod, the loaded project with Go to Project and Close, then Repatch and Combine Mods, with Discord and Ko-fi in the corner" width="100%">
 </p>
 
 <p align="center">
@@ -43,12 +41,6 @@
 <br>
 
 ## Features
-
-### 🏠 Home
-
-The first screen. **New Project**, **Open Project** and **Import Mod** start or pick up a mod, and the open project has **Go to Project** and **Close**. **Repatch** and **Combine Mods** open the tools for existing mods. The corner has links to the Helldivers 2 Modding Discord and Ko-fi, and a ticker along the bottom brings news and orders from the war.
-
-<img src="assets/readme/home.png" alt="Audiodiver's Home tab over a screenshot of a Helldiver kneeling in a desert sandstorm: New Project, Open Project and Import Mod, the loaded project with Go to Project and Close, then Repatch and Combine Mods, with Discord and Ko-fi in the corner" width="100%">
 
 ### 📁 Project
 
