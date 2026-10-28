@@ -13,6 +13,8 @@ import time
 import urllib.error
 import urllib.request
 
+from .i18n import tr
+
 REPO = "Alomare/Audiodiver"  # also in the app (content.ts) and in the shell's updater endpoint (tauri.conf.json)
 URL = f"https://github.com/{REPO}"
 API = f"https://api.github.com/repos/{REPO}/releases?per_page=30"
@@ -75,11 +77,11 @@ def releases(force=False) -> dict:
         error, found = None, []
         try:
             found = parse(_fetch())
-        except urllib.error.HTTPError as e:
+        except urllib.error.HTTPError as e:  # "limit" and "offline" are codes the app reads: not words
             if e.code in (403, 429):
                 error = "limit"
             elif e.code != 404:
-                error = f"GitHub answered {e.code}"
+                error = tr("GitHub answered {code}").format(code=e.code)
         except (urllib.error.URLError, TimeoutError, ConnectionError):
             error = "offline"
         except (ValueError, OSError) as e:

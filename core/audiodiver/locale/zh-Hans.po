@@ -1,0 +1,1932 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=utf-8\n"
+"Language: zh-Hans\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: addition.py
+msgid "Only a sound with takes the game picks from can have a new take"
+msgstr "只有游戏从多个变体中选取的声音才能添加新变体"
+
+#: addition.py
+msgid "This sound has no take to copy"
+msgstr "此声音没有可复制的变体"
+
+#: addition.py
+msgid "Only a sound with takes the game picks from can have a layer"
+msgstr "只有游戏从多个变体中选取的声音才能添加层"
+
+#: addition.py
+msgid "This sound is one of the random choices of another sound, so a layer would only add another choice"
+msgstr "此声音是另一个声音的随机选项之一，添加层只会多出一个选项"
+
+#: addition.py
+msgid "Nothing plays this sound directly, so a layer beside it would never play"
+msgstr "没有任何内容直接播放此声音，因此与它并列的层永远不会播放"
+
+#: addition.py
+msgid "A new container ({id}) with {n} sound can't be a layer, because it has no sounds"
+msgid_plural "A new container ({id}) with {n} sounds can't be a layer, because it has no sounds"
+msgstr[0] "含 {n} 个声音的新容器（{id}）不能作为层，因为它没有声音"
+
+#: addition.py
+msgid "A new container ({id}) with {n} sound can't be a layer, because only a sound with takes the game picks from can have a layer"
+msgid_plural "A new container ({id}) with {n} sounds can't be a layer, because only a sound with takes the game picks from can have a layer"
+msgstr[0] "含 {n} 个声音的新容器（{id}）不能作为层，因为只有游戏从多个变体中选取的声音才能添加层"
+
+#: addition.py
+msgid "A new container ({id}) with {n} sound can't be a layer, because this sound has no take to copy"
+msgid_plural "A new container ({id}) with {n} sounds can't be a layer, because this sound has no take to copy"
+msgstr[0] "含 {n} 个声音的新容器（{id}）不能作为层，因为此声音没有可复制的变体"
+
+#: addition.py
+msgid "bank {id}, which this version of the game doesn't have"
+msgstr "音频库 {id}（当前游戏版本中没有）"
+
+#: addition.py
+msgid "A new container ({id}) with {n} sound can't be a layer, because this sound is one of the random choices of another sound, so a layer would only add another choice"
+msgid_plural "A new container ({id}) with {n} sounds can't be a layer, because this sound is one of the random choices of another sound, so a layer would only add another choice"
+msgstr[0] "含 {n} 个声音的新容器（{id}）不能作为层，因为此声音是另一个声音的随机选项之一，添加层只会多出一个选项"
+
+#: addition.py
+msgid "Container {id} has no take to copy"
+msgstr "容器 {id} 没有可复制的变体"
+
+#: addition.py
+msgid "A new container ({id}) with {n} sound can't be a layer, because nothing plays this sound directly, so a layer beside it would never play"
+msgid_plural "A new container ({id}) with {n} sounds can't be a layer, because nothing plays this sound directly, so a layer beside it would never play"
+msgstr[0] "含 {n} 个声音的新容器（{id}）不能作为层，因为没有任何内容直接播放此声音，与它并列的层永远不会播放"
+
+#: addition.py
+msgid "A new container ({id}) with {n} sound can't be a layer, because Audiodiver can't tell which sound it plays with"
+msgid_plural "A new container ({id}) with {n} sounds can't be a layer, because Audiodiver can't tell which sound it plays with"
+msgstr[0] "含 {n} 个声音的新容器（{id}）不能作为层，因为 Audiodiver 无法判断它与哪个声音一起播放"
+
+#: addition.py
+msgid "Container {id} is one of the choices of a random container, so a layer beside it would only be another choice"
+msgstr "容器 {id} 是某个随机容器的选项之一，与它并列的层只会成为另一个选项"
+
+#: addition.py
+msgid "Nothing plays container {id} straight from an event, so a layer beside it would never play"
+msgstr "没有事件直接播放容器 {id}，因此与它并列的层永远不会播放"
+
+#: addition.py
+msgid "Sound {id} plays no clip"
+msgstr "声音 {id} 不播放任何片段"
+
+#: addition.py editor.py
+msgid "Sound {id} isn't in this version of the game"
+msgstr "声音 {id} 不在当前游戏版本中"
+
+#: addition.py
+msgid "Container {id} isn't in this version of the game"
+msgstr "容器 {id} 不在当前游戏版本中"
+
+#: addition.py
+msgid "Layer {id} has no takes"
+msgstr "层 {id} 没有变体"
+
+#: addition.py
+msgid "A new sound ({id}) has no audio in the patch"
+msgstr "新声音（{id}）在补丁中没有音频"
+
+#: addition.py
+msgid "Sound {id} plays a clip that has no audio in the patch"
+msgstr "声音 {id} 播放的片段在补丁中没有音频"
+
+#: addition.py
+msgid "A new sound ({id}) is in a place where Audiodiver can't add a take (under object {parent})"
+msgstr "新声音（{id}）所在的位置无法由 Audiodiver 添加变体（位于对象 {parent} 之下）"
+
+#: akd.py
+msgid "Needs Wwise installed on this computer"
+msgstr "需要在此计算机上安装 Wwise"
+
+#: akd.py
+msgid "Needs the waapi-client package next to the core"
+msgstr "需要在核心旁放置 waapi-client 包"
+
+#: arsenal.py
+msgid "A mod needs a name"
+msgstr "模组需要一个名称"
+
+#: arsenal.py
+msgid "The name starts or ends with a space"
+msgstr "名称的开头或结尾有空格"
+
+#: arsenal.py
+msgid "The name needs a letter or a digit"
+msgstr "名称中至少需要一个字母或数字"
+
+#: arsenal.py
+msgid "a tab"
+msgstr "制表符"
+
+#: arsenal.py
+msgid "Mod managers can't use {characters} in a name (letters, digits, spaces and - _ ( ) are fine)"
+msgstr "模组管理器无法在名称中使用 {characters}（可以使用字母、数字、空格和 - _ ( )）"
+
+#: arsenal.py editor.py
+msgid "{file} is too large to use as an icon"
+msgstr "{file} 太大，无法用作图标"
+
+#: arsenal.py
+msgid "{file} is not an image Audiodiver can read"
+msgstr "{file} 不是 Audiodiver 能读取的图片"
+
+#: audio.py
+msgid "The cut points lie outside the song"
+msgstr "切点超出了歌曲范围"
+
+#: audio.py editor.py
+msgid "Can't read the audio in {file}"
+msgstr "无法读取 {file} 中的音频"
+
+#: audio.py
+msgid "Piece {n} is shorter than {seconds} s"
+msgstr "第 {n} 段短于 {seconds} s"
+
+#: audio.py
+msgid "Piece {n} is empty: the song ends before it"
+msgstr "第 {n} 段为空：歌曲在它之前就已结束"
+
+#: build.py
+msgid "Patching the sound banks"
+msgstr "正在修补音频库"
+
+#: build.py
+msgid "Checking the patch"
+msgstr "正在检查补丁"
+
+#: build.py editor.py project.py
+msgid "silence"
+msgstr "静音"
+
+#: build.py
+msgid "{n} line"
+msgid_plural "{n} lines"
+msgstr[0] "{n} 行"
+
+#: build.py
+msgid "{replacements} -> {n} bank patched"
+msgid_plural "{replacements} -> {n} banks patched"
+msgstr[0] "{replacements} -> 已修补 {n} 个音频库"
+
+#: build.py
+msgid "verified ({seconds}s)"
+msgstr "已验证（{seconds}s）"
+
+#: build.py editor.py
+msgid "Packing the ZIP"
+msgstr "正在打包 ZIP"
+
+#: build.py
+msgid "sound {id}"
+msgstr "声音 {id}"
+
+#: build.py
+msgid "gain: {n} sound with Make-Up Gain on the original is not in this game version; left out"
+msgid_plural "gain: {n} sounds with Make-Up Gain on the original are not in this game version; left out"
+msgstr[0] "增益：{n} 个在原版上设置了 Make-Up Gain 的声音不在当前游戏版本中，已略去"
+
+#: build.py
+msgid "Since the last game update, the game uses some IDs that the added audio also uses ({ids}). Remove that audio and add it again."
+msgstr "自上次游戏更新以来，游戏使用了一些与添加的音频相同的 ID（{ids}）。请移除这些音频后重新添加。"
+
+#: build.py
+msgid "soundtrack: {n} piece of music the project sets is not in this game version; left out"
+msgid_plural "soundtrack: {n} pieces of music the project sets are not in this game version; left out"
+msgstr[0] "配乐：项目设置的 {n} 首曲目不在当前游戏版本中，已略去"
+
+#: build.py
+msgid "{n} playlist in a new order"
+msgid_plural "{n} playlists in a new order"
+msgstr[0] "{n} 个播放列表采用新顺序"
+
+#: build.py
+msgid "{n} piece led elsewhere"
+msgid_plural "{n} pieces led elsewhere"
+msgstr[0] "{n} 首曲目改变了去向"
+
+#: build.py
+msgid "soundtrack: {changes}"
+msgstr "配乐：{changes}"
+
+#: build.py
+msgid "text: {lines} in {n} table"
+msgid_plural "text: {lines} in {n} tables"
+msgstr[0] "文本：{n} 个表中的 {lines}"
+
+#: build.py
+msgid "Project problems:"
+msgstr "项目问题："
+
+#: build.py
+msgid "patching the banks that hold or play {n} sound"
+msgid_plural "patching the banks that hold or play {n} sounds"
+msgstr[0] "修补包含或播放这 {n} 个声音的所有音频库"
+
+#: build.py
+msgid "patching the project's banks that hold or play {n} sound"
+msgid_plural "patching the project's banks that hold or play {n} sounds"
+msgstr[0] "修补项目中包含或播放这 {n} 个声音的音频库"
+
+#: build.py
+msgid "settings: {n} object the mod set is not in this game version; left out"
+msgid_plural "settings: {n} objects the mod set are not in this game version; left out"
+msgstr[0] "设置：模组设置的 {n} 个对象不在当前游戏版本中，已略去"
+
+#: build.py
+msgid "cue points of {n} segment without new audio left out"
+msgid_plural "cue points of {n} segments without new audio left out"
+msgstr[0] "已略去 {n} 个没有新音频的段落的提示点"
+
+#: build.py
+msgid "The patch failed verification:"
+msgstr "补丁未通过验证："
+
+#: build.py
+msgid "added audio in {n} bank"
+msgid_plural "added audio in {n} banks"
+msgstr[0] "在 {n} 个音频库中添加了音频"
+
+#: build.py
+msgid "make-up gain on {n} object"
+msgid_plural "make-up gain on {n} objects"
+msgstr[0] "{n} 个对象的 Make-Up Gain"
+
+#: build.py
+msgid "{n} silenced sound taken out of the mix"
+msgid_plural "{n} silenced sounds taken out of the mix"
+msgstr[0] "{n} 个静音的声音已从混音中移除"
+
+#: build.py
+msgid "a mod's settings on {n} object"
+msgid_plural "a mod's settings on {n} objects"
+msgstr[0] "{n} 个对象上的模组设置"
+
+#: build.py
+msgid "{n} file besides audio (text, models, textures...) carried as it was"
+msgid_plural "{n} files besides audio (text, models, textures...) carried as they were"
+msgstr[0] "{n} 个音频以外的文件（文本、模型、纹理等）按原样保留"
+
+#: build.py
+msgid "{folder} is inside the game folder, and Audiodiver never writes there. Choose another folder for the builds."
+msgstr "{folder} 位于游戏文件夹内，Audiodiver 从不向其中写入。请为构建选择其他文件夹。"
+
+#: build.py
+msgid "encoding {file}"
+msgstr "正在编码 {file}"
+
+#: build.py
+msgid "Encoding {name}"
+msgstr "正在编码 {name}"
+
+#: build.py editor.py
+msgid "{names} and {last} replace the same sound"
+msgstr "{names} 和 {last} 替换了同一个声音"
+
+#: build.py
+msgid "Added audio: {problem}"
+msgstr "添加的音频：{problem}"
+
+#: build.py
+msgid "levels on {n} track"
+msgid_plural "levels on {n} tracks"
+msgstr[0] "{n} 条音轨的音量"
+
+#: build.py
+msgid "text: the game changed {n} line since the project changed it (ID {ids}); the project's is used"
+msgid_plural "text: the game changed {n} lines since the project changed them (IDs {ids}); the project's are used"
+msgstr[0] "文本：项目更改 {n} 行后，游戏也更改了这些行（ID {ids}），使用项目中的版本"
+
+#: build.py
+msgid "text: {n} line is not in table {table} any more and is left out (ID {ids})"
+msgid_plural "text: {n} lines are not in table {table} any more and are left out (IDs {ids})"
+msgstr[0] "文本：{n} 行已不在表 {table} 中，已略去（ID {ids}）"
+
+#: build.py
+msgid "Music segment {segment}: the Entry cue point ({entry} s) is at or after the Exit ({exit} s), so the game would play the music before it until the Entry. Move the cue points on the Audio tab, or reset them."
+msgstr "音乐段落 {segment}：入点（{entry} s）位于出点（{exit} s）处或之后，因此游戏会一直播放前面的音乐，直到入点。请在音频选项卡中移动提示点，或将其重置。"
+
+#: build.py
+msgid "{n} replacement"
+msgid_plural "{n} replacements"
+msgstr[0] "{n} 处替换"
+
+#: build.py
+msgid "patch files in {folder}"
+msgstr "{folder} 中的补丁文件"
+
+#: build.py
+msgid "Icon: {why}"
+msgstr "图标：{why}"
+
+#: build.py
+msgid "{name}: sound {id} isn't in this version of the game"
+msgstr "{name}：声音 {id} 不在当前游戏版本中"
+
+#: build.py
+msgid "{name}: can't read the audio in {file}"
+msgstr "{name}：无法读取 {file} 中的音频"
+
+#: build.py
+msgid "text: table {table} is not in this game version; the {n} line changed in it is left out"
+msgid_plural "text: table {table} is not in this game version; the {n} lines changed in it are left out"
+msgstr[0] "文本：表 {table} 不在当前游戏版本中，其中更改的 {n} 行已略去"
+
+#: build.py editor.py
+msgid "Can't write the ZIP into {folder}: {why}"
+msgstr "无法将 ZIP 写入 {folder}：{why}"
+
+#: build.py
+msgid "Can't save the patch files into {folder}: {why}"
+msgstr "无法将补丁文件保存到 {folder}：{why}"
+
+#: catalog.py
+msgid "Transitions"
+msgstr "过渡段"
+
+#: catalog.py
+msgid "Stingers"
+msgstr "插入乐段"
+
+#: catalog.py
+msgid "Unused"
+msgstr "未使用"
+
+#: catalog.py
+msgid "Old Tutorial"
+msgstr "旧教程"
+
+#: catalog.py
+msgid "Combat"
+msgstr "战斗"
+
+#: catalog.py
+msgid "Event Layers"
+msgstr "事件层"
+
+#: catalog.py
+msgid "Other"
+msgstr "其他"
+
+#: catalog.py
+msgid "Event-Driven"
+msgstr "事件驱动"
+
+#: catalog.py
+msgid "Filler (Do Not Touch)"
+msgstr "填充（请勿改动）"
+
+#: catalog.py
+msgid "Do not touch. Replacing it makes the music stutter."
+msgstr "请勿改动。替换它会导致音乐卡顿。"
+
+#: catalog.py
+msgid "Playlist {id}"
+msgstr "播放列表 {id}"
+
+#: catalog.py
+msgid "Segment {id}"
+msgstr "段落 {id}"
+
+#: catalog.py
+msgid "Bridge {id}"
+msgstr "过渡段 {id}"
+
+#: catalog.py
+msgid "Stinger {id}"
+msgstr "插入乐段 {id}"
+
+#: catalog.py
+msgid "variant {id}"
+msgstr "版本 {id}"
+
+#: catalog.py
+msgid "{group}: {value}"
+msgstr "{group}：{value}"
+
+#: catalog.py musiclist.py
+msgid "Also called '{name}'."
+msgstr "又称“{name}”。"
+
+#: catalog.py
+msgid "Segment {n}"
+msgstr "段落 {n}"
+
+#: combine.py
+msgid "Volume"
+msgstr "音量"
+
+#: combine.py
+msgid "Pitch"
+msgstr "音高"
+
+#: combine.py
+msgid "Low-pass filter"
+msgstr "低通滤波"
+
+#: combine.py
+msgid "High-pass filter"
+msgstr "高通滤波"
+
+#: combine.py
+msgid "Initial Delay"
+msgstr "初始延迟"
+
+#: combine.py
+msgid "Combined from these mods:"
+msgstr "由以下模组合并而成："
+
+#: combine.py
+msgid "Setting {id}"
+msgstr "设置 {id}"
+
+#: combine.py
+msgid "Option {n}"
+msgstr "选项 {n}"
+
+#: combine.py
+msgid "Choice {n}"
+msgstr "子选项 {n}"
+
+#: editor.py
+msgid "Naming the sounds and the music in the new language"
+msgstr "正在用新语言命名声音和音乐"
+
+#: editor.py
+msgid "Nothing changed, because the project file couldn't be saved. {why}."
+msgstr "未做任何更改，因为无法保存项目文件。{why}。"
+
+#: editor.py
+msgid "Choose a folder to save into"
+msgstr "选择要保存到的文件夹"
+
+#: editor.py
+msgid "Mapping the music"
+msgstr "正在分析音乐结构"
+
+#: editor.py
+msgid "The mods are being read or combined already"
+msgstr "已在读取或合并模组"
+
+#: editor.py
+msgid "Wait until the running build, repatch or combine is done"
+msgstr "请等待正在进行的构建、Repatch 或合并完成"
+
+#: editor.py
+msgid "Reading the game audio from the new folder"
+msgstr "正在从新文件夹读取游戏音频"
+
+#: editor.py
+msgid "Reading the game audio (the first run after a game update takes about a minute)"
+msgstr "正在读取游戏音频（游戏更新后首次运行约需一分钟）"
+
+#: editor.py
+msgid "Sorting the sounds"
+msgstr "正在整理声音"
+
+#: editor.py
+msgid "The game is still loading. Try again when it's done."
+msgstr "游戏数据仍在加载。加载完成后请重试。"
+
+#: editor.py
+msgid "Wait for the build or export to finish first"
+msgstr "请先等待构建或导出完成"
+
+#: editor.py
+msgid "Choose a song to slice"
+msgstr "选择要切分的歌曲"
+
+#: editor.py
+msgid "Choose where to save the project (a full path)"
+msgstr "选择项目的保存位置（完整路径）"
+
+#: editor.py
+msgid "Choose a .audi project file (a full path)"
+msgstr "选择 .audi 项目文件（完整路径）"
+
+#: editor.py
+msgid "No project open"
+msgstr "未打开项目"
+
+#: editor.py
+msgid "Choose the audio files to add"
+msgstr "选择要添加的音频文件"
+
+#: editor.py
+msgid "That sound already has a separate clip"
+msgstr "该声音已有单独的片段"
+
+#: editor.py
+msgid "That slot doesn't have a separate clip"
+msgstr "该槽位没有单独的片段"
+
+#: editor.py
+msgid "Choose an audio file"
+msgstr "选择音频文件"
+
+#: editor.py
+msgid "Choose the files and the slots to fill"
+msgstr "选择要填充的文件和槽位"
+
+#: editor.py
+msgid "Choose the slots to silence"
+msgstr "选择要静音的槽位"
+
+#: editor.py
+msgid "Choose the slots to clear"
+msgstr "选择要清除的槽位"
+
+#: editor.py
+msgid "Choose the slots to change"
+msgstr "选择要更改的槽位"
+
+#: editor.py
+msgid "Choose the slots to match"
+msgstr "选择要匹配的槽位"
+
+#: editor.py
+msgid "Nothing to match: no slot here has new audio and an original, both with sound"
+msgstr "没有可匹配的内容：此处没有同时具备新音频和原版且两者都有声音的槽位"
+
+#: editor.py
+msgid "That folder is inside the game folder, and Audiodiver never writes there. Choose another folder, and import the ZIP in a mod manager."
+msgstr "该文件夹位于游戏文件夹内，Audiodiver 从不向其中写入。请选择其他文件夹，并在模组管理器中导入 ZIP。"
+
+#: editor.py
+msgid "Choose an image"
+msgstr "选择图片"
+
+#: editor.py
+msgid "A cue point is a number of milliseconds from 0"
+msgstr "提示点是从 0 开始的毫秒数"
+
+#: editor.py
+msgid "The Entry cue point comes before the Exit"
+msgstr "入点须在出点之前"
+
+#: editor.py
+msgid "Choose the segments to change"
+msgstr "选择要更改的段落"
+
+#: editor.py
+msgid "Silence has no cue points"
+msgstr "静音没有提示点"
+
+#: editor.py
+msgid "Wait until the running job is done"
+msgstr "请等待正在运行的任务完成"
+
+#: editor.py
+msgid "Choose a folder to move the project to (a full path)"
+msgstr "选择项目要移动到的文件夹（完整路径）"
+
+#: editor.py
+msgid "Name the files to remove"
+msgstr "指定要移除的文件"
+
+#: editor.py
+msgid "Choose where to save the pack (a full path)"
+msgstr "选择项目包的保存位置（完整路径）"
+
+#: editor.py
+msgid "Choose where to unpack it (a full path)"
+msgstr "选择解包位置（完整路径）"
+
+#: editor.py
+msgid "Choose a mod's .patch_0 file"
+msgstr "选择模组的 .patch_0 文件"
+
+#: editor.py
+msgid "The sound in {file} couldn't be decoded."
+msgstr "无法解码 {file} 中的声音。"
+
+#: editor.py
+msgid "None of the {n} sounds in {file} could be decoded."
+msgid_plural "None of the {n} sounds in {file} could be decoded."
+msgstr[0] "{file} 中的 {n} 个声音均无法解码。"
+
+#: editor.py
+msgid "The folder {folder} has too long a path for the decoder. Choose a shorter one."
+msgstr "文件夹 {folder} 的路径对解码器来说太长。请选择路径较短的文件夹。"
+
+#: editor.py
+msgid "Is the .stream file next to the patch?"
+msgstr ".stream 文件是否在补丁旁边？"
+
+#: editor.py
+msgid "Choose a line of text to import. The mod has no audio that Audiodiver can bring in."
+msgstr "请选择要导入的文本行。该模组没有 Audiodiver 可以导入的音频。"
+
+#: editor.py
+msgid "No patch is in the chosen options"
+msgstr "所选选项中没有补丁"
+
+#: editor.py
+msgid "The installed mods are being checked already"
+msgstr "已在检查已安装的模组"
+
+#: editor.py
+msgid "installed mods"
+msgstr "已安装的模组"
+
+#: editor.py
+msgid "Choose where repatched mods go (a full path)"
+msgstr "选择 Repatch 后模组的存放位置（完整路径）"
+
+#: editor.py
+msgid "A build is already running"
+msgstr "已有构建正在进行"
+
+#: editor.py
+msgid "Choose the mods to combine"
+msgstr "选择要合并的模组"
+
+#: editor.py library.py
+msgid "Sound {id}"
+msgstr "声音 {id}"
+
+#: editor.py
+msgid "Comparing the mods"
+msgstr "正在比较模组"
+
+#: editor.py
+msgid "Choose where combined mods go (a full path)"
+msgstr "选择合并后模组的存放位置（完整路径）"
+
+#: editor.py
+msgid "Only a playlist has an order to change"
+msgstr "只有播放列表才有可更改的顺序"
+
+#: editor.py
+msgid "Same song needs another piece of music to follow"
+msgstr "“与 Battle 相同”需要跟随另一首曲目"
+
+#: editor.py
+msgid "Choose the pieces of music to set"
+msgstr "选择要设置的曲目"
+
+#: editor.py
+msgid "Set this music to another mode first"
+msgstr "请先将这段音乐设为其他模式"
+
+#: editor.py
+msgid "Choose the music to set"
+msgstr "选择要设置的音乐"
+
+#: editor.py
+msgid "No other music to set"
+msgstr "没有其他可设置的音乐"
+
+#: editor.py
+msgid "Choose the songs"
+msgstr "选择歌曲"
+
+#: editor.py
+msgid "The export list can't be read. Clear it and add the items again."
+msgstr "无法读取导出列表。请清空列表并重新添加条目。"
+
+#: editor.py
+msgid "A bank's sounds export one by one, because there are no segments to mix"
+msgstr "音频库的声音会逐个导出，因为没有可混合的段落"
+
+#: editor.py
+msgid "{title} - Fight ({minutes} min)"
+msgstr "{title} - 战斗（{minutes} 分钟）"
+
+#: editor.py
+msgid "The export list is empty"
+msgstr "导出列表为空"
+
+#: editor.py
+msgid "WEM files are the Original, slot by slot. Choose another format for the rest."
+msgstr "WEM 文件是逐个槽位的原版。其余内容请选择其他格式。"
+
+#: editor.py
+msgid "Getting ready"
+msgstr "正在准备"
+
+#: editor.py
+msgid "the export list"
+msgstr "导出列表"
+
+#: editor.py
+msgid "{path} isn't a full path"
+msgstr "{path} 不是完整路径"
+
+#: editor.py
+msgid "{name} is a file. Choose a folder."
+msgstr "{name} 是文件。请选择文件夹。"
+
+#: editor.py
+msgid "{name} can't be used as a folder name. Choose another name."
+msgstr "{name} 不能用作文件夹名称。请换一个名称。"
+
+#: editor.py
+msgid "A new take has no original audio"
+msgstr "新变体没有原版音频"
+
+#: editor.py
+msgid "Add new audio to the slot first"
+msgstr "请先为槽位添加新音频"
+
+#: editor.py
+msgid "Another sound that plays this clip already has new audio. Remove that audio first."
+msgstr "播放此片段的另一个声音已有新音频。请先移除那段音频。"
+
+#: editor.py
+msgid "{name} (archive {archive})"
+msgstr "{name}（归档 {archive}）"
+
+#: editor.py
+msgid "Silence"
+msgstr "静音"
+
+#: editor.py
+msgid "a slot: no audio file named"
+msgstr "一个槽位：未指定音频文件"
+
+#: editor.py
+msgid "The project already has a folder to itself"
+msgstr "项目已有专属文件夹"
+
+#: editor.py
+msgid "That folder is inside the game folder, and Audiodiver never writes there"
+msgstr "该文件夹位于游戏文件夹内，Audiodiver 从不向其中写入"
+
+#: editor.py
+msgid "The project is in that folder already"
+msgstr "项目已在该文件夹中"
+
+#: editor.py
+msgid "Choose a folder outside the project's folder"
+msgstr "请选择项目文件夹以外的文件夹"
+
+#: editor.py
+msgid "That is a file, not a folder"
+msgstr "那是文件，不是文件夹"
+
+#: editor.py
+msgid "{n} file packed into {pack}"
+msgid_plural "{n} files packed into {pack}"
+msgstr[0] "已将 {n} 个文件打包到 {pack}"
+
+#: editor.py
+msgid "Nothing to build yet. Replace some audio, set a piece in the Soundtrack or change a line of text first."
+msgstr "尚无可构建的内容。请先替换一些音频、在配乐中设置一首曲目，或更改一行文本。"
+
+#: editor.py
+msgid "Another project was opened during the import. Open this project again and import again."
+msgstr "导入期间打开了另一个项目。请重新打开此项目并再次导入。"
+
+#: editor.py
+msgid "reading {file}"
+msgstr "正在读取 {file}"
+
+#: editor.py
+msgid "{name} holds no audio or text that Audiodiver can bring in"
+msgstr "{name} 不含 Audiodiver 可以导入的音频或文本"
+
+#: editor.py library.py
+msgid "Other Sounds"
+msgstr "其他声音"
+
+#: editor.py
+msgid "Putting the mods together"
+msgstr "正在合并模组"
+
+#: editor.py
+msgid "This piece is set to Silent, so it plays nothing"
+msgstr "此曲目已设为“静音”，因此不播放任何内容"
+
+#: editor.py
+msgid "That line isn't a game subtitle"
+msgstr "该行不是游戏字幕"
+
+#: editor.py
+msgid "That line isn't in the game text"
+msgstr "该行不在游戏文本中"
+
+#: editor.py
+msgid "(original)"
+msgstr "（原版）"
+
+#: editor.py
+msgid "(replaced)"
+msgstr "（已替换）"
+
+#: editor.py
+msgid "There was nothing to export"
+msgstr "没有可导出的内容"
+
+#: editor.py
+msgid "{file} isn't a project"
+msgstr "{file} 不是项目"
+
+#: editor.py repatch.py server.py
+msgid "{path} wasn't found"
+msgstr "未找到 {path}"
+
+#: editor.py
+msgid "{file} has no icon"
+msgstr "{file} 没有图标"
+
+#: editor.py
+msgid "{folder} can't be written to. Choose another folder."
+msgstr "无法写入 {folder}。请选择其他文件夹。"
+
+#: editor.py
+msgid "{file} already exists in {folder}"
+msgstr "{folder} 中已存在 {file}"
+
+#: editor.py
+msgid "{name} is a folder. Choose a .audi project file."
+msgstr "{name} 是文件夹。请选择 .audi 项目文件。"
+
+#: editor.py
+msgid "Sound {sound} doesn't play {source}"
+msgstr "声音 {sound} 不播放 {source}"
+
+#: editor.py
+msgid "Slot {id} has no new audio"
+msgstr "槽位 {id} 没有新音频"
+
+#: editor.py
+msgid "{name}: can't read the audio file ({file})"
+msgstr "{name}：无法读取音频文件（{file}）"
+
+#: editor.py
+msgid "{file} is not an audio file Audiodiver can read"
+msgstr "{file} 不是 Audiodiver 能读取的音频文件"
+
+#: editor.py
+msgid "{folder} is not a folder"
+msgstr "{folder} 不是文件夹"
+
+#: editor.py
+msgid "The version is a whole number from 1 to 99999"
+msgstr "版本号是 1 到 99999 之间的整数"
+
+#: editor.py
+msgid "{packed}; {n} the project uses wasn't found"
+msgid_plural "{packed}; {n} the project uses weren't found"
+msgstr[0] "{packed}；未找到项目使用的 {n} 个文件"
+
+#: editor.py
+msgid "unpacked into {folder}"
+msgstr "已解包到 {folder}"
+
+#: editor.py
+msgid "No job {id}"
+msgstr "没有任务 {id}"
+
+#: editor.py
+msgid "{file} isn't a patch file. Choose a .patch_0 file. Audiodiver also reads the .stream file next to it."
+msgstr "{file} 不是补丁文件。请选择 .patch_0 文件。Audiodiver 也会读取它旁边的 .stream 文件。"
+
+#: editor.py
+msgid "left out: {what}"
+msgstr "已略去：{what}"
+
+#: editor.py
+msgid "{n} sound of an older game version, which the game no longer has, left out"
+msgid_plural "{n} sounds of an older game version, which the game no longer has, left out"
+msgstr[0] "已略去 {n} 个旧游戏版本的声音（游戏中已没有）"
+
+#: editor.py
+msgid "{n} object as an older game version had it; the current one is used"
+msgid_plural "{n} objects as an older game version had them; the current ones are used"
+msgstr[0] "{n} 个对象为旧游戏版本中的样子，改用当前版本"
+
+#: editor.py
+msgid "{n} object copied from another bank by the tool that made the mod; each bank's own is used"
+msgid_plural "{n} objects copied from another bank by the tool that made the mod; each bank's own are used"
+msgstr[0] "{n} 个对象由制作该模组的工具从其他音频库复制而来，改用各音频库中的版本"
+
+#: editor.py
+msgid "Decoding {n} of {total}"
+msgstr "正在解码 {n}/{total}"
+
+#: editor.py
+msgid "the mod changes {n} line of text"
+msgid_plural "the mod changes {n} lines of text"
+msgstr[0] "该模组更改了 {n} 行文本"
+
+#: editor.py
+msgid "{n} line of text that the game doesn't have, left out"
+msgid_plural "{n} lines of text that the game doesn't have, left out"
+msgstr[0] "已略去 {n} 行游戏中没有的文本"
+
+#: editor.py
+msgid "project {path}"
+msgstr "项目 {path}"
+
+#: editor.py
+msgid "{folder} is inside the game folder, and Audiodiver never writes there"
+msgstr "{folder} 位于游戏文件夹内，Audiodiver 从不向其中写入"
+
+#: editor.py
+msgid "The mod has no audio to repatch"
+msgstr "该模组没有可 Repatch 的音频"
+
+#: editor.py
+msgid "{path} ({mb} MB)"
+msgstr "{path}（{mb} MB）"
+
+#: editor.py
+msgid "Object {id}"
+msgstr "对象 {id}"
+
+#: editor.py
+msgid "{n} clash"
+msgid_plural "{n} clashes"
+msgstr[0] "{n} 处冲突"
+
+#: editor.py
+msgid "{n} mod"
+msgid_plural "{n} mods"
+msgstr[0] "{n} 个模组"
+
+#: editor.py
+msgid "{id} is not a piece of music. Only music has segments to mix and play through."
+msgstr "{id} 不是曲目。只有音乐才有可混合和连续播放的段落。"
+
+#: editor.py
+msgid "Segments {ids} aren't in this piece of music"
+msgstr "段落 {ids} 不在这首曲目中"
+
+#: editor.py
+msgid "Items {ids} aren't in this piece of music"
+msgstr "条目 {ids} 不在这首曲目中"
+
+#: editor.py
+msgid "This music has {n} place for songs"
+msgid_plural "This music has {n} places for songs"
+msgstr[0] "这段音乐有 {n} 个可放歌曲的位置"
+
+#: editor.py
+msgid "This music has {n} segment for a song, so cut it into {n} piece at most"
+msgid_plural "This music has {n} segments for a song, so cut it into {n} pieces at most"
+msgstr[0] "这段音乐有 {n} 个可放歌曲的段落，因此最多切成 {n} 段"
+
+#: editor.py
+msgid "This music has {n} segment for songs, so choose {n} song at most"
+msgid_plural "This music has {n} segments for songs, so choose {n} songs at most"
+msgstr[0] "这段音乐有 {n} 个可放歌曲的段落，因此最多选择 {n} 首歌曲"
+
+#: editor.py
+msgid "Can't read {file}: {why}"
+msgstr "无法读取 {file}：{why}"
+
+#: editor.py
+msgid "still loading: {stage}"
+msgstr "仍在加载：{stage}"
+
+#: editor.py
+msgid "{item} is not in this game version"
+msgstr "{item} 不在当前游戏版本中"
+
+#: editor.py
+msgid "No cue {id}"
+msgstr "没有音乐 {id}"
+
+#: editor.py
+msgid "Can't make the folder {folder}: {why}"
+msgstr "无法创建文件夹 {folder}：{why}"
+
+#: editor.py
+msgid "{name}: sound {id} isn't in this version of the game (remove it, or replace another sound)"
+msgstr "{name}：声音 {id} 不在当前游戏版本中（请将其移除，或替换其他声音）"
+
+#: editor.py
+msgid "{name}: no audio file named"
+msgstr "{name}：未指定音频文件"
+
+#: editor.py
+msgid "Make-Up Gain goes from {low} to {high} dB"
+msgstr "Make-Up Gain 的范围为 {low} 到 {high} dB"
+
+#: editor.py
+msgid "Fix the problems on the Build tab first: {problem} (and {n} more)"
+msgid_plural "Fix the problems on the Build tab first: {problem} (and {n} more)"
+msgstr[0] "请先在构建选项卡中修复问题：{problem}（另有 {n} 个）"
+
+#: editor.py
+msgid "{file} can't be read as a game patch"
+msgstr "{file} 无法作为游戏补丁读取"
+
+#: editor.py
+msgid "{n} other change in the bank \"{bank}\" (settings such as effects, positioning or how a container picks sounds)"
+msgid_plural "{n} other changes in the bank \"{bank}\" (settings such as effects, positioning or how a container picks sounds)"
+msgstr[0] "音频库“{bank}”中的 {n} 项其他更改（效果、定位或容器选取声音的方式等设置）"
+
+#: editor.py
+msgid "{n} other change in bank {id} (settings such as effects, positioning or how a container picks sounds)"
+msgid_plural "{n} other changes in bank {id} (settings such as effects, positioning or how a container picks sounds)"
+msgstr[0] "音频库 {id} 中的 {n} 项其他更改（效果、定位或容器选取声音的方式等设置）"
+
+#: editor.py
+msgid "{file} replaces, adds or sets nothing Audiodiver can bring in ({why})"
+msgstr "{file} 没有替换、添加或设置任何 Audiodiver 可以导入的内容（{why}）"
+
+#: editor.py
+msgid "{file} replaces, adds or sets nothing"
+msgstr "{file} 没有替换、添加或设置任何内容"
+
+#: editor.py
+msgid "{n} string table"
+msgid_plural "{n} string tables"
+msgstr[0] "{n} 个字符串表"
+
+#: editor.py
+msgid "{n} other file, such as models or textures"
+msgid_plural "{n} other files, such as models or textures"
+msgstr[0] "{n} 个其他文件，如模型或纹理"
+
+#: editor.py
+msgid "--- {name} ({n} of {total})"
+msgstr "--- {name}（{n}/{total}）"
+
+#: editor.py
+msgid "None of the mods has audio or settings that Audiodiver can bring in"
+msgstr "这些模组都没有 Audiodiver 可以导入的音频或设置"
+
+#: editor.py
+msgid "imported take {id}"
+msgstr "导入的变体 {id}"
+
+#: editor.py
+msgid "{mod} take {id}"
+msgstr "{mod} 变体 {id}"
+
+#: editor.py
+msgid "imported {id}"
+msgstr "导入的 {id}"
+
+#: editor.py
+msgid "{file} is damaged (it can't be read)"
+msgstr "{file} 已损坏（无法读取）"
+
+#: editor.py project.py
+msgid "{file} isn't an Audiodiver project"
+msgstr "{file} 不是 Audiodiver 项目"
+
+#: editor.py
+msgid "The sounds of {item} are already in the project, under {owners}."
+msgstr "{item} 的声音已在项目中，位于 {owners} 下。"
+
+#: editor.py
+msgid "{item} added. {n} of {total} banks was already in the project, under {owners}. Those sounds show under both."
+msgid_plural "{item} added. {n} of {total} banks were already in the project, under {owners}. Those sounds show under both."
+msgstr[0] "已添加 {item}。{total} 个音频库中有 {n} 个已在项目中，位于 {owners} 下。这些声音会同时显示在两处。"
+
+#: editor.py
+msgid "Wwise loudness analysis: {why} (turn it off under Build options)"
+msgstr "Wwise 响度分析：{why}（可在构建选项中关闭）"
+
+#: editor.py
+msgid "That isn't a mod ID (a GUID like 3f2a…-…)"
+msgstr "这不是模组 ID（应为类似 3f2a…-… 的 GUID）"
+
+#: editor.py
+msgid "The project couldn't move: {why}"
+msgstr "无法移动项目：{why}"
+
+#: editor.py
+msgid "The files couldn't be copied: {why}"
+msgstr "无法复制文件：{why}"
+
+#: editor.py
+msgid "failed: {why}"
+msgstr "失败：{why}"
+
+#: editor.py
+msgid "Fix the problems on the Build tab first: {problem}"
+msgstr "请先在构建选项卡中修复问题：{problem}"
+
+#: editor.py
+msgid "stream {id} is not in this game version; skipped"
+msgstr "流 {id} 不在当前游戏版本中，已跳过"
+
+#: editor.py
+msgid "source {id}: can't decode the audio; skipped"
+msgstr "源 {id}：无法解码音频，已跳过"
+
+#: editor.py
+msgid "The files besides audio can't be read: {why}"
+msgstr "无法读取音频以外的文件：{why}"
+
+#: editor.py
+msgid "Reading {name}"
+msgstr "正在读取 {name}"
+
+#: editor.py
+msgid "Can't write {file}: {why}"
+msgstr "无法写入 {file}：{why}"
+
+#: editor.py
+msgid "Sound {id} has no audio in the game files"
+msgstr "声音 {id} 在游戏文件中没有音频"
+
+#: editor.py
+msgid "{n} line of text that the game doesn't have"
+msgid_plural "{n} lines of text that the game doesn't have"
+msgstr[0] "{n} 行游戏中没有的文本"
+
+#: editor.py
+msgid "The new project is in {folder}. It wasn't opened, because the open project couldn't be saved."
+msgstr "新项目位于 {folder}。由于当前打开的项目无法保存，新项目未打开。"
+
+#: editor.py
+msgid "{n} file besides audio that a later mod replaces"
+msgid_plural "{n} files besides audio that a later mod replaces"
+msgstr[0] "{n} 个音频以外的文件被后面的模组替换"
+
+#: editor.py
+msgid "Loudness analysis: {why}"
+msgstr "响度分析：{why}"
+
+#: editor.py
+msgid "the icon ({why})"
+msgstr "图标（{why}）"
+
+#: editor.py
+msgid "kept as it was: {why}"
+msgstr "保持原样：{why}"
+
+#: editor.py
+msgid "Export"
+msgstr "导出"
+
+#: editor.py
+msgid "{file} (turned down {db} dB to avoid clipping)"
+msgstr "{file}（已降低 {db} dB 以避免削波）"
+
+#: editor.py
+msgid "Segment"
+msgstr "段落"
+
+#: editor.py
+msgid "{segment}, {n} of {total}"
+msgstr "{segment}，{n}/{total}"
+
+#: editor.py
+msgid "segment"
+msgstr "段落"
+
+#: editor.py
+msgid "Writing {file}"
+msgstr "正在写入 {file}"
+
+#: errors.py
+msgid "{file} wasn't found"
+msgstr "未找到 {file}"
+
+#: errors.py
+msgid "{file} can't be opened: access was denied"
+msgstr "无法打开 {file}：访问被拒绝"
+
+#: errors.py
+msgid "{file} already exists"
+msgstr "{file} 已存在"
+
+#: errors.py
+msgid "{file} isn't a folder"
+msgstr "{file} 不是文件夹"
+
+#: errors.py
+msgid "{file} is a folder"
+msgstr "{file} 是文件夹"
+
+#: errors.py
+msgid "{file} isn't a valid path"
+msgstr "{file} 不是有效路径"
+
+#: errors.py
+msgid "{file} can't be written: the disk is full"
+msgstr "无法写入 {file}：磁盘已满"
+
+#: errors.py
+msgid "{file} can't be written: the disk is read-only"
+msgstr "无法写入 {file}：磁盘为只读"
+
+#: errors.py
+msgid "{file} has a path that is too long"
+msgstr "{file} 的路径过长"
+
+#: errors.py
+msgid "A file"
+msgstr "一个文件"
+
+#: errors.py
+msgid "a file"
+msgstr "一个文件"
+
+#: errors.py
+msgid "{file} gave an error: {error}"
+msgstr "{file} 出错：{error}"
+
+#: errors.py
+msgid "Something went wrong ({error}): the log has the details"
+msgstr "出现问题（{error}），详情见日志"
+
+#: errors.py
+msgid "Something went wrong ({error})"
+msgstr "出现问题（{error}）"
+
+#: errors.py
+msgid "{tool} couldn't process {file} (the log has the details)"
+msgstr "{tool} 无法处理 {file}（详情见日志）"
+
+#: errors.py
+msgid "{tool} couldn't process {file}"
+msgstr "{tool} 无法处理 {file}"
+
+#: game.py
+msgid "Helldivers 2 wasn't found in the Steam libraries"
+msgstr "在 Steam 库中未找到 Helldivers 2"
+
+#: game.py
+msgid "{folder} isn't the Helldivers 2 folder. It has no game files (bundles.NN.nxa in a folder called data). Choose the folder Steam installed the game in, usually …\\steamapps\\common\\Helldivers 2."
+msgstr "{folder} 不是 Helldivers 2 文件夹，其中没有游戏文件（名为 data 的文件夹中的 bundles.NN.nxa）。请选择 Steam 安装游戏的文件夹，通常为 …\\steamapps\\common\\Helldivers 2。"
+
+#: game.py
+msgid "{folder} is a file. Choose the folder Steam installed Helldivers 2 in."
+msgstr "{folder} 是文件。请选择 Steam 安装 Helldivers 2 的文件夹。"
+
+#: game.py
+msgid "{folder} isn't there any more"
+msgstr "{folder} 已不存在"
+
+#: game.py
+msgid "{folder} wasn't found"
+msgstr "未找到 {folder}"
+
+#: game.py
+msgid "The HD2_DATA environment variable points to {folder}, which has no Helldivers 2 files"
+msgstr "HD2_DATA 环境变量指向的 {folder} 中没有 Helldivers 2 文件"
+
+#: index.py
+msgid "English"
+msgstr "英语"
+
+#: index.py
+msgid "Portuguese (Brazil)"
+msgstr "葡萄牙语（巴西）"
+
+#: index.py
+msgid "Chinese"
+msgstr "中文"
+
+#: index.py
+msgid "German"
+msgstr "德语"
+
+#: index.py
+msgid "Spanish (Spain)"
+msgstr "西班牙语（西班牙）"
+
+#: index.py
+msgid "French"
+msgstr "法语"
+
+#: index.py
+msgid "Italian"
+msgstr "意大利语"
+
+#: index.py
+msgid "Japanese"
+msgstr "日语"
+
+#: index.py
+msgid "Spanish (Latin America)"
+msgstr "西班牙语（拉丁美洲）"
+
+#: index.py
+msgid "Russian"
+msgstr "俄语"
+
+#: installed.py
+msgid "Checking {mod}"
+msgstr "正在检查 {mod}"
+
+#: library.py
+msgid "Music"
+msgstr "音乐"
+
+#: library.py
+msgid "Music by where it plays, from the ship to the credits."
+msgstr "按播放场合排列的音乐，从舰船到制作人员名单。"
+
+#: library.py
+msgid "Grunts"
+msgstr "哼声"
+
+#: library.py
+msgid "Sighs"
+msgstr "叹气"
+
+#: library.py
+msgid "Laughs"
+msgstr "笑声"
+
+#: library.py
+msgid "Screams"
+msgstr "尖叫"
+
+#: library.py
+msgid "Coughs"
+msgstr "咳嗽"
+
+#: library.py
+msgid "Groans"
+msgstr "呻吟"
+
+#: library.py
+msgid "Yells"
+msgstr "喊叫"
+
+#: library.py
+msgid "Sniffs"
+msgstr "吸鼻子"
+
+#: library.py
+msgid "Hiccups"
+msgstr "打嗝"
+
+#: library.py
+msgid "Burps"
+msgstr "饱嗝"
+
+#: library.py
+msgid "Whistles"
+msgstr "口哨"
+
+#: library.py
+msgid "Humming"
+msgstr "哼唱"
+
+#: library.py
+msgid "Vocal Sounds"
+msgstr "人声"
+
+#: library.py
+msgid "Streams"
+msgstr "流"
+
+#: library.py
+msgid "Not named yet."
+msgstr "尚未命名。"
+
+#: library.py
+msgid "Streams No Bank Plays"
+msgstr "没有音频库播放的流"
+
+#: library.py
+msgid "Audio files in this archive that no sound bank of this game version plays. The game may never play them."
+msgstr "此归档中没有任何当前游戏版本的音频库播放的音频文件。游戏可能从不播放它们。"
+
+#: library.py
+msgid "A single sound. Audiodiver replaces it in every bank that holds or plays it."
+msgstr "单个声音。Audiodiver 会在包含或播放它的每个音频库中替换它。"
+
+#: library.py
+msgid "Bank {id}"
+msgstr "音频库 {id}"
+
+#: library.py
+msgid "No container"
+msgstr "无容器"
+
+#: library.py
+msgid "Other Audio"
+msgstr "其他音频"
+
+#: library.py
+msgid "No Audio in the Game Files"
+msgstr "游戏文件中没有音频"
+
+#: library.py
+msgid "This bank only stores audio. The sounds that play it are in another bank."
+msgstr "此音频库只存储音频。播放这些音频的声音在其他音频库中。"
+
+#: library.py
+msgid "Not transcribed. Each line is named after what another Helldiver voice says at the same place, and the words may differ."
+msgstr "未转写。每行按另一个绝地潜兵嗓音在相同位置所说的内容命名，措辞可能不同。"
+
+#: library.py
+msgid "All Archives"
+msgstr "所有归档"
+
+#: library.py
+msgid "Archive {id}"
+msgstr "归档 {id}"
+
+#: library.py
+msgid "Other languages appear as tabs once Steam downloads their voice packs."
+msgstr "Steam 下载其他语言的语音包后，这些语言会显示为选项卡。"
+
+#: library.py
+msgid "Sound"
+msgstr "声音"
+
+#: library.py
+msgid "Holds {names} and more."
+msgstr "包含 {names} 等。"
+
+#: library.py
+msgid "Holds {names}."
+msgstr "包含 {names}。"
+
+#: library.py
+msgid "Sound {n}"
+msgstr "声音 {n}"
+
+#: library.py
+msgid "“{line}”"
+msgstr "“{line}”"
+
+#: library.py
+msgid "{sound} · Layer {n}"
+msgstr "{sound} · 层 {n}"
+
+#: library.py
+msgid "{sound} · Layer"
+msgstr "{sound} · 层"
+
+#: library.py
+msgid "These are {language} voices. A replacement here only reaches players who use this language."
+msgstr "这些是{language}语音。此处的替换只对使用该语言的玩家生效。"
+
+#: library.py
+msgid "Music: {sections} and {n} More"
+msgid_plural "Music: {sections} and {n} More"
+msgstr[0] "音乐：{sections}及另外 {n} 项"
+
+#: library.py
+msgid "Music: {sections}"
+msgstr "音乐：{sections}"
+
+#: library.py
+msgid "Take {n}"
+msgstr "变体 {n}"
+
+#: library.py
+msgid "Only {language} voices are installed."
+msgstr "仅安装了{language}语音。"
+
+#: library.py
+msgid "Voices installed: {languages}."
+msgstr "已安装的语音：{languages}。"
+
+#: library.py
+msgid "Bank {n}"
+msgstr "音频库 {n}"
+
+#: library.py
+msgid "Sounds {first}–{last}"
+msgstr "声音 {first}–{last}"
+
+#: musiclist.py
+msgid "{names} and {last}"
+msgstr "{names}和{last}"
+
+#: musiclist.py
+msgid "Started directly by a game event."
+msgstr "由游戏事件直接触发。"
+
+#: musiclist.py
+msgid "One end of this transition isn't in the game data any more, so it may never play."
+msgstr "此过渡段的一端已不在游戏数据中，因此可能永远不会播放。"
+
+#: musiclist.py
+msgid "Stinger"
+msgstr "插入乐段"
+
+#: musiclist.py
+msgid "Several Levels"
+msgstr "多个强度"
+
+#: musiclist.py
+msgid "Starts when the MUSIC state is {state}."
+msgstr "当 MUSIC 状态为 {state} 时开始。"
+
+#: musiclist.py
+msgid "Anything"
+msgstr "任意音乐"
+
+#: musiclist.py
+msgid "An Unknown Piece"
+msgstr "未知曲目"
+
+#: musiclist.py
+msgid "{first}, {second} and {n} More"
+msgid_plural "{first}, {second} and {n} More"
+msgstr[0] "{first}、{second}及另外 {n} 项"
+
+#: musiclist.py
+msgid "{before} → {after}"
+msgstr "{before} → {after}"
+
+#: musiclist.py
+msgid "Bumper"
+msgstr "短乐段"
+
+#: musiclist.py
+msgid "Any Other Biome"
+msgstr "其他任意生物群系"
+
+#: musiclist.py
+msgid "Starts when the MUSIC state is {state} and {state} is {value}."
+msgstr "当 MUSIC 状态为 {state} 且 {state} 为 {value} 时开始。"
+
+#: musiclist.py
+msgid "The Mission Music"
+msgstr "任务音乐"
+
+#: musiclist.py
+msgid "{first} or {second}"
+msgstr "{first}或{second}"
+
+#: musiclist.py
+msgid "Over {music}"
+msgstr "叠加于{music}"
+
+#: musiclist.py
+msgid "Other Biomes"
+msgstr "其他生物群系"
+
+#: musiclist.py
+msgid "Biomes the game data leaves unnamed."
+msgstr "游戏数据中未命名的生物群系。"
+
+#: musiclist.py
+msgid "{levels}, Also on Arrival"
+msgstr "{levels}，抵达时也播放"
+
+#: musiclist.py
+msgid "{music} ({part})"
+msgstr "{music}（{part}）"
+
+#: musiclist.py
+msgid "The Combat Music"
+msgstr "战斗音乐"
+
+#: musiclist.py
+msgid "Anything Else"
+msgstr "其他任意音乐"
+
+#: musiclist.py
+msgid "{section} Transitions"
+msgstr "{section}过渡段"
+
+#: musiclist.py
+msgid "{section} Stingers"
+msgstr "{section}插入乐段"
+
+#: musiclist.py
+msgid "The same audio also plays for {name} and {n} more."
+msgid_plural "The same audio also plays for {name} and {n} more."
+msgstr[0] "{name}及另外 {n} 项也播放相同的音频。"
+
+#: musiclist.py
+msgid "The same audio also plays for {name}."
+msgstr "{name}也播放相同的音频。"
+
+#: musiclist.py
+msgid "{section}: {name}"
+msgstr "{section}：{name}"
+
+#: musiclist.py
+msgid "Combat music for {faction}, a faction that Audiodiver can't identify yet."
+msgstr "{faction}的战斗音乐，Audiodiver 尚无法识别该阵营。"
+
+#: musiclist.py
+msgid "{section} Music"
+msgstr "{section}音乐"
+
+#: musiclist.py
+msgid "{faction} {role}"
+msgstr "{faction}{role}"
+
+#: musiclist.py
+msgid "Variant {n}"
+msgstr "版本 {n}"
+
+#: musiclist.py
+msgid "Unidentified Piece {n}"
+msgstr "未识别曲目 {n}"
+
+#: notes.py
+msgid "A note can be up to {n} characters long"
+msgstr "备注最多 {n} 个字符"
+
+#: patch.py
+msgid "{file} is missing"
+msgstr "{file} 缺失"
+
+#: patch.py
+msgid "{file} is cut short"
+msgstr "{file} 不完整"
+
+#: project.py
+msgid "The project in {pack} isn't an Audiodiver project"
+msgstr "{pack} 中的项目不是 Audiodiver 项目"
+
+#: project.py
+msgid "{file} was made by a newer version of Audiodiver. Update Audiodiver to open it"
+msgstr "{file} 由更新版本的 Audiodiver 创建。请更新 Audiodiver 后再打开"
+
+#: project.py
+msgid "The project in {pack} was made by a newer version of Audiodiver. Update Audiodiver to open it"
+msgstr "{pack} 中的项目由更新版本的 Audiodiver 创建。请更新 Audiodiver 后再打开"
+
+#: project.py
+msgid "{file} is damaged (the name)"
+msgstr "{file} 已损坏（名称）"
+
+#: project.py
+msgid "The project in {pack} is damaged (the name)"
+msgstr "{pack} 中的项目已损坏（名称）"
+
+#: project.py
+msgid "{file} is damaged (the replacements)"
+msgstr "{file} 已损坏（替换项）"
+
+#: project.py
+msgid "The project in {pack} is damaged (the replacements)"
+msgstr "{pack} 中的项目已损坏（替换项）"
+
+#: project.py
+msgid "{file} is damaged (a replacement)"
+msgstr "{file} 已损坏（某个替换项）"
+
+#: project.py
+msgid "The project in {pack} is damaged (a replacement)"
+msgstr "{pack} 中的项目已损坏（某个替换项）"
+
+#: project.py
+msgid "{file} is damaged (a replacement's sound ID)"
+msgstr "{file} 已损坏（某个替换项的声音 ID）"
+
+#: project.py
+msgid "The project in {pack} is damaged (a replacement's sound ID)"
+msgstr "{pack} 中的项目已损坏（某个替换项的声音 ID）"
+
+#: project.py
+msgid "{file} is damaged (the icon)"
+msgstr "{file} 已损坏（图标）"
+
+#: project.py
+msgid "The project in {pack} is damaged (the icon)"
+msgstr "{pack} 中的项目已损坏（图标）"
+
+#: project.py
+msgid "{file} is damaged (the cue points)"
+msgstr "{file} 已损坏（提示点）"
+
+#: project.py
+msgid "The project in {pack} is damaged (the cue points)"
+msgstr "{pack} 中的项目已损坏（提示点）"
+
+#: project.py
+msgid "{file} is damaged (the text changes)"
+msgstr "{file} 已损坏（文本更改）"
+
+#: project.py
+msgid "The project in {pack} is damaged (the text changes)"
+msgstr "{pack} 中的项目已损坏（文本更改）"
+
+#: project.py
+msgid "{file} is damaged (the settings from a mod)"
+msgstr "{file} 已损坏（来自模组的设置）"
+
+#: project.py
+msgid "The project in {pack} is damaged (the settings from a mod)"
+msgstr "{pack} 中的项目已损坏（来自模组的设置）"
+
+#: project.py
+msgid "{file} is damaged (the Make-Up Gain on the original audio)"
+msgstr "{file} 已损坏（原版音频上的 Make-Up Gain）"
+
+#: project.py
+msgid "The project in {pack} is damaged (the Make-Up Gain on the original audio)"
+msgstr "{pack} 中的项目已损坏（原版音频上的 Make-Up Gain）"
+
+#: project.py
+msgid "{file} is damaged (the added audio)"
+msgstr "{file} 已损坏（添加的音频）"
+
+#: project.py
+msgid "The project in {pack} is damaged (the added audio)"
+msgstr "{pack} 中的项目已损坏（添加的音频）"
+
+#: project.py
+msgid "{file} is damaged (the soundtrack)"
+msgstr "{file} 已损坏（配乐）"
+
+#: project.py
+msgid "The project in {pack} is damaged (the soundtrack)"
+msgstr "{pack} 中的项目已损坏（配乐）"
+
+#: project.py
+msgid "{file} is damaged (a cue point, a text change, added audio or a setting)"
+msgstr "{file} 已损坏（提示点、文本更改、添加的音频或设置）"
+
+#: project.py
+msgid "The project in {pack} is damaged (a cue point, a text change, added audio or a setting)"
+msgstr "{pack} 中的项目已损坏（提示点、文本更改、添加的音频或设置）"
+
+#: project.py
+msgid "a note"
+msgstr "一条备注"
+
+#: project.py
+msgid "the tabs"
+msgstr "选项卡"
+
+#: project.py
+msgid "the label of {name}"
+msgstr "{name} 的标签"
+
+#: project.py
+msgid "the Make-Up Gain of {name}"
+msgstr "{name} 的 Make-Up Gain"
+
+#: project.py
+msgid "Fit timing for {name}"
+msgstr "{name} 的“让时序适配新音频”"
+
+#: project.py
+msgid "the label of sound {id}"
+msgstr "声音 {id} 的标签"
+
+#: project.py
+msgid "the Make-Up Gain of sound {id}"
+msgstr "声音 {id} 的 Make-Up Gain"
+
+#: project.py
+msgid "Fit timing for sound {id}"
+msgstr "声音 {id} 的“让时序适配新音频”"
+
+#: project.py
+msgid "mod ID: damaged in the project file (Make a New ID, on the Project tab)"
+msgstr "模组 ID：在项目文件中已损坏（在项目选项卡中使用“生成新 ID”）"
+
+#: project.py
+msgid "Loudness analysis"
+msgstr "响度分析"
+
+#: project.py
+msgid "Banks"
+msgstr "音频库"
+
+#: project.py
+msgid "Patch files"
+msgstr "补丁文件"
+
+#: project.py
+msgid "the game version of the last build"
+msgstr "上次构建时的游戏版本"
+
+#: project.py
+msgid "what the last build was made from"
+msgstr "上次构建所用的内容"
+
+#: project.py
+msgid "the description"
+msgstr "描述"
+
+#: project.py
+msgid "the build folder"
+msgstr "构建文件夹"
+
+#: project.py
+msgid "icon: image not found ({path})"
+msgstr "图标：找不到图片（{path}）"
+
+#: project.py
+msgid "a cue point"
+msgstr "一个提示点"
+
+#: project.py
+msgid "the version"
+msgstr "版本"
+
+#: project.py
+msgid "icon: {problem}"
+msgstr "图标：{problem}"
+
+#: project.py
+msgid "{name}: same target as {other}"
+msgstr "{name}：与 {other} 的目标相同"
+
+#: project.py
+msgid "{name}: the audio file wasn't found ({path})"
+msgstr "{name}：未找到音频文件（{path}）"
+
+#: project.py
+msgid "segment {id}: unknown overrides {keys}"
+msgstr "段落 {id}：未知的覆盖项 {keys}"
+
+#: project.py
+msgid "the imported mods' banks"
+msgstr "导入模组的音频库"
+
+#: projectfiles.py
+msgid "Another project in this folder can't be read, so it isn't known which files it uses"
+msgstr "此文件夹中的另一个项目无法读取，因此无法确定它使用了哪些文件"
+
+#: projectfiles.py
+msgid "{file} isn't an Audiodiver pack, or it is damaged"
+msgstr "{file} 不是 Audiodiver 项目包，或已损坏"
+
+#: projectfiles.py
+msgid "{file} needs {mb} MB, and {folder} has less free space"
+msgstr "{file} 需要 {mb} MB，而 {folder} 的可用空间不足"
+
+#: projectfiles.py
+msgid "{file} has a file that would go outside the folder it unpacks to ({inside})"
+msgstr "{file} 中有文件会被解包到目标文件夹之外（{inside}）"
+
+#: projectfiles.py
+msgid "{file} holds no project"
+msgstr "{file} 中没有项目"
+
+#: projectfiles.py
+msgid "{file} holds more than one project"
+msgstr "{file} 中有多个项目"
+
+#: projectfiles.py
+msgid "The project in {pack} is damaged"
+msgstr "{pack} 中的项目已损坏"
+
+#: projectfiles.py
+msgid "Packing {file}"
+msgstr "正在打包 {file}"
+
+#: projectfiles.py
+msgid "Unpacking {file}"
+msgstr "正在解包 {file}"
+
+#: render.py
+msgid "this cue has nothing to play"
+msgstr "这段音乐没有可播放的内容"
+
+#: render.py
+msgid "can't write {file}: {why}"
+msgstr "无法写入 {file}：{why}"
+
+#: render.py
+msgid "can't read the audio in {file}"
+msgstr "无法读取 {file} 中的音频"
+
+#: render.py
+msgid "this cue runs over {n} minutes when played through, so export the segments separately"
+msgstr "这段音乐连续播放时超过 {n} 分钟，请分别导出各段落"
+
+#: repatch.py
+msgid "Choose a .patch_0 file, a mod folder or a ZIP"
+msgstr "选择 .patch_0 文件、模组文件夹或 ZIP"
+
+#: repatch.py
+msgid "{file} isn't a mod. Choose a .patch_0 file (Audiodiver also reads the .stream file next to it), a mod folder or a ZIP. Unpack .7z and .rar files first"
+msgstr "{file} 不是模组。请选择 .patch_0 文件（Audiodiver 也会读取它旁边的 .stream 文件）、模组文件夹或 ZIP。.7z 和 .rar 文件请先解压"
+
+#: repatch.py
+msgid "{file} isn't a mod. Choose a .patch_0 file (Audiodiver also reads the .stream file next to it), a mod folder or a ZIP"
+msgstr "{file} 不是模组。请选择 .patch_0 文件（Audiodiver 也会读取它旁边的 .stream 文件）、模组文件夹或 ZIP"
+
+#: repatch.py
+msgid "{file} holds no patch file (.patch_0)"
+msgstr "{file} 中没有补丁文件（.patch_0）"
+
+#: repatch.py
+msgid "{file} can't be opened as a ZIP"
+msgstr "{file} 无法作为 ZIP 打开"
+
+#: server.py
+msgid "Choose a folder"
+msgstr "选择文件夹"
+
+#: server.py
+msgid "The core refused the connection because of a wrong token"
+msgstr "令牌错误，核心拒绝了连接"
+
+#: server.py
+msgid "The core's answer held a number it can't send"
+msgstr "核心的响应中含有无法发送的数字"
+
+#: server.py
+msgid "{file} isn't an audio file"
+msgstr "{file} 不是音频文件"
+
+#: soundtrack.py
+msgid "every segment of the piece is left out"
+msgstr "该曲目的所有段落均被略去"
+
+#: updates.py
+msgid "GitHub answered {code}"
+msgstr "GitHub 返回了 {code}"

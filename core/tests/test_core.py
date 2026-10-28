@@ -91,17 +91,26 @@ def test_buttons_are_in_title_case():
     labels = []
     for f in sorted(src.glob("*.tsx")):
         t = f.read_text(encoding="utf-8")
-        # a button's words: plain text up to the first tag or expression, on the same line as the end of the tag
-        for m in re.finditer(r"<button\b([^\n]*?[^=])>([A-Za-z][^<>{}\n]*)</button>", t):
-            if "setQuery(" not in m.group(1):  # the Text tab's searches to try, words in a sentence
-                labels.append((f.name, m.group(2).strip()))
-        for m in re.finditer(r"\b(?:label|ok|alt|cancel): \"([^\"\n]+)\"", t):
-            labels.append((f.name, m.group(1)))
+        # the English is in the translation macros (README, Translations): t`Save`, <Trans>Save</Trans>,
+        # t({ message: "Even", comment: "…" }); comments and contexts for translators are sentences, not labels
+        t = re.sub(r"\b(?:comment|context): (?:\"[^\"\n]*\"|`[^`\n]*`)", "", t)
+        t = re.sub(r"\b(?:comment|context)=\"[^\"\n]*\"", "", t)
+        # a button's words: plain text up to the first tag or expression, on the same line as the end of the tag,
+        # as it is or inside <Trans>, t`…` or t({ message: "…" })
+        for pattern in (r"<button\b([^\n]*?[^=])>([A-Za-z][^<>{}\n]*)</button>",
+                        r"<button\b([^\n]*?[^=])><Trans\b[^>\n]*>([A-Za-z][^<>{}\n]*)</Trans></button>",
+                        r"<button\b([^\n]*?[^=])>\{t`([A-Za-z][^`$\n]*)`\}</button>",
+                        r"<button\b([^\n]*?[^=])>\{t\(\{\s*message: \"([A-Za-z][^\"\n]*)\""):
+            for m in re.finditer(pattern, t):
+                if "setQuery(" not in m.group(1):  # the Text tab's searches to try, words in a sentence
+                    labels.append((f.name, m.group(2).strip()))
+        for m in re.finditer(r"\b(?:label|ok|alt|cancel): (?:(?:t|msg)?`([^`$\n]+)`|\"([^\"\n]+)\"|t\(\{\s*message: \"([^\"\n]+)\")", t):
+            labels.append((f.name, next(g for g in m.groups() if g)))
         # a menu entry's label built as it opens: each string in it, with what ${...} puts in left out
         for m in re.finditer(r"\blabel: (?!string)([^\n]*?)(?:, (?:run|keys|disabled|tip|draw|about):|$)", t, re.M):
             value = m.group(1)
-            while re.search(r"\$\{[^{}]*\}", value):
-                value = re.sub(r"\$\{[^{}]*\}", "X", value)
+            while re.search(r"\{[^{}]*\}", value):  # innermost first: ${ph({ name: x })}, plural(n, { … })
+                value = re.sub(r"\$?\{[^{}]*\}", "X", value)
             labels += [(f.name, s) for s in re.findall(r"`([^`]*)`|\"([^\"]*)\"", value) for s in s if s.strip()]
     found = []
     for name, label in labels:

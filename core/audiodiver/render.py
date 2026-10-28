@@ -19,6 +19,7 @@ from pathlib import Path
 import numpy as np
 
 from . import wem
+from .i18n import tr
 from .index import CACHE_DIR
 
 RATE = wem.RATE
@@ -54,7 +55,7 @@ def load(path) -> np.ndarray:
         raw = subprocess.run([wem.FFMPEG, "-v", "error", "-i", path, "-ac", str(ch), "-ar", str(RATE),
                               "-f", "f32le", "-"], capture_output=True, check=True).stdout
     except subprocess.CalledProcessError as e:
-        raise RenderError(f"can't read the audio in {name}") from e
+        raise RenderError(tr("can't read the audio in {file}").format(file=name)) from e
     a = np.frombuffer(raw[:len(raw) // (4 * ch) * 4 * ch], dtype="<f4").reshape(-1, ch)
     return np.repeat(a, 2, axis=1) if ch == 1 else a
 
@@ -82,8 +83,9 @@ def write(path: Path, audio, fmt: str, tags: dict | None = None) -> float:
         level = ["-af", f"volume={1 / peak:.6f}"] if change else []
         p = subprocess.run([wem.FFMPEG, "-v", "error", "-y", "-f", "f32le", "-ar", str(RATE), "-ac", "2", "-i",
                             str(spool), *level, *FORMATS[fmt][1], *_tags(tags), str(path)], capture_output=True)
-        if p.returncode:
-            raise RenderError(f"can't write {path.name}: {p.stderr.decode(errors='replace').strip()[-300:]}")
+        if p.returncode:  # ffmpeg's own words after the colon
+            raise RenderError(tr("can't write {file}: {why}").format(
+                file=path.name, why=p.stderr.decode(errors="replace").strip()[-300:]))
     except BaseException:
         path.unlink(missing_ok=True)  # never leave half a file behind (errors and cancelled exports)
         raise
@@ -109,13 +111,14 @@ def transcode(src: Path, dst: Path, fmt: str, tags: dict | None = None, gain_db:
     try:
         src = wem.decoded(src)
     except subprocess.CalledProcessError as e:
-        raise RenderError(f"can't read the audio in {Path(src).name}") from e
+        raise RenderError(tr("can't read the audio in {file}").format(file=Path(src).name)) from e
     level = ["-af", f"volume={gain_db}dB"] if gain_db else []
     p = subprocess.run([wem.FFMPEG, "-v", "error", "-y", "-i", src, "-vn", *level, *FORMATS[fmt][1], *_tags(tags),
                         str(dst)], capture_output=True)
     if p.returncode:
         dst.unlink(missing_ok=True)
-        raise RenderError(f"can't write {dst.name}: {p.stderr.decode(errors='replace').strip()[-300:]}")
+        raise RenderError(tr("can't write {file}: {why}").format(
+            file=dst.name, why=p.stderr.decode(errors="replace").strip()[-300:]))
 
 
 @dataclass
@@ -312,7 +315,7 @@ class Renderer:
             takes[seg] = take + 1
             plans.append((self.plan(seg, variants, take), take))
         if not plans:
-            raise RenderError("this cue has nothing to play")
+            raise RenderError(tr("this cue has nothing to play"))
         cursor, starts, end = None, [], 0.0   # cursor: where the next segment's Entry point lands
         for p, _ in plans:
             cursor = p.entry_ms if cursor is None else cursor
@@ -321,7 +324,8 @@ class Renderer:
             cursor += max(0.0, p.exit_ms - p.entry_ms)
         shift = -min(0.0, min(starts))  # a long lead-in on a later segment can reach before the start
         if end + shift > MAX_MINUTES * 60000:
-            raise RenderError(f"this cue runs over {MAX_MINUTES} minutes when played through, so export the segments separately")
+            raise RenderError(tr("this cue runs over {n} minutes when played through, so export the segments "
+                                 "separately").format(n=MAX_MINUTES))
         starts = [s + shift for s in starts]
         marks = [{"segment": str(p.segment), "ms": round(s + p.entry_ms, 1), "exit_ms": round(s + p.exit_ms, 1),
                   "clips": [{"source": str(c.source), "mine": c.mine, "at_ms": round(s + c.start_ms, 1),

@@ -31,6 +31,7 @@ from importlib import resources
 from . import music
 from . import bank as wbank
 from .bank import MUSIC_TRACK, SOUND
+from .i18n import ntr, tr
 from .wem import length_ms
 
 ACTION, EVENT, RANSEQ, SWITCH, MIXER, LAYER = 0x03, 0x04, 0x05, 0x06, 0x07, 0x09
@@ -288,29 +289,88 @@ def first_clip(ix, oid) -> int | None:
     return None
 
 
-def take_problem(ix, oid) -> str | None:
-    """Why the game's container can't have a new take, or None."""
+def _take_why(ix, oid) -> str | None:
+    """Why the game's container can't have a new take: "picks" (the game doesn't pick from takes in it) or "copy" (it
+    has no take to copy); None when it can."""
     found = read(ix, oid)
     if not found or found[1][0] != RANSEQ:
-        return "Only a sound with takes the game picks from can have a new take"
+        return "picks"
     objects = found[0]
     if not any(t == SOUND and is_audio(b) and parent_of(SOUND, b) == oid for t, b in objects.values()):
-        return "This sound has no take to copy"
+        return "copy"
+    return None
+
+
+def _layer_why(ix, oid) -> str | None:
+    """Why the game's container can't have a layer beside it: a reason of _take_why's, "choice" (it is one of the
+    random choices of another sound) or "unplayed" (nothing plays it directly); None when it can."""
+    if why := _take_why(ix, oid):
+        return why
+    objects, (_t, body) = read(ix, oid)
+    parent = parent_of(RANSEQ, body)
+    ptype = next((wbank.parse(ix.bank_files(b)[0])[1][parent][0] for b in ix.copies(parent)[:1]), None)
+    if ptype == RANSEQ:
+        return "choice"
+    if ptype not in (SWITCH, LAYER) and not any(t == ACTION and play_target(b) == oid for t, b in objects.values()):
+        return "unplayed"
+    return None
+
+
+def take_problem(ix, oid) -> str | None:
+    """Why the game's container can't have a new take, or None."""
+    why = _take_why(ix, oid)
+    if why == "picks":
+        return tr("Only a sound with takes the game picks from can have a new take")
+    if why == "copy":
+        return tr("This sound has no take to copy")
     return None
 
 
 def layer_problem(ix, oid) -> str | None:
     """Why the game's container can't have a layer beside it, or None."""
-    if why := take_problem(ix, oid):
-        return why.replace("a new take", "a layer")
-    objects, (_t, body) = read(ix, oid)
-    parent = parent_of(RANSEQ, body)
-    ptype = next((wbank.parse(ix.bank_files(b)[0])[1][parent][0] for b in ix.copies(parent)[:1]), None)
-    if ptype == RANSEQ:
-        return "This sound is one of the random choices of another sound, so a layer would only add another choice"
-    if ptype not in (SWITCH, LAYER) and not any(t == ACTION and play_target(b) == oid for t, b in objects.values()):
-        return "Nothing plays this sound directly, so a layer beside it would never play"
+    why = _layer_why(ix, oid)
+    if why == "picks":
+        return tr("Only a sound with takes the game picks from can have a layer")
+    if why == "copy":
+        return tr("This sound has no take to copy")
+    if why == "choice":
+        return tr("This sound is one of the random choices of another sound, so a layer would only add another choice")
+    if why == "unplayed":
+        return tr("Nothing plays this sound directly, so a layer beside it would never play")
     return None
+
+
+def _not_a_layer(container: int, sounds: int, why: str) -> str:
+    """Why a new container in a mod's patch can't be brought in as a layer (from_patch's `left`): one sentence for each
+    reason, of _layer_why's, "unknown" (what it plays with can't be told) or "sounds" (it has none)."""
+    if why == "sounds":
+        text = ntr("A new container ({id}) with {n} sound can't be a layer, because it has no sounds",
+                   "A new container ({id}) with {n} sounds can't be a layer, because it has no sounds", sounds)
+    elif why == "picks":
+        text = ntr("A new container ({id}) with {n} sound can't be a layer, because only a sound with takes the game "
+                   "picks from can have a layer",
+                   "A new container ({id}) with {n} sounds can't be a layer, because only a sound with takes the game "
+                   "picks from can have a layer", sounds)
+    elif why == "copy":
+        text = ntr("A new container ({id}) with {n} sound can't be a layer, because this sound has no take to copy",
+                   "A new container ({id}) with {n} sounds can't be a layer, because this sound has no take to copy",
+                   sounds)
+    elif why == "choice":
+        text = ntr("A new container ({id}) with {n} sound can't be a layer, because this sound is one of the random "
+                   "choices of another sound, so a layer would only add another choice",
+                   "A new container ({id}) with {n} sounds can't be a layer, because this sound is one of the random "
+                   "choices of another sound, so a layer would only add another choice", sounds)
+    elif why == "unplayed":
+        text = ntr("A new container ({id}) with {n} sound can't be a layer, because nothing plays this sound directly, "
+                   "so a layer beside it would never play",
+                   "A new container ({id}) with {n} sounds can't be a layer, because nothing plays this sound directly, "
+                   "so a layer beside it would never play", sounds)
+    else:
+        text = ntr("A new container ({id}) with {n} sound can't be a layer, because Audiodiver can't tell which sound "
+                   "it plays with",
+                   "A new container ({id}) with {n} sounds can't be a layer, because Audiodiver can't tell which sound "
+                   "it plays with", sounds)
+    return text.format(id=container, n=sounds)
 
 
 # --- what a project adds, at build time
@@ -372,11 +432,12 @@ def plan(ix, takes: list[Take], layers: list[Layer], own: list[Own], taken=froze
     def at(bid) -> BankPlan:
         return out.banks.setdefault(bid, BankPlan())
 
-    def first(oid, kind, what):
+    def first(oid, kind):
         """(the banks with a copy of it, its body in the first)."""
         banks = ix.copies(oid)
         if not banks or objects(banks[0]).get(oid, (None,))[0] != kind:
-            raise AdditionError(f"{what} {oid} isn't in this version of the game")
+            raise AdditionError((tr("Sound {id} isn't in this version of the game") if kind == SOUND
+                                 else tr("Container {id} isn't in this version of the game")).format(id=oid))
         return banks, objects(banks[0])[oid][1]
 
     def template(container, banks):
@@ -384,16 +445,16 @@ def plan(ix, takes: list[Take], layers: list[Layer], own: list[Own], taken=froze
             for t, body in objects(bid).values():
                 if t == SOUND and is_audio(body) and parent_of(SOUND, body) == container:
                     return body
-        raise AdditionError(f"Container {container} has no take to copy")
+        raise AdditionError(tr("Container {id} has no take to copy").format(id=container))
 
     layer_banks = {}
     for lay in layers:
-        banks, body = first(lay.beside, RANSEQ, "Container")
+        banks, body = first(lay.beside, RANSEQ)
         parent = parent_of(RANSEQ, body)
         ptype = next((objects(b)[parent][0] for b in ix.copies(parent)), None)
         if ptype == RANSEQ:
-            raise AdditionError(f"Container {lay.beside} is one of the choices of a random container, so a layer beside it "
-                                f"would only be another choice")
+            raise AdditionError(tr("Container {id} is one of the choices of a random container, so a layer beside it "
+                                   "would only be another choice").format(id=lay.beside))
         out.bodies[lay.id], out.templates[lay.id] = body, template(lay.beside, banks)
         if ptype in (SWITCH, LAYER):
             banks = sorted(set(banks) | set(ix.copies(parent)))
@@ -415,13 +476,13 @@ def plan(ix, takes: list[Take], layers: list[Layer], own: list[Own], taken=froze
                         here.changed.update(events)
                         twins += 1
         if ptype not in (SWITCH, LAYER) and not twins:
-            raise AdditionError(f"Nothing plays container {lay.beside} straight from an event, so a layer beside it "
-                                f"would never play")
+            raise AdditionError(tr("Nothing plays container {id} straight from an event, so a layer beside it would "
+                                   "never play").format(id=lay.beside))
     for take in takes:
         if take.to in layer_banks:
             banks = layer_banks[take.to]
         else:
-            banks = first(take.to, RANSEQ, "Container")[0]
+            banks = first(take.to, RANSEQ)[0]
             out.templates.setdefault(take.to, template(take.to, banks))
             banks = keep(banks)
             for bid in banks:
@@ -432,9 +493,9 @@ def plan(ix, takes: list[Take], layers: list[Layer], own: list[Own], taken=froze
             here.added.add(take.sound)
             here.media[take.source] = take.wem
     for o in own:
-        banks, body = first(o.sound, SOUND, "Sound")
+        banks, body = first(o.sound, SOUND)
         if not is_audio(body):
-            raise AdditionError(f"Sound {o.sound} plays no clip")
+            raise AdditionError(tr("Sound {id} plays no clip").format(id=o.sound))
         for bid in keep(banks):
             here = at(bid)
             here.own.append(o)
@@ -443,7 +504,7 @@ def plan(ix, takes: list[Take], layers: list[Layer], own: list[Own], taken=froze
     for here in out.banks.values():
         for lay, _p, _pt in here.layers:
             if not any(t.to == lay.id for t in here.takes):
-                raise AdditionError(f"Layer {lay.id} has no takes")
+                raise AdditionError(tr("Layer {id} has no takes").format(id=lay.id))
     return out
 
 
@@ -582,6 +643,8 @@ class Found:
     own: list = field(default_factory=list)       # (the game's Sound, its new clip, wem)
     settings: dict = field(default_factory=dict)  # {the game's object: {prop id: the mod's value, or None}} (Project.settings)
     left: list = field(default_factory=list)      # what can't be brought in, in words for people
+    other: dict = field(default_factory=dict)     # {bank: how many other changes the patch makes in it} (left out too;
+                                                  # Session._patch_audio says them, with the bank's name)
     stale: set = field(default_factory=set)       # the game's Sounds of an older version that the mod's copies still have
     older: set = field(default_factory=set)       # the game's objects (and clips) that the mod's copies have as an older version had them
     merged: set = field(default_factory=set)      # the game's objects whose copy is another bank's (a merging tool's)
@@ -719,7 +782,7 @@ def from_patch(ix, d: dict) -> Found:
     Sound of the game that plays a clip it didn't is a clip of its own; new audio for one of the game's clips is a
     replacement. The same addition in several banks counts once. Settings the mod changes on the game's objects (a
     Sound's, a container's or a MusicTrack's prop bundle: Make-Up Gain, delays, sends...) are `settings`. What
-    doesn't map (other changes, objects of other kinds) is said in `left`. A patch made for an older game version
+    doesn't map is said in `left`, and the other changes in a bank are counted in `other`. A patch made for an older game version
     still has the game's objects of that version: those aren't the mod's (older_version), its Sounds are counted in
     `stale`, the objects the game added since aren't ones the mod took out, nor the settings it added ones the mod
     took away, and an object exactly as an earlier version had it (bank_history's fingerprints), under another parent
@@ -736,7 +799,7 @@ def from_patch(ix, d: dict) -> Found:
             read[bid] = wbank.parse(ix.bank_files(bid)[0])[1]
         return read[bid]
 
-    out.left += [f"bank {bid}, which this version of the game doesn't have" for bid in d.get("unknown", [])]
+    out.left += [tr("bank {id}, which this version of the game doesn't have").format(id=bid) for bid in d.get("unknown", [])]
     # the game's clips the patch has audio for, in a bank or streamed, known before any bank is read: a music track
     # in one bank can play a clip that another bank or the stream replaces
     new_audio = {m for b in d["banks"].values() for m in b["media"] if m in b["read"][1][0] and game(m)}
@@ -790,7 +853,7 @@ def from_patch(ix, d: dict) -> Found:
             sid, parent = wbank.SOURCE.unpack_from(body, 0)[2], parent_of(SOUND, body)
             wem = audio(sid)
             if wem is None:
-                out.left.append(f"A new sound ({i}) has no audio in the patch")
+                out.left.append(tr("A new sound ({id}) has no audio in the patch").format(id=i))
             elif parent in new_cntr:
                 layer_takes[parent].append((i, sid, wem))
             elif vanilla.get(parent, (None,))[0] == RANSEQ:
@@ -799,16 +862,14 @@ def from_patch(ix, d: dict) -> Found:
                     seen.add(i)
                     out.takes.append((parent, i, sid, wem))
             else:
-                out.left.append(f"A new sound ({i}) is in a place where Audiodiver can't add a take (under object {parent})")
+                out.left.append(tr("A new sound ({id}) is in a place where Audiodiver can't add a take (under object "
+                                   "{parent})").format(id=i, parent=parent))
         for n in sorted(new_cntr):
             candidates = _beside(n, hirc, vanilla, added)
-            why = "Audiodiver can't tell which sound it plays with"
-            beside = next((c for c in candidates if not layer_problem(ix, c)), None)
-            if candidates and beside is None:
-                why = layer_problem(ix, candidates[0])
+            beside = next((c for c in candidates if not _layer_why(ix, c)), None)
             if beside is None or not layer_takes[n]:
-                out.left.append(f"A new container ({n}) with {len(layer_takes[n])} sounds can't be a layer, because "
-                                f"{why if beside is None else 'it has no sounds'}")
+                why = "sounds" if beside is not None else _layer_why(ix, candidates[0]) if candidates else "unknown"
+                out.left.append(_not_a_layer(n, len(layer_takes[n]), why))
                 continue
             explained.update({parent_of(RANSEQ, hirc[n][1])})
             explained.update(e for e, (et, eb) in hirc.items() if et == EVENT and e in vanilla
@@ -828,7 +889,7 @@ def from_patch(ix, d: dict) -> Found:
                 continue
             explained.add(i)
             if (wem := audio(new)) is None:
-                out.left.append(f"Sound {i} plays a clip that has no audio in the patch")
+                out.left.append(tr("Sound {id} plays a clip that has no audio in the patch").format(id=i))
             elif i not in seen:
                 seen.add(i)
                 out.own.append((i, new, wem))
@@ -871,8 +932,7 @@ def from_patch(ix, d: dict) -> Found:
             explained.update(i for _, i in b["objects"] if i not in explained and names_older(hirc[i][1]))
         out.older |= as_was - merged
         other = [i for t, i in b["objects"] if i not in explained]
-        if other:
-            out.left.append(f"{len(other)} other change{'s' if len(other) != 1 else ''} in bank {bid} (settings such as "
-                            f"effects, positioning or how a container picks sounds)")
+        if other:  # settings such as effects, positioning or how a container picks sounds
+            out.other[bid] = len(other)
         # objects the copy doesn't have aren't listed: mods don't take the game's out, so the game added them since
     return out

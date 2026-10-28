@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { WIKI as ALL_PAGES, WIKI_GROUPS, wikiPicture } from "./content";
 import { UTILS, UTILS_WIKI } from "./edition";
 import { DownIcon, PlayMarkIcon, SearchIcon, UpIcon } from "./Icons";
@@ -11,9 +13,12 @@ import { TUTORIALS_PAGE, TutorialsPage } from "./Tutorial";
 
 const NAV_SHARE = 0.25; // the list of guides takes a quarter of the tab to start, the page the rest
 /** The pages the list shows and Previous/Next step through: Audiodiver Utils lists only its own (a link still opens
-    any page). The FAQ (group "FAQ") has an entry of its own above the groups, and isn't one of the steps. */
-const WIKI = UTILS ? ALL_PAGES.filter((p) => UTILS_WIKI.has(p.id)) : ALL_PAGES.filter((p) => p.group !== "FAQ");
-const FAQ = UTILS ? undefined : ALL_PAGES.find((p) => p.group === "FAQ");
+    any page). The FAQ (the page "faq") has an entry above the groups, and isn't one of the steps. */
+const WIKI = UTILS ? ALL_PAGES.filter((p) => UTILS_WIKI.has(p.id)) : ALL_PAGES.filter((p) => p.id !== "faq");
+const FAQ = UTILS ? undefined : ALL_PAGES.find((p) => p.id === "faq");
+/** The words that find the entry of the interactive tutorials in the guides search, in the window's language. */
+const TUTORIAL_WORDS = t({ message: "interactive tutorials walkthroughs",
+  comment: "Search words in lower case. Typing them in the Wiki's guide search shows the Interactive Tutorials entry." }).toLowerCase();
 
 /** The Wiki tab: guides, resources and good practice for making audio mods. Pages are Markdown files in src/wiki
     (see content.ts for how one is laid out); the list on the left, the page in the middle, its headings on the right. */
@@ -63,7 +68,7 @@ export function Wiki() {
     shown.current = page?.id ?? null;
   }, [page?.id, anchor]);
 
-  if (!page) return <section className="wiki"><p className="empty-note">No guides yet.</p></section>;
+  if (!page) return <section className="wiki"><p className="empty-note"><Trans>No guides yet.</Trans></p></section>;
 
   const outline = page.headings.filter((h) => h.depth <= 3);
   /** The outline follows the reading position: the last heading that has passed the top of the page. */
@@ -88,13 +93,15 @@ export function Wiki() {
     setAt(heading);
     document.getElementById(heading)?.scrollIntoView({ block: "start", behavior: scrollBehavior() });
   };
+  const searchKey = keyLabel("search");
 
   return (
-    <section className="wiki" aria-label="Wiki" style={{ ["--wiki-nav" as any]: String(share) }}>
-      <nav className="wiki-nav" aria-label="Guides">
+    <section className="wiki" aria-label={t`Wiki`} style={{ ["--wiki-nav" as any]: String(share) }}>
+      <nav className="wiki-nav" aria-label={t`Guides`}>
         <div className="lib-search wiki-search">
-          <input type="search" placeholder="Search the guides" value={query} aria-label="Search the guides" onChange={(e) => setQuery(e.target.value)}
-            data-tip="Lists the guides that have every word" data-tip-more={keyLabel("search") ? `${keyLabel("search")} finds words on the open page` : undefined}
+          <input type="search" placeholder={t`Search the guides`} value={query} aria-label={t`Search the guides`} onChange={(e) => setQuery(e.target.value)}
+            data-tip={t`Lists the guides that have every word`}
+            data-tip-more={searchKey ? t({ message: `${searchKey} finds words on the open page`, comment: "searchKey is the key of the Search command, such as Ctrl+F." }) : undefined}
             onKeyDown={(e) => {
               if (e.key === "Escape") { if (query) setQuery(""); else e.currentTarget.blur(); }
               else if (e.key === "Enter" && groups.length) openFound(groups[0].pages[0].id);
@@ -102,11 +109,11 @@ export function Wiki() {
             }} />
         </div>
         <div className="wiki-list">
-          {!UTILS && (!words.length || words.every((w) => "interactive tutorials walkthroughs".includes(w))) && (
+          {!UTILS && (!words.length || words.every((w) => TUTORIAL_WORDS.includes(w))) && (
             <button className={`wiki-faq wiki-tut${tutorials ? " active" : ""}`} aria-current={tutorials ? "page" : undefined}
-              onClick={() => nav.go("wiki", TUTORIALS_PAGE)} data-tip="Walkthroughs in the app that show where to click, one step at a time" data-tip-side="right">
+              onClick={() => nav.go("wiki", TUTORIALS_PAGE)} data-tip={t`Walkthroughs in the app that show where to click, one step at a time`} data-tip-side="right">
               <span className="wiki-faq-mark" aria-hidden><PlayMarkIcon /></span>
-              <b className="wiki-faq-text">Interactive Tutorials</b>
+              <b className="wiki-faq-text"><Trans>Interactive Tutorials</Trans></b>
             </button>
           )}
           {FAQ && faqFound && (
@@ -125,10 +132,10 @@ export function Wiki() {
               ))}
             </div>
           ))}
-          {!groups.length && !faqFound && <p className="empty-note">No guide mentions “{query}”.</p>}
+          {!groups.length && !faqFound && <p className="empty-note"><Trans>No guide mentions “{query}”.</Trans></p>}
         </div>
       </nav>
-      <Splitter fraction width={share} onResize={setShare} initial={NAV_SHARE} panel="left" label="Resize the list of guides" cssVar="--wiki-nav" />
+      <Splitter fraction width={share} onResize={setShare} initial={NAV_SHARE} panel="left" label={t`Resize the list of guides`} cssVar="--wiki-nav" />
       <div className={`wiki-read${find ? " finding" : ""}`} ref={reader} onScroll={follow}>
         {find && <FindBar article={article} reader={reader} page={page.id} open={find} onClose={() => setFind(null)} />}
         {tutorials ? <div className="wiki-cols"><TutorialsPage /></div> : <div className="wiki-cols">
@@ -139,13 +146,13 @@ export function Wiki() {
             </header>
             <Markdown tokens={page.tokens} images={wikiPicture} />
             <footer className="wiki-foot">
-              {step(-1) ? <button className="wiki-step" onClick={() => nav.go("wiki", step(-1)!.id)}><small>Previous</small>{step(-1)!.title}</button> : <span />}
-              {step(1) && <button className="wiki-step next" onClick={() => nav.go("wiki", step(1)!.id)}><small>Next</small>{step(1)!.title}</button>}
+              {step(-1) ? <button className="wiki-step" onClick={() => nav.go("wiki", step(-1)!.id)}><small>{t({ message: "Previous", context: "Wiki page" })}</small>{step(-1)!.title}</button> : <span />}
+              {step(1) && <button className="wiki-step next" onClick={() => nav.go("wiki", step(1)!.id)}><small>{t({ message: "Next", context: "Wiki page" })}</small>{step(1)!.title}</button>}
             </footer>
           </article>
           {outline.length > 1 && (
-            <aside className="wiki-outline" aria-label="On this page">
-              <h2>On this page</h2>
+            <aside className="wiki-outline" aria-label={t`On this page`}>
+              <h2><Trans>On this page</Trans></h2>
               {outline.map((h) => (
                 <button key={h.id} className={`${h.depth === 3 ? "sub" : ""}${at === h.id ? " active" : ""}`} onClick={() => jump(h.id)}>{h.text}</button>
               ))}
@@ -203,21 +210,23 @@ function FindBar({ article, reader, page, open, onClose }: {
   }, [matches, now]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => () => { CSS.highlights?.delete("wiki-find"); CSS.highlights?.delete("wiki-find-now"); }, []);
   const step = (by: number) => { if (matches.length) setNow((i) => (i + by + matches.length) % matches.length); };
-  const count = matches.length ? `${now + 1} of ${matches.length}` : query.trim() ? "No matches" : "";
+  const current = now + 1, total = matches.length;
+  const count = total ? t({ message: `${current} of ${total}`, comment: "In the find bar, the number of the match shown and how many matches there are." })
+    : query.trim() ? t`No matches` : "";
   return (
     <div className="wiki-find-dock">
-      <div className="wiki-find" role="search" aria-label="Find on this page">
+      <div className="wiki-find" role="search" aria-label={t`Find on this page`}>
         <SearchIcon />
-        <input ref={box} type="text" value={query} placeholder="Find on this page" aria-label="Find on this page" spellCheck={false}
+        <input ref={box} type="text" value={query} placeholder={t`Find on this page`} aria-label={t`Find on this page`} spellCheck={false}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") { e.preventDefault(); step(e.shiftKey ? -1 : 1); }
             else if (e.key === "Escape") { e.preventDefault(); onClose(); }
           }} />
         <span className="wiki-find-count" aria-live="polite">{count}</span>
-        <button className="x" onClick={() => step(-1)} disabled={!matches.length} aria-label="Previous match" data-tip="Previous match" data-tip-more="Shift+Enter"><UpIcon /></button>
-        <button className="x" onClick={() => step(1)} disabled={!matches.length} aria-label="Next match" data-tip="Next match" data-tip-more="Enter"><DownIcon /></button>
-        <button className="x" onClick={onClose} aria-label="Close" data-tip="Close" data-tip-more="Esc">✕</button>
+        <button className="x" onClick={() => step(-1)} disabled={!matches.length} aria-label={t`Previous match`} data-tip={t`Previous match`} data-tip-more="Shift+Enter"><UpIcon /></button>
+        <button className="x" onClick={() => step(1)} disabled={!matches.length} aria-label={t`Next match`} data-tip={t`Next match`} data-tip-more="Enter"><DownIcon /></button>
+        <button className="x" onClick={onClose} aria-label={t`Close`} data-tip={t`Close`} data-tip-more="Esc">✕</button>
       </div>
     </div>
   );
@@ -255,7 +264,8 @@ function findRanges(root: HTMLElement, words: string): Range[] {
 
 /** Words that open a Wiki page: what the app explains at length, it explains there. */
 export function WikiLink({ page, about, children }: { page: string; about: string; children: React.ReactNode }) {
-  return <button className="link-text" onClick={() => nav.go("wiki", page)} data-tip={`${about}: open the Wiki`}>{children}</button>;
+  return <button className="link-text" onClick={() => nav.go("wiki", page)}
+    data-tip={t({ message: `${about}: open the Wiki`, comment: "Tooltip of words that open a Wiki page. about is the subject of the page." })}>{children}</button>;
 }
 
 /** A "?" that holds a description, so the screen doesn't have to: hovering (or focusing) it shows `tip`, and a click
@@ -263,7 +273,7 @@ export function WikiLink({ page, about, children }: { page: string; about: strin
 export function Help({ tip, page }: { tip: string; page: string }) {
   // inside a label, a click on the "?" must not tick the checkbox or focus the field the label is for
   return (
-    <button className="wiki-q" onClick={(e) => { e.preventDefault(); e.stopPropagation(); nav.go("wiki", page); }} aria-label={`${tip} Open the Wiki section.`}
-      data-tip={tip} data-tip-more="Click for the Wiki section" data-tip-always>?</button>
+    <button className="wiki-q" onClick={(e) => { e.preventDefault(); e.stopPropagation(); nav.go("wiki", page); }} aria-label={t`${tip} Open the Wiki section.`}
+      data-tip={tip} data-tip-more={t`Click for the Wiki section`} data-tip-always>?</button>
   );
 }

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { t } from "@lingui/core/macro";
 import { RESET_LAYOUT } from "./settings";
 import { DEFAULT_SIZE, useThemeValue } from "./theme";
 
@@ -107,7 +108,7 @@ export function ResizeEdge({ edge, label, min, max, onResize, onReset }: {
   const sign = edge === "bottom" ? 1 : -1;
   return (
     <div ref={ref} className={`resize-edge ${edge}${active ? " active" : ""}`} role="separator" aria-orientation="horizontal"
-      tabIndex={0} aria-label={label} data-tip={`${label}. Double-click to reset.`}
+      tabIndex={0} aria-label={label} data-tip={t`${label}. Double-click to reset.`}
       onPointerDown={(e) => {
         e.preventDefault();
         e.currentTarget.setPointerCapture(e.pointerId);

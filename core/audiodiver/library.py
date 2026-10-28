@@ -28,6 +28,13 @@ with the kind of container it is (`ctype`) and the containers above it (`above`)
 
 A project lists the Index items and archives it works on (project.py, "library"); `home` finds the one a sound
 belongs to, for a project that has replacements but no list yet.
+
+Names are in the language in use (i18n.dtr for what the data files give, after title case), with the English beside
+an Index name that is translated (`en`, which a search finds too). The app tells the names the Library makes up
+apart by codes, never by their words: a bank's group has a `kind` ("sound": the takes of one sound, "layer", "run": a
+part of a long list, "wordless": clips without words of one kind, "other": clips no Sound of the bank plays,
+"absent": no audio in the game files, "streams": streams no bank plays) and `made_up` when its name is only a
+number ("Sound 6"); an archive named by its ID ("Archive <id>") has `id_name`.
 """
 import collections
 import json
@@ -39,29 +46,41 @@ from functools import cached_property
 from importlib import resources
 
 from . import bank as wbank
-from . import music, wem
+from . import i18n, music, wem
 from .addition import ACTION, LAYER, MIXER, RANSEQ, SWITCH, base_end, play_target
 from .cuemap import slots
 from .game import murmur64_hash
+from .i18n import N_, dtr, ntr, tr
 from .index import LANGUAGES
 from .patch import MAKEUP_GAIN
-from .titles import title
+from .titles import named, title
 
 PREFIX = "content/audio/"
 CONTAINERS = (0x05, 0x06, 0x07, 0x09)  # random/sequence, switch, actor-mixer, layer: what a Sound can sit in
-MUSIC = {"id": "music", "name": "Music", "hue": 300,
-         "about": "Music by where it plays, from the ship to the credits."}
+MUSIC = {"id": "music", "name": N_("Music"), "hue": 300,
+         "about": N_("Music by where it plays, from the ship to the credits.")}
 BIG_GROUP, CHUNK = 150, 100  # a group with more sounds than this is listed in runs of CHUNK
 ALSO_LISTED = 8              # how many of the other places a sound plays in a slot names; the rest are counted
 WIDELY = 10                  # a sound in this many other banks or more is one a whole family of banks shares
 VIEWS_KEPT = 12
-KIND_GROUP = {"Grunt": "Grunts", "Sigh": "Sighs", "Laugh": "Laughs", "Scream": "Screams", "Cough": "Coughs",
-              "Groan": "Groans", "Yell": "Yells", "Sniff": "Sniffs", "Hiccup": "Hiccups", "Burp": "Burps",
-              "Whistle": "Whistles", "Hum": "Humming", "Vocal sound": "Vocal Sounds"}  # a clip without words: its group
+KIND_GROUP = {"Grunt": N_("Grunts"), "Sigh": N_("Sighs"), "Laugh": N_("Laughs"), "Scream": N_("Screams"),
+              "Cough": N_("Coughs"), "Groan": N_("Groans"), "Yell": N_("Yells"), "Sniff": N_("Sniffs"),
+              "Hiccup": N_("Hiccups"), "Burp": N_("Burps"), "Whistle": N_("Whistles"), "Hum": N_("Humming"),
+              "Vocal sound": N_("Vocal Sounds")}  # a clip without words (what data/subtitles.json calls it): its group
 
 
 def _data(name):
     return json.loads(resources.files("audiodiver").joinpath("data", name).read_text(encoding="utf-8"))
+
+
+def _kind_group(kind: str) -> str:
+    """The group of clips without words of one kind ("Grunts"); a kind the list doesn't know names its own group."""
+    return tr(KIND_GROUP[kind]) if kind in KIND_GROUP else kind
+
+
+def _language(code: str) -> str:
+    """A voice language's name by its code ("" for none)."""
+    return tr(LANGUAGES[code]) if code in LANGUAGES else ""
 
 
 def slug(name: str) -> str:
@@ -142,12 +161,12 @@ class Library:
         """A bank's name for people: the sound set it is (with its language, for a voice), else its path name, else
         its number."""
         sets = self.bank_sets.get(bid, [])
-        lang = LANGUAGES.get(self.ix.banks[bid].get("lang") or "", "")
+        lang = _language(self.ix.banks[bid].get("lang") or "")
         if len(sets) == 1:
             return self.items[sets[0]]["full"] + (f" · {lang}" if lang else "")
         if bid in self.bank_names:
             return title(self.bank_names[bid].replace("_", " ")) + (f" · {lang}" if lang else "")
-        return f"Bank {bid}"
+        return tr("Bank {id}").format(id=bid)
 
     # --- the Index
     def _set_parts(self, e: dict) -> list[tuple[str, int]]:
@@ -156,33 +175,36 @@ class Library:
         ids = [murmur64_hash(p.encode()) for p in e.get("banks", [])] + [int(i) for i in e.get("ids", [])]
         out = [("", bid) for bid in ids if self._has_audio(bid)]
         if "voice" in e:
-            for code, language in LANGUAGES.items():
+            for code in LANGUAGES:
                 bid = murmur64_hash(f"{PREFIX}{code}/{e['voice']}".encode())
                 if self._has_audio(bid):
-                    out.append((language, bid))
+                    out.append((_language(code), bid))
         if len(out) > 1:  # several banks: tell them apart
             named = []
             for n, (name, bid) in enumerate(out, 1):
                 named.append((name or (title(self.bank_names[bid].replace("_", " ")) if bid in self.bank_names
-                                       else f"Bank {n}"), bid))
+                                       else tr("Bank {n}").format(n=n)), bid))
             out = named
         return out
 
     def _index(self) -> list[dict]:
         cats = []
         sections = self.cat.music.to_json()["sections"]
+        music_name = tr(MUSIC["name"])
         for s in sections:
             for it in s["items"]:
                 it.update(category="music", count=len(it["targets"]))
                 self.items[it["id"]] = it
-                self.where[it["id"]] = (MUSIC["name"], s["name"])
+                self.where[it["id"]] = (music_name, s["name"])
                 for p in it["parts"]:
                     if p["cue"].startswith("sfx:"):
                         self.sound_items.setdefault(int(p["cue"][4:]), it["id"])
-        cats.append({**MUSIC, "sections": sections})
+        cats.append({**MUSIC, "name": music_name, "about": tr(MUSIC["about"]), "sections": sections})
+        en = lambda name, shown: {"en": title(name)} if title(name) != shown else {}  # the English, when translated
         for cat in _data("sounds.json")["categories"]:
-            out = {"id": cat["id"], "name": title(cat["name"]), "hue": cat["hue"], "about": cat.get("about", ""),
-                   "sections": []}
+            name = named(cat["name"])
+            out = {"id": cat["id"], "name": name, "hue": cat["hue"], "about": dtr(cat.get("about", "")),
+                   "sections": [], **en(cat["name"], name)}
             for sec in cat["sections"]:
                 items = []
                 for e in sec["entries"]:
@@ -195,15 +217,16 @@ class Library:
                         iid, n = f"{base}-{n}", n + 1
                     counts = [len(self.sources(bid)) for _, bid in parts]
                     first = self.sources(parts[0][1])
+                    name = named(e["name"])
                     it = {
-                        "id": iid, "name": title(e["name"]), "full": title(e["name"]), "about": e.get("about", ""),
+                        "id": iid, "name": name, "full": name, "about": dtr(e.get("about", "")),
                         "kind": "sounds", "role": "", "category": cat["id"],
-                        "parts": [_part(f"bank:{bid}", name, c) for (name, bid), c in zip(parts, counts)],
+                        "parts": [_part(f"bank:{bid}", part, c) for (part, bid), c in zip(parts, counts)],
                         "targets": [], "duration_ms": 0, "preview": str(first[0]) if first else "", "around": [],
-                        "shares": [], "count": sum(counts),
+                        "shares": [], "count": sum(counts), **en(e["name"], name),
                     }
                     self.items[iid] = it
-                    self.where[iid] = (out["name"], title(sec["name"]))
+                    self.where[iid] = (out["name"], named(sec["name"]))
                     # a project that listed it by an older name finds it: a "was" is a name in this section, or the
                     # whole id it had elsewhere ("set:weapons/seaf-liberator"); and a category that was one section
                     # once (Weapons) has its sets' ids of that time
@@ -216,8 +239,9 @@ class Library:
                     for _, bid in parts:
                         self.bank_sets[bid].append(iid)
                 if items:
-                    out["sections"].append({"id": sec["id"], "name": title(sec["name"]), "about": sec.get("about", ""),
-                                            "unused": False, "items": items})
+                    name = named(sec["name"])
+                    out["sections"].append({"id": sec["id"], "name": name, "about": dtr(sec.get("about", "")),
+                                            "unused": False, "items": items, **en(sec["name"], name)})
             if out["sections"]:
                 cats.append(out)
         self.order = {it["id"]: n for n, it in enumerate(i for c in cats for s in c["sections"] for i in s["items"])}
@@ -236,7 +260,7 @@ class Library:
         category of the Index it has something of."""
         names, found = [], set()
         for bid in self.ix.by_archive.get(a, []):
-            lang = LANGUAGES.get(self.ix.banks[bid].get("lang") or "", "")
+            lang = _language(self.ix.banks[bid].get("lang") or "")
             for iid in self.bank_sets.get(bid, []):
                 name = self.items[iid]["full"] + (f" · {lang}" if lang else "")
                 if name not in names:
@@ -245,7 +269,12 @@ class Library:
         here = set(self.music_in_archive.get(a, []))
         if here:  # by its sections, in the Index's order: "Music: On the Ship, Before the Drop and 4 More"
             secs = [s["name"] for s in self.categories[0]["sections"] if s["id"] in here]
-            names.append("Music: " + ", ".join(secs[:2]) + (f" and {len(secs) - 2} More" if len(secs) > 2 else ""))
+            if len(secs) > 2:
+                more = len(secs) - 2
+                names.append(ntr("Music: {sections} and {n} More", "Music: {sections} and {n} More", more).format(
+                    sections=", ".join(secs[:2]), n=more))
+            else:
+                names.append(tr("Music: {sections}").format(sections=", ".join(secs)))
             found.add("music")
         return names, [{"name": c["name"], "category": c["id"]} for c in self.categories if c["id"] in found]
 
@@ -262,9 +291,12 @@ class Library:
             names, tags = self._archive_facts(a)
             langs = {ix.banks[b].get("lang") or "" for b in banks}
             first = next((s for b in banks for s in self.sources(b)), None)  # something to hear without opening it
-            out.append({"id": a, "names": names, "tags": tags, "banks": len(banks),
+            # the English names of its sound sets, where the window's language names them otherwise: a search finds both
+            en = sorted({self.items[iid]["en"] for b in ix.by_archive.get(a, []) for iid in self.bank_sets.get(b, [])
+                         if self.items[iid].get("en")})
+            out.append({"id": a, "names": names, "tags": tags, "banks": len(banks), **({"en": en} if en else {}),
                         "sounds": len({s for b in banks for s in self.sources(b)}) + lost[a],
-                        "language": LANGUAGES.get(next(iter(langs)), "") if len(langs) == 1 else "",
+                        "language": _language(next(iter(langs))) if len(langs) == 1 else "",
                         "preview": str(first if first is not None else next(o for o in ix.orphans if a in ix.streams[o]))})
         rank = lambda r: (0, min(order[t["category"]] for t in r["tags"]), r["names"][0].lower(), r["id"]) \
             if r["tags"] else (1, 0, "", r["id"])
@@ -280,15 +312,21 @@ class Library:
         names, tags = self._archive_facts(a)
         parts = [_part(f"bank:{bid}", self.bank_label(bid), len(self.sources(bid))) for bid in banks]
         if lost:
-            parts.append(_part(f"streams:{a}", "Streams No Bank Plays", len(lost)))
+            parts.append(_part(f"streams:{a}", tr("Streams No Bank Plays"), len(lost)))
         first = next((self.sources(b) for b in banks if self.sources(b)), lost)
-        about = (f"Holds {', '.join(names[:6])}{' and more' if len(names) > 6 else ''}." if names
-                 else "Not named yet.")
-        return {"id": f"archive:{a}", "name": names[0] if len(names) == 1 else f"Archive {a}",
-                "full": names[0] if len(names) == 1 else f"Archive {a}", "about": about, "kind": "archive", "role": "",
+        if not names:
+            about = tr("Not named yet.")
+        elif len(names) > 6:
+            about = tr("Holds {names} and more.").format(names=", ".join(names[:6]))
+        else:
+            about = tr("Holds {names}.").format(names=", ".join(names))
+        # one name: the archive goes by it; else by its ID, which `id_name` says (music.ts listName)
+        name = names[0] if len(names) == 1 else tr("Archive {id}").format(id=a)
+        return {"id": f"archive:{a}", "name": name, "full": name, "about": about, "kind": "archive", "role": "",
                 "category": tags[0]["category"] if tags else "", "parts": parts, "targets": [], "duration_ms": 0,
                 "preview": str(first[0]) if first else "", "around": [], "shares": [],
-                "count": sum(p["count"] for p in parts), "archive": a, "tags": tags, "names": names}
+                "count": sum(p["count"] for p in parts), "archive": a, "tags": tags, "names": names,
+                **({"id_name": True} if len(names) != 1 else {})}
 
     def item(self, iid: str) -> dict:
         """An Index item or an archive, by the id a project lists it under. KeyError when this game version has no
@@ -337,7 +375,8 @@ class Library:
         """The cue-shaped view of `bank:<id>` or `streams:<archive>`, a bank's with the audio a project adds to it
         (ids: as the bank's tree of containers, _bank). KeyError when there is no such thing."""
         kind, _, key = cue_id.partition(":")
-        at = (cue_id, added if kind == "bank" and added else None, bool(ids) and kind == "bank")
+        # a view is kept per language: the names it makes up are in the language it was made in
+        at = (cue_id, added if kind == "bank" and added else None, bool(ids) and kind == "bank", i18n.language())
         with self._lock:
             if at in self._views:
                 self._views.move_to_end(at)
@@ -380,7 +419,7 @@ class Library:
             slot.update(subtitle=str(sub[0]), subtitle_sure=sub[1])
             slot["label"] = slot["label"] or self.said[sub[0]]
         elif kind := (oid is not None and self.wordless.get(f"o{oid}")) or self.wordless.get(f"s{sid}"):
-            slot.update(sound=kind, label=slot["label"] or kind)
+            slot.update(sound=kind, label=slot["label"] or dtr(kind))  # sound: in English, a key
         return slot
 
     def _reach(self, banks, here) -> dict:
@@ -395,12 +434,13 @@ class Library:
                 "locked": False, "object": str(oid), "added": "take", **self._reach(banks, here)}
 
     @staticmethod
-    def _group(name, slots_, **more) -> dict:
+    def _group(name, slots_, kind="sound", **more) -> dict:
         """Sounds that belong together, shaped like a music segment with one stem. `shared` is how many other banks
-        play every one of them (0 for sounds this bank has to itself)."""
+        play every one of them (0 for sounds this bank has to itself). `kind` says what they are (the module's
+        docstring)."""
         return {"segment": "", "name": name, "depth": 0, "loop": 1, "duration_ms": 0, "entry_ms": None, "exit_ms": None,
                 "stems": [{"track": "", "type": "sound", "switch_group": "", "slots": slots_}], "tags": [], "group": True,
-                "shared": min((s["banks"] for s in slots_), default=0), **more}
+                "shared": min((s["banks"] for s in slots_), default=0), "kind": kind, **more}
 
     @staticmethod
     def _tree_order(parent: dict, kinds: dict) -> dict[int, int]:
@@ -557,7 +597,7 @@ class Library:
             if not cues[cid] or str(seg) not in cues[cid][1]:
                 continue
             cue, g = cues[cid][0], dict(cues[cid][1][str(seg)])
-            if g["name"].startswith("Segment "):
+            if g.pop("numbered", False):  # "Segment 3" says little out of its cue: "Loadout · Segment 3"
                 g["name"] = f"{cue['name']} · {g['name']}"
             at = self.cat.music.cue_item.get(cid)
             g.update(tags=[self._tag(at[0].id)] if at else [], cue=str(cid), shared=0)
@@ -618,7 +658,7 @@ class Library:
         # a sound nothing says, named by the notes on its takes (data/notes.json: "Ready"), numbered when several are.
         # Where the notes name every sound (the Helldivers' exertions), the sounds go by name, part by part ("Death"
         # before "Death Scream, Long · Voice 1").
-        notes_of = {key: collections.Counter(l for r in rows if (l := self.cat.clip(int(r.get("was") or r["source"])).get("label")))
+        notes_of = {key: collections.Counter(l for r in rows if (l := self.cat.clip_label(int(r.get("was") or r["source"]))))
                     for rows, _, key in made}
         if not ids and all(notes_of[m[2]] for m in made if m[2] not in layer_of):
             noted_name = lambda key: notes_of[key].most_common(1)[0][0] if notes_of[key] else ""
@@ -639,88 +679,98 @@ class Library:
 
         noted = [notes_of[key] for _, _, key in made]
         noted_n, noted_seen = collections.Counter(c.most_common(1)[0][0] for c in noted if c), collections.Counter()
-        n, borrowed, named, layers = 0, False, {}, []
+        n, borrowed, named_as, layers = 0, False, {}, []
         held_by = collections.Counter(parent.values()) if ids else None  # how many things each container holds
+        # what a clip without words is, as its label says it ("Grunt"; None for any other clip)
+        wordless_label = lambda r: dtr(r["sound"]) if r.get("sound") else None
         for (rows, called, key), notes in zip(made, noted):
             tree = self._tree(key, parent, kinds, bodies, held_by) if ids else {}
-            by_id = str(key) if key else "No container"
+            by_id = str(key) if key else tr("No container")
             if len(rows) > BIG_GROUP:
                 for at in range(0, len(rows), CHUNK):
-                    run = f"{at + 1}–{min(len(rows), at + CHUNK)}"
-                    groups.append(self._group(f"{by_id} · {run}" if ids else f"Sounds {run}", rows[at:at + CHUNK], **tree))
+                    first, last = at + 1, min(len(rows), at + CHUNK)
+                    groups.append(self._group(f"{by_id} · {first}–{last}" if ids else
+                                              tr("Sounds {first}–{last}").format(first=first, last=last),
+                                              rows[at:at + CHUNK], kind="run", **tree))
                 continue
-            said = collections.Counter(r["label"] for r in rows if r["label"] and r["label"] != r.get("sound"))
+            said = collections.Counter(r["label"] for r in rows if r["label"] and r["label"] != wordless_label(r))
             wordless = collections.Counter(r.get("sound") for r in rows)
             for k, r in enumerate(rows, 1):  # the takes of one sound, told apart by number where nothing says more
-                r["label"] = r["label"] or (f"Take {k}" if len(rows) > 1 else "")
+                r["label"] = r["label"] or (tr("Take {n}").format(n=k) if len(rows) > 1 else "")
             if key in layer_of:
-                layers.append((self._group(by_id if ids else "", rows, added="layer", container=str(key), key=str(key),
-                                           beside=str(layer_of[key]), copies=len(self.ix.copies(layer_of[key])) - 1,
-                                           **tree), key))
+                layers.append((self._group(by_id if ids else "", rows, kind="layer", added="layer", container=str(key),
+                                           key=str(key), beside=str(layer_of[key]),
+                                           copies=len(self.ix.copies(layer_of[key])) - 1, **tree), key))
                 groups.append(layers[-1][0])
                 continue
             n += 1
             borrowed |= not said and bool(called)  # the call is named, the takes keep their numbers
             said = said or called
-            name = f"Sound {n}"
+            name, made_up = tr("Sound {n}").format(n=n), False
             if said:
-                name = f"“{said.most_common(1)[0][0]}”"
+                name = tr("“{line}”").format(line=said.most_common(1)[0][0])
             elif None not in wordless:  # takes without words: what they are
-                name = KIND_GROUP.get(k := wordless.most_common(1)[0][0], k)
+                name = _kind_group(wordless.most_common(1)[0][0])
             elif notes:
                 name = notes.most_common(1)[0][0]
                 if noted_n[name] > 1 and not ids:  # beside an id, the note's name alone
                     noted_seen[name] += 1
                     name += f" {noted_seen[name]}"
-            named[key] = name
+            else:
+                made_up = True  # nothing names it: a number in bank order
+            named_as[key] = name
             if ids:  # the id, and what names the sound otherwise beside it (a number says nothing)
-                tree["alias"] = "" if name == f"Sound {n}" else name
-                name = by_id
+                tree["alias"] = "" if made_up else name
+                name, made_up = by_id, False
             more = ({"container": str(key), "layer": can_layer(key), "copies": len(self.ix.copies(key)) - 1}
                     if kinds.get(key) == RANSEQ else {})
-            groups.append(self._group(name, rows, **more, **({"key": str(key)} if key else {}), **tree))
+            groups.append(self._group(name, rows, **more, **({"key": str(key)} if key else {}),
+                                      **({"made_up": True} if made_up else {}), **tree))
         per_sound = collections.Counter(home.get(layer_of[k]) for _, k in layers)
         seen_layers = collections.Counter()
         for g, key in [] if ids else layers:  # "Sound 3 · Layer", or numbered when it has several
             beside = home.get(layer_of[key])
             seen_layers[beside] += 1
-            g["name"] = f"{named.get(beside, 'Sound')} · Layer" + (f" {seen_layers[beside]}" if per_sound[beside] > 1 else "")
+            g["name"] = (tr("{sound} · Layer {n}") if per_sound[beside] > 1 else tr("{sound} · Layer")).format(
+                sound=named_as.get(beside) or tr("Sound"), n=seen_layers[beside])
         # 3. what is left: audio this bank holds or names that none of its Sounds plays (a Sound in another bank
         # does, or nothing seen does), then what it names that has no audio in this install at all
         # (a voice bank holds the grunts and breaths of a voice's Sounds in another bank: listed by what they are)
-        rest = [self._voice(self._slot(s, held.get(s), self.cat.clip(s).get("label", ""), bid), None, s)
+        rest = [self._voice(self._slot(s, held.get(s), self.cat.clip_label(s), bid), None, s)
                 for s in self.sources(bid) if s not in listed]
         kinds = collections.Counter(r["sound"] for r in rest if r.get("sound") and not r["absent"])
-        for title_, slots_ in (*((KIND_GROUP.get(k, k), sorted((r for r in rest if r.get("sound") == k and not r["absent"]),
-                                                               key=lambda r: r["duration_ms"]))
-                                 for k, _ in kinds.most_common()),
-                               ("Other Audio", [r for r in rest if not r["absent"] and not r.get("sound")]),
-                               ("No Audio in the Game Files", [r for r in rest if r["absent"]])):
+        for title_, kind, slots_ in (*((_kind_group(k), "wordless",
+                                        sorted((r for r in rest if r.get("sound") == k and not r["absent"]),
+                                               key=lambda r: r["duration_ms"]))
+                                       for k, _ in kinds.most_common()),
+                                     (tr("Other Audio"), "other", [r for r in rest if not r["absent"] and not r.get("sound")]),
+                                     (tr("No Audio in the Game Files"), "absent", [r for r in rest if r["absent"]])):
             for at in range(0, len(slots_), CHUNK):
                 name = title_ if len(slots_) <= CHUNK else f"{title_} {at + 1}–{min(len(slots_), at + CHUNK)}"
-                groups.append(self._group(name, slots_[at:at + CHUNK]))
+                groups.append(self._group(name, slots_[at:at + CHUNK], kind=kind))
 
         heard = collections.Counter()  # clips without words, numbered per kind in the order they are listed
         for sl in (sl for g in groups for st in g["stems"] for sl in st["slots"]):
-            if sl.get("sound") and sl["label"] == sl["sound"]:
+            if sl.get("sound") and sl["label"] == wordless_label(sl):
                 heard[sl["sound"]] += 1
-                sl["label"] = f"{sl['sound']} {heard[sl['sound']]}"
+                sl["label"] = f"{wordless_label(sl)} {heard[sl['sound']]}"
 
         sets = self.bank_sets.get(bid, [])
-        notes = []
+        notes = []  # sentences, each whole
         if rest and not sounds and not segments:
-            notes.append("This bank only stores audio. The sounds that play it are in another bank.")
-        lang = LANGUAGES.get(info.get("lang") or "", "")
+            notes.append(tr("This bank only stores audio. The sounds that play it are in another bank."))
+        lang = _language(info.get("lang") or "")
         if lang:
-            notes.append(f"These are {lang} voices. A replacement here only reaches players who use this language.")
+            notes.append(tr("These are {language} voices. A replacement here only reaches players who use this "
+                            "language.").format(language=lang))
             if len(self.voice_languages) < len(LANGUAGES):  # a voice has a tab per language only where it's installed
-                have = self.voice_languages
-                notes.append((f"Only {have[0]} voices are installed." if len(have) == 1 else
-                              f"Voices installed: {', '.join(have)}.") +
-                             " Other languages appear as tabs once Steam downloads their voice packs.")
+                have = [tr(name) for name in self.voice_languages]
+                notes.append(tr("Only {language} voices are installed.").format(language=have[0]) if len(have) == 1
+                             else tr("Voices installed: {languages}.").format(languages=", ".join(have)))
+                notes.append(tr("Other languages appear as tabs once Steam downloads their voice packs."))
         if borrowed:
-            notes.append("Not transcribed. Each line is named after what another Helldiver voice says at the same place, "
-                         "and the words may differ.")
+            notes.append(tr("Not transcribed. Each line is named after what another Helldiver voice says at the same "
+                            "place, and the words may differ."))
         # a sound's slot names the Sound object that plays it (the first, where several do), for reference and for a
         # clip of its own: `players` counts the Sounds here that play the clip, `sound_banks` the other banks that
         # have that Sound (a clip of its own changes it in those, where a replacement changes it in `banks`)
@@ -736,7 +786,7 @@ class Library:
                         sl["sound_banks"] = max(0, len(self.ix.copies(int(sl["object"]))) - 1)
         all_slots = list(dict.fromkeys(sl["source"] for g in groups for st in g["stems"] for sl in st["slots"]))
         return {
-            "id": f"bank:{bid}", "kind": "sounds", "path": list(self.where[sets[0]]) if sets else ["All Archives"],
+            "id": f"bank:{bid}", "kind": "sounds", "path": list(self.where[sets[0]]) if sets else [tr("All Archives")],
             "name": self.bank_label(bid), "detail": "", "notes": " ".join(notes), "locked": False, "curated": bool(sets),
             "segments": len(groups), "slots": all_slots, "duration_ms": 0, "archives": len(info["archives"]),
             "contexts": 0, "archive_names": info["archives"], "segments_detail": groups, "context_list": [],
@@ -750,12 +800,15 @@ class Library:
         lost = sorted(o for o in self.ix.orphans if archive in self.ix.streams[o])
         if not lost:
             raise KeyError(archive)
-        groups = [self._group("Streams" if len(lost) <= CHUNK else f"Streams {at + 1}–{min(len(lost), at + CHUNK)}",
-                              [self._slot(o) for o in lost[at:at + CHUNK]]) for at in range(0, len(lost), CHUNK)]
-        return {"id": f"streams:{archive}", "kind": "sounds", "path": ["All Archives", archive],
-                "name": "Streams No Bank Plays", "detail": "", "locked": False, "curated": False, "segments": len(groups),
-                "notes": "Audio files in this archive that no sound bank of this game version plays. The game may "
-                         "never play them.",
+        name = tr("Streams")
+        groups = [self._group(name if len(lost) <= CHUNK else f"{name} {at + 1}–{min(len(lost), at + CHUNK)}",
+                              [self._slot(o) for o in lost[at:at + CHUNK]], kind="streams")
+                  for at in range(0, len(lost), CHUNK)]
+        return {"id": f"streams:{archive}", "kind": "sounds", "path": [tr("All Archives"), archive],
+                "name": tr("Streams No Bank Plays"), "detail": "", "locked": False, "curated": False,
+                "segments": len(groups),
+                "notes": tr("Audio files in this archive that no sound bank of this game version plays. The game may "
+                            "never play them."),
                 "slots": [str(o) for o in lost], "duration_ms": 0, "archives": 1, "contexts": 0, "archive_names": [archive],
                 "segments_detail": groups, "context_list": [], "labels": [], "tags": [], "bank_name": "", "language": ""}
 
@@ -764,10 +817,10 @@ class Library:
         replacement nothing in the project's list holds."""
         sid = self.ix.resolve(sid)
         slot = self._slot(sid, wem.length_ms((self.ix.stream_data(sid, 96) or self.ix.wem(sid))[:96]))
-        return {"id": f"sfx:{sid}", "kind": "sound", "path": ["Other Sounds"], "name": f"Sound {sid}", "detail": "",
-                "notes": "A single sound. Audiodiver replaces it in every bank that holds or plays it.",
+        return {"id": f"sfx:{sid}", "kind": "sound", "path": [tr("Other Sounds")], "name": tr("Sound {id}").format(id=sid),
+                "detail": "", "notes": tr("A single sound. Audiodiver replaces it in every bank that holds or plays it."),
                 "locked": False, "curated": False, "segments": 1, "slots": [str(sid)], "duration_ms": 0,
-                "archives": 0, "contexts": 0, "archive_names": [], "segments_detail": [self._group("Sound", [slot])],
+                "archives": 0, "contexts": 0, "archive_names": [], "segments_detail": [self._group(tr("Sound"), [slot])],
                 "context_list": [], "labels": [], "tags": [], "bank_name": "", "language": ""}
 
     # --- finding things

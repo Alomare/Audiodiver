@@ -25,7 +25,7 @@ audiodiver = "audiodiver.cli:main"
 include = ["audiodiver*"]
 
 [tool.setuptools.package-data]
-"audiodiver" = ["data/*.json", "data/*.png"]
+"audiodiver" = ["data/*.json", "data/*.png", "locale/*.po", "locale/data/*.json"]
 "audiodiver._vendor" = ["LICENSE-hd2-audio-modder"]
 
 [tool.pytest.ini_options]

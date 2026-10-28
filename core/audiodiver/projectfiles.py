@@ -19,6 +19,8 @@ import shutil
 import zipfile
 from pathlib import Path, PurePosixPath
 
+from .i18n import tr
+
 AUDIO = "audio"
 MADE = ("slices", "imported", "added")  # Audiodiver's folders in a project's audio folder
 LEGACY = ("slices", "imported")         # where they were before, beside the project file
@@ -199,7 +201,7 @@ def unused(audi: Path, projects: list[dict]) -> list[Path]:
     folder = Path(audi).parent
     theirs = _used_by_others(audi)
     if theirs is None:
-        raise FilesError("Another project in this folder can't be read, so it isn't known which files it uses")
+        raise FilesError(tr("Another project in this folder can't be read, so it isn't known which files it uses"))
     used = theirs | {key(f) for d in projects for f in uses(d, folder)}
     used |= {key(c) for f in used if (c := cuts_of(f, folder))}
     out = []
@@ -376,7 +378,7 @@ def pack(d: dict, folder: Path, name: str, dest: Path, job=None) -> dict:
             z.writestr(str(top / f"{top.name}.audi"), json.dumps(packed, indent=2) + "\n")
             for i, (f, rel) in enumerate(sorted(plan.items(), key=lambda x: str(x[1]).lower()), 1):
                 if job:
-                    job.step(f"Packing {f.name}", i - 1)
+                    job.step(tr("Packing {file}").format(file=f.name), i - 1)
                 z.write(f, str(top / PurePosixPath(rel.as_posix())),
                         zipfile.ZIP_STORED if f.suffix.lower() in PACKED_ALREADY else zipfile.ZIP_DEFLATED)
         part.replace(dest)
@@ -393,27 +395,32 @@ def unpack(src: Path, into: Path, job=None) -> Path:
     try:
         z = zipfile.ZipFile(src)
     except (zipfile.BadZipFile, OSError):
-        raise FilesError(f"{src.name} isn't an Audiodiver pack, or it is damaged") from None
+        raise FilesError(tr("{file} isn't an Audiodiver pack, or it is damaged").format(file=src.name)) from None
     with z:
         files = [i for i in z.infolist() if not i.is_dir()]
         for i in files:
             p = PurePosixPath(i.filename.replace("\\", "/"))
             if p.is_absolute() or ".." in p.parts or ":" in i.filename:
-                raise FilesError(f"{src.name} has a file that would go outside the folder it unpacks to ({i.filename})")
+                raise FilesError(tr("{file} has a file that would go outside the folder it unpacks to ({inside})").format(
+                    file=src.name, inside=i.filename))
         projects = [i for i in files if i.filename.lower().endswith(".audi") and len(PurePosixPath(i.filename).parts) <= 2]
         if len(projects) != 1:
-            raise FilesError(f"{src.name} holds {'no project' if not projects else 'more than one project'}")
+            raise FilesError((tr("{file} holds no project") if not projects
+                              else tr("{file} holds more than one project")).format(file=src.name))
         audi = PurePosixPath(projects[0].filename)
         top = audi.parent.parts  # () for a project at the pack's top
         files = [i for i in files if PurePosixPath(i.filename).parts[:len(top)] == top]
         try:
             Project.from_json(json.loads(z.read(projects[0]).decode("utf-8-sig")))
-        except (ValueError, ProjectFormatError) as e:
-            raise FilesError(f"The project in {src.name} {e if isinstance(e, ProjectFormatError) else 'is damaged'}") from None
+        except ProjectFormatError as e:
+            raise FilesError(e.in_pack(src.name)) from None
+        except ValueError:  # not JSON
+            raise FilesError(tr("The project in {pack} is damaged").format(pack=src.name)) from None
         into.mkdir(parents=True, exist_ok=True)
         need = sum(i.file_size for i in files)
         if need > shutil.disk_usage(into).free:
-            raise FilesError(f"{src.name} needs {need / 1e6:.0f} MB, and {into} has less free space")
+            raise FilesError(tr("{file} needs {mb} MB, and {folder} has less free space").format(
+                file=src.name, mb=f"{need / 1e6:.0f}", folder=into))
         dest = free(into / folder_name(audi.stem))
         part = into / f".{dest.name}.partial"
         shutil.rmtree(part, ignore_errors=True)
@@ -422,7 +429,7 @@ def unpack(src: Path, into: Path, job=None) -> Path:
         try:
             for n, i in enumerate(files, 1):
                 if job:
-                    job.step(f"Unpacking {PurePosixPath(i.filename).name}", n - 1)
+                    job.step(tr("Unpacking {file}").format(file=PurePosixPath(i.filename).name), n - 1)
                 to = part.joinpath(*PurePosixPath(i.filename).parts[len(top):])
                 to.parent.mkdir(parents=True, exist_ok=True)
                 with z.open(i) as r, open(to, "wb") as w:

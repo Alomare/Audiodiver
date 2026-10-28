@@ -1,5 +1,7 @@
+import { ph, plural, t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { call, type ProjectState, type SaidBy, type TextLine } from "./api";
+import { andList, call, type ProjectState, type SaidBy, type TextLine } from "./api";
 import { Mark } from "./IndexTree";
 import { chordOf, keymap } from "./keys";
 import { nav } from "./nav";
@@ -15,6 +17,14 @@ import { Help, WikiLink } from "./Wiki";
     (core: strings.py, editor.py text_*). */
 type Lang = { code: string; name: string };
 type Found = { results: TextLine[]; total: number };
+/** The names of the game's text languages (core strings.LANGUAGES), by code, in the window's language; a code
+    missing here shows the core's name. */
+const LANG_NAMES: Record<string, string> = {
+  us: t`English (US)`, gb: t`English (UK)`, fr: t`French`, de: t`German`, it: t`Italian`,
+  es: t`Spanish (Spain)`, ms: t`Spanish (Latin America)`, pt: t`Portuguese`, bp: t`Portuguese (Brazil)`,
+  pl: t`Polish`, ru: t`Russian`, nl: t`Dutch`, jp: t`Japanese`, ko: t`Korean`,
+  cn: t`Chinese (Simplified)`, tc: t`Chinese (Traditional)`,
+};
 
 /** Lines another tab asks to show (a voice line's subtitle, or the subtitles with its words): the list holds just
     them, `pick` open, until the search or the filter changes; in `lang`, the voice's language, where given. */
@@ -109,65 +119,72 @@ export function TextTab({ hidden }: { hidden?: boolean }) {
     if (next < 0) (e.currentTarget.closest(".library")?.querySelector<HTMLInputElement>("input[type=search]"))?.focus();
     else rows[Math.min(next, rows.length - 1)]?.focus();
   };
+  const words = query.trim();
+  // the example searches are words of the game's lines in US English, the language the list starts in: they stay in
+  // English in every language of the window
+  const example = (word: string) => <button className="link-text" onClick={() => setQuery(word)}>{word}</button>;
+  const democracy = example("democracy"), reinforcing = example("reinforcing"), extraction = example("extraction");
   return (
     <div className="panes two text-tab" hidden={hidden} style={{ ["--left" as any]: `${width}px` }}>
-      <aside className="library" aria-label="Lines" onKeyDown={listKeys}>
+      <aside className="library" aria-label={t`Lines`} onKeyDown={listKeys}>
         <div className="lib-search">
-          <select value={lang} onChange={(e) => setLang(e.target.value)} aria-label="Language" data-tip="The language to show and change"
-            data-tip-more="Each language is a separate table, and a change in one doesn't change the others">
-            {(langs.length ? langs : [{ code: lang, name: lang }]).map((l) => <option key={l.code} value={l.code}>{l.name}</option>)}
+          <select value={lang} onChange={(e) => setLang(e.target.value)} aria-label={t`Language`} data-tip={t`The language to show and change`}
+            data-tip-more={t`Each language is a separate table, and a change in one doesn't change the others`}>
+            {(langs.length ? langs : [{ code: lang, name: lang }]).map((l) => <option key={l.code} value={l.code}>{LANG_NAMES[l.code] ?? l.name}</option>)}
           </select>
-          <input type="search" placeholder="Search, or paste an ID" value={query} onChange={(e) => { setOnly(null); setQuery(e.target.value); }}
-            aria-label="Search lines" data-tip="Words in this language, or a line ID" data-tip-side="bottom"
+          <input type="search" placeholder={t`Search, or paste an ID`} value={query} onChange={(e) => { setOnly(null); setQuery(e.target.value); }}
+            aria-label={t`Search lines`} data-tip={t`Words in this language, or a line ID`} data-tip-side="bottom"
             onKeyDown={(e) => { if (e.key === "Escape") setQuery(""); }} />
         </div>
         <div className="mus-filters">
-          <div className="segmented mus-filter" role="radiogroup" aria-label="Show">
-            <button role="radio" aria-checked={!mine} className={!mine ? "on" : ""} onClick={() => { setOnly(null); setMine(false); }}>All Lines</button>
+          <div className="segmented mus-filter" role="radiogroup" aria-label={t({ message: "Show", comment: "Which lines the list shows: all of them, or the changed ones" })}>
+            <button role="radio" aria-checked={!mine} className={!mine ? "on" : ""} onClick={() => { setOnly(null); setMine(false); }}><Trans>All Lines</Trans></button>
             <button role="radio" aria-checked={mine} className={mine ? "on" : ""} disabled={!project} onClick={() => { setOnly(null); setMine(true); }}
-              data-tip={project ? "Only the lines the project changes in this language" : "Open a project to change lines"}>Changed{count ? ` (${count})` : ""}</button>
+              data-tip={project ? t`Only the lines the project changes in this language` : t`Open a project to change lines`}>
+              {count ? t({ message: `Changed (${count})`, context: "Filter of the Text tab: the lines the project changes" })
+                : t({ message: "Changed", context: "Filter of the Text tab: the lines the project changes" })}</button>
           </div>
         </div>
         <div className="lib-tree tx-list">
           {only && (
             <div className="tx-only">
               <span>{only.note}</span>
-              <button className="x" aria-label="Show all lines" data-tip="Show all lines" onClick={() => setOnly(null)}>✕</button>
+              <button className="x" aria-label={t`Show all lines`} data-tip={t`Show all lines`} onClick={() => setOnly(null)}>✕</button>
             </div>
           )}
           {error && <p className="empty-note">{error}</p>}
           {!found && !error && (
             <div className="empty-note">
-              <p>Search every line, including subtitles, mission and menu text, and names.</p>
-              <p className="muted small">Try <button className="link-text" onClick={() => setQuery("democracy")}>democracy</button>, <button className="link-text"
-                onClick={() => setQuery("reinforcing")}>reinforcing</button> or <button className="link-text" onClick={() => setQuery("extraction")}>extraction</button>.</p>
+              <p><Trans>Search every line, including subtitles, mission and menu text, and names.</Trans></p>
+              <p className="muted small"><Trans>Try {democracy}, {reinforcing} or {extraction}.</Trans></p>
             </div>
           )}
           {found && !found.results.length && <p className="empty-note tx-none">{mine
-            ? query.trim() ? `No changed line has “${query.trim()}”.` : "No line changed in this language yet."
-            : `No line has “${query.trim()}”.`}</p>}
+            ? words ? t`No changed line has “${words}”.` : t`No line changed in this language yet.`
+            : t`No line has “${words}”.`}</p>}
           {found?.results.map((r) => (
             <button key={`${r.table}:${r.id}`} className={`tx-row${line === r ? " active" : ""}`} onClick={() => setPick({ table: r.table, id: r.id })}>
-              <span className={`tx-kind ${r.kind}`}>{r.kind === "subtitles" ? "Subtitle" : "Text"}</span>
-              <span className="tx-text" data-tip={plainText(r.yours ?? r.text) || undefined} data-tip-clip>{plainText(r.yours ?? r.text) || <i className="muted">(empty)</i>}</span>
-              {r.yours !== undefined && <Mark status="done" label="Changed" />}
+              <span className={`tx-kind ${r.kind}`}>{r.kind === "subtitles" ? t`Subtitle` : t({ message: "Text", comment: "Kind of line: any line that isn't a subtitle" })}</span>
+              <span className="tx-text" data-tip={plainText(r.yours ?? r.text) || undefined} data-tip-clip>{plainText(r.yours ?? r.text) || <i className="muted">{t`(empty)`}</i>}</span>
+              {r.yours !== undefined && <Mark status="done" label={t`Changed`} />}
             </button>
           ))}
-          {found && found.total > found.results.length && <p className="slots-note">Showing {found.results.length} of {found.total}. Type more to narrow them down.</p>}
+          {found && found.total > found.results.length && <p className="slots-note">
+            {t`Showing ${ph({ shown: found.results.length })} of ${ph({ total: found.total })}. Type more to narrow them down.`}</p>}
         </div>
       </aside>
-      <Splitter width={width} onResize={setWidth} initial={480} panel="left" label="Resize the list" />
+      <Splitter width={width} onResize={setWidth} initial={480} panel="left" label={t`Resize the list`} />
       <main className="center">
         {line ? <LineEditor key={`${line.table}:${line.id}`} line={line} lang={lang} canEdit={!!project}
           onSave={(t) => actions.setText(line.table, line.id, t)}
-          onRevert={async () => { if (await actions.revertText([{ table: line.table, id: line.id }])) quick("Original restored", "undo"); }} />
+          onRevert={async () => { if (await actions.revertText([{ table: line.table, id: line.id }])) quick(t`Original restored`, "undo"); }} />
           : (
             <section className="cue empty">
               <div className="empty-card">
-                <p>Search for a line to change words, colours or size.
-                  {project ? <> Changes go into <b>{project.name}</b>.</>
-                    : <> Open or create a project on <button className="link-text" onClick={() => nav.go("home")}>Home</button> to change lines.</>}</p>
-                <p><WikiLink page="text" about="Changing text">How changing text works</WikiLink></p>
+                <p><Trans>Search for a line to change words, colours or size.</Trans>
+                  {project ? <> <Trans>Changes go into <b>{ph({ project: project.name })}</b>.</Trans></>
+                    : <> <Trans>Open or create a project on <button className="link-text" onClick={() => nav.go("home")}>Home</button> to change lines.</Trans></>}</p>
+                <p><WikiLink page="text" about={t`Changing text`}><Trans>How changing text works</Trans></WikiLink></p>
               </div>
             </section>
           )}
@@ -250,27 +267,28 @@ function LineEditor({ line, lang, canEdit, onSave, onRevert }: {
   const changed = draft !== line.text;
   const fills = [...new Set((line.text.match(/#[A-Z][A-Z0-9_]+/g) ?? []))];
   const lost = fills.filter((f) => !draft.includes(f));
+  const { id, table } = line;
   return (
-    <section className="cue tx-edit" aria-label="The line">
+    <section className="cue tx-edit" aria-label={t`The line`}>
       <div className="cue-top"><header className="cue-head">
-        <div className="head-row"><div className="crumbs">{subtitle ? "Subtitle" : "Text"} · line {line.id} · table {line.table}{" "}
-          <Help tip="A mod carries whole tables. When two mods change the same table, the one deployed later replaces the other" page="text#how-text-is-built" /></div>
-          <button className="link-text small" onClick={() => copyText(String(line.id), quick, `**${line.id}**`)} data-tip="Copy the line ID">Copy the ID</button></div>
-        <div className="item-title"><h1>{plainText(line.text).slice(0, 80) || "(empty)"}</h1>
-          {line.yours !== undefined && <span className="item-cov done"><Mark status="done" label="Changed" />Changed</span>}</div>
+        <div className="head-row"><div className="crumbs">{subtitle ? t`Subtitle · line ${id} · table ${table}` : t`Text · line ${id} · table ${table}`}{" "}
+          <Help tip={t`A mod carries whole tables. When two mods change the same table, the one deployed later replaces the other`} page="text#how-text-is-built" /></div>
+          <button className="link-text small" onClick={() => copyText(String(line.id), quick, `**${line.id}**`)} data-tip={t`Copy the line ID`}><Trans>Copy the ID</Trans></button></div>
+        <div className="item-title"><h1>{plainText(line.text).slice(0, 80) || t`(empty)`}</h1>
+          {line.yours !== undefined && <span className="item-cov done"><Mark status="done" label={t`Changed`} />{t`Changed`}</span>}</div>
       </header></div>
       <div className="tx-body">
         <div className="field">
-          <span className="field-label">Original</span>
+          <span className="field-label"><Trans>Original</Trans></span>
           <div className="tx-preview game"><TextPreview text={line.text} /></div>
         </div>
         {subtitle && <VoiceLines id={line.id} lang={lang} />}
         <div className="field">
-          <span className="field-label">New text <Help tip="What each format does, with examples" page="formatting-text#applying-a-format" /></span>
-          <div className="tx-bar" role="toolbar" aria-label="Formatting">
-            <label className="tx-color" data-tip="The colour that Colour applies">
-              <input type="color" value={color} onChange={(e) => setColor(e.target.value)} aria-label="Colour" disabled={!canEdit} />
-              <input className="tx-hex" value={hexDraft ?? hex} maxLength={7} aria-label="Colour as hex" disabled={!canEdit} spellCheck={false}
+          <span className="field-label"><Trans>New text</Trans> <Help tip={t`What each format does, with examples`} page="formatting-text#applying-a-format" /></span>
+          <div className="tx-bar" role="toolbar" aria-label={t`Formatting`}>
+            <label className="tx-color" data-tip={t`The colour that Colour applies`}>
+              <input type="color" value={color} onChange={(e) => setColor(e.target.value)} aria-label={t`Colour`} disabled={!canEdit} />
+              <input className="tx-hex" value={hexDraft ?? hex} maxLength={7} aria-label={t`Colour as hex`} disabled={!canEdit} spellCheck={false}
                 onChange={(e) => {
                   const v = e.target.value.replace(/[^0-9a-f]/gi, "").slice(0, 6).toUpperCase();
                   setHexDraft(v);
@@ -279,36 +297,39 @@ function LineEditor({ line, lang, canEdit, onSave, onRevert }: {
                 onBlur={() => setHexDraft(null)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") e.currentTarget.blur(); }} />
             </label>
             <button className="btn small-btn" disabled={!canEdit} onClick={() => wrap(`<c=FF${hex}>`, "</c>")}
-              data-tip="Colour the selection (the whole line when nothing is selected)">Colour</button>
-            <input type="number" className="tx-size" min={10} max={60} value={sizeDraft ?? size} disabled={!canEdit} aria-label="Size, 10 to 60"
-              data-tip="The size that Size applies, from 10 to 60" data-tip-more="The normal size is 20. No game line uses sizes, but chat does"
+              data-tip={t`Colour the selection (the whole line when nothing is selected)`}><Trans context="Text tab button: colours the selected words">Colour</Trans></button>
+            <input type="number" className="tx-size" min={10} max={60} value={sizeDraft ?? size} disabled={!canEdit} aria-label={t`Size, 10 to 60`}
+              data-tip={t`The size that Size applies, from 10 to 60`} data-tip-more={t`The normal size is 20. No game line uses sizes, but chat does`}
               onChange={(e) => setSizeDraft(e.target.value)}
               onBlur={() => { const n = Number(sizeDraft); if (sizeDraft !== null && sizeDraft.trim() !== "" && Number.isFinite(n)) setSize(Math.round(Math.max(10, Math.min(60, n)))); setSizeDraft(null); }}
               onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }} />
             <button className="btn small-btn" disabled={!canEdit} onClick={() => wrap(`<s=${String(size).padStart(2, "0")}>`, "</s>")}
-              data-tip="Size the selection">Size</button>
-            <button className="btn small-btn" disabled={!canEdit} onClick={() => wrap("<i=1>", "</i>")} data-tip="The style tips and briefings use for terms">Emphasis</button>
+              data-tip={t`Size the selection`}><Trans context="Text tab button: sizes the selected words">Size</Trans></button>
+            <button className="btn small-btn" disabled={!canEdit} onClick={() => wrap("<i=1>", "</i>")} data-tip={t`The style tips and briefings use for terms`}><Trans>Emphasis</Trans></button>
             {subtitle && (
-              <button className="btn small-btn" disabled={!canEdit} data-tip="Add a timing mark at the cursor" data-tip-more="When the words after it appear, in seconds from the start of the voice line"
-                onClick={() => { const el = box.current!, at = el.selectionStart; edit(draft.slice(0, at) + "{0.00->2.00}" + draft.slice(at), true); }}>Timing</button>
+              <button className="btn small-btn" disabled={!canEdit} data-tip={t`Add a timing mark at the cursor`} data-tip-more={t`When the words after it appear, in seconds from the start of the voice line`}
+                onClick={() => { const el = box.current!, at = el.selectionStart; edit(draft.slice(0, at) + "{0.00->2.00}" + draft.slice(at), true); }}>
+                <Trans context="Text tab button: adds a timing mark to a subtitle">Timing</Trans></button>
             )}
             <span className="spacer" />
             <button className="btn quiet small-btn" disabled={!canEdit || !MARKUP.test(draft)} onClick={() => edit(draft.replace(MARKUP, ""), true)}
-              data-tip="Remove every colour, size and style">Clear Formatting</button>
+              data-tip={t`Remove every colour, size and style`}><Trans>Clear Formatting</Trans></button>
           </div>
           <textarea ref={box} className="tx-input" value={draft} rows={5} readOnly={!canEdit} spellCheck
-            onChange={(e) => edit(e.target.value)} onBlur={() => save(draft, true)} onKeyDown={projectKeys} aria-label="New text" />
-          {!canEdit && <small className="muted">Open a project to change this line.</small>}
-          {lost.length > 0 && <p className="warn-box">The game fills in {lost.join(", ")} here. Keep {lost.length > 1 ? "them" : "it"}.</p>}
-          {line.was !== undefined && line.was !== line.text && <p className="warn-box">The game has changed this line since it was edited. The original now reads: {plainText(line.text)}</p>}
+            onChange={(e) => edit(e.target.value)} onBlur={() => save(draft, true)} onKeyDown={projectKeys} aria-label={t`New text`} />
+          {!canEdit && <small className="muted"><Trans>Open a project to change this line.</Trans></small>}
+          {lost.length > 0 && <p className="warn-box">
+            {t`The game fills in ${ph({ fills: andList(lost) })} here. ${plural({ count: lost.length }, { one: "Keep it.", other: "Keep them." })}`}</p>}
+          {line.was !== undefined && line.was !== line.text && <p className="warn-box">
+            {t`The game has changed this line since it was edited. The original now reads: ${ph({ original: plainText(line.text) })}`}</p>}
         </div>
         <div className="field">
-          <span className="field-label">Preview</span>
+          <span className="field-label"><Trans>Preview</Trans></span>
           <div className="tx-preview"><TextPreview text={draft} /></div>
         </div>
         <div className="row-btns">
-          {line.yours !== undefined && <button className="btn" onClick={onRevert} disabled={!canEdit}>Restore the Original</button>}
-          {changed && pending && <span className="muted small">Saving…</span>}
+          {line.yours !== undefined && <button className="btn" onClick={onRevert} disabled={!canEdit}><Trans>Restore the Original</Trans></button>}
+          {changed && pending && <span className="muted small"><Trans>Saving…</Trans></span>}
         </div>
       </div>
     </section>
@@ -339,21 +360,23 @@ function VoiceLines({ id, lang }: { id: number; lang: string }) {
   const takes = new Map<string, number>(); // a voice with two recordings of the line: "take 2"
   return (
     <div className="field">
-      <span className="field-label">{alike ? "Voice lines with these words" : "Voice lines"} <Help tip={alike
-        ? "No recording is matched to this subtitle. These recordings say the same words but are matched to other subtitles. One of them may belong to this subtitle"
-        : "The recordings that say this subtitle. Open one in the Library to hear it or replace it"} page="text#subtitles-of-voice-lines" /></span>
+      <span className="field-label">{alike ? t`Voice lines with these words` : t`Voice lines`} <Help tip={alike
+        ? t`No recording is matched to this subtitle. These recordings say the same words but are matched to other subtitles. One of them may belong to this subtitle`
+        : t`The recordings that say this subtitle. Open one in the Library to hear it or replace it`} page="text#subtitles-of-voice-lines" /></span>
       <div className="tx-voices">
         {lines.slice(0, SHOWN_VOICES).map((v) => {
           const n = (takes.get(v.name) ?? 0) + 1;
           takes.set(v.name, n);
           return (
             <button key={`${v.cue}:${v.source}`} className="link-text" onClick={() => openFound("library", v)}
-              data-tip={v.sure && !alike ? "Open it in the Library" : "Several subtitles have these words, so this match is likely but not certain. Open it in the Library"}>
-              {v.name}{n > 1 && ` · take ${n}`}{(!v.sure || alike) && <span className="tx-likely">· likely</span>}
+              data-tip={v.sure && !alike ? t`Open it in the Library` : t`Several subtitles have these words, so this match is likely but not certain. Open it in the Library`}>
+              {v.name}{n > 1 && ` · ${t({ message: `take ${ph({ take: n })}`, comment: "A second or later recording of the same voice line" })}`}
+              {(!v.sure || alike) && <span className="tx-likely">· {t({ message: "likely", comment: "The recording probably says this subtitle" })}</span>}
             </button>
           );
         })}
-        {lines.length > SHOWN_VOICES && <span className="muted small">and {lines.length - SHOWN_VOICES} more</span>}
+        {lines.length > SHOWN_VOICES && <span className="muted small">
+          {plural({ more: lines.length - SHOWN_VOICES }, { one: "and # more", other: "and # more" })}</span>}
       </div>
     </div>
   );

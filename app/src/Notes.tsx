@@ -1,3 +1,5 @@
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { confirm } from "./Confirm";
 import { LinkIcon } from "./Icons";
@@ -8,11 +10,11 @@ import { Help } from "./Wiki";
 
 type Tool = { id: string; label: string; tip: string; keys?: string; draw: React.ReactNode };
 const TOOLS: Tool[] = [
-  { id: "bold", label: "Bold", tip: "Bold", keys: "Ctrl+B", draw: <b>B</b> },
-  { id: "italic", label: "Italic", tip: "Italic", keys: "Ctrl+I", draw: <i>I</i> },
-  { id: "heading", label: "Heading", tip: "Heading", draw: <b>H</b> },
-  { id: "list", label: "List", tip: "List", draw: <span aria-hidden>•</span> },
-  { id: "link", label: "Link", tip: "Link", keys: "Ctrl+K", draw: <LinkIcon /> },
+  { id: "bold", label: t`Bold`, tip: t`Bold`, keys: "Ctrl+B", draw: <b>B</b> },
+  { id: "italic", label: t`Italic`, tip: t`Italic`, keys: "Ctrl+I", draw: <i>I</i> },
+  { id: "heading", label: t`Heading`, tip: t`Heading`, draw: <b>H</b> },
+  { id: "list", label: t`List`, tip: t({ message: "List", comment: "Note editor button: makes the lines a bulleted list" }), draw: <span aria-hidden>•</span> },
+  { id: "link", label: t`Link`, tip: t({ message: "Link", comment: "Note editor button: makes the words a web link" }), keys: "Ctrl+K", draw: <LinkIcon /> },
 ];
 
 /** The project's note on what the details panel shows: a slot (its clip) or, with no slot selected, the open item.
@@ -39,7 +41,8 @@ export function NoteSection({ k, name }: { k: string; name: string }) {
     setEditing(false);
   };
   const remove = async () => {
-    if (text.trim() && !(await confirm({ title: "Delete the note?", text: `The note on ${name} will be deleted. Undo brings it back.`, ok: "Delete", cancel: "Keep" }))) return;
+    if (text.trim() && !(await confirm({ title: t`Delete the note?`, text: t`The note on ${name} will be deleted. Undo brings it back.`, ok: t`Delete`,
+      cancel: t({ message: "Keep", comment: "Answer to Delete the note?: the note stays" }) }))) return;
     setText("");
     setEditing(false);
     if (saved) await actions.setNote(k, "");
@@ -47,18 +50,18 @@ export function NoteSection({ k, name }: { k: string; name: string }) {
   const has = !!saved || editing;
 
   return (
-    <section className="insp-sec note-sec" aria-label="Note">
-      <h3>Note <Help tip="A note kept in the project file. Builds leave notes out. A note on a slot shows wherever the clip plays. Markdown formats headings, lists, bold and links." page="reading-the-screen#notes" /></h3>
-      {!has && <div className="row-btns"><button className="btn quiet" onClick={() => setEditing(true)}>Add Note</button></div>}
+    <section className="insp-sec note-sec" aria-label={t`Note`}>
+      <h3><Trans comment="A note written on a slot or an item, kept in the project file">Note</Trans> <Help tip={t`A note kept in the project file. Builds leave notes out. A note on a slot shows wherever the clip plays. Markdown formats headings, lists, bold and links.`} page="reading-the-screen#notes" /></h3>
+      {!has && <div className="row-btns"><button className="btn quiet" onClick={() => setEditing(true)}><Trans>Add Note</Trans></button></div>}
       {editing && (
         <div className="note-editor" onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) save(); }}>
-          <div className="note-tools" role="toolbar" aria-label="Formatting">
+          <div className="note-tools" role="toolbar" aria-label={t`Formatting`}>
             {TOOLS.map((t) => (
               <button key={t.id} className="icon-btn" aria-label={t.label} data-tip={t.tip} data-tip-more={t.keys}
                 onMouseDown={(e) => e.preventDefault()} onClick={() => box.current && mark(box.current, t.id, setText)}>{t.draw}</button>
             ))}
           </div>
-          <textarea ref={box} className="note-text" value={text} spellCheck aria-label={`Note on ${name}`} placeholder="Write a note"
+          <textarea ref={box} className="note-text" value={text} spellCheck aria-label={t`Note on ${name}`} placeholder={t`Write a note`}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => {
               const tool = e.ctrlKey && !e.altKey && !e.shiftKey ? { b: "bold", i: "italic", k: "link" }[e.key.toLowerCase()] : undefined;
@@ -68,12 +71,12 @@ export function NoteSection({ k, name }: { k: string; name: string }) {
         </div>
       )}
       {!editing && saved && (
-        <div className="note-preview md" role="button" tabIndex={0} data-tip="Edit the note" onClick={() => setEditing(true)}
+        <div className="note-preview md" role="button" tabIndex={0} data-tip={t`Edit the note`} onClick={() => setEditing(true)}
           onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); setEditing(true); } }}>
           <Markdown tokens={doc!.tokens} />
         </div>
       )}
-      {has && <div className="row-btns"><button className="btn quiet" onClick={remove}>Delete Note</button></div>}
+      {has && <div className="row-btns"><button className="btn quiet" onClick={remove}><Trans>Delete Note</Trans></button></div>}
     </section>
   );
 }
@@ -100,7 +103,7 @@ function mark(el: HTMLTextAreaElement, tool: string, set: (t: string) => void) {
     return put(start, end, next, start, start + next.length);
   }
   if (tool === "link") {
-    const words = v.slice(s, e) || "text";
+    const words = v.slice(s, e) || t({ message: "text", comment: "Put in a note as the words of a new link when no words are selected" });
     const text = `[${words}](https://)`;
     return put(s, e, text, s + words.length + 3, s + text.length - 1); // the address, ready to type over
   }
@@ -114,6 +117,8 @@ function mark(el: HTMLTextAreaElement, tool: string, set: (t: string) => void) {
     const off = inner.slice(m.length, -m.length);
     return put(s, e, off, s, s + off.length);
   }
-  const words = inner || (tool === "bold" ? "bold" : "italic");
+  const words = inner || (tool === "bold"
+    ? t({ message: "bold", comment: "Put in a note, in bold, when Bold is clicked with no words selected" })
+    : t({ message: "italic", comment: "Put in a note, in italics, when Italic is clicked with no words selected" }));
   return put(s, e, `${m}${words}${m}`, s + m.length, s + m.length + words.length);
 }

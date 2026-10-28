@@ -1,0 +1,3625 @@
+{
+ "Weapons": [
+  "sounds.json: category"
+ ],
+ "Everything a Helldiver carries and fires: primaries, sidearms, grenades and support weapons.": [
+  "sounds.json: description of the category Weapons"
+ ],
+ "Primary Weapons": [
+  "sounds.json: section of Weapons"
+ ],
+ "AR-11 Arbitrator": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "AR-2 Coyote": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "AR-23 Liberator": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "AR-23A Liberator Carbine": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "AR-32 Pacifier": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "AR-59 Suppressor": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "AR-61 Tenderizer": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "AR/GL-21 One-Two": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "ARC-12 Blitzer": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "BR-14 Adjudicator": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "CB-9 Exploding Crossbow": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "DBS-2 Double Freedom": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "FLAM-66 Torcher": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "GL-15 Evictor": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "JAR-5 Dominator": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "LAS-12 Sai": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "LAS-13 Trident": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "LAS-16 Sickle": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "LAS-17 Double-Edge Sickle": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "LAS-22 Shear": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "LAS-5 Scythe": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "Liberator Legacy": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "M7S SMG": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "M90A Shotgun": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "MA5C Assault Rifle": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "MP-98 Knight": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "PLAS-1 Scorcher": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "PLAS-101 Purifier": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "PLAS-39 Accelerator Rifle": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "R-2 Amendment": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "R-2124 Constitution": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "R-36 Eruptor": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "R-4 Hyena": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "R-40 Sightliner": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "R-6 Deadeye": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "R-63 Diligence": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "R-72 Censor": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "R/40-K Hot-Shot Marksman Rifle": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "SG-20 Halt": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "SG-225 Breaker": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "SG-451 Cookout": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "SG-8 Punisher": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "SG-97 Sweeper": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "SMG-203 Gallant": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "SMG-32 Reprimand": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "SMG-37 Defender": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "SMG-72 Pummeler": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "SMG/FLAM-34 Stoker": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "StA-11 SMG": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "StA-52 Assault Rifle": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "VG-70 Variable": [
+  "sounds.json: sound set in Weapons ▸ Primary Weapons"
+ ],
+ "Secondary Weapons": [
+  "sounds.json: section of Weapons"
+ ],
+ "Pistols, melee weapons and the other sidearms.": [
+  "sounds.json: description of the section Secondary Weapons"
+ ],
+ "Bull Machine Pistol": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "CQC-19 Stun Lance": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "CQC-2 Saber": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "CQC-30 Stun Baton": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "CQC-42 Machete": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "CQC-5 Combat Hatchet": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "GP-20 Ultimatum": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "GP-31 Grenade Pistol": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "LAS-58 Talon": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "LAS-7 Dagger": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "M6C/SOCOM Pistol": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "P-11 Stim Pistol": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "P-113 Verdict": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "P-19 Redeemer": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "P-2 Peacemaker": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "P-33 Missile Pistol": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "P-34 Breacher": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "P-35 Re-Educator": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "P-4 Senator": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "P-41 Ombudsman": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "P-69 Veto": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "P-72 Crisper": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "P-92 Warrant": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "P/40-K Bolt Pistol": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "PLAS-15 Loyalist": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "SG-22 Bushwhacker": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "Support Weapons": [
+  "sounds.json: section of Weapons"
+ ],
+ "The weapons a stratagem brings, and the ones found on the battlefield.": [
+  "sounds.json: description of the section Support Weapons"
+ ],
+ "40-K Meltagun": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "AC-8 Autocannon": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "AMW-20 Apex": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "APW-1 Anti-Materiel Rifle": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "ARC-3 Arc Thrower": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "B/FLAM-80 Cremator": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "CQC-1 One True Flag": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "CQC-20 Breaching Hammer": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "CQC-72 Entrenchment Tool": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "CQC-9 Defoliation Tool": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "EAT-17 Expendable Anti-Tank": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "EAT-411 Leveller": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "EAT-700 Expendable Napalm": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "FAF-14 Spear": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "FLAM-40 Flamethrower": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "GL-21 Grenade Launcher": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "GL-28 Belt-Fed Grenade Launcher": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "GL-52 De-Escalator": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "GR-8 Recoilless Rifle": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "LAS-44 Nova": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "LAS-98 Laser Cannon": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "LAS-99 Quasar Cannon": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "M-1000 Maxigun": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "M-105 Stalwart": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "MG-206 Heavy Machine Gun": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "MG-43 Machine Gun": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "MGX-42 Bullet Storm": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "MLS-4X Commando": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "PLAS-45 Epoch": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "RL-77 Airburst Rocket Launcher": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "RS-422 Railgun": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "S-11 Speargun": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "SG-88 Break-Action Shotgun": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "StA-X3 W.A.S.P. Launcher (WASP Launcher)": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "TX-41 Sterilizer": [
+  "sounds.json: sound set in Weapons ▸ Support Weapons"
+ ],
+ "Grenades": [
+  "sounds.json: section of Weapons"
+ ],
+ "Grenades, knives and the other throwables.": [
+  "sounds.json: description of the section Grenades"
+ ],
+ "G-109 Urchin": [
+  "sounds.json: sound set in Weapons ▸ Grenades"
+ ],
+ "G-11 Caltrops": [
+  "sounds.json: sound set in Weapons ▸ Grenades"
+ ],
+ "G-12 High Explosive, G-16 Impact Grenades": [
+  "sounds.json: sound set in Weapons ▸ Grenades"
+ ],
+ "G-123 Thermite Grenade": [
+  "sounds.json: sound set in Weapons ▸ Grenades"
+ ],
+ "G-13 Incendiary Impact, G-10 Incendiary Grenades": [
+  "sounds.json: sound set in Weapons ▸ Grenades"
+ ],
+ "G-142 Pyrotech Grenade": [
+  "sounds.json: sound set in Weapons ▸ Grenades"
+ ],
+ "G-23 Stun Grenade": [
+  "sounds.json: sound set in Weapons ▸ Grenades"
+ ],
+ "G-3 Smoke Grenade": [
+  "sounds.json: sound set in Weapons ▸ Grenades"
+ ],
+ "G-31 Arc Grenade": [
+  "sounds.json: sound set in Weapons ▸ Grenades"
+ ],
+ "G-4 Gas Grenade": [
+  "sounds.json: sound set in Weapons ▸ Grenades"
+ ],
+ "G-48 Giga Grenade": [
+  "sounds.json: sound set in Weapons ▸ Grenades"
+ ],
+ "G-50 Seeker": [
+  "sounds.json: sound set in Weapons ▸ Grenades"
+ ],
+ "G-6 Frag Grenade": [
+  "sounds.json: sound set in Weapons ▸ Grenades"
+ ],
+ "G-60 Anti-Tank Seeker": [
+  "sounds.json: sound set in Weapons ▸ Grenades"
+ ],
+ "G-7 Pineapple": [
+  "sounds.json: sound set in Weapons ▸ Grenades"
+ ],
+ "G-8 Immolation": [
+  "sounds.json: sound set in Weapons ▸ Grenades"
+ ],
+ "G-89 Smokescreen": [
+  "sounds.json: sound set in Weapons ▸ Grenades"
+ ],
+ "G/40-K Melta Mine": [
+  "sounds.json: sound set in Weapons ▸ Grenades"
+ ],
+ "G/SH-39 Shield Grenade": [
+  "sounds.json: sound set in Weapons ▸ Grenades"
+ ],
+ "K-2 Throwing Knife": [
+  "sounds.json: sound set in Weapons ▸ Grenades"
+ ],
+ "TED-63 Dynamite Grenade": [
+  "sounds.json: sound set in Weapons ▸ Grenades"
+ ],
+ "TM-1 Lure Mine": [
+  "sounds.json: sound set in Weapons ▸ Grenades"
+ ],
+ "Shared": [
+  "sounds.json: section of Weapons"
+ ],
+ "Shared Weapon Sounds": [
+  "sounds.json: sound set in Weapons ▸ Shared"
+ ],
+ "Stratagems": [
+  "sounds.json: category",
+  "sounds.json: section of Stratagems"
+ ],
+ "Orbitals, Eagles, sentries, emplacements, mines and backpacks.": [
+  "sounds.json: description of the category Stratagems"
+ ],
+ "Anti-Tank Emplacement": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "B-100 Portable Hellbomb": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "C4 Pack": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Eagle 110mm Rocket Pods": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Eagle 500kg Bomb": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Eagle Airstrike": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Eagle Cluster Bomb": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Eagle Gas Strike": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Eagle Liberty Day Strike": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Eagle Napalm Strike": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Eagle Smoke Strike": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Eagle Strafe": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Grenadier Battlement": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Guard Dog": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Guard Dog, Arc": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Guard Dog, Flamethrower": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Guard Dog, Gas": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Hellpod Turret": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Mines, Anti-Personnel": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Mines, Anti-Tank": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Mines, Gas": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Mines, Incendiary": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "MS-11 Solo Silo": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Orbital 380mm HE Barrage": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Orbital 380mm HE Barrage (DSS)": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Orbital Airburst Strike": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Orbital Confetti Strike": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Orbital EMS Strike": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Orbital Gas Strike": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Orbital Gatling Barrage": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Orbital Laser": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Orbital Napalm Barrage": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Orbital Rail Cannon": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Orbital Smoke Strike": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Pack, Ballistic Shield": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Pack, Hover": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Pack, Jump": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Pack, Shield Generator": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Pack, Supply": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Pack, Warp": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Sentry Mortar Gas": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Sentry, Autocannon": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Sentry, EMS": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Sentry, Flamethrower": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Sentry, Gatling": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Sentry, Laser Cannon": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Sentry, Machine Gun": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Sentry, Mortar": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Sentry, Rocket": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Shared Stratagem Sounds": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Shield, Directional": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Shield, Generator Relay": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Tesla Tower": [
+  "sounds.json: sound set in Stratagems ▸ Stratagems"
+ ],
+ "Vehicles": [
+  "sounds.json: category",
+  "sounds.json: section of Vehicles"
+ ],
+ "Vehicles and exosuits.": [
+  "sounds.json: description of the category Vehicles"
+ ],
+ "Bastion Tank": [
+  "sounds.json: sound set in Vehicles ▸ Vehicles"
+ ],
+ "Combat Walker Breacher": [
+  "sounds.json: sound set in Vehicles ▸ Vehicles"
+ ],
+ "EXO-51 Lumberer Cannon": [
+  "sounds.json: sound set in Vehicles ▸ Vehicles"
+ ],
+ "EXO-51 Lumberer Flamethrower": [
+  "sounds.json: sound set in Vehicles ▸ Vehicles"
+ ],
+ "EXO-55 Breakthrough Flak Cannon": [
+  "sounds.json: sound set in Vehicles ▸ Vehicles"
+ ],
+ "Exosuits": [
+  "sounds.json: sound set in Vehicles ▸ Vehicles"
+ ],
+ "Fast Recon Vehicle (FRV)": [
+  "sounds.json: sound set in Vehicles ▸ Vehicles"
+ ],
+ "M-103 Supply FRV Autoturret": [
+  "sounds.json: sound set in Vehicles ▸ Vehicles"
+ ],
+ "M-104 Incinerator FRV Flamer": [
+  "sounds.json: sound set in Vehicles ▸ Vehicles"
+ ],
+ "Oil Rig": [
+  "sounds.json: sound set in Vehicles ▸ Vehicles",
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Shared Vehicle Sounds": [
+  "sounds.json: sound set in Vehicles ▸ Vehicles"
+ ],
+ "Shuttle": [
+  "sounds.json: sound set in Vehicles ▸ Vehicles"
+ ],
+ "Storm Tank": [
+  "sounds.json: sound set in Vehicles ▸ Vehicles"
+ ],
+ "Helldivers": [
+  "sounds.json: category"
+ ],
+ "The Helldiver's own voices, movement and gear.": [
+  "sounds.json: description of the category Helldivers"
+ ],
+ "Voices": [
+  "sounds.json: section of Helldivers"
+ ],
+ "The four Helldiver voices, one part per installed language, and the grunts they share.": [
+  "sounds.json: description of the section Voices"
+ ],
+ "Helldiver Exertions": [
+  "sounds.json: sound set in Helldivers ▸ Voices"
+ ],
+ "Helldiver Voice 1": [
+  "sounds.json: sound set in Helldivers ▸ Voices"
+ ],
+ "Helldiver Voice 2": [
+  "sounds.json: sound set in Helldivers ▸ Voices"
+ ],
+ "Helldiver Voice 3": [
+  "sounds.json: sound set in Helldivers ▸ Voices"
+ ],
+ "Helldiver Voice 4": [
+  "sounds.json: sound set in Helldivers ▸ Voices"
+ ],
+ "Movement and Body": [
+  "sounds.json: section of Helldivers"
+ ],
+ "Footsteps on every surface, gear rustle and gore.": [
+  "sounds.json: description of the section Movement and Body"
+ ],
+ "Footsteps: Common": [
+  "sounds.json: sound set in Helldivers ▸ Movement and Body"
+ ],
+ "Footsteps: Concrete and Stone": [
+  "sounds.json: sound set in Helldivers ▸ Movement and Body"
+ ],
+ "Footsteps: Dirt": [
+  "sounds.json: sound set in Helldivers ▸ Movement and Body"
+ ],
+ "Footsteps: Flesh": [
+  "sounds.json: sound set in Helldivers ▸ Movement and Body"
+ ],
+ "Footsteps: Foliage": [
+  "sounds.json: sound set in Helldivers ▸ Movement and Body"
+ ],
+ "Footsteps: Glass": [
+  "sounds.json: sound set in Helldivers ▸ Movement and Body"
+ ],
+ "Footsteps: Grass": [
+  "sounds.json: sound set in Helldivers ▸ Movement and Body"
+ ],
+ "Footsteps: Gravel": [
+  "sounds.json: sound set in Helldivers ▸ Movement and Body"
+ ],
+ "Footsteps: Ice and Snow": [
+  "sounds.json: sound set in Helldivers ▸ Movement and Body"
+ ],
+ "Footsteps: Metal": [
+  "sounds.json: sound set in Helldivers ▸ Movement and Body"
+ ],
+ "Footsteps: Mud and Water": [
+  "sounds.json: sound set in Helldivers ▸ Movement and Body"
+ ],
+ "Footsteps: Rubber": [
+  "sounds.json: sound set in Helldivers ▸ Movement and Body"
+ ],
+ "Footsteps: Sand": [
+  "sounds.json: sound set in Helldivers ▸ Movement and Body"
+ ],
+ "Footsteps: Wood": [
+  "sounds.json: sound set in Helldivers ▸ Movement and Body"
+ ],
+ "Gore": [
+  "sounds.json: sound set in Helldivers ▸ Movement and Body"
+ ],
+ "Movement and Gear": [
+  "sounds.json: sound set in Helldivers ▸ Movement and Body"
+ ],
+ "Armor Passives and Boosters": [
+  "sounds.json: section of Helldivers"
+ ],
+ "Armor Passive: Constitution": [
+  "sounds.json: sound set in Helldivers ▸ Armor Passives and Boosters"
+ ],
+ "Booster: Experimental Infusion": [
+  "sounds.json: sound set in Helldivers ▸ Armor Passives and Boosters"
+ ],
+ "Booster: Hellpod Firebomb": [
+  "sounds.json: sound set in Helldivers ▸ Armor Passives and Boosters"
+ ],
+ "Booster: Hellpod Smoke Pods": [
+  "sounds.json: sound set in Helldivers ▸ Armor Passives and Boosters"
+ ],
+ "Booster: Hellpod Stun": [
+  "sounds.json: sound set in Helldivers ▸ Armor Passives and Boosters"
+ ],
+ "Allies and Crew": [
+  "sounds.json: category"
+ ],
+ "Everyone on the Helldivers' side who talks: mission command, the Super Destroyer's crew, civilians and SEAF.": [
+  "sounds.json: description of the category Allies and Crew"
+ ],
+ "Mission Command": [
+  "sounds.json: section of Allies and Crew"
+ ],
+ "The voices on the radio during a mission.": [
+  "sounds.json: description of the section Mission Command"
+ ],
+ "Democracy Officer (In Mission)": [
+  "sounds.json: sound set in Allies and Crew ▸ Mission Command"
+ ],
+ "Eagle 1": [
+  "sounds.json: sound set in Allies and Crew ▸ Mission Command"
+ ],
+ "Extraction Pilot": [
+  "sounds.json: sound set in Allies and Crew ▸ Mission Command"
+ ],
+ "Loudspeakers": [
+  "sounds.json: sound set in Allies and Crew ▸ Mission Command"
+ ],
+ "Mission Control": [
+  "sounds.json: sound set in Allies and Crew ▸ Mission Command"
+ ],
+ "Radio": [
+  "sounds.json: sound set in Allies and Crew ▸ Mission Command"
+ ],
+ "Shuttle Pilot": [
+  "sounds.json: sound set in Allies and Crew ▸ Mission Command"
+ ],
+ "Super Destroyer": [
+  "sounds.json: section of Allies and Crew",
+  "sounds.json: sound set in Planets ▸ Environments"
+ ],
+ "The crew and the announcements on the ship.": [
+  "sounds.json: description of the section Super Destroyer"
+ ],
+ "Democracy Officer (On Ship)": [
+  "sounds.json: sound set in Allies and Crew ▸ Super Destroyer"
+ ],
+ "PA System and Ship TV": [
+  "sounds.json: sound set in Allies and Crew ▸ Super Destroyer"
+ ],
+ "Service Technician": [
+  "sounds.json: sound set in Allies and Crew ▸ Super Destroyer"
+ ],
+ "Ship Master": [
+  "sounds.json: sound set in Allies and Crew ▸ Super Destroyer"
+ ],
+ "Civilians and SEAF": [
+  "sounds.json: section of Allies and Crew"
+ ],
+ "Civilian Exertions": [
+  "sounds.json: sound set in Allies and Crew ▸ Civilians and SEAF"
+ ],
+ "Civilian Voices": [
+  "sounds.json: sound set in Allies and Crew ▸ Civilians and SEAF"
+ ],
+ "NPC Movement": [
+  "sounds.json: sound set in Allies and Crew ▸ Civilians and SEAF"
+ ],
+ "SEAF Defender": [
+  "sounds.json: sound set in Allies and Crew ▸ Civilians and SEAF"
+ ],
+ "SEAF Exertions": [
+  "sounds.json: sound set in Allies and Crew ▸ Civilians and SEAF"
+ ],
+ "SEAF Expendable Anti-Tank": [
+  "sounds.json: sound set in Allies and Crew ▸ Civilians and SEAF"
+ ],
+ "SEAF Grenade": [
+  "sounds.json: sound set in Allies and Crew ▸ Civilians and SEAF"
+ ],
+ "SEAF Liberator": [
+  "sounds.json: sound set in Allies and Crew ▸ Civilians and SEAF"
+ ],
+ "SEAF Machinegun": [
+  "sounds.json: sound set in Allies and Crew ▸ Civilians and SEAF"
+ ],
+ "SEAF Movement": [
+  "sounds.json: sound set in Allies and Crew ▸ Civilians and SEAF"
+ ],
+ "SEAF Stim Pistol": [
+  "sounds.json: sound set in Allies and Crew ▸ Civilians and SEAF"
+ ],
+ "SEAF Voices": [
+  "sounds.json: sound set in Allies and Crew ▸ Civilians and SEAF"
+ ],
+ "Training": [
+  "sounds.json: section of Allies and Crew",
+  "music.json: section",
+  "catalog.json: group of cues"
+ ],
+ "The training mission's voices and sounds.": [
+  "sounds.json: description of the section Training"
+ ],
+ "General Brasch": [
+  "sounds.json: sound set in Allies and Crew ▸ Training"
+ ],
+ "Helldiver Recruit": [
+  "sounds.json: sound set in Allies and Crew ▸ Training"
+ ],
+ "Training Dummy": [
+  "sounds.json: sound set in Allies and Crew ▸ Training"
+ ],
+ "Training Extraction Pilot": [
+  "sounds.json: sound set in Allies and Crew ▸ Training"
+ ],
+ "Training Facility Operator": [
+  "sounds.json: sound set in Allies and Crew ▸ Training"
+ ],
+ "Training Outro": [
+  "sounds.json: sound set in Allies and Crew ▸ Training"
+ ],
+ "Training Sounds": [
+  "sounds.json: sound set in Allies and Crew ▸ Training"
+ ],
+ "Enemies": [
+  "sounds.json: category"
+ ],
+ "The sounds of each enemy, by faction.": [
+  "sounds.json: description of the category Enemies"
+ ],
+ "Terminids": [
+  "sounds.json: section of Enemies",
+  "music.json: enemy faction (a section)",
+  "catalog.json: enemy faction (a group of cues)"
+ ],
+ "Bile Spewer": [
+  "sounds.json: sound set in Enemies ▸ Terminids"
+ ],
+ "Bile Titan": [
+  "sounds.json: sound set in Enemies ▸ Terminids"
+ ],
+ "Bilespewer Defiler": [
+  "sounds.json: sound set in Enemies ▸ Terminids"
+ ],
+ "Brood Commander": [
+  "sounds.json: sound set in Enemies ▸ Terminids"
+ ],
+ "Charger": [
+  "sounds.json: sound set in Enemies ▸ Terminids"
+ ],
+ "Dragonroach": [
+  "sounds.json: sound set in Enemies ▸ Terminids"
+ ],
+ "Hivelord": [
+  "sounds.json: sound set in Enemies ▸ Terminids"
+ ],
+ "Hunter": [
+  "sounds.json: sound set in Enemies ▸ Terminids"
+ ],
+ "Impaler": [
+  "sounds.json: sound set in Enemies ▸ Terminids"
+ ],
+ "Scavenger": [
+  "sounds.json: sound set in Enemies ▸ Terminids"
+ ],
+ "Scavenger Defiler": [
+  "sounds.json: sound set in Enemies ▸ Terminids"
+ ],
+ "Shrieker": [
+  "sounds.json: sound set in Enemies ▸ Terminids"
+ ],
+ "Stalker": [
+  "sounds.json: sound set in Enemies ▸ Terminids"
+ ],
+ "Terminid Gore": [
+  "sounds.json: sound set in Enemies ▸ Terminids"
+ ],
+ "Terminid Movement": [
+  "sounds.json: sound set in Enemies ▸ Terminids"
+ ],
+ "Terminid Voices": [
+  "sounds.json: sound set in Enemies ▸ Terminids"
+ ],
+ "Warrior": [
+  "sounds.json: sound set in Enemies ▸ Terminids"
+ ],
+ "Automatons": [
+  "sounds.json: section of Enemies",
+  "music.json: enemy faction (a section)",
+  "catalog.json: enemy faction (a group of cues)"
+ ],
+ "Automaton Gore": [
+  "sounds.json: sound set in Enemies ▸ Automatons"
+ ],
+ "Automaton Movement": [
+  "sounds.json: sound set in Enemies ▸ Automatons"
+ ],
+ "Automaton Weapons": [
+  "sounds.json: sound set in Enemies ▸ Automatons"
+ ],
+ "Berserker": [
+  "sounds.json: sound set in Enemies ▸ Automatons"
+ ],
+ "Colony Spawner": [
+  "sounds.json: sound set in Enemies ▸ Automatons"
+ ],
+ "Cyborg Elite": [
+  "sounds.json: sound set in Enemies ▸ Automatons"
+ ],
+ "Devastator": [
+  "sounds.json: sound set in Enemies ▸ Automatons"
+ ],
+ "Dropship": [
+  "sounds.json: sound set in Enemies ▸ Automatons"
+ ],
+ "Fabricator": [
+  "sounds.json: sound set in Enemies ▸ Automatons"
+ ],
+ "Flame Trooper": [
+  "sounds.json: sound set in Enemies ▸ Automatons"
+ ],
+ "Gunship": [
+  "sounds.json: sound set in Enemies ▸ Automatons"
+ ],
+ "Hulk": [
+  "sounds.json: sound set in Enemies ▸ Automatons"
+ ],
+ "Rocket Strider, Scout Strider": [
+  "sounds.json: sound set in Enemies ▸ Automatons"
+ ],
+ "Tank": [
+  "sounds.json: sound set in Enemies ▸ Automatons"
+ ],
+ "Trooper": [
+  "sounds.json: sound set in Enemies ▸ Automatons"
+ ],
+ "Vox Engine": [
+  "sounds.json: sound set in Enemies ▸ Automatons"
+ ],
+ "War Strider": [
+  "sounds.json: sound set in Enemies ▸ Automatons"
+ ],
+ "Illuminate": [
+  "sounds.json: section of Enemies",
+  "music.json: enemy faction (a section)",
+  "music.json: enemy faction before a role ('Terminid' in 'Terminid Battle')",
+  "catalog.json: enemy faction (a group of cues)"
+ ],
+ "Crescent Overseer": [
+  "sounds.json: sound set in Enemies ▸ Illuminate"
+ ],
+ "Crusher": [
+  "sounds.json: sound set in Enemies ▸ Illuminate"
+ ],
+ "Elevated Overseer": [
+  "sounds.json: sound set in Enemies ▸ Illuminate"
+ ],
+ "Fleshmob": [
+  "sounds.json: sound set in Enemies ▸ Illuminate"
+ ],
+ "Gatekeeper, Veracitor": [
+  "sounds.json: sound set in Enemies ▸ Illuminate"
+ ],
+ "Harvester": [
+  "sounds.json: sound set in Enemies ▸ Illuminate"
+ ],
+ "Illuminate Dropship": [
+  "sounds.json: sound set in Enemies ▸ Illuminate"
+ ],
+ "Illuminate Gore": [
+  "sounds.json: sound set in Enemies ▸ Illuminate"
+ ],
+ "Illuminate Movement": [
+  "sounds.json: sound set in Enemies ▸ Illuminate"
+ ],
+ "Illuminate Weapons": [
+  "sounds.json: sound set in Enemies ▸ Illuminate"
+ ],
+ "Leviathan": [
+  "sounds.json: sound set in Enemies ▸ Illuminate"
+ ],
+ "Overseer": [
+  "sounds.json: sound set in Enemies ▸ Illuminate"
+ ],
+ "Stingray": [
+  "sounds.json: sound set in Enemies ▸ Illuminate"
+ ],
+ "Voteless": [
+  "sounds.json: sound set in Enemies ▸ Illuminate"
+ ],
+ "Watcher": [
+  "sounds.json: sound set in Enemies ▸ Illuminate"
+ ],
+ "Wretch": [
+  "sounds.json: sound set in Enemies ▸ Illuminate"
+ ],
+ "Planets": [
+  "sounds.json: category"
+ ],
+ "Where missions happen: environments, hazards and objectives.": [
+  "sounds.json: description of the category Planets"
+ ],
+ "Environments": [
+  "sounds.json: section of Planets"
+ ],
+ "Ambience and the things that stand around, by biome.": [
+  "sounds.json: description of the section Environments"
+ ],
+ "Arctic": [
+  "sounds.json: sound set in Planets ▸ Environments",
+  "music.json: biome (a part's name, 'Forest, Grassland and Arctic')"
+ ],
+ "Automaton Worlds": [
+  "sounds.json: sound set in Planets ▸ Environments"
+ ],
+ "Cities": [
+  "sounds.json: sound set in Planets ▸ Environments"
+ ],
+ "Deciduous": [
+  "sounds.json: sound set in Planets ▸ Environments"
+ ],
+ "Desert": [
+  "sounds.json: sound set in Planets ▸ Environments"
+ ],
+ "Destruction": [
+  "sounds.json: sound set in Planets ▸ Environments"
+ ],
+ "Factory": [
+  "sounds.json: sound set in Planets ▸ Environments"
+ ],
+ "Forest": [
+  "sounds.json: sound set in Planets ▸ Environments",
+  "music.json: biome (a part's name, 'Forest, Grassland and Arctic')"
+ ],
+ "Hive World": [
+  "sounds.json: sound set in Planets ▸ Environments",
+  "music.json: enemy faction (a section)",
+  "music.json: enemy faction before a role ('Terminid' in 'Terminid Battle')",
+  "catalog.json: enemy faction (a group of cues)"
+ ],
+ "Illuminate Worlds": [
+  "sounds.json: sound set in Planets ▸ Environments"
+ ],
+ "Magma": [
+  "sounds.json: sound set in Planets ▸ Environments"
+ ],
+ "Moor": [
+  "sounds.json: sound set in Planets ▸ Environments"
+ ],
+ "Oasis": [
+  "sounds.json: sound set in Planets ▸ Environments"
+ ],
+ "Primordial": [
+  "sounds.json: sound set in Planets ▸ Environments"
+ ],
+ "Rift": [
+  "sounds.json: sound set in Planets ▸ Environments"
+ ],
+ "Shared Environment Sounds": [
+  "sounds.json: sound set in Planets ▸ Environments"
+ ],
+ "Swamp": [
+  "sounds.json: sound set in Planets ▸ Environments"
+ ],
+ "Teleporter": [
+  "sounds.json: sound set in Planets ▸ Environments"
+ ],
+ "Terminid Worlds": [
+  "sounds.json: sound set in Planets ▸ Environments"
+ ],
+ "Hazards": [
+  "sounds.json: section of Planets"
+ ],
+ "Acidstorm": [
+  "sounds.json: sound set in Planets ▸ Hazards"
+ ],
+ "Bug Cluster": [
+  "sounds.json: sound set in Planets ▸ Hazards"
+ ],
+ "Dust Devil": [
+  "sounds.json: sound set in Planets ▸ Hazards"
+ ],
+ "Explosive Mushroom": [
+  "sounds.json: sound set in Planets ▸ Hazards"
+ ],
+ "Fire": [
+  "sounds.json: sound set in Planets ▸ Hazards"
+ ],
+ "Fire Tornado": [
+  "sounds.json: sound set in Planets ▸ Hazards"
+ ],
+ "Frozen Flowers": [
+  "sounds.json: sound set in Planets ▸ Hazards"
+ ],
+ "Geysers": [
+  "sounds.json: sound set in Planets ▸ Hazards"
+ ],
+ "Meteor Storm": [
+  "sounds.json: sound set in Planets ▸ Hazards"
+ ],
+ "Rift Spore Flower": [
+  "sounds.json: sound set in Planets ▸ Hazards"
+ ],
+ "Sandstorm": [
+  "sounds.json: sound set in Planets ▸ Hazards"
+ ],
+ "Snowstorm": [
+  "sounds.json: sound set in Planets ▸ Hazards"
+ ],
+ "Tornado": [
+  "sounds.json: sound set in Planets ▸ Hazards"
+ ],
+ "Toxic Chimney": [
+  "sounds.json: sound set in Planets ▸ Hazards"
+ ],
+ "Tremor": [
+  "sounds.json: sound set in Planets ▸ Hazards"
+ ],
+ "Volcanic Activity": [
+  "sounds.json: sound set in Planets ▸ Hazards"
+ ],
+ "Objectives": [
+  "sounds.json: section of Planets",
+  "music.json: section",
+  "catalog.json: group of cues"
+ ],
+ "The machinery of each objective, by the faction whose missions have it.": [
+  "sounds.json: description of the section Objectives"
+ ],
+ "Automatons: AA Emplacement": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: City Blow Up Assembly Site": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: City Destroy Cooling Structure": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: City Flood Hydrogen Pipeline": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: City Mega Virus": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: Convoy Strider": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: Destroy Airbase": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: Destroy Ammo": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: Destroy Command Bunker": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: Destroy Control Tower": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: Destroy Detector Tower": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: Destroy Fuel": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: Destroy Gunship": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: Destroy Stratagem Blocker": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: Infiltration Shared": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: Lava Claim Mine Quarry": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: Lava Extract Organic Soup": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: Lava Hack Refinery": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: Lava Steal Battery Core": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: Lava Steal Coordinates": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: Lava Transport Shuttle Theft": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: Lava Transport Shuttle Theft Horde": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: Mortar Emplacement": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: Orbital Cannon": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: Raise Flag": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: SAM Site": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Automatons: Shut Down Grinder": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Colony Relay": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Destroy Research Station": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Evacuate Civilians": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Find Escape Pod": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Hard Drive": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Hellbomb": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Horde Defend": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "ICBM": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Illuminate: Collect Black Box": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Illuminate: Destroy Corrupted Growth": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Illuminate: Destroy Lasertower": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Illuminate: Disable Stratagem Scrambler": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Illuminate: Drop Off Black Box": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Illuminate: Fleshlabs": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Illuminate: Hijack Techhub": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Illuminate: Prevent Invasion Foothold": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Illuminate: Raise Flag": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Illuminate: Reclaim Location": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Illuminate: SAM Site": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Illuminate: Shoot Down Mothership": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Illuminate: Water Temples": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Illuminate: Weathertower": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Infiltration Black Box": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Infiltration Gather Footage": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Infiltration Pry Intel": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Infiltration Respawn Hellpods": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Oil Pickup": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Oil Pump": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Prospecting Drill": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Radar Station": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Radar Wagon": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Raise Flag": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Refueling Station": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Restore Power": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "SAM Site": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Samples": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "SEAF Gun": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Seismic Probe": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Shoulder Mounted Camera": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Terminal": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Terminids: Capture Oil Field": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Terminids: Central Core": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Terminids: Destroy Hive Lung": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Terminids: Destroy Mega Shrieker Nest": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Terminids: Destroy Stalker Lair": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Terminids: Fog Generator": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Terminids: Hive Oil Rig": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Terminids: Hive Radar Wagon": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Terminids: Oil Pickup": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Terminids: Protospire": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Terminids: Raise Flag": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Terminids: Retrieve Larva": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Terminids: TCS Activate": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Terminids: TCS Dark Fluid Jump Pack": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Terminids: TCS Dark Fluid Thumper": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Terminids: TCS Deactivate": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Terminids: Thumper": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Truth Transmitter": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Upload Data": [
+  "sounds.json: sound set in Planets ▸ Objectives"
+ ],
+ "Interface and Cutscenes": [
+  "sounds.json: category"
+ ],
+ "Menus, HUD sounds and cutscenes.": [
+  "sounds.json: description of the category Interface and Cutscenes"
+ ],
+ "Interface": [
+  "sounds.json: section of Interface and Cutscenes"
+ ],
+ "Game Init": [
+  "sounds.json: sound set in Interface and Cutscenes ▸ Interface"
+ ],
+ "Intro Logos": [
+  "sounds.json: sound set in Interface and Cutscenes ▸ Interface"
+ ],
+ "Mission Interface": [
+  "sounds.json: sound set in Interface and Cutscenes ▸ Interface"
+ ],
+ "Reverb: Helmet": [
+  "sounds.json: sound set in Interface and Cutscenes ▸ Interface"
+ ],
+ "Reverb: Missions": [
+  "sounds.json: sound set in Interface and Cutscenes ▸ Interface"
+ ],
+ "Reverb: Ship": [
+  "sounds.json: sound set in Interface and Cutscenes ▸ Interface"
+ ],
+ "Ship Interface": [
+  "sounds.json: sound set in Interface and Cutscenes ▸ Interface"
+ ],
+ "Cutscenes": [
+  "sounds.json: section of Interface and Cutscenes"
+ ],
+ "Cutscene Sound Effects": [
+  "sounds.json: sound set in Interface and Cutscenes ▸ Cutscenes"
+ ],
+ "Cutscene Voices": [
+  "sounds.json: sound set in Interface and Cutscenes ▸ Cutscenes"
+ ],
+ "On the Ship": [
+  "music.json: section"
+ ],
+ "Music on the Super Destroyer, before and between missions.": [
+  "music.json: description of the section On the Ship"
+ ],
+ "Before the Drop": [
+  "music.json: section"
+ ],
+ "From stepping into the hellpod to landing on the planet.": [
+  "music.json: description of the section Before the Drop"
+ ],
+ "Short cues for completed objectives, and the flag raising.": [
+  "music.json: description of the section Objectives"
+ ],
+ "Extraction": [
+  "music.json: section",
+  "music.json: piece of music",
+  "catalog.json: group of cues",
+  "catalog.json: piece of music (a cue)"
+ ],
+ "From calling the pelican to leaving the planet.": [
+  "music.json: description of the section Extraction"
+ ],
+ "After the Mission": [
+  "music.json: section"
+ ],
+ "The mission end, a failed mission and the way back to the ship.": [
+  "music.json: description of the section After the Mission"
+ ],
+ "Credits": [
+  "music.json: section",
+  "music.json: piece of music",
+  "catalog.json: piece of music (a cue)"
+ ],
+ "The training mission (music_tutorial_v2). Most of these pieces have no name yet.": [
+  "music.json: description of the section Training"
+ ],
+ "Not Identified Yet": [
+  "music.json: section"
+ ],
+ "Music with no known place in the game yet. Each entry names the game state that starts it.": [
+  "music.json: description of the section Not Identified Yet"
+ ],
+ "Unused: Old Training": [
+  "music.json: section"
+ ],
+ "Music for the old training mission (music_tutorial_old). The game probably doesn't play it any more.": [
+  "music.json: description of the section Unused: Old Training"
+ ],
+ "Terminid": [
+  "music.json: enemy faction before a role ('Terminid' in 'Terminid Battle')"
+ ],
+ "Combat music on Terminid missions.": [
+  "music.json: description of the faction Terminids"
+ ],
+ "Combat music on Terminid hive worlds (music_enemy_bugs_hiveworld). Much of it is shared with the main Terminid music.": [
+  "music.json: description of the faction Hive World"
+ ],
+ "Automaton": [
+  "music.json: enemy faction before a role ('Terminid' in 'Terminid Battle')"
+ ],
+ "Combat music on Automaton missions.": [
+  "music.json: description of the faction Automatons"
+ ],
+ "Cyborgs": [
+  "music.json: enemy faction (a section)",
+  "catalog.json: enemy faction (a group of cues)"
+ ],
+ "Cyborg": [
+  "music.json: enemy faction before a role ('Terminid' in 'Terminid Battle')"
+ ],
+ "A second set of Automaton combat music (music_enemy_cyborgs_02), also called bot world music.": [
+  "music.json: description of the faction Cyborgs"
+ ],
+ "Combat music on Illuminate missions.": [
+  "music.json: description of the faction Illuminate"
+ ],
+ "Illuminate Void": [
+  "music.json: enemy faction (a section)",
+  "music.json: enemy faction before a role ('Terminid' in 'Terminid Battle')",
+  "catalog.json: enemy faction (a group of cues)"
+ ],
+ "Combat music on Illuminate Void missions (music_enemy_illuminates_rift). Much of it is shared with the main Illuminate music.": [
+  "music.json: description of the faction Illuminate Void"
+ ],
+ "Void missions play the regular Illuminate death music. The Void death music is in the game files, but nothing plays it.": [
+  "music.json: description of death music in Illuminate Void"
+ ],
+ "Arrival": [
+  "music.json: role of combat music"
+ ],
+ "Calm music that sets the scene after landing (music_scene_setter), also called the battleground intro. Each biome has a separate part.": [
+  "music.json: description of the role Arrival"
+ ],
+ "Exploring": [
+  "music.json: role of combat music"
+ ],
+ "Plays while no enemies are engaging. The part depends on the intensity: stealth (fighting undetected, or enemies searching), calm (approaching an outpost) and calm transition.": [
+  "music.json: description of the role Exploring"
+ ],
+ "Battle": [
+  "music.json: role of combat music",
+  "notes.json: label of a clip",
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Plays during a fight, also called common battle.": [
+  "music.json: description of the role Battle"
+ ],
+ "Intense Battle": [
+  "music.json: role of combat music",
+  "notes.json: label of a clip"
+ ],
+ "Plays at the highest combat intensity.": [
+  "music.json: description of the role Intense Battle"
+ ],
+ "Respawn": [
+  "music.json: role of combat music"
+ ],
+ "Short bumpers on a respawn (music_respawn), also called reinforcement stingers.": [
+  "music.json: description of the role Respawn"
+ ],
+ "Death": [
+  "music.json: role of combat music",
+  "exertions.json: label of a clip"
+ ],
+ "Plays on death, until the respawn.": [
+  "music.json: description of the role Death"
+ ],
+ "Stingers": [
+  "music.json: role of combat music"
+ ],
+ "Short phrases over the music at certain moments.": [
+  "music.json: description of the role Stingers"
+ ],
+ "Transitions": [
+  "music.json: role of combat music"
+ ],
+ "Short pieces between two parts of the music. They play the original until replaced or skipped. Transitions into a fight are also called battle stingers, and those out of it calm stingers.": [
+  "music.json: description of the role Transitions"
+ ],
+ "Bridge and War Map": [
+  "music.json: piece of music"
+ ],
+ "Music at the galactic war map, in three layers that play together (music, war-map music and a white-noise bed). The second part opens with a short piece for travelling to an operation (also called 'Travel to New Operation'). The two parts share most of the audio.": [
+  "music.json: description of Bridge and War Map"
+ ],
+ "On the Bridge": [
+  "music.json: part of Bridge and War Map"
+ ],
+ "After Travelling to an Operation": [
+  "music.json: part of Bridge and War Map"
+ ],
+ "FTL Jump": [
+  "music.json: piece of music",
+  "catalog.json: piece of music (a cue)",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Plays over the bridge music when the destroyer jumps to another system (also called 'warping to a system').": [
+  "music.json: description of FTL Jump"
+ ],
+ "Loadout Background Stinger": [
+  "music.json: piece of music",
+  "catalog.json: piece of music (a cue)"
+ ],
+ "A stinger over the bridge music, linked to picking a loadout.": [
+  "music.json: description of Loadout Background Stinger"
+ ],
+ "Loading Into the Ship": [
+  "music.json: piece of music"
+ ],
+ "Plays once on loading into the ship. There are three intros, one per camera.": [
+  "music.json: description of Loading Into the Ship"
+ ],
+ "Hellpod View": [
+  "music.json: part of Loading Into the Ship"
+ ],
+ "Over the Shoulder": [
+  "music.json: part of Loading Into the Ship"
+ ],
+ "Galactic Map View": [
+  "music.json: part of Loading Into the Ship"
+ ],
+ "Destroyer View": [
+  "music.json: piece of music",
+  "catalog.json: piece of music (a cue)"
+ ],
+ "Also called 'view destroyer cue'.": [
+  "music.json: description of Destroyer View"
+ ],
+ "Stepping Into the Hellpod": [
+  "music.json: piece of music"
+ ],
+ "Leads from the bridge music into the loadout or drop-location music (also called 'Hellpod Entered').": [
+  "music.json: description of Stepping Into the Hellpod"
+ ],
+ "Loadout Selection": [
+  "music.json: piece of music",
+  "catalog.json: piece of music (a cue)"
+ ],
+ "Plays after the drop location screen and continues from where that music left off, in loops #1 to #14. The start segment plays only when the loadout screen opens straight from the ship.": [
+  "music.json: description of Loadout Selection"
+ ],
+ "Drop Location Selection": [
+  "music.json: piece of music",
+  "catalog.json: piece of music (a cue)"
+ ],
+ "From the ship, the start segment plays once, then #1 to #14 loop in order. Back from the loadout screen, the loops continue from where that music left off.": [
+  "music.json: description of Drop Location Selection"
+ ],
+ "Between Loadout and Drop Location": [
+  "music.json: piece of music"
+ ],
+ "Short pieces on switching between the loadout and drop-location screens.": [
+  "music.json: description of Between Loadout and Drop Location"
+ ],
+ "Stepping Out of the Hellpod": [
+  "music.json: piece of music"
+ ],
+ "Leads back to the bridge music on leaving the hellpod (also called 'Hellpod Exit').": [
+  "music.json: description of Stepping Out of the Hellpod"
+ ],
+ "Hellpod Descent": [
+  "music.json: piece of music",
+  "catalog.json: piece of music (a cue)"
+ ],
+ "Plays while the hellpod falls to the planet.": [
+  "music.json: description of Hellpod Descent"
+ ],
+ "Hellpod Landing": [
+  "music.json: piece of music"
+ ],
+ "Plays as the hellpod lands, leading into the mission music (also called 'Hellpod Land Cue').": [
+  "music.json: description of Hellpod Landing"
+ ],
+ "Main Objective Complete": [
+  "music.json: piece of music",
+  "catalog.json: piece of music (a cue)"
+ ],
+ "Plays when a main objective is completed.": [
+  "music.json: description of Main Objective Complete"
+ ],
+ "Secondary Objective Complete": [
+  "music.json: piece of music",
+  "catalog.json: piece of music (a cue)"
+ ],
+ "Plays when a secondary objective or outpost is done, at low intensity only. During a fight the combat music keeps going.": [
+  "music.json: description of Secondary Objective Complete"
+ ],
+ "Flag Raising": [
+  "music.json: piece of music"
+ ],
+ "The Super Earth anthem while the flag rises. It is in the game twice, as a plain sound (labelled per faction) and as interactive music for the flag-raise state.": [
+  "music.json: description of Flag Raising"
+ ],
+ "As a Sound": [
+  "music.json: part of Flag Raising"
+ ],
+ "As Music": [
+  "music.json: part of Flag Raising"
+ ],
+ "Calling Extraction": [
+  "music.json: piece of music"
+ ],
+ "Leads from whatever is playing into the extraction music (also called 'Extraction Cue').": [
+  "music.json: description of Calling Extraction"
+ ],
+ "Plays from calling the pelican until it lands. It has an intro, then two blocks of six segments. Each stem switches between calm and intense audio.": [
+  "music.json: description of Extraction"
+ ],
+ "Pelican Landed": [
+  "music.json: piece of music",
+  "catalog.json: piece of music (a cue)"
+ ],
+ "Plays once the pelican has landed and waits.": [
+  "music.json: description of Pelican Landed"
+ ],
+ "Pelican Liftoff": [
+  "music.json: piece of music",
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Plays as the pelican takes off.": [
+  "music.json: description of Pelican Liftoff"
+ ],
+ "Mission End": [
+  "music.json: piece of music",
+  "catalog.json: piece of music (a cue)",
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Plays after the pelican takes off, into the mission results (music_extraction_takeoff).": [
+  "music.json: description of Mission End",
+  "catalog.json: note on Mission End"
+ ],
+ "Mission Failed": [
+  "music.json: piece of music"
+ ],
+ "Plays when a mission fails (music_mission_failure). The same audio plays for every enemy faction, at the end of the mission and on the stats screen.": [
+  "music.json: description of Mission Failed"
+ ],
+ "Stats Screen": [
+  "music.json: piece of music",
+  "catalog.json: piece of music (a cue)"
+ ],
+ "Plays on the stats screen (music_stats_screen).": [
+  "music.json: description of Stats Screen"
+ ],
+ "Platform Rise": [
+  "music.json: piece of music",
+  "catalog.json: piece of music (a cue)"
+ ],
+ "Also called 'Mission End Platform Rise (success)'.": [
+  "music.json: description of Platform Rise"
+ ],
+ "Back to the Ship": [
+  "music.json: piece of music"
+ ],
+ "Leads from the mission end back to the bridge music (also called 'Pelican Return to the ship').": [
+  "music.json: description of Back to the Ship"
+ ],
+ "Four songs in order.": [
+  "music.json: description of Credits"
+ ],
+ "Ambient": [
+  "music.json: intensity of exploring music (a part's name, 'Low and Idle')",
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Low": [
+  "music.json: intensity of exploring music (a part's name, 'Low and Idle')"
+ ],
+ "Idle": [
+  "music.json: intensity of exploring music (a part's name, 'Low and Idle')",
+  "catalog.json: piece of music (a cue)"
+ ],
+ "Unnamed Level": [
+  "music.json: intensity of exploring music (a part's name, 'Low and Idle')"
+ ],
+ "No Biome": [
+  "music.json: biome (a part's name, 'Forest, Grassland and Arctic')"
+ ],
+ "Grassland": [
+  "music.json: biome (a part's name, 'Forest, Grassland and Arctic')"
+ ],
+ "Leaving the Mission": [
+  "music.json: where a transition leads ('Battle → Leaving the Mission')"
+ ],
+ "Silence": [
+  "music.json: where a transition leads ('Battle → Leaving the Mission')"
+ ],
+ "The Hellpod Drop": [
+  "music.json: where a transition leads ('Battle → Leaving the Mission')"
+ ],
+ "Training Piece": [
+  "music.json: piece of music without a name, numbered ('Training Piece 3')"
+ ],
+ "Old Training Piece": [
+  "music.json: piece of music without a name, numbered ('Training Piece 3')"
+ ],
+ "arrival": [
+  "catalog.json: a game state that tells cues apart ('forest / grassland · arrival')"
+ ],
+ "respawn": [
+  "catalog.json: a game state that tells cues apart ('forest / grassland · arrival')"
+ ],
+ "mission failed": [
+  "catalog.json: a game state that tells cues apart ('forest / grassland · arrival')"
+ ],
+ "in combat": [
+  "catalog.json: a game state that tells cues apart ('forest / grassland · arrival')"
+ ],
+ "out of combat": [
+  "catalog.json: a game state that tells cues apart ('forest / grassland · arrival')"
+ ],
+ "death": [
+  "catalog.json: a game state that tells cues apart ('forest / grassland · arrival')"
+ ],
+ "default": [
+  "catalog.json: a game state that tells cues apart ('forest / grassland · arrival')"
+ ],
+ "no biome": [
+  "catalog.json: a game state that tells cues apart ('forest / grassland · arrival')"
+ ],
+ "biome": [
+  "catalog.json: kind of condition, before its value ('biome: forest')"
+ ],
+ "level": [
+  "catalog.json: kind of condition, before its value ('biome: forest')"
+ ],
+ "Ship": [
+  "catalog.json: group of cues"
+ ],
+ "First Load": [
+  "catalog.json: group of cues"
+ ],
+ "First Load #1 (Hellpod View)": [
+  "catalog.json: piece of music (a cue)"
+ ],
+ "First Load #2 (Over the Shoulder)": [
+  "catalog.json: piece of music (a cue)"
+ ],
+ "First Load #3 (Galactic Map View)": [
+  "catalog.json: piece of music (a cue)"
+ ],
+ "Bridge Music, After Travelling to an Operation": [
+  "catalog.json: piece of music (a cue)"
+ ],
+ "Bridge Music (War Map)": [
+  "catalog.json: piece of music (a cue)"
+ ],
+ "Stinger over the war map music.": [
+  "catalog.json: note on FTL Jump"
+ ],
+ "Hellpod": [
+  "catalog.json: group of cues"
+ ],
+ "Plays after the drop location screen and continues from where that music left off, in loops #1–14. The start segment plays only when the loadout screen opens straight from the ship.": [
+  "catalog.json: note on Loadout Selection"
+ ],
+ "Loadout #{n0}": [
+  "catalog.json: name of each segment of Loadout Selection ({n} counts from 1, {n0} from 0: keep them)"
+ ],
+ "Loadout Start": [
+  "catalog.json: name of the first segment of Loadout Selection"
+ ],
+ "From the ship, the start segment plays once, then #1–14 loop in order. Back from the loadout screen, the loops continue from where that music left off.": [
+  "catalog.json: note on Drop Location Selection"
+ ],
+ "Drop Location #{n0}": [
+  "catalog.json: name of each segment of Drop Location Selection ({n} counts from 1, {n0} from 0: keep them)"
+ ],
+ "Drop Location Start": [
+  "catalog.json: name of the first segment of Drop Location Selection"
+ ],
+ "Mission": [
+  "catalog.json: group of cues"
+ ],
+ "Intro, then two six-segment blocks. Each stem switches between calm and intense audio.": [
+  "catalog.json: note on Extraction"
+ ],
+ "Flag Raising Anthem (Music)": [
+  "catalog.json: piece of music (a cue)"
+ ],
+ "Extraction Cue A": [
+  "catalog.json: piece of music (a cue)"
+ ],
+ "Extraction Cue B": [
+  "catalog.json: piece of music (a cue)"
+ ],
+ "Extraction Cue C": [
+  "catalog.json: piece of music (a cue)"
+ ],
+ "Post-Mission": [
+  "catalog.json: group of cues"
+ ],
+ "Platform Rise (Failed)": [
+  "catalog.json: piece of music (a cue)"
+ ],
+ "Leaving Mission": [
+  "catalog.json: piece of music (a cue)"
+ ],
+ "Menu": [
+  "catalog.json: group of cues"
+ ],
+ "Credits Song {n}": [
+  "catalog.json: name of each segment of Credits ({n} counts from 1, {n0} from 0: keep them)"
+ ],
+ "A Cup of Liber-Tea (Alternative)": [
+  "catalog.json: piece of music (a cue)",
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Void Death": [
+  "notes.json: label of a clip"
+ ],
+ "Never plays. Void missions play the regular Illuminate death music, and no playlist in the game data plays this one.": [
+  "notes.json: note on Void Death"
+ ],
+ "never plays": [
+  "notes.json: tag on Void Death"
+ ],
+ "Calm": [
+  "notes.json: label of a clip",
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Plays when approaching an outpost.": [
+  "notes.json: note on Calm"
+ ],
+ "Stealth": [
+  "notes.json: label of a clip"
+ ],
+ "Plays while fighting undetected, or while enemies search.": [
+  "notes.json: note on Stealth"
+ ],
+ "Battle Stinger": [
+  "notes.json: label of a clip",
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Plays when enemies spot the squad and engage.": [
+  "notes.json: note on Battle Stinger",
+  "notes.json: note on Intense Battle Stinger"
+ ],
+ "Calm Stinger": [
+  "notes.json: label of a clip"
+ ],
+ "Plays when few enemies are left, or when leaving a fight.": [
+  "notes.json: note on Calm Stinger",
+  "notes.json: note on Calm Stinger (Tense)"
+ ],
+ "Reinforcement Stinger": [
+  "notes.json: label of a clip"
+ ],
+ "Plays on a respawn in the middle of a fight.": [
+  "notes.json: note on Reinforcement Stinger"
+ ],
+ "Stinger Out of Nowhere": [
+  "notes.json: label of a clip"
+ ],
+ "Plays with no danger nearby, possibly when distant enemies give chase.": [
+  "notes.json: note on Stinger Out of Nowhere"
+ ],
+ "Calm Stinger (Tense)": [
+  "notes.json: label of a clip"
+ ],
+ "Calm Stinger (End of Battle)": [
+  "notes.json: label of a clip"
+ ],
+ "Plays when few enemies are left, or when leaving a fight. May also play on death.": [
+  "notes.json: note on Calm Stinger (End of Battle)"
+ ],
+ "Intense Battle Stinger": [
+  "notes.json: label of a clip"
+ ],
+ "Downtime Music": [
+  "notes.json: label of a clip",
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Low drums under another stem, barely audible.": [
+  "notes.json: note on a clip"
+ ],
+ "quiet drums": [
+  "notes.json: tag on a clip"
+ ],
+ "Make-Up Gain has no effect here, so set the loudness in the file. Keep Fit timing on so the track takes the length of the new clip.": [
+  "notes.json: note on a clip"
+ ],
+ "Supercruise": [
+  "notes.json: label of a clip"
+ ],
+ "Plays 6 dB louder than the ship music after it, and replacements are unreliable. To skip it, use silence with Move straight on.": [
+  "notes.json: note on Supercruise"
+ ],
+ "The hellpod launches 7.867 s into this clip. Time the new audio to match.": [
+  "notes.json: note on a clip"
+ ],
+ "Long Descent": [
+  "notes.json: label of a clip"
+ ],
+ "Likely plays when the drop outlasts the first descent clip, as on a slow connection.": [
+  "notes.json: note on Long Descent"
+ ],
+ "Touchdown": [
+  "notes.json: label of a clip"
+ ],
+ "This clip fades in over the first 0.8 s and drops by 30% at 1.6 s.": [
+  "notes.json: note on Touchdown"
+ ],
+ "The first 150 ms can be silent.": [
+  "notes.json: note on a clip"
+ ],
+ "A replacement must be at least 7.5 s long.": [
+  "notes.json: note on a clip"
+ ],
+ "A replacement must be at least 9 s long.": [
+  "notes.json: note on a clip"
+ ],
+ "A replacement must be at least 5.5 s long.": [
+  "notes.json: note on a clip"
+ ],
+ "Ready": [
+  "notes.json: label of a clip"
+ ],
+ "Alarm": [
+  "notes.json: label of a clip"
+ ],
+ "Drowning": [
+  "exertions.json: label of a clip",
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Voice 1": [
+  "exertions.json: label of a clip"
+ ],
+ "Plays while a Helldiver drowns.": [
+  "exertions.json: note on Drowning · Voice 1",
+  "exertions.json: note on Drowning · Voice 2",
+  "exertions.json: note on Drowning · Voice 3",
+  "exertions.json: note on Drowning · Voice 4"
+ ],
+ "Voice 2": [
+  "exertions.json: label of a clip"
+ ],
+ "Voice 3": [
+  "exertions.json: label of a clip"
+ ],
+ "Voice 4": [
+  "exertions.json: label of a clip"
+ ],
+ "Bleeding Out": [
+  "exertions.json: label of a clip"
+ ],
+ "Plays while a Helldiver bleeds out from a chest wound.": [
+  "exertions.json: note on Bleeding Out · Voice 1",
+  "exertions.json: note on Bleeding Out · Voice 2",
+  "exertions.json: note on Bleeding Out · Voice 3",
+  "exertions.json: note on Bleeding Out · Voice 4"
+ ],
+ "Choking": [
+  "exertions.json: label of a clip"
+ ],
+ "A choking cough.": [
+  "exertions.json: note on Choking · Voice 1",
+  "exertions.json: note on Choking · Voice 2",
+  "exertions.json: note on Choking · Voice 3",
+  "exertions.json: note on Choking · Voice 4"
+ ],
+ "On Fire": [
+  "exertions.json: label of a clip"
+ ],
+ "Screams while a Helldiver burns.": [
+  "exertions.json: note on On Fire · Voice 1",
+  "exertions.json: note on On Fire · Voice 2",
+  "exertions.json: note on On Fire · Voice 3",
+  "exertions.json: note on On Fire · Voice 4"
+ ],
+ "This Is Democracy Emote": [
+  "exertions.json: label of a clip"
+ ],
+ "Plays with the This Is Democracy emote.": [
+  "exertions.json: note on This Is Democracy Emote · Voice 1",
+  "exertions.json: note on This Is Democracy Emote · Voice 2",
+  "exertions.json: note on This Is Democracy Emote · Voice 3",
+  "exertions.json: note on This Is Democracy Emote · Voice 4"
+ ],
+ "Heavy Throw": [
+  "exertions.json: label of a clip"
+ ],
+ "Plays when throwing something heavy, such as an artillery shell.": [
+  "exertions.json: note on Heavy Throw · Voice 1",
+  "exertions.json: note on Heavy Throw · Voice 2",
+  "exertions.json: note on Heavy Throw · Voice 3",
+  "exertions.json: note on Heavy Throw · Voice 4"
+ ],
+ "Crawling": [
+  "exertions.json: label of a clip"
+ ],
+ "Plays while crawling.": [
+  "exertions.json: note on Crawling · Voice 1",
+  "exertions.json: note on Crawling · Voice 2",
+  "exertions.json: note on Crawling · Voice 3",
+  "exertions.json: note on Crawling · Voice 4"
+ ],
+ "Hurt, Medium": [
+  "exertions.json: label of a clip"
+ ],
+ "Plays on taking moderate damage.": [
+  "exertions.json: note on Hurt, Medium · Voice 1",
+  "exertions.json: note on Hurt, Medium · Voice 2",
+  "exertions.json: note on Hurt, Medium · Voice 3",
+  "exertions.json: note on Hurt, Medium · Voice 4"
+ ],
+ "Long Fall": [
+  "exertions.json: label of a clip"
+ ],
+ "Screams while falling from a great height.": [
+  "exertions.json: note on Long Fall · Voice 1",
+  "exertions.json: note on Long Fall · Voice 2",
+  "exertions.json: note on Long Fall · Voice 3",
+  "exertions.json: note on Long Fall · Voice 4"
+ ],
+ "Silo Hatch Locks": [
+  "exertions.json: label of a clip"
+ ],
+ "Plays when lifting the locks of a missile silo hatch.": [
+  "exertions.json: note on Silo Hatch Locks · Voice 1",
+  "exertions.json: note on Silo Hatch Locks · Voice 2",
+  "exertions.json: note on Silo Hatch Locks · Voice 3",
+  "exertions.json: note on Silo Hatch Locks · Voice 4"
+ ],
+ "Grenade Throw": [
+  "exertions.json: label of a clip"
+ ],
+ "Plays when throwing a grenade.": [
+  "exertions.json: note on Grenade Throw · Voice 1",
+  "exertions.json: note on Grenade Throw · Voice 2",
+  "exertions.json: note on Grenade Throw · Voice 3",
+  "exertions.json: note on Grenade Throw · Voice 4"
+ ],
+ "Soft Landing": [
+  "exertions.json: label of a clip"
+ ],
+ "Plays on landing softly.": [
+  "exertions.json: note on Soft Landing · Voice 1",
+  "exertions.json: note on Soft Landing · Voice 2",
+  "exertions.json: note on Soft Landing · Voice 3",
+  "exertions.json: note on Soft Landing · Voice 4"
+ ],
+ "Death Scream, Short": [
+  "exertions.json: label of a clip"
+ ],
+ "A short death scream. Rare.": [
+  "exertions.json: note on Death Scream, Short · Voice 1",
+  "exertions.json: note on Death Scream, Short · Voice 2",
+  "exertions.json: note on Death Scream, Short · Voice 3",
+  "exertions.json: note on Death Scream, Short · Voice 4"
+ ],
+ "Hurt, Minor": [
+  "exertions.json: label of a clip"
+ ],
+ "Plays on taking minor damage and on being knocked down.": [
+  "exertions.json: note on Hurt, Minor · Voice 1",
+  "exertions.json: note on Hurt, Minor · Voice 2",
+  "exertions.json: note on Hurt, Minor · Voice 3",
+  "exertions.json: note on Hurt, Minor · Voice 4"
+ ],
+ "Melee": [
+  "exertions.json: label of a clip"
+ ],
+ "Plays with a melee attack.": [
+  "exertions.json: note on Melee · Voice 1",
+  "exertions.json: note on Melee · Voice 2",
+  "exertions.json: note on Melee · Voice 3",
+  "exertions.json: note on Melee · Voice 4"
+ ],
+ "Plays on dying.": [
+  "exertions.json: note on Death · Voice 1",
+  "exertions.json: note on Death · Voice 2",
+  "exertions.json: note on Death · Voice 3",
+  "exertions.json: note on Death · Voice 4"
+ ],
+ "Bleeding Out, Second Set": [
+  "exertions.json: label of a clip"
+ ],
+ "A second set of sounds for bleeding out. Voices 1, 2 and 4 are the same recordings as in Bleeding Out.": [
+  "exertions.json: note on Bleeding Out, Second Set · Voice 1",
+  "exertions.json: note on Bleeding Out, Second Set · Voice 2",
+  "exertions.json: note on Bleeding Out, Second Set · Voice 3",
+  "exertions.json: note on Bleeding Out, Second Set · Voice 4"
+ ],
+ "Vaulting": [
+  "exertions.json: label of a clip"
+ ],
+ "Plays when vaulting over an obstacle.": [
+  "exertions.json: note on Vaulting · Voice 1",
+  "exertions.json: note on Vaulting · Voice 2",
+  "exertions.json: note on Vaulting · Voice 3",
+  "exertions.json: note on Vaulting · Voice 4"
+ ],
+ "Stim Relief": [
+  "exertions.json: label of a clip"
+ ],
+ "Relief after using a stim.": [
+  "exertions.json: note on Stim Relief · Voice 1",
+  "exertions.json: note on Stim Relief · Voice 2",
+  "exertions.json: note on Stim Relief · Voice 3",
+  "exertions.json: note on Stim Relief · Voice 4"
+ ],
+ "Fire Out": [
+  "exertions.json: label of a clip"
+ ],
+ "Plays when the flames on a Helldiver go out.": [
+  "exertions.json: note on Fire Out · Voice 1",
+  "exertions.json: note on Fire Out · Voice 2",
+  "exertions.json: note on Fire Out · Voice 3",
+  "exertions.json: note on Fire Out · Voice 4"
+ ],
+ "Coughing": [
+  "exertions.json: label of a clip"
+ ],
+ "Plays in gas, and in weather that makes Helldivers cough.": [
+  "exertions.json: note on Coughing · Voice 1",
+  "exertions.json: note on Coughing · Voice 2",
+  "exertions.json: note on Coughing · Voice 3",
+  "exertions.json: note on Coughing · Voice 4"
+ ],
+ "Death Scream, Long": [
+  "exertions.json: label of a clip"
+ ],
+ "A long death scream, heard when dying from a chest wound. Rare.": [
+  "exertions.json: note on Death Scream, Long · Voice 1",
+  "exertions.json: note on Death Scream, Long · Voice 2",
+  "exertions.json: note on Death Scream, Long · Voice 3",
+  "exertions.json: note on Death Scream, Long · Voice 4"
+ ],
+ "Broken Limb": [
+  "exertions.json: label of a clip"
+ ],
+ "Plays when walking on a broken leg or aiming with a broken arm.": [
+  "exertions.json: note on Broken Limb · Voice 1",
+  "exertions.json: note on Broken Limb · Voice 2",
+  "exertions.json: note on Broken Limb · Voice 3",
+  "exertions.json: note on Broken Limb · Voice 4"
+ ],
+ "Hurt, Major": [
+  "exertions.json: label of a clip"
+ ],
+ "Plays on taking heavy damage.": [
+  "exertions.json: note on Hurt, Major · Voice 1",
+  "exertions.json: note on Hurt, Major · Voice 2",
+  "exertions.json: note on Hurt, Major · Voice 3",
+  "exertions.json: note on Hurt, Major · Voice 4"
+ ],
+ "Dive": [
+  "exertions.json: label of a clip"
+ ],
+ "Plays when diving and landing.": [
+  "exertions.json: note on Dive · Voice 1",
+  "exertions.json: note on Dive · Voice 2",
+  "exertions.json: note on Dive · Voice 3",
+  "exertions.json: note on Dive · Voice 4"
+ ],
+ "Catching Breath": [
+  "exertions.json: label of a clip"
+ ],
+ "Plays when leaving the water after nearly drowning.": [
+  "exertions.json: note on Catching Breath · Voice 1",
+  "exertions.json: note on Catching Breath · Voice 2",
+  "exertions.json: note on Catching Breath · Voice 3",
+  "exertions.json: note on Catching Breath · Voice 4"
+ ],
+ "Climbing": [
+  "exertions.json: label of a clip"
+ ],
+ "Plays while climbing.": [
+  "exertions.json: note on Climbing · Voice 1",
+  "exertions.json: note on Climbing · Voice 2",
+  "exertions.json: note on Climbing · Voice 3",
+  "exertions.json: note on Climbing · Voice 4"
+ ],
+ "Objective Complete": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Automaton Cue": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Drowned Death Cue": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Illuminate Combat Music": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Transition": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Bugs Stinger": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction Cue (Perc.)": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Hellpod Descent Theme": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Downtime": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Calm Music": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Super Earth Anthem - Flag Raise - Illuminate": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Super Earth Anthem - Flag Raise - Bots": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Super Earth Anthem - Flag Raise - Bugs": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Automaton / Terminid Flag Raise": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Illuminate Flag Raise": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Five": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Seven": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Two": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Super Earth Anthem": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction Cue": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "A Cup of Liber-Tea (Alternative, Lead)": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Four": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "A Cup of Liber-Tea (Alternative, Backing)": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "A Cup of Liber-Tea": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Automaton Combat Music": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "High Bots Combat": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Common Battle Music": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Picking loudout background #4": [
+  "labels.json: name of a slot"
+ ],
+ "Picking loudout background": [
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Picking Loudout Background": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Terminid Combat Music": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Bot Combat": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Battle Music": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Picking loadout #13": [
+  "labels.json: name of a slot"
+ ],
+ "Picking loadout": [
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Picking Loadout": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Intense Battle Music": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "spawn on bug mission-treat as calm": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Spawn on Bug Mission-Treat as Calm": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Calm Transition": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction General Cue 14": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction General": [
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "pelican lift-off music": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Pelican Lift-Off Music": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Calm Bumper": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "xp screen music - cue 4": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Xp Screen Music - Cue 4": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "XP Screen #3": [
+  "labels.json: name of a slot"
+ ],
+ "XP Screen": [
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "XP Cue 4": [
+  "labels.json: name of a slot"
+ ],
+ "XP": [
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction Automaton - Calm Cue 2": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction Automaton - Calm": [
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction Automaton - Intense Cue 7": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction Automaton - Intense": [
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Calm Suspensful": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "xp screen music": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Xp Screen Music": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "XP Screen #1": [
+  "labels.json: name of a slot"
+ ],
+ "XP Cue 2": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction General Cue 11": [
+  "labels.json: name of a slot"
+ ],
+ "Picking loadout #12": [
+  "labels.json: name of a slot"
+ ],
+ "Battle Transition": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Major Order": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Battle Bumper": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Picking loudout background #2": [
+  "labels.json: name of a slot"
+ ],
+ "Stalkingly Calm": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction Cue (!Perc.)": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction Automaton - Intense Cue 3": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction T - Calm Perc. Cue 5": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction T - Calm Perc.": [
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Precussion": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Ship Ambience": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Ship Ambience music #1": [
+  "labels.json: name of a slot"
+ ],
+ "Ship Ambience music": [
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Ship Ambience Music": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Ship Ambience #1": [
+  "labels.json: name of a slot"
+ ],
+ "Erie Calm (might break things)": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Erie Calm (Might Break Things)": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction General Cue 9": [
+  "labels.json: name of a slot"
+ ],
+ "ETA 10": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Picking loadout #11": [
+  "labels.json: name of a slot"
+ ],
+ "Hellpod touchdown": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Hellpod Touchdown": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Calm Music (might break things)": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Calm Music (Might Break Things)": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Calm /Tense": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Calm but im anxious": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Calm but Im Anxious": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction A - Intense Perc. Cue 5": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction A - Intense Perc.": [
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Extraction a - Intense Perc.": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Calm? transition": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Calm? Transition": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Main Theme (Alternate)": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Pelican Return to the ship": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Pelican Return to the Ship": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Erie Battle Music": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction A - Intense Perc. Cue 6": [
+  "labels.json: name of a slot"
+ ],
+ "Epic Slowburn Suspensful": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction T - Intense Perc. Cue 6": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction T - Intense Perc.": [
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Ship Ambience white noise #2": [
+  "labels.json: name of a slot"
+ ],
+ "Ship Ambience white noise": [
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Ship Ambience White Noise": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "death-when you don't get respawned": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Death-When You Don't Get Respawned": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Calm Battle Climax Transition": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Mostly Silent": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Secondary Objective Complete / Outpost Cleared (Alternative)": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Se. Obj Complete": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Battle Music Interlude": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction Automaton - Calm Cue 5": [
+  "labels.json: name of a slot"
+ ],
+ "Bumper": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "xp screen buffer music": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Xp Screen Buffer Music": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "XP Screen Buffer": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "XP timeout buffer": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "XP Timeout Buffer": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Intense Battle Music Climax": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Objective Complete?": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction A - Calm Perc. Cue 5": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction A - Calm Perc.": [
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Extraction a - Calm Perc.": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Picking Drop Zone #12": [
+  "labels.json: name of a slot"
+ ],
+ "Picking Drop Zone": [
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Picking Drop Location #12": [
+  "labels.json: name of a slot"
+ ],
+ "Picking Drop Location": [
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Cue 2 of pelican liftoff": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Cue 2 of Pelican Liftoff": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "XP Screen Transition": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "XP Cue 1": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction General Cue 12": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction Automaton - Calm Cue 3": [
+  "labels.json: name of a slot"
+ ],
+ "Erie Calm": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction A - Intense Perc. Cue 3": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction Terminid - Calm Cue 4": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction Terminid - Calm": [
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction General Cue 1": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction Called": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Creepy Battle Music": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Intense Battle Music Climax (w/ Vocals)": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Intense Battle Music Climax (W/ Vocals)": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Picking Drop Zone #8": [
+  "labels.json: name of a slot"
+ ],
+ "Picking Drop Location #8": [
+  "labels.json: name of a slot"
+ ],
+ "Uneasy Battle Music": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Battle Cadence Transition": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Battle Music Climax": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Death Cue": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction Automaton - Intense Cue 6": [
+  "labels.json: name of a slot"
+ ],
+ "Picking loadout #10": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction Terminid - Intense Cue 3": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction Terminid - Intense": [
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Picking Drop Zone #6": [
+  "labels.json: name of a slot"
+ ],
+ "Picking Drop Location #6": [
+  "labels.json: name of a slot"
+ ],
+ "Hellpod Land Cue": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction A - Calm Perc. Cue 4": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction General Cue 10": [
+  "labels.json: name of a slot"
+ ],
+ "Eyes on Extract": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction A - Intense Perc. Cue 4": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction A - Calm Perc. Cue 3": [
+  "labels.json: name of a slot"
+ ],
+ "Picking loadout #2": [
+  "labels.json: name of a slot"
+ ],
+ "Calm Battle Music": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction T - Calm Perc. Cue 6": [
+  "labels.json: name of a slot"
+ ],
+ "transition between picking location & picking loadout": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Transition Between Picking Location & Picking Loadout": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Erie Calm Music": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Picking Drop Zone #5": [
+  "labels.json: name of a slot"
+ ],
+ "Picking Drop Location #5": [
+  "labels.json: name of a slot"
+ ],
+ "Hellpod Exit": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction T - Intense Perc. Cue 7": [
+  "labels.json: name of a slot"
+ ],
+ "Mission End Platform Rise (success)": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Mission End Platform Rise (Success)": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Mission End Platform Rise": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Platform Raise at the end of a mission": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Platform Raise at the End of a Mission": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Secondary Objective Complete / Outpost Cleared (Primary)": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction Terminid - Calm Cue 3": [
+  "labels.json: name of a slot"
+ ],
+ "Picking loudout background #3": [
+  "labels.json: name of a slot"
+ ],
+ "Credits Song 3": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Credits Song #3": [
+  "labels.json: name of a slot"
+ ],
+ "Credits Song": [
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Credits 3": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Main Objective Complete (Alternative)": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Pr. Obj Complete": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Battle Music (w/ Vocals)": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Battle Music (W/ Vocals)": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "warping to mission - 3": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Warping to Mission - 3": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "FTL Jump #3": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction Automaton - Intense Cue 4": [
+  "labels.json: name of a slot"
+ ],
+ "Epic Suspensful": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction Terminid - Intense Cue 4": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction T - Calm Perc. Cue 7": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction Automaton - Calm Cue 7": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction Automaton - Intense Cue 2": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction A - Calm Perc. Cue 2": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction A - Intense Perc. Cue 7": [
+  "labels.json: name of a slot"
+ ],
+ "Battle Stinger (might break things)": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Battle Stinger (Might Break Things)": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Credits Song 1": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Credits Song #1": [
+  "labels.json: name of a slot"
+ ],
+ "Credits 1": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Galactic Warmap Music A": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "galactic map#1": [
+  "labels.json: name of a slot"
+ ],
+ "galactic map": [
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Galactic Map": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Selecting Mission": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Picking loadout #7": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction Terminid - Intense Cue 5": [
+  "labels.json: name of a slot"
+ ],
+ "Epic Hopeful": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction T - Calm Perc. Cue 3": [
+  "labels.json: name of a slot"
+ ],
+ "Picking loadout #4": [
+  "labels.json: name of a slot"
+ ],
+ "Picking loadout #8": [
+  "labels.json: name of a slot"
+ ],
+ "Picking Drop Zone #7": [
+  "labels.json: name of a slot"
+ ],
+ "Picking Drop Location #7": [
+  "labels.json: name of a slot"
+ ],
+ "xp screen music - cue 3": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Xp Screen Music - Cue 3": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "XP Screen #2": [
+  "labels.json: name of a slot"
+ ],
+ "XP Cue 3": [
+  "labels.json: name of a slot"
+ ],
+ "Picking Drop Zone Start": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Picking Drop Location Start": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Epic Battle": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Picking loudout background #6": [
+  "labels.json: name of a slot"
+ ],
+ "First Load in - Galactic Map POV": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "First Load into Ship #3": [
+  "labels.json: name of a slot"
+ ],
+ "First Load into Ship": [
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "First Load Into Ship": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "First Load into Ship (Map)": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "First Load Into Ship (Map)": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Hellpod Descent Loading": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Hellpod Descent Buffer": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction Terminid - Calm Cue 6": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction T - Intense Perc. Cue 3": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction Terminid - Calm Cue 8": [
+  "labels.json: name of a slot"
+ ],
+ "Transition (may break things)": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Transition (May Break Things)": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Picking Drop Zone #2": [
+  "labels.json: name of a slot"
+ ],
+ "Picking Drop Location #2": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction T - Calm Perc. Cue 4": [
+  "labels.json: name of a slot"
+ ],
+ "Picking Drop Zone #14": [
+  "labels.json: name of a slot"
+ ],
+ "Picking Drop Location #14": [
+  "labels.json: name of a slot"
+ ],
+ "Picking Drop Zone #10": [
+  "labels.json: name of a slot"
+ ],
+ "Picking Drop Location #10": [
+  "labels.json: name of a slot"
+ ],
+ "First Load into Ship - Drop Pod POV": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "First Load Into Ship - Drop Pod POV": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "First Load into Ship #1": [
+  "labels.json: name of a slot"
+ ],
+ "First Load into Ship (Hellpod)": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "First Load Into Ship (Hellpod)": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Battle Ending": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Picking Drop Zone #9": [
+  "labels.json: name of a slot"
+ ],
+ "Picking Drop Location #9": [
+  "labels.json: name of a slot"
+ ],
+ "Picking loadout Start": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Picking Loadout Start": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Picking loadout #9": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction Automaton - Intense Cue 8": [
+  "labels.json: name of a slot"
+ ],
+ "Picking Drop Zone #13": [
+  "labels.json: name of a slot"
+ ],
+ "Picking Drop Location #13": [
+  "labels.json: name of a slot"
+ ],
+ "Hellpod Entered": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "warping to a system - 1": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Warping to a System - 1": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "FTL Jump #1": [
+  "labels.json: name of a slot"
+ ],
+ "Main Objective Complete (Primary)": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "calm transition": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Picking Drop Zone #11": [
+  "labels.json: name of a slot"
+ ],
+ "Picking Drop Location #11": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction A - Calm Perc. Cue 8": [
+  "labels.json: name of a slot"
+ ],
+ "Common Calm Music": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction A - Calm Perc. Cue 7": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction A - Intense Perc. Cue 2": [
+  "labels.json: name of a slot"
+ ],
+ "xp screen music - cue 2": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Xp Screen Music - Cue 2": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "XP Screen #4": [
+  "labels.json: name of a slot"
+ ],
+ "XP Cue 5": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction Terminid - Intense Cue 6": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction T - Intense Perc. Cue 5": [
+  "labels.json: name of a slot"
+ ],
+ "A Cup of Liber-Tea / Main Menu AFK Music / Credits Song 2": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Credits Song #2": [
+  "labels.json: name of a slot"
+ ],
+ "Main Menu AFK Music": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Credits 2": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Calm Transition Precussion": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Picking loudout background #5": [
+  "labels.json: name of a slot"
+ ],
+ "Common Battle Transition": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Picking loudout background #1": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction Cue (!Perc)": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction Terminid - Calm Cue 5": [
+  "labels.json: name of a slot"
+ ],
+ "Frantic Calm": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "galactic map#2": [
+  "labels.json: name of a slot"
+ ],
+ "warping to system - 4": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Warping to System - 4": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "FTL Jump #4": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction Automaton - Intense Cue 5": [
+  "labels.json: name of a slot"
+ ],
+ "Battle Intro": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Picking loadout #5": [
+  "labels.json: name of a slot"
+ ],
+ "Picking Drop Zone #3": [
+  "labels.json: name of a slot"
+ ],
+ "Picking Drop Location #3": [
+  "labels.json: name of a slot"
+ ],
+ "Boss Battle": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction General Cue 13": [
+  "labels.json: name of a slot"
+ ],
+ "Ship Ambience music #2": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction T - Intense Perc. Cue 8": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction T - Calm Perc. Cue 8": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction A - Intense Perc. Cue 8": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction Terminid - Intense Cue 8": [
+  "labels.json: name of a slot"
+ ],
+ "Boss Battle Interlude": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction T - Intense Perc. Cue 4": [
+  "labels.json: name of a slot"
+ ],
+ "Picking Drop Zone #1": [
+  "labels.json: name of a slot"
+ ],
+ "Picking Drop Location #1": [
+  "labels.json: name of a slot"
+ ],
+ "warping to system - 2": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Warping to System - 2": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "FTL Jump #2": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction General Cue 2": [
+  "labels.json: name of a slot"
+ ],
+ "Credits Song 4": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Credits Song #4": [
+  "labels.json: name of a slot"
+ ],
+ "Credits 4": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Calm Battle Bumper": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "First Load into Ship - Over The Shoulder": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "First Load Into Ship - Over the Shoulder": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "First Load into Ship #2": [
+  "labels.json: name of a slot"
+ ],
+ "First Load into Ship (OTS)": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "First Load Into Ship (OTS)": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Picking loadout #6": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction Terminid - Calm Cue 7": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction Automaton - Calm Cue 4": [
+  "labels.json: name of a slot"
+ ],
+ "Picking loadout #3": [
+  "labels.json: name of a slot"
+ ],
+ "Travel to New Operation": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Orbital thruster": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Orbital Thruster": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Join Mission / Travel to Mission": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')",
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Picking Drop Zone #4": [
+  "labels.json: name of a slot"
+ ],
+ "Picking Drop Location #4": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction Automaton - Calm Cue 8": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction Terminid - Intense Cue 7": [
+  "labels.json: name of a slot"
+ ],
+ "Extraction A - Calm Perc. Cue 6": [
+  "labels.json: name of a slot"
+ ],
+ "Mission End Platform Rise (failed)": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "Mission End Platform Rise (Failed)": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Extraction Automaton - Calm Cue 6": [
+  "labels.json: name of a slot"
+ ],
+ "Ship Ambience white noise #1": [
+  "labels.json: name of a slot"
+ ],
+ "Ship Ambience #2": [
+  "labels.json: name of a slot"
+ ],
+ "view destroyer cue": [
+  "labels.json: name of a slot",
+  "labels.json: another name of a piece ('Also called …')"
+ ],
+ "View Destroyer Cue": [
+  "labels.json: name of a piece of music nothing else names"
+ ],
+ "Picking loadout #14": [
+  "labels.json: name of a slot"
+ ],
+ "Picking loadout #1": [
+  "labels.json: name of a slot"
+ ],
+ "Grunt": [
+  "subtitles.json: what a clip without words is ('Grunt', numbered 'Grunt 3')"
+ ],
+ "Panting": [
+  "subtitles.json: what a clip without words is ('Grunt', numbered 'Grunt 3')"
+ ],
+ "Scream": [
+  "subtitles.json: what a clip without words is ('Grunt', numbered 'Grunt 3')"
+ ],
+ "Singing": [
+  "subtitles.json: what a clip without words is ('Grunt', numbered 'Grunt 3')"
+ ],
+ "Cough": [
+  "subtitles.json: what a clip without words is ('Grunt', numbered 'Grunt 3')"
+ ]
+}

@@ -1,7 +1,10 @@
 // What the app shows that is written, not coded: the Wiki's pages (src/wiki/*.md), the changelog (CHANGELOG.md) and
 // the Home tab's background art (src/art/*). All of it is bundled at build time.
 import type { Token, Tokens } from "marked";
+import { i18n } from "@lingui/core";
+import { t } from "@lingui/core/macro";
 import changelog from "../CHANGELOG.md?raw";
+import { andList, intlLocale } from "./api";
 import { parse, type Doc } from "./Markdown";
 
 export const APP_VERSION = __APP_VERSION__;
@@ -9,8 +12,8 @@ export const APP_VERSION = __APP_VERSION__;
 export function versionLabel(version: string) {
   const m = /^\d+\.\d+\.\d+-(alpha|beta|rc)\.?(\d+)$/i.exec(version);
   if (!m) return `v${version}`;
-  const stage = m[1].toLowerCase();
-  return `${stage === "rc" ? "Release candidate" : stage[0].toUpperCase() + stage.slice(1)} ${m[2]}`;
+  const stage = m[1].toLowerCase(), n = m[2];
+  return stage === "rc" ? t`Release candidate ${n}` : stage === "beta" ? t`Beta ${n}` : t`Alpha ${n}`;
 }
 export const APP_LABEL = versionLabel(APP_VERSION);
 /** Where Audiodiver's source and releases are (also in the core's updates.py). */
@@ -30,7 +33,7 @@ export const OWN_BANKS_PAGE = "build-and-install#added-audio-in-other-banks";
 /** "2026-10-05" as "5 Oct 2026"; anything else as it is. */
 export function fmtDate(iso: string) {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
-  return m ? new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : iso;
+  return m ? new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString(intlLocale(), { day: "numeric", month: "short", year: "numeric" }) : iso;
 }
 
 // ---- Home art: every image in src/art, in file-name order ("wp (2)" before "wp (10)"). Home shows them one after
@@ -39,45 +42,45 @@ export const HOME_ART = Object.entries(import.meta.glob("./art/*.{jpg,jpeg,png,w
   { query: "?url", import: "default", eager: true }) as Record<string, string>)
   .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true })).map(([, url]) => url);
 /** Where the art comes from: About ▸ Credits names it. */
-export const ART_CREDIT: { name: string; url?: string; for: string } = { name: "Alomare", for: "the screenshots of Helldivers 2 behind Home" };
+export const ART_CREDIT: { name: string; url?: string; for: string } = { name: "Alomare", for: t`the screenshots of Helldivers 2 behind Home` };
 
 /** Everyone whose work Audiodiver builds on: About ▸ Credits (the ⓘ by the version), the one place the
     app names people and sources. Notes, tooltips, the Wiki and the core's data never do: they say what a thing is,
     not who found it. */
-export type Credit = { name: string; by?: string; url?: string; licence?: string; for: string };
+export type Credit = { id?: string; name: string; by?: string; url?: string; licence?: string; for: string };
 export const CREDITS: { group: string; items: Credit[] }[] = [
-  { group: "Names and notes", items: [
-    { name: "Helldivers 2 Archive Labeling", by: "the HD2 modding community",
-      url: "https://docs.google.com/spreadsheets/d/1oQys_OI5DWou4GeRE3mW56j7BIi4M7KftBIPAl1ULFw/edit?gid=0#gid=0", for: "names of sound sets, banks and archives, and voice-line transcripts" },
-    { name: "Helldivers 2 Music Stuff", by: "the HD2 modding community",
-      url: "https://docs.google.com/spreadsheets/d/1drg0VRwn1c247GwBOEgFBIJmBQxy2Ik-ZLuSjbWbK4o/edit?gid=329417206#gid=329417206", for: "names of music clips and the do-not-touch marks" },
-    { name: "Music notes", by: "geoffreyhdt1", for: "Illuminate Void and Automaton clip names, when clips play, warnings and minimum lengths" },
-    { name: "EVIL Helldivers Pains and Groans", by: "contemporary and RaidingForPants", for: "the Helldivers' exertions by kind and voice" },
-    { name: "FileDiver", by: "xypwn", url: "https://github.com/xypwn/filediver", for: "the name lists behind bank path names" },
+  { group: t`Names and notes`, items: [
+    { name: "Helldivers 2 Archive Labeling", by: t`the HD2 modding community`,
+      url: "https://docs.google.com/spreadsheets/d/1oQys_OI5DWou4GeRE3mW56j7BIi4M7KftBIPAl1ULFw/edit?gid=0#gid=0", for: t`names of sound sets, banks and archives, and voice-line transcripts` },
+    { name: "Helldivers 2 Music Stuff", by: t`the HD2 modding community`,
+      url: "https://docs.google.com/spreadsheets/d/1drg0VRwn1c247GwBOEgFBIJmBQxy2Ik-ZLuSjbWbK4o/edit?gid=329417206#gid=329417206", for: t`names of music clips and the do-not-touch marks` },
+    { name: t`Music notes`, by: "geoffreyhdt1", for: t`Illuminate Void and Automaton clip names, when clips play, warnings and minimum lengths` },
+    { name: "EVIL Helldivers Pains and Groans", by: andList(["contemporary", "RaidingForPants"]), for: t`the Helldivers' exertions by kind and voice` },
+    { name: "FileDiver", by: "xypwn", url: "https://github.com/xypwn/filediver", for: t`the name lists behind bank path names` },
   ] },
-  { group: "Code and research", items: [
+  { group: t`Code and research`, items: [
     { name: "hd2-audio-modder", by: "RaidingForPants", url: "https://github.com/RaidingForPants/hd2-audio-modder", licence: "MIT",
-      for: "reading game archives, and how HD2 stores sound banks" },
+      for: t`reading game archives, and how HD2 stores sound banks` },
     { name: "wwise-teller", by: "Dekr0", url: "https://github.com/Dekr0/wwise-teller", licence: "MIT",
-      for: "Wwise property IDs, the difference between Volume and Make-Up Gain, and how new takes, layers and clips go into a bank" },
+      for: t`Wwise property IDs, the difference between Volume and Make-Up Gain, and how new takes, layers and clips go into a bank` },
     { name: "Sound Systems Rebalanced", by: "CowboyBingus", url: "https://github.com/CowboyBingus/SoundSystemsRebalanced",
-      for: "the music drop at the war table" },
-    { name: "wwiser", by: "bnnm", url: "https://github.com/bnnm/wwiser", for: "the reference for Wwise sound bank structures" },
-    { name: "Whisper", by: "OpenAI", url: "https://github.com/openai/whisper", licence: "MIT", for: "transcribing voice lines to match them to subtitles" },
+      for: t`the music drop at the war table` },
+    { name: "wwiser", by: "bnnm", url: "https://github.com/bnnm/wwiser", for: t`the reference for Wwise sound bank structures` },
+    { name: "Whisper", by: "OpenAI", url: "https://github.com/openai/whisper", licence: "MIT", for: t`transcribing voice lines to match them to subtitles` },
     { name: "Audio Spectrogram Transformer", by: "MIT", url: "https://huggingface.co/MIT/ast-finetuned-audioset-10-10-0.4593", licence: "BSD-3-Clause",
-      for: "telling grunts, breaths and laughs from words" },
+      for: t`telling grunts, breaths and laughs from words` },
   ] },
-  { group: "Tools Audiodiver runs", items: [
-    { name: "FFmpeg", url: "https://ffmpeg.org", for: "reading and converting audio files" },
-    { name: "vgmstream", url: "https://github.com/vgmstream/vgmstream", for: "playing game audio" },
-    { name: "wav2wem", by: "pas2k", url: "https://github.com/pas2k/wav2wem", licence: "GPL-2.0", for: "encoding audio for the game" },
+  { group: t`Tools Audiodiver runs`, items: [
+    { name: "FFmpeg", url: "https://ffmpeg.org", for: t`reading and converting audio files` },
+    { name: "vgmstream", url: "https://github.com/vgmstream/vgmstream", for: t`playing game audio` },
+    { name: "wav2wem", by: "pas2k", url: "https://github.com/pas2k/wav2wem", licence: "GPL-2.0", for: t`encoding audio for the game` },
   ] },
-  { group: "Art and type", items: [
-    { name: "Home art", by: ART_CREDIT.name, url: ART_CREDIT.url, for: ART_CREDIT.for },
-    { name: "Archivo, Noto Serif and Roboto Mono", url: "https://openfontlicense.org", licence: "SIL Open Font License", for: "the typefaces" },
+  { group: t({ message: "Art and type", comment: "Credits group: the Home pictures and the typefaces" }), items: [
+    { id: "home-art", name: t({ message: "Home art", comment: "Credit for the pictures behind the Home tab" }), by: ART_CREDIT.name, url: ART_CREDIT.url, for: ART_CREDIT.for },
+    { name: andList(["Archivo", "Noto Serif", "Roboto Mono"]), url: "https://openfontlicense.org", licence: "SIL Open Font License", for: t`the typefaces` },
   ] },
-  { group: "News", items: [
-    { name: "Divershub", url: "https://divershub.app", for: "the ticker of war news along the bottom of Home" },
+  { group: t`News`, items: [
+    { name: "Divershub", url: "https://divershub.app", for: t`the ticker of war news along the bottom of Home` },
   ] },
 ];
 
@@ -93,6 +96,12 @@ export type WikiPage = Doc & { id: string; title: string; group: string; summary
 
 const sources = import.meta.glob("./wiki/*.md", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
 const pictures = import.meta.glob("./wiki/*.{png,jpg,jpeg,webp,gif}", { query: "?url", import: "default", eager: true }) as Record<string, string>;
+// A translated page has the English page's file name in a folder named for the language (wiki/pt-BR/20-….md). Only
+// the window's language loads (this module waits for it); a page not translated yet shows in English.
+const translations = import.meta.glob("./wiki/*/*.md", { query: "?raw", import: "default" }) as Record<string, () => Promise<string>>;
+const translated: Record<string, string> = Object.fromEntries(await Promise.all(Object.entries(translations)
+  .filter(([path]) => path.split("/")[2] === i18n.locale)
+  .map(async ([path, load]) => [`./wiki/${path.split("/")[3]}`, await load()] as const)));
 
 function page(path: string, source: string): WikiPage {
   const name = path.split("/").pop()!.replace(/\.md$/, "");
@@ -112,7 +121,7 @@ function page(path: string, source: string): WikiPage {
   };
 }
 
-export const WIKI: WikiPage[] = Object.keys(sources).sort().map((path) => page(path, sources[path]));
+export const WIKI: WikiPage[] = Object.keys(sources).sort().map((path) => page(path, translated[path] ?? sources[path]));
 /** The pages by group, groups in the order their first page comes. */
 export const WIKI_GROUPS: { name: string; pages: WikiPage[] }[] = [];
 for (const p of WIKI) {

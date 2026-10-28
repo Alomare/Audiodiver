@@ -30,6 +30,7 @@ from dataclasses import dataclass, field
 
 from . import bank as wbank
 from . import music
+from .i18n import tr
 
 MODES = ("original", "song", "tracks", "silent", "same")
 CS, SS, CR, SR = range(4)  # music.RS_TYPES
@@ -242,7 +243,7 @@ def _tree(objs, playlist_id, piece) -> tuple[music.PlaylistItem | None, set[int]
     if piece.mode == "original" and piece.left_out:
         new = pruned(pl.root, set(piece.left_out))
         if new is None:
-            raise ValueError("every segment of the piece is left out")
+            raise ValueError(tr("every segment of the piece is left out"))
         return new, items(pl.root) - items(new)
     return None, set()
 

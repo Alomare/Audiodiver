@@ -1,6 +1,7 @@
 // One shared audio player: whatever plays, plays here, so starting a preview stops the previous one. Switching
 // between the original and the replacement of one slot keeps the position (A/B comparison).
 import { useCallback, useMemo, useSyncExternalStore } from "react";
+import { t } from "@lingui/core/macro";
 
 /** Where what plays can be found: the tab it was started on (the Library, the Editor or the Soundtrack), the item and
     the cue that were open (in the Soundtrack, the piece and its part), and the slot. The now-playing bar's label
@@ -81,7 +82,7 @@ audio.addEventListener("error", () => {
     setTimeout(() => { if (load === l) open(l); }, 250 * l.tries);
     return;
   }
-  set({ playing: false, loading: false, error: "Can't play this audio. Press ▶ to try again." });
+  set({ playing: false, loading: false, error: t`Can't play this audio. Press ▶ to try again.` });
 });
 
 function open(l: Load) {

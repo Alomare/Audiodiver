@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import { t } from "@lingui/core/macro";
 import { HIDEABLE, type Hideable } from "./nav";
 
 /** How the app behaves (Settings ▸ System, and the build switches on the Build tab). Kept per user in
@@ -31,13 +32,15 @@ export const tabList = (v: unknown): Hideable[] | null =>
   Array.isArray(v) && v.every((t) => (HIDEABLE as readonly unknown[]).includes(t)) ? HIDEABLE.filter((t) => v.includes(t)) : null;
 /** How long the pointer rests on something before its tooltip shows, in ms. */
 export const TIP_DELAY: Record<Exclude<TipSpeed, "off">, number> = { quick: 150, normal: 500, slow: 1100 };
-export const TIP_SPEEDS: [TipSpeed, string][] = [["off", "Off"], ["quick", "Quick"], ["normal", "Normal"], ["slow", "Slow"]];
-export const UPDATE_MODES: [UpdateMode, string][] = [["manual", "Manual"], ["prompt", "Prompt on Startup"], ["auto", "Automatic"]];
+export const TIP_SPEEDS: [TipSpeed, string][] = [["off", t`Off`], ["quick", t({ message: "Quick", comment: "Tooltip delay" })],
+  ["normal", t({ message: "Normal", comment: "Tooltip delay" })], ["slow", t({ message: "Slow", comment: "Tooltip delay" })]];
+export const UPDATE_MODES: [UpdateMode, string][] = [["manual", t({ message: "Manual", comment: "Update mode" })], ["prompt", t`Prompt on Startup`],
+  ["auto", t({ message: "Automatic", comment: "Update mode" })]];
 /** What each mode does, under the choice (Settings ▸ System) and at the foot of the Updates tab. */
 export const UPDATE_NOTES: Record<UpdateMode, string> = {
-  manual: "Checks at startup and lists new versions in the Updates tab.",
-  prompt: "At startup, asks before installing a new version.",
-  auto: "At startup, installs a new version and restarts.",
+  manual: t`Checks at startup and lists new versions in the Updates tab.`,
+  prompt: t`At startup, asks before installing a new version.`,
+  auto: t`At startup, installs a new version and restarts.`,
 };
 const KEY = "audiodiver.settings";
 

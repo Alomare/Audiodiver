@@ -1,4 +1,6 @@
 import { startTransition, useEffect, useRef, useState } from "react";
+import { t, plural } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { AboutButton, AboutDialog } from "./About";
 import { ConfirmDialog } from "./Confirm";
 import { BuildTab } from "./BuildTab";
@@ -24,7 +26,7 @@ import { ScaleTipLayer, TooltipLayer } from "./Tooltip";
 import { UpdatePrompt, UpdatesTab } from "./UpdatesTab";
 import { updates, useUpdates } from "./updates";
 import { Wiki } from "./Wiki";
-import { call, fmtTime, iconUrl, type Job } from "./api";
+import { call, fmtTime, iconUrl, intlLocale, type Job } from "./api";
 import { APP_NAME, UTILS } from "./edition";
 import { APP_LABEL, APP_VERSION, versionLabel } from "./content";
 import { JOB_NAMES } from "./jobs";
@@ -59,18 +61,18 @@ function Startup({ error, stage }: { error: string | null; stage?: string }) {
           <>
             <p className="warn-box">{picked ?? error}</p>
             {/* a folder that was just refused says where to look itself */}
-            {!picked && <p className="muted">Choose the Helldivers 2 install folder,
-              usually <code>…\steamapps\common\Helldivers 2</code>. Audiodiver only reads from it.</p>}
+            {!picked && <p className="muted"><Trans>Choose the Helldivers 2 install folder,
+              usually <code>…\steamapps\common\Helldivers 2</code>. Audiodiver only reads from it.</Trans></p>}
             <div className="row-btns">
-              <button className="btn primary" onClick={() => choose()}>Choose the Game Folder</button>
-              {where?.chosen && <button className="btn quiet" onClick={() => choose(null)} data-tip="Forget the chosen folder">Find It Through Steam Again</button>}
+              <button className="btn primary" onClick={() => choose()}><Trans>Choose the Game Folder</Trans></button>
+              {where?.chosen && <button className="btn quiet" onClick={() => choose(null)} data-tip={t`Forget the chosen folder`}><Trans>Find It Through Steam Again</Trans></button>}
             </div>
           </>
         ) : error && !stage ? (
           <p className="warn-box">{error}</p>
         ) : (
           <>
-            <p className="loading">{stage && stage !== "starting" ? stage : "Starting…"}</p>
+            <p className="loading">{stage && stage !== "starting" ? stage : t`Starting…`}</p>
             {where?.path && <p className="startup-where" data-tip={where.path} data-tip-clip>{where.path}</p>}
           </>
         )}
@@ -86,6 +88,16 @@ type Widths = typeof WIDTHS;
 
 /** The tab that browses audio, if that is the one showing: the Library or the Editor. */
 const browsing = (): ScopeName | null => { const t = nav.get().tab; return t === "library" || t === "editor" ? t : null; };
+
+/** What closing the window stops while one job runs, in a sentence for each kind of job. */
+const STILL_RUNNING: Record<string, string> = {
+  build: t`A build is still running.`, import: t`An import is still running.`, export: t`An export is still running.`,
+  repatch: t`A repatch is still running.`,
+  pack: t({ message: "A pack is still running.", comment: "Packing the project and the files it uses into one .audipack file" }),
+  unpack: t`An unpack is still running.`,
+  check: t({ message: "A check is still running.", comment: "Checking the installed mods for sound banks of an older game version" }),
+  combine_read: t`A conflict check is still running.`, combine: t`A combine is still running.`,
+};
 
 /** The window: the master tabs along the top, the tab that shows, and the status bar. The Library and the Editor
     stay in place behind the other tabs, so coming back finds them as they were left (scroll position, search,
@@ -135,9 +147,12 @@ function Shell() {
       if (!live || !action || !updates.claimStartup()) return; // asked once per launch, also when the game is read again
       if (action === "prompt") return setPrompt(true);
       const label = versionLabel(updates.get().latest!.version);
-      const r = await updates.install(false, () => notify("info", `Updating to ${label}. Audiodiver restarts when the update is installed.`));
+      const r = await updates.install(false, () => notify("info", t`Updating to ${label}. Audiodiver restarts when the update is installed.`));
       if (r === "page") setPrompt(true); // this version can't install it: ask instead
-      else if (r === "failed") notify("bad", `${label} didn't install: ${updates.get().installError}`, { label: "Updates", run: () => nav.go("updates") }, true);
+      else if (r === "failed") {
+        const why = updates.get().installError ?? "";
+        notify("bad", t`${label} didn't install: ${why}`, { label: t`Updates`, run: () => nav.go("updates") }, true);
+      }
     });
     return () => { live = false; };
   }, [notify]);
@@ -163,8 +178,8 @@ function Shell() {
     if (pack) return actions.openPack(pack);
     if (proj) return actions.openProject(proj);
     if (patch) return actions.importPatch(patch);
-    if (target?.kind === "icon") return images.length ? actions.setIcon(images[0]) : quick("Drop an image here to make it the icon", "info");
-    if (!audio.length) return quick(images.length ? "Drop images on the icon on the Project tab" : "No audio files in the drop", "info");
+    if (target?.kind === "icon") return images.length ? actions.setIcon(images[0]) : quick(t`Drop an image here to make it the icon`, "info");
+    if (!audio.length) return quick(images.length ? t`Drop images on the icon on the Project tab` : t`No audio files in the drop`, "info");
     // the Soundtrack's places: a place of a playlist, or One song
     if (target?.kind === "place" || target?.kind === "song") return soundtrackDrop(target, audio);
     // the Audio tab's: a slot, a group of takes, a cue, a piece of music
@@ -173,14 +188,17 @@ function Shell() {
     if (target?.kind === "cue") return actions.fill(target.cue, audio);
     if (target?.kind === "item") {
       const it = itemIndex.items.get(target.item);
-      if (it) return actions.fillSources(counted(it), audio, `the ${it.parts.length} parts of ${it.full}`);
+      if (it) {
+        const count = it.parts.length, name = it.full;
+        return actions.fillSources(counted(it), audio, plural(count, { one: `the # part of ${name}`, other: `the # parts of ${name}` }));
+      }
     }
-    const t = nav.get().tab;
-    quick(!project && (t === "editor" || t === "soundtrack") ? "Open a project first"
-      : t === "editor" ? "Drop audio on a slot, a group of takes, a piece in the list or a title"
-      : t === "soundtrack" ? "Drop songs on a place of a playlist, or a song on One Song"
-      : t === "library" ? "Add it to the project, then drop audio on the slots in the Audio tab"
-      : "Drop audio on a slot in the Audio tab", "info");
+    const here = nav.get().tab;
+    quick(!project && (here === "editor" || here === "soundtrack") ? t`Open a project first`
+      : here === "editor" ? t`Drop audio on a slot, a group of takes, a piece in the list or a title`
+      : here === "soundtrack" ? t`Drop songs on a place of a playlist, or a song on One Song`
+      : here === "library" ? t`Add it to the project, then drop audio on the slots in the Audio tab`
+      : t`Drop audio on a slot in the Audio tab`, "info");
   };
 
   useEffect(() => {
@@ -200,7 +218,7 @@ function Shell() {
       }
     }).then((f) => { if (gone) f(); else off = f; });
     // in a plain browser, file drops carry no paths
-    const block = (ev: DragEvent) => { ev.preventDefault(); if (ev.type === "drop" && !isTauri()) quick("Dropping files needs the desktop app", "info"); };
+    const block = (ev: DragEvent) => { ev.preventDefault(); if (ev.type === "drop" && !isTauri()) quick(t`Dropping files needs the desktop app`, "info"); };
     window.addEventListener("dragover", block); window.addEventListener("drop", block);
     return () => { gone = true; off(); window.removeEventListener("dragover", block); window.removeEventListener("drop", block); };
   }, [quick]);
@@ -208,7 +226,7 @@ function Shell() {
   // closing the window saves what autosave on a timer keeps waiting, and asks first while a build or export runs:
   // closing stops the core, and the job with it
   const running = useRef<string[]>([]);
-  running.current = Object.values(jobs).filter((j) => j.state === "running").map((j) => JOB_NAMES[j.kind]?.[0].toLowerCase() ?? j.kind);
+  running.current = Object.values(jobs).filter((j) => j.state === "running").map((j) => j.kind);
   const unsaved = useRef(false);
   unsaved.current = !!project?.unsaved;
   useEffect(() => {
@@ -223,7 +241,8 @@ function Shell() {
           try { await call("project_save"); } catch (e: any) {
             ev.preventDefault();
             const { ask } = await import("@tauri-apps/plugin-dialog");
-            if (await ask(`The project couldn't be saved. ${e?.message ?? e}`, { title: APP_NAME, kind: "warning", okLabel: "Close anyway", cancelLabel: "Keep working" })) {
+            const why = e?.message ?? e;
+            if (await ask(t`The project couldn't be saved. ${why}`, { title: APP_NAME, kind: "warning", okLabel: t`Close Anyway`, cancelLabel: t`Keep Working` })) {
               await w.destroy();
             }
             return;
@@ -232,8 +251,9 @@ function Shell() {
         if (!running.current.length) return;
         ev.preventDefault();
         const { ask } = await import("@tauri-apps/plugin-dialog");
-        const what = running.current.length > 1 ? "Some jobs are" : `A ${running.current[0]} is`;
-        if (await ask(`${what} still running. Closing ${APP_NAME} stops it.`, { title: APP_NAME, kind: "warning", okLabel: "Close anyway", cancelLabel: "Keep working" })) {
+        const what = running.current.length > 1 ? t`Some jobs are still running.` : STILL_RUNNING[running.current[0]] ?? t`A job is still running.`;
+        const stops = running.current.length > 1 ? t`Closing ${APP_NAME} stops them.` : t`Closing ${APP_NAME} stops it.`;
+        if (await ask(`${what} ${stops}`, { title: APP_NAME, kind: "warning", okLabel: t`Close Anyway`, cancelLabel: t`Keep Working` })) {
           await w.destroy();
         }
       });
@@ -322,10 +342,10 @@ function Shell() {
                 style={lib ? { ["--split" as any]: String(widths.libSplit) } : { ["--left" as any]: `${widths.left}px`, ["--right" as any]: `${widths.right}px` }}>
                 {lib ? <LibraryPanel /> : <ProjectPanel />}
                 {lib ? <Splitter fraction width={widths.libSplit} onResize={(f) => setWidths((v) => ({ ...v, libSplit: f }))} initial={WIDTHS.libSplit}
-                    panel="left" cssVar="--split" label="Resize the list" />
-                  : <Splitter width={widths.left} onResize={(w) => setWidths((v) => ({ ...v, left: w }))} initial={WIDTHS.left} panel="left" label="Resize the list" />}
+                    panel="left" cssVar="--split" label={t`Resize the list`} />
+                  : <Splitter width={widths.left} onResize={(w) => setWidths((v) => ({ ...v, left: w }))} initial={WIDTHS.left} panel="left" label={t`Resize the list`} />}
                 <main className="center"><CueView /></main>
-                {!lib && <Splitter width={widths.right} onResize={(w) => setWidths((v) => ({ ...v, right: w }))} initial={WIDTHS.right} panel="right" label="Resize the details panel" />}
+                {!lib && <Splitter width={widths.right} onResize={(w) => setWidths((v) => ({ ...v, right: w }))} initial={WIDTHS.right} panel="right" label={t`Resize the details panel`} />}
                 {!lib && <Inspector />}
               </div>
               {!lib && (soundtrackSeen || tab === "soundtrack") && <SoundtrackPanes hidden={tab !== "soundtrack"} />}
@@ -373,20 +393,21 @@ const UTILS_COMMANDS: Parameters<typeof useCommands>[0] = {
 type MainTab = { id: Tab; name: string; about: string; cmd: CommandId; Icon: () => React.JSX.Element };
 /** Home and Tools make projects; the rest work on the open one, in the order a mod is made. */
 const APP_TABS: MainTab[] = [
-  { id: "home", name: "Home", about: "new and recent projects", cmd: "tabHome", Icon: HomeIcon },
-  { id: "tools", name: "Tools", about: "repatch and combine existing mods", cmd: "tabTools", Icon: ToolsIcon },
+  { id: "home", name: t`Home`, about: t`new and recent projects`, cmd: "tabHome", Icon: HomeIcon },
+  { id: "tools", name: t`Tools`, about: t`repatch and combine existing mods`, cmd: "tabTools", Icon: ToolsIcon },
 ];
 const UTILS_TABS: MainTab[] = [APP_TABS[1]]; // Audiodiver Utils starts on Tools and has no Home
 const MOD_TABS: MainTab[] = [
-  { id: "project", name: "Project", about: "name, icon and files", cmd: "tabProject", Icon: ProjectIcon },
-  { id: "library", name: "Library", about: "all game audio, to find, hear and add to the project", cmd: "tabLibrary", Icon: LibraryIcon },
-  { id: "editor", name: "Audio", about: "replace the audio of what the project lists", cmd: "tabEditor", Icon: AudioIcon },
-  { id: "soundtrack", name: "Soundtrack", about: "how each piece of music plays", cmd: "tabSoundtrack", Icon: SoundtrackIcon },
-  { id: "text", name: "Text", about: "subtitles and all other game text", cmd: "tabText", Icon: TextIcon },
+  { id: "project", name: t`Project`, about: t`name, icon and files`, cmd: "tabProject", Icon: ProjectIcon },
+  { id: "library", name: t`Library`, about: t`all game audio, to find, hear and add to the project`, cmd: "tabLibrary", Icon: LibraryIcon },
+  { id: "editor", name: t({ message: "Audio", comment: "Main tab: replaces the audio of what the project lists" }), about: t`replace the audio of what the project lists`, cmd: "tabEditor", Icon: AudioIcon },
+  { id: "soundtrack", name: t`Soundtrack`, about: t`how each piece of music plays`, cmd: "tabSoundtrack", Icon: SoundtrackIcon },
+  { id: "text", name: t({ message: "Text", comment: "Main tab: subtitles and all other game text" }), about: t`subtitles and all other game text`, cmd: "tabText", Icon: TextIcon },
 ];
-const BUILD_TAB: MainTab = { id: "build", name: "Build", about: "the mod ZIP, to install with a mod manager", cmd: "tabBuild", Icon: BuildIcon };
+const BUILD_TAB: MainTab = { id: "build", name: t({ message: "Build", context: "Main tab", comment: "The tab that builds the mod ZIP" }),
+  about: t`the mod ZIP, to install with a mod manager`, cmd: "tabBuild", Icon: BuildIcon };
 /** Why the Build tab carries a dot: the ZIP in the build folder isn't the project as it is now. */
-const REBUILD = { new: "not built yet", changed: "changed since the last build", game: "the game updated since the last build" };
+const REBUILD = { new: t`not built yet`, changed: t`changed since the last build`, game: t`the game updated since the last build` };
 
 const TIP_SIDE: Record<BarSide, string> = { top: "bottom", right: "left", bottom: "top", left: "right" };
 const upper = (s: string) => s[0].toUpperCase() + s.slice(1);
@@ -411,7 +432,7 @@ function Rail() {
   const { tab } = useNav();
   const shown = useShownTabs();
   const u = useUpdates();
-  const t = { bar: useThemeValue((x) => x.bar), labels: useThemeValue((x) => x.labels) }; // not every colour change
+  const th = { bar: useThemeValue((x) => x.bar), labels: useThemeValue((x) => x.labels) }; // not every colour change
   const { tips } = useSettings();
   useKeymap(); // the keys in the side bar's labels follow a rebinding
   const problems = project?.problems.length ?? 0;
@@ -419,15 +440,15 @@ function Rail() {
   useEffect(() => { setTitle(name && !UTILS ? `${name} · Audiodiver` : APP_NAME); }, [name]);
   const iconSig = project ? iconKey([project.path, project.icon]) : ""; // many projects have an "icon.png": the path tells them apart
   const [broken, setBroken] = useState(""); // the icon that didn't load: the Project tab's own icon stands in
-  const vertical = barIsVertical(t.bar);
+  const vertical = barIsVertical(th.bar);
   const tabButton = (id: Tab, label: string, tip: string, cmd: CommandId, icon: React.ReactNode, go: () => void,
     badge?: number, lit?: boolean | "dot", shown?: { name: string; about: string }, cls = "") => {
-    const named = !!shown && t.labels && !vertical; // the name beside the icon
-    const flyout = !!shown && t.labels && vertical;  // the name in a label on hover, with the tooltip's words in it
+    const named = !!shown && th.labels && !vertical; // the name beside the icon
+    const flyout = !!shown && th.labels && vertical;  // the name in a label on hover, with the tooltip's words in it
     return (
       <button key={id} role="tab" aria-selected={tab === id} aria-label={label}
         className={`tab${tab === id ? " on" : ""}${lit === true ? " lit" : ""}${named ? " named" : ""}${cls}`} onClick={go}
-        data-tip={flyout ? undefined : named ? upper(shown!.about) : tip} data-tip-cmd={cmd} data-tip-side={TIP_SIDE[t.bar]}>
+        data-tip={flyout ? undefined : named ? upper(shown!.about) : tip} data-tip-cmd={cmd} data-tip-side={TIP_SIDE[th.bar]}>
         {icon}
         {named && <span className="tab-name">{shown!.name}</span>}
         {badge ? <span className="rail-badge" aria-hidden>{badge}</span>
@@ -444,33 +465,35 @@ function Rail() {
   const mainTab = ({ id, name, about, cmd, Icon }: MainTab) => {
     let label = name, icon = <Icon />, badge = 0, dot = false, cls = "";
     if (id === "project" && project) { // the project's own icon
-      [label, cls] = [`Project, ${project.name}`, " tab-mod"];
+      [label, cls] = [`${name}, ${project.name}`, " tab-mod"];
       if (broken !== iconSig)
         icon = <img className="tab-mod-icon" src={iconUrl(iconSig)} alt="" draggable={false} onError={() => setBroken(iconSig)} />;
     }
     if (id === "build" && problems) {
-      const stop = `${problems} problem${problems > 1 ? "s" : ""}`;
-      [label, about, badge] = [`${name}, ${stop}`, `${stop} to fix`, problems];
+      const stop = plural(problems, { one: "# problem", other: "# problems" });
+      [label, about, badge] = [`${name}, ${stop}`, plural(problems, { one: "# problem to fix", other: "# problems to fix" }), problems];
     } else if (id === "build" && project?.rebuild) {
       [label, about, dot] = [`${name}, ${REBUILD[project.rebuild]}`, REBUILD[project.rebuild], true];
     }
     return tabButton(id, label, `${name}: ${about}`, cmd, icon, () => nav.go(id), badge, dot && "dot", { name, about }, cls);
   };
-  const update = u.latest ? `${versionLabel(u.latest.version)} is available` : "";
+  const latest = u.latest ? versionLabel(u.latest.version) : "";
+  const update = latest ? t`${latest} is available` : "";
   const orientation = vertical ? "vertical" : "horizontal";
   return (
-    <nav className="rail" aria-label="Main">
-      <div className="rail-group" role="tablist" aria-orientation={orientation} aria-label="Tabs" onKeyDown={tabArrows}>
+    <nav className="rail" aria-label={t({ message: "Main", comment: "The bar of main tabs, for screen readers" })}>
+      <div className="rail-group" role="tablist" aria-orientation={orientation} aria-label={t`Tabs`} onKeyDown={tabArrows}>
         <div className="rail-set">{(UTILS ? UTILS_TABS : APP_TABS).map(mainTab)}</div>
         {!UTILS && <div className={`rail-set rail-mod${project ? "" : " idle"}`}>
           {MOD_TABS.filter((t) => !(HIDEABLE as readonly Tab[]).includes(t.id) || shown.includes(t.id as Hideable)).map(mainTab)}</div>}
         {!UTILS && project && <div className="rail-set rail-out">{mainTab(BUILD_TAB)}</div>}
       </div>
-      <div className="rail-group" role="tablist" aria-orientation={orientation} aria-label="More" onKeyDown={tabArrows}>
-        {tabButton("updates", update ? `Updates, ${update}` : "Updates", update ? `Updates: ${update}` : "Updates: new versions and changelogs",
+      <div className="rail-group" role="tablist" aria-orientation={orientation}
+        aria-label={t({ message: "More", comment: "The tabs at the end of the bar (Updates, Wiki and Settings), for screen readers" })} onKeyDown={tabArrows}>
+        {tabButton("updates", update ? t`Updates, ${update}` : t`Updates`, update ? t`Updates: ${update}` : t`Updates: new versions and changelogs`,
           "updates", <UpdatesIcon />, () => nav.toggle("updates"), 0, !!update)}
-        {tabButton("wiki", "Wiki", "Wiki: guides", "wiki", <GuideIcon />, () => nav.toggle("wiki"))}
-        {tabButton("settings", "Settings", "Settings", "settings", <GearIcon />, () => nav.toggle("settings"))}
+        {tabButton("wiki", t`Wiki`, t`Wiki: guides`, "wiki", <GuideIcon />, () => nav.toggle("wiki"))}
+        {tabButton("settings", t`Settings`, t`Settings`, "settings", <GearIcon />, () => nav.toggle("settings"))}
       </div>
     </nav>
   );
@@ -486,42 +509,47 @@ function StatusBar() {
   const [pop, setPop] = useState<"history" | "notifications" | null>(null);
   const toggle = (which: "history" | "notifications") => setPop((p) => (p === which ? null : which));
   const running = Object.values(jobs).filter((j) => j.state === "running");
-  const core = status?.version && status.version !== APP_VERSION ? `, core ${versionLabel(status.version)}` : "";
+  const core = status?.version && status.version !== APP_VERSION ? versionLabel(status.version) : "";
+  const latest = u.latest ? versionLabel(u.latest.version) : "";
   const save = keyLabel("save");
-  const saved = !project ? "" : project.unsaved ? "Unsaved changes" : autosave ? "Saved" : "Autosaved";
-  const savedTip = !autosave ? "Every change is saved to the project file as it is made"
-    : `Saved every ${autosave} minute${autosave === 1 ? "" : "s"}${save ? `. ${save} saves now` : ""}`;
+  const saved = !project ? "" : project.unsaved ? t`Unsaved changes` : autosave ? t`Saved` : t`Autosaved`;
+  const savedTip = !autosave ? t`Every change is saved to the project file as it is made`
+    : save ? plural(autosave, { one: `Saved every # minute. ${save} saves now`, other: `Saved every # minutes. ${save} saves now` })
+    : plural(autosave, { one: "Saved every # minute", other: "Saved every # minutes" });
   const changes = (project?.history?.length ?? 0) + (project?.future?.length ?? 0);
+  const undoName = EDIT_NAMES[project?.undo_label ?? ""], redoName = EDIT_NAMES[project?.redo_label ?? ""];
   return (
     <footer className="statusbar">
       {!UTILS && <div className="sb-undo">
-        <button className="sb-btn" onClick={actions.undo} disabled={!project?.can_undo} aria-label="Undo" data-tip-cmd="undo"
-          data-tip={project?.can_undo ? `Undo ${EDIT_NAMES[project.undo_label ?? ""] ?? "the last change"}` : "Nothing to undo"}><UndoIcon /></button>
-        <button className="sb-btn" onClick={actions.redo} disabled={!project?.can_redo} aria-label="Redo" data-tip-cmd="redo"
-          data-tip={project?.can_redo ? `Redo ${EDIT_NAMES[project.redo_label ?? ""] ?? "the change"}` : "Nothing to redo"}><RedoIcon /></button>
+        <button className="sb-btn" onClick={actions.undo} disabled={!project?.can_undo} aria-label={t`Undo`} data-tip-cmd="undo"
+          data-tip={project?.can_undo ? (undoName ? t`Undo ${undoName}` : t`Undo the last change`) : t`Nothing to undo`}><UndoIcon /></button>
+        <button className="sb-btn" onClick={actions.redo} disabled={!project?.can_redo} aria-label={t`Redo`} data-tip-cmd="redo"
+          data-tip={project?.can_redo ? (redoName ? t`Redo ${redoName}` : t`Redo the change`) : t`Nothing to redo`}><RedoIcon /></button>
         <button className={`sb-btn${pop === "history" ? " on" : ""}`} data-pop="history" onClick={() => toggle("history")} disabled={!project}
-          aria-label="History" aria-expanded={pop === "history"} data-tip={changes ? "History" : "History: no changes yet"}
-          data-tip-more="The changes made since the project opened, to go back or forward to"><HistoryIcon /></button>
+          aria-label={t`History`} aria-expanded={pop === "history"} data-tip={changes ? t`History` : t`History: no changes yet`}
+          data-tip-more={t`The changes made since the project opened, to go back or forward to`}><HistoryIcon /></button>
       </div>}
-      {pop === "history" && project && <StatusPop side="left" label="History" onClose={() => setPop(null)}><HistoryList /></StatusPop>}
+      {pop === "history" && project && <StatusPop side="left" label={t`History`} onClose={() => setPop(null)}><HistoryList /></StatusPop>}
       {running.length ? (
-        <span className="busy sb-main">{JOB_NAMES[running[0].kind]?.[1] ?? "Working"}{running[0].total ? ` ${Math.round((running[0].done / running[0].total) * 100)}%` : ""}: {running[0].doing || running[0].log[running[0].log.length - 1] || "starting"}</span>
+        <span className="busy sb-main">{JOB_NAMES[running[0].kind]?.[1] ?? t`Working`}{running[0].total ? ` ${Math.round((running[0].done / running[0].total) * 100)}%` : ""}: {running[0].doing || running[0].log[running[0].log.length - 1] || t({ message: "starting", comment: "A job in the status bar, before it says what it is on" })}</span>
       ) : (
         <span className="sb-main" data-tip={project ? savedTip : undefined}
-          data-tip-more={project?.path}>{project ? `${saved} · ${project.path}` : UTILS ? "" : "No project open"}</span>
+          data-tip-more={project?.path}>{project ? `${saved} · ${project.path}` : UTILS ? "" : t`No project open`}</span>
       )}
       <span className="spacer" />
       <NowPlaying />
       <span className="sb-version">
-        <button className={`sb-ver${u.latest ? " lit" : ""}`} onClick={() => nav.go("updates")} aria-label={u.latest ? `${APP_LABEL}: a new version is available` : undefined}
-          data-tip={u.latest ? `${versionLabel(u.latest.version)} is available` : `${APP_NAME} ${APP_LABEL}${core}`} data-tip-more="Updates and changelogs">
+        <button className={`sb-ver${u.latest ? " lit" : ""}`} onClick={() => nav.go("updates")} aria-label={u.latest ? t`${APP_LABEL}: a new version is available` : undefined}
+          data-tip={u.latest ? t`${latest} is available`
+            : core ? t({ message: `${APP_NAME} ${APP_LABEL}, core ${core}`, comment: "The app name and version, then the version of the Audiodiver core, the program behind the window" })
+            : `${APP_NAME} ${APP_LABEL}`} data-tip-more={t`Updates and changelogs`}>
           {APP_LABEL}{u.latest && <span className="sb-dot" aria-hidden />}</button>
         <AboutButton />
         {/* drawn as the ⓘ beside it, the same size and spacing */}
         <button className={`about-btn sb-bell${pop === "notifications" ? " on" : ""}`} data-pop="notifications" onClick={() => toggle("notifications")}
-          aria-label="Notifications" aria-expanded={pop === "notifications"} data-tip="Notifications" data-tip-more="The notifications shown so far, to read again"><BellIcon /></button>
+          aria-label={t`Notifications`} aria-expanded={pop === "notifications"} data-tip={t`Notifications`} data-tip-more={t`The notifications shown so far, to read again`}><BellIcon /></button>
       </span>
-      {pop === "notifications" && <StatusPop side="right" label="Notifications" onClose={() => setPop(null)}><NotificationList /></StatusPop>}
+      {pop === "notifications" && <StatusPop side="right" label={t`Notifications`} onClose={() => setPop(null)}><NotificationList /></StatusPop>}
     </footer>
   );
 }
@@ -555,6 +583,7 @@ function StatusPop({ side, label, onClose, children }: { side: "left" | "right";
 function HistoryList() {
   const { project, actions } = useEditor();
   const done = project?.history ?? [], future = project?.future ?? [];
+  const count = done.length;
   const now = useRef<HTMLButtonElement>(null);
   useEffect(() => { now.current?.scrollIntoView({ block: "nearest" }); }, []);
   const name = (label: string) => { const w = EDIT_NAMES[label] ?? label; return w.charAt(0).toUpperCase() + w.slice(1); };
@@ -566,15 +595,21 @@ function HistoryList() {
   );
   return (
     <>
-      <div className="sb-pop-head"><h2>History</h2></div>
+      <div className="sb-pop-head"><h2><Trans>History</Trans></h2></div>
       <ol className="hist-list">
-        {row("start", done.length >= 200 ? "Before the oldest change kept" : "As opened", -done.length, done.length ? "" : " now",
-          done.length ? (done.length === 1 ? "Undo the change" : `Undo all ${done.length} changes`) : undefined)}
-        {done.map((l, i) => row(`d${i}`, name(l), i + 1 - done.length, i === done.length - 1 ? " now" : "",
-          i < done.length - 1 ? `Undo the ${done.length - 1 - i === 1 ? "change" : `${done.length - 1 - i} changes`} after this one` : undefined))}
-        {future.map((l, j) => row(`f${j}`, name(l), j + 1, " undone", `Redo ${j ? `the ${j + 1} changes up to this one` : "this change"}`))}
+        {row("start", done.length >= 200 ? t`Before the oldest change kept` : t`As opened`, -done.length, done.length ? "" : " now",
+          count ? plural(count, { 1: "Undo the change", other: "Undo all # changes" }) : undefined)}
+        {done.map((l, i) => {
+          const after = done.length - 1 - i;
+          return row(`d${i}`, name(l), i + 1 - done.length, i === done.length - 1 ? " now" : "",
+            i < done.length - 1 ? plural(after, { 1: "Undo the change after this one", other: "Undo the # changes after this one" }) : undefined);
+        })}
+        {future.map((l, j) => {
+          const upTo = j + 1;
+          return row(`f${j}`, name(l), j + 1, " undone", plural(upTo, { 1: "Redo this change", other: "Redo the # changes up to this one" }));
+        })}
       </ol>
-      {!done.length && !future.length && <p className="sb-pop-empty">No changes since the project opened.</p>}
+      {!done.length && !future.length && <p className="sb-pop-empty"><Trans>No changes since the project opened.</Trans></p>}
     </>
   );
 }
@@ -584,14 +619,14 @@ function NotificationList() {
   const log = useNoticeLog();
   const today = new Date().toDateString();
   const when = (at: number) => {
-    const d = new Date(at), time = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    return d.toDateString() === today ? time : `${d.toLocaleDateString([], { month: "short", day: "numeric" })} ${time}`;
+    const d = new Date(at), time = d.toLocaleTimeString(intlLocale(), { hour: "2-digit", minute: "2-digit" });
+    return d.toDateString() === today ? time : `${d.toLocaleDateString(intlLocale(), { month: "short", day: "numeric" })} ${time}`;
   };
   return (
     <>
       <div className="sb-pop-head">
-        <h2>Notifications</h2>
-        {log.length > 0 && <button className="link-text" onClick={noticeLog.clear}>Clear</button>}
+        <h2><Trans>Notifications</Trans></h2>
+        {log.length > 0 && <button className="link-text" onClick={noticeLog.clear}><Trans>Clear</Trans></button>}
       </div>
       {log.length ? (
         <ol className="note-log">
@@ -602,7 +637,7 @@ function NotificationList() {
             </li>
           ))}
         </ol>
-      ) : <p className="sb-pop-empty">Notifications show here once the app has shown them.</p>}
+      ) : <p className="sb-pop-empty"><Trans>Notifications show here once the app has shown them.</Trans></p>}
     </>
   );
 }
@@ -612,60 +647,70 @@ function NotificationList() {
 function NowPlaying() {
   const p = usePlayer();
   const { goTo, quick, itemIndex } = useEditor();
+  const label = p.label, volume = Math.round(p.volume * 100);
+  const shown = label || t({ message: "Preview", comment: "What plays, in the status bar, when it has no name" });
   const show = async () => {
     const at = p.at;
     if (!at) return;
     if (at.scope === "soundtrack") {
       const it = at.itemId ? itemIndex.items.get(at.itemId) : undefined;
       if (it && at.cueId) openInSoundtrack(it, at.cueId, at.source);
-      else quick("That music no longer exists", "info");
+      else quick(t`That music no longer exists`, "info");
       return;
     }
-    if (!(await goTo({ ...at, scope: at.scope }))) quick("That item no longer exists", "info");
+    if (!(await goTo({ ...at, scope: at.scope }))) quick(t`That item no longer exists`, "info");
   };
   // a preview that fails (a file gone, audio the core can't read) says so: the button alone just went back to ▶
-  useEffect(() => { if (p.error) quick(`Can't play ${p.label || "this audio"}`, "info"); }, [p.error, p.label, quick]);
+  useEffect(() => { if (p.error) quick(label ? t`Can't play ${label}` : t`Can't play this audio`, "info"); }, [p.error, label, quick]);
   return (
     <span className="np">
       {p.key && (
         <>
-          <button className="np-btn" onClick={() => player.toggle()} aria-label={p.playing ? "Pause" : "Play"} data-tip={p.playing ? "Pause" : "Play"} data-tip-cmd="playPause">{p.playing ? "❚❚" : "▶"}</button>
-          {p.at ? <button className="np-label go" onClick={show} data-tip={`Go to ${p.label || "it"}`}>{p.label || "Preview"}</button>
-            : <span className="np-label" data-tip={p.label} data-tip-clip>{p.label || "Preview"}</span>}
+          <button className="np-btn" onClick={() => player.toggle()} aria-label={p.playing ? t`Pause` : t`Play`} data-tip={p.playing ? t`Pause` : t`Play`} data-tip-cmd="playPause">{p.playing ? "❚❚" : "▶"}</button>
+          {p.at ? <button className="np-label go" onClick={show} data-tip={label ? t`Go to ${label}` : t`Go to it`}>{shown}</button>
+            : <span className="np-label" data-tip={p.label} data-tip-clip>{shown}</span>}
           <span className="np-time">{fmtTime(p.time * 1000)}{p.duration ? ` / ${fmtTime(p.duration * 1000)}` : ""}</span>
-          <button className="np-btn" onClick={() => player.stop()} aria-label="Stop" data-tip="Stop" data-tip-cmd="stop">■</button>
+          <button className="np-btn" onClick={() => player.stop()} aria-label={t`Stop`} data-tip={t`Stop`} data-tip-cmd="stop">■</button>
         </>
       )}
-      <label className="np-vol" data-tip={`Preview volume: ${Math.round(p.volume * 100)}% (not part of the mod)`}>
-        <span aria-hidden>Vol</span>
-        <input type="range" className="r-volume" style={rangeVars(p.volume, 0, 1)} min={0} max={1} step={0.05} value={p.volume} aria-label="Preview volume" data-scale-tip
+      <label className="np-vol" data-tip={t`Preview volume: ${volume}% (not part of the mod)`}>
+        <span aria-hidden><Trans comment="Short for volume, beside the preview volume slider">Vol</Trans></span>
+        <input type="range" className="r-volume" style={rangeVars(p.volume, 0, 1)} min={0} max={1} step={0.05} value={p.volume} aria-label={t`Preview volume`} data-scale-tip
           onChange={(e) => player.setVolume(Number(e.target.value))} />
       </label>
     </span>
   );
 }
 
+/** A running job's heading: what it does and, when the core names one, what on ("Exporting Loadout Music"), in a
+    sentence for each kind of job. */
+const jobHeading = (kind: string, title: string) => (!title ? JOB_NAMES[kind]?.[1] ?? t`Working` : ({
+  build: t`Building ${title}`, import: t`Importing ${title}`, export: t`Exporting ${title}`, repatch: t`Repatching ${title}`,
+  pack: t({ message: `Packing ${title}`, comment: "Packing the project and the files it uses into one .audipack file" }),
+  unpack: t`Unpacking ${title}`, check: t`Checking ${title}`, combine_read: t`Checking for conflicts ${title}`, combine: t`Combining ${title}`,
+} as Record<string, string>)[kind] ?? t`Working`);
+
 /** A running job, shown until it ends: what it is on, how far along, and a way to stop it. */
 function JobCard({ job }: { job: Job }) {
   const { actions } = useEditor();
   const [stopping, setStopping] = useState(false);
-  const name = JOB_NAMES[job.kind]?.[1] ?? "Working";
+  const name = jobHeading(job.kind, job.title);
   const fraction = job.total ? Math.min(1, job.done / job.total) : null;
   return (
     <div className="notice job" role="status">
       <div className="job-body">
         <div className="job-head">
-          <b>{name}{job.title ? ` ${job.title}` : ""}</b>
+          <b>{name}</b>
           <span>{[fraction !== null && `${Math.round(fraction * 100)}%`, `${Math.round(job.seconds)} s`].filter(Boolean).join(" · ")}</span>
         </div>
         <div className={`job-bar${fraction === null ? " unknown" : ""}`} role="progressbar" aria-valuemin={0} aria-valuemax={100}
           aria-valuenow={fraction !== null ? Math.round(fraction * 100) : undefined}>
           <div style={fraction !== null ? { width: `${fraction * 100}%` } : undefined} />
         </div>
-        <div className="job-doing">{stopping ? "Stopping…" : job.doing || job.log[job.log.length - 1] || "Starting…"}</div>
+        <div className="job-doing">{stopping ? t`Stopping…` : job.doing || job.log[job.log.length - 1] || t`Starting…`}</div>
       </div>
       {(job.kind === "export" || job.kind === "build") && (
-        <button className="btn quiet" disabled={stopping} onClick={() => { setStopping(true); actions.cancelJob(job.id); }}>Cancel</button>
+        <button className="btn quiet" disabled={stopping} onClick={() => { setStopping(true); actions.cancelJob(job.id); }}><Trans>Cancel</Trans></button>
       )}
     </div>
   );
@@ -685,13 +730,13 @@ function Notices() {
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); n.open!(); dismiss(n.id); } }}>
             <span className="notice-mark" aria-hidden><PlayMarkIcon /></span>
             <div className="notice-text"><b className="notice-title">{n.title}</b>{n.text}{n.hint && <small className="notice-hint">{n.hint}</small>}</div>
-            <button className="x" onClick={(e) => { e.stopPropagation(); dismiss(n.id); }} aria-label="Dismiss">✕</button>
+            <button className="x" onClick={(e) => { e.stopPropagation(); dismiss(n.id); }} aria-label={t`Dismiss`}>✕</button>
           </div>
         ) : (
           <div key={n.id} className={`notice ${n.tone}${n.leaving ? " leaving" : ""}`}>
             <NoticeText text={n.text} />
             {n.action && <button className="btn quiet" onClick={() => { n.action!.run(); dismiss(n.id); }}>{n.action.label}</button>}
-            <button className="x" onClick={() => dismiss(n.id)} aria-label="Dismiss">✕</button>
+            <button className="x" onClick={() => dismiss(n.id)} aria-label={t`Dismiss`}>✕</button>
           </div>
         ))}
       </div>

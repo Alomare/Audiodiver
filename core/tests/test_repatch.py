@@ -286,5 +286,5 @@ def test_objects_as_an_older_game_version_had_them_are_not_the_mods(monkeypatch)
         history.setdefault(bid, (frozenset(), frozenset(), {i: frozenset({f}) for i, f in differs[bid].items()}))
     monkeypatch.setattr(addition, "bank_history", lambda: history)
     after = addition.from_patch(ix, d)
-    assert not any("other change" in x for x in after.left) and not after.settings
+    assert not after.other and not after.settings
     assert len(after.takes) == len(before.takes) and after.replaced == before.replaced  # the mod's own, as before

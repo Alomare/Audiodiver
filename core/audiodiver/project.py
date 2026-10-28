@@ -109,6 +109,7 @@ from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
 from .arsenal import FRAME_KEYS, icon_frame, name_problem
+from .i18n import N_, tr
 from .notes import tidy as tidy_notes
 from .soundtrack import Piece
 
@@ -147,9 +148,50 @@ def write_whole(path, text: str, tries=5):
         tmp.unlink(missing_ok=True)
 
 
+# why a file that is JSON isn't a project this version can open: (said of the file, said of the project in a pack)
+FORMAT_PROBLEMS = {
+    "not a project": (N_("{file} isn't an Audiodiver project"), N_("The project in {pack} isn't an Audiodiver project")),
+    "newer": (N_("{file} was made by a newer version of Audiodiver. Update Audiodiver to open it"),
+              N_("The project in {pack} was made by a newer version of Audiodiver. Update Audiodiver to open it")),
+    "name": (N_("{file} is damaged (the name)"), N_("The project in {pack} is damaged (the name)")),
+    "replacements": (N_("{file} is damaged (the replacements)"), N_("The project in {pack} is damaged (the replacements)")),
+    "replacement": (N_("{file} is damaged (a replacement)"), N_("The project in {pack} is damaged (a replacement)")),
+    "sound ID": (N_("{file} is damaged (a replacement's sound ID)"),
+                 N_("The project in {pack} is damaged (a replacement's sound ID)")),
+    "icon": (N_("{file} is damaged (the icon)"), N_("The project in {pack} is damaged (the icon)")),
+    "cue points": (N_("{file} is damaged (the cue points)"), N_("The project in {pack} is damaged (the cue points)")),
+    "texts": (N_("{file} is damaged (the text changes)"), N_("The project in {pack} is damaged (the text changes)")),
+    "settings": (N_("{file} is damaged (the settings from a mod)"),
+                 N_("The project in {pack} is damaged (the settings from a mod)")),
+    "gains": (N_("{file} is damaged (the Make-Up Gain on the original audio)"),
+              N_("The project in {pack} is damaged (the Make-Up Gain on the original audio)")),
+    "additions": (N_("{file} is damaged (the added audio)"), N_("The project in {pack} is damaged (the added audio)")),
+    "soundtrack": (N_("{file} is damaged (the soundtrack)"), N_("The project in {pack} is damaged (the soundtrack)")),
+    "values": (N_("{file} is damaged (a cue point, a text change, added audio or a setting)"),
+               N_("The project in {pack} is damaged (a cue point, a text change, added audio or a setting)")),
+}
+
+
 class ProjectFormatError(ValueError):
-    """A file that is JSON but not a project this version can open. Its message completes "<file> …": "isn't an
-    Audiodiver project", "is damaged (its name)", "was made by a newer version…"."""
+    """A file that is JSON but not a project this version can open, for one of FORMAT_PROBLEMS. about(file) says so
+    in a whole sentence ("drop.audi is damaged (the name)"), in_pack(pack) of the project in a pack. The message
+    itself is the English that completes "<file> …" ("is damaged (the name)"), for the command line, which puts the
+    file's name before it."""
+
+    def __init__(self, problem: str):
+        self.problem = problem
+        super().__init__(FORMAT_PROBLEMS[problem][0].removeprefix("{file} "))
+
+    def __reduce__(self):  # made again from the problem (a copy, a pickle), not from the message
+        return type(self), (self.problem,)
+
+    def about(self, file) -> str:
+        return tr(FORMAT_PROBLEMS[self.problem][0]).format(file=file)
+
+    def in_pack(self, pack) -> str:
+        return tr(FORMAT_PROBLEMS[self.problem][1]).format(pack=pack)
+
+
 ICON_KEYS = ("image", *FRAME_KEYS)
 OVERRIDE_KEYS = {"entry_marker", "exit_marker"}
 LEGACY_SILENCE = "silence (skipped).wav"  # what Skip wrote into the project folder before silence was built in
@@ -248,31 +290,40 @@ class Project:
         """The image the icon is made from, or None when the mod takes Audiodiver's default icon."""
         return self.file(self.icon["image"]) if self.icon.get("image") else None
 
-    def problems(self) -> list[str]:
+    def problem_list(self) -> list[tuple[str, str]]:
+        """What stops a build, each as (kind, sentence). The app goes by the kind: the Project tab fixes "name",
+        "icon" (a frame value a hand-edited file broke), "icon_missing" (the image is gone) and "mod_id";
+        "missing_file" is an audio file the project uses that is gone; "duplicate" and "overrides" are the others."""
         out, seen = [], {}
         if problem := name_problem(self.name):
-            out.append(problem)
+            out.append(("name", problem))
         if (icon := self.icon_path()) and not icon.exists():
-            out.append(f"icon: image not found ({icon})")
+            out.append(("icon_missing", tr("icon: image not found ({path})").format(path=icon)))
         try:
             icon_frame(self.icon)
         except ValueError as e:  # only a hand-edited file gets here: the editor checks what it saves
-            out.append(f"icon: {e}")
+            out.append(("icon", tr("icon: {problem}").format(problem=e)))
         for r in self.replacements:
-            name = r.label or ("silence" if r.silence else r.audio)
+            name = r.label or (tr("silence") if r.silence else r.audio)
             if r.target in seen:
-                out.append(f"{name}: same target as {seen[r.target]}")
+                out.append(("duplicate", tr("{name}: same target as {other}").format(name=name, other=seen[r.target])))
             seen[r.target] = name
             if not r.silence and not self.audio_path(r).exists():
-                out.append(f"{name}: the audio file wasn't found ({os.path.normpath(self.audio_path(r))})")
+                out.append(("missing_file", tr("{name}: the audio file wasn't found ({path})").format(
+                    name=name, path=os.path.normpath(self.audio_path(r)))))
         for seg, o in self.segment_overrides.items():
             if set(o) - OVERRIDE_KEYS:
-                out.append(f"segment {seg}: unknown overrides {sorted(set(o) - OVERRIDE_KEYS)}")
+                out.append(("overrides", tr("segment {id}: unknown overrides {keys}").format(
+                    id=seg, keys=sorted(set(o) - OVERRIDE_KEYS))))
         try:
             uuid.UUID(self.guid)
         except (ValueError, TypeError, AttributeError):
-            out.append("mod ID: damaged in the project file (Make a New ID, on the Project tab)")
+            out.append(("mod_id", tr("mod ID: damaged in the project file (Make a New ID, on the Project tab)")))
         return out
+
+    def problems(self) -> list[str]:
+        """What stops a build, in sentences (problem_list without the kinds)."""
+        return [text for _, text in self.problem_list()]
 
     # --- file I/O
     @classmethod
@@ -282,8 +333,8 @@ class Project:
         fmt = d.get("audiodiver") if isinstance(d, dict) else None
         if fmt != FORMAT:
             if isinstance(fmt, int) and fmt > FORMAT:
-                raise ProjectFormatError("was made by a newer version of Audiodiver. Update Audiodiver to open it")
-            raise ProjectFormatError("isn't an Audiodiver project")
+                raise ProjectFormatError("newer")
+            raise ProjectFormatError("not a project")
         return cls.from_json(d, path)
 
     @classmethod
@@ -291,11 +342,11 @@ class Project:
         """The project a to_json() dict describes (a loaded file, or an undo step). A part of the wrong kind raises
         ProjectFormatError naming it, so a damaged file is refused when it is opened, not halfway through an edit.
         Fields a newer version added are left out; numbers out of range are brought into it."""
-        def need(ok, what):
+        def need(ok, problem):
             if not ok:
-                raise ProjectFormatError(f"is damaged ({what})")
+                raise ProjectFormatError(problem)
 
-        repairs = []
+        repairs = []  # what opening it put right, each named whole ("the Make-Up Gain of drop"): the app lists them
 
         def number(v, default, lo, hi, what="", whole=False):
             try:
@@ -318,79 +369,86 @@ class Project:
             return default
 
         if not isinstance(d, dict):
-            raise ProjectFormatError("isn't an Audiodiver project")
-        need(isinstance(d.get("name"), str), "the name")
-        need(isinstance(d.get("replacements", []), list), "the replacements")
+            raise ProjectFormatError("not a project")
+        need(isinstance(d.get("name"), str), "name")
+        need(isinstance(d.get("replacements", []), list), "replacements")
         reps = []
         for r in d.get("replacements", []):
-            need(isinstance(r, dict) and "target" in r, "a replacement")
+            need(isinstance(r, dict) and "target" in r, "replacement")
             try:
                 target = int(r["target"])
             except (TypeError, ValueError, OverflowError):
-                raise ProjectFormatError("is damaged (a replacement's sound ID)") from None
+                raise ProjectFormatError("sound ID") from None
             audio = r.get("audio") if isinstance(r.get("audio"), str) else ""
             silence = r.get("silence") is True or Path(audio).name == LEGACY_SILENCE  # what Skip wrote: now silence
-            # a repair names the slot by its new audio, as the screen does
-            of = (r.get("label") if isinstance(r.get("label"), str) and r["label"].strip() else "") \
-                or Path(audio).stem or f"sound {target}"
+            # a repair names the slot by its new audio, as the screen does, else by its sound ID
+            of = (r.get("label") if isinstance(r.get("label"), str) and r["label"].strip() else "") or Path(audio).stem
+            if of:
+                label_of, gain_of, fit_of = (tr("the label of {name}"), tr("the Make-Up Gain of {name}"),
+                                             tr("Fit timing for {name}"))
+            else:
+                label_of, gain_of, fit_of = (tr("the label of sound {id}"), tr("the Make-Up Gain of sound {id}"),
+                                             tr("Fit timing for sound {id}"))
             reps.append(Replacement(target=target, audio="" if silence else audio,
-                                    label=kind(r, "label", str, "", f"the label of {of}"),
-                                    gain_db=number(r.get("gain_db", 0.0), 0.0, *GAIN_DB, f"the Make-Up Gain of {of}"),
-                                    fit_timing=kind(r, "fit_timing", bool, True, f"Fit timing for {of}"), silence=silence))
+                                    label=kind(r, "label", str, "", label_of.format(name=of, id=target)),
+                                    gain_db=number(r.get("gain_db", 0.0), 0.0, *GAIN_DB, gain_of.format(name=of, id=target)),
+                                    fit_timing=kind(r, "fit_timing", bool, True, fit_of.format(name=of, id=target)),
+                                    silence=silence))
         icon = d.get("icon") or {}
         if isinstance(icon, str):  # an image path, before the icon had a frame
             icon = {"image": icon}
         overrides = d.get("segment_overrides") or {}
-        need(isinstance(icon, dict), "the icon")
-        need(isinstance(overrides, dict) and all(isinstance(o, dict) for o in overrides.values()), "the cue points")
+        need(isinstance(icon, dict), "icon")
+        need(isinstance(overrides, dict) and all(isinstance(o, dict) for o in overrides.values()), "cue points")
         texts = d.get("texts", [])
         need(isinstance(texts, list) and all(isinstance(t, dict) and {"table", "id", "text"} <= set(t) for t in texts),
-             "the text changes")
+             "texts")
         settings = d.get("settings", {})
         need(isinstance(settings, dict) and all(isinstance(s, dict) and all(
             v is None or isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) for v in s.values())
-            for s in settings.values()), "the settings from a mod")
+            for s in settings.values()), "settings")
         gains = d.get("gains", {})
-        need(isinstance(gains, dict), "the Make-Up Gain on the original audio")
+        need(isinstance(gains, dict), "gains")
         adds = d.get("additions", [])
         need(isinstance(adds, list) and all(isinstance(a, dict) and set(Addition.KINDS.get(a.get("kind"), ("?",))) <= set(a)
-                                            for a in adds), "the added audio")
+                                            for a in adds), "additions")
 
         notes, dropped = tidy_notes(d.get("notes"))
         if dropped:
-            repairs.append("a note")
+            repairs.append(tr("a note"))
         soundtrack = d.get("soundtrack", {})
-        need(isinstance(soundtrack, dict), "the soundtrack")
+        need(isinstance(soundtrack, dict), "soundtrack")
         try:
             pieces = {int(k): Piece.from_json(v, GAIN_DB) for k, v in soundtrack.items()}
         except (TypeError, ValueError, OverflowError):
-            raise ProjectFormatError("is damaged (the soundtrack)") from None
+            raise ProjectFormatError("soundtrack") from None
         tabs = tab_list(d.get("tabs"))
         if tabs is None and "tabs" in d:
-            repairs.append("the tabs")
+            repairs.append(tr("the tabs"))
 
         def points(o):
             """A segment's cue points: one that isn't a number goes (the automatic spot is used), and is a repair."""
             out = {}
             for k, v in o.items():
-                if (x := number(v, None, 0, 3.6e6, "a cue point")) is not None:
+                if (x := number(v, None, 0, 3.6e6, tr("a cue point"))) is not None:
                     out[k] = x
             return out
 
         try:
             p = cls(name=d["name"], guid=str(d.get("guid") or ""),
-                       version=int(number(d.get("version", 1), 1, 1, 99999, "the version", whole=True)),
+                       version=int(number(d.get("version", 1), 1, 1, 99999, tr("the version"), whole=True)),
                        icon={k: v for k, v in icon.items() if k in ICON_KEYS},
-                       loudness_analysis=kind(d, "loudness_analysis", bool, False, "Loudness analysis"), replacements=reps,
-                       every_bank=kind(d, "every_bank", bool, False, "Banks"),
-                       project_banks_only=kind(d, "project_banks_only", bool, False, "Banks"),
-                       patch_files=kind(d, "patch_files", bool, False, "Patch files"),
-                       imported_banks=[int(b) for b in kind(d, "imported_banks", list, [], "the imported mods' banks")],
-                       built_for=kind(d, "built_for", str, "", "the game version of the last build"),
-                       built_from=kind(d, "built_from", str, "", "what the last build was made from"),
+                       loudness_analysis=kind(d, "loudness_analysis", bool, False, tr("Loudness analysis")),
+                       replacements=reps,
+                       every_bank=kind(d, "every_bank", bool, False, tr("Banks")),
+                       project_banks_only=kind(d, "project_banks_only", bool, False, tr("Banks")),
+                       patch_files=kind(d, "patch_files", bool, False, tr("Patch files")),
+                       imported_banks=[int(b) for b in kind(d, "imported_banks", list, [], tr("the imported mods' banks"))],
+                       built_for=kind(d, "built_for", str, "", tr("the game version of the last build")),
+                       built_from=kind(d, "built_from", str, "", tr("what the last build was made from")),
                        segment_overrides={int(k): kept for k, o in overrides.items() if (kept := points(o))}, path=path,
-                       description=kind(d, "description", str, "", "the description"),
-                       build_folder=kind(d, "build_folder", str, "", "the build folder"),
+                       description=kind(d, "description", str, "", tr("the description")),
+                       build_folder=kind(d, "build_folder", str, "", tr("the build folder")),
                        library=[str(i) for i in d["library"]] if isinstance(d.get("library"), list) else None,
                        texts=[TextEdit(int(t["table"]), int(t["id"]), str(t["text"]), str(t.get("was", "")))
                               for t in texts],
@@ -398,12 +456,12 @@ class Project:
                        settings={int(o): {int(k): None if v is None else float(v) for k, v in s.items()}
                                  for o, s in settings.items() if s},
                        gains={int(t): db for t, v in gains.items()
-                              if (db := number(v, 0.0, *GAIN_DB, f"the Make-Up Gain of sound {t}"))},
+                              if (db := number(v, 0.0, *GAIN_DB, tr("the Make-Up Gain of sound {id}").format(id=t)))},
                        notes=notes, soundtrack={k: v for k, v in pieces.items() if not v.plain()}, tabs=tabs)
             p.repairs = list(dict.fromkeys(repairs))  # not saved: what opening it put right (project_state says it)
             return p
         except (TypeError, ValueError, OverflowError):
-            raise ProjectFormatError("is damaged (a cue point, a text change, added audio or a setting)") from None
+            raise ProjectFormatError("values") from None
 
     def to_json(self) -> dict:
         def rep(r):

@@ -8,12 +8,15 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "extract": "lingui extract --clean",
     "tauri": "tauri"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",
     "@fontsource-variable/noto-serif": "^5.3.0",
     "@fontsource-variable/roboto-mono": "^5.3.0",
+    "@lingui/core": "^6.10.1",
+    "@lingui/react": "^6.10.1",
     "@tauri-apps/api": "^2.2.0",
     "@tauri-apps/plugin-dialog": "^2.2.0",
     "@tauri-apps/plugin-opener": "^2.2.0",
@@ -23,6 +26,9 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@lingui/cli": "^6.10.1",
+    "@lingui/format-po": "^6.10.1",
+    "@lingui/vite-plugin": "^6.10.1",
     "@tauri-apps/cli": "^2.2.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

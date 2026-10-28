@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { t } from "@lingui/core/macro";
 import { call, fileUrl, fmtTime } from "./api";
 import { PauseIcon, ThroughIcon } from "./Icons";
 import { player, usePlayer } from "./player";
@@ -48,7 +49,7 @@ export function PlayThrough({ onThrough, onMark }: { onThrough?: (t: Through | n
   const p = usePlayer();
   const [busy, setBusy] = useState<null | "game" | "mine">(null);
   const key = (side: string) => `through:${scope}:${cue?.id}:${side}`;
-  const [t, setT] = useState<Through | null>(() => (loaded && player.state.key === loaded.key && (loaded.key === key("game") || loaded.key === key("mine")) ? loaded : null));
+  const [through, setThrough] = useState<Through | null>(() => (loaded && player.state.key === loaded.key && (loaded.key === key("game") || loaded.key === key("mine")) ? loaded : null));
 
   // an edit to this cue's replacements (audio, gain, timing, cue points) makes the render of the replaced version
   // stale: it stops, and says so. The original stays as it is.
@@ -58,13 +59,13 @@ export function PlayThrough({ onThrough, onMark }: { onThrough?: (t: Through | n
   useEffect(() => {
     if (rendered.current === mine) return;
     rendered.current = mine;
-    if (t?.side !== "mine") return;
-    if (player.state.key === t.key) { player.stop(); quick("Play through stopped because this music changed", "info"); }
-    setT(null);
-  }, [mine, t, quick]);
+    if (through?.side !== "mine") return;
+    if (player.state.key === through.key) { player.stop(); quick(t`Play through stopped because this music changed`, "info"); }
+    setThrough(null);
+  }, [mine, through, quick]);
 
   // tell the slot list and the waveforms what plays, and which segment it is on, so they can follow along
-  const active = t && p.key === t.key ? t : null;
+  const active = through && p.key === through.key ? through : null;
   const ms = active ? p.time * 1000 : 0;
   let now: Mark | null = null; // the last segment whose Entry has passed
   for (const m of active?.marks ?? []) if (m.ms <= ms + 1) now = m;
@@ -76,15 +77,16 @@ export function PlayThrough({ onThrough, onMark }: { onThrough?: (t: Through | n
   const changed = !readOnly && !!project && (cue.slots.some((s) => project.assignments[s]) || cue.segments_detail.some((s) => project.segment_overrides[s.segment]));
 
   const start = async (side: "game" | "mine") => {
-    if (t?.side === side && p.key === t.key) { player.play(t.key, t.url); return; } // pause / resume
+    if (through?.side === side && p.key === through.key) { player.play(through.key, through.url); return; } // pause / resume
     setBusy(side);
     try {
       const r = await call<Omit<Through, "side" | "url" | "key"> & { path: string }>("play_through", { cue: cue.id, side });
       const next = { ...r, side, key: key(side), url: `${fileUrl(r.path)}&v=${Date.now()}` };
       loaded = next;
-      setT(next);
+      setThrough(next);
       player.stop();
-      player.play(next.key, next.url, false, `Play through · ${cue.name} · ${side === "game" ? "original" : "replaced"}`,
+      const name = cue.name;
+      player.play(next.key, next.url, false, side === "game" ? t`Play through · ${name} · original` : t`Play through · ${name} · replaced`,
         { scope, itemId: shownItemId, cueId: cue.id, source: null });
     } catch (e: any) { notify("bad", e.message ?? String(e)); }
     setBusy(null);
@@ -92,14 +94,16 @@ export function PlayThrough({ onThrough, onMark }: { onThrough?: (t: Through | n
 
   const button = (side: "game" | "mine") => {
     const on = active?.side === side && p.playing;
-    const name = side === "mine" ? "Play through · Replaced" : readOnly ? "Play through" : "Play through · Original";
-    const about = busy === side ? "Preparing…" : side === "mine" ? changed ? "The music with the new audio, segment by segment, to hear how the segments join"
-      : "Nothing replaced here yet"
-      : cue.ordered === false ? "One round of the playlist, top to bottom. Play order shows how the game plays it"
-      : `The music with the original audio, segment by segment${t?.random ? ". The game shuffles some of these segments" : ""}`;
+    const name = side === "mine" ? t`Play through · Replaced` : readOnly ? t`Play through` : t`Play through · Original`;
+    const pause = side === "mine" ? t`Pause Play through · Replaced` : readOnly ? t`Pause Play through` : t`Pause Play through · Original`;
+    const about = busy === side ? t`Preparing…` : side === "mine" ? changed ? t`The music with the new audio, segment by segment, to hear how the segments join`
+      : t`Nothing replaced here yet`
+      : cue.ordered === false ? t`One round of the playlist, top to bottom. Play order shows how the game plays it`
+      : through?.random ? t`The music with the original audio, segment by segment. The game shuffles some of these segments`
+      : t`The music with the original audio, segment by segment`;
     return (
       <button className={`play ${side === "game" ? "vanilla" : "project"} through-btn${on ? " playing" : ""}`} disabled={busy !== null || (side === "mine" && !changed)}
-        aria-label={on ? `Pause ${name}` : name} data-tip={on ? `Pause ${name}` : name} data-tip-more={about} onClick={() => start(side)}
+        aria-label={on ? pause : name} data-tip={on ? pause : name} data-tip-more={about} onClick={() => start(side)}
         style={{ ["--progress" as any]: active?.side === side ? ms / active.duration_ms : 0 }}>
         {busy === side ? <span aria-hidden>…</span> : on ? <PauseIcon /> : <ThroughIcon />}
       </button>
@@ -108,10 +112,10 @@ export function PlayThrough({ onThrough, onMark }: { onThrough?: (t: Through | n
 
   return (
     <>
-      <div className="through-btns" role="group" aria-label="Play through">{button("game")}{!readOnly && button("mine")}</div>
+      <div className="through-btns" role="group" aria-label={t`Play through`}>{button("game")}{!readOnly && button("mine")}</div>
       {active ? (
         <div className="through">
-          <div className={`through-bar ${active.side}`} role="slider" aria-label="Position in the cue" aria-valuemin={0}
+          <div className={`through-bar ${active.side}`} role="slider" aria-label={t`Position in the cue`} aria-valuemin={0}
             aria-valuemax={Math.round(active.duration_ms / 1000)} aria-valuenow={Math.round(ms / 1000)} tabIndex={0}
             onClick={(e) => { const r = e.currentTarget.getBoundingClientRect(); player.seek((e.clientX - r.left) / r.width); }}
             onKeyDown={(e) => {
@@ -121,7 +125,7 @@ export function PlayThrough({ onThrough, onMark }: { onThrough?: (t: Through | n
             <div className="through-fill" style={{ width: `${(ms / active.duration_ms) * 100}%` }} />
             {active.marks.map((m, i) => <span key={i} className="through-tick" style={{ left: `${(m.ms / active.duration_ms) * 100}%` }} />)}
           </div>
-          <span className="through-now"><b>{now?.name ?? "Lead-in"}</b> {fmtTime(ms)} / {fmtTime(active.duration_ms)}</span>
+          <span className="through-now"><b>{now?.name ?? t({ message: "Lead-in", comment: "In place of a segment name: what plays before the first segment starts" })}</b> {fmtTime(ms)} / {fmtTime(active.duration_ms)}</span>
         </div>
       ) : null}
     </>

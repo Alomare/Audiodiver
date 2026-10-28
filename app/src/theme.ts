@@ -1,4 +1,9 @@
 import { useSyncExternalStore } from "react";
+import type { MessageDescriptor } from "@lingui/core";
+import { msg } from "@lingui/core/macro";
+
+// The labels here are descriptors, translated where they show (i18n._): this module loads before the language
+// does (main.tsx), so a translation made now would come out in English.
 
 /** The look (Settings ▸ Theme): dark or light, the primary colour that fills the main buttons and marks what is replaced
     (Super Earth yellow by default), the secondary colour that navigates and informs (Super Earth blue), Night mode,
@@ -10,7 +15,7 @@ export type Density = "compact" | "balanced" | "relaxed";
 export type FontId = "archivo" | "noto-serif" | "roboto-mono";
 /** The side of the window the tab bar runs along. */
 export type BarSide = "top" | "right" | "bottom" | "left";
-export const BAR_SIDES: [BarSide, string][] = [["top", "Top"], ["right", "Right"], ["bottom", "Bottom"], ["left", "Left"]];
+export const BAR_SIDES: [BarSide, MessageDescriptor][] = [["top", msg`Top`], ["right", msg`Right`], ["bottom", msg`Bottom`], ["left", msg`Left`]];
 export const barIsVertical = (side: BarSide) => side === "left" || side === "right";
 export type Theme = {
   mode: ThemeMode | null;   // dark or light; null follows the system (Windows' app mode)
@@ -42,14 +47,14 @@ export const DEFAULT_SIZE = 15;
 /** Animation speeds the slider snaps to. */
 export const SPEEDS = [0.5, 0.75, 1, 1.5, 2];
 /** Spacing presets: the factor every padding and gap that sets density is scaled by (--sp in styles.css). */
-export const DENSITIES: [Density, string, number][] = [["compact", "Compact", 0.55], ["balanced", "Balanced", 1], ["relaxed", "Relaxed", 1.6]];
+export const DENSITIES: [Density, MessageDescriptor, number][] = [["compact", msg`Compact`, 0.55], ["balanced", msg`Balanced`, 1], ["relaxed", msg`Relaxed`, 1.6]];
 /** The typefaces on offer, for text and for titles. All three are free to ship (SIL Open Font License 1.1) and are
     built into the app (main.tsx loads them), so nothing comes from the web. Each has the four weights the app uses:
     300, 400, 500 and 700. */
-export const FONTS: { id: FontId; name: string; stack: string; about: string }[] = [
-  { id: "archivo", name: "Archivo", stack: '"Archivo Variable", "Segoe UI", system-ui, sans-serif', about: "A sturdy sans-serif typeface, and the default." },
-  { id: "noto-serif", name: "Noto Serif", stack: '"Noto Serif Variable", Georgia, "Times New Roman", serif', about: "A serif, for a bookish look." },
-  { id: "roboto-mono", name: "Roboto Mono", stack: '"Roboto Mono Variable", Consolas, "Cascadia Mono", monospace', about: "A monospaced typeface, with every character the same width." },
+export const FONTS: { id: FontId; name: string; stack: string; about: MessageDescriptor }[] = [
+  { id: "archivo", name: "Archivo", stack: '"Archivo Variable", "Segoe UI", system-ui, sans-serif', about: msg`A sturdy sans-serif typeface, and the default.` },
+  { id: "noto-serif", name: "Noto Serif", stack: '"Noto Serif Variable", Georgia, "Times New Roman", serif', about: msg`A serif, for a bookish look.` },
+  { id: "roboto-mono", name: "Roboto Mono", stack: '"Roboto Mono Variable", Consolas, "Cascadia Mono", monospace', about: msg`A monospaced typeface, with every character the same width.` },
 ];
 export const fontStack = (id: FontId) => (FONTS.find((f) => f.id === id) ?? FONTS[0]).stack;
 export const DEFAULT_THEME: Theme = { mode: "dark", hue: YELLOW_HUE, hue2: BLUE_HUE, size: DEFAULT_SIZE, bodyFont: "archivo", titleFont: "archivo",

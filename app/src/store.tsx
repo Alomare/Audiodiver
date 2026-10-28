@@ -1,10 +1,10 @@
 import { createContext, use, useCallback, useContext, useEffect, useMemo, useRef, useState, type Context, type ReactNode } from "react";
-import { call, plural, type ArchiveRow, type Assignment, type Cue, type Index, type Job, type MusicItem, type Piece, type Place as Found, type ProjectState, type Status } from "./api";
+import { t, plural } from "@lingui/core/macro";
+import { andList, call, fmtNumber, type ArchiveRow, type Assignment, type Cue, type Index, type Job, type MusicItem, type Piece, type Place as Found, type ProjectState, type Status } from "./api";
 import { confirm } from "./Confirm";
 import { importAsk } from "./importAsk";
 import { liveGain } from "./gain";
-import { JOB_NAMES } from "./jobs";
-import { keyHint, keyLabel } from "./keys";
+import { keyLabel } from "./keys";
 import { indexItems } from "./music";
 import { FOLD_LIBRARY, HIDEABLE, nav as tabs, type Hideable } from "./nav";
 import { noticeLog } from "./noticeLog";
@@ -12,6 +12,7 @@ import { notes } from "./noteStore";
 import { UTILS } from "./edition";
 import * as platform from "./platform";
 import { player, type PlayedAt } from "./player";
+import { coreLanguage, followAuto } from "./i18n";
 import { settings, useSettings } from "./settings";
 import { motionMs } from "./theme";
 
@@ -44,44 +45,92 @@ function saveRecent(list: string[]) {
 
 /** Plain words for the core's edit labels: "Undo fill", "Undone: move". */
 export const EDIT_NAMES: Record<string, string> = {
-  assign: "assign", fill: "fill", unassign: "remove", update: "change", gain: "Make-Up Gain", match: "match loudness", skip: "skip", silence: "silence", paste: "paste",
-  move: "move", segment: "cue points", settings: "mod details", import: "import", add: "add to the project",
-  unlist: "remove from the project", text: "text change", "add take": "new takes", "add layer": "new layer",
-  "own clip": "only this sound", "shared clip": "every sound that plays it", note: "note", collect: "collect files",
-  tabs: "tabs", song: "song", playlist: "playlist", soundtrack: "soundtrack", level: "level", "leave out": "leave out",
-  "put back": "put back", shuffle: "shuffle", resume: "playlist order", Original: "Original", "One Song": "One Song",
-  Playlist: "Playlist", Silent: "Silent", "Same as Battle": "Same as Battle", "Battle Songs": "Battle Songs",
-  "Quiet Exploring": "Quiet Exploring", "No Openings": "No Openings", "Original soundtrack": "Original soundtrack",
+  assign: t({ message: "assign", comment: "Edit in Undo, Redo and History: new audio chosen for a slot" }),
+  fill: t({ message: "fill", comment: "Edit in Undo, Redo and History: slots filled with several files at once" }),
+  unassign: t({ message: "remove", comment: "Edit in Undo, Redo and History: new audio removed from slots" }),
+  update: t({ message: "change", comment: "Edit in Undo, Redo and History: the settings of a slot changed" }),
+  gain: t`Make-Up Gain`,
+  match: t({ message: "match loudness", comment: "Edit in Undo, Redo and History: Make-Up Gain set so the new audio is as loud as the original" }),
+  skip: t({ message: "skip", comment: "Edit in Undo, Redo and History: transitions or stingers skipped" }),
+  silence: t({ message: "silence", comment: "Edit in Undo, Redo and History: slots replaced with silence" }),
+  paste: t({ message: "paste", comment: "Edit in Undo, Redo and History: copied audio pasted into slots" }),
+  move: t({ message: "move", comment: "Edit in Undo, Redo and History: audio moved or swapped between two slots" }),
+  segment: t({ message: "cue points", comment: "Edit in Undo, Redo and History: the cue points of music segments changed" }),
+  settings: t({ message: "mod details", comment: "Edit in Undo, Redo and History: the name, version or other details of the mod changed" }),
+  import: t({ message: "import", comment: "Edit in Undo, Redo and History: a mod imported into the project" }),
+  add: t({ message: "add to the project", comment: "Edit in Undo, Redo and History" }),
+  unlist: t({ message: "remove from the project", comment: "Edit in Undo, Redo and History" }),
+  text: t({ message: "text change", comment: "Edit in Undo, Redo and History: a line of game text changed" }),
+  "add take": t({ message: "new takes", comment: "Edit in Undo, Redo and History: new takes added to a sound" }),
+  "add layer": t({ message: "new layer", comment: "Edit in Undo, Redo and History: a layer added beside a sound" }),
+  "own clip": t({ message: "only this sound", comment: "Edit in Undo, Redo and History: the new audio of a slot set to play only in this sound" }),
+  "shared clip": t({ message: "every sound that plays it", comment: "Edit in Undo, Redo and History: the new audio of a slot set to play in every sound that plays the clip" }),
+  note: t({ message: "note", comment: "Edit in Undo, Redo and History: a note written in the project" }),
+  collect: t({ message: "collect files", comment: "Edit in Undo, Redo and History: files copied into the project folder" }),
+  tabs: t({ message: "tabs", comment: "Edit in Undo, Redo and History: the tabs the project shows changed" }),
+  song: t({ message: "song", comment: "Edit in Undo, Redo and History: a song set for a piece of music" }),
+  playlist: t({ message: "playlist", comment: "Edit in Undo, Redo and History: the songs of a playlist changed" }),
+  soundtrack: t({ message: "soundtrack", comment: "Edit in Undo, Redo and History: how pieces of music play changed" }),
+  level: t({ message: "level", comment: "Edit in Undo, Redo and History: the volume of a piece of music changed" }),
+  "leave out": t({ message: "leave out", comment: "Edit in Undo, Redo and History: a song left out of the original music" }),
+  "put back": t({ message: "put back", comment: "Edit in Undo, Redo and History: a song put back into the original music" }),
+  shuffle: t({ message: "shuffle", comment: "Edit in Undo, Redo and History: shuffle turned on or off for a playlist" }),
+  resume: t({ message: "playlist order", comment: "Edit in Undo, Redo and History: whether a playlist goes on where it stopped" }),
+  Original: t`Original`, "One Song": t`One Song`, Playlist: t`Playlist`, Silent: t`Silent`, "Same as Battle": t`Same as Battle`,
+  "Battle Songs": t`Battle Songs`, "Quiet Exploring": t`Quiet Exploring`, "No Openings": t`No Openings`,
+  "Original soundtrack": t`Original soundtrack`,
 };
 
 /** "a.wav, b.wav and 3 more". */
 function listNames(names: string[], shown = 3) {
   const xs = names.slice(0, shown), more = names.length - xs.length;
-  if (more) return `${xs.join(", ")} and ${more} more`;
-  return xs.length > 1 ? `${xs.slice(0, -1).join(", ")} and ${xs[xs.length - 1]}` : xs[0] ?? "";
+  return andList(more ? [...xs, t({ message: plural(more, { one: "# more", other: "# more" }), comment: "The end of a list of file names: a.wav, b.wav and 3 more" })] : xs);
 }
-const undoHint = () => (keyLabel("undo") ? `Undo (${keyLabel("undo")})` : "Undo");
+/** "Undo (Ctrl+Z)": the command and its key, to name in a sentence. */
+const undoHint = () => { const key = keyLabel("undo"); return key ? t`Undo (${key})` : t`Undo`; };
+/** A number the core rounds to one decimal (2 or 12.5 MB, -3.5 dB), written the way the language writes it. */
+const fmtTenth = (n: number) => fmtNumber(n, n % 1 ? 1 : 0);
 
 /** Asks before new audio leaves slots (a new take goes with its audio). True to go ahead. */
 function confirmRemoval(mine: Assignment[], p: ProjectState) {
   const n = mine.length, silence = mine.every((x) => x.silence);
   const takes = mine.filter((x) => p.additions.some((a) => a.kind === "take" && a.source === x.target)).length;
   const files = [...new Set(mine.filter((x) => !x.silence).map((x) => x.name))];
-  const what = silence ? "the silence" : takes === n ? (n === 1 ? "the new take" : "the new takes") : "the new audio";
-  const after = takes === n ? (n === 1 ? "The take is removed from the sound." : "The takes are removed from their sounds.")
-    : silence ? `${n === 1 ? "This slot plays" : "These slots play"} the original again.`
-    : `${n === 1 ? "This slot plays" : `These ${n} slots play`} the original again.`;
+  const title = silence ? (takes === n ? t`Remove the silence?` : plural(n, { 1: "Remove the silence?", other: "Remove the silence from # slots?" }))
+    : takes === n ? plural(n, { 1: "Remove the new take?", other: "Remove the new takes?" })
+    : plural(n, { 1: "Remove the new audio?", other: "Remove the new audio from # slots?" });
+  const after = takes === n ? plural(n, { 1: "The take is removed from the sound.", other: "The takes are removed from their sounds." })
+    : silence ? plural(n, { 1: "This slot plays the original again.", other: "These slots play the original again." })
+    : plural(n, { 1: "This slot plays the original again.", other: "These # slots play the original again." });
+  const file = files[0], list = listNames(files), undo = undoHint();
+  const kept = !files.length ? "" : files.length === 1 ? t`The file ${file} stays on disk.` : t`The files (${list}) stay on disk.`;
   return confirm({
-    title: `Remove ${what}${n > 1 && takes !== n ? ` from ${n} slots` : ""}?`,
-    text: `${after}${files.length ? ` ${files.length === 1 ? `The file ${files[0]} stays` : `The files (${listNames(files)}) stay`} on disk.` : ""}`
-      + ` ${undoHint()} brings ${n === 1 ? "it" : "them"} back.`,
-    ok: "Remove", cancel: "Keep",
+    title,
+    text: [after, kept, plural(n, { 1: `${undo} brings it back.`, other: `${undo} brings them back.` })].filter(Boolean).join(" "),
+    ok: t`Remove`, cancel: t({ message: "Keep", comment: "The answer to a question that asks before removing: don't remove" }),
   });
 }
 
 /** What opening a project put right in its file (said once, when it opens; the file is fixed by its next save). */
-const repairNote = (p: ProjectState) =>
-  `Some values in ${p.name} were damaged and reset to defaults (${p.repairs.join(", ")}).`;
+const repairNote = (p: ProjectState) => {
+  const name = p.name, fields = andList(p.repairs);
+  return t`Some values in ${name} were damaged and reset to defaults (${fields}).`;
+};
+
+/** A job stopped by Cancel, in a sentence for each kind of job (any other kind is an export). */
+const jobCancelled = (kind: string) => ({
+  build: t`Build cancelled`, import: t`Import cancelled`, repatch: t`Repatch cancelled`,
+  pack: t({ message: "Pack cancelled", comment: "Packing the project and the files it uses into one .audipack file" }),
+  unpack: t`Unpack cancelled`, check: t({ message: "Check cancelled", comment: "Checking the installed mods for sound banks of an older game version" }),
+  combine_read: t`Conflict check cancelled`, combine: t`Combine cancelled`,
+} as Record<string, string>)[kind] ?? t`Export cancelled`;
+/** A job that failed, and why (the core's words), in a sentence for each kind of job (any other kind is an export). */
+const jobFailure = (kind: string, why: string) => ({
+  build: t`Build failed: ${why}`, import: t`Import failed: ${why}`, repatch: t`Repatch failed: ${why}`,
+  pack: t({ message: `Pack failed: ${why}`, comment: "Packing the project and the files it uses into one .audipack file" }),
+  unpack: t`Unpack failed: ${why}`, check: t({ message: `Check failed: ${why}`, comment: "Checking the installed mods for sound banks of an older game version" }),
+  combine_read: t`Conflict check failed: ${why}`, combine: t`Combine failed: ${why}`,
+} as Record<string, string>)[kind] ?? t`Export failed: ${why}`;
 
 /** The two tabs that show audio. The Library is everything the game has, to hear and to add to a project; the
     Editor is what the open project lists, to replace. Each keeps its own open place, selection and history. */
@@ -279,8 +328,8 @@ function useEditorState() {
   }, []);
   const logPath = useRef("");
   /** A job failed: say so until dismissed, with a way to the core's log. */
-  const jobFailed = useCallback((what: string, j: Job) => {
-    notify("bad", `${what} failed: ${j.error}`, logPath.current ? { label: "Open Log", run: () => platform.reveal(logPath.current) } : undefined, true);
+  const jobFailed = useCallback((j: Job) => {
+    notify("bad", jobFailure(j.kind, j.error ?? ""), logPath.current ? { label: t`Open Log`, run: () => platform.reveal(logPath.current) } : undefined, true);
   }, [notify]);
 
   /** Runs an API call; errors become notices instead of exceptions. These calls (edits, mostly) go to the core one at
@@ -342,9 +391,9 @@ function useEditorState() {
   const editNotice = useCallback((tone: Notice["tone"], text: string) => {
     const seq = editSeq.current;
     notify(tone, text, {
-      label: "Undo", run: () => {
+      label: t`Undo`, run: () => {
         if (editSeq.current === seq) undoRef.current();
-        else notify("info", `There are newer changes. Undo${keyHint("undo")} steps back one change at a time.`);
+        else { const undo = undoHint(); notify("info", t`There are newer changes. ${undo} steps back one change at a time.`); }
       },
     });
   }, [notify]);
@@ -367,6 +416,7 @@ function useEditorState() {
   const [boot, setBoot] = useState(0);        // counts the times the game data is read
   const [gameRev, setGameRev] = useState(0);  // bumps when it has been read again (what is open is fetched again)
   const firstBoot = useRef(true);
+  const toldLanguage = useRef(false);
   useEffect(() => {
     let stop = false;
     (async () => {
@@ -374,7 +424,16 @@ function useEditorState() {
         try {
           const s = await call<Status>("status");
           if (stop) return; // cancelled meanwhile (React runs effects twice in development)
+          // the core speaks the window's language (and starts in it next time), told before anything is fetched: a
+          // new language makes it name the sounds again, so the status is read again after (not "ready" meanwhile)
+          if (!toldLanguage.current) {
+            toldLanguage.current = true;
+            try { await call("set_language", { language: coreLanguage() }); } catch { /* it keeps the language it started in */ }
+            continue;
+          }
           setStatus(s); setConnectError(null); logPath.current = s.log ?? "";
+          // Automatic follows the game's language once the core has found the game (or failed to)
+          if (s.stage !== "starting" && s.languages) followAuto(s.languages.game, s.languages.system);
           if (s.stage === "ready") {
             const [ix, all] = await Promise.all([call<Index>("index"), call<ArchiveRow[]>("archives")]);
             if (stop) return;
@@ -408,12 +467,14 @@ function useEditorState() {
                   if (stop) return;
                   applyProject(p);
                   tabs.go(tabs.work());
-                  quick(`**${p.name}** opened`, "info");
+                  const name = p.name;
+                  quick(t`**${name}** opened`, "info");
                   // sticky, these two: at startup the update question may be over them
                   if (p.repairs.length) notify("info", repairNote(p), undefined, true);
                 } catch (e: any) { // moved, deleted or damaged: start on Home, and say why
                   const name = last.split(/[\\/]/).pop() ?? last;
-                  if (!stop) notify("info", `The last project didn't open: ${String(e.message ?? "it wasn't found").replace(last, name)}`, undefined, true);
+                  const why = String(e.message ?? t`it wasn't found`).replace(last, name);
+                  if (!stop) notify("info", t`The last project didn't open: ${why}`, undefined, true);
                 }
               }
             }
@@ -531,7 +592,7 @@ function useEditorState() {
       const j = await call<Job>("job", { id: job.id }).catch(() => null);
       if (!j) { // one missed answer must not end the watch silently
         if (++misses < 20) setTimeout(tick, 1000);
-        else onDone({ ...job, state: "failed", error: "lost contact with the Audiodiver core" });
+        else onDone({ ...job, state: "failed", error: t`lost contact with the Audiodiver core` });
         return;
       }
       misses = 0;
@@ -546,19 +607,20 @@ function useEditorState() {
       fetches the project again, so its version, its problems and what an import brought in show at once. */
   const finishJob = useCallback(async (j: Job) => {
     const refresh = async () => applyProject(await run<ProjectState>("project"));
-    const what = JOB_NAMES[j.kind]?.[0] ?? "Export";
-    if (j.state === "cancelled") quick(`${what} cancelled`, "info");
-    else if (j.state !== "done") jobFailed(what, j);
+    if (j.state === "cancelled") quick(jobCancelled(j.kind), "info");
+    else if (j.state !== "done") jobFailed(j);
     else if (j.kind === "check" || j.kind === "combine_read") {
       // the Repatch and Combine Mods pages show what it found
     } else if (j.kind === "build") {
-      notify("good", `Built ${j.result.zip.split(/[\\/]/).pop()} (${j.result.mb} MB).`,
-        { label: "Show in Folder", run: () => platform.reveal(j.result.zip) });
+      const file = j.result.zip.split(/[\\/]/).pop(), mb = fmtTenth(j.result.mb);
+      notify("good", t`Built ${file} (${mb} MB).`,
+        { label: t`Show in Folder`, run: () => platform.reveal(j.result.zip) });
       if (settings.get().revealBuild) platform.reveal(j.result.zip).catch(() => {});
     } else if (j.kind === "repatch" || j.kind === "combine") { // the Repatch and Combine Mods pages show the rest
       const zip: string = j.result.zip;
-      notify("good", `${j.kind === "repatch" ? "Repatched" : "Combined"} ${j.title}: ${zip.split(/[\\/]/).pop()} (${j.result.mb} MB).`,
-        { label: "Show in Folder", run: () => platform.reveal(zip) });
+      const title = j.title, file = zip.split(/[\\/]/).pop()!, mb = fmtTenth(j.result.mb);
+      notify("good", j.kind === "repatch" ? t`Repatched ${title}: ${file} (${mb} MB).` : t`Combined ${title}: ${file} (${mb} MB).`,
+        { label: t`Show in Folder`, run: () => platform.reveal(zip) });
       if (settings.get().revealBuild) platform.reveal(zip).catch(() => {});
     } else if (j.kind === "import") {
       // replacements, what the mod adds (new takes, layers, sounds with a clip of their own) and the lines of text;
@@ -572,39 +634,45 @@ function useEditorState() {
           tabs.go(r.imported || r.added ? "editor" : r.texts ? "text" : "project");
         }
       }
-      const brought = [r.imported ? plural(r.imported, "replaced sound") : "", r.added ? plural(r.added, "added sound") : "",
-        r.settings ? `Settings on ${plural(r.settings, "sound or container", "sounds and containers")}` : "",
-        r.texts ? plural(r.texts, "line of text", "lines of text") : ""].filter(Boolean);
+      const { imported, added, texts, skipped, stale, older } = r, objects = r.settings, mod = j.title;
+      const brought = [imported ? plural(imported, { one: "# replaced sound", other: "# replaced sounds" }) : "",
+        added ? plural(added, { one: "# added sound", other: "# added sounds" }) : "",
+        objects ? t`Settings on ${plural(objects, { one: "# sound or container", other: "# sounds and containers" })}` : "",
+        texts ? plural(texts, { one: "# line of text", other: "# lines of text" }) : ""].filter(Boolean);
       const lines = [
-        brought.length ? `Imported from ${j.title || "the mod"}:` : `Imported nothing from ${j.title || "the mod"}.`,
+        brought.length ? (mod ? t`Imported from ${mod}:` : t`Imported from the mod:`)
+          : mod ? t`Imported nothing from ${mod}.` : t`Imported nothing from the mod.`,
         ...brought,
-        r.skipped ? `${plural(r.skipped, "sound")} couldn't be decoded` : "",
+        skipped ? t`${plural(skipped, { one: "# sound", other: "# sounds" })} couldn't be decoded` : "",
         // sounds the patch still had from an older game version: not the mod's, so not imported (Wiki: Repatching)
-        r.stale ? `Left out: ${plural(r.stale, "sound")} from an older game version` : "",
+        stale ? t`Left out: ${plural(stale, { one: "# sound", other: "# sounds" })} from an older game version` : "",
         // the game's objects as the patch's older copies had them: the current ones stay (Wiki: Repatching)
-        r.older ? `Kept current: ${plural(r.older, "sound object")} the patch had from an older game version` : "",
-        ...left.map((l) => `Left out: ${l}`),
+        older ? t`Kept current: ${plural(older, { one: "# sound object", other: "# sound objects" })} the patch had from an older game version` : "",
+        ...left.map((item) => t`Left out: ${item}`),
       ].filter(Boolean);
       const why = r.stale ? "repatching#sounds-from-an-older-game-version"
         : r.older ? "repatching#shared-settings-from-an-older-game-version" : "";
-      notify("good", lines.join("\n"), why ? { label: "Why?", run: () => tabs.go("wiki", why) } : undefined,
+      notify("good", lines.join("\n"), why ? { label: t`Why?`, run: () => tabs.go("wiki", why) } : undefined,
         left.length > 0 || r.stale > 0 || r.older > 0);
     } else if (j.kind === "pack") {
-      const r = j.result;
-      const missed = r.missing ? ` ${plural(r.missing, "file")} the project uses ${r.missing === 1 ? "was" : "were"} not found.` : "";
-      notify("good", `Packed ${plural(r.files, "file")} into ${r.pack.split(/[\\/]/).pop()} (${r.mb} MB).${missed}`,
-        { label: "Show in Folder", run: () => platform.reveal(r.pack) }, r.missing > 0); // files left out: it waits to be read
+      const r = j.result, pack = r.pack.split(/[\\/]/).pop(), mb = fmtTenth(r.mb);
+      const { missing, files } = r;
+      const missed = missing ? " " + plural(missing, { one: "# file the project uses was not found.", other: "# files the project uses were not found." }) : "";
+      notify("good", t`Packed ${plural(files, { one: "# file", other: "# files" })} into ${pack} (${mb} MB).` + missed,
+        { label: t`Show in Folder`, run: () => platform.reveal(r.pack) }, r.missing > 0); // files left out: it waits to be read
     } else if (j.kind === "unpack") {
       // the pack's project, in a new folder where new projects go: it opens where it landed
       const p = await run<ProjectState>("project_open", { path: j.result.project });
       if (p) { applyProject(p); remember(p.path); tabs.go(tabs.work()); }
-      notify("good", `Unpacked into ${j.result.folder}.`, { label: "Show in Folder", run: () => platform.reveal(j.result.folder) });
+      const folder = j.result.folder;
+      notify("good", t`Unpacked into ${folder}.`, { label: t`Show in Folder`, run: () => platform.reveal(j.result.folder) });
       if (p?.repairs.length) notify("info", repairNote(p), undefined, true);
     } else {
       // the export list's slots that have no audio in the game's files: why fewer files came out than it counts
-      const absent = j.result.absent ? ` ${plural(j.result.absent, "slot")} on it ${j.result.absent === 1 ? "has" : "have"} no audio in the game files.` : "";
-      notify("good", `Exported ${plural(j.result.files, "file")} of ${j.title}.${absent}`,
-        { label: "Show in Folder", run: () => platform.reveal(j.result.first) }, true);
+      const { absent, files } = j.result, title = j.title;
+      const noAudio = absent ? " " + plural(absent, { one: "# slot on it has no audio in the game files.", other: "# slots on it have no audio in the game files." }) : "";
+      notify("good", t`Exported ${plural(files, { one: "# file", other: "# files" })} of ${title}.` + noAudio,
+        { label: t`Show in Folder`, run: () => platform.reveal(j.result.first) }, true);
     }
     if (j.kind === "build" || j.kind === "import") await refresh();
   }, [applyProject, run, quick, jobFailed, notify, remember]);
@@ -618,19 +686,23 @@ function useEditorState() {
 
   const needProject = useCallback(() => {
     if (project) return true;
-    notify("info", "Open or create a project first.", { label: "Home", run: () => tabs.go("home") });
+    notify("info", t`Open or create a project first.`, { label: t`Home`, run: () => tabs.go("home") });
     return false;
   }, [project, notify]);
 
   /** How many slots an edit gave new audio. */
   const changed = (after: ProjectState) => Object.entries(after.assignments).filter(([s, x]) => project?.assignments[s]?.audio !== x.audio).length;
-  const fitNote = (files: number, placed: number) => (files > placed ? ` ${plural(files - placed, "file")} left over, because there are no free slots.` : "");
+  const fitNote = (files: number, placed: number) => {
+    const left = files - placed;
+    return left > 0 ? " " + t`${plural(left, { one: "# file", other: "# files" })} left over, because there are no free slots.` : "";
+  };
 
   const actions = useMemo(() => ({
     async newProject() {
       // new projects get a folder of their own in the projects folder (Settings keeps the last one used)
       const folder = await call<string>("projects_folder").catch(() => "");
-      const path = await platform.pickProjectToCreate("My mod.audi", folder);
+      const stem = t({ message: "My mod", comment: "The file name offered for a new project, without the extension" });
+      const path = await platform.pickProjectToCreate(`${stem}.audi`, folder);
       if (!path) return;
       const name = path.split(/[\\/]/).pop()!.replace(/\.audi$/i, "");
       const from = tabs.get().tab;
@@ -640,7 +712,8 @@ function useEditorState() {
         applyProject(p); remember(p.path);
         window.dispatchEvent(new Event(FOLD_LIBRARY)); // the Library starts folded for it
         if (tabs.get().tab === from) tabs.go("project");
-        quick(`**${p.name}** created`, "add");
+        const name = p.name; // the name the core gave it
+        quick(t`**${name}** created`, "add");
       }
     },
     /** A new project at a path, in a folder of its own, without a dialog (a tutorial's practice project), showing
@@ -656,12 +729,12 @@ function useEditorState() {
     /** Writes the project file now. Edits save themselves; Ctrl+S also commits a field being typed in (the Project
         tab's name, a line on the Text tab), which saves when it loses focus. */
     async save() {
-      if (!project) { quick("No project open", "info"); return; }
+      if (!project) { quick(t`No project open`, "info"); return; }
       const field = document.activeElement as HTMLElement | null;
       if (field?.matches("input, textarea")) { field.blur(); field.focus(); }
       await new Promise((r) => setTimeout(r)); // the field's own save (on blur) goes first, then this one
       const p = await run<ProjectState>("project_save");
-      if (p) { applyProject(p); quick(`**${p.name}** saved`, "save"); } // the name just typed, not the one before
+      if (p) { applyProject(p); const name = p.name; quick(t`**${name}** saved`, "save"); } // the name just typed, not the one before
     },
     /** Opens a project (asking which, without a path) and shows it in the Editor. A .audipack unpacks first. */
     async openProject(path?: string) {
@@ -686,7 +759,8 @@ function useEditorState() {
       if (!project) return;
       await run("project_close");
       applyProject(null);
-      quick(`**${project.name}** closed`, "info");
+      const name = project.name;
+      quick(t`**${name}** closed`, "info");
     },
     /** A .audipack unpacks into a new folder, and the project it holds opens (see openPack above). */
     openPack,
@@ -698,7 +772,8 @@ function useEditorState() {
       if (!p) return;
       applyProject(p);
       remember(p.path, old);
-      quick(`**${p.name}** moved into a new folder`);
+      const name = p.name;
+      quick(t`**${name}** moved into a new folder`);
     },
     /** Moves the project's folder into another folder (Project tab, Move project). The recent list follows its new
         path. */
@@ -710,8 +785,9 @@ function useEditorState() {
       const { old_left, ...p } = r;
       applyProject(p);
       remember(p.path, old);
-      if (old_left) notify("info", `${p.name} moved. Some files stayed in the old folder because they were in use. The project no longer uses them.`, undefined, true);
-      else quick(`**${p.name}** moved`);
+      const name = p.name;
+      if (old_left) notify("info", t`${name} moved. Some files stayed in the old folder because they were in use. The project no longer uses them.`, undefined, true);
+      else quick(t`**${name}** moved`);
     },
     /** Copies the files the project uses from outside its folder into audio\added (Project tab). */
     async collectFiles() {
@@ -719,8 +795,8 @@ function useEditorState() {
       if (!r) return;
       const { collected, ...p } = r;
       edited(p);
-      if (collected) editNotice("good", `Copied ${plural(collected, "file")} into the project folder.`);
-      else quick("Nothing to copy", "info");
+      if (collected) editNotice("good", t`Copied ${plural(collected, { one: "# file", other: "# files" })} into the project folder.`);
+      else quick(t`Nothing to copy`, "info");
     },
     /** Writes the project and the files it uses as one .audipack file (Project tab), named as the project file is. */
     async exportPack() {
@@ -746,7 +822,7 @@ function useEditorState() {
       const p = await run<ProjectState & { notes?: string[] }>("library_add", { items: fresh });
       if (!edited(p)) return false;
       if (p!.notes?.length) notify("info", p!.notes.join(" "));
-      else quick(`**${what}** added to **${project!.name}**`, "add");
+      else { const name = project!.name; quick(t`**${what}** added to **${name}**`, "add"); }
       return fresh.every((id) => p!.library.includes(id));
     },
     /** Takes items off the project's list, and with them the new audio in their slots. Without any audio lost it is
@@ -757,18 +833,23 @@ function useEditorState() {
       // what goes with them: the new audio in their slots (the core's preview of the same removal)
       const losing = await run<{ slots: number; files: string[] }>("library_remove_preview", { items: ids });
       if (!losing) return;
-      if (losing.slots && !(await confirm({
-        title: `Remove ${what} from the project?`,
-        text: `${plural(losing.slots, "slot")} with new audio ${losing.slots === 1 ? "goes" : "go"} with ${ids.length === 1 ? "it" : "them"}`
-          + `${losing.files.length ? ` (${listNames(losing.files)})` : ""}. The audio files stay on disk, and `
-          + `${undoHint()} brings everything back.`,
-        ok: "Remove", cancel: "Keep",
+      // the slots going, with it (one item) or them, and the files in brackets when there are any
+      const slots = losing.slots, list = listNames(losing.files), undo = undoHint();
+      const going = ids.length === 1
+        ? (list ? plural(slots, { one: `# slot with new audio goes with it (${list}).`, other: `# slots with new audio go with it (${list}).` })
+          : plural(slots, { one: "# slot with new audio goes with it.", other: "# slots with new audio go with it." }))
+        : list ? plural(slots, { one: `# slot with new audio goes with them (${list}).`, other: `# slots with new audio go with them (${list}).` })
+        : plural(slots, { one: "# slot with new audio goes with them.", other: "# slots with new audio go with them." });
+      if (slots && !(await confirm({
+        title: t`Remove ${what} from the project?`,
+        text: going + " " + t`The audio files stay on disk, and ${undo} brings everything back.`,
+        ok: t`Remove`, cancel: t({ message: "Keep", comment: "The answer to a question that asks before removing: don't remove" }),
       }))) return;
       const p = await run<ProjectState>("library_remove", { items: ids });
       if (!p || !edited(p)) return;
       const gone = before - Object.keys(p.assignments).length;
-      if (gone) editNotice("info", `Removed ${what} from the project, along with the new audio in ${plural(gone, "slot")}.`);
-      else quick(`**${what}** removed from **${project.name}**`, "undo");
+      if (gone) editNotice("info", t`Removed ${what} from the project, along with the new audio in ${plural(gone, { one: "# slot", other: "# slots" })}.`);
+      else { const name = project.name; quick(t`**${what}** removed from **${name}**`, "undo"); }
     },
     /** Uses an image file as the mod's icon (asking which, without a path). */
     async setIcon(path?: string) {
@@ -785,7 +866,7 @@ function useEditorState() {
         const p = await run<ProjectState>("fill", { cue, files: audio, start_source: source });
         if (p && edited(p)) {
           const n = changed(p);
-          editNotice("good", `Filled ${plural(n, "slot")} from here on, in file-name order.${fitNote(audio.length, n)}`);
+          editNotice("good", t`Filled ${plural(n, { one: "# slot", other: "# slots" })} from here on, in file-name order.` + fitNote(audio.length, n));
         }
       } else edited(await run<ProjectState>("assign", { source, audio: audio[0] }));
     },
@@ -794,7 +875,7 @@ function useEditorState() {
       const p = await run<ProjectState>("fill", { cue, files, only_empty: onlyEmpty });
       if (p && edited(p)) {
         const n = changed(p);
-        editNotice("good", `Filled ${plural(n, "slot")} in play order, by file name.${fitNote(files.length, n)}`);
+        editNotice("good", t`Filled ${plural(n, { one: "# slot", other: "# slots" })} in play order, by file name.` + fitNote(files.length, n));
       }
     },
     /** Fills the given slots in order: a whole piece of music with several parts at once. */
@@ -803,14 +884,17 @@ function useEditorState() {
       const p = await run<ProjectState>("fill_sources", { sources, files });
       if (p && edited(p)) {
         const n = changed(p);
-        editNotice("good", `Filled ${plural(n, "slot")} across ${what}, by file name.${fitNote(files.length, n)}`);
+        editNotice("good", t`Filled ${plural(n, { one: "# slot", other: "# slots" })} across ${what}, by file name.` + fitNote(files.length, n));
       }
     },
     /** One file into every one of these slots (several selected slots, the details panel's Choose a file for all). */
     async assignAll(sources: string[], file: string) {
       if (!needProject() || !sources.length) return;
       const p = await run<ProjectState>("fill_sources", { sources, files: sources.map(() => file) });
-      if (p && edited(p)) quick(`**${file.split(/[\\/]/).pop()}** in ${plural(sources.length, "slot")}`);
+      if (p && edited(p)) {
+        const name = file.split(/[\\/]/).pop()!, slots = sources.length;
+        quick(t`**${name}** in ${plural(slots, { one: "# slot", other: "# slots" })}`);
+      }
     },
     async unassign(sources: string[]) {
       // asked again before the core's answer took the row away (the dialog gives the focus back to ✕: Enter twice)
@@ -821,7 +905,8 @@ function useEditorState() {
       try {
         if (n && !(await confirmRemoval(mine, project!))) return;
         if (edited(await run<ProjectState>("unassign", { sources })) && n)
-          editNotice("info", `Removed ${mine.every((x) => x.silence) ? "the silence" : "the new audio"} from ${plural(n, "slot")}.`);
+          editNotice("info", mine.every((x) => x.silence) ? t`Removed the silence from ${plural(n, { one: "# slot", other: "# slots" })}.`
+            : t`Removed the new audio from ${plural(n, { one: "# slot", other: "# slots" })}.`);
       } finally {
         sources.forEach((s) => removing.delete(s));
       }
@@ -829,22 +914,24 @@ function useEditorState() {
     /** Makes transitions or stingers play a short silence, so the game moves straight on. `what` names them. */
     async skip(sources: string[], what: string) {
       if (!needProject() || !sources.length) return;
-      if (edited(await run<ProjectState>("skip", { sources }))) quick(`**${what}** skipped`);
+      if (edited(await run<ProjectState>("skip", { sources }))) quick(t`**${what}** skipped`);
     },
     /** Replaces slots with the built-in silence. keepTiming (Keep original duration, on by default): they stay silent
         for as long as the original would play; otherwise the game moves straight on, as Skip does. */
-    async silence(sources: string[], keepTiming = true, what = plural(sources.length, "slot")) {
+    async silence(sources: string[], keepTiming = true, named?: string) {
       if (!needProject() || !sources.length) return;
-      if (edited(await run<ProjectState>("silence", { sources, keep_timing: keepTiming }))) quick(`**${what}** replaced with silence`);
+      const slots = sources.length, what = named ?? plural(slots, { one: "# slot", other: "# slots" });
+      if (edited(await run<ProjectState>("silence", { sources, keep_timing: keepTiming }))) quick(t`**${what}** replaced with silence`);
     },
     /** Remembers the audio of these slots for pasting (the slots without new audio are left out). */
     copySlots(sources: string[]) {
       const mine = sources.filter((s) => project?.assignments[s]);
-      if (!mine.length) { quick("Nothing to copy. These slots aren't replaced", "info"); return; }
+      if (!mine.length) { quick(t`Nothing to copy. These slots aren't replaced`, "info"); return; }
       setClip(mine);
       platform.clipboardAudio().then((c) => { clipAt.current = c.seq; });
-      const paste = keyLabel("paste");
-      quick(`Copied ${plural(mine.length, "slot")}${paste ? ` · ${paste} pastes` : ""}`, "copy");
+      const paste = keyLabel("paste"), slots = mine.length;
+      quick(paste ? t`Copied ${plural(slots, { one: "# slot", other: "# slots" })} · ${paste} pastes`
+        : t`Copied ${plural(slots, { one: "# slot", other: "# slots" })}`, "copy");
     },
     /** Pastes what was copied last: audio files copied in Explorer go into `selection` (one file into every slot,
         several in file-name order; one slot fills on from there), slots copied in the app go into `targets` (one
@@ -857,13 +944,18 @@ function useEditorState() {
         if (selection.length === 1) return actions.assign(selection[0], os.audio);
         const files = os.audio.length === 1 ? selection.map(() => os.audio[0]) : os.audio;
         const p = await run<ProjectState>("fill_sources", { sources: selection, files });
-        if (p && edited(p)) quick(`Pasted ${os.audio.length === 1 ? "into" : `${plural(os.audio.length, "file")} into`} ${plural(changed(p), "slot")}`);
+        if (p && edited(p)) {
+          const copied = os.audio.length, slots = changed(p);
+          quick(copied === 1 ? t`Pasted into ${plural(slots, { one: "# slot", other: "# slots" })}`
+            : t`Pasted ${plural(copied, { one: "# file", other: "# files" })} into ${plural(slots, { one: "# slot", other: "# slots" })}`);
+        }
         return;
       }
-      if (!clip.length) { quick("Nothing to paste. Copy audio files or replaced slots first", "info"); return; }
+      if (!clip.length) { quick(t`Nothing to paste. Copy audio files or replaced slots first`, "info"); return; }
       if (!targets.length) return;
       const pairs = clip.length === 1 ? targets.map((t) => [clip[0], t]) : clip.slice(0, targets.length).map((c, i) => [c, targets[i]]);
-      if (edited(await run<ProjectState>("copy_audio", { pairs }))) quick(`Pasted into ${plural(pairs.length, "slot")}`);
+      const slots = pairs.length;
+      if (edited(await run<ProjectState>("copy_audio", { pairs }))) quick(t`Pasted into ${plural(slots, { one: "# slot", other: "# slots" })}`);
     },
     /** New takes for a sound the game picks takes from (or for a layer), one per file in file-name order, asking
         which files without them. `what` names the sound. The first new take is selected. */
@@ -875,7 +967,8 @@ function useEditorState() {
       const p = await run<ProjectState & { sources: string[] }>("add_takes", { container, files: audio });
       if (p && edited(p)) {
         scopes.editor.setSelected(p.sources.slice(0, 1));
-        quick(`${plural(p.sources.length, "new take")} for **${what}**`, "add");
+        const takes = p.sources.length;
+        quick(t`${plural(takes, { one: "# new take", other: "# new takes" })} for **${what}**`, "add");
       }
     },
     /** A layer beside a sound, with a take per file: it plays whenever that sound plays. */
@@ -887,7 +980,7 @@ function useEditorState() {
       const p = await run<ProjectState & { sources: string[] }>("add_layer", { beside, files: audio });
       if (p && edited(p)) {
         scopes.editor.setSelected(p.sources.slice(0, 1));
-        quick(`New layer on **${what}**`, "add");
+        quick(t`New layer on **${what}**`, "add");
       }
     },
     /** The slot's new audio plays only in this sound (a clip of its own), or again in every sound that plays the
@@ -916,18 +1009,21 @@ function useEditorState() {
       const st = await run<ProjectState & { matched?: Record<string, number> }>("match_loudness", { sources });
       if (!edited(st)) return;
       const got = Object.values(st!.matched ?? {});
-      quick(got.length === 1 ? `Make-Up Gain set to **${got[0] > 0 ? "+" : ""}${got[0]} dB**`
-        : `Make-Up Gain set on ${plural(got.length, "slot")}${got.length < sources.length ? ` of ${sources.length}` : ""}`);
+      const matched = got.length, total = sources.length;
+      const gain = matched === 1 ? `${got[0] > 0 ? "+" : ""}${fmtTenth(got[0])}` : "";
+      quick(matched === 1 ? t`Make-Up Gain set to **${gain} dB**`
+        : matched < total ? t`Make-Up Gain set on ${plural(matched, { one: "# slot", other: "# slots" })} of ${total}`
+        : t`Make-Up Gain set on ${plural(matched, { one: "# slot", other: "# slots" })}`);
     },
     async settings(fields: Record<string, unknown>) { edited(await run<ProjectState>("settings", fields)); },
     /** A new mod id: a mod manager then sees the next build as another mod. Undo puts the old id back. */
     async newModId() {
-      if (edited(await run<ProjectState>("settings", { guid: "new" }))) editNotice("info", "New mod ID created. Mod managers install the next build as a separate mod.");
+      if (edited(await run<ProjectState>("settings", { guid: "new" }))) editNotice("info", t`New mod ID created. Mod managers install the next build as a separate mod.`);
     },
     /** A mod id typed or pasted, such as the one in a manifest made for the mod before. True when the core took it. */
     async setModId(guid: string) {
       const ok = edited(await run<ProjectState>("settings", { guid }));
-      if (ok) editNotice("info", "Mod ID changed. Mod managers treat the next build as an update to the mod with this ID.");
+      if (ok) editNotice("info", t`Mod ID changed. Mod managers treat the next build as an update to the mod with this ID.`);
       return ok;
     },
     /** The project as it is on disk now (a file deleted meanwhile becomes a problem); quiet when it can't be asked. */
@@ -957,15 +1053,19 @@ function useEditorState() {
     /** The segment's cue points (or none) on every other segment that plays the file replacing `source`. */
     async sameCuePoints(segment: string, source: string) {
       const p = await run<ProjectState & { segments: number }>("same_cue_points", { segment, source });
-      if (edited(p)) quick(p!.segments ? `Cue points set in ${p!.segments} more segment${p!.segments === 1 ? "" : "s"}`
-        : "The other segments have these cue points already", p!.segments ? "done" : "info");
+      if (edited(p)) {
+        const segments = p!.segments;
+        quick(segments ? t`Cue points set in ${plural(segments, { one: "# more segment", other: "# more segments" })}`
+          : t`The other segments have these cue points already`, segments ? "done" : "info");
+      }
     },
     /** Cuts one song at boundsMs and assigns the pieces to `sources`, in order; true when it worked. */
     async sliceFill(cue: string, audio: string, boundsMs: number[], sources: string[]) {
       if (!needProject()) return false;
       const p = await run<ProjectState>("slice_fill", { cue, audio, bounds_ms: boundsMs, sources });
       if (!edited(p)) return false;
-      editNotice("good", `Sliced into ${boundsMs.length - 1} pieces, filled in play order.`);
+      const pieces = boundsMs.length - 1;
+      editNotice("good", t`Sliced into ${plural(pieces, { one: "# piece", other: "# pieces" })}, filled in play order.`);
       return true;
     },
     /** Sets how pieces of music play (null: as the game plays them), as one undo step; `done` confirms it. */
@@ -979,7 +1079,8 @@ function useEditorState() {
     async songFill(cue: string, audio: string, boundsMs: number[], segments: string[]) {
       if (!needProject()) return false;
       if (!edited(await run<ProjectState>("song_fill", { cue, audio, bounds_ms: boundsMs, segments }))) return false;
-      editNotice("good", `Cut into ${plural(boundsMs.length - 1, "piece")}.`);
+      const pieces = boundsMs.length - 1;
+      editNotice("good", t`Cut into ${plural(pieces, { one: "# piece", other: "# pieces" })}.`);
       return true;
     },
     /** A playlist's songs place by place (core playlist_set): each place empty (null), a new file, or the song at
@@ -996,8 +1097,9 @@ function useEditorState() {
       if (!needProject()) return false;
       const p = await run<ProjectState & { short: string[] }>("soundtrack_copy", { cue, to });
       if (!edited(p)) return false;
-      if (p!.short.length) editNotice("info", `Copied to ${what}. ${plural(p!.short.length, "of them has", "of them have")} fewer places, so the last songs or pieces were left out there.`);
-      else editNotice("good", `Copied to ${what}.`);
+      const short = p!.short.length;
+      if (short) editNotice("info", t`Copied to ${what}. ${plural(short, { one: "# of them has", other: "# of them have" })} fewer places, so the last songs or pieces were left out there.`);
+      else editNotice("good", t`Copied to ${what}.`);
       return true;
     },
     async undo() {
@@ -1006,7 +1108,8 @@ function useEditorState() {
       if (!p) return;
       const did = p.revision !== coreRevision.current;
       applyProject(p);
-      quick(did ? `Undone: ${EDIT_NAMES[p.redo_label ?? ""] ?? "the last change"}` : "Nothing to undo", did ? "undo" : "info");
+      const name = EDIT_NAMES[p.redo_label ?? ""];
+      quick(!did ? t`Nothing to undo` : name ? t`Undone: ${name}` : t`Undone: the last change`, did ? "undo" : "info");
     },
     async redo() {
       if (!project) return;
@@ -1014,7 +1117,8 @@ function useEditorState() {
       if (!p) return;
       const did = p.revision !== coreRevision.current;
       applyProject(p);
-      quick(did ? `Redone: ${EDIT_NAMES[p.undo_label ?? ""] ?? "the change"}` : "Nothing to redo", did ? "undo" : "info");
+      const name = EDIT_NAMES[p.undo_label ?? ""];
+      quick(!did ? t`Nothing to redo` : name ? t`Redone: ${name}` : t`Redone: the change`, did ? "undo" : "info");
     },
     /** Undoes (steps below 0) or redoes that many changes at once: the History list going to one of them. */
     async historyGo(steps: number) {
@@ -1022,14 +1126,16 @@ function useEditorState() {
       const p = await run<ProjectState>("history_go", { steps });
       if (!p) return;
       applyProject(p);
-      quick(steps < 0 ? `Undone: ${plural(-steps, "change")}` : `Redone: ${plural(steps, "change")}`, "undo");
+      const count = Math.abs(steps);
+      quick(steps < 0 ? t`Undone: ${plural(count, { one: "# change", other: "# changes" })}`
+        : t`Redone: ${plural(count, { one: "# change", other: "# changes" })}`, "undo");
     },
     /** Reads the game from another folder (asking which, without a path; null: find it through Steam again). The
         window shows the start-up screen while the game's audio is read again. Returns what went wrong, if anything:
         the caller shows it, since notices can't be seen from the start-up screen. */
     async setGameFolder(path?: string | null): Promise<string | null> {
       if (path === undefined) {
-        path = await platform.pickFolder(status?.game_folder?.path ?? undefined, "Choose the Helldivers 2 install folder");
+        path = await platform.pickFolder(status?.game_folder?.path ?? undefined, t`Choose the Helldivers 2 install folder`);
         if (!path) return null;
       }
       try {
@@ -1044,17 +1150,18 @@ function useEditorState() {
     async build() {
       if (!needProject()) return;
       // what the Build button says when it is off, Ctrl+B says too
-      if (Object.values(jobs).some((j) => j.kind === "build" && j.state === "running")) { quick("A build is already running", "info"); return; }
+      if (Object.values(jobs).some((j) => j.kind === "build" && j.state === "running")) { quick(t`A build is already running`, "info"); return; }
       const fresh = await run<ProjectState>("project"); // a file deleted meanwhile shows up as a problem now
       if (!fresh) return;
       applyProject(fresh);
       if (fresh.problems.length) {
-        notify("bad", `Fix ${fresh.problems.length === 1 ? "the problem" : `the ${fresh.problems.length} problems`} on the Build tab first.`,
-          { label: "Build Tab", run: () => tabs.go("build") });
+        const problems = fresh.problems.length;
+        notify("bad", plural(problems, { 1: "Fix the problem on the Build tab first.", other: "Fix the # problems on the Build tab first." }),
+          { label: t`Build Tab`, run: () => tabs.go("build") });
         return;
       }
       if (!Object.keys(fresh.assignments).length && !Object.keys(fresh.gains ?? {}).length && !fresh.texts.length && !Object.keys(fresh.soundtrack ?? {}).length) {
-        notify("info", "Nothing to build yet. Replace some audio, set a piece in the Soundtrack or change a line of text first.");
+        notify("info", t`Nothing to build yet. Replace some audio, set a piece in the Soundtrack or change a line of text first.`);
         return;
       }
       const job = await run<Job>("build", { bump: settings.get().bumpVersion });
@@ -1100,13 +1207,13 @@ function useEditorState() {
         the Import Mod panel opens on the mod chosen, and says what comes in first. Without a project open, the
         panel makes a new one. */
     async importPatch(path?: string) {
-      path ??= (await platform.pickMod("Choose a mod to import")) ?? undefined;
+      path ??= (await platform.pickMod(t`Choose a mod to import`)) ?? undefined;
       if (path) importAsk.open({ path, into: !!project });
     },
     /** Import Mod (Home, the Project tab): a new project made from a mod (a ZIP, a folder or a patch file), set up
         in the Import Mod panel. */
     async importMod(path?: string) {
-      path ??= (await platform.pickMod("Choose a mod to import")) ?? undefined;
+      path ??= (await platform.pickMod(t`Choose a mod to import`)) ?? undefined;
       if (path) importAsk.open({ path, into: false });
     },
     /** Runs an import the Import Mod panel set up (core import_mod). A new project opens once it is made. True when

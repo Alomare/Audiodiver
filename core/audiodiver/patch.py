@@ -13,6 +13,7 @@ from . import addition, music, soundtrack
 from . import bank as wbank
 from .bank import SOUND, MUSIC_SEGMENT, MUSIC_TRACK, TYPE_NAMES
 from .game import WWISE_STREAM, WWISE_BANK, WWISE_DEP, toc_entries
+from .i18n import tr
 from .index import AudioIndex
 from .strings import STRINGS
 from .wem import prefetch_size
@@ -88,19 +89,19 @@ def carried_of(path, skip=AUDIO_TYPES) -> list[Carried]:
             f.seek(toc)
             out.append(Carried(fid, tid, f.read(size), unknown=(u1, u2, u3, u4)))
             if len(out[-1].data) != size:
-                raise ValueError(f"{os.path.basename(path)} is cut short")
+                raise ValueError(tr("{file} is cut short").format(file=os.path.basename(path)))
     for suffix, at, size, attr in ((".stream", 3, 8, "stream"), (".gpu_resources", 4, 9, "gpu")):
         wanted = [(c, e[at], e[size]) for c, e in zip(out, entries) if e[size]]
         if not wanted:
             continue
         if not os.path.isfile(path + suffix):
-            raise ValueError(f"{os.path.basename(path)}{suffix} is missing")
+            raise ValueError(tr("{file} is missing").format(file=os.path.basename(path) + suffix))
         with open(path + suffix, "rb") as f:
             for c, off, n in wanted:
                 f.seek(off)
                 setattr(c, attr, f.read(n))
                 if len(getattr(c, attr)) != n:
-                    raise ValueError(f"{os.path.basename(path)}{suffix} is cut short")
+                    raise ValueError(tr("{file} is cut short").format(file=os.path.basename(path) + suffix))
     return out
 
 

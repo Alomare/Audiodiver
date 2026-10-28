@@ -1,5 +1,6 @@
 // Native features (file dialogs, file drag-and-drop, revealing files) in the desktop app, with plain-browser
 // fallbacks so the UI can be developed and tested in a browser against the same core.
+import { t } from "@lingui/core/macro";
 import { call, isTauri } from "./api";
 
 export { isTauri };
@@ -25,7 +26,8 @@ export function startAudioPickerIn(folder: string | null) { audioStart = folder;
 export async function pickAudio(multiple = true): Promise<string[] | null> {
   if (!isTauri()) return promptPaths("Audio file", multiple);
   const { open } = await import("@tauri-apps/plugin-dialog");
-  const r = await open({ multiple, defaultPath: audioStart ?? lastAudioDir(), filters: [{ name: "Audio", extensions: AUDIO }] });
+  const r = await open({ multiple, defaultPath: audioStart ?? lastAudioDir(),
+    filters: [{ name: t({ message: "Audio", comment: "File type in the file picker: audio files" }), extensions: AUDIO }] });
   if (!r) return null;
   const files = Array.isArray(r) ? r : [r];
   try { localStorage.setItem(AUDIO_DIR_KEY, folderOf(files[0]) ?? ""); } catch { /* storage off */ }
@@ -37,7 +39,7 @@ export async function pickProjectToOpen(near?: string): Promise<string | null> {
   if (!isTauri()) return promptPaths("Audiodiver project (.audi) or pack (.audipack)", false)?.[0] ?? null;
   const { open } = await import("@tauri-apps/plugin-dialog");
   const r = await open({ multiple: false, defaultPath: folderOf(near),
-    filters: [{ name: "Audiodiver projects and packs", extensions: ["audi", "audipack"] }] });
+    filters: [{ name: t`Audiodiver projects and packs`, extensions: ["audi", "audipack"] }] });
   return (r as string) ?? null;
 }
 
@@ -45,16 +47,16 @@ export async function pickProjectToOpen(near?: string): Promise<string | null> {
 export async function pickProjectToCreate(suggested: string, dir?: string): Promise<string | null> {
   if (!isTauri()) return promptPaths("Where to save the new project (.audi). Audiodiver makes a folder for it there.", false)?.[0] ?? null;
   const { save } = await import("@tauri-apps/plugin-dialog");
-  return await save({ title: "New project", defaultPath: dir ? `${dir}\\${suggested}` : suggested,
-    filters: [{ name: "Audiodiver project", extensions: ["audi"] }] });
+  return await save({ title: t`New project`, defaultPath: dir ? `${dir}\\${suggested}` : suggested,
+    filters: [{ name: t`Audiodiver project`, extensions: ["audi"] }] });
 }
 
 /** Where a project's pack goes (dir: where the picker starts). */
 export async function pickPackToSave(suggested: string, dir?: string): Promise<string | null> {
   if (!isTauri()) return promptPaths("Where to save the pack (.audipack)", false)?.[0] ?? null;
   const { save } = await import("@tauri-apps/plugin-dialog");
-  return await save({ title: "Export the project as a pack", defaultPath: dir ? `${dir}\\${suggested}` : suggested,
-    filters: [{ name: "Audiodiver pack", extensions: ["audipack"] }] });
+  return await save({ title: t`Export the project as a pack`, defaultPath: dir ? `${dir}\\${suggested}` : suggested,
+    filters: [{ name: t`Audiodiver pack`, extensions: ["audipack"] }] });
 }
 
 /** The project or pack Audiodiver was started with (a double-click in Explorer), once; null without one. */
@@ -71,27 +73,28 @@ export async function onOpenFile(cb: (path: string) => void): Promise<() => void
   return listen<string>("open-file", (e) => cb(e.payload));
 }
 
-export async function pickFolder(startAt?: string, title = "Choose a folder"): Promise<string | null> {
-  if (!isTauri()) return promptPaths(title === "Choose a folder" ? "Folder to save into" : title, false)?.[0] ?? null;
+/** title: the picker's title; without one, "Choose a folder". */
+export async function pickFolder(startAt?: string, title?: string): Promise<string | null> {
+  if (!isTauri()) return promptPaths(title ?? "Folder to save into", false)?.[0] ?? null;
   const { open } = await import("@tauri-apps/plugin-dialog");
-  const r = await open({ directory: true, multiple: false, defaultPath: startAt || undefined, title });
+  const r = await open({ directory: true, multiple: false, defaultPath: startAt || undefined, title: title ?? t`Choose a folder` });
   return (r as string) ?? null;
 }
 
 export async function pickPatch(): Promise<string | null> {
   if (!isTauri()) return promptPaths("Patch file (.patch_0)", false)?.[0] ?? null;
   const { open } = await import("@tauri-apps/plugin-dialog");
-  const r = await open({ multiple: false, title: "Import a mod's patch file",
-    filters: [{ name: "Game patches (.patch_0)", extensions: ["patch_0", "patch_1", "patch_2", "patch_3", "patch_4"] }, { name: "All files", extensions: ["*"] }] });
+  const r = await open({ multiple: false, title: t`Import a mod's patch file`,
+    filters: [{ name: t`Game patches (.patch_0)`, extensions: ["patch_0", "patch_1", "patch_2", "patch_3", "patch_4"] }, { name: t`All files`, extensions: ["*"] }] });
   return (r as string) ?? null;
 }
 
 /** A mod to repatch: its ZIP or its patch file (a folder: pickFolder). */
-export async function pickMod(title = "Choose a mod to repatch"): Promise<string | null> {
+export async function pickMod(title = t`Choose a mod to repatch`): Promise<string | null> {
   if (!isTauri()) return promptPaths("Mod ZIP or .patch_0 file", false)?.[0] ?? null;
   const { open } = await import("@tauri-apps/plugin-dialog");
   const r = await open({ multiple: false, title,
-    filters: [{ name: "Mods (.zip, .patch_0)", extensions: ["zip", "patch_0", "patch_1", "patch_2", "patch_3", "patch_4"] }, { name: "All files", extensions: ["*"] }] });
+    filters: [{ name: t`Mods (.zip, .patch_0)`, extensions: ["zip", "patch_0", "patch_1", "patch_2", "patch_3", "patch_4"] }, { name: t`All files`, extensions: ["*"] }] });
   return (r as string) ?? null;
 }
 
@@ -99,8 +102,8 @@ export async function pickMod(title = "Choose a mod to repatch"): Promise<string
 export async function pickMods(): Promise<string[] | null> {
   if (!isTauri()) return promptPaths("Mod ZIPs or .patch_0 files", true);
   const { open } = await import("@tauri-apps/plugin-dialog");
-  const r = await open({ multiple: true, title: "Choose mods to combine",
-    filters: [{ name: "Mods (.zip, .patch_0)", extensions: ["zip", "patch_0", "patch_1", "patch_2", "patch_3", "patch_4"] }, { name: "All files", extensions: ["*"] }] });
+  const r = await open({ multiple: true, title: t`Choose mods to combine`,
+    filters: [{ name: t`Mods (.zip, .patch_0)`, extensions: ["zip", "patch_0", "patch_1", "patch_2", "patch_3", "patch_4"] }, { name: t`All files`, extensions: ["*"] }] });
   return r ? (Array.isArray(r) ? r : [r]) : null;
 }
 
@@ -118,7 +121,7 @@ export async function clipboardAudio(): Promise<{ audio: string[]; seq: number }
 export async function pickImage(near?: string): Promise<string | null> {
   if (!isTauri()) return promptPaths("Image file for the icon", false)?.[0] ?? null;
   const { open } = await import("@tauri-apps/plugin-dialog");
-  const r = await open({ multiple: false, defaultPath: near || undefined, title: "Choose an image for the icon", filters: [{ name: "Images", extensions: IMAGES }] });
+  const r = await open({ multiple: false, defaultPath: near || undefined, title: t`Choose an image for the icon`, filters: [{ name: t`Images`, extensions: IMAGES }] });
   return (r as string) ?? null;
 }
 
@@ -142,14 +145,16 @@ export async function openUrl(url: string) {
   }
 }
 
-/** Puts text on the clipboard and says so in a quick note (`what`: how the note names it, `**bold**` allowed);
-    a clipboard that refuses says that instead. */
-export async function copyText(text: string, quick: (text: string, icon?: "copy" | "info") => void, what = "") {
+/** Puts text on the clipboard and says so in a quick note (`what`: how the note names it, `**bold**` allowed; `note`:
+    the whole note, for a name that is a phrase, such as "Copied the mod ID"); a clipboard that refuses says that
+    instead. */
+export async function copyText(text: string, quick: (text: string, icon?: "copy" | "info") => void, what = "", note?: string) {
   try {
     await navigator.clipboard.writeText(text);
-    quick(`Copied ${what || `**${text}**`}`, "copy");
+    const copied = what || `**${text}**`;
+    quick(note ?? t({ message: `Copied ${copied}`, comment: "Quick note; copied is the copied text in bold" }), "copy");
   } catch {
-    quick("Couldn't copy to the clipboard", "info");
+    quick(t`Couldn't copy to the clipboard`, "info");
   }
 }
 

@@ -2,6 +2,8 @@
 // over its port and token; in a plain browser (development) they come from ?port=&token= (default 8765 / dev).
 // It imports none of the app's modules: it connects while it loads (below), so it must never wait on one that
 // imports it back (platform.ts does).
+import { i18n } from "@lingui/core";
+import { t } from "@lingui/core/macro";
 
 /** In the desktop app, rather than a plain browser. platform.ts passes it on to the rest of the app. */
 export const isTauri = () => "__TAURI_INTERNALS__" in window;
@@ -45,6 +47,8 @@ export type Segment = {
   segment: string; name: string; depth: number; loop: number; duration_ms: number;
   entry_ms: number | null; exit_ms: number | null; stems: Stem[];
   group?: boolean;  // sounds that belong together (the takes of one sound), not a music segment
+  kind?: GroupKind; // a group: what its sounds are (core library.py)
+  made_up?: boolean; // a group nothing names: its name is a number in bank order ("Sound 6")
   shared?: number;  // a group: how many other banks play every one of its sounds
   tags?: Tag[];     // in a bank: the piece of music a segment is
   cue?: string;     // in a bank: the music cue a segment belongs to
@@ -59,6 +63,14 @@ export type Segment = {
   above?: { ids: string[]; type: string }[]; // the containers over it, from the top down (a run of Actor-Mixers that each hold only the next on one line)
   alias?: string;   // what names the sound otherwise ("“Reloading!”", a note's name)
 };
+/** What a group of a bank's sounds is (core library.py): the takes of one sound, a layer the project adds, a part of
+    a long list, the clips without words of one kind, the clips no sound of the bank plays, sounds with no audio in
+    the game files, or the streams no bank plays. */
+export type GroupKind = "sound" | "layer" | "run" | "wordless" | "other" | "absent" | "streams";
+/** What a project problem is (core Project.problem_list and editor.project_state): the Project tab fixes the name,
+    the icon and the mod ID; missing_file is an audio file the project uses that is gone. */
+export type ProblemKind = "name" | "icon" | "icon_missing" | "mod_id" | "missing_file" | "duplicate" | "overrides"
+  | "unresolved" | "same_sound" | "unreadable" | "no_file" | "loudness";
 /** What opens in the middle: a music cue (kind playlist, segment, bridge or stinger), a bank's sounds ("sounds",
     id "bank:<id>" or "streams:<archive>") or one sound on its own ("sound", id "sfx:<source>"). */
 export type Cue = Entry & {
@@ -98,15 +110,18 @@ export type MusicItem = {
   category?: string; // the Index category it is in ("" for an archive nobody has named)
   count?: number;    // how many sounds it has, over all its parts
   archive?: string;  // an archive: its name in the game's files
+  id_name?: boolean; // an archive with no single name: called by its ID ("Archive <id>")
   tags?: Tag[]; names?: string[]; // an archive: what the Index knows is in it
+  en?: string;       // the name in English, where the window's language names it otherwise (a search finds both)
 };
-export type MusicSection = { id: string; name: string; about: string; unused: boolean; items: MusicItem[] };
+export type MusicSection = { id: string; name: string; about: string; unused: boolean; items: MusicItem[]; en?: string };
 export type MusicList = { sections: MusicSection[] };
-export type Category = { id: string; name: string; hue: number; about: string; sections: MusicSection[] };
+export type Category = { id: string; name: string; hue: number; about: string; sections: MusicSection[]; en?: string };
 export type Index = { categories: Category[] };
 /** A row of All Archives: an archive of the game with audio in it, and what the Index knows about it. */
 export type ArchiveRow = {
   id: string; names: string[]; tags: Tag[]; banks: number; sounds: number; language: string;
+  en?: string[];   // the English names of its sound sets, where the window's language names them otherwise (search)
   preview: string; // one of its sounds, to hear without opening it
 };
 /** How a piece of music plays (core soundtrack.Piece): Original (without the items left out), One song (`song`, cut
@@ -174,7 +189,9 @@ export type ProjectState = {
   soundtrack: Record<string, Piece>; // how pieces of music play, by playlist cue (core soundtrack.py); the others play as the game does
   tabs: ("editor" | "soundtrack" | "text")[] | null; // the hideable tabs it shows (nav.ts HIDEABLE); null: as Settings ▸ System says
   repairs: string[];     // damaged values in its file that opening it set back (said once, when it opens)
-  problems: string[]; can_undo: boolean; can_redo: boolean;
+  problems: string[];    // what stops a build, in sentences
+  problem_kinds: ProblemKind[]; // what each of them is, in the same order: the app goes by these, never by the words
+  can_undo: boolean; can_redo: boolean;
   undo_label: string | null; redo_label: string | null; // what Undo / Redo would change ("fill", "move")
   history?: string[]; future?: string[]; // the History list: the edits done, oldest first, and those undone, the next to redo first
 };
@@ -185,6 +202,8 @@ export type Status = {
   jobs: Job[];                     // jobs still running (a reloaded window picks them up)
   // the data folder in use or tried, how it was found, and the one chosen in Settings (null: found through Steam)
   game_folder: { path: string | null; how: "chosen" | "env" | "steam" | null; chosen: string | null };
+  // the game's language in Steam ("brazilian") and Windows' ("pt-BR"), for Automatic (i18n.ts); the core's own
+  languages?: { game: string | null; system: string | null; core: string };
 };
 export type Job = {
   id: string; kind: string; title: string; state: "running" | "done" | "failed" | "cancelled"; log: string[];
@@ -223,10 +242,11 @@ export async function call<T = any>(method: string, args: Record<string, unknown
     });
   } catch {
     // before it ever answered, the core may still be starting (the window keeps asking); after, it stopped
-    throw new ApiError(answered ? "Lost contact with the Audiodiver core. Restart the app." : "Waiting for the Audiodiver core to start…");
+    throw new ApiError(answered ? t`Lost contact with the Audiodiver core. Restart the app.` : t`Waiting for the Audiodiver core to start…`);
   }
   answered = true;
-  const body = await res.json().catch(() => ({ error: `Audiodiver couldn't read the core's response (HTTP ${res.status})` }));
+  const status = res.status;
+  const body = await res.json().catch(() => ({ error: t`Audiodiver couldn't read the core's response (HTTP ${status})` }));
   if (!res.ok) throw new ApiError(body.error ?? `HTTP ${res.status}`);
   return body.result as T;
 }
@@ -261,42 +281,54 @@ export function modIconUrl(path: string) {
   return `${audioBase}/mods/icon?token=${encodeURIComponent(audioToken)}&path=${encodeURIComponent(path)}`;
 }
 
+/** The locale dates, numbers and lists are written in: the window's language (English writes dates the British way;
+    the pseudo-language of development is English underneath). */
+export const intlLocale = () => (i18n.locale === "en" || i18n.locale === "pseudo" || !i18n.locale ? "en-GB" : i18n.locale);
+/** A number with the language's decimal mark and `digits` decimals: 1.5 is "1.5" in English, "1,5" in Portuguese. */
+export const fmtNumber = (n: number, digits = 0) =>
+  new Intl.NumberFormat(intlLocale(), { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(n);
+/** A number with at most `max` decimals, as many as it needs, and the language's decimal mark: 2 is "2", 1.25 is
+    "1.25" ("1,25"). `sign` writes a + before a positive number. */
+export const fmtDecimal = (n: number, max = 2, sign = false) =>
+  new Intl.NumberFormat(intlLocale(), { maximumFractionDigits: max, signDisplay: sign ? "exceptZero" : "auto" }).format(n);
+/** "A, B and C" in the window's language. */
+export const andList = (items: string[]) => new Intl.ListFormat(intlLocale(), { type: "conjunction" }).format(items);
+/** "A, B or C" in the window's language. */
+export const orList = (items: string[]) => new Intl.ListFormat(intlLocale(), { type: "disjunction" }).format(items);
+
 /** "today, 14:05", "yesterday, 09:30" or "12 Mar 2026" for a time in Unix seconds. */
 export function fmtWhen(seconds: number | null | undefined) {
   if (!seconds) return "";
   const d = new Date(seconds * 1000), now = new Date();
   const days = Math.round((new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
     - new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()) / 86400000);
-  const time = d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-  if (days === 0) return `today, ${time}`;
-  if (days === 1) return `yesterday, ${time}`;
-  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }); // in English, like the rest of the app
+  const time = d.toLocaleTimeString(intlLocale(), { hour: "2-digit", minute: "2-digit" });
+  if (days === 0) return t`today, ${time}`;
+  if (days === 1) return t`yesterday, ${time}`;
+  return d.toLocaleDateString(intlLocale(), { day: "numeric", month: "short", year: "numeric" });
 }
 
-/** "1 file", "3 files"; `many` for a plural that isn't one + s. */
-export const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
-
 export function fmtBytes(bytes: number) {
-  if (bytes >= 1e9) return `${(bytes / 1e9).toFixed(1)} GB`;
-  if (bytes >= 1e6) return `${Math.round(bytes / 1e6)} MB`;
-  return bytes > 0 ? `${Math.max(1, Math.round(bytes / 1e3))} KB` : "empty";
+  if (bytes >= 1e9) return `${fmtNumber(bytes / 1e9, 1)} GB`;
+  if (bytes >= 1e6) return `${fmtNumber(bytes / 1e6)} MB`;
+  return bytes > 0 ? `${fmtNumber(Math.max(1, bytes / 1e3))} KB` : t`empty`;
 }
 
 export function fmtTime(ms: number | null | undefined) {
   if (ms == null) return "–";
   const s = ms / 1000;
-  if (s > 0 && s < 1) return `${s.toFixed(2)} s`; // a short sound: 0.05 s, not 0.1 s
-  if (s < 60) return `${s.toFixed(1)} s`;
+  if (s > 0 && s < 1) return `${fmtNumber(s, 2)} s`; // a short sound: 0.05 s, not 0.1 s
+  if (s < 60) return `${fmtNumber(s, 1)} s`;
   const m = Math.floor(s / 60);
   return `${m}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 }
 
 /** What a mod manager can't have in a mod's name (Build, Repatch): it uses the name as a folder name. */
 export function nameProblem(name: string): string | null {
-  if (!name.trim()) return "A mod needs a name.";
-  const bad = [...new Set([...name].filter((c) => c.charCodeAt(0) > 126 || c.charCodeAt(0) < 32 || '\\/:*?"<>|'.includes(c)))];
-  if (bad.length) return `Mod managers can't use ${bad.join(" ")} in a name, because it becomes a folder name. Use letters, digits, spaces and - _ ( ).`;
-  if (!/[A-Za-z0-9]/.test(name)) return "A name needs a letter or a digit.";
+  if (!name.trim()) return t`A mod needs a name.`;
+  const bad = [...new Set([...name].filter((c) => c.charCodeAt(0) > 126 || c.charCodeAt(0) < 32 || '\\/:*?"<>|'.includes(c)))].join(" ");
+  if (bad) return t`Mod managers can't use ${bad} in a name, because it becomes a folder name. Use letters, digits, spaces and - _ ( ).`;
+  if (!/[A-Za-z0-9]/.test(name)) return t`A name needs a letter or a digit.`;
   return null;
 }
 

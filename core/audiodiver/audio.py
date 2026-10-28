@@ -12,6 +12,7 @@ import wave
 from pathlib import Path
 
 from . import wem
+from .i18n import tr
 from .index import CACHE_DIR
 
 PEAK_RATE = 8000
@@ -143,7 +144,7 @@ def slice_song(src: Path, bounds_ms: list[float], song_dir: Path) -> list[Path]:
     overwrites pieces that slots may still play (this project's, its undo history's, another project's), and the
     same cuts give the same files. Everything is checked before anything is written."""
     src, song_dir = Path(src), Path(song_dir)
-    try:
+    try:  # cut points the slice tool sends can be nothing else: these two stay in English
         bounds = [float(b) for b in bounds_ms]
     except (TypeError, ValueError):
         raise ValueError("Cut points are numbers of milliseconds") from None
@@ -155,16 +156,17 @@ def slice_song(src: Path, bounds_ms: list[float], song_dir: Path) -> list[Path]:
         try:
             wem.prepare_wav(str(src), str(full))
         except (subprocess.CalledProcessError, OSError):
-            raise ValueError(f"Can't read the audio in {src.name}") from None
+            raise ValueError(tr("Can't read the audio in {file}").format(file=src.name)) from None
         with wave.open(str(full)) as w:
             params, total = w.getparams(), w.getnframes()
             frames = [min(total, round(b * wem.RATE / 1000)) for b in bounds]
             if frames[-1] <= frames[0]:
-                raise ValueError("The cut points lie outside the song")
+                raise ValueError(tr("The cut points lie outside the song"))
             for i, (a, b) in enumerate(zip(frames, frames[1:]), 1):
                 if (b - a) * 1000 / wem.RATE < MIN_PIECE_MS:
-                    raise ValueError(f"Piece {i} is shorter than {MIN_PIECE_MS / 1000:g} s" if b > a else
-                                     f"Piece {i} is empty: the song ends before it")
+                    raise ValueError((tr("Piece {n} is shorter than {seconds} s") if b > a else
+                                      tr("Piece {n} is empty: the song ends before it")).format(
+                        n=i, seconds=f"{MIN_PIECE_MS / 1000:g}"))
             key = hashlib.sha1(json.dumps(frames).encode()).hexdigest()[:8]
             out_dir = song_dir / key
             digits = max(2, len(str(len(frames) - 1)))

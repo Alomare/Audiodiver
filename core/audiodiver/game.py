@@ -18,6 +18,7 @@ from pathlib import Path
 from lz4 import block
 
 from ._vendor import slim
+from .i18n import tr
 
 WWISE_STREAM = 5785811756662211598
 WWISE_BANK = 6006249203084351385
@@ -270,12 +271,13 @@ def data_folder(chosen, saved=False) -> Path:
         if is_data_folder(folder):
             return folder
     if chosen.is_file():
-        raise ValueError(f"{chosen} is a file. Choose the folder Steam installed Helldivers 2 in.")
+        raise ValueError(tr("{folder} is a file. Choose the folder Steam installed Helldivers 2 in.").format(folder=chosen))
     if not chosen.is_dir():
-        raise ValueError(f"{chosen} isn't there any more" if saved else f"{chosen} wasn't found")
-    raise ValueError(f"{chosen} isn't the Helldivers 2 folder. It has no game files (bundles.NN.nxa in "
-                     f"a folder called data). Choose the folder Steam installed the game in, usually "
-                     r"…\steamapps\common\Helldivers 2.")
+        raise ValueError((tr("{folder} isn't there any more") if saved else tr("{folder} wasn't found")).format(
+            folder=chosen))
+    raise ValueError(tr("{folder} isn't the Helldivers 2 folder. It has no game files (bundles.NN.nxa in a folder "
+                        "called data). Choose the folder Steam installed the game in, usually "
+                        "…\\steamapps\\common\\Helldivers 2.").format(folder=chosen))
 
 
 def in_game_folder(folder, data) -> bool:
@@ -284,6 +286,17 @@ def in_game_folder(folder, data) -> bool:
     folder, data = Path(folder).resolve(), Path(data).resolve()
     game = data.parent if data.parent != data.parent.parent else data  # a data folder at a drive's root stands alone
     return folder == game or game in folder.parents
+
+
+def steam_language(data) -> str | None:
+    """The language Steam runs the game in ("english", "brazilian"), from the app manifest of the Steam library the
+    data folder is in; None for a game Steam didn't install there."""
+    try:
+        text = (Path(data).parent.parent.parent / f"appmanifest_{STEAM_APP}.acf").read_text(errors="replace")
+    except OSError:
+        return None
+    m = re.search(r'"UserConfig"\s*\{[^}]*?"language"\s+"(\w+)"', text)
+    return m.group(1) if m else None
 
 
 def locate(chosen=None) -> tuple[Path, str]:
@@ -297,8 +310,8 @@ def locate(chosen=None) -> tuple[Path, str]:
     env = os.environ.get("HD2_DATA")
     if env:
         if not is_data_folder(env):
-            raise FileNotFoundError(f"The HD2_DATA environment variable points to {env}, which has no Helldivers 2 "
-                                    f"files")
+            raise FileNotFoundError(tr("The HD2_DATA environment variable points to {folder}, which has no Helldivers 2 "
+                                       "files").format(folder=env))
         return Path(env), "env"
     libraries = []
     for root in _steam_roots():
@@ -310,7 +323,7 @@ def locate(chosen=None) -> tuple[Path, str]:
         data = Path(lib) / "steamapps" / "common" / "Helldivers 2" / "data"
         if is_data_folder(data):  # an uninstalled game can leave its folder behind
             return _as_spelled(data), "steam"
-    raise FileNotFoundError("Helldivers 2 wasn't found in the Steam libraries")
+    raise FileNotFoundError(tr("Helldivers 2 wasn't found in the Steam libraries"))
 
 
 def _as_spelled(path: Path) -> Path:

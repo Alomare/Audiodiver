@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { call, fmtTime, isMusic, shownId, type Assignment, type Place, type Slot } from "./api";
-import { rowsOf, SILENCE_TIP, type Row } from "./CueView";
+import { ph, plural, t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
+import { call, fmtDecimal, fmtTime, isMusic, shownId, type Assignment, type Place, type Slot } from "./api";
+import { rowsOf, type Row } from "./CueView";
 import { liveGain } from "./gain";
 import { ClearIcon, FillIcon, FillPieceIcon, FolderIcon, ResetIcon, SilenceIcon } from "./Icons";
 import { keyLabel, useKeymap, type CommandId } from "./keys";
@@ -40,17 +42,17 @@ export function Inspector() {
   const also = slot.also_n ?? slot.also_in.length;
   const sub = slot.label && !seg.name.includes(slot.label) ? slot.label : null;
   return (
-    <aside className="inspector" aria-label="Details">
+    <aside className="inspector" aria-label={t`Details`}>
       <div className="view-in" key={slot.source}>
       <div className="insp-title">
         <h2>{seg.name}{sub ? <span className="sub">{sub}</span> : null}</h2>
         <CopyId slot={slot} />
       </div>
-      {slot.locked && <p className="warn-box">Do not touch. Replacing this clip makes the music stutter. <Help tip="Tags on a slot" page="reading-the-screen#tags-on-a-row" /></p>}
-      {slot.absent && <p className="info-box">This clip isn't in the installed game files, so there is nothing to play or replace.</p>}
-      {slot.unused && <p className="info-box">The game never plays this clip.</p>}
-      {seg.added === "layer" ? <p className="info-box">A new layer. It plays whenever the sound above it plays.</p>
-        : slot.added && <p className="info-box">A new take. The game picks it like the other takes.</p>}
+      {slot.locked && <p className="warn-box"><Trans>Do not touch. Replacing this clip makes the music stutter.</Trans> <Help tip={t`Tags on a slot`} page="reading-the-screen#tags-on-a-row" /></p>}
+      {slot.absent && <p className="info-box"><Trans>This clip isn't in the installed game files, so there is nothing to play or replace.</Trans></p>}
+      {slot.unused && <p className="info-box"><Trans>The game never plays this clip.</Trans></p>}
+      {seg.added === "layer" ? <p className="info-box"><Trans>A new layer. It plays whenever the sound above it plays.</Trans></p>
+        : slot.added && <p className="info-box"><Trans>A new take. The game picks it like the other takes.</Trans></p>}
       <ClipNotes slot={slot} a={a} />
 
       <Settle key={a?.silence ? "silence" : a ? "file" : "none"} still={shown.current !== slot.source}>
@@ -63,7 +65,7 @@ export function Inspector() {
           <section className="insp-sec">
             <label className="check">
               <input type="checkbox" checked={a.fit_timing} onChange={(e) => actions.update(slot.source, { fit_timing: e.target.checked })} />
-              <span>Fit timing to the new audio <Help tip="When this is on, the next segment starts when the new audio ends. When it is off, the original timing applies." page="timing-and-loops#fitting-the-timing-to-the-new-audio" /></span>
+              <span><Trans>Fit timing to the new audio</Trans> <Help tip={t`When this is on, the next segment starts when the new audio ends. When it is off, the original timing applies.`} page="timing-and-loops#fitting-the-timing-to-the-new-audio" /></span>
             </label>
           </section>
         )}
@@ -74,14 +76,14 @@ export function Inspector() {
       {also > 0 && <section className="insp-sec"><SharedWith slot={slot} also={also} /></section>}
       <section className="insp-sec facts">
         <dl>
-          <dt>Original</dt><dd>{slot.duration_ms || seg.duration_ms ? fmtTime(slot.duration_ms || seg.duration_ms) : "–"}</dd>
-          {seg.segment && <><dt>Segment <Help tip="A stretch of music that plays as a unit. The next segment starts at the Exit" page="how-the-game-plays-music#segments-and-slots" /></dt>
-            <dd>{fmtTime(seg.duration_ms)}{seg.exit_ms != null && <> · <span data-tip="The next segment starts here">exit at {fmtTime(seg.exit_ms)}</span></>}</dd></>}
-          {slot.variant && <><dt>Variant <Help tip="This slot plays only under a condition, such as a biome. Give each variant new audio to change the piece everywhere" page="how-the-game-plays-music#variants" /></dt>
+          <dt><Trans comment="The length of the original audio of the slot">Original</Trans></dt><dd>{slot.duration_ms || seg.duration_ms ? fmtTime(slot.duration_ms || seg.duration_ms) : "–"}</dd>
+          {seg.segment && <><dt><Trans>Segment</Trans> <Help tip={t`A stretch of music that plays as a unit. The next segment starts at the Exit`} page="how-the-game-plays-music#segments-and-slots" /></dt>
+            <dd>{fmtTime(seg.duration_ms)}{seg.exit_ms != null && <> · <span data-tip={t`The next segment starts here`}>{exitAt(seg.exit_ms)}</span></>}</dd></>}
+          {slot.variant && <><dt><Trans>Variant</Trans> <Help tip={t`This slot plays only under a condition, such as a biome. Give each variant new audio to change the piece everywhere`} page="how-the-game-plays-music#variants" /></dt>
             <dd>{slot.variant}</dd></>}
-          {cue.language && <><dt>Language</dt><dd>{cue.language}</dd></>}
-          {slot.subtitle && text && <><dt>Subtitle</dt><dd><SubtitleLink slot={slot}>Open</SubtitleLink>{!slot.subtitle_sure &&
-            <span className="muted" data-tip={SEVERAL}> · one of several</span>}</dd></>}
+          {cue.language && <><dt><Trans>Language</Trans></dt><dd>{cue.language}</dd></>}
+          {slot.subtitle && text && <><dt><Trans>Subtitle</Trans></dt><dd><SubtitleLink slot={slot}><Trans comment="Opens the subtitle of the voice line in the Text tab">Open</Trans></SubtitleLink>{!slot.subtitle_sure &&
+            <span className="muted" data-tip={SEVERAL}> · {t({ message: "one of several", comment: "The subtitle shown is one of several that have the words of the voice line" })}</span>}</dd></>}
         </dl>
       </section>
       {!slot.absent && <NoteSection k={noteKeys.clip(slot.source)} name={sub ? `${seg.name}, ${sub}` : seg.name} />}
@@ -95,7 +97,7 @@ function Empty() {
   const { shownItemId, itemIndex } = useEditor();
   const item = shownItemId ? itemIndex.items.get(shownItemId) : undefined;
   return (
-    <aside className="inspector" aria-label="Details">
+    <aside className="inspector" aria-label={t`Details`}>
       {item && (
         <div className="insp-item view-in" key={item.id}>
           <div className="insp-title"><h2>{item.name}</h2></div>
@@ -103,20 +105,20 @@ function Empty() {
         </div>
       )}
       <div className="insp-empty">
-        <p>Select a slot.</p>
+        <p><Trans>Select a slot.</Trans></p>
         <dl className="key-hints">
-          {hint(["selectPrev", "selectNext"], "select")}
-          {hint(["playPause"], "play or pause")}
-          {hint(["playGame", "playMine"], "original / new audio")}
-          {hint(["chooseFile"], "choose a file")}
-          {hint(["moveUp", "moveDown"], "move the new audio")}
-          {hint(["copy", "paste"], "copy / paste")}
-          {hint(["remove"], "remove")}
-          {hint(["undo"], "undo")}
+          {hint(["selectPrev", "selectNext"], t({ message: "select", comment: "What the keys do: select the slot above or below" }))}
+          {hint(["playPause"], t`play or pause`)}
+          {hint(["playGame", "playMine"], t({ message: "original / new audio", comment: "What the keys do: play the original or the new audio of the slot" }))}
+          {hint(["chooseFile"], t`choose a file`)}
+          {hint(["moveUp", "moveDown"], t`move the new audio`)}
+          {hint(["copy", "paste"], t`copy / paste`)}
+          {hint(["remove"], t({ message: "remove", comment: "What the key does: remove the new audio from the slot" }))}
+          {hint(["undo"], t`undo`)}
         </dl>
         <p className="keys">
-          <button className="link-text" onClick={() => nav.go("settings", "shortcuts")}>All Shortcuts</button>
-          {" · "}<WikiLink page="reading-the-screen" about="What the Audio tab shows">Reading the screen</WikiLink>
+          <button className="link-text" onClick={() => nav.go("settings", "shortcuts")}><Trans>All Shortcuts</Trans></button>
+          {" · "}<WikiLink page="reading-the-screen" about={t`What the Audio tab shows`}><Trans>Reading the screen</Trans></WikiLink>
         </p>
       </div>
     </aside>
@@ -136,23 +138,24 @@ function Replacement({ slot, a, music, what }: { slot: Slot; a?: Assignment; mus
   if (a?.silence) {
     return (
       <section className="insp-sec">
-        <h3>Silence <Help tip="Silence plays nothing in place of the original." page="how-the-game-plays-music#silence" /></h3>
+        <h3><Trans>Silence</Trans> <Help tip={t`Silence plays nothing in place of the original.`} page="how-the-game-plays-music#silence" /></h3>
         <label className="check">
           <input type="checkbox" checked={!a.fit_timing} onChange={(e) => actions.update(slot.source, { fit_timing: !e.target.checked })} />
-          <span>Keep original duration <Help tip={`On: ${SILENCE_TIP.keep.toLowerCase()}. Off: ${SILENCE_TIP.move.toLowerCase()}.`} page="how-the-game-plays-music#silence" /></span>
+          <span><Trans>Keep original duration</Trans> <Help tip={keepTip()} page="how-the-game-plays-music#silence" /></span>
         </label>
-        {!music && <p className="muted small">Audiodiver also removes it from the mix. <Help tip="A silenced sound no longer turns down the sounds around it." page="volume#the-game-s-hdr-mix" /></p>}
+        {!music && <p className="muted small"><Trans>Audiodiver also removes it from the mix.</Trans> <Help tip={t`A silenced sound no longer turns down the sounds around it.`} page="volume#the-game-s-hdr-mix" /></p>}
       </section>
     );
   }
   if (a) {
+    const name = a.name;
     return (
       <section className="insp-sec">
-        <h3>New audio</h3>
+        <h3><Trans>New audio</Trans></h3>
         <div className="replaced-with">
-          <span className={`file${a.exists ? "" : " missing"}`} data-tip={a.audio} data-tip-clip>{a.exists ? a.name : `Missing: ${a.name}`}</span>
+          <span className={`file${a.exists ? "" : " missing"}`} data-tip={a.audio} data-tip-clip>{a.exists ? a.name : t`Missing: ${name}`}</span>
           {a.duration_ms != null && <span className="len">{fmtTime(a.duration_ms)}</span>}
-          <button className="icon-btn" aria-label="Show in folder" data-tip="Show in folder" disabled={!a.exists}
+          <button className="icon-btn" aria-label={t`Show in folder`} data-tip={t`Show in folder`} disabled={!a.exists}
             onClick={() => reveal(fullPath(project!.folder, a.audio))}><FolderIcon /></button>
         </div>
       </section>
@@ -162,11 +165,11 @@ function Replacement({ slot, a, music, what }: { slot: Slot; a?: Assignment; mus
   const choose = keyLabel("chooseFile");
   return (
     <section className="insp-sec">
-      <h3>Not replaced</h3>
-      {usable && <p className="muted small">Drop audio on the slot{choose ? `, or press ${choose} to choose a file` : ""}.</p>}
+      <h3><Trans>Not replaced</Trans></h3>
+      {usable && <p className="muted small">{choose ? t`Drop audio on the slot, or press ${choose} to choose a file.` : t`Drop audio on the slot.`}</p>}
       <div className="row-btns">
         <button className="btn" disabled={!usable} onClick={() => actions.silence([slot.source], true, what)} data-tip-cmd="silence"
-          data-tip="Play nothing here instead of the original">Use Silence</button>
+          data-tip={t`Play nothing here instead of the original`}><Trans>Use Silence</Trans></button>
       </div>
     </section>
   );
@@ -177,16 +180,20 @@ function Replacement({ slot, a, music, what }: { slot: Slot; a?: Assignment; mus
 function Reach({ slot }: { slot: Slot }) {
   const { actions } = useEditor();
   const own = !!slot.was;
-  const banks = (others: number) => `${others + 1} bank${others ? "s" : ""}`;
+  // the banks each choice changes, this one too
+  const banks = (slot.banks ?? 0) + 1, soundBanks = (own ? slot.banks ?? 0 : slot.sound_banks ?? 0) + 1;
   const choices = [
-    [false, "Every Sound That Plays It", own ? "Every sound that plays this clip gets the new audio"
-      : `Changes it in ${banks(slot.banks ?? 0)}`],
-    [true, "Only This Sound", `Changes it in ${banks(own ? slot.banks ?? 0 : slot.sound_banks ?? 0)}. Other sounds that play the clip keep the original.`],
+    [false, t`Every Sound That Plays It`, own ? t`Every sound that plays this clip gets the new audio`
+      : plural(banks, { one: "Changes it in # bank", other: "Changes it in # banks" })],
+    [true, t`Only This Sound`, plural(soundBanks, {
+      one: "Changes it in # bank. Other sounds that play the clip keep the original.",
+      other: "Changes it in # banks. Other sounds that play the clip keep the original.",
+    })],
   ] as const;
   return (
     <section className="insp-sec">
-      <h3>Scope <Help tip="Several sounds can play the same clip. Choose whether the new audio plays in all of them or only in this one." page="adding-audio#only-this-sound" /></h3>
-      <div className="cards one" role="radiogroup" aria-label="Scope">
+      <h3><Trans>Scope</Trans> <Help tip={t`Several sounds can play the same clip. Choose whether the new audio plays in all of them or only in this one.`} page="adding-audio#only-this-sound" /></h3>
+      <div className="cards one" role="radiogroup" aria-label={t`Scope`}>
         {choices.map(([only, title, text]) => (
           <button key={title} role="radio" aria-checked={own === only} className={`card${own === only ? " on" : ""}`} data-tip={text}
             onClick={() => { if (own !== only) actions.onlyThisSound(slot.source, slot.object, only); }}>
@@ -202,10 +209,11 @@ function Reach({ slot }: { slot: Slot }) {
     the shortest that works there. */
 function ClipNotes({ slot, a }: { slot: Slot; a?: Assignment }) {
   const short = !!(slot.min_ms && a && !a.silence && a.duration_ms != null && a.duration_ms < slot.min_ms);
+  const length = fmtTime(a?.duration_ms), needed = fmtTime(slot.min_ms);
   return (
     <>
       {(slot.notes ?? []).map((n) => <p key={n.text} className={n.warn ? "warn-box" : "info-box"}>{n.text}</p>)}
-      {short && <p className="warn-box">The new audio is {fmtTime(a?.duration_ms)} long, and this slot needs at least {fmtTime(slot.min_ms)}.</p>}
+      {short && <p className="warn-box"><Trans>The new audio is {length} long, and this slot needs at least {needed}.</Trans></p>}
     </>
   );
 }
@@ -224,13 +232,13 @@ export function SlotFacts({ row }: { row: Row }) {
         <b>{seg.name}{sub && <span className="muted"> · {sub}</span>}</b>
         <CopyId slot={slot} />
         {length > 0 && <span>{fmtTime(length)}</span>}
-        {seg.segment && seg.exit_ms != null && <span data-tip="The next segment starts here">exit at {fmtTime(seg.exit_ms)}</span>}
-        {slot.variant && <span>plays when {slot.variant}</span>}
+        {seg.segment && seg.exit_ms != null && <span data-tip={t`The next segment starts here`}>{exitAt(seg.exit_ms)}</span>}
+        {slot.variant && <span>{t`plays when ${ph({ variant: slot.variant })}`}</span>}
         {cue?.language && <span>{cue.language}</span>}
-        {slot.locked && <span className="warn" data-tip="Replacing it makes the music stutter">do not touch</span>}
-        {slot.unused && <span data-tip="The game never plays this clip">never heard</span>}
-        {slot.absent && <span data-tip="Not in the installed game files">no audio</span>}
-        {slot.subtitle && <SubtitleLink slot={slot}>{slot.subtitle_sure ? "subtitle" : "subtitle: one of several"}</SubtitleLink>}
+        {slot.locked && <span className="warn" data-tip={t`Replacing it makes the music stutter`}>{t`do not touch`}</span>}
+        {slot.unused && <span data-tip={t`The game never plays this clip`}>{t`never heard`}</span>}
+        {slot.absent && <span data-tip={t`Not in the installed game files`}>{t`no audio`}</span>}
+        {slot.subtitle && <SubtitleLink slot={slot}>{slot.subtitle_sure ? t`subtitle` : t`subtitle: one of several`}</SubtitleLink>}
         {(slot.notes ?? []).map((n) => n.tag && <span key={n.tag} className={n.warn ? "warn" : undefined} data-tip={n.text}>{n.tag}</span>)}
       </div>
       {also > 0 && <SharedWith slot={slot} also={also} />}
@@ -239,7 +247,17 @@ export function SlotFacts({ row }: { row: Row }) {
   );
 }
 
-const SEVERAL = "Several subtitles have these words, and the game files don't show which one matches this recording. The Text tab lists them all and opens the most likely one";
+const SEVERAL = t`Several subtitles have these words, and the game files don't show which one matches this recording. The Text tab lists them all and opens the most likely one`;
+
+/** "exit at 1:23": where the next segment starts, in the facts about a segment. */
+const exitAt = (ms: number) => {
+  const time = fmtTime(ms);
+  return t({ message: `exit at ${time}`, comment: "Where the next music segment starts: the Exit cue point" });
+};
+
+/** What Keep original duration does, on and off (SILENCE_TIP in CueView says the same of one slot). */
+const keepTip = () =>
+  t`On: plays nothing for the length of the original, so the timing doesn't change. Off: plays nothing, and the game moves straight on.`;
 
 /** A voice line's subtitle, opened in the Text tab: the one it says, or, where several subtitles have its words
     and its length doesn't tell them apart, all of them (core: library.py `subtitle`, editor.py text_alike). */
@@ -250,12 +268,21 @@ function SubtitleLink({ slot, children }: { slot: Slot; children: ReactNode }) {
     const id = Number(slot.subtitle);
     const ids = slot.subtitle_sure ? [id] : await call<number[]>("text_alike", { id }).catch(() => [id]);
     const lang = cue?.lang || undefined; // the voice's language: its subtitle in the same one
-    showLines({ ids, pick: id, lang, note: ids.length > 1
-      ? `${ids.length} subtitles have the ${lang && lang !== "us" ? "English " : ""}words of this voice line. The open one is the most likely match.`
-      : "The subtitle of this voice line." });
+    const count = ids.length;
+    showLines({ ids, pick: id, lang, note: count > 1
+      ? lang && lang !== "us"
+        ? plural(count, {
+          one: "# subtitle has the English words of this voice line. The open one is the most likely match.",
+          other: "# subtitles have the English words of this voice line. The open one is the most likely match.",
+        })
+        : plural(count, {
+          one: "# subtitle has the words of this voice line. The open one is the most likely match.",
+          other: "# subtitles have the words of this voice line. The open one is the most likely match.",
+        })
+      : t`The subtitle of this voice line.` });
   };
   if (!text) return null;
-  return <button className="link-text" onClick={open} data-tip={slot.subtitle_sure ? "Open the subtitle in the Text tab" : SEVERAL}>{children}</button>;
+  return <button className="link-text" onClick={open} data-tip={slot.subtitle_sure ? t`Open the subtitle in the Text tab` : SEVERAL}>{children}</button>;
 }
 
 /** Content that settles in when it takes the place of other content (its key changed). `still` is read once, when it
@@ -271,11 +298,11 @@ function CopyId({ slot }: { slot: Slot }) {
   const { id, what } = shownId(slot);
   const copy = async () => {
     try { await navigator.clipboard.writeText(id); setDone(true); setTimeout(() => setDone(false), 1200); }
-    catch { quick("Couldn't copy to the clipboard", "info"); }
+    catch { quick(t`Couldn't copy to the clipboard`, "info"); }
   };
   return (
-    <button className="id" data-tip={`Copy the ${what} ID`} onClick={copy}>
-      {done ? "Copied" : id}
+    <button className="id" data-tip={what === "stream" ? t`Copy the stream ID` : t`Copy the source ID`} onClick={copy}>
+      {done ? t`Copied` : id}
     </button>
   );
 }
@@ -292,17 +319,17 @@ function SharedWith({ slot, also }: { slot: Slot; also: number }) {
       const at = itemIndex.byCue.get(id);
       const bank = id.startsWith("bank:");
       if (!at && !bank) { cues.push(id); continue; }
-      const group = at ? where(itemIndex, at.item).replace(/ ▸ [^▸]*$/, "") || "Music" : "All Archives";
-      const name = at ? `${at.item.name}${at.part.name && at.item.parts.length > 1 ? ` · ${at.part.name}` : ""}` : `Bank ${id.slice(5)}`;
+      const group = at ? where(itemIndex, at.item).replace(/ ▸ [^▸]*$/, "") || t`Music` : t`All Archives`;
+      const name = at ? `${at.item.name}${at.part.name && at.item.parts.length > 1 ? ` · ${at.part.name}` : ""}` : t`Bank ${ph({ id: id.slice(5) })}`;
       groups.set(group, [...groups.get(group) ?? [], { id, name }]);
     }
     return { groups: [...groups], cues };
   }, [slot.also_in, itemIndex]);
-  const more = also - slot.also_in.length;
+  const more = also - slot.also_in.length, count = cues.length;
   return (
     <div className="shared">
-      <h3>Shared with <span className="shared-n">{also}</span>
-        <Help tip="The game plays this audio in other places too." page="how-the-game-plays-music#shared-audio" /></h3>
+      <h3><Trans>Shared with <span className="shared-n">{also}</span></Trans>
+        <Help tip={t`The game plays this audio in other places too.`} page="how-the-game-plays-music#shared-audio" /></h3>
       <dl className="shared-groups">
         {groups.map(([group, places]) => (
           <div key={group}>
@@ -312,16 +339,16 @@ function SharedWith({ slot, also }: { slot: Slot; also: number }) {
         ))}
         {cues.length > 0 && (
           <div>
-            <dt>Unnamed music</dt>
+            <dt><Trans>Unnamed music</Trans></dt>
             <dd>
               <button className="link-text shared-fold" aria-expanded={cuesOpen} onClick={() => setCuesOpen(!cuesOpen)}>
-                <span className="caret" aria-hidden>▸</span>{cues.length} Cue{cues.length === 1 ? "" : "s"}</button>
+                <span className="caret" aria-hidden>▸</span>{plural(count, { one: "# Cue", other: "# Cues" })}</button>
               {cuesOpen && cues.map((id) => <PlaceLink key={id} id={id} source={slot.source} mono>{id}</PlaceLink>)}
             </dd>
           </div>
         )}
       </dl>
-      {more > 0 && <p className="muted small">And {more} more.</p>}
+      {more > 0 && <p className="muted small"><Trans>And {more} more.</Trans></p>}
     </div>
   );
 }
@@ -341,14 +368,14 @@ function PlaceLink({ id, source, mono, children }: { id: string; source: string;
 }
 
 const GAIN_MAX = 96; // dB either way, as the core takes it (project.GAIN_DB)
-const fmtGain = (x: number) => `${x > 0 ? "+" : ""}${x}`;
+const fmtGain = (x: number) => fmtDecimal(x, 2, true); // the box reads a decimal comma back too (takeTyped)
 
 /** The button after a Make-Up Gain or a level that sets it back to 0 dB: the level the game plays it at. A Sound's
     own gain in the game stays, since a slot's gain adds to it. `off`: at 0 already. */
 export function ResetLevel({ off, onReset, more }: { off: boolean; onReset: () => void; more?: string }) {
   return (
-    <button className="icon-btn level-reset" disabled={off} onClick={onReset} aria-label="Back to the original level"
-      data-tip={off ? "At the original level" : "Back to the original level"} data-tip-more={off ? undefined : more}><ResetIcon /></button>
+    <button className="icon-btn level-reset" disabled={off} onClick={onReset} aria-label={t`Back to the original level`}
+      data-tip={off ? t`At the original level` : t`Back to the original level`} data-tip-more={off ? undefined : more}><ResetIcon /></button>
   );
 }
 
@@ -394,36 +421,46 @@ function Gain({ sources, value, note, original, match, base }: {
     setMatching(true);
     try { await actions.matchLoudness(sources); } finally { setMatching(false); }
   };
-  const shown = value === null && !moved ? "Mixed" : fmtGain(v);
+  const shown = value === null && !moved ? t({ message: "Mixed", comment: "The selected slots have different values" }) : fmtGain(v);
   const reset = () => { move(0); commit(0, true); };
-  const kept = base ? `The ${fmtGain(base)} dB the game gives this sound stays` : undefined;
+  const gain = fmtGain(base ?? 0); // the Make-Up Gain the game gives the sound
+  const kept = base ? t`The ${gain} dB the game gives this sound stays` : undefined;
+  const help = original
+    ? base ? t`The original, louder or quieter, without new audio or a change to the mix. Added to the ${gain} dB the game gives this sound.`
+      : t`The original, louder or quieter, without new audio or a change to the mix.`
+    : base ? t`Louder or quieter, without changing the file or the mix. Added to the ${gain} dB the game gives this sound.`
+      : t`Louder or quieter, without changing the file or the mix.`;
   return (
     <section className="insp-sec">
-      <h3>Make-Up Gain <Help tip={(original ? "The original, louder or quieter, without new audio or a change to the mix."
-        : "Louder or quieter, without changing the file or the mix.") + (base ? ` Added to the ${fmtGain(base)} dB the game gives this sound.` : "")}
+      <h3><Trans>Make-Up Gain</Trans> <Help tip={help}
         page="volume#make-up-gain-per-slot" />
-        <span className="val"><input className="gain-val" value={typed ?? shown} aria-label="Make-Up Gain in dB, typed" inputMode="decimal"
+        <span className="val"><input className="gain-val" value={typed ?? shown} aria-label={t`Make-Up Gain in dB, typed`} inputMode="decimal"
           onFocus={(e) => { setTyped(value === null && !moved ? "" : fmtGain(v)); e.currentTarget.select(); }} onChange={(e) => setTyped(e.target.value)} onBlur={takeTyped}
           onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); else if (e.key === "Escape") { escaped.current = true; e.currentTarget.blur(); } }}
-          data-tip={`Type a value from −${GAIN_MAX} to +${GAIN_MAX}`} /> dB
-          <ResetLevel off={value === 0 && v === 0} onReset={reset} more={kept ?? (sources.length > 1 ? "0 dB on every selected slot" : undefined)} /></span></h3>
+          data-tip={t`Type a value from −${GAIN_MAX} to +${GAIN_MAX}`} /> dB
+          <ResetLevel off={value === 0 && v === 0} onReset={reset} more={kept ?? (sources.length > 1 ? t`0 dB on every selected slot` : undefined)} /></span></h3>
       {note && <p className="muted small insp-note">{note}</p>}
-      <input type="range" className="r-fader" style={rangeVars(v, -GAIN_MAX, GAIN_MAX, 0)} min={-GAIN_MAX} max={GAIN_MAX} step={0.5} value={v} aria-label="Make-Up Gain in dB"
+      <input type="range" className="r-fader" style={rangeVars(v, -GAIN_MAX, GAIN_MAX, 0)} min={-GAIN_MAX} max={GAIN_MAX} step={0.5} value={v} aria-label={t`Make-Up Gain in dB`}
         onChange={(e) => move(Number(e.target.value))} onPointerUp={() => commit(v)}
         onKeyUp={(e) => { if (/^(Arrow|Home|End|Page)/.test(e.key)) commitSoon(v); }} onBlur={() => commit(v)}
         onKeyDown={(e) => { if (e.ctrlKey || e.metaKey || e.altKey) commit(v); }} /* a nudge on its way goes first: then Ctrl+Z undoes it */ />
       {match && (
         <p className="gain-match">
           <button className="link-text" disabled={matching} onClick={matchAll}
-            data-tip={match === "one" ? "The Make-Up Gain that makes the new audio as loud as the original"
-              : "Each slot gets the Make-Up Gain that makes the new audio as loud as the original"}
-            data-tip-more="Short sounds by the loudest moment, longer ones by the whole">
-            {matching ? "Measuring" : match === "one" ? "Match the Original Loudness" : "Match Each to the Original Loudness"}</button>
+            data-tip={match === "one" ? t`The Make-Up Gain that makes the new audio as loud as the original`
+              : t`Each slot gets the Make-Up Gain that makes the new audio as loud as the original`}
+            data-tip-more={t`Short sounds by the loudest moment, longer ones by the whole`}>
+            {matching ? t`Measuring` : match === "one" ? t`Match the Original Loudness` : t`Match Each to the Original Loudness`}</button>
         </p>
       )}
     </section>
   );
 }
+
+/** The labels of the cue point boxes, and what an empty box says (one segment or several). */
+const entryLabel = () => t({ message: "Entry (ms)", comment: "The Entry cue point of a music segment, in milliseconds" });
+const exitLabel = () => t({ message: "Exit (ms)", comment: "The Exit cue point of a music segment, in milliseconds" });
+const autoText = () => t({ message: "auto", comment: "An empty cue point box: the point is worked out" });
 
 /** A segment's cue points, and the same ones on the `more` other segments that play the slot's file. */
 function Markers({ segment, gameEntry, gameExit, fit, lengthMs, source, more }: {
@@ -445,9 +482,9 @@ function Markers({ segment, gameEntry, gameExit, fit, lengthMs, source, more }: 
   const autoEntry = fit ? 0 : gameEntry ?? 0;
   const autoExit = fit ? lengthMs : gameExit;
   const end = lengthMs ?? Infinity;
-  const problem = [e1, e2].some((x) => x !== null && (!Number.isFinite(x) || x < 0)) ? "Cue points are milliseconds from 0."
-    : (e1 ?? autoEntry) >= (e2 ?? autoExit ?? Infinity) ? "Entry comes before Exit."
-    : Math.max(e1 ?? 0, e2 ?? 0) > end ? `The new audio is ${Math.round(end)} ms long.` : null;
+  const problem = [e1, e2].some((x) => x !== null && (!Number.isFinite(x) || x < 0)) ? t`Cue points are milliseconds from 0.`
+    : (e1 ?? autoEntry) >= (e2 ?? autoExit ?? Infinity) ? t`Entry comes before Exit.`
+    : Math.max(e1 ?? 0, e2 ?? 0) > end ? t`The new audio is ${ph({ length: Math.round(end) })} ms long.` : null;
   const save = async () => {
     if (problem) return;
     if (e1 === (o.entry_marker ?? null) && e2 === (o.exit_marker ?? null)) return; // as they were: no change
@@ -455,22 +492,27 @@ function Markers({ segment, gameEntry, gameExit, fit, lengthMs, source, more }: 
   };
   // what was just typed goes in first (the click comes before the box's own save is back)
   const spread = async () => { await save(); actions.sameCuePoints(segment, source); };
-  const auto = (x: number | null | undefined) => (x == null ? "auto" : `${Math.round(x)} (${fit ? "fitted" : "original"})`);
+  const auto = (x: number | null | undefined) => {
+    if (x == null) return autoText();
+    const ms = Math.round(x);
+    return fit ? t({ message: `${ms} (fitted)`, comment: "An empty cue point box: the point it stands for, in ms, fitted to the new audio" })
+      : t({ message: `${ms} (original)`, comment: "An empty cue point box: the point it stands for, in ms, from the original" });
+  };
   return (
     <details className="insp-sec" open={open} onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
-      <summary>Cue points <Help tip="Entry is where the segment counts as started. Exit is where the next segment starts." page="timing-and-loops#entry-and-exit" /></summary>
+      <summary><Trans>Cue points</Trans> <Help tip={t`Entry is where the segment counts as started. Exit is where the next segment starts.`} page="timing-and-loops#entry-and-exit" /></summary>
       <div className="markers">
-        <label>Entry (ms)<input ref={entryBox} type="number" min={0} value={entry} placeholder={auto(autoEntry)}
+        <label>{entryLabel()}<input ref={entryBox} type="number" min={0} value={entry} placeholder={auto(autoEntry)}
           onChange={(e) => setEntry(e.target.value)} onBlur={save} aria-invalid={!!problem || undefined} /></label>
-        <label>Exit (ms)<input ref={exitBox} type="number" min={0} value={exit} placeholder={auto(autoExit)}
+        <label>{exitLabel()}<input ref={exitBox} type="number" min={0} value={exit} placeholder={auto(autoExit)}
           onChange={(e) => setExit(e.target.value)} onBlur={save} aria-invalid={!!problem || undefined} /></label>
       </div>
       {problem && <small className="bad" role="alert">{problem}</small>}
       {more > 0 && !problem && (
         <p className="markers-more">
           <button className="link-text" onClick={spread} data-tip={e1 === null && e2 === null
-            ? "The other segments go back to automatic cue points" : "The other segments get these cue points"}>
-            Apply to {more} More Segment{more === 1 ? "" : "s"} with This File</button>
+            ? t`The other segments go back to automatic cue points` : t`The other segments get these cue points`}>
+            {plural(more, { one: "Apply to # More Segment with This File", other: "Apply to # More Segments with This File" })}</button>
         </p>
       )}
     </details>
@@ -488,44 +530,51 @@ function Bulk({ rows, sources, usable }: { rows: Row[]; sources: string[]; usabl
   const plain = usable.filter((s) => !a[s]), kept = project?.gains ?? {}; // the originals: their Make-Up Gain
   const cued = rows.filter((r) => r.seg.segment && a[r.slot.source] && !a[r.slot.source].silence); // music with new audio
   const toSilence = usable.filter((s) => !a[s]?.silence);
-  const slots = (n: number, title = false) => `${n} ${title ? "Slot" : "slot"}${n === 1 ? "" : "s"}`;
+  // the counts the messages below give
+  const count = sources.length, fillable = usable.length, silenceable = toSilence.length, withNew = files.length,
+    withOriginal = plain.length, silenced = silent.length, replaced = mine.length;
   return (
-    <aside className="inspector" aria-label="Details">
-      <div className="insp-title"><h2>{sources.length} slots selected</h2></div>
+    <aside className="inspector" aria-label={t`Details`}>
+      <div className="insp-title"><h2>{plural(count, { one: "# slot selected", other: "# slots selected" })}</h2></div>
       <section className="insp-sec insp-actions">
-        <button className="btn" disabled={!usable.length} data-tip={`The same file in all ${slots(usable.length)}`}
-          onClick={async () => { const f = (await pickAudio(false))?.[0]; if (f) actions.assignAll(usable, f); }}><FillIcon />Choose One File for All</button>
-        <button className="btn" disabled={!usable.length} data-tip="A file for each slot, in list order and file-name order"
-          onClick={async () => { const f = await pickAudio(true); if (f) actions.fillSources(usable, f, slots(usable.length)); }}><FillPieceIcon />Choose Files</button>
+        <button className="btn" disabled={!usable.length} data-tip={plural(fillable, { one: "The same file in all # slot", other: "The same file in all # slots" })}
+          onClick={async () => { const f = (await pickAudio(false))?.[0]; if (f) actions.assignAll(usable, f); }}><FillIcon /><Trans>Choose One File for All</Trans></button>
+        <button className="btn" disabled={!usable.length} data-tip={t`A file for each slot, in list order and file-name order`}
+          onClick={async () => { const f = await pickAudio(true); if (f) actions.fillSources(usable, f, plural(fillable, { one: "# slot", other: "# slots" })); }}><FillPieceIcon /><Trans>Choose Files</Trans></button>
         <button className="btn" disabled={!toSilence.length} onClick={() => actions.silence(toSilence, true)} data-tip-cmd="silence"
-          data-tip={toSilence.length ? "Play nothing in these slots" : usable.length ? "Already silent" : "Never played, or do not touch"}>
-          <SilenceIcon />Replace {toSilence.length > 0 && toSilence.length < sources.length ? `${slots(toSilence.length, true)} ` : ""}with Silence</button>
+          data-tip={toSilence.length ? t`Play nothing in these slots` : usable.length ? t`Already silent` : t`Never played, or do not touch`}>
+          <SilenceIcon />{toSilence.length > 0 && toSilence.length < sources.length
+            ? plural(silenceable, { one: "Replace # Slot with Silence", other: "Replace # Slots with Silence" }) : t`Replace with Silence`}</button>
       </section>
       {files.length > 0 ? (
         <Gain sources={files} value={files.every((s) => a[s].gain_db === a[files[0]].gain_db) ? a[files[0]].gain_db : null}
-          note={files.length < sources.length ? `Applies to the ${slots(files.length)} with new audio.` : undefined} match="each" />
+          note={files.length < sources.length ? plural(withNew, { one: "Applies to the # slot with new audio.", other: "Applies to the # slots with new audio." }) : undefined} match="each" />
       ) : project && plain.length > 0 && (
         <Gain original sources={plain} value={plain.every((s) => (kept[s] ?? 0) === (kept[plain[0]] ?? 0)) ? kept[plain[0]] ?? 0 : null}
-          note={plain.length < sources.length ? `Applies to the ${slots(plain.length)} with the original audio.` : undefined} />
+          note={plain.length < sources.length ? plural(withOriginal, {
+            one: "Applies to the # slot with the original audio.", other: "Applies to the # slots with the original audio.",
+          }) : undefined} />
       )}
       {cued.length > 0 && <BulkMarkers rows={cued} partial={cued.length < sources.length} />}
       {silent.length > 0 && (
         <section className="insp-sec">
-          <h3>Silence in {slots(silent.length)}</h3>
+          <h3>{plural(silenced, { one: "Silence in # slot", other: "Silence in # slots" })}</h3>
           <label className="check">
             <input type="checkbox" checked={silent.every((s) => !a[s].fit_timing)}
               ref={(el) => { if (el) el.indeterminate = silent.some((s) => !a[s].fit_timing) && silent.some((s) => a[s].fit_timing); }}
               onChange={(e) => actions.updateMany(silent, { fit_timing: !e.target.checked })} />
-            <span>Keep original duration <Help tip={`On: ${SILENCE_TIP.keep.toLowerCase()}. Off: ${SILENCE_TIP.move.toLowerCase()}.`} page="how-the-game-plays-music#silence" /></span>
+            <span><Trans>Keep original duration</Trans> <Help tip={keepTip()} page="how-the-game-plays-music#silence" /></span>
           </label>
         </section>
       )}
       {mine.length > 0 ? (
         <section className="insp-sec insp-actions">
           <button className="btn quiet" onClick={() => actions.unassign(mine)}>
-            <ClearIcon />Remove {silent.length === mine.length ? "the Silence" : "the New Audio"} from {slots(mine.length, true)}</button>
+            <ClearIcon />{silent.length === mine.length
+              ? plural(replaced, { one: "Remove the Silence from # Slot", other: "Remove the Silence from # Slots" })
+              : plural(replaced, { one: "Remove the New Audio from # Slot", other: "Remove the New Audio from # Slots" })}</button>
         </section>
-      ) : <p className="insp-empty insp-sec">None of these is replaced yet.</p>}
+      ) : <p className="insp-empty insp-sec"><Trans>None of these is replaced yet.</Trans></p>}
     </aside>
   );
 }
@@ -552,30 +601,30 @@ function BulkMarkers({ rows, partial }: { rows: Row[]; partial: boolean }) {
   const num = (t: string) => (t.trim() === "" ? null : Number(t));
   const e1 = num(entry), e2 = num(exit);
   const shortest = Math.min(...rows.map((r) => project?.assignments[r.slot.source]?.duration_ms ?? Infinity));
-  const problem = [e1, e2].some((x) => x !== null && (!Number.isFinite(x) || x < 0)) ? "Cue points are milliseconds from 0."
-    : e1 !== null && e2 !== null && e1 >= e2 ? "Entry comes before Exit."
-    : Math.max(e1 ?? 0, e2 ?? 0) > shortest ? `The shortest new audio is ${Math.round(shortest)} ms long.` : null;
+  const problem = [e1, e2].some((x) => x !== null && (!Number.isFinite(x) || x < 0)) ? t`Cue points are milliseconds from 0.`
+    : e1 !== null && e2 !== null && e1 >= e2 ? t`Entry comes before Exit.`
+    : Math.max(e1 ?? 0, e2 ?? 0) > shortest ? t`The shortest new audio is ${ph({ length: Math.round(shortest) })} ms long.` : null;
   const save = (k: CueKey, v: number | null) => {
     if (problem || v === was[k] || (v === null && was[k] === undefined)) return; // as it was, or empty over Mixed
     actions.segmentOverrides(segments, { [k]: v });
   };
-  const hint = (v: number | null | undefined) => (v === undefined ? "Mixed" : "auto");
+  const hint = (v: number | null | undefined) => (v === undefined ? t({ message: "Mixed", comment: "The selected slots have different values" }) : autoText());
   const n = segments.length;
   return (
     <section className="insp-sec">
-      <h3>Cue points in {n} segment{n === 1 ? "" : "s"} <Help tip="Entry is where the segment counts as started. Exit is where the next segment starts." page="timing-and-loops#entry-and-exit" /></h3>
-      {partial && <p className="muted small insp-note">Applies to the slots with new audio.</p>}
+      <h3>{plural(n, { one: "Cue points in # segment", other: "Cue points in # segments" })} <Help tip={t`Entry is where the segment counts as started. Exit is where the next segment starts.`} page="timing-and-loops#entry-and-exit" /></h3>
+      {partial && <p className="muted small insp-note"><Trans>Applies to the slots with new audio.</Trans></p>}
       <div className="markers">
-        <label>Entry (ms)<input ref={entryBox} type="number" min={0} value={entry} placeholder={hint(was.entry_marker)}
+        <label>{entryLabel()}<input ref={entryBox} type="number" min={0} value={entry} placeholder={hint(was.entry_marker)}
           onChange={(e) => setEntry(e.target.value)} onBlur={() => save("entry_marker", e1)} aria-invalid={!!problem || undefined} /></label>
-        <label>Exit (ms)<input ref={exitBox} type="number" min={0} value={exit} placeholder={hint(was.exit_marker)}
+        <label>{exitLabel()}<input ref={exitBox} type="number" min={0} value={exit} placeholder={hint(was.exit_marker)}
           onChange={(e) => setExit(e.target.value)} onBlur={() => save("exit_marker", e2)} aria-invalid={!!problem || undefined} /></label>
       </div>
       {problem && <small className="bad" role="alert">{problem}</small>}
       {segments.some((s) => over[s]) && (
         <p className="markers-more">
           <button className="link-text" onClick={() => actions.segmentOverrides(segments, { entry_marker: null, exit_marker: null })}>
-            Reset Cue Points</button>
+            <Trans>Reset Cue Points</Trans></button>
         </p>
       )}
     </section>

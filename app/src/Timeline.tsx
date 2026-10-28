@@ -1,6 +1,8 @@
 import { useMemo, useRef } from "react";
-import { audioUrl, fmtTime, type Cue } from "./api";
-import { audible, rowName, rowsOf, SILENCE_TIP } from "./CueView";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
+import { audioUrl, fmtDecimal, fmtTime, type Cue } from "./api";
+import { audible, rowName, rowsOf } from "./CueView";
 import { useLiveGain } from "./gain";
 import { throughHead, throughSeek, type Through } from "./PlayThrough";
 import { player, usePlayer, type PlayedAt } from "./player";
@@ -23,13 +25,18 @@ import { finePeaks, usePeaks, useWaveZoom, useWheelZoom, WaveScroll, Waveform, W
 const HEIGHT = 210;
 const HEIGHT_ONE = 190; // the Library's: the game's waveform under the slot's facts
 const MIN_SPAN = 20;    // ms: the closest the time zoom goes
+// the cue points' names, on the flags
+const ENTRY = t({ message: "Entry", comment: "A music segment's Entry cue point (Wwise term): where the segment counts as started" });
+const EXIT = t({ message: "Exit", comment: "A music segment's Exit cue point (Wwise term): where the next segment starts" });
 // what the cue points do, in the flags' tooltips
-const ENTRY_ABOUT = "The segment counts as started here. Audio before it plays under the end of the segment before";
-const EXIT_ABOUT = "The next segment starts here. Audio after it rings out over the next one";
+const ENTRY_ABOUT = t`The segment counts as started here. Audio before it plays under the end of the segment before`;
+const EXIT_ABOUT = t`The next segment starts here. Audio after it rings out over the next one`;
+const ENTRY_DRAG = t`The segment counts as started here. Audio before it plays under the end of the segment before. Drag to move it`;
+const EXIT_DRAG = t`The next segment starts here. Audio after it rings out over the next one. Drag to move it`;
 
 /** The Make-Up Gain a waveform is drawn at, under its label. */
 function Db({ db }: { db: number }) {
-  return <span className="gain" data-tip="Make-Up Gain" data-tip-more="Drawn and played at this gain">{db > 0 ? "+" : ""}{db} dB</span>;
+  return <span className="gain" data-tip={t`Make-Up Gain`} data-tip-more={t`Drawn and played at this gain`}>{fmtDecimal(db, 2, true)} dB</span>;
 }
 
 export function Timeline({ room, through, at, cue: given, source: picked }: {
@@ -79,7 +86,7 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
     const to = playing ? throughSeek(playing, now, source, kind === "project", ms) : null;
     if (to !== null && playing) { player.seek(to / playing.duration_ms); return; }
     player.playFrom(kind === "vanilla" ? kGame : kMine, audioUrl(kind, source, kind === "project" ? String(revision) : ""), ms / 1000, undefined,
-      `${what} · ${kind === "vanilla" ? "original" : "replaced"}`, at ?? { scope, itemId: null, cueId: cue?.id ?? null, source });
+      kind === "vanilla" ? t`${what} · original` : t`${what} · replaced`, at ?? { scope, itemId: null, cueId: cue?.id ?? null, source });
   };
 
   const hasCues = !!seg.segment;
@@ -92,10 +99,10 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
   const exit = o.exit_marker ?? autoExit;
 
   const gameMarkers: Marker[] = hasCues && seg.exit_ms != null
-    ? [{ id: "entry", ms: seg.entry_ms ?? 0, label: "Entry", about: ENTRY_ABOUT }, { id: "exit", ms: seg.exit_ms, label: "Exit", about: EXIT_ABOUT }] : [];
+    ? [{ id: "entry", ms: seg.entry_ms ?? 0, label: ENTRY, about: ENTRY_ABOUT }, { id: "exit", ms: seg.exit_ms, label: EXIT, about: EXIT_ABOUT }] : [];
   const myMarkers: Marker[] = hasCues && mine
-    ? [{ id: "entry", ms: entry, label: "Entry", about: `${ENTRY_ABOUT}. Drag to move it`, draggable: true, min: 0, max: exit - 50 },
-       { id: "exit", ms: exit, label: "Exit", about: `${EXIT_ABOUT}. Drag to move it`, draggable: true, min: entry + 50, max: mine.duration_ms }] : [];
+    ? [{ id: "entry", ms: entry, label: ENTRY, about: ENTRY_DRAG, draggable: true, min: 0, max: exit - 50 },
+       { id: "exit", ms: exit, label: EXIT, about: EXIT_DRAG, draggable: true, min: entry + 50, max: mine.duration_ms }] : [];
 
   const commit = (id: string, ms: number, how: "drag" | "key") => {
     // a drag that ends near the automatic spot snaps back onto it, clearing the override; a key's 10 ms step never does
@@ -106,33 +113,35 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
   };
   const overridden = o.entry_marker != null || o.exit_marker != null;
   const tail = mine ? mine.duration_ms - exit : 0;
+  const last = fmtTime(tail);
 
   return (
-    <section className={`timeline${readOnly ? " one" : ""}`} aria-label="Waveforms" style={{ height: h ?? (readOnly ? HEIGHT_ONE : HEIGHT) }}>
-      <ResizeEdge edge="top" label="Resize the waveforms" min={readOnly ? 120 : 140} max={room} onResize={setH} onReset={() => setH(readOnly ? HEIGHT_ONE : HEIGHT)} />
+    <section className={`timeline${readOnly ? " one" : ""}`} aria-label={t`Waveforms`} style={{ height: h ?? (readOnly ? HEIGHT_ONE : HEIGHT) }}>
+      <ResizeEdge edge="top" label={t`Resize the waveforms`} min={readOnly ? 120 : 140} max={room} onResize={setH} onReset={() => setH(readOnly ? HEIGHT_ONE : HEIGHT)} />
       {readOnly && <SlotFacts row={row} />}
       <div className="tl-body zoom-grid">
         <div className="tl-rows" ref={waves}>
           <div className="tl-row">
-            <div className="tl-label game"><b>Original</b><span>{fmtTime(game?.duration_ms)}</span>{gameDb !== 0 && <Db db={gameDb} />}</div>
+            <div className="tl-label game"><b>{t`Original`}</b><span>{fmtTime(game?.duration_ms)}</span>{gameDb !== 0 && <Db db={gameDb} />}</div>
             <Waveform peaks={game} {...view} tone="game" markers={gameMarkers} playheadMs={head(kGame, false, game?.duration_ms)} gainDb={gameDb}
               activeFrom={hasCues ? seg.entry_ms ?? 0 : undefined} activeTo={hasCues ? seg.exit_ms ?? undefined : undefined}
               onSeek={none ? undefined : (ms) => seek("vanilla", ms)}
-              label={row.slot.added ? "A new take has no original" : row.slot.absent ? "Not in the installed game files" : "Loading the original…"}
+              label={row.slot.added ? t`A new take has no original` : row.slot.absent ? t`Not in the installed game files` : t`Loading the original…`}
               error={gameWave.error} onRetry={gameWave.retry} />
           </div>
           {!readOnly && (
             <div className="tl-row">
-              <div className="tl-label mine"><b>Replaced</b><span>{a?.silence ? "silence" : a ? fmtTime(mine?.duration_ms) : ""}</span>{mineDb !== 0 && <Db db={mineDb} />}</div>
+              <div className="tl-label mine"><b>{t`Replaced`}</b><span>{a?.silence ? t({ message: "silence", comment: "In place of the length of the new audio: the slot plays silence" }) : a ? fmtTime(mine?.duration_ms) : ""}</span>{mineDb !== 0 && <Db db={mineDb} />}</div>
               {a?.silence ? (
-                <div className="wave placeholder">Silence: {a.fit_timing ? SILENCE_TIP.move.toLowerCase() : SILENCE_TIP.keep.toLowerCase()}</div>
+                <div className="wave placeholder">{a.fit_timing ? t`Silence: plays nothing, and the game moves straight on`
+                  : t`Silence: plays nothing for the length of the original, so the timing doesn't change`}</div>
               ) : a?.exists ? (
                 <Waveform peaks={mine} {...view} tone="mine" markers={myMarkers} playheadMs={head(kMine, true, mine?.duration_ms)} gainDb={mineDb}
                   activeFrom={hasCues ? entry : undefined} activeTo={hasCues ? exit : undefined}
                   onSeek={(ms) => seek("project", ms)}
-                  onMarkerCommit={commit} label="Reading the new audio…" error={mineWave.error} onRetry={mineWave.retry} />
+                  onMarkerCommit={commit} label={t`Reading the new audio…`} error={mineWave.error} onRetry={mineWave.retry} />
               ) : (
-                <div className="wave placeholder">{a ? "File missing" : "Not replaced"}</div>
+                <div className="wave placeholder">{a ? t`File missing` : t`Not replaced`}</div>
               )}
             </div>
           )}
@@ -141,9 +150,9 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
       </div>
       {audible(a) && hasCues && (
         <p className="tl-note">
-          {fit ? "Drag Exit to move where the next segment starts" : "Fit timing is off, so the original cue points apply until one is moved"}
-          {tail > 30 && <>. The last <b>{fmtTime(tail)}</b> rings out over the next segment</>}.
-          {overridden && <button className="link-inline" onClick={() => actions.segmentOverride(seg.segment, null, null)}>Reset Cue Points</button>}
+          {fit ? t`Drag Exit to move where the next segment starts.` : t`Fit timing is off, so the original cue points apply until one is moved.`}
+          {tail > 30 && <> <Trans>The last <b>{last}</b> rings out over the next segment.</Trans></>}
+          {overridden && <button className="link-inline" onClick={() => actions.segmentOverride(seg.segment, null, null)}>{t`Reset Cue Points`}</button>}
         </p>
       )}
     </section>

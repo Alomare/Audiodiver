@@ -1,4 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { ph, t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { RESET_LAYOUT } from "./settings";
 import { call, type ArchiveRow, type Place } from "./api";
 import { useContextMenu, type MenuEntry } from "./ContextMenu";
@@ -19,12 +21,12 @@ import { DEFAULT_SIZE, motionMs, scrollBehavior, useThemeValue } from "./theme";
 export function LibraryPanel() {
   const { library: sub } = useNav();
   return (
-    <aside className="library" aria-label="Library">
-      <div className="lib-tabs" role="tablist" aria-label="Library" onKeyDown={tabArrows}>
+    <aside className="library" aria-label={t`Library`}>
+      <div className="lib-tabs" role="tablist" aria-label={t`Library`} onKeyDown={tabArrows}>
         <button role="tab" aria-selected={sub === "index"} className={sub === "index" ? "on" : ""} onClick={() => nav.go("library", "index")}
-          data-tip="Named music and sounds, by what they are">Index</button>
+          data-tip={t`Named music and sounds, by what they are`}><Trans>Index</Trans></button>
         <button role="tab" aria-selected={sub === "archives"} className={sub === "archives" ? "on" : ""} onClick={() => nav.go("library", "archives")}
-          data-tip="Every archive with audio, named or not">All Archives</button>
+          data-tip={t`Every archive with audio, named or not`}><Trans>All Archives</Trans></button>
       </div>
       <div className="lib-pane" hidden={sub !== "index"}><IndexTree /></div>
       <div className="lib-pane" hidden={sub !== "archives"}><ArchiveList /></div>
@@ -35,12 +37,12 @@ export function LibraryPanel() {
 type SortKey = "name" | "cat" | "archive" | "language" | "banks" | "sounds";
 /** The table's columns: what each sorts by, its heading and what it says. */
 const COLUMNS: [SortKey, string, string][] = [
-  ["name", "Name", "Name in the Index"],
-  ["cat", "Index", "Categories in the Index"],
-  ["archive", "Archive", "Name in the game files"],
-  ["language", "Language", "Voice pack language"],
-  ["banks", "Banks", "Number of sound banks"],
-  ["sounds", "Sounds", "Number of sounds"],
+  ["name", t`Name`, t`Name in the Index`],
+  ["cat", t`Index`, t`Categories in the Index`],
+  ["archive", t`Archive`, t`Name in the game files`],
+  ["language", t`Language`, t`Voice pack language`],
+  ["banks", t`Banks`, t`Number of sound banks`],
+  ["sounds", t`Sounds`, t`Number of sounds`],
 ];
 const SORT_KEY = "audiodiver.archiveSort";
 /** The columns' widths at the default text size; each heading's right edge drags its column wider or narrower. */
@@ -158,7 +160,7 @@ function ArchiveList() {
     const words = q.split(/\s+/).filter(Boolean);
     return archives.filter((a) => {
       if (!words.length || (numeric && found?.has(a.id))) return true;
-      const hay = `${a.id} ${a.names.join(" ")} ${a.tags.map((t) => t.name).join(" ")} ${a.language}`.toLowerCase();
+      const hay = `${a.id} ${a.names.join(" ")} ${a.en?.join(" ") ?? ""} ${a.tags.map((t) => t.name).join(" ")} ${a.language}`.toLowerCase();
       return words.every((w) => hay.includes(w));
     });
   }, [archives, q, numeric, found]);
@@ -218,20 +220,20 @@ function ArchiveList() {
   const rowMenu = (e: React.MouseEvent, a: ArchiveRow) => {
     const id = `archive:${a.id}`;
     const entries: MenuEntry[] = [
-      { label: "Open", run: () => openItem(id) },
-      { label: "Play a Sample", run: () => playSlot("vanilla", a.preview, revision, `${title(a)} (sample)`, { scope, itemId: id, cueId: null, source: a.preview }) },
-      { label: "Add to the Export List", run: async () => {
+      { label: t`Open`, run: () => openItem(id) },
+      { label: t`Play a Sample`, run: () => playSlot("vanilla", a.preview, revision, t`${ph({ name: title(a) })} (sample)`, { scope, itemId: id, cueId: null, source: a.preview }) },
+      { label: t`Add to the Export List`, run: async () => {
         const it = itemIndex.items.get(id) ?? await resolveItem(id);
         if (!it) return;
-        const all = itemEntries({ ...it, full: a.names.length ? `${title(a)} (${a.id})` : `Archive ${a.id}` }, "All Archives");
+        const all = itemEntries({ ...it, full: a.names.length ? `${title(a)} (${a.id})` : t`Archive ${ph({ id: a.id })}` }, t`All Archives`);
         quick(addedNote(exportList.add(all), all.length, 1), "add");
       } },
       "-",
       ...(listed.has(id) ? [
-        { label: "Open in the Audio Tab", run: () => goTo({ scope: "editor", itemId: id, cueId: null, source: null }) } as MenuEntry,
-        { label: "Remove from the Project", run: () => actions.removeFromProject([id], title(a)) } as MenuEntry,
-      ] : [{ label: "Add to the Project", run: () => actions.addToProject([id], title(a)) } as MenuEntry]),
-      { label: "Copy the Archive Name", run: () => copyText(a.id, quick) },
+        { label: t`Open in the Audio Tab`, run: () => goTo({ scope: "editor", itemId: id, cueId: null, source: null }) } as MenuEntry,
+        { label: t`Remove from the Project`, run: () => actions.removeFromProject([id], title(a)) } as MenuEntry,
+      ] : [{ label: t`Add to the Project`, run: () => actions.addToProject([id], title(a)) } as MenuEntry]),
+      { label: t`Copy the Archive Name`, run: () => copyText(a.id, quick) },
     ];
     openMenu(e, entries);
   };
@@ -240,9 +242,9 @@ function ArchiveList() {
   return (
     <>
       <div className="lib-search">
-        <input type="search" placeholder={`Search, or paste an ID${searchKey ? `  ( ${searchKey} )` : ""}`} value={query} onChange={(e) => setQuery(e.target.value)}
-          data-tip="Names, categories, languages or an archive name" data-tip-more="Or paste a source, stream or bank ID to find the archives that hold it"
-          aria-label="Search the archives" onKeyDown={(e) => {
+        <input type="search" placeholder={`${t`Search, or paste an ID`}${searchKey ? `  ( ${searchKey} )` : ""}`} value={query} onChange={(e) => setQuery(e.target.value)}
+          data-tip={t`Names, categories, languages or an archive name`} data-tip-more={t`Or paste a source, stream or bank ID to find the archives that hold it`}
+          aria-label={t`Search the archives`} onKeyDown={(e) => {
             if (e.key === "Escape") { if (query) setQuery(""); else e.currentTarget.blur(); }
             else if (e.key === "Enter" && sorted.length) { e.preventDefault(); openItem(`archive:${sorted[0].id}`); }
           }} />
@@ -254,7 +256,7 @@ function ArchiveList() {
           </colgroup>
           <thead>
             <tr>
-              <th aria-label="Play" />
+              <th aria-label={t`Play`} />
               {COLUMNS.map(([key, label, about]) => (
                 <th key={key} className={key === "banks" || key === "sounds" ? "num" : undefined}
                   aria-sort={sort.key === key ? (sort.up ? "ascending" : "descending") : undefined}>
@@ -265,7 +267,7 @@ function ArchiveList() {
                   {grip(key)}
                 </th>
               ))}
-              <th aria-label="In the project" />
+              <th aria-label={t`In the project`} />
             </tr>
           </thead>
           <tbody>
@@ -276,13 +278,14 @@ function ArchiveList() {
                 <tr key={a.id} className={`arc-row${i % 2 ? " odd" : ""}${id === itemId ? " active" : ""}${a.tags.length ? "" : " unnamed"}`}
                   aria-rowindex={i + 2} onClick={() => openItem(id)} onContextMenu={(e) => rowMenu(e, a)}>
                   <td onClick={(e) => e.stopPropagation()}>
-                    <PlayButton kind="vanilla" source={a.preview} label={`a sample of ${a.names.length ? name : "this archive"}`} what={`${name} (sample)`} small
+                    <PlayButton kind="vanilla" source={a.preview} label={a.names.length ? t({ message: `a sample of ${name}`, comment: "After Play or Pause on a play button" })
+                      : t({ message: "a sample of this archive", comment: "After Play or Pause on a play button" })} what={t`${name} (sample)`} small
                       at={{ scope, itemId: id, cueId: null, source: a.preview }} />
                   </td>
                   <td className="arc-name-cell">
                     <button className="arc-open" onClick={(e) => { e.stopPropagation(); openItem(id); }}>
-                      <span className="arc-name" data-tip={a.names.length ? name : "The Index has no name for this archive"} data-tip-clip={a.names.length ? true : undefined}
-                        data-tip-more={a.names.length ? undefined : "Play the sample or open it to hear what it holds"}>{a.names.length ? name : "Not named yet"}</span>
+                      <span className="arc-name" data-tip={a.names.length ? name : t`The Index has no name for this archive`} data-tip-clip={a.names.length ? true : undefined}
+                        data-tip-more={a.names.length ? undefined : t`Play the sample or open it to hear what it holds`}>{a.names.length ? name : t`Not named yet`}</span>
                     </button>
                   </td>
                   <td className="arc-cats">{(() => {
@@ -296,8 +299,8 @@ function ArchiveList() {
                   <td className="num">{a.sounds}</td>
                   <td className="arc-act" onClick={(e) => e.stopPropagation()}>
                     <AddToggle added={added} run={() => (added ? actions.removeFromProject([id], name) : actions.addToProject([id], name))}
-                      label={`${added ? "Remove" : "Add"} ${name} ${added ? "from" : "to"} the project`} tip={added ? "Remove from the project" : "Add to the project"}
-                      more={added ? "Also removes the new audio. Undo brings both back." : project ? undefined : "Open or create a project first"} />
+                      label={added ? t`Remove ${name} from the project` : t`Add ${name} to the project`} tip={added ? t`Remove from the project` : t`Add to the project`}
+                      more={added ? t`Also removes the new audio. Undo brings both back.` : project ? undefined : t`Open or create a project first`} />
                   </td>
                 </tr>
               );
@@ -305,7 +308,7 @@ function ArchiveList() {
             {last < sorted.length && <tr className="arc-spacer" aria-hidden style={{ height: (sorted.length - last) * size.row }}><td colSpan={8} /></tr>}
           </tbody>
         </table>
-        {!rows.length && <p className="empty-note">{q ? `No archive matches “${query}”.` : "Nothing here."}</p>}
+        {!rows.length && <p className="empty-note">{q ? t`No archive matches “${query}”.` : t`Nothing here.`}</p>}
       </div>
       {menu}
     </>
@@ -317,13 +320,13 @@ export function ProjectPanel() {
   const { project, actions } = useEditor();
   if (!project) {
     return (
-      <aside className="library" aria-label="Project">
+      <aside className="library" aria-label={t`Project`}>
         <div className="lib-empty">
-          <h2>No project open</h2>
-          <p>Open or create a project, then add music or sounds to it from the Library.</p>
+          <h2><Trans>No project open</Trans></h2>
+          <p><Trans>Open or create a project, then add music or sounds to it from the Library.</Trans></p>
           <div className="row-btns">
-            <button className="btn primary" onClick={actions.newProject}>New Project</button>
-            <button className="btn" onClick={() => actions.openProject()}>Open Project</button>
+            <button className="btn primary" onClick={actions.newProject}><Trans>New Project</Trans></button>
+            <button className="btn" onClick={() => actions.openProject()}><Trans>Open Project</Trans></button>
           </div>
         </div>
       </aside>
@@ -331,15 +334,15 @@ export function ProjectPanel() {
   }
   const empty = !project.library.length && !project.library_missing.length && !project.outside.length;
   return (
-    <aside className="library" aria-label="Project">
+    <aside className="library" aria-label={t`Project`}>
       <div className="lib-title">
-        <h2 data-tip={project.name} data-tip-clip>In This Project</h2>
-        <button className="btn quiet small-btn" onClick={() => nav.go("library")} data-tip="Find more in the Library">Add from the Library</button>
+        <h2 data-tip={project.name} data-tip-clip><Trans>In This Project</Trans></h2>
+        <button className="btn quiet small-btn" onClick={() => nav.go("library")} data-tip={t`Find more in the Library`}><Trans>Add from the Library</Trans></button>
       </div>
       {empty ? (
         <div className="lib-empty">
-          <p>The project is empty. Add music or sounds from the Library.</p>
-          <div className="row-btns"><button className="btn primary" onClick={() => nav.go("library")}>Open the Library</button></div>
+          <p><Trans>The project is empty. Add music or sounds from the Library.</Trans></p>
+          <div className="row-btns"><button className="btn primary" onClick={() => nav.go("library")}><Trans>Open the Library</Trans></button></div>
         </div>
       ) : (
         <>
@@ -362,16 +365,16 @@ function OtherSounds() {
     <div className="lib-other">
       <div className="lib-group">
         <button className="lib-group-head" aria-expanded={open} onClick={() => setOpen(!open)}
-          data-tip="Replaced slots that no project entry contains">
+          data-tip={t`Replaced slots that no project entry contains`}>
           <span className="caret" aria-hidden>▸</span>
-          <span className="lib-group-name">Other Replaced Sounds</span>
+          <span className="lib-group-name"><Trans>Other Replaced Sounds</Trans></span>
         </button>
         <Fold open={open} className="lib-group-body">
           {others.map((sid) => {
             const a = project!.assignments[sid];
             return (
               <button key={sid} className={`lib-cue${cueId === `sfx:${sid}` ? " active" : ""}`} style={{ paddingLeft: 26 }} onClick={() => openCue(`sfx:${sid}`, sid)}>
-                <span className="lib-cue-name">{a?.label || (a?.silence ? "Silence" : sid)}</span>
+                <span className="lib-cue-name">{a?.label || (a?.silence ? t`Silence` : sid)}</span>
                 <span className="lib-cue-meta"><span className="dur">{sid}</span></span>
               </button>
             );

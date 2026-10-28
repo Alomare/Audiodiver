@@ -1,5 +1,7 @@
+import { ph, plural, t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { audioUrl, call, fileUrl, fmtTime, type Cue } from "./api";
+import { audioUrl, call, fileUrl, fmtNumber, fmtTime, type Cue } from "./api";
 import { rowName, rowsOf, type Row } from "./CueView";
 import { useDialog } from "./dialog";
 import { pickAudio } from "./platform";
@@ -97,7 +99,7 @@ const originalMs = (r: Row) => r.slot.duration_ms || r.seg.duration_ms || 0;
 /** A piece's length against its original's: "+0.8 s" longer, "−1.2 s" shorter, "=" within 50 ms. */
 function diffText(ms: number) {
   if (Math.abs(ms) < 50) return "=";
-  return `${ms > 0 ? "+" : "−"}${(Math.abs(ms) / 1000).toFixed(Math.abs(ms) < 10000 ? 1 : 0)} s`;
+  return `${ms > 0 ? "+" : "−"}${fmtNumber(Math.abs(ms) / 1000, Math.abs(ms) < 10000 ? 1 : 0)} s`;
 }
 
 /** A song for the Soundtrack: the piece of music's cue, the segments the song fills in order (a piece each, into
@@ -230,7 +232,12 @@ export function SliceTool({ onClose, target, file: given }: { onClose: () => voi
     setLayout("custom");
   };
   const addCut = (ms: number) => {
-    if (n >= reach.length) { notify("info", `No room for another piece. This cue has ${reach.length} slot${reach.length === 1 ? "" : "s"} from ${startRow ? rowName(startRow) : "here"}.`); return; }
+    if (n >= reach.length) {
+      notify("info", startRow
+        ? t`No room for another piece. This cue has ${plural({ slots: reach.length }, { one: "# slot", other: "# slots" })} from ${ph({ start: rowName(startRow) })}.`
+        : t`No room for another piece. This cue has ${plural({ slots: reach.length }, { one: "# slot", other: "# slots" })} from here.`);
+      return;
+    }
     const i = bounds.findIndex((b) => b > ms);
     if (i <= 0 || ms - bounds[i - 1] < MIN_PIECE || bounds[i] - ms < MIN_PIECE) return;
     setBounds((b) => [...b.slice(0, i), Math.round(ms), ...b.slice(i)]);
@@ -254,13 +261,14 @@ export function SliceTool({ onClose, target, file: given }: { onClose: () => voi
   const playSong = (fromMs: number, toMs?: number, piece?: number) => {
     inTurn.current = null;
     if (file) player.playFrom(piece === undefined ? KEY : `${KEY}:${piece}`, song, fromMs / 1000, toMs !== undefined ? toMs / 1000 : undefined,
-      `Slice · ${file.split(/[\\/]/).pop()}`);
+      t({ message: `Slice · ${ph({ song: file.split(/[\\/]/).pop()! })}`, comment: "Now playing: the song open in the slice tool" }));
   };
   const playOriginal = (i: number, offsetMs = 0, next = false) => {
     const r = targets[i];
     inTurn.current = next ? i : null;
     if (r) player.playFrom(`vanilla:${r.slot.source}`, audioUrl("vanilla", r.slot.source), offsetMs / 1000, undefined,
-      next ? `Originals · ${i + 1} of ${n} · ${rowName(r)}` : `${rowName(r)} · original`);
+      next ? t({ message: `Originals · ${ph({ number: i + 1 })} of ${ph({ count: n })} · ${ph({ slot: rowName(r) })}`, comment: "Now playing: the originals of the slice tool, one after another" })
+        : t({ message: `${ph({ slot: rowName(r) })} · original`, comment: "Now playing: the original audio of a slot" }));
   };
   useEffect(() => player.onEnded((key) => {
     const i = inTurn.current;
@@ -310,55 +318,57 @@ export function SliceTool({ onClose, target, file: given }: { onClose: () => voi
 
   return (
     <div className="modal-back" onPointerDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="modal slice" role="dialog" aria-modal="true" aria-label="Slice a song into this cue" ref={box} tabIndex={-1}>
+      <div className="modal slice" role="dialog" aria-modal="true" aria-label={t`Slice a song into this cue`} ref={box} tabIndex={-1}>
         <div className="pop-head">
-          <h2>Slice a song into {cue.name}</h2>
-          <Help tip="Drag a cut to move it, and hold Shift to stop it snapping to the original length. Double-click the song to add a cut. Delete removes the selected cut, and ←/→ nudge it (Shift moves 100 ms, Alt moves 1 ms). The wheel zooms in on time, Ctrl+wheel on the level, Shift+wheel scrolls, and Space plays." page="timing-and-loops#slicing-one-long-song" />
+          <h2><Trans>Slice a song into {ph({ cue: cue.name })}</Trans></h2>
+          <Help tip={t`Drag a cut to move it, and hold Shift to stop it snapping to the original length. Double-click the song to add a cut. Delete removes the selected cut, and ←/→ nudge it (Shift moves 100 ms, Alt moves 1 ms). The wheel zooms in on time, Ctrl+wheel on the level, Shift+wheel scrolls, and Space plays.`} page="timing-and-loops#slicing-one-long-song" />
           <span className="spacer" />
-          <button className="x" onClick={onClose} aria-label="Close">✕</button>
+          <button className="x" onClick={onClose} aria-label={t`Close`}>✕</button>
         </div>
         {!file || !info ? (
           <div className="slice-empty">
-            <p>{file ? "Reading the song…" : "Choose a song to cut into the slots."}</p>
-            {!file && <button className="btn primary" onClick={choose}>Choose a Song</button>}
+            <p>{file ? t`Reading the song…` : t`Choose a song to cut into the slots.`}</p>
+            {!file && <button className="btn primary" onClick={choose}><Trans>Choose a Song</Trans></button>}
           </div>
         ) : (
           <>
             <div className="slice-bar">
               <span className="slice-file" data-tip={file} data-tip-clip>{file.split(/[\\/]/).pop()}</span>
               <span className="muted">{fmtTime(info.duration_ms)}</span>
-              <button className="btn small-btn" onClick={choose} data-tip="Choose another song">Change</button>
+              <button className="btn small-btn" onClick={choose} data-tip={t`Choose another song`}><Trans>Change</Trans></button>
               <span className="spacer" />
               {!target && (
-                <label className="slice-field" data-tip="The slot that gets the first piece">From
+                <label className="slice-field" data-tip={t`The slot that gets the first piece`}><Trans comment="Slice tool: the slot that gets the first piece of the song">From</Trans>
                   <select value={start} onChange={(e) => setStart(e.target.value)}>
                     {rows.map((r) => <option key={r.slot.source} value={r.slot.source}>{slotName(r)}</option>)}
                   </select>
                 </label>
               )}
-              <label className="slice-field" data-tip="The slot that gets the last piece"
-                data-tip-more={target ? "Each segment up to here gets one piece of the song" : "Each slot from From to here gets one piece of the song"}>To
+              <label className="slice-field" data-tip={t`The slot that gets the last piece`}
+                data-tip-more={target ? t`Each segment up to here gets one piece of the song` : t`Each slot from From to here gets one piece of the song`}>
+                <Trans comment="Slice tool: the slot that gets the last piece of the song">To</Trans>
                 <select value={targets[targets.length - 1]?.slot.source ?? ""} onChange={(e) => setStop(e.target.value)}>
-                  {reach.map((r, i) => <option key={r.slot.source} value={r.slot.source}>{slotName(r)} · {i + 1} piece{i ? "s" : ""}</option>)}
+                  {reach.map((r, i) => <option key={r.slot.source} value={r.slot.source}>{slotName(r)} · {plural({ pieces: i + 1 }, { one: "# piece", other: "# pieces" })}</option>)}
                 </select>
               </label>
-              {n < targets.length && <span className="muted slice-through" data-tip="The song is too short for a piece in every slot">{n} of {targets.length} slots</span>}
+              {n < targets.length && <span className="muted slice-through" data-tip={t`The song is too short for a piece in every slot`}>
+                {t`${ph({ pieces: n })} of ${plural({ slots: targets.length }, { one: "# slot", other: "# slots" })}`}</span>}
             </div>
 
             <div className="slice-tools">
               <button className={`btn small-btn play-btn${songOn ? " on" : ""}`} onClick={() => (songOn ? player.toggle() : playSong(bounds[0]))}
-                data-tip="Play the song from the first cut">{songOn ? "❚❚" : "▶"} Song</button>
+                data-tip={t`Play the song from the first cut`}>{songOn ? "❚❚" : "▶"} <Trans>Song</Trans></button>
               <button className={`btn small-btn play-btn${originalsOn ? " on" : ""}`} onClick={() => (originalsOn ? player.toggle() : playOriginal(0, 0, true))}
-                data-tip="Play the originals one after another">{originalsOn ? "❚❚" : "▶"} Originals</button>
-              <div className="segmented" role="radiogroup" aria-label="Place the cuts">
-                {([["proportions", "Original Proportions", "The whole song, cut in the proportions of the originals", ""],
-                  ["lengths", "Original Lengths", "Each piece as long as the original, so the timing stays the same", "The song after the last piece is left out"],
-                  ["even", "Even", "The whole song, in pieces of equal length", ""]] as const).map(([how, label, tip, more]) => (
+                data-tip={t`Play the originals one after another`}>{originalsOn ? "❚❚" : "▶"} <Trans comment="Button: plays the original audio of the slots, one after another">Originals</Trans></button>
+              <div className="segmented" role="radiogroup" aria-label={t`Place the cuts`}>
+                {([["proportions", t`Original Proportions`, t`The whole song, cut in the proportions of the originals`, ""],
+                  ["lengths", t`Original Lengths`, t`Each piece as long as the original, so the timing stays the same`, t`The song after the last piece is left out`],
+                  ["even", t({ message: "Even", context: "Slice tool: the song cut into pieces of equal length" }), t`The whole song, in pieces of equal length`, ""]] as const).map(([how, label, tip, more]) => (
                   <button key={how} role="radio" aria-checked={layout === how} className={layout === how ? "on" : ""} data-tip={tip} data-tip-more={more || undefined}
                     disabled={how !== "even" && !known} onClick={() => apply(how)}>{label}</button>
                 ))}
               </div>
-              {layout === "custom" && <span className="muted small">Placed by hand</span>}
+              {layout === "custom" && <span className="muted small"><Trans>Placed by hand</Trans></span>}
             </div>
 
             <div className="slice-zoomed zoom-grid">
@@ -370,23 +380,26 @@ export function SliceTool({ onClose, target, file: given }: { onClose: () => voi
               <WaveZoom zoom={sliceZoom} />
             </div>
 
-            <div className="slice-list" role="table" aria-label="Pieces">
+            <div className="slice-list" role="table" aria-label={t`Pieces`}>
               <div className="slice-piece head" role="row">
-                <span /><span>#</span><span>Slot</span><span data-tip="Where the piece starts and ends in the song">Cut</span>
-                <span className="num" data-tip="How long the piece is">New</span><span /><span className="num" data-tip="How long the original is">Original</span>
-                <span className="num" data-tip="How much longer (+) or shorter (−) the piece is than the original">Difference</span>
+                <span /><span>#</span><span><Trans>Slot</Trans></span>
+                <span data-tip={t`Where the piece starts and ends in the song`}><Trans context="Column of the slice tool: where a piece starts and ends in the song">Cut</Trans></span>
+                <span className="num" data-tip={t`How long the piece is`}><Trans context="Column of the slice tool: how long the new piece is">New</Trans></span><span />
+                <span className="num" data-tip={t`How long the original is`}><Trans>Original</Trans></span>
+                <span className="num" data-tip={t`How much longer (+) or shorter (−) the piece is than the original`}><Trans>Difference</Trans></span>
               </div>
               {targets.slice(0, n).map((r, i) => {
                 const len = bounds[i + 1] - bounds[i], orig = lens[i], d = len - orig;
+                const piece = i + 1, slot = rowName(r);
                 return (
                   <div key={r.slot.source} role="row" className={`slice-piece${sel === i ? " on" : ""}`}
                     onClick={() => { setSel(i); reveal(bounds[i], bounds[i + 1]); }}>
-                    <PieceButton k={`${KEY}:${i}`} label={`piece ${i + 1}`} onPlay={() => playSong(bounds[i], bounds[i + 1], i)} tone="project" />
+                    <PieceButton k={`${KEY}:${i}`} play={t`Play piece ${piece}`} pause={t`Pause piece ${piece}`} onPlay={() => playSong(bounds[i], bounds[i + 1], i)} tone="project" />
                     <span className="piece-n">{i + 1}</span>
                     <span className="piece-slot" data-tip={rowName(r)} data-tip-clip>{rowName(r)}{r.slot.variant ? ` · ${r.slot.variant}` : ""}</span>
                     <span className="piece-len">{fmtTime(bounds[i])} – {fmtTime(bounds[i + 1])}</span>
                     <span className="piece-len num mine">{fmtTime(len)}</span>
-                    <PieceButton k={`vanilla:${r.slot.source}`} label={`the original ${rowName(r)}`} onPlay={() => playOriginal(i)} tone="vanilla" />
+                    <PieceButton k={`vanilla:${r.slot.source}`} play={t`Play the original ${slot}`} pause={t`Pause the original ${slot}`} onPlay={() => playOriginal(i)} tone="vanilla" />
                     <span className="piece-len num">{orig ? fmtTime(orig) : "–"}</span>
                     <span className={`piece-len num diff${!orig ? "" : Math.abs(d) < 50 ? " same" : ""}`}>{orig ? diffText(d) : ""}</span>
                   </div>
@@ -394,12 +407,13 @@ export function SliceTool({ onClose, target, file: given }: { onClose: () => voi
               })}
             </div>
             <div className="modal-foot">
-              <span className="muted small">{tooShort ? `This song is shorter than ${MIN_PIECE} ms and can't be cut.`
-                : <>Pieces are saved in the project's <code>audio\slices</code> folder.</>}</span>
+              <span className="muted small">{tooShort ? t`This song is shorter than ${MIN_PIECE} ms and can't be cut.`
+                : <Trans>Pieces are saved in the project's <code>{ph({ folder: "audio\\slices" })}</code> folder.</Trans>}</span>
               <span className="spacer" />
-              <button className="btn quiet" onClick={onClose}>Cancel</button>
+              <button className="btn quiet" onClick={onClose}><Trans>Cancel</Trans></button>
               <button className="btn primary" disabled={busy || n < 1 || tooShort} onClick={submit}>
-                {busy ? "Slicing" : target ? `Cut into ${n} Piece${n === 1 ? "" : "s"}` : `Slice and Fill ${n} Slot${n === 1 ? "" : "s"}`}</button>
+                {busy ? t`Slicing` : target ? plural({ pieces: n }, { one: "Cut into # Piece", other: "Cut into # Pieces" })
+                  : plural({ slots: n }, { one: "Slice and Fill # Slot", other: "Slice and Fill # Slots" })}</button>
             </div>
           </>
         )}
@@ -408,11 +422,12 @@ export function SliceTool({ onClose, target, file: given }: { onClose: () => voi
   );
 }
 
-/** A play button that follows its own key in the player: a piece of the song (`slice:<n>`) or an original. */
-function PieceButton({ k, label, onPlay, tone }: { k: string; label: string; onPlay: () => void; tone: "project" | "vanilla" }) {
+/** A play button that follows its own key in the player: a piece of the song (`slice:<n>`) or an original. `play`
+    and `pause` say what a click does, each as a whole message. */
+function PieceButton({ k, play, pause, onPlay, tone }: { k: string; play: string; pause: string; onPlay: () => void; tone: "project" | "vanilla" }) {
   const { playing } = usePlayerLook(k);
   return (
-    <button className={`play small ${tone}${playing ? " playing" : ""}`} aria-label={`${playing ? "Pause" : "Play"} ${label}`} data-tip={`${playing ? "Pause" : "Play"} ${label}`}
+    <button className={`play small ${tone}${playing ? " playing" : ""}`} aria-label={playing ? pause : play} data-tip={playing ? pause : play}
       onClick={(e) => { e.stopPropagation(); if (playing) player.toggle(); else onPlay(); }}>
       <span aria-hidden>{playing ? "❚❚" : "▶"}</span>
     </button>
@@ -489,7 +504,7 @@ function Lanes({ info, bounds, targets, view, tall, sel, setSel, waveZoom, moveC
     for (let t = Math.ceil(view.from / step) * step; t <= view.from + view.span; t += step) {
       const px = Math.round(x(t)) + 0.5;
       g.beginPath(); g.moveTo(px, LANES.ruler - 6); g.lineTo(px, LANES.ruler); g.stroke();
-      g.fillText(step < 1000 ? `${(t / 1000).toFixed(1)} s` : fmtTime(t), px + 3, LANES.ruler / 2 - 1);
+      g.fillText(step < 1000 ? `${fmtNumber(t / 1000, 1)} s` : fmtTime(t), px + 3, LANES.ruler / 2 - 1);
     }
     g.fillStyle = v("--line"); g.fillRect(0, origTop, width, 1);
 
@@ -569,9 +584,9 @@ function Lanes({ info, bounds, targets, view, tall, sel, setSel, waveZoom, moveC
     <div className="slice-lanes">
       <div className="slice-lane-labels" aria-hidden>
         <span style={{ height: LANES.ruler }} />
-        <b className="mine" style={{ height: LANES.song }} data-tip="The song, cut into pieces" data-tip-more="A click plays from there, and a double-click adds a cut">New audio</b>
-        <b className="game" style={{ height: LANES.original }} data-tip="Each original starts at the cut of the piece that replaces it"
-          data-tip-more="A red edge marks an original that runs past the next cut, and a dashed line one that ends before it">Original</b>
+        <b className="mine" style={{ height: LANES.song }} data-tip={t`The song, cut into pieces`} data-tip-more={t`A click plays from there, and a double-click adds a cut`}><Trans>New audio</Trans></b>
+        <b className="game" style={{ height: LANES.original }} data-tip={t`Each original starts at the cut of the piece that replaces it`}
+          data-tip-more={t`A red edge marks an original that runs past the next cut, and a dashed line one that ends before it`}><Trans>Original</Trans></b>
       </div>
       <div className="slice-canvas" ref={wrap} style={{ height }}
         onPointerDown={(e) => {
@@ -601,13 +616,14 @@ function Lanes({ info, bounds, targets, view, tall, sel, setSel, waveZoom, moveC
         {bounds.map((ms, i) => {
           const px = x(ms);
           if (px < -8 || px > width + 8) return null;
-          const name = i === 0 ? "Start" : i === n ? "End" : `Cut ${i}`;
+          const name = i === 0 ? t({ message: "Start", context: "Slice tool: the cut where the first piece starts" })
+            : i === n ? t({ message: "End", context: "Slice tool: the cut where the last piece ends" }) : t`Cut ${ph({ number: i })}`;
           return (
             <div key={i} className={`slice-cut${sel === i ? " on" : ""}${drag === i ? " dragging" : ""}${i === 0 || i === n ? " edge" : ""}${i === n ? " end" : ""}`}
               style={{ transform: `translateX(${px}px)`, top: LANES.ruler, height: LANES.song + LANES.original }}
               role="slider" tabIndex={0} aria-label={name} aria-valuenow={Math.round(ms)} aria-valuetext={fmtTime(ms)}
-              data-tip={drag === null ? `${name} at ${fmtTime(ms)}` : undefined} data-tip-side="top"
-              data-tip-more={i === 0 ? "Drag it to leave out the start of the song" : i === n ? "Drag it to leave out the end of the song" : undefined}
+              data-tip={drag === null ? t`${name} at ${ph({ time: fmtTime(ms) })}` : undefined} data-tip-side="top"
+              data-tip-more={i === 0 ? t`Drag it to leave out the start of the song` : i === n ? t`Drag it to leave out the end of the song` : undefined}
               onFocus={() => setSel(i)}
               onPointerDown={(e) => { e.stopPropagation(); e.preventDefault(); (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); setDrag(i); setSel(i); }}
               onPointerMove={(e) => { if (drag === i) dragTo(i, e.clientX, e.shiftKey); }}

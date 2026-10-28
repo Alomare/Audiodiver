@@ -25,6 +25,7 @@ from pathlib import Path
 
 from . import addition, patch
 from . import bank as wbank
+from .i18n import tr
 from .repatch import PATCH_RE, RepatchError, scan
 
 ARSENAL_DATA = Path(os.environ.get("LOCALAPPDATA") or Path.home() / "AppData" / "Local") / "hd2arsenal" / "hd2a_data.json"
@@ -190,7 +191,7 @@ def check(ix, data: Path, arsenal_file=None, step=None, echelon_file=None) -> di
         parts = []
         for label, path in patches:
             if step:
-                step(f"Checking {name}", done, total)
+                step(tr("Checking {mod}").format(mod=name), done, total)
             done += 1
             parts.append({"label": label, "file": str(path), **_checked(path, ix)})
         state = _worst(parts)

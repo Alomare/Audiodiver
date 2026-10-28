@@ -1,4 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { t, plural, ph } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { call, type Place } from "./api";
 import type { CommandId } from "./keys";
 import { HeaderIcon, SearchIcon, WavesIcon } from "./Icons";
@@ -29,12 +31,13 @@ export function usePanels(view: string) {
 export function PanelToggles({ panels, set, waves }: { panels: Panels; set: (p: Panels) => void; waves: boolean }) {
   return (
     <div className="panel-toggles">
-      <button className={`icon-btn${panels.head ? " on" : ""}`} aria-pressed={panels.head} aria-label="Header"
-        onClick={() => set({ ...panels, head: !panels.head })} data-tip={panels.head ? "Hide the header" : "Show the header"}>
+      <button className={`icon-btn${panels.head ? " on" : ""}`} aria-pressed={panels.head}
+        aria-label={t({ message: "Header", comment: "Toggle button for the panel above the slots: the title of what is open and the facts about it" })}
+        onClick={() => set({ ...panels, head: !panels.head })} data-tip={panels.head ? t`Hide the header` : t`Show the header`}>
         <HeaderIcon on={panels.head} /></button>
-      <button className={`icon-btn${panels.waves ? " on" : ""}`} aria-pressed={panels.waves} aria-label="Waveforms" disabled={!waves}
+      <button className={`icon-btn${panels.waves ? " on" : ""}`} aria-pressed={panels.waves} aria-label={t`Waveforms`} disabled={!waves}
         onClick={() => set({ ...panels, waves: !panels.waves })}
-        data-tip={!waves ? "Select a slot to see the waveforms" : panels.waves ? "Hide the waveforms" : "Show the waveforms"}>
+        data-tip={!waves ? t`Select a slot to see the waveforms` : panels.waves ? t`Hide the waveforms` : t`Show the waveforms`}>
         <WavesIcon on={panels.waves} /></button>
     </div>
   );
@@ -52,12 +55,12 @@ export function ToolButton({ icon, name, about, cmd, primary, disabled, onClick 
 
 /** The search box of the toolbar: it narrows the slots of what is open. */
 export function SlotSearch({ value, onChange, sounds }: { value: string; onChange: (v: string) => void; sounds: boolean }) {
-  const what = sounds ? "sounds" : "slots";
+  const label = sounds ? t`Search sounds` : t`Search slots`;
   return (
     <label className="slot-search">
       <SearchIcon />
-      <input type="search" placeholder={`Search ${what}`} value={value} onChange={(e) => onChange(e.target.value)} aria-label={`Search ${what}`}
-        data-tip={sounds ? "Name, words of a voice line, label, note, file name or ID" : "Name, label, note, file name or ID"} data-tip-side="top"
+      <input type="search" placeholder={label} value={value} onChange={(e) => onChange(e.target.value)} aria-label={label}
+        data-tip={sounds ? t`Name, words of a voice line, label, note, file name or ID` : t`Name, label, note, file name or ID`} data-tip-side="top"
         onKeyDown={(e) => { if (e.key === "Escape") { if (value) onChange(""); else e.currentTarget.blur(); } }} />
     </label>
   );
@@ -99,19 +102,19 @@ export function Elsewhere({ query, here }: { query: string; here: string }) {
   const shown = lines.slice(0, 8);
   return (
     <div className="elsewhere">
-      <p>Elsewhere</p>
+      <p><Trans comment="Heading over the places elsewhere in the game that match the slot search">Elsewhere</Trans></p>
       {shown.map(({ at: p, n }, i) => {
         const item = itemIndex.items.get(p.item!);
-        const name = item ? where(itemIndex, item) : p.item!.startsWith("archive:") ? `Archive ${p.item!.slice(8)}` : p.item!;
+        const name = item ? where(itemIndex, item) : p.item!.startsWith("archive:") ? t`Archive ${ph({ archive: p.item!.slice(8) })}` : p.item!;
         const inProject = !!item && listed.has(item.id);
         return (
           <button key={i} className="link-text" onClick={() => goTo({ scope: inProject ? "editor" : "library", itemId: p.item, cueId: p.cue, source: p.source })}
-            data-tip={inProject ? "In the project" : "In the Library"}>
-            {name}{p.label ? ` · ${p.label}` : ""}{n > 1 ? ` (${n} slots)` : ""}
+            data-tip={inProject ? t`In the project` : t`In the Library`}>
+            {name}{p.label ? ` · ${p.label}` : ""}{n > 1 ? ` (${plural(n, { one: "# slot", other: "# slots" })})` : ""}
           </button>
         );
       })}
-      {lines.length > shown.length && <p className="slots-note">and {lines.length - shown.length} more</p>}
+      {lines.length > shown.length && <p className="slots-note"><Trans>and {ph({ more: lines.length - shown.length })} more</Trans></p>}
     </div>
   );
 }

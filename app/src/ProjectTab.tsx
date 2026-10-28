@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { call, fmtBytes, fmtWhen, iconUrl, nameProblem, plural, type Icon, type IconFrame } from "./api";
+import { plural, t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
+import { call, fmtBytes, fmtWhen, iconUrl, nameProblem, type Icon, type IconFrame } from "./api";
 import { confirm } from "./Confirm";
 import { FolderIcon } from "./Icons";
 import { NoProjectCard, Page, useDraft } from "./Page";
@@ -20,12 +22,12 @@ const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b)
 export function ProjectTab() {
   const { project } = useEditor();
   return (
-    <Page title="Project" wide
-      lead={<>Projects are folders containing the mod and all associated files.{" "}
-        <Help tip="The project file records what the mod replaces and with which files. Audiodiver keeps what it makes for the project beside that file" page="project-folders" /></>}>
+    <Page title={t({ message: "Project", comment: "Title of the Project tab" })} wide
+      lead={<><Trans>Projects are folders containing the mod and all associated files.</Trans>{" "}
+        <Help tip={t`The project file records what the mod replaces and with which files. Audiodiver keeps what it makes for the project beside that file`} page="project-folders" /></>}>
       {project ? <ProjectPage key={project.path} />
         : <div className="proj-none">
-          <NoProjectCard text="Create or open a project, or open a pack." recent={false} />
+          <NoProjectCard text={t`Create or open a project, or open a pack.`} recent={false} />
           <RecentProjects />
         </div>}
     </Page>
@@ -59,8 +61,8 @@ function RecentProjects() {
 
   if (!recent.length) return null;
   return (
-    <section className="set-sec recent" aria-label="Recent projects">
-      <h2>Recent projects</h2>
+    <section className="set-sec recent" aria-label={t`Recent projects`}>
+      <h2><Trans>Recent projects</Trans></h2>
       <ul>
         {recent.map((path) => {
           const i = info[path];
@@ -74,13 +76,13 @@ function RecentProjects() {
                 <span className="recent-name">{name}</span>
                 <span className="recent-path" data-tip={path} data-tip-clip>{path}</span>
               </button>
-              <span className="recent-when" data-tip={missing ? "Moved, renamed or deleted" : unreadable ? "Not an Audiodiver project, or damaged" : undefined}>
-                {missing ? "Not found" : unreadable ? "Can't be read" : fmtWhen(i?.modified)}</span>
+              <span className="recent-when" data-tip={missing ? t`Moved, renamed or deleted` : unreadable ? t`Not an Audiodiver project, or damaged` : undefined}>
+                {missing ? t`Not found` : unreadable ? t`Can't be read` : fmtWhen(i?.modified)}</span>
               <span className="recent-tools">
-                <button className="x" aria-label={`Show ${name} in folder`} disabled={missing}
-                  onClick={() => reveal(path)} data-tip="Show in folder"><FolderIcon /></button>
-                <button className="x" aria-label={`Remove ${name} from this list`} onClick={() => forget(path)}
-                  data-tip="Remove from this list" data-tip-more="The file stays where it is">✕</button>
+                <button className="x" aria-label={t`Show ${name} in folder`} disabled={missing}
+                  onClick={() => reveal(path)} data-tip={t`Show in folder`}><FolderIcon /></button>
+                <button className="x" aria-label={t`Remove ${name} from this list`} onClick={() => forget(path)}
+                  data-tip={t`Remove from this list`} data-tip-more={t`The file stays where it is`}>✕</button>
               </span>
             </li>
           );
@@ -134,15 +136,15 @@ function ProjectPage() {
       <div className="bld-main">
         {/* a new project: the first step is on other tabs */}
         {shown.includes("editor") && !p.library.length && !Object.keys(p.assignments).length && (
-          <p className="info-box">Nothing in the project yet. Add music or sounds from
+          <p className="info-box"><Trans>Nothing in the project yet. Add music or sounds from
             the <button className="link-text" onClick={() => nav.go("library")}>Library</button>, then replace them on
             the <button className="link-text" onClick={() => nav.go("editor")}>Audio</button> tab.{" "}
-            <WikiLink page="first-mod" about="A first mod">A first mod, step by step</WikiLink></p>
+            <WikiLink page="first-mod" about={t`A first mod`}>A first mod, step by step</WikiLink></Trans></p>
         )}
         <section className="set-sec">
-          <h2>Name and description</h2>
+          <h2><Trans>Name and description</Trans></h2>
           <label className="field">
-            <span className="field-label">Name <Help tip="Choose it before sharing. Mod managers keep the name from the first import. Leave out the version." page="build-and-install#name-and-description" /></span>
+            <span className="field-label"><Trans>Name</Trans> <Help tip={t`Choose it before sharing. Mod managers keep the name from the first import. Leave out the version.`} page="build-and-install#name-and-description" /></span>
             <input value={name} maxLength={80} spellCheck={false} aria-invalid={!!problem} onChange={(e) => setName(e.target.value)} onBlur={saveName}
               onKeyDown={(e) => {
                 if (e.key === "Enter") e.currentTarget.blur();
@@ -151,7 +153,7 @@ function ProjectPage() {
             {problem && <small className="bad">{problem}</small>}
           </label>
           <label className="field">
-            <span className="field-label">Description <Help tip="Optional. Shown with the mod in the mod manager." page="build-and-install#name-and-description" /></span>
+            <span className="field-label"><Trans>Description</Trans> <Help tip={t`Optional. Shown with the mod in the mod manager.`} page="build-and-install#name-and-description" /></span>
             <textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)}
               onBlur={() => { if (description.trim() !== p.description) save({ description }); }} />
           </label>
@@ -162,7 +164,7 @@ function ProjectPage() {
         <ModId />
 
         <section className="set-sec">
-          <h2>Tabs <Help tip="Hide the tabs this mod doesn't use, such as all but Text for a subtitle mod. What was changed in a hidden tab stays in the mod. A new project starts with the tabs Settings ▸ System shows." page="how-audiodiver-works#tabs" /></h2>
+          <h2><Trans>Tabs</Trans> <Help tip={t`Hide the tabs this mod doesn't use, such as all but Text for a subtitle mod. What was changed in a hidden tab stays in the mod. A new project starts with the tabs Settings ▸ System shows.`} page="how-audiodiver-works#tabs" /></h2>
           <TabChecks value={shown} onChange={(tabs) => actions.settings({ tabs })} />
         </section>
 
@@ -170,9 +172,9 @@ function ProjectPage() {
         <UnusedFiles busy={busy} />
 
         <section className="set-sec">
-          <h2>Export <Help tip="A pack is one .audipack file with the project and all associated files, for moving it to another computer or keeping a copy." page="project-folders#packs" /></h2>
+          <h2><Trans comment="Heading: exporting the project as a pack">Export</Trans> <Help tip={t`A pack is one .audipack file with the project and all associated files, for moving it to another computer or keeping a copy.`} page="project-folders#packs" /></h2>
           <div className="row-btns">
-            <button className="btn" onClick={actions.exportPack} disabled={busy}>Export as Pack</button>
+            <button className="btn" onClick={actions.exportPack} disabled={busy}><Trans>Export as Pack</Trans></button>
           </div>
         </section>
       </div>
@@ -180,9 +182,9 @@ function ProjectPage() {
       <aside className="bld-side">
         <div className="side-actions">
           <button className="btn" onClick={() => actions.importPatch()}
-            data-tip="Import the audio, added sounds and text of a mod into this project"
-            data-tip-more="A ZIP or a .patch_0 file, such as a mod made with another tool">Import Patches</button>
-          <button className="btn quiet" onClick={actions.closeProject} data-tip="Close the project" data-tip-cmd="closeProject">Close Project</button>
+            data-tip={t`Import the audio, added sounds and text of a mod into this project`}
+            data-tip-more={t`A ZIP or a .patch_0 file, such as a mod made with another tool`}><Trans>Import Patches</Trans></button>
+          <button className="btn quiet" onClick={actions.closeProject} data-tip={t`Close the project`} data-tip-cmd="closeProject"><Trans>Close Project</Trans></button>
         </div>
         <IconPreview preview={same(icon, p.icon) ? undefined : icon} bust={String(revision)} name={name.trim() || p.name}
           description={description.trim()} />
@@ -200,34 +202,34 @@ function ModId() {
   const p = project!;
   const [draft, setDraft] = useState<string | null>(null); // the id being typed; null while the id shows
   const typed = draft?.trim() ?? "";
-  const problem = typed && !GUID.test(typed) ? "A mod ID looks like this: 613bc667-1b2d-4f5e-8a9b-0c1d2e3f4a5b" : null;
+  const problem = typed && !GUID.test(typed) ? t`A mod ID looks like this: 613bc667-1b2d-4f5e-8a9b-0c1d2e3f4a5b` : null;
   const save = async () => {
     if (!typed || typed.replace(/[{}]/g, "").toLowerCase() === p.guid) setDraft(null);
     else if (!problem && await actions.setModId(typed)) setDraft(null);
   };
   return (
     <section className="set-sec">
-      <h2>Mod ID <Help tip="Mod managers recognise the mod by this ID. While it stays the same, a new build updates the installed mod." page="build-and-install#mod-id" /></h2>
+      <h2><Trans>Mod ID</Trans> <Help tip={t`Mod managers recognise the mod by this ID. While it stays the same, a new build updates the installed mod.`} page="build-and-install#mod-id" /></h2>
       {draft === null ? (
         <div className="pkg-id">
           <code>{p.guid}</code>
-          <button className="btn quiet" onClick={() => copyText(p.guid, quick, "the mod ID")}>Copy</button>
+          <button className="btn quiet" onClick={() => copyText(p.guid, quick, "", t`Copied the mod ID`)}><Trans>Copy</Trans></button>
           <button className="btn quiet" onClick={() => setDraft(p.guid)}
-            data-tip="Use the ID of a mod made before, such as the Guid in the manifest.json of the mod" data-tip-more="Mod managers then treat a build as an update to that mod">Change</button>
+            data-tip={t`Use the ID of a mod made before, such as the Guid in the manifest.json of the mod`} data-tip-more={t`Mod managers then treat a build as an update to that mod`}><Trans comment="Button: type another mod ID">Change</Trans></button>
           <button className="btn quiet" onClick={() => actions.newModId()}
-            data-tip="Use this when a copied project becomes a different mod" data-tip-more="The next build installs as a separate mod">Make a New ID</button>
+            data-tip={t`Use this when a copied project becomes a different mod`} data-tip-more={t`The next build installs as a separate mod`}><Trans>Make a New ID</Trans></button>
         </div>
       ) : (
         <div className="field">
           <div className="pkg-id">
-            <input value={draft} autoFocus spellCheck={false} aria-label="Mod ID" aria-invalid={!!problem}
+            <input value={draft} autoFocus spellCheck={false} aria-label={t`Mod ID`} aria-invalid={!!problem}
               onChange={(e) => setDraft(e.target.value)} onFocus={(e) => e.currentTarget.select()}
               onKeyDown={(e) => {
                 if (e.key === "Enter") save();
                 else if (e.key === "Escape") setDraft(null);
               }} />
-            <button className="btn" onClick={save} disabled={!!problem}>Save</button>
-            <button className="btn quiet" onClick={() => setDraft(null)}>Cancel</button>
+            <button className="btn" onClick={save} disabled={!!problem}><Trans>Save</Trans></button>
+            <button className="btn quiet" onClick={() => setDraft(null)}><Trans>Cancel</Trans></button>
           </div>
           {problem && <small className="bad">{problem}</small>}
         </div>
@@ -243,55 +245,58 @@ function FolderSection({ busy }: { busy: boolean }) {
   if (!p) return null;
   const moveTo = async () => {
     const parent = p.folder.replace(/[\\/][^\\/]*$/, "") || p.folder;
-    const folder = await pickFolder(parent, "Choose where to move the project");
+    const folder = await pickFolder(parent, t`Choose where to move the project`);
     if (!folder) return;
     const where = await run<{ dest: string; copy: boolean }>("project_move_to", { folder, check: true });
     if (!where) return;
+    const dest = where.dest;
     const ok = await confirm({
-      title: "Move the project?",
-      text: (p.own_folder ? `The project folder moves to ${where.dest}, with everything in it.`
-        : `The project moves to ${where.dest}, with the slices, imported audio and builds Audiodiver made for it.`)
-        + " Files you picked from elsewhere stay where they are, and the project still finds them."
-        + (where.copy ? " That is another drive, so the files are copied there first, which takes a while for a big project." : ""),
-      ok: "Move", cancel: "Keep It Here",
+      title: t`Move the project?`,
+      text: (p.own_folder ? t`The project folder moves to ${dest}, with everything in it.`
+        : t`The project moves to ${dest}, with the slices, imported audio and builds Audiodiver made for it.`)
+        + " " + t`Files you picked from elsewhere stay where they are, and the project still finds them.`
+        + (where.copy ? " " + t`That is another drive, so the files are copied there first, which takes a while for a big project.` : ""),
+      ok: t`Move`, cancel: t`Keep It Here`,
     });
     if (ok) await actions.moveProject(folder);
   };
   const move = async () => {
+    const dest = p.move_to;
     const ok = await confirm({
-      title: "Move the project into a new folder?",
-      text: `The project moves to ${p.move_to ?? "a new folder"}, with the slices, imported audio and builds Audiodiver made for it. Files you picked from elsewhere stay where they are.`,
-      ok: "Move", cancel: "Keep It Here",
+      title: t`Move the project into a new folder?`,
+      text: dest !== null ? t`The project moves to ${dest}, with the slices, imported audio and builds Audiodiver made for it. Files you picked from elsewhere stay where they are.`
+        : t`The project moves to a new folder, with the slices, imported audio and builds Audiodiver made for it. Files you picked from elsewhere stay where they are.`,
+      ok: t`Move`, cancel: t`Keep It Here`,
     });
     if (ok) await actions.moveToOwnFolder();
   };
-  const others = p.folder_projects;
+  const others = p.folder_projects, elsewhere = p.files_elsewhere;
   return (
     <section className="set-sec">
-      <h2>Folder <Help tip="Where the project file and the files it uses are kept" page="project-folders#the-project-folder" /></h2>
+      <h2><Trans>Folder</Trans> <Help tip={t`Where the project file and the files it uses are kept`} page="project-folders#the-project-folder" /></h2>
       <p className="path" data-tip={p.path} data-tip-clip>{p.folder}</p>
       <div className="row-btns">
-        <button className="btn quiet" onClick={() => reveal(p.path)}>Show in Folder</button>
-        <button className="btn quiet" onClick={moveTo} disabled={busy} data-tip="Move the project to another folder"
-          data-tip-more="The project still finds every file it uses">Move Project</button>
+        <button className="btn quiet" onClick={() => reveal(p.path)}><Trans>Show in Folder</Trans></button>
+        <button className="btn quiet" onClick={moveTo} disabled={busy} data-tip={t`Move the project to another folder`}
+          data-tip-more={t`The project still finds every file it uses`}><Trans>Move Project</Trans></button>
       </div>
       {!p.own_folder && (
         <div className="warn-box">
           <p>{others
-            ? `${others === 1 ? "Another project is" : `${others} other projects are`} in this folder and ${others === 1 ? "uses" : "use"} the same slices and imported folders.`
-            : "This project is in a shared place, such as the Desktop or Documents."}
-            {" "}<Help tip="Audiodiver puts the slices, the imported audio and the builds beside the project file. In a folder that holds only this project, they stay apart from other files." page="project-folders#moving-a-project-into-a-new-folder" /></p>
+            ? plural(others, { one: "Another project is in this folder and uses the same slices and imported folders.", other: "# other projects are in this folder and use the same slices and imported folders." })
+            : t`This project is in a shared place, such as the Desktop or Documents.`}
+            {" "}<Help tip={t`Audiodiver puts the slices, the imported audio and the builds beside the project file. In a folder that holds only this project, they stay apart from other files.`} page="project-folders#moving-a-project-into-a-new-folder" /></p>
           <div className="row-btns">
-            <button className="btn" onClick={move} disabled={busy}>Move to a New Folder</button>
+            <button className="btn" onClick={move} disabled={busy}><Trans>Move to a New Folder</Trans></button>
           </div>
         </div>
       )}
       {p.files_elsewhere > 0 && (
         <div className="info-box">
-          <p>{plural(p.files_elsewhere, "file")} the project uses {p.files_elsewhere === 1 ? "is" : "are"} outside the project folder.
-            {" "}<Help tip="Copies them into the project folder, so the project can be moved or copied as one folder" page="project-folders#collecting-files" /></p>
+          <p>{plural(elsewhere, { one: "# file the project uses is outside the project folder.", other: "# files the project uses are outside the project folder." })}
+            {" "}<Help tip={t`Copies them into the project folder, so the project can be moved or copied as one folder`} page="project-folders#collecting-files" /></p>
           <div className="row-btns">
-            <button className="btn" onClick={actions.collectFiles} disabled={busy}>Collect Files</button>
+            <button className="btn" onClick={actions.collectFiles} disabled={busy}><Trans>Collect Files</Trans></button>
           </div>
         </div>
       )}
@@ -319,33 +324,37 @@ function UnusedFiles({ busy: working }: { busy: boolean }) {
     if (!found?.files.length) return;
     const n = found.files.length;
     const ok = await confirm({
-      title: `Remove ${plural(n, "unused file")}?`,
-      text: n === 1 ? "It goes to the Recycle Bin." : "They go to the Recycle Bin.",
-      ok: "Remove", cancel: "Keep",
+      title: plural(n, { one: "Remove # unused file?", other: "Remove # unused files?" }),
+      text: plural(n, { one: "It goes to the Recycle Bin.", other: "They go to the Recycle Bin." }),
+      ok: t`Remove`, cancel: t({ message: "Keep", comment: "Answer to the question whether to remove the unused files: keeps them" }),
     });
     if (!ok) return;
     const r = await run<{ removed: number; left: number; bytes: number }>("unused_remove", { paths: found.files.map((f) => f.path) });
     if (!r) return;
     setFound(null);
-    quick(r.removed ? `${plural(r.removed, "file")} moved to the Recycle Bin${r.left ? `, ${r.left} couldn't be removed` : ""}`
-      : "No files were removed", r.removed ? "done" : "info");
+    const removed = r.removed, left = r.left;
+    quick(removed ? (left ? t`${plural(removed, { one: "# file moved to the Recycle Bin", other: "# files moved to the Recycle Bin" })}, ${plural(left, { one: "# couldn't be removed", other: "# couldn't be removed" })}`
+      : plural(removed, { one: "# file moved to the Recycle Bin", other: "# files moved to the Recycle Bin" }))
+      : t`No files were removed`, removed ? "done" : "info");
   };
+  // the counts the list names
+  const count = found?.files.length ?? 0, size = found ? fmtBytes(found.bytes) : "", more = count - 8;
   return (
     <section className="set-sec">
-      <h2>Unused files <Help tip="Files Audiodiver made for the project that nothing uses any more" page="project-folders#unused-files" /></h2>
+      <h2><Trans>Unused files</Trans> <Help tip={t`Files Audiodiver made for the project that nothing uses any more`} page="project-folders#unused-files" /></h2>
       <div className="row-btns">
-        <button className="btn" onClick={find} disabled={busy || working}>{busy ? "Looking" : "Find Unused Files"}</button>
-        {!!found?.files.length && <button className="btn quiet" onClick={remove} disabled={working}>Remove</button>}
+        <button className="btn" onClick={find} disabled={busy || working}>{busy ? t({ message: "Looking", comment: "The Find Unused Files button while it looks" }) : t`Find Unused Files`}</button>
+        {!!found?.files.length && <button className="btn quiet" onClick={remove} disabled={working}><Trans>Remove</Trans></button>}
       </div>
       {found && (found.files.length ? (
         <>
-          <p className="set-note">{plural(found.files.length, "file is", "files are")} unused ({fmtBytes(found.bytes)}).</p>
+          <p className="set-note">{t`${plural(count, { one: "# file is unused", other: "# files are unused" })} (${size}).`}</p>
           <ul className="unused-list">
             {found.files.slice(0, 8).map((f) => <li key={f.path}>{f.rel}</li>)}
-            {found.files.length > 8 && <li>and {found.files.length - 8} more</li>}
+            {found.files.length > 8 && <li>{plural(more, { one: "and # more", other: "and # more" })}</li>}
           </ul>
         </>
-      ) : <p className="set-note">No unused files.</p>)}
+      ) : <p className="set-note"><Trans>No unused files.</Trans></p>)}
     </section>
   );
 }
@@ -353,9 +362,11 @@ function UnusedFiles({ busy: working }: { busy: boolean }) {
 // ---------------------------------------------------------------- the icon
 
 const SWATCHES: [string, string][] = [
-  ["#ffd400", "Super Earth yellow"], ["#ffffff", "White"], ["#e6e6e6", "Light grey"], ["#8a8f98", "Steel"],
-  ["#2b2f36", "Gunmetal"], ["#181b20", "Dark"], ["#000000", "Black"], ["#d8312b", "Automaton red"],
-  ["#f28c28", "Terminid orange"], ["#7d5cff", "Illuminate violet"], ["#3fc1e8", "Cyan"], ["#2f6db5", "Democracy blue"],
+  ["#ffd400", t`Super Earth yellow`], ["#ffffff", t`White`], ["#e6e6e6", t`Light grey`],
+  ["#8a8f98", t({ message: "Steel", comment: "A colour for the icon border" })],
+  ["#2b2f36", t({ message: "Gunmetal", comment: "A colour for the icon border" })],
+  ["#181b20", t({ message: "Dark", comment: "A colour for the icon border" })], ["#000000", t`Black`], ["#d8312b", t`Automaton red`],
+  ["#f28c28", t`Terminid orange`], ["#7d5cff", t`Illuminate violet`], ["#3fc1e8", t`Cyan`], ["#2f6db5", t`Democracy blue`],
 ];
 
 type IconProps = { icon: Icon; frame: IconFrame; setIcon: (i: Icon) => void; saveIcon: (i?: Icon) => void };
@@ -372,33 +383,34 @@ function IconEditor({ icon, frame, setIcon, saveIcon }: IconProps) {
 
   return (
     <section className="set-sec">
-      <h2>Icon <Help tip="Cropped to a centred square and resized to 540 × 540. Drop an image on the preview to use it." page="build-and-install#icon" /></h2>
+      <h2><Trans>Icon</Trans> <Help tip={t`Cropped to a centred square and resized to 540 × 540. Drop an image on the preview to use it.`} page="build-and-install#icon" /></h2>
       <div className="ico-body view-in" key={image ? "image" : "default"}>
-        <p className="path" data-tip={image} data-tip-clip>{image ?? "Default icon"}</p>
+        <p className="path" data-tip={image} data-tip-clip>{image ?? t`Default icon`}</p>
         <div className="row-btns">
-          <button className="btn" onClick={() => actions.setIcon()}>{image ? "Choose Another Image" : "Choose an Image"}</button>
-          {image && <button className="btn quiet" disabled={p.problems.some((x) => x.startsWith("icon: image not found"))}
-            onClick={() => reveal(fullPath(p.folder, image))}>Show in Folder</button>}
-          {image && <button className="btn quiet" onClick={toDefault} data-tip="The image file stays where it is">Use the Default Icon</button>}
+          <button className="btn" onClick={() => actions.setIcon()}>{image ? t`Choose Another Image` : t`Choose an Image`}</button>
+          {image && <button className="btn quiet" disabled={p.problem_kinds.includes("icon_missing")}
+            onClick={() => reveal(fullPath(p.folder, image))}><Trans>Show in Folder</Trans></button>}
+          {image && <button className="btn quiet" onClick={toDefault} data-tip={t`The image file stays where it is`}><Trans>Use the Default Icon</Trans></button>}
         </div>
       </div>
 
       <div className="ico-grid ico-frame">
-        <label className="ico-label" htmlFor="ico-border">Border</label>
+        <label className="ico-label" htmlFor="ico-border"><Trans comment="The icon frame: the width of the border">Border</Trans></label>
         <div className="ico-cell ico-slide">
           <input id="ico-border" type="range" style={rangeVars(frame.border, 0, 48)} min={0} max={48} step={1} value={frame.border}
             onChange={(e) => slide({ border: Number(e.target.value) })} onPointerUp={() => saveIcon()} onKeyUp={() => saveIcon()} />
-          <span className="val">{frame.border ? `${frame.border} px` : "None"}</span>
+          <span className="val">{frame.border ? `${frame.border} px` : t({ message: "None", comment: "The icon border: no border" })}</span>
         </div>
-        <span className="ico-label">Border colour</span>
+        <span className="ico-label"><Trans>Border colour</Trans></span>
         <div className="ico-cell">
-          <ColorPick label="Border colour" value={frame.border_color} onChange={(c) => set({ border_color: c })} onTry={(c) => slide({ border_color: c })} disabled={!frame.border} />
+          <ColorPick label={t`Border colour`} value={frame.border_color} onChange={(c) => set({ border_color: c })} onTry={(c) => slide({ border_color: c })} disabled={!frame.border} />
         </div>
-        <label className="ico-label" htmlFor="ico-radius">Corners</label>
+        <label className="ico-label" htmlFor="ico-radius"><Trans comment="The icon frame: how round the corners are">Corners</Trans></label>
         <div className="ico-cell ico-slide">
           <input id="ico-radius" type="range" style={rangeVars(frame.radius, 0, 270)} min={0} max={270} step={2} value={frame.radius}
             onChange={(e) => slide({ radius: Number(e.target.value) })} onPointerUp={() => saveIcon()} onKeyUp={() => saveIcon()} />
-          <span className="val">{frame.radius >= 270 ? "Circle" : frame.radius ? `${frame.radius} px` : "Square"}</span>
+          <span className="val">{frame.radius >= 270 ? t({ message: "Circle", comment: "The icon corners: round all the way" })
+            : frame.radius ? `${frame.radius} px` : t({ message: "Square", comment: "The icon corners: not rounded" })}</span>
         </div>
       </div>
     </section>
@@ -425,9 +437,10 @@ function ColorPick({ label, value, onChange, onTry, disabled }: {
         <button key={c} role="radio" aria-checked={value === c} aria-label={name} className={`swatch${value === c ? " on" : ""}`}
           style={{ ["--c" as any]: c }} data-tip={name} disabled={disabled} onClick={() => onChange(c)} />
       ))}
-      <label className={`swatch any${custom ? " on" : ""}`} style={custom ? { ["--c" as any]: value } : undefined} data-tip={custom ? `${value}: change it` : "Any colour"}>
+      <label className={`swatch any${custom ? " on" : ""}`} style={custom ? { ["--c" as any]: value } : undefined}
+        data-tip={custom ? t({ message: `${value}: change it`, comment: "value is a colour code, such as #ff8800" }) : t`Any colour`}>
         {!custom && <span aria-hidden>+</span>}
-        <input ref={input} type="color" value={value} disabled={disabled} aria-label={`${label}: any colour`} onChange={(e) => onTry(e.target.value)} />
+        <input ref={input} type="color" value={value} disabled={disabled} aria-label={t`${label}: any colour`} onChange={(e) => onTry(e.target.value)} />
       </label>
     </div>
   );
@@ -447,16 +460,16 @@ export function IconPreview({ preview, bust, name, description }: { preview?: Ic
   const src = iconUrl(bust, shown ? JSON.parse(shown) : undefined);
   const [failed, setFailed] = useState<string | null>(null);
   return (
-    <div className="pkg-preview" aria-label="Preview">
+    <div className="pkg-preview" aria-label={t({ message: "Preview", comment: "The icon, name and description as the mod manager shows them" })}>
       <div className="pkg-icon" data-drop={JSON.stringify({ kind: "icon" })}>
-        {failed === src ? <span className="pkg-icon-missing">The image can't be read. Choose another, or use the default icon.</span>
-          : <img src={src} alt="Mod icon" width={540} height={540} onError={() => setFailed(src)} />}
+        {failed === src ? <span className="pkg-icon-missing"><Trans>The image can't be read. Choose another, or use the default icon.</Trans></span>
+          : <img src={src} alt={t`Mod icon`} width={540} height={540} onError={() => setFailed(src)} />}
       </div>
       <div className="pkg-card">
         <b>{name}</b>
         {description && <span className="pkg-desc" data-tip={description.length > 160 ? description : undefined}>{description}</span>}
       </div>
-      <p className="set-note">File name <b>{project!.zip_name}</b></p>
+      <p className="set-note"><Trans>File name</Trans> <b>{project!.zip_name}</b></p>
     </div>
   );
 }

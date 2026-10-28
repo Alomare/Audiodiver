@@ -11,7 +11,7 @@ The Library and the Audio tab share one layout. There is a list on the left and 
 - **Index** sorts the audio by what it is. Categories such as Music, Weapons and Enemies contain sections such as *On the Ship* and *Primary Weapons*. Each section lists things you can open, either a **piece of music** or a **sound set**. The number at the end of a row is the length of a piece of music, or the number of sounds in a set.
 - **All Archives** shows every **archive** that contains audio, as a table. Click a column heading to sort by it, and click again to reverse the order. The icons in the *Index* column show which categories include the archive.
 - In the Library, the **+** at the end of a row adds it to the project, and **✓** means the project already has it. Category and section lines have a **+** as well, which adds everything visible under them. After a search, that **+** adds only the results.
-- In the Audio tab, the list shows what the project has. **✕** on a row, or on a category or section line, removes it from the project, together with the new audio in it. Right-clicking does the same, and {key:undo} brings it back.
+- In the Audio tab, the list shows what the project has. **✕** on a row, or on a category or section line, removes it from the project, together with everything the project changes in it: the new audio, also in slots that another item in the project shares, added takes and layers, Make-Up Gain, and the cue points and Soundtrack settings of music. Audiodiver asks first when new audio would go. Right-clicking does the same, and {key:undo} brings it back.
 - {icon:collapse} **Collapse all**, next to the search box, folds every category and section. A search unfolds whatever matches.
 
 ## The top of the middle panel

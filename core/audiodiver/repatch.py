@@ -22,6 +22,8 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 
+from .i18n import tr
+
 PATCH_RE = re.compile(r"\.patch_\d+$", re.I)
 IMAGE_TYPES = (".png", ".jpg", ".jpeg", ".webp", ".bmp", ".gif")
 
@@ -199,20 +201,24 @@ def scan(path) -> Found:
     """What a repatch of `path` would take: its patches, with the name and the rest a manifest gives."""
     path = Path(str(path or "")).expanduser()
     if not str(path).strip() or not path.exists():
-        raise RepatchError(f"{path} wasn't found" if str(path).strip() else "Choose a .patch_0 file, a mod "
-                                                                         "folder or a ZIP")
+        raise RepatchError(tr("{path} wasn't found").format(path=path) if str(path).strip()
+                           else tr("Choose a .patch_0 file, a mod folder or a ZIP"))
     if path.is_file() and path.suffix.lower() == ".zip":
         try:
             with zipfile.ZipFile(path) as z:
                 names = [i.filename for i in z.infolist() if not i.is_dir()]
         except (zipfile.BadZipFile, OSError):
-            raise RepatchError(f"{path.name} can't be opened as a ZIP") from None
+            raise RepatchError(tr("{file} can't be opened as a ZIP").format(file=path.name)) from None
         found = Found(path, file_name(path.stem))
     elif path.is_file():
         if not PATCH_RE.search(path.name):
-            raise RepatchError(f"{path.name} isn't a mod. Choose a .patch_0 file (Audiodiver also reads the .stream file next "
-                               f"to it), a mod folder or a ZIP" + (". Unpack .7z and .rar files first"
-                                                                     if path.suffix.lower() in (".7z", ".rar") else ""))
+            if path.suffix.lower() in (".7z", ".rar"):
+                why = tr("{file} isn't a mod. Choose a .patch_0 file (Audiodiver also reads the .stream file next to it), "
+                         "a mod folder or a ZIP. Unpack .7z and .rar files first")
+            else:
+                why = tr("{file} isn't a mod. Choose a .patch_0 file (Audiodiver also reads the .stream file next to it), "
+                         "a mod folder or a ZIP")
+            raise RepatchError(why.format(file=path.name))
         found = Found(path, file_name(path.parent.name))
         found.patches = [Patch(path.name, "")]
         return found
@@ -245,7 +251,7 @@ def scan(path) -> Found:
         label = next((lab for f, lab in options if inner.lower() == f or inner.lower().startswith(f + "/")), None)
         found.patches.append(Patch(keys[0], label if label is not None else inner, keys[1:]))
     if not found.patches:
-        raise RepatchError(f"{path.name} holds no patch file (.patch_0)")
+        raise RepatchError(tr("{file} holds no patch file (.patch_0)").format(file=path.name))
     if len(found.patches) == 1:
         found.patches[0].label = ""
     else:  # two folders of one option: their names tell them apart

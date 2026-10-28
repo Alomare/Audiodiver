@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { call } from "./api";
+import { plural, t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
+import { andList, call } from "./api";
 import { confirm } from "./Confirm";
 import { UTILS } from "./edition";
 import { parse, Markdown } from "./Markdown";
@@ -27,7 +29,7 @@ export function startTutorial(id: string) {
 }
 /** Asks before a tutorial ends early (the panel's Stop Tutorial). */
 async function askStop() {
-  if (await confirm({ title: "End tutorial?", text: "You can start it again any time in the Wiki.", ok: "End Tutorial", cancel: "Keep Going" })) set(null);
+  if (await confirm({ title: t`End tutorial?`, text: t`You can start it again any time in the Wiki.`, ok: t`End Tutorial`, cancel: t`Keep Going` })) set(null);
 }
 
 const PAD = 6;      // the hole's margin around what it shows
@@ -77,7 +79,7 @@ function Steps({ tutorial, at }: { tutorial: Tutorial; at: number }) {
   const [working, setWorking] = useState(false);
   const step = at >= 0 ? tutorial.steps[at] : undefined;
   const look = !!step?.look;
-  const nextLabel = step?.next ?? (look ? "Next" : undefined);
+  const nextLabel = step?.next ?? (look ? t({ message: "Next", context: "tutorial step", comment: "The button that goes on to the next step of a tutorial" }) : undefined);
 
   // setting up, then each step as it comes
   useEffect(() => {
@@ -85,7 +87,7 @@ function Steps({ tutorial, at }: { tutorial: Tutorial; at: number }) {
     if (at < 0) {
       (tutorial.start ? tutorial.start(kit) : Promise.resolve(true))
         .then((ok) => { if (live) set(ok ? { id: tutorial.id, step: 0 } : null); })
-        .catch((e) => { notify("bad", `The tutorial couldn't start: ${e.message ?? e}`); set(null); });
+        .catch((e) => { const error = String(e.message ?? e); notify("bad", t`The tutorial couldn't start: ${error}`); set(null); });
       return () => { live = false; };
     }
     try { Promise.resolve(step?.enter?.(kit, latest.current())).catch(() => {}); } catch { /* the step still shows */ }
@@ -97,7 +99,7 @@ function Steps({ tutorial, at }: { tutorial: Tutorial; at: number }) {
   useEffect(() => {
     if (!step?.tab || tab === step.tab) return;
     nav.go(step.tab);
-    quick("Back to the tutorial step", "info");
+    quick(t`Back to the tutorial step`, "info");
   }, [tab, step]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // on to the next step once the app shows this one done
@@ -114,7 +116,7 @@ function Steps({ tutorial, at }: { tutorial: Tutorial; at: number }) {
   const next = () => {
     if (!running || running.id !== tutorial.id) return;
     if (at + 1 < tutorial.steps.length) set({ id: tutorial.id, step: at + 1 });
-    else { set(null); quick("Tutorial finished", "info"); }
+    else { set(null); quick(t`Tutorial finished`, "info"); }
   };
   const act = async () => {
     if (!step?.action || working) return;
@@ -177,17 +179,18 @@ function Steps({ tutorial, at }: { tutorial: Tutorial; at: number }) {
 
   const busy = step?.busy?.(latest.current()) ?? null;
   const doc = useMemo(() => (step ? parse(step.text) : null), [step]);
+  const stepNumber = at + 1, stepCount = tutorial.steps.length;
   return (
     <div className={`tut${motionOn(theme) ? " moving" : ""}${look ? " look" : ""}`}>
       <div className="tut-mask" ref={mask} aria-hidden />
       {look && <div className="tut-block" aria-hidden />}
       <div className="tut-ring" ref={ring} aria-hidden />
       <div className="tut-panel" ref={panel} role="dialog" aria-live="polite" aria-label={tutorial.title}>
-        {!step ? <p className="tut-wait">Making the practice project</p> : (
+        {!step ? <p className="tut-wait"><Trans>Making the practice project</Trans></p> : (
           <>
             <div className="tut-top">
-              <span className="tut-count">Step {at + 1} of {tutorial.steps.length}</span>
-              <button className="tut-stop" onClick={askStop}>Stop Tutorial</button>
+              <span className="tut-count"><Trans>Step {stepNumber} of {stepCount}</Trans></span>
+              <button className="tut-stop" onClick={askStop}><Trans>Stop Tutorial</Trans></button>
             </div>
             <h3>{step.title}</h3>
             {doc && <div className="tut-text"><Markdown tokens={doc.tokens} /></div>}
@@ -216,15 +219,16 @@ export function TutorialPrompt({ blocked }: { blocked: boolean }) {
     if (UTILS || navigator.webdriver || blocked || made.current) return;
     const fresh = unoffered();
     if (!fresh.length) return;
-    const t = setTimeout(() => {
+    const timer = setTimeout(() => {
       made.current = true;
       markOffered(fresh.map((x) => x.id));
-      const all = fresh.length === TUTORIALS.length;
-      announce(all ? "Interactive tutorials" : fresh.length === 1 ? "A new interactive tutorial" : "New interactive tutorials",
-        all ? "Walkthroughs that show where to click, one step at a time." : `${fresh.map((x) => x.title).join(", ")}.`,
-        () => nav.go("wiki", TUTORIALS_PAGE), `Click here to see ${!all && fresh.length === 1 ? "it" : "them"} in the Wiki.`);
+      const all = fresh.length === TUTORIALS.length, count = fresh.length, titles = andList(fresh.map((x) => x.title));
+      announce(all ? t`Interactive tutorials` : plural(count, { one: "A new interactive tutorial", other: "New interactive tutorials" }),
+        all ? t`Walkthroughs that show where to click, one step at a time.` : t({ message: `${titles}.`, comment: "The names of the new tutorials, as a list" }),
+        () => nav.go("wiki", TUTORIALS_PAGE),
+        all ? t`Click here to see them in the Wiki.` : plural(count, { one: "Click here to see it in the Wiki.", other: "Click here to see them in the Wiki." }));
     }, 1200);
-    return () => clearTimeout(t);
+    return () => clearTimeout(timer);
   }, [blocked]); // eslint-disable-line react-hooks/exhaustive-deps
   return null;
 }
@@ -235,20 +239,20 @@ export function TutorialsPage() {
   return (
     <article className="wiki-article view-in">
       <header className="page-head">
-        <h1>Interactive Tutorials</h1>
-        <p className="page-lead">Walkthroughs that show where to click, one step at a time. Each one works in a new practice project, and the
-          project that is open is saved and closed first.</p>
+        <h1><Trans>Interactive Tutorials</Trans></h1>
+        <p className="page-lead"><Trans>Walkthroughs that show where to click, one step at a time. Each one works in a new practice project, and the
+          project that is open is saved and closed first.</Trans></p>
       </header>
       <div className="tut-cards">
-        {TUTORIALS.map((t) => (
-          <section key={t.id} className="tut-card">
-            <h2><CatMark category={t.category} />{t.title}</h2>
-            <p>{t.summary}</p>
-            <ul>{t.teaches.map((x) => <li key={x}>{x}</li>)}</ul>
+        {TUTORIALS.map((tut) => (
+          <section key={tut.id} className="tut-card">
+            <h2><CatMark category={tut.category} />{tut.title}</h2>
+            <p>{tut.summary}</p>
+            <ul>{tut.teaches.map((x) => <li key={x}>{x}</li>)}</ul>
             <div className="tut-card-foot">
-              <span className="tut-len">About {t.minutes} minutes</span>
-              <button className="btn primary" disabled={!!run} onClick={() => startTutorial(t.id)}
-                data-tip={run ? "A tutorial is running" : undefined}>Start Tutorial</button>
+              <span className="tut-len">{plural({ minutes: tut.minutes }, { one: "About # minute", other: "About # minutes" })}</span>
+              <button className="btn primary" disabled={!!run} onClick={() => startTutorial(tut.id)}
+                data-tip={run ? t`A tutorial is running` : undefined}><Trans>Start Tutorial</Trans></button>
             </div>
           </section>
         ))}

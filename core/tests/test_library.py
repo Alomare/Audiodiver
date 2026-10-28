@@ -293,7 +293,8 @@ def test_items_are_added_to_a_project_and_removed_with_their_audio(session, own,
         st = s.library_add(only)
         assert not set(only) & set(st["library"]) and st["notes"] == [
             f"The sounds of {s._list_name(only[0])} are already in the project, under {_items(s)[gun]['full']}."]
-    # an archive that shares a set's bank is added, with a note: taking one off keeps the audio the other still has
+    # an archive that shares a set's bank is added, with a note; taking either off takes the audio in their shared
+    # slots too: removed audio never stays in the project (a build made it after the item was gone)
     single = [it for it in _items(s).values() if it["kind"] == "sounds" and len(it["parts"]) == 1 and it["id"] != gun]
     one, archive = next((it, f"archive:{ar}") for it in single
                         for ar in s.ix.banks[int(it["parts"][0]["cue"][5:])]["archives"]
@@ -304,7 +305,12 @@ def test_items_are_added_to_a_project_and_removed_with_their_audio(session, own,
     s.assign(held, a)
     st = s.library_add([archive])
     assert archive in st["library"] and "show under both" in st["notes"][0]
-    assert held in s.library_remove([one["id"]])["assignments"]
+    assert s.library_remove_preview([one["id"]])["slots"] == 1
+    plain = next(r["source"] for r in _rows(s.cue(one["parts"][0]["cue"])) if r["source"] != held)
+    assert s.original_gain([plain], -6)["gains"].get(str(plain)) == -6
+    st = s.library_remove([one["id"]])
+    assert held not in st["assignments"] and archive in st["library"] and str(plain) not in st["gains"]
+    assert held in s.undo()["assignments"]
     assert held not in s.library_remove([archive])["assignments"]
 
 

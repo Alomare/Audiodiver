@@ -1,4 +1,6 @@
 import { memo, useDeferredValue, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { ph, plural, t } from "@lingui/core/macro";
+import { Plural, Trans } from "@lingui/react/macro";
 import { call, type MusicItem, type MusicSection, type Place } from "./api";
 import { useContextMenu, type MenuEntry } from "./ContextMenu";
 import { PlayButton, playSlot } from "./CueView";
@@ -17,7 +19,7 @@ import { Help } from "./Wiki";
 type Filter = "all" | "mine" | "game";
 /** A top-level group of the tree: an Index category, or the archives a project lists. `flat`: it has one section,
     so its items sit right under it. */
-type Group = { id: string; name: string; about: string; flat: boolean; sections: MusicSection[] };
+type Group = { id: string; name: string; about: string; flat: boolean; sections: MusicSection[]; en?: string };
 const DEFAULT_OPEN = new Set(["c:music", "s:ship", "s:deploy"]);
 const SMALL = 30; // a category with no more items than this shows its sections open
 
@@ -52,13 +54,13 @@ export function IndexTree() {
 
   // what the tree is made of: the whole Index, or the part of it the project lists (and the archives it lists)
   const groups = useMemo<Group[]>(() => {
-    const all: Group[] = (index?.categories ?? []).map((c) => ({ id: c.id, name: c.name, about: c.about, flat: c.sections.length === 1, sections: c.sections }));
+    const all: Group[] = (index?.categories ?? []).map((c) => ({ id: c.id, name: c.name, about: c.about, flat: c.sections.length === 1, sections: c.sections, en: c.en }));
     if (!editing) return all;
     const mine = all.map((g) => ({ ...g, sections: g.sections.map((s) => ({ ...s, items: s.items.filter((it) => listed.has(it.id)) })).filter((s) => s.items.length) }));
     const archives = (project?.library ?? []).filter((id) => id.startsWith("archive:")).flatMap((id) => itemIndex.items.get(id) ?? []);
     if (archives.length) {
-      mine.push({ id: "archives", name: "Archives", about: "Whole archives, from All Archives", flat: true,
-        sections: [{ id: "archives", name: "Archives", about: "", unused: false, items: archives }] });
+      mine.push({ id: "archives", name: t`Archives`, about: t`Whole archives, from All Archives`, flat: true,
+        sections: [{ id: "archives", name: t`Archives`, about: "", unused: false, items: archives }] });
     }
     return mine.filter((g) => g.sections.length);
   }, [index, editing, listed, project?.library, itemIndex]);
@@ -131,7 +133,8 @@ export function IndexTree() {
     const keep = (g: Group, s: MusicSection, it: MusicItem) => {
       if (numeric) return foundItems.has(it.id) || it.targets.includes(q) || it.archive === q;
       if (words.length) {
-        const hay = `${g.name} ${s.name} ${it.name} ${it.full} ${it.about} ${it.names?.join(" ") ?? ""} ${it.archive ?? ""} ${it.parts.map((p) => `${p.name} ${p.note}`).join(" ")}`.toLowerCase();
+        // the English names too (`en`, where the language names them otherwise): players know the items by them
+        const hay = `${g.name} ${g.en ?? ""} ${s.name} ${s.en ?? ""} ${it.name} ${it.full} ${it.en ?? ""} ${it.about} ${it.names?.join(" ") ?? ""} ${it.archive ?? ""} ${it.parts.map((p) => `${p.name} ${p.note}`).join(" ")}`.toLowerCase();
         if (!words.every((w) => hay.includes(w))) {
           const n = byLabel.get(it.id);
           if (!n) return false;
@@ -157,8 +160,8 @@ export function IndexTree() {
   const best = useMemo(() => {
     if (!q || numeric) return -1;
     const rank = (it: MusicItem) => {
-      const n = it.name.toLowerCase(), f = it.full.toLowerCase();
-      return n === q || f === q ? 0 : n.startsWith(q) || f.startsWith(q) ? 1 : n.includes(q) || f.includes(q) ? 2 : 3;
+      const names = [it.name, it.full, it.en ?? it.full].map((x) => x.toLowerCase());
+      return names.some((x) => x === q) ? 0 : names.some((x) => x.startsWith(q)) ? 1 : names.some((x) => x.includes(q)) ? 2 : 3;
     };
     let at = 0;
     shown.forEach((it, i) => { if (rank(it) < rank(shown[at])) at = i; });
@@ -188,23 +191,24 @@ export function IndexTree() {
   const itemMenu = (e: React.MouseEvent, it: MusicItem) => {
     const skippable = it.kind === "transition" || it.kind === "stinger" ? [...new Set(it.parts.flatMap((p) => p.own.filter((t) => !a[t])))] : [];
     const added = listed.has(it.id), inside = held(it);
+    const count = it.parts.length, name = it.full;
     const entries: MenuEntry[] = [
-      { label: "Open", run: () => openItem(it.id) },
-      { label: "Play a Sample", disabled: !it.preview, run: () => playSlot("vanilla", it.preview, revision, `${it.full} (sample)`, { scope, itemId: it.id, cueId: null, source: it.preview }) },
-      { label: "Add to the Export List", run: () => toExport([it]) },
-      ...(editing && skippable.length ? [{ label: it.parts.length > 1 ? `Skip All ${it.parts.length}` : "Skip It",
-        run: () => actions.skip(skippable, it.parts.length > 1 ? `${it.parts.length} in ${it.full}` : it.full) } as MenuEntry] : []),
+      { label: t`Open`, run: () => openItem(it.id) },
+      { label: t`Play a Sample`, disabled: !it.preview, run: () => playSlot("vanilla", it.preview, revision, t`${name} (sample)`, { scope, itemId: it.id, cueId: null, source: it.preview }) },
+      { label: t`Add to the Export List`, run: () => toExport([it]) },
+      ...(editing && skippable.length ? [{ label: count > 1 ? t`Skip All ${count}` : t`Skip It`,
+        run: () => actions.skip(skippable, count > 1 ? t({ message: `${count} in ${name}`, comment: "Named in a note, as in “3 in Exploring → Battle skipped”" }) : it.full) } as MenuEntry] : []),
       "-",
       ...(editing ? [
-        { label: "Show in the Library", run: () => goTo({ scope: "library", itemId: it.id, cueId: null, source: null }) } as MenuEntry,
-        { label: "Remove from the Project", run: () => actions.removeFromProject([it.id], it.full) } as MenuEntry,
+        { label: t`Show in the Library`, run: () => goTo({ scope: "library", itemId: it.id, cueId: null, source: null }) } as MenuEntry,
+        { label: t`Remove from the Project`, run: () => actions.removeFromProject([it.id], it.full) } as MenuEntry,
       ] : added ? [
-        { label: "Open in the Audio Tab", run: () => goTo({ scope: "editor", itemId: it.id, cueId: null, source: null }) } as MenuEntry,
-        { label: "Remove from the Project", run: () => actions.removeFromProject([it.id], it.full) } as MenuEntry,
+        { label: t`Open in the Audio Tab`, run: () => goTo({ scope: "editor", itemId: it.id, cueId: null, source: null }) } as MenuEntry,
+        { label: t`Remove from the Project`, run: () => actions.removeFromProject([it.id], it.full) } as MenuEntry,
       ] : inside ? [
-        { label: "Open in the Audio Tab", run: () => goTo({ scope: "editor", itemId: inside.id, cueId: it.parts[0].cue, source: null }) } as MenuEntry,
+        { label: t`Open in the Audio Tab`, run: () => goTo({ scope: "editor", itemId: inside.id, cueId: it.parts[0].cue, source: null }) } as MenuEntry,
       ] : [
-        { label: "Add to the Project", run: () => actions.addToProject([it.id], it.full) } as MenuEntry,
+        { label: t`Add to the Project`, run: () => actions.addToProject([it.id], it.full) } as MenuEntry,
       ]),
     ];
     openMenu(e, entries);
@@ -220,7 +224,7 @@ export function IndexTree() {
   });
   const narrowed = q.length > 0 || filter !== "all";
   const instant = useLinger(narrowed); // a search or a filter opens and closes groups at once
-  if (!index) return <div className="lib-tree"><p className="empty-note">Reading the Index…</p></div>;
+  if (!index) return <div className="lib-tree"><p className="empty-note"><Trans>Reading the Index…</Trans></p></div>;
   const searchKey = keyLabel("search");
   // an id that leads somewhere this list doesn't show: say where
   const elsewhere = numeric && found && !shown.length ? found.find((f) => f.item) : undefined;
@@ -235,15 +239,17 @@ export function IndexTree() {
       off. A right-click has the same and more. The + is always there, so it can be found; with no
       project open, it says to open one. */
   const groupLine = (head: ReactNode, items: MusicItem[], name: string) => {
-    const exporting: MenuEntry = { label: `Add ${items.length === 1 ? "It" : `All ${items.length}`} to the Export List`, run: () => toExport(items) };
+    const count = items.length;
+    const exporting: MenuEntry = { label: count === 1 ? t`Add It to the Export List` : t`Add All ${count} to the Export List`, run: () => toExport(items) };
     const inProject = items.filter((it) => listed.has(it.id));
-    const what = (some: MusicItem[]) => (some.length === 1 ? some[0].full : some.length === items.length ? name : `${some.length} from ${name}`);
+    const what = (some: MusicItem[]) => (some.length === 1 ? some[0].full : some.length === items.length ? name
+      : t({ message: `${ph({ count: some.length })} from ${name}`, comment: "Named in a note, as in “3 from Weapons added to My Mod”" }));
     const remove = () => actions.removeFromProject(inProject.map((it) => it.id), what(inProject));
     // the menu says it in Title Case, as buttons do; the ✕ and the + say the same as a tip
-    const removeTip = inProject.length === items.length ? `Remove ${items.length === 1 ? "it" : `all ${items.length}`} from the project`
-      : `Remove the ${inProject.length} in the project`;
-    const removeLabel = inProject.length === items.length ? `Remove ${items.length === 1 ? "It" : `All ${items.length}`} from the Project`
-      : `Remove the ${inProject.length} in the Project`;
+    const removeTip = inProject.length === items.length ? (count === 1 ? t`Remove it from the project` : t`Remove all ${count} from the project`)
+      : t`Remove the ${ph({ count: inProject.length })} in the project`;
+    const removeLabel = inProject.length === items.length ? (count === 1 ? t`Remove It from the Project` : t`Remove All ${count} from the Project`)
+      : t`Remove the ${ph({ count: inProject.length })} in the Project`;
     if (editing) {
       return (
         <div className="lib-group-line" onContextMenu={(e) => openMenu(e, [{ label: removeLabel, run: remove }, "-", exporting])}>
@@ -254,10 +260,10 @@ export function IndexTree() {
     }
     const fresh = items.filter((it) => !listed.has(it.id) && !held(it));
     const add = () => actions.addToProject(fresh.map((it) => it.id), what(fresh));
-    const tip = !fresh.length ? "All in the project" : fresh.length === items.length ? `Add all ${fresh.length} to the project`
-      : `Add the ${fresh.length} not in the project`;
-    const label = !fresh.length ? "All in the Project" : fresh.length === items.length ? `Add All ${fresh.length} to the Project`
-      : `Add the ${fresh.length} Not in the Project`;
+    const tip = !fresh.length ? t`All in the project` : fresh.length === items.length ? t`Add all ${count} to the project`
+      : t`Add the ${ph({ count: fresh.length })} not in the project`;
+    const label = !fresh.length ? t`All in the Project` : fresh.length === items.length ? t`Add All ${count} to the Project`
+      : t`Add the ${ph({ count: fresh.length })} Not in the Project`;
     // the + while something here can be added; once all of it is in, the ✕ that takes it off
     return (
       <div className="lib-group-line" onContextMenu={(e) => openMenu(e, [
@@ -265,9 +271,9 @@ export function IndexTree() {
         ...(inProject.length ? [{ label: removeLabel, run: remove } as MenuEntry] : []),
         "-", exporting])}>
         {head}
-        {fresh.length ? <AddToggle added={false} run={add} label={`${tip}: ${name}`} tip={tip} more={project ? undefined : "Open or create a project first"} />
+        {fresh.length ? <AddToggle added={false} run={add} label={`${tip}: ${name}`} tip={tip} more={project ? undefined : t`Open or create a project first`} />
           : inProject.length ? <AddToggle added run={remove} label={`${removeTip}: ${name}`} tip={removeTip} />
-          : <span className="lib-add held" role="img" aria-label="All in the project" data-tip="All in the project"><CheckIcon /></span>}
+          : <span className="lib-add held" role="img" aria-label={t`All in the project`} data-tip={t`All in the project`}><CheckIcon /></span>}
       </div>
     );
   };
@@ -275,15 +281,15 @@ export function IndexTree() {
   const collapseAll = () =>
     setOpen(Object.fromEntries(groups.flatMap((g) => [`c:${g.id}`, ...g.sections.map((s) => `s:${s.id}`)]).map((k) => [k, false])));
   const hasMine = (items: MusicItem[]) => editing && !!project && items.some((it) => { const st = statusOfItem(it); return st === "part" || st === "done"; });
-  const mineDot = <span className="mark-dot done small" role="img" aria-label="Has new audio" data-tip="Has new audio" />;
+  const mineDot = <span className="mark-dot done small" role="img" aria-label={t`Has new audio`} data-tip={t`Has new audio`} />;
 
   return (
     <>
       <div className="lib-search">
-        <input type="search" placeholder={`Search, or paste an ID${searchKey ? `  ( ${searchKey} )` : ""}`} value={query}
-          onChange={(e) => setQuery(e.target.value)} aria-label={editing ? "Search the project" : "Search the Index"} onKeyDown={searchKeys}
-          data-tip="Names, descriptions and slot labels" data-tip-more="Or paste a source, stream, bank or cue ID to find where it plays" />
-        <button className="icon-btn" onClick={collapseAll} aria-label="Collapse all" data-tip="Collapse all"><CollapseAllIcon /></button>
+        <input type="search" placeholder={`${t`Search, or paste an ID`}${searchKey ? `  ( ${searchKey} )` : ""}`} value={query}
+          onChange={(e) => setQuery(e.target.value)} aria-label={editing ? t`Search the project` : t`Search the Index`} onKeyDown={searchKeys}
+          data-tip={t`Names, descriptions and slot labels`} data-tip-more={t`Or paste a source, stream, bank or cue ID to find where it plays`} />
+        <button className="icon-btn" onClick={collapseAll} aria-label={t`Collapse all`} data-tip={t`Collapse all`}><CollapseAllIcon /></button>
       </div>
       {editing && project && <Filters filter={filter} setFilter={setFilter} />}
       <div className="lib-tree" ref={tree}>
@@ -320,8 +326,8 @@ export function IndexTree() {
           );
         })}
         {!shownGroups.length && !elsewhere && (
-          <p className="empty-note">{q ? `Nothing ${editing ? "in the project " : ""}matches “${query}”.` : filter === "mine" ? "Nothing replaced yet."
-            : filter === "game" ? "Everything here is replaced." : "Nothing here yet."}</p>
+          <p className="empty-note">{q ? (editing ? t`Nothing in the project matches “${query}”.` : t`Nothing matches “${query}”.`) : filter === "mine" ? t`Nothing replaced yet.`
+            : filter === "game" ? t`Everything here is replaced.` : t`Nothing here yet.`}</p>
         )}
         {elsewhere && <FoundElsewhere place={elsewhere} more={found!.filter((f) => f.item).length - 1} />}
         {editing && <Missing />}
@@ -334,7 +340,7 @@ export function IndexTree() {
 const GLYPH: Partial<Record<MusicItem["kind"], string>> = { transition: "↝", stinger: "✦" };
 /** A place a name leads to (core find_text): an id's place, with the label that matched. */
 type Named = Place & { label?: string };
-const KIND_TIP: Partial<Record<MusicItem["kind"], string>> = { transition: "A transition between two pieces of music", stinger: "A stinger that plays over the music" };
+const KIND_TIP: Partial<Record<MusicItem["kind"], string>> = { transition: t`A transition between two pieces of music`, stinger: t`A stinger that plays over the music` };
 
 /** One item of the tree. Memoised: it draws again only when something it shows changes, not with every keystroke of
     a search or every selection. */
@@ -348,6 +354,7 @@ const ItemRow = memo(function ItemRow({ item, deep, active, hi, status, clash, a
   on: { open: (it: MusicItem) => void; menu: (e: React.MouseEvent, it: MusicItem) => void; add: (it: MusicItem) => void; remove: (it: MusicItem) => void };
 }) {
   const { scope } = useLite();
+  const name = item.full;
   const single = item.parts.length === 1 && !item.parts[0].cue.startsWith("sfx:");
   const music = isMusicItem(item);
   // files can be dropped onto a piece of music in the Editor: onto its one cue, or across its parts
@@ -355,7 +362,7 @@ const ItemRow = memo(function ItemRow({ item, deep, active, hi, status, clash, a
   return (
     <div className={`mus-item ${item.kind}${deep ? " deep" : ""}${active ? " active" : ""}${hi ? " hi" : ""}`} onContextMenu={(e) => on.menu(e, item)}
       data-drop={drop ? JSON.stringify(drop) : undefined}>
-      {item.preview ? <PlayButton kind="vanilla" source={item.preview} label={`a sample of ${item.full}`} what={`${item.full} (sample)`} small
+      {item.preview ? <PlayButton kind="vanilla" source={item.preview} label={t({ message: `a sample of ${name}`, comment: "After Play or Pause on a play button" })} what={t`${name} (sample)`} small
         at={{ scope, itemId: item.id, cueId: null, source: item.preview }} /> : <span className="play-gap" />}
       <button className="mus-name" onClick={() => on.open(item)} data-tip={(item.kind === "music" || !music ? item.about : KIND_TIP[item.kind]) || undefined} data-tip-side="right">
         {GLYPH[item.kind] && <span className="glyph" aria-hidden>{GLYPH[item.kind]}</span>}
@@ -364,16 +371,16 @@ const ItemRow = memo(function ItemRow({ item, deep, active, hi, status, clash, a
       </button>
       {/* the Library's rows hold the name and the + alone; the Audio tab's add whether each plays new audio */}
       <span className="mus-meta">
-        {clash && <span className="clash" data-tip="Plays the original next to new music">!</span>}
+        {clash && <span className="clash" data-tip={t`Plays the original next to new music`}>!</span>}
         {status !== "na" && <Mark status={status} />}
         {!editing && (held ? <HeldMark held={held} />
           : <AddToggle added={added} run={() => (added ? on.remove(item) : on.add(item))}
-            label={`${added ? "Remove" : "Add"} ${item.full} ${added ? "from" : "to"} the project`}
-            tip={added ? "Remove from the project" : "Add to the project"}
-            more={added ? "Also removes the new audio. Undo brings both back." : noProject ? "Open or create a project first" : undefined} />)}
+            label={added ? t`Remove ${name} from the project` : t`Add ${name} to the project`}
+            tip={added ? t`Remove from the project` : t`Add to the project`}
+            more={added ? t`Also removes the new audio. Undo brings both back.` : noProject ? t`Open or create a project first` : undefined} />)}
         {editing && (
-          <button className="row-act" onClick={() => on.remove(item)} aria-label={`Remove ${item.full} from the project`}
-            data-tip="Remove from the project" data-tip-more="Also removes the new audio. Undo brings both back.">✕</button>
+          <button className="row-act" onClick={() => on.remove(item)} aria-label={t`Remove ${name} from the project`}
+            data-tip={t`Remove from the project`} data-tip-more={t`Also removes the new audio. Undo brings both back.`}>✕</button>
         )}
       </span>
     </div>
@@ -405,9 +412,10 @@ export function AddToggle({ added, run, label, tip, more }: {
 
 /** In place of the + on an item the project has inside another it lists (all of its banks are there already). */
 function HeldMark({ held }: { held: MusicItem }) {
+  const name = listName(held);
   return (
-    <span className="lib-add held" role="img" aria-label={`In the project, in ${listName(held)}`} data-tip="In the project already"
-      data-tip-more={`The sounds are in ${listName(held)}`}><CheckIcon /></span>
+    <span className="lib-add held" role="img" aria-label={t`In the project, in ${name}`} data-tip={t`In the project already`}
+      data-tip-more={t`The sounds are in ${name}`}><CheckIcon /></span>
   );
 }
 
@@ -422,12 +430,18 @@ function FoundElsewhere({ place, more }: { place: Place; more: number }) {
   const { itemIndex, openFound, scope } = useEditor();
   const item = place.item ? itemIndex.items.get(place.item) : undefined;
   const archive = place.item?.startsWith("archive:");
-  const name = item ? where(itemIndex, item) : archive ? `archive ${place.item!.slice(8)}` : "the Library";
+  const name = item ? where(itemIndex, item) : "", id = archive ? place.item!.slice(8) : "";
+  // a whole sentence for each case: a place in the Index, an archive by the name in the game files, or the Library
+  const said = scope === "editor"
+    ? item ? t`That is in ${name}, which isn't in the project.` : archive ? t`That is in archive ${id}, which isn't in the project.`
+      : t`That is in the Library, which isn't in the project.`
+    : archive ? item ? t`That is in ${name}, which isn't in the Index.` : t`That is in archive ${id}, which isn't in the Index.`
+    : item ? t`That is in ${name}.` : t`That is in the Library.`;
   return (
     <div className="sfx-hit">
-      <p>{scope === "editor" ? <>That is in {name}, which isn't in the project.</> : <>That is in {name}{archive ? ", which isn't in the Index" : ""}.</>}
-        {more > 0 && ` It plays in ${more} other place${more === 1 ? "" : "s"} too.`}</p>
-      <button className="btn" onClick={() => openFound("library", place)}>{archive ? "Show in All Archives" : "Show in the Library"}</button>
+      <p>{said}
+        {more > 0 && ` ${plural(more, { one: "It plays in # other place too.", other: "It plays in # other places too." })}`}</p>
+      <button className="btn" onClick={() => openFound("library", place)}>{archive ? t`Show in All Archives` : t`Show in the Library`}</button>
     </div>
   );
 }
@@ -440,16 +454,16 @@ function Missing() {
   if (!gone.length) return null;
   return (
     <div className="lib-group">
-      <div className="lib-group-head" data-tip="Listed in the project but missing from this game version. An update may have renamed or removed them">
-        <span className="lib-group-name">Not in This Game Version</span>
+      <div className="lib-group-head" data-tip={t`Listed in the project but missing from this game version. An update may have renamed or removed them`}>
+        <span className="lib-group-name"><Trans>Not in This Game Version</Trans></span>
       </div>
       {gone.map((id) => (
         <div key={id} className="mus-item gone">
           <span className="play-gap" />
           <span className="mus-name"><span className="mus-label">{id.replace(/^(archive|set):/, "")}</span></span>
           <span className="mus-meta">
-            <button className="row-act" onClick={() => actions.removeFromProject([id], id.replace(/^(archive|set):/, ""))} aria-label={`Remove ${id} from the project`}
-              data-tip="Remove from the project">✕</button>
+            <button className="row-act" onClick={() => actions.removeFromProject([id], id.replace(/^(archive|set):/, ""))} aria-label={t`Remove ${ph({ name: id })} from the project`}
+              data-tip={t`Remove from the project`}>✕</button>
           </span>
         </div>
       ))}
@@ -468,7 +482,7 @@ function Filters({ filter, setFilter }: { filter: Filter; setFilter: (f: Filter)
   const count = clash.length;
   const n = useLastWhile(count, count > 0); // while the note folds away it still says what it said
   const skipAll = () => actions.skip([...new Set(clash.flatMap((c) => c.open))],
-    `${n} transition${n === 1 ? "" : "s"} and stinger${n === 1 ? "" : "s"}`);
+    plural(n, { one: "# transition and stinger", other: "# transitions and stingers" }));
   // a clash is reviewed where it can be shown: one the project lists opens here, another gets added first
   const review = async () => {
     const c = clash.find((x) => listed.has(x.item.id)) ?? clash[0];
@@ -477,13 +491,14 @@ function Filters({ filter, setFilter }: { filter: Filter; setFilter: (f: Filter)
     openItem(c.item.id, c.item.parts.indexOf(c.part));
   };
   const tabs: [Filter, string, string][] = [
-    ["all", "All", "Everything in the project"],
-    ["mine", "Replaced", "Only what has new audio"],
-    ["game", "Original", "Only what still plays the original"],
+    ["all", t({ message: "All", context: "Filter of the project list" }), t`Everything in the project`],
+    ["mine", t({ message: "Replaced", context: "Filter of the project list" }), t`Only what has new audio`],
+    ["game", t({ message: "Original", context: "Filter of the project list" }), t`Only what still plays the original`],
   ];
+  const undo = keyHint("undo");
   return (
     <div className="mus-filters">
-      <div className="segmented mus-filter" role="radiogroup" aria-label="Show">
+      <div className="segmented mus-filter" role="radiogroup" aria-label={t({ message: "Show", context: "Filter of the project list" })}>
         {tabs.map(([f, label, about]) => (
           <button key={f} role="radio" aria-checked={filter === f} className={filter === f ? "on" : ""}
             onClick={() => setFilter(f)} data-tip={about}>{label}</button>
@@ -491,12 +506,14 @@ function Filters({ filter, setFilter }: { filter: Filter; setFilter: (f: Filter)
       </div>
       <Fold open={count > 0}>
         <div className="mus-clash">
-          <span><b>{n}</b> transition{n === 1 ? "" : "s"} or stinger{n === 1 ? "" : "s"} still play{n === 1 ? "s" : ""} the original next to new music.{" "}
-            <Help tip="A transition plays between two pieces of music, and a stinger over one. Left original, they play a stretch of the original music next to the new music. Skip replaces them with a short silence" page="how-the-game-plays-music#transitions-and-stingers" /></span>
+          <span><Plural value={n} one={<Trans><b>#</b> transition or stinger still plays the original next to new music.</Trans>}
+            other={<Trans><b>#</b> transitions or stingers still play the original next to new music.</Trans>} />{" "}
+            <Help tip={t`A transition plays between two pieces of music, and a stinger over one. Left original, they play a stretch of the original music next to the new music. Skip replaces them with a short silence`} page="how-the-game-plays-music#transitions-and-stingers" /></span>
           <div className="row-btns">
-            <button className="btn quiet small-btn" onClick={review} data-tip="Open the first one and add it to the project">Review</button>
+            <button className="btn quiet small-btn" onClick={review} data-tip={t`Open the first one and add it to the project`}><Trans>Review</Trans></button>
             <button className="btn small-btn" onClick={skipAll}
-              data-tip={`Replace them with a short silence, so the next music starts right away${keyHint("undo") ? `. Undo${keyHint("undo")} brings them back` : ""}`}>Skip Them All</button>
+              data-tip={undo ? t({ message: `Replace them with a short silence, so the next music starts right away. Undo${undo} brings them back`, comment: "{undo} is the key in parentheses, such as “ (Ctrl+Z)”" })
+                : t`Replace them with a short silence, so the next music starts right away`}><Trans>Skip Them All</Trans></button>
           </div>
         </div>
       </Fold>

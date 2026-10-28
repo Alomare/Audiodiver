@@ -24,6 +24,8 @@ import uuid
 import zipfile
 from pathlib import Path
 
+from .i18n import tr
+
 ARCHIVE = '9ba626afa44a3aa3.patch_0'
 SUFFIXES = ('', '.stream', '.gpu_resources')
 PNG_MAGIC = b'\x89PNG\r\n\x1a\n'
@@ -41,15 +43,16 @@ def name_problem(name):
     """Why a mod manager can't take this as a mod's name (it names a folder after it), or None. The app's Build tab
     says the same as you type (nameProblem in BuildTab.tsx)."""
     if not name.strip():
-        return "A mod needs a name"
+        return tr("A mod needs a name")
     if name != name.strip():
-        return "The name starts or ends with a space"
+        return tr("The name starts or ends with a space")
     bad = sorted({c for c in name if not 32 <= ord(c) <= 126 or c in '\\/:*?"<>|'})
     if bad:  # an invisible one is named
-        shown = ["a tab" if c == "\t" else f"U+{ord(c):04X}" if ord(c) < 32 else c for c in bad]
-        return f"Mod managers can't use {' '.join(shown)} in a name (letters, digits, spaces and - _ ( ) are fine)"
+        shown = [tr("a tab") if c == "\t" else f"U+{ord(c):04X}" if ord(c) < 32 else c for c in bad]
+        return tr("Mod managers can't use {characters} in a name (letters, digits, spaces and - _ ( ) are fine)").format(
+            characters=" ".join(shown))
     if not re.search(r"[A-Za-z0-9]", name):
-        return "The name needs a letter or a digit"
+        return tr("The name needs a letter or a digit")
     return None
 
 
@@ -173,9 +176,9 @@ def icon_png(image, frame=None) -> bytes:
             img = img.convert('RGBA' if 'A' in img.getbands() or 'transparency' in img.info else 'RGB')
             return _png(framed(ImageOps.fit(img, (ICON_SIZE, ICON_SIZE), Image.Resampling.LANCZOS), frame))
     except Image.DecompressionBombError:
-        raise ValueError(f'{Path(image).name} is too large to use as an icon') from None
+        raise ValueError(tr("{file} is too large to use as an icon").format(file=Path(image).name)) from None
     except (UnidentifiedImageError, OSError, SyntaxError) as e:
-        raise ValueError(f'{Path(image).name} is not an image Audiodiver can read') from e
+        raise ValueError(tr("{file} is not an image Audiodiver can read").format(file=Path(image).name)) from e
 
 
 def package(out_zip, *, name, guid, icon, options, description=''):

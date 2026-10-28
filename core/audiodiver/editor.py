@@ -17,8 +17,9 @@ import uuid
 from pathlib import Path, PurePosixPath
 from types import SimpleNamespace
 
-from . import wem
+from . import i18n, wem
 from .errors import os_error, plain  # noqa: F401 (server.py takes them from here too)
+from .i18n import N_, ntr, tr  # noqa: F401 (ntr: for the messages with a count)
 from .index import AudioIndex, CACHE_DIR
 from .project import GAIN_DB, TABS, Addition, Project, ProjectFormatError, Replacement, TextEdit, tab_list, write_whole
 
@@ -62,7 +63,7 @@ def _unsaved(e: OSError, path) -> str:
     """Why an edit, undo or redo didn't happen: the project file couldn't be written (named as the project file, not
     the hidden one beside it that write_whole writes first)."""
     why = os_error(OSError(e.errno, e.strerror, str(path)) if e.errno is not None else e)
-    return f"Nothing changed, because the project file couldn't be saved. {why}."
+    return tr("Nothing changed, because the project file couldn't be saved. {why}.").format(why=why)
 
 
 class EditorError(Exception):
@@ -87,25 +88,25 @@ def out_folder(folder) -> Path:
     place are refused here, not halfway through the job)."""
     import tempfile
     if not given(folder):
-        raise EditorError("Choose a folder to save into")
+        raise EditorError(tr("Choose a folder to save into"))
     f = Path(folder)
     if not f.is_absolute():
-        raise EditorError(f"{folder} isn't a full path")
+        raise EditorError(tr("{path} isn't a full path").format(path=folder))
     if f.is_file():
-        raise EditorError(f"{f.name} is a file. Choose a folder.")
+        raise EditorError(tr("{name} is a file. Choose a folder.").format(name=f.name))
     try:
         f.mkdir(parents=True, exist_ok=True)
     except PermissionError:
-        raise EditorError(f"{f} can't be written to. Choose another folder.") from None
+        raise EditorError(tr("{folder} can't be written to. Choose another folder.").format(folder=f)) from None
     except OSError as e:  # "Q:\ wasn't found", "…\bad?name isn't a valid path"
         raise EditorError(os_error(e, str(f))) from None
     if not f.is_dir():  # a device name (CON, NUL) "makes" nothing
-        raise EditorError(f"{f.name} can't be used as a folder name. Choose another name.")
+        raise EditorError(tr("{name} can't be used as a folder name. Choose another name.").format(name=f.name))
     try:
         with tempfile.TemporaryFile(dir=f):
             pass
     except OSError:
-        raise EditorError(f"{f} can't be written to. Choose another folder.") from None
+        raise EditorError(tr("{folder} can't be written to. Choose another folder.").format(folder=f)) from None
     return f
 
 
@@ -197,8 +198,56 @@ class Session:
         # Combine: each patch read (combine.Part) by its digest, and the digest of a patch by where it is and its time
         self._combine_parts, self._combine_ids = collections.OrderedDict(), {}
         self._music_objs = None  # (index, the game's music objects): read when the Soundtrack first needs them
+        self.game_language = None  # the language the game is set to in Steam ("brazilian"), once the game is found
+        self.names_language = None  # the language the Index and the cue views are named in (the catalog, the library)
         if load:
             threading.Thread(target=self._load_game, daemon=True).start()
+
+    RENAMING = N_("Naming the sounds and the music in the new language")
+
+    def set_language(self, language):
+        """The window's language ("pt-BR"): what the core says from now on, and at the next start. With the game read,
+        another language than the names are in makes them again (_rename) in the background: until that is done the
+        stage is a step of loading, so the window waits, as at start-up, and asks for the Index again. The same
+        language again changes nothing."""
+        with self.lock:
+            # the stage first: the window asks for the Index right after this
+            rename = self.stage == "ready" and i18n.resolve(language) != self.names_language
+            if rename:
+                self.stage = self.RENAMING
+            i18n.set_language(language)
+        save_settings(language=language)
+        if rename:
+            threading.Thread(target=self._rename, daemon=True).start()
+        return {"language": i18n.language()}
+
+    def _rename(self):
+        """Names everything again in the language in use: a new catalog and library on the same cue map, and the
+        caches made from the old ones dropped (the Music view, Combine's readings). Again if the language changes
+        meanwhile. If it fails, the names stay as they were."""
+        from .catalog import Catalog
+        from .library import Library
+        while True:
+            lang = i18n.language()
+            try:
+                cat = Catalog(self.catalog.cm)
+                cat.entries
+                lib = Library(cat)
+                lib.archives
+            except Exception:
+                log.exception("naming in %s failed", lang)
+                with self.lock:
+                    self.stage = "ready"
+                return
+            with self.lock:
+                if i18n.language() != lang:
+                    continue
+                self.catalog, self.lib, self.names_language = cat, lib, lang
+                self.__dict__.pop("_music_json", None)
+                self._combine_parts.clear()
+                self._combine_ids.clear()
+                self.stage = "ready"
+                return
 
     # --- game data
     def _load_game(self, chosen=None):
@@ -206,7 +255,7 @@ class Session:
         try:
             from .catalog import Catalog
             from .cuemap import CueMap
-            from .game import Game, locate
+            from .game import Game, locate, steam_language
             from .library import Library
             try:
                 from .render import clean_spool
@@ -218,16 +267,25 @@ class Session:
             folder, how = locate(chosen or load_settings().get("game_data"))
             again = bool(self.game_where.get("path"))  # another folder was chosen: this isn't the start-up read
             self.game_where = {"path": str(folder), "how": how}
-            self.stage = ("Reading the game audio from the new folder" if again
-                          else "Reading the game audio (the first run after a game update takes about a minute)")
+            self.game_language = steam_language(folder)
+            # the stages are translated as status() sends them: the window may set the language after this
+            self.stage = (N_("Reading the game audio from the new folder") if again
+                          else N_("Reading the game audio (the first run after a game update takes about a minute)"))
             ix = AudioIndex(Game(folder), log=lambda *a: None)
-            self.stage = "Mapping the music"
-            cat = Catalog(CueMap(ix, log=lambda *a: None))
-            cat.entries  # name everything now, not on the first request
-            self.stage = "Sorting the sounds"
-            lib = Library(cat)
-            lib.archives
-            self.ix, self.catalog, self.lib, self.stage = ix, cat, lib, "ready"
+            self.stage = N_("Mapping the music")
+            cm = CueMap(ix, log=lambda *a: None)
+            while True:  # named in the language in use at the end (set_language may change it meanwhile)
+                lang = i18n.language()
+                cat = Catalog(cm)
+                cat.entries  # name everything now, not on the first request
+                self.stage = N_("Sorting the sounds")
+                lib = Library(cat)
+                lib.archives
+                with self.lock:
+                    if i18n.language() == lang:
+                        self.ix, self.catalog, self.lib, self.names_language = ix, cat, lib, lang
+                        self.stage = "ready"
+                        break
             log.info("game data from %s (%s)", folder, how)
         except Exception as e:
             self.load_error, self.stage = str(e) if isinstance(e, FileNotFoundError) else f"{type(e).__name__}: {e}", "failed"
@@ -238,9 +296,9 @@ class Session:
         is checked first, so a wrong one changes nothing; then the game data loads again, as at start-up."""
         from .game import data_folder
         if self.stage not in ("ready", "failed"):
-            raise EditorError("The game is still loading. Try again when it's done.")
+            raise EditorError(tr("The game is still loading. Try again when it's done."))
         if any(j.state == "running" for j in self.jobs.values()):
-            raise EditorError("Wait for the build or export to finish first")
+            raise EditorError(tr("Wait for the build or export to finish first"))
         chosen = None
         if path:
             try:
@@ -250,7 +308,7 @@ class Session:
         save_settings(game_data=chosen)
         with self.lock:
             self.ix, self.catalog, self.lib, self.load_error, self.texts = None, None, None, None, None
-            self._cue_sets, self._clips, self._segments = {}, {}, {}
+            self._cue_sets, self._clips, self._segments, self.names_language = {}, {}, {}, None
             self.__dict__.pop("_music_json", None)
             self.stage = "starting"
             self.game_where = {"path": chosen, "how": "chosen" if chosen else None}
@@ -266,7 +324,9 @@ class Session:
 
     def require_game(self):
         if self.stage != "ready":
-            raise EditorError(self.load_error or f"still loading: {self.stage}")
+            # a step of the loading is a message (translated as status() sends it); "starting" is a state
+            stage = self.stage if self.stage in ("starting", "ready", "failed") else tr(self.stage)
+            raise EditorError(self.load_error or tr("still loading: {stage}").format(stage=stage))
 
     def status(self):
         from . import __version__, akd
@@ -274,8 +334,13 @@ class Session:
         if self.ix:
             game = {"data": str(self.ix.game.data), "banks": len(self.ix.banks),
                     "music_banks": len(self.ix.music_banks)}
-        return {"version": __version__, "stage": self.stage, "error": self.load_error, "game": game,
+        # "starting", "ready" and "failed" are states the window reads; the others are steps it shows
+        stage = self.stage if self.stage in ("starting", "ready", "failed") else tr(self.stage)
+        return {"version": __version__, "stage": stage, "error": self.load_error, "game": game,
                 "game_folder": {**self.game_where, "chosen": load_settings().get("game_data")},
+                # for Automatic in Settings ▸ System ▸ Language: the game's language in Steam, then Windows'
+                "languages": {"game": self.game_language, "system": i18n.system_language(),
+                              "core": i18n.language()},
                 "log": str(LOG_FILE),
                 "loudness_missing": akd.unavailable(),
                 "jobs": [j.to_json() for j in self.jobs.values() if j.state == "running"],  # a reloaded window follows them
@@ -310,7 +375,7 @@ class Session:
         try:
             return self.lib.item(str(item_id))
         except KeyError:
-            raise EditorError(f"{item_id} is not in this game version") from None
+            raise EditorError(tr("{item} is not in this game version").format(item=item_id)) from None
 
     def cue(self, cue_id, mine=False, ids=False):
         """What opens in the middle: a music cue by its id, a bank's sounds as "bank:<id>", an archive's loose
@@ -323,7 +388,7 @@ class Session:
             view = self.catalog.cue(int(cue_id)) if cue_id.isdigit() else \
                 self.lib.view(cue_id, self._overlay() if mine else None, ids is True)
         except KeyError:
-            raise EditorError(f"No cue {cue_id}") from None
+            raise EditorError(tr("No cue {id}").format(id=cue_id)) from None
         # a playlist says whether it plays its slots top to bottom (the Soundtrack shows the order when it doesn't)
         if cue_id.isdigit() and view.get("kind") == "playlist":
             from . import music, soundtrack as st
@@ -356,11 +421,19 @@ class Session:
         words = str(query).lower().split()
         if sum(map(len, words)) < 3:
             return []
+        from .catalog import label_shown
         has = lambda text: all(w in text.lower() for w in words)
         cat, out, seen = self.catalog, [], set()
         named = [*cat.labels.items(), *((k, [c["label"]]) for k, c in cat.clips.items() if c.get("label"))]
         for key, labels in named:
-            label = next((l for l in labels if has(l)), None)  # one label has every word: it says why it matched
+            # one label has every word, in English (players know the sounds by it) or in the language in use: it
+            # says why it matched, in the language in use
+            label = None
+            for l in labels:
+                shown = label_shown(l)
+                if has(l) or has(shown):
+                    label = shown
+                    break
             if label is None:
                 continue
             places = [p for p in self.lib.places(int(key)) if p["item"]]
@@ -381,7 +454,7 @@ class Session:
         self.require_game()
         if sid in self._added():
             if (was := self._original(sid)) is None:
-                raise EditorError("A new take has no original audio")
+                raise EditorError(tr("A new take has no original audio"))
             sid = was
         out = CACHE_DIR / "preview" / f"{sid}.wav"
         with cache_lock(out):
@@ -391,7 +464,7 @@ class Session:
                 try:
                     data = self.ix.wem(sid)
                 except KeyError:  # a "No audio" slot: the game's data names it, no file holds it
-                    raise EditorError(f"Sound {sid} has no audio in the game files") from None
+                    raise EditorError(tr("Sound {id} has no audio in the game files").format(id=sid)) from None
                 src.write_bytes(data)
                 tmp = out.with_name(f"{sid}.partial.wav")
                 subprocess.run([wem.VGMSTREAM, "-o", str(tmp), str(src)], check=True, capture_output=True)
@@ -404,7 +477,7 @@ class Session:
         r = self._rep(sid)
         path = self.project.audio_path(r)
         if not path.exists():
-            raise EditorError(f"{path} wasn't found")
+            raise EditorError(tr("{path} wasn't found").format(path=path))
         return path
 
     def peaks(self, kind, source=None, path=None, buckets=1200, full=255):
@@ -424,16 +497,16 @@ class Session:
             f = self.project_audio(self._source(source))
         elif kind == "file":
             if not given(path):
-                raise EditorError("Choose an audio file")
+                raise EditorError(tr("Choose an audio file"))
             f = Path(path)
             if not f.is_file():
-                raise EditorError(f"{f} wasn't found")
+                raise EditorError(tr("{path} wasn't found").format(path=f))
         else:
             raise EditorError(f"Unknown waveform kind {kind}")
         try:
             return audio.peaks(f, buckets, full)
         except (subprocess.CalledProcessError, ValueError, OSError):
-            raise EditorError(f"Can't read the audio in {f.name}") from None
+            raise EditorError(tr("Can't read the audio in {file}").format(file=f.name)) from None
 
     def _slice_dir(self, audio_path) -> Path:
         from .audio import slice_folder
@@ -445,7 +518,7 @@ class Session:
         from . import audio
         self._need_project()
         if not given(audio_path):
-            raise EditorError("Choose a song to slice")
+            raise EditorError(tr("Choose a song to slice"))
         ms = audio.duration_ms(Path(audio_path)) or 0
         buckets = int(min(120_000, max(2000, ms / 2.5)))
         home, song = self.project.path.parent, Path(audio_path)
@@ -493,17 +566,18 @@ class Session:
         (`Dune.audi` chosen in Mods is Mods/Dune/Dune.audi), unless the folder chosen is named like it already.
         tabs: the hideable tabs it shows (project.TABS), as Settings has them; None leaves it to Settings."""
         if not given(path) or not Path(path).is_absolute():
-            raise EditorError("Choose where to save the project (a full path)")
+            raise EditorError(tr("Choose where to save the project (a full path)"))
         if tabs is not None and (tabs := tab_list(tabs)) is None:
             raise EditorError("The tabs are some of " + ", ".join(TABS))
         path = self._project_path(path, folder)
         if path.exists():
-            raise EditorError(f"{path.name} already exists in {path.parent}")
+            raise EditorError(tr("{file} already exists in {folder}").format(file=path.name, folder=path.parent))
         try:
             path.parent.mkdir(parents=True, exist_ok=True)
         except OSError as e:
-            raise EditorError(f"Can't make the folder {path.parent}: {os_error(e)}") from None
-        name = str(name or "").strip() or path.stem.strip() or "My mod"
+            raise EditorError(tr("Can't make the folder {folder}: {why}").format(folder=path.parent,
+                                                                                why=os_error(e))) from None
+        name = str(name or "").strip() or path.stem.strip() or "My mod"  # English: mod managers take ASCII names only
         with self.lock:
             self.flush()  # the project open until now keeps what waits
             self.project = Project(name=name, path=path, library=[], tabs=tabs)  # blank: nothing to edit yet
@@ -516,23 +590,23 @@ class Session:
 
     def open_project(self, path):
         if not given(path) or not Path(path).is_absolute():
-            raise EditorError("Choose a .audi project file (a full path)")
+            raise EditorError(tr("Choose a .audi project file (a full path)"))
         path = Path(path).resolve()
         if self.project and self.project.path == path:
             return self.project_state()  # already open: keep its undo history
         if path.is_dir():
-            raise EditorError(f"{path.name} is a folder. Choose a .audi project file.")
+            raise EditorError(tr("{name} is a folder. Choose a .audi project file.").format(name=path.name))
         if not path.exists():
-            raise EditorError(f"{path} wasn't found")
+            raise EditorError(tr("{path} wasn't found").format(path=path))
         try:
             p = Project.load(path)
         except OSError as e:
-            raise EditorError(f"Can't read {path.name}: {os_error(e)}") from None
+            raise EditorError(tr("Can't read {file}: {why}").format(file=path.name, why=os_error(e))) from None
         except ProjectFormatError as e:
-            raise EditorError(f"{path.name} {e}") from None
+            raise EditorError(e.about(path.name)) from None
         except (ValueError, KeyError, TypeError):  # not JSON at all: cut short, or another kind of file
-            raise EditorError(f"{path.name} " + ("is damaged (it can't be read)" if path.suffix.lower() == ".audi"
-                                                  else "isn't an Audiodiver project")) from None
+            raise EditorError((tr("{file} is damaged (it can't be read)") if path.suffix.lower() == ".audi"
+                               else tr("{file} isn't an Audiodiver project")).format(file=path.name)) from None
         with self.lock:
             self.flush()
             self.project, self.undo_stack, self.redo_stack = p, [], []
@@ -605,7 +679,7 @@ class Session:
 
     def _need_project(self):
         if not self.project:
-            raise EditorError("No project open")
+            raise EditorError(tr("No project open"))
         return self.project
 
     def _sources(self):
@@ -707,7 +781,7 @@ class Session:
     def _audio_files(self, files) -> list[str]:
         from .audio import natural
         if not isinstance(files, list) or not files or not all(given(f) for f in files):
-            raise EditorError("Choose the audio files to add")
+            raise EditorError(tr("Choose the audio files to add"))
         return sorted((str(f) for f in files), key=natural)
 
     def add_takes(self, container, files):
@@ -758,14 +832,14 @@ class Session:
         self.require_game()
         sid, snd, made = self._source(source), self._object_id(sound), []
         if sound_clip(self.ix, snd) != sid:
-            raise EditorError(f"Sound {snd} doesn't play {sid}")
+            raise EditorError(tr("Sound {sound} doesn't play {source}").format(sound=snd, source=sid))
         if any(a.kind == "own" and a.sound == snd for a in self._need_project().additions):
-            raise EditorError("That sound already has a separate clip")
+            raise EditorError(tr("That sound already has a separate clip"))
 
         def apply(p):
             r = self._replacement(p, sid)
             if not r:
-                raise EditorError("Add new audio to the slot first")
+                raise EditorError(tr("Add new audio to the slot first"))
             (new,) = self._new_ids(p, 1)
             p.additions.append(Addition("own", sound=snd, source=new))
             r.target = new
@@ -779,12 +853,13 @@ class Session:
         sid = self._source(source)
         a = self._added().get(sid)
         if not a or a.kind != "own":
-            raise EditorError("That slot doesn't have a separate clip")
+            raise EditorError(tr("That slot doesn't have a separate clip"))
         was = self._clip_of(a.sound)
 
         def apply(p):
             if self._replacement(p, was):
-                raise EditorError("Another sound that plays this clip already has new audio. Remove that audio first.")
+                raise EditorError(tr("Another sound that plays this clip already has new audio. Remove that audio "
+                                     "first."))
             self._replacement(p, sid).target = was
         return {**self._edit("shared clip", apply), "source": str(was)}
 
@@ -802,7 +877,7 @@ class Session:
             raise EditorError(f"{sid!r} isn't a sound ID") from None
         r = self._sources().get(key)
         if not r:
-            raise EditorError(f"Slot {sid} has no new audio")
+            raise EditorError(tr("Slot {id} has no new audio").format(id=sid))
         return r
 
     # --- what the project works on: its list of Index items and archives (project.py, "library")
@@ -880,8 +955,10 @@ class Session:
     def _list_name(self, iid) -> str:
         """An item as the Editor's list shows it, telling an archive from the sound set it is named after."""
         it = self.lib.item(iid)
-        return f"{it['full']} (archive {it['archive']})" if "archive" in it and it["full"] != f"Archive {it['archive']}" \
-            else it["full"]
+        # an archive named by its ID ("Archive <id>", `id_name`) says so already
+        if "archive" in it and not it.get("id_name"):
+            return tr("{name} (archive {archive})").format(name=it["full"], archive=it["archive"])
+        return it["full"]
 
     def library_add(self, items):
         """Adds Index items and archives to what the project works on. From then on the Editor shows them. The same
@@ -912,12 +989,15 @@ class Session:
                 have = [c for c in mine if c in held]
                 owners = ", ".join(self._list_name(o) for o in dict.fromkeys(held[c] for c in have))
                 if mine and len(have) == len(it["parts"]):
-                    notes.append(f"The sounds of {self._list_name(iid)} are already in the project, under {owners}.")
+                    notes.append(tr("The sounds of {item} are already in the project, under {owners}.").format(
+                        item=self._list_name(iid), owners=owners))
                     continue
                 if have:
-                    notes.append(f"{self._list_name(iid)} added. {len(have)} of {len(mine)} banks "
-                                 f"{'was' if len(have) == 1 else 'were'} already in the project, under {owners}. Those "
-                                 f"sounds show under both.")
+                    notes.append(ntr("{item} added. {n} of {total} banks was already in the project, under {owners}. "
+                                     "Those sounds show under both.",
+                                     "{item} added. {n} of {total} banks were already in the project, under {owners}. "
+                                     "Those sounds show under both.", len(have)).format(
+                        item=self._list_name(iid), n=len(have), total=len(mine), owners=owners))
                 new.append(iid)
                 for c in mine:
                     held.setdefault(c, iid)
@@ -925,15 +1005,24 @@ class Session:
         return {**self._edit("add", apply), "notes": notes}
 
     def library_remove(self, items):
-        """Takes items off the project's list, and with them your audio in their slots: what the project no longer
-        lists, it no longer replaces. Audio in a slot that something still on the list has too is kept."""
+        """Takes items off the project's list, and everything the project changes in their slots with them: the new
+        audio, also in a slot that something still on the list has too (removed audio leaves the project whole,
+        replacements lost or not; the app asks first), the takes, layers and clips added there, Make-Up Gain on the
+        original audio, and the cue points and Soundtrack settings of their music. What the project no longer lists,
+        a build never makes."""
         self.require_game()
         gone = {str(i) for i in items}
 
         def apply(p):
-            drop = {id(r) for r in self._unlisted(p, gone)}
+            sounds = self._gone_sounds(p, gone)
+            drop = {id(r) for r in p.replacements if self._resolved(r) in sounds}
+            pieces = self._gone_pieces(p, gone, sounds)
             p.library = [i for i in (p.library or []) if i not in gone]
             p.replacements = [r for r in p.replacements if id(r) not in drop]
+            p.gains = {t: g for t, g in p.gains.items() if self._target(t) not in sounds}
+            p.soundtrack = {pid: piece for pid, piece in p.soundtrack.items() if pid not in pieces}
+            self._tidy(p)       # added takes and clips whose audio went, and layers left without takes
+            self._tidy_cues(p)  # cue points of segments with no new audio left
         return self._edit("unlist", apply)
 
     def library_remove_preview(self, items):
@@ -943,13 +1032,35 @@ class Session:
         drop = self._unlisted(self._need_project(), {str(i) for i in items})
         return {"slots": len(drop), "files": list(dict.fromkeys(Path(r.audio).name for r in drop if not r.silence))}
 
+    def _gone_sounds(self, p: Project, gone: set) -> set:
+        """The sounds of the listed items in `gone`, whatever else on the list has them too."""
+        return {s for part in self._listed(i for i in (p.library or []) if i in gone)[0].values() for s in part}
+
     def _unlisted(self, p: Project, gone: set) -> list:
-        """The replacements that go when the items `gone` leave the list: those in their slots, but for a slot that
-        something still on the list has too."""
-        keep = [i for i in (p.library or []) if i not in gone]
-        sounds = lambda ids: {s for part in self._listed(ids)[0].values() for s in part}
-        drop = sounds(i for i in (p.library or []) if i in gone) - sounds(keep)
-        return [r for r in p.replacements if self._resolved(r) in drop]
+        """The replacements that go when the items `gone` leave the list: every one in their slots."""
+        sounds = self._gone_sounds(p, gone)
+        return [r for r in p.replacements if self._resolved(r) in sounds]
+
+    def _gone_pieces(self, p: Project, gone: set, sounds: set) -> set:
+        """The pieces of music (Soundtrack settings, by playlist) that go with the items `gone`: their own, and any
+        whose every slot is one of their sounds."""
+        pieces = set()
+        for iid in gone & set(p.library or []):
+            try:
+                parts = self.lib.item(iid)["parts"]
+            except KeyError:
+                continue
+            for part in parts:
+                if str(part["cue"]).isdigit() and int(part["cue"]) in p.soundtrack:
+                    pieces.add(int(part["cue"]))
+        for pid in set(p.soundtrack) - pieces:
+            try:
+                slots = {sid for segs in self._segment_slots(pid).values() for sid, _ in segs}
+            except (KeyError, TypeError):
+                continue
+            if slots and slots <= sounds:
+                pieces.add(pid)
+        return pieces
 
     FACTS_SECONDS = 30  # how long project_state trusts what it found out about the project's folder
 
@@ -997,7 +1108,7 @@ class Session:
             assignments[str(sid)] = {
                 "target": str(r.target), "audio": r.audio, "label": r.label, "gain_db": r.gain_db,
                 "fit_timing": r.fit_timing, "silence": r.silence, "exists": exists,
-                "name": "Silence" if r.silence else Path(r.audio).name, "cues": [str(c) for c in cues],
+                "name": tr("Silence") if r.silence else Path(r.audio).name, "cues": [str(c) for c in cues],
                 "duration_ms": SILENCE_MS if r.silence else duration_ms(p.audio_path(r)) if exists else None}
         by_file = {}  # a file -> the music segments that play it: where one slot's cue points can go too
         for sid, a in assignments.items():
@@ -1005,21 +1116,30 @@ class Session:
                 by_file.setdefault(a["audio"], set()).update(self._segments_of(int(sid)))
         for a in assignments.values():
             a["file_segments"] = 0 if a["silence"] else len(by_file[a["audio"]])
-        problems = p.problems() + [f"{u['label'] or u['audio'] or 'silence'}: sound {u['target']} isn't in this "
-                                   f"version of the game (remove it, or replace another sound)" for u in unresolved]
+        # what stops a build, as (kind, sentence): Project.problem_list's, and "unresolved", "same_sound",
+        # "unreadable", "no_file" and "loudness" from here. The app goes by the kinds (problem_kinds)
+        problems = p.problem_list() + [("unresolved", tr(
+            "{name}: sound {id} isn't in this version of the game (remove it, or replace another sound)").format(
+                name=u["label"] or u["audio"] or tr("silence"), id=u["target"])) for u in unresolved]
         by_sound = {}
         for r in p.replacements:  # two targets can be one sound: a stream's file id and its source id
-            by_sound.setdefault(self._target(r.target), {})[r.target] = r.label or r.audio or "silence"
-        problems += [f"{' and '.join(names.values())} replace the same sound" for names in by_sound.values()
-                     if len(names) > 1]  # the same target twice, problems() names already
-        problems += [f"{a['label'] or a['name']}: can't read the audio file ({a['audio']})" for a in assignments.values()
+            by_sound.setdefault(self._target(r.target), {})[r.target] = r.label or r.audio or tr("silence")
+        # (the same target twice, problems() names already)
+        problems += [("same_sound", tr("{names} and {last} replace the same sound").format(
+                         names=", ".join([*names.values()][:-1]), last=[*names.values()][-1]))
+                     for names in by_sound.values() if len(names) > 1]
+        problems += [("unreadable", tr("{name}: can't read the audio file ({file})").format(name=a["label"] or a["name"],
+                                                                                          file=a["audio"]))
+                     for a in assignments.values()
                      if a["exists"] and a["audio"] and not a["silence"] and not a["duration_ms"]]
-        problems += [f"{a['label'] or 'a slot'}: no audio file named" for a in assignments.values()
-                     if not a["audio"] and not a["silence"]]
+        problems += [("no_file", tr("{name}: no audio file named").format(name=a["label"]) if a["label"]
+                      else tr("a slot: no audio file named"))
+                     for a in assignments.values() if not a["audio"] and not a["silence"]]
         if p.loudness_analysis:
             from . import akd
             if why := akd.unavailable():
-                problems.append(f"Wwise loudness analysis: {why[:1].lower() + why[1:]} (turn it off under Build options)")
+                problems.append(("loudness", tr("Wwise loudness analysis: {why} (turn it off under Build options)").format(
+                    why=why[:1].lower() + why[1:])))
         try:
             frame = icon_frame(p.icon)
         except ValueError:  # a hand-edited project file: the build names the problem
@@ -1056,7 +1176,8 @@ class Session:
                 "additions": p.to_json().get("additions", []), "stand_ins": self._stand_ins(p),
                 "settings": len(p.settings), "notes": dict(p.notes),
                 "soundtrack": {str(k): v.to_json() for k, v in p.soundtrack.items()}, "tabs": p.tabs,
-                "problems": problems, "can_undo": bool(self.undo_stack), "can_redo": bool(self.redo_stack),
+                "problems": [text for _, text in problems], "problem_kinds": [kind for kind, _ in problems],
+                "can_undo": bool(self.undo_stack), "can_redo": bool(self.redo_stack),
                 "unsaved": self.unsaved_since is not None,
                 "undo_label": self.undo_stack[-1][0] if self.undo_stack else None,
                 "redo_label": self.redo_stack[-1][0] if self.redo_stack else None,
@@ -1152,16 +1273,16 @@ class Session:
     def _relative(self, p: Project, audio) -> str:
         from .audio import duration_ms
         if not isinstance(audio, (str, os.PathLike)) or not str(audio).strip():
-            raise EditorError("Choose an audio file")
+            raise EditorError(tr("Choose an audio file"))
         audio = Path(audio)
         if not audio.is_absolute():
-            raise EditorError(f"{audio} isn't a full path")
+            raise EditorError(tr("{path} isn't a full path").format(path=audio))
         if not audio.exists():
-            raise EditorError(f"{audio} wasn't found")
+            raise EditorError(tr("{path} wasn't found").format(path=audio))
         if audio.suffix.lower() not in AUDIO_TYPES or audio.is_dir():
-            raise EditorError(f"{audio.name} is not an audio file Audiodiver can read")
+            raise EditorError(tr("{file} is not an audio file Audiodiver can read").format(file=audio.name))
         if not duration_ms(audio):  # unreadable or empty: refused now, not at the next build
-            raise EditorError(f"Can't read the audio in {audio.name}")
+            raise EditorError(tr("Can't read the audio in {file}").format(file=audio.name))
         try:
             return audio.resolve().relative_to(p.path.parent.resolve(), walk_up=True).as_posix()
         except ValueError:  # another drive
@@ -1188,7 +1309,7 @@ class Session:
         try:
             return self.ix.resolve(sid)
         except KeyError:
-            raise EditorError(f"Sound {sid} isn't in this version of the game") from None
+            raise EditorError(tr("Sound {id} isn't in this version of the game").format(id=sid)) from None
 
     def _set(self, p: Project, sid: int, audio: str, label=None):
         rel = self._relative(p, audio)
@@ -1223,7 +1344,7 @@ class Session:
         from .audio import natural
         self.require_game()
         if not isinstance(files, list) or not isinstance(sources, list):
-            raise EditorError("Choose the files and the slots to fill")
+            raise EditorError(tr("Choose the files and the slots to fill"))
         files = sorted((str(f) for f in files), key=natural)
         targets = list(dict.fromkeys(self._source(s) for s in sources))  # stream ids and old ids as the sounds they are
 
@@ -1278,7 +1399,7 @@ class Session:
         the game's timing, so the slot is silent for as long as the game's audio would play (muting one layer)."""
         self._need_project()
         if not isinstance(sources, list):
-            raise EditorError("Choose the slots to silence")
+            raise EditorError(tr("Choose the slots to silence"))
         sids = [self._source(s) for s in sources]
 
         def apply(p):
@@ -1299,7 +1420,7 @@ class Session:
         """Takes the new audio off slots. An id the game no longer has (an unresolved target) is taken off too:
         that is how such a replacement leaves the project."""
         if not isinstance(sources, list):
-            raise EditorError("Choose the slots to clear")
+            raise EditorError(tr("Choose the slots to clear"))
         try:
             sids = {int(s) for s in sources}
         except (TypeError, ValueError, OverflowError):
@@ -1319,7 +1440,8 @@ class Session:
                 raise EditorError("Make-Up Gain is a number of dB")
             g = float(v)
             if not math.isfinite(g) or not GAIN_DB[0] <= g <= GAIN_DB[1]:
-                raise EditorError(f"Make-Up Gain goes from {GAIN_DB[0]:+g} to {GAIN_DB[1]:+g} dB")
+                raise EditorError(tr("Make-Up Gain goes from {low} to {high} dB").format(low=f"{GAIN_DB[0]:+g}",
+                                                                                       high=f"{GAIN_DB[1]:+g}"))
             return g
         if k == "fit_timing":
             if not isinstance(v, bool):
@@ -1343,7 +1465,7 @@ class Session:
 
     def update_many(self, sources, **fields):
         if not isinstance(sources, list):
-            raise EditorError("Choose the slots to change")
+            raise EditorError(tr("Choose the slots to change"))
         checked = {k: self._field(k, v) for k, v in fields.items() if k in ("gain_db", "fit_timing")}
 
         def apply(p):
@@ -1360,7 +1482,7 @@ class Session:
         from . import loudness
         self.require_game()
         if not isinstance(sources, list):
-            raise EditorError("Choose the slots to match")
+            raise EditorError(tr("Choose the slots to match"))
         p = self._need_project()
         reps, gains = self._sources(), {}
         for sid in dict.fromkeys(self._source(s) for s in sources):
@@ -1374,7 +1496,7 @@ class Session:
             if db is not None:
                 gains[sid] = max(GAIN_DB[0], min(GAIN_DB[1], round(db * 2) / 2))
         if not gains:
-            raise EditorError("Nothing to match: no slot here has new audio and an original, both with sound")
+            raise EditorError(tr("Nothing to match: no slot here has new audio and an original, both with sound"))
 
         def apply(p):
             for sid, db in gains.items():
@@ -1386,7 +1508,7 @@ class Session:
     def original_gain(self, sources, gain_db):
         """Make-Up Gain on the original audio of slots (Project.gains), as one undo step; 0 takes it off."""
         if not isinstance(sources, list):
-            raise EditorError("Choose the slots to change")
+            raise EditorError(tr("Choose the slots to change"))
         db = self._field("gain_db", gain_db)
         self._need_project()
         sids = [self._source(s) for s in sources]
@@ -1426,11 +1548,11 @@ class Session:
             return ""
         folder = Path(str(v))
         if not folder.is_absolute() or not folder.is_dir():
-            raise EditorError(f"{folder} is not a folder")
+            raise EditorError(tr("{folder} is not a folder").format(folder=folder))
         folder = folder.resolve()
         if self.game_where["path"] and in_game_folder(folder, self.game_where["path"]):
-            raise EditorError("That folder is inside the game folder, and Audiodiver never writes there. Choose another "
-                              "folder, and import the ZIP in a mod manager.")
+            raise EditorError(tr("That folder is inside the game folder, and Audiodiver never writes there. Choose "
+                                 "another folder, and import the ZIP in a mod manager."))
         if folder == p.default_build_dir().resolve():
             return ""
         try:
@@ -1454,18 +1576,18 @@ class Session:
             if k == "version":
                 if isinstance(v, bool) or not isinstance(v, (int, float, str)) or not str(v).strip().isdigit() \
                         or not 1 <= int(str(v).strip()) <= 99999:
-                    raise EditorError("The version is a whole number from 1 to 99999")
+                    raise EditorError(tr("The version is a whole number from 1 to 99999"))
                 v = int(str(v).strip())
             elif k == "guid" and v != "new":
                 try:
                     v = str(uuid.UUID(str(v)))
                 except ValueError:
-                    raise EditorError("That isn't a mod ID (a GUID like 3f2a…-…)") from None
+                    raise EditorError(tr("That isn't a mod ID (a GUID like 3f2a…-…)")) from None
             elif k == "loudness_analysis":
                 if not isinstance(v, bool):
                     raise EditorError("Loudness analysis is on or off")
                 if v and (why := akd.unavailable()):
-                    raise EditorError(f"Loudness analysis: {why}")
+                    raise EditorError(tr("Loudness analysis: {why}").format(why=why))
             elif k == "every_bank" and not isinstance(v, bool):
                 raise EditorError("Every bank is on or off")
             elif k == "project_banks_only" and not isinstance(v, bool):
@@ -1528,14 +1650,14 @@ class Session:
         from . import arsenal
         p = self._need_project()
         if not given(image):
-            raise EditorError("Choose an image")
+            raise EditorError(tr("Choose an image"))
         image = Path(image)
         if not image.is_file():
-            raise EditorError(f"{image} wasn't found")
+            raise EditorError(tr("{path} wasn't found").format(path=image))
         try:
             arsenal.icon_png(image)
         except Image.DecompressionBombError:
-            raise EditorError(f"{image.name} is too large to use as an icon") from None
+            raise EditorError(tr("{file} is too large to use as an icon").format(file=image.name)) from None
         except (ValueError, OSError) as e:
             raise EditorError(str(e)) from None
         try:
@@ -1573,13 +1695,13 @@ class Session:
         except ValueError:
             raise EditorError("A cue point is a number of milliseconds") from None
         if not math.isfinite(ms) or ms < 0 or ms > 3_600_000:
-            raise EditorError("A cue point is a number of milliseconds from 0")
+            raise EditorError(tr("A cue point is a number of milliseconds from 0"))
         return ms
 
     @staticmethod
     def _cues_ok(o: dict) -> dict:
         if "entry_marker" in o and "exit_marker" in o and o["entry_marker"] >= o["exit_marker"]:
-            raise EditorError("The Entry cue point comes before the Exit")
+            raise EditorError(tr("The Entry cue point comes before the Exit"))
         return o
 
     @staticmethod
@@ -1601,7 +1723,7 @@ class Session:
         exit_marker) goes on every segment, an empty one comes off every segment, and one not given stays as each
         segment has it."""
         if not isinstance(segments, list) or not segments:
-            raise EditorError("Choose the segments to change")
+            raise EditorError(tr("Choose the segments to change"))
         if unknown := set(cues) - {"entry_marker", "exit_marker"}:
             raise EditorError(f"Not a cue point: {', '.join(sorted(unknown))}")
         segs, given = [self._segment_id(s) for s in segments], {k: self._cue_ms(v) for k, v in cues.items()}
@@ -1628,7 +1750,7 @@ class Session:
         self.require_game()
         seg, r, p = self._segment_id(segment), self._rep(source), self._need_project()
         if r.silence:
-            raise EditorError("Silence has no cue points")
+            raise EditorError(tr("Silence has no cue points"))
         sources = {self._target(x.target) for x in p.replacements if x.audio == r.audio and not x.silence}
         segs, changed = sorted(set().union(*(self._segments_of(sid) for sid in sources)) - {seg}), []
 
@@ -1663,7 +1785,7 @@ class Session:
     def _files_busy(self):
         """Refuses while a job that writes files beside a project runs."""
         if any(j.state == "running" and j.kind not in self.READ_ONLY_JOBS for j in self.jobs.values()):
-            raise EditorError("Wait until the running job is done")
+            raise EditorError(tr("Wait until the running job is done"))
 
     def move_to_own_folder(self):
         """Gives the project a folder of its own, beside its file and named like it. The project file moves there,
@@ -1676,7 +1798,7 @@ class Session:
         with self.lock:
             p = self._need_project()
             if pf.own_folder(p.path):
-                raise EditorError("The project already has a folder to itself")
+                raise EditorError(tr("The project already has a folder to itself"))
             self._files_busy()
             self.flush()  # the move plan reads the project file
             old_file, old = p.path, p.path.parent
@@ -1696,7 +1818,7 @@ class Session:
                 if pf.put_back(done):  # (carry puts back what it did when it fails itself)
                     shutil.rmtree(dest, ignore_errors=True)  # made just now: nothing else is in it
                 if isinstance(e, OSError):
-                    raise EditorError(f"The project couldn't move: {os_error(e)}") from None
+                    raise EditorError(tr("The project couldn't move: {why}").format(why=os_error(e))) from None
                 raise
             self.project = moved
             self.undo_stack = [(label, pf.rebase(d, old, dest, plan)) for label, d in self.undo_stack]
@@ -1721,22 +1843,22 @@ class Session:
         from . import projectfiles as pf
         from .game import in_game_folder
         if not isinstance(folder, str) or not folder.strip() or not Path(folder).is_absolute():
-            raise EditorError("Choose a folder to move the project to (a full path)")
+            raise EditorError(tr("Choose a folder to move the project to (a full path)"))
         to = pf.norm(folder)
         with self.lock:
             p = self._need_project()
             self._files_busy()
             self.flush()  # the folder moves with the project file in it
             if self.ix and in_game_folder(to, self.ix.game.data):
-                raise EditorError("That folder is inside the game folder, and Audiodiver never writes there")
+                raise EditorError(tr("That folder is inside the game folder, and Audiodiver never writes there"))
             own = pf.own_folder(p.path)
             old = p.path.parent if own else pf.move_dest(p.path)  # the folder that moves
             if pf.key(to) == pf.key(old.parent):
-                raise EditorError("The project is in that folder already")
+                raise EditorError(tr("The project is in that folder already"))
             if pf.inside(to, old) is not None:
-                raise EditorError("Choose a folder outside the project's folder")
+                raise EditorError(tr("Choose a folder outside the project's folder"))
             if to.exists() and not to.is_dir():
-                raise EditorError("That is a file, not a folder")
+                raise EditorError(tr("That is a file, not a folder"))
             dest = pf.free(to / old.name)
             other_drive = os.path.splitdrive(old)[0].lower() != os.path.splitdrive(dest)[0].lower()
             if check:
@@ -1763,7 +1885,7 @@ class Session:
                     os.replace(old, dest)
             except OSError as e:
                 back()
-                raise EditorError(f"The project couldn't move: {os_error(e)}") from None
+                raise EditorError(tr("The project couldn't move: {why}").format(why=os_error(e))) from None
             try:
                 moved = Project.from_json(pf.rebase(p.to_json(), old, dest, whole=True), dest / p.path.name)
                 moved.save()
@@ -1772,7 +1894,7 @@ class Session:
                     os.replace(dest, old)
                 back()
                 if isinstance(e, OSError):
-                    raise EditorError(f"The project couldn't move: {os_error(e)}") from None
+                    raise EditorError(tr("The project couldn't move: {why}").format(why=os_error(e))) from None
                 raise
             self.project = moved
             self.undo_stack = [(label, pf.rebase(d, old, dest, whole=True)) for label, d in self.undo_stack]
@@ -1811,7 +1933,7 @@ class Session:
         are empty. {removed, left, bytes}."""
         from . import projectfiles as pf
         if not isinstance(paths, list):
-            raise EditorError("Name the files to remove")
+            raise EditorError(tr("Name the files to remove"))
         with self.lock:
             p = self._need_project()
             self._files_busy()
@@ -1841,7 +1963,7 @@ class Session:
             try:
                 pf.copy(plan)
             except OSError as e:
-                raise EditorError(f"The files couldn't be copied: {os_error(e)}") from None
+                raise EditorError(tr("The files couldn't be copied: {why}").format(why=os_error(e))) from None
 
             def apply(proj: Project):
                 d = pf.rebase(proj.to_json(), folder, folder, plan)
@@ -1855,20 +1977,25 @@ class Session:
         from . import projectfiles as pf
         p = self._need_project()
         if not given(dest) or not Path(dest).is_absolute():
-            raise EditorError("Choose where to save the pack (a full path)")
+            raise EditorError(tr("Choose where to save the pack (a full path)"))
         dest = Path(dest)
         if dest.suffix.lower() != pf.PACK:
             dest = dest.with_name(dest.name + pf.PACK)
         if not dest.parent.is_dir():
-            raise EditorError(f"{dest.parent} is not a folder")
+            raise EditorError(tr("{folder} is not a folder").format(folder=dest.parent))
         with self.lock:
             self.flush()  # the pack holds the project file as saved
             d, folder, name = p.to_json(), p.path.parent, p.path.stem
 
         def run(job):
             got = pf.pack(d, folder, name, dest, job)
-            job.say(f"{got['files']} files packed into {dest.name}"
-                    + (f"; {got['missing']} the project uses weren't found" if got["missing"] else ""))
+            packed = ntr("{n} file packed into {pack}", "{n} files packed into {pack}", got["files"]).format(
+                n=got["files"], pack=dest.name)
+            if got["missing"]:  # the whole line, so a translation can order the two parts as the language needs
+                packed = ntr("{packed}; {n} the project uses wasn't found",
+                             "{packed}; {n} the project uses weren't found", got["missing"]).format(packed=packed,
+                                                                                                   n=got["missing"])
+            job.say(packed)
             return {"pack": str(dest), "mb": round(got["bytes"] / 1e6, 1), **got}
         return self._start("pack", run, p.name)
 
@@ -1877,18 +2004,18 @@ class Session:
         result names the project file, and the window opens it."""
         from . import projectfiles as pf
         if not given(path) or not Path(path).is_file():
-            raise EditorError(f"{path} wasn't found")
+            raise EditorError(tr("{path} wasn't found").format(path=path))
         src = Path(path)
         into = Path(folder) if given(folder) else Path(self.projects_folder())
         if not into.is_absolute():
-            raise EditorError("Choose where to unpack it (a full path)")
+            raise EditorError(tr("Choose where to unpack it (a full path)"))
 
         def run(job):
             try:
                 audi = pf.unpack(src, into, job)
             except pf.FilesError as e:
                 raise EditorError(str(e)) from None
-            job.say(f"unpacked into {audi.parent}")
+            job.say(tr("unpacked into {folder}").format(folder=audi.parent))
             return {"project": str(audi), "folder": str(audi.parent)}
         return self._start("unpack", run, src.stem)
 
@@ -1908,7 +2035,7 @@ class Session:
                 log.info("job %s cancelled after %.1fs", job.id, time.time() - job.started)
             except Exception as e:
                 job.error, job.state = plain(e), "failed"
-                job.say(f"failed: {job.error}")  # the traceback is in the log file, not on the Build tab
+                job.say(tr("failed: {why}").format(why=job.error))  # the traceback is in the log file, not the Build tab
                 log.exception("job %s (%s: %s) failed", job.id, kind, title)
             job.ended = time.time()
             if self.ix and not any(j.state == "running" for j in self.jobs.values()):
@@ -1919,13 +2046,13 @@ class Session:
     def cancel_job(self, job_id):
         """Asks a running job to stop; it does at its next step."""
         if job_id not in self.jobs:
-            raise EditorError(f"No job {job_id}")
+            raise EditorError(tr("No job {id}").format(id=job_id))
         self.jobs[job_id].cancel_requested = True
         return self.jobs[job_id].to_json()
 
     def job(self, job_id):
         if job_id not in self.jobs:
-            raise EditorError(f"No job {job_id}")
+            raise EditorError(tr("No job {id}").format(id=job_id))
         return self.jobs[job_id].to_json()
 
     def build(self, bump=True):
@@ -1953,12 +2080,17 @@ class Session:
             return result
         with self.build_lock:  # two builds sent together both started, and wrote one .partial ZIP
             if any(j.kind == "build" and j.state == "running" for j in self.jobs.values()):
-                raise EditorError("A build is already running")
+                raise EditorError(tr("A build is already running"))
             if not p.replacements and not p.gains and not p.texts and not p.soundtrack:
-                raise EditorError("Nothing to build yet. Replace some audio, set a piece in the Soundtrack or change a line of text first.")
+                raise EditorError(tr("Nothing to build yet. Replace some audio, set a piece in the Soundtrack or "
+                                     "change a line of text first."))
             if problems := self.project_state()["problems"]:
-                raise EditorError(f"Fix the problems on the Build tab first: {problems[0]}"
-                                  + (f" (and {len(problems) - 1} more)" if len(problems) > 1 else ""))
+                if len(problems) == 1:
+                    raise EditorError(tr("Fix the problems on the Build tab first: {problem}").format(
+                        problem=problems[0]))
+                raise EditorError(ntr("Fix the problems on the Build tab first: {problem} (and {n} more)",
+                                      "Fix the problems on the Build tab first: {problem} (and {n} more)",
+                                      len(problems) - 1).format(problem=problems[0], n=len(problems) - 1))
             return self._start("build", run)
 
     def _bump_version(self, path, version, built_for="", built_from=""):
@@ -1999,19 +2131,20 @@ class Session:
         if mode not in ("add", "replace"):
             raise EditorError("An import adds to the project or replaces the audio in it")
         if not given(patch_path):
-            raise EditorError("Choose a mod's .patch_0 file")
+            raise EditorError(tr("Choose a mod's .patch_0 file"))
         patch_path = Path(patch_path)
         if not patch_path.is_file():
-            raise EditorError(f"{patch_path} wasn't found")
+            raise EditorError(tr("{path} wasn't found").format(path=patch_path))
         if not re.search(r"\.patch_\d+$", patch_path.name, re.I):
-            raise EditorError(f"{patch_path.name} isn't a patch file. Choose a .patch_0 file. Audiodiver also reads the .stream file "
-                              f"next to it.")
+            raise EditorError(tr("{file} isn't a patch file. Choose a .patch_0 file. Audiodiver also reads the .stream "
+                                 "file next to it.").format(file=patch_path.name))
 
         def run(job):
             read = self._import_read(job, [patch_path], p.path.parent)
             self._something_in(read.reads, read.lines, read.lines, read.failed, patch_path.name)
             if not self.project or self.project.path != p.path:
-                raise EditorError("Another project was opened during the import. Open this project again and import again.")
+                raise EditorError(tr("Another project was opened during the import. Open this project again and import "
+                                     "again."))
             count = {}
 
             def apply(proj):  # what the patch replaces joins the project's list (_cover), so the Editor shows it
@@ -2040,21 +2173,30 @@ class Session:
         from .addition import cue_points, from_patch, same_audio
         from .build import keep_encoding
         from .patch import diff
-        job.say(f"reading {patch_path.name}")
+        job.say(tr("reading {file}").format(file=patch_path.name))
         try:
             d = diff(str(patch_path), self.ix)
             got = from_patch(self.ix, d)  # what it adds (Unwise's new takes, layers, rewired sounds) and replaces
         except (AssertionError, struct.error, ValueError, KeyError, IndexError):
-            raise EditorError(f"{patch_path.name} can't be read as a game patch") from None
-        def named(m):  # a bank as the Library names it
-            return f'{m[1]} the bank "{self.lib.bank_label(int(m[2]))}"' if self.lib and int(m[2]) in self.ix.banks else m[0]
-        got.left = [re.sub(r"\b(in|of) bank (\d+)", named, line) for line in got.left]
+            raise EditorError(tr("{file} can't be read as a game patch").format(file=patch_path.name)) from None
+        # the changes in each bank that can't come in (addition.Found.other), with the bank as the Library names it
+        for bid, n in got.other.items():
+            if self.lib and bid in self.ix.banks:
+                got.left.append(ntr('{n} other change in the bank "{bank}" (settings such as effects, positioning or how '
+                                    'a container picks sounds)',
+                                    '{n} other changes in the bank "{bank}" (settings such as effects, positioning or '
+                                    'how a container picks sounds)', n).format(n=n, bank=self.lib.bank_label(bid)))
+            else:
+                got.left.append(ntr("{n} other change in bank {id} (settings such as effects, positioning or how a "
+                                    "container picks sounds)",
+                                    "{n} other changes in bank {id} (settings such as effects, positioning or how a "
+                                    "container picks sounds)", n).format(n=n, id=bid))
         replaced = {}  # the game's source id -> wem bytes
         for fid, data in d["streams"].items():
             try:
                 sid = self.ix.resolve(fid)
             except KeyError:
-                job.say(f"stream {fid} is not in this game version; skipped")
+                job.say(tr("stream {id} is not in this game version; skipped").format(id=fid))
                 continue
             try:
                 if same_audio(data, self.ix.wem(sid)):  # the game's clip in an older file: not the mod's audio
@@ -2068,20 +2210,26 @@ class Session:
         got.cues = cue_points(d, replaced)
         new = {src: data for *_, src, data in got.takes} | {src: data for _, src, data in got.own}
         for line in got.left:
-            job.say(f"left out: {line}")
+            job.say(tr("left out: {what}").format(what=line))
         if got.stale:
-            job.say(f"{len(got.stale)} sounds of an older game version, which the game no longer has, left out")
+            job.say(ntr("{n} sound of an older game version, which the game no longer has, left out",
+                        "{n} sounds of an older game version, which the game no longer has, left out",
+                        len(got.stale)).format(n=len(got.stale)))
         if got.older:
-            job.say(f"{len(got.older)} objects as an older game version had them; the current ones are used")
+            job.say(ntr("{n} object as an older game version had it; the current one is used",
+                        "{n} objects as an older game version had them; the current ones are used",
+                        len(got.older)).format(n=len(got.older)))
         if got.merged:
-            job.say(f"{len(got.merged)} objects copied from another bank by the tool that made the mod; each bank's "
-                    f"own are used")
+            job.say(ntr("{n} object copied from another bank by the tool that made the mod; each bank's own is used",
+                        "{n} objects copied from another bank by the tool that made the mod; each bank's own are used",
+                        len(got.merged)).format(n=len(got.merged)))
         found = {**new, **replaced}
         if not found and got.settings:
             return got, replaced, {}, 0  # only settings
         if not found:
-            raise EditorError(f"{patch_path.name} replaces, adds or sets nothing"
-                              + (f" Audiodiver can bring in ({got.left[0]})" if got.left else ""))
+            raise EditorError(tr("{file} replaces, adds or sets nothing Audiodiver can bring in ({why})").format(
+                file=patch_path.name, why=got.left[0]) if got.left
+                else tr("{file} replaces, adds or sets nothing").format(file=patch_path.name))
         out_dir.mkdir(parents=True, exist_ok=True)
         files, job.total = {}, len(found)
         decoded = reuse and (out_dir / ".done").is_file()
@@ -2090,7 +2238,7 @@ class Session:
             if decoded and wav.is_file():
                 keep_encoding(wav, data)
                 files[sid] = wav
-                job.step(f"Decoding {i} of {len(found)}", i)
+                job.step(tr("Decoding {n} of {total}").format(n=i, total=len(found)), i)
                 continue
             wem_path.write_bytes(data)
             try:
@@ -2098,16 +2246,17 @@ class Session:
                 keep_encoding(wav, data)
                 files[sid] = wav
             except subprocess.CalledProcessError:
-                job.say(f"source {sid}: can't decode the audio; skipped")
+                job.say(tr("source {id}: can't decode the audio; skipped").format(id=sid))
             finally:
                 wem_path.unlink(missing_ok=True)
-            job.step(f"Decoding {i} of {len(found)}", i)
+            job.step(tr("Decoding {n} of {total}").format(n=i, total=len(found)), i)
         if not files:
-            what = "The sound" if len(found) == 1 else f"None of the {len(found)} sounds"
-            could = "couldn't" if len(found) == 1 else "could"
-            raise EditorError(f"{what} in {patch_path.name} {could} be decoded. "
-                              + (f"The folder {out_dir} has too long a path for the decoder. Choose a shorter one."
-                                 if len(str(out_dir)) > 230 else "Is the .stream file next to the patch?"))
+            what = (tr("The sound in {file} couldn't be decoded.") if len(found) == 1 else
+                    ntr("None of the {n} sounds in {file} could be decoded.",
+                        "None of the {n} sounds in {file} could be decoded.", len(found)))
+            hint = (tr("The folder {folder} has too long a path for the decoder. Choose a shorter one.")
+                    if len(str(out_dir)) > 230 else tr("Is the .stream file next to the patch?"))
+            raise EditorError(what.format(file=patch_path.name, n=len(found)) + " " + hint.format(folder=out_dir))
         if reuse:
             (out_dir / ".done").write_text("")
         return got, replaced, files, len(found) - len(files)
@@ -2118,7 +2267,7 @@ class Session:
         added or changed."""
         for sid, wav in files.items():
             if sid in replaced:
-                self._set(p, sid, str(wav), label=f"imported {sid}")
+                self._set(p, sid, str(wav), label=tr("imported {id}").format(id=sid))
         for seg, (cues, clips) in got.cues.items():  # a segment the patch gives new audio takes its cue points too
             if clips & files.keys():
                 self._put_cues(p, seg, cues)
@@ -2200,9 +2349,11 @@ class Session:
             others, holds = others + rest, [*holds, audio]
         lines, missing, unread = self._mod_lines(tables) if tables else ([], 0, 0)
         if lines:
-            job.say(f"the mod changes {len(lines)} line{'s' if len(lines) != 1 else ''} of text")
+            job.say(ntr("the mod changes {n} line of text", "the mod changes {n} lines of text", len(lines)).format(
+                n=len(lines)))
         if missing:
-            job.say(f"{missing} line{'s' if missing != 1 else ''} of text that the game doesn't have, left out")
+            job.say(ntr("{n} line of text that the game doesn't have, left out",
+                        "{n} lines of text that the game doesn't have, left out", missing).format(n=missing))
         read = SimpleNamespace(reads=[], dirs=[], failed=[], lines=lines, missing=missing, others=others + unread)
         for path, audio in zip(patches, holds):
             if not audio:
@@ -2226,10 +2377,10 @@ class Session:
         if audio or lines:
             return
         if found:
-            raise EditorError("Choose a line of text to import. The mod has no audio that Audiodiver can bring in.")
+            raise EditorError(tr("Choose a line of text to import. The mod has no audio that Audiodiver can bring in."))
         if failed:
             raise EditorError(failed[0])
-        raise EditorError(f"{what} holds no audio or text that Audiodiver can bring in")
+        raise EditorError(tr("{name} holds no audio or text that Audiodiver can bring in").format(name=what))
 
     def _put_import(self, p: Project, read, lines, tabs=None) -> int:
         """Puts what _import_read found into a project: each patch's audio (_fill_from_patch, a later patch's over an
@@ -2260,7 +2411,8 @@ class Session:
                 "added": added, "skipped": sum(r[3] for r in reads),
                 "settings": len(set().union(*(got.settings for got, *_ in reads))), "texts": len(lines),
                 "left": [*dict.fromkeys(x for got, *_ in reads for x in got.left), *read.failed,
-                         *([f"{n} line{'s' if n != 1 else ''} of text that the game doesn't have"] if n else []), *left],
+                         *([ntr("{n} line of text that the game doesn't have",
+                                "{n} lines of text that the game doesn't have", n).format(n=n)] if n else []), *left],
                 "stale": len(set().union(*(got.stale for got, *_ in reads))),
                 "older": len(set().union(*(got.older for got, *_ in reads))),
                 "others": self._file_lines(0, read.others), "folder": str(folder)}
@@ -2353,7 +2505,7 @@ class Session:
         if tabs is not None and (tabs := tab_list(tabs)) is None:
             raise EditorError("The tabs are some of " + ", ".join(TABS))
         if not keys:
-            raise EditorError("No patch is in the chosen options")
+            raise EditorError(tr("No patch is in the chosen options"))
         audio, tables, _ = self._mod_contents(f, keys)  # a mod with nothing to bring in is refused before the job
         if not audio:
             found = self._mod_lines(tables)[0] if tables else []
@@ -2365,7 +2517,7 @@ class Session:
                 raise EditorError(problem)
             audi = self._project_path(out_folder(folder) / f"{name}.audi", True)
             if audi.exists():
-                raise EditorError(f"{audi.name} already exists in {audi.parent}")
+                raise EditorError(tr("{file} already exists in {folder}").format(file=audi.name, folder=audi.parent))
         else:
             audi = self._need_project().path
         home = audi.parent
@@ -2377,7 +2529,8 @@ class Session:
                     try:
                         home.mkdir(parents=True, exist_ok=True)
                     except OSError as e:
-                        raise EditorError(f"Can't make the folder {home}: {os_error(e)}") from None
+                        raise EditorError(tr("Can't make the folder {folder}: {why}").format(folder=home,
+                                                                                            why=os_error(e))) from None
                 with tempfile.TemporaryDirectory(prefix="audiodiver-import-", ignore_cleanup_errors=True) as tmp:
                     placed = [f.place(key, Path(tmp) / str(n)) for n, key in enumerate(keys)]
                     read = self._import_read(job, placed, home, made)
@@ -2385,8 +2538,8 @@ class Session:
                 self._something_in(read.reads, read.lines, lines, read.failed, f.source.name)
                 if not new:
                     if not self.project or self.project.path != audi:
-                        raise EditorError("Another project was opened during the import. Open this project again and "
-                                          "import again.")
+                        raise EditorError(tr("Another project was opened during the import. Open this project again "
+                                             "and import again."))
                     count = {}
 
                     def apply(proj):  # as import_patch
@@ -2409,7 +2562,7 @@ class Session:
                         p.icon = {"image": to.name}
                     except (OSError, ValueError) as e:
                         to.unlink(missing_ok=True)
-                        left.append(f"the icon ({os_error(e) if isinstance(e, OSError) else e})")
+                        left.append(tr("the icon ({why})").format(why=os_error(e) if isinstance(e, OSError) else e))
                 with self.lock:
                     added = self._put_import(p, read, lines)
                     self._tidy(p)
@@ -2417,7 +2570,7 @@ class Session:
                     self._cover(p)
                 if audi.exists():  # made meanwhile: that project stays, and only what this import made goes
                     fresh = False
-                    raise EditorError(f"{audi.name} already exists in {home}")
+                    raise EditorError(tr("{file} already exists in {folder}").format(file=audi.name, folder=home))
                 p.save()
             except BaseException:
                 if new and fresh:
@@ -2437,12 +2590,12 @@ class Session:
                 try:
                     self.flush()
                 except EditorError:
-                    raise EditorError(f"The new project is in {home}. It wasn't opened, because the open project "
-                                      f"couldn't be saved.") from None
+                    raise EditorError(tr("The new project is in {folder}. It wasn't opened, because the open project "
+                                         "couldn't be saved.").format(folder=home)) from None
                 self.project, self.undo_stack, self.redo_stack = p, [], []
                 self.revision += 1
             save_settings(projects_folder=str(home.parent))  # the next new project is offered the same place
-            job.say(f"project {audi}")
+            job.say(tr("project {path}").format(path=audi))
             return self._import_result(read, added, lines, audi, home, left)
         return self._start("import", run, title=name if new else f.name or f.source.name)
 
@@ -2462,7 +2615,8 @@ class Session:
         except RepatchError as e:
             raise EditorError(str(e)) from None
         except OSError as e:
-            raise EditorError(f"Can't read {Path(str(path)).name}: {os_error(e)}") from None
+            raise EditorError(tr("Can't read {file}: {why}").format(file=Path(str(path)).name,
+                                                                   why=os_error(e))) from None
 
         def patch(p):  # audio: whether repatching changes it (one without stays as it is); others go in as they were
             kinds = [self._kinds(f, key) for key in p.keys]
@@ -2478,14 +2632,14 @@ class Session:
         from .installed import check
         self.require_game()
         if any(j.kind == "check" and j.state == "running" for j in self.jobs.values()):
-            raise EditorError("The installed mods are being checked already")
+            raise EditorError(tr("The installed mods are being checked already"))
 
         def run(job):
             def progress(doing, done, total):
                 job.total = total
                 job.step(doing, done)
             return check(self.ix, self.ix.game.data, step=progress)
-        return self._start("check", run, title="installed mods")
+        return self._start("check", run, title=tr("installed mods"))
 
     @staticmethod
     def _kinds(found, key) -> tuple[bool, int, int]:
@@ -2509,8 +2663,9 @@ class Session:
     @staticmethod
     def _file_lines(texts: int, rest: int) -> list[str]:
         """What a mod holds besides its audio, which a repatch or a combine carries as it was ("2 string tables")."""
-        return ([f"{texts} string table{'s' if texts != 1 else ''}"] if texts else []) + \
-               ([f"{rest} other file{'s' if rest != 1 else ''}, such as models or textures"] if rest else [])
+        return ([ntr("{n} string table", "{n} string tables", texts).format(n=texts)] if texts else []) + \
+               ([ntr("{n} other file, such as models or textures", "{n} other files, such as models or textures",
+                     rest).format(n=rest)] if rest else [])
 
     @staticmethod
     def _carried_lines(carried) -> list[str]:
@@ -2530,7 +2685,7 @@ class Session:
             try:
                 out += carried_of(str(path))
             except (ValueError, OSError, struct.error) as e:
-                raise EditorError(f"The files besides audio can't be read: {e}") from None
+                raise EditorError(tr("The files besides audio can't be read: {why}").format(why=e)) from None
         return out
 
     def repatch(self, path, name="", folder="", every_bank=False, remember=True):
@@ -2556,11 +2711,12 @@ class Session:
             raise EditorError(problem)
         root = Path(folder) if given(folder) else self._repatch_root()
         if not root.is_absolute():
-            raise EditorError("Choose where repatched mods go (a full path)")
+            raise EditorError(tr("Choose where repatched mods go (a full path)"))
         if in_game_folder(root, self.ix.game.data):
-            raise EditorError(f"{root} is inside the game folder, and Audiodiver never writes there")
+            raise EditorError(tr("{folder} is inside the game folder, and Audiodiver never writes there").format(
+                folder=root))
         if any(j.kind in ("build", "repatch") and j.state == "running" for j in self.jobs.values()):
-            raise EditorError("A build is already running")
+            raise EditorError(tr("A build is already running"))
         if given(folder) and remember:
             save_settings(repatch_folder=str(root))
         if not isinstance(every_bank, bool):
@@ -2605,7 +2761,8 @@ class Session:
             try:
                 root.mkdir(parents=True, exist_ok=True)
             except OSError as e:
-                raise EditorError(f"Can't make the folder {root}: {os_error(e)}") from None
+                raise EditorError(tr("Can't make the folder {folder}: {why}").format(folder=root,
+                                                                                    why=os_error(e))) from None
             n = 1
             while (zip_path := root / (f"{name}.zip" if n == 1 else f"{name} {n}.zip")).exists():
                 n += 1
@@ -2614,20 +2771,21 @@ class Session:
                 parts = []
                 for i, pt in enumerate(f.patches):
                     if several:
-                        job.say(f"--- {pt.label or pt.key} ({i + 1} of {len(f.patches)})")
+                        job.say(tr("--- {name} ({n} of {total})").format(name=pt.label or pt.key, n=i + 1,
+                                                                        total=len(f.patches)))
                     try:
                         parts.append(one(job, pt, Path(tmp) / str(i)))
                     except EditorError as e:
                         if not several:
                             raise
-                        job.say(f"kept as it was: {e}")
+                        job.say(tr("kept as it was: {why}").format(why=e))
                         parts.append({"label": pt.label or pt.key, "kept": str(e), "others": [], "left": [],
                                       "audio": any(self._kinds(f, key)[0] for key in pt.keys)})
                 if not any(x["audio"] for x in parts):
-                    raise EditorError("The mod has no audio to repatch")
+                    raise EditorError(tr("The mod has no audio to repatch"))
                 if all(x["kept"] for x in parts):
                     raise EditorError(parts[0]["kept"])
-                job.step("Packing the ZIP")
+                job.step(tr("Packing the ZIP"))
                 try:
                     made = [(pt, x) for pt, x in zip(f.patches, parts) if not x["kept"]]
                     if f.manifest:  # a part's patches built into its first one's place
@@ -2652,12 +2810,13 @@ class Session:
                         package(partial, name=name, guid=str(uuid.uuid4()), icon=icon, options=options)
                     os.replace(partial, zip_path)
                 except OSError as e:
-                    raise EditorError(f"Can't write the ZIP into {root}: {os_error(e)}") from None
+                    raise EditorError(tr("Can't write the ZIP into {folder}: {why}").format(folder=root,
+                                                                                           why=os_error(e))) from None
                 finally:
                     partial.unlink(missing_ok=True)
             for x in parts:
                 x.pop("patch", None)
-            job.say(f"{zip_path} ({zip_path.stat().st_size / 1e6:.1f} MB)")
+            job.say(tr("{path} ({mb} MB)").format(path=zip_path, mb=f"{zip_path.stat().st_size / 1e6:.1f}"))
             return {"name": name, "zip": str(zip_path), "mb": round(zip_path.stat().st_size / 1e6, 1),
                     "kept_id": bool(f.manifest and f.guid), "manifest": bool(f.manifest), "parts": parts}
         return self._start("repatch", run, title=name)
@@ -2689,7 +2848,8 @@ class Session:
         except RepatchError as e:
             raise EditorError(str(e)) from None
         except OSError as e:
-            raise EditorError(f"Can't read {Path(str(path)).name}: {os_error(e)}") from None
+            raise EditorError(tr("Can't read {file}: {why}").format(file=Path(str(path)).name,
+                                                                   why=os_error(e))) from None
 
     @staticmethod
     def _manager_recorded(source: Path, opts) -> list[str] | None:
@@ -2751,7 +2911,7 @@ class Session:
     def _combine_list(mods) -> list[tuple[str, list[str] | None]]:
         """The mods to combine as the window sends them ([{source, picks}]), checked: [(source, picks or None)]."""
         if not isinstance(mods, list) or not mods:
-            raise EditorError("Choose the mods to combine")
+            raise EditorError(tr("Choose the mods to combine"))
         out = []
         for m in mods:
             if not isinstance(m, dict) or not given(m.get("source")):
@@ -2782,7 +2942,7 @@ class Session:
                 path = path or f.place(key, scratch / uuid.uuid4().hex[:8])
                 digest = self._combine_ids[stamp] = _digest(path)
         except OSError as e:
-            raise EditorError(f"Can't read {f.name}: {os_error(e)}") from None
+            raise EditorError(tr("Can't read {file}: {why}").format(file=f.name, why=os_error(e))) from None
         out_dir = CACHE_DIR / "combine" / digest
         kept = self._combine_parts.get(digest)
         if kept and kept[0] == version and (not kept[1].files or (out_dir / ".done").is_file()):
@@ -2813,16 +2973,16 @@ class Session:
                 if picks is None:
                     picks = cb.default_picks(opts, self._manager_recorded(f.source, opts))
                 name = f.name or Path(source).stem
-                job.say(f"--- {name} ({n + 1} of {len(mods)})")
+                job.say(tr("--- {name} ({n} of {total})").format(name=name, n=n + 1, total=len(mods)))
                 parts = []
                 for key in cb.parts(f, opts, picks):
-                    job.step(f"Reading {name}")
+                    job.step(tr("Reading {name}").format(name=name))
                     parts.append((key, *self._combine_part(job, f, key, Path(tmp))))
                 pts = [pt for *_, pt in parts]
                 left = list(dict.fromkeys(x for pt in pts for x in pt.left))
                 left += [pt.error for pt in pts if pt.error and not (pt.texts or pt.rest)]  # those go in as they were
                 if not parts:
-                    left.append("No patch is in the chosen options")
+                    left.append(tr("No patch is in the chosen options"))
                 sounds = set().union(*(set(pt.replaced) | {t[2] for t in pt.takes if t[2] in pt.files}
                                        | {o[1] for o in pt.own if o[1] in pt.files} for pt in pts))
                 out.append({"source": str(f.source), "name": name, "chosen": cb.labels(opts, picks), "parts": parts,
@@ -2886,7 +3046,7 @@ class Session:
                         take = (sl.get("label") or "") if of is None or sl.get("object") == str(of) else ""
                         bits = [v["name"] if cue.isdigit() else "", g["name"], take]
                         return " · ".join(dict.fromkeys(b for b in bits if b))
-        return f"Sound {sid}"
+        return tr("Sound {id}").format(id=sid)
 
     def _combine_clashes(self, read):
         """(the mods' effects, their clashes, {object: the clash its settings go with}) of what _combine_gather read."""
@@ -2907,7 +3067,7 @@ class Session:
             src = key if kind == "sound" else next(iter((sounds if kind == "clip" else objects).get(
                 key if kind == "clip" else key[0], [])), None)
             label = self._slot_label(src, views, key[0] if kind == "setting" else None) if src is not None else \
-                f"Object {key[0] if kind == 'setting' else key}"
+                tr("Object {id}").format(id=key[0] if kind == "setting" else key)
             versions = []
             for m in c["mods"]:
                 e, parts = effects[m], read[m]["parts"]
@@ -2918,14 +3078,16 @@ class Session:
                 wav = parts[n][2].files[clip]
                 versions.append({"mod": m, "audio": str(wav), "ms": duration_ms(wav)})
             item = (self.lib.home(src) or "") if src is not None else ""
+            # a setting says which (`setting`, also at the end of the label) and the unit of its values (`unit`)
+            setting = {"setting": cb.prop_name(key[1]), "unit": cb.prop_unit(key[1])} if kind == "setting" else {}
             groups.setdefault(item, []).append({
-                "id": c["id"], "kind": kind, "label": label + (f" · {cb.prop_name(key[1])}" if kind == "setting" else ""),
+                "id": c["id"], "kind": kind, "label": label + (f" · {setting['setting']}" if setting else ""), **setting,
                 **({"source": str(src)} if src is not None else {}), "versions": versions, "winner": c["mods"][-1]})
         order, kinds = self.lib.order, {"sound": 0, "clip": 1, "setting": 2}
 
         def item_name(i):
             try:
-                return self._list_name(i) if i else "Other Sounds"
+                return self._list_name(i) if i else tr("Other Sounds")
             except KeyError:
                 return i
         return {"mods": [{"source": m["source"], "name": m["name"], "left": m["left"], "sounds": m["sounds"]}
@@ -2946,15 +3108,15 @@ class Session:
         again."""
         self.require_game()
         mods = self._combine_list(mods)
-        self._combine_busy(("combine", "combine_read"), "The mods are being read or combined already")
+        self._combine_busy(("combine", "combine_read"), tr("The mods are being read or combined already"))
 
         def run(job):
             read = self._combine_gather(job, mods)
-            job.step("Comparing the mods")
+            job.step(tr("Comparing the mods"))
             effects, found, _ = self._combine_clashes(read)
-            job.say(f"{len(found)} clash{'es' if len(found) != 1 else ''}")
+            job.say(ntr("{n} clash", "{n} clashes", len(found)).format(n=len(found)))
             return self._combine_result(read, effects, found)
-        return self._start("combine_read", run, title=f"{len(mods)} mods")
+        return self._start("combine_read", run, title=ntr("{n} mod", "{n} mods", len(mods)).format(n=len(mods)))
 
     def combine(self, mods, winners=None, name="", folder="", every_bank=False, remember=True):
         """Combines the mods ([{source, picks}], in order) into one, as a job: a project in a temp folder (gone after),
@@ -2970,21 +3132,22 @@ class Session:
         from .game import in_game_folder
         self.require_game()
         mods = self._combine_list(mods)
-        name = str(name or "").strip() or "Combined mods"
+        name = str(name or "").strip() or "Combined mods"  # English: mod managers take ASCII names only
         if problem := name_problem(name):
             raise EditorError(problem)
         root = Path(folder) if given(folder) else self._combine_root()
         if not root.is_absolute():
-            raise EditorError("Choose where combined mods go (a full path)")
+            raise EditorError(tr("Choose where combined mods go (a full path)"))
         if in_game_folder(root, self.ix.game.data):
-            raise EditorError(f"{root} is inside the game folder, and Audiodiver never writes there")
+            raise EditorError(tr("{folder} is inside the game folder, and Audiodiver never writes there").format(
+                folder=root))
         if not isinstance(every_bank, bool):
             raise EditorError("Every bank is on or off")
         if winners is not None and not isinstance(winners, dict):
             raise EditorError("The winners are pairs of a clash and a mod")
         chosen = {str(k): v for k, v in (winners or {}).items()}
         self._combine_busy(("build", "repatch", "combine", "combine_read"),
-                           "Wait until the running build, repatch or combine is done")
+                           tr("Wait until the running build, repatch or combine is done"))
         if given(folder) and remember:
             save_settings(combine_folder=str(root))
 
@@ -3010,7 +3173,8 @@ class Session:
             try:
                 root.mkdir(parents=True, exist_ok=True)
             except OSError as e:
-                raise EditorError(f"Can't make the folder {root}: {os_error(e)}") from None
+                raise EditorError(tr("Can't make the folder {folder}: {why}").format(folder=root,
+                                                                                    why=os_error(e))) from None
             stats = [{"name": m["name"], "imported": 0, "added": 0,
                       "settings": sum(i in ms for ms in by.values()),
                       "stale": len(set().union(*(pt.stale for *_, pt in m["parts"]))),
@@ -3020,7 +3184,7 @@ class Session:
                 home = Path(tmp) / "project"
                 p = Project(name=name, path=home / "combined.audi", library=[], every_bank=every_bank,
                             description=cb.description([(m["name"], m["chosen"]) for m in read]))
-                job.step("Putting the mods together")
+                job.step(tr("Putting the mods together"))
                 with self.lock:
                     for i, m in enumerate(read):
                         mine = {}  # this mod's additions (_take_in): another mod's with the same ids go in beside them
@@ -3045,7 +3209,7 @@ class Session:
                     self._tidy_cues(p)
                     self._cover(p)
                     if not p.replacements and not p.settings:
-                        raise EditorError("None of the mods has audio or settings that Audiodiver can bring in")
+                        raise EditorError(tr("None of the mods has audio or settings that Audiodiver can bring in"))
 
                 carried, owner, lost = {}, {}, [0] * len(read)  # {(type, id): file}, the mod it is from, lost to later ones
                 for i, m in enumerate(read):
@@ -3062,8 +3226,9 @@ class Session:
                 for i in range(len(read)):
                     stats[i]["others"] = self._carried_lines([c for key, c in carried.items() if owner[key] == i])
                     if lost[i]:
-                        stats[i]["left"] = [*stats[i]["left"], f"{lost[i]} file{'s' if lost[i] != 1 else ''} besides "
-                                            f"audio that a later mod replaces"]
+                        stats[i]["left"] = [*stats[i]["left"], ntr("{n} file besides audio that a later mod replaces",
+                                                                   "{n} files besides audio that a later mod replaces",
+                                                                   lost[i]).format(n=lost[i])]
 
                 def progress(doing, done=None, total=None):
                     if total:
@@ -3086,20 +3251,22 @@ class Session:
                     shutil.copyfile(made, partial)
                     os.replace(partial, zip_path)
                 except OSError as e:
-                    raise EditorError(f"Can't write the ZIP into {root}: {os_error(e)}") from None
+                    raise EditorError(tr("Can't write the ZIP into {folder}: {why}").format(folder=root,
+                                                                                           why=os_error(e))) from None
                 finally:
                     partial.unlink(missing_ok=True)
-            job.say(f"{zip_path} ({zip_path.stat().st_size / 1e6:.1f} MB)")
+            job.say(tr("{path} ({mb} MB)").format(path=zip_path, mb=f"{zip_path.stat().st_size / 1e6:.1f}"))
             return {"name": name, "zip": str(zip_path), "mb": round(zip_path.stat().st_size / 1e6, 1), "mods": stats}
         return self._start("combine", run, title=name)
 
-    def _take_in(self, p: Project, got, files: dict, mine: dict | None = None, tag="imported") -> int:
+    def _take_in(self, p: Project, got, files: dict, mine: dict | None = None, tag=None) -> int:
         """Puts what a patch adds (addition.from_patch) into the project, each with its decoded audio (files: {clip:
         wav}): under the patch's own ids where they are free, else new ones. An addition the project has already
         (the same patch imported again) takes the new audio. mine: {(kind, the patch's id): the addition it became}
         for one mod's patches (Combine), so only that mod's own additions are matched; another mod's take or layer
-        with the same id goes in beside it, under new ids. A clip of its own is one per Sound, whoever's it is. tag
-        starts the slots' labels. Returns how many slots it added or changed."""
+        with the same id goes in beside it, under new ids. A clip of its own is one per Sound, whoever's it is. tag:
+        the mod's name, which starts the slots' labels (Combine); without one they say "imported". Returns how many
+        slots it added or changed."""
         from .addition import new_id
         taken = set(self.ix.taken) | p.made_ids() | {r.target for r in p.replacements}
 
@@ -3136,7 +3303,8 @@ class Session:
             to, gain = layers.get(container, (container, 0.0))
             have = find("take", sound) or add("take", sound, Addition("take", container=to, sound=free(sound),
                                                                       source=free(clip)))
-            give(have.source, clip, f"{tag} take {clip}", gain)
+            give(have.source, clip, tr("imported take {id}").format(id=clip) if tag is None
+                 else tr("{mod} take {id}").format(mod=tag, id=clip), gain)
             n += 1
         for sound, clip, _wem in got.own:
             if clip not in files:
@@ -3145,7 +3313,7 @@ class Session:
             if not have:
                 have = Addition("own", sound=sound, source=free(clip))
                 p.additions.append(have)
-            give(have.source, clip, f"{tag} {clip}")
+            give(have.source, clip, tr("imported {id}").format(id=clip) if tag is None else f"{tag} {clip}")
             n += 1
         return n
 
@@ -3166,13 +3334,14 @@ class Session:
         self.require_game()
         cue = self.catalog.cm.cues.get(int(cue_id)) if str(cue_id).isdigit() else None
         if not cue:
-            raise EditorError(f"{cue_id} is not a piece of music. Only music has segments to mix and play through.")
+            raise EditorError(tr("{id} is not a piece of music. Only music has segments to mix and play "
+                                 "through.").format(id=cue_id))
         mine, overrides, levels, originals = {}, {}, {}, {}
         if side == "mine":
             p = self._need_project()
             piece = p.soundtrack.get(cue["id"])
             if piece and piece.mode == "silent":
-                raise EditorError("This piece is set to Silent, so it plays nothing")
+                raise EditorError(tr("This piece is set to Silent, so it plays nothing"))
             if piece and piece.mode == "same" and piece.follows in self.catalog.cm.cues:
                 cue = self.catalog.cm.cues[piece.follows]
                 piece = p.soundtrack.get(cue["id"])
@@ -3283,7 +3452,7 @@ class Session:
         except (TypeError, ValueError, OverflowError):
             raise EditorError(f"{cue_id!r} isn't a piece of music") from None
         if not isinstance(self._music().get(pid), music.MusicPlaylist):
-            raise EditorError("Only a playlist has an order to change")
+            raise EditorError(tr("Only a playlist has an order to change"))
         return pid
 
     def playlist_map(self, cue_id):
@@ -3318,11 +3487,11 @@ class Session:
             raise EditorError(f"Can't set that piece: {e}") from None
         pl = objs[pid]
         if bad := [s for s in piece.segments if s not in set(pl.segments())]:
-            raise EditorError(f"Segments {bad[:3]} aren't in this piece of music")
+            raise EditorError(tr("Segments {ids} aren't in this piece of music").format(ids=bad[:3]))
         if bad := [i for i in piece.left_out if i not in st.items(pl.root)]:
-            raise EditorError(f"Items {bad[:3]} aren't in this piece of music")
+            raise EditorError(tr("Items {ids} aren't in this piece of music").format(ids=bad[:3]))
         if piece.mode == "same" and (piece.follows == pid or not isinstance(objs.get(piece.follows), music.MusicPlaylist)):
-            raise EditorError("Same song needs another piece of music to follow")
+            raise EditorError(tr("Same song needs another piece of music to follow"))
         try:
             st.tree(objs, pid, piece)
         except ValueError as e:
@@ -3337,7 +3506,7 @@ class Session:
         """Sets how pieces of music play ({cue id: a piece as Piece.to_json, or None for the game's own}), as one
         undo step (a template sets many at once)."""
         if not isinstance(pieces, dict) or not pieces:
-            raise EditorError("Choose the pieces of music to set")
+            raise EditorError(tr("Choose the pieces of music to set"))
         self._need_project()
         checked = {}
         for k, d in pieces.items():
@@ -3430,7 +3599,8 @@ class Session:
         objs = self._music()
         order = st.song_segments(objs[pid].root, st.entry_item(objs, pid))
         if not isinstance(places, list) or len(places) > len(order):
-            raise EditorError(f"This music has {len(order)} places for songs")
+            raise EditorError(ntr("This music has {n} place for songs", "This music has {n} places for songs",
+                                  len(order)).format(n=len(order)))
         listed = self._songs_of(p, pid) if (old := p.soundtrack.get(pid)) and old.mode == "tracks" else set()
         now = [self._song_of(p, pid, seg) if seg in listed else None for seg in order]
         songs = []
@@ -3469,9 +3639,9 @@ class Session:
         objs = self._music()
         src = p.soundtrack.get(pid)
         if not src or src.mode == "original":
-            raise EditorError("Set this music to another mode first")
+            raise EditorError(tr("Set this music to another mode first"))
         if not isinstance(to, dict) or not to:
-            raise EditorError("Choose the music to set")
+            raise EditorError(tr("Choose the music to set"))
         mine = st.song_segments(objs[pid].root, st.entry_item(objs, pid))
         held = {seg: self._song_of(p, pid, seg) for seg in src.segments}
         plans, short = {}, []
@@ -3499,7 +3669,7 @@ class Session:
                 d["follows"] = str(follows)
             plans[tid] = (self._check_piece(tid, d), fill)
         if not plans:
-            raise EditorError("No other music to set")
+            raise EditorError(tr("No other music to set"))
 
         def apply(p):
             for tid, (piece, fill) in plans.items():
@@ -3525,7 +3695,9 @@ class Session:
         if not isinstance(bounds_ms, list):
             raise EditorError("The cut points are a list of milliseconds")
         if len(bounds_ms) - 1 > len(order):
-            raise EditorError(f"This music has {len(order)} segments for a song, so cut it into {len(order)} pieces at most")
+            raise EditorError(ntr("This music has {n} segment for a song, so cut it into {n} piece at most",
+                                  "This music has {n} segments for a song, so cut it into {n} pieces at most",
+                                  len(order)).format(n=len(order)))
         try:
             pieces = audio.slice_song(Path(audio_path), bounds_ms, self._slice_dir(audio_path))
         except ValueError as e:
@@ -3552,13 +3724,15 @@ class Session:
         pid = self._playlist(cue_id)
         objs = self._music()
         if not isinstance(files, list) or not files:
-            raise EditorError("Choose the songs")
+            raise EditorError(tr("Choose the songs"))
         files = sorted((str(f) for f in files), key=natural)
         for f in files:
             self._relative(self.project, f)
         order = [int(s) for s in segments] if segments else st.song_segments(objs[pid].root, st.entry_item(objs, pid))
         if len(files) > len(order):
-            raise EditorError(f"This music has {len(order)} segments for songs, so choose {len(order)} songs at most")
+            raise EditorError(ntr("This music has {n} segment for songs, so choose {n} song at most",
+                                  "This music has {n} segments for songs, so choose {n} songs at most",
+                                  len(order)).format(n=len(order)))
         chosen = order[:len(files)]
         piece = self._check_piece(pid, {"mode": "tracks", "segments": [str(s) for s in chosen], "shuffle": shuffle is True})
 
@@ -3593,7 +3767,7 @@ class Session:
             try:
                 tutorial.write(out, kind)
             except OSError as e:
-                raise EditorError(f"Can't write {out.name}: {os_error(e)}") from None
+                raise EditorError(tr("Can't write {file}: {why}").format(file=out.name, why=os_error(e))) from None
         return str(out)
 
     # --- the game's text (strings.py): subtitles and every other line, in each language
@@ -3662,7 +3836,7 @@ class Session:
             id = int(id)
             mine = words(subs[id])
         except (TypeError, ValueError, OverflowError, KeyError):
-            raise EditorError("That line isn't a game subtitle") from None
+            raise EditorError(tr("That line isn't a game subtitle")) from None
         return [id, *(i for i, t in subs.items() if i != id and words(t) == mine)]
 
     def text_voices(self, ids, language):
@@ -3684,7 +3858,7 @@ class Session:
             table, id = int(table), int(id)
             was = self._texts().table(table).texts[id]
         except (TypeError, ValueError, OverflowError, KeyError):
-            raise EditorError("That line isn't in the game text") from None
+            raise EditorError(tr("That line isn't in the game text")) from None
 
         def apply(p):
             mine = next((t for t in p.texts if t.table == table and t.id == id), None)
@@ -3712,7 +3886,7 @@ class Session:
         Audio tab lists them (detail), the name that names its folder and starts its files' names (title), what to
         write and which audio ("mine", the name before "mod", still reads)."""
         if not isinstance(e, dict) or isinstance(e.get("cue"), bool) or not isinstance(e.get("cue"), (str, int)):
-            raise EditorError("The export list can't be read. Clear it and add the items again.")
+            raise EditorError(tr("The export list can't be read. Clear it and add the items again."))
         what, side = e.get("what") or "slots", e.get("whose") or whose
         side = "mod" if side == "mine" else side
         if what not in ("slots", "segments", "cue", "fight") or side not in ("game", "mod", "both"):
@@ -3721,7 +3895,7 @@ class Session:
             self._need_project()
         detail = self.cue(e["cue"], mine=side != "game")
         if detail["kind"] in ("sounds", "sound") and what != "slots":
-            raise EditorError("A bank's sounds export one by one, because there are no segments to mix")
+            raise EditorError(tr("A bank's sounds export one by one, because there are no segments to mix"))
         sources = e.get("sources") or ()
         if not isinstance(sources, (list, tuple)):
             raise EditorError("The slots to export are a list of source IDs")
@@ -3746,7 +3920,8 @@ class Session:
         from . import render
         what, whose, title = e["what"], e["whose"], e["title"]
         sides = ["game", "mod"] if whose == "both" else [whose]
-        tag = {"game": " (original)", "mod": " (replaced)"} if whose == "both" else {"game": "", "mod": ""}
+        tag = {"game": " " + tr("(original)"), "mod": " " + tr("(replaced)")} if whose == "both" \
+            else {"game": "", "mod": ""}
         lead = f"{title} - " if names == "full" else ""
         out = []
         if what == "slots":
@@ -3785,7 +3960,7 @@ class Session:
                     for side in sides:
                         if side == "mod" and whose == "both" and not _changed(renderer(e["cue"], side), seg_id, seg):
                             continue  # the same as the Original beside it
-                        out.append((f"{lead}{n:02d} {named.get(str(seg_id), 'Segment')}{label(v)}{tag[side]}",
+                        out.append((f"{lead}{n:02d} {named.get(str(seg_id), tr('Segment'))}{label(v)}{tag[side]}",
                                     ("segment", side, seg_id, v, n)))
             return out
         if what == "cue":
@@ -3795,7 +3970,8 @@ class Session:
             return out
         v = {g: e["variants"].get(g, vals[0]) for g, vals in renderer(e["cue"], sides[0]).switch_groups().items() if vals}
         minutes = round(e["fight_ms"] / 60_000, 1)
-        return [(f"{title} - Fight ({minutes:g} min){label(v)}{tag[side]}", ("fight", side, v)) for side in sides]
+        fight = tr("{title} - Fight ({minutes} min)").format(title=title, minutes=f"{minutes:g}")
+        return [(f"{fight}{label(v)}{tag[side]}", ("fight", side, v)) for side in sides]
 
     def _export_renderers(self):
         """A renderer per cue and side for one export or preview (side "mod" renders the mod's version)."""
@@ -3814,7 +3990,7 @@ class Session:
         from . import render
         self.require_game()
         if not isinstance(entries, list):
-            raise EditorError("The export list can't be read. Clear it and add the items again.")
+            raise EditorError(tr("The export list can't be read. Clear it and add the items again."))
         ext = "wem" if fmt == "wem" else render.FORMATS.get(fmt, ("wav",))[0]
         names = names if names in ("full", "short", "ids") else "full"
         renderer, folders = self._export_renderers(), []
@@ -3827,7 +4003,8 @@ class Session:
                 files = self._export_files(e, names, mine or {}, renderer)
             except EditorError as err:
                 name = raw.get("name") if isinstance(raw, dict) else ""
-                folders.append({"name": _filename(str(name or "Export")), "files": [], "total": 0, "error": str(err)})
+                folders.append({"name": _filename(str(name or tr("Export"))), "files": [], "total": 0,
+                                "error": str(err)})
                 continue
             folders.append({"name": _filename(e["title"]), "files": [f"{_filename(s)}.{ext}" for s, _ in files[:limit]],
                             "total": len(files)})
@@ -3850,10 +4027,10 @@ class Session:
         if names not in ("full", "short", "ids"):
             raise EditorError("File names are full, short or source IDs")
         if not isinstance(entries, list) or not entries:
-            raise EditorError("The export list is empty")
+            raise EditorError(tr("The export list is empty"))
         checked = [self._export_entry(e, whose) for e in entries]
         if fmt == "wem" and any(e["what"] != "slots" or e["whose"] != "game" for e in checked):
-            raise EditorError("WEM files are the Original, slot by slot. Choose another format for the rest.")
+            raise EditorError(tr("WEM files are the Original, slot by slot. Choose another format for the rest."))
         folder = out_folder(folder)
         ext = "wem" if fmt == "wem" else render.FORMATS[fmt][0]
         modded = any(e["whose"] != "game" for e in checked)
@@ -3863,11 +4040,11 @@ class Session:
         def run(job):
             mine = self._mine() if modded else {}
             renderer = self._export_renderers()
-            job.step("Getting ready")
+            job.step(tr("Getting ready"))
             plan = [(e, folder / _filename(e["title"]) if apart else folder, self._export_files(e, names, mine, renderer))
                     for e in checked]
             if not any(files for *_, files in plan):
-                raise EditorError("There was nothing to export")  # the job's notice reads "Export failed: …"
+                raise EditorError(tr("There was nothing to export"))  # the job's notice reads "Export failed: …"
             # the slots the game files have no audio for: why fewer files came out than the list counts
             absent = sum(bool(sl.get("absent")) for e in checked if e["what"] == "slots" and e["whose"] != "mod"
                          for _, sl in _slots_of(e["detail"]) if not e["only"] or str(sl["source"]) in e["only"])
@@ -3916,12 +4093,16 @@ class Session:
                             layout = r.layout(v, loops, order)
 
                             def on_segment(i, count, seg_plan, base=base):
-                                job.step(f"{seg_names.get(str(seg_plan.segment), 'segment')}, {i + 1} of {count}",
-                                         base + int(90 * i / max(1, count)))
+                                job.step(tr("{segment}, {n} of {total}").format(
+                                    segment=seg_names.get(str(seg_plan.segment), tr("segment")), n=i + 1, total=count),
+                                    base + int(90 * i / max(1, count)))
                             pieces = _then(r.stream(v, loops, layout, on_segment),
-                                           lambda base=base, name=path.name: job.step(f"Writing {name}", base + 90))
+                                           lambda base=base, name=path.name: job.step(
+                                               tr("Writing {file}").format(file=name), base + 90))
                             change = render.write(path, pieces, fmt, {"title": path.stem, "album": album})
-                        job.say(path.name + (f" (turned down {-change:.1f} dB to avoid clipping)" if change else ""))
+                        job.say(tr("{file} (turned down {db} dB to avoid clipping)").format(file=path.name,
+                                                                                           db=f"{-change:.1f}")
+                                if change else path.name)
                     written.append(str(path))
             job.done, job.doing = job.total, ""
             return {"files": len(written), "folder": str(folder), "first": written[0], "absent": absent}
@@ -3931,7 +4112,7 @@ class Session:
                 return run(job)
             except (render.RenderError, subprocess.CalledProcessError) as e:
                 raise EditorError(str(e)) from None
-        return self._start("export", guarded, checked[0]["title"] if len(checked) == 1 else "the export list")
+        return self._start("export", guarded, checked[0]["title"] if len(checked) == 1 else tr("the export list"))
 
 
 def _slots_of(detail):
@@ -4070,7 +4251,7 @@ def project_icon(path) -> bytes:
     from .build import BuildError, icon_bytes
     f = Path(str(path))
     if f.suffix.lower() != ".audi" or not f.is_absolute() or not f.is_file():
-        raise EditorError(f"{f.name} isn't a project")
+        raise EditorError(tr("{file} isn't a project").format(file=f.name))
     try:
         return icon_bytes(Project.load(f))
     except (OSError, ValueError, BuildError) as e:  # ValueError: not a project, or a newer one
@@ -4089,16 +4270,16 @@ def mod_icon(path) -> tuple[bytes, str]:
     from .repatch import RepatchError, scan
     f = Path(str(path))
     if not f.is_absolute() or not f.exists():
-        raise EditorError(f"{f} wasn't found")
+        raise EditorError(tr("{path} wasn't found").format(path=f))
     try:
         found = scan(f)
         data = found.read(found.icon) if found.icon else None
     except RepatchError as e:
         raise EditorError(str(e)) from None
     except OSError as e:
-        raise EditorError(f"Can't read {f.name}: {os_error(e)}") from None
+        raise EditorError(tr("Can't read {file}: {why}").format(file=f.name, why=os_error(e))) from None
     if not data:
-        raise EditorError(f"{f.name} has no icon")
+        raise EditorError(tr("{file} has no icon").format(file=f.name))
     return data, IMAGE_MEDIA.get(PurePosixPath(found.icon).suffix.lower(), "application/octet-stream")
 
 

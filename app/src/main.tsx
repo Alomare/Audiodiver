@@ -1,5 +1,3 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
 // The typefaces Settings ▸ Theme offers, built into the app; a font's files load only once it is used.
 // Archivo comes with its width axis, since big titles are set wide.
 import "@fontsource-variable/archivo/wdth.css";
@@ -10,8 +8,7 @@ import "@fontsource-variable/roboto-mono/wght.css";
 import "@fontsource-variable/roboto-mono/wght-italic.css";
 import "./styles.css";
 import icon from "@logo/icon-dark-lowres.png";
-import { App } from "./App";
-import { EditorProvider } from "./store";
+import { startLanguage } from "./i18n";
 import { theme } from "./theme";
 
 theme.init();
@@ -31,10 +28,8 @@ window.addEventListener("contextmenu", (e) => {
   if (!t.closest?.('input:not([type=range]):not([type=checkbox]):not([type=radio]), textarea, [contenteditable="true"]')) e.preventDefault();
 });
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <EditorProvider>
-      <App />
-    </EditorProvider>
-  </StrictMode>,
-);
+// The language loads before the rest of the app is imported, so text that a module sets up as it loads comes out in
+// it too; a change of language loads the window again (i18n.ts). Only text-free modules are imported above.
+await startLanguage();
+const { boot } = await import("./boot");
+boot();

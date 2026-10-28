@@ -11,6 +11,7 @@
 //   ```game-text … ```          a line of the game's text as typed, and as the game shows it (TextPreview)
 import { marked, type Token, type Tokens } from "marked";
 import { Fragment, type ReactNode } from "react";
+import { t } from "@lingui/core/macro";
 import { AudioIcon, BuildIcon, ClearIcon, CollapseAllIcon, ExportIcon, ExternalIcon, FillIcon, FillPieceIcon, GearIcon, GuideIcon, HeaderIcon,
   HomeIcon, IdIcon, InfoIcon, LibraryIcon, LinkIcon, NoteIcon, OrderIcon, PlusIcon, ProjectIcon, ResetIcon, SearchIcon, SkipAllIcon, SkipIcon,
   SliceIcon, SoundtrackIcon, TextIcon, ThroughIcon, ToolsIcon, TransitionIcon, UpdatesIcon, WavesIcon } from "./Icons";
@@ -36,25 +37,35 @@ export function plainText(tokens: Token[]): string {
 }
 
 /** Parses Markdown once: the tokens to draw, the headings for an outline (each with the id it gets on the page), and
-    the plain text. */
+    the plain text. A heading of a translated page ends in the id of the English one ("## Salvar {#saving}"), so the
+    links into it work in every language. */
 export function parse(md: string): Doc {
   const tokens = marked.lexer(md);
   const headings: Heading[] = [], used = new Map<string, number>();
   for (const t of tokens) {
     if (t.type !== "heading") continue;
-    const text = plainText((t as Tokens.Heading).tokens).trim(), base = slug(text);
+    const h = t as Tokens.Heading, named = /\s*\{#([a-z0-9-]+)\}\s*$/.exec(h.text);
+    if (named) {
+      h.text = h.text.slice(0, named.index);
+      h.tokens = marked.Lexer.lexInline(h.text);
+    }
+    const text = plainText(h.tokens).trim(), base = named?.[1] ?? slug(text);
     const n = used.get(base) ?? 0;
     used.set(base, n + 1);
     const id = n ? `${base}-${n + 1}` : base;
     (t as Tokens.Generic).id = id;
-    headings.push({ id, text, depth: (t as Tokens.Heading).depth });
+    headings.push({ id, text, depth: h.depth });
   }
   return { tokens, headings, text: plainText(tokens) };
 }
 
 const TABS: Tab[] = ["home", "project", "library", "editor", "soundtrack", "text", "build", "tools", "updates", "settings", "wiki"];
 const CALLOUT = /^\[!(TIP|NOTE|WARNING)\]\s*/;
-const CALLOUT_NAME: Record<string, string> = { TIP: "Tip", NOTE: "Note", WARNING: "Careful" };
+const CALLOUT_NAME: Record<string, string> = {
+  TIP: t({ message: "Tip", context: "Wiki callout", comment: "The heading of a box with a tip in a Wiki page" }),
+  NOTE: t({ message: "Note", context: "Wiki callout", comment: "The heading of a box with a note in a Wiki page" }),
+  WARNING: t({ message: "Careful", context: "Wiki callout", comment: "The heading of a box with a warning in a Wiki page" }),
+};
 const REF = /\{(key|icon):(\w+)\}/g;
 /** The icons a page can show in its text, so it can point at them as they look on screen. */
 const ICONS: Record<string, () => ReactNode> = {
@@ -88,7 +99,7 @@ function withKeys(text: string): ReactNode {
       out.push(`{key:${p}}`);
     } else {
       const label = keyLabel(p as CommandId);
-      out.push(label ? <kbd key={i}>{label}</kbd> : <kbd key={i} className="none">no key set</kbd>);
+      out.push(label ? <kbd key={i}>{label}</kbd> : <kbd key={i} className="none">{t({ message: "no key set", comment: "In place of a key name, when the command has no key" })}</kbd>);
     }
   }
   return out;

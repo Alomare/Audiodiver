@@ -28,10 +28,11 @@ import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from . import updates, wem
+from . import i18n, updates, wem
 from .audio import cache_lock, natural
-from .editor import (AUDIO_TYPES, EditorError, Session, cache_clear, cache_info, log, mod_icon, os_error, plain,
-                     project_icon, projects_info, reveal)
+from .editor import (AUDIO_TYPES, EditorError, Session, cache_clear, cache_info, load_settings, log, mod_icon,
+                     os_error, plain, project_icon, projects_info, reveal)
+from .i18n import tr
 from .index import CACHE_DIR
 
 BROWSER_AUDIO = {".wav": "audio/wav", ".mp3": "audio/mpeg", ".ogg": "audio/ogg", ".opus": "audio/ogg",
@@ -41,6 +42,7 @@ BROWSER_AUDIO = {".wav": "audio/wav", ".mp3": "audio/mpeg", ".ogg": "audio/ogg",
 def methods(s: Session) -> dict:
     return {
         "status": lambda: s.status(),
+        "set_language": lambda language: s.set_language(language),
         "cues": lambda: s.cues(),
         "music": lambda: s.music(),
         "index": lambda: s.index(),
@@ -171,7 +173,7 @@ def byte_range(header: str, size: int):
 def list_audio(folder):
     """The audio files in a folder, in natural name order: what a dropped folder brings in."""
     if not isinstance(folder, str) or not folder.strip():
-        raise EditorError("Choose a folder")
+        raise EditorError(tr("Choose a folder"))
     f = Path(folder)
     try:
         files = [p for p in f.iterdir() if p.suffix.lower() in AUDIO_TYPES]
@@ -251,7 +253,7 @@ def make_handler(session: Session, token: str):
                 body = json.dumps(obj, allow_nan=False).encode()  # NaN isn't JSON: the window couldn't read it
             except ValueError:
                 log.error("an answer held a number JSON can't carry: %.300r", obj)
-                status, body = 500, json.dumps({"error": "The core's answer held a number it can't send"}).encode()
+                status, body = 500, json.dumps({"error": tr("The core's answer held a number it can't send")}).encode()
             self.send_response(status)
             self._cors()
             self.send_header("Content-Type", "application/json")
@@ -267,7 +269,7 @@ def make_handler(session: Session, token: str):
 
         def do_POST(self):
             if self.headers.get("X-Audiodiver-Token") != token:
-                return self._json(403, {"error": "The core refused the connection because of a wrong token"})
+                return self._json(403, {"error": tr("The core refused the connection because of a wrong token")})
             name = self.path.removeprefix("/api/")
             try:
                 n = int(self.headers.get("Content-Length") or 0)
@@ -315,7 +317,7 @@ def make_handler(session: Session, token: str):
             if url.path == "/health":
                 return self._json(200, {"ok": True})
             if q.get("token", [""])[0] != token:
-                return self._json(403, {"error": "The core refused the connection because of a wrong token"})
+                return self._json(403, {"error": tr("The core refused the connection because of a wrong token")})
             parts = url.path.strip("/").split("/")
             try:
                 if parts == ["project", "icon"]:  # the icon as the build packages it, or a preview of another
@@ -337,9 +339,9 @@ def make_handler(session: Session, token: str):
                 elif parts[:2] == ["audio", "file"] and q.get("path"):
                     f = Path(q["path"][0])
                     if f.suffix.lower() not in AUDIO_TYPES:  # nothing else is read or transcoded, whatever the path
-                        raise EditorError(f"{f.name} isn't an audio file")
+                        raise EditorError(tr("{file} isn't an audio file").format(file=f.name))
                     if not f.is_absolute() or not f.is_file():
-                        raise EditorError(f"{f} wasn't found")
+                        raise EditorError(tr("{path} wasn't found").format(path=f))
                     path = playable(f)
                 else:
                     return self._json(404, {"error": "not found"})
@@ -478,6 +480,9 @@ def serve(port=0, token=None, project=None, parent_pid=None):
     made = []  # the session, once there is one: the watch starts first, so the core never outlives the app
     if parent_pid:
         _exit_with_parent(int(parent_pid), lambda: made and made[0].flush())
+    # the window's language at the last start, until the window says (set_language): the first steps of reading the
+    # game show in it
+    i18n.set_language(load_settings().get("language"))
     session = Session()
     made.append(session)
     if project:

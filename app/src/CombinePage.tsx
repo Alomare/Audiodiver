@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { audioUrl, fileUrl, fmtTime, nameProblem, plural, type Job } from "./api";
+import { t, plural, ph } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
+import { andList, audioUrl, fileUrl, fmtTime, intlLocale, nameProblem, type Job } from "./api";
 import { EVERY_BANK_PAGE } from "./content";
 import { Fold } from "./Fold";
 import { CollapseAllIcon } from "./Icons";
@@ -20,13 +22,13 @@ type Mod = { scan: ModScan; picks: string[] };
 /** Two or more mods change the same thing (core combine.py): each mod's version, and the one that goes in. */
 type Clash = {
   id: string; kind: "sound" | "clip" | "setting"; label: string; source?: string;
+  setting?: string; unit?: "dB" | "cents" | "s" | ""; // a setting: its name (also at the end of the label) and the unit of its values
   versions: { mod: number; audio?: string; ms?: number; value?: number }[]; winner: number;
 };
-/** A setting's unit, by the setting's name at the end of the conflict's label (core combine.PROP_NAMES); the
-    filters go from 0 to 100 and have none. */
-const UNITS: Record<string, string> = { Volume: " dB", "Make-Up Gain": " dB", Pitch: " cents", "Initial Delay": " s" };
-const unitOf = (label: string) => UNITS[label.split(" · ").pop() ?? ""] ?? "";
-const fmtValue = (x: number) => `${x < 0 ? "−" : ""}${+Math.abs(x).toFixed(2)}`;
+/** A setting's unit as it follows a value (core combine.PROP_UNITS); the filters go from 0 to 100 and have none. */
+const unitOf = (c: Clash) => (c.unit === "cents" ? ` ${t({ message: "cents", comment: "The unit of pitch: hundredths of a semitone, after a number" })}`
+  : c.unit ? ` ${c.unit}` : "");
+const fmtValue = (x: number) => `${x < 0 ? "−" : ""}${Math.abs(x).toLocaleString(intlLocale(), { maximumFractionDigits: 2 })}`;
 type Read = { mods: { source: string; name: string; left: string[]; sounds: number }[]; groups: { item: string; name: string; clashes: Clash[] }[] };
 type Made = {
   name: string; zip: string; mb: number;
@@ -148,7 +150,7 @@ export function CombinePage() {
     <div className="bld rp cmb drop-page" data-drop={JSON.stringify({ kind: "combine" })}>
       <div className="bld-main">
         <section className="set-sec">
-          <h2>Mods <Help tip="The order counts where two mods change the same sound. A mod lower in the list wins, as it does when a mod manager deploys it later." page="combining-mods#order-and-conflicts" /></h2>
+          <h2><Trans>Mods</Trans> <Help tip={t`The order counts where two mods change the same sound. A mod lower in the list wins, as it does when a mod manager deploys it later.`} page="combining-mods#order-and-conflicts" /></h2>
           {mods.length > 0 && (
             <ol className="cmb-mods drop-zone">
               {mods.map((m, i) => (
@@ -156,96 +158,98 @@ export function CombinePage() {
                   <div className="cmb-mod-head">
                     <span className="cmb-n" aria-hidden>{i + 1}</span>
                     <b className="cmb-name" data-tip={m.scan.source}>{m.scan.name}</b>
-                    <button className="icon-btn" disabled={i === 0 || checking || combining} onClick={() => move(i, -1)} aria-label={`Move ${m.scan.name} up`}
-                      data-tip="Move up" data-tip-more="A mod lower in the list wins conflicts by default">↑</button>
-                    <button className="icon-btn" disabled={i === mods.length - 1 || checking || combining} onClick={() => move(i, 1)} aria-label={`Move ${m.scan.name} down`}
-                      data-tip="Move down" data-tip-more="A mod lower in the list wins conflicts by default">↓</button>
+                    <button className="icon-btn" disabled={i === 0 || checking || combining} onClick={() => move(i, -1)} aria-label={t`Move ${ph({ name: m.scan.name })} up`}
+                      data-tip={t`Move up`} data-tip-more={t`A mod lower in the list wins conflicts by default`}>↑</button>
+                    <button className="icon-btn" disabled={i === mods.length - 1 || checking || combining} onClick={() => move(i, 1)} aria-label={t`Move ${ph({ name: m.scan.name })} down`}
+                      data-tip={t`Move down`} data-tip-more={t`A mod lower in the list wins conflicts by default`}>↓</button>
                     <button className="icon-btn" disabled={checking || combining} onClick={() => setMods((list) => list.filter((_, j) => j !== i))}
-                      aria-label={`Remove ${m.scan.name} from the list`} data-tip="Remove from the list">✕</button>
+                      aria-label={t`Remove ${ph({ name: m.scan.name })} from the list`} data-tip={t`Remove from the list`}>✕</button>
                   </div>
                   {m.scan.options.length > 0 && <Options mod={m} disabled={checking || combining} onChange={(p) => setPicks(i, p)} />}
-                  {m.scan.others.length > 0 && <small className="cmb-other">Also holds {m.scan.others.join(" and ")}, carried over.</small>}
+                  {m.scan.others.length > 0 && <small className="cmb-other">{t`Also holds ${ph({ others: andList(m.scan.others) })}, carried over.`}</small>}
                 </li>
               ))}
             </ol>
           )}
           <div className={mods.length ? "row-btns" : "rp-drop drop-zone"}>
-            {!mods.length && <p>Drop mods here as <b>ZIPs</b>, <b>folders</b> or <b>.patch_0</b> files.</p>}
+            {!mods.length && <p><Trans>Drop mods here as <b>ZIPs</b>, <b>folders</b> or <b>.patch_0</b> files.</Trans></p>}
             <div className="row-btns">
-              <button className="btn" disabled={combining} onClick={async () => { const p = await pickMods(); if (p) add(p); }}>Add ZIPs or Patch Files</button>
-              <button className="btn" disabled={combining} onClick={async () => { const f = await pickFolder(undefined, "Choose a mod folder"); if (f) add([f]); }}>Add a Folder</button>
-              <button className="btn quiet" disabled={combining} onClick={findInstalled}>Installed Mods</button>
+              <button className="btn" disabled={combining} onClick={async () => { const p = await pickMods(); if (p) add(p); }}><Trans>Add ZIPs or Patch Files</Trans></button>
+              <button className="btn" disabled={combining} onClick={async () => { const f = await pickFolder(undefined, t`Choose a mod folder`); if (f) add([f]); }}><Trans>Add a Folder</Trans></button>
+              <button className="btn quiet" disabled={combining} onClick={findInstalled}><Trans>Installed Mods</Trans></button>
             </div>
-            {reading > 0 && <p className="set-note">Reading…</p>}
+            {reading > 0 && <p className="set-note"><Trans>Reading…</Trans></p>}
           </div>
           {installed && (
             <div className="cmb-installed view-in">
-              {!installed.library && <p className="set-note">No mod manager library was found.</p>}
+              {!installed.library && <p className="set-note"><Trans>No mod manager library was found.</Trans></p>}
               {installed.mods.length ? (
                 <ul>
                   {installed.mods.map((m) => {
                     const on = mods.some((x) => x.scan.source === m.source);
                     return (
                       <li key={m.source}>
-                        <button className="link-text" disabled={on || combining} onClick={() => add([m.source])} data-tip={on ? "On the list" : "Add to the list"}>{m.name}</button>
-                        {m.deployed && <span className="tag" data-tip="In the game folder now, so the game loads it">Deployed</span>}
+                        <button className="link-text" disabled={on || combining} onClick={() => add([m.source])} data-tip={on ? t`On the list` : t`Add to the list`}>{m.name}</button>
+                        {m.deployed && <span className="tag" data-tip={t`In the game folder now, so the game loads it`}>
+                          {t({ message: "Deployed", comment: "Tag on a mod that is in the game folder now" })}</span>}
                       </li>
                     );
                   })}
                 </ul>
-              ) : <p className="set-note">No installed mod has sound banks.</p>}
-              <button className="link-inline" onClick={() => setInstalled(null)}>Hide</button>
+              ) : <p className="set-note"><Trans>No installed mod has sound banks.</Trans></p>}
+              <button className="link-inline" onClick={() => setInstalled(null)}><Trans comment="Button that hides the list of installed mods">Hide</Trans></button>
             </div>
           )}
         </section>
 
         <section className="set-sec">
-          <h2>Conflicts <Help tip="Sounds that more than one mod changes. Choose which mod's version goes in." page="combining-mods#order-and-conflicts" /></h2>
+          <h2><Trans>Conflicts</Trans> <Help tip={t`Sounds that more than one mod changes. Choose which mod's version goes in.`} page="combining-mods#order-and-conflicts" /></h2>
           <div className="row-btns">
             <button className="btn" onClick={check} disabled={mods.length < 2 || checking || combining}
-              data-tip={mods.length < 2 ? "Add at least two mods" : undefined}>{checking ? "Checking" : fresh ? "Check Again" : "Check for Conflicts"}</button>
-            {checking && (waiting || !readJob ? <span className="set-note">Starting…</span> : (
+              data-tip={mods.length < 2 ? t`Add at least two mods` : undefined}>{checking ? t`Checking` : fresh ? t`Check Again` : t`Check for Conflicts`}</button>
+            {checking && (waiting || !readJob ? <span className="set-note"><Trans>Starting…</Trans></span> : (
               <>
-                <span className="set-note">{readJob.doing || "Starting…"}</span>
-                <button className="btn quiet" onClick={() => actions.cancelJob(readJob.id)}>Cancel</button>
+                <span className="set-note">{readJob.doing || t`Starting…`}</span>
+                <button className="btn quiet" onClick={() => actions.cancelJob(readJob.id)}><Trans>Cancel</Trans></button>
               </>
             ))}
           </div>
           {readJob?.state === "failed" && !waiting && checked === sig && <p className="warn-box">{readJob.error}</p>}
-          {result && !fresh && !checking && <p className="set-note">The list changed since the last check.</p>}
+          {result && !fresh && !checking && <p className="set-note"><Trans>The list changed since the last check.</Trans></p>}
           {result && fresh && <Conflicts read={result} winners={winners} choose={choose} />}
         </section>
 
         <section className="set-sec">
-          <h2>The combined mod</h2>
+          <h2><Trans>The combined mod</Trans></h2>
           <label className="field">
-            <span className="field-label">Name <Help tip="Name shown in the mod manager." page="combining-mods#combining-mods" /></span>
+            <span className="field-label"><Trans>Name</Trans> <Help tip={t`Name shown in the mod manager.`} page="combining-mods#combining-mods" /></span>
             <input value={name} maxLength={80} spellCheck={false} aria-invalid={!!problem} disabled={combining}
               onChange={(e) => { setName(e.target.value); setNamed(true); }} />
             {problem && mods.length > 0 && <small className="bad">{problem}</small>}
           </label>
-          <span className="field-label">Destination folder <Help tip="The new ZIP goes here. A ZIP with the same name stays, and the new one gets a number." page="combining-mods#destination-folder" /></span>
+          <span className="field-label"><Trans>Destination folder</Trans> <Help tip={t`The new ZIP goes here. A ZIP with the same name stays, and the new one gets a number.`} page="combining-mods#destination-folder" /></span>
           <p className="path" data-tip={folder} data-tip-clip>{folder || "Documents\\Audiodiver\\Combined"}</p>
           <div className="row-btns">
-            <button className="btn" disabled={combining} onClick={async () => { const f = await pickFolder(folder || undefined, "Choose where combined mods go"); if (f) setFolder(f); }}>Change</button>
+            <button className="btn" disabled={combining} onClick={async () => { const f = await pickFolder(folder || undefined, t`Choose where combined mods go`); if (f) setFolder(f); }}>
+              <Trans comment="Button that chooses another destination folder">Change</Trans></button>
           </div>
           <div className="set-list">
             <label className="check">
               <input type="checkbox" checked={everyBank} disabled={combining} onChange={(e) => setEveryBank(e.target.checked)} />
-              <span>Patch every bank with the sounds <Help tip="A sound is often in many banks, such as a clip that several weapons share. With this on, the mods' audio goes into all of them, but the mod gets bigger. With it off, only the banks the mods patched get it." page={EVERY_BANK_PAGE} /></span>
+              <span><Trans>Patch every bank with the sounds</Trans> <Help tip={t`A sound is often in many banks, such as a clip that several weapons share. With this on, the mods' audio goes into all of them, but the mod gets bigger. With it off, only the banks the mods patched get it.`} page={EVERY_BANK_PAGE} /></span>
             </label>
           </div>
         </section>
 
         <div className="bld-box rp-go">
           <button className="btn primary build" onClick={go} disabled={!fresh || !!problem || busy}
-            data-tip={mods.length < 2 ? "Add at least two mods" : !fresh ? "Check for conflicts first" : "Build one mod from these on the current sound banks"}>
-            {combining ? "Combining" : "Combine"}
+            data-tip={mods.length < 2 ? t`Add at least two mods` : !fresh ? t`Check for conflicts first` : t`Build one mod from these on the current sound banks`}>
+            {combining ? t`Combining` : t`Combine`}
           </button>
           {combining && job && (
             <div className="rp-progress">
-              <span>{job.doing || "Starting…"}</span>
-              <button className="btn quiet" onClick={() => actions.cancelJob(job.id)}>Cancel</button>
+              <span>{job.doing || t`Starting…`}</span>
+              <button className="btn quiet" onClick={() => actions.cancelJob(job.id)}><Trans>Cancel</Trans></button>
             </div>
           )}
         </div>
@@ -267,10 +271,10 @@ export function Options({ mod, disabled, onChange, help }: {
   help?: { tip: string; page: string };
 }) {
   const { scan, picks } = mod;
-  const h = help ?? { tip: "The options of this mod that go into the combined mod. They start as the mod manager has them, or all on", page: "combining-mods#combining-mods" };
+  const h = help ?? { tip: t`The options of this mod that go into the combined mod. They start as the mod manager has them, or all on`, page: "combining-mods#combining-mods" };
   return (
     <div className="cmb-options">
-      <span className="field-label">Options <Help tip={h.tip} page={h.page} /></span>
+      <span className="field-label"><Trans>Options</Trans> <Help tip={h.tip} page={h.page} /></span>
       {scan.options.map((o) => {
         const chosen = o.sub.find((s) => picks.includes(s.id));
         const on = o.sub.length ? !!chosen : picks.includes(o.id);
@@ -283,7 +287,7 @@ export function Options({ mod, disabled, onChange, help }: {
               <span>{o.name}</span>
             </label>
             {o.sub.length > 0 && (
-              <select value={chosen?.id ?? o.sub[0].id} disabled={disabled || !on} aria-label={`${o.name}: choice`}
+              <select value={chosen?.id ?? o.sub[0].id} disabled={disabled || !on} aria-label={t`${ph({ option: o.name })}: choice`}
                 onChange={(e) => onChange([...without, e.target.value])}>
                 {o.sub.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
@@ -301,14 +305,14 @@ export function Options({ mod, disabled, onChange, help }: {
 function Conflicts({ read, winners, choose }: { read: Read; winners: Record<string, number>; choose: (w: Record<string, number>) => void }) {
   const total = read.groups.reduce((n, g) => n + g.clashes.length, 0);
   const [shut, setShut] = useState<Set<string>>(() => new Set(total > OPEN_ALL ? read.groups.map((g) => g.item || g.name) : []));
-  if (!total) return <p className="set-note view-in">No conflicts.</p>;
+  if (!total) return <p className="set-note view-in"><Trans>No conflicts.</Trans></p>;
   const toggle = (k: string) => setShut((s) => { const n = new Set(s); if (n.has(k)) n.delete(k); else n.add(k); return n; });
-  const modName = (i: number) => read.mods[i]?.name ?? `Mod ${i + 1}`;
+  const modName = (i: number) => read.mods[i]?.name ?? t`Mod ${ph({ number: i + 1 })}`;
   return (
     <div className="cmb-conflicts view-in">
       <div className="cmb-sum">
-        <span>{plural(total, "conflict")} in {plural(read.groups.length, "item")}</span>
-        <button className="icon-btn" disabled={shut.size === read.groups.length} aria-label="Collapse all" data-tip="Collapse all"
+        <span>{t`${plural(total, { one: "# conflict", other: "# conflicts" })} in ${plural(ph({ items: read.groups.length }), { one: "# item", other: "# items" })}`}</span>
+        <button className="icon-btn" disabled={shut.size === read.groups.length} aria-label={t`Collapse all`} data-tip={t`Collapse all`}
           onClick={() => setShut(new Set(read.groups.map((g) => g.item || g.name)))}><CollapseAllIcon /></button>
       </div>
       {read.groups.map((g) => {
@@ -319,14 +323,14 @@ function Conflicts({ read, winners, choose }: { read: Read; winners: Record<stri
             <button className="lib-group-head" aria-expanded={open} onClick={() => toggle(k)}>
               <span className="caret" aria-hidden>▸</span>
               <span className="lib-group-name">{g.name}</span>
-              <span className="grp-n">{plural(g.clashes.length, "conflict")}</span>
+              <span className="grp-n">{plural(ph({ conflicts: g.clashes.length }), { one: "# conflict", other: "# conflicts" })}</span>
             </button>
             <Fold open={open}>
               {g.clashes.length > 1 && (
                 <div className="cmb-all">
-                  <span>All from</span>
+                  <span>{t({ message: "All from", comment: "Before a row of mod buttons: the mod clicked wins every conflict of this item" })}</span>
                   {involved.map((m) => (
-                    <ModChip key={m} n={m} name={modName(m)} about="Use this mod for every conflict in this item"
+                    <ModChip key={m} n={m} name={modName(m)} about={t`Use this mod for every conflict in this item`}
                       on={g.clashes.every((c) => winners[c.id] === m || !c.versions.some((v) => v.mod === m))}
                       pick={() => choose(Object.fromEntries(g.clashes.filter((c) => c.versions.some((v) => v.mod === m)).map((c) => [c.id, m])))} />
                   ))}
@@ -346,22 +350,26 @@ function Conflicts({ read, winners, choose }: { read: Read; winners: Record<stri
 
 /** One conflict: the original to play, what it is, and under it each mod's version to play and choose. */
 function ClashLine({ c, winner, modName, pick }: { c: Clash; winner: number; modName: (i: number) => string; pick: (m: number) => void }) {
-  const what = c.kind === "setting" ? "a setting" : c.kind === "clip" ? "only this sound" : "";
+  const what = c.kind === "setting" ? t({ message: "a setting", comment: "After the name of a conflict: the mods change a setting, not audio" })
+    : c.kind === "clip" ? t({ message: "only this sound", comment: "After the name of a conflict: a clip that a mod added for this sound only" }) : "";
   return (
     <li className="cmb-clash">
       <div className="cmb-clash-head">
-        {c.source ? <Play url={audioUrl("vanilla", c.source)} k={`vanilla:${c.source}`} label={`the original ${c.label}`} />
+        {c.source ? <Play url={audioUrl("vanilla", c.source)} k={`vanilla:${c.source}`}
+          label={t({ message: `the original ${ph({ label: c.label })}`, comment: "A sound to play, after Play or Pause and in the now-playing bar" })} />
           : <span className="play-gap" />}
         <span className="cmb-label" data-tip={c.label} data-tip-clip>{c.label}{what && <small data-tip={c.kind === "clip"
-          ? "A separate clip that a mod added for this sound only" : undefined}> · {what}</small>}</span>
+          ? t`A separate clip that a mod added for this sound only` : undefined}> · {what}</small>}</span>
       </div>
-      <div className="cmb-versions" role="radiogroup" aria-label={`Which mod's ${c.label}`}>
+      <div className="cmb-versions" role="radiogroup" aria-label={t`Which mod's ${ph({ label: c.label })}`}>
         {c.versions.map((v) => (
           <span key={v.mod} className="cmb-version">
-            {v.audio ? <Play url={fileUrl(v.audio)} k={`file:${v.audio}`} label={`${modName(v.mod)}'s ${c.label}`} /> : <span className="play-gap" />}
+            {v.audio ? <Play url={fileUrl(v.audio)} k={`file:${v.audio}`}
+              label={t({ message: `${ph({ mod: modName(v.mod) })}'s ${ph({ label: c.label })}`, comment: "A sound to play, after Play or Pause and in the now-playing bar" })} />
+              : <span className="play-gap" />}
             <ModChip n={v.mod} name={modName(v.mod)} on={winner === v.mod} pick={() => pick(v.mod)} radio
-              more={v.ms != null ? fmtTime(v.ms) : v.value != null ? `${fmtValue(v.value)}${unitOf(c.label)}` : undefined}
-              about={v.ms != null ? `Length ${fmtTime(v.ms)}` : v.value != null ? `${c.label.split(" · ").pop()} ${fmtValue(v.value)}${unitOf(c.label)}` : undefined} />
+              more={v.ms != null ? fmtTime(v.ms) : v.value != null ? `${fmtValue(v.value)}${unitOf(c)}` : undefined}
+              about={v.ms != null ? t`Length ${ph({ length: fmtTime(v.ms) })}` : v.value != null ? `${c.setting ?? ""} ${fmtValue(v.value)}${unitOf(c)}` : undefined} />
           </span>
         ))}
       </div>
@@ -386,8 +394,8 @@ function ModChip({ n, name, on, pick, radio, more, about }: {
 function Play({ url, k, label }: { url: string; k: string; label: string }) {
   const { playing, loading, progress } = usePlayerLook(k);
   return (
-    <button className={`play vanilla small${playing ? " playing" : ""}`} aria-label={`${playing ? "Pause" : "Play"} ${label}`}
-      data-tip={`${playing ? "Pause" : "Play"} ${label}`} style={{ ["--progress" as any]: progress }}
+    <button className={`play vanilla small${playing ? " playing" : ""}`} aria-label={playing ? t`Pause ${label}` : t`Play ${label}`}
+      data-tip={playing ? t`Pause ${label}` : t`Play ${label}`} style={{ ["--progress" as any]: progress }}
       onClick={() => player.play(k, url, false, label)}>
       <span aria-hidden>{loading ? "…" : playing ? "❚❚" : "▶"}</span>
     </button>
@@ -398,39 +406,41 @@ function Play({ url, k, label }: { url: string; k: string; label: string }) {
 function Outcome({ job }: { job: Job }) {
   const m: Made | null = job.state === "done" ? job.result : null;
   const lines = useMemo(() => m?.mods.map((x) => {
-    const got = [x.imported && plural(x.imported, "replaced sound"), x.added && plural(x.added, "added sound"),
-      x.settings && `settings on ${plural(x.settings, "sound or container", "sounds and containers")}`, ...x.others].filter(Boolean) as string[];
-    return { ...x, got: got.length > 1 ? `${got.slice(0, -1).join(", ")} and ${got[got.length - 1]}` : got[0] ?? "Nothing went in" };
+    const { imported, added, settings } = x;
+    const got = [imported && plural(imported, { one: "# replaced sound", other: "# replaced sounds" }), added && plural(added, { one: "# added sound", other: "# added sounds" }),
+      settings && plural(settings, { one: "settings on # sound or container", other: "settings on # sounds and containers" }), ...x.others].filter(Boolean) as string[];
+    return { ...x, got: andList(got) || t`Nothing went in` };
   }) ?? [], [m]);
   if (!m) {
     return (
       <section className="set-sec view-in">
-        <h2>{job.state === "cancelled" ? "Cancelled" : "Combining failed"}</h2>
+        <h2>{job.state === "cancelled" ? t`Cancelled` : t`Combining failed`}</h2>
         {job.state !== "cancelled" && <p className="warn-box">{job.error}</p>}
-        <details className="rp-log"><summary>Log</summary><pre>{job.log.join("\n") || "…"}</pre></details>
+        <details className="rp-log"><summary><Trans comment="Noun: the lines written while the job ran">Log</Trans></summary><pre>{job.log.join("\n") || "…"}</pre></details>
       </section>
     );
   }
   return (
-    <section className="set-sec view-in rp-made" aria-label="Combined">
-      <h2>Combined</h2>
-      <p><b>{m.name}</b>: {fileName(m.zip)}, {m.mb} MB. In the mod manager, turn off the mods it combines before deploying it.</p>
+    <section className="set-sec view-in rp-made" aria-label={t`Combined`}>
+      <h2><Trans>Combined</Trans></h2>
+      <p><b>{m.name}</b>: {fileName(m.zip)}, {m.mb.toLocaleString(intlLocale())} MB. <Trans>In the mod manager, turn off the mods it combines before deploying it.</Trans></p>
       <div className="row-btns">
-        <button className="btn" onClick={() => reveal(m.zip)}>Show in Folder</button>
+        <button className="btn" onClick={() => reveal(m.zip)}><Trans>Show in Folder</Trans></button>
       </div>
       {lines.map((x) => (
         <div key={x.name} className="rp-mod">
           <h3>{x.name}</h3>
           <p className="set-note">{x.got}.</p>
-          {x.stale > 0 && <p className="set-note">{plural(x.stale, "sound")} from an older game version left out <Help tip="The mod's sound banks are from an older game version and still had these sounds. The current game no longer has them." page="repatching#sounds-from-an-older-game-version" /></p>}
+          {x.stale > 0 && <p className="set-note">{plural(ph({ sounds: x.stale }), { one: "# sound from an older game version left out", other: "# sounds from an older game version left out" })}{" "}
+            <Help tip={t`The mod's sound banks are from an older game version and still had these sounds. The current game no longer has them.`} page="repatching#sounds-from-an-older-game-version" /></p>}
           {x.left.length > 0 && (
-            <div className="info-box"><b>Left out</b> <Help tip="Combining carries over the mods' audio and sound settings, and leaves out other kinds of change." page="combining-mods#what-combining-leaves-out" />
+            <div className="info-box"><b>{t`Left out`}</b> <Help tip={t`Combining carries over the mods' audio and sound settings, and leaves out other kinds of change.`} page="combining-mods#what-combining-leaves-out" />
               <ul>{x.left.map((l, i) => <li key={i}>{l}</li>)}</ul>
             </div>
           )}
         </div>
       ))}
-      <details className="rp-log"><summary>Log</summary><pre>{job.log.join("\n") || "…"}</pre></details>
+      <details className="rp-log"><summary><Trans comment="Noun: the lines written while the job ran">Log</Trans></summary><pre>{job.log.join("\n") || "…"}</pre></details>
     </section>
   );
 }
@@ -439,28 +449,28 @@ function Outcome({ job }: { job: Job }) {
 function About() {
   return (
     <div className="rp-text">
-      <h3>What it does</h3>
+      <h3><Trans>What it does</Trans></h3>
       <ul>
-        <li>Takes the audio and sound settings of each mod with the chosen options, and copies other files, like text or textures, unchanged.</li>
-        <li>Lists the sounds that more than one mod changes, to play and choose from.</li>
-        <li>Builds one mod on the current sound banks.</li>
+        <li><Trans>Takes the audio and sound settings of each mod with the chosen options, and copies other files, like text or textures, unchanged.</Trans></li>
+        <li><Trans>Lists the sounds that more than one mod changes, to play and choose from.</Trans></li>
+        <li><Trans>Builds one mod on the current sound banks.</Trans></li>
       </ul>
-      <h3>When to use it</h3>
+      <h3><Trans>When to use it</Trans></h3>
       <ul>
-        <li>Two mods change the same sound banks, so only the one deployed last plays.</li>
-        <li>Several small mods are easier to keep as one.</li>
+        <li><Trans>Two mods change the same sound banks, so only the one deployed last plays.</Trans></li>
+        <li><Trans>Several small mods are easier to keep as one.</Trans></li>
       </ul>
-      <h3>What it leaves out</h3>
+      <h3><Trans>What it leaves out</Trans></h3>
       <ul>
-        <li>Changes of other kinds in the sound banks, like effects. The result lists them for each mod.</li>
-        <li>Of two mods with the same file besides audio, the one lower in the list goes in.</li>
+        <li><Trans>Changes of other kinds in the sound banks, like effects. The result lists them for each mod.</Trans></li>
+        <li><Trans>Of two mods with the same file besides audio, the one lower in the list goes in.</Trans></li>
       </ul>
-      <h3>Installing</h3>
+      <h3><Trans>Installing</Trans></h3>
       <ul>
-        <li>Turn off the combined mods in the mod manager, then import and deploy the new ZIP.</li>
+        <li><Trans>Turn off the combined mods in the mod manager, then import and deploy the new ZIP.</Trans></li>
       </ul>
-      <p className="set-note">A combined mod is still the work of the original authors. Keep it for personal use, and share it only with their permission.</p>
-      <p className="set-note"><button className="link-text" onClick={() => nav.go("wiki", "combining-mods")}>More in the Wiki</button></p>
+      <p className="set-note"><Trans>A combined mod is still the work of the original authors. Keep it for personal use, and share it only with their permission.</Trans></p>
+      <p className="set-note"><button className="link-text" onClick={() => nav.go("wiki", "combining-mods")}><Trans>More in the Wiki</Trans></button></p>
     </div>
   );
 }

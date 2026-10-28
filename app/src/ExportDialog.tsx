@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { ph, plural, t } from "@lingui/core/macro";
+import { Plural, Trans } from "@lingui/react/macro";
 import { call, isMusic, type Cue } from "./api";
 import { rowsOf } from "./CueView";
 import { useDialog } from "./dialog";
@@ -30,29 +32,29 @@ const FOLDER_KEY = "audiodiver.exportFolder";
 const PREFS_KEY = "audiodiver.exportPrefs";
 const DEFAULTS: Prefs = { fmt: "wav", names: "full", apart: true, music: "segments", piece: "cue", tails: true, whose: "mod", minutes: 3 };
 const CONTENTS: Record<What, { title: string; text: string }> = {
-  slots: { title: "Each Slot", text: "Each slot as a separate file" },
-  segments: { title: "Each Segment", text: "Each segment as one file, with the layers mixed" },
-  cue: { title: "The Whole Piece", text: "One track with the segments in play order, joined at their Exit points" },
-  fight: { title: "A Fight", text: "One track of a fight, with the segments the game picks as it plays" },
+  slots: { title: t`Each Slot`, text: t`Each slot as a separate file` },
+  segments: { title: t`Each Segment`, text: t`Each segment as one file, with the layers mixed` },
+  cue: { title: t`The Whole Piece`, text: t`One track with the segments in play order, joined at their Exit points` },
+  fight: { title: t`A Fight`, text: t`One track of a fight, with the segments the game picks as it plays` },
 };
 const FORMATS = [
-  { id: "wav", name: "WAV (24-bit)" }, { id: "flac", name: "FLAC (lossless, smaller)" },
-  { id: "mp3", name: "MP3 320 kbps" }, { id: "mp3-vbr", name: "MP3 VBR (best quality, smaller)" },
-  { id: "wem", name: "WEM (unchanged from the game)" },
+  { id: "wav", name: t`WAV (24-bit)` }, { id: "flac", name: t`FLAC (lossless, smaller)` },
+  { id: "mp3", name: "MP3 320 kbps" }, { id: "mp3-vbr", name: t`MP3 VBR (best quality, smaller)` },
+  { id: "wem", name: t`WEM (unchanged from the game)` },
 ];
 const VERSIONS: [Whose, string, string | undefined][] = [
-  ["mod", "As the Mod Plays It", "New audio where a slot has some, the Original everywhere else"],
-  ["game", "Original", undefined],
-  ["both", "Both", "Two files where the mod changes something, named (original) and (replaced)"],
+  ["mod", t`As the Mod Plays It`, t`New audio where a slot has some, the Original everywhere else`],
+  ["game", t`Original`, undefined],
+  ["both", t`Both`, t({ message: "Two files where the mod changes something, named (original) and (replaced)", comment: "(original) and (replaced) are the endings the core adds to the file names, in English" })],
 ];
 const NAMES: [Names, string, string][] = [
-  ["full", "Full Names", "The item name, a number, then the sound or segment"],
-  ["short", "Short Names", "A number, then the sound or segment"],
-  ["ids", "Source IDs", "The source ID of each slot, as other modding tools name game audio"],
+  ["full", t`Full Names`, t`The item name, a number, then the sound or segment`],
+  ["short", t`Short Names`, t`A number, then the sound or segment`],
+  ["ids", t`Source IDs`, t`The source ID of each slot, as other modding tools name game audio`],
 ];
 /** The same choices in a list's menus, where they read as words rather than buttons. */
-const CONTENT_OPTION: Record<What, string> = { slots: "Each slot", segments: "Each segment", cue: "The whole piece", fight: "A fight" };
-const REFERENCE_ONLY = "Exports of the original are for reference and mod work. Don't upload them.";
+const CONTENT_OPTION: Record<What, string> = { slots: t`Each slot`, segments: t`Each segment`, cue: t`The whole piece`, fight: t`A fight` };
+const REFERENCE_ONLY = t`Exports of the original are for reference and mod work. Don't upload them.`;
 const MINUTES = [1, 10];
 const isMusicCue = (cue: string) => /^\d+$/.test(cue);
 
@@ -132,49 +134,49 @@ export function ExportPanel({ target, start, onClose }: { target: ExportTarget |
 
   return (
     <div className="modal-back" onPointerDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="modal export" role="dialog" aria-modal="true" aria-label="Export" ref={box} tabIndex={-1}>
+      <div className="modal export" role="dialog" aria-modal="true" aria-label={t`Export`} ref={box} tabIndex={-1}>
         <div className="pop-head">
-          <h2>Export</h2>
-          <button className="x" onClick={onClose} aria-label="Close">✕</button>
+          <h2><Trans>Export</Trans></h2>
+          <button className="x" onClick={onClose} aria-label={t`Close`}>✕</button>
         </div>
-        <div className="xp-tabs" role="tablist" aria-label="What to export">
+        <div className="xp-tabs" role="tablist" aria-label={t`What to export`}>
           {target && (
             <button role="tab" aria-selected={tab === "item"} className={tab === "item" ? "on" : ""} onClick={() => setTab("item")}
               data-tip={target.where || undefined}>{target.name}</button>
           )}
           <button role="tab" aria-selected={tab === "list"} className={tab === "list" ? "on" : ""} onClick={() => setTab("list")}
-            data-tip="Things collected from anywhere, to export together">
-            Export List{list.length > 0 && <span className="xp-count">{list.length}</span>}</button>
+            data-tip={t`Things collected from anywhere, to export together`}>
+            <Trans>Export List</Trans>{list.length > 0 && <span className="xp-count">{list.length}</span>}</button>
         </div>
 
         <div className="xp-body">
           <div className="xp-side">
             {tab === "item" ? item.form : <ListForm withMod={!!project} />}
             <div className="field">
-              <span className="field-label">File names</span>
-              <div className="segmented" role="radiogroup" aria-label="File names">
+              <span className="field-label"><Trans>File names</Trans></span>
+              <div className="segmented" role="radiogroup" aria-label={t`File names`}>
                 {NAMES.map(([id, label, about]) => (
                   <button key={id} role="radio" aria-checked={names === id} className={names === id ? "on" : ""} disabled={id === "ids" && !idsOk}
-                    onClick={() => pref({ names: id })} data-tip={id === "ids" && !idsOk ? "For Each Slot" : about}>{label}</button>
+                    onClick={() => pref({ names: id })} data-tip={id === "ids" && !idsOk ? t({ message: "For Each Slot", comment: "Tip on Source IDs while it is off: it needs the Each Slot contents" }) : about}>{label}</button>
                 ))}
               </div>
             </div>
             <label className="field xp-format">
-              <span className="field-label">Format</span>
+              <span className="field-label"><Trans>Format</Trans></span>
               <select value={fmt} onChange={(e) => pref({ fmt: e.target.value })}>
                 {FORMATS.map((f) => <option key={f.id} value={f.id} disabled={f.id === "wem" && !wemOk}>{f.name}</option>)}
               </select>
             </label>
             <label className="check"><input type="checkbox" checked={prefs.apart} onChange={(e) => pref({ apart: e.target.checked })} />
-              <span>A folder for each item <Help tip="When this is off, all files go into the destination folder." page="reading-the-screen#a-folder-for-each-item" /></span></label>
+              <span><Trans>A folder for each item</Trans> <Help tip={t`When this is off, all files go into the destination folder.`} page="reading-the-screen#a-folder-for-each-item" /></span></label>
           </div>
 
           <div className="xp-out">
             <div className="field">
-              <span className="field-label">Destination folder</span>
+              <span className="field-label"><Trans>Destination folder</Trans></span>
               <div className="folder-row">
-                <span className={`folder${folder ? "" : " none"}`} data-tip={folder || undefined} data-tip-clip>{folder || "No folder chosen yet"}</span>
-                <button className="btn" onClick={choose}>Choose</button>
+                <span className={`folder${folder ? "" : " none"}`} data-tip={folder || undefined} data-tip-clip>{folder || t`No folder chosen yet`}</span>
+                <button className="btn" onClick={choose}><Trans>Choose</Trans></button>
               </div>
             </div>
             <Files preview={preview} apart={prefs.apart} folder={folder} empty={!entries.length} />
@@ -183,12 +185,12 @@ export function ExportPanel({ target, start, onClose }: { target: ExportTarget |
 
         <div className="modal-foot">
           {tab === "item" ? (
-            <button className="btn" onClick={toList} disabled={!item.entry} data-tip="Collect it with other items to export together">Add to the Export List</button>
-          ) : list.length > 0 && <button className="btn quiet" onClick={() => exportList.clear()}>Clear the List</button>}
+            <button className="btn" onClick={toList} disabled={!item.entry} data-tip={t`Collect it with other items to export together`}><Trans>Add to the Export List</Trans></button>
+          ) : list.length > 0 && <button className="btn quiet" onClick={() => exportList.clear()}><Trans>Clear the List</Trans></button>}
           <span className="spacer" />
-          <button className="btn quiet" onClick={onClose}>Cancel</button>
+          <button className="btn quiet" onClick={onClose}><Trans>Cancel</Trans></button>
           <button className="btn primary" disabled={!entries.length || preview?.total === 0} onClick={submit}>
-            {files ? `Export ${files} ${files === 1 ? "File" : "Files"}` : "Export"}</button>
+            {files ? plural(files, { one: "Export # File", other: "Export # Files" }) : t`Export`}</button>
         </div>
       </div>
     </div>
@@ -224,9 +226,9 @@ function useItem(target: ExportTarget | null, prefs: Prefs, pref: (p: Partial<Pr
   const whole = kind === "cue" || kind === "fight";
   const side: Whose = withMod ? prefs.whose : "game";
   const scopes: [Scope, string, number][] = whole ? [] : [
-    ["selected", "Selected", selected.length],
-    ...(withMod ? [["replaced", "Replaced", replaced.length] as [Scope, string, number]] : []),
-    ["all", "All", rows.length],
+    ["selected", t({ message: "Selected", context: "Which slots or sounds to export" }), selected.length],
+    ...(withMod ? [["replaced", t({ message: "Replaced", context: "Which slots or sounds to export" }), replaced.length] as [Scope, string, number]] : []),
+    ["all", t({ message: "All", context: "Which slots or sounds to export" }), rows.length],
   ];
   const usedScope: Scope = scopes.some(([s, , n]) => s === scope && n > 0) ? scope : "all";
   const sources = whole || usedScope === "all" ? [] : usedScope === "selected" ? selected : replaced;
@@ -241,8 +243,8 @@ function useItem(target: ExportTarget | null, prefs: Prefs, pref: (p: Partial<Pr
     <>
       {kinds.length > 1 ? (
         <div className="field">
-          <span className="field-label">Contents</span>
-          <div className={`cards${kinds.length > 3 ? " four" : ""}`} role="radiogroup" aria-label="Contents">
+          <span className="field-label"><Trans>Contents</Trans></span>
+          <div className={`cards${kinds.length > 3 ? " four" : ""}`} role="radiogroup" aria-label={t`Contents`}>
             {kinds.map((w) => (
               <button key={w} role="radio" aria-checked={kind === w} className={`card${kind === w ? " on" : ""}`} onClick={() => setKind(w)}
                 data-tip={CONTENTS[w].text}><b>{CONTENTS[w].title}</b></button>
@@ -254,22 +256,22 @@ function useItem(target: ExportTarget | null, prefs: Prefs, pref: (p: Partial<Pr
 
       {scopes.length > 0 && (
         <div className="field">
-          <span className="field-label">{music ? "Slots" : "Sounds"}</span>
-          <div className="segmented" role="radiogroup" aria-label={music ? "Slots" : "Sounds"}>
+          <span className="field-label">{music ? t`Slots` : t`Sounds`}</span>
+          <div className="segmented" role="radiogroup" aria-label={music ? t`Slots` : t`Sounds`}>
             {scopes.map(([s, label, n]) => (
               <button key={s} role="radio" aria-checked={usedScope === s} className={usedScope === s ? "on" : ""} disabled={!n}
-                onClick={() => setScope(s)} data-tip={s === "selected" && !n ? "Tick slots in the list to export only those" : undefined}>
+                onClick={() => setScope(s)} data-tip={s === "selected" && !n ? t`Tick slots in the list to export only those` : undefined}>
                 {label} ({n})</button>
             ))}
           </div>
-          {kind === "segments" && usedScope !== "all" && <small>The segments that hold these slots, mixed whole.</small>}
+          {kind === "segments" && usedScope !== "all" && <small><Trans>The segments that hold these slots, mixed whole.</Trans></small>}
         </div>
       )}
 
       {withMod && (
         <div className="field">
-          <span className="field-label">Audio <Help tip={REFERENCE_ONLY} page="sharing#rights" /></span>
-          <div className="segmented xp-versions" role="radiogroup" aria-label="Audio">
+          <span className="field-label"><Trans>Audio</Trans> <Help tip={REFERENCE_ONLY} page="sharing#rights" /></span>
+          <div className="segmented xp-versions" role="radiogroup" aria-label={t`Audio`}>
             {VERSIONS.map(([id, label, about]) => (
               <button key={id} role="radio" aria-checked={side === id} className={side === id ? "on" : ""} onClick={() => pref({ whose: id })}
                 data-tip={about}>{label}</button>
@@ -281,15 +283,14 @@ function useItem(target: ExportTarget | null, prefs: Prefs, pref: (p: Partial<Pr
       {(kind === "fight" || kind === "segments" || groups.length > 0 || (kind === "cue" && options?.playlist)) && (
         <div className="field export-more">
           {kind === "fight" && (
-            <label className="inline">Length
-              <input type="number" min={MINUTES[0]} max={MINUTES[1]} value={minutes}
-                onChange={(e) => pref({ minutes: Math.max(MINUTES[0], Math.min(MINUTES[1], Number(e.target.value) || MINUTES[0])) })} />
-              minute{minutes === 1 ? "" : "s"} <Help tip="Each export is a new fight, with the segments picked as the game picks them in a mission" page="soundtrack#exporting" />
+            <label className="inline"><Trans>Length <input type="number" min={MINUTES[0]} max={MINUTES[1]} value={minutes}
+                onChange={(e) => pref({ minutes: Math.max(MINUTES[0], Math.min(MINUTES[1], Number(e.target.value) || MINUTES[0])) })} />{" "}
+              <Plural value={minutes} one="minute" other="minutes" /></Trans> <Help tip={t`Each export is a new fight, with the segments picked as the game picks them in a mission`} page="soundtrack#exporting" />
             </label>
           )}
           {groups.map((g) => (
-            <label key={g.group} className="inline">Variant ({g.name}){" "}
-              <Help tip="Some slots play only under a condition, such as a biome. The export uses the one chosen here" page="how-the-game-plays-music#variants" />
+            <label key={g.group} className="inline">{t`Variant (${ph({ group: g.name })})`}{" "}
+              <Help tip={t`Some slots play only under a condition, such as a biome. The export uses the one chosen here`} page="how-the-game-plays-music#variants" />
               <select disabled={allVariants} value={variants[g.group] ?? g.values[0].value}
                 onChange={(e) => setVariants({ ...variants, [g.group]: e.target.value })}>
                 {g.values.map((v) => <option key={v.value} value={v.value}>{v.name}</option>)}
@@ -298,19 +299,18 @@ function useItem(target: ExportTarget | null, prefs: Prefs, pref: (p: Partial<Pr
           ))}
           {groups.length > 0 && kind !== "fight" && (
             <label className="check"><input type="checkbox" checked={allVariants} onChange={(e) => setAllVariants(e.target.checked)} />
-              <span>Every variant, one file each</span></label>
+              <span><Trans>Every variant, one file each</Trans></span></label>
           )}
           {kind === "segments" && (
             <label className="check"><input type="checkbox" checked={prefs.tails} onChange={(e) => pref({ tails: e.target.checked })} />
-              <span>Lead-in and ring-out <Help tip="The audio before Entry and after Exit. When this is off, the pieces sit end to end without overlap." page="reading-the-screen#lead-in-and-ring-out" /></span></label>
+              <span><Trans>Lead-in and ring-out</Trans> <Help tip={t`The audio before Entry and after Exit. When this is off, the pieces sit end to end without overlap.`} page="reading-the-screen#lead-in-and-ring-out" /></span></label>
           )}
           {kind === "cue" && options?.playlist && (
-            <label className="inline">Play the repeating part
-              <input type="number" min={1} max={8} value={loops} onChange={(e) => setLoops(Math.max(1, Math.min(8, Number(e.target.value) || 1)))} />
-              time{loops === 1 ? "" : "s"}
+            <label className="inline"><Trans>Play the repeating part <input type="number" min={1} max={8} value={loops} onChange={(e) => setLoops(Math.max(1, Math.min(8, Number(e.target.value) || 1)))} />{" "}
+              <Plural value={loops} one="time" other="times" /></Trans>
             </label>
           )}
-          {kind === "cue" && options?.random && <small>The game shuffles parts of this music. The export uses the listed order.</small>}
+          {kind === "cue" && options?.random && <small><Trans>The game shuffles parts of this music. The export uses the listed order.</Trans></small>}
         </div>
       )}
     </>
@@ -323,29 +323,29 @@ function useItem(target: ExportTarget | null, prefs: Prefs, pref: (p: Partial<Pr
 function ListForm({ withMod }: { withMod: boolean }) {
   const list = useExportList();
   if (!list.length) {
-    return <p className="set-note xp-empty">The list is empty. Collect slots, groups, Index entries or archives with a right-click,
-      or with <b>Add to the Export List</b> here, to export them together.</p>;
+    return <p className="set-note xp-empty"><Trans>The list is empty. Collect slots, groups, Index entries or archives with a right-click,
+      or with <b>Add to the Export List</b> here, to export them together.</Trans></p>;
   }
   const kindsOf = (e: ExportEntry): What[] => (!isMusicCue(e.cue) ? ["slots"] : e.what === "fight" ? ["fight", "cue", "segments", "slots"] : ["slots", "segments", "cue"]);
   return (
     <ul className="xl-list">
       {list.map((e) => (
         <li key={e.id}>
-          <input className="xl-name" defaultValue={e.name} aria-label="Folder name" data-tip="Folder name (click to rename)"
+          <input className="xl-name" defaultValue={e.name} aria-label={t`Folder name`} data-tip={t`Folder name (click to rename)`}
             onBlur={(ev) => { const v = ev.target.value.trim(); if (v && v !== e.name) exportList.rename(e.id, v); }}
             onKeyDown={(ev) => { if (ev.key === "Enter") ev.currentTarget.blur(); }} />
-          <button className="x" onClick={() => exportList.remove(e.id)} aria-label={`Remove ${e.name} from the list`} data-tip="Remove from the list">✕</button>
+          <button className="x" onClick={() => exportList.remove(e.id)} aria-label={t`Remove ${ph({ name: e.name })} from the list`} data-tip={t`Remove from the list`}>✕</button>
           <span className="xl-opts">
             <span className="xl-where" data-tip={e.where || undefined} data-tip-clip>{e.where}</span>
-            {e.count > 0 && <span className="xl-n">{e.count} slot{e.count === 1 ? "" : "s"}</span>}
+            {e.count > 0 && <span className="xl-n">{plural(ph({ count: e.count }), { one: "# slot", other: "# slots" })}</span>}
             {kindsOf(e).length > 1 && (
-              <select value={e.what ?? "slots"} aria-label={`Contents of ${e.name}`} onChange={(ev) => exportList.set(e.id, { what: ev.target.value as What })}>
+              <select value={e.what ?? "slots"} aria-label={t`Contents of ${ph({ name: e.name })}`} onChange={(ev) => exportList.set(e.id, { what: ev.target.value as What })}>
                 {kindsOf(e).map((w) => <option key={w} value={w}>{CONTENT_OPTION[w]}</option>)}
               </select>
             )}
             {withMod && (
-              <select value={e.whose ?? "game"} aria-label={`Audio of ${e.name}`} onChange={(ev) => exportList.set(e.id, { whose: ev.target.value as Whose })}>
-                <option value="mod">As the mod plays it</option><option value="game">Original</option><option value="both">Both</option>
+              <select value={e.whose ?? "game"} aria-label={t`Audio of ${ph({ name: e.name })}`} onChange={(ev) => exportList.set(e.id, { whose: ev.target.value as Whose })}>
+                <option value="mod">{t`As the mod plays it`}</option><option value="game">{t`Original`}</option><option value="both">{t`Both`}</option>
               </select>
             )}
           </span>
@@ -358,23 +358,25 @@ function ListForm({ withMod }: { withMod: boolean }) {
 /** The files an export writes, before it writes them: the destination, a folder for each item (when that is on)
     and the first files in each, as the core names them. */
 function Files({ preview, apart, folder, empty }: { preview: Preview | null; apart: boolean; folder: string; empty: boolean }) {
-  const root = folder ? folder.split(/[\\/]/).filter(Boolean).pop() : "Destination folder";
+  const root = folder ? folder.split(/[\\/]/).filter(Boolean).pop() : t`Destination folder`;
+  const total = preview?.total ?? 0, folders = preview?.folders.length ?? 0;
   return (
-    <div className="xp-files" aria-label="Files">
+    <div className="xp-files" aria-label={t`Files`}>
       <div className="xp-tree">
         <div className="xp-root"><FolderIcon /><span>{root}</span></div>
-        {empty ? <p className="xp-none">Nothing to export yet.</p> : !preview ? <p className="xp-none">Reading…</p> : preview.folders.map((f, i) => (
+        {empty ? <p className="xp-none"><Trans>Nothing to export yet.</Trans></p> : !preview ? <p className="xp-none"><Trans>Reading…</Trans></p> : preview.folders.map((f, i) => (
           <div key={i} className={`xp-dir${apart ? "" : " flat"}`}>
             {apart && <div className="xp-dir-name"><FolderIcon /><span>{f.name}</span></div>}
             <ul>
               {f.files.map((n) => <li key={n} data-tip={n} data-tip-clip>{n}</li>)}
-              {f.total > f.files.length && <li className="xp-more">and {f.total - f.files.length} more</li>}
-              {!f.total && <li className="xp-more">no file</li>}
+              {f.total > f.files.length && <li className="xp-more">{t({ message: `and ${ph({ count: f.total - f.files.length })} more`, comment: "The last line of a folder in the preview of the files" })}</li>}
+              {!f.total && <li className="xp-more">{t({ message: "no file", comment: "Under a folder in the preview of the files: it gets no file" })}</li>}
             </ul>
           </div>
         ))}
       </div>
-      {preview && !empty && <p className="xp-sum">{preview.total} file{preview.total === 1 ? "" : "s"}{apart && preview.folders.length > 1 ? ` in ${preview.folders.length} folders` : ""}</p>}
+      {preview && !empty && <p className="xp-sum">{apart && folders > 1 ? t`${plural(total, { one: "# file", other: "# files" })} in ${plural(folders, { one: "# folder", other: "# folders" })}`
+        : plural(total, { one: "# file", other: "# files" })}</p>}
     </div>
   );
 }
@@ -401,7 +403,7 @@ export function ExportListChip({ onOpen }: { onOpen: () => void }) {
   const list = useExportList();
   if (!list.length) return null;
   return (
-    <button className="xl-chip" onClick={onOpen} data-tip="Export list" data-tip-more="Things collected from anywhere, to export together">
-      Export List<span className="xp-count">{list.length}</span></button>
+    <button className="xl-chip" onClick={onOpen} data-tip={t`Export list`} data-tip-more={t`Things collected from anywhere, to export together`}>
+      <Trans>Export List</Trans><span className="xp-count">{list.length}</span></button>
   );
 }

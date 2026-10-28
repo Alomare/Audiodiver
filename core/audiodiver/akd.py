@@ -12,6 +12,7 @@ import hashlib, os, socket, struct, subprocess, tempfile, time
 from pathlib import Path
 
 from . import wem
+from .i18n import tr
 from .index import CACHE_DIR
 
 WWISE_CONSOLE = Path(os.environ.get("WWISEROOT", r"C:\Audiokinetic\Wwise2025.1.4.9062")) / \
@@ -24,9 +25,9 @@ def unavailable() -> str | None:
     """Why loudness analysis can't run on this computer (the Build tab says it next to the switch), or None."""
     import importlib.util
     if not WWISE_CONSOLE.exists():
-        return "Needs Wwise installed on this computer"
+        return tr("Needs Wwise installed on this computer")
     if importlib.util.find_spec("waapi") is None:  # only a copy of the core run by hand lacks it
-        return "Needs the waapi-client package next to the core"
+        return tr("Needs the waapi-client package next to the core")
     return None
 PORT = 8095
 WU = "\\Containers\\Default Work Unit"

@@ -2,6 +2,7 @@
 // in Settings ▸ Shortcuts), and the one listener that runs them. Components say what a command does with
 // useCommands; texts that name a key ask keyLabel, so they follow a rebinding.
 import { useEffect, useRef, useSyncExternalStore } from "react";
+import { t } from "@lingui/core/macro";
 
 export type CommandId =
   | "playPause" | "stop" | "playGame" | "playMine"
@@ -20,63 +21,63 @@ export type Command = {
 
 /** In the order Settings ▸ Shortcuts lists them. */
 export const COMMANDS: Command[] = [
-  { id: "playPause", group: "Playback", label: "Play the selected slot, or pause and resume", keys: ["Space"] },
-  { id: "stop", group: "Playback", label: "Stop playback, or clear the selection", keys: ["Escape"] },
+  { id: "playPause", group: t`Playback`, label: t`Play the selected slot, or pause and resume`, keys: ["Space"] },
+  { id: "stop", group: t`Playback`, label: t`Stop playback, or clear the selection`, keys: ["Escape"] },
   // the ids predate the words: playGame plays the original, playMine the replacement
-  { id: "playGame", group: "Playback", label: "Play the original of the selected slot", keys: ["O"] },
-  { id: "playMine", group: "Playback", label: "Play the new audio of the selected slot", keys: ["R"] },
+  { id: "playGame", group: t`Playback`, label: t`Play the original of the selected slot`, keys: ["O"] },
+  { id: "playMine", group: t`Playback`, label: t`Play the new audio of the selected slot`, keys: ["R"] },
 
-  { id: "selectPrev", group: "Slots", label: "Select the previous slot", keys: ["ArrowUp"] },
-  { id: "selectNext", group: "Slots", label: "Select the next slot", keys: ["ArrowDown"] },
-  { id: "chooseFile", group: "Slots", label: "Choose a file for the selected slot", keys: ["Enter"] },
-  { id: "moveUp", group: "Slots", label: "Move the new audio up a slot", keys: ["Alt+ArrowUp"] },
-  { id: "moveDown", group: "Slots", label: "Move the new audio down a slot", keys: ["Alt+ArrowDown"] },
-  { id: "copy", group: "Slots", label: "Copy the new audio of the selected slots", keys: ["Ctrl+C"] },
-  { id: "paste", group: "Slots", label: "Paste into the selection", keys: ["Ctrl+V"] },
-  { id: "selectAll", group: "Slots", label: "Select every slot", keys: ["Ctrl+A"] },
-  { id: "remove", group: "Slots", label: "Remove the new audio from the selected slots", keys: ["Delete", "Backspace"] },
-  { id: "silence", group: "Slots", label: "Replace the selected slots with silence", keys: [] },
+  { id: "selectPrev", group: t`Slots`, label: t`Select the previous slot`, keys: ["ArrowUp"] },
+  { id: "selectNext", group: t`Slots`, label: t`Select the next slot`, keys: ["ArrowDown"] },
+  { id: "chooseFile", group: t`Slots`, label: t`Choose a file for the selected slot`, keys: ["Enter"] },
+  { id: "moveUp", group: t`Slots`, label: t`Move the new audio up a slot`, keys: ["Alt+ArrowUp"] },
+  { id: "moveDown", group: t`Slots`, label: t`Move the new audio down a slot`, keys: ["Alt+ArrowDown"] },
+  { id: "copy", group: t`Slots`, label: t`Copy the new audio of the selected slots`, keys: ["Ctrl+C"] },
+  { id: "paste", group: t`Slots`, label: t`Paste into the selection`, keys: ["Ctrl+V"] },
+  { id: "selectAll", group: t`Slots`, label: t`Select every slot`, keys: ["Ctrl+A"] },
+  { id: "remove", group: t`Slots`, label: t`Remove the new audio from the selected slots`, keys: ["Delete", "Backspace"] },
+  { id: "silence", group: t`Slots`, label: t`Replace the selected slots with silence`, keys: [] },
 
-  { id: "search", group: "Finding audio", label: "Search", keys: ["/", "Ctrl+F"], inputs: true },
-  { id: "back", group: "Finding audio", label: "Back", keys: ["Alt+ArrowLeft"] },
-  { id: "forward", group: "Finding audio", label: "Forward", keys: ["Alt+ArrowRight"] },
+  { id: "search", group: t`Finding audio`, label: t`Search`, keys: ["/", "Ctrl+F"], inputs: true },
+  { id: "back", group: t`Finding audio`, label: t({ message: "Back", comment: "Shortcut: back to the item opened before, as in a browser" }), keys: ["Alt+ArrowLeft"] },
+  { id: "forward", group: t`Finding audio`, label: t({ message: "Forward", comment: "Shortcut: forward again after Back, as in a browser" }), keys: ["Alt+ArrowRight"] },
 
-  { id: "save", group: "Project", label: "Save the project", keys: ["Ctrl+S"], inputs: true },
-  { id: "undo", group: "Project", label: "Undo", keys: ["Ctrl+Z"] },
-  { id: "redo", group: "Project", label: "Redo", keys: ["Ctrl+Y", "Ctrl+Shift+Z"] },
-  { id: "build", group: "Project", label: "Build the mod", keys: ["Ctrl+B"] },
-  { id: "newProject", group: "Project", label: "New project", keys: ["Ctrl+N"] },
-  { id: "openProject", group: "Project", label: "Open a project", keys: ["Ctrl+O"] },
-  { id: "closeProject", group: "Project", label: "Close the project", keys: [] },
+  { id: "save", group: t`Project`, label: t`Save the project`, keys: ["Ctrl+S"], inputs: true },
+  { id: "undo", group: t`Project`, label: t`Undo`, keys: ["Ctrl+Z"] },
+  { id: "redo", group: t`Project`, label: t`Redo`, keys: ["Ctrl+Y", "Ctrl+Shift+Z"] },
+  { id: "build", group: t`Project`, label: t`Build the mod`, keys: ["Ctrl+B"] },
+  { id: "newProject", group: t`Project`, label: t`New project`, keys: ["Ctrl+N"] },
+  { id: "openProject", group: t`Project`, label: t`Open a project`, keys: ["Ctrl+O"] },
+  { id: "closeProject", group: t`Project`, label: t`Close the project`, keys: [] },
 
-  { id: "tabHome", group: "Tabs", label: "Go to Home", keys: ["Ctrl+1"], inputs: true },
-  { id: "tabTools", group: "Tabs", label: "Go to Tools", keys: ["Ctrl+2"], inputs: true },
-  { id: "tabProject", group: "Tabs", label: "Go to Project", keys: ["Ctrl+3"], inputs: true },
-  { id: "tabLibrary", group: "Tabs", label: "Go to the Library", keys: ["Ctrl+4"], inputs: true },
-  { id: "tabEditor", group: "Tabs", label: "Go to Audio", keys: ["Ctrl+5"], inputs: true },
-  { id: "tabSoundtrack", group: "Tabs", label: "Go to Soundtrack", keys: ["Ctrl+6"], inputs: true },
-  { id: "tabText", group: "Tabs", label: "Go to Text", keys: ["Ctrl+7"], inputs: true },
-  { id: "tabBuild", group: "Tabs", label: "Go to Build", keys: ["Ctrl+8"], inputs: true },
-  { id: "updates", group: "Tabs", label: "Open or close Updates", keys: [], inputs: true },
-  { id: "wiki", group: "Tabs", label: "Open or close the Wiki", keys: ["F1"], inputs: true },
-  { id: "tutorials", group: "Tabs", label: "Open the interactive tutorials", keys: [], inputs: true },
-  { id: "settings", group: "Tabs", label: "Open or close Settings", keys: ["Ctrl+,"], inputs: true },
-  { id: "shortcuts", group: "Tabs", label: "Show these shortcuts", keys: ["?"] },
+  { id: "tabHome", group: t`Tabs`, label: t`Go to Home`, keys: ["Ctrl+1"], inputs: true },
+  { id: "tabTools", group: t`Tabs`, label: t`Go to Tools`, keys: ["Ctrl+2"], inputs: true },
+  { id: "tabProject", group: t`Tabs`, label: t`Go to Project`, keys: ["Ctrl+3"], inputs: true },
+  { id: "tabLibrary", group: t`Tabs`, label: t`Go to the Library`, keys: ["Ctrl+4"], inputs: true },
+  { id: "tabEditor", group: t`Tabs`, label: t`Go to Audio`, keys: ["Ctrl+5"], inputs: true },
+  { id: "tabSoundtrack", group: t`Tabs`, label: t`Go to Soundtrack`, keys: ["Ctrl+6"], inputs: true },
+  { id: "tabText", group: t`Tabs`, label: t`Go to Text`, keys: ["Ctrl+7"], inputs: true },
+  { id: "tabBuild", group: t`Tabs`, label: t`Go to Build`, keys: ["Ctrl+8"], inputs: true },
+  { id: "updates", group: t`Tabs`, label: t`Open or close Updates`, keys: [], inputs: true },
+  { id: "wiki", group: t`Tabs`, label: t`Open or close the Wiki`, keys: ["F1"], inputs: true },
+  { id: "tutorials", group: t`Tabs`, label: t`Open the interactive tutorials`, keys: [], inputs: true },
+  { id: "settings", group: t`Tabs`, label: t`Open or close Settings`, keys: ["Ctrl+,"], inputs: true },
+  { id: "shortcuts", group: t`Tabs`, label: t`Show these shortcuts`, keys: ["?"] },
 ];
 const BY_ID = new Map(COMMANDS.map((c) => [c.id, c]));
 
 /** What the mouse and a few fixed keys do: listed with the shortcuts, but not for rebinding. */
 export const FIXED: [string, string][] = [
-  ["Click ▶", "play, and select the slot"],
-  ["Double-click a slot", "play the new audio, or the original if there is none"],
-  ["Ctrl+click, Shift+click, a slot's tick", "add a slot to the selection, or select a range"],
-  ["Right-click", "every other action"],
-  ["Drop files on a piece, a part or a slot in the Audio tab", "fill it, in file-name order"],
-  ["Drop files on a place of a playlist in the Soundtrack", "put the songs there and in the places after it"],
-  ["Drag a song in a playlist", "move it to another place"],
-  ["↑ ↓ then Enter in the search box", "open a match"],
-  ["Mouse back / forward", "go back or forward"],
-  ["Esc", "close a dialog or a menu"],
+  [t`Click ▶`, t`play, and select the slot`],
+  [t`Double-click a slot`, t`play the new audio, or the original if there is none`],
+  [t`Ctrl+click, Shift+click, a slot's tick`, t`add a slot to the selection, or select a range`],
+  [t`Right-click`, t`every other action`],
+  [t`Drop files on a piece, a part or a slot in the Audio tab`, t`fill it, in file-name order`],
+  [t`Drop files on a place of a playlist in the Soundtrack`, t`put the songs there and in the places after it`],
+  [t`Drag a song in a playlist`, t`move it to another place`],
+  [t`↑ ↓ then Enter in the search box`, t`open a match`],
+  [t`Mouse back / forward`, t`go back or forward`],
+  ["Esc", t`close a dialog or a menu`],
 ];
 
 // ---- chords: "Ctrl+Shift+Z", "Alt+ArrowUp", "Space", "/", "G"

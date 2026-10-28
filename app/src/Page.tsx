@@ -1,4 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { nav } from "./nav";
 import { useEditor } from "./store";
 
@@ -38,14 +40,14 @@ export function NoProjectCard({ text, recent = true }: { text: string; recent?: 
   const { actions } = useEditor();
   return (
     <div className="empty-card">
-      <h2>No project is open</h2>
+      <h2><Trans>No project is open</Trans></h2>
       <p>{text}</p>
       <div className="row-btns">
-        <button className="btn primary" onClick={actions.newProject}>New Project</button>
-        <button className="btn" onClick={() => actions.openProject()}>Open Project</button>
-        <button className="btn" onClick={() => actions.importMod()} data-tip="Make a project from an existing mod"
-          data-tip-more="A ZIP or a .patch_0 file, with the audio, the sounds it adds and the text">Import Mod</button>
-        {recent && <button className="btn quiet" onClick={() => nav.go("project")}>Recent Projects</button>}
+        <button className="btn primary" onClick={actions.newProject}><Trans>New Project</Trans></button>
+        <button className="btn" onClick={() => actions.openProject()}><Trans>Open Project</Trans></button>
+        <button className="btn" onClick={() => actions.importMod()} data-tip={t`Make a project from an existing mod`}
+          data-tip-more={t`A ZIP or a .patch_0 file, with the audio, the sounds it adds and the text`}><Trans>Import Mod</Trans></button>
+        {recent && <button className="btn quiet" onClick={() => nav.go("project")}><Trans>Recent Projects</Trans></button>}
       </div>
     </div>
   );

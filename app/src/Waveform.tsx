@@ -1,5 +1,7 @@
+import { ph, t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
-import { call, fmtTime } from "./api";
+import { call, fmtTime, intlLocale } from "./api";
 import { ResetIcon } from "./Icons";
 import { rangeVars } from "./range";
 import { useTheme } from "./theme";
@@ -171,7 +173,8 @@ export function Waveform({ peaks, spanMs, fromMs = 0, zoomY = 1, tone, height: f
       <canvas ref={canvas} style={{ width: "100%", height }} />
       {!peaks && error ? (
         <span className="wave-empty failed" onPointerDown={(e) => e.stopPropagation()}>
-          <span>Couldn't read this audio{onRetry && <>. <button className="link-inline" onClick={onRetry}>Try Again</button></>}</span>
+          <span>{onRetry ? <Trans>Couldn't read this audio. <button className="link-inline" onClick={onRetry}>Try Again</button></Trans>
+            : <Trans>Couldn't read this audio</Trans>}</span>
         </span>
       ) : !peaks && label && <span className="wave-empty">{label}</span>}
       {/* moved by a transform: it moves on every frame of playback, and a transform needs no layout or paint */}
@@ -183,7 +186,7 @@ export function Waveform({ peaks, spanMs, fromMs = 0, zoomY = 1, tone, height: f
         return (
           <div key={m.id} className={`marker${m.draggable ? " draggable" : ""}${drag?.id === m.id ? " dragging" : ""}${left > width - 90 ? " flip" : ""}`}
             style={{ left }} role={m.draggable ? "slider" : undefined} tabIndex={m.draggable ? 0 : undefined}
-            aria-label={m.label} aria-valuenow={m.draggable ? Math.round(ms) : undefined} data-tip={drag ? undefined : `${m.label} at ${fmtTime(ms)}`} data-tip-side="top"
+            aria-label={m.label} aria-valuenow={m.draggable ? Math.round(ms) : undefined} data-tip={drag ? undefined : t`${ph({ name: m.label })} at ${ph({ time: fmtTime(ms) })}`} data-tip-side="top"
             data-tip-more={drag ? undefined : m.about}
             onPointerDown={(e) => startDrag(e, m)} onPointerMove={(e) => moveDrag(e, m)} onPointerUp={() => endDrag(m)}
             onKeyDown={(e) => {
@@ -283,23 +286,26 @@ export const finePeaks = (zoom: WaveZoomState, durationMs: number | undefined) =
     scale in the corner where the two meet. It goes in a .zoom-grid, after the waveforms. */
 export function WaveZoom({ zoom, foot }: { zoom: WaveZoomState; foot?: ReactNode }) {
   const y = toSlider(zoom.y, ZOOM_Y_MAX), x = toSlider(zoom.x, zoom.maxX);
+  // the zoom in words for a screen reader, to one decimal in the language's way: "2.5 times as tall"
+  const tall = zoom.y.toLocaleString(intlLocale(), { maximumFractionDigits: 1 });
+  const wide = zoom.x.toLocaleString(intlLocale(), { maximumFractionDigits: 1 });
   return (
     <>
       <div className="zoom-level">
         <input type="range" className="r-zoom" style={rangeVars(y, 0, 100)} min={0} max={100} step={0.1} value={y} data-scale-tip
-          onChange={(e) => zoom.zoomY(fromSlider(Number(e.target.value), ZOOM_Y_MAX))} aria-label="Level zoom" aria-orientation="vertical"
-          aria-valuetext={`${Math.round(zoom.y * 10) / 10} times as tall`} data-tip="Level zoom" data-tip-side="left"
-          data-tip-more="Taller, to see quiet audio. It plays as loud as before. Ctrl+wheel on the waveforms zooms too" />
+          onChange={(e) => zoom.zoomY(fromSlider(Number(e.target.value), ZOOM_Y_MAX))} aria-label={t`Level zoom`} aria-orientation="vertical"
+          aria-valuetext={t`${tall} times as tall`} data-tip={t`Level zoom`} data-tip-side="left"
+          data-tip-more={t`Taller, to see quiet audio. It plays as loud as before. Ctrl+wheel on the waveforms zooms too`} />
       </div>
       <div className="zoom-foot">
         {foot}
         <input type="range" className="r-zoom zoom-time" style={rangeVars(x, 0, 100)} min={0} max={100} step={0.1} value={x} disabled={zoom.maxX <= 1} data-scale-tip
-          onChange={(e) => zoom.zoomX(fromSlider(Number(e.target.value), zoom.maxX))} aria-label="Time zoom"
-          aria-valuetext={`${Math.round(zoom.x * 10) / 10} times as wide`} data-tip="Time zoom" data-tip-side="top"
-          data-tip-more="Wider, to place cue points closely. The wheel on the waveforms zooms too, and Shift+wheel scrolls" />
+          onChange={(e) => zoom.zoomX(fromSlider(Number(e.target.value), zoom.maxX))} aria-label={t`Time zoom`}
+          aria-valuetext={t`${wide} times as wide`} data-tip={t`Time zoom`} data-tip-side="top"
+          data-tip-more={t`Wider, to place cue points closely. The wheel on the waveforms zooms too, and Shift+wheel scrolls`} />
       </div>
-      <button className="icon-btn zoom-reset" disabled={!zoom.zoomed} onClick={zoom.reset} aria-label="Reset zoom"
-        data-tip={zoom.zoomed ? "Reset zoom" : "Not zoomed in"} data-tip-side="left"><ResetIcon /></button>
+      <button className="icon-btn zoom-reset" disabled={!zoom.zoomed} onClick={zoom.reset} aria-label={t`Reset zoom`}
+        data-tip={zoom.zoomed ? t`Reset zoom` : t`Not zoomed in`} data-tip-side="left"><ResetIcon /></button>
     </>
   );
 }

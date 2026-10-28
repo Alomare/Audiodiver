@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { call, projectIconUrl } from "./api";
 import { DISCORD_URL, HOME_ART, KOFI_URL, TICKER_URL } from "./content";
 import { CloseIcon, DiscordIcon, KofiIcon, NextIcon, PrevIcon, ProjectIcon } from "./Icons";
@@ -12,42 +14,43 @@ import { DEFAULT_SIZE, motionOn, useTheme, useThemeValue } from "./theme";
     recent projects. Audiodiver Utils has no Home. */
 export function Home() {
   const { project, actions } = useEditor();
+  const name = project?.name;
   return (
-    <section className={`home${HOME_ART.length ? " with-art" : ""}`} aria-label="Home">
+    <section className={`home${HOME_ART.length ? " with-art" : ""}`} aria-label={t`Home`}>
       <div className="home-scroll">
         <div className="home-inner view-in">
           <header className="home-hero">
-            <h1>A new anthem<br />for Super Earth</h1>
+            <h1><Trans comment="The title on Home; <0/> is a line break">A new anthem<br />for Super Earth</Trans></h1>
           </header>
 
           {/* a menu, as the game's own: the yellow item is the way in; the Tools tab's two pages after a gap.
               Open Project holds the last project opened, after its words. It stays the same with a project open: a
               line under Open Project says which, with Go to Project and Close */}
-          <nav className="home-menu" aria-label="Start">
-            <button className="menu-item hot" onClick={actions.newProject} data-tip="Start a mod" data-tip-cmd="newProject">New Project</button>
+          <nav className="home-menu" aria-label={t({ message: "Start", comment: "The menu on Home with New Project, Open Project and Import Mod" })}>
+            <button className="menu-item hot" onClick={actions.newProject} data-tip={t`Start a mod`} data-tip-cmd="newProject"><Trans>New Project</Trans></button>
             <div className="menu-item menu-open">
-              <button className="menu-open-btn" onClick={() => actions.openProject()} data-tip="Open a .audi project or a .audipack pack" data-tip-cmd="openProject"
-                data-tip-more="A pack is a project and the files it uses, in one file">Open Project</button>
+              <button className="menu-open-btn" onClick={() => actions.openProject()} data-tip={t`Open a .audi project or a .audipack pack`} data-tip-cmd="openProject"
+                data-tip-more={t`A pack is a project and the files it uses, in one file`}><Trans>Open Project</Trans></button>
               <Recent />
             </div>
-            <button className="menu-item" onClick={() => actions.importMod()} data-tip="Make a project from an existing mod"
-              data-tip-more="A ZIP or a .patch_0 file, with the audio, the sounds it adds and the text">Import Mod</button>
+            <button className="menu-item" onClick={() => actions.importMod()} data-tip={t`Make a project from an existing mod`}
+              data-tip-more={t`A ZIP or a .patch_0 file, with the audio, the sounds it adds and the text`}><Trans>Import Mod</Trans></button>
             {project && (
               <div className="home-loaded">
-                <span className="home-loaded-name">Loaded: <b data-tip={project.path} data-tip-clip>{project.name}</b></span>
-                <button className="btn quiet" onClick={() => nav.go("project")}><ProjectIcon />Go to Project</button>
-                <button className="btn quiet" onClick={actions.closeProject} data-tip="Close the project" data-tip-cmd="closeProject"><CloseIcon />Close</button>
+                <span className="home-loaded-name"><Trans>Loaded: <b data-tip={project.path} data-tip-clip>{name}</b></Trans></span>
+                <button className="btn quiet" onClick={() => nav.go("project")}><ProjectIcon /><Trans>Go to Project</Trans></button>
+                <button className="btn quiet" onClick={actions.closeProject} data-tip={t`Close the project`} data-tip-cmd="closeProject"><CloseIcon /><Trans>Close</Trans></button>
               </div>
             )}
           </nav>
 
-          <nav className="home-menu home-tools" aria-label="Tools">
+          <nav className="home-menu home-tools" aria-label={t`Tools`}>
             <button className="menu-item" onClick={() => nav.go("tools", "repatch")}
-              data-tip="Rebuild an existing audio mod for the current game version, without a project"
-              data-tip-more="For a mod that went silent or wrong after a game update, or that mutes other sounds">Repatch</button>
+              data-tip={t`Rebuild an existing audio mod for the current game version, without a project`}
+              data-tip-more={t`For a mod that went silent or wrong after a game update, or that mutes other sounds`}><Trans>Repatch</Trans></button>
             <button className="menu-item" onClick={() => nav.go("tools", "combine")}
-              data-tip="Make one mod out of several audio mods"
-              data-tip-more="For mods that change the same sound banks, where only the one deployed last plays">Combine Mods</button>
+              data-tip={t`Make one mod out of several audio mods`}
+              data-tip-more={t`For mods that change the same sound banks, where only the one deployed last plays`}><Trans>Combine Mods</Trans></button>
           </nav>
 
         </div>
@@ -78,8 +81,9 @@ function Recent() {
   }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
   const p = paths.find((x) => info[x]?.exists && info[x].readable);
   if (!p) return null;
+  const name = info[p].name;
   return (
-    <button className="menu-recent" onClick={() => actions.openProject(p)} data-tip={`Open ${info[p].name}`} data-tip-more={p}>
+    <button className="menu-recent" onClick={() => actions.openProject(p)} data-tip={t`Open ${name}`} data-tip-more={p}>
       {/* a project whose image is gone keeps the space, so the name doesn't move */}
       {noIcon === p ? <span className="menu-recent-icon" /> : (
         <img className="menu-recent-icon" src={projectIconUrl(p, String(info[p].modified ?? 0))} alt="" draggable={false} onError={() => setNoIcon(p)} />
@@ -94,11 +98,12 @@ function Recent() {
 function Community() {
   return (
     <div className="home-links">
-      <button className="home-link" onClick={() => openUrl(DISCORD_URL)} data-tip="Helldivers 2 Modding on Discord"
-        data-tip-more="Questions, feedback and help. Opens discord.gg/helldiversmodding" data-tip-side="top">
+      <button className="home-link" onClick={() => openUrl(DISCORD_URL)}
+        data-tip={t({ message: "Helldivers 2 Modding on Discord", comment: "Helldivers 2 Modding is the name of the Discord server" })}
+        data-tip-more={t`Questions, feedback and help. Opens discord.gg/helldiversmodding`} data-tip-side="top">
         <DiscordIcon />Discord</button>
-      <button className="home-link" onClick={() => openUrl(KOFI_URL)} data-tip="Support Audiodiver on Ko-fi"
-        data-tip-more="Opens ko-fi.com/alomare" data-tip-side="top">
+      <button className="home-link" onClick={() => openUrl(KOFI_URL)} data-tip={t`Support Audiodiver on Ko-fi`}
+        data-tip-more={t`Opens ko-fi.com/alomare`} data-tip-side="top">
         <KofiIcon />Ko-fi</button>
     </div>
   );
@@ -122,10 +127,10 @@ function Ticker() {
   if (!load) return null;
   return (
     <>
-      <iframe className={`home-ticker${ready ? " ready" : ""}`} src={`${TICKER_URL}?scale=${scale}`} title="Divershub news ticker"
+      <iframe className={`home-ticker${ready ? " ready" : ""}`} src={`${TICKER_URL}?scale=${scale}`} title={t`Divershub news ticker`}
         aria-hidden tabIndex={-1} sandbox="allow-scripts allow-same-origin" referrerPolicy="no-referrer" onLoad={() => setReady(true)} />
       {/* the frame takes no pointer, so the tooltip that says what the strip is sits over it */}
-      {ready && <div className="home-ticker-tip" aria-hidden data-tip="News and orders from the war" />}
+      {ready && <div className="home-ticker-tip" aria-hidden data-tip={t`News and orders from the war`} />}
     </>
   );
 }
@@ -195,10 +200,10 @@ function HomeArt({ children }: { children?: ReactNode }) {
         {children}
         {HOME_ART.length > 1 && (
           <div className="home-steps">
-            <button onClick={() => step(-1)} aria-label="Previous picture" data-tip="Previous picture" data-tip-side="top"><PrevIcon /></button>
+            <button onClick={() => step(-1)} aria-label={t`Previous picture`} data-tip={t`Previous picture`} data-tip-side="top"><PrevIcon /></button>
             {/* how long until the next picture: refills with each one, and isn't there while pictures stay still */}
             {moving && <span key={top.key} className="art-time" style={{ ["--art-time" as any]: `${ART_SECONDS}s` }} aria-hidden><i /></span>}
-            <button onClick={() => step(1)} aria-label="Next picture" data-tip="Next picture" data-tip-side="top"><NextIcon /></button>
+            <button onClick={() => step(1)} aria-label={t`Next picture`} data-tip={t`Next picture`} data-tip-side="top"><NextIcon /></button>
           </div>
         )}
       </div>

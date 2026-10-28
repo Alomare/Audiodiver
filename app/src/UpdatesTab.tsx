@@ -1,5 +1,7 @@
 import type { Token } from "marked";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { t } from "@lingui/core/macro";
+import { Trans } from "@lingui/react/macro";
 import { fmtBytes, fmtWhen } from "./api";
 import { APP_LABEL, APP_VERSION, fmtDate, RELEASES, REPO_URL, versionLabel } from "./content";
 import { Fold } from "./Fold";
@@ -19,8 +21,8 @@ export function useInstall() {
   const { quick } = useEditor();
   return async () => {
     const r = await updates.install();
-    if (r === "browser") quick("Updates install from the desktop app", "info");
-    else if (r === "page") quick("Download page opened in the browser", "info");
+    if (r === "browser") quick(t`Updates install from the desktop app`, "info");
+    else if (r === "page") quick(t`Download page opened in the browser`, "info");
   };
 }
 
@@ -29,7 +31,7 @@ export function UpdatesTab() {
   const u = useUpdates();
   useEffect(() => { if (u.phase === "idle") updates.check(); }, [u.phase]);
   return (
-    <Page title="Updates">
+    <Page title={t`Updates`}>
       <UpdateCard u={u} />
       <Changelog releases={u.releases} waiting={u.phase === "idle" || (u.phase === "checking" && u.checked === null)}
         failed={u.phase === "failed" && u.checked === null} />
@@ -37,7 +39,7 @@ export function UpdatesTab() {
   );
 }
 
-const CHECK_ERRORS: Record<string, string> = { offline: "Can't reach GitHub", limit: "Too many checks this hour" };
+const CHECK_ERRORS: Record<string, string> = { offline: t`Can't reach GitHub`, limit: t`Too many checks this hour` };
 
 function UpdateCard({ u }: { u: UpdateState }) {
   const { updates: mode } = useSettings();
@@ -52,33 +54,40 @@ function UpdateCard({ u }: { u: UpdateState }) {
     return () => clearTimeout(t);
   }, [limited, u.failedAt]);
   const size = latest?.installer?.size;
+  const version = latest ? versionLabel(latest.version) : "";
+  const checked = fmtWhen(u.checked);
+  const reason = CHECK_ERRORS[u.error ?? ""] ?? u.error;
+  const installError = u.installError;
+  const modeName = UPDATE_MODES.find(([m]) => m === mode)?.[1] ?? "";
 
   let tone = "current", icon: ReactNode = <CheckIcon />, title: ReactNode, sub: ReactNode = null, action: ReactNode = null;
   if (u.phase === "downloading" || u.phase === "installing") {
     tone = "new"; icon = <UpdatesIcon />;
-    title = u.phase === "installing" ? `Installing ${versionLabel(latest!.version)}` : `Downloading ${versionLabel(latest!.version)}`;
-    sub = u.phase === "installing" ? "Audiodiver restarts when the update is installed."
-      : u.total ? `${fmtBytes(u.got)} of ${fmtBytes(u.total)}` : fmtBytes(u.got);
+    title = u.phase === "installing" ? t`Installing ${version}` : t`Downloading ${version}`;
+    const downloaded = fmtBytes(u.got), total = fmtBytes(u.total);
+    sub = u.phase === "installing" ? t`Audiodiver restarts when the update is installed.`
+      : u.total ? t`${downloaded} of ${total}` : downloaded;
   } else if (latest) {
     tone = "new"; icon = <UpdatesIcon />;
-    title = `${versionLabel(latest.version)} is available`;
-    sub = [latest.date && `Released ${fmtDate(latest.date)}`, size && fmtBytes(size)].filter(Boolean).join(" · ");
-    action = <button className="btn primary" onClick={install}>{u.portable ? "Open the Download Page" : "Update Now"}</button>;
+    title = t`${version} is available`;
+    const date = fmtDate(latest.date);
+    sub = [latest.date && t`Released ${date}`, size && fmtBytes(size)].filter(Boolean).join(" · ");
+    action = <button className="btn primary" onClick={install}>{u.portable ? t`Open the Download Page` : t`Update Now`}</button>;
   } else if (u.phase === "failed") {
     tone = "warn"; icon = <span className="upd-bang" aria-hidden>!</span>;
-    title = CHECK_ERRORS[u.error ?? ""] ?? "Couldn't check for updates";
-    sub = u.error === "limit" ? (limited ? "GitHub allows 60 checks an hour. Try again in a few minutes." : "GitHub allows 60 checks an hour.") : u.error === "offline" ? "Check the internet connection." : u.error;
+    title = CHECK_ERRORS[u.error ?? ""] ?? t`Couldn't check for updates`;
+    sub = u.error === "limit" ? (limited ? t`GitHub allows 60 checks an hour. Try again in a few minutes.` : t`GitHub allows 60 checks an hour.`) : u.error === "offline" ? t`Check the internet connection.` : u.error;
   } else if (u.checked === null) {
     tone = "wait"; icon = <span className="upd-spin" aria-hidden />;
-    title = "Checking for updates…";
+    title = t`Checking for updates…`;
   } else {
-    title = "Up to date";
-    sub = `Checked ${fmtWhen(u.checked)}`;
+    title = t`Up to date`;
+    sub = t`Checked ${checked}`;
   }
 
   return (
     <>
-      <section className={`upd-card ${tone}`} aria-label="This version">
+      <section className={`upd-card ${tone}`} aria-label={t`This version`}>
         <div className="upd-app">
           <Logo detail />
           <div className="upd-app-name">
@@ -86,7 +95,7 @@ function UpdateCard({ u }: { u: UpdateState }) {
           </div>
           {/* after GitHub's hourly limit, another check now would only fail again */}
           <button className={`btn${u.phase === "failed" ? "" : " quiet"}`} disabled={u.phase === "checking" || working || limited}
-            onClick={() => updates.check(true)}>{u.phase === "failed" ? "Try Again" : u.phase === "checking" && u.checked !== null ? "Checking" : "Check Now"}</button>
+            onClick={() => updates.check(true)}>{u.phase === "failed" ? t`Try Again` : u.phase === "checking" && u.checked !== null ? t`Checking` : t`Check Now`}</button>
         </div>
         <div className="upd-state" role="status" aria-live="polite">
           <span className={`upd-icon ${tone}`}>{icon}</span>
@@ -103,19 +112,19 @@ function UpdateCard({ u }: { u: UpdateState }) {
           {action}
         </div>
         {u.phase === "failed" && latest && (
-          <p className="info-box">Couldn't check again ({CHECK_ERRORS[u.error ?? ""] ?? u.error}). The list below is from {fmtWhen(u.checked)}.</p>
+          <p className="info-box"><Trans>Couldn't check again ({reason}). The list below is from {checked}.</Trans></p>
         )}
         {u.installError && latest && (
-          <p className="warn-box" role="alert">Couldn't install: {u.installError}{" "}
-            <button className="link-inline" onClick={() => openUrl(latest.url)}>Download It from GitHub</button></p>
+          <p className="warn-box" role="alert"><Trans>Couldn't install: {installError}{" "}
+            <button className="link-inline" onClick={() => openUrl(latest.url)}>Download It from GitHub</button></Trans></p>
         )}
       </section>
       <p className="upd-foot">
         <span>{UPDATE_NOTES[mode]}</span>
         <button className="link-inline" onClick={() => nav.go("settings", "system")}
-          data-tip={`Settings ▸ System: ${UPDATE_MODES.find(([m]) => m === mode)?.[1]}`}>Change</button>
+          data-tip={t`Settings ▸ System: ${modeName}`}><Trans comment="Button: opens Settings to change the update mode">Change</Trans></button>
         <span className="spacer" />
-        <button className="link-text" onClick={() => openUrl(`${REPO_URL}/releases`)}>Releases on GitHub <ExternalIcon /></button>
+        <button className="link-text" onClick={() => openUrl(`${REPO_URL}/releases`)}><Trans>Releases on GitHub</Trans> <ExternalIcon /></button>
       </p>
     </>
   );
@@ -147,13 +156,13 @@ function Changelog({ releases, waiting, failed }: { releases: RemoteRelease[]; w
   const isOpen = (e: Entry) => open[e.version] ?? e.when !== "older";
   const anyOpen = entries.some(isOpen);
   return (
-    <section className="upd-log" aria-label="Changelog">
+    <section className="upd-log" aria-label={t`Changelog`}>
       <div className="upd-log-head">
-        <h2>Changelog</h2>
+        <h2><Trans>Changelog</Trans></h2>
         {entries.length > 1 && (
-          <button className="icon-btn" disabled={!anyOpen} aria-label="Collapse all"
+          <button className="icon-btn" disabled={!anyOpen} aria-label={t`Collapse all`}
             onClick={() => setOpen(Object.fromEntries(entries.map((e) => [e.version, false])))}
-            data-tip={anyOpen ? "Collapse all" : "Every version is collapsed"}><CollapseAllIcon /></button>
+            data-tip={anyOpen ? t`Collapse all` : t`Every version is collapsed`}><CollapseAllIcon /></button>
         )}
       </div>
       {entries.length ? (
@@ -165,15 +174,15 @@ function Changelog({ releases, waiting, failed }: { releases: RemoteRelease[]; w
                 <button className="upd-entry-head" aria-expanded={shown} onClick={() => setOpen((o) => ({ ...o, [e.version]: !shown }))}>
                   <span className="caret" aria-hidden>▸</span>
                   <b>{versionLabel(e.version)}</b>
-                  {e.when === "new" && <span className="upd-badge new">New</span>}
-                  {e.when === "installed" && <span className="upd-badge installed">Installed</span>}
+                  {e.when === "new" && <span className="upd-badge new">{t({ message: "New", comment: "Badge on a version newer than the installed one" })}</span>}
+                  {e.when === "installed" && <span className="upd-badge installed">{t({ message: "Installed", comment: "Badge on the version that is installed" })}</span>}
                   <span className="spacer" />
                   {e.date && <span className="upd-date">{fmtDate(e.date)}</span>}
                 </button>
                 <Fold open={shown}>
                   <div className="upd-entry-body">
-                    {e.tokens.length ? <Markdown tokens={e.tokens} /> : <p className="muted">No notes for this version.</p>}
-                    {e.url && <button className="link-text" onClick={() => openUrl(e.url!)}>On GitHub <ExternalIcon /></button>}
+                    {e.tokens.length ? <Markdown tokens={e.tokens} /> : <p className="muted">{t`No notes for this version.`}</p>}
+                    {e.url && <button className="link-text" onClick={() => openUrl(e.url!)}>{t`On GitHub`} <ExternalIcon /></button>}
                   </div>
                 </Fold>
               </li>
@@ -181,7 +190,7 @@ function Changelog({ releases, waiting, failed }: { releases: RemoteRelease[]; w
           })}
         </ol>
       ) : (
-        !waiting && <p className="upd-empty">{failed ? "Couldn't reach GitHub for the changelog." : "No releases yet."}</p>
+        !waiting && <p className="upd-empty">{failed ? t`Couldn't reach GitHub for the changelog.` : t`No releases yet.`}</p>
       )}
     </section>
   );
@@ -195,22 +204,24 @@ export function UpdatePrompt({ onClose }: { onClose: () => void }) {
   const latest = u.latest;
   if (!latest) return null;
   const size = latest.installer?.size;
+  const version = versionLabel(latest.version), date = fmtDate(latest.date);
+  const facts = [latest.date && t`Released ${date}`, size && fmtBytes(size)].filter(Boolean).join(" · ");
   return (
     <div className="modal-back" onPointerDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="modal narrow upd-prompt" role="dialog" aria-modal="true" aria-label="A new version of Audiodiver" ref={box} tabIndex={-1}>
+      <div className="modal narrow upd-prompt" role="dialog" aria-modal="true" aria-label={t`A new version of Audiodiver`} ref={box} tabIndex={-1}>
         <div className="upd-prompt-head">
           <span className="upd-icon new"><UpdatesIcon /></span>
           <div>
-            <h2>{versionLabel(latest.version)} is available</h2>
-            <p>{[latest.date && `Released ${fmtDate(latest.date)}`, size && fmtBytes(size)].filter(Boolean).join(" · ")}
-              {latest.date || size ? ". " : ""}You have {APP_LABEL}.</p>
+            <h2><Trans>{version} is available</Trans></h2>
+            <p>{facts ? t({ message: `${facts}. You have ${APP_LABEL}.`, comment: "facts: the release date and the download size; APP_LABEL: the version installed" })
+              : t`You have ${APP_LABEL}.`}</p>
           </div>
         </div>
         <div className="modal-foot">
-          <button className="btn primary" onClick={() => { onClose(); nav.go("updates"); install(); }}>{updates.get().portable ? "Open the Download Page" : "Update Now"}</button>
-          <button className="btn" onClick={() => { onClose(); nav.go("updates"); }}>Read the Changelog</button>
+          <button className="btn primary" onClick={() => { onClose(); nav.go("updates"); install(); }}>{updates.get().portable ? t`Open the Download Page` : t`Update Now`}</button>
+          <button className="btn" onClick={() => { onClose(); nav.go("updates"); }}><Trans>Read the Changelog</Trans></button>
           <span className="spacer" />
-          <button className="btn quiet" onClick={onClose}>Not Now</button>
+          <button className="btn quiet" onClick={onClose}><Trans>Not Now</Trans></button>
         </div>
       </div>
     </div>

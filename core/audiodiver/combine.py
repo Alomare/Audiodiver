@@ -21,14 +21,26 @@ from dataclasses import dataclass, field
 from pathlib import PurePosixPath
 
 from .addition import audio_data
+from .i18n import N_, tr
 
-# the settings a mod sets most, by prop id (bank v154), for a clash's label
-PROP_NAMES = {0x00: "Volume", 0x01: "Pitch", 0x02: "Low-pass filter", 0x03: "High-pass filter", 0x05: "Make-Up Gain",
-              0x22: "Initial Delay"}
+# the settings a mod sets most, by prop id (bank v154), for a clash's label (Wwise's names), and the unit of each
+# value (the Combine page shows it beside the value: "dB", "cents", "s"; the filters go from 0 to 100 and have none).
+# Make-Up Gain keeps the Wwise name in every language (the glossary)
+MAKEUP_GAIN = 0x05
+PROP_NAMES = {0x00: N_("Volume"), 0x01: N_("Pitch"), 0x02: N_("Low-pass filter"), 0x03: N_("High-pass filter"),
+              0x22: N_("Initial Delay")}
+PROP_UNITS = {0x00: "dB", 0x01: "cents", 0x05: "dB", 0x22: "s"}
 
 
 def prop_name(pid: int) -> str:
-    return PROP_NAMES.get(pid, f"Setting {pid}")
+    if pid == MAKEUP_GAIN:
+        return "Make-Up Gain"
+    return tr(PROP_NAMES[pid]) if pid in PROP_NAMES else tr("Setting {id}").format(id=pid)
+
+
+def prop_unit(pid: int) -> str:
+    """The unit of a setting's value: "dB", "cents" or "s"; "" for one without (a filter, a setting not listed)."""
+    return PROP_UNITS.get(pid, "")
 
 
 def fingerprint(wem: bytes) -> str:
@@ -50,9 +62,10 @@ def options(manifest: dict) -> list[dict]:
     out = []
     for i, opt in enumerate(o for o in (manifest or {}).get("Options") or [] if isinstance(o, dict)):
         subs = [s for s in opt.get("SubOptions") or [] if isinstance(s, dict)]
-        out.append({"id": str(i), "name": str(opt.get("Name") or "").strip() or f"Option {i + 1}",
+        out.append({"id": str(i), "name": str(opt.get("Name") or "").strip() or tr("Option {n}").format(n=i + 1),
                     "folders": _folders(opt),
-                    "sub": [{"id": f"{i}.{k}", "name": str(s.get("Name") or "").strip() or f"Choice {k + 1}",
+                    "sub": [{"id": f"{i}.{k}",
+                             "name": str(s.get("Name") or "").strip() or tr("Choice {n}").format(n=k + 1),
                              "folders": _folders(s)} for k, s in enumerate(subs)]})
     return out
 
@@ -374,5 +387,5 @@ def outcome(effects: list[Effect], found: list[dict], follows: dict, won: dict[s
 
 def description(mods: list[tuple[str, list[str]]]) -> str:
     """The combined mod's description: the mods it is made of, in order, each with its chosen options."""
-    return "Combined from these mods:\n" + "\n".join(
+    return tr("Combined from these mods:") + "\n" + "\n".join(
         f"- {name}" + (f" ({', '.join(chosen_)})" if chosen_ else "") for name, chosen_ in mods)

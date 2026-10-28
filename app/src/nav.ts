@@ -40,7 +40,19 @@ function lastWikiPage(): string {
 }
 
 const START: Tab = UTILS ? "tools" : "home"; // Audiodiver Utils has no Home
-let current: Nav = { tab: START, settings: "system", library: lastLibraryTab(), tools: "repatch", wiki: lastWikiPage(), anchor: "", from: START, origin: {} };
+// Where the window was when a change of language opened it again (i18n.ts): read once, at the start.
+const REOPEN_KEY = "audiodiver.reopenAt";
+function reopened(): Partial<Nav> {
+  try {
+    const kept = JSON.parse(sessionStorage.getItem(REOPEN_KEY) ?? "null");
+    sessionStorage.removeItem(REOPEN_KEY);
+    const ALL: Tab[] = [...MAIN, "updates", "settings", "wiki"];
+    if (!kept || !ALL.includes(kept.tab)) return {};
+    return { tab: kept.tab, from: MAIN.includes(kept.from) ? kept.from : START,
+      settings: SETTINGS.includes(kept.settings) ? kept.settings : "system" };
+  } catch { return {}; }
+}
+let current: Nav = { tab: START, settings: "system", library: lastLibraryTab(), tools: "repatch", wiki: lastWikiPage(), anchor: "", from: START, origin: {}, ...reopened() };
 let off: readonly Tab[] = []; // the hideable tabs that are off now (App.tsx keeps it up to date)
 let open = false;             // a project is open: Build shows only then (the store keeps it up to date)
 let hidden = new Set<Tab>(["build"]);
@@ -95,6 +107,10 @@ export const nav = {
   shown: (tab: Tab) => !hidden.has(tab),
   /** Where a project opens: Audio, else the first hideable tab that shows, else the Project tab. */
   work: (): Tab => HIDEABLE.find((t) => !hidden.has(t)) ?? "project",
+  /** The window is about to load again (a change of language): it comes back to this tab. */
+  keepForReload() {
+    try { sessionStorage.setItem(REOPEN_KEY, JSON.stringify({ tab: current.tab, from: current.from, settings: current.settings })); } catch { /* storage off */ }
+  },
   subscribe(f: () => void) { listeners.add(f); return () => { listeners.delete(f); }; },
 };
 

@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import { t } from "@lingui/core/macro";
 import { useDialog } from "./dialog";
 
 /** A question before a change that loses work (removing new audio, or a piece of music with its new audio): the
@@ -39,7 +40,7 @@ function ConfirmBox({ a }: { a: Ask }) {
           <button className="btn primary" onClick={() => answer("ok")}>{a.ok}</button>
           {a.alt && <button className="btn" onClick={() => answer("alt")}>{a.alt}</button>}
           <span className="spacer" />
-          <button className="btn quiet" onClick={() => answer(null)}>{a.cancel ?? "Cancel"}</button>
+          <button className="btn quiet" onClick={() => answer(null)}>{a.cancel ?? t`Cancel`}</button>
         </div>
       </div>
     </div>

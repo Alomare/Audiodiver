@@ -1,5 +1,6 @@
 // The Index as the app looks things up in it, what a project covers of an item or a part, and the transitions and
 // stingers that would still play the original next to new music.
+import { t } from "@lingui/core/macro";
 import type { Assignment, Category, Index, MusicItem, MusicPart, MusicSection, ProjectState } from "./api";
 
 export type Coverage = { n: number; total: number };
@@ -69,7 +70,7 @@ export function statusOf(c: Coverage): Status {
 }
 
 /** A status in words: whether something plays the original or a replacement. */
-export const COVERAGE: Record<Status, string> = { none: "Original", part: "Partly replaced", done: "Replaced", na: "" };
+export const COVERAGE: Record<Status, string> = { none: t`Original`, part: t`Partly replaced`, done: t`Replaced`, na: "" };
 
 export type Clash = { item: MusicItem; part: MusicPart; next: MusicItem[]; open: string[] };
 
@@ -123,9 +124,12 @@ export function heldBy(banks: Map<string, MusicItem>, item: MusicItem): MusicIte
   return owners.every((o) => o && o.id !== item.id) ? owners[0]! : null;
 }
 
-/** An item as the Editor's list shows it, telling an archive from the sound set it is named after. */
-export const listName = (it: MusicItem) =>
-  it.archive && it.full !== `Archive ${it.archive}` ? `${it.full} (archive ${it.archive})` : it.full;
+/** An item as the Editor's list shows it, telling an archive from the sound set it is named after. An archive
+    called by its ID (`id_name`) says so already. */
+export const listName = (it: MusicItem) => {
+  const { full, archive } = it;
+  return archive && !it.id_name ? t`${full} (archive ${archive})` : full;
+};
 
 /** "Terminids ▸ Exploring", "Weapons ▸ AC-8 Autocannon": an item with where it is in the Index. */
 export function where(idx: ItemIndex, item: MusicItem) {

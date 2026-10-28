@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from "react";
+import { t } from "@lingui/core/macro";
 import type { MusicItem } from "./api";
 
 /** What an export writes of a cue: each slot's audio, each segment mixed, the whole piece played through, or one
@@ -70,10 +71,12 @@ export function itemEntries(item: MusicItem, where: string, whose: Whose = "game
 
 /** "Added 3 to the export list", or that they are on it already: a quick note. `items`: how many things were chosen,
     when that differs from the entries they make. */
-export function addedNote(added: number, of: number, items = of) {
-  if (!added) return "Already on the export list";
+export function addedNote(added: number, total: number, items = total) {
+  if (!added) return t`Already on the export list`;
+  const already = total - added;
   // things chosen that make more entries (one per part, or per bank of an archive) say both, so the counts agree
-  if (items !== of) return added < of ? `Added ${added} of ${of} entries to the export list (${of - added} already on it)`
-    : `Added ${items === 1 ? "" : `${items} `}to the export list, as ${of} entries (one per part)`;
-  return `Added ${added === 1 && of === 1 ? "" : `${added} `}to the export list${added < of ? ` (${of - added} already on it)` : ""}`;
+  if (items !== total) return added < total ? t`Added ${added} of ${total} entries to the export list (${already} already on it)`
+    : items === 1 ? t`Added to the export list, as ${total} entries (one per part)` : t`Added ${items} to the export list, as ${total} entries (one per part)`;
+  return added === 1 && total === 1 ? t`Added to the export list`
+    : added < total ? t`Added ${added} to the export list (${already} already on it)` : t`Added ${added} to the export list`;
 }
