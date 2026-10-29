@@ -1720,18 +1720,6 @@
  "Plays when a secondary objective or outpost is done, at low intensity only. During a fight the combat music keeps going.": [
   "music.json: description of Secondary Objective Complete"
  ],
- "Flag Raising": [
-  "music.json: piece of music"
- ],
- "The Super Earth anthem while the flag rises. It is in the game twice, as a plain sound (labelled per faction) and as interactive music for the flag-raise state.": [
-  "music.json: description of Flag Raising"
- ],
- "As a Sound": [
-  "music.json: part of Flag Raising"
- ],
- "As Music": [
-  "music.json: part of Flag Raising"
- ],
  "Calling Extraction": [
   "music.json: piece of music"
  ],

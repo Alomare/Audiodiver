@@ -445,8 +445,8 @@ def test_a_banks_sounds_export_one_file_each(session, tmp_path):
     done = s.job(job["id"])
     assert done["state"] == "done" and done["result"]["files"] == 2, done
     names = sorted(f.name for f in (tmp_path / "out").iterdir())
-    assert names == ["Weapons - Support Weapons - AC-8 Autocannon - 001 Sound 1 Take 1.wav",
-                     "Weapons - Support Weapons - AC-8 Autocannon - 002 Sound 1 Take 2.wav"]
+    assert names == ["Weapons - Support Weapons - AC-8 Autocannon - 001 Sequence 1 Take 1.wav",
+                     "Weapons - Support Weapons - AC-8 Autocannon - 002 Sequence 1 Take 2.wav"]
 
 
 @pytest.mark.game
@@ -463,8 +463,8 @@ def test_the_export_list_exports_what_was_collected_from_several_places(session,
     assert done["state"] == "done", done
     folders = {f.name: sorted(x.name for x in f.iterdir()) for f in tmp_path.iterdir()}
     # the entry's name on the list names its folder and starts its files' names (":" can't be in a name)
-    assert folders["Autocannon first"] == ["Autocannon first - 001 Sound 1 Take 1.flac"]
-    assert folders["Second"] == ["Second - 002 Sound 1 Take 2.flac"]
+    assert folders["Autocannon first"] == ["Autocannon first - 001 Sequence 1 Take 1.flac"]
+    assert folders["Second"] == ["Second - 002 Sequence 1 Take 2.flac"]
     assert len(folders["Loadout"]) == 15 and done["result"]["files"] == 17  # no sources: all of it
     with pytest.raises(EditorError, match="empty"):
         s.export_list([], str(tmp_path))
@@ -480,9 +480,9 @@ def test_the_export_preview_names_the_files_an_export_writes(session, tmp_path):
     two = [rows[0]["source"], rows[1]["source"]]
     entry = {"cue": AUTOCANNON, "sources": two, "name": "Cannon"}
     assert s.export_preview([entry])["folders"] == [
-        {"name": "Cannon", "files": ["Cannon - 001 Sound 1 Take 1.wav", "Cannon - 002 Sound 1 Take 2.wav"], "total": 2}]
-    assert s.export_preview([entry], names="short", fmt="flac")["folders"][0]["files"] == ["001 Sound 1 Take 1.flac",
-                                                                                           "002 Sound 1 Take 2.flac"]
+        {"name": "Cannon", "files": ["Cannon - 001 Sequence 1 Take 1.wav", "Cannon - 002 Sequence 1 Take 2.wav"], "total": 2}]
+    assert s.export_preview([entry], names="short", fmt="flac")["folders"][0]["files"] == ["001 Sequence 1 Take 1.flac",
+                                                                                           "002 Sequence 1 Take 2.flac"]
     assert s.export_preview([entry], names="ids", fmt="wem")["folders"][0]["files"] == [f"{x}.wem" for x in two]
     loadout = {"cue": "716451767", "sources": [], "name": "Loadout"}
     assert s.export_preview([{**loadout, "what": "cue"}])["folders"][0]["files"] == ["Loadout.wav"]

@@ -111,10 +111,6 @@
     {"id": "objectives/secondary", "section": "objectives", "name": "Secondary Objective Complete",
      "about": "Plays when a secondary objective or outpost is done, at low intensity only. During a fight the combat music keeps going.",
      "parts": [{"cue": 821040270}]},
-    {"id": "objectives/flag", "section": "objectives", "name": "Flag Raising",
-     "about": "The Super Earth anthem while the flag rises. It is in the game twice, as a plain sound (labelled per faction) and as interactive music for the flag-raise state.",
-     "parts": [{"sound": 190505498, "name": "As a Sound"},
-               {"match": {"MUSIC": "music_flag_raise", "music_extraction": "out_extraction", "music_credits_switch": "music_credits_off"}, "name": "As Music"}]},
 
     {"id": "extraction/start", "section": "extraction", "name": "Calling Extraction",
      "about": "Leads from whatever is playing into the extraction music (also called 'Extraction Cue').",
