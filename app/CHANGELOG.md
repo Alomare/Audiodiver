@@ -9,8 +9,9 @@ newest first.
 
 - Groups of takes are now called **Sequences** ("Sequence 6" instead of "Sound 6"), as in other Helldivers 2 audio tools.
 - The details panel shows the Make-Up Gain the game gives a take (**Default**), even at 0 dB, and what the take plays at with yours added.
+- The highlight on a tutorial step's panel goes away once the pointer moves over it, and comes back with the next step.
 
-### Fixes
+### Bug Fixes
 
 - Voice lines are named again after the 7.2.2 game update.
 

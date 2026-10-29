@@ -123,7 +123,8 @@ def test_an_old_mod_comes_back_on_the_current_game_as_it_was(session, tmp_path):
     assert got["kept_id"] and Path(got["zip"]) == tmp_path / "out" / "WoS Again.zip"
     assert [x.name for x in (tmp_path / "out").iterdir()] == ["WoS Again.zip"]  # the ZIP alone: no project stays
     descent, broken, warp = got["parts"]
-    assert descent["imported"] > 0 and descent["settings"] == 1 and not descent["kept"]
+    # its +6 dB on a MusicTrack goes on the clip's slot: since 7.2.2 nothing else plays that clip (it stayed a setting)
+    assert descent["imported"] > 0 and descent["settings"] == 0 and not descent["kept"]
     assert broken["kept"] and warp["added"] == 6 and warp["settings"] == 4
     assert all("other change" in x for x in warp["left"])  # what the game changed since the mod (positioning)
     # the Sounds the repatch adds are the mod's six, each with new audio: none the game had in the mod's day and
@@ -152,7 +153,12 @@ def test_an_old_mod_comes_back_on_the_current_game_as_it_was(session, tmp_path):
     banks, _ = read_patch(str(_patch_of(got["zip"], "WoS/extras/warp/9ba626afa44a3aa3.patch_0", tmp_path / "w")))
     old, _ = read_patch(str(WARP))
     for oid in (372068234, 612810235, 618435854, 429412609):  # the mod's settings, on today's objects
-        assert wbank.props(*_object(banks, oid)) == wbank.props(*_object(old, oid))
+        want, have = wbank.props(*_object(old, oid)), wbank.props(*_object(banks, oid))
+        if oid in (372068234, 612810235, 429412609):  # since 7.2.2 the containers' Make-Up Gain goes on the Sounds
+            want.pop(5, None), have.pop(5, None)       # below them (slot gains): 429412609 is one of those
+        assert have == want
+    game = wbank.parse(ix.bank_files(next(b for b in banks if 153297934 in banks[b][1]))[0])[1]
+    assert wbank.props(*_object(banks, 153297934)).get(5, 0) - wbank.props(*game[153297934]).get(5, 0) == 13.0
 
     j = _wait(s, s.repatch(str(mod), "", str(tmp_path / "out")))  # again: a ZIP beside the first, never over it
     assert j["state"] == "done" and Path(j["result"]["zip"]).name == "WoS.zip"

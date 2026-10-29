@@ -35,7 +35,7 @@ def test_the_main_moments_are_named_and_complete(session):
     it = items(session)
     assert len(it["deploy/loadout"]["targets"]) == 15
     assert it["credits/credits"]["parts"][0]["cue"] == "274818547"
-    assert [p["kind"] for p in it["objectives/flag"]["parts"]] == ["sound", "playlist"]
+    assert "objectives/flag" not in it  # 7.2.2 took the anthem out: its sound, and the flag-raise state's own music
     assert {f"terminids/{r}" for r in ("arrival", "exploring", "battle", "intense", "respawn", "death")} <= set(it)
     assert not [i["name"] for i in it.values() if re.search(r"\d{6,}", i["name"])]  # nothing named by a bare id
 
