@@ -25,8 +25,8 @@ Helldivers 2 的小补丁通常不会改动音频。大型更新经常会为新�
 
 ## 用旧工具制作的模组 {#mods-made-with-older-tools}
 
-来自基于 ID 的旧工具的补丁，包含构建时所用游戏版本的完整音频库。大型更新之后，这样的补丁会让这些音频库回退，并可能撤销较新的音乐。
+来自基于 ID 的旧工具的补丁，包含构建时所用游戏版本的完整音频库。大型更新之后，这样的补丁会把这些音频库回退，还可能把较新的音乐一并盖回旧版。
 
-要更新这类模组，请在[工具 ▸ Repatch](app:tools/repatch) 上对它进行 [Repatch](wiki:repatching)。把模组拖放到页面上，Audiodiver 会针对当前游戏版本重新构建它。
+要更新这类模组，用 [Repatch](wiki:repatching) 在[工具 ▸ Repatch](app:tools/repatch) 里重新构建它。把模组拖放到页面上，Audiodiver 会针对当前游戏版本重新构建它。
 
-如果想在 Audiodiver 中继续编辑这个模组，请导入它（[导入模组](wiki:importing-mods)）。[主页](app:home)上的**导入模组**会用它新建一个项目，[项目](app:project)选项卡上的**导入补丁**会把它导入当前打开的项目。模组的音频进入构建时不会再次转换。
+如果想在 Audiodiver 中继续编辑这个模组，请导入它（[导入模组](wiki:importing-mods)）。[主页](app:home)上的**导入模组**会用它新建一个项目，[项目](app:project)选项卡上的**导入补丁**会把它导入当前打开的项目。模组的音频放进构建时不会再转换一次。

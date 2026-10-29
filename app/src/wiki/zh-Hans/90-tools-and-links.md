@@ -14,8 +14,8 @@ source: 8c4b133afed9
 ## 编辑音频 {#editing-audio}
 
 - [Audacity](https://www.audacityteam.org) 是一款免费的编辑器，可用于剪切、淡入淡出以及导出 WAV 或 FLAC。Audacity 中的*响度标准化*（Loudness Normalization）效果可将文件调整到目标 LUFS。
-- [Youlean Loudness Meter](https://youlean.co/youlean-loudness-meter/) 是一款免费的响度计。用它把新音乐与原版 −13 到 −15 LUFS 的响度进行比较。
-- [FFmpeg](https://ffmpeg.org) 可在命令行中在几乎所有音频格式之间转换。
+- [Youlean Loudness Meter](https://youlean.co/youlean-loudness-meter/) 是一款免费的响度计。用它对比新音乐和原版 −13 到 −15 LUFS 的响度。
+- [FFmpeg](https://ffmpeg.org) 能在命令行里转换几乎所有音频格式。
 
 ## 幕后技术 {#under-the-hood}
 
