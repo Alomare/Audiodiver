@@ -13,7 +13,7 @@ Fora da música, o Índice lista **conjuntos de sons**. Um conjunto de sons cont
 
 Os sons de um conjunto aparecem em grupos. Cada grupo é um som e os **takes** que ele toca. O jogo escolhe um take ao acaso cada vez que o som toca. Para substituir um som por completo, dê áudio novo a todos os takes, senão o jogo continua misturando os originais. Arquivos soltos na linha de um grupo preenchem os takes em ordem. Clique com o botão direito na linha para preencher, silenciar ou limpar todos os takes.
 
-A maioria dos grupos tem só números como nome, como *Som 1* e *Take 2* ([por que isso acontece](wiki:game-audio)), então ouça para diferenciá-los. ▶ na linha de um grupo toca o primeiro take. Num conjunto grande, os grupos começam recolhidos, e **Pesquisar sons** encontra um som por uma palavra ou um ID. A mesma página explica os grupos **Outros áudios** e **Sem áudio nos arquivos do jogo**.
+A maioria dos grupos tem só números como nome, como *Sequência 1* e *Take 2* ([por que isso acontece](wiki:game-audio)), então ouça para diferenciá-los. ▶ na linha de um grupo toca o primeiro take. Num conjunto grande, os grupos começam recolhidos, e **Pesquisar sons** encontra um som por uma palavra ou um ID. A mesma página explica os grupos **Outros áudios** e **Sem áudio nos arquivos do jogo**.
 
 Você também pode adicionar áudio que o jogo não tem, como mais takes para um som ou uma camada que toca junto com ele. Veja [Adicionando áudio](wiki:adding-audio).
 

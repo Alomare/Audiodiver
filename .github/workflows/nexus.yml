@@ -1,18 +1,16 @@
-# Uploads each published release to Nexus Mods (https://www.nexusmods.com/helldivers2/mods/18133) as a new version of
-# its three files: the installer, the portable ZIP and the Audiodiver Utils ZIP. The mod's version follows, and the
-# release text becomes the version's changelog.
+# Uploads a release's installer to Nexus Mods (https://www.nexusmods.com/helldivers2/mods/18133) as a new version of
+# the Setup file. The mod's version follows, and the release text becomes the version's changelog.
+# Nexus holds every new file for a manual review, so this runs only by hand (Actions tab, Run workflow), never on each
+# release: the installed app updates itself from GitHub, so the Setup on Nexus can stay a few versions behind. The
+# portable ZIPs are on GitHub only.
 #
 # Needs the repository secret NEXUSMODS_API_KEY (a Nexus Mods API key; Settings, Secrets and variables, Actions).
-# Without it the run stops with a message and nothing is uploaded. Run it by hand from the Actions tab (Run workflow)
-# to upload a release that is out already. Drafts and pre-releases are never uploaded. It runs apart from the
-# release workflow: a failure here never touches the GitHub release or the updater.
+# Without it the run stops with a message and nothing is uploaded. Drafts and pre-releases are never uploaded.
 # Never run it with debug logging on: the upload action writes the API key into the debug log. GitHub masks it, but
 # the logs of a public repository are open to anyone.
 name: Nexus Mods
 
 on:
-  release:
-    types: [published]
   workflow_dispatch:
     inputs:
       tag:
@@ -23,17 +21,15 @@ permissions:
   contents: read
 
 concurrency:
-  group: nexus-${{ github.event.release.tag_name || inputs.tag }}
+  group: nexus-${{ inputs.tag }}
   cancel-in-progress: false
 
 env:
   NEXUS_MOD_ID: '26280904902357'   # the Unique Mod ID (Files tab, Advanced; not the 18133 in the page address)
-  TAG: ${{ github.event.release.tag_name || inputs.tag }}
+  TAG: ${{ inputs.tag }}
 
 jobs:
   nexus:
-    # a published pre-release (a test build) never goes to Nexus
-    if: ${{ github.event_name != 'release' || !github.event.release.prerelease }}
     runs-on: ubuntu-latest
     steps:
       - name: Check the API key is set
@@ -50,7 +46,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json tagName >/dev/null 2>&1; then
-            echo "::error::No published release with the tag $TAG. Publish the draft (that runs this workflow by itself), or run it by hand with the tag of a published release."
+            echo "::error::No published release with the tag $TAG. Publish the draft first."
             exit 1
           fi
           [ "$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json isDraft,isPrerelease -q '.isDraft or .isPrerelease')" = false ] \
@@ -58,14 +54,9 @@ jobs:
           # tags are v1.4.0, ...; the files are named by the version without the v (app/scripts/release.py)
           VERSION="${TAG#v}"
           SETUP="Audiodiver_${VERSION}_x64-setup.exe"
-          PORTABLE="Audiodiver-${VERSION}-portable.zip"
-          UTILS="Audiodiver-Utils-${VERSION}-portable.zip"
-          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "$SETUP" --pattern "$PORTABLE" --pattern "$UTILS"
-          for f in "$SETUP" "$PORTABLE" "$UTILS"; do
-            test -s "$f" || { echo "::error::$f is missing from the release $TAG."; exit 1; }
-          done
-          unzip -tq "$PORTABLE" && unzip -tq "$UTILS"
-          { echo "VERSION=$VERSION"; echo "SETUP=$SETUP"; echo "PORTABLE=$PORTABLE"; echo "UTILS=$UTILS"; } >> "$GITHUB_ENV"
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "$SETUP"
+          test -s "$SETUP" || { echo "::error::$SETUP is missing from the release $TAG."; exit 1; }
+          { echo "VERSION=$VERSION"; echo "SETUP=$SETUP"; } >> "$GITHUB_ENV"
 
       - name: Changelog from the release text
         id: notes
@@ -96,9 +87,8 @@ jobs:
           test -s notes.txt || echo "Version ${VERSION}." > notes.txt
           { echo 'text<<NOTES_END'; cat notes.txt; echo 'NOTES_END'; } >> "$GITHUB_OUTPUT"
 
-      # one step per file, each a new version of the file already on the page (Files tab, Advanced, API File ID).
-      # The installer is the main download and carries the mod's version and the changelog; the names, the
-      # descriptions and the categories are those on the page. The action gets the API key, so it is pinned to the
+      # a new version of the Setup file already on the page (Files tab, Advanced, API File ID); it carries the mod's
+      # version and the changelog, and the name, the description and the category are those on the page. The action gets the API key, so it is pinned to the
       # commit of the tag v1.0.0-beta.11 (a tag can be moved); a new version of the action means a new commit here
       - name: Upload Audiodiver Setup
         uses: Nexus-Mods/upload-action@98532f7670c27cbecc78fae03fa3e278147827e2  # v1.0.0-beta.11
@@ -117,30 +107,3 @@ jobs:
           mod_id: ${{ env.NEXUS_MOD_ID }}
           changelog: ${{ steps.notes.outputs.text }}
 
-      - name: Upload Audiodiver Portable
-        uses: Nexus-Mods/upload-action@98532f7670c27cbecc78fae03fa3e278147827e2  # v1.0.0-beta.11
-        with:
-          api_key: ${{ secrets.NEXUSMODS_API_KEY }}
-          file_id: '8245734'
-          filename: ${{ env.PORTABLE }}
-          version: ${{ env.VERSION }}
-          display_name: Audiodiver Portable
-          description: All associated files stay within the .exe folder. Must update manually.
-          category: main
-          archive_existing_version: true
-          primary_mod_manager_download: false
-          allow_mod_manager_download: true
-
-      - name: Upload Audiodiver Utils Portable
-        uses: Nexus-Mods/upload-action@98532f7670c27cbecc78fae03fa3e278147827e2  # v1.0.0-beta.11
-        with:
-          api_key: ${{ secrets.NEXUSMODS_API_KEY }}
-          file_id: '8245737'
-          filename: ${{ env.UTILS }}
-          version: ${{ env.VERSION }}
-          display_name: Audiodiver Utils Portable
-          description: Only the Repatch and Combine tools.
-          category: miscellaneous
-          archive_existing_version: true
-          primary_mod_manager_download: false
-          allow_mod_manager_download: true

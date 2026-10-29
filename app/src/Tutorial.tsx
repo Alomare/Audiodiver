@@ -77,7 +77,10 @@ function Steps({ tutorial, at }: { tutorial: Tutorial; at: number }) {
   const latest = useRef<() => TutorialState>(() => ({ tab, project, jobs, libraryItem: null, audioItem: null }));
   latest.current = () => ({ tab, project, jobs, libraryItem: scopes.library.itemId, audioItem: scopes.editor.itemId });
   const [working, setWorking] = useState(false);
-  const [seen, setSeen] = useState(false); // the pointer was on the panel: it keeps the plain colours from then on
+  // the step the pointer was on the panel in: the panel keeps the plain colours until the next step. Moving, not
+  // entering, counts, so a step that starts under the pointer (after Next) is seen too.
+  const [seenAt, setSeenAt] = useState(-1);
+  const seen = seenAt === at;
   const step = at >= 0 ? tutorial.steps[at] : undefined;
   const look = !!step?.look;
   const nextLabel = step?.next ?? (look ? t({ message: "Next", context: "tutorial step", comment: "The button that goes on to the next step of a tutorial" }) : undefined);
@@ -187,7 +190,7 @@ function Steps({ tutorial, at }: { tutorial: Tutorial; at: number }) {
       {look && <div className="tut-block" aria-hidden />}
       <div className="tut-ring" ref={ring} aria-hidden />
       <div className={`tut-panel${seen ? " seen" : ""}`} ref={panel} role="dialog" aria-live="polite" aria-label={tutorial.title}
-        onPointerEnter={() => setSeen(true)}>
+        onPointerMove={() => { if (!seen) setSeenAt(at); }}>
         {!step ? <p className="tut-wait"><Trans>Making the practice project</Trans></p> : (
           <>
             <div className="tut-top">

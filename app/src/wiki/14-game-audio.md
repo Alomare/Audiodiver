@@ -17,15 +17,15 @@ From the largest to the smallest:
 
 Long audio such as music and voice lines is often **streamed**, which means the clip is stored in the archive next to the bank. Audiodiver finds the clip in both cases.
 
-## Why many things are called "Sound 3" or "Take 2"
+## Why many things are called "Sequence 3" or "Take 2"
 
 The game files contain numbers and no names. The names in Audiodiver come from community documents (listed in [About ▸ Credits](app:about)) and from what Audiodiver can work out:
 
-- A sound without a name is called **Sound 1**, **Sound 2** and so on, in the order of the bank. Listen to it to find out what it is.
-- The takes of an unnamed sound are called **Take 1**, **Take 2** and so on. A transcribed take, such as a voice line, is named after what it says.
+- A sequence without a name is called **Sequence 1**, **Sequence 2** and so on, in the order of the bank. Listen to it to find out what it is. A sequence is a group of takes the game picks one from each time it plays.
+- The takes of an unnamed sequence are called **Take 1**, **Take 2** and so on. A transcribed take, such as a voice line, is named after what it says.
 - A sound set or archive without a name is named after the archive code and is marked *Not named yet*.
 
-For example, "Sound 4 › Take 2" is the second recording of the fourth sound in the bank. To replace a sound, give every take new audio. Otherwise the game sometimes picks an original.
+For example, "Sequence 4 › Take 2" is the second recording of the fourth sequence in the bank. To replace a sequence, give every take new audio. Otherwise the game sometimes picks an original.
 
 ## Other Audio and No Audio in the Game Files
 

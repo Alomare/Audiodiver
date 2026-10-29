@@ -10,7 +10,7 @@ summary: Short answers to common questions, each with a link to the page that co
 
 The music is the most reliable part. Helldivers 2 names the states that choose the music, such as the screen, the enemy, and whether a fight is on, and the Index sorts the music by those names. Sound sets, weapons and clip labels come from research by the modding community, listed in [About ▸ Credits](app:about), and some of those names are educated guesses. Voice lines are named after the subtitle that matches their words, and a line whose subtitle isn't certain says **one of several**.
 
-A sound without a name shows as *Sound 3* or *Take 2*. [Game audio, explained](wiki:game-audio#why-many-things-are-called-sound-3-or-take-2) says why. To report a wrong or missing name, use the [Wrong or missing name](https://github.com/Alomare/Audiodiver/issues/new?template=wrong_name.yml) form on GitHub.
+A sequence without a name shows as *Sequence 3* or *Take 2*. [Game audio, explained](wiki:game-audio#why-many-things-are-called-sequence-3-or-take-2) says why. To report a wrong or missing name, use the [Wrong or missing name](https://github.com/Alomare/Audiodiver/issues/new?template=wrong_name.yml) form on GitHub.
 
 ### How does Audiodiver know what music plays in which scenario?
 

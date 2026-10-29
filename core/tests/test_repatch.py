@@ -15,7 +15,7 @@ from audiodiver.game import WWISE_BANK, WWISE_STREAM, WWISE_DEP
 from audiodiver.patch import read_patch
 from audiodiver.strings import STRINGS
 
-MODS = Path(__file__).parents[3] / "replacement mods"
+MODS = Path(__file__).parents[3] / "hdam_projects"
 WOS = MODS / "hd2-wos-descent" / "9ba626afa44a3aa3.patch_0"  # made with hd2-audio-modder: a stale music_init
 WARP = MODS.parent / "_examples" / "Warp Pack Plus 5 Sounds" / "9ba626afa44a3aa3.patch_0"  # new takes, louder containers
 GUID = "0b7c3a52-60f4-4e8e-9d35-7c1f2b9e4a10"

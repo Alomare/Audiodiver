@@ -16,7 +16,7 @@ from audiodiver import bank as wbank
 from audiodiver.editor import Session, _game_updated
 from audiodiver.project import Project
 
-MODS = Path(__file__).parents[3] / "replacement mods"
+MODS = Path(__file__).parents[3] / "hdam_projects"
 WARP = MODS.parent / "_examples" / "Warp Pack Plus 5 Sounds" / "9ba626afa44a3aa3.patch_0"  # made before 25988413
 CYCLOPS = MODS / "hd2-exo-cyclops" / "mod" / "Cyclops Exosuit Voice" / "9ba626afa44a3aa3.patch_0"
 WEAPONS_MIXER = 0x26CF0E53  # an actor-mixer every weapon bank has; 25988413 changed it

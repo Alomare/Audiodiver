@@ -11,7 +11,7 @@ source: df4f962e1978
 
 A música é a parte mais confiável. O Helldivers 2 dá nome aos estados que escolhem a música, como a tela, o inimigo e se há um combate acontecendo, e o Índice organiza a música por esses nomes. Os conjuntos de sons, as armas e os rótulos dos clipes vêm de pesquisas da comunidade de modding, listadas em [Sobre ▸ Créditos](app:about), e alguns desses nomes são palpites bem fundamentados. As falas recebem o nome da legenda que corresponde às palavras delas, e uma fala cuja legenda não é certa mostra **uma de várias**.
 
-Um som sem nome aparece como *Som 3* ou *Take 2*. [O áudio do jogo, explicado](wiki:game-audio#why-many-things-are-called-sound-3-or-take-2) explica por quê. Para relatar um nome errado ou que falta, use o formulário [Nome errado ou ausente](https://github.com/Alomare/Audiodiver/issues/new?template=wrong_name.yml) no GitHub.
+Uma sequência sem nome aparece como *Sequência 3* ou *Take 2*. [O áudio do jogo, explicado](wiki:game-audio#why-many-things-are-called-sequence-3-or-take-2) explica por quê. Para relatar um nome errado ou que falta, use o formulário [Nome errado ou ausente](https://github.com/Alomare/Audiodiver/issues/new?template=wrong_name.yml) no GitHub.
 
 ### Como o Audiodiver sabe qual música toca em cada situação? {#how-does-audiodiver-know-what-music-plays-in-which-scenario}
 

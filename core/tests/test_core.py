@@ -15,7 +15,7 @@ from audiodiver.game import murmur64_hash, toc_entries, WWISE_BANK, WWISE_STREAM
 from audiodiver.project import Project, Replacement
 
 HERE = Path(__file__).parent
-MODS = HERE.parents[2] / "replacement mods"
+MODS = HERE.parents[2] / "hdam_projects"
 
 
 # --- ids

@@ -50,7 +50,7 @@ export type Segment = {
   entry_ms: number | null; exit_ms: number | null; stems: Stem[];
   group?: boolean;  // sounds that belong together (the takes of one sound), not a music segment
   kind?: GroupKind; // a group: what its sounds are (core library.py)
-  made_up?: boolean; // a group nothing names: its name is a number in bank order ("Sound 6")
+  made_up?: boolean; // a group nothing names: its name is a number in bank order ("Sequence 6")
   shared?: number;  // a group: how many other banks play every one of its sounds
   tags?: Tag[];     // in a bank: the piece of music a segment is
   cue?: string;     // in a bank: the music cue a segment belongs to
