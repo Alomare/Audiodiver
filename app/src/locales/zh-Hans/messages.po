@@ -45,7 +45,7 @@ msgstr "{added, plural, other {# 个新增声音}}"
 
 #: src/App.tsx
 msgid "{after, plural, =1 {Undo the change after this one} other {Undo the # changes after this one}}"
-msgstr "{after, plural, =1 {撤销此项之后的那项更改} other {撤销此项之后的 # 项更改}}"
+msgstr "{after, plural, =1 {撤销紧随其后的一项更改} other {撤销紧随其后的 # 项更改}}"
 
 #: src/CueView.tsx
 msgid "{also, plural, one {+# bank} other {+# banks}}"
@@ -87,7 +87,7 @@ msgstr "{banks, plural, other {在 # 个音频库中更改}}"
 #. Markdown. {buildIcon} shows the icon of the Build tab. **Build** is the tab name and must read as the translation of the tab name does.
 #: src/tutorials.ts
 msgid "{buildIcon} **Build** makes the mod: a ZIP to install with a mod manager. Open it."
-msgstr "{buildIcon} **构建**会生成模组，即一个用模组管理器安装的 ZIP。请打开它。"
+msgstr "{buildIcon} **构建**会生成模组，也就是用模组管理器安装的 ZIP。打开它。"
 
 #: src/CombinePage.tsx
 msgid "{conflicts, plural, one {# conflict} other {# conflicts}}"
@@ -148,11 +148,11 @@ msgstr "{count, plural, other {# 个插入乐段}}"
 
 #: src/Inspector.tsx
 msgid "{count, plural, one {# subtitle has the English words of this voice line. The open one is the most likely match.} other {# subtitles have the English words of this voice line. The open one is the most likely match.}}"
-msgstr "{count, plural, other {有 # 条字幕包含此语音台词的英文内容。打开的那条最有可能匹配。}}"
+msgstr "{count, plural, other {有 # 条字幕包含此语音台词的英文内容。已打开的那条最可能是对应的字幕。}}"
 
 #: src/Inspector.tsx
 msgid "{count, plural, one {# subtitle has the words of this voice line. The open one is the most likely match.} other {# subtitles have the words of this voice line. The open one is the most likely match.}}"
-msgstr "{count, plural, other {有 # 条字幕包含此语音台词的内容。打开的那条最有可能匹配。}}"
+msgstr "{count, plural, other {有 # 条字幕包含此语音台词的内容。已打开的那条最可能是对应的字幕。}}"
 
 #: src/ItemHead.tsx
 msgid "{count, plural, one {# transition} other {# transitions}}"
@@ -262,7 +262,7 @@ msgstr "{file}。在文件恢复或被替换之前，无法构建模组"
 
 #: src/RepatchPage.tsx
 msgid "{files, plural, one {# patch file, built into one.} other {# patch files, built into one.}}"
-msgstr "{files, plural, other {# 个补丁文件，构建为一个。}}"
+msgstr "{files, plural, other {# 个补丁文件，构建为一个补丁。}}"
 
 #: src/ExportDialog.tsx
 msgid "{files, plural, one {Export # File} other {Export # Files}}"
@@ -432,7 +432,7 @@ msgstr "{n, plural, =1 {移除新音频？} other {移除 # 个槽位的新音�
 
 #: src/store.tsx
 msgid "{n, plural, =1 {Remove the new take?} other {Remove the new takes?}}"
-msgstr "{n, plural, =1 {移除此新变体？} other {移除这些新变体？}}"
+msgstr "{n, plural, =1 {移除新变体？} other {移除这些新变体？}}"
 
 #: src/store.tsx
 msgid "{n, plural, =1 {Remove the silence?} other {Remove the silence from # slots?}}"
@@ -526,7 +526,7 @@ msgstr "{others, plural, other {{total} 个槽位中有 # 个也在其他音乐�
 
 #: src/ProjectTab.tsx
 msgid "{others, plural, one {Another project is in this folder and uses the same slices and imported folders.} other {# other projects are in this folder and use the same slices and imported folders.}}"
-msgstr "{others, plural, other {此文件夹中还有其他 # 个项目，使用相同的切片和导入的文件夹。}}"
+msgstr "{others, plural, other {此文件夹中还有其他 # 个项目，共用同一批切片和导入文件夹。}}"
 
 #: src/Soundtrack.tsx
 msgid "{over, plural, one {# song left over} other {# songs left over}}. This music has {total, plural, one {# place} other {# places}}."
@@ -594,7 +594,7 @@ msgstr "{problems, plural, other {构建前请先修复以下问题}}"
 
 #: src/SettingsTab.tsx
 msgid "{project} uses the tabs chosen on the Project tab."
-msgstr "{project} 使用在项目选项卡中选择的选项卡。"
+msgstr "{project} 沿用项目选项卡中选定的选项卡。"
 
 #: src/ProjectTab.tsx
 msgid "{removed, plural, one {# file moved to the Recycle Bin} other {# files moved to the Recycle Bin}}"
@@ -808,7 +808,7 @@ msgstr "{value}，层 {n}"
 #. value is a colour code, such as #ff8800
 #: src/ProjectTab.tsx
 msgid "{value}: change it"
-msgstr "{value}：更改"
+msgstr "{value}：点击更改"
 
 #: src/UpdatesTab.tsx
 msgid "{version} is available"
@@ -957,7 +957,7 @@ msgstr "合并仍在进行中。"
 
 #: src/CombinePage.tsx
 msgid "A combined mod is still the work of the original authors. Keep it for personal use, and share it only with their permission."
-msgstr "合并后的模组仍是原作者的作品。请仅供个人使用，并且只在获得原作者许可后分享。"
+msgstr "合并后的模组仍是原作者的作品。仅供个人使用，如需分享，须获得原作者许可。"
 
 #: src/App.tsx
 msgid "A conflict check is still running."
@@ -965,7 +965,7 @@ msgstr "冲突检查仍在进行中。"
 
 #: src/SettingsTab.tsx
 msgid "A document to read, with each note under the name of what it is on."
-msgstr "便于阅读的文档，每条备注位于其所属对象的名称下。"
+msgstr "便于阅读的文档，每条备注都列在对应对象的名称下面。"
 
 #: src/ExportDialog.tsx
 msgid "A fight"
@@ -977,7 +977,7 @@ msgstr "一场战斗"
 
 #: src/ItemHead.tsx
 msgid "A file for each of the {total} slots, part by part, in play order and file-name order"
-msgstr "为全部 {total} 个槽位各分配一个文件，逐个部分进行，按播放顺序和文件名顺序对应"
+msgstr "为全部 {total} 个槽位各分配一个文件，分部分依次分配，对应顺序为播放顺序和文件名顺序"
 
 #: src/Inspector.tsx
 msgid "A file for each slot, in list order and file-name order"
@@ -1006,19 +1006,19 @@ msgstr "有任务仍在运行。"
 
 #: src/CueView.tsx
 msgid "A layer added by the project. It plays whenever the sound above it plays"
-msgstr "项目添加的层。只要其上方的声音播放，它就会播放"
+msgstr "项目添加的层。只要上面那个声音一播放，它就会跟着播放"
 
 #: src/CueView.tsx
 msgid "A layer left original still plays under the new audio"
-msgstr "保留原版的层仍会在新音频之下播放"
+msgstr "保留原版的层仍会与新音频叠加播放"
 
 #: src/TextTab.tsx
 msgid "A mod carries whole tables. When two mods change the same table, the one deployed later replaces the other"
-msgstr "模组包含完整的文本表。两个模组更改同一个表时，后部署的会替换先部署的"
+msgstr "模组包含完整的文本表。两个模组改动同一张表时，后部署的会覆盖先部署的"
 
 #: src/ToolsTab.tsx
 msgid "A mod holds copies of the sound banks from the game version it was made for. Repatching puts the mod's audio into the current banks"
-msgstr "模组包含其制作时所针对的游戏版本的音频库副本。Repatch 会将模组的音频放入当前的音频库"
+msgstr "模组里带着制作它时那版游戏的音频库副本。Repatch 会将模组的音频放入当前的音频库"
 
 #: src/ProjectTab.tsx
 msgid "A mod ID looks like this: 613bc667-1b2d-4f5e-8a9b-0c1d2e3f4a5b"
@@ -1030,7 +1030,7 @@ msgstr "默认情况下，列表中靠下的模组在冲突中优先"
 
 #: src/ImportMod.tsx
 msgid "A mod made for an older game version carries the text of that version too. Untick the lines where only the game changed."
-msgstr "为旧版本游戏制作的模组也带有该版本的文本。请取消勾选只有游戏发生变化的行。"
+msgstr "为旧版本游戏制作的模组也带有那一版的文本。请取消勾选那些只是游戏本身改动的行。"
 
 #: src/api.ts
 msgid "A mod needs a name."
@@ -1038,7 +1038,7 @@ msgstr "模组需要一个名称。"
 
 #: src/RepatchPage.tsx
 msgid "A mod's sounds went silent, wrong or missing after a game update."
-msgstr "游戏更新后，模组的声音变得无声、出错或缺失。"
+msgstr "游戏更新后，模组的声音会变哑、错乱或丢失。"
 
 #: src/theme.ts
 msgid "A monospaced typeface, with every character the same width."
@@ -1051,7 +1051,7 @@ msgstr "名称中至少需要一个字母或数字。"
 #. The title on Home; <0/> is a line break
 #: src/Home.tsx
 msgid "A new anthem<0/>for Super Earth"
-msgstr "献给超级地球的<0/>新颂歌"
+msgstr "为超级地球<0/>谱写新颂歌"
 
 #: src/Inspector.tsx
 msgid "A new layer. It plays whenever the sound above it plays."
@@ -1071,7 +1071,7 @@ msgstr "Audiodiver 新版本"
 
 #: src/SettingsTab.tsx
 msgid "A notes file that Import Notes brings into the global notes, on this computer or another."
-msgstr "可通过“导入备注”导入全局备注的备注文件，本机或其他电脑均可。"
+msgstr "可用“导入备注”并入全局备注的备注文件，本机或其他电脑上的都可以。"
 
 #: src/ExportDialog.tsx
 msgid "A number, then the sound or segment"
@@ -1104,7 +1104,7 @@ msgstr "Repatch 仍在进行中。"
 
 #: src/RepatchPage.tsx
 msgid "A repatched mod is still the work of the original author. Keep it for personal use, and share it only with the author's permission."
-msgstr "经过 Repatch 的模组仍是原作者的作品。请仅供个人使用，并且只在获得作者许可后分享。"
+msgstr "经过 Repatch 的模组仍是原作者的作品。仅供个人使用，如需分享，须获得作者许可。"
 
 #. After Play or Pause on a play button
 #. After Play or Pause on a play button
@@ -1133,7 +1133,7 @@ msgstr "一项设置"
 
 #: src/Inspector.tsx
 msgid "A silenced sound no longer turns down the sounds around it."
-msgstr "被静音的声音不再压低周围的声音。"
+msgstr "已静音的声音不再压低周围的声音。"
 
 #: src/CueView.tsx
 msgid "A sound in another bank usually plays them"
@@ -1141,7 +1141,7 @@ msgstr "通常由其他音频库中的声音播放它们"
 
 #: src/RepatchPage.tsx
 msgid "A sound is often in many banks, such as a clip that several weapons share. With this on, the mod's audio goes into all of them and plays wherever the sound is used, but the mod gets bigger. With it off, only the banks the mod patched get it, as in the original."
-msgstr "一个声音常常位于多个音频库中，例如多种武器共用的片段。开启此项后，模组的音频会写入所有这些音频库，在用到该声音的任何地方播放，但模组会变大。关闭时，只有模组修补过的音频库会获得这些音频，与原模组相同。"
+msgstr "同一个声音常常同时存在于多个音频库中，例如多种武器共用的片段。开启此项后，模组的音频会写入所有这些音频库，在用到该声音的任何地方都会播放，但模组会变大。关闭时，只有模组修补过的音频库会获得这些音频，与原模组一致。"
 
 #: src/CombinePage.tsx
 msgid "A sound is often in many banks, such as a clip that several weapons share. With this on, the mods' audio goes into all of them, but the mod gets bigger. With it off, only the banks the mods patched get it."
@@ -1153,7 +1153,7 @@ msgstr "一个声音常常位于多个音频库中，例如多种武器共用的
 
 #: src/IndexTree.tsx
 msgid "A stinger that plays over the music"
-msgstr "在音乐之上播放的插入乐段"
+msgstr "叠在音乐上播放的插入乐段"
 
 #: src/Inspector.tsx
 msgid "A stretch of music that plays as a unit. The next segment starts at the Exit"
@@ -1174,7 +1174,7 @@ msgstr "两首曲目之间的过渡段"
 #: src/IndexTree.tsx
 #: src/ItemHead.tsx
 msgid "A transition plays between two pieces of music, and a stinger over one. Left original, they play a stretch of the original music next to the new music. Skip replaces them with a short silence"
-msgstr "过渡段在两首曲目之间播放，插入乐段则在一首曲目之上播放。如果保留原版，它们会在新音乐旁播放一段原版音乐。“跳过”会将它们替换为短暂的静音"
+msgstr "过渡段在两首曲目之间播放，插入乐段则叠在曲目上播放。如果保留原版，它们仍会播放原版音乐，紧挨着新音乐。“跳过”会将它们替换为短暂的静音"
 
 #: src/Tutorial.tsx
 msgid "A tutorial is running"
@@ -1439,7 +1439,7 @@ msgstr "还包含 {others}，已一并保留。"
 #: src/IndexTree.tsx
 #: src/Library.tsx
 msgid "Also removes the new audio. Undo brings both back."
-msgstr "也会移除新音频。撤销可将两者都恢复。"
+msgstr "也会一并移除新音频。撤销后两者都能恢复。"
 
 #: src/BuildTab.tsx
 msgid "Also save the patch files in a folder"
@@ -1455,7 +1455,7 @@ msgstr "导入仍在进行中。"
 
 #: src/BuildTab.tsx
 msgid "An older build can mute sounds it never changed, like all gunfire."
-msgstr "旧的构建可能会使从未改动过的声音静音，例如所有枪声。"
+msgstr "用旧版本构建的模组可能会把没改动过的声音也变成静音，比如所有枪声。"
 
 #: src/App.tsx
 msgid "An unpack is still running."
@@ -1501,7 +1501,7 @@ msgstr "任意颜色"
 
 #: src/RepatchPage.tsx
 msgid "Applies them to the game's current sound banks."
-msgstr "将它们应用到游戏当前的音频库。"
+msgstr "把这些改动应用到游戏当前的音频库。"
 
 #: src/Inspector.tsx
 msgid "Applies to the slots with new audio."
@@ -1513,7 +1513,7 @@ msgstr "适用于此项目。每个 ZIP 旁都有一个同名文件夹，存放�
 
 #: src/BuildTab.tsx
 msgid "Applies to this project. The game's audio includes this data, but it makes no audible difference. It needs Wwise installed and makes builds slower."
-msgstr "适用于此项目。游戏音频包含此数据，但听起来没有区别。需要安装 Wwise，并会使构建变慢。"
+msgstr "适用于此项目。游戏音频本身就有这项数据，听不出区别。需要安装 Wwise，构建也会变慢。"
 
 #: src/RepatchPage.tsx
 msgid "Apply the mod's audio and settings to the current sound banks and build a new ZIP"
@@ -1571,12 +1571,12 @@ msgstr "启动时，安装新版本并重新启动。"
 
 #: src/Inspector.tsx
 msgid "At the original level"
-msgstr "为原始音量"
+msgstr "已是原始音量"
 
 #: src/About.tsx
 #: src/BuildTab.tsx
 msgid "Attach it to a bug report"
-msgstr "将其附在错误报告中"
+msgstr "反馈问题时可以附在错误报告里"
 
 #. File type in the file picker: audio files
 #. Main tab: replaces the audio of what the project lists
@@ -1597,7 +1597,7 @@ msgstr "{name} 的音频"
 
 #: src/Inspector.tsx
 msgid "Audiodiver also removes it from the mix."
-msgstr "Audiodiver 也会将其从混音中移除。"
+msgstr "Audiodiver 也会把它从混音里移除。"
 
 #: src/SettingsTab.tsx
 msgid "Audiodiver checks GitHub for a new version on every start. The Updates tab lists the changes in each version."
@@ -1690,7 +1690,7 @@ msgstr "恢复默认"
 
 #: src/SettingsTab.tsx
 msgid "Back to no key"
-msgstr "恢复为无按键"
+msgstr "恢复为未绑定"
 
 #: src/SettingsTab.tsx
 msgid "Back to Normal"
@@ -2052,7 +2052,7 @@ msgstr "请检查网络连接。"
 
 #: src/UpdatesTab.tsx
 msgid "Checked {checked}"
-msgstr "检查于 {checked}"
+msgstr "上次检查：{checked}"
 
 #: src/CombinePage.tsx
 #: src/jobs.ts
@@ -2124,7 +2124,7 @@ msgstr "选择文件夹"
 
 #: src/SettingsTab.tsx
 msgid "Choose a folder for the global notes"
-msgstr "选择全局备注的文件夹"
+msgstr "选择存放全局备注的文件夹"
 
 #: src/ImportMod.tsx
 msgid "Choose a line of text to import"
@@ -2158,7 +2158,7 @@ msgstr "选择要切分到各槽位的歌曲。"
 
 #: src/Soundtrack.tsx
 msgid "Choose a song to cut into up to {pieces, plural, one {# piece} other {# pieces}}, or drop one here."
-msgstr "选择一首歌曲，最多切成 {pieces, plural, other {# 段}}，或将歌曲拖到此处。"
+msgstr "选择歌曲，最多切成 {pieces, plural, other {# 段}}，也可以直接拖一首到这里。"
 
 #: src/RepatchPage.tsx
 msgid "Choose a ZIP or Patch File"
@@ -2251,11 +2251,11 @@ msgstr "选择项目的存放位置"
 
 #: src/ProjectTab.tsx
 msgid "Choose where to move the project"
-msgstr "选择项目的移动位置"
+msgstr "选择项目要移动到的位置"
 
 #: src/SettingsTab.tsx
 msgid "Chosen here."
-msgstr "在此处选择。"
+msgstr "已在此处选定。"
 
 #. The icon corners: round all the way
 #: src/ProjectTab.tsx
@@ -2282,7 +2282,7 @@ msgstr "清空列表"
 
 #: src/CueView.tsx
 msgid "Clear the selection"
-msgstr "清除选择"
+msgstr "取消选择"
 
 #: src/CueView.tsx
 msgid "Clear this part"
@@ -2297,7 +2297,7 @@ msgstr "正在清除"
 #. Markdown. **Sequence 6** is the name the slot list shows for this sequence.
 #: src/tutorials.ts
 msgid "Click **Sequence 6**, the loudest part of the shot, to see the takes."
-msgstr "点击 **序列 6**（枪声中最响的部分），查看其变体。"
+msgstr "点击 **序列 6**（枪声里最响的部分），就能看到各个变体。"
 
 #: src/keys.ts
 msgid "Click ▶"
@@ -2313,7 +2313,7 @@ msgstr "点击此处在 Wiki 中查看。"
 
 #: src/SettingsTab.tsx
 msgid "Click on a key bind to change it. Press Esc to cancel.<0/>Key functions are exclusive. If you assign a key to a function, all other functions that use that key will be emptied."
-msgstr "点击按键绑定即可更改。按 Esc 取消。<0/>每个按键只能对应一个功能。为某个功能分配按键后，使用该按键的其他功能都会被清空。"
+msgstr "点击按键绑定即可更改。按 Esc 取消。<0/>每个按键只能对应一个功能。为某个功能分配按键后，其他用到这个按键的功能，其按键都会被清空。"
 
 #: src/ItemHead.tsx
 msgid "Click to keep it shown"
@@ -2457,7 +2457,7 @@ msgstr "正在合并 {title}"
 
 #: src/CombinePage.tsx
 msgid "Combining carries over the mods' audio and sound settings, and leaves out other kinds of change."
-msgstr "合并会保留这些模组的音频和声音设置，其他类型的更改则会略去。"
+msgstr "合并只保留这些模组的音频和声音设置，其他类型的改动不会带过去。"
 
 #: src/CombinePage.tsx
 msgid "Combining failed"
@@ -2543,11 +2543,11 @@ msgstr "已复制到 {what}。"
 
 #: src/store.tsx
 msgid "Copied to {what}. {short, plural, one {# of them has} other {# of them have}} fewer places, so the last songs or pieces were left out there."
-msgstr "已复制到 {what}。其中 {short, plural, other {# 个}}的位置较少，因此末尾的歌曲或分段在那里被略去。"
+msgstr "已复制到 {what}。其中 {short, plural, other {# 个}}的位置少一些，末尾的歌曲或曲目在那里放不下。"
 
 #: src/ProjectTab.tsx
 msgid "Copies them into the project folder, so the project can be moved or copied as one folder"
-msgstr "将它们复制到项目文件夹中，这样项目就能作为一个文件夹移动或复制"
+msgstr "把这些文件复制进项目文件夹，这样整个项目就能当作一个文件夹来移动或复制"
 
 #: src/ProjectTab.tsx
 msgid "Copy"
@@ -2629,7 +2629,7 @@ msgstr "圆角"
 
 #: src/UpdatesTab.tsx
 msgid "Couldn't check again ({reason}). The list below is from {checked}."
-msgstr "无法再次检查（{reason}）。下方列表来自 {checked}。"
+msgstr "无法再次检查（{reason}）。下方列表是 {checked} 的检查结果。"
 
 #: src/UpdatesTab.tsx
 msgid "Couldn't check for updates"
@@ -2658,7 +2658,7 @@ msgstr "无法读取此音频。<0>重试</0>"
 
 #: src/ProjectTab.tsx
 msgid "Create or open a project, or open a pack."
-msgstr "创建或打开项目，或打开项目包。"
+msgstr "创建或打开项目，也可以打开项目包。"
 
 #: src/ImportMod.tsx
 msgid "Create Project"
@@ -2670,7 +2670,7 @@ msgstr "致谢"
 
 #: src/ProjectTab.tsx
 msgid "Cropped to a centred square and resized to 540 × 540. Drop an image on the preview to use it."
-msgstr "裁剪为居中的正方形，并缩放为 540 × 540。将图片拖到预览上即可使用。"
+msgstr "按中心裁成正方形，再缩放到 540 × 540。也可以把图片拖到预览图上使用。"
 
 #: src/keys.ts
 msgid "Ctrl+click, Shift+click, a slot's tick"
@@ -2835,7 +2835,7 @@ msgstr "正在下载 {version}"
 
 #: src/SliceTool.tsx
 msgid "Drag a cut to move it, and hold Shift to stop it snapping to the original length. Double-click the song to add a cut. Delete removes the selected cut, and ←/→ nudge it (Shift moves 100 ms, Alt moves 1 ms). The wheel zooms in on time, Ctrl+wheel on the level, Shift+wheel scrolls, and Space plays."
-msgstr "拖动切点可移动它，按住 Shift 可停止吸附到原版长度。双击歌曲可添加切点。Delete 删除所选切点，←/→ 微调它（Shift 移动 100 ms，Alt 移动 1 ms）。滚轮缩放时间轴，Ctrl+滚轮缩放电平，Shift+滚轮滚动，Space 播放。"
+msgstr "拖动切点即可移动，按住 Shift 则不吸附到原版长度。双击歌曲可添加切点。Delete 删除所选切点，←/→ 微调（Shift 移动 100 ms，Alt 移动 1 ms）。滚轮缩放时间轴，Ctrl+滚轮缩放电平，Shift+滚轮滚动，Space 播放。"
 
 #: src/keys.ts
 msgid "Drag a song in a playlist"
@@ -2859,7 +2859,7 @@ msgstr "按此增益绘制和播放"
 
 #: src/RepatchPage.tsx
 msgid "Drop a mod here as a <0>ZIP</0>, a <1>folder</1> or a <2>.patch_0</2> file."
-msgstr "将模组以 <0>ZIP</0>、<1>文件夹</1>或 <2>.patch_0</2> 文件的形式拖到此处。"
+msgstr "把模组拖到这里：<0>ZIP</0>、<1>文件夹</1>或 <2>.patch_0</2> 文件都行。"
 
 #: src/Soundtrack.tsx
 msgid "Drop a Song or Choose a File"
@@ -2903,7 +2903,7 @@ msgstr "在项目选项卡中将图片拖到图标上"
 
 #: src/CombinePage.tsx
 msgid "Drop mods here as <0>ZIPs</0>, <1>folders</1> or <2>.patch_0</2> files."
-msgstr "将模组以 <0>ZIP</0>、<1>文件夹</1>或 <2>.patch_0</2> 文件的形式拖到此处。"
+msgstr "可以直接把 <0>ZIP</0>、<1>文件夹</1>或 <2>.patch_0</2> 文件拖到这里。"
 
 #: src/App.tsx
 msgid "Drop songs on a place of a playlist, or a song on One Song"
@@ -2923,7 +2923,7 @@ msgstr "这样每次构建都会得到新的 ZIP 名称，之前的 ZIP 会保�
 
 #: src/ExportDialog.tsx
 msgid "Each export is a new fight, with the segments picked as the game picks them in a mission"
-msgstr "每次导出都是一场新的战斗，段落的选取方式与游戏在任务中相同"
+msgstr "每次导出都按一场新战斗处理，段落的选取方式和游戏在任务里一样"
 
 #: src/Soundtrack.tsx
 msgid "Each fight plays the song from piece 1."
@@ -2939,20 +2939,20 @@ msgstr "每场战斗先播放其中一个开场，然后播放各首歌曲。"
 
 #: src/Soundtrack.tsx
 msgid "Each fight starts on the song after the one the last fight stopped on"
-msgstr "每场战斗从上一场战斗停止时那首歌曲的下一首开始"
+msgstr "每场战斗都从上一场停下的那首歌的下一首开始"
 
 #: src/TextTab.tsx
 msgid "Each language is a separate table, and a change in one doesn't change the others"
-msgstr "每种语言都是一个单独的表，更改其中一个不会影响其他"
+msgstr "每种语言各有一张表，改一种不会影响其他语言"
 
 #. Markdown. **Sequence 6** is the name the slot list shows for this sequence. ▶ is the play button.
 #: src/tutorials.ts
 msgid "Each line under **Sequence 6** is one take. Press ▶ on a few to hear them."
-msgstr "**序列 6** 下的每一行都是一个变体。在其中几行上按 ▶ 试听。"
+msgstr "**序列 6** 下的每一行是一个变体。点几行的 ▶ 试听一下。"
 
 #: src/SliceTool.tsx
 msgid "Each original starts at the cut of the piece that replaces it"
-msgstr "每段原版从替换它的那一段的切点开始"
+msgstr "每段原版都从替换它的那段的切点开始"
 
 #: src/RepatchPage.tsx
 msgid "Each patch with audio is rebuilt where it was, so the options don't change."
@@ -2976,7 +2976,7 @@ msgstr "每个段落一个文件，各层混合在一起"
 
 #: src/SliceTool.tsx
 msgid "Each segment up to here gets one piece of the song"
-msgstr "直到此处的每个段落各获得歌曲的一段"
+msgstr "到这里为止，每个段落各分到歌曲的一段"
 
 #: src/ExportDialog.tsx
 msgid "Each slot"
@@ -3000,15 +3000,15 @@ msgstr "为每个槽位设置 Make-Up Gain，使新音频与原版一样响"
 
 #: src/CueView.tsx
 msgid "Each sound by the ID of the container that holds it, under the containers above, as Wwise tools list them"
-msgstr "每个声音以所在容器的 ID 显示，归于上层容器之下，与 Wwise 工具的列法一致"
+msgstr "每个声音按所在容器的 ID 排列，归在上层容器之下，与 Wwise 工具的排列方式一致"
 
 #: src/CueView.tsx
 msgid "Each sound by what it says or what it is"
-msgstr "每个声音以其台词或内容显示"
+msgstr "每个声音按台词或声音本身排列"
 
 #: src/Soundtrack.tsx
 msgid "Each time the music comes on, it starts on the song after the one that played last"
-msgstr "每次音乐响起时，从上次最后播放的那首歌曲的下一首开始"
+msgstr "每次音乐响起，都从上次最后播放的那首歌的下一首开始"
 
 #: src/Soundtrack.tsx
 msgid "Each time the music comes on, one of the openings plays first, then the song from piece 1."
@@ -3143,11 +3143,11 @@ msgstr "所有播放此片段的声音都会获得新音频"
 
 #: src/SettingsTab.tsx
 msgid "Every theme setting goes back to the default. Dark or light, contrast and animations follow the system."
-msgstr "所有主题设置都将恢复默认。深色或浅色、对比度和动画将跟随系统。"
+msgstr "所有主题设置都恢复默认：深色/浅色、对比度和动画跟随系统。"
 
 #: src/ExportDialog.tsx
 msgid "Every variant, one file each"
-msgstr "每个版本各一个文件"
+msgstr "每个变体各一个文件"
 
 #: src/UpdatesTab.tsx
 msgid "Every version is collapsed"
@@ -3238,7 +3238,7 @@ msgstr "正在导出 {title}"
 
 #: src/ExportDialog.tsx
 msgid "Exports of the original are for reference and mod work. Don't upload them."
-msgstr "导出的原版音频仅供参考和制作模组使用。请勿上传。"
+msgstr "导出的原版只供参考和做模组用。请勿上传。"
 
 #. A job's state in the Build tab's log, such as: Build: My Mod, failed, 12 s
 #: src/BuildTab.tsx
@@ -3271,7 +3271,7 @@ msgstr "战斗从这里开始"
 
 #: src/Soundtrack.tsx
 msgid "Fights start on the music itself in {pieces, plural, one {# piece} other {# pieces}}"
-msgstr "{pieces, plural, other {# 首曲目}}中的战斗直接从音乐本身开始"
+msgstr "在 {pieces, plural, other {# 个曲目}}里，战斗直接从音乐本身开始"
 
 #: src/Timeline.tsx
 msgid "File missing"
@@ -3299,7 +3299,7 @@ msgstr "Audiodiver 为项目生成、但已不再使用的文件"
 
 #: src/ProjectTab.tsx
 msgid "Files you picked from elsewhere stay where they are, and the project still finds them."
-msgstr "从其他位置选取的文件会留在原处，项目仍能找到它们。"
+msgstr "从别处选取的文件留在原处，项目仍能找到。"
 
 #. Edit in Undo, Redo and History: slots filled with several files at once
 #: src/store.tsx
@@ -3350,7 +3350,7 @@ msgstr "在此页面中查找"
 #. Markdown. **AR-23 Liberator** is the weapon as the Library lists it. {addIcon} shows the + button of the row.
 #: src/tutorials.ts
 msgid "Find the **AR-23 Liberator** and press {addIcon} on the row to add it to the project."
-msgstr "找到 **AR-23“解放者”**，按该行上的 {addIcon} 将其添加到项目。"
+msgstr "找到 **AR-23“解放者”**，点该行的 {addIcon} 把它加进项目。"
 
 #: src/ProjectTab.tsx
 msgid "Find Unused Files"
@@ -3416,7 +3416,7 @@ msgstr "跟随系统。"
 
 #: src/Home.tsx
 msgid "For a mod that went silent or wrong after a game update, or that mutes other sounds"
-msgstr "适用于游戏更新后变得无声或出错的模组，或会让其他声音静音的模组"
+msgstr "适用于游戏更新后没声音或出错的模组，以及会让其他声音静音的模组"
 
 #. Tip on Source IDs while it is off: it needs the Each Slot contents
 #: src/ExportDialog.tsx
@@ -3429,7 +3429,7 @@ msgstr "适用于更改相同音频库的多个模组，此时只有最后部署
 
 #: src/App.tsx
 msgid "Forget the chosen folder"
-msgstr "忘记所选的文件夹"
+msgstr "清除已选文件夹"
 
 #. Export Notes: the kind of file
 #: src/ExportDialog.tsx
@@ -3475,7 +3475,7 @@ msgstr "起始"
 
 #: src/tutorials.ts
 msgid "From the Library to a built mod: a weapon's shot replaced with new audio that the tutorial brings along."
-msgstr "从资源库到构建好的模组：用教程自带的新音频替换一种武器的枪声。"
+msgstr "从资源库到构建好的模组：用教程自带的新音频替换一把武器的枪声。"
 
 #: src/ExportDialog.tsx
 msgid "Full Names"
@@ -3519,7 +3519,7 @@ msgstr "为每个变体提供新音频，即可完全替换该声音"
 
 #: src/SettingsTab.tsx
 msgid "Give this a key"
-msgstr "为此分配按键"
+msgstr "给它设个快捷键"
 
 #: src/Notes.tsx
 msgid "Global Note"
@@ -3626,7 +3626,7 @@ msgstr "隐藏标题区"
 
 #: src/ProjectTab.tsx
 msgid "Hide the tabs this mod doesn't use, such as all but Text for a subtitle mod. What was changed in a hidden tab stays in the mod. A new project starts with the tabs Settings ▸ System shows."
-msgstr "隐藏此模组不用的选项卡，例如字幕模组可只保留“文本”。隐藏选项卡中的更改仍会保留在模组中。新项目默认显示“设置 ▸ 系统”中设定的选项卡。"
+msgstr "隐藏此模组用不到的选项卡，例如字幕模组只留“文本”。在隐藏的选项卡里做过的更改仍保留在模组中。新项目按“设置 ▸ 系统”里勾选的选项卡显示。"
 
 #: src/Tools.tsx
 msgid "Hide the waveforms"
@@ -3898,7 +3898,7 @@ msgstr "正在安装 {version}"
 
 #: src/Soundtrack.tsx
 msgid "Intense Battle follows Battle for {enemies, plural, one {# enemy} other {# enemies}}"
-msgstr "{enemies, plural, other {# 个敌人}}的激烈战斗已设为跟随战斗"
+msgstr "“激烈战斗”接在“针对 {enemies, plural, other {# 个敌人}}的战斗”之后"
 
 #: src/Tutorial.tsx
 msgid "Interactive tutorials"
@@ -3921,15 +3921,15 @@ msgstr "进入"
 
 #: src/Soundtrack.tsx
 msgid "It ends with the segment playing at that time, and Next Fight goes on from there"
-msgstr "在当时正在播放的段落处结束，“下一场战斗”会从那里继续"
+msgstr "结束于当时正在播放的段落，“下一场战斗”从那里接着往下走"
 
 #: src/Soundtrack.tsx
 msgid "It ends with the segment playing at that time, and Play Again goes on from there"
-msgstr "在当时正在播放的段落处结束，“再次播放”会从那里继续"
+msgstr "结束于当时正在播放的段落，“再次播放”从那里接着往下走"
 
 #: src/RepatchPage.tsx
 msgid "It keeps the old mod ID, so importing it in a mod manager updates the old mod."
-msgstr "它保留了旧的模组 ID，因此在模组管理器中导入它会更新旧模组。"
+msgstr "沿用旧模组 ID，因此在模组管理器中导入会直接更新旧模组。"
 
 #: src/store.tsx
 msgid "it wasn't found"
@@ -3977,7 +3977,7 @@ msgstr "保留在此处"
 
 #: src/Inspector.tsx
 msgid "Keep original duration"
-msgstr "保持原始时长"
+msgstr "保持原版时长"
 
 #: src/CueView.tsx
 msgid "Keep original duration, in the details, sets this"
@@ -4006,7 +4006,7 @@ msgstr "保持原样"
 
 #: src/store.tsx
 msgid "Kept current: {older, plural, one {# sound object} other {# sound objects}} the patch had from an older game version"
-msgstr "已保持为当前版本：补丁中来自旧游戏版本的 {older, plural, other {# 个声音对象}}"
+msgstr "已更新到当前版本：补丁中 {older, plural, other {# 个来自旧游戏版本的声音对象}}"
 
 #: src/RepatchPage.tsx
 msgid "Kept from the manifest: {items}."
@@ -4233,7 +4233,7 @@ msgstr "调高或调低音量，不改变文件或混音。在游戏为此声音
 #. The bar of main tabs, for screen readers
 #: src/App.tsx
 msgid "Main"
-msgstr "主要"
+msgstr "主导航"
 
 #: src/SettingsTab.tsx
 msgid "Main buttons, new audio and edits."
@@ -4363,15 +4363,15 @@ msgstr "模组 ID"
 
 #: src/store.tsx
 msgid "Mod ID changed. Mod managers treat the next build as an update to the mod with this ID."
-msgstr "模组 ID 已更改。模组管理器会将下次构建视为对具有此 ID 的模组的更新。"
+msgstr "模组 ID 已更改。模组管理器会把下次构建视为对该 ID 模组的更新。"
 
 #: src/api.ts
 msgid "Mod managers can't use {bad} in a name, because it becomes a folder name. Use letters, digits, spaces and - _ ( )."
-msgstr "模组管理器无法在名称中使用 {bad}，因为名称会成为文件夹名。请使用字母、数字、空格以及 - _ ( )。"
+msgstr "模组管理器不能在名称里使用 {bad}，因为名称会被用作文件夹名。请改用字母、数字、空格和 - _ ( )。"
 
 #: src/ProjectTab.tsx
 msgid "Mod managers recognise the mod by this ID. While it stays the same, a new build updates the installed mod."
-msgstr "模组管理器通过此 ID 识别模组。只要 ID 不变，新的构建就会更新已安装的模组。"
+msgstr "模组管理器用此 ID 识别模组。只要 ID 不变，重新构建就会更新已安装的模组。"
 
 #: src/ProjectTab.tsx
 msgid "Mod managers then treat a build as an update to that mod"
@@ -4488,7 +4488,7 @@ msgstr "上移"
 
 #: src/ProjectTab.tsx
 msgid "Moved, renamed or deleted"
-msgstr "已被移动、重命名或删除"
+msgstr "已移动、重命名或删除"
 
 #. Tag on a slot replaced with silence: the game moves straight on
 #: src/CueView.tsx
@@ -4584,7 +4584,7 @@ msgstr "名称、描述和槽位标签"
 #: src/CueView.tsx
 #: src/Inspector.tsx
 msgid "never heard"
-msgstr "从未听到"
+msgstr "从未播放"
 
 #: src/Inspector.tsx
 msgid "Never played, or do not touch"
@@ -4632,11 +4632,11 @@ msgstr "新建层"
 
 #: src/store.tsx
 msgid "New layer on **{what}**"
-msgstr "**{what}** 新增一个层"
+msgstr "在 **{what}** 上新增层"
 
 #: src/store.tsx
 msgid "New mod ID created. Mod managers install the next build as a separate mod."
-msgstr "已生成新的模组 ID。模组管理器会将下次构建作为独立的模组安装。"
+msgstr "已生成新的模组 ID。模组管理器会把下次构建当成另一个模组单独安装。"
 
 #: src/keys.ts
 #: src/platform.ts
@@ -4669,7 +4669,7 @@ msgstr "此层的新变体"
 
 #: src/BuildTab.tsx
 msgid "New takes, layers and new audio set to Only This Sound go into every bank with a copy of the sound, as the game plays the copy it loads first. With this on, they go only into the banks of the listed items. The mod gets smaller, but where the game loads another bank's copy first, the original plays."
-msgstr "新变体、新层以及设为“仅此声音”的新音频会写入每个含有该声音副本的音频库，因为游戏播放的是最先加载的副本。开启此项后，它们只会写入所列条目的音频库。模组会变小，但如果游戏先加载了其他音频库中的副本，就会播放原版。"
+msgstr "新变体、新层，以及设为“仅此声音”的新音频，默认会写进每一个含有该声音副本的音频库——游戏播放的是它最先加载的那份副本。开启此项后，它们只写入所列条目的音频库。模组会变小，但若游戏先加载了其他音频库里的副本，听到的仍是原版。"
 
 #: src/CueView.tsx
 msgid "New takes, or a layer that plays with it"
@@ -4764,7 +4764,7 @@ msgstr "不含音频，保持原样。"
 
 #: src/TextTab.tsx
 msgid "No changed line has “{words}”."
-msgstr "没有已更改的行包含“{words}”。"
+msgstr "没有任何已更改的行包含“{words}”。"
 
 #: src/App.tsx
 msgid "No changes since the project opened."
@@ -4819,7 +4819,7 @@ msgstr "此语言中尚无已更改的行。"
 
 #: src/TextTab.tsx
 msgid "No line has “{words}”."
-msgstr "没有行包含“{words}”。"
+msgstr "没有任何一行包含“{words}”。"
 
 #: src/Wiki.tsx
 msgid "No matches"
@@ -4839,7 +4839,7 @@ msgstr "没有音乐需要更改"
 
 #: src/UpdatesTab.tsx
 msgid "No notes for this version."
-msgstr "此版本没有说明。"
+msgstr "此版本没有更新说明。"
 
 #: src/store.tsx
 msgid "No Openings"
@@ -4922,7 +4922,7 @@ msgstr "正常"
 
 #: src/ProjectTab.tsx
 msgid "Not an Audiodiver project, or damaged"
-msgstr "不是 Audiodiver 项目，或已损坏"
+msgstr "不是 Audiodiver 项目，或文件已损坏"
 
 #: src/App.tsx
 msgid "not built yet"
@@ -4994,7 +4994,7 @@ msgstr "备注文件和项目"
 
 #: src/SettingsTab.tsx
 msgid "Notes shown in every project and in the Library, kept in a notes file in this folder. A folder that already has a notes file, such as a synced folder, adds those notes to these."
-msgstr "在每个项目和资源库中显示的备注，保存在此文件夹的备注文件中。如果所选文件夹（例如同步文件夹）中已有备注文件，其中的备注会与现有备注合并。"
+msgstr "这些备注会显示在所有项目和资源库中，保存在本文件夹的备注文件里。如果所选文件夹（例如同步文件夹）已有备注文件，其中的备注会一并加入。"
 
 #: src/IndexTree.tsx
 msgid "Nothing here yet."
@@ -5052,7 +5052,7 @@ msgstr "尚无可构建的内容"
 
 #: src/store.tsx
 msgid "Nothing to build yet. Replace some audio, set a piece in the Soundtrack or change a line of text first."
-msgstr "尚无可构建的内容。请先替换一些音频、在配乐中设置一首曲目，或更改一行文本。"
+msgstr "尚无可构建的内容。请先替换音频、在配乐中设置曲目，或更改一行文本。"
 
 #: src/RepatchPage.tsx
 msgid "nothing to carry over"
@@ -5068,7 +5068,7 @@ msgstr "没有可复制的内容"
 
 #: src/store.tsx
 msgid "Nothing to copy. These slots aren't replaced"
-msgstr "没有可复制的内容。这些槽位未被替换"
+msgstr "没有可复制的内容。这些槽位还没有替换"
 
 #: src/ExportDialog.tsx
 msgid "Nothing to export yet."
@@ -5124,7 +5124,7 @@ msgstr "关闭"
 
 #: src/SettingsTab.tsx
 msgid "Off, because the system asks for less motion."
-msgstr "关闭，因为系统要求减少动态效果。"
+msgstr "系统要求减少动态效果，因此已关闭。"
 
 #: src/SettingsTab.tsx
 msgid "Off. The “?” buttons still show their text."
@@ -5164,7 +5164,7 @@ msgstr "本页内容"
 
 #: src/Inspector.tsx
 msgid "On: plays nothing for the length of the original, so the timing doesn't change. Off: plays nothing, and the game moves straight on."
-msgstr "开启：在原版的时长内不播放任何声音，因此时序不变。关闭：不播放任何声音，游戏直接继续。"
+msgstr "开启：用静音占满原版时长，因此时序不变。关闭：直接静音，游戏随即继续播放。"
 
 #: src/Soundtrack.tsx
 msgid "One at random"
@@ -5186,7 +5186,7 @@ msgstr "单曲"
 
 #: src/Soundtrack.tsx
 msgid "One song cut into the segments, played from the beginning each time the music starts"
-msgstr "一首歌曲切分到各段落中，每次音乐开始时从头播放"
+msgstr "把一首歌切成若干段落，音乐每次开始时都从头播放"
 
 #: src/ExportDialog.tsx
 msgid "One track of a fight, with the segments the game picks as it plays"
@@ -5202,7 +5202,7 @@ msgstr "仅显示项目在此语言中更改的行"
 
 #: src/CueView.tsx
 msgid "Only this bank gets it. The other banks with this audio play it from separate sounds"
-msgstr "只有此音频库会获得它。含有此音频的其他音频库通过各自独立的声音播放它"
+msgstr "只有这个音频库会写入它。其他音频库里的这份音频，用各自独立的声音播放。"
 
 #. After the name of a conflict: a clip that a mod added for this sound only
 #. Edit in Undo, Redo and History: the new audio of a slot set to play only in this sound
@@ -5286,7 +5286,7 @@ msgstr "在音频选项卡中打开"
 
 #: src/RepatchPage.tsx
 msgid "Open it in the form above, ready to repatch"
-msgstr "在上方的表单中打开，以便 Repatch"
+msgstr "在上方的表单中打开，随时可以 Repatch"
 
 #: src/TextTab.tsx
 msgid "Open it in the Library"
@@ -5347,7 +5347,7 @@ msgstr "打开下载页面"
 
 #: src/IndexTree.tsx
 msgid "Open the first one and add it to the project"
-msgstr "打开第一个并将其添加到项目"
+msgstr "打开第一个，添加到项目中"
 
 #: src/keys.ts
 msgid "Open the interactive tutorials"
@@ -5467,7 +5467,7 @@ msgstr "其他已替换的声音"
 
 #: src/RepatchPage.tsx
 msgid "Other sounds, like all gunfire, go silent while the mod is installed. <0>Installed mods</0> below finds the mods that do this."
-msgstr "安装该模组后，其他声音（例如所有枪声）会变得无声。下方的<0>已安装的模组</0>可找出有此问题的模组。"
+msgstr "安装该模组后，其他声音（例如所有枪声）都会静音。下方的<0>已安装的模组</0>能找出哪些模组存在这个问题。"
 
 #: src/ImportMod.tsx
 msgid "Other text"
@@ -5688,7 +5688,7 @@ msgstr "再次播放"
 
 #: src/Inspector.tsx
 msgid "Play nothing here instead of the original"
-msgstr "此处不播放任何声音，代替原版"
+msgstr "此处用静音代替原版"
 
 #: src/Inspector.tsx
 msgid "Play nothing in these slots"
@@ -5724,7 +5724,7 @@ msgstr "播放所选槽位的新音频"
 
 #: src/keys.ts
 msgid "play the new audio, or the original if there is none"
-msgstr "播放新音频，如果没有则播放原版"
+msgstr "播放新音频；没有新音频时播放原版"
 
 #: src/CueView.tsx
 msgid "Play the Original"
@@ -5748,11 +5748,11 @@ msgstr "重复部分播放 <0/> {loops, plural, other {次}}"
 
 #: src/Library.tsx
 msgid "Play the sample or open it to hear what it holds"
-msgstr "播放示例或将其打开，试听其中的内容"
+msgstr "播放示例，或打开试听其中的内容"
 
 #: src/keys.ts
 msgid "Play the selected slot, or pause and resume"
-msgstr "播放所选槽位，或暂停和继续"
+msgstr "播放所选槽位，或暂停再继续"
 
 #: src/SliceTool.tsx
 msgid "Play the song from the first cut"
@@ -5780,7 +5780,7 @@ msgstr "连续播放 · 已替换"
 
 #: src/PlayThrough.tsx
 msgid "Play through stopped because this music changed"
-msgstr "这段音乐已更改，连续播放已停止"
+msgstr "这段音乐发生了变化，连续播放已停止"
 
 #: src/keys.ts
 msgid "play, and select the slot"
@@ -5815,7 +5815,7 @@ msgstr "反复播放，直到音乐改变"
 
 #: src/Soundtrack.tsx
 msgid "Plays all of these in a random order"
-msgstr "以随机顺序播放所有这些"
+msgstr "把这些全都随机播放"
 
 #. placeholder {0}: fmtGain(base + v)
 #: src/Inspector.tsx
@@ -5849,7 +5849,7 @@ msgstr "仅在此条件下播放"
 #: src/IndexTree.tsx
 #: src/ItemHead.tsx
 msgid "Plays the original next to new music"
-msgstr "在新音乐旁播放原版"
+msgstr "原版紧挨着新音乐播放"
 
 #: src/Soundtrack.tsx
 msgid "Plays these one after another"
@@ -5882,7 +5882,7 @@ msgstr "在音乐中的位置"
 
 #: src/SettingsTab.tsx
 msgid "Prepared copies of audio, kept for reuse. Projects and audio files are never stored here."
-msgstr "预先处理好的音频副本，保留以供重复使用。此处从不存储项目和音频文件。"
+msgstr "预先处理好的音频副本，留着反复使用。项目和音频文件不会存在这里。"
 
 #: src/PlayThrough.tsx
 msgid "Preparing…"
@@ -5891,7 +5891,7 @@ msgstr "正在准备…"
 #. Markdown. **Choose One File for All** is a button in the details panel, and the bold words must read as the translation of the button does. **shot.wav** is a file name that stays as it is.
 #: src/tutorials.ts
 msgid "Press **Choose One File for All**, and choose **shot.wav** in the folder that opens. The tutorial made it."
-msgstr "按**为全部选择同一个文件**，然后在打开的文件夹中选择 **shot.wav**。该文件由教程生成。"
+msgstr "点击**为全部选择同一个文件**，然后在打开的文件夹里选中 **shot.wav**。这个文件是教程生成的。"
 
 #. Markdown. **Replace with Silence** is a button in the details panel, and the bold words must read as the translation of the button does.
 #: src/tutorials.ts
@@ -5900,11 +5900,11 @@ msgstr "在详情面板中按**替换为静音**。"
 
 #: src/CueView.tsx
 msgid "Press ▶ to play anything. Open an entry to see the slots, and add it to <0>{name}</0> to replace the audio."
-msgstr "按 ▶ 可播放任何内容。打开条目可查看槽位，将其添加到 <0>{name}</0> 即可替换音频。"
+msgstr "点击 ▶ 就能播放任何内容。打开条目可看到槽位，把它加进 <0>{name}</0>，就能替换音频。"
 
 #: src/CueView.tsx
 msgid "Press ▶ to play anything. Open an entry to see the slots, and add it to a project <0>(<1>Home</1>)</0> to replace the audio."
-msgstr "按 ▶ 可播放任何内容。打开条目可查看槽位，将其添加到项目<0>（<1>主页</1>）</0>即可替换音频。"
+msgstr "点击 ▶ 就能播放任何内容。打开条目可看到槽位，把它加进项目<0>（<1>主页</1>）</0>，就能替换音频。"
 
 #: src/SettingsTab.tsx
 msgid "Press a Key"
@@ -5913,7 +5913,7 @@ msgstr "按下按键"
 #. Markdown. **Build** is the button on the Build tab, and the bold word must read as the translation of the button does.
 #: src/tutorials.ts
 msgid "Press the **Build** button. It takes a minute or two."
-msgstr "按**构建**按钮。这需要一两分钟。"
+msgstr "点击**构建**按钮，大约要一两分钟。"
 
 #: src/SettingsTab.tsx
 msgid "Press the new key…"
@@ -6007,7 +6007,7 @@ msgstr "放回"
 
 #: src/BuildTab.tsx
 msgid "Put the file back where it was, or choose another file on the slot in the Audio tab"
-msgstr "将文件放回原处，或在音频选项卡中为该槽位选择另一个文件"
+msgstr "把文件放回原处，或者到音频选项卡给这个槽位换一个文件"
 
 #: src/keys.ts
 msgid "put the songs there and in the places after it"
@@ -6032,7 +6032,7 @@ msgstr "安静探索"
 
 #: src/Soundtrack.tsx
 msgid "Quiet Exploring: every Exploring set to Silent"
-msgstr "安静探索：所有探索设为“静音”"
+msgstr "安静探索：把所有“探索”曲目都设为“静音”"
 
 #: src/BuildTab.tsx
 msgid "Raise the version after each build"
@@ -6086,15 +6086,15 @@ msgstr "正在读取…"
 
 #: src/ToolsTab.tsx
 msgid "Rebuild an audio mod made for an older version of the game, or by another tool."
-msgstr "重新构建为旧版本游戏制作的或用其他工具制作的音频模组。"
+msgstr "把为旧版游戏制作、或用其他工具制作的音频模组重新构建一遍。"
 
 #: src/ToolsTab.tsx
 msgid "Rebuild an existing audio mod for the current game version"
-msgstr "为当前游戏版本重新构建现有的音频模组"
+msgstr "按当前游戏版本重新构建已有的音频模组"
 
 #: src/Home.tsx
 msgid "Rebuild an existing audio mod for the current game version, without a project"
-msgstr "无需项目，为当前游戏版本重新构建现有的音频模组"
+msgstr "不用先建项目，直接把现有的音频模组按当前游戏版本重新构建"
 
 #: src/ProjectTab.tsx
 msgid "Recent projects"
@@ -6278,11 +6278,11 @@ msgstr "移除此按键"
 
 #: src/store.tsx
 msgid "Removed {what} from the project, along with the new audio in {gone, plural, one {# slot} other {# slots}}."
-msgstr "已从项目中移除 {what}，以及 {gone, plural, other {# 个槽位}}中的新音频。"
+msgstr "已把 {what} 从项目中移除，{gone, plural, other {# 个槽位}}里的新音频也一并清掉。"
 
 #: src/store.tsx
 msgid "Removed the new audio from {n, plural, one {# slot} other {# slots}}."
-msgstr "已移除 {n, plural, other {# 个槽位}}的新音频。"
+msgstr "已从 {n, plural, other {# 个槽位}}里移除新音频。"
 
 #: src/store.tsx
 msgid "Removed the silence from {n, plural, one {# slot} other {# slots}}."
@@ -6290,7 +6290,7 @@ msgstr "已移除 {n, plural, other {# 个槽位}}的静音。"
 
 #: src/ImportMod.tsx
 msgid "Removes the new audio, added sounds, cue points and list first. The audio files stay, and Undo brings them back."
-msgstr "会先移除新音频、新增的声音、提示点和列表。音频文件会保留，撤销可将其恢复。"
+msgstr "这里会先清掉新音频、新加的声音、提示点和列表。音频文件留着，撤销能找回来。"
 
 #: src/Home.tsx
 #: src/RepatchPage.tsx
@@ -6309,7 +6309,7 @@ msgstr "Repatch 和合并现有模组"
 
 #: src/RepatchPage.tsx
 msgid "Repatch Another Mod"
-msgstr "Repatch 其他模组"
+msgstr "Repatch 另一个模组"
 
 #: src/store.tsx
 msgid "Repatch cancelled"
@@ -6338,7 +6338,7 @@ msgstr "正在 Repatch {title}"
 
 #: src/RepatchPage.tsx
 msgid "Repatching carries over the mod's audio and sound settings, and leaves out other kinds of change. Listen to the result in game."
-msgstr "Repatch 会保留模组的音频和声音设置，其他类型的更改则会略去。请在游戏中试听结果。"
+msgstr "Repatch 会沿用模组的音频和声音设置，其他改动一概不带。结果请到游戏里试听。"
 
 #: src/RepatchPage.tsx
 msgid "Repatching failed"
@@ -6384,14 +6384,14 @@ msgstr "将它们替换为短暂的静音，让下一段音乐立即开始"
 
 #: src/ItemHead.tsx
 msgid "Replace them with a short silence, so the next music starts right away. This also adds them to the project."
-msgstr "将它们替换为短暂的静音，让下一段音乐立即开始。这也会将它们添加到项目。"
+msgstr "把它们换成一小段静音，下一段音乐就会马上开始。这也会把它们加进项目。"
 
 #. {undo} is the key in parentheses, such as “ (Ctrl+Z)”
 #. {undo} is the key in parentheses, such as “ (Ctrl+Z)”
 #: src/IndexTree.tsx
 #: src/ItemHead.tsx
 msgid "Replace them with a short silence, so the next music starts right away. Undo{undo} brings them back"
-msgstr "将它们替换为短暂的静音，让下一段音乐立即开始。撤销{undo} 可将其恢复"
+msgstr "把它们换成一小段静音，下一段音乐就会马上开始。撤销{undo} 就能找回来"
 
 #: src/CueView.tsx
 msgid "Replace with a short silence, so the next music starts right away"
@@ -6441,7 +6441,7 @@ msgstr "已替换"
 
 #: src/Library.tsx
 msgid "Replaced slots that no project entry contains"
-msgstr "不属于任何项目条目的已替换槽位"
+msgstr "没有被任何项目条目收录的已替换槽位"
 
 #: src/tutorials.ts
 msgid "Replacing every take with one file"
@@ -6498,7 +6498,7 @@ msgstr "恢复默认"
 
 #: src/SettingsTab.tsx
 msgid "Reset to default. This took a key from {commands}."
-msgstr "已恢复默认。这从 {commands} 处取走了一个按键。"
+msgstr "已恢复默认。该按键原先归 {commands} 使用。"
 
 #: src/Waveform.tsx
 msgid "Reset zoom"
@@ -6601,11 +6601,11 @@ msgstr "按功能或按键搜索快捷键"
 
 #: src/TextTab.tsx
 msgid "Search every line, including subtitles, mission and menu text, and names."
-msgstr "搜索所有行，包括字幕、任务和菜单文本以及名称。"
+msgstr "搜索所有文本行，包括字幕、任务文本、菜单文本和名称。"
 
 #: src/TextTab.tsx
 msgid "Search for a line to change words, colours or size."
-msgstr "搜索要更改文字、颜色或大小的行。"
+msgstr "先搜出要改的那一行，再改文字、颜色或大小。"
 
 #: src/TextTab.tsx
 msgid "Search lines"
@@ -6714,11 +6714,11 @@ msgstr "由 HD2_DATA 环境变量设置。"
 
 #: src/Inspector.tsx
 msgid "Set by the imported mod on this sound or on a container above it. Builds include them."
-msgstr "由导入的模组在此声音或其上层容器上设置。构建会包含这些设置。"
+msgstr "这些设置来自导入的模组，加在这个声音或它的上层容器上。构建时会一并带上。"
 
 #: src/SettingsTab.tsx
 msgid "Set here, overriding the system setting."
-msgstr "在此处设置，覆盖系统设置。"
+msgstr "在这里设置，优先于系统设置。"
 
 #: src/CueView.tsx
 msgid "Set in the details"
@@ -6751,15 +6751,15 @@ msgstr "将多个小模组合并为一个，更便于管理。"
 
 #: src/Inspector.tsx
 msgid "Several sounds can play the same clip. Choose whether the new audio plays in all of them or only in this one."
-msgstr "多个声音可能播放同一个片段。选择新音频是在所有这些声音中播放，还是只在此声音中播放。"
+msgstr "多个声音可能播放同一个片段。请选择让新音频在所有这些声音里播放，还是只在这一处播放。"
 
 #: src/Inspector.tsx
 msgid "Several subtitles have these words, and the game files don't show which one matches this recording. The Text tab lists them all and opens the most likely one"
-msgstr "多条字幕包含这些内容，而游戏文件中无法看出哪条与此录音匹配。文本选项卡会列出所有字幕，并打开最可能的那条"
+msgstr "多条字幕都有这些词，游戏文件里看不出哪条对应这段录音。文本选项卡会把它们都列出来，并打开最可能的那条"
 
 #: src/TextTab.tsx
 msgid "Several subtitles have these words, so this match is likely but not certain. Open it in the Library"
-msgstr "多条字幕包含这些内容，因此此匹配可能正确但不确定。在资源库中打开"
+msgstr "多条字幕都有这些词，所以这条匹配很可能对，但不保证。可在资源库中打开"
 
 #: src/Inspector.tsx
 msgid "Shared with <0>{also}</0>"
@@ -6857,7 +6857,7 @@ msgstr "显示描述"
 
 #: src/SettingsTab.tsx
 msgid "Show the Folder"
-msgstr "显示文件夹"
+msgstr "打开文件夹"
 
 #: src/Tools.tsx
 msgid "Show the header"
@@ -6890,11 +6890,11 @@ msgstr "显示这些快捷键"
 
 #: src/TextTab.tsx
 msgid "Showing {shown} of {total}. Type more to narrow them down."
-msgstr "显示 {total} 个中的 {shown} 个。输入更多内容以缩小范围。"
+msgstr "显示 {shown}/{total} 条。继续输入可缩小范围。"
 
 #: src/Notes.tsx
 msgid "Shown in every project and in the Library, from the notes file in the folder set in Settings ▸ System. A note on a slot shows wherever the clip plays. Markdown formats headings, lists, bold and links."
-msgstr "在每个项目和资源库中显示，来自“设置 ▸ 系统”中所设文件夹里的备注文件。槽位上的备注会在该片段播放的每一处显示。可用 Markdown 设置标题、列表、粗体和链接。"
+msgstr "备注会显示在每个项目和资源库里，内容取自“设置 ▸ 系统”里所设文件夹中的备注文件。槽位上的备注会在该片段播放的每一处出现。Markdown 可写标题、列表、粗体和链接。"
 
 #. Edit in Undo, Redo and History: shuffle turned on or off for a playlist
 #: src/store.tsx
@@ -6907,7 +6907,7 @@ msgstr "随机播放"
 
 #: src/Soundtrack.tsx
 msgid "Shuffled"
-msgstr "已随机"
+msgstr "已随机播放"
 
 #. Edit in Undo, Redo and History: slots replaced with silence
 #. In place of the length of the new audio: the slot plays silence
@@ -6929,7 +6929,7 @@ msgstr "在原版的时长内保持静音"
 
 #: src/Inspector.tsx
 msgid "Silence plays nothing in place of the original."
-msgstr "静音会以无声代替原版。"
+msgstr "静音就是原版位置什么都不播。"
 
 #: src/tutorials.ts
 msgid "Silence the other layers"
@@ -6956,12 +6956,12 @@ msgstr "静音"
 
 #: src/ItemHead.tsx
 msgid "Silent, and the game moves straight on"
-msgstr "静音，游戏直接继续"
+msgstr "静音，游戏会直接进入下一段"
 
 #: src/TextTab.tsx
 msgctxt "Text tab button: sizes the selected words"
 msgid "Size"
-msgstr "大小"
+msgstr "字号"
 
 #: src/TextTab.tsx
 msgid "Size the selection"
@@ -6999,7 +6999,7 @@ msgstr "“跳过”会保持它们不变"
 
 #: src/ItemHead.tsx
 msgid "Skip Them"
-msgstr "跳过它们"
+msgstr "跳过"
 
 #: src/IndexTree.tsx
 msgid "Skip Them All"
@@ -7097,7 +7097,7 @@ msgstr "声音及其变体"
 
 #: src/CombinePage.tsx
 msgid "Sounds that more than one mod changes. Choose which mod's version goes in."
-msgstr "被多个模组更改的声音。选择采用哪个模组的版本。"
+msgstr "多个模组都改动过的声音。选择用哪个模组的版本。"
 
 #. Edit in Undo, Redo and History: how pieces of music play changed
 #: src/store.tsx
@@ -7215,7 +7215,7 @@ msgstr "字幕 · 行 {id} · 表 {table}"
 
 #: src/Inspector.tsx
 msgid "subtitle: one of several"
-msgstr "字幕：多条之一"
+msgstr "字幕：多个候选之一"
 
 #: src/ImportMod.tsx
 msgid "Subtitles"
@@ -7281,7 +7281,7 @@ msgstr "取用模组替换和新增的音频，以及音量、延迟等声音设
 
 #: src/Waveform.tsx
 msgid "Taller, to see quiet audio. It plays as loud as before. Ctrl+wheel on the waveforms zooms too"
-msgstr "调高以查看较轻的音频。播放音量不变。在波形上按 Ctrl+滚轮也可缩放"
+msgstr "调高以看清音量较小的音频，播放音量不变。在波形上按住 Ctrl 滚动滚轮也可缩放"
 
 #: src/content.ts
 msgid "telling grunts, breaths and laughs from words"
@@ -7329,11 +7329,11 @@ msgstr "文字大小"
 
 #: src/SettingsTab.tsx
 msgid "Text size goes back to the default. Dark or light and contrast follow the system."
-msgstr "文字大小将恢复默认。深色或浅色和对比度将跟随系统。"
+msgstr "文字大小将恢复默认。深色或浅色、对比度跟随系统。"
 
 #: src/ProjectTab.tsx
 msgid "That is another drive, so the files are copied there first, which takes a while for a big project."
-msgstr "那是另一个驱动器，因此会先将文件复制过去，大型项目需要一些时间。"
+msgstr "目标在另一个驱动器上，所以要先把文件复制过去；项目较大时会花些时间。"
 
 #: src/IndexTree.tsx
 msgid "That is in {name}, which isn't in the Index."
@@ -7374,7 +7374,7 @@ msgstr "该音乐已不存在"
 #. Markdown. {audioIcon} shows the icon of the Audio tab. **Audio** is the tab name and must read as the translation of the tab name does.
 #: src/tutorials.ts
 msgid "The {audioIcon} **Audio** tab lists what the project holds, to change it. Open it."
-msgstr "{audioIcon} **音频**选项卡列出项目包含的内容，以便更改。请打开它。"
+msgstr "{audioIcon} **音频**选项卡列出项目里有哪些内容，可以在这里修改。打开它。"
 
 #. Named in a note, as in “Filled 12 slots across the 3 parts of Battle Music”
 #: src/ItemHead.tsx
@@ -7388,7 +7388,7 @@ msgstr "游戏为此声音设置的 {gain} dB 保持不变"
 #. Markdown. **Index** is the button above the Library list, and the bold word must read as the translation of the button does.
 #: src/tutorials.ts
 msgid "The **Index** sorts the sounds of the game by where you hear them: weapons, stratagems, enemies and more. The search box finds anything by name."
-msgstr "**索引**按声音在游戏中出现的场合分类：武器、战备、敌人等。搜索框可按名称查找任何内容。"
+msgstr "**索引**按你听到声音的场合给游戏里的声音分类：武器、战略配备、敌人等。搜索框可按名称找到任何内容。"
 
 #: src/Soundtrack.tsx
 msgid "The <0>Battle</0> music plays on here, from where it is."
@@ -7396,7 +7396,7 @@ msgstr "<0>战斗</0>音乐在此处从当前位置继续播放。"
 
 #: src/ExportDialog.tsx
 msgid "The audio before Entry and after Exit. When this is off, the pieces sit end to end without overlap."
-msgstr "入点之前和出点之后的音频。关闭时，各段首尾相接，没有重叠。"
+msgstr "入点之前和出点之后的音频。关闭时，各曲目首尾相接，互不重叠。"
 
 #: src/store.tsx
 msgid "The audio files stay on disk, and {undo} brings everything back."
@@ -7404,7 +7404,7 @@ msgstr "音频文件仍保留在磁盘上，{undo}可恢复所有内容。"
 
 #: src/ItemHead.tsx
 msgid "The audio is part of other music and changes with it"
-msgstr "该音频属于其他音乐的一部分，会随之改变"
+msgstr "此音频是其他音乐的一部分，会随之改变"
 
 #: src/tutorials.ts
 msgid "The Audio tab"
@@ -7428,7 +7428,7 @@ msgstr "游戏文件中的片段 ID。右键单击该行可查看其他 ID"
 
 #: src/TextTab.tsx
 msgid "The colour that Colour applies"
-msgstr "“着色”所使用的颜色"
+msgstr "“着色”应用的颜色"
 
 #: src/CombinePage.tsx
 msgid "The combined mod"
@@ -7448,7 +7448,7 @@ msgstr "详情面板"
 
 #: src/tutorials.ts
 msgid "The details panel shows what is selected and what can replace it. For several takes: one file for all of them, a file for each, or silence."
-msgstr "详情面板显示所选内容以及可用来替换的内容。对于多个变体，可以全部使用同一个文件、每个各用一个文件，或使用静音。"
+msgstr "详情面板显示当前选中的内容，以及可以用什么来替换。有多个变体时：所有变体共用一个文件、每个变体各用一个文件，或者用静音。"
 
 #: src/tutorials.ts
 msgid "The details panel, and silence"
@@ -7468,7 +7468,7 @@ msgstr "文件仍保留在磁盘上。"
 
 #: src/Soundtrack.tsx
 msgid "The file stays on disk. Undo ({undo}) brings it back."
-msgstr "文件仍保留在磁盘上。撤销（{undo}）可将其恢复。"
+msgstr "文件仍保留在磁盘上，撤销（{undo}）即可找回。"
 
 #: src/ProjectTab.tsx
 msgid "The file stays where it is"
@@ -7497,7 +7497,7 @@ msgstr "显示该行时由游戏填入，例如名称或数字"
 
 #: src/TextTab.tsx
 msgid "The game has changed this line since it was edited. The original now reads: {original}"
-msgstr "此行编辑后游戏又更改了它。现在的原版为：{original}"
+msgstr "编辑之后游戏又改动了此行。现在的原版为：{original}"
 
 #: src/RepatchPage.tsx
 msgid "The game loads them over each other as one mod."
@@ -7534,7 +7534,7 @@ msgstr "游戏在上次构建后已更新"
 
 #: src/Notes.tsx
 msgid "The global note on {name} will be deleted. Undo can't bring it back."
-msgstr "{name} 的全局备注将被删除，且无法撤销。"
+msgstr "{name} 的全局备注将被删除，撤销也无法恢复。"
 
 #: src/SettingsTab.tsx
 msgid "The global notes already have every note in that file"
@@ -7578,7 +7578,7 @@ msgstr "索引中没有此归档的名称"
 
 #: src/ExportDialog.tsx
 msgid "The item name, a number, then the sound or segment"
-msgstr "条目名称、编号，后接声音或段落名称"
+msgstr "条目名称、一个编号，然后是声音或段落"
 
 #: src/TextTab.tsx
 msgid "The language to show and change"
@@ -7614,7 +7614,7 @@ msgstr "自上次检查以来列表已更改。"
 
 #: src/ExportDialog.tsx
 msgid "The list is empty. Collect slots, groups, Index entries or archives with a right-click, or with <0>Add to the Export List</0> here, to export them together."
-msgstr "列表为空。右键单击可收集槽位、组、索引条目或归档，也可在此处使用<0>添加到导出列表</0>，以便一并导出。"
+msgstr "列表为空。右键单击可收集槽位、组、索引条目或归档，也可在此处点<0>添加到导出列表</0>，把它们一起导出。"
 
 #: src/Inspector.tsx
 msgid "The Make-Up Gain that makes the new audio as loud as the original"
@@ -7659,7 +7659,7 @@ msgstr "模组 ZIP，用模组管理器安装"
 
 #: src/RepatchPage.tsx
 msgid "The mod's banks had older copies of these. Some are shared by many banks, like the settings every weapon sound goes through, so an older copy can silence sounds the mod never changed. The new ZIP has the current ones."
-msgstr "该模组的音频库中含有这些内容的旧副本。其中有些由许多音频库共用，例如所有武器声音都会经过的设置，因此旧副本可能使模组从未改动过的声音静音。新的 ZIP 使用的是当前版本。"
+msgstr "该模组的音频库里带着这些内容的旧副本。有些由许多音频库共用，比如所有武器声音都要经过的设置，旧副本可能把模组从未改过的声音变成静音。新的 ZIP 里是当前版本。"
 
 #: src/RepatchPage.tsx
 msgid "the mod's settings"
@@ -7667,7 +7667,7 @@ msgstr "模组的设置"
 
 #: src/RepatchPage.tsx
 msgid "The mod's sound banks are from an older game version and still had these sounds. The current game no longer has them, so they are left out."
-msgstr "该模组的音频库来自旧版本游戏，仍含有这些声音。当前游戏中已没有这些声音，因此已将其略去。"
+msgstr "该模组的音频库来自旧版本游戏，仍含有这些声音。当前游戏已没有这些声音，因此略去。"
 
 #: src/CombinePage.tsx
 msgid "The mod's sound banks are from an older game version and still had these sounds. The current game no longer has them."
@@ -7721,7 +7721,7 @@ msgstr "新音频仅在此声音中播放。播放该片段的其他声音保留
 #: src/CombinePage.tsx
 #: src/RepatchPage.tsx
 msgid "The new ZIP goes here. A ZIP with the same name stays, and the new one gets a number."
-msgstr "新的 ZIP 会存放在这里。已有的同名 ZIP 会保留，新的 ZIP 会加上编号。"
+msgstr "新的 ZIP 就放在这里。同名 ZIP 会保留，新 ZIP 自动加编号。"
 
 #: src/ProjectTab.tsx
 msgid "The next build installs as a separate mod"
@@ -7741,7 +7741,7 @@ msgstr "下一个段落从这里开始。其后的音频会作为余音延续到
 
 #: src/TextTab.tsx
 msgid "The normal size is 20. No game line uses sizes, but chat does"
-msgstr "正常大小为 20。游戏文本中没有使用大小的行，但聊天会用到"
+msgstr "常规大小是 20。游戏文本的行都不带大小，聊天的行会带"
 
 #: src/App.tsx
 msgid "The notifications shown so far, to read again"
@@ -7765,7 +7765,7 @@ msgstr "此模组中要加入合并模组的选项。初始状态与模组管理
 
 #: src/CombinePage.tsx
 msgid "The order counts where two mods change the same sound. A mod lower in the list wins, as it does when a mod manager deploys it later."
-msgstr "两个模组更改同一个声音时，顺序会起作用。列表中靠下的模组优先，与模组管理器中后部署的模组优先相同。"
+msgstr "两个模组改到同一个声音时，顺序就有影响：列表中靠下的模组生效，和模组管理器里后部署的模组一样。"
 
 #. What a play button plays
 #. What a play button plays
@@ -7873,7 +7873,7 @@ msgstr "项目中的顺序和音频"
 
 #: src/TextTab.tsx
 msgid "The recordings that say this subtitle. Open one in the Library to hear it or replace it"
-msgstr "说出此字幕内容的录音。在资源库中打开即可试听或替换"
+msgstr "念出这条字幕的录音。在资源库中打开即可试听或替换"
 
 #: src/content.ts
 msgid "the reference for Wwise sound bank structures"
@@ -7885,7 +7885,7 @@ msgstr "主页背景中的 Helldivers 2 截图"
 
 #: src/Timeline.tsx
 msgid "The segment counts as started here. Audio before it plays under the end of the segment before"
-msgstr "段落从这里视为开始。其前的音频会在上一个段落的结尾之下播放"
+msgstr "段落从这里算作开始。它之前的音频会和上一段落的结尾叠在一起播放"
 
 #: src/Timeline.tsx
 msgid "The segment counts as started here. Audio before it plays under the end of the segment before. Drag to move it"
@@ -7917,7 +7917,7 @@ msgstr "将侧面板、标题区和波形恢复为默认大小"
 
 #: src/TextTab.tsx
 msgid "The size that Size applies, from 10 to 60"
-msgstr "“大小”所使用的值，10 到 60"
+msgstr "“大小”应用的数值，10 到 60"
 
 #: src/Inspector.tsx
 msgid "The slider adds to it"
@@ -7925,11 +7925,11 @@ msgstr "滑块的值会加在它上面"
 
 #: src/SliceTool.tsx
 msgid "The slot that gets the first piece"
-msgstr "获得第一段的槽位"
+msgstr "分到第一段的槽位"
 
 #: src/SliceTool.tsx
 msgid "The slot that gets the last piece"
-msgstr "获得最后一段的槽位"
+msgstr "分到最后一段的槽位"
 
 #: src/Soundtrack.tsx
 msgid "The slots of this music in Audio"
@@ -7977,7 +7977,7 @@ msgstr "这些声音位于 {name}"
 
 #: src/ExportDialog.tsx
 msgid "The source ID of each slot, as other modding tools name game audio"
-msgstr "每个槽位的源 ID，与其他模组工具命名游戏音频的方式相同"
+msgstr "每个槽位的源 ID，也就是其他模组工具称呼游戏音频用的 ID"
 
 #: src/TextTab.tsx
 msgid "The style tips and briefings use for terms"
@@ -7989,7 +7989,7 @@ msgstr "此语音台词的字幕。"
 
 #: src/SettingsTab.tsx
 msgid "The tabs that show. A new project starts with these, and can change them on the Project tab."
-msgstr "显示的选项卡。新项目默认使用这些选项卡，可在项目选项卡中更改。"
+msgstr "显示哪些选项卡。新项目一开始就用这些，之后可在项目选项卡里改。"
 
 #: src/tutorials.ts
 msgid "The takes"
@@ -8042,7 +8042,7 @@ msgstr "然后"
 
 #: src/store.tsx
 msgid "There are newer changes. {undo} steps back one change at a time."
-msgstr "还有更新的更改。{undo}每次后退一项更改。"
+msgstr "还有更新的改动。{undo}每次后退一项更改。"
 
 #: src/CueView.tsx
 #: src/ItemHead.tsx
@@ -8067,7 +8067,7 @@ msgstr "此片段不在已安装的游戏文件中，因此无法播放或替换
 
 #: src/Inspector.tsx
 msgid "this music track"
-msgstr "此音乐轨道"
+msgstr "此音轨"
 
 #: src/ProjectTab.tsx
 msgid "This project is in a shared place, such as the Desktop or Documents."
@@ -8144,7 +8144,7 @@ msgstr "今天 {time}"
 
 #: src/UpdatesTab.tsx
 msgid "Too many checks this hour"
-msgstr "本小时检查次数过多"
+msgstr "这一小时检查次数过多"
 
 #: src/CueView.tsx
 msgid "too short"
@@ -8194,7 +8194,7 @@ msgstr "重试"
 
 #: src/CombinePage.tsx
 msgid "Turn off the combined mods in the mod manager, then import and deploy the new ZIP."
-msgstr "在模组管理器中关闭被合并的模组，然后导入并部署新的 ZIP。"
+msgstr "先把参与合并的模组在模组管理器里关掉，再导入并部署新的 ZIP。"
 
 #: src/Tutorial.tsx
 msgid "Tutorial finished"
@@ -8203,7 +8203,7 @@ msgstr "教程已完成"
 #. (original) and (replaced) are the endings the core adds to the file names, in English
 #: src/ExportDialog.tsx
 msgid "Two files where the mod changes something, named (original) and (replaced)"
-msgstr "模组有改动之处导出两个文件，分别命名为 (original) 和 (replaced)"
+msgstr "模组有改动的地方会导出两个文件，分别命名为 (original) 和 (replaced)"
 
 #: src/CombinePage.tsx
 msgid "Two mods change the same sound banks, so only the one deployed last plays."
@@ -8365,7 +8365,7 @@ msgstr "使用模组的图标"
 
 #: src/ProjectTab.tsx
 msgid "Use the ID of a mod made before, such as the Guid in the manifest.json of the mod"
-msgstr "使用以前制作的模组的 ID，例如该模组 manifest.json 中的 Guid"
+msgstr "沿用之前某个模组的 ID，例如该模组 manifest.json 里的 Guid"
 
 #: src/CombinePage.tsx
 msgid "Use this mod for every conflict in this item"
@@ -8397,7 +8397,7 @@ msgstr "语音台词"
 
 #: src/TextTab.tsx
 msgid "Voice lines with these words"
-msgstr "包含这些内容的语音台词"
+msgstr "包含这些字词的语音台词"
 
 #: src/Library.tsx
 msgid "Voice pack language"
@@ -8497,7 +8497,7 @@ msgstr "导出内容"
 
 #: src/SettingsTab.tsx
 msgid "When changes go into the project file."
-msgstr "何时将更改写入项目文件。"
+msgstr "更改何时写入项目文件。"
 
 #: src/SettingsTab.tsx
 msgid "When changes go into the project file. {saveKey} saves at any time."
@@ -8546,7 +8546,7 @@ msgstr "该段在歌曲中的起止位置"
 
 #: src/ProjectTab.tsx
 msgid "Where the project file and the files it uses are kept"
-msgstr "项目文件及其使用的文件的存放位置"
+msgstr "项目文件以及它用到的文件存放在哪里"
 
 #: src/CombinePage.tsx
 msgid "Which mod's {label}"
@@ -8570,7 +8570,7 @@ msgstr "为什么？"
 
 #: src/Waveform.tsx
 msgid "Wider, to place cue points closely. The wheel on the waveforms zooms too, and Shift+wheel scrolls"
-msgstr "调宽以精确放置提示点。在波形上滚动滚轮也可缩放，Shift+滚轮可滚动"
+msgstr "调宽以精确放置提示点。在波形上滚动滚轮也能缩放，按住 Shift 滚动则平移"
 
 #: src/App.tsx
 #: src/Wiki.tsx
