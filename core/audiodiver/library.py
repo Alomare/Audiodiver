@@ -34,7 +34,7 @@ an Index name that is translated (`en`, which a search finds too). The app tells
 apart by codes, never by their words: a bank's group has a `kind` ("sound": the takes of one sound, "layer", "run": a
 part of a long list, "wordless": clips without words of one kind, "other": clips no Sound of the bank plays,
 "absent": no audio in the game files, "streams": streams no bank plays) and `made_up` when its name is only a
-number ("Sound 6"); an archive named by its ID ("Archive <id>") has `id_name`.
+number ("Sequence 6"); an archive named by its ID ("Archive <id>") has `id_name`.
 """
 import collections
 import json
@@ -706,7 +706,7 @@ class Library:
             n += 1
             borrowed |= not said and bool(called)  # the call is named, the takes keep their numbers
             said = said or called
-            name, made_up = tr("Sound {n}").format(n=n), False
+            name, made_up = tr("Sequence {n}").format(n=n), False
             if said:
                 name = tr("“{line}”").format(line=said.most_common(1)[0][0])
             elif None not in wordless:  # takes without words: what they are

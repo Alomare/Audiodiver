@@ -59,8 +59,8 @@ export function Inspector() {
         <Replacement slot={slot} a={a} music={isMusic(cue)} what={seg.name} />
         {a && (slot.was || (!slot.added && slot.object && ((slot.players ?? 1) > 1 || (slot.sound_banks ?? 0) < (slot.banks ?? 0)))) &&
           <Reach slot={slot} />}
-        {a && !a.silence && <Gain sources={[slot.source]} value={a.gain_db} match={slot.added ? undefined : "one"} base={slot.game_gain} />}
-        {!a && project && usable && <Gain original sources={[slot.source]} value={project.gains[slot.source] ?? 0} base={slot.game_gain} />}
+        {a && !a.silence && <Gain sources={[slot.source]} value={a.gain_db} match={slot.added ? undefined : "one"} base={slot.added ? undefined : slot.game_gain ?? 0} />}
+        {!a && project && usable && <Gain original sources={[slot.source]} value={project.gains[slot.source] ?? 0} base={slot.game_gain ?? 0} />}
         {a && !a.silence && seg.segment && (
           <section className="insp-sec">
             <label className="check">
@@ -442,7 +442,7 @@ export function ResetLevel({ off, onReset, more }: { off: boolean; onReset: () =
     `value` is null while several differ (the box says Mixed and the slider rests at 0 until moved). `note` says which
     of the selected slots it sets, when not all. The waveforms and the player follow the slider as it moves (liveGain).
     `match`: a button that sets the gain that makes each new audio as loud as its original. `base`: the Make-Up Gain
-    the game gives the one slot's Sound, which this adds to. */
+    the game gives the one slot's Sound, which this adds to (0 too: it shows under the slider). */
 function Gain({ sources, value, note, original, match, base }: {
   sources: string[]; value: number | null; note?: string; original?: boolean; match?: "one" | "each"; base?: number;
 }) {
@@ -503,6 +503,10 @@ function Gain({ sources, value, note, original, match, base }: {
         onChange={(e) => move(Number(e.target.value))} onPointerUp={() => commit(v)}
         onKeyUp={(e) => { if (/^(Arrow|Home|End|Page)/.test(e.key)) commitSoon(v); }} onBlur={() => commit(v)}
         onKeyDown={(e) => { if (e.ctrlKey || e.metaKey || e.altKey) commit(v); }} /* a nudge on its way goes first: then Ctrl+Z undoes it */ />
+      {base !== undefined && sources.length === 1 && (
+        <p className="muted small" data-tip={t`The Make-Up Gain the game gives this take`} data-tip-more={t`The slider adds to it`}>
+          {t`Default: ${gain} dB`}{v ? <> · {t`plays at ${fmtGain(base + v)} dB`}</> : null}</p>
+      )}
       {match && (
         <p className="gain-match">
           <button className="link-text" disabled={matching} onClick={matchAll}

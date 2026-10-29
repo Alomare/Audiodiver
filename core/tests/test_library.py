@@ -145,7 +145,7 @@ def test_a_bank_opens_as_its_sounds_grouped_by_take(session):
     groups = view["segments_detail"]
     assert len(groups) > 20 and all(g["group"] for g in groups)
     first = groups[0]["stems"][0]["slots"]
-    assert groups[0]["name"] == "Sound 1" and [r["label"] for r in first[:2]] == ["Take 1", "Take 2"]
+    assert groups[0]["name"] == "Sequence 1" and [r["label"] for r in first[:2]] == ["Take 1", "Take 2"]
     assert sum(1 for r in rows if r["duration_ms"]) > len(rows) * 0.8  # lengths come from the audio's own header
     # sounds every weapon has a copy of say so, without listing a hundred banks
     shared = max(rows, key=lambda r: r["also_n"])
@@ -164,7 +164,7 @@ def test_container_ids_list_a_bank_as_its_tree(session):
     same sounds as by name, and the view by name stays as it was."""
     by_name, by_id = session.cue(AUTOCANNON), session.cue(AUTOCANNON, ids=True)
     assert sorted(r["source"] for r in _rows(by_id)) == sorted(r["source"] for r in _rows(by_name))
-    assert by_name["segments_detail"][0]["name"] == "Sound 1" and "above" not in by_name["segments_detail"][0]
+    assert by_name["segments_detail"][0]["name"] == "Sequence 1" and "above" not in by_name["segments_detail"][0]
     groups = [g for g in by_id["segments_detail"] if "key" in g]  # not the Sounds without a container, nor the rest
     assert len(groups) > 40 and all(g["name"] == g["key"] and g["ctype"] in ("Random", "Sequence", "Switch", "Layer", "Actor-Mixer")
                                     for g in groups)
@@ -184,7 +184,7 @@ def test_a_slot_says_the_make_up_gain_the_game_gives_its_sound(session):
     is (game_gain), for the details panel. The LAS-5 Scythe's beam has three takes with −4, −5 and −17 dB."""
     part = _items(session)["set:weapons/primary/las-5-scythe"]["parts"][0]
     view = session.cue(part["cue"])
-    beam = next(g for g in view["segments_detail"] if g["name"] == "Sound 7")
+    beam = next(g for g in view["segments_detail"] if g["name"] == "Sequence 7")
     assert sorted(s.get("game_gain") for s in beam["stems"][0]["slots"]) == [-17, -5, -4]
     assert any("game_gain" not in r for r in _rows(view))
 

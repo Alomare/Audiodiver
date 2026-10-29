@@ -11,7 +11,7 @@ source: df4f962e1978
 
 音乐是最可靠的部分。Helldivers 2 为选择音乐的状态命名，例如所在界面、敌人以及是否正在战斗，索引就按这些名称对音乐分类。声音集、武器和片段标签来自模组社区的研究（列在[关于 ▸ 致谢](app:about)中），其中一些名称是有根据的推测。语音台词以与其文字相符的字幕命名，字幕不确定的台词会显示**多条之一**。
 
-没有名称的声音显示为*声音 3* 或*变体 2*。[游戏音频详解](wiki:game-audio#why-many-things-are-called-sound-3-or-take-2)说明了原因。要报告错误或缺失的名称，请使用 GitHub 上的[名称错误或缺失](https://github.com/Alomare/Audiodiver/issues/new?template=wrong_name.yml)表单。
+没有名称的序列显示为*序列 3* 或*变体 2*。[游戏音频详解](wiki:game-audio#why-many-things-are-called-sequence-3-or-take-2)说明了原因。要报告错误或缺失的名称，请使用 GitHub 上的[名称错误或缺失](https://github.com/Alomare/Audiodiver/issues/new?template=wrong_name.yml)表单。
 
 ### Audiodiver 如何知道哪种场景播放什么音乐？ {#how-does-audiodiver-know-what-music-plays-in-which-scenario}
 

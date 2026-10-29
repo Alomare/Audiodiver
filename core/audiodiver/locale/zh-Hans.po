@@ -1489,8 +1489,8 @@ msgid "Holds {names}."
 msgstr "包含 {names}。"
 
 #: library.py
-msgid "Sound {n}"
-msgstr "声音 {n}"
+msgid "Sequence {n}"
+msgstr "序列 {n}"
 
 #: library.py
 msgid "“{line}”"

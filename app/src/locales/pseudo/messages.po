@@ -891,14 +891,14 @@ msgstr ""
 msgid "**{what}** skipped"
 msgstr ""
 
-#. Markdown. **Sound 7** and **Sound 8** are the names the slot list shows for these sounds.
+#. Markdown. **Sequence 7** and **Sequence 8** are the names the slot list shows for these sequences.
 #: src/tutorials.ts
-msgid "**Sound 7** and **Sound 8** play with the shot. Tick both, so the new shot plays alone."
+msgid "**Sequence 7** and **Sequence 8** play with the shot. Tick both, so the new shot plays alone."
 msgstr ""
 
-#. Markdown. **Sound 9** is the name the slot list shows for this sound. **echo.wav** is a file name that stays as it is. **Choose One File for All** is a button in the details panel, and the bold words must read as the translation of the button does.
+#. Markdown. **Sequence 9** is the name the slot list shows for this sequence. **echo.wav** is a file name that stays as it is. **Choose One File for All** is a button in the details panel, and the bold words must read as the translation of the button does.
 #: src/tutorials.ts
-msgid "**Sound 9** is the echo after each shot. Give every take **echo.wav** the same way: tick the box, then **Choose One File for All**."
+msgid "**Sequence 9** is the echo after each shot. Give every take **echo.wav** the same way: tick the box, then **Choose One File for All**."
 msgstr ""
 
 #: src/keys.ts
@@ -2294,9 +2294,9 @@ msgstr ""
 msgid "Clearing"
 msgstr ""
 
-#. Markdown. **Sound 6** is the name the slot list shows for this sound.
+#. Markdown. **Sequence 6** is the name the slot list shows for this sequence.
 #: src/tutorials.ts
-msgid "Click **Sound 6**, the loudest part of the shot, to see the takes."
+msgid "Click **Sequence 6**, the loudest part of the shot, to see the takes."
 msgstr ""
 
 #: src/keys.ts
@@ -2375,7 +2375,7 @@ msgid "Collapse all parts"
 msgstr ""
 
 #: src/CueView.tsx
-msgid "Collapse all sounds"
+msgid "Collapse all sequences"
 msgstr ""
 
 #. Edit in Undo, Redo and History: files copied into the project folder
@@ -2737,6 +2737,10 @@ msgstr ""
 msgid "Default icon"
 msgstr ""
 
+#: src/Inspector.tsx
+msgid "Default: {gain} dB"
+msgstr ""
+
 #: src/SettingsTab.tsx
 msgid "Delay"
 msgstr ""
@@ -2941,9 +2945,9 @@ msgstr ""
 msgid "Each language is a separate table, and a change in one doesn't change the others"
 msgstr ""
 
-#. Markdown. **Sound 6** is the name the slot list shows for this sound. ▶ is the play button.
+#. Markdown. **Sequence 6** is the name the slot list shows for this sequence. ▶ is the play button.
 #: src/tutorials.ts
-msgid "Each line under **Sound 6** is one take. Press ▶ on a few to hear them."
+msgid "Each line under **Sequence 6** is one take. Press ▶ on a few to hear them."
 msgstr ""
 
 #: src/SliceTool.tsx
@@ -3115,13 +3119,13 @@ msgstr ""
 msgid "Every part is collapsed"
 msgstr ""
 
+#: src/CueView.tsx
+msgid "Every sequence is collapsed"
+msgstr ""
+
 #. Markdown. {libraryIcon} shows the icon of the Library tab. **Library** is the tab name and must read as the translation of the tab name does.
 #: src/tutorials.ts
 msgid "Every sound in the game is in the {libraryIcon} **Library**. Open it."
-msgstr ""
-
-#: src/CueView.tsx
-msgid "Every sound is collapsed"
 msgstr ""
 
 #. Edit in Undo, Redo and History: the new audio of a slot set to play in every sound that plays the clip
@@ -5813,6 +5817,11 @@ msgstr ""
 msgid "Plays all of these in a random order"
 msgstr ""
 
+#. placeholder {0}: fmtGain(base + v)
+#: src/Inspector.tsx
+msgid "plays at {0} dB"
+msgstr ""
+
 #: src/Soundtrack.tsx
 msgid "Plays for"
 msgstr ""
@@ -6666,12 +6675,12 @@ msgid "Select a slot."
 msgstr ""
 
 #: src/CueView.tsx
-#: src/keys.ts
-msgid "Select every slot"
+msgid "Select every sequence shown"
 msgstr ""
 
 #: src/CueView.tsx
-msgid "Select every sound shown"
+#: src/keys.ts
+msgid "Select every slot"
 msgstr ""
 
 #: src/keys.ts
@@ -7611,6 +7620,10 @@ msgstr ""
 msgid "The Make-Up Gain that makes the new audio as loud as the original"
 msgstr ""
 
+#: src/Inspector.tsx
+msgid "The Make-Up Gain the game gives this take"
+msgstr ""
+
 #: src/RepatchPage.tsx
 msgid "The manifest is the file in a mod that gives the mod manager the name, icon, options and ID"
 msgstr ""
@@ -7906,6 +7919,10 @@ msgstr ""
 msgid "The size that Size applies, from 10 to 60"
 msgstr ""
 
+#: src/Inspector.tsx
+msgid "The slider adds to it"
+msgstr ""
+
 #: src/SliceTool.tsx
 msgid "The slot that gets the first piece"
 msgstr ""
@@ -8088,9 +8105,9 @@ msgstr ""
 msgid "Tick slots in the list to export only those"
 msgstr ""
 
-#. Markdown. **Sound 6** is the name the slot list shows for this sound.
+#. Markdown. **Sequence 6** is the name the slot list shows for this sequence.
 #: src/tutorials.ts
-msgid "Tick the box of **Sound 6** to select every take."
+msgid "Tick the box of **Sequence 6** to select every take."
 msgstr ""
 
 #: src/Waveform.tsx
@@ -8251,7 +8268,7 @@ msgid "Undone: the last change"
 msgstr ""
 
 #: src/tutorials.ts
-msgid "Unfold a sound"
+msgid "Unfold a sequence"
 msgstr ""
 
 #: src/Inspector.tsx

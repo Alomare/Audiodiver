@@ -891,15 +891,15 @@ msgstr "已将 **{what}** 替换为静音"
 msgid "**{what}** skipped"
 msgstr "已跳过 **{what}**"
 
-#. Markdown. **Sound 7** and **Sound 8** are the names the slot list shows for these sounds.
+#. Markdown. **Sequence 7** and **Sequence 8** are the names the slot list shows for these sequences.
 #: src/tutorials.ts
-msgid "**Sound 7** and **Sound 8** play with the shot. Tick both, so the new shot plays alone."
-msgstr "**声音 7** 和 **声音 8** 会与枪声一起播放。勾选这两项，让新枪声单独播放。"
+msgid "**Sequence 7** and **Sequence 8** play with the shot. Tick both, so the new shot plays alone."
+msgstr "**序列 7** 和 **序列 8** 会与枪声一起播放。勾选这两项，让新枪声单独播放。"
 
-#. Markdown. **Sound 9** is the name the slot list shows for this sound. **echo.wav** is a file name that stays as it is. **Choose One File for All** is a button in the details panel, and the bold words must read as the translation of the button does.
+#. Markdown. **Sequence 9** is the name the slot list shows for this sequence. **echo.wav** is a file name that stays as it is. **Choose One File for All** is a button in the details panel, and the bold words must read as the translation of the button does.
 #: src/tutorials.ts
-msgid "**Sound 9** is the echo after each shot. Give every take **echo.wav** the same way: tick the box, then **Choose One File for All**."
-msgstr "**声音 9** 是每次射击后的回声。用同样的方法为每个变体设置 **echo.wav**：勾选复选框，然后按**为全部选择同一个文件**。"
+msgid "**Sequence 9** is the echo after each shot. Give every take **echo.wav** the same way: tick the box, then **Choose One File for All**."
+msgstr "**序列 9** 是每次射击后的回声。用同样的方法为每个变体设置 **echo.wav**：勾选复选框，然后按**为全部选择同一个文件**。"
 
 #: src/keys.ts
 msgid "↑ ↓ then Enter in the search box"
@@ -2294,10 +2294,10 @@ msgstr "清除此部分"
 msgid "Clearing"
 msgstr "正在清除"
 
-#. Markdown. **Sound 6** is the name the slot list shows for this sound.
+#. Markdown. **Sequence 6** is the name the slot list shows for this sequence.
 #: src/tutorials.ts
-msgid "Click **Sound 6**, the loudest part of the shot, to see the takes."
-msgstr "点击 **声音 6**（枪声中最响的部分），查看其变体。"
+msgid "Click **Sequence 6**, the loudest part of the shot, to see the takes."
+msgstr "点击 **序列 6**（枪声中最响的部分），查看其变体。"
 
 #: src/keys.ts
 msgid "Click ▶"
@@ -2375,8 +2375,8 @@ msgid "Collapse all parts"
 msgstr "折叠所有部分"
 
 #: src/CueView.tsx
-msgid "Collapse all sounds"
-msgstr "折叠所有声音"
+msgid "Collapse all sequences"
+msgstr "折叠所有序列"
 
 #. Edit in Undo, Redo and History: files copied into the project folder
 #: src/store.tsx
@@ -2737,6 +2737,10 @@ msgstr "默认"
 msgid "Default icon"
 msgstr "默认图标"
 
+#: src/Inspector.tsx
+msgid "Default: {gain} dB"
+msgstr "默认：{gain} dB"
+
 #: src/SettingsTab.tsx
 msgid "Delay"
 msgstr "延迟"
@@ -2941,10 +2945,10 @@ msgstr "每场战斗从上一场战斗停止时那首歌曲的下一首开始"
 msgid "Each language is a separate table, and a change in one doesn't change the others"
 msgstr "每种语言都是一个单独的表，更改其中一个不会影响其他"
 
-#. Markdown. **Sound 6** is the name the slot list shows for this sound. ▶ is the play button.
+#. Markdown. **Sequence 6** is the name the slot list shows for this sequence. ▶ is the play button.
 #: src/tutorials.ts
-msgid "Each line under **Sound 6** is one take. Press ▶ on a few to hear them."
-msgstr "**声音 6** 下的每一行都是一个变体。在其中几行上按 ▶ 试听。"
+msgid "Each line under **Sequence 6** is one take. Press ▶ on a few to hear them."
+msgstr "**序列 6** 下的每一行都是一个变体。在其中几行上按 ▶ 试听。"
 
 #: src/SliceTool.tsx
 msgid "Each original starts at the cut of the piece that replaces it"
@@ -3115,14 +3119,14 @@ msgstr "其他所有操作"
 msgid "Every part is collapsed"
 msgstr "所有部分均已折叠"
 
+#: src/CueView.tsx
+msgid "Every sequence is collapsed"
+msgstr "所有序列均已折叠"
+
 #. Markdown. {libraryIcon} shows the icon of the Library tab. **Library** is the tab name and must read as the translation of the tab name does.
 #: src/tutorials.ts
 msgid "Every sound in the game is in the {libraryIcon} **Library**. Open it."
 msgstr "游戏中的每个声音都在 {libraryIcon} **资源库**中。请打开它。"
-
-#: src/CueView.tsx
-msgid "Every sound is collapsed"
-msgstr "所有声音均已折叠"
 
 #. Edit in Undo, Redo and History: the new audio of a slot set to play in every sound that plays the clip
 #: src/store.tsx
@@ -5813,6 +5817,11 @@ msgstr "反复播放，直到音乐改变"
 msgid "Plays all of these in a random order"
 msgstr "以随机顺序播放所有这些"
 
+#. placeholder {0}: fmtGain(base + v)
+#: src/Inspector.tsx
+msgid "plays at {0} dB"
+msgstr "实际为 {0} dB"
+
 #: src/Soundtrack.tsx
 msgid "Plays for"
 msgstr "播放时长"
@@ -6666,13 +6675,13 @@ msgid "Select a slot."
 msgstr "请选择一个槽位。"
 
 #: src/CueView.tsx
+msgid "Select every sequence shown"
+msgstr "选择所有显示的序列"
+
+#: src/CueView.tsx
 #: src/keys.ts
 msgid "Select every slot"
 msgstr "选择所有槽位"
-
-#: src/CueView.tsx
-msgid "Select every sound shown"
-msgstr "选择所有显示的声音"
 
 #: src/keys.ts
 msgid "Select the next slot"
@@ -7611,6 +7620,10 @@ msgstr "列表为空。右键单击可收集槽位、组、索引条目或归档
 msgid "The Make-Up Gain that makes the new audio as loud as the original"
 msgstr "使新音频与原版一样响的 Make-Up Gain"
 
+#: src/Inspector.tsx
+msgid "The Make-Up Gain the game gives this take"
+msgstr "游戏给此变体的 Make-Up Gain"
+
 #: src/RepatchPage.tsx
 msgid "The manifest is the file in a mod that gives the mod manager the name, icon, options and ID"
 msgstr "清单是模组中向模组管理器提供名称、图标、选项和 ID 的文件"
@@ -7906,6 +7919,10 @@ msgstr "将侧面板、标题区和波形恢复为默认大小"
 msgid "The size that Size applies, from 10 to 60"
 msgstr "“大小”所使用的值，10 到 60"
 
+#: src/Inspector.tsx
+msgid "The slider adds to it"
+msgstr "滑块的值会加在它上面"
+
 #: src/SliceTool.tsx
 msgid "The slot that gets the first piece"
 msgstr "获得第一段的槽位"
@@ -8088,10 +8105,10 @@ msgstr "此版本"
 msgid "Tick slots in the list to export only those"
 msgstr "勾选列表中的槽位，即可只导出这些槽位"
 
-#. Markdown. **Sound 6** is the name the slot list shows for this sound.
+#. Markdown. **Sequence 6** is the name the slot list shows for this sequence.
 #: src/tutorials.ts
-msgid "Tick the box of **Sound 6** to select every take."
-msgstr "勾选 **声音 6** 的复选框，选择所有变体。"
+msgid "Tick the box of **Sequence 6** to select every take."
+msgstr "勾选 **序列 6** 的复选框，选择所有变体。"
 
 #: src/Waveform.tsx
 msgid "Time zoom"
@@ -8251,8 +8268,8 @@ msgid "Undone: the last change"
 msgstr "已撤销：上一次更改"
 
 #: src/tutorials.ts
-msgid "Unfold a sound"
-msgstr "展开声音"
+msgid "Unfold a sequence"
+msgstr "展开序列"
 
 #: src/Inspector.tsx
 msgid "Unnamed music"

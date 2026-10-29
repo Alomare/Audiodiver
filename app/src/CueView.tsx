@@ -686,7 +686,7 @@ function CueBody({ cue }: { cue: Cue }) {
           ref={(el) => { if (el) el.indeterminate = ticked > 0 && ticked < shownSources.length; }}
           onChange={() => { picked.current = true; setSelected(ticked === shownSources.length ? [] : shownSources); }}
           aria-label={ticked === shownSources.length ? t`Clear the selection` : t`Select every slot`}
-          data-tip={ticked === shownSources.length ? t`Clear the selection` : grouped ? t`Select every sound shown` : t`Select every slot`}
+          data-tip={ticked === shownSources.length ? t`Clear the selection` : grouped ? t`Select every sequence shown` : t`Select every slot`}
           data-tip-cmd={ticked === shownSources.length ? undefined : "selectAll"} />
         {music && cue.kind !== "sound" && <PlayThrough onThrough={setThrough} onMark={setMark} />}
         {readOnly && item && (listed ? (
@@ -738,7 +738,7 @@ function CueBody({ cue }: { cue: Cue }) {
         )}
         {grouped && !hits && all.some(folds) && (
           <button className="icon-btn" disabled={!anyOpen} onClick={collapseAll} aria-label={t`Collapse all`}
-            data-tip={anyOpen ? t`Collapse all sounds` : t`Every sound is collapsed`}><CollapseAllIcon /></button>
+            data-tip={anyOpen ? t`Collapse all sequences` : t`Every sequence is collapsed`}><CollapseAllIcon /></button>
         )}
         {folding && (
           <button className="icon-btn parts-collapse" disabled={shut} onClick={() => setShut(true)} aria-label={t`Collapse all`}

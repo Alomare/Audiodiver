@@ -111,8 +111,8 @@ def _music(s):
 @pytest.mark.game
 def test_a_banks_groups_say_their_kind(session):
     groups = session.cue(AUTOCANNON)["segments_detail"]
-    assert groups[0]["name"] == "Sound 1" and groups[0]["kind"] == "sound" and groups[0]["made_up"]
-    assert all(bool(g.get("made_up")) == (g["kind"] == "sound" and g["name"].startswith("Sound ")) for g in groups)
+    assert groups[0]["name"] == "Sequence 1" and groups[0]["kind"] == "sound" and groups[0]["made_up"]
+    assert all(bool(g.get("made_up")) == (g["kind"] == "sound" and g["name"].startswith("Sequence ")) for g in groups)
     by_id = session.cue(AUTOCANNON, ids=True)["segments_detail"]
     assert not any(g.get("made_up") for g in by_id)  # named by the container's id
     seen = {}

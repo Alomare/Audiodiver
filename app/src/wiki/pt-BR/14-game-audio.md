@@ -18,15 +18,15 @@ Do maior para o menor:
 
 Áudio longo, como música e falas, muitas vezes é feito por **streaming**, o que significa que o clipe fica guardado no pacote ao lado do banco. O Audiodiver encontra o clipe nos dois casos.
 
-## Por que muitas coisas se chamam "Som 3" ou "Take 2" {#why-many-things-are-called-sound-3-or-take-2}
+## Por que muitas coisas se chamam "Sequência 3" ou "Take 2" {#why-many-things-are-called-sequence-3-or-take-2}
 
 Os arquivos do jogo contêm números, e não nomes. Os nomes no Audiodiver vêm de documentos da comunidade (listados em [Sobre ▸ Créditos](app:about)) e do que o Audiodiver consegue deduzir:
 
-- Um som sem nome se chama **Som 1**, **Som 2** e assim por diante, na ordem do banco. Ouça-o para descobrir o que é.
-- Os takes de um som sem nome se chamam **Take 1**, **Take 2** e assim por diante. Um take transcrito, como uma fala, recebe o nome do que ele diz.
+- Uma sequência sem nome se chama **Sequência 1**, **Sequência 2** e assim por diante, na ordem do banco. Ouça-a para descobrir o que é. Uma sequência é um grupo de takes do qual o jogo escolhe um a cada vez que toca.
+- Os takes de uma sequência sem nome se chamam **Take 1**, **Take 2** e assim por diante. Um take transcrito, como uma fala, recebe o nome do que ele diz.
 - Um conjunto de sons ou um pacote sem nome recebe o nome do código do pacote e é marcado como *Ainda sem nome*.
 
-Por exemplo, "Som 4 › Take 2" é a segunda gravação do quarto som do banco. Para substituir um som, dê áudio novo a todos os takes. Senão, o jogo às vezes escolhe um original.
+Por exemplo, "Sequência 4 › Take 2" é a segunda gravação da quarta sequência do banco. Para substituir uma sequência, dê áudio novo a todos os takes. Senão, o jogo às vezes escolhe um original.
 
 ## Outros áudios e Sem áudio nos arquivos do jogo {#other-audio-and-no-audio-in-the-game-files}
 
