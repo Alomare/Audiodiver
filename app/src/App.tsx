@@ -82,8 +82,9 @@ function Startup({ error, stage }: { error: string | null; stage?: string }) {
   );
 }
 
-// libSplit: the Library's list, as a share of the window, a third by default; libRight: its details panel
-const WIDTHS = { left: 320, right: 340, libSplit: 1 / 3, libRight: 300 };
+// libSplit: the Library's Index, as a share of the window, a third by default; arcSplit: All Archives, wider for its
+// columns; libRight: the details panel
+const WIDTHS = { left: 320, right: 340, libSplit: 1 / 3, arcSplit: 0.58, libRight: 300 };
 type Widths = typeof WIDTHS;
 
 /** The tab that browses audio, if that is the one showing: the Library or the Editor. */
@@ -104,7 +105,7 @@ const STILL_RUNNING: Record<string, string> = {
     selection). */
 function Shell() {
   const { actions, quick, notify, itemIndex, jobs, scopes, project } = useEditor();
-  const { tab } = useNav();
+  const { tab, library: libraryTab } = useNav();
   // the tabs that can be hidden: the open project's choice, else Settings' (a hidden tab that shows moves away)
   const shown = useShownTabs();
   useEffect(() => { if (!UTILS) nav.setShown(shown); }, [shown]);
@@ -338,13 +339,14 @@ function Shell() {
           // the Soundtrack works in the Audio tab's context (its project, its player places)
           if (tab !== scope && !drawn.has(scope) && (lib || tab !== "soundtrack")) return null;
           const right = lib ? "libRight" : "right";
+          const split = libraryTab === "archives" ? "arcSplit" : "libSplit";
           return (
             <Scope key={scope} name={scope}>
               <div className={`panes${lib ? " lib-split" : ""}`} hidden={tab !== scope}
-                style={lib ? { ["--split" as any]: String(widths.libSplit), ["--right" as any]: `${widths.libRight}px` }
+                style={lib ? { ["--split" as any]: String(widths[split]), ["--right" as any]: `${widths.libRight}px` }
                   : { ["--left" as any]: `${widths.left}px`, ["--right" as any]: `${widths.right}px` }}>
                 {lib ? <LibraryPanel /> : <ProjectPanel />}
-                {lib ? <Splitter fraction width={widths.libSplit} onResize={(f) => setWidths((v) => ({ ...v, libSplit: f }))} initial={WIDTHS.libSplit}
+                {lib ? <Splitter fraction width={widths[split]} onResize={(f) => setWidths((v) => ({ ...v, [split]: f }))} initial={WIDTHS[split]}
                     panel="left" cssVar="--split" label={t`Resize the list`} />
                   : <Splitter width={widths.left} onResize={(w) => setWidths((v) => ({ ...v, left: w }))} initial={WIDTHS.left} panel="left" label={t`Resize the list`} />}
                 <main className="center"><CueView /></main>

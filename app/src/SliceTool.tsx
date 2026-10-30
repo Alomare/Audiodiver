@@ -1,7 +1,7 @@
 import { ph, plural, t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { audioUrl, call, fileUrl, fmtNumber, fmtTime, type Cue } from "./api";
+import { audioUrl, call, fileUrl, fmtExact, fmtNumber, fmtTime, type Cue } from "./api";
 import { rowName, rowsOf, type Row } from "./CueView";
 import { useDialog } from "./dialog";
 import { pickAudio } from "./platform";
@@ -96,10 +96,10 @@ function targetsFrom(rows: Row[], start: Row | undefined): Row[] {
       ?? of.find((r) => r.stemIndex === start.stemIndex) ?? of[0]));
 }
 const originalMs = (r: Row) => r.slot.duration_ms || r.seg.duration_ms || 0;
-/** A piece's length against its original's: "+0.8 s" longer, "−1.2 s" shorter, "=" within 50 ms. */
+/** A piece's length against its original's, to the millisecond: "+0.812 s" longer, "−1.204 s" shorter, "=" the same. */
 function diffText(ms: number) {
-  if (Math.abs(ms) < 50) return "=";
-  return `${ms > 0 ? "+" : "−"}${fmtNumber(Math.abs(ms) / 1000, Math.abs(ms) < 10000 ? 1 : 0)} s`;
+  if (Math.abs(ms) < 0.5) return "=";
+  return `${ms > 0 ? "+" : "−"}${fmtNumber(Math.abs(ms) / 1000, 3)} s`;
 }
 
 /** A song for the Soundtrack: the piece of music's cue, the segments the song fills in order (a piece each, into
@@ -132,7 +132,8 @@ export function SliceTool({ onClose, target, file: given }: { onClose: () => voi
   const [span, setSpan] = useState({ from: 0, to: 0 });
   const [layout, setLayout] = useState<Layout>("proportions");
   const [view, setView] = useState<View>({ from: 0, span: 1 });
-  const [sel, setSel] = useState<number | null>(null); // the selected cut, for the keys
+  const [sel, setSel] = useState<number | null>(null); // the selected cut, for the keys and the box that types it
+  const [typed, setTyped] = useState<string | null>(null); // the box while it is typed in
   const [busy, setBusy] = useState(false);
   const n = Math.max(0, bounds.length - 1);
   const total = info?.duration_ms ?? 1;
@@ -245,6 +246,17 @@ export function SliceTool({ onClose, target, file: given }: { onClose: () => voi
     setStop(reach[n].slot.source); // one more piece: To moves on by a slot
     setSel(i);
   };
+  /** The selected cut at the time typed, as near as the pieces beside it allow. */
+  const takeTyped = () => {
+    const ms = Number(typed);
+    setTyped(null);
+    if (sel === null || !typed?.trim() || !Number.isFinite(ms)) return;
+    const lo = sel === 0 ? 0 : bounds[sel - 1] + MIN_PIECE, hi = sel === n ? total : bounds[sel + 1] - MIN_PIECE;
+    const at = Math.round(Math.max(lo, Math.min(hi, ms)));
+    moveCut(sel, at);
+    reveal(at, at);
+  };
+  useEffect(() => setTyped(null), [sel]);
   const removeCut = (i: number) => {
     if (i <= 0 || i >= n) return; // the start and the end stay
     setBounds((b) => b.filter((_, j) => j !== i));
@@ -369,6 +381,15 @@ export function SliceTool({ onClose, target, file: given }: { onClose: () => voi
                 ))}
               </div>
               {layout === "custom" && <span className="muted small"><Trans>Placed by hand</Trans></span>}
+              <span className="spacer" />
+              <label className="slice-field" data-tip={sel === null ? t`Select a cut first` : t`Where the selected cut is in the song`}>
+                <Trans>Cut (ms)</Trans>
+                <input type="number" className="slice-cut-at" min={0} step={1} disabled={sel === null} value={typed ?? (sel === null ? "" : bounds[sel])}
+                  onChange={(e) => setTyped(e.target.value)} onBlur={takeTyped} onKeyDown={(e) => {
+                    if (e.key === "Enter") e.currentTarget.blur();
+                    else if (e.key === "Escape" && typed !== null) { e.stopPropagation(); setTyped(null); }
+                  }} />
+              </label>
             </div>
 
             <div className="slice-zoomed zoom-grid">
@@ -397,10 +418,10 @@ export function SliceTool({ onClose, target, file: given }: { onClose: () => voi
                     <PieceButton k={`${KEY}:${i}`} play={t`Play piece ${piece}`} pause={t`Pause piece ${piece}`} onPlay={() => playSong(bounds[i], bounds[i + 1], i)} tone="project" />
                     <span className="piece-n">{i + 1}</span>
                     <span className="piece-slot" data-tip={rowName(r)} data-tip-clip>{rowName(r)}{r.slot.variant ? ` · ${r.slot.variant}` : ""}</span>
-                    <span className="piece-len">{fmtTime(bounds[i])} – {fmtTime(bounds[i + 1])}</span>
-                    <span className="piece-len num mine">{fmtTime(len)}</span>
+                    <span className="piece-len">{fmtExact(bounds[i])} – {fmtExact(bounds[i + 1])}</span>
+                    <span className="piece-len num mine">{fmtExact(len)}</span>
                     <PieceButton k={`vanilla:${r.slot.source}`} play={t`Play the original ${slot}`} pause={t`Pause the original ${slot}`} onPlay={() => playOriginal(i)} tone="vanilla" />
-                    <span className="piece-len num">{orig ? fmtTime(orig) : "–"}</span>
+                    <span className="piece-len num">{orig ? fmtExact(orig) : "–"}</span>
                     <span className={`piece-len num diff${!orig ? "" : Math.abs(d) < 50 ? " same" : ""}`}>{orig ? diffText(d) : ""}</span>
                   </div>
                 );
@@ -498,13 +519,13 @@ function Lanes({ info, bounds, targets, view, tall, sel, setSel, waveZoom, moveC
     const songTop = LANES.ruler, origTop = LANES.ruler + LANES.song;
 
     // ruler: a tick every "nice" step that keeps labels ~80 px apart
-    const steps = [100, 200, 500, 1000, 2000, 5000, 10000, 15000, 30000, 60000, 120000, 300000];
+    const steps = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 15000, 30000, 60000, 120000, 300000];
     const step = steps.find((s) => (s / view.span) * width >= 80) ?? steps[steps.length - 1];
     g.fillStyle = v("--faint"); g.strokeStyle = v("--line"); g.font = font; g.textBaseline = "middle";
     for (let t = Math.ceil(view.from / step) * step; t <= view.from + view.span; t += step) {
       const px = Math.round(x(t)) + 0.5;
       g.beginPath(); g.moveTo(px, LANES.ruler - 6); g.lineTo(px, LANES.ruler); g.stroke();
-      g.fillText(step < 1000 ? `${fmtNumber(t / 1000, 1)} s` : fmtTime(t), px + 3, LANES.ruler / 2 - 1);
+      g.fillText(step < 1000 ? `${fmtNumber(t / 1000, step < 100 ? 2 : 1)} s` : fmtTime(t), px + 3, LANES.ruler / 2 - 1);
     }
     g.fillStyle = v("--line"); g.fillRect(0, origTop, width, 1);
 

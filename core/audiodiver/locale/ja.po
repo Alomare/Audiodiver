@@ -181,6 +181,11 @@ msgid "Packing the ZIP"
 msgstr "ZIPをパック中"
 
 #: build.py
+msgid "curves: {n} sound or track is not in this game version; left out"
+msgid_plural "curves: {n} sounds or tracks are not in this game version; left out"
+msgstr[0] "カーブ: このゲームバージョンにないサウンドまたはトラックが {n} 個あるため除外しました"
+
+#: build.py
 msgid "sound {id}"
 msgstr "サウンド {id}"
 
@@ -264,6 +269,11 @@ msgstr[0] "ミックスから除外した無音のサウンド {n} 個"
 msgid "a mod's settings on {n} object"
 msgid_plural "a mod's settings on {n} objects"
 msgstr[0] "{n} 個のオブジェクトに対するMODの設定"
+
+#: build.py
+msgid "volume curves changed on {n} music track"
+msgid_plural "volume curves changed on {n} music tracks"
+msgstr[0] "{n} 個の音楽トラックのボリュームカーブを変更"
 
 #: build.py
 msgid "{n} file besides audio (text, models, textures...) carried as it was"
@@ -721,6 +731,10 @@ msgid "WEM files are the Original, slot by slot. Choose another format for the r
 msgstr "WEMファイルはスロットごとのオリジナルです。それ以外には別の形式を選択してください。"
 
 #: editor.py
+msgid "Helldivers 1 has no WEM files. Choose another format for it."
+msgstr "Helldivers 1 には WEM ファイルがありません。別の形式を選んでください。"
+
+#: editor.py
 msgid "Getting ready"
 msgstr "準備中"
 
@@ -739,6 +753,10 @@ msgstr "{name}はファイルです。フォルダーを選択してください
 #: editor.py
 msgid "{name} can't be used as a folder name. Choose another name."
 msgstr "{name}はフォルダー名に使えません。別の名前にしてください。"
+
+#: editor.py
+msgid "Reading Helldivers 1"
+msgstr "Helldivers 1 を読み込み中"
 
 #: editor.py
 msgid "A new take has no original audio"
@@ -809,7 +827,7 @@ msgstr "{file}を読み込み中"
 msgid "{name} holds no audio or text that Audiodiver can bring in"
 msgstr "{name}には、Audiodiverが取り込める音声やテキストがありません"
 
-#: editor.py library.py
+#: editor.py hd1.py library.py
 msgid "Other Sounds"
 msgstr "その他のサウンド"
 
@@ -856,6 +874,10 @@ msgstr "{file}にアイコンがありません"
 #: editor.py
 msgid "{folder} can't be written to. Choose another folder."
 msgstr "{folder}に書き込めません。別のフォルダーを選択してください。"
+
+#: editor.py
+msgid "Helldivers 1 couldn't be read from {folder}"
+msgstr "{folder} から Helldivers 1 を読み込めませんでした"
 
 #: editor.py
 msgid "{file} already exists in {folder}"
@@ -924,6 +946,11 @@ msgstr[0] "古いゲームバージョンのままのオブジェクト {n} 個�
 msgid "{n} object copied from another bank by the tool that made the mod; each bank's own is used"
 msgid_plural "{n} objects copied from another bank by the tool that made the mod; each bank's own are used"
 msgstr[0] "MODを作ったツールが別のバンクからコピーしたオブジェクト {n} 個。各バンク自身のものを使用"
+
+#: editor.py
+msgid "{n} volume curve from the mod"
+msgid_plural "{n} volume curves from the mod"
+msgstr[0] "MODのボリュームカーブ {n} 個"
 
 #: editor.py
 msgid "Decoding {n} of {total}"
@@ -1013,6 +1040,14 @@ msgid "No cue {id}"
 msgstr "キュー {id} はありません"
 
 #: editor.py
+msgid "Volume curve"
+msgstr "ボリュームカーブ"
+
+#: editor.py
+msgid "From the mod"
+msgstr "MODから"
+
+#: editor.py
 msgid "Can't make the folder {folder}: {why}"
 msgstr "フォルダー{folder}を作成できません：{why}"
 
@@ -1023,6 +1058,14 @@ msgstr "{name}：サウンド {id} はこのバージョンのゲームにあり
 #: editor.py
 msgid "{name}: no audio file named"
 msgstr "{name}：音声ファイルが指定されていません"
+
+#: editor.py
+msgid "Sound {id} has no audio in the game files"
+msgstr "サウンド {id} はゲームファイルに音声がありません"
+
+#: editor.py
+msgid "The copied audio couldn't be saved: {why}"
+msgstr "コピーした音声を保存できませんでした: {why}"
 
 #: editor.py
 msgid "Make-Up Gain goes from {low} to {high} dB"
@@ -1175,10 +1218,6 @@ msgid "Can't write {file}: {why}"
 msgstr "{file}に書き込めません：{why}"
 
 #: editor.py
-msgid "Sound {id} has no audio in the game files"
-msgstr "サウンド {id} はゲームファイルに音声がありません"
-
-#: editor.py
 msgid "{n} line of text that the game doesn't have"
 msgid_plural "{n} lines of text that the game doesn't have"
 msgstr[0] "ゲームにないテキスト {n} 行"
@@ -1316,6 +1355,162 @@ msgstr "{folder}が見つかりません"
 msgid "The HD2_DATA environment variable points to {folder}, which has no Helldivers 2 files"
 msgstr "HD2_DATA環境変数が指す{folder}には、Helldivers 2のファイルがありません"
 
+#: hd1.py
+msgid "Admiral"
+msgstr "提督"
+
+#: hd1.py
+msgid "Chief Communications Officer"
+msgstr "通信主任"
+
+#: hd1.py
+msgid "Science Officer"
+msgstr "科学士官"
+
+#: hd1.py
+msgid "Private 1"
+msgstr "二等兵 1"
+
+#: hd1.py
+msgid "Private 2"
+msgstr "二等兵 2"
+
+#: hd1.py
+msgid "Helldiver"
+msgstr "ヘルダイバー"
+
+#: hd1.py
+msgid "Tutorial"
+msgstr "チュートリアル"
+
+#: hd1.py library.py
+msgid "Music"
+msgstr "音楽"
+
+#: hd1.py
+msgid "Voices"
+msgstr "ボイス"
+
+#: hd1.py
+msgid "Weapons"
+msgstr "武器"
+
+#: hd1.py
+msgid "Stratagems"
+msgstr "戦略支援"
+
+#: hd1.py
+msgid "Vehicles"
+msgstr "乗り物"
+
+#: hd1.py
+msgid "Footsteps and Movement"
+msgstr "足音と動作"
+
+#: hd1.py
+msgid "Impacts"
+msgstr "着弾"
+
+#: hd1.py
+msgid "Radio"
+msgstr "無線"
+
+#: hd1.py
+msgid "Ambience"
+msgstr "環境音"
+
+#: hd1.py
+msgid "Interface"
+msgstr "インターフェース"
+
+#: hd1.py
+msgid "General"
+msgstr "全般"
+
+#: hd1.py
+msgid "Assault Rifles"
+msgstr "アサルトライフル"
+
+#: hd1.py
+msgid "Grenades"
+msgstr "グレネード"
+
+#: hd1.py
+msgid "Machine Guns"
+msgstr "マシンガン"
+
+#: hd1.py
+msgid "Rocket Launchers"
+msgstr "ロケットランチャー"
+
+#: hd1.py
+msgid "Shotguns"
+msgstr "ショットガン"
+
+#: hd1.py
+msgid "Submachine Guns"
+msgstr "サブマシンガン"
+
+#: hd1.py
+msgid "Stratagem Beacons"
+msgstr "戦略支援ビーコン"
+
+#: hd1.py
+msgid "Shields"
+msgstr "シールド"
+
+#: hd1.py
+msgid "Turrets"
+msgstr "砲塔"
+
+#: hd1.py
+msgid "Hellpods"
+msgstr "ヘルポッド"
+
+#: hd1.py
+msgid "Extraction Shuttle"
+msgstr "離脱シャトル"
+
+#: hd1.py
+msgid "Exosuits"
+msgstr "エグゾスーツ"
+
+#: hd1.py
+msgid "{folder} has no Helldivers 1 files"
+msgstr "{folder} に Helldivers 1 のファイルがありません"
+
+#: hd1.py library.py
+msgid "Not named yet."
+msgstr "名前はまだありません。"
+
+#: hd1.py
+msgid "Helldivers 1"
+msgstr "Helldivers 1"
+
+#: hd1.py
+msgid "Clips No Event Plays"
+msgstr "どのイベントも再生しないクリップ"
+
+#: hd1.py library.py
+msgid "All Archives"
+msgstr "すべてのアーカイブ"
+
+#: hd1.py library.py
+msgid "Bank {id}"
+msgstr "バンク {id}"
+
+#: hd1.py
+msgid "{n} languages"
+msgstr "{n} 言語"
+
+#: hd1.py library.py
+msgid "Take {n}"
+msgstr "テイク {n}"
+
+#: hd1.py
+msgid "Event {id}"
+msgstr "イベント {id}"
+
 #: index.py
 msgid "English"
 msgstr "英語"
@@ -1359,10 +1554,6 @@ msgstr "ロシア語"
 #: installed.py
 msgid "Checking {mod}"
 msgstr "{mod}をチェック中"
-
-#: library.py
-msgid "Music"
-msgstr "音楽"
 
 #: library.py
 msgid "Music by where it plays, from the ship to the credits."
@@ -1425,10 +1616,6 @@ msgid "Streams"
 msgstr "ストリーム"
 
 #: library.py
-msgid "Not named yet."
-msgstr "名前はまだありません。"
-
-#: library.py
 msgid "Streams No Bank Plays"
 msgstr "どのバンクも再生しないストリーム"
 
@@ -1439,10 +1626,6 @@ msgstr "このアーカイブ内の音声ファイルのうち、このゲーム
 #: library.py
 msgid "A single sound. Audiodiver replaces it in every bank that holds or plays it."
 msgstr "1つのサウンドです。Audiodiverは、それを含む、または再生するすべてのバンクで置き換えます。"
-
-#: library.py
-msgid "Bank {id}"
-msgstr "バンク {id}"
 
 #: library.py
 msgid "No container"
@@ -1463,10 +1646,6 @@ msgstr "このバンクは音声を保存しているだけです。それを再
 #: library.py
 msgid "Not transcribed. Each line is named after what another Helldiver voice says at the same place, and the words may differ."
 msgstr "書き起こしはありません。各行は、同じ場所で別のヘルダイバーのボイスが言う内容にちなんで名付けられているため、文言が異なる場合があります。"
-
-#: library.py
-msgid "All Archives"
-msgstr "すべてのアーカイブ"
 
 #: library.py
 msgid "Archive {id}"
@@ -1516,10 +1695,6 @@ msgstr[0] "音楽：{sections}ほか {n} 件"
 #: library.py
 msgid "Music: {sections}"
 msgstr "音楽：{sections}"
-
-#: library.py
-msgid "Take {n}"
-msgstr "テイク {n}"
 
 #: library.py
 msgid "Only {language} voices are installed."
@@ -1766,6 +1941,14 @@ msgstr "{file}は破損しています（オリジナルの音声のMake-Up Gain
 #: project.py
 msgid "The project in {pack} is damaged (the Make-Up Gain on the original audio)"
 msgstr "{pack}内のプロジェクトは破損しています（オリジナルの音声のMake-Up Gain）"
+
+#: project.py
+msgid "{file} is damaged (the volume curves)"
+msgstr "{file} は破損しています（ボリュームカーブ）"
+
+#: project.py
+msgid "The project in {pack} is damaged (the volume curves)"
+msgstr "{pack} 内のプロジェクトは破損しています（ボリュームカーブ）"
 
 #: project.py
 msgid "{file} is damaged (the added audio)"

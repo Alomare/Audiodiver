@@ -2,7 +2,7 @@
 title: Combiner des Mods
 group: Générer et partager
 summary: Faire un seul mod à partir de plusieurs mods audio qui modifient les mêmes banques de sons, en choisissant quelle version de chaque son partagé est retenue.
-source: cbb14758fe48
+source: e6f1f4bcf595
 ---
 
 Un mod contient des copies complètes des banques de sons qu’il modifie. Quand deux mods modifient la même banque, celui qui est déployé en dernier remplace la copie de l’autre, donc un seul des deux est joué. Les mods de musique partagent la plupart de leurs banques, et beaucoup de mods d’armes et de voix aussi. **Combiner des Mods**, dans [Outils](app:tools/combine), lit plusieurs mods et génère un seul mod avec l’audio de tous, sur les banques de sons actuelles.
@@ -29,7 +29,7 @@ Un conflit est un son que plus d’un mod modifie de façons différentes. Les m
 
 Les conflits sont regroupés par leur élément dans l’Index, comme un morceau de musique ou une arme. Chaque ligne joue d’abord l’original, puis la version de chaque mod. Le mod en surbrillance est retenu. **Tout de** sur la ligne d’un élément choisit un seul mod pour tous les conflits de cet élément. Par défaut, le mod le plus bas dans la liste l’emporte, comme s’il était déployé en dernier.
 
-Un réglage sur un son en conflit suit le son, donc le mod dont l’audio est retenu apporte aussi le volume réglé sur ce son. Les points de repère suivent l’audio de la même façon : un segment de musique prend les points de repère du mod dont il joue l’audio.
+Un réglage sur un son en conflit suit le son, donc le mod dont l’audio est retenu apporte aussi le volume réglé sur ce son. Les points de repère suivent l’audio de la même façon : un segment de musique prend les points de repère du mod dont il joue l’audio. Si deux mods règlent les courbes de volume d’une même piste de musique, ce sont les courbes du mod le plus bas qui sont retenues.
 
 ## Dossier de destination {#destination-folder}
 

@@ -360,7 +360,7 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color])
 .cue .slot.take { padding-left: calc(54px + 4px * var(--sp) + 22px * var(--fs)); }
 .slot-check { position: absolute; left: 7px; top: 50%; translate: 0 -50%; width: calc(14px * var(--fs)); height: calc(14px * var(--fs)); margin: 0;
   accent-color: var(--second-fg); opacity: .5; cursor: pointer; transition: opacity var(--t1); }
-.slot:hover > .slot-check, .grp:hover > .slot-check, .slot-check:checked, .slot-check:indeterminate { opacity: 1; }
+.slot:hover > .slot-check, .grp:hover > .slot-check, .tree-line:hover > .slot-check, .slot-check:checked, .slot-check:indeterminate { opacity: 1; }
 .grp { position: relative; }
 /* the toolbar's tick, over the rows' ticks */
 .cue-bar > .slot-check.all { position: static; translate: none; flex: none; margin: 0 6px 0 4px; opacity: 1; }
@@ -674,6 +674,7 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .tl-label b { font-size: calc(14px * var(--fs)); font-weight: 700; }
 .tl-label.game b { color: var(--steel); }
 .tl-label.mine b { color: var(--accent-fg); }
+.tl-curve { color: var(--text); }
 /* the Library's facts about the slot, over its waveform */
 .tl-facts { flex: none; display: flex; flex-direction: column; gap: 3px; font-size: calc(13px * var(--fs)); color: var(--muted); }
 .tl-facts-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; min-width: 0; }
@@ -767,6 +768,7 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .lib-tabs button { padding: calc(9px * var(--sp)) 0 calc(8px * var(--sp)); font-weight: 700; font-size: calc(15px * var(--fs)); color: var(--muted); border-bottom: 2px solid transparent; }
 .lib-tabs button:hover { color: var(--text); }
 .lib-tabs button.on { color: var(--text); border-bottom-color: var(--second-fg); }
+.lib-games button { padding: calc(5px * var(--sp)) 0 calc(4px * var(--sp)); font-weight: 400; font-size: calc(13px * var(--fs)); }
 .lib-other { border-top: 1px solid var(--line-soft); max-height: 30%; overflow: auto; flex: none; }
 .lib-pane { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .lib-pane[hidden] { display: none; }
@@ -900,9 +902,10 @@ button.ctag:hover { background: color-mix(in oklch, var(--c) 24%, transparent); 
    the next); a group's line says its kind before the id, and what names it otherwise after */
 .cue .slots > .grp, .cue .slots > .slot { padding-left: calc(8px + 22px * var(--fs) + var(--depth, 0) * 14px); } /* after the tick */
 .cue .slots > .slot.take { padding-left: calc(54px + 4px * var(--sp) + 22px * var(--fs) + var(--depth, 0) * 14px); }
-.tree-line { display: flex; align-items: baseline; gap: 5px; min-width: 0; overflow: hidden; white-space: nowrap; margin-top: 2px;
-  padding: calc(5px * var(--sp)) 8px calc(1px * var(--sp)) calc(8px + var(--depth, 0) * 14px); border-top: 1px solid var(--line-soft);
+.tree-line { position: relative; display: flex; align-items: baseline; gap: 5px; min-width: 0; overflow: hidden; white-space: nowrap; margin-top: 2px; cursor: pointer;
+  padding: calc(5px * var(--sp)) 8px calc(1px * var(--sp)) calc(8px + 22px * var(--fs) + var(--depth, 0) * 14px); border-top: 1px solid var(--line-soft);
   font-size: calc(12px * var(--fs)); color: var(--muted); }
+.tree-line:hover { background: color-mix(in srgb, var(--panel) 50%, var(--raised)); }
 .tree-type, .tree-sep { flex: none; color: var(--faint); }
 .tree-type { margin-right: 2px; }
 .tree-id { flex: none; padding: 0 3px; border-radius: 2px; color: var(--muted); font: calc(12px * var(--fs)) "Roboto Mono Variable", Consolas, monospace; }
@@ -1886,8 +1889,9 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .slice-empty { padding: 30px 0; color: var(--muted); max-width: 60ch; }
 .slice-bar { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; font-size: calc(14px * var(--fs)); }
 .slice-file { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; max-width: 36ch; }
-.slice-field { display: flex; align-items: center; gap: 6px; color: var(--muted); }
+.slice-field { display: flex; align-items: center; gap: 6px; color: var(--muted); white-space: nowrap; }
 .slice-field select { max-width: 240px; }
+.slice-field input.slice-cut-at { flex: none; width: calc(92px * var(--fs)); height: var(--ctl-sm); }
 .slice-through { font-size: calc(13px * var(--fs)); }
 .slice-tools .play-btn { min-width: calc(92px * var(--fs)); }
 .slice-tools .play-btn.on { border-color: var(--second-fg); color: var(--second-fg); }
@@ -1932,7 +1936,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .slice-viewport { position: absolute; top: 0; bottom: 0; left: 0; border: 1px solid var(--second-fg); background: color-mix(in srgb, var(--second-fg) 12%, transparent);
   pointer-events: none; will-change: transform; }
 .slice-list { flex: 1 1 auto; overflow: auto; min-height: 90px; border-top: 1px solid var(--line-soft); }
-.slice-piece { display: grid; grid-template-columns: calc(24px * var(--fs)) calc(24px * var(--fs)) minmax(140px, 1fr) calc(130px * var(--fs)) calc(64px * var(--fs)) calc(24px * var(--fs)) calc(68px * var(--fs)) calc(86px * var(--fs));
+.slice-piece { display: grid; grid-template-columns: calc(24px * var(--fs)) calc(24px * var(--fs)) minmax(140px, 1fr) calc(172px * var(--fs)) calc(78px * var(--fs)) calc(24px * var(--fs)) calc(78px * var(--fs)) calc(86px * var(--fs));
   gap: 10px; align-items: center; padding: 3px 6px; font-size: calc(14px * var(--fs)); cursor: pointer; }
 .slice-piece:nth-child(even) { background: var(--stripe); }
 .slice-piece:hover:not(.head) { background: var(--hover); }

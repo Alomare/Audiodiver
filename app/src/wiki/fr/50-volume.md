@@ -2,7 +2,7 @@
 title: Make-Up Gain et le mixage
 group: Créer un mod
 summary: Régler le volume d’un emplacement, comment fonctionne le mixage HDR du jeu, et pourquoi certains écrans sonnent plus faible dans le jeu que dans Audiodiver.
-source: 34bc5e953c4b
+source: c580c2a4483d
 ---
 
 ## Make-Up Gain par emplacement {#make-up-gain-per-slot}
@@ -19,6 +19,16 @@ Les formes d’onde sous les emplacements sont dessinées au niveau du gain et s
 > Quelques clips ignorent le Make-Up Gain dans le jeu, notamment les stingers calmes des Illuministes. Leurs détails affichent un avertissement. Réglez le volume de ces clips dans le fichier audio.
 
 Le curseur **Vol** de la barre d’état règle uniquement le volume d’écoute dans Audiodiver. Il ne fait pas partie du mod.
+
+## Courbes de volume {#volume-curves}
+
+Le jeu modifie le niveau de certaines musiques pendant leur lecture : une courbe de volume sur le clip abaisse ou relève le niveau au fil du temps, et un fondu fait entrer ou sortir le son progressivement. La courbe fait partie de la piste de musique, pas du fichier audio, donc le nouvel audio de cet emplacement la suit aussi. Un emplacement avec une courbe l’affiche sous forme de ligne autour de la forme d’onde, avec **Courbe de volume** à côté.
+
+Désactivez **Conserver la courbe de volume** dans les détails pour jouer l’emplacement à un niveau constant. Le Make-Up Gain ne peut pas le faire, car il fixe un seul niveau pour tout le clip. Cette option retire les courbes de volume et les fondus, fonctionne sur les emplacements avec ou sans nouvel audio et, avec plusieurs emplacements sélectionnés, s’applique à ceux qui ont une courbe. Un clip peut se trouver sur plusieurs pistes de musique, et l’option les couvre toutes.
+
+Par exemple, l’un des deux clips de Descente en Hellpod a une courbe qui abaisse peu à peu le niveau, et l’autre n’en a pas. Avec le même morceau dans les deux, l’un joue moins fort que l’autre tant que la courbe est en place.
+
+Les courbes d’un mod arrivent avec l’[importation](wiki:importing-mods#what-comes-in). Elles s’affichent sur les formes d’onde et sous **Réglages importés**, et l’option les retire aussi.
 
 ## Make-Up Gain et Volume sont des réglages différents {#make-up-gain-and-volume-are-different-settings}
 

@@ -2,7 +2,7 @@
 title: Combinar mods
 group: Generar y compartir
 summary: Crear un solo mod a partir de varios mods de audio que cambian los mismos bancos de sonido, eligiendo qué versión de cada sonido compartido entra.
-source: cbb14758fe48
+source: e6f1f4bcf595
 ---
 
 Un mod contiene copias completas de los bancos de sonido que cambia. Cuando dos mods cambian el mismo banco, el que se despliega más tarde sustituye la copia del otro, así que solo suena uno de ellos. Los mods de música comparten la mayoría de sus bancos, y también lo hacen muchos mods de armas y de voces. **Combinar Mods**, en [Herramientas](app:tools/combine), lee varios mods y genera un solo mod con el audio de todos ellos, sobre los bancos de sonido actuales.
@@ -29,7 +29,7 @@ Un conflicto es un sonido que más de un mod cambia de maneras distintas. Los mo
 
 Los conflictos se agrupan por su elemento en el Índice, como una pieza de música o un arma. Cada línea reproduce primero el original y luego la versión de cada mod. El mod resaltado es el que entra. **Todo de**, en la línea de un elemento, elige un mod para todos los conflictos de ese elemento. De forma predeterminada gana el mod que está más abajo en la lista, como si se desplegara más tarde.
 
-Un ajuste de un sonido en conflicto sigue al sonido, así que el mod cuyo audio entra también aporta el volumen definido en ese sonido. Los puntos de cue siguen al audio del mismo modo: un segmento de música toma los puntos de cue del mod cuyo audio reproduce.
+Un ajuste de un sonido en conflicto sigue al sonido, así que el mod cuyo audio entra también aporta el volumen definido en ese sonido. Los puntos de cue siguen al audio del mismo modo: un segmento de música toma los puntos de cue del mod cuyo audio reproduce. Si dos mods definen las curvas de volumen de una misma pista de música, entran las curvas del mod que está más abajo.
 
 ## Carpeta de destino {#destination-folder}
 
@@ -40,7 +40,7 @@ Después de una actualización del juego, combina los mods de nuevo. Para cambia
 ## Qué se omite al combinar {#what-combining-leaves-out}
 
 - Los cambios que Audiodiver no traslada, como los efectos o cómo elige sonidos un contenedor, y los sonidos que un mod todavía tiene de una versión anterior del juego. El resultado los enumera para cada mod, como hace [Repatch](wiki:repatching#what-repatching-leaves-out).
-- Un fichero que no es audio, como una textura o una tabla de cadenas, que tienen ambos mods: la copia del mod situado más arriba en la lista. Entra la copia del mod de más abajo, como si ese mod se desplegara más tarde, y el resultado lo indica.
+- Un fichero que no es audio, como una textura o una tabla de cadenas, que tienen ambos mods: la copia del mod situado más arriba en la lista se queda fuera. Entra la copia del mod de más abajo, como si ese mod se desplegara más tarde, y el resultado lo indica.
 
 Todo lo demás de los parches, como texto, modelos y texturas, entra tal como estaba.
 

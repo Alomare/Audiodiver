@@ -9,7 +9,8 @@ The Library and the Audio tab share one layout: a list on the left, the open ite
 ## The list on the left
 
 - **Index** sorts the audio by what it is. Categories such as Music, Weapons and Enemies contain sections such as *On the Ship* and *Primary Weapons*. Each section lists things you can open, either a **piece of music** or a **sound set**. The number at the end of a row is the length of a piece of music, or the number of sounds in a set.
-- **All Archives** shows every **archive** that contains audio, as a table. Click a column heading to sort by it, and click again to reverse the order. The icons in the *Index* column show which categories include the archive.
+- **All Archives** shows every **archive** that contains audio, as a table. Click a column heading to sort by it, and click again to reverse the order. The icons in the *Index* column show which categories include the archive. All Archives starts wider than the Index, and each keeps the width you drag it to.
+- With Helldivers 1 installed, the **Helldivers 2** and **Helldivers 1** tabs under these two choose the game.
 - In the Library, the **+** at the end of a row adds it to the project, and **✓** means the project already has it. Category and section lines have a **+** as well, which adds everything visible under them. After a search, that **+** adds only the results.
 - In the Audio tab, the list shows what the project has. **✕** on a row, or on a category or section line, removes it from the project, together with everything the project changes in it: the new audio, also in slots that another item in the project shares, added takes and layers, Make-Up Gain, and the cue points and Soundtrack settings of music. Audiodiver asks first when new audio would go. Right-clicking does the same, and {key:undo} brings it back.
 - {icon:collapse} **Collapse all**, next to the search box, folds every category and section. A search unfolds whatever matches.
@@ -65,6 +66,7 @@ Each row is one **slot**, a single game clip that can be replaced.
 - The tick at the start of a row puts the slot in the selection, or takes it out, as Ctrl+click does. Shift on a tick selects a range. A group line has a tick for all the takes in the group, and the group stays folded. In the Library, **Export** can save only the selected slots. In the Audio tab, with several slots selected, the right panel has **Choose One File for All**, **Choose Files**, **Replace with Silence** and the button that removes the new audio.
 - Double-click a row to play it. Right-click it for everything else, including copy, paste, silence and IDs.
 - Copy audio files in Explorer, select slots and press **Ctrl+V**. One file goes into every selected slot. Several files go in file-name order, and on a single selected slot they fill on from there. Ctrl+V pastes whatever was copied last: files from Explorer or slots copied in Audiodiver.
+- **Ctrl+C** copies the selected slots, in the Library or in the Audio tab. **Ctrl+V** pastes them into the slots selected in the Audio tab, with nothing to export or import. A slot with new audio gives that audio and the settings. Any other slot gives the original, and a Helldivers 2 clip goes in unchanged.
 
 ### Tags on a row
 
@@ -98,7 +100,7 @@ Hover over a tag to read the note. The notes of a selected clip appear in the de
 
 ## Under the slots
 
-The **waveforms** of the selected slot are shown here. The original is on top, and in the Audio tab the replacement is underneath, on the same time and level scales, with the **Entry** and **Exit** points marked. Both are drawn at their [Make-Up Gain](wiki:volume#make-up-gain-per-slot), and red marks audio pushed past full scale. Click a waveform to play from that point, and drag the top edge of the panel to resize it. {icon:waves} at the end of the toolbar hides them. In the Library, the line above the waveforms describes the slot. It shows the ID (click to copy it), the length, when the slot plays, and where else the game plays it.
+The **waveforms** of the selected slot are shown here. The original is on top, and in the Audio tab the replacement is underneath, on the same time and level scales, with the **Entry** and **Exit** points marked. Both are drawn at their [Make-Up Gain](wiki:volume#make-up-gain-per-slot), and red marks audio pushed past full scale. Click a waveform to play from that point, and drag the top edge of the panel to resize it. {icon:waves} at the end of the toolbar hides them. In the Library, the line above the waveforms describes the slot. It shows the ID (click to copy it), the length, when the slot plays, and where else the game plays it. A line around a waveform is the [volume curve](wiki:volume#volume-curves) of the clip.
 
 Two sliders zoom both waveforms. The one up the right side draws them taller, to show quiet audio, and the one under them, at the right, zooms in on time, to place Entry and Exit closely. On the waveforms, the mouse wheel zooms in on time, Ctrl+wheel draws them taller, and Shift+wheel scrolls. Zoomed in on time, the strip under the waveforms scrolls too. {icon:reset}, in the corner between the sliders, shows the whole audio at full scale again. While a slider moves, a number from 0 to 100 over the knob shows how far along it is. Zoom stays as set when another slot is selected, and the slice tool has the same sliders.
 
@@ -152,7 +154,7 @@ Both search boxes take any of them.
 
 ## Container IDs
 
-Press {icon:id} on the toolbar to list the sounds of a bank as Wwise tools list it. Each sound is then named by the ID of the container right above the takes, with the kind of container before the ID (Random, Sequence, Switch, Layer or Actor-Mixer) and the usual name after it. The containers above sit on lines of their own, one step further in for each level, in bank order. Actor-Mixers that hold only the next one share a line. Click an ID on these lines to copy it. The slot search finds container IDs too.
+Press {icon:id} on the toolbar to list the sounds of a bank as Wwise tools list it. Each sound is then named by the ID of the container right above the takes, with the kind of container before the ID (Random, Sequence, Switch, Layer or Actor-Mixer) and the usual name after it. The containers above sit on lines of their own, one step further in for each level, in bank order. Actor-Mixers that hold only the next one share a line. Click an ID on these lines to copy it. The slot search finds container IDs too. Click a container's line, or the tick on it, to select every slot under it, for example to set the Make-Up Gain of a whole container.
 
 ## Exporting
 

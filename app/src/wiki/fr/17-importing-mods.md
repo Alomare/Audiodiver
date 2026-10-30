@@ -2,7 +2,7 @@
 title: Importer un mod
 group: Pour commencer
 summary: Un mod créé avec n’importe quel outil, comme projet sur lequel continuer à travailler : l’audio, les sons qu’il ajoute, les réglages et le texte.
-source: bca2c39520e7
+source: 672ff32999fa
 ---
 
 **Importer un mod** sur [Accueil](app:home), ou dans l’onglet [Projet](app:project) tant qu’aucun projet n’est ouvert, crée un nouveau projet à partir d’un mod existant. Choisissez le ZIP du mod, ou un fichier `.patch_0`. Le panneau qui s’ouvre montre le mod comme un gestionnaire de mods le montre, et liste ce qui est importé avant que quoi que ce soit soit écrit.
@@ -21,6 +21,7 @@ source: bca2c39520e7
 - L’audio que le mod ajoute : de nouvelles prises pour un son, un nouveau son joué avec un son existant (une couche), ou un clip séparé pour un seul son. Chacun devient le même type d’ajout que ceux de [Ajouter de l’audio](wiki:adding-audio).
 - Le Make-Up Gain, sur les emplacements des sons qu’il atteint, y compris quand le mod le règle sur un conteneur situé au-dessus. Un emplacement n’a qu’un seul gain, donc quand le mod donne des gains différents à deux sons qui jouent le même clip, ces gains restent sur les sons, avec les autres réglages.
 - Les autres réglages de son, comme le volume ou la hauteur d’un son ou d’un conteneur, ou un délai avant sa lecture. Les générations les incluent, et le panneau de détails de l’onglet Audio les liste sous **Réglages importés** sur chaque emplacement qu’ils atteignent.
+- Les courbes de volume sur les pistes de musique. Les générations les incluent, et les formes d’onde les affichent. Voir [Courbes de volume](wiki:volume#volume-curves).
 - Les points de repère des segments de musique auxquels le mod donne du nouvel audio.
 - Les lignes du texte du jeu que le mod modifie, comme les sous-titres ou les noms.
 

@@ -6,7 +6,7 @@ import tempfile
 import time
 from pathlib import Path
 
-from . import addition, akd, arsenal, cuemap, patch, soundtrack, strings, wem
+from . import addition, akd, arsenal, cuemap, music, patch, soundtrack, strings, wem
 from .errors import os_error
 from .game import in_game_folder
 from .i18n import ntr, tr
@@ -64,6 +64,23 @@ def keep_encoding(wav: Path, data: bytes, quality: float = 6):
         tmp = out.with_name(f"{out.stem}.partial.wem")
         tmp.write_bytes(data)
         tmp.replace(out)
+
+
+def curve_plan(project: Project, ix: AudioIndex, log=None) -> tuple[set[int], dict]:
+    """The clips that lose the game's volume curves (Project.curves_off), and a mod's curves by track (Project.curves),
+    as this game version has them."""
+    off, gone = set(), 0
+    for target in project.curves_off:
+        try:
+            off.add(ix.resolve(target))
+        except KeyError:
+            gone += 1
+    tracks = {t: [music.ClipCurve(*c) for c in curves] for t, curves in project.curves.items() if ix.copies(t)}
+    gone += len(project.curves) - len(tracks)
+    if gone and log:
+        log(ntr("curves: {n} sound or track is not in this game version; left out",
+                "curves: {n} sounds or tracks are not in this game version; left out", gone).format(n=gone))
+    return off, tracks
 
 
 def replacements(project: Project, ix: AudioIndex, log=None, step=None) -> list[patch.Replacement]:
@@ -277,9 +294,10 @@ def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, ste
                 "settings: {n} objects the mod set are not in this game version; left out", gone).format(n=gone))
     music_plan = soundtrack_plan(project, ix, reps, settings, log)
     where, set_where = reach(project, ix, reps, settings, listed)
+    curves_off, track_curves = curve_plan(project, ix, log)
     try:
         edits = patch.build_patch(str(patch_dir / PATCH), reps, ix, project.segment_overrides, tables, plan,
-                                  settings, where, set_where, carried, music_plan)
+                                  settings, where, set_where, carried, music_plan, curves_off, track_curves)
     except patch.CueError as e:
         raise BuildError(tr("Music segment {segment}: the Entry cue point ({entry} s) is at or after the Exit ({exit} s), "
                             "so the game would play the music before it until the Entry. Move the cue points on the "
@@ -291,13 +309,14 @@ def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, ste
     if step:
         step(tr("Checking the patch"), steps - after - 1, steps)
     # what a check finds is a fault of Audiodiver's, for its log and a bug report: listed in English
-    if problems := patch.verify(str(patch_dir / PATCH), reps, ix, plan, settings, where, music_plan) \
+    if problems := patch.verify(str(patch_dir / PATCH), reps, ix, plan, settings, where, music_plan, curves_off, track_curves) \
             + patch.verify_strings(str(patch_dir / PATCH), tables, [c.fid for c in carried if c.tid == strings.STRINGS]) \
             + (patch.verify_carried(str(patch_dir / PATCH), carried, tables) if carried else []):
         raise BuildError(tr("The patch failed verification:") + "\n  " + "\n  ".join(problems))
     gains = sum(len(e.gains) for e in edits.values())
     mutes = sum(len(e.mutes) for e in edits.values())
     set_on = len({i for e in edits.values() for i in e.settings})
+    curved = len({i for e in edits.values() for i in e.curves})
     grown = sum(bool(e.added) for e in edits.values())
     made = sum(r.wem is not None for r in reps)
     # the summary: a list of what the build did, each part whole (the first turns on the count of banks)
@@ -312,6 +331,8 @@ def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, ste
                     .format(n=mutes))
     if set_on:
         done.append(ntr("a mod's settings on {n} object", "a mod's settings on {n} objects", set_on).format(n=set_on))
+    if curved:
+        done.append(ntr("volume curves changed on {n} music track", "volume curves changed on {n} music tracks", curved).format(n=curved))
     done.append(tr("verified ({seconds}s)").format(seconds=f"{time.time() - t0:.0f}"))
     log(", ".join(done))
     if kept := len({(c.tid, c.fid) for c in carried} - {(strings.STRINGS, t) for t in tables}):

@@ -75,6 +75,12 @@ top. The key is left out while there are none:
 
       "settings": {"372068234": {"5": 12.0, "12": 0.0}}
 
+curves_off are the clips that lose the game's volume curves and fades on music tracks, by target as a replacement names
+it. curves are an imported mod's curves on the game's music tracks, by track, each [clip, kind, points, source]
+(music.ClipCurve): the build puts them in place of the game's. Each key is left out while empty:
+
+      "curves_off": ["41628611"], "curves": {"990527808": [[0, 0, [[0.0, 0.0, 4], [9.5, -0.2, 4]], 41628611]]}
+
 gains are Make-Up Gain on sounds that keep the original audio, by target as a replacement names it: the build puts
 it on the Sounds and music tracks that play the clip and leaves the clip as it is. While a slot has new audio, the
 new audio's own gain applies instead, and the entry stays for when the new audio is removed. The key is left out
@@ -165,6 +171,7 @@ FORMAT_PROBLEMS = {
                  N_("The project in {pack} is damaged (the settings from a mod)")),
     "gains": (N_("{file} is damaged (the Make-Up Gain on the original audio)"),
               N_("The project in {pack} is damaged (the Make-Up Gain on the original audio)")),
+    "curves": (N_("{file} is damaged (the volume curves)"), N_("The project in {pack} is damaged (the volume curves)")),
     "additions": (N_("{file} is damaged (the added audio)"), N_("The project in {pack} is damaged (the added audio)")),
     "soundtrack": (N_("{file} is damaged (the soundtrack)"), N_("The project in {pack} is damaged (the soundtrack)")),
     "values": (N_("{file} is damaged (a cue point, a text change, added audio or a setting)"),
@@ -254,6 +261,8 @@ class Project:
     additions: list[Addition] = field(default_factory=list)  # audio it adds to the game's (addition.py)
     settings: dict[int, dict[int, float | None]] = field(default_factory=dict)  # an imported mod's, on the game's objects
     gains: dict[int, float] = field(default_factory=dict)  # Make-Up Gain on the original audio, by target
+    curves_off: set[int] = field(default_factory=set)  # the clips without the game's volume curves, by target
+    curves: dict[int, list] = field(default_factory=dict)  # an imported mod's, on the game's music tracks
     notes: dict[str, str] = field(default_factory=dict)  # the project's notes ({key: Markdown}, notes.py)
     soundtrack: dict[int, Piece] = field(default_factory=dict)  # how pieces of music play, by playlist (soundtrack.py)
     tabs: list[str] | None = None  # the hideable tabs it shows (TABS); None: as Settings says
@@ -415,6 +424,9 @@ class Project:
             for s in settings.values()), "settings")
         gains = d.get("gains", {})
         need(isinstance(gains, dict), "gains")
+        curves_off, curves = d.get("curves_off", []), d.get("curves", {})
+        need(isinstance(curves_off, list) and isinstance(curves, dict) and all(
+            isinstance(c, list) and all(isinstance(x, list) and len(x) == 4 for x in c) for c in curves.values()), "curves")
         adds = d.get("additions", [])
         need(isinstance(adds, list) and all(isinstance(a, dict) and set(Addition.KINDS.get(a.get("kind"), ("?",))) <= set(a)
                                             for a in adds), "additions")
@@ -463,6 +475,7 @@ class Project:
                                  for o, s in settings.items() if s},
                        gains={int(t): db for t, v in gains.items()
                               if (db := number(v, 0.0, *GAIN_DB, tr("the Make-Up Gain of sound {id}").format(id=t)))},
+                       curves_off={int(t) for t in curves_off}, curves={int(t): c for t, c in curves.items()},
                        notes=notes, soundtrack={k: v for k, v in pieces.items() if not v.plain()}, tabs=tabs)
             p.repairs = list(dict.fromkeys(repairs))  # not saved: what opening it put right (project_state says it)
             return p
@@ -494,6 +507,8 @@ class Project:
             **({"settings": {str(o): {str(k): v for k, v in s.items()} for o, s in self.settings.items()}}
                if self.settings else {}),
             **({"gains": {str(k): v for k, v in self.gains.items()}} if self.gains else {}),
+            **({"curves_off": sorted(map(str, self.curves_off))} if self.curves_off else {}),
+            **({"curves": {str(k): v for k, v in self.curves.items()}} if self.curves else {}),
             **({"notes": dict(self.notes)} if self.notes else {}),
             **({"soundtrack": {str(k): v.to_json() for k, v in self.soundtrack.items()}} if self.soundtrack else {}),
             **({"tabs": list(self.tabs)} if self.tabs is not None else {}),

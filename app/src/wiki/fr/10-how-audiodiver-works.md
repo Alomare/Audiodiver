@@ -2,7 +2,7 @@
 title: Comment fonctionne Audiodiver
 group: Pour commencer
 summary: Ce que fait Audiodiver, ce qu’est un projet et à quoi sert chaque onglet.
-source: e97884655776
+source: c76f32ef9388
 ---
 
 Audiodiver remplace l’audio de Helldivers 2 selon **ce qu’il est et l’endroit où il est joué**. Trouvez un morceau de musique ou un ensemble de sons dans la Bibliothèque, ajoutez-le à un projet et donnez-lui du nouvel audio. Audiodiver détermine ensuite les banques de sons, les ID et les valeurs de minutage dont le jeu a besoin.
@@ -43,6 +43,12 @@ La Bibliothèque et l’onglet Audio partagent la même disposition, et les deux
 
 Audio, Bande-son et Texte peuvent être masqués. Décochez-les sous **Onglets** dans [Paramètres ▸ Système](app:settings/system), par exemple pour ne garder que Texte pour un mod qui modifie des sous-titres. Un nouveau projet démarre avec les onglets que les Paramètres affichent. Chaque projet peut ensuite choisir d’autres onglets sous **Onglets** dans l’onglet [Projet](app:project) et conserve ce choix. Masquer un onglet ne retire rien, et ce qui a été modifié dans cet onglet reste dans le mod.
 
+## Helldivers 1 {#helldivers-1}
+
+Quand Helldivers 1 est installé, la Bibliothèque a un onglet par jeu sous **Index** et **Toutes les Archives**. L’audio de Helldivers 1 se lit et s’exporte en WAV, FLAC ou MP3. Les entrées de Helldivers 1 ne peuvent pas entrer dans un projet, mais **Ctrl+C** copie n’importe quel clip vers un emplacement du projet. Audiodiver ne modifie pas ce jeu.
+
+Chaque entrée de l’Index est un événement sonore du jeu, et les emplacements sont les clips parmi lesquels il choisit. Les voix et certaines musiques ont un onglet par langue. Une entrée affiche le nom tiré des fichiers du jeu sous une forme plus courte : `fs_rock_run` devient *Rock Run*, et la recherche trouve les deux. Les armes, les stratagèmes et les ennemis portent les noms affichés par le jeu. Une entrée de voix donne la réplique affichée à l’écran quand elle est jouée, et la recherche trouve aussi cette réplique. Les clips de voix sont courts : ils ne lisent pas toute la réplique. Le jeu ne garde beaucoup de noms que sous forme de nombres, donc les sons sans nom connu sont seulement dans **Toutes les Archives**, dans leurs banques.
+
 ## Nouvelles versions d’Audiodiver {#new-versions-of-audiodiver}
 
 Audiodiver recherche une nouvelle version sur GitHub à chaque démarrage. [Paramètres ▸ Système](app:settings/system) définit ce qui se passe quand il y en a une :
@@ -61,7 +67,9 @@ Une mise à jour remplace uniquement l’application. Les projets, les fichiers 
 
 ### Dossier du jeu {#game-folder}
 
-**Jeu** dans [Paramètres ▸ Système](app:settings/system) affiche le dossier où Audiodiver lit le jeu. Audiodiver le trouve via Steam. Si le jeu est ailleurs, appuyez sur **Choisir un autre dossier** et choisissez le dossier d’installation de Helldivers 2, ou le dossier `data` qu’il contient. Audiodiver relit ensuite le jeu, ce qui prend environ une minute la première fois. Il lit uniquement dans ce dossier et n’y écrit jamais.
+**Helldivers 2** dans [Paramètres ▸ Système](app:settings/system) affiche le dossier où Audiodiver lit le jeu. Audiodiver le trouve via Steam. Si le jeu est ailleurs, appuyez sur **Choisir un autre dossier** et choisissez le dossier d’installation de Helldivers 2, ou le dossier `data` qu’il contient. Audiodiver relit ensuite le jeu, ce qui prend environ une minute la première fois. Il lit uniquement dans ce dossier et n’y écrit jamais.
+
+**Helldivers 1** fait de même pour la Bibliothèque. Choisissez le dossier d’installation de Helldivers 1, ou le dossier `contents` qu’il contient.
 
 ### Démarrage {#startup}
 

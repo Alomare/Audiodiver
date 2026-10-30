@@ -189,6 +189,12 @@ msgid "Packing the ZIP"
 msgstr "Empaquetage du ZIP"
 
 #: build.py
+msgid "curves: {n} sound or track is not in this game version; left out"
+msgid_plural "curves: {n} sounds or tracks are not in this game version; left out"
+msgstr[0] "courbes : {n} son ou piste n’est pas dans cette version du jeu ; laissé de côté"
+msgstr[1] "courbes : {n} sons ou pistes ne sont pas dans cette version du jeu ; laissés de côté"
+
+#: build.py
 msgid "sound {id}"
 msgstr "son {id}"
 
@@ -285,6 +291,12 @@ msgid "a mod's settings on {n} object"
 msgid_plural "a mod's settings on {n} objects"
 msgstr[0] "réglages d’un mod sur {n} objet"
 msgstr[1] "réglages d’un mod sur {n} objets"
+
+#: build.py
+msgid "volume curves changed on {n} music track"
+msgid_plural "volume curves changed on {n} music tracks"
+msgstr[0] "courbes de volume modifiées sur {n} piste de musique"
+msgstr[1] "courbes de volume modifiées sur {n} pistes de musique"
 
 #: build.py
 msgid "{n} file besides audio (text, models, textures...) carried as it was"
@@ -749,6 +761,10 @@ msgid "WEM files are the Original, slot by slot. Choose another format for the r
 msgstr "Les fichiers WEM sont l’Original, emplacement par emplacement. Choisissez un autre format pour le reste."
 
 #: editor.py
+msgid "Helldivers 1 has no WEM files. Choose another format for it."
+msgstr "Helldivers 1 n’a pas de fichiers WEM. Choisissez un autre format pour ce jeu."
+
+#: editor.py
 msgid "Getting ready"
 msgstr "Préparation"
 
@@ -767,6 +783,10 @@ msgstr "{name} est un fichier. Choisissez un dossier."
 #: editor.py
 msgid "{name} can't be used as a folder name. Choose another name."
 msgstr "{name} ne peut pas servir de nom de dossier. Choisissez un autre nom."
+
+#: editor.py
+msgid "Reading Helldivers 1"
+msgstr "Chargement de Helldivers 1"
 
 #: editor.py
 msgid "A new take has no original audio"
@@ -838,7 +858,7 @@ msgstr "lecture de {file}"
 msgid "{name} holds no audio or text that Audiodiver can bring in"
 msgstr "{name} ne contient ni audio ni texte qu’Audiodiver peut importer"
 
-#: editor.py library.py
+#: editor.py hd1.py library.py
 msgid "Other Sounds"
 msgstr "Autres sons"
 
@@ -885,6 +905,10 @@ msgstr "{file} n’a pas d’icône"
 #: editor.py
 msgid "{folder} can't be written to. Choose another folder."
 msgstr "Impossible d’écrire dans {folder}. Choisissez un autre dossier."
+
+#: editor.py
+msgid "Helldivers 1 couldn't be read from {folder}"
+msgstr "Impossible de lire Helldivers 1 depuis {folder}"
 
 #: editor.py
 msgid "{file} already exists in {folder}"
@@ -957,6 +981,12 @@ msgid "{n} object copied from another bank by the tool that made the mod; each b
 msgid_plural "{n} objects copied from another bank by the tool that made the mod; each bank's own are used"
 msgstr[0] "{n} objet copié d’une autre banque par l’outil qui a créé le mod ; celui de chaque banque est utilisé"
 msgstr[1] "{n} objets copiés d’une autre banque par l’outil qui a créé le mod ; ceux de chaque banque sont utilisés"
+
+#: editor.py
+msgid "{n} volume curve from the mod"
+msgid_plural "{n} volume curves from the mod"
+msgstr[0] "{n} courbe de volume du mod"
+msgstr[1] "{n} courbes de volume du mod"
 
 #: editor.py
 msgid "Decoding {n} of {total}"
@@ -1053,6 +1083,14 @@ msgid "No cue {id}"
 msgstr "Aucun cue {id}"
 
 #: editor.py
+msgid "Volume curve"
+msgstr "Courbe de volume"
+
+#: editor.py
+msgid "From the mod"
+msgstr "Du mod"
+
+#: editor.py
 msgid "Can't make the folder {folder}: {why}"
 msgstr "Impossible de créer le dossier {folder} : {why}"
 
@@ -1063,6 +1101,14 @@ msgstr "{name} : le son {id} n’existe pas dans cette version du jeu (retirez
 #: editor.py
 msgid "{name}: no audio file named"
 msgstr "{name} : aucun fichier audio nommé"
+
+#: editor.py
+msgid "Sound {id} has no audio in the game files"
+msgstr "Le son {id} n’a pas d’audio dans les fichiers du jeu"
+
+#: editor.py
+msgid "The copied audio couldn't be saved: {why}"
+msgstr "Impossible d’enregistrer l’audio copié : {why}"
 
 #: editor.py
 msgid "Make-Up Gain goes from {low} to {high} dB"
@@ -1221,10 +1267,6 @@ msgid "Can't write {file}: {why}"
 msgstr "Impossible d’écrire {file} : {why}"
 
 #: editor.py
-msgid "Sound {id} has no audio in the game files"
-msgstr "Le son {id} n’a pas d’audio dans les fichiers du jeu"
-
-#: editor.py
 msgid "{n} line of text that the game doesn't have"
 msgid_plural "{n} lines of text that the game doesn't have"
 msgstr[0] "{n} ligne de texte que le jeu n’a pas"
@@ -1364,6 +1406,162 @@ msgstr "{folder} est introuvable"
 msgid "The HD2_DATA environment variable points to {folder}, which has no Helldivers 2 files"
 msgstr "La variable d’environnement HD2_DATA pointe vers {folder}, qui ne contient aucun fichier de Helldivers 2"
 
+#: hd1.py
+msgid "Admiral"
+msgstr "Amiral"
+
+#: hd1.py
+msgid "Chief Communications Officer"
+msgstr "Officier en chef des communications"
+
+#: hd1.py
+msgid "Science Officer"
+msgstr "Officier scientifique"
+
+#: hd1.py
+msgid "Private 1"
+msgstr "Soldat 1"
+
+#: hd1.py
+msgid "Private 2"
+msgstr "Soldat 2"
+
+#: hd1.py
+msgid "Helldiver"
+msgstr "Helldiver"
+
+#: hd1.py
+msgid "Tutorial"
+msgstr "Tutoriel"
+
+#: hd1.py library.py
+msgid "Music"
+msgstr "Musique"
+
+#: hd1.py
+msgid "Voices"
+msgstr "Voix"
+
+#: hd1.py
+msgid "Weapons"
+msgstr "Armes"
+
+#: hd1.py
+msgid "Stratagems"
+msgstr "Stratagèmes"
+
+#: hd1.py
+msgid "Vehicles"
+msgstr "Véhicules"
+
+#: hd1.py
+msgid "Footsteps and Movement"
+msgstr "Pas et déplacements"
+
+#: hd1.py
+msgid "Impacts"
+msgstr "Impacts"
+
+#: hd1.py
+msgid "Radio"
+msgstr "Radio"
+
+#: hd1.py
+msgid "Ambience"
+msgstr "Ambiance"
+
+#: hd1.py
+msgid "Interface"
+msgstr "Interface"
+
+#: hd1.py
+msgid "General"
+msgstr "Général"
+
+#: hd1.py
+msgid "Assault Rifles"
+msgstr "Fusils d’assaut"
+
+#: hd1.py
+msgid "Grenades"
+msgstr "Grenades"
+
+#: hd1.py
+msgid "Machine Guns"
+msgstr "Mitrailleuses"
+
+#: hd1.py
+msgid "Rocket Launchers"
+msgstr "Lance-roquettes"
+
+#: hd1.py
+msgid "Shotguns"
+msgstr "Fusils à pompe"
+
+#: hd1.py
+msgid "Submachine Guns"
+msgstr "Pistolets-mitrailleurs"
+
+#: hd1.py
+msgid "Stratagem Beacons"
+msgstr "Balises de stratagème"
+
+#: hd1.py
+msgid "Shields"
+msgstr "Boucliers"
+
+#: hd1.py
+msgid "Turrets"
+msgstr "Tourelles"
+
+#: hd1.py
+msgid "Hellpods"
+msgstr "Hellpods"
+
+#: hd1.py
+msgid "Extraction Shuttle"
+msgstr "Navette d’extraction"
+
+#: hd1.py
+msgid "Exosuits"
+msgstr "Exosquelettes"
+
+#: hd1.py
+msgid "{folder} has no Helldivers 1 files"
+msgstr "{folder} ne contient aucun fichier de Helldivers 1"
+
+#: hd1.py library.py
+msgid "Not named yet."
+msgstr "Pas encore nommé."
+
+#: hd1.py
+msgid "Helldivers 1"
+msgstr "Helldivers 1"
+
+#: hd1.py
+msgid "Clips No Event Plays"
+msgstr "Clips qu’aucun événement ne joue"
+
+#: hd1.py library.py
+msgid "All Archives"
+msgstr "Toutes les Archives"
+
+#: hd1.py library.py
+msgid "Bank {id}"
+msgstr "Banque {id}"
+
+#: hd1.py
+msgid "{n} languages"
+msgstr "{n} langues"
+
+#: hd1.py library.py
+msgid "Take {n}"
+msgstr "Prise {n}"
+
+#: hd1.py
+msgid "Event {id}"
+msgstr "Événement {id}"
+
 #: index.py
 msgid "English"
 msgstr "Anglais"
@@ -1407,10 +1605,6 @@ msgstr "Russe"
 #: installed.py
 msgid "Checking {mod}"
 msgstr "Vérification de {mod}"
-
-#: library.py
-msgid "Music"
-msgstr "Musique"
 
 #: library.py
 msgid "Music by where it plays, from the ship to the credits."
@@ -1473,10 +1667,6 @@ msgid "Streams"
 msgstr "Flux"
 
 #: library.py
-msgid "Not named yet."
-msgstr "Pas encore nommé."
-
-#: library.py
 msgid "Streams No Bank Plays"
 msgstr "Flux qu’aucune banque ne joue"
 
@@ -1487,10 +1677,6 @@ msgstr "Fichiers audio de cette archive qu’aucune banque de sons de cette vers
 #: library.py
 msgid "A single sound. Audiodiver replaces it in every bank that holds or plays it."
 msgstr "Un seul son. Audiodiver le remplace dans chaque banque qui le contient ou le joue."
-
-#: library.py
-msgid "Bank {id}"
-msgstr "Banque {id}"
 
 #: library.py
 msgid "No container"
@@ -1511,10 +1697,6 @@ msgstr "Cette banque ne fait que stocker de l’audio. Les sons qui le jouent so
 #: library.py
 msgid "Not transcribed. Each line is named after what another Helldiver voice says at the same place, and the words may differ."
 msgstr "Non transcrit. Chaque ligne porte le nom de ce que dit une autre voix de Helldiver au même endroit, et les mots peuvent différer."
-
-#: library.py
-msgid "All Archives"
-msgstr "Toutes les Archives"
 
 #: library.py
 msgid "Archive {id}"
@@ -1565,10 +1747,6 @@ msgstr[1] "Musique : {sections} et {n} autres"
 #: library.py
 msgid "Music: {sections}"
 msgstr "Musique : {sections}"
-
-#: library.py
-msgid "Take {n}"
-msgstr "Prise {n}"
 
 #: library.py
 msgid "Only {language} voices are installed."
@@ -1817,6 +1995,14 @@ msgstr "{file} est endommagé (le Make-Up Gain de l’audio d’origine)"
 #: project.py
 msgid "The project in {pack} is damaged (the Make-Up Gain on the original audio)"
 msgstr "Le projet de {pack} est endommagé (le Make-Up Gain de l’audio d’origine)"
+
+#: project.py
+msgid "{file} is damaged (the volume curves)"
+msgstr "{file} est endommagé (les courbes de volume)"
+
+#: project.py
+msgid "The project in {pack} is damaged (the volume curves)"
+msgstr "Le projet dans {pack} est endommagé (les courbes de volume)"
 
 #: project.py
 msgid "{file} is damaged (the added audio)"

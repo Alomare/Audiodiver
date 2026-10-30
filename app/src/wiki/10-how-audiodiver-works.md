@@ -42,6 +42,12 @@ The Library and the Audio tab share the same layout, and both have {icon:export}
 
 Audio, Soundtrack and Text can be hidden. Untick them under **Tabs** in [Settings ▸ System](app:settings/system), for example to keep only Text for a mod that changes subtitles. A new project starts with the tabs that Settings shows. Each project can then pick different ones under **Tabs** on the [Project](app:project) tab and keeps that choice. Hiding a tab removes nothing, and what was changed there stays in the mod.
 
+## Helldivers 1
+
+With Helldivers 1 installed, the Library has a tab for each game under **Index** and **All Archives**. Helldivers 1 audio plays and exports as WAV, FLAC or MP3. Helldivers 1 entries can't go in a project, but **Ctrl+C** copies any clip into a slot of the project. Audiodiver doesn't change that game.
+
+Each entry in the Index is one sound event of the game, and the slots are the clips it picks from. Voices and some music have a tab for each language. An entry shows the name from the game files in a shorter form, so `fs_rock_run` shows as *Rock Run*, and a search finds both. Weapons, stratagems and enemies go by the names the game shows. A voice entry gives the line shown on screen when it plays, and a search finds that line too. The voice clips are short, so they don't read the whole line. The game keeps many names only as numbers, so sounds without a known name are only in **All Archives**, in their banks.
+
 ## New versions of Audiodiver
 
 Audiodiver checks GitHub for a new version every time it starts. [Settings ▸ System](app:settings/system) controls what happens when there is one:
@@ -60,7 +66,9 @@ An update replaces only the app. Projects, audio files and settings are kept.
 
 ### Game folder
 
-**Game** in [Settings ▸ System](app:settings/system) shows the folder Audiodiver reads the game from. Audiodiver finds it through Steam. If the game is somewhere else, press **Choose Another Folder** and pick the Helldivers 2 install folder, or the `data` folder inside it. Audiodiver then reads the game again, which takes about a minute the first time. It only reads from this folder and never writes to it.
+**Helldivers 2** in [Settings ▸ System](app:settings/system) shows the folder Audiodiver reads the game from. Audiodiver finds it through Steam. If the game is somewhere else, press **Choose Another Folder** and pick the Helldivers 2 install folder, or the `data` folder inside it. Audiodiver then reads the game again, which takes about a minute the first time. It only reads from this folder and never writes to it.
+
+**Helldivers 1** does the same for the Library. Pick the Helldivers 1 install folder, or the `contents` folder inside it.
 
 ### Startup
 

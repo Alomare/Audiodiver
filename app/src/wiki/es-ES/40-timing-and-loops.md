@@ -2,7 +2,7 @@
 title: Sincronización, puntos de cue y bucles
 group: Crear un mod
 summary: Cómo pasa el juego de un segmento al siguiente, cómo hacer que la música nueva enlace sin cortes y cómo cortar una canción en un cue.
-source: 7a14e9b897bb
+source: 116b5d6a7112
 ---
 
 ## Ajustar los tiempos al audio nuevo {#fitting-the-timing-to-the-new-audio}
@@ -46,7 +46,7 @@ Para cortar una canción:
 
 1. Elige los slots en **Desde** y **Hasta**. Cada segmento entre ellos recibe un trozo, y **Hasta** enumera cuántos trozos son.
 2. Coloca los cortes. **Proporciones originales** reparte las duraciones originales sobre toda la canción. **Duraciones originales** corta exactamente en las duraciones originales, así que el último trozo puede terminar antes que la canción. **Iguales** corta la canción en trozos iguales.
-3. Ajusta los cortes. Arrastra un corte para moverlo y mantén pulsada la tecla Shift para que no se ajuste a la duración original. Haz doble clic en la canción para añadir un corte. Selecciona un corte y pulsa Delete para quitarlo, o desplázalo con ←/→ (Shift mueve 100 ms, Alt mueve 1 ms). **Inicio** y **Fin** pueden omitir una intro o un final.
+3. Ajusta los cortes. Arrastra un corte para moverlo y mantén pulsada la tecla Shift para que no se ajuste a la duración original. Haz doble clic en la canción para añadir un corte. Selecciona un corte y pulsa Delete para quitarlo, o desplázalo con ←/→ (Shift mueve 100 ms, Alt mueve 1 ms). **Inicio** y **Fin** pueden omitir una intro o un final. La tabla muestra cada tiempo al milisegundo, y **Corte (ms)**, encima de la canción, acepta un tiempo exacto para el corte seleccionado.
 4. Escucha. **Canción** reproduce la canción, y **Originales** reproduce el audio original de los slots uno tras otro. Haz clic en la canción o en el original para reproducir desde ese punto, o pulsa ▶ en un trozo o en el original que hay a su lado en la tabla. La barra espaciadora reproduce y pausa.
 5. Haz zoom con la rueda o con el control deslizante bajo los carriles, y dibuja los carriles más altos para una canción silenciosa con Ctrl+rueda o con el control deslizante de la derecha. Desplázate con Shift+rueda o con la franja bajo los carriles. {icon:reset}, en la esquina, vuelve a mostrar la canción entera. Haz clic en una fila de la tabla para llevar ese trozo a la vista.
 6. Pulsa **Cortar y rellenar**. Audiodiver guarda los trozos en la carpeta `audio\slices` del proyecto y rellena los slots.

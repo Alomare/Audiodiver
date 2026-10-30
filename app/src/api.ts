@@ -15,16 +15,20 @@ export type Entry = {
 /** What the Index knows about something: the piece of music or sound set it is (`item`), or just a category.
     Drawn in the category's colour. */
 export type Tag = { name: string; category: string; item?: string };
+/** The curves on a clip of a music track that shape the level (core music.level_view): each [ms from the clip's start,
+    value]. A volume curve runs from 0, as mixed, down; a fade from 0 to 1. */
+export type Curve = { volume?: number[][]; fade_in?: number[][]; fade_out?: number[][] };
 export type Slot = {
   source: string; duration_ms: number; unused: boolean; variant: string; label: string; locked: boolean;
   absent?: boolean; // the game's data names it, but no file of this install has its audio: nothing to play or replace
   also_in: string[]; // the other cues and banks ("bank:<id>") that play it; for a bank's sounds only the first few
   also_n?: number;   // how many there are in all, when also_in was cut short
   banks?: number;    // how many of them are banks
-  stream?: string;   // the file id of the stream that holds its audio (64-bit), "" when it is only inside banks
+  stream?: string;   // the file id of the stream that holds its audio (64-bit), "" when it is only inside banks; in Helldivers 1, the clip's
   object?: string;   // a bank's sound: the Sound object that plays it
   // the Audio tab: an imported mod's settings on the Sound or MusicTrack that plays it, or on a container above it
-  mod_settings?: { object: string; kind: "sound" | "track" | "container"; settings: { name: string; value: number; unit: string }[] }[];
+  mod_settings?: { object: string; kind: "sound" | "track" | "container"; settings: { name: string; value: number; unit: string; text?: string }[] }[];
+  curve?: Curve;     // the clip's curves on this track, the game's, or an imported mod's in the Audio tab
   notes?: ClipNote[]; // what the clip notes say about this clip (core data/notes.json)
   min_ms?: number;   // the shortest replacement that works here, as the notes found it
   // the Audio tab's view of a bank (core library.py, addition.py):
@@ -115,14 +119,17 @@ export type MusicItem = {
   id_name?: boolean; // an archive with no single name: called by its ID ("Archive <id>")
   tags?: Tag[]; names?: string[]; // an archive: what the Index knows is in it
   en?: string;       // the name in English, where the window's language names it otherwise (a search finds both)
+  game?: "hd1";      // Helldivers 1: to play and export, never in a project (core hd1.py)
 };
 export type MusicSection = { id: string; name: string; about: string; unused: boolean; items: MusicItem[]; en?: string };
 export type MusicList = { sections: MusicSection[] };
-export type Category = { id: string; name: string; hue: number; about: string; sections: MusicSection[]; en?: string };
+export type Category = { id: string; name: string; hue: number; about: string; sections: MusicSection[]; en?: string; game?: "hd1" };
 export type Index = { categories: Category[] };
 /** A row of All Archives: an archive of the game with audio in it, and what the Index knows about it. */
 export type ArchiveRow = {
   id: string; names: string[]; tags: Tag[]; banks: number; sounds: number; language: string;
+  game?: "hd1";    // Helldivers 1: a bank, opened as `item`, never in a project
+  item?: string;
   en?: string[];   // the English names of its sound sets, where the window's language names them otherwise (search)
   preview: string; // one of its sounds, to hear without opening it
 };
@@ -178,6 +185,8 @@ export type ProjectState = {
   rebuild: "new" | "game" | "changed" | null; // why that build isn't the project as it is now (core editor._rebuild)
   assignments: Record<string, Assignment>; unresolved: { target: string; audio: string; label: string }[];
   gains: Record<string, number>;    // Make-Up Gain on the original audio, by source; new audio's own applies while it is there
+  curves_off: string[];             // the clips played without their volume curves, by source
+  curves: number;                   // how many music tracks have an imported mod's curves
   library: string[];               // what the project works on: Index items and archives ("archive:<name>"), as added
   library_missing: string[];        // of what it lists, the ones this game version has nothing for
   in_banks: Record<string, number>; // per listed bank ("bank:<id>"): how many of its sounds are replaced
@@ -206,6 +215,7 @@ export type Status = {
   jobs: Job[];                     // jobs still running (a reloaded window picks them up)
   // the data folder in use or tried, how it was found, and the one chosen in Settings (null: found through Steam)
   game_folder: { path: string | null; how: "chosen" | "env" | "steam" | null; chosen: string | null };
+  hd1_folder: { path: string | null; how: "chosen" | "env" | "steam" | null; chosen: string | null };
   // the game's language in Steam ("brazilian") and Windows' ("pt-BR"), for Automatic (i18n.ts); the core's own
   languages?: { game: string | null; system: string | null; core: string };
 };
@@ -316,6 +326,13 @@ export function fmtBytes(bytes: number) {
   if (bytes >= 1e9) return `${fmtNumber(bytes / 1e9, 1)} GB`;
   if (bytes >= 1e6) return `${fmtNumber(bytes / 1e6)} MB`;
   return bytes > 0 ? `${fmtNumber(Math.max(1, bytes / 1e3))} KB` : t`empty`;
+}
+
+/** A time to the millisecond, where timing is the point: 12.345 s, 1:05.320. */
+export function fmtExact(ms: number | null | undefined) {
+  if (ms == null) return "–";
+  const whole = Math.round(ms), minutes = Math.floor(whole / 60000), s = fmtNumber((whole % 60000) / 1000, 3);
+  return minutes ? `${minutes}:${whole % 60000 < 10000 ? "0" : ""}${s}` : `${s} s`;
 }
 
 export function fmtTime(ms: number | null | undefined) {

@@ -2,7 +2,7 @@
 title: Cómo leer la pantalla
 group: Primeros pasos
 summary: Qué muestra cada parte de la Biblioteca y de la pestaña Audio, y qué significan las etiquetas y las marcas de una fila.
-source: 5fdb903a3050
+source: f9a18dbaae00
 ---
 
 La Biblioteca y la pestaña Audio comparten una disposición: una lista a la izquierda, el elemento abierto en el centro y el panel de detalles a la derecha. La Banda Sonora tiene otra disposición, que se describe en [Banda Sonora](wiki:soundtrack). Las palabras en **negrita** se explican en [El audio del juego, explicado](wiki:game-audio).
@@ -10,7 +10,8 @@ La Biblioteca y la pestaña Audio comparten una disposición: una lista a la izq
 ## La lista de la izquierda {#the-list-on-the-left}
 
 - **Índice** ordena el audio según lo que es. Categorías como Música, Armas y Enemigos contienen secciones como *En la nave* y *Armas primarias*. Cada sección enumera cosas que se pueden abrir, ya sea una **pieza de música** o un **conjunto de sonidos**. El número al final de una fila es la duración de una pieza de música, o el número de sonidos de un conjunto.
-- **Todos los Archivos** muestra en una tabla todos los **archivos** que contienen audio. Haz clic en el encabezado de una columna para ordenar por ella, y otra vez para invertir el orden. Los iconos de la columna *Índice* indican qué categorías incluyen el archivo.
+- **Todos los Archivos** muestra en una tabla todos los **archivos** que contienen audio. Haz clic en el encabezado de una columna para ordenar por ella, y otra vez para invertir el orden. Los iconos de la columna *Índice* indican qué categorías incluyen el archivo. Todos los Archivos empieza más ancho que el Índice, y cada uno conserva el ancho que le des.
+- Con Helldivers 1 instalado, las pestañas **Helldivers 2** y **Helldivers 1** bajo estas dos eligen el juego.
 - En la Biblioteca, el **+** al final de una fila la añade al proyecto, y **✓** indica que el proyecto ya la tiene. Las líneas de categoría y de sección también tienen un **+**, que añade todo lo visible bajo ellas. Después de una búsqueda, ese **+** añade solo los resultados.
 - En la pestaña Audio, la lista muestra lo que tiene el proyecto. **✕** en una fila, o en una línea de categoría o de sección, la quita del proyecto junto con todo lo que el proyecto cambia en ella: el audio nuevo, también en los slots que comparte otro elemento del proyecto, las tomas y capas añadidas, el Make-Up Gain, y los puntos de cue y los ajustes de Banda Sonora de la música. Audiodiver pregunta antes cuando se perdería audio nuevo. El clic derecho hace lo mismo, y {key:undo} lo recupera.
 - {icon:collapse} **Contraer todo**, junto al cuadro de búsqueda, contrae todas las categorías y secciones. Una búsqueda expande lo que coincide.
@@ -66,6 +67,7 @@ Cada fila es un **slot**, un clip del juego que se puede sustituir.
 - La casilla del principio de una fila añade el slot a la selección, o lo quita, igual que Ctrl+clic. Shift en una casilla selecciona un intervalo. Una línea de grupo tiene una casilla para todas las tomas del grupo, y el grupo sigue contraído. En la Biblioteca, **Exportar** puede guardar solo los slots seleccionados. En la pestaña Audio, con varios slots seleccionados, el panel derecho tiene **Elegir un fichero para todos**, **Elegir ficheros**, **Sustituir por silencio** y el botón que quita el audio nuevo.
 - Haz doble clic en una fila para reproducirla. Haz clic derecho en ella para todo lo demás, incluidos copiar, pegar, silencio e ID.
 - Copia ficheros de audio en el Explorador de archivos, selecciona slots y pulsa **Ctrl+V**. Un fichero va a todos los slots seleccionados. Varios ficheros van en orden de nombre de fichero, y con un único slot seleccionado siguen rellenando a partir de ahí. Ctrl+V pega lo último que se copió: ficheros del Explorador de archivos o slots copiados en Audiodiver.
+- **Ctrl+C** copia los slots seleccionados, en la Biblioteca o en la pestaña Audio. **Ctrl+V** los pega en los slots seleccionados de la pestaña Audio, sin exportar ni importar nada. Un slot con audio nuevo da ese audio y sus ajustes. Cualquier otro slot da el original, y un clip de Helldivers 2 entra sin cambios.
 
 ### Etiquetas de una fila {#tags-on-a-row}
 
@@ -99,7 +101,7 @@ Pasa el puntero por una etiqueta para leer la nota. Las notas de un clip selecci
 
 ## Bajo los slots {#under-the-slots}
 
-Aquí se muestran las **formas de onda** del slot seleccionado. El original está arriba y, en la pestaña Audio, la sustitución está debajo, con las mismas escalas de tiempo y de nivel, y con los puntos de **Entrada** y **Salida** marcados. Las dos se dibujan con su [Make-Up Gain](wiki:volume#make-up-gain-per-slot), y el rojo marca el audio que pasa del fondo de escala. Haz clic en una forma de onda para reproducir desde ese punto y arrastra el borde superior del panel para cambiar su tamaño. {icon:waves} al final de la barra de herramientas las oculta. En la Biblioteca, la línea sobre las formas de onda describe el slot. Muestra el ID (haz clic para copiarlo), la duración, cuándo suena el slot y en qué otros sitios lo reproduce el juego.
+Aquí se muestran las **formas de onda** del slot seleccionado. El original está arriba y, en la pestaña Audio, la sustitución está debajo, con las mismas escalas de tiempo y de nivel, y con los puntos de **Entrada** y **Salida** marcados. Las dos se dibujan con su [Make-Up Gain](wiki:volume#make-up-gain-per-slot), y el rojo marca el audio que pasa del fondo de escala. Haz clic en una forma de onda para reproducir desde ese punto y arrastra el borde superior del panel para cambiar su tamaño. {icon:waves} al final de la barra de herramientas las oculta. En la Biblioteca, la línea sobre las formas de onda describe el slot. Muestra el ID (haz clic para copiarlo), la duración, cuándo suena el slot y en qué otros sitios lo reproduce el juego. Una línea alrededor de una forma de onda es la [curva de volumen](wiki:volume#volume-curves) del clip.
 
 Dos controles deslizantes hacen zoom en las dos formas de onda. El del lado derecho las dibuja más altas, para mostrar audio silencioso, y el de debajo, a la derecha, amplía el tiempo, para colocar Entrada y Salida con precisión. Sobre las formas de onda, la rueda del ratón amplía el tiempo, Ctrl+rueda las dibuja más altas y Shift+rueda desplaza. Con el tiempo ampliado, la franja bajo las formas de onda también se desplaza. {icon:reset}, en la esquina entre los controles, vuelve a mostrar todo el audio a escala completa. Mientras se mueve un control deslizante, un número de 0 a 100 sobre el tirador indica hasta dónde ha llegado. El zoom se queda como está al seleccionar otro slot, y la herramienta de corte tiene los mismos controles.
 
@@ -153,7 +155,7 @@ Los dos cuadros de búsqueda aceptan cualquiera de ellos.
 
 ## ID de contenedor {#container-ids}
 
-Pulsa {icon:id} en la barra de herramientas para enumerar los sonidos de un banco como lo hacen las herramientas de Wwise. Cada sonido se nombra entonces por el ID del contenedor que está justo encima de las tomas, con el tipo de contenedor antes del ID (Random, Sequence, Switch, Layer o Actor-Mixer) y el nombre habitual después. Los contenedores superiores van en líneas propias, un paso más adentro por cada nivel, en el orden del banco. Los Actor-Mixer que contienen solo al siguiente comparten una línea. Haz clic en un ID de estas líneas para copiarlo. La búsqueda de slots también encuentra ID de contenedor.
+Pulsa {icon:id} en la barra de herramientas para enumerar los sonidos de un banco como lo hacen las herramientas de Wwise. Cada sonido se nombra entonces por el ID del contenedor que está justo encima de las tomas, con el tipo de contenedor antes del ID (Random, Sequence, Switch, Layer o Actor-Mixer) y el nombre habitual después. Los contenedores superiores van en líneas propias, un paso más adentro por cada nivel, en el orden del banco. Los Actor-Mixer que contienen solo al siguiente comparten una línea. Haz clic en un ID de estas líneas para copiarlo. La búsqueda de slots también encuentra ID de contenedor. Haz clic en la línea de un contenedor, o en su casilla, para seleccionar todos los slots que tiene debajo, por ejemplo para ajustar el Make-Up Gain de un contenedor entero.
 
 ## Exportar {#exporting}
 

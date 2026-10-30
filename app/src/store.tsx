@@ -6,7 +6,7 @@ import { importAsk } from "./importAsk";
 import { liveGain } from "./gain";
 import { keyLabel } from "./keys";
 import { indexItems } from "./music";
-import { FOLD_LIBRARY, HIDEABLE, nav as tabs, type Hideable } from "./nav";
+import { FOLD_LIBRARY, HIDEABLE, isArchive, nav as tabs, type Hideable } from "./nav";
 import { follow, noticeLog, type Go } from "./noticeLog";
 import { notes } from "./noteStore";
 import { UTILS } from "./edition";
@@ -74,6 +74,7 @@ export const EDIT_NAMES: Record<string, string> = {
   "own clip": t({ message: "only this sound", comment: "Edit in Undo, Redo and History: the new audio of a slot set to play only in this sound" }),
   "shared clip": t({ message: "every sound that plays it", comment: "Edit in Undo, Redo and History: the new audio of a slot set to play in every sound that plays the clip" }),
   note: t({ message: "note", comment: "Edit in Undo, Redo and History: a note written in the project" }),
+  curve: t({ message: "volume curve", comment: "Edit in Undo, Redo and History: a slot set to keep or drop the volume curve on the clip" }),
   collect: t({ message: "collect files", comment: "Edit in Undo, Redo and History: files copied into the project folder" }),
   tabs: t({ message: "tabs", comment: "Edit in Undo, Redo and History: the tabs the project shows changed" }),
   song: t({ message: "song", comment: "Edit in Undo, Redo and History: a song set for a piece of music" }),
@@ -245,7 +246,7 @@ function useBrowse(scope: ScopeName, deps: {
     h.at += d;
     go(next, false);
     setSelected([]);
-    if (scope === "library" && next.itemId) tabs.go("library", next.itemId.startsWith("archive:") ? "archives" : "index");
+    if (scope === "library" && next.itemId) tabs.go("library", tabs.libraryTabOf(next.itemId));
   }, [go, scope]);
   const back = useCallback(() => step(-1), [step]);
   const forward = useCallback(() => step(1), [step]);
@@ -297,6 +298,7 @@ function useEditorState() {
   const [jobs, setJobs] = useState<Record<string, Job>>({});
   const [revision, setRevision] = useState(0); // bumps when assigned audio changes (preview cache-busting)
   const [clip, setClip] = useState<string[]>([]); // slots whose audio Ctrl+C copied, in play order
+  const clipFrom = useRef({ original: false, names: {} as Record<string, string> }); // how they paste (core copy_audio)
   const clipAt = useRef(-1); // the clipboard's change count then: files copied in Explorer since paste instead
   const nextId = useRef(1);
   const editSeq = useRef(0); // counts edits, so an Undo button only undoes the edit it was shown for
@@ -358,9 +360,9 @@ function useEditorState() {
   const audioSig = useRef("");     // what plays in each slot, as last applied: `revision` moves when it changes
   const applyProject = useCallback((p: ProjectState | null | undefined) => {
     if (p === undefined) return;
-    if ((p?.path ?? null) !== projectPath.current) { // copied slots belong to one project
+    if ((p?.path ?? null) !== projectPath.current) { // new audio copied belongs to one project, an original to none
       projectPath.current = p?.path ?? null;
-      setClip([]);
+      if (!clipFrom.current.original) setClip([]);
     }
     // a change since a notice was shown (an edit, an undo, another project) makes its Undo refuse; a no-op doesn't
     const rev = p ? p.revision : -1;
@@ -527,7 +529,7 @@ function useEditorState() {
   const resolveItem = useCallback(async (id: string): Promise<MusicItem | null> => {
     const known = idx.current.items.get(id);
     if (known) return known;
-    if (!id.startsWith("archive:")) return null;
+    if (!isArchive(id)) return null;
     if (!pending.current.has(id)) {
       pending.current.set(id, call<MusicItem>("item", { id }).then((it) => {
         setArchiveItems((all) => ({ ...all, [id]: it }));
@@ -558,7 +560,7 @@ function useEditorState() {
   /** Goes to where something is: the tab, the item and part, the slot. `at.cueId` alone opens that cue on its own. */
   const goTo = useCallback(async (at: PlayedAt & { scope: ScopeName }) => { // the Soundtrack's own: openInSoundtrack
     const s = scopes[at.scope];
-    tabs.go(at.scope, at.scope === "library" && at.itemId ? (at.itemId.startsWith("archive:") ? "archives" : "index") : undefined);
+    tabs.go(at.scope, at.scope === "library" && at.itemId ? tabs.libraryTabOf(at.itemId) : undefined);
     if (at.itemId) return s.openItem(at.itemId, at.cueId, at.source);
     if (at.cueId) s.openCue(at.cueId, at.source ?? undefined);
     return !!at.cueId;
@@ -943,14 +945,16 @@ function useEditorState() {
       const slots = sources.length, what = named ?? plural(slots, { one: "# slot", other: "# slots" });
       if (edited(await run<ProjectState>("silence", { sources, keep_timing: keepTiming }))) quick(t`**${what}** replaced with silence`);
     },
-    /** Remembers the audio of these slots for pasting (the slots without new audio are left out). */
-    copySlots(sources: string[]) {
-      const mine = sources.filter((s) => project?.assignments[s]);
-      if (!mine.length) { quick(t`Nothing to copy. These slots aren't replaced`, "info"); return; }
-      setClip(mine);
+    /** Remembers these slots for pasting. One with new audio gives that; one without, or any with `original` (a copy
+        from the Library, which shows the originals), gives the original audio. `names`: what to call the originals. */
+    copySlots(sources: string[], names: Record<string, string> = {}, original = false) {
+      if (!sources.length) { quick(t`Nothing to copy. These slots have no audio`, "info"); return; }
+      setClip(sources);
+      clipFrom.current = { original: original || !sources.some((s) => project?.assignments[s]), names };
       platform.clipboardAudio().then((c) => { clipAt.current = c.seq; });
-      const paste = keyLabel("paste"), slots = mine.length;
-      quick(paste ? t`Copied ${plural(slots, { one: "# slot", other: "# slots" })} · ${paste} pastes`
+      const paste = keyLabel("paste"), slots = sources.length;
+      quick(paste ? (original ? t`Copied ${plural(slots, { one: "# slot", other: "# slots" })} · ${paste} pastes in the Audio tab`
+        : t`Copied ${plural(slots, { one: "# slot", other: "# slots" })} · ${paste} pastes`)
         : t`Copied ${plural(slots, { one: "# slot", other: "# slots" })}`, "copy");
     },
     /** Pastes what was copied last: audio files copied in Explorer go into `selection` (one file into every slot,
@@ -971,11 +975,11 @@ function useEditorState() {
         }
         return;
       }
-      if (!clip.length) { quick(t`Nothing to paste. Copy audio files or replaced slots first`, "info"); return; }
+      if (!clip.length) { quick(t`Nothing to paste. Copy audio files or slots first`, "info"); return; }
       if (!targets.length) return;
       const pairs = clip.length === 1 ? targets.map((t) => [clip[0], t]) : clip.slice(0, targets.length).map((c, i) => [c, targets[i]]);
       const slots = pairs.length;
-      if (edited(await run<ProjectState>("copy_audio", { pairs }))) quick(t`Pasted into ${plural(slots, { one: "# slot", other: "# slots" })}`);
+      if (edited(await run<ProjectState>("copy_audio", { pairs, ...clipFrom.current }))) quick(t`Pasted into ${plural(slots, { one: "# slot", other: "# slots" })}`);
     },
     /** New takes for a sound the game picks takes from (or for a layer), one per file in file-name order, asking
         which files without them. `what` names the sound. The first new take is selected. */
@@ -1023,6 +1027,10 @@ function useEditorState() {
     /** Make-Up Gain on the original audio of slots without new audio; 0 takes it off. */
     async originalGain(sources: string[], gain_db: number) {
       edited(await run<ProjectState>("original_gain", { sources, gain_db }));
+    },
+    /** Whether the clips of slots keep their volume curves: the line over the waveform. */
+    async keepCurve(sources: string[], keep: boolean) {
+      if (needProject()) edited(await run<ProjectState>("keep_curve", { sources, keep }));
     },
     /** Make-Up Gain that makes the new audio of each slot as loud as its original (core loudness.py). */
     async matchLoudness(sources: string[]) {
@@ -1165,6 +1173,21 @@ function useEditorState() {
         return null;
       } catch (e: any) { return e.message ?? String(e); }
     },
+    /** Reads Helldivers 1 from another folder (asking which, without a path; null: find it through Steam again). The
+        Library follows. Returns what went wrong, if anything. */
+    async setHd1Folder(path?: string | null): Promise<string | null> {
+      if (path === undefined) {
+        path = await platform.pickFolder(status?.hd1_folder?.path ?? undefined, t`Choose the Helldivers 1 install folder`);
+        if (!path) return null;
+      }
+      try {
+        const s = await call<Status>("set_hd1_folder", { path });
+        const [ix, all] = await Promise.all([call<Index>("index"), call<ArchiveRow[]>("archives")]);
+        setStatus(s); setIndex(ix); setArchives(all); setArchiveItems({});
+        pending.current.clear();
+        return null;
+      } catch (e: any) { return e.message ?? String(e); }
+    },
     /** Builds the mod's ZIP. The Build tab's switches say whether the version goes up afterwards and whether
         the ZIP is shown in its folder. */
     async build() {
@@ -1180,7 +1203,8 @@ function useEditorState() {
           { label: t`Build Tab`, go: { tab: "build" } });
         return;
       }
-      if (!Object.keys(fresh.assignments).length && !Object.keys(fresh.gains ?? {}).length && !fresh.texts.length && !Object.keys(fresh.soundtrack ?? {}).length) {
+      if (!Object.keys(fresh.assignments).length && !Object.keys(fresh.gains ?? {}).length && !fresh.texts.length && !Object.keys(fresh.soundtrack ?? {}).length
+        && !fresh.curves_off.length && !fresh.curves) {
         notify("info", t`Nothing to build yet. Replace some audio, set a piece in the Soundtrack or change a line of text first.`);
         return;
       }
@@ -1345,7 +1369,7 @@ export function useEditor() {
       return goTo({ scope: "library", itemId, cueId: typeof part === "string" ? part : null, source: select ?? null });
     }
     // in the Library, the list on the left shows where it is: the Index for an item, All Archives for an archive
-    if (scope === "library") tabs.go("library", itemId.startsWith("archive:") ? "archives" : "index");
+    if (scope === "library") tabs.go("library", tabs.libraryTabOf(itemId));
     return scopes[scope].openItem(itemId, part, select);
   };
   return Object.assign(Object.create(BROWSING[scope]) as Browse, e, { scope, readOnly: scope === "library", show });

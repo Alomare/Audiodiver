@@ -2,7 +2,7 @@
 title: Comprendre l’écran
 group: Pour commencer
 summary: Ce que montre chaque partie de la Bibliothèque et de l’onglet Audio, et ce que signifient les étiquettes et les marques d’une ligne.
-source: 5fdb903a3050
+source: f9a18dbaae00
 ---
 
 La Bibliothèque et l’onglet Audio partagent une même disposition : une liste à gauche, l’élément ouvert au milieu et le panneau de détails à droite. La Bande-son a une disposition différente, décrite dans [Bande-son](wiki:soundtrack). Les mots en **gras** sont expliqués dans [L’audio du jeu, expliqué](wiki:game-audio).
@@ -10,7 +10,8 @@ La Bibliothèque et l’onglet Audio partagent une même disposition : une lis
 ## La liste à gauche {#the-list-on-the-left}
 
 - **Index** classe l’audio selon ce qu’il est. Des catégories comme Musique, Armes et Ennemis contiennent des sections comme *À bord du vaisseau* et *Armes principales*. Chaque section liste des éléments que vous pouvez ouvrir, soit un **morceau de musique**, soit un **ensemble de sons**. Le nombre à la fin d’une ligne est la durée d’un morceau de musique, ou le nombre de sons d’un ensemble.
-- **Toutes les Archives** affiche chaque **archive** qui contient de l’audio, sous forme de tableau. Cliquez sur l’en-tête d’une colonne pour trier selon elle, et cliquez de nouveau pour inverser l’ordre. Les icônes de la colonne *Index* indiquent quelles catégories incluent l’archive.
+- **Toutes les Archives** affiche chaque **archive** qui contient de l’audio, sous forme de tableau. Cliquez sur l’en-tête d’une colonne pour trier selon elle, et cliquez de nouveau pour inverser l’ordre. Les icônes de la colonne *Index* indiquent quelles catégories incluent l’archive. Toutes les Archives démarre plus large que l’Index, et chacun garde la largeur que vous lui donnez.
+- Quand Helldivers 1 est installé, les onglets **Helldivers 2** et **Helldivers 1** sous ces deux-là choisissent le jeu.
 - Dans la Bibliothèque, le **+** à la fin d’une ligne l’ajoute au projet, et **✓** signifie que le projet l’a déjà. Les lignes de catégorie et de section ont aussi un **+**, qui ajoute tout ce qui est visible en dessous. Après une recherche, ce **+** ajoute uniquement les résultats.
 - Dans l’onglet Audio, la liste montre ce que le projet contient. **✕** sur une ligne, ou sur une ligne de catégorie ou de section, la retire du projet, avec tout ce que le projet y modifie : le nouvel audio, y compris dans les emplacements qu’un autre élément du projet partage, les prises et les couches ajoutées, le Make-Up Gain, ainsi que les points de repère et les réglages de la Bande-son d’une musique. Audiodiver demande d’abord confirmation quand du nouvel audio serait perdu. Le clic droit fait la même chose, et {key:undo} le rétablit.
 - {icon:collapse} **Tout replier**, à côté de la zone de recherche, replie chaque catégorie et chaque section. Une recherche déplie tout ce qui correspond.
@@ -66,6 +67,7 @@ Chaque ligne est un **emplacement**, c’est-à-dire un clip du jeu qui peut êt
 - La case au début d’une ligne met l’emplacement dans la sélection, ou l’en retire, comme le fait Ctrl+clic. Shift sur une case sélectionne une plage. Une ligne de groupe a une case pour toutes les prises du groupe, et le groupe reste replié. Dans la Bibliothèque, **Exporter** peut enregistrer uniquement les emplacements sélectionnés. Dans l’onglet Audio, avec plusieurs emplacements sélectionnés, le panneau de droite propose **Choisir un seul fichier pour tous**, **Choisir des fichiers**, **Remplacer par du silence** et le bouton qui retire le nouvel audio.
 - Double-cliquez sur une ligne pour la lire. Faites un clic droit dessus pour tout le reste, y compris copier, coller, silence et ID.
 - Copiez des fichiers audio dans l’Explorateur, sélectionnez des emplacements et appuyez sur **Ctrl+V**. Un seul fichier va dans chaque emplacement sélectionné. Plusieurs fichiers vont dans l’ordre des noms de fichiers, et sur un seul emplacement sélectionné ils remplissent les suivants à partir de là. Ctrl+V colle ce qui a été copié en dernier : des fichiers de l’Explorateur ou des emplacements copiés dans Audiodiver.
+- **Ctrl+C** copie les emplacements sélectionnés, dans la Bibliothèque ou dans l’onglet Audio. **Ctrl+V** les colle dans les emplacements sélectionnés de l’onglet Audio, sans rien exporter ni importer. Un emplacement avec du nouvel audio donne cet audio et ses réglages. Tout autre emplacement donne l’original, et un clip de Helldivers 2 entre sans changement.
 
 ### Étiquettes d’une ligne {#tags-on-a-row}
 
@@ -99,7 +101,7 @@ Survolez une étiquette pour lire la note. Les notes d’un clip sélectionné a
 
 ## Sous les emplacements {#under-the-slots}
 
-Les **formes d’onde** de l’emplacement sélectionné sont affichées ici. L’original est en haut, et dans l’onglet Audio le remplacement est en dessous, sur les mêmes échelles de temps et de niveau, avec les points **Entrée** et **Sortie** marqués. Les deux sont dessinées à leur [Make-Up Gain](wiki:volume#make-up-gain-per-slot), et le rouge marque l’audio poussé au-delà de la pleine échelle. Cliquez sur une forme d’onde pour lire à partir de ce point, et faites glisser le bord supérieur du panneau pour le redimensionner. {icon:waves} à la fin de la barre d’outils les masque. Dans la Bibliothèque, la ligne au-dessus des formes d’onde décrit l’emplacement. Elle indique l’ID (cliquez pour le copier), la durée, quand l’emplacement est joué, et où le jeu le joue ailleurs.
+Les **formes d’onde** de l’emplacement sélectionné sont affichées ici. L’original est en haut, et dans l’onglet Audio le remplacement est en dessous, sur les mêmes échelles de temps et de niveau, avec les points **Entrée** et **Sortie** marqués. Les deux sont dessinées à leur [Make-Up Gain](wiki:volume#make-up-gain-per-slot), et le rouge marque l’audio poussé au-delà de la pleine échelle. Cliquez sur une forme d’onde pour lire à partir de ce point, et faites glisser le bord supérieur du panneau pour le redimensionner. {icon:waves} à la fin de la barre d’outils les masque. Dans la Bibliothèque, la ligne au-dessus des formes d’onde décrit l’emplacement. Elle indique l’ID (cliquez pour le copier), la durée, quand l’emplacement est joué, et où le jeu le joue ailleurs. Une ligne autour d’une forme d’onde est la [courbe de volume](wiki:volume#volume-curves) du clip.
 
 Deux curseurs zooment sur les deux formes d’onde. Celui qui longe le côté droit les dessine plus hautes, pour montrer l’audio faible, et celui qui est dessous, à droite, zoome sur le temps, pour placer l’Entrée et la Sortie avec précision. Sur les formes d’onde, la molette de la souris zoome sur le temps, Ctrl+molette les dessine plus hautes, et Shift+molette fait défiler. Quand le zoom temporel est actif, la bande sous les formes d’onde défile aussi. {icon:reset}, dans le coin entre les curseurs, affiche de nouveau tout l’audio à pleine échelle. Pendant qu’un curseur bouge, un nombre de 0 à 100 au-dessus du bouton indique où il en est. Le zoom reste tel quel quand un autre emplacement est sélectionné, et l’outil de découpe a les mêmes curseurs.
 
@@ -153,7 +155,7 @@ Les deux zones de recherche acceptent n’importe lequel.
 
 ## ID de conteneur {#container-ids}
 
-Appuyez sur {icon:id} dans la barre d’outils pour lister les sons d’une banque comme les outils Wwise les listent. Chaque son est alors nommé par l’ID du conteneur situé juste au-dessus des prises, avec le type de conteneur avant l’ID (Random, Sequence, Switch, Layer ou Actor-Mixer) et le nom habituel après. Les conteneurs du dessus sont sur des lignes à part, décalées d’un cran de plus à chaque niveau, dans l’ordre de la banque. Les Actor-Mixer qui ne contiennent que le suivant partagent une ligne. Cliquez sur un ID de ces lignes pour le copier. La recherche d’emplacements trouve aussi les ID de conteneur.
+Appuyez sur {icon:id} dans la barre d’outils pour lister les sons d’une banque comme les outils Wwise les listent. Chaque son est alors nommé par l’ID du conteneur situé juste au-dessus des prises, avec le type de conteneur avant l’ID (Random, Sequence, Switch, Layer ou Actor-Mixer) et le nom habituel après. Les conteneurs du dessus sont sur des lignes à part, décalées d’un cran de plus à chaque niveau, dans l’ordre de la banque. Les Actor-Mixer qui ne contiennent que le suivant partagent une ligne. Cliquez sur un ID de ces lignes pour le copier. La recherche d’emplacements trouve aussi les ID de conteneur. Cliquez sur la ligne d’un conteneur, ou sur sa case, pour sélectionner tous les emplacements en dessous, par exemple pour régler le Make-Up Gain d’un conteneur entier.
 
 ## Export {#exporting}
 

@@ -2,7 +2,7 @@
 title: Fazendo repatch
 group: Geração e compartilhamento
 summary: Como gerar de novo, para o jogo atual, um mod de áudio feito para uma versão mais antiga do jogo ou com outra ferramenta.
-source: 4adcbe4e29d4
+source: 81a4ed7b98b3
 ---
 
 O patch de um mod contém cópias completas dos bancos de sons que ele muda, como eles eram na versão do jogo para a qual o mod foi feito. Depois de uma atualização do jogo, essas cópias ficam desatualizadas. O mod pode ficar mudo ou tocar os sons errados e, enquanto está instalado, faz o áudio mais novo voltar atrás. Ele pode até silenciar sons que nunca mudou, porque os bancos também contêm configurações que muitos outros bancos compartilham. O **Repatch**, em [Ferramentas](app:tools/repatch), gera um mod assim de novo para o jogo atual. Não exige projeto nem experiência com mods.
@@ -44,6 +44,7 @@ A verificação só aponta o que o autor de um mod não teria mudado de propósi
 - O áudio que o mod substitui e o áudio que ele adiciona. O áudio adicionado pode ser takes novos para um som, um som que toca junto com outro som, ou um clipe separado para um único som.
 - Configurações de som, como o volume (Make-Up Gain) de um som ou de um contêiner, um atraso antes de tocar, e quanto dele vai para o reverb.
 - Os pontos de cue dos segmentos musicais que tocam áudio novo.
+- Curvas de volume em faixas de música, como o mod as definiu.
 - Todo o resto do patch, como texto, modelos e texturas, exatamente como estava. A página lista o que um patch contém além de áudio.
 
 O Audiodiver aplica tudo isso aos bancos de sons atuais e gera um novo ZIP do mesmo mod. Os bancos em que o mod não aplicou patch só recebem o áudio quando **Aplicar patch em todos os bancos com os sons** está marcado.

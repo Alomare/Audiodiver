@@ -12,6 +12,11 @@ msgstr ""
 msgid "(empty)"
 msgstr "（空）"
 
+#. placeholder {0}: sel.length
+#: src/CueView.tsx
+msgid "{0, plural, one {Copy the Audio (# Slot)} other {Copy the Audio (# Slots)}}"
+msgstr "{0, plural, other {音声をコピー (# スロット)}}"
+
 #. placeholder {0}: r.count
 #: src/SettingsTab.tsx
 msgid "{0, plural, one {Exported # note.} other {Exported # notes.}}"
@@ -181,6 +186,10 @@ msgstr "{count, plural, other {ここをクリックするとWikiで確認でき
 #: src/CueView.tsx
 msgid "{count, plural, one {Copy the New Audio (# Slot)} other {Copy the New Audio (# Slots)}}"
 msgstr "{count, plural, other {新しい音声をコピー（# 個のスロット）}}"
+
+#: src/CueView.tsx
+msgid "{count, plural, one {Copy the Original (# Slot)} other {Copy the Original (# Slots)}}"
+msgstr "{count, plural, other {オリジナルをコピー (# スロット)}}"
 
 #: src/SettingsTab.tsx
 msgid "{count, plural, one {Every # minute} other {Every # minutes}}"
@@ -1614,6 +1623,10 @@ msgid "Audiodiver notes"
 msgstr "Audiodiverのメモ"
 
 #: src/SettingsTab.tsx
+msgid "Audiodiver only reads from this folder, to play and export in the Library."
+msgstr "Audiodiver はこのフォルダーを読み取るだけで、ライブラリでの再生とエクスポートに使います。"
+
+#: src/SettingsTab.tsx
 msgid "Audiodiver only reads from this folder. Choosing another folder reads the game again, which takes about a minute the first time."
 msgstr "Audiodiverはこのフォルダーを読み取るだけです。別のフォルダーを選ぶとゲームを読み込み直します。初回は1分ほどかかります。"
 
@@ -2231,6 +2244,10 @@ msgid "Choose the Game Folder"
 msgstr "ゲームフォルダーを選択"
 
 #: src/store.tsx
+msgid "Choose the Helldivers 1 install folder"
+msgstr "Helldivers 1 のインストールフォルダーを選択"
+
+#: src/store.tsx
 msgid "Choose the Helldivers 2 install folder"
 msgstr "Helldivers 2のインストールフォルダーを選択"
 
@@ -2538,6 +2555,10 @@ msgstr "{slots, plural, other {# 個のスロット}}をコピーしました"
 msgid "Copied {slots, plural, one {# slot} other {# slots}} · {paste} pastes"
 msgstr "{slots, plural, other {# 個のスロット}}をコピーしました · {paste}で貼り付け"
 
+#: src/store.tsx
+msgid "Copied {slots, plural, one {# slot} other {# slots}} · {paste} pastes in the Audio tab"
+msgstr "{slots, plural, other {# 個のスロット}}をコピーしました · {paste}でオーディオタブに貼り付け"
+
 #: src/ProjectTab.tsx
 msgid "Copied the mod ID"
 msgstr "MOD IDをコピーしました"
@@ -2567,6 +2588,14 @@ msgid "Copy the Archive Name"
 msgstr "アーカイブ名をコピー"
 
 #: src/CueView.tsx
+msgid "Copy the Audio"
+msgstr "音声をコピー"
+
+#: src/keys.ts
+msgid "Copy the audio of the selected slots"
+msgstr "選択したスロットの音声をコピー"
+
+#: src/CueView.tsx
 msgid "Copy the Container ID"
 msgstr "コンテナIDをコピー"
 
@@ -2583,9 +2612,9 @@ msgstr "行IDをコピー"
 msgid "Copy the New Audio"
 msgstr "新しい音声をコピー"
 
-#: src/keys.ts
-msgid "Copy the new audio of the selected slots"
-msgstr "選択したスロットの新しい音声をコピー"
+#: src/CueView.tsx
+msgid "Copy the Original"
+msgstr "オリジナルをコピー"
 
 #: src/CueView.tsx
 msgid "Copy the Sound ID"
@@ -2702,6 +2731,10 @@ msgstr "{segments, plural, other {他の # 個のセグメント}}にキュー�
 msgctxt "Column of the slice tool: where a piece starts and ends in the song"
 msgid "Cut"
 msgstr "カット"
+
+#: src/SliceTool.tsx
+msgid "Cut (ms)"
+msgstr "カット (ms)"
 
 #: src/SliceTool.tsx
 msgid "Cut {number}"
@@ -2865,6 +2898,10 @@ msgstr "ドラッグして曲の始まりを除外"
 #: src/Timeline.tsx
 msgid "Drawn and played at this gain"
 msgstr "このゲインで表示・再生されます"
+
+#: src/Timeline.tsx
+msgid "Drawn as the line around the waveform"
+msgstr "波形の周りの線で表示されます"
 
 #: src/RepatchPage.tsx
 msgid "Drop a mod here as a <0>ZIP</0>, a <1>folder</1> or a <2>.patch_0</2> file."
@@ -3490,7 +3527,7 @@ msgstr "ライブラリからビルド済みのMODまで：武器のショット
 msgid "Full Names"
 msgstr "完全な名前"
 
-#: src/SettingsTab.tsx
+#: src/Library.tsx
 msgid "Game"
 msgstr "ゲーム"
 
@@ -3718,6 +3755,10 @@ msgstr "アイコン"
 #: src/SettingsTab.tsx
 msgid "Icons only. Names show in tooltips."
 msgstr "アイコンのみ。名前はツールチップに表示されます。"
+
+#: src/SettingsTab.tsx
+msgid "If something is wrong with a translation, please <0>report it as an issue</0>."
+msgstr "翻訳に誤りがあれば、<0>Issue で報告してください</0>。"
 
 #: src/ProjectTab.tsx
 msgid "Illuminate violet"
@@ -3996,6 +4037,10 @@ msgstr "詳細の「元の長さを保つ」で設定します"
 #: src/ImportMod.tsx
 msgid "Keep the mod ID"
 msgstr "MOD IDを維持"
+
+#: src/Inspector.tsx
+msgid "Keep the volume curve"
+msgstr "ボリュームカーブを維持"
 
 #: src/App.tsx
 msgid "Keep Working"
@@ -5077,16 +5122,16 @@ msgid "Nothing to copy"
 msgstr "コピーするものがありません"
 
 #: src/store.tsx
-msgid "Nothing to copy. These slots aren't replaced"
-msgstr "コピーするものがありません。これらのスロットは置き換えられていません"
+msgid "Nothing to copy. These slots have no audio"
+msgstr "コピーするものがありません。これらのスロットには音声がありません"
 
 #: src/ExportDialog.tsx
 msgid "Nothing to export yet."
 msgstr "エクスポートするものはまだありません。"
 
 #: src/store.tsx
-msgid "Nothing to paste. Copy audio files or replaced slots first"
-msgstr "貼り付けるものがありません。先に音声ファイルまたは置き換え済みのスロットをコピーしてください"
+msgid "Nothing to paste. Copy audio files or slots first"
+msgstr "貼り付けるものがありません。先に音声ファイルかスロットをコピーしてください"
 
 #: src/App.tsx
 #: src/store.tsx
@@ -6064,6 +6109,10 @@ msgstr "音声ファイルの読み込みと変換"
 msgid "reading game archives, and how HD2 stores sound banks"
 msgstr "ゲームアーカイブの読み込みと、HD2でのサウンドバンクの格納方法"
 
+#: src/SettingsTab.tsx
+msgid "Reading Helldivers 1"
+msgstr "Helldivers 1 を読み込み中"
+
 #: src/CueView.tsx
 msgid "Reading the bank…"
 msgstr "バンクを読み込み中…"
@@ -6680,6 +6729,10 @@ msgstr "セグメント"
 msgid "select"
 msgstr "選択"
 
+#: src/SliceTool.tsx
+msgid "Select a cut first"
+msgstr "先にカットを選択してください"
+
 #: src/Tools.tsx
 msgid "Select a slot to see the waveforms"
 msgstr "スロットを選択すると波形が表示されます"
@@ -6696,6 +6749,10 @@ msgstr "表示中のすべてのシーケンスを選択"
 #: src/keys.ts
 msgid "Select every slot"
 msgstr "すべてのスロットを選択"
+
+#: src/CueView.tsx
+msgid "Select everything in {name}"
+msgstr "{name}内をすべて選択"
 
 #: src/keys.ts
 msgid "Select the next slot"
@@ -6721,6 +6778,10 @@ msgstr "{name}のテイクを選択"
 msgctxt "Which slots or sounds to export"
 msgid "Selected"
 msgstr "選択中"
+
+#: src/SettingsTab.tsx
+msgid "Set by the HD1_CONTENTS environment variable."
+msgstr "環境変数 HD1_CONTENTS で設定されています。"
 
 #: src/SettingsTab.tsx
 msgid "Set by the HD2_DATA environment variable."
@@ -7505,6 +7566,10 @@ msgstr "パッチの横にあるファイル"
 msgid "the first of {name}"
 msgstr "{name}の最初のテイク"
 
+#: src/Inspector.tsx
+msgid "The game changes the level of this clip as it plays, and new audio follows the same curve. Turn this off to play it at an even level"
+msgstr "ゲームはこのクリップの再生中にレベルを変え、新しい音声も同じカーブに従います。オフにすると一定のレベルで再生します"
+
 #: src/TextTab.tsx
 msgid "The game fills in {fills} here. {count, plural, one {Keep it.} other {Keep them.}}"
 msgstr "ここにはゲームが{fills}を埋めます。{count, plural, other {消さずに残してください。}}"
@@ -7563,6 +7628,10 @@ msgid "the HD2 modding community"
 msgstr "HD2のMODコミュニティ"
 
 #: src/SettingsTab.tsx
+msgid "The Helldivers 1 install folder, or the contents folder inside it"
+msgstr "Helldivers 1 のインストールフォルダー、またはその中の contents フォルダー"
+
+#: src/SettingsTab.tsx
 msgid "The Helldivers 2 install folder, or the data folder inside it"
 msgstr "Helldivers 2のインストールフォルダー、またはその中のdataフォルダー"
 
@@ -7613,6 +7682,10 @@ msgstr "前回のプロジェクトを開けませんでした：{why}"
 #: src/Soundtrack.tsx
 msgid "The level of the whole piece, on top of each slot's Make-Up Gain"
 msgstr "各スロットのMake-Up Gainに加えて適用される、曲全体のレベル"
+
+#: src/Timeline.tsx
+msgid "The level the game gives this clip as it plays"
+msgstr "再生中にゲームがこのクリップに与えるレベル"
 
 #: src/tutorials.ts
 msgid "The Liberator has two more sets of these sounds, further down the list. The tutorial changes them the same way."
@@ -8430,6 +8503,15 @@ msgstr "ボイスパックの言語"
 msgid "Vol"
 msgstr "音量"
 
+#. Edit in Undo, Redo and History: a slot set to keep or drop the volume curve on the clip
+#: src/store.tsx
+msgid "volume curve"
+msgstr "ボリュームカーブ"
+
+#: src/Timeline.tsx
+msgid "Volume curve"
+msgstr "ボリュームカーブ"
+
 #: src/BuildTab.tsx
 msgid "Volume, delays and similar settings, with the values the imported mod used. A slot's Make-Up Gain is applied on top."
 msgstr "音量や遅延などの設定で、値はインポートしたMODのものです。スロットのMake-Up Gainはその上に適用されます。"
@@ -8569,6 +8651,10 @@ msgstr "曲の中でピースが始まる位置と終わる位置"
 #: src/ProjectTab.tsx
 msgid "Where the project file and the files it uses are kept"
 msgstr "プロジェクトファイルとそれが使うファイルの保存場所"
+
+#: src/SliceTool.tsx
+msgid "Where the selected cut is in the song"
+msgstr "選択したカットの曲内の位置"
 
 #: src/CombinePage.tsx
 msgid "Which mod's {label}"

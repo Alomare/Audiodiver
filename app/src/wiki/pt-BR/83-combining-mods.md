@@ -2,7 +2,7 @@
 title: Combinando mods
 group: Geração e compartilhamento
 summary: Como fazer um único mod a partir de vários mods de áudio que mudam os mesmos bancos de sons, escolhendo de quem é a versão de cada som compartilhado que entra.
-source: cbb14758fe48
+source: e6f1f4bcf595
 ---
 
 Um mod contém cópias completas dos bancos de sons que ele muda. Quando dois mods mudam o mesmo banco, o implantado por último substitui a cópia do outro, então só um deles toca. Os mods de música dividem a maioria dos bancos, e muitos mods de armas e de vozes também. **Combinar Mods**, em [Ferramentas](app:tools/combine), lê vários mods e gera um único mod com o áudio de todos eles, nos bancos de sons atuais.
@@ -29,7 +29,7 @@ Um conflito é um som que mais de um mod muda de jeitos diferentes. Os mods dão
 
 Os conflitos são agrupados pelo item deles no Índice, como uma peça musical ou uma arma. Cada linha toca primeiro o original e depois a versão de cada mod. O mod destacado é o que entra. **Tudo de**, na linha de um item, escolhe um mod para todos os conflitos daquele item. Por padrão, ganha o mod mais abaixo na lista, como se ele fosse implantado por último.
 
-Uma configuração num som em conflito acompanha o som, então o mod cujo áudio entra também traz o volume definido nesse som. Os pontos de cue acompanham o áudio do mesmo jeito: um segmento musical recebe os pontos de cue do mod cujo áudio ele toca.
+Uma configuração num som em conflito acompanha o som, então o mod cujo áudio entra também traz o volume definido nesse som. Os pontos de cue acompanham o áudio do mesmo jeito: um segmento musical recebe os pontos de cue do mod cujo áudio ele toca. Quando dois mods definem as curvas de volume da mesma faixa de música, entram as curvas do mod mais abaixo.
 
 ## Pasta de destino {#destination-folder}
 
@@ -40,7 +40,7 @@ Depois de uma atualização do jogo, combine os mods de novo. Para mudar mais o 
 ## O que a combinação deixa de fora {#what-combining-leaves-out}
 
 - Alterações que o Audiodiver não leva, como efeitos ou o modo como um contêiner escolhe os sons, e sons que um mod ainda tem de uma versão mais antiga do jogo. O resultado as lista para cada mod, como o [Repatch](wiki:repatching#what-repatching-leaves-out) faz.
-- Um arquivo além do áudio, como uma textura ou uma tabela de textos, que dois mods têm: a cópia do mod mais acima na lista. Entra a cópia do mod mais abaixo, como se esse mod fosse implantado por último, e o resultado avisa isso.
+- Um arquivo além do áudio, como uma textura ou uma tabela de textos, que dois mods têm: a cópia do mod mais acima na lista fica de fora. Entra a cópia do mod mais abaixo, como se esse mod fosse implantado por último, e o resultado avisa isso.
 
 Todo o resto dos patches, como texto, modelos e texturas, entra como estava.
 

@@ -256,6 +256,17 @@ def _steam_roots() -> list[str]:
     return list(dict.fromkeys(roots + [_STEAM_DEFAULT]))
 
 
+def steam_libraries() -> list[str]:
+    """Every Steam library folder on this computer."""
+    libraries = []
+    for root in _steam_roots():
+        libraries.append(root)
+        vdf = Path(root) / "steamapps" / "libraryfolders.vdf"
+        if vdf.exists():
+            libraries += [p.replace("\\\\", "\\") for p in re.findall(r'"path"\s+"([^"]+)"', vdf.read_text(errors="replace"))]
+    return list(dict.fromkeys(libraries))
+
+
 def is_data_folder(folder) -> bool:
     """True for a Helldivers 2 data folder: it holds the game's bundles (bundles.NN.nxa)."""
     return Path(folder).is_dir() and any(Path(folder).glob("bundles.*.nxa"))
@@ -313,13 +324,7 @@ def locate(chosen=None) -> tuple[Path, str]:
             raise FileNotFoundError(tr("The HD2_DATA environment variable points to {folder}, which has no Helldivers 2 "
                                        "files").format(folder=env))
         return Path(env), "env"
-    libraries = []
-    for root in _steam_roots():
-        libraries.append(root)
-        vdf = Path(root) / "steamapps" / "libraryfolders.vdf"
-        if vdf.exists():
-            libraries += [p.replace("\\\\", "\\") for p in re.findall(r'"path"\s+"([^"]+)"', vdf.read_text(errors="replace"))]
-    for lib in dict.fromkeys(libraries):
+    for lib in steam_libraries():
         data = Path(lib) / "steamapps" / "common" / "Helldivers 2" / "data"
         if is_data_folder(data):  # an uninstalled game can leave its folder behind
             return _as_spelled(data), "steam"

@@ -101,8 +101,8 @@ export function ExportPanel({ target, start, onClose }: { target: ExportTarget |
   const [folder, setFolder] = useState<string>(() => { try { return localStorage.getItem(FOLDER_KEY) ?? ""; } catch { return ""; } });
   const item = useItem(target, prefs, pref);
   const entries: NewEntry[] = tab === "item" ? (item.entry ? [item.entry] : []) : list;
-  // WEM is the game's own file: only for the Original, slot by slot
-  const wemOk = entries.length > 0 && entries.every((e) => (e.what ?? "slots") === "slots" && (e.whose ?? "game") === "game");
+  // WEM is the game's own file: only for the Original, slot by slot, and Helldivers 1 has none
+  const wemOk = entries.length > 0 && entries.every((e) => (e.what ?? "slots") === "slots" && (e.whose ?? "game") === "game" && !String(e.cue).startsWith("hd1:"));
   const fmt = prefs.fmt === "wem" && !wemOk ? "wav" : prefs.fmt;
   const idsOk = entries.some((e) => (e.what ?? "slots") === "slots");
   const names = prefs.names === "ids" && !idsOk ? "full" : prefs.names;

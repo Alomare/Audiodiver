@@ -12,6 +12,11 @@ msgstr ""
 msgid "(empty)"
 msgstr "（空）"
 
+#. placeholder {0}: sel.length
+#: src/CueView.tsx
+msgid "{0, plural, one {Copy the Audio (# Slot)} other {Copy the Audio (# Slots)}}"
+msgstr "{0, plural, other {复制音频（# 个槽位）}}"
+
 #. placeholder {0}: r.count
 #: src/SettingsTab.tsx
 msgid "{0, plural, one {Exported # note.} other {Exported # notes.}}"
@@ -181,6 +186,10 @@ msgstr "{count, plural, other {点击此处在 Wiki 中查看。}}"
 #: src/CueView.tsx
 msgid "{count, plural, one {Copy the New Audio (# Slot)} other {Copy the New Audio (# Slots)}}"
 msgstr "{count, plural, other {复制新音频（# 个槽位）}}"
+
+#: src/CueView.tsx
+msgid "{count, plural, one {Copy the Original (# Slot)} other {Copy the Original (# Slots)}}"
+msgstr "{count, plural, other {复制原版（# 个槽位）}}"
 
 #: src/SettingsTab.tsx
 msgid "{count, plural, one {Every # minute} other {Every # minutes}}"
@@ -1614,6 +1623,10 @@ msgid "Audiodiver notes"
 msgstr "Audiodiver 备注"
 
 #: src/SettingsTab.tsx
+msgid "Audiodiver only reads from this folder, to play and export in the Library."
+msgstr "Audiodiver 只读取此文件夹，用于在资源库中播放和导出。"
+
+#: src/SettingsTab.tsx
 msgid "Audiodiver only reads from this folder. Choosing another folder reads the game again, which takes about a minute the first time."
 msgstr "Audiodiver 只会读取此文件夹。选择其他文件夹会重新读取游戏，首次大约需要一分钟。"
 
@@ -2231,6 +2244,10 @@ msgid "Choose the Game Folder"
 msgstr "选择游戏文件夹"
 
 #: src/store.tsx
+msgid "Choose the Helldivers 1 install folder"
+msgstr "选择 Helldivers 1 的安装文件夹"
+
+#: src/store.tsx
 msgid "Choose the Helldivers 2 install folder"
 msgstr "选择 Helldivers 2 安装文件夹"
 
@@ -2538,6 +2555,10 @@ msgstr "已复制 {slots, plural, other {# 个槽位}}"
 msgid "Copied {slots, plural, one {# slot} other {# slots}} · {paste} pastes"
 msgstr "已复制 {slots, plural, other {# 个槽位}} · 按 {paste} 粘贴"
 
+#: src/store.tsx
+msgid "Copied {slots, plural, one {# slot} other {# slots}} · {paste} pastes in the Audio tab"
+msgstr "已复制 {slots, plural, other {# 个槽位}} · 按 {paste} 粘贴到音频选项卡"
+
 #: src/ProjectTab.tsx
 msgid "Copied the mod ID"
 msgstr "已复制模组 ID"
@@ -2567,6 +2588,14 @@ msgid "Copy the Archive Name"
 msgstr "复制归档名称"
 
 #: src/CueView.tsx
+msgid "Copy the Audio"
+msgstr "复制音频"
+
+#: src/keys.ts
+msgid "Copy the audio of the selected slots"
+msgstr "复制所选槽位的音频"
+
+#: src/CueView.tsx
 msgid "Copy the Container ID"
 msgstr "复制容器 ID"
 
@@ -2583,9 +2612,9 @@ msgstr "复制行 ID"
 msgid "Copy the New Audio"
 msgstr "复制新音频"
 
-#: src/keys.ts
-msgid "Copy the new audio of the selected slots"
-msgstr "复制所选槽位的新音频"
+#: src/CueView.tsx
+msgid "Copy the Original"
+msgstr "复制原版"
 
 #: src/CueView.tsx
 msgid "Copy the Sound ID"
@@ -2702,6 +2731,10 @@ msgstr "已在另外 {segments, plural, other {# 个段落}}中设置提示点"
 msgctxt "Column of the slice tool: where a piece starts and ends in the song"
 msgid "Cut"
 msgstr "切点"
+
+#: src/SliceTool.tsx
+msgid "Cut (ms)"
+msgstr "切点 (ms)"
 
 #: src/SliceTool.tsx
 msgid "Cut {number}"
@@ -2865,6 +2898,10 @@ msgstr "拖动可略去歌曲的开头"
 #: src/Timeline.tsx
 msgid "Drawn and played at this gain"
 msgstr "按此增益绘制和播放"
+
+#: src/Timeline.tsx
+msgid "Drawn as the line around the waveform"
+msgstr "以波形周围的线表示"
 
 #: src/RepatchPage.tsx
 msgid "Drop a mod here as a <0>ZIP</0>, a <1>folder</1> or a <2>.patch_0</2> file."
@@ -3490,7 +3527,7 @@ msgstr "从资源库到构建好的模组：用教程自带的新音频替换一
 msgid "Full Names"
 msgstr "完整名称"
 
-#: src/SettingsTab.tsx
+#: src/Library.tsx
 msgid "Game"
 msgstr "游戏"
 
@@ -3718,6 +3755,10 @@ msgstr "图标"
 #: src/SettingsTab.tsx
 msgid "Icons only. Names show in tooltips."
 msgstr "仅显示图标。名称显示在工具提示中。"
+
+#: src/SettingsTab.tsx
+msgid "If something is wrong with a translation, please <0>report it as an issue</0>."
+msgstr "如果翻译有误，请<0>提交 issue 反馈</0>。"
 
 #: src/ProjectTab.tsx
 msgid "Illuminate violet"
@@ -3996,6 +4037,10 @@ msgstr "由详情中的“保持原始时长”设置"
 #: src/ImportMod.tsx
 msgid "Keep the mod ID"
 msgstr "保留模组 ID"
+
+#: src/Inspector.tsx
+msgid "Keep the volume curve"
+msgstr "保留音量曲线"
 
 #: src/App.tsx
 msgid "Keep Working"
@@ -5077,16 +5122,16 @@ msgid "Nothing to copy"
 msgstr "没有可复制的内容"
 
 #: src/store.tsx
-msgid "Nothing to copy. These slots aren't replaced"
-msgstr "没有可复制的内容。这些槽位还没有替换"
+msgid "Nothing to copy. These slots have no audio"
+msgstr "没有可复制的内容。这些槽位没有音频"
 
 #: src/ExportDialog.tsx
 msgid "Nothing to export yet."
 msgstr "尚无可导出的内容。"
 
 #: src/store.tsx
-msgid "Nothing to paste. Copy audio files or replaced slots first"
-msgstr "没有可粘贴的内容。请先复制音频文件或已替换的槽位"
+msgid "Nothing to paste. Copy audio files or slots first"
+msgstr "没有可粘贴的内容。请先复制音频文件或槽位"
 
 #: src/App.tsx
 #: src/store.tsx
@@ -6064,6 +6109,10 @@ msgstr "读取和转换音频文件"
 msgid "reading game archives, and how HD2 stores sound banks"
 msgstr "读取游戏归档，以及 HD2 存储音频库的方式"
 
+#: src/SettingsTab.tsx
+msgid "Reading Helldivers 1"
+msgstr "正在读取 Helldivers 1"
+
 #: src/CueView.tsx
 msgid "Reading the bank…"
 msgstr "正在读取音频库…"
@@ -6680,6 +6729,10 @@ msgstr "段落"
 msgid "select"
 msgstr "选择"
 
+#: src/SliceTool.tsx
+msgid "Select a cut first"
+msgstr "请先选择一个切点"
+
 #: src/Tools.tsx
 msgid "Select a slot to see the waveforms"
 msgstr "选择槽位即可查看波形"
@@ -6696,6 +6749,10 @@ msgstr "选择所有显示的序列"
 #: src/keys.ts
 msgid "Select every slot"
 msgstr "选择所有槽位"
+
+#: src/CueView.tsx
+msgid "Select everything in {name}"
+msgstr "选择 {name} 中的全部内容"
 
 #: src/keys.ts
 msgid "Select the next slot"
@@ -6721,6 +6778,10 @@ msgstr "选择 {name} 的变体"
 msgctxt "Which slots or sounds to export"
 msgid "Selected"
 msgstr "所选"
+
+#: src/SettingsTab.tsx
+msgid "Set by the HD1_CONTENTS environment variable."
+msgstr "由环境变量 HD1_CONTENTS 设置。"
 
 #: src/SettingsTab.tsx
 msgid "Set by the HD2_DATA environment variable."
@@ -7406,7 +7467,7 @@ msgstr "游戏为此声音设置的 {gain} dB 保持不变"
 #. Markdown. **Index** is the button above the Library list, and the bold word must read as the translation of the button does.
 #: src/tutorials.ts
 msgid "The **Index** sorts the sounds of the game by where you hear them: weapons, stratagems, enemies and more. The search box finds anything by name."
-msgstr "**索引**按你听到声音的场合给游戏里的声音分类：武器、战略配备、敌人等。搜索框可按名称找到任何内容。"
+msgstr "**索引**按你听到声音的场合给游戏里的声音分类：武器、战备、敌人等。搜索框可按名称找到任何内容。"
 
 #: src/Soundtrack.tsx
 msgid "The <0>Battle</0> music plays on here, from where it is."
@@ -7505,6 +7566,10 @@ msgstr "补丁旁的文件"
 msgid "the first of {name}"
 msgstr "{name} 的第一个变体"
 
+#: src/Inspector.tsx
+msgid "The game changes the level of this clip as it plays, and new audio follows the same curve. Turn this off to play it at an even level"
+msgstr "游戏会在此片段播放时改变电平，新音频也会跟随同一曲线。关闭后将以恒定电平播放"
+
 #: src/TextTab.tsx
 msgid "The game fills in {fills} here. {count, plural, one {Keep it.} other {Keep them.}}"
 msgstr "游戏会在此处填入 {fills}。{count, plural, other {请保留。}}"
@@ -7563,6 +7628,10 @@ msgid "the HD2 modding community"
 msgstr "HD2 模组社区"
 
 #: src/SettingsTab.tsx
+msgid "The Helldivers 1 install folder, or the contents folder inside it"
+msgstr "Helldivers 1 的安装文件夹，或其中的 contents 文件夹"
+
+#: src/SettingsTab.tsx
 msgid "The Helldivers 2 install folder, or the data folder inside it"
 msgstr "Helldivers 2 安装文件夹，或其中的 data 文件夹"
 
@@ -7613,6 +7682,10 @@ msgstr "上次的项目未能打开：{why}"
 #: src/Soundtrack.tsx
 msgid "The level of the whole piece, on top of each slot's Make-Up Gain"
 msgstr "整首曲目的音量，叠加在各槽位的 Make-Up Gain 之上"
+
+#: src/Timeline.tsx
+msgid "The level the game gives this clip as it plays"
+msgstr "此片段播放时游戏赋予的电平"
 
 #: src/tutorials.ts
 msgid "The Liberator has two more sets of these sounds, further down the list. The tutorial changes them the same way."
@@ -8430,6 +8503,15 @@ msgstr "语音包语言"
 msgid "Vol"
 msgstr "音量"
 
+#. Edit in Undo, Redo and History: a slot set to keep or drop the volume curve on the clip
+#: src/store.tsx
+msgid "volume curve"
+msgstr "音量曲线"
+
+#: src/Timeline.tsx
+msgid "Volume curve"
+msgstr "音量曲线"
+
 #: src/BuildTab.tsx
 msgid "Volume, delays and similar settings, with the values the imported mod used. A slot's Make-Up Gain is applied on top."
 msgstr "音量、延迟等设置，沿用导入模组所用的值。槽位的 Make-Up Gain 会在此基础上叠加。"
@@ -8569,6 +8651,10 @@ msgstr "该段在歌曲中的起止位置"
 #: src/ProjectTab.tsx
 msgid "Where the project file and the files it uses are kept"
 msgstr "项目文件以及它用到的文件存放在哪里"
+
+#: src/SliceTool.tsx
+msgid "Where the selected cut is in the song"
+msgstr "所选切点在歌曲中的位置"
 
 #: src/CombinePage.tsx
 msgid "Which mod's {label}"

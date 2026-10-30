@@ -2,7 +2,7 @@
 title: Minutage, points de repère et boucles
 group: Créer un mod
 summary: Comment le jeu passe d’un segment au suivant, comment faire en sorte que la nouvelle musique s’enchaîne proprement, et comment découper une chanson dans un cue.
-source: 7a14e9b897bb
+source: 116b5d6a7112
 ---
 
 ## Ajuster le minutage au nouvel audio {#fitting-the-timing-to-the-new-audio}
@@ -46,7 +46,7 @@ Pour découper une chanson :
 
 1. Choisissez les emplacements dans **Début** et **Dernier**. Chaque segment entre les deux reçoit un morceau, et **Dernier** liste le nombre de morceaux que cela donne.
 2. Placez les coupes. **Proportions d’origine** répartit les durées d’origine sur toute la chanson. **Durées d’origine** coupe exactement aux durées d’origine, donc le dernier morceau peut se terminer avant la chanson. **À parts égales** découpe la chanson en morceaux égaux.
-3. Ajustez les coupes. Faites glisser une coupe pour la déplacer, et maintenez Shift pour l’empêcher de s’aimanter à la durée d’origine. Double-cliquez sur la chanson pour ajouter une coupe. Sélectionnez une coupe et appuyez sur Delete pour la retirer, ou décalez-la avec ←/→ (Shift déplace de 100 ms, Alt de 1 ms). La coupe **Début** et la coupe **Fin** peuvent ignorer une intro ou une outro.
+3. Ajustez les coupes. Faites glisser une coupe pour la déplacer, et maintenez Shift pour l’empêcher de s’aimanter à la durée d’origine. Double-cliquez sur la chanson pour ajouter une coupe. Sélectionnez une coupe et appuyez sur Delete pour la retirer, ou décalez-la avec ←/→ (Shift déplace de 100 ms, Alt de 1 ms). La coupe **Début** et la coupe **Fin** peuvent ignorer une intro ou une outro. Le tableau affiche chaque temps à la milliseconde près, et **Coupe (ms)**, au-dessus du morceau, accepte un temps exact pour la coupe sélectionnée.
 4. Écoutez. **Chanson** joue la chanson, et **Originaux** joue l’audio d’origine des emplacements l’un après l’autre. Cliquez sur la chanson ou sur l’original pour lire à partir de ce point, ou appuyez sur ▶ sur un morceau ou sur l’original à côté dans le tableau. Space lance et met en pause.
 5. Zoomez avec la molette ou le curseur sous les pistes, et dessinez les pistes plus hautes pour une chanson faible avec Ctrl+molette ou le curseur à droite. Faites défiler avec Shift+molette ou la bande sous les pistes. {icon:reset}, dans le coin, affiche de nouveau toute la chanson. Cliquez sur une ligne du tableau pour amener ce morceau dans la vue.
 6. Appuyez sur **Découper et remplir**. Audiodiver enregistre les morceaux dans le dossier `audio\slices` du projet et remplit les emplacements.

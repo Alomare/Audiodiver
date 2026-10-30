@@ -2,7 +2,7 @@
 title: Make-Up Gain e a mixagem
 group: Criando um mod
 summary: Como definir o volume de um slot, como funciona a mixagem HDR do jogo e por que algumas telas soam mais baixas no jogo do que no Audiodiver.
-source: 34bc5e953c4b
+source: c580c2a4483d
 ---
 
 ## Make-Up Gain por slot {#make-up-gain-per-slot}
@@ -19,6 +19,16 @@ As formas de onda abaixo dos slots são desenhadas com o ganho e acompanham o co
 > Alguns clipes ignoram o Make-Up Gain no jogo, entre eles os stingers calmos dos Iluminados. Os detalhes deles mostram um aviso. Defina o volume percebido desses clipes no arquivo de áudio.
 
 O controle deslizante **Vol** na barra de status define só o volume da prévia no Audiodiver. Ele não faz parte do mod.
+
+## Curvas de volume {#volume-curves}
+
+O jogo muda o nível de algumas músicas enquanto elas tocam: uma curva de volume no clipe baixa ou aumenta o nível ao longo do tempo, e um fade faz o som entrar ou sair aos poucos. A curva faz parte da faixa de música, e não do arquivo de áudio, então o áudio novo nesse slot também a segue. Um slot com curva a mostra como uma linha em volta da forma de onda, com **Curva de volume** ao lado.
+
+Desative **Manter a curva de volume** nos detalhes para tocar o slot num nível constante. O Make-Up Gain não faz isso, porque define um único nível para o clipe inteiro. A opção remove as curvas de volume e os fades, funciona em slots com ou sem áudio novo e, com vários slots selecionados, vale para os que têm curva. Um clipe pode estar em várias faixas de música, e a opção cobre todas.
+
+Por exemplo, um dos dois clipes de Descida do Hellpod tem uma curva que vai baixando o nível, e o outro não tem nenhuma. Com a mesma música nos dois, um toca mais baixo que o outro até a curva ser desativada.
+
+As curvas de um mod entram junto na [importação](wiki:importing-mods#what-comes-in). Elas aparecem nas formas de onda e em **Configurações importadas**, e a opção também as remove.
 
 ## Make-Up Gain e Volume são configurações diferentes {#make-up-gain-and-volume-are-different-settings}
 

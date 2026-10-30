@@ -2,7 +2,7 @@
 title: Make-Up Gain y la mezcla
 group: Crear un mod
 summary: Cómo ajustar la sonoridad de un slot, cómo funciona la mezcla HDR del juego y por qué algunas pantallas suenan más bajas en el juego que en Audiodiver.
-source: 34bc5e953c4b
+source: c580c2a4483d
 ---
 
 ## Make-Up Gain por slot {#make-up-gain-per-slot}
@@ -19,6 +19,16 @@ Las formas de onda bajo los slots se dibujan con la ganancia y siguen al control
 > Algunos clips ignoran el Make-Up Gain en el juego, entre ellos los stingers de calma de los Iluminados. Sus detalles muestran una advertencia. Define la sonoridad de estos clips en el fichero de audio.
 
 El control deslizante **Vol** de la barra de estado define solo el volumen de escucha en Audiodiver. No forma parte del mod.
+
+## Curvas de volumen {#volume-curves}
+
+El juego cambia el nivel de parte de la música mientras suena: una curva de volumen en el clip baja o sube el nivel con el tiempo, y un fundido hace que el sonido entre o salga poco a poco. La curva forma parte de la pista de música, no del fichero de audio, así que el audio nuevo de ese slot también la sigue. Un slot con curva la muestra como una línea alrededor de la forma de onda, con **Curva de volumen** al lado.
+
+Desactiva **Mantener la curva de volumen** en los detalles para reproducir el slot a un nivel constante. El Make-Up Gain no puede hacerlo, porque fija un solo nivel para todo el clip. Esta opción quita las curvas de volumen y los fundidos, funciona en slots con o sin audio nuevo y, con varios slots seleccionados, se aplica a los que tienen curva. Un clip puede estar en varias pistas de música, y la opción las cubre todas.
+
+Por ejemplo, uno de los dos clips de Descenso de la cápsula Hell tiene una curva que va bajando el nivel, y el otro no tiene ninguna. Con la misma canción en los dos, uno suena más bajo que el otro hasta que se desactiva la curva.
+
+Las curvas de un mod entran con la [importación](wiki:importing-mods#what-comes-in). Se muestran en las formas de onda y en **Ajustes importados**, y la opción también las quita.
 
 ## Make-Up Gain y Volumen son ajustes distintos {#make-up-gain-and-volume-are-different-settings}
 

@@ -28,7 +28,7 @@ A conflict is a sound that more than one mod changes in different ways. The mods
 
 Conflicts are grouped by their item in the Index, such as a piece of music or a weapon. Each line plays the original first, then the version from each mod. The highlighted mod goes in. **All from** on an item's line picks one mod for every conflict in that item. By default the mod lower in the list wins, as if it were deployed later.
 
-A setting on a sound in conflict follows the sound, so the mod whose audio goes in also brings the volume set on that sound. Cue points follow the audio the same way: a music segment takes the cue points of the mod whose audio it plays.
+A setting on a sound in conflict follows the sound, so the mod whose audio goes in also brings the volume set on that sound. Cue points follow the audio the same way: a music segment takes the cue points of the mod whose audio it plays. Where two mods set the volume curves of one music track, the curves of the lower mod go in.
 
 ## Destination folder
 
@@ -39,7 +39,7 @@ After a game update, combine the mods again. To change the audio further, make a
 ## What combining leaves out
 
 - Changes Audiodiver doesn't carry over, such as effects or how a container picks sounds, and sounds a mod still has from an older game version. The result lists them for each mod, as [Repatch](wiki:repatching#what-repatching-leaves-out) does.
-- A file besides audio, such as a texture or a string table, that two mods both have: the copy of the mod higher in the list. The copy of the lower mod goes in, as if that mod were deployed later, and the result notes this.
+- A file besides audio, such as a texture or a string table, that two mods both have: the copy of the mod higher in the list is left out. The copy of the lower mod goes in, as if that mod were deployed later, and the result notes this.
 
 Everything else in the patches, such as text, models and textures, goes in as it was.
 

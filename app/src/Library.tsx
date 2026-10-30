@@ -9,17 +9,22 @@ import { addedNote, exportList, itemEntries } from "./exportList";
 import { Fold } from "./Fold";
 import { AddToggle, IndexTree } from "./IndexTree";
 import { keyLabel, useKeymap } from "./keys";
-import { nav, useNav } from "./nav";
+import { isArchive, nav, useNav, type LibraryGame } from "./nav";
 import { tabArrows } from "./Page";
 import { copyText } from "./platform";
 import { useEditor } from "./store";
 import { CatMark } from "./Tags";
 import { DEFAULT_SIZE, motionMs, scrollBehavior, useThemeValue } from "./theme";
 
+const GAMES = [["hd2", "Helldivers 2"], ["hd1", "Helldivers 1"]] as const;
+
 /** The Library tab's left panel: the Index (what is known, sorted by where you hear it) or All Archives (everything
-    the game has, named or not). Both stay as they were left when the other shows. */
+    the game has, named or not), of Helldivers 2 or, when it is there too, Helldivers 1. They stay as they were left
+    when another shows. */
 export function LibraryPanel() {
-  const { library: sub } = useNav();
+  const { library: sub, game: picked } = useNav();
+  const both = !!useEditor().index?.categories.some((c) => c.game);
+  const game = both ? picked : "hd2";
   return (
     <aside className="library" aria-label={t`Library`}>
       <div className="lib-tabs" role="tablist" aria-label={t`Library`} onKeyDown={tabArrows}>
@@ -28,8 +33,15 @@ export function LibraryPanel() {
         <button role="tab" aria-selected={sub === "archives"} className={sub === "archives" ? "on" : ""} onClick={() => nav.go("library", "archives")}
           data-tip={t`Every archive with audio, named or not`}><Trans>All Archives</Trans></button>
       </div>
-      <div className="lib-pane" hidden={sub !== "index"}><IndexTree /></div>
-      <div className="lib-pane" hidden={sub !== "archives"}><ArchiveList /></div>
+      {both && (
+        <div className="lib-tabs lib-games" role="tablist" aria-label={t`Game`} onKeyDown={tabArrows}>
+          {GAMES.map(([id, name]) => (
+            <button key={id} role="tab" aria-selected={game === id} className={game === id ? "on" : ""} onClick={() => nav.pickGame(id)}>{name}</button>
+          ))}
+        </div>
+      )}
+      <div className="lib-pane" hidden={sub !== "index"}><IndexTree game={game} /></div>
+      <div className="lib-pane" hidden={sub !== "archives"}><ArchiveList game={game} /></div>
     </aside>
   );
 }
@@ -46,12 +58,13 @@ const COLUMNS: [SortKey, string, string][] = [
 ];
 const SORT_KEY = "audiodiver.archiveSort";
 /** The columns' widths at the default text size; each heading's right edge drags its column wider or narrower. */
-const WIDTHS = { play: 30, name: 230, cat: 76, archive: 100, language: 68, banks: 52, sounds: 58, act: 50 };
+const WIDTHS = { play: 30, name: 230, cat: 76, archive: 100, language: 84, banks: 52, sounds: 58, act: 50 };
 type Col = keyof typeof WIDTHS;
 const WIDTHS_KEY = "audiodiver.archiveColumnWidths"; // only the columns dragged: a new default reaches the rest
 try { localStorage.removeItem("audiodiver.archiveColumns"); } catch { /* storage off */ } // every width, before
 
 const NATURAL = new Intl.Collator(undefined, { numeric: true, sensitivity: "base" }); // "Track 2" before "Track 10"
+const itemOf = (a: ArchiveRow) => a.item ?? `archive:${a.id}`;
 const CHUNK = 8, OVERSCAN = 16; // rows: the drawn window moves in steps of CHUNK, with OVERSCAN more either side
 /** Which rows of a long list to draw: those in view and a few either side. The rest are spacers of the same height,
     so the scrollbar is the list's own. A column drag or a panel resize then lays out a screenful of rows instead of
@@ -85,8 +98,8 @@ function useRowWindow(box: RefObject<HTMLElement | null>, count: number, rowH: n
 
 /** Every archive of the game that has audio in it, as a table that sorts by any column (click a heading; again to
     turn it round). What the Index knows shows as its names and its categories' icons; an archive nobody has named
-    goes by its name in the game's files. */
-function ArchiveList() {
+    goes by its name in the game's files. Helldivers 1 has its banks here, which hold what the Index has no name for. */
+function ArchiveList({ game }: { game: LibraryGame }) {
   const { archives, itemId, openItem, project, actions, scope, revision, goTo, itemIndex, quick, resolveItem } = useEditor();
   const [query, setQuery] = useState("");
   const [widths, setWidths] = useState<typeof WIDTHS>(() => {
@@ -159,11 +172,12 @@ function ArchiveList() {
   const rows = useMemo(() => {
     const words = q.split(/\s+/).filter(Boolean);
     return archives.filter((a) => {
+      if ((a.game ?? "hd2") !== game) return false;
       if (!words.length || (numeric && found?.has(a.id))) return true;
       const hay = `${a.id} ${a.names.join(" ")} ${a.en?.join(" ") ?? ""} ${a.tags.map((t) => t.name).join(" ")} ${a.language}`.toLowerCase();
       return words.every((w) => hay.includes(w));
     });
-  }, [archives, q, numeric, found]);
+  }, [archives, q, numeric, found, game]);
 
   const sorted = useMemo(() => {
     const { key, up } = sort;
@@ -191,17 +205,17 @@ function ArchiveList() {
   const [first, last] = useRowWindow(list, sorted.length, size.row, size.head);
 
   useEffect(() => {
-    if (itemId?.startsWith("archive:") && query && !rows.some((a) => `archive:${a.id}` === itemId)) setQuery("");
+    if (isArchive(itemId) && query && !rows.some((a) => itemOf(a) === itemId)) setQuery("");
   }, [itemId]); // eslint-disable-line react-hooks/exhaustive-deps
   // whatever opens an archive (a link, Back, the last session) scrolls it into view; it may not be drawn yet, so
   // where it is comes from its place in the list
   const latest = useRef({ sorted, size });
   latest.current = { sorted, size };
   useEffect(() => {
-    if (!itemId?.startsWith("archive:")) return;
+    if (!isArchive(itemId)) return;
     const t = setTimeout(() => {
       const el = list.current, { sorted: s, size: z } = latest.current;
-      const i = s.findIndex((a) => `archive:${a.id}` === itemId);
+      const i = s.findIndex((a) => itemOf(a) === itemId);
       if (!el || i < 0) return;
       const top = i * z.row, bottom = z.head + (i + 1) * z.row; // under the sticky heading, and above the bottom edge
       if (top < el.scrollTop) el.scrollTo({ top, behavior: scrollBehavior() });
@@ -218,7 +232,7 @@ function ArchiveList() {
   };
   const title = (a: ArchiveRow) => (a.names.length ? a.names.join(", ") : a.id);
   const rowMenu = (e: React.MouseEvent, a: ArchiveRow) => {
-    const id = `archive:${a.id}`;
+    const id = itemOf(a);
     const entries: MenuEntry[] = [
       { label: t`Open`, run: () => openItem(id) },
       { label: t`Play a Sample`, run: () => playSlot("vanilla", a.preview, revision, t`${ph({ name: title(a) })} (sample)`, { scope, itemId: id, cueId: null, source: a.preview }) },
@@ -229,7 +243,7 @@ function ArchiveList() {
         quick(addedNote(exportList.add(all), all.length, 1), "add");
       } },
       "-",
-      ...(listed.has(id) ? [
+      ...(a.game ? [] : listed.has(id) ? [
         { label: t`Open in the Audio Tab`, run: () => goTo({ scope: "editor", itemId: id, cueId: null, source: null }) } as MenuEntry,
         { label: t`Remove from the Project`, run: () => actions.removeFromProject([id], title(a)) } as MenuEntry,
       ] : [{ label: t`Add to the Project`, run: () => actions.addToProject([id], title(a)) } as MenuEntry]),
@@ -246,7 +260,7 @@ function ArchiveList() {
           data-tip={t`Names, categories, languages or an archive name`} data-tip-more={t`Or paste a source, stream or bank ID to find the archives that hold it`}
           aria-label={t`Search the archives`} onKeyDown={(e) => {
             if (e.key === "Escape") { if (query) setQuery(""); else e.currentTarget.blur(); }
-            else if (e.key === "Enter" && sorted.length) { e.preventDefault(); openItem(`archive:${sorted[0].id}`); }
+            else if (e.key === "Enter" && sorted.length) { e.preventDefault(); openItem(itemOf(sorted[0])); }
           }} />
       </div>
       <div className="lib-tree arc-list" ref={list}>
@@ -273,7 +287,7 @@ function ArchiveList() {
           <tbody>
             {first > 0 && <tr className="arc-spacer" aria-hidden style={{ height: first * size.row }}><td colSpan={8} /></tr>}
             {sorted.slice(first, last).map((a, k) => {
-              const id = `archive:${a.id}`, added = listed.has(id), name = title(a), i = first + k;
+              const id = itemOf(a), added = listed.has(id), name = title(a), i = first + k;
               return (
                 <tr key={a.id} className={`arc-row${i % 2 ? " odd" : ""}${id === itemId ? " active" : ""}${a.tags.length ? "" : " unnamed"}`}
                   aria-rowindex={i + 2} onClick={() => openItem(id)} onContextMenu={(e) => rowMenu(e, a)}>
@@ -294,13 +308,13 @@ function ArchiveList() {
                       {more.length > 0 && <span className="arc-more" data-tip={more.map(([, names]) => names).join("; ")}>+{more.length}</span>}</>;
                   })()}</td>
                   <td className="arc-id" data-tip={a.id} data-tip-clip>{a.id}</td>
-                  <td>{a.language}</td>
+                  <td data-tip={a.language || undefined} data-tip-clip>{a.language}</td>
                   <td className="num">{a.banks}</td>
                   <td className="num">{a.sounds}</td>
                   <td className="arc-act" onClick={(e) => e.stopPropagation()}>
-                    <AddToggle added={added} run={() => (added ? actions.removeFromProject([id], name) : actions.addToProject([id], name))}
+                    {!a.game && <AddToggle added={added} run={() => (added ? actions.removeFromProject([id], name) : actions.addToProject([id], name))}
                       label={added ? t`Remove ${name} from the project` : t`Add ${name} to the project`} tip={added ? t`Remove from the project` : t`Add to the project`}
-                      more={added ? t`Also removes the new audio. Undo brings both back.` : project ? undefined : t`Open or create a project first`} />
+                      more={added ? t`Also removes the new audio. Undo brings both back.` : project ? undefined : t`Open or create a project first`} />}
                   </td>
                 </tr>
               );

@@ -2,7 +2,7 @@
 title: O áudio do jogo, explicado
 group: Primeiros passos
 summary: Como o Helldivers 2 guarda e toca o áudio, dos pacotes e bancos até os takes e slots, por que o app dá os nomes que dá, e um glossário.
-source: 413352a0facc
+source: 1a4887add42e
 ---
 
 O Helldivers 2 toca o áudio com o **Wwise**, um motor de áudio que muitos jogos usam. O Wwise não tem o conceito de músicas nem de arquivos com nome. Ele guarda clipes em contêineres, dá um número a tudo e decide durante o jogo qual clipe vem a seguir. O Audiodiver transforma essa estrutura de volta em coisas que um jogador reconhece, e os termos desta página são os que aparecem na tela.

@@ -19,6 +19,16 @@ The waveforms under the slots are drawn at the gain and follow the slider as it 
 
 The **Vol** slider in the status bar sets only the preview volume in Audiodiver. It isn't part of the mod.
 
+## Volume curves
+
+The game changes the level of some music while it plays: a volume curve on the clip lowers or raises the level over time, and a fade brings the sound in or takes it out. The curve is part of the music track, not of the audio file, so new audio in that slot follows it too. A slot with a curve shows it as a line around the waveform, with **Volume curve** beside it.
+
+Turn off **Keep the volume curve** in the details to play the slot at an even level. Make-Up Gain can't do this, because it sets one level for the whole clip. The switch takes off volume curves and fades, works on slots with or without new audio and, with several slots selected, applies to the ones that have a curve. A clip can be on several music tracks, and the switch covers all of them.
+
+For example, one of the two clips of Hellpod Descent has a curve that keeps lowering the level, and the other has none. With the same song in both, one plays quieter than the other until the curve is off.
+
+A mod's own curves come in with the [import](wiki:importing-mods#what-comes-in). They show in the waveforms and under **Imported Settings**, and the switch takes them off too.
+
 ## Make-Up Gain and Volume are different settings
 
 Wwise, the game's audio engine, has two settings that both sound like "volume":

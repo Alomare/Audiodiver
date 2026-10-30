@@ -61,6 +61,7 @@ export function Inspector() {
           <Reach slot={slot} />}
         {a && !a.silence && <Gain sources={[slot.source]} value={a.gain_db} match={slot.added ? undefined : "one"} base={slot.added ? undefined : slot.game_gain ?? 0} />}
         {!a && project && usable && <Gain original sources={[slot.source]} value={project.gains[slot.source] ?? 0} base={slot.game_gain ?? 0} />}
+        {project && usable && slot.curve && <CurveSwitch sources={[slot.source]} />}
         {a && !a.silence && seg.segment && (
           <section className="insp-sec">
             <label className="check">
@@ -256,6 +257,21 @@ const SEVERAL = t`Several subtitles have these words, and the game files don't s
     Project.settings, Session._setting_reach): builds include it, and Audiodiver has no control for it, so it is only
     listed. Make-Up Gain shows here only where the slot can't carry it (two sounds that play the clip, with different
     gains from the mod). */
+/** Whether slots keep the volume curve on their clip, the line over the waveform: off, they play at an even level. */
+function CurveSwitch({ sources }: { sources: string[] }) {
+  const { project, actions } = useEditor();
+  const off = sources.filter((s) => project?.curves_off.includes(s)).length;
+  return (
+    <section className="insp-sec">
+      <label className="check">
+        <input type="checkbox" checked={!off} ref={(el) => { if (el) el.indeterminate = off > 0 && off < sources.length; }}
+          onChange={(e) => actions.keepCurve(sources, e.target.checked)} />
+        <span><Trans>Keep the volume curve</Trans> <Help tip={t`The game changes the level of this clip as it plays, and new audio follows the same curve. Turn this off to play it at an even level`} page="volume#volume-curves" /></span>
+      </label>
+    </section>
+  );
+}
+
 function ModSettings({ list }: { list: NonNullable<Slot["mod_settings"]> }) {
   const on = (x: (typeof list)[number]) => x.kind === "sound" ? t`this sound` : x.kind === "track" ? t`this music track`
     : t({ message: `container ${ph({ id: x.object })}`, comment: "Where an imported setting is: a container above the slot, by the container ID" });
@@ -266,7 +282,7 @@ function ModSettings({ list }: { list: NonNullable<Slot["mod_settings"]> }) {
       <h3><Trans>Imported Settings</Trans> <Help tip={t`Set by the imported mod on this sound or on a container above it. Builds include them.`} page="importing-mods#what-comes-in" /></h3>
       <dl>
         {list.flatMap((x) => x.settings.map((s) => (
-          <Fragment key={`${x.object}:${s.name}`}><dt>{s.name}</dt><dd>{value(s)} <span className="muted">· {on(x)}</span></dd></Fragment>
+          <Fragment key={`${x.object}:${s.name}`}><dt>{s.name}</dt><dd>{s.text ?? value(s)} <span className="muted">· {on(x)}</span></dd></Fragment>
         )))}
       </dl>
     </section>
@@ -593,6 +609,7 @@ function Bulk({ rows, sources, usable }: { rows: Row[]; sources: string[]; usabl
   const plain = usable.filter((s) => !a[s]), kept = project?.gains ?? {}; // the originals: their Make-Up Gain
   const cued = rows.filter((r) => r.seg.segment && a[r.slot.source] && !a[r.slot.source].silence); // music with new audio
   const toSilence = usable.filter((s) => !a[s]?.silence);
+  const curved = rows.filter((r) => r.slot.curve && usable.includes(r.slot.source)).map((r) => r.slot.source);
   // the counts the messages below give
   const count = sources.length, fillable = usable.length, silenceable = toSilence.length, withNew = files.length,
     withOriginal = plain.length, silenced = silent.length, replaced = mine.length;
@@ -618,6 +635,7 @@ function Bulk({ rows, sources, usable }: { rows: Row[]; sources: string[]; usabl
             one: "Applies to the # slot with the original audio.", other: "Applies to the # slots with the original audio.",
           }) : undefined} />
       )}
+      {project && curved.length > 0 && <CurveSwitch sources={curved} />}
       {cued.length > 0 && <BulkMarkers rows={cued} partial={cued.length < sources.length} />}
       {silent.length > 0 && (
         <section className="insp-sec">

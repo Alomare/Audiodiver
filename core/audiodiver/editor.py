@@ -176,6 +176,8 @@ class Session:
         self.ix: AudioIndex | None = None
         self.catalog = None
         self.lib = None  # library.Library: the Index and All Archives
+        self.hd1 = None  # hd1.Hd1: Helldivers 1 in the Library, when it is installed
+        self.hd1_where = {"path": None, "how": None}
         self.texts = None  # strings.Texts: the game's text, read when first asked for
         self._cue_sets = {}  # part cue id -> its sounds, for the parts of what projects list
         self._clips = {}     # object id -> the game's clip it plays (_clip_of)
@@ -282,6 +284,7 @@ class Session:
             ix = AudioIndex(Game(folder), log=lambda *a: None)
             self.stage = N_("Mapping the music")
             cm = CueMap(ix, log=lambda *a: None)
+            self._load_hd1()
             while True:  # named in the language in use at the end (set_language may change it meanwhile)
                 lang = i18n.language()
                 cat = Catalog(cm)
@@ -346,6 +349,7 @@ class Session:
         stage = self.stage if self.stage in ("starting", "ready", "failed") else tr(self.stage)
         return {"version": __version__, "stage": stage, "error": self.load_error, "game": game,
                 "game_folder": {**self.game_where, "chosen": load_settings().get("game_data")},
+                "hd1_folder": {**self.hd1_where, "chosen": load_settings().get("hd1_contents")},
                 # for Automatic in Settings ▸ System ▸ Language: the game's language in Steam, then Windows'
                 "languages": {"game": self.game_language, "system": i18n.system_language(),
                               "core": i18n.language()},
@@ -366,21 +370,61 @@ class Session:
             self._music_json = self.catalog.music.to_json()
         return self._music_json
 
-    def index(self):
-        """The Library's Index: the music and the sound sets the community has named, by category (library.py)."""
+    def _load_hd1(self):
+        """Helldivers 1 for the Library. Without it, or if it can't be read, the Library has Helldivers 2 alone."""
+        from . import hd1
+        self.hd1 = None
+        contents, how = hd1.locate(load_settings().get("hd1_contents"))
+        self.hd1_where = {"path": str(contents) if contents else None, "how": how}
+        try:
+            if contents:
+                if self.stage != "ready":
+                    self.stage = N_("Reading Helldivers 1")
+                self.hd1 = hd1.Hd1.read(contents)
+                log.info("Helldivers 1 from %s: %d clips", contents, len(self.hd1.where))
+        except Exception:
+            log.exception("reading Helldivers 1 failed")
+
+    def set_hd1_folder(self, path=None):
+        """Reads Helldivers 1 from another folder (None: find it through Steam again) and saves that choice. The folder
+        is checked first, so a wrong one changes nothing. Helldivers 2 stays as it is."""
+        from . import hd1
         self.require_game()
-        return self.lib.index()
+        if any(j.state == "running" for j in self.jobs.values()):
+            raise EditorError(tr("Wait for the build or export to finish first"))
+        chosen = None
+        if path:
+            try:
+                chosen = str(hd1.contents_folder(path))
+            except ValueError as e:
+                raise EditorError(str(e)) from None
+        save_settings(hd1_contents=chosen)
+        self._load_hd1()
+        if chosen and not self.hd1:
+            raise EditorError(tr("Helldivers 1 couldn't be read from {folder}").format(folder=chosen))
+        return self.status()
+
+    def index(self):
+        """The Library's Index: the music and the sound sets the community has named, by category (library.py), then
+        Helldivers 1 (hd1.py)."""
+        self.require_game()
+        got = self.lib.index()
+        return {**got, "categories": [*got["categories"], *self.hd1.categories(i18n.language())]} if self.hd1 else got
 
     def archives(self):
-        """The Library's All Archives: every archive with audio in it, named and tagged where the Index knows it."""
+        """The Library's All Archives: every archive with audio in it, named and tagged where the Index knows it, then
+        the banks of Helldivers 1."""
         self.require_game()
-        return self.lib.archives
+        return [*self.lib.archives, *self.hd1.archives(i18n.language())] if self.hd1 else self.lib.archives
 
     def item(self, item_id):
         """An Index item or an archive ("archive:<name>") as something to open: its parts are cues to ask `cue`
         for."""
         self.require_game()
         try:
+            if str(item_id).startswith("hd1:") and self.hd1:
+                self.hd1.categories(i18n.language())
+                return self.hd1.item(str(item_id))
             return self.lib.item(str(item_id))
         except KeyError:
             raise EditorError(tr("{item} is not in this game version").format(item=item_id)) from None
@@ -393,6 +437,9 @@ class Session:
         self.require_game()
         try:
             cue_id = str(cue_id)
+            if cue_id.startswith("hd1:") and self.hd1:
+                self.hd1.categories(i18n.language())
+                return self.hd1.view(cue_id)
             view = self.catalog.cue(int(cue_id)) if cue_id.isdigit() else \
                 self.lib.view(cue_id, self._overlay() if mine else None, ids is True)
         except KeyError:
@@ -416,7 +463,20 @@ class Session:
                         sl["stream"] = str(fid) if fid is not None else ""
                     if reach and (got := reach.get(int(sl.get("was") or sl["source"]))):
                         sl["mod_settings"] = got
+                    self._slot_curve(sl, st, p if mine else None)
         return view
+
+    def _slot_curve(self, sl: dict, st: dict, p: Project | None):
+        """The curve a slot draws: the track's that this view lists it on, else the first that has one; on a project's
+        slot, a mod's in place of the game's (and said under Imported Settings)."""
+        from . import music
+        sid, track = int(sl["source"]), int(st["track"]) if str(st.get("track", "")).isdigit() else 0
+        if got := self.catalog.cm.curves.get(sid):
+            sl["curve"] = got.get(track) or next(iter(got.values()))
+        if p and track in p.curves and (mod := music.level_view([music.ClipCurve(*c) for c in p.curves[track]], sid)):
+            sl["curve"] = mod
+            sl["mod_settings"] = [*sl.get("mod_settings", ()), {"object": str(track), "kind": "track", "settings": [
+                {"name": tr("Volume curve"), "value": 0, "unit": "", "text": tr("From the mod")}]}]
 
     def _setting_reach(self, p: Project) -> dict[int, list[dict]]:
         """{the game's clip: [{object, kind, settings}]}: the settings an imported mod made (Project.settings) on the
@@ -477,7 +537,8 @@ class Session:
         """Where an id leads: [{cue, source, item}] for a source id, a stream's file id, a cue id or a bank id."""
         self.require_game()
         try:
-            return self.lib.places(int(str(query).strip()))
+            n = int(str(query).strip())
+            return [*self.lib.places(n), *(self.hd1.places(n) if self.hd1 else ())]
         except (ValueError, OverflowError):
             return []
 
@@ -542,6 +603,8 @@ class Session:
         """The vanilla audio of a source decoded to WAV (cached). A clip of its own's is the clip it stands in for."""
         from .audio import cache_lock
         self.require_game()
+        if self.hd1 and self.hd1.has(sid):
+            return self.hd1.wav(sid)
         if sid in self._added():
             if (was := self._original(sid)) is None:
                 raise EditorError(tr("A new take has no original audio"))
@@ -1113,6 +1176,7 @@ class Session:
             p.library = [i for i in (p.library or []) if i not in gone]
             p.replacements = [r for r in p.replacements if id(r) not in drop]
             p.gains = {t: g for t, g in p.gains.items() if self._target(t) not in sounds}
+            p.curves_off = {t for t in p.curves_off if self._target(t) not in sounds}
             p.soundtrack = {pid: piece for pid, piece in p.soundtrack.items() if pid not in pieces}
             self._tidy(p)       # added takes and clips whose audio went, and layers left without takes
             self._tidy_cues(p)  # cue points of segments with no new audio left
@@ -1275,6 +1339,7 @@ class Session:
                 "rebuild": _rebuild(p, updated, last),
                 "assignments": assignments, "unresolved": unresolved,
                 "gains": {str(self._target(t)): db for t, db in p.gains.items()},
+                "curves_off": sorted(str(self._target(t)) for t in p.curves_off), "curves": len(p.curves),
                 "segment_overrides": {str(k): v for k, v in p.segment_overrides.items()},
                 "texts": [{"table": str(t.table), "id": t.id, "text": t.text, "was": t.was} for t in p.texts],
                 "additions": p.additions_json(), "stand_ins": self._stand_ins(p),
@@ -1412,7 +1477,7 @@ class Session:
             sid = int(s)
         except (TypeError, ValueError, OverflowError):
             raise EditorError(f"{s!r} isn't a sound ID") from None
-        if not self.ix or sid in self._added():
+        if not self.ix or sid in self._added() or (self.hd1 and self.hd1.has(sid)):
             return sid
         try:
             return self.ix.resolve(sid)
@@ -1466,19 +1531,26 @@ class Session:
     def _replacement(self, p, sid):
         return next((r for r in p.replacements if self._target(r.target) == sid), None)
 
-    def copy_audio(self, pairs):
-        """Gives each target slot the audio and settings of another slot ([[from, to], ...]), as one undo step:
-        copy and paste between slots."""
+    def copy_audio(self, pairs, original=False, names=None):
+        """Gives each target slot the audio of another slot ([[from, to], ...]), as one undo step: copy and paste. A
+        slot with new audio gives that and its settings. One without, or every one with `original` (a copy from the
+        Library, which shows the originals), gives the original audio, from either game; `names` labels those by source."""
+        self._need_project()
         self.require_game()
         if not isinstance(pairs, list) or not all(isinstance(x, (list, tuple)) and len(x) == 2 for x in pairs):
             raise EditorError("Copy needs pairs of slots, from and to")
-        pairs = [(self._source(a), self._source(b)) for a, b in pairs]
+        names = names if isinstance(names, dict) else {}
+        pairs = [(self._source(a), self._source(b), str(a)) for a, b in pairs]
+        kept = {a: self._kept_original(a) for a, b, _ in pairs if a != b and (original or not self._replacement(self.project, a))}
 
         def apply(p):
-            for a, b in pairs:
-                src = self._replacement(p, a)
-                if not src or a == b:
+            for a, b, shown in pairs:
+                if a == b:
                     continue
+                if a in kept:
+                    self._set(p, b, str(kept[a]), names.get(shown))
+                    continue
+                src = self._replacement(p, a)
                 dst = self._replacement(p, b)
                 if not dst:
                     dst = Replacement(target=b, audio=src.audio)
@@ -1486,6 +1558,30 @@ class Session:
                 dst.audio, dst.label, dst.gain_db, dst.fit_timing, dst.silence = \
                     src.audio, src.label, src.gain_db, src.fit_timing, src.silence
         return self._edit("paste", apply)
+
+    def _kept_original(self, sid: int) -> Path:
+        """The original audio of a slot as a file in the project (audio/copied), which the cache can't take away. A clip
+        of Helldivers 2 stays the .wem the game has, which a build puts in unchanged; Helldivers 1 has no WEM files."""
+        from_hd1 = bool(self.hd1 and self.hd1.has(sid))
+        if not from_hd1 and sid in self._added():
+            if (was := self._original(sid)) is None:
+                raise EditorError(tr("A new take has no original audio"))
+            sid = was
+        out = self.project.path.parent / "audio" / "copied" / (f"hd1-{sid:x}.wav" if from_hd1 else f"{sid}.wem")
+        if out.exists():
+            return out
+        try:
+            data = self.hd1.wav(sid).read_bytes() if from_hd1 else self.ix.wem(sid)
+        except KeyError:  # a "No audio" slot: the game's data names it, no file holds it
+            raise EditorError(tr("Sound {id} has no audio in the game files").format(id=sid)) from None
+        try:
+            out.parent.mkdir(parents=True, exist_ok=True)
+            tmp = out.with_name(f".{out.name}.saving")
+            tmp.write_bytes(data)
+            tmp.replace(out)
+        except OSError as e:
+            raise EditorError(tr("The copied audio couldn't be saved: {why}").format(why=os_error(e))) from None
+        return out
 
     def swap(self, a, b):
         """Swaps the audio and settings of two slots, as one undo step; an empty slot takes the other's audio
@@ -1612,6 +1708,20 @@ class Session:
         st = self._edit("match", apply)
         st["matched"] = {str(s): db for s, db in gains.items()}
         return st
+
+    def keep_curve(self, sources, keep):
+        """Whether the clips of these slots keep the game's volume curves and fades on music tracks
+        (Project.curves_off), as one undo step."""
+        self.require_game()
+        if not isinstance(sources, list):
+            raise EditorError(tr("Choose the slots to change"))
+        sids = [self._source(s) for s in sources]
+
+        def apply(p):
+            p.curves_off = {t for t in p.curves_off if self._target(t) not in sids}
+            if not keep:
+                p.curves_off |= set(sids)
+        return self._edit("curve", apply)
 
     def original_gain(self, sources, gain_db):
         """Make-Up Gain on the original audio of slots (Project.gains), as one undo step; 0 takes it off."""
@@ -1761,7 +1871,7 @@ class Session:
         from . import notes
         path = (folder or self.notes_folder()) / notes.FILE
         try:
-            return notes.read_file(path)
+            return notes.read_file(path, blank=True)
         except (OSError, ValueError):
             raise EditorError(tr("{file} can't be read, so global notes can't be shown or saved. Fix or move the file, "
                                  "or choose another folder in Settings ▸ System.").format(file=path)) from None
@@ -2332,7 +2442,7 @@ class Session:
         with self.build_lock:  # two builds sent together both started, and wrote one .partial ZIP
             if any(j.kind == "build" and j.state == "running" for j in self.jobs.values()):
                 raise EditorError(tr("A build is already running"))
-            if not p.replacements and not p.gains and not p.texts and not p.soundtrack:
+            if not p.replacements and not p.gains and not p.texts and not p.soundtrack and not p.curves_off and not p.curves:
                 raise EditorError(tr("Nothing to build yet. Replace some audio, set a piece in the Soundtrack or "
                                      "change a line of text first."))
             if problems := self.project_state()["problems"]:
@@ -2412,6 +2522,7 @@ class Session:
         """An import's "replace": the project's audio goes first (new audio, additions, cue points, settings and the
         list). The files stay on disk, and so do the project's text edits."""
         p.replacements, p.additions, p.settings, p.segment_overrides = [], [], {}, {}
+        p.curves, p.curves_off = {}, set()
         p.library, p.imported_banks = [], []
 
     def _patch_audio(self, patch_path: Path, out_dir: Path, job, reuse=False):
@@ -2474,8 +2585,10 @@ class Session:
             job.say(ntr("{n} object copied from another bank by the tool that made the mod; each bank's own is used",
                         "{n} objects copied from another bank by the tool that made the mod; each bank's own are used",
                         len(got.merged)).format(n=len(got.merged)))
+        if curves := len(got.curves) + len(got.curves_off):
+            job.say(ntr("{n} volume curve from the mod", "{n} volume curves from the mod", curves).format(n=curves))
         found = {**new, **replaced}
-        if not found and got.settings:
+        if not found and (got.settings or got.curves or got.curves_off):
             return got, replaced, {}, 0  # only settings
         if not found:
             raise EditorError(tr("{file} replaces, adds or sets nothing Audiodiver can bring in ({why})").format(
@@ -2532,6 +2645,8 @@ class Session:
             else:
                 p.settings.pop(oid, None)
         p.imported_banks = sorted(set(p.imported_banks) | got.banks)  # where its sounds go (build.reach)
+        p.curves_off |= got.curves_off
+        p.curves.update(got.curves)
         added = self._take_in(p, got, files)
         own = {a.sound: a.source for a in p.additions if a.kind == "own"}  # its clip may have a new ID (_take_in)
         gains = {}  # of two objects that play one clip, the higher gain, as a build gives the clip
@@ -3483,11 +3598,13 @@ class Session:
                             got = SimpleNamespace(layers=pt.layers, takes=pt.takes, own=own_here)
                             stats[i]["added"] += self._take_in(p, got, local, mine, tag=m["name"])
                             p.imported_banks = sorted(set(p.imported_banks) | pt.banks)  # where its sounds go
+                            p.curves_off |= pt.curves_off
+                            p.curves.update(pt.curves)
                     p.settings = settings
                     self._tidy(p)
                     self._tidy_cues(p)
                     self._cover(p)
-                    if not p.replacements and not p.settings:
+                    if not p.replacements and not p.settings and not p.curves and not p.curves_off:
                         raise EditorError(tr("None of the mods has audio or settings that Audiodiver can bring in"))
 
                 carried, owner, lost = {}, {}, [0] * len(read)  # {(type, id): file}, the mod it is from, lost to later ones
@@ -4216,7 +4333,9 @@ class Session:
                         continue  # nothing in the game files to write: a new take has no Original
                     if side == "mod" and whose == "both" and not replaced:
                         continue  # the same as the Original beside it
-                    stem = str(sid) if names == "ids" else f"{lead}{n:0{digits}d} {_slot_name(seg, sl)}"
+                    # a Helldivers 1 group has the name of the item, which starts a full name already
+                    said = _slot_name(seg, sl).removeprefix(seg["name"] if lead and e["detail"].get("game") else "")
+                    stem = sl.get("file_id", str(sid)) if names == "ids" else f"{lead}{n:0{digits}d} {said.strip()}".strip()
                     out.append((stem + tag[side], ("slot", side, sid, n)))
             return out
 
@@ -4310,6 +4429,8 @@ class Session:
         checked = [self._export_entry(e, whose) for e in entries]
         if fmt == "wem" and any(e["what"] != "slots" or e["whose"] != "game" for e in checked):
             raise EditorError(tr("WEM files are the Original, slot by slot. Choose another format for the rest."))
+        if fmt == "wem" and any(e["detail"].get("game") == "hd1" for e in checked):
+            raise EditorError(tr("Helldivers 1 has no WEM files. Choose another format for it."))
         folder = out_folder(folder)
         ext = "wem" if fmt == "wem" else render.FORMATS[fmt][0]
         modded = any(e["whose"] != "game" for e in checked)
@@ -4339,7 +4460,7 @@ class Session:
                 return where / f"{stem}.{ext}"
             for e, where, files in plan:
                 where.mkdir(parents=True, exist_ok=True)
-                album = f"Helldivers 2 - {e['title']}"
+                album = f"Helldivers {1 if e['detail'].get('game') == 'hd1' else 2} - {e['title']}"
                 seg_names = {s["segment"]: s["name"] for s in e["detail"]["segments_detail"]}
                 for stem, how in files:
                     job.check()

@@ -2,7 +2,7 @@
 title: Perguntas Frequentes
 group: Perguntas Frequentes
 summary: Respostas curtas a perguntas comuns, cada uma com um link para a página que trata do assunto por completo.
-source: df4f962e1978
+source: 09dda6069291
 ---
 
 ## Encontrar áudio {#finding-audio}

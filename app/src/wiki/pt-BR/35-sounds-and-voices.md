@@ -2,7 +2,7 @@
 title: Sons e vozes
 group: Criando um mod
 summary: Armas, inimigos, vozes e todo o outro áudio que não é música. Como a Biblioteca os mostra e o que verificar antes de substituir um deles.
-source: b6977583442a
+source: 8d3ce8429e30
 ---
 
 O Audiodiver tem mais informações sobre música, mas a Biblioteca contém todo o áudio do jogo. Esta página aborda tudo o que não é música.

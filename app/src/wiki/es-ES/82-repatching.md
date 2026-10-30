@@ -2,7 +2,7 @@
 title: Volver a parchear
 group: Generar y compartir
 summary: Reconstruir para el juego actual un mod de audio hecho para una versión anterior del juego o con otra herramienta.
-source: 4adcbe4e29d4
+source: 81a4ed7b98b3
 ---
 
 El parche de un mod contiene copias completas de los bancos de sonido que cambia, tal como estaban en la versión del juego para la que se hizo el mod. Después de una actualización del juego, esas copias están desfasadas. El mod puede quedarse en silencio o reproducir sonidos equivocados, y mientras está instalado revierte audio más nuevo. Incluso puede silenciar sonidos que nunca cambió, porque los bancos también contienen ajustes que comparten muchos otros bancos. **Repatch**, en [Herramientas](app:tools/repatch), reconstruye un mod así para el juego actual. No necesita ningún proyecto ni experiencia con mods.
@@ -44,6 +44,7 @@ La comprobación solo informa de lo que el autor de un mod no habría cambiado a
 - El audio que sustituye el mod y el audio que añade. El audio añadido puede ser tomas nuevas para un sonido, un sonido que suena con otro sonido o un clip aparte para un sonido.
 - Los ajustes de sonido, como el volumen (Make-Up Gain) de un sonido o un contenedor, un retardo antes de que suene y cuánto de él va a la reverberación.
 - Los puntos de cue de los segmentos de música que reproducen audio nuevo.
+- Las curvas de volumen de las pistas de música, tal como las definió el mod.
 - Todo lo demás del parche, como texto, modelos y texturas, exactamente como estaba. La página enumera lo que contiene un parche además de audio.
 
 Audiodiver aplica todo esto a los bancos de sonido actuales y genera un ZIP nuevo del mismo mod. Los bancos que el mod no parcheó reciben el audio solo cuando **Parchear todos los bancos con los sonidos** está marcado.

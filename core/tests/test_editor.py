@@ -143,6 +143,17 @@ def test_global_notes_live_in_a_folder_of_their_own(tmp_path, monkeypatch):
     assert s.set_notes_folder(None)["default"] and s.global_notes()["notes"]["clip:1234"] == "Reload, *loud*"
 
 
+@pytest.mark.parametrize("blank", [b"", b"\r\n", b"  ", b"{}", b"\xef\xbb\xbf", b"\xef\xbb\xbf{}\r\n"])
+def test_a_blank_global_notes_file_has_no_notes(tmp_path, monkeypatch, blank):
+    from audiodiver import editor
+    monkeypatch.setattr(editor, "SETTINGS_FILE", tmp_path / "settings.json")
+    (tmp_path / "notes.json").write_bytes(blank)
+    s = Session(load=False)
+    assert s.global_notes()["error"] is None and s.global_notes()["notes"] == {}
+    assert s.set_global_note("clip:1", "x")["notes"] == {"clip:1": "x"}  # and the first note makes it a notes file
+    assert json.loads((tmp_path / "notes.json").read_text(encoding="utf-8"))["format"] == "audiodiver-notes"
+
+
 def test_project_notes_that_are_not_valid_are_left_out(tmp_path):
     from audiodiver.project import Project
     p = Project.from_json({"audiodiver": 1, "name": "M", "notes": {"clip:1": "ok", "nope": "x", "seg:2": 3, "obj:3": ""}})
@@ -602,6 +613,30 @@ def test_fill_goes_in_natural_file_order_and_copy_move_are_one_step(game_session
     assert order[2] not in st["assignments"] and st["assignments"][order[3]]["name"] == "Track 2.wav"
     st = s.undo()
     assert st["assignments"][order[2]]["name"] == "Track 2.wav" and st["redo_label"] == "move"
+
+
+@pytest.mark.game
+def test_copy_gives_the_original_of_a_slot_without_new_audio(game_session, tmp_path):
+    s = game_session
+    s.new_project(tmp_path / "o.audi", "O")
+    cue = s.cue(716451767)
+    order = list(dict.fromkeys(sl["source"] for seg in cue["segments_detail"] for st in seg["stems"] for sl in st["slots"] if not sl.get("absent")))
+    first = s._source(order[0])
+    st = s.copy_audio([[order[0], order[1]], [order[0], order[2]]], names={order[0]: "Calm 1"})  # one undo step, one file
+    kept = tmp_path / "audio" / "copied" / f"{first}.wem"
+    assert kept.read_bytes() == s.ix.wem(first)  # the clip as the game has it: a build takes it unchanged
+    assert [st["assignments"][o]["audio"] for o in order[1:3]] == ["audio/copied/" + kept.name] * 2
+    assert st["assignments"][order[1]]["label"] == "Calm 1" and st["undo_label"] == "paste"
+    assert order[0] not in st["assignments"]
+    new = str(_wav(tmp_path / "new.wav", seconds=0.25))
+    s.assign(order[0], new)
+    st = s.copy_audio([[order[0], order[3]]])
+    assert st["assignments"][order[3]]["name"] == "new.wav"  # a slot with new audio gives that
+    st = s.copy_audio([[order[0], order[3]]], original=True)  # the Library shows the original, so that is what it copies
+    assert st["assignments"][order[3]]["name"] == kept.name
+    st = s.undo()
+    assert st["assignments"][order[3]]["name"] == "new.wav"
+    assert s.copy_audio([[order[0], order[0]]], original=True)["assignments"][order[0]]["name"] == "new.wav"  # onto itself: nothing
 
 
 @pytest.mark.game

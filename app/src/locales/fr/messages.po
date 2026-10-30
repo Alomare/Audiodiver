@@ -12,6 +12,11 @@ msgstr ""
 msgid "(empty)"
 msgstr "(vide)"
 
+#. placeholder {0}: sel.length
+#: src/CueView.tsx
+msgid "{0, plural, one {Copy the Audio (# Slot)} other {Copy the Audio (# Slots)}}"
+msgstr "{0, plural, one {Copier l’audio (# emplacement)} other {Copier l’audio (# emplacements)}}"
+
 #. placeholder {0}: r.count
 #: src/SettingsTab.tsx
 msgid "{0, plural, one {Exported # note.} other {Exported # notes.}}"
@@ -181,6 +186,10 @@ msgstr "{count, plural, one {Cliquez ici pour le voir dans le Wiki.} other {Cliq
 #: src/CueView.tsx
 msgid "{count, plural, one {Copy the New Audio (# Slot)} other {Copy the New Audio (# Slots)}}"
 msgstr "{count, plural, one {Copier le nouvel audio (# emplacement)} other {Copier le nouvel audio (# emplacements)}}"
+
+#: src/CueView.tsx
+msgid "{count, plural, one {Copy the Original (# Slot)} other {Copy the Original (# Slots)}}"
+msgstr "{count, plural, one {Copier l’original (# emplacement)} other {Copier l’original (# emplacements)}}"
 
 #: src/SettingsTab.tsx
 msgid "{count, plural, one {Every # minute} other {Every # minutes}}"
@@ -1614,6 +1623,10 @@ msgid "Audiodiver notes"
 msgstr "Notes Audiodiver"
 
 #: src/SettingsTab.tsx
+msgid "Audiodiver only reads from this folder, to play and export in the Library."
+msgstr "Audiodiver ne fait que lire dans ce dossier, pour écouter et exporter dans la Bibliothèque."
+
+#: src/SettingsTab.tsx
 msgid "Audiodiver only reads from this folder. Choosing another folder reads the game again, which takes about a minute the first time."
 msgstr "Audiodiver ne fait que lire dans ce dossier. Choisir un autre dossier relit le jeu, ce qui prend environ une minute la première fois."
 
@@ -2231,6 +2244,10 @@ msgid "Choose the Game Folder"
 msgstr "Choisir le dossier du jeu"
 
 #: src/store.tsx
+msgid "Choose the Helldivers 1 install folder"
+msgstr "Choisir le dossier d’installation de Helldivers 1"
+
+#: src/store.tsx
 msgid "Choose the Helldivers 2 install folder"
 msgstr "Choisir le dossier d’installation de Helldivers 2"
 
@@ -2538,6 +2555,10 @@ msgstr "{slots, plural, one {# emplacement copié} other {# emplacements copiés
 msgid "Copied {slots, plural, one {# slot} other {# slots}} · {paste} pastes"
 msgstr "{slots, plural, one {# emplacement copié} other {# emplacements copiés}} · {paste} pour coller"
 
+#: src/store.tsx
+msgid "Copied {slots, plural, one {# slot} other {# slots}} · {paste} pastes in the Audio tab"
+msgstr "{slots, plural, one {# emplacement copié} other {# emplacements copiés}} · {paste} pour coller dans l’onglet Audio"
+
 #: src/ProjectTab.tsx
 msgid "Copied the mod ID"
 msgstr "ID du mod copié"
@@ -2567,6 +2588,14 @@ msgid "Copy the Archive Name"
 msgstr "Copier le nom de l’archive"
 
 #: src/CueView.tsx
+msgid "Copy the Audio"
+msgstr "Copier l’audio"
+
+#: src/keys.ts
+msgid "Copy the audio of the selected slots"
+msgstr "Copier l’audio des emplacements sélectionnés"
+
+#: src/CueView.tsx
 msgid "Copy the Container ID"
 msgstr "Copier l’ID de conteneur"
 
@@ -2583,9 +2612,9 @@ msgstr "Copier l’ID de la ligne"
 msgid "Copy the New Audio"
 msgstr "Copier le nouvel audio"
 
-#: src/keys.ts
-msgid "Copy the new audio of the selected slots"
-msgstr "Copier le nouvel audio des emplacements sélectionnés"
+#: src/CueView.tsx
+msgid "Copy the Original"
+msgstr "Copier l’original"
 
 #: src/CueView.tsx
 msgid "Copy the Sound ID"
@@ -2702,6 +2731,10 @@ msgstr "Points de repère définis dans {segments, plural, one {# autre segment}
 msgctxt "Column of the slice tool: where a piece starts and ends in the song"
 msgid "Cut"
 msgstr "Coupe"
+
+#: src/SliceTool.tsx
+msgid "Cut (ms)"
+msgstr "Coupe (ms)"
 
 #: src/SliceTool.tsx
 msgid "Cut {number}"
@@ -2865,6 +2898,10 @@ msgstr "Faites-la glisser pour écarter le début de la chanson"
 #: src/Timeline.tsx
 msgid "Drawn and played at this gain"
 msgstr "Affiché et joué avec ce gain"
+
+#: src/Timeline.tsx
+msgid "Drawn as the line around the waveform"
+msgstr "Représenté par la ligne autour de la forme d’onde"
 
 #: src/RepatchPage.tsx
 msgid "Drop a mod here as a <0>ZIP</0>, a <1>folder</1> or a <2>.patch_0</2> file."
@@ -3490,7 +3527,7 @@ msgstr "De la Bibliothèque à un mod généré : le tir d’une arme remplac�
 msgid "Full Names"
 msgstr "Noms complets"
 
-#: src/SettingsTab.tsx
+#: src/Library.tsx
 msgid "Game"
 msgstr "Jeu"
 
@@ -3718,6 +3755,10 @@ msgstr "Icône"
 #: src/SettingsTab.tsx
 msgid "Icons only. Names show in tooltips."
 msgstr "Icônes seules. Les noms s’affichent dans les infobulles."
+
+#: src/SettingsTab.tsx
+msgid "If something is wrong with a translation, please <0>report it as an issue</0>."
+msgstr "Si quelque chose ne va pas dans une traduction, merci de <0>le signaler dans une issue</0>."
 
 #: src/ProjectTab.tsx
 msgid "Illuminate violet"
@@ -3996,6 +4037,10 @@ msgstr "Réglé par « Conserver la durée d’origine » dans les détails"
 #: src/ImportMod.tsx
 msgid "Keep the mod ID"
 msgstr "Garder l’ID du mod"
+
+#: src/Inspector.tsx
+msgid "Keep the volume curve"
+msgstr "Conserver la courbe de volume"
 
 #: src/App.tsx
 msgid "Keep Working"
@@ -5077,16 +5122,16 @@ msgid "Nothing to copy"
 msgstr "Rien à copier"
 
 #: src/store.tsx
-msgid "Nothing to copy. These slots aren't replaced"
-msgstr "Rien à copier. Ces emplacements ne sont pas remplacés"
+msgid "Nothing to copy. These slots have no audio"
+msgstr "Rien à copier. Ces emplacements n’ont pas d’audio"
 
 #: src/ExportDialog.tsx
 msgid "Nothing to export yet."
 msgstr "Rien à exporter pour l’instant."
 
 #: src/store.tsx
-msgid "Nothing to paste. Copy audio files or replaced slots first"
-msgstr "Rien à coller. Copiez d’abord des fichiers audio ou des emplacements remplacés"
+msgid "Nothing to paste. Copy audio files or slots first"
+msgstr "Rien à coller. Copiez d’abord des fichiers audio ou des emplacements"
 
 #: src/App.tsx
 #: src/store.tsx
@@ -6064,6 +6109,10 @@ msgstr "lecture et conversion des fichiers audio"
 msgid "reading game archives, and how HD2 stores sound banks"
 msgstr "lecture des archives du jeu, et façon dont HD2 stocke les banques de sons"
 
+#: src/SettingsTab.tsx
+msgid "Reading Helldivers 1"
+msgstr "Chargement de Helldivers 1"
+
 #: src/CueView.tsx
 msgid "Reading the bank…"
 msgstr "Chargement de la banque…"
@@ -6680,6 +6729,10 @@ msgstr "Segment"
 msgid "select"
 msgstr "sélectionner"
 
+#: src/SliceTool.tsx
+msgid "Select a cut first"
+msgstr "Sélectionnez d’abord une coupe"
+
 #: src/Tools.tsx
 msgid "Select a slot to see the waveforms"
 msgstr "Sélectionnez un emplacement pour voir les formes d'onde"
@@ -6696,6 +6749,10 @@ msgstr "Sélectionner toutes les séquences affichées"
 #: src/keys.ts
 msgid "Select every slot"
 msgstr "Sélectionner tous les emplacements"
+
+#: src/CueView.tsx
+msgid "Select everything in {name}"
+msgstr "Tout sélectionner dans {name}"
 
 #: src/keys.ts
 msgid "Select the next slot"
@@ -6721,6 +6778,10 @@ msgstr "Sélectionner les prises de {name}"
 msgctxt "Which slots or sounds to export"
 msgid "Selected"
 msgstr "Sélectionnés"
+
+#: src/SettingsTab.tsx
+msgid "Set by the HD1_CONTENTS environment variable."
+msgstr "Défini par la variable d’environnement HD1_CONTENTS."
 
 #: src/SettingsTab.tsx
 msgid "Set by the HD2_DATA environment variable."
@@ -7505,6 +7566,10 @@ msgstr "les fichiers à côté des patchs"
 msgid "the first of {name}"
 msgstr "la première prise de {name}"
 
+#: src/Inspector.tsx
+msgid "The game changes the level of this clip as it plays, and new audio follows the same curve. Turn this off to play it at an even level"
+msgstr "Le jeu modifie le niveau de ce clip pendant sa lecture, et le nouvel audio suit la même courbe. Désactivez pour le jouer à un niveau constant"
+
 #: src/TextTab.tsx
 msgid "The game fills in {fills} here. {count, plural, one {Keep it.} other {Keep them.}}"
 msgstr "Le jeu insère {fills} ici. {count, plural, one {Gardez-le.} other {Gardez-les.}}"
@@ -7563,6 +7628,10 @@ msgid "the HD2 modding community"
 msgstr "la communauté de modding de HD2"
 
 #: src/SettingsTab.tsx
+msgid "The Helldivers 1 install folder, or the contents folder inside it"
+msgstr "Le dossier d’installation de Helldivers 1, ou le dossier contents qu’il contient"
+
+#: src/SettingsTab.tsx
 msgid "The Helldivers 2 install folder, or the data folder inside it"
 msgstr "Le dossier d’installation de Helldivers 2, ou le dossier data qu’il contient"
 
@@ -7613,6 +7682,10 @@ msgstr "Le dernier projet ne s’est pas ouvert : {why}"
 #: src/Soundtrack.tsx
 msgid "The level of the whole piece, on top of each slot's Make-Up Gain"
 msgstr "Le niveau du morceau entier, en plus du Make-Up Gain de chaque emplacement"
+
+#: src/Timeline.tsx
+msgid "The level the game gives this clip as it plays"
+msgstr "Le niveau que le jeu donne à ce clip pendant sa lecture"
 
 #: src/tutorials.ts
 msgid "The Liberator has two more sets of these sounds, further down the list. The tutorial changes them the same way."
@@ -8430,6 +8503,15 @@ msgstr "Langue du pack de voix"
 msgid "Vol"
 msgstr "Vol"
 
+#. Edit in Undo, Redo and History: a slot set to keep or drop the volume curve on the clip
+#: src/store.tsx
+msgid "volume curve"
+msgstr "courbe de volume"
+
+#: src/Timeline.tsx
+msgid "Volume curve"
+msgstr "Courbe de volume"
+
 #: src/BuildTab.tsx
 msgid "Volume, delays and similar settings, with the values the imported mod used. A slot's Make-Up Gain is applied on top."
 msgstr "Volume, délais et réglages similaires, avec les valeurs du mod importé. Le Make-Up Gain d’un emplacement s’applique en plus."
@@ -8569,6 +8651,10 @@ msgstr "Où le morceau commence et finit dans la chanson"
 #: src/ProjectTab.tsx
 msgid "Where the project file and the files it uses are kept"
 msgstr "Où sont conservés le fichier du projet et les fichiers qu’il utilise"
+
+#: src/SliceTool.tsx
+msgid "Where the selected cut is in the song"
+msgstr "L’emplacement de la coupe sélectionnée dans le morceau"
 
 #: src/CombinePage.tsx
 msgid "Which mod's {label}"
