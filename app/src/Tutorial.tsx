@@ -3,7 +3,7 @@ import { plural, t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { andList, call } from "./api";
 import { confirm } from "./Confirm";
-import { UTILS } from "./edition";
+import { UTILS, WIKI_WINDOW } from "./edition";
 import { parse, Markdown } from "./Markdown";
 import { nav, useNav } from "./nav";
 import { reveal, startAudioPickerIn } from "./platform";
@@ -11,6 +11,7 @@ import { useEditor } from "./store";
 import { CatMark } from "./Tags";
 import { motionOn, useTheme } from "./theme";
 import { markOffered, TUTORIALS, unoffered, type Tutorial, type TutorialKit, type TutorialState } from "./tutorials";
+import { askTutorial, attachWiki, onTutorialAsked } from "./wikiWindow";
 
 /** The Wiki's page of interactive tutorials (not a Markdown page): Wiki.tsx shows TutorialsPage for it. */
 export const TUTORIALS_PAGE = "tutorials";
@@ -23,10 +24,18 @@ const listeners = new Set<() => void>();
 const set = (next: Run) => { running = next; listeners.forEach((f) => f()); };
 const useRun = () => useSyncExternalStore((f) => { listeners.add(f); return () => { listeners.delete(f); }; }, () => running);
 
-/** Starts a tutorial (from the tutorials page). TutorialLayer sets it up and shows its steps. */
+/** Whether a tutorial runs: the Wiki stays in its tab until it ends. */
+export const useTutorialRuns = () => !!useRun();
+
+/** Starts a tutorial (from the tutorials page, also in the Wiki's own window, which brings the Wiki back).
+    TutorialLayer sets it up and shows its steps. */
 export function startTutorial(id: string) {
-  if (!running) set({ id, step: -1 });
+  if (WIKI_WINDOW) return askTutorial(id);
+  if (running) return;
+  attachWiki();
+  set({ id, step: -1 });
 }
+onTutorialAsked(startTutorial);
 /** Asks before a tutorial ends early (the panel's Stop Tutorial). */
 async function askStop() {
   if (await confirm({ title: t`End tutorial?`, text: t`You can start it again any time in the Wiki.`, ok: t`End Tutorial`, cancel: t`Keep Going` })) set(null);

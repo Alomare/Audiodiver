@@ -7,6 +7,9 @@ export const LANGUAGES = [
   { tag: "en", name: "English" },
   { tag: "pt-BR", name: "Português (Brasil)" },
   { tag: "zh-Hans", name: "简体中文" },
+  { tag: "fr", name: "Français" },
+  { tag: "es-ES", name: "Español" },
+  { tag: "ja", name: "日本語" },
 ] as const;
 export type Language = (typeof LANGUAGES)[number]["tag"];
 /** Development only (lingui.config.ts): every message stretched and accented, to find what isn't translatable yet. */
@@ -36,7 +39,7 @@ export function closest(tag: string | null | undefined): Language | null {
   const [base, ...rest] = t.toLowerCase().split("-");
   const region = rest.find((p) => p.length === 2 || p === "419");
   if (base === "zh") return exact(rest.some((p) => ["hant", "tw", "hk", "mo"].includes(p)) ? "zh-Hant" : "zh-Hans");
-  if (base === "es") return exact(!region || region === "es" ? "es-ES" : "es-419");
+  if (base === "es") return exact(!region || region === "es" ? "es-ES" : "es-419") ?? exact("es-ES");
   if (base === "pt") return exact(!region || region === "br" ? "pt-BR" : "pt-PT");
   return exact(t) ?? LANGUAGES.find((l) => l.tag.split("-")[0].toLowerCase() === base)?.tag ?? null;
 }

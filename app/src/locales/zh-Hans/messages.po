@@ -1177,6 +1177,7 @@ msgid "A transition plays between two pieces of music, and a stinger over one. L
 msgstr "过渡段在两首曲目之间播放，插入乐段则叠在曲目上播放。如果保留原版，它们仍会播放原版音乐，紧挨着新音乐。“跳过”会将它们替换为短暂的静音"
 
 #: src/Tutorial.tsx
+#: src/Wiki.tsx
 msgid "A tutorial is running"
 msgstr "有教程正在进行"
 
@@ -1787,6 +1788,10 @@ msgstr "右下"
 #: src/SettingsTab.tsx
 msgid "Bring the notes of an exported notes file or of a project into the global notes"
 msgstr "将导出的备注文件或项目中的备注导入全局备注"
+
+#: src/Wiki.tsx
+msgid "Bring the Wiki Back"
+msgstr "把 Wiki 放回来"
 
 #. The name of the Build tab, as the title of a tutorial step
 #. Title of the Build tab
@@ -2787,6 +2792,10 @@ msgstr "描述"
 msgid "Destination folder"
 msgstr "目标文件夹"
 
+#: src/Wiki.tsx
+msgid "Detach the Wiki"
+msgstr "分离 Wiki"
+
 #: src/Inspector.tsx
 msgid "Details"
 msgstr "详情"
@@ -3651,6 +3660,7 @@ msgstr "历史记录：尚无更改"
 
 #: src/App.tsx
 #: src/Home.tsx
+#: src/SettingsTab.tsx
 #: src/store.tsx
 msgid "Home"
 msgstr "主页"
@@ -5374,6 +5384,10 @@ msgstr "在文本选项卡中打开字幕"
 msgid "Opens ko-fi.com/alomare"
 msgstr "打开 ko-fi.com/alomare"
 
+#: src/Wiki.tsx
+msgid "Opens the Wiki in a separate window"
+msgstr "在单独的窗口中打开 Wiki"
+
 #: src/ProjectTab.tsx
 msgid "Optional. Shown with the mod in the mod manager."
 msgstr "可选。在模组管理器中与模组一同显示。"
@@ -6872,6 +6886,10 @@ msgstr "显示日志文件"
 msgid "Show the log file in Explorer"
 msgstr "在资源管理器中显示日志文件"
 
+#: src/SettingsTab.tsx
+msgid "Show the news ticker"
+msgstr "显示新闻滚动条"
+
 #: src/Tools.tsx
 msgid "Show the waveforms"
 msgstr "显示波形"
@@ -8030,6 +8048,10 @@ msgstr "整首歌曲，按原版的比例切分"
 #: src/SliceTool.tsx
 msgid "The whole song, in pieces of equal length"
 msgstr "整首歌曲，切成等长的分段"
+
+#: src/Wiki.tsx
+msgid "The Wiki is open in a separate window."
+msgstr "Wiki 已在单独的窗口中打开。"
 
 #: src/SettingsTab.tsx
 msgid "Theme"

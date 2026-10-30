@@ -31,7 +31,7 @@ from audiodiver.titles import title  # noqa: E402
 # the game's language codes (strings.LANGUAGES) for the app's languages
 GAME_CODES = {"fr": "fr", "de": "de", "it": "it", "es-ES": "es", "es-419": "ms", "pt-PT": "pt", "pt-BR": "bp",
               "pl": "pl", "ru": "ru", "ja": "jp", "ko": "ko", "zh-Hans": "cn", "zh-Hant": "tc"}
-SHIPPED = ["pt-BR", "zh-Hans"]  # the languages the next release ships besides English (app i18n.ts LANGUAGES)
+SHIPPED = ["pt-BR", "zh-Hans", "fr", "es-ES", "ja"]  # the languages the next release ships besides English (app i18n.ts LANGUAGES)
 DESIGNATION = re.compile(r"^[A-Z0-9/]+-[\w/]+\s+")  # "AR-23 ", "AR/GL-21 ", "R/40-K "
 # Index names whose line in the game's text means something else: "Fire" (the hazard) is the order to fire there
 NOT_THE_GAMES = {"Fire"}

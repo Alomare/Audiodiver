@@ -1,0 +1,2035 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=utf-8\n"
+"Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: addition.py
+msgid "Only a sound with takes the game picks from can have a new take"
+msgstr "Seul un son avec des prises parmi lesquelles le jeu choisit peut avoir une nouvelle prise"
+
+#: addition.py
+msgid "This sound has no take to copy"
+msgstr "Ce son n’a aucune prise à copier"
+
+#: addition.py
+msgid "Only a sound with takes the game picks from can have a layer"
+msgstr "Seul un son avec des prises parmi lesquelles le jeu choisit peut avoir une couche"
+
+#: addition.py
+msgid "This sound is one of the random choices of another sound, so a layer would only add another choice"
+msgstr "Ce son est l’un des choix aléatoires d’un autre son, donc une couche ne ferait qu’ajouter un choix"
+
+#: addition.py
+msgid "Nothing plays this sound directly, so a layer beside it would never play"
+msgstr "Rien ne joue ce son directement, donc une couche à côté ne serait jamais jouée"
+
+#: addition.py
+msgid "A new container ({id}) with {n} sound can't be a layer, because it has no sounds"
+msgid_plural "A new container ({id}) with {n} sounds can't be a layer, because it has no sounds"
+msgstr[0] "Un nouveau conteneur ({id}) avec {n} son ne peut pas être une couche, car il n’a aucun son"
+msgstr[1] "Un nouveau conteneur ({id}) avec {n} sons ne peut pas être une couche, car il n’a aucun son"
+
+#: addition.py
+msgid "A new container ({id}) with {n} sound can't be a layer, because only a sound with takes the game picks from can have a layer"
+msgid_plural "A new container ({id}) with {n} sounds can't be a layer, because only a sound with takes the game picks from can have a layer"
+msgstr[0] "Un nouveau conteneur ({id}) avec {n} son ne peut pas être une couche, car seul un son avec des prises parmi lesquelles le jeu choisit peut avoir une couche"
+msgstr[1] "Un nouveau conteneur ({id}) avec {n} sons ne peut pas être une couche, car seul un son avec des prises parmi lesquelles le jeu choisit peut avoir une couche"
+
+#: addition.py
+msgid "A new container ({id}) with {n} sound can't be a layer, because this sound has no take to copy"
+msgid_plural "A new container ({id}) with {n} sounds can't be a layer, because this sound has no take to copy"
+msgstr[0] "Un nouveau conteneur ({id}) avec {n} son ne peut pas être une couche, car ce son n’a aucune prise à copier"
+msgstr[1] "Un nouveau conteneur ({id}) avec {n} sons ne peut pas être une couche, car ce son n’a aucune prise à copier"
+
+#: addition.py
+msgid "bank {id}, which this version of the game doesn't have"
+msgstr "banque {id}, que cette version du jeu n’a pas"
+
+#: addition.py
+msgid "A new container ({id}) with {n} sound can't be a layer, because this sound is one of the random choices of another sound, so a layer would only add another choice"
+msgid_plural "A new container ({id}) with {n} sounds can't be a layer, because this sound is one of the random choices of another sound, so a layer would only add another choice"
+msgstr[0] "Un nouveau conteneur ({id}) avec {n} son ne peut pas être une couche, car ce son est l’un des choix aléatoires d’un autre son, donc une couche ne ferait qu’ajouter un choix"
+msgstr[1] "Un nouveau conteneur ({id}) avec {n} sons ne peut pas être une couche, car ce son est l’un des choix aléatoires d’un autre son, donc une couche ne ferait qu’ajouter un choix"
+
+#: addition.py
+msgid "Container {id} has no take to copy"
+msgstr "Le conteneur {id} n’a aucune prise à copier"
+
+#: addition.py
+msgid "A new container ({id}) with {n} sound can't be a layer, because nothing plays this sound directly, so a layer beside it would never play"
+msgid_plural "A new container ({id}) with {n} sounds can't be a layer, because nothing plays this sound directly, so a layer beside it would never play"
+msgstr[0] "Un nouveau conteneur ({id}) avec {n} son ne peut pas être une couche, car rien ne joue ce son directement, donc une couche à côté ne serait jamais jouée"
+msgstr[1] "Un nouveau conteneur ({id}) avec {n} sons ne peut pas être une couche, car rien ne joue ce son directement, donc une couche à côté ne serait jamais jouée"
+
+#: addition.py
+msgid "A new container ({id}) with {n} sound can't be a layer, because Audiodiver can't tell which sound it plays with"
+msgid_plural "A new container ({id}) with {n} sounds can't be a layer, because Audiodiver can't tell which sound it plays with"
+msgstr[0] "Un nouveau conteneur ({id}) avec {n} son ne peut pas être une couche, car Audiodiver ne peut pas savoir avec quel son il est joué"
+msgstr[1] "Un nouveau conteneur ({id}) avec {n} sons ne peut pas être une couche, car Audiodiver ne peut pas savoir avec quel son il est joué"
+
+#: addition.py
+msgid "Container {id} is one of the choices of a random container, so a layer beside it would only be another choice"
+msgstr "Le conteneur {id} est l’un des choix d’un conteneur aléatoire, donc une couche à côté ne serait qu’un choix de plus"
+
+#: addition.py
+msgid "Nothing plays container {id} straight from an event, so a layer beside it would never play"
+msgstr "Aucun événement ne joue directement le conteneur {id}, donc une couche à côté ne serait jamais jouée"
+
+#: addition.py
+msgid "Sound {id} plays no clip"
+msgstr "Le son {id} ne joue aucun clip"
+
+#: addition.py editor.py
+msgid "Sound {id} isn't in this version of the game"
+msgstr "Le son {id} n’existe pas dans cette version du jeu"
+
+#: addition.py
+msgid "Container {id} isn't in this version of the game"
+msgstr "Le conteneur {id} n’existe pas dans cette version du jeu"
+
+#: addition.py
+msgid "Layer {id} has no takes"
+msgstr "La couche {id} n’a aucune prise"
+
+#: addition.py
+msgid "A new sound ({id}) has no audio in the patch"
+msgstr "Un nouveau son ({id}) n’a pas d’audio dans le patch"
+
+#: addition.py
+msgid "Sound {id} plays a clip that has no audio in the patch"
+msgstr "Le son {id} joue un clip sans audio dans le patch"
+
+#: addition.py
+msgid "A new sound ({id}) is in a place where Audiodiver can't add a take (under object {parent})"
+msgstr "Un nouveau son ({id}) se trouve à un endroit où Audiodiver ne peut pas ajouter de prise (sous l’objet {parent})"
+
+#: akd.py
+msgid "Needs Wwise installed on this computer"
+msgstr "Nécessite Wwise installé sur cet ordinateur"
+
+#: akd.py
+msgid "Needs the waapi-client package next to the core"
+msgstr "Nécessite le package waapi-client à côté du moteur"
+
+#: arsenal.py
+msgid "A mod needs a name"
+msgstr "Un mod doit avoir un nom"
+
+#: arsenal.py
+msgid "The name starts or ends with a space"
+msgstr "Le nom commence ou se termine par un espace"
+
+#: arsenal.py
+msgid "The name needs a letter or a digit"
+msgstr "Le nom doit contenir une lettre ou un chiffre"
+
+#: arsenal.py
+msgid "a tab"
+msgstr "une tabulation"
+
+#: arsenal.py
+msgid "Mod managers can't use {characters} in a name (letters, digits, spaces and - _ ( ) are fine)"
+msgstr "Les gestionnaires de mods ne peuvent pas utiliser {characters} dans un nom (les lettres, chiffres, espaces et - _ ( ) sont acceptés)"
+
+#: arsenal.py editor.py
+msgid "{file} is too large to use as an icon"
+msgstr "{file} est trop volumineux pour servir d’icône"
+
+#: arsenal.py
+msgid "{file} is not an image Audiodiver can read"
+msgstr "{file} n’est pas une image qu’Audiodiver peut lire"
+
+#: audio.py
+msgid "The cut points lie outside the song"
+msgstr "Les points de coupe sont en dehors de la chanson"
+
+#: audio.py editor.py
+msgid "Can't read the audio in {file}"
+msgstr "Impossible de lire l’audio de {file}"
+
+#: audio.py
+msgid "Piece {n} is shorter than {seconds} s"
+msgstr "Le morceau {n} dure moins de {seconds} s"
+
+#: audio.py
+msgid "Piece {n} is empty: the song ends before it"
+msgstr "Le morceau {n} est vide, car la chanson se termine avant"
+
+#: build.py
+msgid "Patching the sound banks"
+msgstr "Patch des banques de sons"
+
+#: build.py
+msgid "Checking the patch"
+msgstr "Vérification du patch"
+
+#: build.py editor.py project.py
+msgid "silence"
+msgstr "silence"
+
+#: build.py
+msgid "{n} line"
+msgid_plural "{n} lines"
+msgstr[0] "{n} ligne"
+msgstr[1] "{n} lignes"
+
+#: build.py
+msgid "{replacements} -> {n} bank patched"
+msgid_plural "{replacements} -> {n} banks patched"
+msgstr[0] "{replacements} -> {n} banque patchée"
+msgstr[1] "{replacements} -> {n} banques patchées"
+
+#: build.py
+msgid "verified ({seconds}s)"
+msgstr "vérifié ({seconds} s)"
+
+#: build.py editor.py
+msgid "Packing the ZIP"
+msgstr "Empaquetage du ZIP"
+
+#: build.py
+msgid "sound {id}"
+msgstr "son {id}"
+
+#: build.py
+msgid "gain: {n} sound with Make-Up Gain on the original is not in this game version; left out"
+msgid_plural "gain: {n} sounds with Make-Up Gain on the original are not in this game version; left out"
+msgstr[0] "gain : {n} son avec un Make-Up Gain sur l’original n’est pas dans cette version du jeu ; écarté"
+msgstr[1] "gain : {n} sons avec un Make-Up Gain sur l’original ne sont pas dans cette version du jeu ; écartés"
+
+#: build.py
+msgid "Since the last game update, the game uses some IDs that the added audio also uses ({ids}). Remove that audio and add it again."
+msgstr "Depuis la dernière mise à jour du jeu, le jeu utilise des ID que l’audio ajouté utilise aussi ({ids}). Retirez cet audio et ajoutez-le de nouveau."
+
+#: build.py
+msgid "soundtrack: {n} piece of music the project sets is not in this game version; left out"
+msgid_plural "soundtrack: {n} pieces of music the project sets are not in this game version; left out"
+msgstr[0] "bande-son : {n} morceau de musique réglé par le projet n’est pas dans cette version du jeu ; écarté"
+msgstr[1] "bande-son : {n} morceaux de musique réglés par le projet ne sont pas dans cette version du jeu ; écartés"
+
+#: build.py
+msgid "{n} playlist in a new order"
+msgid_plural "{n} playlists in a new order"
+msgstr[0] "{n} playlist dans un nouvel ordre"
+msgstr[1] "{n} playlists dans un nouvel ordre"
+
+#: build.py
+msgid "{n} piece led elsewhere"
+msgid_plural "{n} pieces led elsewhere"
+msgstr[0] "{n} morceau redirigé ailleurs"
+msgstr[1] "{n} morceaux redirigés ailleurs"
+
+#: build.py
+msgid "soundtrack: {changes}"
+msgstr "bande-son : {changes}"
+
+#: build.py
+msgid "text: {lines} in {n} table"
+msgid_plural "text: {lines} in {n} tables"
+msgstr[0] "texte : {lines} dans {n} table"
+msgstr[1] "texte : {lines} dans {n} tables"
+
+#: build.py
+msgid "Project problems:"
+msgstr "Problèmes du projet :"
+
+#: build.py
+msgid "patching the banks that hold or play {n} sound"
+msgid_plural "patching the banks that hold or play {n} sounds"
+msgstr[0] "patch des banques qui contiennent ou jouent {n} son"
+msgstr[1] "patch des banques qui contiennent ou jouent {n} sons"
+
+#: build.py
+msgid "patching the project's banks that hold or play {n} sound"
+msgid_plural "patching the project's banks that hold or play {n} sounds"
+msgstr[0] "patch des banques du projet qui contiennent ou jouent {n} son"
+msgstr[1] "patch des banques du projet qui contiennent ou jouent {n} sons"
+
+#: build.py
+msgid "settings: {n} object the mod set is not in this game version; left out"
+msgid_plural "settings: {n} objects the mod set are not in this game version; left out"
+msgstr[0] "réglages : {n} objet défini par le mod n’est pas dans cette version du jeu ; écarté"
+msgstr[1] "réglages : {n} objets définis par le mod ne sont pas dans cette version du jeu ; écartés"
+
+#: build.py
+msgid "cue points of {n} segment without new audio left out"
+msgid_plural "cue points of {n} segments without new audio left out"
+msgstr[0] "points de repère de {n} segment sans nouvel audio écartés"
+msgstr[1] "points de repère de {n} segments sans nouvel audio écartés"
+
+#: build.py
+msgid "The patch failed verification:"
+msgstr "Le patch n’a pas passé la vérification :"
+
+#: build.py
+msgid "added audio in {n} bank"
+msgid_plural "added audio in {n} banks"
+msgstr[0] "audio ajouté dans {n} banque"
+msgstr[1] "audio ajouté dans {n} banques"
+
+#: build.py
+msgid "make-up gain on {n} object"
+msgid_plural "make-up gain on {n} objects"
+msgstr[0] "Make-Up Gain sur {n} objet"
+msgstr[1] "Make-Up Gain sur {n} objets"
+
+#: build.py
+msgid "{n} silenced sound taken out of the mix"
+msgid_plural "{n} silenced sounds taken out of the mix"
+msgstr[0] "{n} son réduit au silence retiré du mixage"
+msgstr[1] "{n} sons réduits au silence retirés du mixage"
+
+#: build.py
+msgid "a mod's settings on {n} object"
+msgid_plural "a mod's settings on {n} objects"
+msgstr[0] "réglages d’un mod sur {n} objet"
+msgstr[1] "réglages d’un mod sur {n} objets"
+
+#: build.py
+msgid "{n} file besides audio (text, models, textures...) carried as it was"
+msgid_plural "{n} files besides audio (text, models, textures...) carried as they were"
+msgstr[0] "{n} fichier autre que l’audio (texte, modèles, textures…) repris tel quel"
+msgstr[1] "{n} fichiers autres que l’audio (texte, modèles, textures…) repris tels quels"
+
+#: build.py
+msgid "{folder} is inside the game folder, and Audiodiver never writes there. Choose another folder for the builds."
+msgstr "{folder} se trouve dans le dossier du jeu, et Audiodiver n’y écrit jamais. Choisissez un autre dossier pour les générations."
+
+#: build.py
+msgid "encoding {file}"
+msgstr "encodage de {file}"
+
+#: build.py
+msgid "Encoding {name}"
+msgstr "Encodage de {name}"
+
+#: build.py editor.py
+msgid "{names} and {last} replace the same sound"
+msgstr "{names} et {last} remplacent le même son"
+
+#: build.py
+msgid "Added audio: {problem}"
+msgstr "Audio ajouté : {problem}"
+
+#: build.py
+msgid "levels on {n} track"
+msgid_plural "levels on {n} tracks"
+msgstr[0] "niveaux sur {n} piste"
+msgstr[1] "niveaux sur {n} pistes"
+
+#: build.py
+msgid "text: the game changed {n} line since the project changed it (ID {ids}); the project's is used"
+msgid_plural "text: the game changed {n} lines since the project changed them (IDs {ids}); the project's are used"
+msgstr[0] "texte : le jeu a modifié {n} ligne depuis que le projet l’a modifiée (ID {ids}) ; celle du projet est utilisée"
+msgstr[1] "texte : le jeu a modifié {n} lignes depuis que le projet les a modifiées (ID {ids}) ; celles du projet sont utilisées"
+
+#: build.py
+msgid "text: {n} line is not in table {table} any more and is left out (ID {ids})"
+msgid_plural "text: {n} lines are not in table {table} any more and are left out (IDs {ids})"
+msgstr[0] "texte : {n} ligne n’est plus dans la table {table} et est écartée (ID {ids})"
+msgstr[1] "texte : {n} lignes ne sont plus dans la table {table} et sont écartées (ID {ids})"
+
+#: build.py
+msgid "Music segment {segment}: the Entry cue point ({entry} s) is at or after the Exit ({exit} s), so the game would play the music before it until the Entry. Move the cue points on the Audio tab, or reset them."
+msgstr "Segment de musique {segment} : le point de repère d’Entrée ({entry} s) est à la Sortie ({exit} s) ou après, donc le jeu jouerait la musique précédente jusqu’à l’Entrée. Déplacez les points de repère dans l’onglet Audio, ou réinitialisez-les."
+
+#: build.py
+msgid "{n} replacement"
+msgid_plural "{n} replacements"
+msgstr[0] "{n} remplacement"
+msgstr[1] "{n} remplacements"
+
+#: build.py
+msgid "patch files in {folder}"
+msgstr "fichiers patch dans {folder}"
+
+#: build.py
+msgid "Icon: {why}"
+msgstr "Icône : {why}"
+
+#: build.py
+msgid "{name}: sound {id} isn't in this version of the game"
+msgstr "{name} : le son {id} n’existe pas dans cette version du jeu"
+
+#: build.py
+msgid "{name}: can't read the audio in {file}"
+msgstr "{name} : impossible de lire l’audio de {file}"
+
+#: build.py
+msgid "text: table {table} is not in this game version; the {n} line changed in it is left out"
+msgid_plural "text: table {table} is not in this game version; the {n} lines changed in it are left out"
+msgstr[0] "texte : la table {table} n’est pas dans cette version du jeu ; {n} ligne modifiée dans cette table est écartée"
+msgstr[1] "texte : la table {table} n’est pas dans cette version du jeu ; {n} lignes modifiées dans cette table sont écartées"
+
+#: build.py editor.py
+msgid "Can't write the ZIP into {folder}: {why}"
+msgstr "Impossible d’écrire le ZIP dans {folder} : {why}"
+
+#: build.py
+msgid "Can't save the patch files into {folder}: {why}"
+msgstr "Impossible d’enregistrer les fichiers patch dans {folder} : {why}"
+
+#: catalog.py
+msgid "Transitions"
+msgstr "Transitions"
+
+#: catalog.py
+msgid "Stingers"
+msgstr "Stingers"
+
+#: catalog.py
+msgid "Unused"
+msgstr "Inutilisés"
+
+#: catalog.py
+msgid "Old Tutorial"
+msgstr "Ancien tutoriel"
+
+#: catalog.py
+msgid "Combat"
+msgstr "Combat"
+
+#: catalog.py
+msgid "Event Layers"
+msgstr "Couches d’événements"
+
+#: catalog.py
+msgid "Other"
+msgstr "Autre"
+
+#: catalog.py
+msgid "Event-Driven"
+msgstr "Piloté par événements"
+
+#: catalog.py
+msgid "Filler (Do Not Touch)"
+msgstr "Remplissage (ne pas toucher)"
+
+#: catalog.py
+msgid "Do not touch. Replacing it makes the music stutter."
+msgstr "Ne pas toucher. Le remplacer rend la musique saccadée."
+
+#: catalog.py
+msgid "Playlist {id}"
+msgstr "Playlist {id}"
+
+#: catalog.py
+msgid "Segment {id}"
+msgstr "Segment {id}"
+
+#: catalog.py
+msgid "Bridge {id}"
+msgstr "Bridge {id}"
+
+#: catalog.py
+msgid "Stinger {id}"
+msgstr "Stinger {id}"
+
+#: catalog.py
+msgid "variant {id}"
+msgstr "variante {id}"
+
+#: catalog.py
+msgid "{group}: {value}"
+msgstr "{group} : {value}"
+
+#: catalog.py musiclist.py
+msgid "Also called '{name}'."
+msgstr "Aussi appelé « {name} »."
+
+#: catalog.py
+msgid "Segment {n}"
+msgstr "Segment {n}"
+
+#: combine.py
+msgid "Volume"
+msgstr "Volume"
+
+#: combine.py
+msgid "Pitch"
+msgstr "Hauteur"
+
+#: combine.py
+msgid "Low-pass filter"
+msgstr "Filtre passe-bas"
+
+#: combine.py
+msgid "High-pass filter"
+msgstr "Filtre passe-haut"
+
+#: combine.py
+msgid "Initial Delay"
+msgstr "Délai initial"
+
+#: combine.py
+msgid "Combined from these mods:"
+msgstr "Combiné à partir de ces mods :"
+
+#: combine.py
+msgid "Setting {id}"
+msgstr "Réglage {id}"
+
+#: combine.py
+msgid "Option {n}"
+msgstr "Option {n}"
+
+#: combine.py
+msgid "Choice {n}"
+msgstr "Choix {n}"
+
+#: editor.py
+msgid "Naming the sounds and the music in the new language"
+msgstr "Attribution des noms aux sons et à la musique dans la nouvelle langue"
+
+#: editor.py
+msgid "Nothing changed, because the project file couldn't be saved. {why}."
+msgstr "Rien n’a changé, car le fichier du projet n’a pas pu être enregistré. {why}."
+
+#: editor.py
+msgid "Choose a folder to save into"
+msgstr "Choisissez un dossier où enregistrer"
+
+#: editor.py
+msgid "Mapping the music"
+msgstr "Cartographie de la musique"
+
+#: editor.py
+msgid "The mods are being read or combined already"
+msgstr "Les mods sont déjà en cours de lecture ou de combinaison"
+
+#: editor.py
+msgid "Wait until the running build, repatch or combine is done"
+msgstr "Attendez la fin de la génération, du repatch ou de la combinaison en cours"
+
+#: editor.py
+msgid "Reading the game audio from the new folder"
+msgstr "Chargement de l’audio du jeu depuis le nouveau dossier"
+
+#: editor.py
+msgid "Reading the game audio (the first run after a game update takes about a minute)"
+msgstr "Chargement de l’audio du jeu (le premier lancement après une mise à jour du jeu prend environ une minute)"
+
+#: editor.py
+msgid "Sorting the sounds"
+msgstr "Tri des sons"
+
+#: editor.py
+msgid "The game is still loading. Try again when it's done."
+msgstr "Le jeu est encore en cours de chargement. Réessayez quand ce sera terminé."
+
+#: editor.py
+msgid "Wait for the build or export to finish first"
+msgstr "Attendez d’abord la fin de la génération ou de l’export"
+
+#: editor.py
+msgid "Choose a song to slice"
+msgstr "Choisissez une chanson à découper"
+
+#: editor.py
+msgid "Choose where to save the project (a full path)"
+msgstr "Choisissez où enregistrer le projet (un chemin complet)"
+
+#: editor.py
+msgid "Choose a .audi project file (a full path)"
+msgstr "Choisissez un fichier de projet .audi (un chemin complet)"
+
+#: editor.py
+msgid "No project open"
+msgstr "Aucun projet ouvert"
+
+#: editor.py
+msgid "Choose the audio files to add"
+msgstr "Choisissez les fichiers audio à ajouter"
+
+#: editor.py
+msgid "That sound already has a separate clip"
+msgstr "Ce son a déjà un clip séparé"
+
+#: editor.py
+msgid "That slot doesn't have a separate clip"
+msgstr "Cet emplacement n’a pas de clip séparé"
+
+#: editor.py
+msgid "Choose an audio file"
+msgstr "Choisissez un fichier audio"
+
+#: editor.py
+msgid "Choose the files and the slots to fill"
+msgstr "Choisissez les fichiers et les emplacements à remplir"
+
+#: editor.py
+msgid "Choose the slots to silence"
+msgstr "Choisissez les emplacements à mettre en silence"
+
+#: editor.py
+msgid "Choose the slots to clear"
+msgstr "Choisissez les emplacements à vider"
+
+#: editor.py
+msgid "Choose the slots to change"
+msgstr "Choisissez les emplacements à modifier"
+
+#: editor.py
+msgid "Choose the slots to match"
+msgstr "Choisissez les emplacements à aligner"
+
+#: editor.py
+msgid "Nothing to match: no slot here has new audio and an original, both with sound"
+msgstr "Rien à aligner : aucun emplacement ici n’a à la fois du nouvel audio et un original, tous deux avec du son"
+
+#: editor.py
+msgid "That folder is inside the game folder, and Audiodiver never writes there. Choose another folder, and import the ZIP in a mod manager."
+msgstr "Ce dossier se trouve dans le dossier du jeu, et Audiodiver n’y écrit jamais. Choisissez un autre dossier, puis importez le ZIP dans un gestionnaire de mods."
+
+#: editor.py
+msgid "Choose a folder (a full path)"
+msgstr "Choisissez un dossier (un chemin complet)"
+
+#: editor.py
+msgid "Choose where to save the notes"
+msgstr "Choisissez où enregistrer les notes"
+
+#: editor.py
+msgid "Open a project to export the project notes"
+msgstr "Ouvrez un projet pour exporter les notes du projet"
+
+#: editor.py
+msgid "Choose a notes file"
+msgstr "Choisissez un fichier de notes"
+
+#: editor.py
+msgid "Choose an image"
+msgstr "Choisissez une image"
+
+#: editor.py
+msgid "A cue point is a number of milliseconds from 0"
+msgstr "Un point de repère est un nombre de millisecondes depuis 0"
+
+#: editor.py
+msgid "The Entry cue point comes before the Exit"
+msgstr "Le point de repère d’Entrée vient avant la Sortie"
+
+#: editor.py
+msgid "Choose the segments to change"
+msgstr "Choisissez les segments à modifier"
+
+#: editor.py
+msgid "Silence has no cue points"
+msgstr "Le silence n’a pas de points de repère"
+
+#: editor.py
+msgid "Wait until the running job is done"
+msgstr "Attendez la fin de la tâche en cours"
+
+#: editor.py
+msgid "Choose a folder to move the project to (a full path)"
+msgstr "Choisissez le dossier où déplacer le projet (un chemin complet)"
+
+#: editor.py
+msgid "Name the files to remove"
+msgstr "Indiquez le nom des fichiers à retirer"
+
+#: editor.py
+msgid "Choose where to save the pack (a full path)"
+msgstr "Choisissez où enregistrer le pack (un chemin complet)"
+
+#: editor.py
+msgid "Choose where to unpack it (a full path)"
+msgstr "Choisissez où l’extraire (un chemin complet)"
+
+#: editor.py
+msgid "Choose a mod's .patch_0 file"
+msgstr "Choisissez le fichier .patch_0 d’un mod"
+
+#: editor.py
+msgid "The sound in {file} couldn't be decoded."
+msgstr "Le son de {file} n’a pas pu être décodé."
+
+#: editor.py
+msgid "None of the {n} sounds in {file} could be decoded."
+msgid_plural "None of the {n} sounds in {file} could be decoded."
+msgstr[0] "Aucun des {n} sons de {file} n’a pu être décodé."
+msgstr[1] "Aucun des {n} sons de {file} n’a pu être décodé."
+
+#: editor.py
+msgid "The folder {folder} has too long a path for the decoder. Choose a shorter one."
+msgstr "Le chemin du dossier {folder} est trop long pour le décodeur. Choisissez-en un plus court."
+
+#: editor.py
+msgid "Is the .stream file next to the patch?"
+msgstr "Le fichier .stream est-il à côté du patch ?"
+
+#: editor.py
+msgid "Choose a line of text to import. The mod has no audio that Audiodiver can bring in."
+msgstr "Choisissez une ligne de texte à importer. Le mod n’a pas d’audio qu’Audiodiver peut importer."
+
+#: editor.py
+msgid "No patch is in the chosen options"
+msgstr "Aucun patch n’est dans les options choisies"
+
+#: editor.py
+msgid "The installed mods are being checked already"
+msgstr "Les mods installés sont déjà en cours de vérification"
+
+#: editor.py
+msgid "installed mods"
+msgstr "mods installés"
+
+#: editor.py
+msgid "Choose where repatched mods go (a full path)"
+msgstr "Choisissez où vont les mods repatchés (un chemin complet)"
+
+#: editor.py
+msgid "A build is already running"
+msgstr "Une génération est déjà en cours"
+
+#: editor.py
+msgid "Choose the mods to combine"
+msgstr "Choisissez les mods à combiner"
+
+#: editor.py library.py
+msgid "Sound {id}"
+msgstr "Son {id}"
+
+#: editor.py
+msgid "Comparing the mods"
+msgstr "Comparaison des mods"
+
+#: editor.py
+msgid "Choose where combined mods go (a full path)"
+msgstr "Choisissez où vont les mods combinés (un chemin complet)"
+
+#: editor.py
+msgid "Only a playlist has an order to change"
+msgstr "Seule une playlist a un ordre à modifier"
+
+#: editor.py
+msgid "Same song needs another piece of music to follow"
+msgstr "« Même chanson » demande un autre morceau de musique à suivre"
+
+#: editor.py
+msgid "Choose the pieces of music to set"
+msgstr "Choisissez les morceaux à régler"
+
+#: editor.py
+msgid "Set this music to another mode first"
+msgstr "Réglez d’abord cette musique sur un autre mode"
+
+#: editor.py
+msgid "Choose the music to set"
+msgstr "Choisissez la musique à régler"
+
+#: editor.py
+msgid "No other music to set"
+msgstr "Aucune autre musique à régler"
+
+#: editor.py
+msgid "Choose the songs"
+msgstr "Choisissez les chansons"
+
+#: editor.py
+msgid "The export list can't be read. Clear it and add the items again."
+msgstr "La liste d’export est illisible. Videz-la et ajoutez de nouveau les éléments."
+
+#: editor.py
+msgid "A bank's sounds export one by one, because there are no segments to mix"
+msgstr "Les sons d’une banque sont exportés un par un, car il n’y a pas de segments à mixer"
+
+#: editor.py
+msgid "{title} - Fight ({minutes} min)"
+msgstr "{title} - Combat ({minutes} min)"
+
+#: editor.py
+msgid "The export list is empty"
+msgstr "La liste d’export est vide"
+
+#: editor.py
+msgid "WEM files are the Original, slot by slot. Choose another format for the rest."
+msgstr "Les fichiers WEM sont l’Original, emplacement par emplacement. Choisissez un autre format pour le reste."
+
+#: editor.py
+msgid "Getting ready"
+msgstr "Préparation"
+
+#: editor.py
+msgid "the export list"
+msgstr "la liste d’export"
+
+#: editor.py
+msgid "{path} isn't a full path"
+msgstr "{path} n’est pas un chemin complet"
+
+#: editor.py
+msgid "{name} is a file. Choose a folder."
+msgstr "{name} est un fichier. Choisissez un dossier."
+
+#: editor.py
+msgid "{name} can't be used as a folder name. Choose another name."
+msgstr "{name} ne peut pas servir de nom de dossier. Choisissez un autre nom."
+
+#: editor.py
+msgid "A new take has no original audio"
+msgstr "Une nouvelle prise n’a pas d’audio d’origine"
+
+#: editor.py
+msgid "Add new audio to the slot first"
+msgstr "Ajoutez d’abord du nouvel audio à l’emplacement"
+
+#: editor.py
+msgid "Another sound that plays this clip already has new audio. Remove that audio first."
+msgstr "Un autre son qui joue ce clip a déjà du nouvel audio. Retirez d’abord cet audio."
+
+#: editor.py
+msgid "{name} (archive {archive})"
+msgstr "{name} (archive {archive})"
+
+#: editor.py
+msgid "Silence"
+msgstr "Silence"
+
+#: editor.py
+msgid "a slot: no audio file named"
+msgstr "un emplacement : aucun fichier audio nommé"
+
+#: editor.py
+msgid "Global Notes"
+msgstr "Notes globales"
+
+#: editor.py
+msgid "The project already has a folder to itself"
+msgstr "Le projet a déjà un dossier à lui"
+
+#: editor.py
+msgid "That folder is inside the game folder, and Audiodiver never writes there"
+msgstr "Ce dossier se trouve dans le dossier du jeu, et Audiodiver n’y écrit jamais"
+
+#: editor.py
+msgid "The project is in that folder already"
+msgstr "Le projet est déjà dans ce dossier"
+
+#: editor.py
+msgid "Choose a folder outside the project's folder"
+msgstr "Choisissez un dossier en dehors du dossier du projet"
+
+#: editor.py
+msgid "That is a file, not a folder"
+msgstr "C’est un fichier, pas un dossier"
+
+#: editor.py
+msgid "{n} file packed into {pack}"
+msgid_plural "{n} files packed into {pack}"
+msgstr[0] "{n} fichier empaqueté dans {pack}"
+msgstr[1] "{n} fichiers empaquetés dans {pack}"
+
+#: editor.py
+msgid "Nothing to build yet. Replace some audio, set a piece in the Soundtrack or change a line of text first."
+msgstr "Rien à générer pour l’instant. Remplacez d’abord de l’audio, réglez un morceau dans la Bande-son ou modifiez une ligne de texte."
+
+#: editor.py
+msgid "Another project was opened during the import. Open this project again and import again."
+msgstr "Un autre projet a été ouvert pendant l’import. Rouvrez ce projet et importez de nouveau."
+
+#: editor.py
+msgid "reading {file}"
+msgstr "lecture de {file}"
+
+#: editor.py
+msgid "{name} holds no audio or text that Audiodiver can bring in"
+msgstr "{name} ne contient ni audio ni texte qu’Audiodiver peut importer"
+
+#: editor.py library.py
+msgid "Other Sounds"
+msgstr "Autres sons"
+
+#: editor.py
+msgid "Putting the mods together"
+msgstr "Assemblage des mods"
+
+#: editor.py
+msgid "This piece is set to Silent, so it plays nothing"
+msgstr "Ce morceau est réglé sur Silencieux, donc il ne joue rien"
+
+#: editor.py
+msgid "That line isn't a game subtitle"
+msgstr "Cette ligne n’est pas un sous-titre du jeu"
+
+#: editor.py
+msgid "That line isn't in the game text"
+msgstr "Cette ligne n’est pas dans le texte du jeu"
+
+#: editor.py
+msgid "(original)"
+msgstr "(original)"
+
+#: editor.py
+msgid "(replaced)"
+msgstr "(remplacé)"
+
+#: editor.py
+msgid "There was nothing to export"
+msgstr "Il n’y avait rien à exporter"
+
+#: editor.py
+msgid "{file} isn't a project"
+msgstr "{file} n’est pas un projet"
+
+#: editor.py repatch.py server.py
+msgid "{path} wasn't found"
+msgstr "{path} est introuvable"
+
+#: editor.py
+msgid "{file} has no icon"
+msgstr "{file} n’a pas d’icône"
+
+#: editor.py
+msgid "{folder} can't be written to. Choose another folder."
+msgstr "Impossible d’écrire dans {folder}. Choisissez un autre dossier."
+
+#: editor.py
+msgid "{file} already exists in {folder}"
+msgstr "{file} existe déjà dans {folder}"
+
+#: editor.py
+msgid "{name} is a folder. Choose a .audi project file."
+msgstr "{name} est un dossier. Choisissez un fichier de projet .audi."
+
+#: editor.py
+msgid "Sound {sound} doesn't play {source}"
+msgstr "Le son {sound} ne joue pas {source}"
+
+#: editor.py
+msgid "Slot {id} has no new audio"
+msgstr "L’emplacement {id} n’a pas de nouvel audio"
+
+#: editor.py
+msgid "{name}: can't read the audio file ({file})"
+msgstr "{name} : impossible de lire le fichier audio ({file})"
+
+#: editor.py
+msgid "{file} is not an audio file Audiodiver can read"
+msgstr "{file} n’est pas un fichier audio qu’Audiodiver peut lire"
+
+#: editor.py
+msgid "{folder} is not a folder"
+msgstr "{folder} n’est pas un dossier"
+
+#: editor.py
+msgid "The version is a whole number from 1 to 99999"
+msgstr "La version est un nombre entier de 1 à 99999"
+
+#: editor.py
+msgid "{packed}; {n} the project uses wasn't found"
+msgid_plural "{packed}; {n} the project uses weren't found"
+msgstr[0] "{packed} ; {n} fichier utilisé par le projet est introuvable"
+msgstr[1] "{packed} ; {n} fichiers utilisés par le projet sont introuvables"
+
+#: editor.py
+msgid "unpacked into {folder}"
+msgstr "extrait dans {folder}"
+
+#: editor.py
+msgid "No job {id}"
+msgstr "Aucune tâche {id}"
+
+#: editor.py
+msgid "{file} isn't a patch file. Choose a .patch_0 file. Audiodiver also reads the .stream file next to it."
+msgstr "{file} n’est pas un fichier patch. Choisissez un fichier .patch_0. Audiodiver lit aussi le fichier .stream situé à côté."
+
+#: editor.py
+msgid "left out: {what}"
+msgstr "écarté : {what}"
+
+#: editor.py
+msgid "{n} sound of an older game version, which the game no longer has, left out"
+msgid_plural "{n} sounds of an older game version, which the game no longer has, left out"
+msgstr[0] "{n} son d’une ancienne version du jeu, que le jeu n’a plus, écarté"
+msgstr[1] "{n} sons d’une ancienne version du jeu, que le jeu n’a plus, écartés"
+
+#: editor.py
+msgid "{n} object as an older game version had it; the current one is used"
+msgid_plural "{n} objects as an older game version had them; the current ones are used"
+msgstr[0] "{n} objet tel qu’une ancienne version du jeu l’avait ; l’actuel est utilisé"
+msgstr[1] "{n} objets tels qu’une ancienne version du jeu les avait ; les actuels sont utilisés"
+
+#: editor.py
+msgid "{n} object copied from another bank by the tool that made the mod; each bank's own is used"
+msgid_plural "{n} objects copied from another bank by the tool that made the mod; each bank's own are used"
+msgstr[0] "{n} objet copié d’une autre banque par l’outil qui a créé le mod ; celui de chaque banque est utilisé"
+msgstr[1] "{n} objets copiés d’une autre banque par l’outil qui a créé le mod ; ceux de chaque banque sont utilisés"
+
+#: editor.py
+msgid "Decoding {n} of {total}"
+msgstr "Décodage de {n} sur {total}"
+
+#: editor.py
+msgid "the mod changes {n} line of text"
+msgid_plural "the mod changes {n} lines of text"
+msgstr[0] "le mod modifie {n} ligne de texte"
+msgstr[1] "le mod modifie {n} lignes de texte"
+
+#: editor.py
+msgid "{n} line of text that the game doesn't have, left out"
+msgid_plural "{n} lines of text that the game doesn't have, left out"
+msgstr[0] "{n} ligne de texte que le jeu n’a pas, écartée"
+msgstr[1] "{n} lignes de texte que le jeu n’a pas, écartées"
+
+#: editor.py
+msgid "project {path}"
+msgstr "projet {path}"
+
+#: editor.py
+msgid "{folder} is inside the game folder, and Audiodiver never writes there"
+msgstr "{folder} se trouve dans le dossier du jeu, et Audiodiver n’y écrit jamais"
+
+#: editor.py
+msgid "The mod has no audio to repatch"
+msgstr "Le mod n’a pas d’audio à repatcher"
+
+#: editor.py
+msgid "{path} ({mb} MB)"
+msgstr "{path} ({mb} MB)"
+
+#: editor.py
+msgid "Object {id}"
+msgstr "Objet {id}"
+
+#: editor.py
+msgid "{n} clash"
+msgid_plural "{n} clashes"
+msgstr[0] "{n} conflit"
+msgstr[1] "{n} conflits"
+
+#: editor.py
+msgid "{n} mod"
+msgid_plural "{n} mods"
+msgstr[0] "{n} mod"
+msgstr[1] "{n} mods"
+
+#: editor.py
+msgid "{id} is not a piece of music. Only music has segments to mix and play through."
+msgstr "{id} n’est pas un morceau de musique. Seule la musique a des segments à mixer et à lire en lecture enchaînée."
+
+#: editor.py
+msgid "Segments {ids} aren't in this piece of music"
+msgstr "Les segments {ids} ne sont pas dans ce morceau de musique"
+
+#: editor.py
+msgid "Items {ids} aren't in this piece of music"
+msgstr "Les éléments {ids} ne sont pas dans ce morceau de musique"
+
+#: editor.py
+msgid "This music has {n} place for songs"
+msgid_plural "This music has {n} places for songs"
+msgstr[0] "Cette musique a {n} position pour des chansons"
+msgstr[1] "Cette musique a {n} positions pour des chansons"
+
+#: editor.py
+msgid "This music has {n} segment for a song, so cut it into {n} piece at most"
+msgid_plural "This music has {n} segments for a song, so cut it into {n} pieces at most"
+msgstr[0] "Cette musique a {n} segment pour une chanson, donc découpez-la en {n} morceau au plus"
+msgstr[1] "Cette musique a {n} segments pour une chanson, donc découpez-la en {n} morceaux au plus"
+
+#: editor.py
+msgid "This music has {n} segment for songs, so choose {n} song at most"
+msgid_plural "This music has {n} segments for songs, so choose {n} songs at most"
+msgstr[0] "Cette musique a {n} segment pour des chansons, donc choisissez {n} chanson au plus"
+msgstr[1] "Cette musique a {n} segments pour des chansons, donc choisissez {n} chansons au plus"
+
+#: editor.py
+msgid "Can't read {file}: {why}"
+msgstr "Impossible de lire {file} : {why}"
+
+#: editor.py
+msgid "still loading: {stage}"
+msgstr "chargement en cours : {stage}"
+
+#: editor.py
+msgid "{item} is not in this game version"
+msgstr "{item} n’est pas dans cette version du jeu"
+
+#: editor.py
+msgid "No cue {id}"
+msgstr "Aucun cue {id}"
+
+#: editor.py
+msgid "Can't make the folder {folder}: {why}"
+msgstr "Impossible de créer le dossier {folder} : {why}"
+
+#: editor.py
+msgid "{name}: sound {id} isn't in this version of the game (remove it, or replace another sound)"
+msgstr "{name} : le son {id} n’existe pas dans cette version du jeu (retirez-le, ou remplacez un autre son)"
+
+#: editor.py
+msgid "{name}: no audio file named"
+msgstr "{name} : aucun fichier audio nommé"
+
+#: editor.py
+msgid "Make-Up Gain goes from {low} to {high} dB"
+msgstr "Le Make-Up Gain va de {low} à {high} dB"
+
+#: editor.py
+msgid "{file} can't be read, so global notes can't be shown or saved. Fix or move the file, or choose another folder in Settings ▸ System."
+msgstr "{file} est illisible, donc les notes globales ne peuvent pas être affichées ni enregistrées. Réparez ou déplacez le fichier, ou choisissez un autre dossier dans Paramètres ▸ Système."
+
+#: editor.py
+msgid "The global notes couldn't be saved: {why}"
+msgstr "Les notes globales n’ont pas pu être enregistrées : {why}"
+
+#: editor.py
+msgid "Project Notes: {name}"
+msgstr "Notes du projet : {name}"
+
+#: editor.py
+msgid "The notes couldn't be saved: {why}"
+msgstr "Les notes n’ont pas pu être enregistrées : {why}"
+
+#: editor.py
+msgid "{file} isn't a notes file or an Audiodiver project"
+msgstr "{file} n’est ni un fichier de notes ni un projet Audiodiver"
+
+#: editor.py
+msgid "Fix the problems on the Build tab first: {problem} (and {n} more)"
+msgid_plural "Fix the problems on the Build tab first: {problem} (and {n} more)"
+msgstr[0] "Corrigez d’abord les problèmes dans l’onglet Générer : {problem} (et {n} autre)"
+msgstr[1] "Corrigez d’abord les problèmes dans l’onglet Générer : {problem} (et {n} autres)"
+
+#: editor.py
+msgid "{file} can't be read as a game patch"
+msgstr "{file} ne peut pas être lu comme un patch du jeu"
+
+#: editor.py
+msgid "{n} other change in the bank \"{bank}\" (settings such as effects, positioning or how a container picks sounds)"
+msgid_plural "{n} other changes in the bank \"{bank}\" (settings such as effects, positioning or how a container picks sounds)"
+msgstr[0] "{n} autre modification dans la banque « {bank} » (réglages comme les effets, le positionnement ou la façon dont un conteneur choisit les sons)"
+msgstr[1] "{n} autres modifications dans la banque « {bank} » (réglages comme les effets, le positionnement ou la façon dont un conteneur choisit les sons)"
+
+#: editor.py
+msgid "{n} other change in bank {id} (settings such as effects, positioning or how a container picks sounds)"
+msgid_plural "{n} other changes in bank {id} (settings such as effects, positioning or how a container picks sounds)"
+msgstr[0] "{n} autre modification dans la banque {id} (réglages comme les effets, le positionnement ou la façon dont un conteneur choisit les sons)"
+msgstr[1] "{n} autres modifications dans la banque {id} (réglages comme les effets, le positionnement ou la façon dont un conteneur choisit les sons)"
+
+#: editor.py
+msgid "{file} replaces, adds or sets nothing Audiodiver can bring in ({why})"
+msgstr "{file} ne remplace, n’ajoute et ne règle rien qu’Audiodiver puisse importer ({why})"
+
+#: editor.py
+msgid "{file} replaces, adds or sets nothing"
+msgstr "{file} ne remplace, n’ajoute et ne règle rien"
+
+#: editor.py
+msgid "{n} string table"
+msgid_plural "{n} string tables"
+msgstr[0] "{n} table de chaînes"
+msgstr[1] "{n} tables de chaînes"
+
+#: editor.py
+msgid "{n} other file, such as models or textures"
+msgid_plural "{n} other files, such as models or textures"
+msgstr[0] "{n} autre fichier, comme des modèles ou des textures"
+msgstr[1] "{n} autres fichiers, comme des modèles ou des textures"
+
+#: editor.py
+msgid "--- {name} ({n} of {total})"
+msgstr "--- {name} ({n} sur {total})"
+
+#: editor.py
+msgid "None of the mods has audio or settings that Audiodiver can bring in"
+msgstr "Aucun des mods n’a d’audio ni de réglages qu’Audiodiver peut importer"
+
+#: editor.py
+msgid "imported take {id}"
+msgstr "prise importée {id}"
+
+#: editor.py
+msgid "{mod} take {id}"
+msgstr "{mod}, prise {id}"
+
+#: editor.py
+msgid "imported {id}"
+msgstr "{id} importé"
+
+#: editor.py
+msgid "{file} is damaged (it can't be read)"
+msgstr "{file} est endommagé (illisible)"
+
+#: editor.py project.py
+msgid "{file} isn't an Audiodiver project"
+msgstr "{file} n’est pas un projet Audiodiver"
+
+#: editor.py
+msgid "The sounds of {item} are already in the project, under {owners}."
+msgstr "Les sons de {item} sont déjà dans le projet, sous {owners}."
+
+#: editor.py
+msgid "{item} added. {n} of {total} banks was already in the project, under {owners}. Those sounds show under both."
+msgid_plural "{item} added. {n} of {total} banks were already in the project, under {owners}. Those sounds show under both."
+msgstr[0] "{item} ajouté. {n} banque sur {total} était déjà dans le projet, sous {owners}. Ces sons s’affichent sous les deux."
+msgstr[1] "{item} ajouté. {n} banques sur {total} étaient déjà dans le projet, sous {owners}. Ces sons s’affichent sous les deux."
+
+#: editor.py
+msgid "Wwise loudness analysis: {why} (turn it off under Build options)"
+msgstr "Analyse de sonie Wwise : {why} (désactivez-la dans Options de génération)"
+
+#: editor.py
+msgid "That isn't a mod ID (a GUID like 3f2a…-…)"
+msgstr "Ce n’est pas un ID de mod (un GUID comme 3f2a…-…)"
+
+#: editor.py
+msgid "{item}, clip {id}"
+msgstr "{item}, clip {id}"
+
+#: editor.py
+msgid "Clip {id}"
+msgstr "Clip {id}"
+
+#: editor.py
+msgid "The project couldn't move: {why}"
+msgstr "Le projet n’a pas pu être déplacé : {why}"
+
+#: editor.py
+msgid "The files couldn't be copied: {why}"
+msgstr "Les fichiers n’ont pas pu être copiés : {why}"
+
+#: editor.py
+msgid "failed: {why}"
+msgstr "échec : {why}"
+
+#: editor.py
+msgid "Fix the problems on the Build tab first: {problem}"
+msgstr "Corrigez d’abord les problèmes dans l’onglet Générer : {problem}"
+
+#: editor.py
+msgid "stream {id} is not in this game version; skipped"
+msgstr "le flux {id} n’est pas dans cette version du jeu ; ignoré"
+
+#: editor.py
+msgid "source {id}: can't decode the audio; skipped"
+msgstr "source {id} : impossible de décoder l’audio ; ignorée"
+
+#: editor.py
+msgid "The files besides audio can't be read: {why}"
+msgstr "Les fichiers autres que l’audio sont illisibles : {why}"
+
+#: editor.py
+msgid "Reading {name}"
+msgstr "Chargement de {name}"
+
+#: editor.py
+msgid "Can't write {file}: {why}"
+msgstr "Impossible d’écrire {file} : {why}"
+
+#: editor.py
+msgid "Sound {id} has no audio in the game files"
+msgstr "Le son {id} n’a pas d’audio dans les fichiers du jeu"
+
+#: editor.py
+msgid "{n} line of text that the game doesn't have"
+msgid_plural "{n} lines of text that the game doesn't have"
+msgstr[0] "{n} ligne de texte que le jeu n’a pas"
+msgstr[1] "{n} lignes de texte que le jeu n’a pas"
+
+#: editor.py
+msgid "The new project is in {folder}. It wasn't opened, because the open project couldn't be saved."
+msgstr "Le nouveau projet est dans {folder}. Il n’a pas été ouvert, car le projet ouvert n’a pas pu être enregistré."
+
+#: editor.py
+msgid "{n} file besides audio that a later mod replaces"
+msgid_plural "{n} files besides audio that a later mod replaces"
+msgstr[0] "{n} fichier autre que l’audio qu’un mod ultérieur remplace"
+msgstr[1] "{n} fichiers autres que l’audio qu’un mod ultérieur remplace"
+
+#: editor.py
+msgid "Loudness analysis: {why}"
+msgstr "Analyse de sonie : {why}"
+
+#: editor.py
+msgid "the icon ({why})"
+msgstr "l’icône ({why})"
+
+#: editor.py
+msgid "kept as it was: {why}"
+msgstr "conservé tel quel : {why}"
+
+#: editor.py
+msgid "Export"
+msgstr "Export"
+
+#: editor.py
+msgid "{file} (turned down {db} dB to avoid clipping)"
+msgstr "{file} (baissé de {db} dB pour éviter l’écrêtage)"
+
+#: editor.py
+msgid "Segment"
+msgstr "Segment"
+
+#: editor.py
+msgid "{segment}, {n} of {total}"
+msgstr "{segment}, {n} sur {total}"
+
+#: editor.py
+msgid "segment"
+msgstr "segment"
+
+#: editor.py
+msgid "Writing {file}"
+msgstr "Écriture de {file}"
+
+#: errors.py
+msgid "{file} wasn't found"
+msgstr "{file} est introuvable"
+
+#: errors.py
+msgid "{file} can't be opened: access was denied"
+msgstr "{file} ne peut pas être ouvert : accès refusé"
+
+#: errors.py
+msgid "{file} already exists"
+msgstr "{file} existe déjà"
+
+#: errors.py
+msgid "{file} isn't a folder"
+msgstr "{file} n’est pas un dossier"
+
+#: errors.py
+msgid "{file} is a folder"
+msgstr "{file} est un dossier"
+
+#: errors.py
+msgid "{file} isn't a valid path"
+msgstr "{file} n’est pas un chemin valide"
+
+#: errors.py
+msgid "{file} can't be written: the disk is full"
+msgstr "{file} ne peut pas être écrit : le disque est plein"
+
+#: errors.py
+msgid "{file} can't be written: the disk is read-only"
+msgstr "{file} ne peut pas être écrit : le disque est en lecture seule"
+
+#: errors.py
+msgid "{file} has a path that is too long"
+msgstr "Le chemin de {file} est trop long"
+
+#: errors.py
+msgid "A file"
+msgstr "Un fichier"
+
+#: errors.py
+msgid "a file"
+msgstr "un fichier"
+
+#: errors.py
+msgid "{file} gave an error: {error}"
+msgstr "{file} a renvoyé une erreur : {error}"
+
+#: errors.py
+msgid "Something went wrong ({error}): the log has the details"
+msgstr "Une erreur est survenue ({error}) : le journal contient les détails"
+
+#: errors.py
+msgid "Something went wrong ({error})"
+msgstr "Une erreur est survenue ({error})"
+
+#: errors.py
+msgid "{tool} couldn't process {file} (the log has the details)"
+msgstr "{tool} n’a pas pu traiter {file} (le journal contient les détails)"
+
+#: errors.py
+msgid "{tool} couldn't process {file}"
+msgstr "{tool} n’a pas pu traiter {file}"
+
+#: game.py
+msgid "Helldivers 2 wasn't found in the Steam libraries"
+msgstr "Helldivers 2 est introuvable dans les bibliothèques Steam"
+
+#: game.py
+msgid "{folder} isn't the Helldivers 2 folder. It has no game files (bundles.NN.nxa in a folder called data). Choose the folder Steam installed the game in, usually …\\steamapps\\common\\Helldivers 2."
+msgstr "{folder} n’est pas le dossier de Helldivers 2. Il ne contient aucun fichier du jeu (bundles.NN.nxa dans un dossier nommé data). Choisissez le dossier où Steam a installé le jeu, en général …\\steamapps\\common\\Helldivers 2."
+
+#: game.py
+msgid "{folder} is a file. Choose the folder Steam installed Helldivers 2 in."
+msgstr "{folder} est un fichier. Choisissez le dossier où Steam a installé Helldivers 2."
+
+#: game.py
+msgid "{folder} isn't there any more"
+msgstr "{folder} n’existe plus"
+
+#: game.py
+msgid "{folder} wasn't found"
+msgstr "{folder} est introuvable"
+
+#: game.py
+msgid "The HD2_DATA environment variable points to {folder}, which has no Helldivers 2 files"
+msgstr "La variable d’environnement HD2_DATA pointe vers {folder}, qui ne contient aucun fichier de Helldivers 2"
+
+#: index.py
+msgid "English"
+msgstr "Anglais"
+
+#: index.py
+msgid "Portuguese (Brazil)"
+msgstr "Portugais (Brésil)"
+
+#: index.py
+msgid "Chinese"
+msgstr "Chinois"
+
+#: index.py
+msgid "German"
+msgstr "Allemand"
+
+#: index.py
+msgid "Spanish (Spain)"
+msgstr "Espagnol (Espagne)"
+
+#: index.py
+msgid "French"
+msgstr "Français"
+
+#: index.py
+msgid "Italian"
+msgstr "Italien"
+
+#: index.py
+msgid "Japanese"
+msgstr "Japonais"
+
+#: index.py
+msgid "Spanish (Latin America)"
+msgstr "Espagnol (Amérique latine)"
+
+#: index.py
+msgid "Russian"
+msgstr "Russe"
+
+#: installed.py
+msgid "Checking {mod}"
+msgstr "Vérification de {mod}"
+
+#: library.py
+msgid "Music"
+msgstr "Musique"
+
+#: library.py
+msgid "Music by where it plays, from the ship to the credits."
+msgstr "La musique selon l’endroit où elle est jouée, du vaisseau jusqu’au générique."
+
+#: library.py
+msgid "Grunts"
+msgstr "Grognements"
+
+#: library.py
+msgid "Sighs"
+msgstr "Soupirs"
+
+#: library.py
+msgid "Laughs"
+msgstr "Rires"
+
+#: library.py
+msgid "Screams"
+msgstr "Hurlements"
+
+#: library.py
+msgid "Coughs"
+msgstr "Toux"
+
+#: library.py
+msgid "Groans"
+msgstr "Gémissements"
+
+#: library.py
+msgid "Yells"
+msgstr "Cris"
+
+#: library.py
+msgid "Sniffs"
+msgstr "Reniflements"
+
+#: library.py
+msgid "Hiccups"
+msgstr "Hoquets"
+
+#: library.py
+msgid "Burps"
+msgstr "Rots"
+
+#: library.py
+msgid "Whistles"
+msgstr "Sifflements"
+
+#: library.py
+msgid "Humming"
+msgstr "Fredonnements"
+
+#: library.py
+msgid "Vocal Sounds"
+msgstr "Sons vocaux"
+
+#: library.py
+msgid "Streams"
+msgstr "Flux"
+
+#: library.py
+msgid "Not named yet."
+msgstr "Pas encore nommé."
+
+#: library.py
+msgid "Streams No Bank Plays"
+msgstr "Flux qu’aucune banque ne joue"
+
+#: library.py
+msgid "Audio files in this archive that no sound bank of this game version plays. The game may never play them."
+msgstr "Fichiers audio de cette archive qu’aucune banque de sons de cette version du jeu ne joue. Le jeu ne les joue peut-être jamais."
+
+#: library.py
+msgid "A single sound. Audiodiver replaces it in every bank that holds or plays it."
+msgstr "Un seul son. Audiodiver le remplace dans chaque banque qui le contient ou le joue."
+
+#: library.py
+msgid "Bank {id}"
+msgstr "Banque {id}"
+
+#: library.py
+msgid "No container"
+msgstr "Aucun conteneur"
+
+#: library.py
+msgid "Other Audio"
+msgstr "Autre audio"
+
+#: library.py
+msgid "No Audio in the Game Files"
+msgstr "Pas d’audio dans les fichiers du jeu"
+
+#: library.py
+msgid "This bank only stores audio. The sounds that play it are in another bank."
+msgstr "Cette banque ne fait que stocker de l’audio. Les sons qui le jouent sont dans une autre banque."
+
+#: library.py
+msgid "Not transcribed. Each line is named after what another Helldiver voice says at the same place, and the words may differ."
+msgstr "Non transcrit. Chaque ligne porte le nom de ce que dit une autre voix de Helldiver au même endroit, et les mots peuvent différer."
+
+#: library.py
+msgid "All Archives"
+msgstr "Toutes les Archives"
+
+#: library.py
+msgid "Archive {id}"
+msgstr "Archive {id}"
+
+#: library.py
+msgid "Other languages appear as tabs once Steam downloads their voice packs."
+msgstr "Les autres langues apparaissent sous forme d’onglets une fois que Steam a téléchargé leurs packs de voix."
+
+#: library.py
+msgid "Sound"
+msgstr "Son"
+
+#: library.py
+msgid "Holds {names} and more."
+msgstr "Contient {names} et d’autres."
+
+#: library.py
+msgid "Holds {names}."
+msgstr "Contient {names}."
+
+#: library.py
+msgid "Sequence {n}"
+msgstr "Séquence {n}"
+
+#: library.py
+msgid "“{line}”"
+msgstr "« {line} »"
+
+#: library.py
+msgid "{sound} · Layer {n}"
+msgstr "{sound} · Couche {n}"
+
+#: library.py
+msgid "{sound} · Layer"
+msgstr "{sound} · Couche"
+
+#: library.py
+msgid "These are {language} voices. A replacement here only reaches players who use this language."
+msgstr "Ce sont des voix en {language}. Un remplacement ici n’atteint que les joueurs qui utilisent cette langue."
+
+#: library.py
+msgid "Music: {sections} and {n} More"
+msgid_plural "Music: {sections} and {n} More"
+msgstr[0] "Musique : {sections} et {n} autre"
+msgstr[1] "Musique : {sections} et {n} autres"
+
+#: library.py
+msgid "Music: {sections}"
+msgstr "Musique : {sections}"
+
+#: library.py
+msgid "Take {n}"
+msgstr "Prise {n}"
+
+#: library.py
+msgid "Only {language} voices are installed."
+msgstr "Seules les voix en {language} sont installées."
+
+#: library.py
+msgid "Voices installed: {languages}."
+msgstr "Voix installées : {languages}."
+
+#: library.py
+msgid "Bank {n}"
+msgstr "Banque {n}"
+
+#: library.py
+msgid "Sounds {first}–{last}"
+msgstr "Sons {first}–{last}"
+
+#: musiclist.py
+msgid "{names} and {last}"
+msgstr "{names} et {last}"
+
+#: musiclist.py
+msgid "Started directly by a game event."
+msgstr "Lancé directement par un événement du jeu."
+
+#: musiclist.py
+msgid "One end of this transition isn't in the game data any more, so it may never play."
+msgstr "Une extrémité de cette transition n’est plus dans les données du jeu, donc elle ne sera peut-être jamais jouée."
+
+#: musiclist.py
+msgid "Stinger"
+msgstr "Stinger"
+
+#: musiclist.py
+msgid "Several Levels"
+msgstr "Plusieurs niveaux"
+
+#: musiclist.py
+msgid "Starts when the MUSIC state is {state}."
+msgstr "Démarre quand l’état MUSIC est {state}."
+
+#: musiclist.py
+msgid "Anything"
+msgstr "Tout"
+
+#: musiclist.py
+msgid "An Unknown Piece"
+msgstr "Un morceau inconnu"
+
+#: musiclist.py
+msgid "{first}, {second} and {n} More"
+msgid_plural "{first}, {second} and {n} More"
+msgstr[0] "{first}, {second} et {n} autre"
+msgstr[1] "{first}, {second} et {n} autres"
+
+#: musiclist.py
+msgid "{before} → {after}"
+msgstr "{before} → {after}"
+
+#: musiclist.py
+msgid "Bumper"
+msgstr "Bumper"
+
+#: musiclist.py
+msgid "Any Other Biome"
+msgstr "N’importe quel autre biome"
+
+#: musiclist.py
+msgid "Starts when the MUSIC state is {state} and {state} is {value}."
+msgstr "Démarre quand l’état MUSIC est {state} et que {state} est {value}."
+
+#: musiclist.py
+msgid "The Mission Music"
+msgstr "La musique de mission"
+
+#: musiclist.py
+msgid "{first} or {second}"
+msgstr "{first} ou {second}"
+
+#: musiclist.py
+msgid "Over {music}"
+msgstr "Par-dessus {music}"
+
+#: musiclist.py
+msgid "Other Biomes"
+msgstr "Autres biomes"
+
+#: musiclist.py
+msgid "Biomes the game data leaves unnamed."
+msgstr "Biomes que les données du jeu laissent sans nom."
+
+#: musiclist.py
+msgid "{levels}, Also on Arrival"
+msgstr "{levels}, aussi à l’arrivée"
+
+#: musiclist.py
+msgid "{music} ({part})"
+msgstr "{music} ({part})"
+
+#: musiclist.py
+msgid "The Combat Music"
+msgstr "La musique de combat"
+
+#: musiclist.py
+msgid "Anything Else"
+msgstr "Tout le reste"
+
+#: musiclist.py
+msgid "{section} Transitions"
+msgstr "Transitions : {section}"
+
+#: musiclist.py
+msgid "{section} Stingers"
+msgstr "Stingers : {section}"
+
+#: musiclist.py
+msgid "The same audio also plays for {name} and {n} more."
+msgid_plural "The same audio also plays for {name} and {n} more."
+msgstr[0] "Le même audio est aussi joué pour {name} et {n} autre."
+msgstr[1] "Le même audio est aussi joué pour {name} et {n} autres."
+
+#: musiclist.py
+msgid "The same audio also plays for {name}."
+msgstr "Le même audio est aussi joué pour {name}."
+
+#: musiclist.py
+msgid "{section}: {name}"
+msgstr "{section} : {name}"
+
+#: musiclist.py
+msgid "Combat music for {faction}, a faction that Audiodiver can't identify yet."
+msgstr "Musique de combat pour {faction}, une faction qu’Audiodiver ne peut pas encore identifier."
+
+#: musiclist.py
+msgid "{section} Music"
+msgstr "Musique : {section}"
+
+#: musiclist.py
+msgid "{faction} {role}"
+msgstr "{role} {faction}"
+
+#: musiclist.py
+msgid "Variant {n}"
+msgstr "Variante {n}"
+
+#: musiclist.py
+msgid "Unidentified Piece {n}"
+msgstr "Morceau non identifié {n}"
+
+#: notes.py
+msgid "A note can be up to {n} characters long"
+msgstr "Une note peut contenir jusqu’à {n} caractères"
+
+#: notes.py
+msgid "No notes."
+msgstr "Aucune note."
+
+#: patch.py
+msgid "{file} is missing"
+msgstr "{file} est manquant"
+
+#: patch.py
+msgid "{file} is cut short"
+msgstr "{file} est tronqué"
+
+#: project.py
+msgid "The project in {pack} isn't an Audiodiver project"
+msgstr "Le projet de {pack} n’est pas un projet Audiodiver"
+
+#: project.py
+msgid "{file} was made by a newer version of Audiodiver. Update Audiodiver to open it"
+msgstr "{file} a été créé par une version plus récente d’Audiodiver. Mettez Audiodiver à jour pour l’ouvrir"
+
+#: project.py
+msgid "The project in {pack} was made by a newer version of Audiodiver. Update Audiodiver to open it"
+msgstr "Le projet de {pack} a été créé par une version plus récente d’Audiodiver. Mettez Audiodiver à jour pour l’ouvrir"
+
+#: project.py
+msgid "{file} is damaged (the name)"
+msgstr "{file} est endommagé (le nom)"
+
+#: project.py
+msgid "The project in {pack} is damaged (the name)"
+msgstr "Le projet de {pack} est endommagé (le nom)"
+
+#: project.py
+msgid "{file} is damaged (the replacements)"
+msgstr "{file} est endommagé (les remplacements)"
+
+#: project.py
+msgid "The project in {pack} is damaged (the replacements)"
+msgstr "Le projet de {pack} est endommagé (les remplacements)"
+
+#: project.py
+msgid "{file} is damaged (a replacement)"
+msgstr "{file} est endommagé (un remplacement)"
+
+#: project.py
+msgid "The project in {pack} is damaged (a replacement)"
+msgstr "Le projet de {pack} est endommagé (un remplacement)"
+
+#: project.py
+msgid "{file} is damaged (a replacement's sound ID)"
+msgstr "{file} est endommagé (l’ID du son d’un remplacement)"
+
+#: project.py
+msgid "The project in {pack} is damaged (a replacement's sound ID)"
+msgstr "Le projet de {pack} est endommagé (l’ID du son d’un remplacement)"
+
+#: project.py
+msgid "{file} is damaged (the icon)"
+msgstr "{file} est endommagé (l’icône)"
+
+#: project.py
+msgid "The project in {pack} is damaged (the icon)"
+msgstr "Le projet de {pack} est endommagé (l’icône)"
+
+#: project.py
+msgid "{file} is damaged (the cue points)"
+msgstr "{file} est endommagé (les points de repère)"
+
+#: project.py
+msgid "The project in {pack} is damaged (the cue points)"
+msgstr "Le projet de {pack} est endommagé (les points de repère)"
+
+#: project.py
+msgid "{file} is damaged (the text changes)"
+msgstr "{file} est endommagé (les modifications de texte)"
+
+#: project.py
+msgid "The project in {pack} is damaged (the text changes)"
+msgstr "Le projet de {pack} est endommagé (les modifications de texte)"
+
+#: project.py
+msgid "{file} is damaged (the settings from a mod)"
+msgstr "{file} est endommagé (les réglages issus d’un mod)"
+
+#: project.py
+msgid "The project in {pack} is damaged (the settings from a mod)"
+msgstr "Le projet de {pack} est endommagé (les réglages issus d’un mod)"
+
+#: project.py
+msgid "{file} is damaged (the Make-Up Gain on the original audio)"
+msgstr "{file} est endommagé (le Make-Up Gain de l’audio d’origine)"
+
+#: project.py
+msgid "The project in {pack} is damaged (the Make-Up Gain on the original audio)"
+msgstr "Le projet de {pack} est endommagé (le Make-Up Gain de l’audio d’origine)"
+
+#: project.py
+msgid "{file} is damaged (the added audio)"
+msgstr "{file} est endommagé (l’audio ajouté)"
+
+#: project.py
+msgid "The project in {pack} is damaged (the added audio)"
+msgstr "Le projet de {pack} est endommagé (l’audio ajouté)"
+
+#: project.py
+msgid "{file} is damaged (the soundtrack)"
+msgstr "{file} est endommagé (la bande-son)"
+
+#: project.py
+msgid "The project in {pack} is damaged (the soundtrack)"
+msgstr "Le projet de {pack} est endommagé (la bande-son)"
+
+#: project.py
+msgid "{file} is damaged (a cue point, a text change, added audio or a setting)"
+msgstr "{file} est endommagé (un point de repère, une modification de texte, de l’audio ajouté ou un réglage)"
+
+#: project.py
+msgid "The project in {pack} is damaged (a cue point, a text change, added audio or a setting)"
+msgstr "Le projet de {pack} est endommagé (un point de repère, une modification de texte, de l’audio ajouté ou un réglage)"
+
+#: project.py
+msgid "a note"
+msgstr "une note"
+
+#: project.py
+msgid "the tabs"
+msgstr "les onglets"
+
+#: project.py
+msgid "the label of {name}"
+msgstr "l’étiquette de {name}"
+
+#: project.py
+msgid "the Make-Up Gain of {name}"
+msgstr "le Make-Up Gain de {name}"
+
+#: project.py
+msgid "Fit timing for {name}"
+msgstr "Ajuster le minutage pour {name}"
+
+#: project.py
+msgid "the label of sound {id}"
+msgstr "l’étiquette du son {id}"
+
+#: project.py
+msgid "the Make-Up Gain of sound {id}"
+msgstr "le Make-Up Gain du son {id}"
+
+#: project.py
+msgid "Fit timing for sound {id}"
+msgstr "Ajuster le minutage pour le son {id}"
+
+#: project.py
+msgid "mod ID: damaged in the project file (Make a New ID, on the Project tab)"
+msgstr "ID du mod : endommagé dans le fichier du projet (Créer un nouvel ID, dans l’onglet Projet)"
+
+#: project.py
+msgid "Loudness analysis"
+msgstr "Analyse de sonie"
+
+#: project.py
+msgid "Banks"
+msgstr "Banques"
+
+#: project.py
+msgid "Patch files"
+msgstr "Fichiers patch"
+
+#: project.py
+msgid "the game version of the last build"
+msgstr "la version du jeu de la dernière génération"
+
+#: project.py
+msgid "what the last build was made from"
+msgstr "ce à partir de quoi la dernière génération a été faite"
+
+#: project.py
+msgid "the description"
+msgstr "la description"
+
+#: project.py
+msgid "the build folder"
+msgstr "le dossier de génération"
+
+#: project.py
+msgid "icon: image not found ({path})"
+msgstr "icône : image introuvable ({path})"
+
+#: project.py
+msgid "a cue point"
+msgstr "un point de repère"
+
+#: project.py
+msgid "the version"
+msgstr "la version"
+
+#: project.py
+msgid "icon: {problem}"
+msgstr "icône : {problem}"
+
+#: project.py
+msgid "{name}: same target as {other}"
+msgstr "{name} : même cible que {other}"
+
+#: project.py
+msgid "{name}: the audio file wasn't found ({path})"
+msgstr "{name} : le fichier audio est introuvable ({path})"
+
+#: project.py
+msgid "segment {id}: unknown overrides {keys}"
+msgstr "segment {id} : paramètres de substitution inconnus {keys}"
+
+#: project.py
+msgid "the imported mods' banks"
+msgstr "les banques des mods importés"
+
+#: projectfiles.py
+msgid "Another project in this folder can't be read, so it isn't known which files it uses"
+msgstr "Un autre projet de ce dossier est illisible, donc on ne sait pas quels fichiers il utilise"
+
+#: projectfiles.py
+msgid "{file} isn't an Audiodiver pack, or it is damaged"
+msgstr "{file} n’est pas un pack Audiodiver, ou il est endommagé"
+
+#: projectfiles.py
+msgid "{file} needs {mb} MB, and {folder} has less free space"
+msgstr "{file} nécessite {mb} MB, et {folder} a moins d’espace libre"
+
+#: projectfiles.py
+msgid "{file} has a file that would go outside the folder it unpacks to ({inside})"
+msgstr "{file} contient un fichier qui sortirait du dossier d’extraction ({inside})"
+
+#: projectfiles.py
+msgid "{file} holds no project"
+msgstr "{file} ne contient aucun projet"
+
+#: projectfiles.py
+msgid "{file} holds more than one project"
+msgstr "{file} contient plusieurs projets"
+
+#: projectfiles.py
+msgid "The project in {pack} is damaged"
+msgstr "Le projet de {pack} est endommagé"
+
+#: projectfiles.py
+msgid "Packing {file}"
+msgstr "Empaquetage de {file}"
+
+#: projectfiles.py
+msgid "Unpacking {file}"
+msgstr "Extraction de {file}"
+
+#: render.py
+msgid "this cue has nothing to play"
+msgstr "ce cue n’a rien à jouer"
+
+#: render.py
+msgid "can't write {file}: {why}"
+msgstr "impossible d’écrire {file} : {why}"
+
+#: render.py
+msgid "can't read the audio in {file}"
+msgstr "impossible de lire l’audio de {file}"
+
+#: render.py
+msgid "this cue runs over {n} minutes when played through, so export the segments separately"
+msgstr "ce cue dure plus de {n} minutes en lecture enchaînée, donc exportez les segments séparément"
+
+#: repatch.py
+msgid "Choose a .patch_0 file, a mod folder or a ZIP"
+msgstr "Choisissez un fichier .patch_0, un dossier de mod ou un ZIP"
+
+#: repatch.py
+msgid "{file} isn't a mod. Choose a .patch_0 file (Audiodiver also reads the .stream file next to it), a mod folder or a ZIP. Unpack .7z and .rar files first"
+msgstr "{file} n’est pas un mod. Choisissez un fichier .patch_0 (Audiodiver lit aussi le fichier .stream situé à côté), un dossier de mod ou un ZIP. Extrayez d’abord les fichiers .7z et .rar"
+
+#: repatch.py
+msgid "{file} isn't a mod. Choose a .patch_0 file (Audiodiver also reads the .stream file next to it), a mod folder or a ZIP"
+msgstr "{file} n’est pas un mod. Choisissez un fichier .patch_0 (Audiodiver lit aussi le fichier .stream situé à côté), un dossier de mod ou un ZIP"
+
+#: repatch.py
+msgid "{file} holds no patch file (.patch_0)"
+msgstr "{file} ne contient aucun fichier patch (.patch_0)"
+
+#: repatch.py
+msgid "{file} can't be opened as a ZIP"
+msgstr "{file} ne peut pas être ouvert comme un ZIP"
+
+#: server.py
+msgid "Choose a folder"
+msgstr "Choisissez un dossier"
+
+#: server.py
+msgid "The core refused the connection because of a wrong token"
+msgstr "Le moteur a refusé la connexion à cause d’un mauvais jeton"
+
+#: server.py
+msgid "The core's answer held a number it can't send"
+msgstr "La réponse du moteur contenait un nombre qu’il ne peut pas envoyer"
+
+#: server.py
+msgid "{file} isn't an audio file"
+msgstr "{file} n’est pas un fichier audio"
+
+#: soundtrack.py
+msgid "every segment of the piece is left out"
+msgstr "tous les segments du morceau sont écartés"
+
+#: updates.py
+msgid "GitHub answered {code}"
+msgstr "GitHub a répondu {code}"

@@ -1,13 +1,13 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { Tag } from "./api";
 import { hueOf } from "./music";
-import { useLite } from "./store";
+import { useItemIndex } from "./store";
 
 /** A category's colour as a custom property: its hue, which styles.css turns into a colour at the lightness and
     strength the theme sets. Nothing for a category the Index doesn't have. */
 export function useHue(category: string | undefined): CSSProperties | undefined {
-  const { itemIndex } = useLite(); // not useEditor(): every tag of a long list holds one
-  const hue = hueOf(itemIndex, category);
+  const itemIndex = useItemIndex(); // not useEditor(): every tag of a long list holds one
+  const hue = itemIndex ? hueOf(itemIndex, category) : undefined;
   return hue === undefined ? undefined : ({ ["--hue" as any]: hue } as CSSProperties);
 }
 

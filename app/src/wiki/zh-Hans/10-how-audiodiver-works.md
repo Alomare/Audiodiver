@@ -2,7 +2,7 @@
 title: Audiodiver 的工作方式
 group: 入门
 summary: Audiodiver 做什么、项目是什么，以及每个选项卡的用途。
-source: 1b5e5dfe0dd2
+source: e97884655776
 ---
 
 Audiodiver 按照**它是什么、在哪里播放**来替换 Helldivers 2 的音频。在资源库中找到一首曲目或一组声音，将其添加到项目中，再为它提供新音频。之后，Audiodiver 会算出游戏所需的音频库、ID 和时序值。
@@ -30,6 +30,8 @@ Audiodiver 从不写入游戏文件夹。它从 Steam 库读取游戏音频，�
 - {icon:text} **文本**包含所有语言的全部游戏内文本，包括字幕。参见[文本和字幕](wiki:text)。
 - {icon:build} **构建**包含下一个版本、构建选项和“构建”按钮。选项卡上的圆点表示项目尚未构建，或者自上次构建以来项目有更改或游戏已更新。红色数字是阻止构建的问题数。
 - {icon:updates} **更新**、{icon:wiki} **Wiki**（{key:wiki}）和 {icon:settings} **设置**位于选项卡栏末尾。有新版本的 Audiodiver 时，“更新”会高亮显示，它还列出每个版本的更改。在 Wiki 页面上，{key:search} 可在该页面中查找文字。
+
+指南搜索框旁的 {icon:detach} 按钮可将 Wiki 移到单独的窗口，便于一边阅读一边处理项目。此时 Wiki 选项卡会显示**把 Wiki 放回来**，关闭该窗口也有同样的效果。Wiki 在该窗口中时，**?** 或指向某一页的链接都会在那里打开。开始教程时会先把 Wiki 放回来。
 
 状态栏右端的版本号也可以打开“更新”。旁边的 {icon:info} 按钮可打开[关于](app:about)，其中有许可证、日志文件和致谢。
 
@@ -64,6 +66,10 @@ Audiodiver 每次启动时都会在 GitHub 上检查新版本。[设置 ▸ 系�
 ### 启动 {#startup}
 
 开启 **Audiodiver 启动时打开上次的项目**后，Audiodiver 会在音频选项卡中打开上次的项目。关闭时，Audiodiver 从主页启动。
+
+### 主页 {#home}
+
+关闭**显示新闻滚动条**后，主页底部不再显示战争新闻条，也不会加载新闻。
 
 ### 自动保存 {#autosave}
 

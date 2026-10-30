@@ -1177,6 +1177,7 @@ msgid "A transition plays between two pieces of music, and a stinger over one. L
 msgstr "Uma transição toca entre duas peças de música, e um stinger por cima de uma. Se ficam originais, tocam um trecho da música original ao lado da música nova. Pular os substitui por um silêncio curto"
 
 #: src/Tutorial.tsx
+#: src/Wiki.tsx
 msgid "A tutorial is running"
 msgstr "Um tutorial está em andamento"
 
@@ -1787,6 +1788,10 @@ msgstr "Inferior direito"
 #: src/SettingsTab.tsx
 msgid "Bring the notes of an exported notes file or of a project into the global notes"
 msgstr "Traga para as notas globais as notas de um arquivo de notas exportado ou de um projeto"
+
+#: src/Wiki.tsx
+msgid "Bring the Wiki Back"
+msgstr "Trazer a Wiki de volta"
 
 #. The name of the Build tab, as the title of a tutorial step
 #. Title of the Build tab
@@ -2787,6 +2792,10 @@ msgstr "Descrição"
 msgid "Destination folder"
 msgstr "Pasta de destino"
 
+#: src/Wiki.tsx
+msgid "Detach the Wiki"
+msgstr "Destacar a Wiki"
+
 #: src/Inspector.tsx
 msgid "Details"
 msgstr "Detalhes"
@@ -3651,6 +3660,7 @@ msgstr "Histórico: nenhuma alteração ainda"
 
 #: src/App.tsx
 #: src/Home.tsx
+#: src/SettingsTab.tsx
 #: src/store.tsx
 msgid "Home"
 msgstr "Início"
@@ -5374,6 +5384,10 @@ msgstr "Abrir a legenda na aba Texto"
 msgid "Opens ko-fi.com/alomare"
 msgstr "Abre ko-fi.com/alomare"
 
+#: src/Wiki.tsx
+msgid "Opens the Wiki in a separate window"
+msgstr "Abre a Wiki em uma janela separada"
+
 #: src/ProjectTab.tsx
 msgid "Optional. Shown with the mod in the mod manager."
 msgstr "Opcional. Exibida com o mod no gerenciador de mods."
@@ -6872,6 +6886,10 @@ msgstr "Mostrar o arquivo de log"
 msgid "Show the log file in Explorer"
 msgstr "Mostrar o arquivo de log no Explorador de Arquivos"
 
+#: src/SettingsTab.tsx
+msgid "Show the news ticker"
+msgstr "Mostrar o letreiro de notícias"
+
 #: src/Tools.tsx
 msgid "Show the waveforms"
 msgstr "Mostrar as formas de onda"
@@ -8030,6 +8048,10 @@ msgstr "A música inteira, cortada nas proporções dos originais"
 #: src/SliceTool.tsx
 msgid "The whole song, in pieces of equal length"
 msgstr "A música inteira, em pedaços de duração igual"
+
+#: src/Wiki.tsx
+msgid "The Wiki is open in a separate window."
+msgstr "A Wiki está aberta em uma janela separada."
 
 #: src/SettingsTab.tsx
 msgid "Theme"

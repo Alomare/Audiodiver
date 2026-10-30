@@ -9,6 +9,9 @@ body:
       options:
         - Português (Brasil)
         - 简体中文
+        - Français
+        - Español
+        - 日本語
     validations:
       required: true
 

@@ -112,9 +112,10 @@ function System() {
   };
   // the settings on this page (the build switches live on the Build tab)
   const defaults = { openLast: DEFAULT_SETTINGS.openLast, tips: DEFAULT_SETTINGS.tips, updates: DEFAULT_SETTINGS.updates, tabs: DEFAULT_SETTINGS.tabs,
-    autosave: DEFAULT_SETTINGS.autosave, noticeCorner: DEFAULT_SETTINGS.noticeCorner };
+    autosave: DEFAULT_SETTINGS.autosave, noticeCorner: DEFAULT_SETTINGS.noticeCorner, homeTicker: DEFAULT_SETTINGS.homeTicker };
   const changed = s.openLast !== defaults.openLast || s.tips !== defaults.tips || s.updates !== defaults.updates
-    || s.tabs.join() !== defaults.tabs.join() || s.autosave !== defaults.autosave || s.noticeCorner !== defaults.noticeCorner;
+    || s.tabs.join() !== defaults.tabs.join() || s.autosave !== defaults.autosave || s.noticeCorner !== defaults.noticeCorner
+    || s.homeTicker !== defaults.homeTicker;
   const saveKey = keyLabel("save");
 
   return (
@@ -133,6 +134,14 @@ function System() {
         <label className="check">
           <input type="checkbox" checked={s.openLast} onChange={(e) => settings.set({ openLast: e.target.checked })} />
           <span>{t`Open the last project when Audiodiver starts`} <Help tip={t`When on, the last project opens on the Audio tab. When off, Audiodiver starts on Home.`} page="how-audiodiver-works#startup" /></span>
+        </label>
+      </section>}
+
+      {!UTILS && <section className="set-sec">
+        <h2><Trans>Home</Trans></h2>
+        <label className="check">
+          <input type="checkbox" checked={s.homeTicker} onChange={(e) => settings.set({ homeTicker: e.target.checked })} />
+          <span>{t`Show the news ticker`}</span>
         </label>
       </section>}
 

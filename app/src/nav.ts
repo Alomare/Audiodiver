@@ -57,6 +57,8 @@ let off: readonly Tab[] = []; // the hideable tabs that are off now (App.tsx kee
 let open = false;             // a project is open: Build shows only then (the store keeps it up to date)
 let hidden = new Set<Tab>(["build"]);
 const listeners = new Set<() => void>();
+/** While the Wiki is in a window of its own (wikiWindow.ts): takes what the other window shows; true when it did. */
+let elsewhere: ((place: Tab | "about", sub?: string) => boolean) | null = null;
 /** The tabs out of the bar now; the one that shows, if hidden, moves to the Project tab. */
 function hide() {
   hidden = new Set<Tab>(open ? off : [...off, "build"]);
@@ -69,7 +71,7 @@ export const nav = {
       `back`: going back to where a tab was opened from, which keeps where that one was opened from in turn. A tab
       that is hidden doesn't open. */
   go(tab: Tab, sub?: string, back = false) {
-    if (hidden.has(tab)) return;
+    if (elsewhere?.(tab, sub) || hidden.has(tab)) return;
     const next = { ...current, tab };
     if (MAIN.includes(tab)) next.from = tab;
     else if (tab !== current.tab && !back) next.origin = { ...current.origin, [tab]: current.tab };
@@ -111,6 +113,13 @@ export const nav = {
   keepForReload() {
     try { sessionStorage.setItem(REOPEN_KEY, JSON.stringify({ tab: current.tab, from: current.from, settings: current.settings })); } catch { /* storage off */ }
   },
+  /** Who takes what the other window shows, while the Wiki is in a window of its own (null: nobody). */
+  handOver(to: typeof elsewhere) { elsewhere = to; },
+  /** The Wiki's window has closed: the Wiki here carries on at the page that one was on. */
+  wikiBack() {
+    current = { ...current, wiki: lastWikiPage(), anchor: "" };
+    listeners.forEach((f) => f());
+  },
   subscribe(f: () => void) { listeners.add(f); return () => { listeners.delete(f); }; },
 };
 
@@ -124,7 +133,7 @@ let aboutOpen = false;
 const aboutListeners = new Set<() => void>();
 const showAbout = (v: boolean) => { aboutOpen = v; aboutListeners.forEach((f) => f()); };
 export const about = {
-  open: () => showAbout(true),
+  open: () => { if (!elsewhere?.("about")) showAbout(true); },
   close: () => showAbout(false),
   subscribe(f: () => void) { aboutListeners.add(f); return () => { aboutListeners.delete(f); }; },
 };

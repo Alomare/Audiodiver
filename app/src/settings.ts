@@ -26,10 +26,11 @@ export type Settings = {
   soundNames: SoundNames; // a bank's sounds by name, or by container ID as Wwise tools list them
   autosave: number;      // minutes between saves of the project file; 0 saves each change as it is made
   noticeCorner: NoticeCorner; // where notices show
+  homeTicker: boolean;   // the strip of war news along the bottom of Home
 };
 
 export const DEFAULT_SETTINGS: Settings = { openLast: false, tips: "normal", updates: "prompt", bumpVersion: true, revealBuild: false,
-  tabs: [...HIDEABLE], soundNames: "names", autosave: 0, noticeCorner: "bottom-right" };
+  tabs: [...HIDEABLE], soundNames: "names", autosave: 0, noticeCorner: "bottom-right", homeTicker: true };
 /** A list of hideable tabs in the bar's order, or null for anything else. */
 export const tabList = (v: unknown): Hideable[] | null =>
   Array.isArray(v) && v.every((t) => (HIDEABLE as readonly unknown[]).includes(t)) ? HIDEABLE.filter((t) => v.includes(t)) : null;
@@ -53,8 +54,8 @@ function load(): Settings {
   try {
     const s = JSON.parse(localStorage.getItem(KEY) ?? "null");
     if (s && typeof s === "object") {
-      const flag = (k: "openLast" | "bumpVersion" | "revealBuild") => (typeof s[k] === "boolean" ? s[k] : DEFAULT_SETTINGS[k]);
-      return { openLast: flag("openLast"), bumpVersion: flag("bumpVersion"), revealBuild: flag("revealBuild"),
+      const flag = (k: "openLast" | "bumpVersion" | "revealBuild" | "homeTicker") => (typeof s[k] === "boolean" ? s[k] : DEFAULT_SETTINGS[k]);
+      return { openLast: flag("openLast"), bumpVersion: flag("bumpVersion"), revealBuild: flag("revealBuild"), homeTicker: flag("homeTicker"),
         tips: TIP_SPEEDS.some(([t]) => t === s.tips) ? s.tips : DEFAULT_SETTINGS.tips,
         updates: UPDATE_MODES.some(([m]) => m === s.updates) ? s.updates : DEFAULT_SETTINGS.updates,
         tabs: tabList(s.tabs) ?? DEFAULT_SETTINGS.tabs,

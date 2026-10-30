@@ -117,6 +117,8 @@ export const CloseIcon = () => <Icon size={1}><path d="m6.5 6.5 11 11M17.5 6.5l-
 
 /** Marks a link that opens in the web browser. */
 export const ExternalIcon = () => <Icon size={0.85}><path d="M10 5H5v14h14v-5" /><path d="M14 4h6v6M20 4l-9 9" /></Icon>;
+/** A window with its title bar, and what is in it going out at the corner. */
+export const DetachIcon = () => <Icon size={0.9}><path d="M11 4.5H4V20h15.5v-7" /><path d="M4 9h6" /><path d="M14.5 3.5h6v6M20.5 3.5l-7 7" /></Icon>;
 
 export const PrevIcon = () => <Icon size={0.95}><path d="m14.5 6-6 6 6 6" /></Icon>;
 export const NextIcon = () => <Icon size={0.95}><path d="m9.5 6 6 6-6 6" /></Icon>;

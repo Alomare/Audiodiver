@@ -137,7 +137,7 @@ code { background: var(--raised); padding: 0 4px; }
 /* audio the project adds to the game's (a new take, a layer, a clip of its own) */
 .tag.new { color: var(--second-fg); border-color: color-mix(in srgb, var(--second-fg) 50%, transparent); }
 .tag.linked .icon { margin-right: 3px; vertical-align: -.2em; }
-.warn-box { border-left: 3px solid var(--red); background: color-mix(in srgb, var(--red) 10%, transparent); padding: 8px 12px; margin: 10px 0; font-size: calc(14px * var(--fs)); }
+.warn-box { border-left: 3px solid var(--red); background: color-mix(in srgb, var(--red) 10%, transparent); padding: 8px 12px; margin: 10px 0; font-size: calc(14px * var(--fs)); overflow-wrap: anywhere; } /* a message can hold a whole path */
 .info-box { border-left: 3px solid var(--steel); background: color-mix(in srgb, var(--steel) 9%, transparent); padding: 8px 12px; margin: 10px 0; font-size: calc(14px * var(--fs)); }
 input[type="search"], input[type="number"] { background: var(--bg); border: 1px solid var(--line); border-radius: 2px; padding: 6px 10px; width: 100%; }
 /* a box with a border shows its focus there; a slider, a checkbox or a colour has none and keeps the ring */
@@ -1273,6 +1273,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 /* Home is laid out at Compact's spacing whatever Settings ▸ Theme ▸ Spacing says (theme.ts DENSITIES): the menu
    was drawn for it, and wider gaps pull its strips apart */
 .home { --sp: .55; --home-m: calc(83px * var(--sp)); --ticker-h: calc(35px * var(--fs)); }
+.home.no-ticker { --ticker-h: 0px; } /* Settings ▸ System: the page and the row above it take the strip's place */
 .home-corner { position: absolute; left: var(--home-m); right: var(--home-m); bottom: calc(var(--ticker-h) + 12px); z-index: 2;
   display: flex; align-items: center; justify-content: space-between; gap: 8px; pointer-events: none; }
 .home-corner > * { pointer-events: auto; }
@@ -1563,6 +1564,10 @@ kbd.none { color: var(--faint); font-weight: 400; }
 /* ---------- Wiki: the guides on the left, the page in the middle, its headings on the right */
 /* --wiki-nav is the list's share of the tab, a quarter to start (Wiki.tsx), as the Library's --split is */
 .wiki { display: grid; grid-template-columns: clamp(200px, calc((100% - 5px) * var(--wiki-nav, 0.25)), calc(100% - 385px)) 5px minmax(0, 1fr); min-height: 0; }
+/* the Wiki away in its own window: what the tab shows, and that window's whole page */
+.wiki-away { display: grid; place-content: center; justify-items: center; gap: calc(14px * var(--sp)); min-height: 0; padding: 24px; text-align: center; }
+.wiki-away p { margin: 0; color: var(--muted); font-size: calc(16px * var(--fs)); }
+.wiki-window { display: grid; height: 100%; min-height: 0; }
 .wiki-nav { display: flex; flex-direction: column; min-height: 0; min-width: 0; background: var(--panel); }
 .wiki-list { flex: 1; overflow: auto; padding: 4px 0 24px; }
 /* the interactive tutorials and the FAQ: entries above the groups, each with a round mark (a slightly dim white, a

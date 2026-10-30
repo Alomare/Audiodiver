@@ -2,7 +2,7 @@
 title: Como o Audiodiver funciona
 group: Primeiros passos
 summary: O que o Audiodiver faz, o que é um projeto e para que serve cada aba.
-source: 1b5e5dfe0dd2
+source: e97884655776
 ---
 
 O Audiodiver substitui o áudio do Helldivers 2 pelo **que ele é e onde toca**. Encontre uma peça musical ou um conjunto de sons na Biblioteca, adicione ao projeto e dê a ele áudio novo. O Audiodiver então calcula os bancos de sons, IDs e valores de tempo de que o jogo precisa.
@@ -30,6 +30,8 @@ A barra de abas no topo da janela contém as abas principais. Início e Ferramen
 - {icon:text} **Texto** tem todo o texto do jogo em todos os idiomas, incluindo as legendas. Veja [Texto e legendas](wiki:text).
 - {icon:build} **Gerar** contém a próxima versão, as Opções de geração e o botão Gerar. Um ponto na aba indica que o projeto ainda não foi gerado, ou que ele mudou ou o jogo foi atualizado desde a última geração. Um número vermelho conta os problemas que impedem a geração.
 - {icon:updates} **Atualizações**, {icon:wiki} **Wiki** ({key:wiki}) e {icon:settings} **Configurações** ficam no fim da barra de abas. Atualizações fica destacada quando há uma versão nova do Audiodiver, e lista as mudanças de cada versão. Numa página da Wiki, {key:search} procura palavras nessa página.
+
+O botão {icon:detach} ao lado da busca de guias move a Wiki para uma janela separada, para ler ao lado de um projeto. A aba Wiki passa a mostrar **Trazer a Wiki de volta**, e fechar a janela faz o mesmo. Enquanto a Wiki está nessa janela, um **?** ou um link para uma página abre lá. Iniciar um tutorial traz a Wiki de volta antes.
 
 O número da versão na ponta direita da barra de status também abre Atualizações. O botão {icon:info} ao lado dele abre [Sobre](app:about), com a licença, o arquivo de log e os créditos.
 
@@ -64,6 +66,10 @@ Uma atualização substitui só o app. Projetos, arquivos de áudio e configura�
 ### Inicialização {#startup}
 
 Com **Abrir o último projeto quando o Audiodiver iniciar** ligado, o Audiodiver abre o último projeto na aba Áudio. Desligado, o Audiodiver começa em Início.
+
+### Início {#home}
+
+Com **Mostrar o letreiro de notícias** desligado, o Início não mostra a faixa de notícias da guerra na parte de baixo, e as notícias não são carregadas.
 
 ### Salvamento automático {#autosave}
 

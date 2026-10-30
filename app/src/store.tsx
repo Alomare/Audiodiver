@@ -1303,6 +1303,8 @@ export function useLite(): Lite {
   if (!v) throw new Error("useLite outside EditorProvider");
   return v;
 }
+/** The Index, or null in the Wiki's own window, which has no project or Index. */
+export const useItemIndex = () => useContext(LiteCtx)?.itemIndex ?? null;
 
 // a tab's browsing, field by field, with the context each field comes from (TypeScript checks that none is missing)
 const OPEN_FIELDS: Record<keyof Open, true> = { itemId: true, cueId: true, cue: true, shownItemId: true, loading: true, openCue: true,

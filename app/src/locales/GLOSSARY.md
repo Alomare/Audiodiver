@@ -150,3 +150,24 @@ What each term means in Audiodiver:
 | Interactive Tutorials | Tutoriais Interativos | Tutoriais interativos | Интерактивные уроки | インタラクティブチュートリアル | 대화형 튜토리얼 | 互动教程 | 互動教學 |
 | Notifications | Notificações | Notificações | Уведомления | 通知 | 알림 | 通知 | 通知 |
 | History | Histórico | Histórico | История | 履歴 | 기록 | 历史记录 | 歷程記錄 |
+
+## The game's own words
+
+How the game writes the terms the app uses most, from the same string ids in its English and localized tables. For any
+other term, compare those tables the same way before translating it: a translation can pass every check and still use a
+word players never see in the game.
+
+| English | Français | Español (España) | 日本語 |
+|---|---|---|---|
+| Stratagem | Stratagème | Estratagema | 戦略支援 |
+| Mission Control | Donneur de mission | Control de misión | 管制部 |
+| Extraction | Extraction | Extracción | 離脱 |
+| Super Destroyer | Super Destroyer | Superdestructor | スーパーデストロイヤー |
+| Hellpod | Hellpod | Cápsula hell | ヘルポッド |
+| Terminids | Terminides | Termínidos | ターミニッド |
+| Automatons | Automatons | Autómatas | オートマトン |
+| Illuminate | Illuministes | Iluminados | イルミネイト |
+| Sentry | Sentinelle | Centinela | 砲塔 |
+| Super Earth | Super-Terre | Supertierra | スーパーアース |
+| Democracy Officer | Officier de la démocratie | Oficial de Democracia | 民主主義担当官 |
+| Ship Master | Capitaine du vaisseau | Capitana de la nave | 艦長 |

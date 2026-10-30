@@ -1177,6 +1177,7 @@ msgid "A transition plays between two pieces of music, and a stinger over one. L
 msgstr ""
 
 #: src/Tutorial.tsx
+#: src/Wiki.tsx
 msgid "A tutorial is running"
 msgstr ""
 
@@ -1786,6 +1787,10 @@ msgstr ""
 
 #: src/SettingsTab.tsx
 msgid "Bring the notes of an exported notes file or of a project into the global notes"
+msgstr ""
+
+#: src/Wiki.tsx
+msgid "Bring the Wiki Back"
 msgstr ""
 
 #. The name of the Build tab, as the title of a tutorial step
@@ -2787,6 +2792,10 @@ msgstr ""
 msgid "Destination folder"
 msgstr ""
 
+#: src/Wiki.tsx
+msgid "Detach the Wiki"
+msgstr ""
+
 #: src/Inspector.tsx
 msgid "Details"
 msgstr ""
@@ -3651,6 +3660,7 @@ msgstr ""
 
 #: src/App.tsx
 #: src/Home.tsx
+#: src/SettingsTab.tsx
 #: src/store.tsx
 msgid "Home"
 msgstr ""
@@ -5374,6 +5384,10 @@ msgstr ""
 msgid "Opens ko-fi.com/alomare"
 msgstr ""
 
+#: src/Wiki.tsx
+msgid "Opens the Wiki in a separate window"
+msgstr ""
+
 #: src/ProjectTab.tsx
 msgid "Optional. Shown with the mod in the mod manager."
 msgstr ""
@@ -6872,6 +6886,10 @@ msgstr ""
 msgid "Show the log file in Explorer"
 msgstr ""
 
+#: src/SettingsTab.tsx
+msgid "Show the news ticker"
+msgstr ""
+
 #: src/Tools.tsx
 msgid "Show the waveforms"
 msgstr ""
@@ -8029,6 +8047,10 @@ msgstr ""
 
 #: src/SliceTool.tsx
 msgid "The whole song, in pieces of equal length"
+msgstr ""
+
+#: src/Wiki.tsx
+msgid "The Wiki is open in a separate window."
 msgstr ""
 
 #: src/SettingsTab.tsx

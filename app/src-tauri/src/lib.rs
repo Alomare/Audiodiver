@@ -15,6 +15,10 @@
 //! Audiodiver Utils is this same exe with a `utils.txt` beside it (the release's Utils ZIP, always portable too): the
 //! window shows only the Tools, takes no projects, and runs beside Audiodiver (no single-instance hand-over). The page
 //! learns it from `window.__AUDIODIVER_EDITION__`, set before its scripts run.
+//!
+//! The Wiki can move into a second window (`open_wiki`), the same pages with `?view=wiki` (wikiWindow.ts in the UI).
+//! It has no core and nothing to save, and it closes with the main window: Tauri exits only with the last window, and
+//! the core stops at that exit.
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -291,6 +295,72 @@ fn place_now(window: &WebviewWindow, before: Option<Place>) -> Option<Place> {
     Some(Place { x: at.x, y: at.y, width: size.width, height: size.height, maximized: false })
 }
 
+const WIKI: &str = "wiki"; // the label of the Wiki's own window
+
+/// Whether the Wiki is in its own window (the main window loads again on a change of language, and asks).
+#[tauri::command]
+fn wiki_is_open(app: tauri::AppHandle) -> bool {
+    app.get_webview_window(WIKI).is_some()
+}
+
+/// Brings a window to the front: the Wiki's for a page asked for in the main one, the main one for a link in the Wiki.
+#[tauri::command]
+fn bring_forward(label: String, app: tauri::AppHandle) {
+    if let Some(window) = app.get_webview_window(&label) {
+        let _ = window.unminimize();
+        let _ = window.set_focus();
+    }
+}
+
+/// The Wiki in a window of its own, or to the front if it is there. Async: a window built in a synchronous command
+/// deadlocks on Windows. A portable copy keeps this window's place as it keeps the main one's; it shares the WebView2
+/// profile either way, and with it the browser storage that holds the theme and the language.
+#[tauri::command]
+async fn open_wiki(app: tauri::AppHandle) -> Result<(), String> {
+    if app.get_webview_window(WIKI).is_some() {
+        bring_forward(WIKI.into(), app);
+        return Ok(());
+    }
+    let mut window = tauri::WebviewWindowBuilder::new(&app, WIKI, tauri::WebviewUrl::App("index.html?view=wiki".into()))
+        .title("Audiodiver Wiki")
+        .inner_size(1100.0, 800.0)
+        .min_inner_size(640.0, 480.0);
+    if utils_edition() {
+        window = window.title("Audiodiver Utils Wiki").initialization_script("window.__AUDIODIVER_EDITION__ = 'utils';");
+    }
+    let portable = portable_data();
+    if let Some(data) = &portable {
+        window = window.data_directory(data.join("webview")).visible(false);
+    }
+    let window = window.build().map_err(|e| e.to_string())?;
+    let place_file = portable.map(|data| data.join("wiki-window.json"));
+    if let Some(file) = &place_file {
+        restore_place(&window, file);
+        let _ = window.show();
+    }
+    let w = window.clone();
+    window.on_window_event(move |e| match e {
+        WindowEvent::CloseRequested { .. } => {
+            if let (Some(file), Some(place)) = (&place_file, place_now(&w, None)) {
+                let _ = std::fs::write(file, serde_json::to_vec_pretty(&place).unwrap_or_default());
+            }
+        }
+        WindowEvent::Destroyed => {
+            let _ = app.emit_to("main", "wiki-closed", ());
+        }
+        _ => {}
+    });
+    Ok(())
+}
+
+/// Closes the Wiki's window, which brings the Wiki back into its tab.
+#[tauri::command]
+fn close_wiki(app: tauri::AppHandle) {
+    if let Some(window) = app.get_webview_window(WIKI) {
+        let _ = window.close();
+    }
+}
+
 pub fn run() {
     #[cfg(windows)]
     if !has_webview2() {
@@ -338,6 +408,12 @@ pub fn run() {
                 window = window.data_directory(data.join("webview")).visible(false);
             }
             let window = window.build()?;
+            let handle = app.handle().clone();
+            window.on_window_event(move |e| {
+                if matches!(e, WindowEvent::Destroyed) {
+                    close_wiki(handle.clone());
+                }
+            });
             if let Some(data) = &portable {
                 let file = data.join("window.json");
                 restore_place(&window, &file);
@@ -366,7 +442,7 @@ pub fn run() {
             spawn_core(&app.state::<Core>(), paths);
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![core_endpoint, is_portable, launch_file])
+        .invoke_handler(tauri::generate_handler![core_endpoint, is_portable, launch_file, open_wiki, close_wiki, wiki_is_open, bring_forward])
         .build(tauri::generate_context!())
         .expect("error while building the app");
     app.run(|handle, event| {

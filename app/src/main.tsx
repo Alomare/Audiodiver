@@ -8,6 +8,7 @@ import "@fontsource-variable/roboto-mono/wght.css";
 import "@fontsource-variable/roboto-mono/wght-italic.css";
 import "./styles.css";
 import icon from "@logo/icon-dark-lowres.png";
+import { WIKI_WINDOW } from "./edition";
 import { startLanguage } from "./i18n";
 import { theme } from "./theme";
 
@@ -31,5 +32,5 @@ window.addEventListener("contextmenu", (e) => {
 // The language loads before the rest of the app is imported, so text that a module sets up as it loads comes out in
 // it too; a change of language loads the window again (i18n.ts). Only text-free modules are imported above.
 await startLanguage();
-const { boot } = await import("./boot");
+const { boot } = WIKI_WINDOW ? await import("./bootWiki") : await import("./boot");
 boot();

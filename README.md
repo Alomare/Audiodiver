@@ -9,7 +9,7 @@
   <img alt="Mods for Helldivers 2" src="https://img.shields.io/badge/mods%20for-Helldivers%202-ffe81f?style=flat-square">
   <img alt="License: MPL-2.0" src="https://img.shields.io/badge/license-MPL--2.0-3a3a3a?style=flat-square">
   <!-- the count of LANGUAGES in app/src/i18n.ts, listed under Supported Languages -->
-  <a href="#-supported-languages"><img alt="3 languages" src="https://img.shields.io/badge/languages-3-3a3a3a?style=flat-square"></a>
+  <a href="#-supported-languages"><img alt="6 languages" src="https://img.shields.io/badge/languages-6-3a3a3a?style=flat-square"></a>
   <a href="https://github.com/Alomare/Audiodiver/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/Alomare/Audiodiver?style=flat-square&label=release&color=3a3a3a"></a>
 </p>
 
@@ -125,7 +125,7 @@ command returns.
 
 ### 🌐 Supported Languages
 
-English, Portuguese (Brazil) and Simplified Chinese, for the window, the messages, the Wiki and the names in the
+English, Portuguese (Brazil), Simplified Chinese, French, Spanish and Japanese, for the window, the messages, the Wiki and the names in the
 Library. **Language** in Settings ▸ System picks one. Automatic follows the language Helldivers 2 is set to in Steam,
 then the language of Windows.
 

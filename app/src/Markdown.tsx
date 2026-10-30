@@ -12,7 +12,7 @@
 import { marked, type Token, type Tokens } from "marked";
 import { Fragment, type ReactNode } from "react";
 import { t } from "@lingui/core/macro";
-import { AudioIcon, BuildIcon, ClearIcon, CollapseAllIcon, ExportIcon, ExternalIcon, FillIcon, FillPieceIcon, GearIcon, GuideIcon, HeaderIcon,
+import { AudioIcon, BuildIcon, ClearIcon, CollapseAllIcon, DetachIcon, ExportIcon, ExternalIcon, FillIcon, FillPieceIcon, GearIcon, GuideIcon, HeaderIcon,
   HomeIcon, IdIcon, InfoIcon, LibraryIcon, LinkIcon, NoteIcon, OrderIcon, PlusIcon, ProjectIcon, ResetIcon, SearchIcon, SkipAllIcon, SkipIcon,
   SliceIcon, SoundtrackIcon, TextIcon, ThroughIcon, ToolsIcon, TransitionIcon, UpdatesIcon, WavesIcon } from "./Icons";
 import { COMMANDS, keyLabel, useKeymap, type CommandId } from "./keys";
@@ -69,7 +69,7 @@ const CALLOUT_NAME: Record<string, string> = {
 const REF = /\{(key|icon):(\w+)\}/g;
 /** The icons a page can show in its text, so it can point at them as they look on screen. */
 const ICONS: Record<string, () => ReactNode> = {
-  link: LinkIcon, collapse: CollapseAllIcon,
+  link: LinkIcon, collapse: CollapseAllIcon, detach: DetachIcon,
   home: HomeIcon, library: LibraryIcon, audio: AudioIcon, soundtrack: SoundtrackIcon, text: TextIcon, build: BuildIcon, updates: UpdatesIcon,
   wiki: GuideIcon, settings: GearIcon, info: InfoIcon, note: NoteIcon, project: ProjectIcon, tools: ToolsIcon,
   fill: FillIcon, fillpiece: FillPieceIcon, slice: SliceIcon, export: ExportIcon, skip: SkipIcon, skipall: SkipAllIcon, clear: ClearIcon,
