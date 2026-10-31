@@ -62,3 +62,33 @@ Pour ces raisons, réglez le Make-Up Gain à l’oreille **dans le jeu**, aux mo
 > Si un morceau a besoin d’un coup de pouce, augmentez les emplacements de +4 dB à la fois et écoutez dans le jeu après chaque étape.
 
 **Ajouter l’analyse de sonie Wwise** dans l’onglet [Générer](app:build) nécessite une installation de Wwise. Elle ne change rien d’audible et est désactivée par défaut.
+
+## Filtres {#filters}
+
+Le **passe-bas** assourdit un son et le **passe-haut** l’amincit, de 0 à 100, dans les détails de n’importe quel slot, avec du nouvel audio ou l’original. Ils s’ajoutent aux réglages du jeu, et un son peut avoir 100 au maximum.
+
+C’est le jeu qui les applique, donc les aperçus et les formes d’onde d’Audiodiver sont joués sans eux. Pour entendre le changement, compilez le mod et écoutez en jeu.
+
+## Fondus {#fades}
+
+Le **fondu d’entrée** et le **fondu de sortie** sont en millisecondes, dans les détails d’un slot avec du nouvel audio. Ils sont intégrés à l’audio lui-même, donc la forme d’onde et l’aperçu les montrent, et la durée ne change pas. Un `.wem` qui passerait sans changement est encodé à nouveau quand il a un fondu.
+
+## Filtre radio {#radio-filter}
+
+Le son radio de certaines voix n’est pas dans leurs fichiers. Les répliques passent par un effet radio dans le mixage du jeu, donc le nouvel audio de ces voix reçoit le même effet. La section **Filtre radio** de l’onglet [Projet](app:project) le désactive, voix par voix, dans toutes les langues :
+
+- **Donneur de mission**
+- **L’Amiral**
+- **Aigle 1**
+- **Pélican 1**
+- **Helldivers**, pour les coéquipiers à la radio et tout le monde dans un véhicule
+
+Un mod peut se limiter à cela, sans nouvel audio.
+
+Les voix nettes sortent plus fort. **Normaliser le volume** les baisse à peu près au niveau de la radio.
+
+Le mixage est dans la banque Init du jeu, par laquelle passent tous les sons, donc le mod en contient une copie avec ces seuls changements :
+
+- Un seul mod peut contenir Init. Avec deux, le dernier l’emporte. [Combiner](wiki:combining-mods) garde les réglages radio de chaque mod dans un seul Init.
+- Après une mise à jour du jeu, compilez à nouveau le mod, sinon un changement du mixage manque pour tous les sons. La [vérification des mods installés](wiki:game-updates) signale un ancien Init.
+- Cela ne change que votre jeu. Les autres joueurs entendent ce que joue leur jeu.

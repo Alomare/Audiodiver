@@ -2162,6 +2162,13 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .st-lines.dragging .st-new:not(.lifting) { transition: transform var(--t2) var(--ease); }
 .st-new.lifting { position: relative; z-index: 4; box-shadow: 0 6px 18px var(--shadow); }
 .st-none { color: var(--faint); font-size: calc(13px * var(--fs)); }
+.st-none.st-silent { flex: 1; }
+.insp-filter, .insp-fade { display: flex; align-items: center; gap: 10px; margin-top: 6px; font-size: calc(13px * var(--fs)); }
+.insp-filter > span:first-child, .insp-fade > span:first-child { flex: none; min-width: 5.5em; color: var(--muted); }
+.insp-filter .r-fader { flex: 1; min-width: 0; }
+.insp-filter .val { flex: none; min-width: 2em; text-align: right; font-variant-numeric: tabular-nums; }
+.insp-fade .val { margin-left: auto; }
+.set-checks { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-bottom: 8px; }
 .st-song { display: flex; flex-direction: column; gap: 10px; }
 .st-songname { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 40ch; }
 .st-drop { padding: 14px 16px; border: 1px dashed var(--line); }

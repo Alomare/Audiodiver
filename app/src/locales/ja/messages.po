@@ -53,6 +53,7 @@ msgid "{after, plural, =1 {Undo the change after this one} other {Undo the # cha
 msgstr "{after, plural, =1 {この後の変更を元に戻す} other {この後の # 件の変更を元に戻す}}"
 
 #: src/CueView.tsx
+#: src/Soundtrack.tsx
 msgid "{also, plural, one {+# bank} other {+# banks}}"
 msgstr "{also, plural, other {+# バンク}}"
 
@@ -497,6 +498,10 @@ msgstr "{name}（サンプル）"
 msgid "{name} at {time}"
 msgstr "{name}（{time}）"
 
+#: src/Inspector.tsx
+msgid "{name} in ms"
+msgstr "{name}（ms）"
+
 #: src/store.tsx
 msgid "{name} moved. Some files stayed in the old folder because they were in use. The project no longer uses them."
 msgstr "{name}を移動しました。一部のファイルは使用中だったため、元のフォルダーに残っています。プロジェクトはそれらを使用しません。"
@@ -536,6 +541,10 @@ msgstr "{others, plural, other {{total} 個のスロットのうち # 個は他�
 #: src/ProjectTab.tsx
 msgid "{others, plural, one {Another project is in this folder and uses the same slices and imported folders.} other {# other projects are in this folder and use the same slices and imported folders.}}"
 msgstr "{others, plural, other {このフォルダーには他に # 個のプロジェクトがあり、同じスライスとインポートしたフォルダーを使っています。}}"
+
+#: src/Soundtrack.tsx
+msgid "{over, plural, one {# song left over} other {# songs left over}}."
+msgstr "{over, plural, other {# 曲が余りました}}。"
 
 #: src/Soundtrack.tsx
 msgid "{over, plural, one {# song left over} other {# songs left over}}. This music has {total, plural, one {# place} other {# places}}."
@@ -1879,6 +1888,10 @@ msgstr "現在のサウンドバンクで1つのMODをビルドします。"
 msgid "Built {file} ({mb} MB)."
 msgstr "{file}（{mb} MB）をビルドしました。"
 
+#: src/Inspector.tsx
+msgid "Built into the new audio, so the waveform and the preview show them. An audio file that would go in unchanged is encoded again"
+msgstr "新しい音声に書き込まれるため、波形とプレビューに反映されます。そのまま使われる音声ファイルは再エンコードされます"
+
 #. Credits: who made the work named before
 #: src/About.tsx
 msgid "by {author}"
@@ -2283,6 +2296,10 @@ msgstr "ここで選択しました。"
 #: src/ProjectTab.tsx
 msgid "Circle"
 msgstr "円"
+
+#: src/ProjectTab.tsx
+msgid "Clean voices come out louder. This turns them down to about the level of the radio"
+msgstr "クリーンな音声は大きく聞こえます。これは無線に近い音量まで下げます"
 
 #. Button: deletes these files
 #. Button: deletes these files
@@ -2932,6 +2949,7 @@ msgid "Drop audio on the slot."
 msgstr "スロットに音声をドロップしてください。"
 
 #: src/CueView.tsx
+#: src/Soundtrack.tsx
 msgid "Drop Audio or Choose a File"
 msgstr "音声をドロップ、またはファイルを選択"
 
@@ -3063,6 +3081,10 @@ msgstr "音楽が流れるたびに、最初にオープニングのいずれか
 #: src/Soundtrack.tsx
 msgid "Each time the music comes on, one of the openings plays first, then the songs."
 msgstr "音楽が流れるたびに、最初にオープニングのいずれかが再生され、その後曲が再生されます。"
+
+#: src/ProjectTab.tsx
+msgid "Eagle-1"
+msgstr "イーグル1"
 
 #: src/Notes.tsx
 msgid "Edit the note"
@@ -3286,6 +3308,18 @@ msgstr "{title}をエクスポート中"
 msgid "Exports of the original are for reference and mod work. Don't upload them."
 msgstr "オリジナルのエクスポートは参考用とMOD制作用です。アップロードしないでください。"
 
+#: src/Inspector.tsx
+msgid "Fade In"
+msgstr "フェードイン"
+
+#: src/Inspector.tsx
+msgid "Fade Out"
+msgstr "フェードアウト"
+
+#: src/Inspector.tsx
+msgid "Fades"
+msgstr "フェード"
+
 #. A job's state in the Build tab's log, such as: Build: My Mod, failed, 12 s
 #: src/BuildTab.tsx
 msgid "failed"
@@ -3379,6 +3413,10 @@ msgstr "再生順に{n, plural, other {# 個のスロット}}へ、ファイル�
 #: src/CueView.tsx
 msgid "Fills leave it out"
 msgstr "一括割り当てでは除外されます"
+
+#: src/Inspector.tsx
+msgid "Filters"
+msgstr "フィルター"
 
 #: src/App.tsx
 #: src/SettingsTab.tsx
@@ -3650,6 +3688,10 @@ msgstr "ヘッダー"
 msgid "Heading"
 msgstr "見出し"
 
+#: src/ProjectTab.tsx
+msgid "Helldivers"
+msgstr "ヘルダイバー"
+
 #. Helldivers 2 Modding is the name of the Discord server
 #: src/About.tsx
 #: src/Home.tsx
@@ -3682,6 +3724,10 @@ msgstr "波形を隠す"
 #: src/SettingsTab.tsx
 msgid "High"
 msgstr "高"
+
+#: src/Inspector.tsx
+msgid "High-Pass"
+msgstr "ハイパス"
 
 #: src/SettingsTab.tsx
 msgid "High, because the system asks for more contrast."
@@ -4285,6 +4331,14 @@ msgstr "ファイルやミックスを変えずに、音量を上げ下げしま
 msgid "Louder or quieter, without changing the file or the mix. Added to the {gain} dB the game gives this sound."
 msgstr "ファイルやミックスを変えずに、音量を上げ下げします。ゲームがこのサウンドに設定している{gain} dBに加算されます。"
 
+#: src/Inspector.tsx
+msgid "Low-Pass"
+msgstr "ローパス"
+
+#: src/Inspector.tsx
+msgid "Low-Pass dulls the sound and High-Pass thins it. They add to what the game sets. The game applies them, so previews here play without them"
+msgstr "ローパスは音をこもらせ、ハイパスは音を細くします。ゲームの設定に加算されます。適用するのはゲームなので、ここのプレビューには反映されません"
+
 #. The bar of main tabs, for screen readers
 #: src/App.tsx
 msgid "Main"
@@ -4387,6 +4441,12 @@ msgstr "保存の間隔（分）"
 msgid "Missing: {name}"
 msgstr "見つかりません：{name}"
 
+#: src/ProjectTab.tsx
+msgid "Mission Control"
+msgstr "管制部"
+
+#. The selected slots have different values
+#. The selected slots have different values
 #. The selected slots have different values
 #. The selected slots have different values
 #: src/Inspector.tsx
@@ -4976,6 +5036,10 @@ msgid "Normal"
 msgstr "標準"
 
 #: src/ProjectTab.tsx
+msgid "Normalize the loudness"
+msgstr "音量を正規化"
+
+#: src/ProjectTab.tsx
 msgid "Not an Audiodiver project, or damaged"
 msgstr "Audiodiverのプロジェクトではないか、破損しています"
 
@@ -5230,6 +5294,14 @@ msgstr "ランダムに1つ"
 msgid "one of several"
 msgstr "複数のうちの1つ"
 
+#: src/Soundtrack.tsx
+msgid "One of the openings plays each time the music comes on"
+msgstr "音楽が流れるたびにオープニングのいずれかが再生されます"
+
+#: src/Soundtrack.tsx
+msgid "One of the openings starts each fight"
+msgstr "各戦闘はオープニングのいずれかで始まります"
+
 #: src/PlayThrough.tsx
 msgid "One round of the playlist, top to bottom. Play order shows how the game plays it"
 msgstr "プレイリストを上から下まで1周します。ゲームでの再生のしかたは「再生順」に表示されます"
@@ -5423,6 +5495,10 @@ msgstr "ライブラリを開く"
 #: src/Inspector.tsx
 msgid "Open the subtitle in the Text tab"
 msgstr "テキストタブで字幕を開く"
+
+#: src/Soundtrack.tsx
+msgid "Openings"
+msgstr "オープニング"
 
 #: src/About.tsx
 #: src/Home.tsx
@@ -5667,6 +5743,10 @@ msgstr "通し再生を一時停止 · 置き換え済み"
 msgid "Pause the original {slot}"
 msgstr "オリジナルの{slot}を一時停止"
 
+#: src/ProjectTab.tsx
+msgid "Pelican-1"
+msgstr "ペリカン1"
+
 #. The nth piece of the song cut into the segments (One Song)
 #: src/Soundtrack.tsx
 msgid "piece {n}"
@@ -5867,6 +5947,10 @@ msgstr "プレイリスト"
 #: src/store.tsx
 msgid "playlist order"
 msgstr "プレイリストの順序"
+
+#: src/Soundtrack.tsx
+msgid "Plays after the song"
+msgstr "曲の後に再生"
 
 #: src/Soundtrack.tsx
 msgid "Plays again and again until the music changes"
@@ -6093,6 +6177,10 @@ msgstr "静かな探索"
 msgid "Quiet Exploring: every Exploring set to Silent"
 msgstr "静かな探索：すべての「探索」を「無音」に設定"
 
+#: src/ProjectTab.tsx
+msgid "Radio Filter"
+msgstr "無線フィルター"
+
 #: src/BuildTab.tsx
 msgid "Raise the version after each build"
 msgstr "ビルドのたびにバージョンを上げる"
@@ -6302,6 +6390,10 @@ msgstr "プロジェクトにある {count} 件を削除"
 #: src/IndexTree.tsx
 msgid "Remove the {count} in the Project"
 msgstr "プロジェクトにある {count} 件を削除"
+
+#: src/Soundtrack.tsx
+msgid "Remove the audio"
+msgstr "音声を削除"
 
 #: src/CueView.tsx
 msgid "Remove the new audio"
@@ -7064,6 +7156,7 @@ msgid "Skip All {count}"
 msgstr "{count} 件すべてスキップ"
 
 #: src/CueView.tsx
+#: src/Soundtrack.tsx
 msgid "Skip it"
 msgstr "スキップ"
 
@@ -7362,6 +7455,10 @@ msgstr "MODが置き換え・追加する音声を、音量や遅延などのサ
 msgid "Taller, to see quiet audio. It plays as loud as before. Ctrl+wheel on the waveforms zooms too"
 msgstr "高くすると小さな音も見やすくなります。再生音量は変わりません。波形上でCtrl+ホイールを使ってもズームできます"
 
+#: src/ProjectTab.tsx
+msgid "Teammates on the radio, and anyone in a vehicle"
+msgstr "無線の味方、および車両内の全員"
+
 #: src/content.ts
 msgid "telling grunts, breaths and laughs from words"
 msgstr "うなり声、息づかい、笑い声と言葉の判別"
@@ -7472,6 +7569,10 @@ msgstr "**インデックス**は、ゲームのサウンドを聞こえる場�
 #: src/Soundtrack.tsx
 msgid "The <0>Battle</0> music plays on here, from where it is."
 msgstr "<0>バトル</0>の音楽が、その時点の位置からここで流れ続けます。"
+
+#: src/ProjectTab.tsx
+msgid "The Admiral"
+msgstr "提督"
 
 #: src/ExportDialog.tsx
 msgid "The audio before Entry and after Exit. When this is off, the pieces sit end to end without overlap."
@@ -7962,6 +8063,10 @@ msgstr "プロジェクトは使用するすべてのファイルを引き続き
 msgid "The project's order and audio"
 msgstr "プロジェクトの順序と音声"
 
+#: src/ProjectTab.tsx
+msgid "The radio sound isn't in the voice files, so new audio goes through it too. Tick a voice to play it clean, in every language"
+msgstr "無線の音は音声ファイルに含まれていないため、新しい音声も同じ処理を通ります。音声にチェックを入れると、すべての言語でクリーンに再生されます"
+
 #: src/TextTab.tsx
 msgid "The recordings that say this subtitle. Open one in the Library to hear it or replace it"
 msgstr "この字幕を話している録音です。ライブラリで開くと、聞いたり置き換えたりできます"
@@ -8160,6 +8265,10 @@ msgstr "インデックスでは、このバンクは{sets}です。"
 msgid "This clip isn't in the installed game files, so there is nothing to play or replace."
 msgstr "このクリップはインストールされたゲームファイルにないため、再生や置き換えはできません。"
 
+#: src/ProjectTab.tsx
+msgid "This mod carries the Init bank, which every sound goes through. Only one mod can carry it, so with two the last one wins."
+msgstr "このModはすべての音が通るInitバンクを含みます。含められるModは1つだけで、2つあると最後のものが優先されます。"
+
 #: src/Inspector.tsx
 msgid "this music track"
 msgstr "この音楽トラック"
@@ -8167,6 +8276,10 @@ msgstr "この音楽トラック"
 #: src/ProjectTab.tsx
 msgid "This project is in a shared place, such as the Desktop or Documents."
 msgstr "このプロジェクトは、デスクトップやドキュメントなどの共有の場所にあります。"
+
+#: src/Soundtrack.tsx
+msgid "This segment holds no audio that can be replaced"
+msgstr "このセグメントには置き換えられる音声がありません"
 
 #: src/Soundtrack.tsx
 msgid "This segment holds no audio that can be replaced. Places without a song don't play"

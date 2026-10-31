@@ -28,7 +28,7 @@ import zlib
 from dataclasses import dataclass, field
 from importlib import resources
 
-from . import music
+from . import music, radio
 from . import bank as wbank
 from .bank import MUSIC_TRACK, SOUND
 from .i18n import ntr, tr
@@ -658,6 +658,7 @@ class Found:
     cues: dict = field(default_factory=dict)      # {segment: (its cue points, the new audio's clips it plays)} (cue_points)
     curves: dict = field(default_factory=dict)    # {the game's MusicTrack: the mod's curves on it} (Project.curves)
     curves_off: set = field(default_factory=set)  # the game's clips whose volume curves the mod takes away
+    radio: radio.Plan = field(default_factory=lambda: radio.Plan(set(), False))  # the radio filters its Init takes off
 
 
 NO_HISTORY = (frozenset(), frozenset(), {})
@@ -980,6 +981,9 @@ def from_patch(ix, d: dict) -> Found:
             names_older = lambda body: any(struct.unpack_from("<I", body, k)[0] in older for k in range(len(body) - 3))
             explained.update(i for _, i in b["objects"] if i not in explained and names_older(hirc[i][1]))
         out.older |= as_was - merged
+        if ix.banks[bid].get("path") == radio.INIT_PATH:
+            out.radio, buses = radio.read_mod(hirc, vanilla)
+            explained |= buses
         other = [i for t, i in b["objects"] if i not in explained]
         if other:  # settings such as effects, positioning or how a container picks sounds
             out.other[bid] = len(other)

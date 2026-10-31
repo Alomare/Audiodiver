@@ -11,7 +11,8 @@ Project.soundtrack sets each playlist one way (Piece.mode):
 
     original  the game's tree, without the items left out (Piece.left_out: playlist item ids)
     song      Piece.segments play in that order from the first, every time the music starts; the entry group stays.
-              Piece.song is the file they were cut from, so the cuts can be changed
+              Piece.song is the file they were cut from, so the cuts can be changed. Piece.added are segments with a
+              file of their own, which play after the pieces and stay when the song is cut again
     tracks    the same, with a whole song in each segment, in order or in a random order (Piece.shuffle), from the
               first song at every start or going on with the next one (Piece.resume); a rule that waits for a
               segment's Exit leaves a track at the next bar instead, with a fade
@@ -49,6 +50,7 @@ class Piece:
     follows: int = 0                                     # same: the playlist that plays instead
     gain_db: float = 0.0                                 # the level of the whole piece
     song: str = ""                                       # song: the file cut into the segments (a project path)
+    added: list[int] = field(default_factory=list)       # song: the segments that aren't pieces of it, as they stand
 
     def to_json(self) -> dict:
         out = {"mode": self.mode}
@@ -66,6 +68,8 @@ class Piece:
             out["gain_db"] = self.gain_db
         if self.song:
             out["song"] = self.song
+        if self.added:
+            out["added"] = [str(s) for s in self.added]
         return out
 
     @classmethod
@@ -81,7 +85,8 @@ class Piece:
         if not isinstance(song, str):
             raise ValueError("the song of a piece")
         return cls(d.get("mode", "original"), ids("segments"), ids("left_out"), d.get("shuffle") is True,
-                   d.get("resume") is True, int(d.get("follows", 0)), max(gain[0], min(gain[1], float(g))), song)
+                   d.get("resume") is True, int(d.get("follows", 0)), max(gain[0], min(gain[1], float(g))), song,
+                   ids("added"))
 
     def plain(self) -> bool:
         """Nothing set: the game's own playlist at the game's level."""
@@ -156,6 +161,12 @@ def song_segments(root: music.PlaylistItem, entry: int = 0) -> list[int]:
         for c in n.children:
             yield from outside(c)
     return list(dict.fromkeys(outside(root)))
+
+
+def opening_segments(root: music.PlaylistItem, entry: int = 0) -> list[int]:
+    """The segments a song leaves alone, in the order they first come: the openings."""
+    fills = set(song_segments(root, entry))
+    return [s for s in segments_in_order(root) if s not in fills]
 
 
 def _fresh(root: music.PlaylistItem) -> int:

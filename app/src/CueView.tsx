@@ -990,7 +990,7 @@ function SlotId({ slot }: { slot: Slot }) {
 
 /** A tag saying the audio is linked to other places: the same sound plays in other cues or banks, so replacing it
     changes it there too. The chain says "linked" before the words are read. */
-function Linked({ children, tip = t`Linked to other places. New audio here plays there too` }: { children: React.ReactNode; tip?: string }) {
+export function Linked({ children, tip = t`Linked to other places. New audio here plays there too` }: { children: React.ReactNode; tip?: string }) {
   return <span className="tag linked" data-tip={tip}><LinkIcon />{children}</span>;
 }
 
@@ -1004,8 +1004,8 @@ function OtherBanks({ n }: { n: number }) {
 }
 
 /** "+3 more" and "+3 cues" on a slot's line: the other places that play the audio, where not all of them are banks. */
-const moreTag = (also: number) => t({ message: `+${also} more`, comment: "Tag on a slot: how many other places play the same audio" });
-const cuesTag = (also: number) => plural(also, { one: "+# cue", other: "+# cues" });
+export const moreTag = (also: number) => t({ message: `+${also} more`, comment: "Tag on a slot: how many other places play the same audio" });
+export const cuesTag = (also: number) => plural(also, { one: "+# cue", other: "+# cues" });
 
 /** Counts the changes of a value after the first render; a new count replays the flash that shows what an edit
     (a fill, a paste, a move, an undo) just changed. */

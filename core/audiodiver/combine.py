@@ -270,6 +270,8 @@ class Part:
     cues: dict = field(default_factory=dict)      # {segment: (its cue points, the new audio's clips it plays)}
     curves: dict = field(default_factory=dict)    # {MusicTrack: the mod's curves} (a later mod's go over an earlier one's)
     curves_off: set = field(default_factory=set)  # clips whose volume curves the mod takes away
+    radio_off: set = field(default_factory=set)   # the voices whose radio filter the mod takes off (radio.FAMILIES)
+    radio_quieter: bool = False
     files: dict = field(default_factory=dict)     # clip -> its WAV (its encoding is cached: build.keep_encoding)
     skipped: int = 0
     texts: int = 0    # string tables in the patch
@@ -285,7 +287,8 @@ def part_of(got, replaced: dict, files: dict, skipped: int) -> Part:
                 own_prints={s: fingerprint(w) for s, clip, w in got.own if clip in files},
                 settings={o: dict(s) for o, s in got.settings.items()}, left=list(got.left), stale=set(got.stale),
                 older=set(got.older), banks=set(got.banks), cues=dict(got.cues), curves=dict(got.curves),
-                curves_off=set(got.curves_off), files=dict(files), skipped=skipped)
+                curves_off=set(got.curves_off), radio_off=set(got.radio.off), radio_quieter=got.radio.quieter,
+                files=dict(files), skipped=skipped)
 
 
 @dataclass

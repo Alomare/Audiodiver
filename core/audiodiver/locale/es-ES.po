@@ -181,6 +181,10 @@ msgstr[0] "{replacements} -> {n} banco parcheado"
 msgstr[1] "{replacements} -> {n} bancos parcheados"
 
 #: build.py
+msgid "radio filter: this game version has changed some of those buses, so they keep the filter"
+msgstr "filtro de radio: esta versión del juego ha cambiado algunos de esos buses, así que conservan el filtro"
+
+#: build.py
 msgid "verified ({seconds}s)"
 msgstr "verificado ({seconds} s)"
 
@@ -203,6 +207,12 @@ msgid "gain: {n} sound with Make-Up Gain on the original is not in this game ver
 msgid_plural "gain: {n} sounds with Make-Up Gain on the original are not in this game version; left out"
 msgstr[0] "ganancia: {n} sonido con Make-Up Gain en el original no está en esta versión del juego; omitido"
 msgstr[1] "ganancia: {n} sonidos con Make-Up Gain en el original no están en esta versión del juego; omitidos"
+
+#: build.py
+msgid "filters: {n} sound with a filter is not in this game version; left out"
+msgid_plural "filters: {n} sounds with a filter are not in this game version; left out"
+msgstr[0] "filtros: {n} sonido con filtro no está en esta versión del juego; omitido"
+msgstr[1] "filtros: {n} sonidos con filtro no están en esta versión del juego; omitidos"
 
 #: build.py
 msgid "Since the last game update, the game uses some IDs that the added audio also uses ({ids}). Remove that audio and add it again."
@@ -299,6 +309,18 @@ msgstr[0] "curvas de volumen cambiadas en {n} pista de música"
 msgstr[1] "curvas de volumen cambiadas en {n} pistas de música"
 
 #: build.py
+msgid "filters on {n} object"
+msgid_plural "filters on {n} objects"
+msgstr[0] "filtros en {n} objeto"
+msgstr[1] "filtros en {n} objetos"
+
+#: build.py
+msgid "radio filter off on {n} bus"
+msgid_plural "radio filter off on {n} buses"
+msgstr[0] "filtro de radio desactivado en {n} bus"
+msgstr[1] "filtro de radio desactivado en {n} buses"
+
+#: build.py
 msgid "{n} file besides audio (text, models, textures...) carried as it was"
 msgid_plural "{n} files besides audio (text, models, textures...) carried as they were"
 msgstr[0] "{n} fichero aparte del audio (texto, modelos, texturas...) conservado tal cual"
@@ -361,12 +383,12 @@ msgid "Icon: {why}"
 msgstr "Icono: {why}"
 
 #: build.py
-msgid "{name}: sound {id} isn't in this version of the game"
-msgstr "{name}: el sonido {id} no está en esta versión del juego"
-
-#: build.py
 msgid "{name}: can't read the audio in {file}"
 msgstr "{name}: no se puede leer el audio de {file}"
+
+#: build.py
+msgid "{name}: sound {id} isn't in this version of the game"
+msgstr "{name}: el sonido {id} no está en esta versión del juego"
 
 #: build.py
 msgid "text: table {table} is not in this game version; the {n} line changed in it is left out"
@@ -725,6 +747,10 @@ msgid "Choose the pieces of music to set"
 msgstr "Elige las piezas de música que definir"
 
 #: editor.py
+msgid "Choose the songs"
+msgstr "Elige las canciones"
+
+#: editor.py
 msgid "Set this music to another mode first"
 msgstr "Primero cambia esta música a otro modo"
 
@@ -735,10 +761,6 @@ msgstr "Elige la música que definir"
 #: editor.py
 msgid "No other music to set"
 msgstr "No hay otra música que definir"
-
-#: editor.py
-msgid "Choose the songs"
-msgstr "Elige las canciones"
 
 #: editor.py
 msgid "The export list can't be read. Clear it and add the items again."
@@ -989,6 +1011,12 @@ msgstr[0] "{n} curva de volumen del mod"
 msgstr[1] "{n} curvas de volumen del mod"
 
 #: editor.py
+msgid "radio filter off for {n} voice, from the mod"
+msgid_plural "radio filter off for {n} voices, from the mod"
+msgstr[0] "filtro de radio desactivado en {n} voz, desde el mod"
+msgstr[1] "filtro de radio desactivado en {n} voces, desde el mod"
+
+#: editor.py
 msgid "Decoding {n} of {total}"
 msgstr "Decodificando {n} de {total}"
 
@@ -1113,6 +1141,10 @@ msgstr "No se pudo guardar el audio copiado: {why}"
 #: editor.py
 msgid "Make-Up Gain goes from {low} to {high} dB"
 msgstr "Make-Up Gain va de {low} a {high} dB"
+
+#: editor.py
+msgid "A fade is from 0 to {ms} ms"
+msgstr "Un fundido va de 0 a {ms} ms"
 
 #: editor.py
 msgid "{file} can't be read, so global notes can't be shown or saved. Fix or move the file, or choose another folder in Settings ▸ System."
@@ -2049,6 +2081,10 @@ msgid "Fit timing for {name}"
 msgstr "Ajustar los tiempos de {name}"
 
 #: project.py
+msgid "the fades of {name}"
+msgstr "los fundidos de {name}"
+
+#: project.py
 msgid "the label of sound {id}"
 msgstr "la etiqueta del sonido {id}"
 
@@ -2059,6 +2095,10 @@ msgstr "el Make-Up Gain del sonido {id}"
 #: project.py
 msgid "Fit timing for sound {id}"
 msgstr "Ajustar los tiempos del sonido {id}"
+
+#: project.py
+msgid "the fades of sound {id}"
+msgstr "los fundidos del sonido {id}"
 
 #: project.py
 msgid "mod ID: damaged in the project file (Make a New ID, on the Project tab)"
@@ -2093,6 +2133,10 @@ msgid "the build folder"
 msgstr "la carpeta de generación"
 
 #: project.py
+msgid "the radio filters"
+msgstr "los filtros de radio"
+
+#: project.py
 msgid "icon: image not found ({path})"
 msgstr "icono: no se encuentra la imagen ({path})"
 
@@ -2123,6 +2167,10 @@ msgstr "segmento {id}: anulaciones desconocidas {keys}"
 #: project.py
 msgid "the imported mods' banks"
 msgstr "los bancos de los mods importados"
+
+#: project.py
+msgid "the filters of sound {id}"
+msgstr "los filtros del sonido {id}"
 
 #: projectfiles.py
 msgid "Another project in this folder can't be read, so it isn't known which files it uses"

@@ -374,7 +374,7 @@ function useEditorState() {
     // previews and waveforms are fetched again only when the audio itself may have changed: another file, silence,
     // the icon, or files chosen again (they may have been rewritten on disk: a song cut again). A gain or a cue point
     // keeps them.
-    const sig = p ? JSON.stringify([Object.entries(p.assignments).map(([s, a]) => [s, a.audio, a.silence, a.exists, a.duration_ms]), p.icon]) : "";
+    const sig = p ? JSON.stringify([Object.entries(p.assignments).map(([s, a]) => [s, a.audio, a.silence, a.exists, a.duration_ms, a.fade_in_ms, a.fade_out_ms]), p.icon]) : "";
     if (sig !== audioSig.current || (changed && ["assign", "fill", "import", "song", "playlist"].includes(p?.undo_label ?? ""))) {
       audioSig.current = sig;
       setRevision((r) => r + 1);
@@ -1028,6 +1028,14 @@ function useEditorState() {
     async originalGain(sources: string[], gain_db: number) {
       edited(await run<ProjectState>("original_gain", { sources, gain_db }));
     },
+    /** Low-Pass and High-Pass on slots, with new audio or without; a filter left out stays as it is. */
+    async setFilters(sources: string[], filters: { lowpass?: number; highpass?: number }) {
+      if (needProject()) edited(await run<ProjectState>("filters_set", { sources, ...filters }));
+    },
+    /** Fades on the new audio of slots; a fade left out stays as it is. */
+    async setFades(sources: string[], fades: { fade_in_ms?: number; fade_out_ms?: number }) {
+      if (needProject()) edited(await run<ProjectState>("fades_set", { sources, ...fades }));
+    },
     /** Whether the clips of slots keep their volume curves: the line over the waveform. */
     async keepCurve(sources: string[], keep: boolean) {
       if (needProject()) edited(await run<ProjectState>("keep_curve", { sources, keep }));
@@ -1119,6 +1127,13 @@ function useEditorState() {
       if (done) quick(done);
       return true;
     },
+    /** Audio for the segments One Song and Playlist leave free (core segments_set): each a file, or null to take it out. */
+    async segmentsSet(cue: string, files: Record<string, string | null>, done?: string) {
+      if (!needProject()) return false;
+      if (!edited(await run<ProjectState>("segments_set", { cue, files }))) return false;
+      if (done) quick(done);
+      return true;
+    },
     /** Sets other music as this one is set (core soundtrack_copy): `to` maps each to what it follows (Same as Battle)
         or null. `what` names them for the note. */
     async soundtrackCopy(cue: string, to: Record<string, string | null>, what: string) {
@@ -1204,7 +1219,7 @@ function useEditorState() {
         return;
       }
       if (!Object.keys(fresh.assignments).length && !Object.keys(fresh.gains ?? {}).length && !fresh.texts.length && !Object.keys(fresh.soundtrack ?? {}).length
-        && !fresh.curves_off.length && !fresh.curves) {
+        && !fresh.curves_off.length && !fresh.curves && !Object.keys(fresh.filters ?? {}).length && !fresh.radio_off.length) {
         notify("info", t`Nothing to build yet. Replace some audio, set a piece in the Soundtrack or change a line of text first.`);
         return;
       }

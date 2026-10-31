@@ -88,6 +88,7 @@ export const isMusic = (cue: { kind: string }) => cue.kind !== "sounds" && cue.k
 export type Assignment = {
   target: string; audio: string; label: string; gain_db: number; fit_timing: boolean; exists: boolean;
   name: string; cues: string[];
+  fade_in_ms: number; fade_out_ms: number; // fades baked into the new audio
   silence: boolean; // plays the built-in silence: with fit_timing the game moves straight on, else it keeps its timing
   duration_ms: number | null; // the file's length
   file_segments: number; // the music segments that play the file, in this slot and others (0 for silence)
@@ -140,7 +141,7 @@ export type ArchiveRow = {
 export type Piece = {
   mode: "original" | "song" | "tracks" | "silent" | "same";
   segments?: string[]; left_out?: string[]; shuffle?: boolean; resume?: boolean; follows?: string; gain_db?: number;
-  song?: string;
+  song?: string; added?: string[];
 };
 /** A node of a playlist (core soundtrack.as_dict): a segment, or a group that plays its children in order (rs 0), the
     next one each time (1), all in a random order (2) or one at random (3). loop: how often it plays, 0 for ever. */
@@ -149,7 +150,7 @@ export type PlayNode = { item: string; loop: number; segment?: string; rs?: numb
     game's), the item the music starts on ("0": the top), the segments a song fills, and each segment's name and
     length from Entry to Exit. */
 export type PlaylistMap = {
-  cue: string; tree: PlayNode; mine: PlayNode | null; entry: string; song: string[];
+  cue: string; tree: PlayNode; mine: PlayNode | null; entry: string; song: string[]; openings: string[];
   segments: Record<string, { name: string; ms: number }>; piece: Piece;
 };
 /** Where an id leads (core Library.places): the cue to open, the slot to select in it, the item it is listed under
@@ -186,6 +187,9 @@ export type ProjectState = {
   assignments: Record<string, Assignment>; unresolved: { target: string; audio: string; label: string }[];
   gains: Record<string, number>;    // Make-Up Gain on the original audio, by source; new audio's own applies while it is there
   curves_off: string[];             // the clips played without their volume curves, by source
+  filters: Record<string, [number, number]>; // Low-Pass and High-Pass on a slot, by source
+  radio_off: string[];              // the voices without their radio filter (core radio.FAMILIES)
+  radio_quieter: boolean;           // those voices turned down to about the radio's level
   curves: number;                   // how many music tracks have an imported mod's curves
   library: string[];               // what the project works on: Index items and archives ("archive:<name>"), as added
   library_missing: string[];        // of what it lists, the ones this game version has nothing for

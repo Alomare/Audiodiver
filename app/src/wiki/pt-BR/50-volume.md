@@ -62,3 +62,33 @@ Por esses motivos, defina o Make-Up Gain de ouvido, **no jogo**, nos momentos al
 > Se uma peça precisar de um reforço, aumente os slots em +4 dB de cada vez e ouça no jogo depois de cada passo.
 
 **Adicionar a análise de volume percebido do Wwise** na aba [Gerar](app:build) exige uma instalação do Wwise. Não faz diferença audível e vem desligado por padrão.
+
+## Filtros {#filters}
+
+**Low-Pass** abafa um som e **High-Pass** o deixa mais fino, de 0 a 100, nos detalhes de qualquer slot, com áudio novo ou o original. Eles somam ao que o jogo define, e o máximo que um som pode ter é 100.
+
+Quem os aplica é o jogo, então as prévias e as formas de onda do Audiodiver tocam sem eles. Para ouvir a mudança, construa o mod e escute no jogo.
+
+## Fades {#fades}
+
+**Fade In** e **Fade Out** ficam em milissegundos, nos detalhes de um slot com áudio novo. Eles entram no próprio áudio, então a forma de onda e a prévia os mostram, e a duração não muda. Um `.wem` que entraria sem alteração é codificado de novo quando tem um fade.
+
+## Filtro de rádio {#radio-filter}
+
+O som de rádio de algumas vozes não está nos arquivos delas. As falas passam por um efeito de rádio na mixagem do jogo, então o áudio novo dessas vozes recebe o mesmo efeito. A seção **Filtro de rádio** da aba [Projeto](app:project) o desliga, uma voz por vez, em todos os idiomas:
+
+- **Controle da missão**
+- **O Almirante**
+- **Águia 1**
+- **Pelicano 1**
+- **Helldivers**, para companheiros no rádio e qualquer um em um veículo
+
+Um mod pode ser só isso, sem áudio novo.
+
+Vozes limpas saem mais altas. **Normalizar o volume** as abaixa para perto do nível do rádio.
+
+A mixagem fica no banco Init do jogo, por onde passa todo som, então o mod carrega uma cópia só com essas mudanças:
+
+- Só um mod pode carregar o Init. Com dois, o último vence. [Combinar](wiki:combining-mods) mantém os ajustes de rádio de cada mod em um único Init.
+- Depois de uma atualização do jogo, construa o mod de novo, ou uma mudança na mixagem se perde para todos os sons. A [verificação de mods instalados](wiki:game-updates) aponta um Init antigo.
+- Isso muda só o seu jogo. Os outros jogadores ouvem o que o jogo deles toca.

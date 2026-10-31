@@ -173,6 +173,10 @@ msgid_plural "{replacements} -> {n} banks patched"
 msgstr[0] "{replacements} -> {n} 個のバンクにパッチを適用"
 
 #: build.py
+msgid "radio filter: this game version has changed some of those buses, so they keep the filter"
+msgstr "無線フィルター：このゲームバージョンで一部のバスが変更されたため、フィルターは残ります"
+
+#: build.py
 msgid "verified ({seconds}s)"
 msgstr "検証済み（{seconds}s）"
 
@@ -193,6 +197,11 @@ msgstr "サウンド {id}"
 msgid "gain: {n} sound with Make-Up Gain on the original is not in this game version; left out"
 msgid_plural "gain: {n} sounds with Make-Up Gain on the original are not in this game version; left out"
 msgstr[0] "Make-Up Gain：オリジナルにMake-Up Gainを設定した {n} 個のサウンドはこのゲームバージョンにないため、除外しました"
+
+#: build.py
+msgid "filters: {n} sound with a filter is not in this game version; left out"
+msgid_plural "filters: {n} sounds with a filter are not in this game version; left out"
+msgstr[0] "フィルター：フィルター付きの音 {n} 個はこのゲームバージョンにないため、除外しました"
 
 #: build.py
 msgid "Since the last game update, the game uses some IDs that the added audio also uses ({ids}). Remove that audio and add it again."
@@ -276,6 +285,16 @@ msgid_plural "volume curves changed on {n} music tracks"
 msgstr[0] "{n} 個の音楽トラックのボリュームカーブを変更"
 
 #: build.py
+msgid "filters on {n} object"
+msgid_plural "filters on {n} objects"
+msgstr[0] "{n} 個のオブジェクトにフィルター"
+
+#: build.py
+msgid "radio filter off on {n} bus"
+msgid_plural "radio filter off on {n} buses"
+msgstr[0] "{n} 個のバスで無線フィルターをオフ"
+
+#: build.py
 msgid "{n} file besides audio (text, models, textures...) carried as it was"
 msgid_plural "{n} files besides audio (text, models, textures...) carried as they were"
 msgstr[0] "音声以外のファイル（テキスト、モデル、テクスチャなど）{n} 個をそのまま引き継ぎ"
@@ -333,12 +352,12 @@ msgid "Icon: {why}"
 msgstr "アイコン：{why}"
 
 #: build.py
-msgid "{name}: sound {id} isn't in this version of the game"
-msgstr "{name}：サウンド {id} はこのバージョンのゲームにありません"
-
-#: build.py
 msgid "{name}: can't read the audio in {file}"
 msgstr "{name}：{file}の音声を読み取れません"
+
+#: build.py
+msgid "{name}: sound {id} isn't in this version of the game"
+msgstr "{name}：サウンド {id} はこのバージョンのゲームにありません"
 
 #: build.py
 msgid "text: table {table} is not in this game version; the {n} line changed in it is left out"
@@ -695,6 +714,10 @@ msgid "Choose the pieces of music to set"
 msgstr "設定する曲を選択してください"
 
 #: editor.py
+msgid "Choose the songs"
+msgstr "曲を選択してください"
+
+#: editor.py
 msgid "Set this music to another mode first"
 msgstr "先にこの音楽を別のモードに設定してください"
 
@@ -705,10 +728,6 @@ msgstr "設定する音楽を選択してください"
 #: editor.py
 msgid "No other music to set"
 msgstr "設定できる他の音楽がありません"
-
-#: editor.py
-msgid "Choose the songs"
-msgstr "曲を選択してください"
 
 #: editor.py
 msgid "The export list can't be read. Clear it and add the items again."
@@ -953,6 +972,11 @@ msgid_plural "{n} volume curves from the mod"
 msgstr[0] "MODのボリュームカーブ {n} 個"
 
 #: editor.py
+msgid "radio filter off for {n} voice, from the mod"
+msgid_plural "radio filter off for {n} voices, from the mod"
+msgstr[0] "Modから：{n} 個の音声で無線フィルターをオフ"
+
+#: editor.py
 msgid "Decoding {n} of {total}"
 msgstr "デコード中（{n}/{total}）"
 
@@ -1070,6 +1094,10 @@ msgstr "コピーした音声を保存できませんでした: {why}"
 #: editor.py
 msgid "Make-Up Gain goes from {low} to {high} dB"
 msgstr "Make-Up Gainの範囲は {low} ～ {high} dBです"
+
+#: editor.py
+msgid "A fade is from 0 to {ms} ms"
+msgstr "フェードは 0 から {ms} ms までです"
 
 #: editor.py
 msgid "{file} can't be read, so global notes can't be shown or saved. Fix or move the file, or choose another folder in Settings ▸ System."
@@ -1995,6 +2023,10 @@ msgid "Fit timing for {name}"
 msgstr "{name}のタイミング合わせ"
 
 #: project.py
+msgid "the fades of {name}"
+msgstr "{name} のフェード"
+
+#: project.py
 msgid "the label of sound {id}"
 msgstr "サウンド {id} のラベル"
 
@@ -2005,6 +2037,10 @@ msgstr "サウンド {id} のMake-Up Gain"
 #: project.py
 msgid "Fit timing for sound {id}"
 msgstr "サウンド {id} のタイミング合わせ"
+
+#: project.py
+msgid "the fades of sound {id}"
+msgstr "音 {id} のフェード"
 
 #: project.py
 msgid "mod ID: damaged in the project file (Make a New ID, on the Project tab)"
@@ -2039,6 +2075,10 @@ msgid "the build folder"
 msgstr "ビルドフォルダー"
 
 #: project.py
+msgid "the radio filters"
+msgstr "無線フィルター"
+
+#: project.py
 msgid "icon: image not found ({path})"
 msgstr "アイコン：画像が見つかりません（{path}）"
 
@@ -2069,6 +2109,10 @@ msgstr "セグメント {id}：不明な上書き {keys}"
 #: project.py
 msgid "the imported mods' banks"
 msgstr "インポートしたMODのバンク"
+
+#: project.py
+msgid "the filters of sound {id}"
+msgstr "音 {id} のフィルター"
 
 #: projectfiles.py
 msgid "Another project in this folder can't be read, so it isn't known which files it uses"

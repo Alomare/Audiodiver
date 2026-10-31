@@ -16,6 +16,36 @@ import { rangeVars } from "./range";
 const FRAME_KEYS: (keyof IconFrame)[] = ["border", "border_color", "radius"];
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
+/** Which voices lose their radio filter, and whether they are then turned down to about the radio's level. These
+    work without new audio, so a mod can be just this. */
+function RadioFilters() {
+  const { project, actions } = useEditor();
+  if (!project) return null;
+  const off = project.radio_off;
+  const voices: [string, string, string?][] = [
+    ["mission_control", t`Mission Control`], ["admiral", t`The Admiral`], ["eagle", t`Eagle-1`], ["pelican", t`Pelican-1`],
+    ["helldivers", t`Helldivers`, t`Teammates on the radio, and anyone in a vehicle`],
+  ];
+  const set = (voice: string, on: boolean) => actions.settings({ radio_off: on ? [...off, voice] : off.filter((v) => v !== voice) });
+  return (
+    <section className="set-sec">
+      <h2><Trans>Radio Filter</Trans> <Help tip={t`The radio sound isn't in the voice files, so new audio goes through it too. Tick a voice to play it clean, in every language`} page="volume#radio-filter" /></h2>
+      <div className="set-checks">
+        {voices.map(([id, name, tip]) => (
+          <label key={id} className="check" data-tip={tip}>
+            <input type="checkbox" checked={off.includes(id)} onChange={(e) => set(id, e.target.checked)} /> {name}
+          </label>
+        ))}
+      </div>
+      <label className="check">
+        <input type="checkbox" checked={project.radio_quieter} disabled={!off.length} onChange={(e) => actions.settings({ radio_quieter: e.target.checked })} />
+        <span><Trans>Normalize the loudness</Trans> <Help tip={t`Clean voices come out louder. This turns them down to about the level of the radio`} page="volume#radio-filter" /></span>
+      </label>
+      {off.length > 0 && <p className="set-note"><Trans>This mod carries the Init bank, which every sound goes through. Only one mod can carry it, so with two the last one wins.</Trans></p>}
+    </section>
+  );
+}
+
 /** The Project tab: what the mod is (its name, description, icon and id), the tabs it shows, and where its files
     are (its folder, the files nothing uses, and packs), with Import patches and Close project over the icon. Build
     keeps how the ZIP is made. With no project open: New, Open and the recent projects. */
@@ -162,6 +192,8 @@ function ProjectPage() {
         <IconEditor icon={icon} frame={frame} setIcon={setIcon} saveIcon={saveIcon} />
 
         <ModId />
+
+        <RadioFilters />
 
         <section className="set-sec">
           <h2><Trans>Tabs</Trans> <Help tip={t`Hide the tabs this mod doesn't use, such as all but Text for a subtitle mod. What was changed in a hidden tab stays in the mod. A new project starts with the tabs Settings ▸ System shows.`} page="how-audiodiver-works#tabs" /></h2>

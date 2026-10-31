@@ -27,7 +27,7 @@ Annuler reprend un modèle entier. Un modèle qui ne trouve rien à modifier l�
 | Mode | Ce qui est joué |
 |---|---|
 | **Original** | Les segments dans leur ordre d’origine. Décochez un segment dans l’ordre de lecture pour l’écarter de cette musique. Il est toujours joué partout ailleurs où le jeu l’utilise. |
-| **Une seule chanson** | Une chanson, découpée dans les segments. Chaque combat joue une ouverture, puis la chanson à partir du morceau 1. |
+| **Une seule chanson** | Une chanson, découpée dans les segments. Chaque combat joue une ouverture, puis la chanson à partir du morceau 1. Les fichiers placés sur les segments après la chanson sont joués après elle. |
 | **Playlist** | Des chansons entières, une à chaque endroit, dans l’ordre ou en lecture aléatoire. |
 | **Silencieux** | Rien. |
 | **Identique à Combat** | Pour Combat intense. La musique de combat se poursuit à partir du segment où elle en est, donc la chanson ne recommence pas quand un combat devient plus intense. |
@@ -39,6 +39,8 @@ Annuler reprend un modèle entier. Un modèle qui ne trouve rien à modifier l�
 ## Une seule chanson {#one-song}
 
 **Choisir une chanson** ouvre l’outil de découpe avec les segments que la chanson remplit. Une chanson déposée sur la page l’ouvre aussi. Découpez-la en autant de morceaux que vous voulez, jusqu’à un par segment. Chaque morceau va en entier dans un segment. La première couche reçoit le morceau et les autres couches jouent du silence. Dans la musique d’extraction, la première couche à basse intensité et la première à haute intensité le reçoivent toutes les deux.
+
+La liste continue après le dernier morceau avec les segments que la chanson n’atteint pas. Un fichier placé sur l’un d’eux est joué après la chanson et y reste si vous recoupez la chanson, sauf si un nouveau morceau tombe sur ce segment.
 
 **Modifier les coupes** ouvre de nouveau l’outil de découpe avec la même chanson et les mêmes coupes. **Choisir une autre chanson** repart avec une nouvelle.
 
@@ -56,7 +58,8 @@ La plupart des musiques de combat démarrent chaque combat sur une courte ouvert
 
 **Une seule chanson** et **Playlist** gardent les ouvertures, donc un combat démarre sur une ouverture d’origine et la chanson ou la playlist suit. Pour changer ce qui est joué à cet endroit :
 
-- Remplacez les ouvertures dans l’onglet [Audio](app:editor), comme n’importe quel autre emplacement, par du nouvel audio ou par du silence. Un silence avec **Conserver la durée d’origine** désactivé passe directement à la chanson ([Silence](wiki:how-the-game-plays-music#silence)).
+- Dans **Une seule chanson** et **Playlist**, la liste **Ouvertures** sous les chansons accepte du nouvel audio. Cliquez sur une ligne ou déposez-y un fichier. Plusieurs fichiers remplissent aussi les ouvertures suivantes. ✕ remet l’original. Un badge comme +1 cue signifie que le même segment est joué dans une autre musique, donc le nouvel audio y est joué aussi.
+- Le bouton pour passer, sur une ligne, joue du silence à cet endroit, donc le jeu passe directement à la chanson ([Silence](wiki:how-the-game-plays-music#silence)).
 - Pour une musique en **Original**, décochez les ouvertures dans l’ordre de lecture pour les écarter, ou utilisez le modèle **Sans ouvertures** pour la musique de combat de tous les ennemis à la fois.
 
 ## Écoute {#listening}

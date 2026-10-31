@@ -53,6 +53,7 @@ msgid "{after, plural, =1 {Undo the change after this one} other {Undo the # cha
 msgstr "{after, plural, =1 {Annuler la modification suivante} other {Annuler les # modifications suivantes}}"
 
 #: src/CueView.tsx
+#: src/Soundtrack.tsx
 msgid "{also, plural, one {+# bank} other {+# banks}}"
 msgstr "{also, plural, one {+# banque} other {+# banques}}"
 
@@ -497,6 +498,10 @@ msgstr "{name} (extrait)"
 msgid "{name} at {time}"
 msgstr "{name} à {time}"
 
+#: src/Inspector.tsx
+msgid "{name} in ms"
+msgstr "{name} en ms"
+
 #: src/store.tsx
 msgid "{name} moved. Some files stayed in the old folder because they were in use. The project no longer uses them."
 msgstr "{name} a été déplacé. Certains fichiers sont restés dans l’ancien dossier, car ils étaient utilisés. Le projet ne les utilise plus."
@@ -536,6 +541,10 @@ msgstr "{others, plural, one {# des {total} emplacements joue aussi dans d’aut
 #: src/ProjectTab.tsx
 msgid "{others, plural, one {Another project is in this folder and uses the same slices and imported folders.} other {# other projects are in this folder and use the same slices and imported folders.}}"
 msgstr "{others, plural, one {Un autre projet se trouve dans ce dossier et utilise les mêmes découpes et dossiers importés.} other {# autres projets se trouvent dans ce dossier et utilisent les mêmes découpes et dossiers importés.}}"
+
+#: src/Soundtrack.tsx
+msgid "{over, plural, one {# song left over} other {# songs left over}}."
+msgstr "{over, plural, one {# chanson en trop} other {# chansons en trop}}."
 
 #: src/Soundtrack.tsx
 msgid "{over, plural, one {# song left over} other {# songs left over}}. This music has {total, plural, one {# place} other {# places}}."
@@ -1879,6 +1888,10 @@ msgstr "Génère un seul mod sur les banques de sons actuelles."
 msgid "Built {file} ({mb} MB)."
 msgstr "{file} généré ({mb} MB)."
 
+#: src/Inspector.tsx
+msgid "Built into the new audio, so the waveform and the preview show them. An audio file that would go in unchanged is encoded again"
+msgstr "Intégrés au nouvel audio, donc la forme d’onde et l’aperçu les montrent. Un fichier audio qui passerait sans changement est encodé à nouveau"
+
 #. Credits: who made the work named before
 #: src/About.tsx
 msgid "by {author}"
@@ -2283,6 +2296,10 @@ msgstr "Choisi ici."
 #: src/ProjectTab.tsx
 msgid "Circle"
 msgstr "Cercle"
+
+#: src/ProjectTab.tsx
+msgid "Clean voices come out louder. This turns them down to about the level of the radio"
+msgstr "Les voix nettes sortent plus fort. Ceci les baisse à peu près au niveau de la radio"
 
 #. Button: deletes these files
 #. Button: deletes these files
@@ -2932,6 +2949,7 @@ msgid "Drop audio on the slot."
 msgstr "Déposez de l’audio sur l’emplacement."
 
 #: src/CueView.tsx
+#: src/Soundtrack.tsx
 msgid "Drop Audio or Choose a File"
 msgstr "Déposer de l’audio ou choisir un fichier"
 
@@ -3063,6 +3081,10 @@ msgstr "Chaque fois que la musique démarre, l’une des ouvertures est jouée d
 #: src/Soundtrack.tsx
 msgid "Each time the music comes on, one of the openings plays first, then the songs."
 msgstr "Chaque fois que la musique démarre, l’une des ouvertures est jouée d’abord, puis les chansons."
+
+#: src/ProjectTab.tsx
+msgid "Eagle-1"
+msgstr "Aigle 1"
 
 #: src/Notes.tsx
 msgid "Edit the note"
@@ -3286,6 +3308,18 @@ msgstr "Export de {title}"
 msgid "Exports of the original are for reference and mod work. Don't upload them."
 msgstr "Les exports de l’original servent de référence et pour créer des mods. Ne les mettez pas en ligne."
 
+#: src/Inspector.tsx
+msgid "Fade In"
+msgstr "Fondu d’entrée"
+
+#: src/Inspector.tsx
+msgid "Fade Out"
+msgstr "Fondu de sortie"
+
+#: src/Inspector.tsx
+msgid "Fades"
+msgstr "Fondus"
+
 #. A job's state in the Build tab's log, such as: Build: My Mod, failed, 12 s
 #: src/BuildTab.tsx
 msgid "failed"
@@ -3379,6 +3413,10 @@ msgstr "{n, plural, one {# emplacement rempli} other {# emplacements remplis}} d
 #: src/CueView.tsx
 msgid "Fills leave it out"
 msgstr "Le remplissage l’ignore"
+
+#: src/Inspector.tsx
+msgid "Filters"
+msgstr "Filtres"
 
 #: src/App.tsx
 #: src/SettingsTab.tsx
@@ -3650,6 +3688,10 @@ msgstr "En-tête"
 msgid "Heading"
 msgstr "Titre"
 
+#: src/ProjectTab.tsx
+msgid "Helldivers"
+msgstr "Helldivers"
+
 #. Helldivers 2 Modding is the name of the Discord server
 #: src/About.tsx
 #: src/Home.tsx
@@ -3682,6 +3724,10 @@ msgstr "Masquer les formes d'onde"
 #: src/SettingsTab.tsx
 msgid "High"
 msgstr "Élevé"
+
+#: src/Inspector.tsx
+msgid "High-Pass"
+msgstr "Passe-haut"
 
 #: src/SettingsTab.tsx
 msgid "High, because the system asks for more contrast."
@@ -4285,6 +4331,14 @@ msgstr "Plus fort ou plus faible, sans modifier le fichier ni le mixage."
 msgid "Louder or quieter, without changing the file or the mix. Added to the {gain} dB the game gives this sound."
 msgstr "Plus fort ou plus faible, sans modifier le fichier ni le mixage. S’ajoute aux {gain} dB que le jeu donne à ce son."
 
+#: src/Inspector.tsx
+msgid "Low-Pass"
+msgstr "Passe-bas"
+
+#: src/Inspector.tsx
+msgid "Low-Pass dulls the sound and High-Pass thins it. They add to what the game sets. The game applies them, so previews here play without them"
+msgstr "Le passe-bas assourdit le son et le passe-haut l’amincit. Ils s’ajoutent aux réglages du jeu. C’est le jeu qui les applique, donc les aperçus ici sont joués sans eux"
+
 #. The bar of main tabs, for screen readers
 #: src/App.tsx
 msgid "Main"
@@ -4387,6 +4441,12 @@ msgstr "Minutes entre les enregistrements"
 msgid "Missing: {name}"
 msgstr "Manquant : {name}"
 
+#: src/ProjectTab.tsx
+msgid "Mission Control"
+msgstr "Donneur de mission"
+
+#. The selected slots have different values
+#. The selected slots have different values
 #. The selected slots have different values
 #. The selected slots have different values
 #: src/Inspector.tsx
@@ -4976,6 +5036,10 @@ msgid "Normal"
 msgstr "Normal"
 
 #: src/ProjectTab.tsx
+msgid "Normalize the loudness"
+msgstr "Normaliser le volume"
+
+#: src/ProjectTab.tsx
 msgid "Not an Audiodiver project, or damaged"
 msgstr "Pas un projet Audiodiver, ou endommagé"
 
@@ -5230,6 +5294,14 @@ msgstr "Un au hasard"
 msgid "one of several"
 msgstr "un parmi plusieurs"
 
+#: src/Soundtrack.tsx
+msgid "One of the openings plays each time the music comes on"
+msgstr "L’une des ouvertures est jouée chaque fois que la musique démarre"
+
+#: src/Soundtrack.tsx
+msgid "One of the openings starts each fight"
+msgstr "L’une des ouvertures lance chaque combat"
+
 #: src/PlayThrough.tsx
 msgid "One round of the playlist, top to bottom. Play order shows how the game plays it"
 msgstr "Un tour de la playlist, de haut en bas. « Ordre de lecture » montre comment le jeu la joue"
@@ -5423,6 +5495,10 @@ msgstr "Ouvrir la Bibliothèque"
 #: src/Inspector.tsx
 msgid "Open the subtitle in the Text tab"
 msgstr "Ouvrir le sous-titre dans l’onglet Texte"
+
+#: src/Soundtrack.tsx
+msgid "Openings"
+msgstr "Ouvertures"
 
 #: src/About.tsx
 #: src/Home.tsx
@@ -5667,6 +5743,10 @@ msgstr "Mettre en pause la lecture enchaînée · Remplacé"
 msgid "Pause the original {slot}"
 msgstr "Mettre en pause l’original de {slot}"
 
+#: src/ProjectTab.tsx
+msgid "Pelican-1"
+msgstr "Pélican 1"
+
 #. The nth piece of the song cut into the segments (One Song)
 #: src/Soundtrack.tsx
 msgid "piece {n}"
@@ -5867,6 +5947,10 @@ msgstr "Playlist"
 #: src/store.tsx
 msgid "playlist order"
 msgstr "ordre de la playlist"
+
+#: src/Soundtrack.tsx
+msgid "Plays after the song"
+msgstr "Joué après la chanson"
 
 #: src/Soundtrack.tsx
 msgid "Plays again and again until the music changes"
@@ -6093,6 +6177,10 @@ msgstr "Exploration calme"
 msgid "Quiet Exploring: every Exploring set to Silent"
 msgstr "Exploration calme : chaque Exploration réglée sur Silencieux"
 
+#: src/ProjectTab.tsx
+msgid "Radio Filter"
+msgstr "Filtre radio"
+
 #: src/BuildTab.tsx
 msgid "Raise the version after each build"
 msgstr "Augmenter la version après chaque génération"
@@ -6302,6 +6390,10 @@ msgstr "Retirer les {count} présents dans le projet"
 #: src/IndexTree.tsx
 msgid "Remove the {count} in the Project"
 msgstr "Retirer les {count} présents dans le projet"
+
+#: src/Soundtrack.tsx
+msgid "Remove the audio"
+msgstr "Retirer l’audio"
 
 #: src/CueView.tsx
 msgid "Remove the new audio"
@@ -7064,6 +7156,7 @@ msgid "Skip All {count}"
 msgstr "Sauter les {count}"
 
 #: src/CueView.tsx
+#: src/Soundtrack.tsx
 msgid "Skip it"
 msgstr "Sauter"
 
@@ -7362,6 +7455,10 @@ msgstr "Reprend l’audio que le mod remplace et ajoute, avec les réglages de s
 msgid "Taller, to see quiet audio. It plays as loud as before. Ctrl+wheel on the waveforms zooms too"
 msgstr "Plus haut, pour voir l'audio faible. Il est joué aussi fort qu'avant. Ctrl+molette sur les formes d'onde zoome aussi"
 
+#: src/ProjectTab.tsx
+msgid "Teammates on the radio, and anyone in a vehicle"
+msgstr "Les coéquipiers à la radio, et tout le monde dans un véhicule"
+
 #: src/content.ts
 msgid "telling grunts, breaths and laughs from words"
 msgstr "distinction des grognements, respirations et rires d'avec les mots"
@@ -7472,6 +7569,10 @@ msgstr "L’**Index** classe les sons du jeu selon l’endroit où on les entend
 #: src/Soundtrack.tsx
 msgid "The <0>Battle</0> music plays on here, from where it is."
 msgstr "La musique <0>Combat</0> continue ici, là où elle en est."
+
+#: src/ProjectTab.tsx
+msgid "The Admiral"
+msgstr "L’Amiral"
 
 #: src/ExportDialog.tsx
 msgid "The audio before Entry and after Exit. When this is off, the pieces sit end to end without overlap."
@@ -7962,6 +8063,10 @@ msgstr "Le projet retrouve toujours tous les fichiers qu’il utilise"
 msgid "The project's order and audio"
 msgstr "L’ordre et l’audio du projet"
 
+#: src/ProjectTab.tsx
+msgid "The radio sound isn't in the voice files, so new audio goes through it too. Tick a voice to play it clean, in every language"
+msgstr "Le son radio n’est pas dans les fichiers de voix, donc le nouvel audio passe aussi par lui. Cochez une voix pour qu’elle soit jouée nette, dans toutes les langues"
+
 #: src/TextTab.tsx
 msgid "The recordings that say this subtitle. Open one in the Library to hear it or replace it"
 msgstr "Les enregistrements qui disent ce sous-titre. Ouvrez-en un dans la Bibliothèque pour l’écouter ou le remplacer"
@@ -8160,6 +8265,10 @@ msgstr "Dans l’Index, cette banque correspond à {sets}."
 msgid "This clip isn't in the installed game files, so there is nothing to play or replace."
 msgstr "Ce clip n’est pas dans les fichiers du jeu installés, donc il n’y a rien à lire ni à remplacer."
 
+#: src/ProjectTab.tsx
+msgid "This mod carries the Init bank, which every sound goes through. Only one mod can carry it, so with two the last one wins."
+msgstr "Ce mod contient la banque Init, par laquelle passent tous les sons. Un seul mod peut la contenir : avec deux, le dernier l’emporte."
+
 #: src/Inspector.tsx
 msgid "this music track"
 msgstr "cette piste de musique"
@@ -8167,6 +8276,10 @@ msgstr "cette piste de musique"
 #: src/ProjectTab.tsx
 msgid "This project is in a shared place, such as the Desktop or Documents."
 msgstr "Ce projet se trouve dans un dossier partagé, comme le Bureau ou Documents."
+
+#: src/Soundtrack.tsx
+msgid "This segment holds no audio that can be replaced"
+msgstr "Ce segment ne contient aucun audio remplaçable"
 
 #: src/Soundtrack.tsx
 msgid "This segment holds no audio that can be replaced. Places without a song don't play"

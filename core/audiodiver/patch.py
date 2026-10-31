@@ -9,7 +9,7 @@ import os
 import struct
 from dataclasses import dataclass, field
 
-from . import addition, music, soundtrack
+from . import addition, music, radio, soundtrack
 from . import bank as wbank
 from .bank import SOUND, MUSIC_SEGMENT, MUSIC_TRACK, TYPE_NAMES
 from .game import WWISE_STREAM, WWISE_BANK, WWISE_DEP, toc_entries
@@ -23,6 +23,7 @@ BANK, PREFETCH = 0, 1  # source stream types (2 = streamed only, no media in the
 # makes a sound louder or quieter without changing how much it ducks others; the logical Volume is what HDR reads.
 VOLUME = 0x00
 MAKEUP_GAIN = 0x05     # as hd2-audio-modder writes it
+LOWPASS, HIGHPASS = 0x02, 0x03  # 0 to 100, added up from the Sound to the top of its tree
 # the logical Volume a silenced Sound gets: far below anything the HDR mix counts, so the silence stops ducking the
 # sounds under it (a silent clip at its normal Volume still ducks them), yet above the volume threshold the game sets
 # (-96 dB, in its Init bank), so the voice still plays out its time and a sequence it is part of keeps its timing
@@ -42,6 +43,8 @@ class Replacement:
     fit_timing: bool = True
     makeup_db: float = 0.0  # Make-Up Gain added to that of the Sounds/MusicTracks that play it
     mute: bool = False      # a silence that also leaves the mix: the Sounds that play it get the Volume MUTE_DB
+    lowpass: int = 0        # added to the Low-Pass of the Sounds/MusicTracks that play it
+    highpass: int = 0       # and to their High-Pass
 
     @property
     def length_ms(self):
@@ -56,6 +59,8 @@ class BankEdit:
     segments: list = field(default_factory=list)  # MusicSegment ids retimed / overridden
     sounds: list = field(default_factory=list)    # Sound ids whose in-memory size changed
     gains: list = field(default_factory=list)     # Sound/MusicTrack ids given a Make-Up Gain
+    filters: list = field(default_factory=list)   # Sound/MusicTrack ids given a Low-Pass or High-Pass
+    radio: list = field(default_factory=list)     # ids of the buses without their radio filter (Init)
     mutes: list = field(default_factory=list)     # Sound ids taken out of the mix (Volume MUTE_DB)
     added: list = field(default_factory=list)     # ids of the objects added (addition.py)
     settings: list = field(default_factory=list)  # ids of the objects given the project's settings
@@ -163,6 +168,12 @@ def apply_settings(bank: bytes, settings: dict[int, dict]) -> tuple[bytes, list[
                          if id in settings and t in wbank.SETTABLE else None)
 
 
+def apply_radio(bank: bytes, plan: radio.Plan) -> tuple[bytes, list[int]]:
+    """Init with the plan's radio filters off; and the ids of those buses."""
+    buses = radio.apply_to(radio.entries_of(bank), plan)
+    return _with_objects(bank, lambda t, id, body: buses.get(id) if t == radio.BUS else None)
+
+
 def curved(body: bytes, id: int, off, tracks: dict) -> bytes:
     """A MusicTrack with a mod's curves (tracks: {track: [music.ClipCurve]}) and without the volume curves of the
     clips in off."""
@@ -239,6 +250,12 @@ def patch_bank(bank: bytes, reps: dict[int, Replacement], overrides: dict[int, d
             if gains:  # on top of the Make-Up Gain the object has: the game's (1 Sound in 12 has one) or a mod's
                 e[2] = set_prop(t, body, MAKEUP_GAIN, wbank.props(t, body).get(MAKEUP_GAIN, 0.0) + max(gains))
                 edit.gains.append(id)
+            for prop, amount in ((LOWPASS, lambda r: r.lowpass), (HIGHPASS, lambda r: r.highpass)):
+                amounts = [amount(reps[s]) for s in (struct.unpack_from("<I", body, o + 5)[0] for o in offs)
+                           if s in reps and amount(reps[s])]
+                if amounts:
+                    e[2] = set_prop(t, e[2], prop, min(100.0, wbank.props(t, e[2]).get(prop, 0.0) + max(amounts)))
+                    edit.filters.append(id)
             # a silenced Sound leaves the mix; a MusicTrack keeps its Volume (music silence keeps or skips its time)
             if t == SOUND and (r := reps.get(struct.unpack_from("<I", body, 5)[0])) is not None and r.mute:
                 e[2] = set_prop(t, e[2], VOLUME, MUTE_DB)
@@ -294,7 +311,7 @@ def patch_bank(bank: bytes, reps: dict[int, Replacement], overrides: dict[int, d
             didx[1], data[1] = b"".join(new_rows), b"".join(pieces)
         del pieces
 
-    if not (edit.media or edit.tracks or edit.segments or edit.sounds or edit.gains or edit.mutes):
+    if not (edit.media or edit.tracks or edit.segments or edit.sounds or edit.gains or edit.filters or edit.mutes):
         return bank, edit
     if hirc:
         hirc[1] = struct.pack("<I", len(entries)) + b"".join(
@@ -436,14 +453,16 @@ def write_patch(path, streams: dict[int, bytes], banks: dict[int, bytes], deps: 
 
 def build_patch(path, reps: list[Replacement], ix: AudioIndex, overrides=None, strings=None,
                 plan: addition.Plan | None = None, settings=None, where=None, set_where=None, carried=None,
-                music_plan: soundtrack.Plan | None = None, curves_off=(), track_curves=None):
+                music_plan: soundtrack.Plan | None = None, curves_off=(), track_curves=None,
+                radio_plan: radio.Plan | None = None):
     """Patches every bank that holds or plays a replaced source, gets new audio (the plan; reps hold the new
     clips' audio too) or has an object with settings ({object id: {prop id: value or None}}: an imported mod's,
     applied before the replacements' gain and silence), and adds string tables ({file id: table bytes}) and the
     carried files (a mod's files besides its audio, Carried); returns {bank id: BankEdit}. music_plan (the
     Soundtrack's, soundtrack.plan) changes every copy of the playlists and switches it names. where ({source: banks}) and set_where ({object: banks}) keep a source or an
     object to those banks (build.reach); a bank patched for something else still gets them where it has them.
-    curves_off (clips) and track_curves ({track: [music.ClipCurve]}) change the curves in every copy of the tracks."""
+    curves_off (clips) and track_curves ({track: [music.ClipCurve]}) change the curves in every copy of the tracks.
+    radio_plan takes the radio filters off in Init."""
     overrides, settings, where, set_where = overrides or {}, settings or {}, where or {}, set_where or {}
     track_curves = track_curves or {}
     by_source = {r.source: r for r in reps}
@@ -458,6 +477,9 @@ def build_patch(path, reps: list[Replacement], ix: AudioIndex, overrides=None, s
         banks |= ix.banks_for(sid)
     for oid in track_curves:
         banks |= set(ix.copies(oid))
+    init = radio.init_of(ix) if radio_plan else None
+    if radio_plan:
+        banks.add(init)
     # a sound's stream goes by the index: a voice line's is filed under its language, and a stream no bank plays
     # is its own target
     streams = {ix.stream_file(r.source): r.wem for r in reps if r.wem is not None and ix.stream_file(r.source) is not None}
@@ -471,8 +493,9 @@ def build_patch(path, reps: list[Replacement], ix: AudioIndex, overrides=None, s
             grown, set_ids = apply_settings(grown, settings) if settings else (grown, [])
             grown, music_ids = soundtrack.apply(grown, music_plan) if music_plan else (grown, [])
             grown, curve_ids = apply_curves(grown, curves_off, track_curves) if curves_off or track_curves else (grown, [])
+            grown, radio_ids = apply_radio(grown, radio_plan) if bid == init else (grown, [])
             new, edit = patch_bank(grown, by_source, overrides)
-            edit.settings, edit.music, edit.curves = set_ids, music_ids, curve_ids
+            edit.settings, edit.music, edit.curves, edit.radio = set_ids, music_ids, curve_ids, radio_ids
             if plan and bid in plan.banks:
                 edit.added = sorted(plan.banks[bid].added)
             if new is not raw:
@@ -493,13 +516,13 @@ def _toc(path):
         return toc_entries(head + f.read(32 * types + 80 * files))
 
 
-def _files(path, tid):
+def _files(path, tid, only=None):
     """(file id, data) of each file of one type in a written patch, read from the disk one at a time: a bank's bytes
     (its toc data less their 16-byte header), a stream's stream data, else the toc data. Read whole, a patch and
-    its banks parsed took several times the patch's size."""
+    its banks parsed took several times the patch's size. only: just this file."""
     stream, skip = tid == WWISE_STREAM, 16 if tid == WWISE_BANK else 0
     at = [(fid, s_off, s_size) if stream else (fid, off + skip, size - skip)
-          for fid, t, off, size, s_off, s_size in _toc(path) if t == tid]
+          for fid, t, off, size, s_off, s_size in _toc(path) if t == tid and only in (None, fid)]
     if stream and not os.path.exists(path + ".stream"):
         yield from ((fid, b"") for fid, _, _ in at)
         return
@@ -592,25 +615,47 @@ def verify_carried(path, carried: list[Carried], strings_made=()) -> list[str]:
 
 
 def verify(path, reps: list[Replacement], ix: AudioIndex, plan: addition.Plan | None = None, settings=None,
-           where=None, music_plan: soundtrack.Plan | None = None, curves_off=(), track_curves=None) -> list[str]:
+           where=None, music_plan: soundtrack.Plan | None = None, curves_off=(), track_curves=None,
+           radio_plan: radio.Plan | None = None) -> list[str]:
     """Problems with a written patch: it must change only the replaced audio, its size fields, the timing of the
     segments/tracks that play it, their gain and (silence) their Volume; put the new audio in every bank that holds
     the old (of those in where, {source: banks}, for a source kept to them); add exactly what the plan adds, where
     it belongs (addition.check); and give the objects with settings those settings (their Make-Up Gain and Volume a
     replacement's gain or silence may set instead); and give every copy of the music objects the Soundtrack
-    changes (music_plan) exactly that change; and give the music tracks the curves meant (curves_off, track_curves).
-    Empty list = good."""
+    changes (music_plan) exactly that change; and give the music tracks the curves meant (curves_off, track_curves);
+    and give the Sounds and music tracks their filters. Init, which reaches every sound, must be today's with
+    radio_plan's changes and nothing else, byte for byte. Empty list = good."""
     where, settings, track_curves = where or {}, settings or {}, track_curves or {}
     # the new audio (a gain on an original clip changes no media)
     by_source, planned = {r.source: r for r in reps if r.wem is not None}, plan.banks if plan else {}
     banks, unknown, problems, added_problems = {}, [], [], []
+    filtered = {r.source: r for r in reps if r.lowpass or r.highpass}
+    init = radio.init_of(ix) if radio_plan else None
+    if radio_plan:
+        made = next((d for _, d in _files(path, WWISE_BANK, init)), None)
+        if made is None:
+            problems.append("Init is missing")
+        elif bytes(made) != apply_radio(ix.bank_files(init)[0], radio_plan)[0]:
+            problems.append("Init isn't today's with only the radio filters off")
     # a bank at a time, each let go once checked: all of them parsed, the patch's and the game's, took twice the
     # patch's size
     for bid, b in _bank_diffs(path, ix):
         if b is None:
             unknown.append(bid)
             continue
+        if bid == init:  # checked whole, above
+            continue
         hirc = b["read"][0][1]
+        if filtered:
+            game = b["read"][1][1]
+            for oid, (t, body) in hirc.items():
+                clips = [s for s in wbank.source_ids(t, body) if s in filtered] if t in (SOUND, MUSIC_TRACK) else []
+                if clips and oid in game:
+                    was = {**wbank.props(*game[oid]), **{k: v for k, v in settings.get(oid, {}).items() if v is not None}}
+                    have = wbank.props(t, body)
+                    for prop, amount in ((LOWPASS, max(filtered[s].lowpass for s in clips)), (HIGHPASS, max(filtered[s].highpass for s in clips))):
+                        if amount and have.get(prop) != min(100.0, was.get(prop, 0.0) + amount):
+                            problems.append(f"bank {bid}: object {oid} doesn't have the filter set for it")
         for oid in [i for _, i in b["objects"] if i in settings]:
             t, body = hirc[oid]
             have = wbank.props(t, body)

@@ -27,7 +27,7 @@ Deshacer revierte una plantilla entera. Una plantilla que no encuentra nada que 
 | Modo | Qué suena |
 |---|---|
 | **Original** | Los segmentos en su orden original. Desmarca un segmento en el orden de reproducción para omitirlo de esta música. Sigue sonando en cualquier otro sitio donde lo use el juego. |
-| **Una canción** | Una canción, cortada en los segmentos. Cada combate reproduce una intro y luego la canción desde el trozo 1. |
+| **Una canción** | Una canción, cortada en los segmentos. Cada combate reproduce una intro y luego la canción desde el trozo 1. Los ficheros en los segmentos que siguen a la canción suenan después de ella. |
 | **Lista de reproducción** | Canciones enteras, una en cada lugar, en orden o en orden aleatorio. |
 | **Silencio** | Nada. |
 | **Igual que Batalla** | Para la Batalla intensa. La música de batalla sigue desde el segmento en el que está, así que la canción no vuelve a empezar cuando un combate se intensifica. |
@@ -39,6 +39,8 @@ Deshacer revierte una plantilla entera. Una plantilla que no encuentra nada que 
 ## Una canción {#one-song}
 
 **Elegir una canción** abre la herramienta de corte con los segmentos que rellena la canción. Una canción soltada en la página también la abre. Córtala en tantos trozos como quieras, hasta uno por segmento. Cada trozo entra entero en un segmento. La primera capa recibe el trozo y las demás capas reproducen silencio. En la música de Extracción, la primera capa de intensidad baja y la primera de intensidad alta lo reciben las dos.
+
+La lista sigue después del último trozo con los segmentos a los que no llega la canción. Un fichero en uno de ellos suena después de la canción y se queda ahí si vuelves a cortar la canción, salvo que un trozo nuevo caiga en ese segmento.
 
 **Cambiar los cortes** vuelve a abrir la herramienta de corte con la misma canción y los mismos cortes. **Elegir otra canción** empieza con una nueva.
 
@@ -56,7 +58,8 @@ La mayor parte de la música de combate empieza cada combate con una intro corta
 
 **Una canción** y **Lista de reproducción** conservan las intros, así que un combate empieza con una intro original y luego viene la canción o la lista de reproducción. Para cambiar lo que suena ahí:
 
-- Sustituye las intros en la pestaña [Audio](app:editor), como cualquier otro slot, por audio nuevo o por silencio. El silencio con **Mantener la duración original** desactivado pasa directamente a la canción ([Silencio](wiki:how-the-game-plays-music#silence)).
+- En **Una canción** y **Lista de reproducción**, la lista **Intros** bajo las canciones acepta audio nuevo. Haz clic en una línea o suelta un fichero en ella. Varios ficheros rellenan también las intros siguientes. ✕ devuelve el original. Una etiqueta como +1 cue significa que el mismo segmento suena en otra música, así que el audio nuevo también suena allí.
+- El botón de saltar de una línea reproduce silencio ahí, así que el juego pasa directamente a la canción ([Silencio](wiki:how-the-game-plays-music#silence)).
 - Para la música en **Original**, desmarca las intros en el orden de reproducción para omitirlas, o usa la plantilla **Sin intros** para la música de batalla de todos los enemigos a la vez.
 
 ## Escuchar {#listening}

@@ -47,6 +47,35 @@ def silence_wav() -> Path:
     return out
 
 
+def faded(src: Path, fade_in_ms: float, fade_out_ms: float) -> Path:
+    """src as a 48 kHz WAV with these fades in it, a straight line in level, kept with the caches. Fades too long for
+    the audio stop at its length. Builds and previews both use it, so what is heard here is what the game plays."""
+    import numpy as np
+    src = Path(src)
+    st = src.stat()
+    key = hashlib.sha1(json.dumps([str(src.resolve()), st.st_size, st.st_mtime_ns, fade_in_ms, fade_out_ms]).encode())
+    out = CACHE_DIR / "fades" / f"{key.hexdigest()[:20]}.wav"
+    with cache_lock(out):
+        if out.exists():
+            return out
+        out.parent.mkdir(parents=True, exist_ok=True)
+        tmp = out.with_name(f"{out.stem}.partial.wav")
+        wem.prepare_wav(str(src), str(tmp))
+        with wave.open(str(tmp)) as w:
+            params, frames = w.getparams(), w.readframes(w.getnframes())
+        pcm = np.frombuffer(frames, "<i2").astype(np.float32).reshape(-1, params.nchannels)
+        n = min(len(pcm), round(fade_in_ms * wem.RATE / 1000))
+        pcm[:n] *= np.linspace(0, 1, n, endpoint=False)[:, None]
+        n = min(len(pcm), round(fade_out_ms * wem.RATE / 1000))
+        if n:
+            pcm[-n:] *= np.linspace(1, 0, n)[:, None]
+        with wave.open(str(tmp), "wb") as w:
+            w.setparams(params)
+            w.writeframes(pcm.round().astype("<i2").tobytes())
+        tmp.replace(out)
+    return out
+
+
 def peaks(path: Path, buckets: int = 1200, full: int = 255) -> dict:
     """{duration_ms, full, peaks: [0..full] * buckets}: the loudest sample in each slice of the file (cached).
     full 255 draws a waveform; a zoomed-in one asks for 32767, so a quiet sound keeps its shape when drawn taller."""

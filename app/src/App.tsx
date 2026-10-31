@@ -181,8 +181,8 @@ function Shell() {
     if (patch) return actions.importPatch(patch);
     if (target?.kind === "icon") return images.length ? actions.setIcon(images[0]) : quick(t`Drop an image here to make it the icon`, "info");
     if (!audio.length) return quick(images.length ? t`Drop images on the icon on the Project tab` : t`No audio files in the drop`, "info");
-    // the Soundtrack's places: a place of a playlist, or One song
-    if (target?.kind === "place" || target?.kind === "song") return soundtrackDrop(target, audio);
+    // the Soundtrack's places: a place of a playlist, a free segment, or One song
+    if (target?.kind === "place" || target?.kind === "segment" || target?.kind === "song") return soundtrackDrop(target, audio);
     // the Audio tab's: a slot, a group of takes, a cue, a piece of music
     if (target?.kind === "slot") { scopes.editor.setSelected([target.source]); return actions.assign(target.source, audio); }
     if (target?.kind === "sources") return actions.fillSources(target.sources, audio, target.what);

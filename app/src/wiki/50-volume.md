@@ -61,3 +61,35 @@ For these reasons, set Make-Up Gain by ear **in game**, at the changed moments, 
 > If a piece needs a boost, raise the slots by +4 dB at a time and listen in game after each step.
 
 **Add Wwise loudness analysis** on the [Build](app:build) tab requires an installation of Wwise. It makes no audible difference and is off by default.
+
+## Filters
+
+**Low-Pass** dulls a sound and **High-Pass** thins it, from 0 to 100, set in the details of any slot, with new audio or the original. They add to what the game sets, and the most a sound can have is 100.
+
+The game applies them, so previews and the waveforms in Audiodiver play without them. To hear the change, build the mod and listen in the game.
+
+## Fades
+
+**Fade In** and **Fade Out** are in milliseconds, in the details of a slot with new audio. They go into the audio itself, so the waveform and the preview show them, and the length doesn't change. A `.wem` that would go in unchanged is encoded again when it has a fade.
+
+
+## Radio filter
+
+The radio sound on some voices isn't in their files. The lines pass through a radio effect in the game's mix, so new audio on those voices gets the same effect. The **Radio Filter** section of the [Project](app:project) tab turns it off, a voice at a time, for every language:
+
+- **Mission Control**
+- **The Admiral**
+- **Eagle-1**
+- **Pelican-1**
+- **Helldivers**, for teammates on the radio and anyone in a vehicle
+
+A mod can be just this, with no new audio.
+
+Clean voices come out louder. **Normalize the loudness** turns them down to about the level of the radio.
+
+The mix is in the game's Init bank, which every sound goes through, so the mod carries a copy with only these changes:
+
+- Only one mod can carry Init. With two, the last one wins. [Combine](wiki:combining-mods) keeps the radio settings of each mod in one Init.
+- After a game update, build the mod again, or a change to the mix goes missing for every sound. The [installed mods check](wiki:game-updates) flags an old Init.
+- It changes your own game only. Other players hear what their game plays.
+

@@ -26,7 +26,7 @@ Undo takes back a whole template. A template that finds nothing to change says s
 | Mode | What plays |
 |---|---|
 | **Original** | The segments in their original order. Untick a segment in the play order to leave it out of this music. It still plays wherever else the game uses it. |
-| **One Song** | One song, cut into the segments. Each fight plays an opening, then the song from piece 1. |
+| **One Song** | One song, cut into the segments. Each fight plays an opening, then the song from piece 1. Files on the segments after the song play after it. |
 | **Playlist** | Whole songs, one in each place, in order or shuffled. |
 | **Silent** | Nothing. |
 | **Same as Battle** | For Intense Battle. The battle music plays on from the segment it is at, so the song doesn't start over when a fight gets heavier. |
@@ -38,6 +38,8 @@ Undo takes back a whole template. A template that finds nothing to change says s
 ## One song
 
 **Choose a Song** opens the slice tool with the segments the song fills. A song dropped on the page opens it too. Cut it into as many pieces as you like, up to one per segment. Each piece goes whole into one segment. The first layer gets the piece and the other layers play silence. In the Extraction music, the first layer at low intensity and the first at high intensity both get it.
+
+The list goes on past the last piece with the segments the song doesn't reach. A file on one of them plays after the song, and stays there if you cut the song again, unless a new piece lands on that segment.
 
 **Change the Cuts** opens the slice tool again with the same song and the same cuts. **Choose Another Song** starts with a new one.
 
@@ -53,9 +55,10 @@ When the music changes, for example from exploring to battle, it leaves a song a
 
 Most combat music starts each fight on a short opening, one segment from a group of them, before the music itself. The play order marks that group **Fights start here**. Some music outside combat starts the same way each time it comes on.
 
-**One Song** and **Playlist** keep the openings, so a fight starts on an original opening and the song or the playlist follows. To change what plays there:
+**One Song** and **Playlist** keep the openings, so a fight starts on an opening and the song or the playlist follows. To change what plays there:
 
-- Replace the openings in the [Audio](app:editor) tab, like any other slot, with new audio or with silence. Silence with **Keep original duration** off moves straight on to the song ([Silence](wiki:how-the-game-plays-music#silence)).
+- In **One Song** and **Playlist**, the **Openings** list under the songs takes new audio. Click a line, or drop a file on it. Several files fill the openings after it too. ✕ puts the original back. A tag such as +1 cue means the same segment plays in other music, so the new audio plays there too.
+- The skip button on a line plays silence there, so the game moves straight on to the song ([Silence](wiki:how-the-game-plays-music#silence)).
 - For music in **Original**, untick the openings in the play order to leave them out, or use the **No Openings** template for the battle music of every enemy at once.
 
 ## Listening

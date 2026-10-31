@@ -6,7 +6,7 @@ import tempfile
 import time
 from pathlib import Path
 
-from . import addition, akd, arsenal, cuemap, music, patch, soundtrack, strings, wem
+from . import addition, akd, arsenal, cuemap, music, patch, radio, soundtrack, strings, wem
 from .errors import os_error
 from .game import in_game_folder
 from .i18n import ntr, tr
@@ -88,7 +88,12 @@ def replacements(project: Project, ix: AudioIndex, log=None, step=None) -> list[
     that keep the game's clip; a gain on a sound with new audio is left out, as the new audio's own applies.
     step(doing, done, total), when given, hears of each file as it is encoded (the job's progress; it may stop
     the build there)."""
-    sources = [project.audio_path(r) for r in project.replacements]  # silence: the built-in silence file
+    sources = []
+    for r in project.replacements:
+        try:
+            sources.append(project.heard_path(r))  # silence: the built-in silence file
+        except (subprocess.CalledProcessError, ValueError, OSError):
+            raise BuildError(tr("{name}: can't read the audio in {file}").format(name=r.label or r.audio, file=Path(r.audio).name)) from None
     heard = sorted({src for r, src in zip(project.replacements, sources) if not r.silence})
     analysis = akd.analyse_files(heard) if project.loudness_analysis and heard else {}
     out, by_sound, added = [], {}, project.added()
@@ -126,6 +131,20 @@ def replacements(project: Project, ix: AudioIndex, log=None, step=None) -> list[
         log(ntr("gain: {n} sound with Make-Up Gain on the original is not in this game version; left out",
                 "gain: {n} sounds with Make-Up Gain on the original are not in this game version; left out", gone)
             .format(n=gone))
+    gone, reps = 0, {r.source: r for r in out}
+    for target, (low, high) in project.filters.items():
+        try:
+            sid = target if target in added else ix.resolve(target)
+        except KeyError:
+            gone += 1
+            continue
+        if sid not in reps:
+            reps[sid] = patch.Replacement(sid, None)
+            out.append(reps[sid])
+        reps[sid].lowpass, reps[sid].highpass = low, high
+    if gone and log:
+        log(ntr("filters: {n} sound with a filter is not in this game version; left out",
+                "filters: {n} sounds with a filter are not in this game version; left out", gone).format(n=gone))
     return out
 
 
@@ -176,7 +195,7 @@ def reach(project: Project, ix: AudioIndex, reps: list[patch.Replacement], setti
     have it, else into the banks of what the project lists that have it (listed: Library.banks of its list), else
     into every bank that has it. A bank that only plays a sound takes its audio from one that holds it, so the
     holders join when none of them is among those; a streamed sound's holders all join, as each has the start of
-    the stream. Music keeps every bank. The game uses the first loaded copy of an object, every mission music bank
+    the stream; a gain or filter on the original moves no audio, so they don't. Music keeps every bank. The game uses the first loaded copy of an object, every mission music bank
     has copies of every faction's music, and music_init, loaded first, has copies of much of it (nearly all of the
     second Automaton set's): a track retimed in one bank can play with another's old timing and cut off. Which
     copies a mission loads isn't known, so all of them get the new timing. Settings, from imported mods, go into the
@@ -191,7 +210,7 @@ def reach(project: Project, ix: AudioIndex, reps: list[patch.Replacement], setti
         if every & music or not (mine := every & mod or every & listed):
             continue
         holders = ix.holders.get(r.source, set())
-        if ix.stream_file(r.source) is not None or not mine & holders:
+        if r.wem is not None and (ix.stream_file(r.source) is not None or not mine & holders):
             mine |= holders
         sounds[r.source] = mine
     if keep := own_banks(project, ix, listed):
@@ -295,9 +314,10 @@ def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, ste
     music_plan = soundtrack_plan(project, ix, reps, settings, log)
     where, set_where = reach(project, ix, reps, settings, listed)
     curves_off, track_curves = curve_plan(project, ix, log)
+    radio_plan = radio.Plan(set(project.radio_off), project.radio_quieter)
     try:
         edits = patch.build_patch(str(patch_dir / PATCH), reps, ix, project.segment_overrides, tables, plan,
-                                  settings, where, set_where, carried, music_plan, curves_off, track_curves)
+                                  settings, where, set_where, carried, music_plan, curves_off, track_curves, radio_plan)
     except patch.CueError as e:
         raise BuildError(tr("Music segment {segment}: the Entry cue point ({entry} s) is at or after the Exit ({exit} s), "
                             "so the game would play the music before it until the Entry. Move the cue points on the "
@@ -309,7 +329,7 @@ def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, ste
     if step:
         step(tr("Checking the patch"), steps - after - 1, steps)
     # what a check finds is a fault of Audiodiver's, for its log and a bug report: listed in English
-    if problems := patch.verify(str(patch_dir / PATCH), reps, ix, plan, settings, where, music_plan, curves_off, track_curves) \
+    if problems := patch.verify(str(patch_dir / PATCH), reps, ix, plan, settings, where, music_plan, curves_off, track_curves, radio_plan) \
             + patch.verify_strings(str(patch_dir / PATCH), tables, [c.fid for c in carried if c.tid == strings.STRINGS]) \
             + (patch.verify_carried(str(patch_dir / PATCH), carried, tables) if carried else []):
         raise BuildError(tr("The patch failed verification:") + "\n  " + "\n  ".join(problems))
@@ -333,6 +353,13 @@ def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, ste
         done.append(ntr("a mod's settings on {n} object", "a mod's settings on {n} objects", set_on).format(n=set_on))
     if curved:
         done.append(ntr("volume curves changed on {n} music track", "volume curves changed on {n} music tracks", curved).format(n=curved))
+    if filtered := len({i for e in edits.values() for i in e.filters}):
+        done.append(ntr("filters on {n} object", "filters on {n} objects", filtered).format(n=filtered))
+    if radio_plan:
+        buses = {i for e in edits.values() for i in e.radio}
+        done.append(ntr("radio filter off on {n} bus", "radio filter off on {n} buses", len(buses)).format(n=len(buses)))
+        if buses != radio_plan.buses():
+            log(tr("radio filter: this game version has changed some of those buses, so they keep the filter"))
     done.append(tr("verified ({seconds}s)").format(seconds=f"{time.time() - t0:.0f}"))
     log(", ".join(done))
     if kept := len({(c.tid, c.fid) for c in carried} - {(strings.STRINGS, t) for t in tables}):

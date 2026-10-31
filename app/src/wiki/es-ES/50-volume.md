@@ -62,3 +62,33 @@ Por estos motivos, define el Make-Up Gain de oído **en el juego**, en los momen
 > Si una pieza necesita un empujón, sube los slots +4 dB cada vez y escucha en el juego después de cada paso.
 
 **Añadir el análisis de sonoridad de Wwise**, en la pestaña [Generar](app:build), requiere una instalación de Wwise. No produce ninguna diferencia audible y está desactivado de forma predeterminada.
+
+## Filtros {#filters}
+
+El **paso bajo** apaga un sonido y el **paso alto** lo adelgaza, de 0 a 100, en los detalles de cualquier slot, con audio nuevo o el original. Se suman a lo que fija el juego, y un sonido puede tener 100 como máximo.
+
+Los aplica el juego, así que las vistas previas y las formas de onda de Audiodiver suenan sin ellos. Para oír el cambio, compila el mod y escucha en el juego.
+
+## Fundidos {#fades}
+
+El **fundido de entrada** y el **fundido de salida** van en milisegundos, en los detalles de un slot con audio nuevo. Se integran en el propio audio, así que la forma de onda y la vista previa los muestran, y la duración no cambia. Un `.wem` que entraría sin cambios se codifica de nuevo cuando tiene un fundido.
+
+## Filtro de radio {#radio-filter}
+
+El sonido de radio de algunas voces no está en sus ficheros. Las frases pasan por un efecto de radio en la mezcla del juego, así que el audio nuevo de esas voces recibe el mismo efecto. La sección **Filtro de radio** de la pestaña [Proyecto](app:project) lo desactiva, voz por voz, en todos los idiomas:
+
+- **Control de misión**
+- **El Almirante**
+- **Águila 1**
+- **Pelícano 1**
+- **Helldivers**, para compañeros por radio y cualquiera en un vehículo
+
+Un mod puede ser solo esto, sin audio nuevo.
+
+Las voces limpias suenan más fuerte. **Normalizar el volumen** las baja a cerca del nivel de la radio.
+
+La mezcla está en el banco Init del juego, por el que pasa todo sonido, así que el mod lleva una copia solo con estos cambios:
+
+- Solo un mod puede llevar Init. Con dos, gana el último. [Combinar](wiki:combining-mods) conserva los ajustes de radio de cada mod en un solo Init.
+- Tras una actualización del juego, vuelve a compilar el mod, o un cambio en la mezcla se pierde para todos los sonidos. La [comprobación de mods instalados](wiki:game-updates) señala un Init antiguo.
+- Solo cambia tu juego. Los demás jugadores oyen lo que reproduce el suyo.

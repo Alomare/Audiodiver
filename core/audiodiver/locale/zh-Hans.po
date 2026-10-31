@@ -173,6 +173,10 @@ msgid_plural "{replacements} -> {n} banks patched"
 msgstr[0] "{replacements} -> 已修补 {n} 个音频库"
 
 #: build.py
+msgid "radio filter: this game version has changed some of those buses, so they keep the filter"
+msgstr "无线电滤镜：此游戏版本更改了其中一些总线，因此它们保留滤镜"
+
+#: build.py
 msgid "verified ({seconds}s)"
 msgstr "已验证（{seconds}s）"
 
@@ -193,6 +197,11 @@ msgstr "声音 {id}"
 msgid "gain: {n} sound with Make-Up Gain on the original is not in this game version; left out"
 msgid_plural "gain: {n} sounds with Make-Up Gain on the original are not in this game version; left out"
 msgstr[0] "增益：{n} 个在原版上设置了 Make-Up Gain 的声音不在当前游戏版本中，已略去"
+
+#: build.py
+msgid "filters: {n} sound with a filter is not in this game version; left out"
+msgid_plural "filters: {n} sounds with a filter are not in this game version; left out"
+msgstr[0] "滤波器：{n} 个带滤波器的声音不在此游戏版本中；已略过"
 
 #: build.py
 msgid "Since the last game update, the game uses some IDs that the added audio also uses ({ids}). Remove that audio and add it again."
@@ -276,6 +285,16 @@ msgid_plural "volume curves changed on {n} music tracks"
 msgstr[0] "已更改 {n} 条音轨的音量曲线"
 
 #: build.py
+msgid "filters on {n} object"
+msgid_plural "filters on {n} objects"
+msgstr[0] "{n} 个对象上的滤波器"
+
+#: build.py
+msgid "radio filter off on {n} bus"
+msgid_plural "radio filter off on {n} buses"
+msgstr[0] "{n} 条总线上的无线电滤镜已关闭"
+
+#: build.py
 msgid "{n} file besides audio (text, models, textures...) carried as it was"
 msgid_plural "{n} files besides audio (text, models, textures...) carried as they were"
 msgstr[0] "{n} 个音频以外的文件（文本、模型、纹理等）按原样保留"
@@ -333,12 +352,12 @@ msgid "Icon: {why}"
 msgstr "图标：{why}"
 
 #: build.py
-msgid "{name}: sound {id} isn't in this version of the game"
-msgstr "{name}：声音 {id} 不在当前游戏版本中"
-
-#: build.py
 msgid "{name}: can't read the audio in {file}"
 msgstr "{name}：无法读取 {file} 中的音频"
+
+#: build.py
+msgid "{name}: sound {id} isn't in this version of the game"
+msgstr "{name}：声音 {id} 不在当前游戏版本中"
 
 #: build.py
 msgid "text: table {table} is not in this game version; the {n} line changed in it is left out"
@@ -695,6 +714,10 @@ msgid "Choose the pieces of music to set"
 msgstr "选择要设置的曲目"
 
 #: editor.py
+msgid "Choose the songs"
+msgstr "选择歌曲"
+
+#: editor.py
 msgid "Set this music to another mode first"
 msgstr "请先将这段音乐设为其他模式"
 
@@ -705,10 +728,6 @@ msgstr "选择要设置的音乐"
 #: editor.py
 msgid "No other music to set"
 msgstr "没有其他可设置的音乐"
-
-#: editor.py
-msgid "Choose the songs"
-msgstr "选择歌曲"
 
 #: editor.py
 msgid "The export list can't be read. Clear it and add the items again."
@@ -953,6 +972,11 @@ msgid_plural "{n} volume curves from the mod"
 msgstr[0] "来自模组的 {n} 条音量曲线"
 
 #: editor.py
+msgid "radio filter off for {n} voice, from the mod"
+msgid_plural "radio filter off for {n} voices, from the mod"
+msgstr[0] "来自模组：{n} 个语音的无线电滤镜已关闭"
+
+#: editor.py
 msgid "Decoding {n} of {total}"
 msgstr "正在解码 {n}/{total}"
 
@@ -1070,6 +1094,10 @@ msgstr "无法保存复制的音频：{why}"
 #: editor.py
 msgid "Make-Up Gain goes from {low} to {high} dB"
 msgstr "Make-Up Gain 的范围为 {low} 到 {high} dB"
+
+#: editor.py
+msgid "A fade is from 0 to {ms} ms"
+msgstr "淡入淡出范围为 0 到 {ms} 毫秒"
 
 #: editor.py
 msgid "{file} can't be read, so global notes can't be shown or saved. Fix or move the file, or choose another folder in Settings ▸ System."
@@ -1995,6 +2023,10 @@ msgid "Fit timing for {name}"
 msgstr "{name} 的“让时序适配新音频”选项"
 
 #: project.py
+msgid "the fades of {name}"
+msgstr "{name} 的淡入淡出"
+
+#: project.py
 msgid "the label of sound {id}"
 msgstr "声音 {id} 的标签"
 
@@ -2005,6 +2037,10 @@ msgstr "声音 {id} 的 Make-Up Gain"
 #: project.py
 msgid "Fit timing for sound {id}"
 msgstr "声音 {id} 的“让时序适配新音频”选项"
+
+#: project.py
+msgid "the fades of sound {id}"
+msgstr "声音 {id} 的淡入淡出"
 
 #: project.py
 msgid "mod ID: damaged in the project file (Make a New ID, on the Project tab)"
@@ -2039,6 +2075,10 @@ msgid "the build folder"
 msgstr "构建文件夹"
 
 #: project.py
+msgid "the radio filters"
+msgstr "无线电滤镜"
+
+#: project.py
 msgid "icon: image not found ({path})"
 msgstr "图标：找不到图片（{path}）"
 
@@ -2069,6 +2109,10 @@ msgstr "段落 {id}：未知的覆盖项 {keys}"
 #: project.py
 msgid "the imported mods' banks"
 msgstr "导入模组的音频库"
+
+#: project.py
+msgid "the filters of sound {id}"
+msgstr "声音 {id} 的滤波器"
 
 #: projectfiles.py
 msgid "Another project in this folder can't be read, so it isn't known which files it uses"

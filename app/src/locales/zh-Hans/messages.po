@@ -53,6 +53,7 @@ msgid "{after, plural, =1 {Undo the change after this one} other {Undo the # cha
 msgstr "{after, plural, =1 {撤销紧随其后的一项更改} other {撤销紧随其后的 # 项更改}}"
 
 #: src/CueView.tsx
+#: src/Soundtrack.tsx
 msgid "{also, plural, one {+# bank} other {+# banks}}"
 msgstr "{also, plural, other {+# 个音频库}}"
 
@@ -497,6 +498,10 @@ msgstr "{name}（示例）"
 msgid "{name} at {time}"
 msgstr "{name}，位于 {time}"
 
+#: src/Inspector.tsx
+msgid "{name} in ms"
+msgstr "{name}（毫秒）"
+
 #: src/store.tsx
 msgid "{name} moved. Some files stayed in the old folder because they were in use. The project no longer uses them."
 msgstr "{name} 已移动。有些文件因正在使用而留在了旧文件夹中。项目已不再使用它们。"
@@ -536,6 +541,10 @@ msgstr "{others, plural, other {{total} 个槽位中有 # 个也在其他音乐�
 #: src/ProjectTab.tsx
 msgid "{others, plural, one {Another project is in this folder and uses the same slices and imported folders.} other {# other projects are in this folder and use the same slices and imported folders.}}"
 msgstr "{others, plural, other {此文件夹中还有其他 # 个项目，共用同一批切片和导入文件夹。}}"
+
+#: src/Soundtrack.tsx
+msgid "{over, plural, one {# song left over} other {# songs left over}}."
+msgstr "{over, plural, other {多出 # 首歌曲}}。"
 
 #: src/Soundtrack.tsx
 msgid "{over, plural, one {# song left over} other {# songs left over}}. This music has {total, plural, one {# place} other {# places}}."
@@ -1879,6 +1888,10 @@ msgstr "基于当前音频库构建一个模组。"
 msgid "Built {file} ({mb} MB)."
 msgstr "已构建 {file}（{mb} MB）。"
 
+#: src/Inspector.tsx
+msgid "Built into the new audio, so the waveform and the preview show them. An audio file that would go in unchanged is encoded again"
+msgstr "写入新音频，因此波形和预览都会显示。原本可直接放入的音频文件会重新编码"
+
 #. Credits: who made the work named before
 #: src/About.tsx
 msgid "by {author}"
@@ -2283,6 +2296,10 @@ msgstr "已在此处选定。"
 #: src/ProjectTab.tsx
 msgid "Circle"
 msgstr "圆形"
+
+#: src/ProjectTab.tsx
+msgid "Clean voices come out louder. This turns them down to about the level of the radio"
+msgstr "去除滤镜后的语音会变响。此项将其调低到接近无线电的音量"
 
 #. Button: deletes these files
 #. Button: deletes these files
@@ -2932,6 +2949,7 @@ msgid "Drop audio on the slot."
 msgstr "将音频拖到槽位上。"
 
 #: src/CueView.tsx
+#: src/Soundtrack.tsx
 msgid "Drop Audio or Choose a File"
 msgstr "拖入音频或选择文件"
 
@@ -3063,6 +3081,10 @@ msgstr "每次音乐响起时，先播放其中一个开场，然后从第 1 段
 #: src/Soundtrack.tsx
 msgid "Each time the music comes on, one of the openings plays first, then the songs."
 msgstr "每次音乐响起时，先播放其中一个开场，然后播放各首歌曲。"
+
+#: src/ProjectTab.tsx
+msgid "Eagle-1"
+msgstr "“飞鹰”1号"
 
 #: src/Notes.tsx
 msgid "Edit the note"
@@ -3286,6 +3308,18 @@ msgstr "正在导出 {title}"
 msgid "Exports of the original are for reference and mod work. Don't upload them."
 msgstr "导出的原版只供参考和做模组用。请勿上传。"
 
+#: src/Inspector.tsx
+msgid "Fade In"
+msgstr "淡入"
+
+#: src/Inspector.tsx
+msgid "Fade Out"
+msgstr "淡出"
+
+#: src/Inspector.tsx
+msgid "Fades"
+msgstr "淡入淡出"
+
 #. A job's state in the Build tab's log, such as: Build: My Mod, failed, 12 s
 #: src/BuildTab.tsx
 msgid "failed"
@@ -3379,6 +3413,10 @@ msgstr "已按播放顺序和文件名填充 {n, plural, other {# 个槽位}}。
 #: src/CueView.tsx
 msgid "Fills leave it out"
 msgstr "填充时会跳过它"
+
+#: src/Inspector.tsx
+msgid "Filters"
+msgstr "滤波器"
 
 #: src/App.tsx
 #: src/SettingsTab.tsx
@@ -3650,6 +3688,10 @@ msgstr "标题区"
 msgid "Heading"
 msgstr "标题"
 
+#: src/ProjectTab.tsx
+msgid "Helldivers"
+msgstr "绝地潜兵"
+
 #. Helldivers 2 Modding is the name of the Discord server
 #: src/About.tsx
 #: src/Home.tsx
@@ -3682,6 +3724,10 @@ msgstr "隐藏波形"
 #: src/SettingsTab.tsx
 msgid "High"
 msgstr "高"
+
+#: src/Inspector.tsx
+msgid "High-Pass"
+msgstr "高通"
 
 #: src/SettingsTab.tsx
 msgid "High, because the system asks for more contrast."
@@ -4285,6 +4331,14 @@ msgstr "调高或调低音量，不改变文件或混音。"
 msgid "Louder or quieter, without changing the file or the mix. Added to the {gain} dB the game gives this sound."
 msgstr "调高或调低音量，不改变文件或混音。在游戏为此声音设置的 {gain} dB 基础上叠加。"
 
+#: src/Inspector.tsx
+msgid "Low-Pass"
+msgstr "低通"
+
+#: src/Inspector.tsx
+msgid "Low-Pass dulls the sound and High-Pass thins it. They add to what the game sets. The game applies them, so previews here play without them"
+msgstr "低通让声音变闷，高通让声音变薄。它们与游戏的设置相加。它们由游戏应用，因此这里的预览不含其效果"
+
 #. The bar of main tabs, for screen readers
 #: src/App.tsx
 msgid "Main"
@@ -4387,6 +4441,12 @@ msgstr "保存间隔（分钟）"
 msgid "Missing: {name}"
 msgstr "缺失：{name}"
 
+#: src/ProjectTab.tsx
+msgid "Mission Control"
+msgstr "任务调度员"
+
+#. The selected slots have different values
+#. The selected slots have different values
 #. The selected slots have different values
 #. The selected slots have different values
 #: src/Inspector.tsx
@@ -4976,6 +5036,10 @@ msgid "Normal"
 msgstr "正常"
 
 #: src/ProjectTab.tsx
+msgid "Normalize the loudness"
+msgstr "标准化响度"
+
+#: src/ProjectTab.tsx
 msgid "Not an Audiodiver project, or damaged"
 msgstr "不是 Audiodiver 项目，或文件已损坏"
 
@@ -5230,6 +5294,14 @@ msgstr "随机一个"
 msgid "one of several"
 msgstr "多条之一"
 
+#: src/Soundtrack.tsx
+msgid "One of the openings plays each time the music comes on"
+msgstr "每次音乐响起时播放其中一个开场"
+
+#: src/Soundtrack.tsx
+msgid "One of the openings starts each fight"
+msgstr "每场战斗由其中一个开场开始"
+
 #: src/PlayThrough.tsx
 msgid "One round of the playlist, top to bottom. Play order shows how the game plays it"
 msgstr "从上到下播放一轮播放列表。“播放顺序”显示游戏的播放方式"
@@ -5423,6 +5495,10 @@ msgstr "打开资源库"
 #: src/Inspector.tsx
 msgid "Open the subtitle in the Text tab"
 msgstr "在文本选项卡中打开字幕"
+
+#: src/Soundtrack.tsx
+msgid "Openings"
+msgstr "开场"
 
 #: src/About.tsx
 #: src/Home.tsx
@@ -5667,6 +5743,10 @@ msgstr "暂停连续播放 · 已替换"
 msgid "Pause the original {slot}"
 msgstr "暂停原版 {slot}"
 
+#: src/ProjectTab.tsx
+msgid "Pelican-1"
+msgstr "鹈鹕1号"
+
 #. The nth piece of the song cut into the segments (One Song)
 #: src/Soundtrack.tsx
 msgid "piece {n}"
@@ -5867,6 +5947,10 @@ msgstr "播放列表"
 #: src/store.tsx
 msgid "playlist order"
 msgstr "播放列表顺序"
+
+#: src/Soundtrack.tsx
+msgid "Plays after the song"
+msgstr "在歌曲之后播放"
 
 #: src/Soundtrack.tsx
 msgid "Plays again and again until the music changes"
@@ -6093,6 +6177,10 @@ msgstr "安静探索"
 msgid "Quiet Exploring: every Exploring set to Silent"
 msgstr "安静探索：把所有“探索”曲目都设为“静音”"
 
+#: src/ProjectTab.tsx
+msgid "Radio Filter"
+msgstr "无线电滤镜"
+
 #: src/BuildTab.tsx
 msgid "Raise the version after each build"
 msgstr "每次构建后提升版本号"
@@ -6302,6 +6390,10 @@ msgstr "移除项目中的 {count} 项"
 #: src/IndexTree.tsx
 msgid "Remove the {count} in the Project"
 msgstr "移除项目中的 {count} 项"
+
+#: src/Soundtrack.tsx
+msgid "Remove the audio"
+msgstr "移除音频"
 
 #: src/CueView.tsx
 msgid "Remove the new audio"
@@ -7064,6 +7156,7 @@ msgid "Skip All {count}"
 msgstr "跳过全部 {count} 项"
 
 #: src/CueView.tsx
+#: src/Soundtrack.tsx
 msgid "Skip it"
 msgstr "跳过"
 
@@ -7362,6 +7455,10 @@ msgstr "取用模组替换和新增的音频，以及音量、延迟等声音设
 msgid "Taller, to see quiet audio. It plays as loud as before. Ctrl+wheel on the waveforms zooms too"
 msgstr "调高以看清音量较小的音频，播放音量不变。在波形上按住 Ctrl 滚动滚轮也可缩放"
 
+#: src/ProjectTab.tsx
+msgid "Teammates on the radio, and anyone in a vehicle"
+msgstr "无线电中的队友，以及载具中的任何人"
+
 #: src/content.ts
 msgid "telling grunts, breaths and laughs from words"
 msgstr "区分哼声、呼吸声、笑声与话语"
@@ -7472,6 +7569,10 @@ msgstr "**索引**按你听到声音的场合给游戏里的声音分类：武�
 #: src/Soundtrack.tsx
 msgid "The <0>Battle</0> music plays on here, from where it is."
 msgstr "<0>战斗</0>音乐在此处从当前位置继续播放。"
+
+#: src/ProjectTab.tsx
+msgid "The Admiral"
+msgstr "舰队将军"
 
 #: src/ExportDialog.tsx
 msgid "The audio before Entry and after Exit. When this is off, the pieces sit end to end without overlap."
@@ -7962,6 +8063,10 @@ msgstr "项目仍能找到其使用的每个文件"
 msgid "The project's order and audio"
 msgstr "项目中的顺序和音频"
 
+#: src/ProjectTab.tsx
+msgid "The radio sound isn't in the voice files, so new audio goes through it too. Tick a voice to play it clean, in every language"
+msgstr "无线电声音不在语音文件中，因此新音频同样会经过它。勾选某个语音即可让它以干净的声音播放，所有语言都有效"
+
 #: src/TextTab.tsx
 msgid "The recordings that say this subtitle. Open one in the Library to hear it or replace it"
 msgstr "念出这条字幕的录音。在资源库中打开即可试听或替换"
@@ -8160,6 +8265,10 @@ msgstr "此音频库在索引中为 {sets}。"
 msgid "This clip isn't in the installed game files, so there is nothing to play or replace."
 msgstr "此片段不在已安装的游戏文件中，因此无法播放或替换。"
 
+#: src/ProjectTab.tsx
+msgid "This mod carries the Init bank, which every sound goes through. Only one mod can carry it, so with two the last one wins."
+msgstr "此模组包含 Init 音频库，所有声音都会经过它。只有一个模组能包含它，两个同时存在时后加载的生效。"
+
 #: src/Inspector.tsx
 msgid "this music track"
 msgstr "此音轨"
@@ -8167,6 +8276,10 @@ msgstr "此音轨"
 #: src/ProjectTab.tsx
 msgid "This project is in a shared place, such as the Desktop or Documents."
 msgstr "此项目位于共享位置，例如桌面或文档。"
+
+#: src/Soundtrack.tsx
+msgid "This segment holds no audio that can be replaced"
+msgstr "此段落不含可替换的音频"
 
 #: src/Soundtrack.tsx
 msgid "This segment holds no audio that can be replaced. Places without a song don't play"
