@@ -2,7 +2,7 @@
 title: Make-Up Gain et le mixage
 group: Créer un mod
 summary: Régler le volume d’un emplacement, comment fonctionne le mixage HDR du jeu, et pourquoi certains écrans sonnent plus faible dans le jeu que dans Audiodiver.
-source: c580c2a4483d
+source: c27b0b827853
 ---
 
 ## Make-Up Gain par emplacement {#make-up-gain-per-slot}

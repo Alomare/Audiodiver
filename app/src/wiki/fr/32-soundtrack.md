@@ -2,7 +2,7 @@
 title: Bande-son
 group: Créer un mod
 summary: Comment chaque morceau de musique est joué : dans l’ordre d’origine, comme une seule chanson, comme une playlist, en silence, ou comme la musique de combat.
-source: 214ec97ec28d
+source: f86e437dcedb
 ---
 
 Le jeu ne joue pas un morceau de musique de haut en bas. La playlist d’un morceau mélange des groupes joués dans l’ordre, des groupes qui jouent le segment suivant à chaque fois, et des groupes qui choisissent au hasard. La plupart des musiques de combat démarrent chaque combat sur une courte ouverture, et un nouveau combat reprend là où le précédent s’est arrêté. Une chanson découpée dans les emplacements dans l’ordre de la liste est jouée dans le désordre dans le jeu.

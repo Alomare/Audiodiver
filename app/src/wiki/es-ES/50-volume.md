@@ -2,7 +2,7 @@
 title: Make-Up Gain y la mezcla
 group: Crear un mod
 summary: Cómo ajustar la sonoridad de un slot, cómo funciona la mezcla HDR del juego y por qué algunas pantallas suenan más bajas en el juego que en Audiodiver.
-source: c580c2a4483d
+source: c27b0b827853
 ---
 
 ## Make-Up Gain por slot {#make-up-gain-per-slot}

@@ -2,7 +2,7 @@
 title: Make-Up Gain 与混音
 group: 制作模组
 summary: 如何设置槽位的响度，游戏的 HDR 混音如何工作，以及为什么有些界面在游戏中听起来比在 Audiodiver 中更轻。
-source: c580c2a4483d
+source: c27b0b827853
 ---
 
 ## 每个槽位的 Make-Up Gain {#make-up-gain-per-slot}

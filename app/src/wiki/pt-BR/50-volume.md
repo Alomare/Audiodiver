@@ -2,7 +2,7 @@
 title: Make-Up Gain e a mixagem
 group: Criando um mod
 summary: Como definir o volume de um slot, como funciona a mixagem HDR do jogo e por que algumas telas soam mais baixas no jogo do que no Audiodiver.
-source: c580c2a4483d
+source: c27b0b827853
 ---
 
 ## Make-Up Gain por slot {#make-up-gain-per-slot}
