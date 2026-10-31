@@ -13,7 +13,7 @@ python -m pytest core                    # unit tests + golden builds of the thr
 python core/tools/import_sounds.py       # dev: the Index's sound data, from the community's workbook (see the file)
 python core/tools/import_subtitles.py    # dev: each voice line's subtitle and the names of clips without words (S7)
 python core/tools/import_exertions.py    # dev: the Helldivers' exertions by kind and voice, from a mod's notes (see the file)
-python core/tools/import_logo.py         # dev: the default mod icon and the app icon's source, from assets/logo
+python core/tools/import_logo.py         # dev: the default mod icon, the app icon's source and the installer's images, from assets/logo
 python core/tools/import_bank_history.py OLD_INDEX BUILD   # dev, after a game update: what the banks lost and gained
 python core/tools/i18n.py extract        # dev: the messages in tr(), ntr() and N_() into locale/<language>.po
 python core/tools/i18n.py data           # dev: the texts the data files show into locale/data/en.json, for translators

@@ -3,6 +3,23 @@
 The Updates tab shows this file. Each release starts with a second-level heading, `<version> - <date>`,
 newest first.
 
+## 1.5.1 - 2026-10-31
+
+### Additions
+
+- Added a Helldivers 1 battle theme for each difficulty range (1-4, 5-8 and 9+) under Bugs, Cyborgs and The Illuminate, which used to be one long list of takes.
+- Added the three Helldivers 1 boss themes, with their openings.
+- Labelled the Helldivers 1 clips that open, loop or close a sound as **Start**, **Loop** and **End**.
+- Added the Audiodiver logo to the installer.
+
+### Changes
+
+- Sorted the Helldivers 1 music into a section for each enemy, then **Missions** and **Menus**, in the order the game plays them.
+
+### Bug Fixes
+
+- Fixed Helldivers 1 sounds that showed only some of their clips, or a clip that wasn't theirs. Bullet Gravel had 4 of 67.
+
 ## 1.5.0 - 2026-10-31
 
 ### Highlights

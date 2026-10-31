@@ -1,2 +1,2 @@
 """Audiodiver core: builds Helldivers 2 audio replacement mods from a project file."""
-__version__ = "1.5.0"  # the same as the app's package.json
+__version__ = "1.5.1"  # the same as the app's package.json
