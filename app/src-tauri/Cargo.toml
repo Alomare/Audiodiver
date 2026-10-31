@@ -1,6 +1,6 @@
 [package]
 name = "audiodiver"
-version = "1.4.2"
+version = "1.5.0"
 description = "Audiodiver: Helldivers 2 audio mod editor"
 edition = "2021"
 license = "MPL-2.0"

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "audiodiver"
-version = "1.4.2"
+version = "1.5.0"
 description = "Audiodiver core: builds Helldivers 2 audio replacement mods from a project file"
 readme = "README.md"
 requires-python = ">=3.12"

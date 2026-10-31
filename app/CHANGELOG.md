@@ -3,6 +3,60 @@
 The Updates tab shows this file. Each release starts with a second-level heading, `<version> - <date>`,
 newest first.
 
+## 1.5.0 - 2026-10-31
+
+### Highlights
+
+#### Radio Filter
+
+Added switches that turn off the radio filter on Mission Control, the Admiral, Eagle-1, Pelican-1 and Helldivers, one voice at a time and in every language, in the new **Radio Filter** section of the Project tab. Until now, new audio on these voices went through the filter whatever you did. Clean voices come out louder, so **Normalize the loudness** turns them down. A mod can be just this, with no new audio, and Import Mod, Repatch and Combine keep the settings.
+
+#### Filters and Fades
+
+Added **Low-Pass** and **High-Pass** to the details of any slot, with new audio or the original. Added **Fade In** and **Fade Out** for new audio, and the waveform and the preview show them.
+
+#### Volume Curves
+
+Added the game's volume curves to the waveform, so you can see why a song gets quieter as it plays. **Keep the volume curve** plays a slot at an even level, with or without new audio. Import Mod, Repatch and Combine keep a mod's curves on music tracks.
+
+#### Every Segment in the Soundtrack
+
+Reworked One Song and Playlist to show every segment of a piece, so you can fill a whole piece of music without leaving the tab. The openings have a list of their own, where they take new audio or a skip. One Song goes on past the last piece, and a file on one of those segments plays after the song.
+
+#### Helldivers 1
+
+Added Helldivers 1 to the Library, as a separate tab under Index and All Archives. You can play the audio and export it as WAV, FLAC or MP3, with a tab for each voice language. Weapons, stratagems and enemies go by their official names, and voice entries show the line on screen. Replacing Helldivers 1 audio isn't in yet.
+
+#### Languages
+
+Added French, Spanish and Japanese: the window, the messages, the names in the Library and the Wiki.
+
+#### Copying Audio
+
+Added Ctrl+C and Ctrl+V for audio. Copy any slot in the Library or the Audio tab and paste it into the Audio tab, with no export or import. A Helldivers 2 original goes in unchanged.
+
+### Additions
+
+- Added exact times to the slice tool: every time shows to the millisecond, and you can type a cut.
+- Added a way to move the Wiki into a separate window, to read beside a project.
+- Added selection by container: By Container ID, a click on a container's line selects every slot under it.
+- Added a warning to the installed mods check for a mod with an old copy of the Init bank.
+- Added a Helldivers 1 folder to Settings ▸ System.
+- Added a setting to hide the news ticker on Home, in Settings ▸ System.
+- Added a form for reporting a wrong translation, linked from Settings ▸ System.
+
+### Changes
+
+- Index and All Archives now keep separate panel widths, and All Archives starts wider to fit the columns.
+
+### Bug Fixes
+
+- Fixed Make-Up Gain on original audio adding banks that only store the clip, which made those mods bigger.
+- Fixed the "can't be read" warning on an empty global notes file.
+- Fixed a voice line with one take showing the line twice By Container ID.
+- Fixed a long path in the Global Note's error message running out of the details panel.
+- Fixed the Wiki on which copy Combine Mods keeps when two mods have the same texture or string table: the lower mod's.
+
 ## 1.4.2 - 2026-10-29
 
 ### Changes
