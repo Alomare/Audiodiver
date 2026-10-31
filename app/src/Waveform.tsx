@@ -70,9 +70,10 @@ type Props = {
   error?: string | null;         // shown instead when they failed, with a way to ask again
   onRetry?: () => void;
   gainDb?: number;               // drawn this much louder or quieter (Make-Up Gain); past full scale in red
+  curve?: number[][];            // [ms, level]: the level the game gives the clip as it plays, 1 as mixed, as a line each side
 };
 
-export function Waveform({ peaks, spanMs, fromMs = 0, zoomY = 1, tone, height: fixed, markers = [], playheadMs, activeFrom, activeTo, bands, onSeek, onMarkerMove, onMarkerCommit, label, error, onRetry, gainDb = 0 }: Props) {
+export function Waveform({ peaks, spanMs, fromMs = 0, zoomY = 1, tone, height: fixed, markers = [], playheadMs, activeFrom, activeTo, bands, onSeek, onMarkerMove, onMarkerCommit, label, error, onRetry, gainDb = 0, curve }: Props) {
   // where key nudges put each marker, until the project's answer puts it there too
   const nudged = useRef<Record<string, number>>({});
   for (const m of markers) if (nudged.current[m.id] === m.ms) delete nudged.current[m.id];
@@ -134,7 +135,21 @@ export function Waveform({ peaks, spanMs, fromMs = 0, zoomY = 1, tone, height: f
       g.fillRect(px, mid - h / 2, 1, h);
     }
     g.globalAlpha = 1;
-  }, [peaks, width, height, spanMs, fromMs, zoomY, tone, activeFrom, activeTo, bands?.join(","), look, gainDb]);
+    if (curve?.length) {
+      const y = (level: number) => (Math.min(1, level * zoomY) * (height - 6)) / 2, last = curve[curve.length - 1][1];
+      g.strokeStyle = css.getPropertyValue("--text").trim();
+      g.lineWidth = 1.25;
+      g.globalAlpha = 0.85;
+      for (const side of [-1, 1]) {
+        g.beginPath();
+        g.moveTo(x(0), mid + side * y(curve[0][1]));
+        for (const [ms, level] of curve) g.lineTo(x(ms), mid + side * y(level));
+        g.lineTo(x(dur), mid + side * y(last));
+        g.stroke();
+      }
+      g.globalAlpha = 1;
+    }
+  }, [peaks, width, height, spanMs, fromMs, zoomY, tone, activeFrom, activeTo, bands?.join(","), look, gainDb, curve]);
 
   const startDrag = (e: React.PointerEvent, m: Marker) => {
     if (!m.draggable) return;

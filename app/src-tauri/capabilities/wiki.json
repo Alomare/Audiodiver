@@ -1,0 +1,12 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "wiki",
+  "description": "The Wiki's own window: only what reading needs, opening web links in the browser.",
+  "windows": [
+    "wiki"
+  ],
+  "permissions": [
+    "core:default",
+    "opener:default"
+  ]
+}

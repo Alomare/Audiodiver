@@ -72,14 +72,18 @@ def file_json(notes: dict[str, str]) -> str:
                       indent=2) + "\n"
 
 
-def read_file(path) -> dict[str, str]:
-    """The notes in a notes file (file_json's) or in a project file (its `notes`). A file that isn't there has none;
-    ValueError for a file that can't be read as either (OSError when it can't be read at all)."""
+def read_file(path, blank=False) -> dict[str, str]:
+    """The notes in a notes file (file_json's) or in a project file (its `notes`). A file that isn't there has none,
+    and with `blank` (the global notes file) neither has one with nothing in it, as a text editor leaves it: no
+    text, or {}. ValueError for a file that can't be read as either (OSError when it can't be read at all)."""
     path = Path(path)
     if not path.exists():
         return {}
     try:
-        d = json.loads(path.read_text(encoding="utf-8"))
+        text = path.read_text(encoding="utf-8-sig").strip()  # -sig: the mark Notepad can put first
+        if blank and text in ("", "{}"):
+            return {}
+        d = json.loads(text)
     except (ValueError, UnicodeDecodeError):
         raise ValueError("not JSON") from None
     if isinstance(d, dict) and d.get("format") == FORMAT:

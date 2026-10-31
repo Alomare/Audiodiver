@@ -13,21 +13,21 @@ import { addedNote, exportList, itemEntries } from "./exportList";
 import { CheckIcon, CollapseAllIcon, NoteIcon, PlusIcon, RemoveIcon, SearchIcon } from "./Icons";
 import { CatMark } from "./Tags";
 import { motionMs, scrollBehavior } from "./theme";
-import { FOLD_LIBRARY } from "./nav";
+import { FOLD_LIBRARY, isArchive, type LibraryGame } from "./nav";
 import { Help } from "./Wiki";
 
 type Filter = "all" | "mine" | "game";
 /** A top-level group of the tree: an Index category, or the archives a project lists. `flat`: it has one section,
     so its items sit right under it. */
-type Group = { id: string; name: string; about: string; flat: boolean; sections: MusicSection[]; en?: string };
+type Group = { id: string; name: string; about: string; flat: boolean; sections: MusicSection[]; en?: string; game?: "hd1" };
 const DEFAULT_OPEN = new Set(["c:music", "s:ship", "s:deploy"]);
 const SMALL = 30; // a category with no more items than this shows its sections open
 
 /** The Index as a tree: categories, their sections, and the items in them. In the Library it is the whole Index,
     and an item can be added to the project from here; in the Audio tab it is what the open project lists, marked
     with whether each item plays the original or a replacement. A whole category or section is added (Library) or
-    removed (Audio tab) from its line: the + or ✕ on it, or a right-click. */
-export function IndexTree() {
+    removed (Audio tab) from its line: the + or ✕ on it, or a right-click. `game`: which one the Library shows. */
+export function IndexTree({ game = "hd2" }: { game?: LibraryGame }) {
   const { index, itemIndex, project, itemId, openItem, goTo, actions, revision, scope, quick } = useEditor();
   const editing = scope === "editor";
   const [query, setQuery] = useState("");
@@ -54,8 +54,8 @@ export function IndexTree() {
 
   // what the tree is made of: the whole Index, or the part of it the project lists (and the archives it lists)
   const groups = useMemo<Group[]>(() => {
-    const all: Group[] = (index?.categories ?? []).map((c) => ({ id: c.id, name: c.name, about: c.about, flat: c.sections.length === 1, sections: c.sections, en: c.en }));
-    if (!editing) return all;
+    const all: Group[] = (index?.categories ?? []).map((c) => ({ id: c.id, name: c.name, about: c.about, flat: c.sections.length === 1, sections: c.sections, en: c.en, game: c.game }));
+    if (!editing) return all.filter((g) => (g.game ?? "hd2") === game);
     const mine = all.map((g) => ({ ...g, sections: g.sections.map((s) => ({ ...s, items: s.items.filter((it) => listed.has(it.id)) })).filter((s) => s.items.length) }));
     const archives = (project?.library ?? []).filter((id) => id.startsWith("archive:")).flatMap((id) => itemIndex.items.get(id) ?? []);
     if (archives.length) {
@@ -63,7 +63,7 @@ export function IndexTree() {
         sections: [{ id: "archives", name: t`Archives`, about: "", unused: false, items: archives }] });
     }
     return mine.filter((g) => g.sections.length);
-  }, [index, editing, listed, project?.library, itemIndex]);
+  }, [index, editing, listed, project?.library, itemIndex, game]);
   const sizes = useMemo(() => new Map((index?.categories ?? []).map((c) => [c.id, c.sections.reduce((n, s) => n + s.items.length, 0)])), [index]);
   const isOpen = (key: string, group: string) => open[key] ?? (editing || DEFAULT_OPEN.has(key) || (key.startsWith("s:") && (sizes.get(group) ?? 0) <= SMALL));
 
@@ -198,8 +198,8 @@ export function IndexTree() {
       { label: t`Add to the Export List`, run: () => toExport([it]) },
       ...(editing && skippable.length ? [{ label: count > 1 ? t`Skip All ${count}` : t`Skip It`,
         run: () => actions.skip(skippable, count > 1 ? t({ message: `${count} in ${name}`, comment: "Named in a note, as in “3 in Exploring → Battle skipped”" }) : it.full) } as MenuEntry] : []),
-      "-",
-      ...(editing ? [
+      ...(it.game ? [] : ["-" as const]),
+      ...(it.game ? [] : editing ? [
         { label: t`Show in the Library`, run: () => goTo({ scope: "library", itemId: it.id, cueId: null, source: null }) } as MenuEntry,
         { label: t`Remove from the Project`, run: () => actions.removeFromProject([it.id], it.full) } as MenuEntry,
       ] : added ? [
@@ -258,6 +258,7 @@ export function IndexTree() {
         </div>
       );
     }
+    if (items[0]?.game) return <div className="lib-group-line" onContextMenu={(e) => openMenu(e, [exporting])}>{head}</div>;
     const fresh = items.filter((it) => !listed.has(it.id) && !held(it));
     const add = () => actions.addToProject(fresh.map((it) => it.id), what(fresh));
     const tip = !fresh.length ? t`All in the project` : fresh.length === items.length ? t`Add all ${count} to the project`
@@ -282,6 +283,38 @@ export function IndexTree() {
     setOpen(Object.fromEntries(groups.flatMap((g) => [`c:${g.id}`, ...g.sections.map((s) => `s:${s.id}`)]).map((k) => [k, false])));
   const hasMine = (items: MusicItem[]) => editing && !!project && items.some((it) => { const st = statusOfItem(it); return st === "part" || st === "done"; });
   const mineDot = <span className="mark-dot done small" role="img" aria-label={t`Has new audio`} data-tip={t`Has new audio`} />;
+  const category = (g: Group) => {
+    const groupOpen = narrowed || isOpen(`c:${g.id}`, g.id);
+    return (
+      <div key={g.id} className="lib-group cat">
+        {groupLine(
+          <button className="lib-group-head" data-tip={g.about || undefined} data-tip-side="right" aria-expanded={groupOpen}
+            onClick={() => setOpen((o) => ({ ...o, [`c:${g.id}`]: !groupOpen }))}>
+            <span className="caret" aria-hidden>▸</span>
+            <CatMark category={g.id} />
+            <span className="lib-group-name">{g.name}</span>
+            {hasMine(g.sections.flatMap((s) => s.items)) && mineDot}
+          </button>, g.sections.flatMap((s) => s.items), g.name)}
+        <Fold open={groupOpen} instant={instant} className="lib-group-body">
+          {g.flat ? rows(g.sections[0], false) : g.sections.map((s) => {
+            const secOpen = narrowed || isOpen(`s:${s.id}`, g.id);
+            return (
+              <div key={s.id} className={`lib-group${s.unused ? " unused" : ""}`}>
+                {groupLine(
+                  <button className="lib-group-head sub" data-tip={s.about || undefined} data-tip-side="right" aria-expanded={secOpen}
+                    onClick={() => setOpen((o) => ({ ...o, [`s:${s.id}`]: !secOpen }))}>
+                    <span className="caret" aria-hidden>▸</span>
+                    <span className="lib-group-name">{s.name}</span>
+                    {!s.unused && hasMine(s.items) && mineDot}
+                  </button>, s.items, s.name)}
+                <Fold open={secOpen} instant={instant} className="lib-group-body">{rows(s, true)}</Fold>
+              </div>
+            );
+          })}
+        </Fold>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -293,38 +326,7 @@ export function IndexTree() {
       </div>
       {editing && project && <Filters filter={filter} setFilter={setFilter} />}
       <div className="lib-tree" ref={tree}>
-        {shownGroups.map((g) => {
-          const groupOpen = narrowed || isOpen(`c:${g.id}`, g.id);
-          return (
-            <div key={g.id} className="lib-group cat">
-              {groupLine(
-                <button className="lib-group-head" data-tip={g.about || undefined} data-tip-side="right" aria-expanded={groupOpen}
-                  onClick={() => setOpen((o) => ({ ...o, [`c:${g.id}`]: !groupOpen }))}>
-                  <span className="caret" aria-hidden>▸</span>
-                  <CatMark category={g.id} />
-                  <span className="lib-group-name">{g.name}</span>
-                  {hasMine(g.sections.flatMap((s) => s.items)) && mineDot}
-                </button>, g.sections.flatMap((s) => s.items), g.name)}
-              <Fold open={groupOpen} instant={instant} className="lib-group-body">
-                {g.flat ? rows(g.sections[0], false) : g.sections.map((s) => {
-                  const secOpen = narrowed || isOpen(`s:${s.id}`, g.id);
-                  return (
-                    <div key={s.id} className={`lib-group${s.unused ? " unused" : ""}`}>
-                      {groupLine(
-                        <button className="lib-group-head sub" data-tip={s.about || undefined} data-tip-side="right" aria-expanded={secOpen}
-                          onClick={() => setOpen((o) => ({ ...o, [`s:${s.id}`]: !secOpen }))}>
-                          <span className="caret" aria-hidden>▸</span>
-                          <span className="lib-group-name">{s.name}</span>
-                          {!s.unused && hasMine(s.items) && mineDot}
-                        </button>, s.items, s.name)}
-                      <Fold open={secOpen} instant={instant} className="lib-group-body">{rows(s, true)}</Fold>
-                    </div>
-                  );
-                })}
-              </Fold>
-            </div>
-          );
-        })}
+        {shownGroups.map(category)}
         {!shownGroups.length && !elsewhere && (
           <p className="empty-note">{q ? (editing ? t`Nothing in the project matches “${query}”.` : t`Nothing matches “${query}”.`) : filter === "mine" ? t`Nothing replaced yet.`
             : filter === "game" ? t`Everything here is replaced.` : t`Nothing here yet.`}</p>
@@ -373,7 +375,7 @@ const ItemRow = memo(function ItemRow({ item, deep, active, hi, status, clash, a
       <span className="mus-meta">
         {clash && <span className="clash" data-tip={t`Plays the original next to new music`}>!</span>}
         {status !== "na" && <Mark status={status} />}
-        {!editing && (held ? <HeldMark held={held} />
+        {!editing && !item.game && (held ? <HeldMark held={held} />
           : <AddToggle added={added} run={() => (added ? on.remove(item) : on.add(item))}
             label={added ? t`Remove ${name} from the project` : t`Add ${name} to the project`}
             tip={added ? t`Remove from the project` : t`Add to the project`}
@@ -429,8 +431,8 @@ export function Mark({ status, label }: { status: Status; label?: string /* the 
 function FoundElsewhere({ place, more }: { place: Place; more: number }) {
   const { itemIndex, openFound, scope } = useEditor();
   const item = place.item ? itemIndex.items.get(place.item) : undefined;
-  const archive = place.item?.startsWith("archive:");
-  const name = item ? where(itemIndex, item) : "", id = archive ? place.item!.slice(8) : "";
+  const archive = isArchive(place.item);
+  const name = item ? where(itemIndex, item) : "", id = archive ? place.item!.replace(/^archive:|^hd1:bank:/, "") : "";
   // a whole sentence for each case: a place in the Index, an archive by the name in the game files, or the Library
   const said = scope === "editor"
     ? item ? t`That is in ${name}, which isn't in the project.` : archive ? t`That is in archive ${id}, which isn't in the project.`

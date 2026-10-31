@@ -9,7 +9,7 @@ export default defineConfig({
   sourceLocale: "en",
   // a new language also goes into LANGUAGES (src/i18n.ts), the installer's languages (tauri.conf.json) and the core's
   // catalogs (core/tools/i18n.py extract <language>)
-  locales: ["en", "pt-BR", "zh-Hans", "pseudo"],
+  locales: ["en", "pt-BR", "zh-Hans", "fr", "es-ES", "ja", "pseudo"],
   pseudoLocale: "pseudo",
   fallbackLocales: { default: "en" },
   catalogs: [{ path: "<rootDir>/src/locales/{locale}/messages", include: ["src"], exclude: ["**/node_modules/**"] }],

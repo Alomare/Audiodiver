@@ -7,11 +7,13 @@ import { UTILS } from "./edition";
 export type Tab = "home" | "project" | "library" | "editor" | "soundtrack" | "text" | "build" | "tools" | "updates" | "settings" | "wiki";
 export type SettingsTab = "system" | "shortcuts" | "theme";
 export type LibraryTab = "index" | "archives";
+export type LibraryGame = "hd2" | "hd1";
 export type ToolsTab = "repatch" | "combine";
 export type Nav = {
   tab: Tab;
   settings: SettingsTab; // the sub-tab Settings shows
   library: LibraryTab;   // the sub-tab the Library shows
+  game: LibraryGame;     // the game the Library shows, with Helldivers 1 there too
   tools: ToolsTab;       // the sub-tab Tools shows
   wiki: string;          // the Wiki page that is open ("" = the first one)
   anchor: string;        // a heading of that page to scroll to, once (a link to part of a page); not remembered
@@ -29,10 +31,15 @@ const SETTINGS: SettingsTab[] = ["system", "shortcuts", "theme"];
 const LIBRARY: LibraryTab[] = ["index", "archives"];
 const TOOLS: ToolsTab[] = ["repatch", "combine"];
 const LIBRARY_KEY = "audiodiver.libraryTab";
+const GAME_KEY = "audiodiver.libraryGame";
 const WIKI_KEY = "audiodiver.wikiPage";
 
 function lastLibraryTab(): LibraryTab {
   try { return localStorage.getItem(LIBRARY_KEY) === "archives" ? "archives" : "index"; } catch { return "index"; }
+}
+
+function lastLibraryGame(): LibraryGame {
+  try { return localStorage.getItem(GAME_KEY) === "hd1" ? "hd1" : "hd2"; } catch { return "hd2"; }
 }
 
 function lastWikiPage(): string {
@@ -52,16 +59,21 @@ function reopened(): Partial<Nav> {
       settings: SETTINGS.includes(kept.settings) ? kept.settings : "system" };
   } catch { return {}; }
 }
-let current: Nav = { tab: START, settings: "system", library: lastLibraryTab(), tools: "repatch", wiki: lastWikiPage(), anchor: "", from: START, origin: {}, ...reopened() };
+let current: Nav = { tab: START, settings: "system", library: lastLibraryTab(), game: lastLibraryGame(), tools: "repatch", wiki: lastWikiPage(), anchor: "", from: START, origin: {}, ...reopened() };
 let off: readonly Tab[] = []; // the hideable tabs that are off now (App.tsx keeps it up to date)
 let open = false;             // a project is open: Build shows only then (the store keeps it up to date)
 let hidden = new Set<Tab>(["build"]);
 const listeners = new Set<() => void>();
+/** While the Wiki is in a window of its own (wikiWindow.ts): takes what the other window shows; true when it did. */
+let elsewhere: ((place: Tab | "about", sub?: string) => boolean) | null = null;
 /** The tabs out of the bar now; the one that shows, if hidden, moves to the Project tab. */
 function hide() {
   hidden = new Set<Tab>(open ? off : [...off, "build"]);
   if (hidden.has(current.tab)) nav.go("project");
 }
+
+/** An archive to open, from All Archives: of Helldivers 2, or a bank of Helldivers 1. */
+export const isArchive = (id: string | null | undefined) => !!id && (id.startsWith("archive:") || id.startsWith("hd1:bank:"));
 
 export const nav = {
   get: () => current,
@@ -69,7 +81,7 @@ export const nav = {
       `back`: going back to where a tab was opened from, which keeps where that one was opened from in turn. A tab
       that is hidden doesn't open. */
   go(tab: Tab, sub?: string, back = false) {
-    if (hidden.has(tab)) return;
+    if (elsewhere?.(tab, sub) || hidden.has(tab)) return;
     const next = { ...current, tab };
     if (MAIN.includes(tab)) next.from = tab;
     else if (tab !== current.tab && !back) next.origin = { ...current.origin, [tab]: current.tab };
@@ -83,6 +95,18 @@ export const nav = {
     if (next.wiki !== current.wiki) try { localStorage.setItem(WIKI_KEY, next.wiki); } catch { /* storage off */ }
     current = next;
     listeners.forEach((f) => f());
+  },
+  /** Shows a game in the Library. */
+  pickGame(game: LibraryGame) {
+    if (game === current.game) return;
+    current = { ...current, game };
+    try { localStorage.setItem(GAME_KEY, game); } catch { /* storage off */ }
+    listeners.forEach((f) => f());
+  },
+  /** The Library sub-tab that shows an item, with its game picked. */
+  libraryTabOf(itemId: string): LibraryTab {
+    nav.pickGame(itemId.startsWith("hd1:") ? "hd1" : "hd2");
+    return isArchive(itemId) ? "archives" : "index";
   },
   /** Shows a tab, or goes back to where you came from when it already shows (the gear, the guide, the ? key). */
   toggle(tab: Tab, sub?: string) {
@@ -111,6 +135,13 @@ export const nav = {
   keepForReload() {
     try { sessionStorage.setItem(REOPEN_KEY, JSON.stringify({ tab: current.tab, from: current.from, settings: current.settings })); } catch { /* storage off */ }
   },
+  /** Who takes what the other window shows, while the Wiki is in a window of its own (null: nobody). */
+  handOver(to: typeof elsewhere) { elsewhere = to; },
+  /** The Wiki's window has closed: the Wiki here carries on at the page that one was on. */
+  wikiBack() {
+    current = { ...current, wiki: lastWikiPage(), anchor: "" };
+    listeners.forEach((f) => f());
+  },
   subscribe(f: () => void) { listeners.add(f); return () => { listeners.delete(f); }; },
 };
 
@@ -124,7 +155,7 @@ let aboutOpen = false;
 const aboutListeners = new Set<() => void>();
 const showAbout = (v: boolean) => { aboutOpen = v; aboutListeners.forEach((f) => f()); };
 export const about = {
-  open: () => showAbout(true),
+  open: () => { if (!elsewhere?.("about")) showAbout(true); },
   close: () => showAbout(false),
   subscribe(f: () => void) { aboutListeners.add(f); return () => { aboutListeners.delete(f); }; },
 };

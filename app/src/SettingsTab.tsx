@@ -4,11 +4,12 @@ import { ph, plural, t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { andList, call, fmtBytes, intlLocale } from "./api";
 import { confirm } from "./Confirm";
+import { TRANSLATION_ISSUE_URL } from "./content";
 import { UTILS } from "./edition";
 import { captureChord, COMMANDS, FIXED, fmtChord, keyLabel, keymap, useKeymap, type CommandId } from "./keys";
 import { HIDEABLE, nav, useNav, type Hideable, type SettingsTab as Sub } from "./nav";
 import { Page, tabArrows } from "./Page";
-import { pickFolder, pickNotesFile, pickNotesToSave, reveal } from "./platform";
+import { openUrl, pickFolder, pickNotesFile, pickNotesToSave, reveal } from "./platform";
 import { rangeVars } from "./range";
 import { player } from "./player";
 import { AUTOSAVE_DEFAULT, AUTOSAVE_MAX, DEFAULT_SETTINGS, NOTICE_CORNERS, resetLayout, settings, TIP_SPEEDS, UPDATE_MODES, UPDATE_NOTES, useSettings } from "./settings";
@@ -87,6 +88,7 @@ function LanguagePicker() {
           {import.meta.env.DEV && <option value={PSEUDO}>Pseudo</option>}
         </select>
       </div>
+      <p className="set-note"><Trans>If something is wrong with a translation, please <a className="link-text" href={TRANSLATION_ISSUE_URL} onClick={(e) => { e.preventDefault(); openUrl(TRANSLATION_ISSUE_URL); }}>report it as an issue</a>.</Trans></p>
     </section>
   );
 }
@@ -112,15 +114,17 @@ function System() {
   };
   // the settings on this page (the build switches live on the Build tab)
   const defaults = { openLast: DEFAULT_SETTINGS.openLast, tips: DEFAULT_SETTINGS.tips, updates: DEFAULT_SETTINGS.updates, tabs: DEFAULT_SETTINGS.tabs,
-    autosave: DEFAULT_SETTINGS.autosave, noticeCorner: DEFAULT_SETTINGS.noticeCorner };
+    autosave: DEFAULT_SETTINGS.autosave, noticeCorner: DEFAULT_SETTINGS.noticeCorner, homeTicker: DEFAULT_SETTINGS.homeTicker };
   const changed = s.openLast !== defaults.openLast || s.tips !== defaults.tips || s.updates !== defaults.updates
-    || s.tabs.join() !== defaults.tabs.join() || s.autosave !== defaults.autosave || s.noticeCorner !== defaults.noticeCorner;
+    || s.tabs.join() !== defaults.tabs.join() || s.autosave !== defaults.autosave || s.noticeCorner !== defaults.noticeCorner
+    || s.homeTicker !== defaults.homeTicker;
   const saveKey = keyLabel("save");
 
   return (
     <div className="set-page">
       <LanguagePicker />
       <GameFolder />
+      <Hd1Folder />
 
       {!UTILS && <section className="set-sec">
         <h2>{t`Tabs`} <Help tip={t`The tabs that show. A new project starts with these, and can change them on the Project tab.`} page="how-audiodiver-works#tabs" /></h2>
@@ -133,6 +137,14 @@ function System() {
         <label className="check">
           <input type="checkbox" checked={s.openLast} onChange={(e) => settings.set({ openLast: e.target.checked })} />
           <span>{t`Open the last project when Audiodiver starts`} <Help tip={t`When on, the last project opens on the Audio tab. When off, Audiodiver starts on Home.`} page="how-audiodiver-works#startup" /></span>
+        </label>
+      </section>}
+
+      {!UTILS && <section className="set-sec">
+        <h2><Trans>Home</Trans></h2>
+        <label className="check">
+          <input type="checkbox" checked={s.homeTicker} onChange={(e) => settings.set({ homeTicker: e.target.checked })} />
+          <span>{t`Show the news ticker`}</span>
         </label>
       </section>}
 
@@ -344,7 +356,7 @@ function GameFolder() {
   const change = async (path?: string | null) => setError(await actions.setGameFolder(path));
   return (
     <section className="set-sec">
-      <h2>{t`Game`} <Help tip={t`Audiodiver only reads from this folder. Choosing another folder reads the game again, which takes about a minute the first time.`} page="how-audiodiver-works#game-folder" /></h2>
+      <h2>Helldivers 2 <Help tip={t`Audiodiver only reads from this folder. Choosing another folder reads the game again, which takes about a minute the first time.`} page="how-audiodiver-works#game-folder" /></h2>
       <div className="game-folder">
         <span className="path-text">{where?.path ?? t`Not found`}</span>
       </div>
@@ -352,6 +364,37 @@ function GameFolder() {
       <div className="row-btns">
         <button className="btn" disabled={busy} onClick={() => change()}
           data-tip={busy ? t`Wait for the build or export to finish` : t`The Helldivers 2 install folder, or the data folder inside it`}><Trans>Choose Another Folder</Trans></button>
+        {where?.chosen && <button className="btn quiet" disabled={busy} onClick={() => change(null)}><Trans>Find It Through Steam Again</Trans></button>}
+        {where?.path && <button className="btn quiet" onClick={() => reveal(where.path!)}><Trans>Show in Folder</Trans></button>}
+      </div>
+      {error && <p className="warn-box" role="alert">{error}</p>}
+    </section>
+  );
+}
+
+/** Where Helldivers 1 is, for the Library. Choosing another folder leaves Helldivers 2 as it is. */
+function Hd1Folder() {
+  const { status, actions, jobs } = useEditor();
+  const [error, setError] = useState<string | null>(null);
+  const [reading, setReading] = useState(false);
+  const where = status?.hd1_folder;
+  const busy = reading || Object.values(jobs).some((j) => j.state === "running");
+  const change = async (path?: string | null) => {
+    setReading(true);
+    setError(await actions.setHd1Folder(path));
+    setReading(false);
+  };
+  const found = where?.how === "env" ? t`Set by the HD1_CONTENTS environment variable.` : where?.how && FOUND[where.how];
+  return (
+    <section className="set-sec">
+      <h2>Helldivers 1 <Help tip={t`Audiodiver only reads from this folder, to play and export in the Library.`} page="how-audiodiver-works#helldivers-1" /></h2>
+      <div className="game-folder">
+        <span className="path-text">{where?.path ?? t`Not found`}</span>
+      </div>
+      {reading ? <p className="set-note"><Trans>Reading Helldivers 1</Trans></p> : found && <p className="set-note">{found}</p>}
+      <div className="row-btns">
+        <button className="btn" disabled={busy} onClick={() => change()}
+          data-tip={busy && !reading ? t`Wait for the build or export to finish` : t`The Helldivers 1 install folder, or the contents folder inside it`}><Trans>Choose Another Folder</Trans></button>
         {where?.chosen && <button className="btn quiet" disabled={busy} onClick={() => change(null)}><Trans>Find It Through Steam Again</Trans></button>}
         {where?.path && <button className="btn quiet" onClick={() => reveal(where.path!)}><Trans>Show in Folder</Trans></button>}
       </div>

@@ -242,6 +242,8 @@ export const theme = {
   subscribe(f: () => void) { listeners.add(f); return () => { listeners.delete(f); }; },
   /** Call once before the first render, so the app never flashes the wrong theme. */
   init() { apply(current); },
+  /** Takes up a theme another window saved (the Wiki's own window). */
+  reload() { current = load(); apply(current); listeners.forEach((f) => f()); },
 };
 
 export const useTheme = () => useSyncExternalStore(theme.subscribe, theme.get);

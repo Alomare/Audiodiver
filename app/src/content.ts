@@ -18,6 +18,7 @@ export function versionLabel(version: string) {
 export const APP_LABEL = versionLabel(APP_VERSION);
 /** Where Audiodiver's source and releases are (also in the core's updates.py). */
 export const REPO_URL = "https://github.com/Alomare/Audiodiver";
+export const TRANSLATION_ISSUE_URL = `${REPO_URL}/issues/new?template=translation.yml`;
 export const LICENCE = { name: "Mozilla Public License 2.0", url: "https://www.mozilla.org/MPL/2.0/" };
 /** Where questions and feedback go: the Helldivers 2 modding community's Discord (Home's corner and About). */
 export const DISCORD_URL = "https://discord.gg/helldiversmodding";

@@ -6,6 +6,7 @@ import { DISCORD_URL, HOME_ART, KOFI_URL, TICKER_URL } from "./content";
 import { CloseIcon, DiscordIcon, KofiIcon, NextIcon, PrevIcon, ProjectIcon } from "./Icons";
 import { nav } from "./nav";
 import { openUrl } from "./platform";
+import { useSettings } from "./settings";
 import { useEditor } from "./store";
 import { DEFAULT_SIZE, motionOn, useTheme, useThemeValue } from "./theme";
 
@@ -14,9 +15,10 @@ import { DEFAULT_SIZE, motionOn, useTheme, useThemeValue } from "./theme";
     recent projects. Audiodiver Utils has no Home. */
 export function Home() {
   const { project, actions } = useEditor();
+  const { homeTicker } = useSettings();
   const name = project?.name;
   return (
-    <section className={`home${HOME_ART.length ? " with-art" : ""}`} aria-label={t`Home`}>
+    <section className={`home${HOME_ART.length ? " with-art" : ""}${homeTicker ? "" : " no-ticker"}`} aria-label={t`Home`}>
       <div className="home-scroll">
         <div className="home-inner view-in">
           <header className="home-hero">
@@ -57,7 +59,7 @@ export function Home() {
       </div>
       {HOME_ART.length ? <HomeArt><Community /></HomeArt>
         : <><div className="home-art" aria-hidden><Meters /></div><div className="home-corner"><Community /></div></>}
-      <Ticker />
+      {homeTicker && <Ticker />}
     </section>
   );
 }

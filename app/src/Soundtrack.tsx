@@ -4,8 +4,8 @@ import { Trans } from "@lingui/react/macro";
 import { call, fileUrl, fmtNumber, fmtTime, type Assignment, type Cue, type MusicItem, type Piece, type PlaylistMap, type PlayNode } from "./api";
 import { confirm } from "./Confirm";
 import { useContextMenu, type MenuEntry } from "./ContextMenu";
-import { audible, PlayButton, playSlot } from "./CueView";
-import { AudioIcon, CollapseAllIcon, ExportIcon, InOrderIcon, NextEachIcon, PauseIcon, RandomIcon, RepeatIcon, ShuffleIcon, ThroughIcon } from "./Icons";
+import { audible, cuesTag, Linked, moreTag, PlayButton, playSlot, SILENCE_TIP } from "./CueView";
+import { AudioIcon, CollapseAllIcon, ExportIcon, InOrderIcon, NextEachIcon, PauseIcon, RandomIcon, RepeatIcon, ShuffleIcon, SkipIcon, ThroughIcon } from "./Icons";
 import { ResetLevel } from "./Inspector";
 import { rangeVars } from "./range";
 import { keyLabel, useCommands, useKeymap } from "./keys";
@@ -95,8 +95,9 @@ export function openInSoundtrack(item: MusicItem, cue: string, select?: string |
   nav.go("soundtrack");
 }
 
-/** What a drop on the Soundtrack hit: a place of a playlist, or One song (App.tsx routes drops here). */
-export type SoundtrackTarget = { kind: "place"; cue: string; index: number } | { kind: "song"; cue: string };
+/** What a drop on the Soundtrack hit: a place of a playlist, a segment left free, or One song (App.tsx routes drops
+    here). */
+export type SoundtrackTarget = { kind: "place"; cue: string; index: number } | { kind: "segment"; cue: string; seg: string } | { kind: "song"; cue: string };
 export function soundtrackDrop(target: SoundtrackTarget, files: string[]) {
   window.dispatchEvent(new CustomEvent(DROP, { detail: { target, files } }));
 }
@@ -392,6 +393,24 @@ function PieceView({ item, part, setPart, sections, open }: {
   } : undefined;
   const plays = piece.mode !== "silent" && piece.mode !== "same";
 
+  // the segments a song leaves free: the rest of One Song's places, which play after the pieces, and the openings
+  const free = useMemo(() => {
+    const line = (seg: string) => ({ seg, source: firsts.get(seg) ?? null });
+    const added = new Set(piece.added ?? []), cut = (piece.segments ?? []).filter((s) => !added.has(s));
+    return {
+      rest: piece.mode === "song" && cut.length ? (map?.song ?? []).filter((s) => !cut.includes(s)).map(line) : [],
+      openings: piece.mode === "song" || piece.mode === "tracks" ? (map?.openings ?? []).map(line) : [],
+    };
+  }, [map, firsts, piece]);
+  /** Files into a free segment and the free segments after it, in file-name order. */
+  const fillFree = (seg: string, files: string[]) => {
+    const list = free.rest.some((x) => x.seg === seg) ? free.rest : free.openings;
+    const after = list.slice(list.findIndex((x) => x.seg === seg)).filter((x) => x.source);
+    const fit = byName(files).slice(0, after.length), over = files.length - fit.length;
+    actions.segmentsSet(cueId, Object.fromEntries(fit.map((f, i) => [after[i].seg, f])));
+    if (over > 0) notify("info", t`${plural(over, { one: "# song left over", other: "# songs left over" })}.`);
+  };
+
   // the places of a playlist, and what a drop or a choice puts there
   const places = useMemo(() => {
     const listed = new Set(piece.mode === "tracks" ? piece.segments ?? [] : []);
@@ -412,17 +431,25 @@ function PieceView({ item, part, setPart, sections, open }: {
   // the bodies below are memo: they draw again when the piece changes, not on each click
   const pass = useStable({
     current, put, onSet: set,
+    onFill: fillFree,
+    onClear: (seg: string) => { actions.segmentsSet(cueId, { [seg]: null }); },
+    onSkip: (seg: string) => {
+      const here = cue?.segments_detail.find((s) => s.segment === seg);
+      const slots = here?.stems.flatMap((st) => st.slots).filter((sl) => !sl.unused && !sl.locked && !sl.absent).map((sl) => sl.source) ?? [];
+      if (map) actions.skip(slots, segName(map, seg));
+    },
     onChoose: () => setSlicing({}),
     onRecut: () => setSlicing({ file: project && piece.song ? fullPath(project.folder, piece.song) : undefined }),
   });
   // a drop on One song or on a place (App.tsx hands it over)
-  const latest = useRef({ put, cueId });
-  latest.current = { put, cueId };
+  const latest = useRef({ put, fillFree, cueId });
+  latest.current = { put, fillFree, cueId };
   useEffect(() => {
     const take = (e: Event) => {
       const { target, files } = (e as CustomEvent<{ target: SoundtrackTarget; files: string[] }>).detail;
       if (target.cue !== latest.current.cueId) return;
       if (target.kind === "place") latest.current.put(target.index, files);
+      else if (target.kind === "segment") latest.current.fillFree(target.seg, files);
       else setSlicing({ file: files[0] });
     };
     window.addEventListener(DROP, take);
@@ -432,10 +459,11 @@ function PieceView({ item, part, setPart, sections, open }: {
   // what the keys go through, top to bottom: the places of a playlist, the pieces of a song, else the play order
   const order = useMemo(() => {
     if (!map) return [];
-    const segs = piece.mode === "tracks" ? map.song : piece.mode === "song" ? piece.segments ?? []
+    const segs = piece.mode === "tracks" ? [...map.song, ...map.openings]
+      : piece.mode === "song" ? [...(piece.segments ?? []).filter((s) => !piece.added?.includes(s)), ...free.rest.map((x) => x.seg), ...map.openings]
       : leaves(piece.mode === "original" ? map.tree : map.mine ?? map.tree).map((l) => l.segment!);
     return [...new Set(segs.map((s) => firsts.get(s)).filter((s): s is string => !!s))];
-  }, [map, piece, firsts]);
+  }, [map, piece, firsts, free]);
   const reveal = (source: string) => {
     requestAnimationFrame(() => body.current?.querySelector(`[data-source="${source}"]`)?.scrollIntoView({ block: "nearest", behavior: scrollBehavior() }));
   };
@@ -550,9 +578,11 @@ function PieceView({ item, part, setPart, sections, open }: {
         <div className="st-body" ref={body}>
           {run && <Transcript run={run} now={now} fight={fight} />}
           {piece.mode === "song" && <SongBody map={map} cue={cue} piece={piece} firsts={firsts} lengths={lengths} marks={marks} onPick={setSel} at={at}
-            fight={fight} onChoose={pass.onChoose} onRecut={pass.onRecut} />}
+            fight={fight} onChoose={pass.onChoose} onRecut={pass.onRecut} rest={free.rest} onFill={pass.onFill} onClear={pass.onClear} />}
           {piece.mode === "tracks" && <PlaylistBody map={map} piece={piece} places={places} cueId={cueId} lengths={lengths} marks={marks} onPick={setSel} at={at}
             current={pass.current} put={pass.put} onSet={pass.onSet} fight={fight} />}
+          {free.openings.length > 0 && <Openings map={map} cue={cue} lines={free.openings} from={map.song.length + 1} lengths={lengths} marks={marks}
+            onPick={setSel} at={at} fight={fight} onFill={pass.onFill} onClear={pass.onClear} onSkip={pass.onSkip} />}
           {piece.mode === "silent" && <p className="st-note"><Trans>Nothing plays while the game would play this music.</Trans></p>}
           {piece.mode === "same" && partner && (
             <p className="st-note"><Trans>The <button className="link-text" onClick={() => open(itemIndex.byCue.get(partner)?.item.id ?? item.id)}>Battle</button> music
@@ -872,8 +902,8 @@ function LayerCell({ source, label, a, name, marks, onPick, at }: Omit<Pickable,
 
 /** A segment as a line, as a slot's in Audio: its original (▶, number, name, length) and what the project puts
     there, which `children` draw. A click selects it. */
-function SegLine({ n, seg, map, source, a, marks, onPick, at, lengths, drop, place, children }: Pickable & {
-  n: number; seg: string; map: PlaylistMap; source: string | null; a?: Assignment; drop?: string; place?: number; children: React.ReactNode;
+function SegLine({ n, seg, map, source, a, marks, onPick, at, lengths, drop, place, tag, children }: Pickable & {
+  n: number; seg: string; map: PlaylistMap; source: string | null; a?: Assignment; drop?: string; place?: number; tag?: React.ReactNode; children: React.ReactNode;
 }) {
   const name = segName(map, seg), ms = lengths.get(seg) ?? 0;
   const { sel, now } = useMarked(marks, source, seg);
@@ -884,6 +914,7 @@ function SegLine({ n, seg, map, source, a, marks, onPick, at, lengths, drop, pla
         {source ? <PlayButton kind="vanilla" source={source} label={t`the original ${name}`} at={at(source)} onPlay={() => onPick(source)} /> : <span className="play-gap" />}
         <span className="st-n">{n}</span>
         <span className="st-sname" data-tip={name} data-tip-clip>{name}</span>
+        {tag}
         <span className="len">{ms ? fmtTime(ms) : "–"}</span>
       </div>
       <div className="st-new">{children}</div>
@@ -905,13 +936,69 @@ function NewAudio({ source, a, name, at, onPick, children }: {
   );
 }
 
-/** One song: the song, the pieces in the segments they went into, and the ways to cut it again or choose another. A
-    song dropped here opens the slice tool with it. */
-const SongBody = memo(function SongBody({ map, cue, piece, firsts, fight, onChoose, onRecut, ...pick }: Pickable & {
-  map: PlaylistMap; cue: Cue; piece: Piece; firsts: Map<string, string>; fight: boolean; onChoose: () => void; onRecut: () => void;
+/** A segment left free, one line of what a song or a playlist doesn't fill. It takes files with a click or a drop
+    (several fill the free lines after it too), plays them and gives them up. `a`, when it has audio. An opening can
+    also be skipped (onSkip): silence, and the game moves straight on. */
+function FreeLine({ n, seg, map, cueId, source, a, tag, about, onFill, onClear, onSkip, ...pick }: Pickable & {
+  n: number; seg: string; map: PlaylistMap; cueId: string; source: string | null; a?: Assignment; tag?: React.ReactNode; about?: string;
+  onFill: (seg: string, files: string[]) => void; onClear: (seg: string) => void; onSkip?: (seg: string) => void;
+}) {
+  const remove = <button className="x" aria-label={t`Remove the audio`} data-tip={t`Remove the audio`} onClick={(e) => { e.stopPropagation(); onClear(seg); }}>✕</button>;
+  const choose = async () => { const f = await pickAudio(true); if (f?.length) onFill(seg, f); };
+  return (
+    <SegLine n={n} seg={seg} map={map} source={source} a={a} tag={tag} {...pick}
+      drop={source ? JSON.stringify({ kind: "segment", cue: cueId, seg }) : undefined}>
+      {source && a ? (a.silence ? <><span className="st-none st-silent" data-tip={a.fit_timing ? SILENCE_TIP.move : SILENCE_TIP.keep}>{t`Silence`}</span><span className="st-tools">{remove}</span></> : (
+        <NewAudio source={source} a={a} name={a.name} at={pick.at(source)} onPick={() => pick.onPick(source)}>
+          <span className="st-tools">{remove}</span>
+        </NewAudio>
+      )) : source ? (
+        <>
+          <button className="drop-hint" data-tip={about} onClick={(e) => { e.stopPropagation(); pick.onPick(source); choose(); }}>{t`Drop Audio or Choose a File`}</button>
+          {onSkip && <span className="st-tools"><button className="x" aria-label={t`Skip it`} data-tip={t`Skip it`} data-tip-more={SILENCE_TIP.move}
+            onClick={(e) => { e.stopPropagation(); onSkip(seg); }}><SkipIcon /></button></span>}
+        </>
+      ) : <span className="st-none" data-tip={t`This segment holds no audio that can be replaced`}>{t`No slot for audio`}</span>}
+    </SegLine>
+  );
+}
+
+/** The openings of a piece set to One Song or Playlist: they stay in its play order, so only their audio can change,
+    from here as from Audio. A tag says when the same segment plays in other music too. */
+const Openings = memo(function Openings({ map, cue, lines, from, fight, onFill, onClear, onSkip, ...pick }: Pickable & {
+  map: PlaylistMap; cue: Cue; lines: { seg: string; source: string | null }[]; from: number; fight: boolean;
+  onFill: (seg: string, files: string[]) => void; onClear: (seg: string) => void; onSkip: (seg: string) => void;
 }) {
   const { project } = useEditor();
-  const segs = piece.segments ?? [];
+  const slots = useMemo(() => new Map(cue.segments_detail.flatMap((s) => s.stems.flatMap((st) => st.slots.map((sl) => [sl.source, sl] as const)))), [cue]);
+  return (
+    <div className="st-song">
+      <h2>{t`Openings`} <OpeningsHelp /></h2>
+      <div className="st-lines" role="listbox" aria-label={t`Openings`}>
+        {lines.map((x, i) => {
+          const slot = x.source ? slots.get(x.source) : undefined, also = slot ? slot.also_n ?? slot.also_in.length : 0, banks = slot?.banks ?? 0;
+          return (
+            <FreeLine key={x.seg} n={from + i} seg={x.seg} map={map} cueId={cue.id} source={x.source} a={x.source ? project?.assignments[x.source] : undefined}
+              about={fight ? t`One of the openings starts each fight` : t`One of the openings plays each time the music comes on`}
+              tag={also > 0 ? <Linked>{banks >= also ? plural(also, { one: "+# bank", other: "+# banks" }) : banks ? moreTag(also) : cuesTag(also)}</Linked> : undefined}
+              onFill={onFill} onClear={onClear} onSkip={onSkip} {...pick} />
+          );
+        })}
+      </div>
+    </div>
+  );
+});
+
+/** One song: the song, the pieces in the segments they went into, the ways to cut it again or choose another, and
+    below the pieces the segments the song doesn't reach, which take files that play after it. A song dropped here
+    opens the slice tool with it. */
+const SongBody = memo(function SongBody({ map, cue, piece, firsts, fight, onChoose, onRecut, rest, onFill, onClear, ...pick }: Pickable & {
+  map: PlaylistMap; cue: Cue; piece: Piece; firsts: Map<string, string>; fight: boolean; onChoose: () => void; onRecut: () => void;
+  rest: { seg: string; source: string | null }[]; onFill: (seg: string, files: string[]) => void; onClear: (seg: string) => void;
+}) {
+  const { project } = useEditor();
+  const added = new Set(piece.added ?? []);
+  const segs = (piece.segments ?? []).filter((s) => !added.has(s));
   const opens = !!openings(map);
   const drop = JSON.stringify({ kind: "song", cue: cue.id });
   if (!segs.length) {
@@ -944,6 +1031,10 @@ const SongBody = memo(function SongBody({ map, cue, piece, firsts, fight, onChoo
             </SegLine>
           );
         })}
+        {rest.map((x, i) => (
+          <FreeLine key={x.seg} n={segs.length + i + 1} seg={x.seg} map={map} cueId={cue.id} source={x.source} {...pick}
+            a={x.source && added.has(x.seg) ? project?.assignments[x.source] : undefined} about={t`Plays after the song`} onFill={onFill} onClear={onClear} />
+        ))}
       </div>
     </div>
   );

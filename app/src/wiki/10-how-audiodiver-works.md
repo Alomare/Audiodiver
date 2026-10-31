@@ -30,6 +30,8 @@ The tab bar along the top of the window holds the main tabs. Home and Tools come
 - {icon:build} **Build** holds the next version, the Build options and the Build button. A dot on the tab means the project isn't built yet, or it changed or the game updated since the last build. A red number counts the problems that block a build.
 - {icon:updates} **Updates**, {icon:wiki} **Wiki** ({key:wiki}) and {icon:settings} **Settings** are at the end of the tab bar. Updates is highlighted when a new version of Audiodiver is available, and it lists the changes in every version. On a Wiki page, {key:search} finds words on that page.
 
+The {icon:detach} button beside the guides' search box moves the Wiki into a separate window, to read beside a project. The Wiki tab then shows **Bring the Wiki Back**, and closing the window does the same. While the Wiki is in that window, a **?** or a link to a page opens there. Starting a tutorial brings the Wiki back first.
+
 The version number at the right end of the status bar also opens Updates. The {icon:info} button next to it opens [About](app:about), with the licence, the log file and the credits.
 
 The window title is the name of the open project.
@@ -39,6 +41,12 @@ The Library and the Audio tab share the same layout, and both have {icon:export}
 ## Tabs
 
 Audio, Soundtrack and Text can be hidden. Untick them under **Tabs** in [Settings ▸ System](app:settings/system), for example to keep only Text for a mod that changes subtitles. A new project starts with the tabs that Settings shows. Each project can then pick different ones under **Tabs** on the [Project](app:project) tab and keeps that choice. Hiding a tab removes nothing, and what was changed there stays in the mod.
+
+## Helldivers 1
+
+With Helldivers 1 installed, the Library has a tab for each game under **Index** and **All Archives**. Helldivers 1 audio plays and exports as WAV, FLAC or MP3. Helldivers 1 entries can't go in a project, but **Ctrl+C** copies any clip into a slot of the project. Audiodiver doesn't change that game.
+
+Each entry in the Index is one sound event of the game, and the slots are the clips it picks from. Voices and some music have a tab for each language. An entry shows the name from the game files in a shorter form, so `fs_rock_run` shows as *Rock Run*, and a search finds both. Weapons, stratagems and enemies go by the names the game shows. A voice entry gives the line shown on screen when it plays, and a search finds that line too. The voice clips are short, so they don't read the whole line. The game keeps many names only as numbers, so sounds without a known name are only in **All Archives**, in their banks.
 
 ## New versions of Audiodiver
 
@@ -58,11 +66,17 @@ An update replaces only the app. Projects, audio files and settings are kept.
 
 ### Game folder
 
-**Game** in [Settings ▸ System](app:settings/system) shows the folder Audiodiver reads the game from. Audiodiver finds it through Steam. If the game is somewhere else, press **Choose Another Folder** and pick the Helldivers 2 install folder, or the `data` folder inside it. Audiodiver then reads the game again, which takes about a minute the first time. It only reads from this folder and never writes to it.
+**Helldivers 2** in [Settings ▸ System](app:settings/system) shows the folder Audiodiver reads the game from. Audiodiver finds it through Steam. If the game is somewhere else, press **Choose Another Folder** and pick the Helldivers 2 install folder, or the `data` folder inside it. Audiodiver then reads the game again, which takes about a minute the first time. It only reads from this folder and never writes to it.
+
+**Helldivers 1** does the same for the Library. Pick the Helldivers 1 install folder, or the `contents` folder inside it.
 
 ### Startup
 
 With **Open the last project when Audiodiver starts** on, Audiodiver opens the last project on the Audio tab. With it off, Audiodiver starts on Home.
+
+### Home
+
+With **Show the news ticker** off, Home doesn't show the strip of war news along the bottom, and the news isn't loaded.
 
 ### Autosave
 

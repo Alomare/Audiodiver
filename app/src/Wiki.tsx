@@ -2,14 +2,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { WIKI as ALL_PAGES, WIKI_GROUPS, wikiPicture } from "./content";
-import { UTILS, UTILS_WIKI } from "./edition";
-import { DownIcon, PlayMarkIcon, SearchIcon, UpIcon } from "./Icons";
+import { UTILS, UTILS_WIKI, WIKI_WINDOW } from "./edition";
+import { DetachIcon, DownIcon, PlayMarkIcon, SearchIcon, UpIcon } from "./Icons";
 import { keyLabel, useCommands } from "./keys";
 import { Markdown } from "./Markdown";
 import { nav, useNav } from "./nav";
 import { Splitter, useStoredWidth } from "./Resize";
 import { scrollBehavior } from "./theme";
-import { TUTORIALS_PAGE, TutorialsPage } from "./Tutorial";
+import { TUTORIALS_PAGE, TutorialsPage, useTutorialRuns } from "./Tutorial";
+import { attachWiki, detachWiki, useWikiAway } from "./wikiWindow";
 
 const NAV_SHARE = 0.25; // the list of guides takes a quarter of the tab to start, the page the rest
 /** The pages the list shows and Previous/Next step through: Audiodiver Utils lists only its own (a link still opens
@@ -20,10 +21,25 @@ const FAQ = UTILS ? undefined : ALL_PAGES.find((p) => p.id === "faq");
 const TUTORIAL_WORDS = t({ message: "interactive tutorials walkthroughs",
   comment: "Search words in lower case. Typing them in the Wiki's guide search shows the Interactive Tutorials entry." }).toLowerCase();
 
-/** The Wiki tab: guides, resources and good practice for making audio mods. Pages are Markdown files in src/wiki
-    (see content.ts for how one is laid out); the list on the left, the page in the middle, its headings on the right. */
+/** The Wiki tab: the guides, or while they are in a window of their own, the way to bring them back. */
 export function Wiki() {
+  return useWikiAway() ? <WikiAway /> : <Guides />;
+}
+
+function WikiAway() {
+  return (
+    <section className="wiki-away" aria-label={t`Wiki`}>
+      <p><Trans>The Wiki is open in a separate window.</Trans></p>
+      <button className="btn primary" onClick={attachWiki}><Trans>Bring the Wiki Back</Trans></button>
+    </section>
+  );
+}
+
+/** Guides, resources and good practice for making audio mods. Pages are Markdown files in src/wiki (see content.ts for
+    how one is laid out); the list on the left, the page in the middle, its headings on the right. */
+function Guides() {
   const { wiki: id, anchor } = useNav(); // anchor: a heading a link to part of the page names
+  const tutorialRuns = useTutorialRuns();
   const [query, setQuery] = useState("");
   const [share, setShare] = useStoredWidth("audiodiver.wikiShare", NAV_SHARE);
   const [at, setAt] = useState(""); // the heading being read, for the outline
@@ -107,6 +123,10 @@ export function Wiki() {
               else if (e.key === "Enter" && groups.length) openFound(groups[0].pages[0].id);
               else if (e.key === "Enter" && faqFound) openFound(FAQ!.id);
             }} />
+          {!WIKI_WINDOW && (
+            <button className="icon-btn" disabled={tutorialRuns} onClick={() => detachWiki().catch(() => {})} aria-label={t`Detach the Wiki`}
+              data-tip={tutorialRuns ? t`A tutorial is running` : t`Detach the Wiki`} data-tip-more={tutorialRuns ? undefined : t`Opens the Wiki in a separate window`}><DetachIcon /></button>
+          )}
         </div>
         <div className="wiki-list">
           {!UTILS && (!words.length || words.every((w) => TUTORIAL_WORDS.includes(w))) && (

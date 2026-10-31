@@ -32,7 +32,7 @@ export const COMMANDS: Command[] = [
   { id: "chooseFile", group: t`Slots`, label: t`Choose a file for the selected slot`, keys: ["Enter"] },
   { id: "moveUp", group: t`Slots`, label: t`Move the new audio up a slot`, keys: ["Alt+ArrowUp"] },
   { id: "moveDown", group: t`Slots`, label: t`Move the new audio down a slot`, keys: ["Alt+ArrowDown"] },
-  { id: "copy", group: t`Slots`, label: t`Copy the new audio of the selected slots`, keys: ["Ctrl+C"] },
+  { id: "copy", group: t`Slots`, label: t`Copy the audio of the selected slots`, keys: ["Ctrl+C"] },
   { id: "paste", group: t`Slots`, label: t`Paste into the selection`, keys: ["Ctrl+V"] },
   { id: "selectAll", group: t`Slots`, label: t`Select every slot`, keys: ["Ctrl+A"] },
   { id: "remove", group: t`Slots`, label: t`Remove the new audio from the selected slots`, keys: ["Delete", "Backspace"] },

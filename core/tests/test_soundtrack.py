@@ -29,6 +29,10 @@ def segs(tree):
     return [it.segment_id for _, it in tree.walk() if it.segment_id]
 
 
+def leaves(n):
+    return [n] if n.get("segment") is not None else [x for c in n.get("children") or () for x in leaves(c)]
+
+
 def tone(path, seconds):
     with wave.open(str(path), "wb") as w:
         w.setnchannels(2); w.setsampwidth(2); w.setframerate(48000)
@@ -154,6 +158,56 @@ def test_a_song_build_changes_every_copy_of_the_music(game_session, tmp_path):
     assert fight["marks"][1]["segment"] == m["song"][0] and fight["state"]
     with pytest.raises(Exception, match="Same song"):
         s.soundtrack_set({str(INTENSE): {"mode": "same", "follows": str(INTENSE)}})
+
+
+def test_the_openings_are_what_a_song_leaves_alone():
+    assert st.opening_segments(illuminate(), 30) == [200, 201, 202]
+    assert st.opening_segments(illuminate()) == []  # no entry group: a song can fill all of it
+
+
+@pytest.mark.game
+def test_one_song_takes_files_for_the_segments_it_leaves_free(game_session, tmp_path):
+    """Openings take audio in any mode and stay in place. In One Song, a segment after the pieces plays after them,
+    stays when the song is cut again, and goes back when its audio is taken out, all from the Soundtrack."""
+    from audiodiver import patch
+    from audiodiver.build import make_patch
+    s = game_session
+    s.new_project(tmp_path / "p.audi", "P", tabs=["editor"])
+    m = s.playlist_map(BATTLE)
+    extra, opening = (str(tone(tmp_path / f"{n}.wav", 1.0)) for n in ("extra", "opening"))
+    song = str(tone(tmp_path / "song.wav", 3.0))
+    held = lambda seg: s._song_of(s.project, BATTLE, int(seg))
+    assert m["openings"] and not set(m["openings"]) & set(m["song"])
+    assert s.segments_set(BATTLE, {m["openings"][0]: opening})["soundtrack"] == {}  # Original stays Original
+    assert held(m["openings"][0]).audio == "opening.wav"
+    with pytest.raises(Exception, match="aren't in this piece"):
+        s.segments_set(BATTLE, {m["song"][0]: extra})  # nothing is free in Original but the openings
+
+    s.song_fill(BATTLE, song, [0, 1000, 2000, 3000], m["song"])
+    with pytest.raises(Exception, match="aren't in this piece"):
+        s.segments_set(BATTLE, {m["song"][1]: extra})  # a piece belongs to the cuts
+    piece = s.segments_set(BATTLE, {m["song"][5]: extra})["soundtrack"][str(BATTLE)]
+    assert piece["segments"] == [*m["song"][:3], m["song"][5]] and piece["added"] == [m["song"][5]]
+    assert held(m["song"][5]).audio == "extra.wav"
+    assert [n["segment"] for n in leaves(s.playlist_map(BATTLE)["mine"]) if n["segment"] in piece["segments"]][-1] == m["song"][5]
+    assert held(m["openings"][0]).audio == "opening.wav"  # the opening stays with the song
+
+    piece = s.song_fill(BATTLE, song, [0, 1500, 3000], m["song"])["soundtrack"][str(BATTLE)]
+    assert piece["segments"] == [*m["song"][:2], m["song"][5]] and held(m["song"][2]) is None and held(m["song"][5]).audio == "extra.wav"
+    copied = s.soundtrack_copy(BATTLE, {str(INTENSE): None})["soundtrack"][str(INTENSE)]
+    assert copied["added"] == [copied["segments"][-1]]
+    make_patch(s.project, s.ix, tmp_path, log=lambda *_: None)  # verified
+    banks, _ = patch.read_patch(str(tmp_path / "9ba626afa44a3aa3.patch_0"))
+    for bid in s.ix.copies(BATTLE):
+        new = music.MusicPlaylist.read(BATTLE, music.Reader(bytes(banks[bid][1][BATTLE][1])))
+        assert [str(x) for x in segs(new.root.children[0])] == piece["segments"]
+        assert [str(x) for x in segs(new.root.children[1])] == m["openings"]  # the openings stay where the game has them
+
+    piece = s.segments_set(BATTLE, {m["song"][5]: None, m["openings"][0]: None})["soundtrack"][str(BATTLE)]
+    assert piece["segments"] == m["song"][:2] and "added" not in piece
+    assert held(m["song"][5]) is None and held(m["openings"][0]) is None
+    s.undo()
+    assert held(m["song"][5]).audio == "extra.wav" and held(m["openings"][0]).audio == "opening.wav"
 
 
 @pytest.mark.game

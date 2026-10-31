@@ -43,6 +43,7 @@ The check only reports what a mod's author wouldn't have changed on purpose, so 
 - The audio that the mod replaces, and the audio it adds. Added audio can be new takes for a sound, a sound that plays with another sound, or a separate clip for one sound.
 - Sound settings, such as the volume (Make-Up Gain) of a sound or a container, a delay before it plays, and how much of it goes to reverb.
 - The cue points of the music segments that play new audio.
+- Volume curves on music tracks, as the mod set them.
 - Everything else in the patch, such as text, models and textures, exactly as it was. The page lists what a patch holds besides audio.
 
 Audiodiver applies all of this to the current sound banks and builds a new ZIP of the same mod. Banks the mod didn't patch get the audio only when **Patch every bank with the sounds** is ticked.

@@ -19,7 +19,7 @@ from . import bank as wbank
 from . import music
 from .index import AudioIndex, CACHE_DIR
 
-FORMAT = 3
+FORMAT = 4
 EVENT, ACTION = 0x04, 0x03
 PLAY_ACTIONS = (0x0403, 0x0503)  # Play, PlayAndContinue
 
@@ -166,8 +166,12 @@ def build(ix: AudioIndex, log=print) -> dict:
         cues[seg]["rules"] = [rules[seg][k] for k in sorted(rules[seg])]
         cues[seg]["stinger_of"] = [stingers[seg][k] for k in sorted(stingers[seg])]
     log(f"cue map: {len(cues)} cues from {len(ix.music_banks)} music banks ({time.time() - t0:.0f}s)")
+    curves = collections.defaultdict(dict)  # {clip: {track: its curves there, as the window draws them}}
+    for tid, info in tracks.items():
+        for source in {c.source for c in info.curves if c.kind in music.LEVEL_CURVES}:
+            curves[str(source)][str(tid)] = music.level_view(info.curves, source)
     return {"format": FORMAT, "fingerprint": ix.game.fingerprint, "roots": roots, "cues": list(cues.values()),
-            "switches": {str(k): v for k, v in switches.items()}}
+            "switches": {str(k): v for k, v in switches.items()}, "curves": curves}
 
 
 class CueMap:
@@ -185,6 +189,7 @@ class CueMap:
             path.write_text(json.dumps(d))
         self.cues = {c["id"]: c for c in d["cues"]}
         self.switches = {int(k): v for k, v in d["switches"].items()}
+        self.curves = {int(s): {int(t): c for t, c in on.items()} for s, on in d["curves"].items()}
         self.by_segment = collections.defaultdict(list)  # segment id -> [cue ids that play it]
         for c in d["cues"]:
             for s in c["segments"]:

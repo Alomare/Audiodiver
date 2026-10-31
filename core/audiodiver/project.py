@@ -75,6 +75,24 @@ top. The key is left out while there are none:
 
       "settings": {"372068234": {"5": 12.0, "12": 0.0}}
 
+curves_off are the clips that lose the game's volume curves and fades on music tracks, by target as a replacement names
+it. curves are an imported mod's curves on the game's music tracks, by track, each [clip, kind, points, source]
+(music.ClipCurve): the build puts them in place of the game's. Each key is left out while empty:
+
+      "curves_off": ["41628611"], "curves": {"990527808": [[0, 0, [[0.0, 0.0, 4], [9.5, -0.2, 4]], 41628611]]}
+
+filters are Low-Pass and High-Pass on sounds, by target, each [low-pass, high-pass] from 0 to 100, with new audio or
+without: the build adds them to what the Sounds and music tracks that play the clip have. The key is left out while
+there are none:
+
+      "filters": {"15204189411560306296": [40, 0]}
+
+radio_off are the voices with their radio filter off (radio.FAMILIES), and radio_quieter turns those voices down to
+about the radio's level. The build then carries the game's Init bank with those changes (radio.py). Each key is left
+out while unused:
+
+      "radio_off": ["eagle", "mission_control"], "radio_quieter": true
+
 gains are Make-Up Gain on sounds that keep the original audio, by target as a replacement names it: the build puts
 it on the Sounds and music tracks that play the clip and leaves the clip as it is. While a slot has new audio, the
 new audio's own gain applies instead, and the entry stays for when the new audio is removed. The key is left out
@@ -111,10 +129,13 @@ from pathlib import Path
 from .arsenal import FRAME_KEYS, icon_frame, name_problem
 from .i18n import N_, tr
 from .notes import tidy as tidy_notes
+from .radio import FAMILIES
 from .soundtrack import Piece
 
 FORMAT = 1
 GAIN_DB = (-96.0, 96.0)  # Make-Up Gain, as the details panel's slider offers it
+FILTER_RANGE = (0, 100)  # Low-Pass and High-Pass
+FADE_MS = (0.0, 600_000.0)  # a fade baked into new audio
 TABS = ("editor", "soundtrack", "text")  # the window's tabs a project can hide, in the tab bar's order
 
 
@@ -165,6 +186,7 @@ FORMAT_PROBLEMS = {
                  N_("The project in {pack} is damaged (the settings from a mod)")),
     "gains": (N_("{file} is damaged (the Make-Up Gain on the original audio)"),
               N_("The project in {pack} is damaged (the Make-Up Gain on the original audio)")),
+    "curves": (N_("{file} is damaged (the volume curves)"), N_("The project in {pack} is damaged (the volume curves)")),
     "additions": (N_("{file} is damaged (the added audio)"), N_("The project in {pack} is damaged (the added audio)")),
     "soundtrack": (N_("{file} is damaged (the soundtrack)"), N_("The project in {pack} is damaged (the soundtrack)")),
     "values": (N_("{file} is damaged (a cue point, a text change, added audio or a setting)"),
@@ -206,6 +228,8 @@ class Replacement:
     fit_timing: bool = True  # fit the track/segment timing to the new clip's length
     silence: bool = False    # plays the built-in silence: with fit_timing the game moves straight on, without it
                              # the slot stays silent for as long as the game's audio would play
+    fade_in_ms: float = 0.0  # fades baked into the audio (audio.faded)
+    fade_out_ms: float = 0.0
 
 
 @dataclass
@@ -254,6 +278,11 @@ class Project:
     additions: list[Addition] = field(default_factory=list)  # audio it adds to the game's (addition.py)
     settings: dict[int, dict[int, float | None]] = field(default_factory=dict)  # an imported mod's, on the game's objects
     gains: dict[int, float] = field(default_factory=dict)  # Make-Up Gain on the original audio, by target
+    filters: dict[int, list[int]] = field(default_factory=dict)  # [low-pass, high-pass] on a sound, by target
+    radio_off: set[str] = field(default_factory=set)  # the voices without their radio filter (radio.FAMILIES)
+    radio_quieter: bool = False  # those voices turned down to about the radio's level
+    curves_off: set[int] = field(default_factory=set)  # the clips without the game's volume curves, by target
+    curves: dict[int, list] = field(default_factory=dict)  # an imported mod's, on the game's music tracks
     notes: dict[str, str] = field(default_factory=dict)  # the project's notes ({key: Markdown}, notes.py)
     soundtrack: dict[int, Piece] = field(default_factory=dict)  # how pieces of music play, by playlist (soundtrack.py)
     tabs: list[str] | None = None  # the hideable tabs it shows (TABS); None: as Settings says
@@ -289,6 +318,14 @@ class Project:
             from .audio import silence_wav
             return silence_wav()
         return self.file(r.audio)
+
+    def heard_path(self, r: Replacement) -> Path:
+        """What a replacement plays: its audio with its fades in it."""
+        path = self.audio_path(r)
+        if r.silence or not (r.fade_in_ms or r.fade_out_ms):
+            return path
+        from .audio import faded
+        return faded(path, r.fade_in_ms, r.fade_out_ms)
 
     def icon_path(self) -> Path | None:
         """The image the icon is made from, or None when the mod takes Audiodiver's default icon."""
@@ -390,16 +427,18 @@ class Project:
             # a repair names the slot by its new audio, as the screen does, else by its sound ID
             of = (r.get("label") if isinstance(r.get("label"), str) and r["label"].strip() else "") or Path(audio).stem
             if of:
-                label_of, gain_of, fit_of = (tr("the label of {name}"), tr("the Make-Up Gain of {name}"),
-                                             tr("Fit timing for {name}"))
+                label_of, gain_of, fit_of, fade_of = (tr("the label of {name}"), tr("the Make-Up Gain of {name}"),
+                                                      tr("Fit timing for {name}"), tr("the fades of {name}"))
             else:
-                label_of, gain_of, fit_of = (tr("the label of sound {id}"), tr("the Make-Up Gain of sound {id}"),
-                                             tr("Fit timing for sound {id}"))
+                label_of, gain_of, fit_of, fade_of = (tr("the label of sound {id}"), tr("the Make-Up Gain of sound {id}"),
+                                                      tr("Fit timing for sound {id}"), tr("the fades of sound {id}"))
             reps.append(Replacement(target=target, audio="" if silence else audio,
                                     label=kind(r, "label", str, "", label_of.format(name=of, id=target)),
                                     gain_db=number(r.get("gain_db", 0.0), 0.0, *GAIN_DB, gain_of.format(name=of, id=target)),
                                     fit_timing=kind(r, "fit_timing", bool, True, fit_of.format(name=of, id=target)),
-                                    silence=silence))
+                                    silence=silence,
+                                    fade_in_ms=number(r.get("fade_in_ms", 0.0), 0.0, *FADE_MS, fade_of.format(name=of, id=target)),
+                                    fade_out_ms=number(r.get("fade_out_ms", 0.0), 0.0, *FADE_MS, fade_of.format(name=of, id=target))))
         icon = d.get("icon") or {}
         if isinstance(icon, str):  # an image path, before the icon had a frame
             icon = {"image": icon}
@@ -409,12 +448,17 @@ class Project:
         texts = d.get("texts", [])
         need(isinstance(texts, list) and all(isinstance(t, dict) and {"table", "id", "text"} <= set(t) for t in texts),
              "texts")
+        filters = d.get("filters", {})
+        need(isinstance(filters, dict) and all(isinstance(v, list) and len(v) == 2 for v in filters.values()), "filters")
         settings = d.get("settings", {})
         need(isinstance(settings, dict) and all(isinstance(s, dict) and all(
             v is None or isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) for v in s.values())
             for s in settings.values()), "settings")
         gains = d.get("gains", {})
         need(isinstance(gains, dict), "gains")
+        curves_off, curves = d.get("curves_off", []), d.get("curves", {})
+        need(isinstance(curves_off, list) and isinstance(curves, dict) and all(
+            isinstance(c, list) and all(isinstance(x, list) and len(x) == 4 for x in c) for c in curves.values()), "curves")
         adds = d.get("additions", [])
         need(isinstance(adds, list) and all(isinstance(a, dict) and set(Addition.KINDS.get(a.get("kind"), ("?",))) <= set(a)
                                             for a in adds), "additions")
@@ -463,6 +507,11 @@ class Project:
                                  for o, s in settings.items() if s},
                        gains={int(t): db for t, v in gains.items()
                               if (db := number(v, 0.0, *GAIN_DB, tr("the Make-Up Gain of sound {id}").format(id=t)))},
+                       filters={int(t): kept for t, v in filters.items() if any(kept := [
+                           int(number(x, 0, *FILTER_RANGE, tr("the filters of sound {id}").format(id=t), whole=True)) for x in v])},
+                       radio_off={f for f in kind(d, "radio_off", list, [], tr("the radio filters")) if f in FAMILIES},
+                       radio_quieter=kind(d, "radio_quieter", bool, False, tr("the radio filters")),
+                       curves_off={int(t) for t in curves_off}, curves={int(t): c for t, c in curves.items()},
                        notes=notes, soundtrack={k: v for k, v in pieces.items() if not v.plain()}, tabs=tabs)
             p.repairs = list(dict.fromkeys(repairs))  # not saved: what opening it put right (project_state says it)
             return p
@@ -474,6 +523,9 @@ class Project:
             out = {**asdict(r), "target": str(r.target)}
             if not r.silence:
                 del out["silence"]  # files stay as they were for everything but silence
+            for k in ("fade_in_ms", "fade_out_ms"):
+                if not out[k]:
+                    del out[k]
             return out
         return {
             "audiodiver": FORMAT, "name": self.name, "guid": self.guid, "version": self.version,
@@ -494,6 +546,11 @@ class Project:
             **({"settings": {str(o): {str(k): v for k, v in s.items()} for o, s in self.settings.items()}}
                if self.settings else {}),
             **({"gains": {str(k): v for k, v in self.gains.items()}} if self.gains else {}),
+            **({"filters": {str(k): v for k, v in self.filters.items()}} if self.filters else {}),
+            **({"radio_off": sorted(self.radio_off)} if self.radio_off else {}),
+            **({"radio_quieter": True} if self.radio_quieter else {}),
+            **({"curves_off": sorted(map(str, self.curves_off))} if self.curves_off else {}),
+            **({"curves": {str(k): v for k, v in self.curves.items()}} if self.curves else {}),
             **({"notes": dict(self.notes)} if self.notes else {}),
             **({"soundtrack": {str(k): v.to_json() for k, v in self.soundtrack.items()}} if self.soundtrack else {}),
             **({"tabs": list(self.tabs)} if self.tabs is not None else {}),

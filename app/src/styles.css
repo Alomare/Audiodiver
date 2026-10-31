@@ -137,7 +137,7 @@ code { background: var(--raised); padding: 0 4px; }
 /* audio the project adds to the game's (a new take, a layer, a clip of its own) */
 .tag.new { color: var(--second-fg); border-color: color-mix(in srgb, var(--second-fg) 50%, transparent); }
 .tag.linked .icon { margin-right: 3px; vertical-align: -.2em; }
-.warn-box { border-left: 3px solid var(--red); background: color-mix(in srgb, var(--red) 10%, transparent); padding: 8px 12px; margin: 10px 0; font-size: calc(14px * var(--fs)); }
+.warn-box { border-left: 3px solid var(--red); background: color-mix(in srgb, var(--red) 10%, transparent); padding: 8px 12px; margin: 10px 0; font-size: calc(14px * var(--fs)); overflow-wrap: anywhere; } /* a message can hold a whole path */
 .info-box { border-left: 3px solid var(--steel); background: color-mix(in srgb, var(--steel) 9%, transparent); padding: 8px 12px; margin: 10px 0; font-size: calc(14px * var(--fs)); }
 input[type="search"], input[type="number"] { background: var(--bg); border: 1px solid var(--line); border-radius: 2px; padding: 6px 10px; width: 100%; }
 /* a box with a border shows its focus there; a slider, a checkbox or a colour has none and keeps the ring */
@@ -360,7 +360,7 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color])
 .cue .slot.take { padding-left: calc(54px + 4px * var(--sp) + 22px * var(--fs)); }
 .slot-check { position: absolute; left: 7px; top: 50%; translate: 0 -50%; width: calc(14px * var(--fs)); height: calc(14px * var(--fs)); margin: 0;
   accent-color: var(--second-fg); opacity: .5; cursor: pointer; transition: opacity var(--t1); }
-.slot:hover > .slot-check, .grp:hover > .slot-check, .slot-check:checked, .slot-check:indeterminate { opacity: 1; }
+.slot:hover > .slot-check, .grp:hover > .slot-check, .tree-line:hover > .slot-check, .slot-check:checked, .slot-check:indeterminate { opacity: 1; }
 .grp { position: relative; }
 /* the toolbar's tick, over the rows' ticks */
 .cue-bar > .slot-check.all { position: static; translate: none; flex: none; margin: 0 6px 0 4px; opacity: 1; }
@@ -674,6 +674,7 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .tl-label b { font-size: calc(14px * var(--fs)); font-weight: 700; }
 .tl-label.game b { color: var(--steel); }
 .tl-label.mine b { color: var(--accent-fg); }
+.tl-curve { color: var(--text); }
 /* the Library's facts about the slot, over its waveform */
 .tl-facts { flex: none; display: flex; flex-direction: column; gap: 3px; font-size: calc(13px * var(--fs)); color: var(--muted); }
 .tl-facts-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; min-width: 0; }
@@ -767,6 +768,7 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .lib-tabs button { padding: calc(9px * var(--sp)) 0 calc(8px * var(--sp)); font-weight: 700; font-size: calc(15px * var(--fs)); color: var(--muted); border-bottom: 2px solid transparent; }
 .lib-tabs button:hover { color: var(--text); }
 .lib-tabs button.on { color: var(--text); border-bottom-color: var(--second-fg); }
+.lib-games button { padding: calc(5px * var(--sp)) 0 calc(4px * var(--sp)); font-weight: 400; font-size: calc(13px * var(--fs)); }
 .lib-other { border-top: 1px solid var(--line-soft); max-height: 30%; overflow: auto; flex: none; }
 .lib-pane { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .lib-pane[hidden] { display: none; }
@@ -900,9 +902,10 @@ button.ctag:hover { background: color-mix(in oklch, var(--c) 24%, transparent); 
    the next); a group's line says its kind before the id, and what names it otherwise after */
 .cue .slots > .grp, .cue .slots > .slot { padding-left: calc(8px + 22px * var(--fs) + var(--depth, 0) * 14px); } /* after the tick */
 .cue .slots > .slot.take { padding-left: calc(54px + 4px * var(--sp) + 22px * var(--fs) + var(--depth, 0) * 14px); }
-.tree-line { display: flex; align-items: baseline; gap: 5px; min-width: 0; overflow: hidden; white-space: nowrap; margin-top: 2px;
-  padding: calc(5px * var(--sp)) 8px calc(1px * var(--sp)) calc(8px + var(--depth, 0) * 14px); border-top: 1px solid var(--line-soft);
+.tree-line { position: relative; display: flex; align-items: baseline; gap: 5px; min-width: 0; overflow: hidden; white-space: nowrap; margin-top: 2px; cursor: pointer;
+  padding: calc(5px * var(--sp)) 8px calc(1px * var(--sp)) calc(8px + 22px * var(--fs) + var(--depth, 0) * 14px); border-top: 1px solid var(--line-soft);
   font-size: calc(12px * var(--fs)); color: var(--muted); }
+.tree-line:hover { background: color-mix(in srgb, var(--panel) 50%, var(--raised)); }
 .tree-type, .tree-sep { flex: none; color: var(--faint); }
 .tree-type { margin-right: 2px; }
 .tree-id { flex: none; padding: 0 3px; border-radius: 2px; color: var(--muted); font: calc(12px * var(--fs)) "Roboto Mono Variable", Consolas, monospace; }
@@ -1273,6 +1276,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 /* Home is laid out at Compact's spacing whatever Settings ▸ Theme ▸ Spacing says (theme.ts DENSITIES): the menu
    was drawn for it, and wider gaps pull its strips apart */
 .home { --sp: .55; --home-m: calc(83px * var(--sp)); --ticker-h: calc(35px * var(--fs)); }
+.home.no-ticker { --ticker-h: 0px; } /* Settings ▸ System: the page and the row above it take the strip's place */
 .home-corner { position: absolute; left: var(--home-m); right: var(--home-m); bottom: calc(var(--ticker-h) + 12px); z-index: 2;
   display: flex; align-items: center; justify-content: space-between; gap: 8px; pointer-events: none; }
 .home-corner > * { pointer-events: auto; }
@@ -1563,6 +1567,10 @@ kbd.none { color: var(--faint); font-weight: 400; }
 /* ---------- Wiki: the guides on the left, the page in the middle, its headings on the right */
 /* --wiki-nav is the list's share of the tab, a quarter to start (Wiki.tsx), as the Library's --split is */
 .wiki { display: grid; grid-template-columns: clamp(200px, calc((100% - 5px) * var(--wiki-nav, 0.25)), calc(100% - 385px)) 5px minmax(0, 1fr); min-height: 0; }
+/* the Wiki away in its own window: what the tab shows, and that window's whole page */
+.wiki-away { display: grid; place-content: center; justify-items: center; gap: calc(14px * var(--sp)); min-height: 0; padding: 24px; text-align: center; }
+.wiki-away p { margin: 0; color: var(--muted); font-size: calc(16px * var(--fs)); }
+.wiki-window { display: grid; height: 100%; min-height: 0; }
 .wiki-nav { display: flex; flex-direction: column; min-height: 0; min-width: 0; background: var(--panel); }
 .wiki-list { flex: 1; overflow: auto; padding: 4px 0 24px; }
 /* the interactive tutorials and the FAQ: entries above the groups, each with a round mark (a slightly dim white, a
@@ -1881,8 +1889,9 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .slice-empty { padding: 30px 0; color: var(--muted); max-width: 60ch; }
 .slice-bar { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; font-size: calc(14px * var(--fs)); }
 .slice-file { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; max-width: 36ch; }
-.slice-field { display: flex; align-items: center; gap: 6px; color: var(--muted); }
+.slice-field { display: flex; align-items: center; gap: 6px; color: var(--muted); white-space: nowrap; }
 .slice-field select { max-width: 240px; }
+.slice-field input.slice-cut-at { flex: none; width: calc(92px * var(--fs)); height: var(--ctl-sm); }
 .slice-through { font-size: calc(13px * var(--fs)); }
 .slice-tools .play-btn { min-width: calc(92px * var(--fs)); }
 .slice-tools .play-btn.on { border-color: var(--second-fg); color: var(--second-fg); }
@@ -1927,7 +1936,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .slice-viewport { position: absolute; top: 0; bottom: 0; left: 0; border: 1px solid var(--second-fg); background: color-mix(in srgb, var(--second-fg) 12%, transparent);
   pointer-events: none; will-change: transform; }
 .slice-list { flex: 1 1 auto; overflow: auto; min-height: 90px; border-top: 1px solid var(--line-soft); }
-.slice-piece { display: grid; grid-template-columns: calc(24px * var(--fs)) calc(24px * var(--fs)) minmax(140px, 1fr) calc(130px * var(--fs)) calc(64px * var(--fs)) calc(24px * var(--fs)) calc(68px * var(--fs)) calc(86px * var(--fs));
+.slice-piece { display: grid; grid-template-columns: calc(24px * var(--fs)) calc(24px * var(--fs)) minmax(140px, 1fr) calc(172px * var(--fs)) calc(78px * var(--fs)) calc(24px * var(--fs)) calc(78px * var(--fs)) calc(86px * var(--fs));
   gap: 10px; align-items: center; padding: 3px 6px; font-size: calc(14px * var(--fs)); cursor: pointer; }
 .slice-piece:nth-child(even) { background: var(--stripe); }
 .slice-piece:hover:not(.head) { background: var(--hover); }
@@ -2153,6 +2162,13 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .st-lines.dragging .st-new:not(.lifting) { transition: transform var(--t2) var(--ease); }
 .st-new.lifting { position: relative; z-index: 4; box-shadow: 0 6px 18px var(--shadow); }
 .st-none { color: var(--faint); font-size: calc(13px * var(--fs)); }
+.st-none.st-silent { flex: 1; }
+.insp-filter, .insp-fade { display: flex; align-items: center; gap: 10px; margin-top: 6px; font-size: calc(13px * var(--fs)); }
+.insp-filter > span:first-child, .insp-fade > span:first-child { flex: none; min-width: 5.5em; color: var(--muted); }
+.insp-filter .r-fader { flex: 1; min-width: 0; }
+.insp-filter .val { flex: none; min-width: 2em; text-align: right; font-variant-numeric: tabular-nums; }
+.insp-fade .val { margin-left: auto; }
+.set-checks { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-bottom: 8px; }
 .st-song { display: flex; flex-direction: column; gap: 10px; }
 .st-songname { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 40ch; }
 .st-drop { padding: 14px 16px; border: 1px dashed var(--line); }

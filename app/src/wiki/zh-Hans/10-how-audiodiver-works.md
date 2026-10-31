@@ -2,7 +2,7 @@
 title: Audiodiver 的工作方式
 group: 入门
 summary: Audiodiver 做什么、项目是什么，以及每个选项卡的用途。
-source: 1b5e5dfe0dd2
+source: c76f32ef9388
 ---
 
 Audiodiver 按照**它是什么、在哪里播放**来替换 Helldivers 2 的音频。在资源库中找到一首曲目或一组声音，将其添加到项目中，再为它提供新音频。之后，Audiodiver 会算出游戏所需的音频库、ID 和时序值。
@@ -31,6 +31,8 @@ Audiodiver 从不写入游戏文件夹。它从 Steam 库读取游戏音频，�
 - {icon:build} **构建**包含下一个版本、构建选项和“构建”按钮。选项卡上的圆点表示项目尚未构建，或者自上次构建以来项目有更改或游戏已更新。红色数字是阻止构建的问题数。
 - {icon:updates} **更新**、{icon:wiki} **Wiki**（{key:wiki}）和 {icon:settings} **设置**位于选项卡栏末尾。有新版本的 Audiodiver 时，“更新”会高亮显示，它还列出每个版本的更改。在 Wiki 页面上，{key:search} 可在该页面中查找文字。
 
+指南搜索框旁的 {icon:detach} 按钮可将 Wiki 移到单独的窗口，便于一边阅读一边处理项目。此时 Wiki 选项卡会显示**把 Wiki 放回来**，关闭该窗口也有同样的效果。Wiki 在该窗口中时，**?** 或指向某一页的链接都会在那里打开。开始教程时会先把 Wiki 放回来。
+
 状态栏右端的版本号也可以打开“更新”。旁边的 {icon:info} 按钮可打开[关于](app:about)，其中有许可证、日志文件和致谢。
 
 窗口标题是当前项目的名称。
@@ -40,6 +42,12 @@ Audiodiver 从不写入游戏文件夹。它从 Steam 库读取游戏音频，�
 ## 选项卡 {#tabs}
 
 音频、配乐和文本可以隐藏。在[设置 ▸ 系统](app:settings/system)的**选项卡**下取消勾选它们即可，例如为只修改字幕的模组只保留文本。新项目一开始使用设置中显示的选项卡。之后，每个项目都可以在[项目](app:project)选项卡的**选项卡**下选择不同的选项卡，并保留该选择。隐藏选项卡不会移除任何内容，在其中做的更改仍保留在模组中。
+
+## Helldivers 1 {#helldivers-1}
+
+安装了 Helldivers 1 后，资源库的**索引**和**所有归档**下方会按游戏分出选项卡。Helldivers 1 的音频可以播放，也可以导出为 WAV、FLAC 或 MP3。Helldivers 1 的条目不能放入项目，但可以用 **Ctrl+C** 把任意片段复制到项目的槽位中。Audiodiver 不会改动这款游戏。
+
+索引中的每个条目是游戏中的一个声音事件，槽位是它从中挑选的片段。语音和部分音乐按语言分选项卡。条目以较短的形式显示游戏文件中的名称，例如 `fs_rock_run` 显示为 *Rock Run*，搜索时两者都能找到。武器、战备和敌人使用游戏中显示的名称。语音条目会给出播放时屏幕上显示的台词，搜索也能找到这段台词。语音片段很短，并不会读出整句台词。游戏中的许多名称只以数字保存，因此没有已知名称的声音只出现在**所有归档**中对应的音频库里。
 
 ## Audiodiver 的新版本 {#new-versions-of-audiodiver}
 
@@ -59,11 +67,17 @@ Audiodiver 每次启动时都会在 GitHub 上检查新版本。[设置 ▸ 系�
 
 ### 游戏文件夹 {#game-folder}
 
-[设置 ▸ 系统](app:settings/system)中的**游戏**显示 Audiodiver 从哪个文件夹读取游戏。Audiodiver 通过 Steam 找到它。如果游戏在其他位置，请按**选择其他文件夹**，然后选择 Helldivers 2 的安装文件夹，或其中的 `data` 文件夹。之后 Audiodiver 会重新读取游戏，首次大约需要一分钟。它只读取此文件夹，从不写入。
+[设置 ▸ 系统](app:settings/system)中的**Helldivers 2**显示 Audiodiver 从哪个文件夹读取游戏。Audiodiver 通过 Steam 找到它。如果游戏在其他位置，请按**选择其他文件夹**，然后选择 Helldivers 2 的安装文件夹，或其中的 `data` 文件夹。之后 Audiodiver 会重新读取游戏，首次大约需要一分钟。它只读取此文件夹，从不写入。
+
+**Helldivers 1** 对资源库起同样的作用。请选择 Helldivers 1 的安装文件夹，或其中的 `contents` 文件夹。
 
 ### 启动 {#startup}
 
 开启 **Audiodiver 启动时打开上次的项目**后，Audiodiver 会在音频选项卡中打开上次的项目。关闭时，Audiodiver 从主页启动。
+
+### 主页 {#home}
+
+关闭**显示新闻滚动条**后，主页底部不再显示战争新闻条，也不会加载新闻。
 
 ### 自动保存 {#autosave}
 

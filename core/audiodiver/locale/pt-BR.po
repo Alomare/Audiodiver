@@ -181,12 +181,22 @@ msgstr[0] "{replacements} -> patch em {n} banco"
 msgstr[1] "{replacements} -> patch em {n} bancos"
 
 #: build.py
+msgid "radio filter: this game version has changed some of those buses, so they keep the filter"
+msgstr "filtro de rádio: esta versão do jogo mudou alguns desses barramentos, então eles mantêm o filtro"
+
+#: build.py
 msgid "verified ({seconds}s)"
 msgstr "verificado ({seconds}s)"
 
 #: build.py editor.py
 msgid "Packing the ZIP"
 msgstr "Empacotando o ZIP"
+
+#: build.py
+msgid "curves: {n} sound or track is not in this game version; left out"
+msgid_plural "curves: {n} sounds or tracks are not in this game version; left out"
+msgstr[0] "curvas: {n} som ou faixa não está nesta versão do jogo; deixado de fora"
+msgstr[1] "curvas: {n} sons ou faixas não estão nesta versão do jogo; deixados de fora"
 
 #: build.py
 msgid "sound {id}"
@@ -197,6 +207,12 @@ msgid "gain: {n} sound with Make-Up Gain on the original is not in this game ver
 msgid_plural "gain: {n} sounds with Make-Up Gain on the original are not in this game version; left out"
 msgstr[0] "ganho: {n} som com Make-Up Gain no original não está nesta versão do jogo; deixado de fora"
 msgstr[1] "ganho: {n} sons com Make-Up Gain no original não estão nesta versão do jogo; deixados de fora"
+
+#: build.py
+msgid "filters: {n} sound with a filter is not in this game version; left out"
+msgid_plural "filters: {n} sounds with a filter are not in this game version; left out"
+msgstr[0] "filtros: {n} som com filtro não está nesta versão do jogo; deixado de fora"
+msgstr[1] "filtros: {n} sons com filtro não estão nesta versão do jogo; deixados de fora"
 
 #: build.py
 msgid "Since the last game update, the game uses some IDs that the added audio also uses ({ids}). Remove that audio and add it again."
@@ -287,6 +303,24 @@ msgstr[0] "configurações de um mod em {n} objeto"
 msgstr[1] "configurações de um mod em {n} objetos"
 
 #: build.py
+msgid "volume curves changed on {n} music track"
+msgid_plural "volume curves changed on {n} music tracks"
+msgstr[0] "curvas de volume alteradas em {n} faixa de música"
+msgstr[1] "curvas de volume alteradas em {n} faixas de música"
+
+#: build.py
+msgid "filters on {n} object"
+msgid_plural "filters on {n} objects"
+msgstr[0] "filtros em {n} objeto"
+msgstr[1] "filtros em {n} objetos"
+
+#: build.py
+msgid "radio filter off on {n} bus"
+msgid_plural "radio filter off on {n} buses"
+msgstr[0] "filtro de rádio desligado em {n} barramento"
+msgstr[1] "filtro de rádio desligado em {n} barramentos"
+
+#: build.py
 msgid "{n} file besides audio (text, models, textures...) carried as it was"
 msgid_plural "{n} files besides audio (text, models, textures...) carried as they were"
 msgstr[0] "{n} arquivo além de áudio (texto, modelos, texturas...) mantido como estava"
@@ -349,12 +383,12 @@ msgid "Icon: {why}"
 msgstr "Ícone: {why}"
 
 #: build.py
-msgid "{name}: sound {id} isn't in this version of the game"
-msgstr "{name}: o som {id} não está nesta versão do jogo"
-
-#: build.py
 msgid "{name}: can't read the audio in {file}"
 msgstr "{name}: não foi possível ler o áudio de {file}"
+
+#: build.py
+msgid "{name}: sound {id} isn't in this version of the game"
+msgstr "{name}: o som {id} não está nesta versão do jogo"
 
 #: build.py
 msgid "text: table {table} is not in this game version; the {n} line changed in it is left out"
@@ -568,7 +602,7 @@ msgstr "Escolha os slots para limpar"
 
 #: editor.py
 msgid "Choose the slots to change"
-msgstr "Escolha os slots para alterar"
+msgstr "Escolha os slots a alterar"
 
 #: editor.py
 msgid "Choose the slots to match"
@@ -713,6 +747,10 @@ msgid "Choose the pieces of music to set"
 msgstr "Escolha as peças de música para definir"
 
 #: editor.py
+msgid "Choose the songs"
+msgstr "Escolha as músicas"
+
+#: editor.py
 msgid "Set this music to another mode first"
 msgstr "Coloque esta música em outro modo primeiro"
 
@@ -723,10 +761,6 @@ msgstr "Escolha a música para definir"
 #: editor.py
 msgid "No other music to set"
 msgstr "Nenhuma outra música para definir"
-
-#: editor.py
-msgid "Choose the songs"
-msgstr "Escolha as músicas"
 
 #: editor.py
 msgid "The export list can't be read. Clear it and add the items again."
@@ -749,6 +783,10 @@ msgid "WEM files are the Original, slot by slot. Choose another format for the r
 msgstr "Arquivos WEM são o Original, slot por slot. Escolha outro formato para o resto."
 
 #: editor.py
+msgid "Helldivers 1 has no WEM files. Choose another format for it."
+msgstr "O Helldivers 1 não tem arquivos WEM. Escolha outro formato para ele."
+
+#: editor.py
 msgid "Getting ready"
 msgstr "Preparando"
 
@@ -767,6 +805,10 @@ msgstr "{name} é um arquivo. Escolha uma pasta."
 #: editor.py
 msgid "{name} can't be used as a folder name. Choose another name."
 msgstr "{name} não pode ser usado como nome de pasta. Escolha outro nome."
+
+#: editor.py
+msgid "Reading Helldivers 1"
+msgstr "Lendo o Helldivers 1"
 
 #: editor.py
 msgid "A new take has no original audio"
@@ -838,7 +880,7 @@ msgstr "lendo {file}"
 msgid "{name} holds no audio or text that Audiodiver can bring in"
 msgstr "{name} não contém áudio nem texto que o Audiodiver possa importar"
 
-#: editor.py library.py
+#: editor.py hd1.py library.py
 msgid "Other Sounds"
 msgstr "Outros sons"
 
@@ -885,6 +927,10 @@ msgstr "{file} não tem ícone"
 #: editor.py
 msgid "{folder} can't be written to. Choose another folder."
 msgstr "Não é possível gravar em {folder}. Escolha outra pasta."
+
+#: editor.py
+msgid "Helldivers 1 couldn't be read from {folder}"
+msgstr "Não foi possível ler o Helldivers 1 em {folder}"
 
 #: editor.py
 msgid "{file} already exists in {folder}"
@@ -957,6 +1003,18 @@ msgid "{n} object copied from another bank by the tool that made the mod; each b
 msgid_plural "{n} objects copied from another bank by the tool that made the mod; each bank's own are used"
 msgstr[0] "{n} objeto copiado de outro banco pela ferramenta que fez o mod; o de cada banco é usado"
 msgstr[1] "{n} objetos copiados de outro banco pela ferramenta que fez o mod; os de cada banco são usados"
+
+#: editor.py
+msgid "{n} volume curve from the mod"
+msgid_plural "{n} volume curves from the mod"
+msgstr[0] "{n} curva de volume do mod"
+msgstr[1] "{n} curvas de volume do mod"
+
+#: editor.py
+msgid "radio filter off for {n} voice, from the mod"
+msgid_plural "radio filter off for {n} voices, from the mod"
+msgstr[0] "filtro de rádio desligado em {n} voz, vindo do mod"
+msgstr[1] "filtro de rádio desligado em {n} vozes, vindo do mod"
 
 #: editor.py
 msgid "Decoding {n} of {total}"
@@ -1053,6 +1111,14 @@ msgid "No cue {id}"
 msgstr "Cue {id} não encontrado"
 
 #: editor.py
+msgid "Volume curve"
+msgstr "Curva de volume"
+
+#: editor.py
+msgid "From the mod"
+msgstr "Do mod"
+
+#: editor.py
 msgid "Can't make the folder {folder}: {why}"
 msgstr "Não foi possível criar a pasta {folder}: {why}"
 
@@ -1065,8 +1131,20 @@ msgid "{name}: no audio file named"
 msgstr "{name}: nenhum arquivo de áudio indicado"
 
 #: editor.py
+msgid "Sound {id} has no audio in the game files"
+msgstr "O som {id} não tem áudio nos arquivos do jogo"
+
+#: editor.py
+msgid "The copied audio couldn't be saved: {why}"
+msgstr "Não foi possível salvar o áudio copiado: {why}"
+
+#: editor.py
 msgid "Make-Up Gain goes from {low} to {high} dB"
 msgstr "O Make-Up Gain vai de {low} a {high} dB"
+
+#: editor.py
+msgid "A fade is from 0 to {ms} ms"
+msgstr "Um fade vai de 0 a {ms} ms"
 
 #: editor.py
 msgid "{file} can't be read, so global notes can't be shown or saved. Fix or move the file, or choose another folder in Settings ▸ System."
@@ -1221,10 +1299,6 @@ msgid "Can't write {file}: {why}"
 msgstr "Não foi possível gravar {file}: {why}"
 
 #: editor.py
-msgid "Sound {id} has no audio in the game files"
-msgstr "O som {id} não tem áudio nos arquivos do jogo"
-
-#: editor.py
 msgid "{n} line of text that the game doesn't have"
 msgid_plural "{n} lines of text that the game doesn't have"
 msgstr[0] "{n} linha de texto que o jogo não tem"
@@ -1364,6 +1438,162 @@ msgstr "{folder} não foi encontrado"
 msgid "The HD2_DATA environment variable points to {folder}, which has no Helldivers 2 files"
 msgstr "A variável de ambiente HD2_DATA aponta para {folder}, que não tem arquivos do Helldivers 2"
 
+#: hd1.py
+msgid "Admiral"
+msgstr "Almirante"
+
+#: hd1.py
+msgid "Chief Communications Officer"
+msgstr "Oficial-chefe de Comunicações"
+
+#: hd1.py
+msgid "Science Officer"
+msgstr "Oficial de Ciências"
+
+#: hd1.py
+msgid "Private 1"
+msgstr "Soldado 1"
+
+#: hd1.py
+msgid "Private 2"
+msgstr "Soldado 2"
+
+#: hd1.py
+msgid "Helldiver"
+msgstr "Helldiver"
+
+#: hd1.py
+msgid "Tutorial"
+msgstr "Tutorial"
+
+#: hd1.py library.py
+msgid "Music"
+msgstr "Música"
+
+#: hd1.py
+msgid "Voices"
+msgstr "Vozes"
+
+#: hd1.py
+msgid "Weapons"
+msgstr "Armas"
+
+#: hd1.py
+msgid "Stratagems"
+msgstr "Estratégias"
+
+#: hd1.py
+msgid "Vehicles"
+msgstr "Veículos"
+
+#: hd1.py
+msgid "Footsteps and Movement"
+msgstr "Passos e movimento"
+
+#: hd1.py
+msgid "Impacts"
+msgstr "Impactos"
+
+#: hd1.py
+msgid "Radio"
+msgstr "Rádio"
+
+#: hd1.py
+msgid "Ambience"
+msgstr "Ambiente"
+
+#: hd1.py
+msgid "Interface"
+msgstr "Interface"
+
+#: hd1.py
+msgid "General"
+msgstr "Geral"
+
+#: hd1.py
+msgid "Assault Rifles"
+msgstr "Fuzis de Assalto"
+
+#: hd1.py
+msgid "Grenades"
+msgstr "Granadas"
+
+#: hd1.py
+msgid "Machine Guns"
+msgstr "Metralhadoras"
+
+#: hd1.py
+msgid "Rocket Launchers"
+msgstr "Lança-foguetes"
+
+#: hd1.py
+msgid "Shotguns"
+msgstr "Espingardas"
+
+#: hd1.py
+msgid "Submachine Guns"
+msgstr "Submetralhadoras"
+
+#: hd1.py
+msgid "Stratagem Beacons"
+msgstr "Sinalizadores de Estratégia"
+
+#: hd1.py
+msgid "Shields"
+msgstr "Escudos"
+
+#: hd1.py
+msgid "Turrets"
+msgstr "Torretas"
+
+#: hd1.py
+msgid "Hellpods"
+msgstr "Hellpods"
+
+#: hd1.py
+msgid "Extraction Shuttle"
+msgstr "Nave de Extração"
+
+#: hd1.py
+msgid "Exosuits"
+msgstr "Exouniformes"
+
+#: hd1.py
+msgid "{folder} has no Helldivers 1 files"
+msgstr "{folder} não tem arquivos do Helldivers 1"
+
+#: hd1.py library.py
+msgid "Not named yet."
+msgstr "Ainda sem nome."
+
+#: hd1.py
+msgid "Helldivers 1"
+msgstr "Helldivers 1"
+
+#: hd1.py
+msgid "Clips No Event Plays"
+msgstr "Clipes que nenhum evento toca"
+
+#: hd1.py library.py
+msgid "All Archives"
+msgstr "Todos os Pacotes"
+
+#: hd1.py library.py
+msgid "Bank {id}"
+msgstr "Banco {id}"
+
+#: hd1.py
+msgid "{n} languages"
+msgstr "{n} idiomas"
+
+#: hd1.py library.py
+msgid "Take {n}"
+msgstr "Take {n}"
+
+#: hd1.py
+msgid "Event {id}"
+msgstr "Evento {id}"
+
 #: index.py
 msgid "English"
 msgstr "Inglês"
@@ -1407,10 +1637,6 @@ msgstr "Russo"
 #: installed.py
 msgid "Checking {mod}"
 msgstr "Verificando {mod}"
-
-#: library.py
-msgid "Music"
-msgstr "Música"
 
 #: library.py
 msgid "Music by where it plays, from the ship to the credits."
@@ -1473,10 +1699,6 @@ msgid "Streams"
 msgstr "Streams"
 
 #: library.py
-msgid "Not named yet."
-msgstr "Ainda sem nome."
-
-#: library.py
 msgid "Streams No Bank Plays"
 msgstr "Streams que nenhum banco toca"
 
@@ -1487,10 +1709,6 @@ msgstr "Arquivos de áudio deste pacote que nenhum banco de sons desta versão d
 #: library.py
 msgid "A single sound. Audiodiver replaces it in every bank that holds or plays it."
 msgstr "Um único som. O Audiodiver o substitui em todos os bancos que o contêm ou tocam."
-
-#: library.py
-msgid "Bank {id}"
-msgstr "Banco {id}"
 
 #: library.py
 msgid "No container"
@@ -1511,10 +1729,6 @@ msgstr "Este banco só armazena áudio. Os sons que o tocam estão em outro banc
 #: library.py
 msgid "Not transcribed. Each line is named after what another Helldiver voice says at the same place, and the words may differ."
 msgstr "Não transcrito. Cada fala recebe o nome do que outra voz de Helldiver diz no mesmo lugar, e as palavras podem ser diferentes."
-
-#: library.py
-msgid "All Archives"
-msgstr "Todos os Pacotes"
 
 #: library.py
 msgid "Archive {id}"
@@ -1565,10 +1779,6 @@ msgstr[1] "Música: {sections} e mais {n}"
 #: library.py
 msgid "Music: {sections}"
 msgstr "Música: {sections}"
-
-#: library.py
-msgid "Take {n}"
-msgstr "Take {n}"
 
 #: library.py
 msgid "Only {language} voices are installed."
@@ -1819,6 +2029,14 @@ msgid "The project in {pack} is damaged (the Make-Up Gain on the original audio)
 msgstr "O projeto em {pack} está danificado (o Make-Up Gain no áudio original)"
 
 #: project.py
+msgid "{file} is damaged (the volume curves)"
+msgstr "{file} está danificado (as curvas de volume)"
+
+#: project.py
+msgid "The project in {pack} is damaged (the volume curves)"
+msgstr "O projeto em {pack} está danificado (as curvas de volume)"
+
+#: project.py
 msgid "{file} is damaged (the added audio)"
 msgstr "{file} está danificado (o áudio adicionado)"
 
@@ -1863,6 +2081,10 @@ msgid "Fit timing for {name}"
 msgstr "a opção Ajustar o tempo de {name}"
 
 #: project.py
+msgid "the fades of {name}"
+msgstr "os fades de {name}"
+
+#: project.py
 msgid "the label of sound {id}"
 msgstr "o rótulo do som {id}"
 
@@ -1873,6 +2095,10 @@ msgstr "o Make-Up Gain do som {id}"
 #: project.py
 msgid "Fit timing for sound {id}"
 msgstr "a opção Ajustar o tempo do som {id}"
+
+#: project.py
+msgid "the fades of sound {id}"
+msgstr "os fades do som {id}"
 
 #: project.py
 msgid "mod ID: damaged in the project file (Make a New ID, on the Project tab)"
@@ -1907,6 +2133,10 @@ msgid "the build folder"
 msgstr "a pasta dos mods gerados"
 
 #: project.py
+msgid "the radio filters"
+msgstr "os filtros de rádio"
+
+#: project.py
 msgid "icon: image not found ({path})"
 msgstr "ícone: imagem não encontrada ({path})"
 
@@ -1937,6 +2167,10 @@ msgstr "segmento {id}: ajustes desconhecidos {keys}"
 #: project.py
 msgid "the imported mods' banks"
 msgstr "os bancos dos mods importados"
+
+#: project.py
+msgid "the filters of sound {id}"
+msgstr "os filtros do som {id}"
 
 #: projectfiles.py
 msgid "Another project in this folder can't be read, so it isn't known which files it uses"

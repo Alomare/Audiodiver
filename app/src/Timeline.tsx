@@ -1,7 +1,7 @@
 import { useMemo, useRef } from "react";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { audioUrl, fmtDecimal, fmtTime, type Cue } from "./api";
+import { audioUrl, fmtDecimal, fmtTime, type Cue, type Curve } from "./api";
 import { audible, rowName, rowsOf } from "./CueView";
 import { useLiveGain } from "./gain";
 import { throughHead, throughSeek, type Through } from "./PlayThrough";
@@ -33,6 +33,24 @@ const ENTRY_ABOUT = t`The segment counts as started here. Audio before it plays 
 const EXIT_ABOUT = t`The next segment starts here. Audio after it rings out over the next one`;
 const ENTRY_DRAG = t`The segment counts as started here. Audio before it plays under the end of the segment before. Drag to move it`;
 const EXIT_DRAG = t`The next segment starts here. Audio after it rings out over the next one. Drag to move it`;
+
+/** A clip's curves as one line, [ms, level] with 1 as mixed: a volume curve takes away from 1, and fades scale that. */
+function curveLine(c: Curve): number[][] {
+  const at = (points: number[][] | undefined, ms: number, none: number) => {
+    if (!points?.length) return none;
+    const i = points.findIndex((p) => p[0] >= ms);
+    if (i <= 0) return points[i === 0 ? 0 : points.length - 1][1];
+    const [x0, y0] = points[i - 1], [x1, y1] = points[i];
+    return y0 + ((ms - x0) / (x1 - x0)) * (y1 - y0);
+  };
+  const times = [...new Set([...(c.volume ?? []), ...(c.fade_in ?? []), ...(c.fade_out ?? [])].map((p) => p[0]))].sort((a, b) => a - b);
+  return times.map((ms) => [ms, Math.max(0, (1 + at(c.volume, ms, 0)) * at(c.fade_in, ms, 1) * at(c.fade_out, ms, 1))]);
+}
+
+/** Says what the line over a waveform is, under its label. */
+function CurveLabel() {
+  return <span className="tl-curve" data-tip={t`The level the game gives this clip as it plays`} data-tip-more={t`Drawn as the line around the waveform`}><Trans>Volume curve</Trans></span>;
+}
 
 /** The Make-Up Gain a waveform is drawn at, under its label. */
 function Db({ db }: { db: number }) {
@@ -69,10 +87,14 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
   const game = gameFine.peaks ?? gameWave.peaks, mine = mineFine.peaks ?? mineWave.peaks;
   const waves = useRef<HTMLDivElement>(null);
   useWheelZoom(waves, zoom, !!row);
+  const curve = useMemo(() => (row?.slot.curve ? curveLine(row.slot.curve) : undefined), [row?.slot.curve]);
   if (!row || !source) return null;
 
   const { seg } = row;
   const what = rowName(row);
+  // what plays in the slot follows the curve, unless the project drops it; the original lane always shows the game's
+  const dropped = !readOnly && !!project?.curves_off.includes(source);
+  const gameCurve = a || !dropped ? curve : undefined, mineCurve = dropped ? undefined : curve;
   const view = { spanMs: zoom.span, fromMs: zoom.from, zoomY: zoom.y };
   const kGame = `vanilla:${source}`, kMine = `project:${source}`;
   // the play-through that plays in this tab, and how far it is
@@ -122,8 +144,8 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
       <div className="tl-body zoom-grid">
         <div className="tl-rows" ref={waves}>
           <div className="tl-row">
-            <div className="tl-label game"><b>{t`Original`}</b><span>{fmtTime(game?.duration_ms)}</span>{gameDb !== 0 && <Db db={gameDb} />}</div>
-            <Waveform peaks={game} {...view} tone="game" markers={gameMarkers} playheadMs={head(kGame, false, game?.duration_ms)} gainDb={gameDb}
+            <div className="tl-label game"><b>{t`Original`}</b><span>{fmtTime(game?.duration_ms)}</span>{gameDb !== 0 && <Db db={gameDb} />}{gameCurve && <CurveLabel />}</div>
+            <Waveform peaks={game} {...view} tone="game" markers={gameMarkers} playheadMs={head(kGame, false, game?.duration_ms)} gainDb={gameDb} curve={gameCurve}
               activeFrom={hasCues ? seg.entry_ms ?? 0 : undefined} activeTo={hasCues ? seg.exit_ms ?? undefined : undefined}
               onSeek={none ? undefined : (ms) => seek("vanilla", ms)}
               label={row.slot.added ? t`A new take has no original` : row.slot.absent ? t`Not in the installed game files` : t`Loading the original…`}
@@ -131,12 +153,12 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
           </div>
           {!readOnly && (
             <div className="tl-row">
-              <div className="tl-label mine"><b>{t`Replaced`}</b><span>{a?.silence ? t({ message: "silence", comment: "In place of the length of the new audio: the slot plays silence" }) : a ? fmtTime(mine?.duration_ms) : ""}</span>{mineDb !== 0 && <Db db={mineDb} />}</div>
+              <div className="tl-label mine"><b>{t`Replaced`}</b><span>{a?.silence ? t({ message: "silence", comment: "In place of the length of the new audio: the slot plays silence" }) : a ? fmtTime(mine?.duration_ms) : ""}</span>{mineDb !== 0 && <Db db={mineDb} />}{audible(a) && mineCurve && <CurveLabel />}</div>
               {a?.silence ? (
                 <div className="wave placeholder">{a.fit_timing ? t`Silence: plays nothing, and the game moves straight on`
                   : t`Silence: plays nothing for the length of the original, so the timing doesn't change`}</div>
               ) : a?.exists ? (
-                <Waveform peaks={mine} {...view} tone="mine" markers={myMarkers} playheadMs={head(kMine, true, mine?.duration_ms)} gainDb={mineDb}
+                <Waveform peaks={mine} {...view} tone="mine" markers={myMarkers} playheadMs={head(kMine, true, mine?.duration_ms)} gainDb={mineDb} curve={mineCurve}
                   activeFrom={hasCues ? entry : undefined} activeTo={hasCues ? exit : undefined}
                   onSeek={(ms) => seek("project", ms)}
                   onMarkerCommit={commit} label={t`Reading the new audio…`} error={mineWave.error} onRetry={mineWave.retry} />

@@ -2,7 +2,7 @@
 title: Trilha Sonora
 group: Criando um mod
 summary: Como cada peça musical toca, na ordem original, como uma única música, como playlist, em silêncio ou como a música de batalha.
-source: 214ec97ec28d
+source: f86e437dcedb
 ---
 
 O jogo não toca uma peça musical de cima para baixo. A playlist de uma peça mistura grupos que tocam em ordem, grupos que tocam o segmento seguinte a cada vez e grupos que escolhem ao acaso. A maioria das músicas de combate começa cada combate numa abertura curta, e um combate novo continua de onde o anterior parou. Uma música cortada nos slots na ordem da lista toca fora de ordem no jogo.
@@ -27,7 +27,7 @@ Desfazer reverte um modelo inteiro. Um modelo que não encontra nada para mudar 
 | Modo | O que toca |
 |---|---|
 | **Original** | Os segmentos na ordem original. Desmarque um segmento na ordem de reprodução para deixá-lo fora desta música. Ele continua tocando em qualquer outro lugar onde o jogo o usa. |
-| **Música única** | Uma música, cortada nos segmentos. Cada combate toca uma abertura e depois a música a partir do pedaço 1. |
+| **Música única** | Uma música, cortada nos segmentos. Cada combate toca uma abertura e depois a música a partir do pedaço 1. Arquivos nos segmentos depois da música tocam depois dela. |
 | **Playlist** | Músicas inteiras, uma em cada lugar, em ordem ou em ordem aleatória. |
 | **Silêncio** | Nada. |
 | **Igual à batalha** | Para a Batalha intensa. A música de batalha continua a partir do segmento em que está, para que a música não recomece quando um combate fica mais pesado. |
@@ -39,6 +39,8 @@ Desfazer reverte um modelo inteiro. Um modelo que não encontra nada para mudar 
 ## Música única {#one-song}
 
 **Escolher uma música** abre a ferramenta de fatiar com os segmentos que a música preenche. Uma música solta na página também a abre. Corte-a em quantos pedaços quiser, até um por segmento. Cada pedaço vai inteiro para um segmento. A primeira camada recebe o pedaço, e as outras camadas tocam silêncio. Na música de Extração, a primeira camada em baixa intensidade e a primeira em alta intensidade recebem o pedaço.
+
+A lista continua depois do último pedaço com os segmentos que a música não alcança. Um arquivo em um deles toca depois da música e continua lá se você cortar a música de novo, a menos que um novo pedaço caia nesse segmento.
 
 **Alterar os cortes** abre a ferramenta de fatiar de novo com a mesma música e os mesmos cortes. **Escolher outra música** começa com uma nova.
 
@@ -56,7 +58,8 @@ A maioria das músicas de combate começa cada combate numa abertura curta, um s
 
 **Música única** e **Playlist** mantêm as aberturas, então um combate começa numa abertura original e a música ou a playlist vem depois. Para mudar o que toca ali:
 
-- Substitua as aberturas na aba [Áudio](app:editor), como qualquer outro slot, por áudio novo ou por silêncio. Silêncio com **Manter a duração original** desligado segue direto para a música ([Silêncio](wiki:how-the-game-plays-music#silence)).
+- Em **Música única** e **Playlist**, a lista **Aberturas** abaixo das músicas aceita áudio novo. Clique em uma linha ou solte um arquivo nela. Vários arquivos preenchem também as aberturas seguintes. ✕ traz o original de volta. Uma marca como +1 cue significa que o mesmo segmento toca em outra música, então o áudio novo toca lá também.
+- O botão de pular em uma linha toca silêncio ali, então o jogo passa direto para a música ([Silêncio](wiki:how-the-game-plays-music#silence)).
 - Para músicas em **Original**, desmarque as aberturas na ordem de reprodução para deixá-las de fora, ou use o modelo **Sem aberturas** para a música de batalha de todos os inimigos de uma vez.
 
 ## Ouvir {#listening}

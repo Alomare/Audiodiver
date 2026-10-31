@@ -4,6 +4,9 @@
 export const UTILS = (window as { __AUDIODIVER_EDITION__?: string }).__AUDIODIVER_EDITION__ === "utils"
   || new URLSearchParams(location.search).get("edition") === "utils";
 
+/** This window is the Wiki on its own (wikiWindow.ts): the page opened with `?view=wiki`. */
+export const WIKI_WINDOW = new URLSearchParams(location.search).get("view") === "wiki";
+
 /** The app's name, as the window title and the start-up card show it. */
 export const APP_NAME = UTILS ? "Audiodiver Utils" : "Audiodiver";
 

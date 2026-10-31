@@ -28,7 +28,7 @@ import zlib
 from dataclasses import dataclass, field
 from importlib import resources
 
-from . import music
+from . import music, radio
 from . import bank as wbank
 from .bank import MUSIC_TRACK, SOUND
 from .i18n import ntr, tr
@@ -656,6 +656,9 @@ class Found:
     merged: set = field(default_factory=set)      # the game's objects whose copy is another bank's (a merging tool's)
     banks: set = field(default_factory=set)       # the game's banks the patch has (Project.imported_banks)
     cues: dict = field(default_factory=dict)      # {segment: (its cue points, the new audio's clips it plays)} (cue_points)
+    curves: dict = field(default_factory=dict)    # {the game's MusicTrack: the mod's curves on it} (Project.curves)
+    curves_off: set = field(default_factory=set)  # the game's clips whose volume curves the mod takes away
+    radio: radio.Plan = field(default_factory=lambda: radio.Plan(set(), False))  # the radio filters its Init takes off
 
 
 NO_HISTORY = (frozenset(), frozenset(), {})
@@ -787,7 +790,8 @@ def from_patch(ix, d: dict) -> Found:
     new takes; a new random container with new Sounds, played with one of the game's, is a layer beside it; a
     Sound of the game that plays a clip it didn't is a clip of its own; new audio for one of the game's clips is a
     replacement. The same addition in several banks counts once. Settings the mod changes on the game's objects (a
-    Sound's, a container's or a MusicTrack's prop bundle: Make-Up Gain, delays, sends...) are `settings`. Make-Up
+    Sound's, a container's or a MusicTrack's prop bundle: Make-Up Gain, delays, sends...) are `settings`, and the
+    curves on a MusicTrack are `curves`, or `curves_off` where the mod only takes volume curves away. Make-Up
     Gain adds down the tree, so the gain of a Sound and of the containers above it, and that of a MusicTrack, is also
     in `gains`, by the clips each Sound and MusicTrack plays (`moved`: the objects it came from). What
     doesn't map is said in `left`, and the other changes in a bank are counted in `other`. A patch made for an older game version
@@ -939,6 +943,18 @@ def from_patch(ix, d: dict) -> Found:
                 at = 18 if clip in out.replaced or clip in same else 0  # its size follows the clip
                 if now[at:] == body[at:]:
                     explained.add(i)
+        for t, i in b["objects"]:  # the mod's curves on the game's music tracks
+            if t != "MusicTrack" or i not in vanilla or i in as_was:
+                continue
+            game_curves, body = music.curves_of(vanilla[i][1]), hirc[i][1]
+            if (mine := music.curves_of(body)) == game_curves:
+                continue
+            if (off := music.dropped_curves(vanilla[i][1], body)) is not None:
+                out.curves_off |= off
+            else:
+                out.curves[i] = [c.to_json() for c in mine]
+            if music.with_curves(body, game_curves) == bytes(vanilla[i][1]):
+                explained.add(i)
         if deltas:  # each of the game's Sounds and MusicTracks gets its own and the containers' above it, added up
             up = {}
             for o, (tt, body) in hirc.items():
@@ -965,6 +981,9 @@ def from_patch(ix, d: dict) -> Found:
             names_older = lambda body: any(struct.unpack_from("<I", body, k)[0] in older for k in range(len(body) - 3))
             explained.update(i for _, i in b["objects"] if i not in explained and names_older(hirc[i][1]))
         out.older |= as_was - merged
+        if ix.banks[bid].get("path") == radio.INIT_PATH:
+            out.radio, buses = radio.read_mod(hirc, vanilla)
+            explained |= buses
         other = [i for t, i in b["objects"] if i not in explained]
         if other:  # settings such as effects, positioning or how a container picks sounds
             out.other[bid] = len(other)

@@ -2,7 +2,7 @@
 title: Tempo, pontos de cue e loops
 group: Criando um mod
 summary: Como o jogo passa de um segmento para o seguinte, como fazer a música nova passar a vez sem emendas e como fatiar uma música num cue.
-source: 7a14e9b897bb
+source: 116b5d6a7112
 ---
 
 ## Ajustar o tempo ao áudio novo {#fitting-the-timing-to-the-new-audio}
@@ -46,7 +46,7 @@ Para fatiar uma música:
 
 1. Escolha os slots em **Primeiro** e **Último**. Cada segmento entre eles recebe um pedaço, e **Último** mostra quantos pedaços isso dá.
 2. Posicione os cortes. **Proporções originais** distribui as durações originais pela música inteira. **Durações originais** corta exatamente nas durações originais, então o último pedaço pode terminar antes da música. **Iguais** corta a música em pedaços iguais.
-3. Ajuste os cortes. Arraste um corte para movê-lo, e segure Shift para que ele não se encaixe na duração original. Clique duas vezes na música para adicionar um corte. Selecione um corte e pressione Delete para removê-lo, ou mova-o aos poucos com ←/→ (Shift move 100 ms, Alt move 1 ms). **Início** e **Fim** podem pular uma introdução ou um encerramento.
+3. Ajuste os cortes. Arraste um corte para movê-lo, e segure Shift para que ele não se encaixe na duração original. Clique duas vezes na música para adicionar um corte. Selecione um corte e pressione Delete para removê-lo, ou mova-o aos poucos com ←/→ (Shift move 100 ms, Alt move 1 ms). **Início** e **Fim** podem pular uma introdução ou um encerramento. A tabela mostra cada tempo até o milissegundo, e **Corte (ms)**, acima da música, aceita um tempo exato para o corte selecionado.
 4. Ouça. **Música** toca a música, e **Originais** toca o áudio original dos slots um após o outro. Clique na música ou no original para tocar a partir daquele ponto, ou pressione ▶ num pedaço ou no original ao lado dele na tabela. Espaço toca e pausa.
 5. Dê zoom com a roda do mouse ou com o controle deslizante abaixo das faixas, e desenhe as faixas mais altas para uma música baixa com Ctrl+roda ou com o controle deslizante à direita. Role com Shift+roda ou com a barra abaixo das faixas. {icon:reset}, no canto, mostra a música inteira de novo. Clique numa linha da tabela para trazer aquele pedaço à vista.
 6. Pressione **Fatiar e preencher**. O Audiodiver salva os pedaços na pasta `audio\slices` do projeto e preenche os slots.

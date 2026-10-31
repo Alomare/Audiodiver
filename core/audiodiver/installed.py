@@ -23,7 +23,7 @@ import json
 import os
 from pathlib import Path
 
-from . import addition, patch
+from . import addition, patch, radio
 from . import bank as wbank
 from .i18n import tr
 from .repatch import PATCH_RE, RepatchError, scan
@@ -128,9 +128,13 @@ def check_patch(path, ix) -> dict:
     d = patch.diff(str(path), ix)
     if not d["banks"] and not d["unknown"]:
         return {"state": NO_AUDIO}
-    mixers, settings, older = set(), set(), bool(d["unknown"])
+    mixers, settings, older, mix = set(), set(), bool(d["unknown"]), 0
     for bid, b in d["banks"].items():
         (_, hirc), (_, vanilla) = b["read"]
+        if ix.banks[bid].get("path") == radio.INIT_PATH:  # its copy of the game's mix reaches every sound
+            buses = radio.read_mod(hirc, vanilla)[1]
+            mix = len([i for _, i in b["objects"] if i not in buses]) + len(b["removed"])
+            continue
         before = addition.bank_history().get(bid, addition.NO_HISTORY)[2]
         same = [(i, t) for _, i in b["objects"] if i in vanilla and (t := hirc[i][0]) == vanilla[i][0]]
         mixers |= {i for i, t in same if t == addition.MIXER and addition.base_differs(t, vanilla[i][1], hirc[i][1])}
@@ -140,9 +144,11 @@ def check_patch(path, ix) -> dict:
     # older settings matter where other banks share them; in the mod's banks alone they change its own sounds
     shared = {i for i in mixers | settings if set(ix.copies(i)) - set(d["banks"])}
     reach = set().union(*(ix.copies(i) for i in shared)) - set(d["banks"]) if shared else set()
+    if mix:
+        reach = set(ix.banks) - set(d["banks"])
     weapons = {bid for bid in reach if ix.banks[bid].get("path", "").startswith("content/audio/wep")}
     return {"state": SHARED if reach else OLDER if older or mixers else CURRENT,
-            "objects": len(shared), "reach": len(reach), "weapons": len(weapons)}
+            "objects": len(shared) + mix, "reach": len(reach), "weapons": len(weapons)}
 
 
 def _checked(path, ix) -> dict:

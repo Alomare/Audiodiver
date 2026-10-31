@@ -2,7 +2,7 @@
 title: Importando um mod
 group: Primeiros passos
 summary: Um mod feito com qualquer ferramenta, como um projeto para continuar trabalhando: o áudio, os sons que ele adiciona, as configurações e o texto.
-source: 983102a68343
+source: 672ff32999fa
 ---
 
 **Importar mod** em [Início](app:home), ou na aba [Projeto](app:project) enquanto não há projeto aberto, cria um projeto novo a partir de um mod existente. Escolha o ZIP do mod, ou um arquivo `.patch_0`. O painel que abre mostra o mod como um gerenciador de mods o mostra, e lista o que entra antes de gravar qualquer coisa.
@@ -21,6 +21,7 @@ source: 983102a68343
 - O áudio que o mod adiciona: takes novos para um som, um som novo que toca junto com um existente (uma camada), ou um clipe separado para um único som. Cada um vira o mesmo tipo de adição que [Adicionando áudio](wiki:adding-audio) faz.
 - O Make-Up Gain, nos slots dos sons que ele alcança, também quando o mod o define num contêiner acima deles. Um slot tem um único ganho, então, quando o mod dá ganhos diferentes a dois sons que tocam o mesmo clipe, esses ganhos ficam nos sons, junto com as outras configurações.
 - Outras configurações de som, como o volume ou o tom de um som ou de um contêiner, ou um atraso antes de tocar. As gerações as incluem, e o painel de detalhes da aba Áudio as lista em **Configurações importadas** em cada slot que elas alcançam.
+- Curvas de volume em faixas de música. As gerações as incluem, e as formas de onda as mostram. Veja [Curvas de volume](wiki:volume#volume-curves).
 - Os pontos de cue dos segmentos musicais a que o mod dá áudio novo.
 - As linhas do texto do jogo que o mod muda, como legendas ou nomes.
 

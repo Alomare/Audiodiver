@@ -271,6 +271,12 @@ function CueBody({ cue }: { cue: Cue }) {
     }
     return rows.filter((r) => selected.includes(r.slot.source)).map((r) => r.slot.source);
   }, [rows, selected, clip]);
+  /** Copies slots, to paste in the Audio tab: new audio where a slot has it, else the original. The Library has the
+      originals alone. */
+  const copyRows = (list: Row[]) => {
+    const got = list.filter((r) => (!readOnly && assigned[r.slot.source]) || (!r.slot.absent && (!r.slot.added || r.slot.was)));
+    actions.copySlots(got.map((r) => r.slot.source), Object.fromEntries(got.map((r) => [r.slot.source, rowName(r)])), readOnly);
+  };
   /** Where audio files copied in Explorer go: the selected slots that take audio, in play order. */
   const pasteSelection = useCallback(() => rows.filter((r) => selected.includes(r.slot.source) && usable(r)).map((r) => r.slot.source),
     [rows, selected]);
@@ -346,8 +352,8 @@ function CueBody({ cue }: { cue: Cue }) {
       setSelected(rows.map((r) => r.slot.source));
     },
     copy: () => { // with text selected, the key copies that text
-      if (!editing() || !selected.length || window.getSelection()?.toString()) return false;
-      actions.copySlots(rows.filter((r) => selected.includes(r.slot.source)).map((r) => r.slot.source));
+      if (!here() || !selected.length || window.getSelection()?.toString()) return false;
+      copyRows(rows.filter((r) => selected.includes(r.slot.source)));
     },
     paste: () => {
       if (!editing() || !selected.length) return false;
@@ -403,14 +409,21 @@ function CueBody({ cue }: { cue: Cue }) {
     }
     const list = hits ? rows : all;
     let path: string[] = []; // the container lines over the last group, top down
+    const over: { sources: string[] }[] = []; // those lines' slots, as far as they have come
     for (let i = 0, j = 0; i < list.length; i = j) {
       const first = list[i];
       while (j < list.length && list[j].segIndex === first.segIndex) j++;
       const above = first.seg.above ?? [], at = above.map((a) => a.ids.join("/"));
       let k = 0;
       while (k < at.length && at[k] === path[k]) k++;
-      for (let d = k; d < at.length; d++) out.push({ key: `t${at.slice(0, d + 1).join("/")}`, kind: "tree", row: first, tree: { ...above[d], depth: d } });
+      over.length = k;
+      for (let d = k; d < at.length; d++) {
+        const tree = { ...above[d], depth: d, sources: [] as string[] };
+        over.push(tree);
+        out.push({ key: `t${at.slice(0, d + 1).join("/")}`, kind: "tree", row: first, tree });
+      }
       path = at;
+      for (const t of over) t.sources.push(...list.slice(i, j).map((r) => r.slot.source));
       if (first.takes === 1 || !first.seg.group) { list.slice(i, j).forEach(add); continue; }
       const open = !!hits || isOpen(first);
       out.push({ key: `g${first.segIndex}`, kind: "group", row: first, group: { open, shown: hits ? j - i : first.takes } });
@@ -483,7 +496,7 @@ function CueBody({ cue }: { cue: Cue }) {
     const entry = (label: string, id: string): MenuEntry => ({ label, keys: id, run: () => copyId(id, quick) });
     return [
       ...(sl.stream ? [entry(t`Copy the Stream ID`, sl.stream)] : []),
-      entry(t`Copy the Source ID`, sl.source),
+      ...(item?.game ? [] : [entry(t`Copy the Source ID`, sl.source)]),
       ...(sl.object ? [entry(t`Copy the Sound ID`, sl.object)] : []),
       ...(r.seg.key ? [entry(t`Copy the Container ID`, r.seg.key)] : []),
       ...(track && track !== "0" ? [entry(t`Copy the Track ID`, track)] : []),
@@ -511,8 +524,10 @@ function CueBody({ cue }: { cue: Cue }) {
       openMenu(e, [
         { label: t`Play the Original`, keys: keyLabel("playGame"), disabled: r.slot.absent, run: () => playSlot("vanilla", s, revision, rowName(r), at(s)) },
         exportEntry(sel, r),
+        { label: sel.length > 1 ? plural(sel.length, { one: "Copy the Audio (# Slot)", other: "Copy the Audio (# Slots)" }) : t`Copy the Audio`, keys: keyLabel("copy"),
+          disabled: r.slot.absent, run: () => copyRows(rows.filter((x) => sel.includes(x.slot.source))) },
         "-",
-        ...(item ? [listed
+        ...(item && !item.game ? [listed
           ? { label: t`Open in the Audio Tab`, run: () => goTo({ scope: "editor", itemId: item.id, cueId: cue.id, source: s }) } as MenuEntry
           : inside ? { label: t`Open in the Audio Tab`, run: () => openInside(s) } as MenuEntry
           : { label: t`Add ${ph({ name: item.full })} to the Project`, run: () => actions.addToProject([item.id], item.full) } as MenuEntry] : []),
@@ -537,8 +552,9 @@ function CueBody({ cue }: { cue: Cue }) {
         { label: plural(usableCount, { one: "Choose Files for # Slot", other: "Choose Files for # Slots" }), disabled: !project || !silenceable.length,
           run: async () => { const f = await pickAudio(true); if (f) actions.fillSources(silenceable, f, plural(usableCount, { one: "# slot", other: "# slots" })); } },
       ] : [{ label: a ? t`Replace with Another File` : t`Choose a File`, keys: keyLabel("chooseFile"), disabled: !project || !usable(r), run: () => choose(s) }]),
-      { label: many ? plural(count, { one: "Copy the New Audio (# Slot)", other: "Copy the New Audio (# Slots)" }) : t`Copy the New Audio`,
-        keys: keyLabel("copy"), disabled: !withAudio.length, run: () => actions.copySlots(ordered) },
+      { label: withAudio.length ? (many ? plural(count, { one: "Copy the New Audio (# Slot)", other: "Copy the New Audio (# Slots)" }) : t`Copy the New Audio`)
+        : many ? plural(count, { one: "Copy the Original (# Slot)", other: "Copy the Original (# Slots)" }) : t`Copy the Original`,
+        keys: keyLabel("copy"), disabled: !withAudio.length && r.slot.absent, run: () => copyRows(rows.filter((x) => sel.includes(x.slot.source))) },
       { label: clip.length > 1 && sel.length === 1 ? plural(copied, { one: "Paste # Slot from Here", other: "Paste # Slots from Here" })
         : many ? plural(count, { one: "Paste (# Slot)", other: "Paste (# Slots)" }) : t`Paste`, keys: keyLabel("paste"),
         disabled: !project, run: () => actions.pasteSlots(pasteTargets().length ? pasteTargets() : [s], pasteSelection().length ? pasteSelection() : [s]) },
@@ -580,6 +596,7 @@ function CueBody({ cue }: { cue: Cue }) {
     click: (e: React.MouseEvent, source: string) => click(e, source),
     check: (e: React.MouseEvent, source: string) => check(e, source),
     checkGroup: (sources: string[]) => checkGroup(sources),
+    pickAll: (sources: string[]) => { picked.current = true; setSelected(sources); },
     select: (source: string) => { if (!selected.includes(source)) { picked.current = true; setSelected([source]); } },
     choose: (source: string) => choose(source),
     menu: (e: React.MouseEvent, r: Row) => slotMenu(e, r),
@@ -616,7 +633,10 @@ function CueBody({ cue }: { cue: Cue }) {
   /** A line of the list: a slot, a segment's name over its slots, or a group's line, which folds its takes, says how
       many there are and plays the first. */
   const line = (l: Line) => {
-    if (l.tree) return <TreeLine key={l.key} {...l.tree} />;
+    if (l.tree) {
+      const n = l.tree.sources.filter((s) => selSet.has(s)).length;
+      return <TreeLine key={l.key} {...l.tree} picked={!n ? "none" : n === l.tree.sources.length ? "all" : "some"} on={on} />;
+    }
     if (l.head) return <SegmentHead key={l.key} row={l.row} line={l.key} on={on} />;
     if (!l.group) return slot(l.row);
     const sources = takesOf.get(l.row.segIndex) ?? NONE, n = sources.filter((s) => selSet.has(s)).length;
@@ -689,7 +709,7 @@ function CueBody({ cue }: { cue: Cue }) {
           data-tip={ticked === shownSources.length ? t`Clear the selection` : grouped ? t`Select every sequence shown` : t`Select every slot`}
           data-tip-cmd={ticked === shownSources.length ? undefined : "selectAll"} />
         {music && cue.kind !== "sound" && <PlayThrough onThrough={setThrough} onMark={setMark} />}
-        {readOnly && item && (listed ? (
+        {readOnly && item && !item.game && (listed ? (
           <button className="btn primary" data-tip={t`Replace audio there`}
             onClick={() => goTo({ scope: "editor", itemId: item.id, cueId: cue.id, source: selected[0] ?? null })}><Trans>Open in the Audio Tab</Trans></button>
         ) : inside ? (
@@ -782,14 +802,14 @@ function CueBody({ cue }: { cue: Cue }) {
 /** A line of the slot list: a slot (its row), the line above a group's takes (`group`, with `row` its first take), or
     by container id a container over the group of `row` (`tree`). */
 type Line = WindowLine & {
-  row: Row; group?: { open: boolean; shown: number }; tree?: { ids: string[]; type: string; depth: number };
+  row: Row; group?: { open: boolean; shown: number }; tree?: { ids: string[]; type: string; depth: number; sources: string[] };
   head?: boolean; // the name of a music segment, over its slots
 };
 
 /** What a list's rows do, from the list (useStable keeps one identity for each). */
 type RowHandlers = {
   click: (e: React.MouseEvent, source: string) => void; select: (source: string) => void; choose: (source: string) => void;
-  check: (e: React.MouseEvent, source: string) => void; checkGroup: (sources: string[]) => void;
+  check: (e: React.MouseEvent, source: string) => void; checkGroup: (sources: string[]) => void; pickAll: (sources: string[]) => void;
   menu: (e: React.MouseEvent, r: Row) => void; remove: (source: string) => void; toggle: (segIndex: number) => void;
   openTag: (id: string, cueId: string) => void; groupMenu: (e: React.MouseEvent, first: Row) => void;
   add: (e: React.MouseEvent, first: Row) => void;
@@ -926,16 +946,22 @@ const SegmentHead = memo(function SegmentHead({ row, line, on }: { row: Row; lin
 });
 
 /** By container id, a container over the groups below it: its kind and id (several Actor-Mixers that each hold only
-    the next share a line), indented by how deep it sits. Each id copies. */
-function TreeLine({ ids, type, depth }: { ids: string[]; type: string; depth: number }) {
+    the next share a line), indented by how deep it sits. Each id copies. A click on the line selects every slot
+    under it, and the tick adds them to the selection or takes them out, as on a group's line. */
+function TreeLine({ ids, type, depth, sources, picked, on }: {
+  ids: string[]; type: string; depth: number; sources: string[]; picked: "none" | "some" | "all"; on: RowHandlers;
+}) {
   const { quick } = useLite();
+  const name = ids[ids.length - 1];
   return (
-    <div className="tree-line" style={{ ["--depth" as any]: depth }}>
+    <div className="tree-line" style={{ ["--depth" as any]: depth }} onClick={() => on.pickAll(sources)}>
+      <input type="checkbox" className="slot-check" checked={picked === "all"} readOnly tabIndex={-1} aria-label={t`Select everything in ${name}`}
+        ref={(el) => { if (el) el.indeterminate = picked === "some"; }} onClick={(e) => { e.stopPropagation(); on.checkGroup(sources); }} />
       <span className="tree-type">{type}</span>
       {ids.map((id, i) => (
         <Fragment key={id}>
           {i > 0 && <span className="tree-sep" aria-hidden>›</span>}
-          <button className="tree-id" data-tip={t`Copy the ID`} onClick={() => copyId(id, quick)}>{id}</button>
+          <button className="tree-id" data-tip={t`Copy the ID`} onClick={(e) => { e.stopPropagation(); copyId(id, quick); }}>{id}</button>
         </Fragment>
       ))}
     </div>
@@ -964,7 +990,7 @@ function SlotId({ slot }: { slot: Slot }) {
 
 /** A tag saying the audio is linked to other places: the same sound plays in other cues or banks, so replacing it
     changes it there too. The chain says "linked" before the words are read. */
-function Linked({ children, tip = t`Linked to other places. New audio here plays there too` }: { children: React.ReactNode; tip?: string }) {
+export function Linked({ children, tip = t`Linked to other places. New audio here plays there too` }: { children: React.ReactNode; tip?: string }) {
   return <span className="tag linked" data-tip={tip}><LinkIcon />{children}</span>;
 }
 
@@ -978,8 +1004,8 @@ function OtherBanks({ n }: { n: number }) {
 }
 
 /** "+3 more" and "+3 cues" on a slot's line: the other places that play the audio, where not all of them are banks. */
-const moreTag = (also: number) => t({ message: `+${also} more`, comment: "Tag on a slot: how many other places play the same audio" });
-const cuesTag = (also: number) => plural(also, { one: "+# cue", other: "+# cues" });
+export const moreTag = (also: number) => t({ message: `+${also} more`, comment: "Tag on a slot: how many other places play the same audio" });
+export const cuesTag = (also: number) => plural(also, { one: "+# cue", other: "+# cues" });
 
 /** Counts the changes of a value after the first render; a new count replays the flash that shows what an edit
     (a fill, a paste, a move, an undo) just changed. */
@@ -1040,7 +1066,7 @@ const SlotRow = memo(function SlotRow({ row, a, standIns, gain, selected, now, i
           <span className={`grp-name${seg.added ? " new" : ""}`} data-tip={seg.name} data-tip-more={seg.added ? LAYER_TIP : undefined}
             data-tip-clip={seg.added ? undefined : true}>{seg.name}</span>
           {seg.alias && <span className="grp-alias" data-tip={seg.alias} data-tip-clip>{seg.alias}</span>}
-          {!seg.added && <span className="grp-n" data-tip={gameMs ? fmtTime(gameMs) : undefined}>{label && !seg.name.includes(label) ? label : t`1 take`}</span>}
+          {!seg.added && <span className="grp-n" data-tip={gameMs ? fmtTime(gameMs) : undefined}>{label && !seg.name.includes(label) && !seg.alias?.includes(label) ? label : t`1 take`}</span>}
           <span className="grp-meta">
             {slot.absent && <span className="tag" data-tip={NO_AUDIO_TIP}>{t`no audio`}</span>}
             {slot.locked && <LockedTag />}

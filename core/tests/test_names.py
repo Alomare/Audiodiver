@@ -171,7 +171,7 @@ def test_every_data_text_the_core_looks_up_is_in_the_list(monkeypatch):
     s.index(), s.music()
     for e in s.cues():
         s.cue(e["id"])
-    for n, a in enumerate(s.archives()[::6]):
+    for n, a in enumerate(s.lib.archives[::6]):
         for p in s.item(f"archive:{a['id']}")["parts"]:
             s.cue(p["cue"], ids=n % 4 == 0)
     have = json.loads((i18n.DATA_DIR / "en.json").read_text(encoding="utf-8"))

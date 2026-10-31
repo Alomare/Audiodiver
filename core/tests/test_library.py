@@ -111,7 +111,7 @@ def test_index_has_the_music_first_then_the_sound_sets_by_category(session):
 
 @pytest.mark.game
 def test_all_archives_lists_everything_with_audio_and_tags_what_the_index_knows(session):
-    archives = session.archives()
+    archives = session.lib.archives  # session.archives() goes on with the banks of Helldivers 1, where it is installed
     ix = session.ix
     with_audio = {a for bid, b in ix.banks.items() if b["refs"] or b["media"] for a in b["archives"]}
     assert with_audio <= {a["id"] for a in archives} and len(archives) > 450

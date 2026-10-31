@@ -327,6 +327,7 @@ class MusicSwitch:
 
 
 TRACK_TYPES = ["normal", "random", "sequence", "switch"]
+LEVEL_CURVES = {0: "volume", 3: "fade_in", 4: "fade_out"}  # the curves that shape a clip's level; 1 and 2 are filters
 
 
 @dataclass
@@ -340,6 +341,75 @@ class TrackClip:
 
 
 @dataclass
+class ClipCurve:
+    """A curve on a clip of a MusicTrack, as Wwise's clip automation and the modding tools have it. points: (seconds
+    from the clip's start, value, shape). A volume curve runs from 0, as mixed, down; a fade from 0 to 1. source: the
+    clip it is on, which is `clip`, its place in the track, in the game's words."""
+    clip: int
+    kind: int
+    points: list
+    source: int = 0
+
+    def to_bytes(self) -> bytes:
+        return struct.pack("<III", self.clip, self.kind, len(self.points)) + b"".join(struct.pack("<ffI", *p) for p in self.points)
+
+    def to_json(self) -> list:
+        return [self.clip, self.kind, [list(p) for p in self.points], self.source]
+
+
+def _curve_table(body: bytes) -> tuple[int, int, int]:
+    """Where a MusicTrack's clips start, how many it has, and where its curves start (at their count)."""
+    at = 4 + 18 * struct.unpack_from("<I", body)[0] + 1  # sources, flags
+    n = struct.unpack_from("<I", body, at)[0]
+    return at + 4, n, at + 4 + 48 * n + (4 if n else 0)  # after the clips, the sub-track count
+
+
+def clip_sources(body: bytes) -> list[int]:
+    """The source each clip of a MusicTrack plays."""
+    at, n, _ = _curve_table(body)
+    return [struct.unpack_from("<I", body, at + 48 * i + 4)[0] for i in range(n)]
+
+
+def curves_of(body: bytes) -> list[ClipCurve]:
+    """The curves of a MusicTrack."""
+    sources, (_, _, at) = clip_sources(body), _curve_table(body)
+    out, p = [], at + 4
+    for _ in range(struct.unpack_from("<I", body, at)[0]):
+        clip, kind, n = struct.unpack_from("<III", body, p)
+        points = [tuple(x) for x in struct.iter_unpack("<ffI", body[p + 12:p + 12 + 12 * n])]
+        out.append(ClipCurve(clip, kind, points, sources[clip] if clip < len(sources) else 0))
+        p += 12 + 12 * n
+    return out
+
+
+def with_curves(body: bytes, curves: list[ClipCurve]) -> bytes:
+    """A MusicTrack with these curves in place of the ones it has (those on clips it doesn't have are left out)."""
+    _, n, at = _curve_table(body)
+    end = at + 4 + sum(12 + 12 * len(c.points) for c in curves_of(body))
+    kept = [c for c in curves if c.clip < n]
+    return bytes(body[:at]) + struct.pack("<I", len(kept)) + b"".join(c.to_bytes() for c in kept) + bytes(body[end:])
+
+
+def without_level_curves(body: bytes, sources) -> bytes:
+    """A MusicTrack without the volume curves and fades on the clips of these sources."""
+    return with_curves(body, [c for c in curves_of(body) if not (c.kind in LEVEL_CURVES and c.source in sources)])
+
+
+def dropped_curves(game: bytes, mod: bytes) -> set[int] | None:
+    """The clips whose volume curves and fades a mod's copy of a MusicTrack takes away, when that is all it does to
+    the curves; else None."""
+    after = curves_of(mod)
+    off = {c.source for c in curves_of(game) if c.kind in LEVEL_CURVES and c not in after}
+    return off if off and after == curves_of(without_level_curves(game, off)) else None
+
+
+def level_view(curves: list[ClipCurve], source: int) -> dict:
+    """What the window draws of a clip's curves: {"volume", "fade_in", "fade_out": [[ms, value], ...]}."""
+    return {LEVEL_CURVES[c.kind]: [[round(p[0] * 1000, 1), round(p[1], 4)] for p in c.points]
+            for c in curves if c.source == source and c.kind in LEVEL_CURVES}
+
+
+@dataclass
 class TrackInfo:
     """What a MusicTrack plays (read-only view; the patcher edits tracks in place)."""
     type: str
@@ -347,6 +417,7 @@ class TrackInfo:
     clips: list[TrackClip]
     switch_group: int = 0           # for switch tracks: the game sync that picks the subtrack
     switch_values: list[int] = field(default_factory=list)  # switch value per subtrack
+    curves: list[ClipCurve] = field(default_factory=list)
 
     @classmethod
     def read(cls, body: bytes):
@@ -369,7 +440,7 @@ class TrackInfo:
             r.raw(12 + 4 + 4 + 12)  # transition params
         r.raw(4)  # look-ahead
         assert r.pos == len(body), f"MusicTrack: {len(body) - r.pos} bytes left unparsed"
-        return cls(TRACK_TYPES[ttype], sources, clips, group, values)
+        return cls(TRACK_TYPES[ttype], sources, clips, group, values, curves_of(body))
 
 
 PARSERS = {MUSIC_SEGMENT: MusicSegment, MUSIC_SWITCH: MusicSwitch, MUSIC_RANSEQ: MusicPlaylist}
