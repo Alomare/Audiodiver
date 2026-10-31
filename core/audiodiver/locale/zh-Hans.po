@@ -1384,6 +1384,14 @@ msgid "The HD2_DATA environment variable points to {folder}, which has no Helldi
 msgstr "HD2_DATA 环境变量指向的 {folder} 中没有 Helldivers 2 文件"
 
 #: hd1.py
+msgid "Missions"
+msgstr "任务"
+
+#: hd1.py
+msgid "Menus"
+msgstr "菜单"
+
+#: hd1.py
 msgid "Admiral"
 msgstr "海军上将"
 
@@ -1512,6 +1520,10 @@ msgid "Not named yet."
 msgstr "尚未命名。"
 
 #: hd1.py
+msgid "Loop"
+msgstr "循环"
+
+#: hd1.py
 msgid "Helldivers 1"
 msgstr "Helldivers 1"
 
@@ -1530,6 +1542,14 @@ msgstr "音频库 {id}"
 #: hd1.py
 msgid "{n} languages"
 msgstr "{n} 种语言"
+
+#: hd1.py
+msgid "Start"
+msgstr "开头"
+
+#: hd1.py
+msgid "End"
+msgstr "结尾"
 
 #: hd1.py library.py
 msgid "Take {n}"

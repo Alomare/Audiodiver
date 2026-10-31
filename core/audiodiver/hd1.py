@@ -9,10 +9,13 @@ everything before it.
           in the stream
   clip    a header of 68 bytes (word 2: samples; a WAVEFORMATEX at 48), then Ogg Vorbis or PCM, which goes on in the
           stream
-  master  u32 magic, 7 section offsets. Sounds: a count, offsets, records by kind. Events: a count, then the top 32 bits
-          of a name's hash and an offset, sorted by hash; a record has references to sounds
+  master  u32 magic, 7 section offsets. Sounds: a count, offsets, records by kind (`event_clips`). Events: a count, then
+          the top 32 bits of a name's hash and an offset, sorted by hash; a record is 12 bytes, a count, offsets from
+          the record's start and that many actions, of which those of type 0 play a sound and the rest stop one
 
 An Index item is a named event, its parts are the languages it has (`cue`) and its slots are the clips it picks from.
+Battle music is an item for each theme: an enemy's event chooses by `threat`, which the game sets from the mission's
+difficulty before the music starts (TIERS), and each theme's clips are takes of one recording that it picks between.
 All Archives lists the banks, which open as everything they hold, named or not. A source is the clip's id with the
 language's flag above it (`source`), wider than any source of Helldivers 2. Reading the bundles takes a while, so what
 they hold is kept in the cache until one changes.
@@ -27,6 +30,7 @@ import collections
 import hashlib
 import json
 import logging
+import operator
 import os
 import re
 import struct
@@ -44,14 +48,21 @@ from .index import CACHE_DIR, LANGUAGES
 from .library import BIG_GROUP, CHUNK as GROUP_CHUNK, Library, _part
 
 log = logging.getLogger(__name__)
-FORMAT = 2            # of the kept reading: a new one reads the game again
+FORMAT = 3            # of the kept reading: a new one reads the game again
 VERSION = 0xF0000004  # of a bundle
 CHUNK = 0x10000
 BANK, MASTER, STRINGS = murmur64_hash(b"timpani_bank"), murmur64_hash(b"timpani_master"), murmur64_hash(b"strings")
 HEAD = 68
 VORBIS, PCM = 0x566F, 1
 LOW = (1 << 64) - 1
+NONE = 0xFFFFFFFF     # of a sound or an offset: there is none
 ENGLISH = 0
+THREAT = murmur64_hash(b"threat") >> 32  # the parameter an enemy's battle music chooses by
+# the game's setup sets it to 0 up to difficulty 4, to 0.5 up to difficulty 8 and to 1 from there
+THREATS, TIERS = (0.0, 0.5, 1.0), ("Difficulty 1-4", "Difficulty 5-8", "Difficulty 9+")
+TESTS = {2: operator.lt, 3: operator.le, 4: operator.gt, 5: operator.ge}  # how a condition compares, by its number
+ENEMIES = {"bugs": "@enc_bug", "cyborgs": "@enc_cyborg", "illuminates": "@enc_illuminate"}
+BATTLE = {murmur64_hash(f"music_action_{enemy}".encode()) >> 32 for enemy in ENEMIES}
 # a variant's language flag, read from the text of the game's `strings` under each flag: the two Spanish ones by
 # "vosotros" and "ustedes"
 FLAGS = {ENGLISH: "us", 0x1: "jp", 0x100: "fr", 0x200: "ms", 0x400: "es", 0x800: "bp", 0x1000: "ru", 0x2000: "it", 0x4000: "de"}
@@ -73,10 +84,23 @@ CATEGORIES = [
     ("interface", N_("Interface"), 320),
     ("other", N_("Other Sounds"), 215),
 ]
+MISSIONS, MENUS = N_("Missions"), N_("Menus")
+# the music by what it does, in the order a mission gets to it: a name, its section, what the Index calls it. Each enemy
+# has its own battle, boss and encounter events: the game adds the enemy to the name when it plays them
+MUSIC = {
+    **{f"{stem}_{enemy}": (section, title) for enemy, section in ENEMIES.items()
+       for stem, title in (("music_action", "Battle"), ("music_boss", "Boss"), ("encounter_start", "Encounter"))},
+    "music_mission_start": (MISSIONS, "Mission Start"), "music_threat": (MISSIONS, "Threat"), "music_objective_found": (MISSIONS, "Objective Found"),
+    "objective_found": (MISSIONS, "Objective Found, Long"), "music_objective_complete": (MISSIONS, "Objective Complete"),
+    "music_objective_fail": (MISSIONS, "Objective Failed"), "music_action_plus": (MISSIONS, "Extraction"), "music_mission_end_success": (MISSIONS, "Mission Success"),
+    "music_mission_end_failed": (MISSIONS, "Mission Failed"), "music_intro": (MENUS, "Intro"), "music_theme": (MENUS, "Main Theme"), "music_bridge": (MENUS, "Ship Bridge"),
+    "music_ship": (MENUS, "Ship"), "music_jingle": (MENUS, "Jingle"), "music_credits": (MENUS, "Credits"),
+}
+ORDER = {name: n for n, name in enumerate(MUSIC)}
 # where a name goes, by its first words (the most words that match): category, then section ("@" and a key of the game's
 # text, a name of ours, or "" for none). A label leaves out the words that matched.
 PLACES = {
-    "music": ("music", ""), "encounter": ("music", ""),
+    "music": ("music", MENUS),
     "wep": ("weapons", N_("General")), "wep_ar": ("weapons", N_("Assault Rifles")), "wep_ar_carbine": ("weapons", "@weapon_carbine"),
     "wep_ar_combat": ("weapons", "@weapon_combatrifle"), "wep_ar_rifle": ("weapons", "@weapon_assaultrifle"), "wep_arc": ("weapons", "@weapon_arcrifle"),
     "wep_chemthrower": ("weapons", "@weapon_chemthrower"), "wep_flamethrower": ("weapons", "@weapon_flamethrower"),
@@ -113,7 +137,7 @@ PLACES = {
     "bullet": ("impacts", ""), "shrapnel": ("impacts", ""), "hit": ("impacts", ""),
     "radio": ("radio", ""), "equip": ("radio", ""), "amb": ("ambience", ""), "enter": ("ambience", ""), "ui": ("interface", ""), "menu": ("interface", ""),
 }
-KEPT = ("bullet", "shrapnel", "hit", "bf", "footstep", "cloth", "foley", "enter", "equip", "encounter")  # first words a label keeps: the place doesn't say them
+KEPT = ("bullet", "shrapnel", "hit", "bf", "footstep", "cloth", "foley", "enter", "equip")  # first words a label keeps: the place doesn't say them
 VOICES = {"admiral": N_("Admiral"), "engineer": N_("Chief Communications Officer"), "scientist": N_("Science Officer"), "soldier1": N_("Private 1"),
           "soldier2": N_("Private 2"), "helldiver": N_("Helldiver"), "tutorial": N_("Tutorial")}
 WORDS = {"ar": "AR", "bf": "BF", "ifv": "IFV", "rpg": "RPG", "sg": "SG", "smg": "SMG", "ui": "UI", "fs": "Footstep", "med": "Medium", "galcamp": "Galactic Campaign",
@@ -227,12 +251,26 @@ def _rows(b: Bundle, at: int) -> list[list[int]]:
     return [[*r, _clip_ms(b.read(at + r[1], HEAD))] for r in rows]
 
 
-def event_clips(m: bytes) -> dict[int, list[int]]:
-    """{an event's name hash (top 32 bits): the clips it can play, in the order of the tree}, from the master."""
+def _conditions(m: bytes, table: int, at: int) -> list[tuple[int, int, int, float]]:
+    """The conditions at this offset of a choice's table, which all have to hold: (parameter, test, type, value)."""
+    group = struct.unpack_from("<I", m, table + at + 4)[0]
+    n = struct.unpack_from("<I", m, table + group)[0]
+    return [struct.unpack_from("<IIIf", m, table + group + 4 + 16 * k) for k in range(n)]
+
+
+def _holds(condition: tuple[int, int, int, float], threat: float) -> bool:
+    """Whether a condition lets a sound through at this threat: one about anything else always does."""
+    parameter, test, kind, value = condition
+    return parameter != THREAT or kind != 0 or test not in TESTS or TESTS[test](threat, value)
+
+
+def event_clips(m: bytes) -> tuple[dict, dict, dict]:
+    """From the master: ({an event's name hash (top 32 bits): the clips it can play, in the order of the tree},
+    {a battle music event: its clips at each of THREATS}, {an event: {a clip that starts or ends a loop: 0 or 1}})."""
     sounds, events, end = struct.unpack_from("<3I", m, 12)
     count = struct.unpack_from("<I", m, sounds)[0]
     offsets = [*struct.unpack_from(f"<{count}I", m, sounds + 4), events - sounds]
-    leaf, kids = {}, {}
+    leaf, kids, rules, edges = {}, {}, {}, {}
     for i in range(count):
         at = sounds + offsets[i]
         kind = struct.unpack_from("<I", m, at)[0]
@@ -241,38 +279,50 @@ def event_clips(m: bytes) -> dict[int, list[int]]:
         elif kind == 1:  # a random pick: children and weights
             n = struct.unpack_from("<I", m, at + 8)[0]
             kids[i] = [struct.unpack_from("<I", m, at + 24 + 8 * k)[0] for k in range(n)]
-        elif kind == 3:  # a list: children and offsets
+        elif kind == 3:  # a choice: children, each with an offset into the table of conditions after them; one without plays when no other does
             n = struct.unpack_from("<I", m, at + 8)[0]
-            kids[i] = [struct.unpack_from("<I", m, at + 12 + 8 * k)[0] for k in range(n)]
-        elif kind == 4:  # a wrapper around one child
-            kids[i] = [struct.unpack_from("<I", m, at + 12)[0]]
+            pairs = [struct.unpack_from("<II", m, at + 12 + 8 * k) for k in range(n)]
+            kids[i] = [child for child, _ in pairs]
+            rules[i] = {child: _conditions(m, at + 12 + 8 * n, where) for child, where in pairs if where != NONE}
+        elif kind == 4:  # what plays once first, what loops, what plays once at the end
+            first, loop, last = struct.unpack_from("<III", m, at + 8)
+            kids[i] = [k for k in (first, loop, last) if k != NONE]
+            edges[i] = {first: 0, last: 1}
 
-    def walk(start: int) -> list[int]:
-        out, seen, todo = [], set(), [start]
+    def walk(starts: list[int], threat: float | None = None) -> tuple[list[int], dict[int, int]]:
+        """The clips under these sounds, and which of them start or end a loop. With a threat, only what it chooses."""
+        out, marks, seen, todo = [], {}, set(), [(s, None) for s in reversed(starts)]
         while todo:
-            i = todo.pop()
+            i, mark = todo.pop()
             if i in seen or i >= count:
                 continue
             seen.add(i)
             if i in leaf:
                 out.append(leaf[i])
-            todo.extend(reversed(kids.get(i, ())))
-        return out
+                if mark is not None:
+                    marks[leaf[i]] = mark
+            under = kids.get(i, [])
+            if threat is not None and i in rules:
+                passed = [k for k in under if k in rules[i] and all(_holds(c, threat) for c in rules[i][k])]
+                under = passed or [k for k in under if k not in rules[i]]
+            todo.extend((k, edges.get(i, {}).get(k, mark)) for k in reversed(under))
+        return out, marks
 
     n = struct.unpack_from("<I", m, events)[0]
     table = [struct.unpack_from("<II", m, events + 4 + 8 * i) for i in range(n)]
-    stops = sorted(at for _, at in table) + [end - events]
-    following = dict(zip(stops, stops[1:]))
-    out = {}
+    out, tiers, ends = {}, {}, {}
     for name, at in table:
-        refs = struct.unpack_from("<I", m, events + at + 12)[0]
-        if 16 + 24 * refs > following[at] - at:
-            continue  # a record of another shape: it names no sounds
-        clips = []
-        for k in range(refs):
-            clips += walk(struct.unpack_from("<I", m, events + at + 16 + 24 * k + 12)[0])
-        out[name] = list(dict.fromkeys(clips))
-    return out
+        record = events + at
+        refs = struct.unpack_from("<I", m, record + 12)[0]
+        actions = [struct.unpack_from("<3I", m, record + where) for where in struct.unpack_from(f"<{refs}I", m, record + 16)]
+        plays = [sound for kind, _, sound in actions if kind == 0]
+        out[name], marks = walk(plays)
+        out[name] = list(dict.fromkeys(out[name]))
+        if marks:
+            ends[name] = marks
+        if name in BATTLE:
+            tiers[name] = [list(dict.fromkeys(walk(plays, threat)[0])) for threat in THREATS]
+    return out, tiers, ends
 
 
 def scan(contents: Path) -> dict:
@@ -293,8 +343,11 @@ def scan(contents: Path) -> dict:
     if master is None:
         raise ValueError("no timpani_master in the game")
     clips = {r[0] for b in banks for r in b["rows"]}
+    events, tiers, ends = event_clips(master)
     return {"banks": banks, "texts": {str(f): {str(k): v for k, v in lines.items()} for f, lines in texts.items()},
-            "events": {str(e): [c for c in got if c in clips] for e, got in event_clips(master).items()}}
+            "events": {str(e): [c for c in got if c in clips] for e, got in events.items()},
+            "tiers": {str(e): [[c for c in got if c in clips] for got in themes] for e, themes in tiers.items()},
+            "ends": {str(e): {str(c): mark for c, mark in marks.items()} for e, marks in ends.items()}}
 
 
 def _text(raw: bytes, wanted: set[int]) -> dict[int, str]:
@@ -352,6 +405,8 @@ def _place(name: str) -> tuple[str, str, int]:
         word, *more = name.split("_")
         sec = "tutorial" if word == "tutorial" else more[0] if more and more[0] in VOICES else "helldiver"
         return "voices", sec, 1 if sec in ("tutorial", "helldiver") else 2
+    if name in MUSIC:
+        return "music", MUSIC[name][0], 0
     words = name.split("_")
     for n in range(len(words), 0, -1):
         if got := PLACES.get("_".join(words[:n])):
@@ -375,6 +430,8 @@ class Hd1:
         self.contents, self.banks = contents, read["banks"]
         self.texts = {int(f): {int(k): v for k, v in lines.items()} for f, lines in read.get("texts", {}).items()}
         self.events = {int(e): clips for e, clips in read["events"].items() if clips}
+        self.tiers = {int(e): themes for e, themes in read.get("tiers", {}).items() if all(themes)}  # battle music -> the clips of each theme
+        self.ends = {int(e): {int(c): mark for c, mark in marks.items()} for e, marks in read.get("ends", {}).items()}  # an event -> what starts or ends a loop
         self.where, self.langs = {}, collections.defaultdict(list)  # source -> (bank, row); clip -> language flags
         for bank in self.banks:
             for row in bank["rows"]:
@@ -441,20 +498,22 @@ class Hd1:
         sections = collections.defaultdict(dict)
         self.titles = {}
         by_bank, named = collections.defaultdict(collections.Counter), collections.defaultdict(list)
-        for event, name in sorted(names.items(), key=lambda e: e[1]):
+        for event, name in sorted(names.items(), key=lambda e: (ORDER.get(e[1], len(ORDER)), e[1])):
             if event not in self.events:
                 continue
             cid, sec, drop = _place(name)
             title = self._name(sec, language)
-            short = label(name, drop) or title or label(name, 0)
+            short = MUSIC[name][1] if name in MUSIC else label(name, drop) or title or label(name, 0)
             self.titles[event] = f"{title} {short}" if title and short != title else short
             line = next((said for k in _line_keys(name) if (said := self._say(k, language))), None) if cid == "voices" else None
-            sections[cid].setdefault(sec, []).append(self._item(event, short, _spoken(line) if line else "", made[cid], self.titles[event], name))
+            for iid, clips, tier in self._themes(event):
+                sections[cid].setdefault(sec, []).append(self._item(iid, clips, short + tier, _spoken(line) if line else "", made[cid], self.titles[event] + tier, name))
             bank = self._bank_of(self.events[event])
             by_bank[bank][cid] += 1
             named[bank].append(short)
+        orders = {"voices": [*VOICES], "music": [*ENEMIES.values(), MISSIONS, MENUS]}
         for cid, cat in made.items():
-            order = [*VOICES] if cid == "voices" else None
+            order = orders.get(cid)
             for sec, items in sorted(sections[cid].items(), key=lambda s: order.index(s[0]) if order else self._name(s[0], language).strip("'\"").casefold()):
                 cat["sections"].append({"id": f"{cat['id']}/{sec.lstrip('@') or 'all'}", "name": self._name(sec, language) or cat["name"],
                                         "about": "", "unused": False, "items": items})
@@ -489,10 +548,24 @@ class Hd1:
         return {"id": f"{bank:016x}", "item": iid, "game": "hd1", "names": names, "tags": tags, "banks": len(flags), "sounds": len(clips),
                 "language": tr("{n} languages").format(n=len(flags)) if not one else "", "preview": str(first)}
 
-    def _item(self, event: int, name: str, about: str, cat: dict, full: str, code: str) -> dict:
-        clips = self.events[event]
-        flags = [f for f in FLAGS if any(f in self.langs[c] for c in clips)] or [self.langs[clips[0]][0]]
+    def _themes(self, event: int) -> list[tuple[str, list[int], str]]:
+        """What an event opens as: (the item's id, its clips, what its name ends in) of each. One, or a theme of battle
+        music for each difficulty."""
         iid = f"hd1:{event:08x}"
+        if event in self.tiers:
+            return [(f"{iid}.{n}", clips, f", {tier}") for n, (clips, tier) in enumerate(zip(self.tiers[event], TIERS))]
+        return [(iid, self.events[event], "")]
+
+    def _labels(self, event: int | None, clips: list[int]) -> list[str]:
+        """What each of an event's clips is called: what starts or ends a loop says so, and the rest are takes, or the
+        loop when it is one clip."""
+        ends = self.ends.get(event, {})
+        rest = sum(c not in ends for c in clips)
+        takes, one = iter(range(1, rest + 1)), tr("Loop") if ends else ""
+        return [(tr("Start"), tr("End"))[ends[c]] if c in ends else tr("Take {n}").format(n=next(takes)) if rest > 1 else one for c in clips]
+
+    def _item(self, iid: str, clips: list[int], name: str, about: str, cat: dict, full: str, code: str) -> dict:
+        flags = [f for f in FLAGS if any(f in self.langs[c] for c in clips)] or [self.langs[clips[0]][0]]
         one = len(flags) == 1
         parts = [_part(iid if one else f"{iid}:{f:x}", "" if one else tr(LANGUAGES[FLAGS[f]]),
                        sum(f in self.langs[c] for c in clips)) for f in flags]
@@ -513,15 +586,12 @@ class Hd1:
         _, kind, *more = cue_id.split(":")
         if kind == "bank":
             return self._bank_view(cue_id, int(more[0], 16), int(more[1], 16) if len(more) > 1 else None)
-        event = int(kind, 16)
-        clips = self.events[event]
+        event = int(kind.partition(".")[0], 16)
+        it = self.items_[f"hd1:{kind}"]
+        clips = next(got for iid, got, _ in self._themes(event) if iid == it["id"])
         flag = int(more[0], 16) if more else next(f for c in clips for f in self.langs[c])
-        it = self.items_[f"hd1:{event:08x}"]
-        rows, n = [], 0
-        for clip in clips:
-            if (at := source(clip, flag)) in self.where:
-                n += 1
-                rows.append(self._slot(at, self.where[at][1], tr("Take {n}").format(n=n) if len(clips) > 1 else ""))
+        have = [c for c in clips if source(c, flag) in self.where]
+        rows = [self._slot(source(c, flag), self.where[source(c, flag)][1], take) for c, take in zip(have, self._labels(event, have))]
         if not rows:
             raise KeyError(cue_id)
         return _shape(cue_id, it["name"], [tr("Helldivers 1"), it["full"]], [Library._group(it["name"], rows)], rows)
@@ -535,17 +605,18 @@ class Hd1:
             raise KeyError(cue_id)
         groups, slots, seen = [], [], set()
 
-        def add(title: str, clips: list[int]):
-            rows = [self._slot(source(c, flag), held[c], tr("Take {n}").format(n=n) if len(clips) > 1 else "") for n, c in enumerate(clips, 1)]
+        def add(title: str, clips: list[int], event: int | None = None):
+            rows = [self._slot(source(c, flag), held[c], take) for c, take in zip(clips, self._labels(event, clips))]
             chunk = len(rows) if len(rows) <= BIG_GROUP else GROUP_CHUNK
             for i in range(0, len(rows), chunk):
                 groups.append(Library._group(title if chunk == len(rows) else f"{title} {i + 1}–{min(len(rows), i + chunk)}", rows[i:i + chunk]))
             slots.extend(rows)
             seen.update(clips)
 
-        for event, clips in sorted(self.events.items(), key=lambda e: (e[0] not in self.titles, self.titles.get(e[0], ""), e[0])):
-            if got := [c for c in clips if c in held and c not in seen]:
-                add(self.titles.get(event) or tr("Event {id}").format(id=f"{event:08x}"), got)
+        for event in sorted(self.events, key=lambda e: (e not in self.titles, self.titles.get(e, ""), e)):
+            for _, clips, tier in self._themes(event):
+                if got := [c for c in clips if c in held and c not in seen]:
+                    add((self.titles.get(event) or tr("Event {id}").format(id=f"{event:08x}")) + tier, got, event)
         if rest := [c for c in held if c not in seen]:
             add(tr("Clips No Event Plays"), rest)
         return _shape(cue_id, self.items_[f"hd1:bank:{bank:016x}"]["name"], [tr("Helldivers 1"), tr("All Archives")], groups, slots)
@@ -561,7 +632,7 @@ class Hd1:
             return []
         at = source(n, self.langs[n][0])
         bank = f"{self.where[at][0]['name']:016x}"
-        named = [f"hd1:{e:08x}" for e in self.event_of.get(n, ()) if e in self.titles]
+        named = [iid for e in self.event_of.get(n, ()) if e in self.titles for iid, clips, _ in self._themes(e) if n in clips]
         return [{"cue": iid, "source": str(at), "item": iid, "archives": [bank]} for iid in named or [f"hd1:bank:{bank}"]]
 
     # --- the audio

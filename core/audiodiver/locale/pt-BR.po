@@ -1439,6 +1439,14 @@ msgid "The HD2_DATA environment variable points to {folder}, which has no Helldi
 msgstr "A variável de ambiente HD2_DATA aponta para {folder}, que não tem arquivos do Helldivers 2"
 
 #: hd1.py
+msgid "Missions"
+msgstr "Missões"
+
+#: hd1.py
+msgid "Menus"
+msgstr "Menus"
+
+#: hd1.py
 msgid "Admiral"
 msgstr "Almirante"
 
@@ -1567,6 +1575,10 @@ msgid "Not named yet."
 msgstr "Ainda sem nome."
 
 #: hd1.py
+msgid "Loop"
+msgstr "Loop"
+
+#: hd1.py
 msgid "Helldivers 1"
 msgstr "Helldivers 1"
 
@@ -1585,6 +1597,14 @@ msgstr "Banco {id}"
 #: hd1.py
 msgid "{n} languages"
 msgstr "{n} idiomas"
+
+#: hd1.py
+msgid "Start"
+msgstr "Início"
+
+#: hd1.py
+msgid "End"
+msgstr "Fim"
 
 #: hd1.py library.py
 msgid "Take {n}"

@@ -36,29 +36,66 @@ def bank(tone, stream_at=0):
     return struct.pack("<II", len(CLIPS), 0) + b"".join(rows) + body, stream
 
 
-def master():
-    """Two events: the named one picks from two clips, through a wrapper; the other plays one clip. "left" has none."""
-    def leaf(clip):
-        return struct.pack("<IIIIQ", 0, 0, 0, 0, clip).ljust(72, b"\0")
-    pick = struct.pack("<III", 1, 0, 2).ljust(24, b"\0") + struct.pack("<II", 0, 1) + struct.pack("<II", 1, 1)
-    wrap = struct.pack("<III", 4, 0, 0).ljust(12, b"\0") + struct.pack("<I", 2)
-    records = [leaf(CLIPS["one"]), leaf(CLIPS["two"]), pick, wrap, leaf(CLIPS["two"])]
+def leaf(clip):
+    return struct.pack("<IIIIQ", 0, 0, 0, 0, clip).ljust(72, b"\0")
+
+
+def pick(*sounds):
+    return struct.pack("<III", 1, 0, len(sounds)).ljust(24, b"\0") + b"".join(struct.pack("<If", s, 1) for s in sounds)
+
+
+def loop(first, body, last):
+    return struct.pack("<5I", 4, 0, first, body, last).ljust(60, b"\0")
+
+
+def choice(*options):
+    """A kind 3: each option is (a sound, [(test, value)...] on the threat), or (a sound, None) to play when no other does."""
+    table, rows = b"", b""
+    for sound, tests in options:
+        where = len(table)
+        rows += struct.pack("<II", sound, hd1.NONE if tests is None else where)
+        if tests is not None:
+            table += struct.pack("<III", 1, where + 8, len(tests)) + b"".join(struct.pack("<IIIf", hd1.THREAT, t, 0, v) for t, v in tests)
+    return struct.pack("<III", 3, 0, len(options)) + rows + table
+
+
+def play(sound):
+    return struct.pack("<IIIII", 0, 0, sound, 1, 0)
+
+
+def stop(sound):
+    return struct.pack("<III", 2, 0, sound)
+
+
+def event(*actions):
+    """An event's record: 12 bytes, a count, offsets from the record's start, the actions."""
+    at, offsets = 16 + 4 * len(actions), []
+    for a in actions:
+        offsets.append(at)
+        at += len(a)
+    return struct.pack("<IIII", hd1.NONE, 0, 0, len(actions)) + struct.pack(f"<{len(actions)}I", *offsets) + b"".join(actions)
+
+
+def master_of(records, events):
+    """A master of these sound records and {a name's hash: its record}."""
     offsets, at = [], 4 + 4 * len(records)
     for r in records:
         offsets.append(at)
         at += len(r)
     sounds = struct.pack("<I", len(records)) + struct.pack(f"<{len(records)}I", *offsets) + b"".join(records)
-
-    def event(sound):
-        return struct.pack("<IIII", 0, 0, 0, 1) + struct.pack("<IIII", 0, 0, 0, sound).ljust(24, b"\0")
-    named = murmur64_hash(EVENT.encode()) >> 32
-    table = sorted([(named, 3), (ALONE, 4)])
-    head = 4 + 8 * len(table)
-    events = struct.pack("<I", len(table)) + b"".join(struct.pack("<II", h, head + 40 * i) for i, (h, _) in enumerate(table)) \
-        + b"".join(event(s) for _, s in table)
+    head, body, rows = 4 + 8 * len(events), b"", b""
+    for name, record in sorted(events.items()):
+        rows += struct.pack("<II", name, head + len(body))
+        body += record
+    table = struct.pack("<I", len(events)) + rows + body
     start = 4 + 28
-    return struct.pack("<I7I", 0x61914940, 0, 0, start, start + len(sounds), start + len(sounds) + len(events), 0, 0) \
-        + sounds + events
+    return struct.pack("<I7I", 0x61914940, 0, 0, start, start + len(sounds), start + len(sounds) + len(table), 0, 0) + sounds + table
+
+
+def master():
+    """Two events: the named one picks from two clips, under what loops; the other plays one clip. "left" has none."""
+    records = [leaf(CLIPS["one"]), leaf(CLIPS["two"]), pick(0, 1), loop(hd1.NONE, 2, hd1.NONE), leaf(CLIPS["two"])]
+    return master_of(records, {murmur64_hash(EVENT.encode()) >> 32: event(play(3)), ALONE: event(play(4))})
 
 
 def bundle_of(payload):
@@ -190,6 +227,70 @@ def test_a_clip_id_leads_to_the_events_that_play_it(game):
     assert [(p["item"], p["archives"]) for p in h.places(CLIPS["two"])] == [(named, [bank])]  # the named ones only
     assert [(p["item"], p["cue"], p["archives"]) for p in h.places(CLIPS["left"])] == [(f"hd1:bank:{bank}", f"hd1:bank:{bank}", [bank])]
     assert h.places(1) == []
+
+
+def test_an_event_plays_every_action_and_a_stop_is_not_a_sound_of_it():
+    """Actions differ in size: read by a fixed step, all but the last were lost and the first sound stood in for them."""
+    name = 0x100
+    events, _, _ = hd1.event_clips(master_of([leaf(1), leaf(2), leaf(3)], {name: event(play(1), stop(2), play(0))}))
+    assert events[name] == [2, 1]
+
+
+def test_what_starts_or_ends_a_loop_belongs_to_the_event():
+    records = [leaf(1), leaf(2), leaf(3), leaf(4), pick(1, 2), loop(0, 4, 3)]
+    events, _, ends = hd1.event_clips(master_of(records, {0x100: event(play(5))}))
+    assert events[0x100] == [1, 2, 3, 4] and ends[0x100] == {1: 0, 4: 1}
+
+
+def test_a_theme_goes_by_its_conditions_and_not_its_place():
+    """As with the Cyborgs, the theme of the highest difficulty comes before the middle one."""
+    low, middle = [(2, 0.3)], [(5, 0.3), (3, 0.6)]
+    records = [leaf(1), leaf(2), leaf(3), leaf(4), pick(0, 1), choice((4, low), (2, [(4, 0.6)]), (3, middle))]
+    name = next(iter(hd1.BATTLE))
+    _, tiers, _ = hd1.event_clips(master_of(records, {name: event(play(5))}))
+    assert tiers[name] == [[1, 2], [4], [3]]
+
+
+def test_a_choice_with_no_condition_is_the_one_left_over():
+    records = [leaf(1), leaf(2), choice((0, [(2, 0.3)]), (1, None))]
+    name = next(iter(hd1.BATTLE))
+    _, tiers, _ = hd1.event_clips(master_of(records, {name: event(play(2))}))
+    assert tiers[name] == [[1], [2], [2]]
+
+
+def music_game():
+    """Battle music with a theme for each difficulty, and a boss with an opening and one loop, for what the Index makes of them."""
+    action, boss = [murmur64_hash(n.encode()) >> 32 for n in ("music_action_bugs", "music_boss_bugs")]
+    clips = [*range(1, 8)]
+    read = {"banks": [{"bundle": "b", "name": 7, "lang": 0, "at": 0, "stream": 0, "rows": [[c, 0, 0, 0, 0, 1000.0] for c in clips]}],
+            "events": {str(action): [1, 2, 3, 4, 5], str(boss): [6, 7]}, "tiers": {str(action): [[1, 2], [3], [4, 5]]}, "ends": {str(boss): {"6": 0}}}
+    return hd1.Hd1(None, read), action, boss
+
+
+def test_battle_music_is_an_item_for_each_difficulty():
+    h, action, boss = music_game()
+    music = next(c for c in h.categories("en") if c["id"] == "hd1/music")
+    assert [s["name"] for s in music["sections"]] == ["Bug"]  # the game's text would say "Bugs"
+    items = music["sections"][0]["items"]
+    assert [i["name"] for i in items] == ["Battle, Difficulty 1-4", "Battle, Difficulty 5-8", "Battle, Difficulty 9+", "Boss"]
+    assert items[0]["full"] == "Bug Battle, Difficulty 1-4" and items[0]["en"] == "music_action_bugs"
+    assert h.view(items[2]["id"])["slots"] == [str(hd1.source(c)) for c in (4, 5)]
+    assert h.view(items[1]["id"])["segments_detail"][0]["stems"][0]["slots"][0]["label"] == ""  # a theme of one clip has no takes
+    assert [p["item"] for p in h.places(3)] == [f"hd1:{action:08x}.1"]
+
+
+def test_what_opens_a_loop_is_no_take():
+    h, _, boss = music_game()
+    h.categories("en")
+    slots = h.view(f"hd1:{boss:08x}")["segments_detail"][0]["stems"][0]["slots"]
+    assert [s["label"] for s in slots] == ["Start", "Loop"]
+
+
+def test_a_bank_lists_battle_music_by_theme():
+    h, _, _ = music_game()
+    h.categories("en")
+    assert [g["name"] for g in h.view("hd1:bank:0000000000000007")["segments_detail"]] == \
+        ["Bug Battle, Difficulty 1-4", "Bug Battle, Difficulty 5-8", "Bug Battle, Difficulty 9+", "Bug Boss"]
 
 
 def test_labels_leave_out_what_the_index_says():

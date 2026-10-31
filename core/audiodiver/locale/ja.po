@@ -1384,6 +1384,14 @@ msgid "The HD2_DATA environment variable points to {folder}, which has no Helldi
 msgstr "HD2_DATA環境変数が指す{folder}には、Helldivers 2のファイルがありません"
 
 #: hd1.py
+msgid "Missions"
+msgstr "ミッション"
+
+#: hd1.py
+msgid "Menus"
+msgstr "メニュー"
+
+#: hd1.py
 msgid "Admiral"
 msgstr "提督"
 
@@ -1512,6 +1520,10 @@ msgid "Not named yet."
 msgstr "名前はまだありません。"
 
 #: hd1.py
+msgid "Loop"
+msgstr "ループ"
+
+#: hd1.py
 msgid "Helldivers 1"
 msgstr "Helldivers 1"
 
@@ -1530,6 +1542,14 @@ msgstr "バンク {id}"
 #: hd1.py
 msgid "{n} languages"
 msgstr "{n} 言語"
+
+#: hd1.py
+msgid "Start"
+msgstr "開始"
+
+#: hd1.py
+msgid "End"
+msgstr "終了"
 
 #: hd1.py library.py
 msgid "Take {n}"
