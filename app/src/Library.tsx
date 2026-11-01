@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject }
 import { ph, t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { RESET_LAYOUT } from "./settings";
-import { call, type ArchiveRow, type Place } from "./api";
+import { call, canAdd, type ArchiveRow, type Place } from "./api";
 import { useContextMenu, type MenuEntry } from "./ContextMenu";
 import { PlayButton, playSlot } from "./CueView";
 import { addedNote, exportList, itemEntries } from "./exportList";
@@ -22,9 +22,10 @@ const GAMES = [["hd2", "Helldivers 2"], ["hd1", "Helldivers 1"]] as const;
     the game has, named or not), of Helldivers 2 or, when it is there too, Helldivers 1. They stay as they were left
     when another shows. */
 export function LibraryPanel() {
-  const { library: sub, game: picked } = useNav();
-  const both = !!useEditor().index?.categories.some((c) => c.game);
-  const game = both ? picked : "hd2";
+  const { library: sub, game: picked, mode } = useNav();
+  // Helldivers 1 mode shows Helldivers 1 alone; Helldivers 2 mode shows both games, to listen and export
+  const both = !!useEditor().index?.categories.some((c) => c.game) && mode === "hd2";
+  const game = mode === "hd1" ? "hd1" : both ? picked : "hd2";
   return (
     <aside className="library" aria-label={t`Library`}>
       <div className="lib-tabs" role="tablist" aria-label={t`Library`} onKeyDown={tabArrows}>
@@ -101,6 +102,8 @@ function useRowWindow(box: RefObject<HTMLElement | null>, count: number, rowH: n
     goes by its name in the game's files. Helldivers 1 has its banks here, which hold what the Index has no name for. */
 function ArchiveList({ game }: { game: LibraryGame }) {
   const { archives, itemId, openItem, project, actions, scope, revision, goTo, itemIndex, quick, resolveItem } = useEditor();
+  const { mode } = useNav();
+  const forGame = project?.game ?? mode; // only its archives can go into a project
   const [query, setQuery] = useState("");
   const [widths, setWidths] = useState<typeof WIDTHS>(() => {
     try { return { ...WIDTHS, ...JSON.parse(localStorage.getItem(WIDTHS_KEY) ?? "{}") }; } catch { return WIDTHS; }
@@ -243,7 +246,7 @@ function ArchiveList({ game }: { game: LibraryGame }) {
         quick(addedNote(exportList.add(all), all.length, 1), "add");
       } },
       "-",
-      ...(a.game ? [] : listed.has(id) ? [
+      ...(!canAdd(a, forGame) ? [] : listed.has(id) ? [
         { label: t`Open in the Audio Tab`, run: () => goTo({ scope: "editor", itemId: id, cueId: null, source: null }) } as MenuEntry,
         { label: t`Remove from the Project`, run: () => actions.removeFromProject([id], title(a)) } as MenuEntry,
       ] : [{ label: t`Add to the Project`, run: () => actions.addToProject([id], title(a)) } as MenuEntry]),
@@ -312,7 +315,7 @@ function ArchiveList({ game }: { game: LibraryGame }) {
                   <td className="num">{a.banks}</td>
                   <td className="num">{a.sounds}</td>
                   <td className="arc-act" onClick={(e) => e.stopPropagation()}>
-                    {!a.game && <AddToggle added={added} run={() => (added ? actions.removeFromProject([id], name) : actions.addToProject([id], name))}
+                    {canAdd(a, forGame) && <AddToggle added={added} run={() => (added ? actions.removeFromProject([id], name) : actions.addToProject([id], name))}
                       label={added ? t`Remove ${name} from the project` : t`Add ${name} to the project`} tip={added ? t`Remove from the project` : t`Add to the project`}
                       more={added ? t`Also removes the new audio. Undo brings both back.` : project ? undefined : t`Open or create a project first`} />}
                   </td>

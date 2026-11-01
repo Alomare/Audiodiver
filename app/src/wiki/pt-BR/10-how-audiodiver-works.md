@@ -2,7 +2,7 @@
 title: Como o Audiodiver funciona
 group: Primeiros passos
 summary: O que o Audiodiver faz, o que é um projeto e para que serve cada aba.
-source: c76f32ef9388
+source: a585c0bcfe7e
 ---
 
 O Audiodiver substitui o áudio do Helldivers 2 pelo **que ele é e onde toca**. Encontre uma peça musical ou um conjunto de sons na Biblioteca, adicione ao projeto e dê a ele áudio novo. O Audiodiver então calcula os bancos de sons, IDs e valores de tempo de que o jogo precisa.
@@ -45,7 +45,7 @@ A Biblioteca e a aba Áudio têm o mesmo layout, e as duas têm {icon:export} **
 
 ## Helldivers 1 {#helldivers-1}
 
-Com o Helldivers 1 instalado, a Biblioteca tem uma aba para cada jogo abaixo de **Índice** e **Todos os Pacotes**. O áudio do Helldivers 1 toca e é exportado como WAV, FLAC ou MP3. As entradas do Helldivers 1 não podem entrar num projeto, mas **Ctrl+C** copia qualquer clipe para um slot do projeto. O Audiodiver não muda esse jogo.
+Com o Helldivers 1 instalado, a Biblioteca tem uma aba para cada jogo abaixo de **Índice** e **Todos os Pacotes**. O áudio do Helldivers 1 toca e é exportado como WAV, FLAC ou MP3. As entradas do Helldivers 1 não podem entrar num projeto do Helldivers 2, mas **Ctrl+C** copia qualquer clipe para um slot do projeto. [Mods de Helldivers 1](wiki:helldivers-1) explica como mudar esse jogo.
 
 Cada entrada do Índice é um evento de som do jogo, e os slots são os clipes entre os quais ele escolhe. Vozes e algumas músicas têm uma aba para cada idioma. Uma entrada mostra o nome dos arquivos do jogo numa forma mais curta, então `fs_rock_run` aparece como *Rock Run*, e a pesquisa encontra os dois. Armas, estratagemas e inimigos usam os nomes que o jogo mostra. Uma entrada de voz traz a fala mostrada na tela quando ela toca, e a pesquisa também encontra essa fala. Os clipes de voz são curtos, então não leem a fala inteira. O jogo guarda muitos nomes só como números, então os sons sem nome conhecido ficam apenas em **Todos os Pacotes**, nos bancos deles.
 

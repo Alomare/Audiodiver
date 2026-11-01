@@ -189,6 +189,8 @@ function ProjectPage() {
           </label>
         </section>
 
+        {/* a Helldivers 1 mod has no icon, its id comes from the project, it has no radio voices and its tabs are set */}
+        {p.game === "hd2" && <>
         <IconEditor icon={icon} frame={frame} setIcon={setIcon} saveIcon={saveIcon} />
 
         <ModId />
@@ -199,6 +201,7 @@ function ProjectPage() {
           <h2><Trans>Tabs</Trans> <Help tip={t`Hide the tabs this mod doesn't use, such as all but Text for a subtitle mod. What was changed in a hidden tab stays in the mod. A new project starts with the tabs Settings ▸ System shows.`} page="how-audiodiver-works#tabs" /></h2>
           <TabChecks value={shown} onChange={(tabs) => actions.settings({ tabs })} />
         </section>
+        </>}
 
         <FolderSection busy={busy} />
         <UnusedFiles busy={busy} />
@@ -213,13 +216,13 @@ function ProjectPage() {
 
       <aside className="bld-side">
         <div className="side-actions">
-          <button className="btn" onClick={() => actions.importPatch()}
+          {p.game === "hd2" && <button className="btn" onClick={() => actions.importPatch()}
             data-tip={t`Import the audio, added sounds and text of a mod into this project`}
-            data-tip-more={t`A ZIP or a .patch_0 file, such as a mod made with another tool`}><Trans>Import Patches</Trans></button>
+            data-tip-more={t`A ZIP or a .patch_0 file, such as a mod made with another tool`}><Trans>Import Patches</Trans></button>}
           <button className="btn quiet" onClick={actions.closeProject} data-tip={t`Close the project`} data-tip-cmd="closeProject"><Trans>Close Project</Trans></button>
         </div>
-        <IconPreview preview={same(icon, p.icon) ? undefined : icon} bust={String(revision)} name={name.trim() || p.name}
-          description={description.trim()} />
+        {p.game === "hd2" && <IconPreview preview={same(icon, p.icon) ? undefined : icon} bust={String(revision)} name={name.trim() || p.name}
+          description={description.trim()} />}
       </aside>
     </div>
   );

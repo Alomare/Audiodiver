@@ -44,7 +44,7 @@ Audio, Soundtrack and Text can be hidden. Untick them under **Tabs** in [Setting
 
 ## Helldivers 1
 
-With Helldivers 1 installed, the Library has a tab for each game under **Index** and **All Archives**. Helldivers 1 audio plays and exports as WAV, FLAC or MP3. Helldivers 1 entries can't go in a project, but **Ctrl+C** copies any clip into a slot of the project. Audiodiver doesn't change that game.
+With Helldivers 1 installed, the Library has a tab for each game under **Index** and **All Archives**. Helldivers 1 audio plays and exports as WAV, FLAC or MP3. Helldivers 1 entries can't go in a Helldivers 2 project, but **Ctrl+C** copies any clip into a slot of the project. [Helldivers 1 mods](wiki:helldivers-1) says how to change that game.
 
 Each entry in the Index is one sound event of the game, and the slots are the clips it picks from. Voices and some music have a tab for each language. An entry shows the name from the game files in a shorter form, so `fs_rock_run` shows as *Rock Run*, and a search finds both. Weapons, stratagems and enemies go by the names the game shows. A voice entry gives the line shown on screen when it plays, and a search finds that line too. The voice clips are short, so they don't read the whole line. The game keeps many names only as numbers, so sounds without a known name are only in **All Archives**, in their banks.
 

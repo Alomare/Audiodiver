@@ -1018,6 +1018,10 @@ msgstr "Um primeiro mod, passo a passo"
 msgid "A folder for each item"
 msgstr "Uma pasta para cada item"
 
+#: src/BuildTab.tsx
+msgid "A Helldivers 1 mod holds each sound bank it changes whole, in every language, so it can be large."
+msgstr "Um mod de Helldivers 1 leva inteiro cada banco de sons que muda, em todos os idiomas, então pode ficar grande."
+
 #: src/App.tsx
 msgid "A job is still running."
 msgstr "Uma tarefa ainda está em andamento."
@@ -2389,6 +2393,10 @@ msgstr "Fechar projeto"
 msgid "Close the project"
 msgstr "Fechar o projeto"
 
+#: src/Home.tsx
+msgid "Closes the project open now"
+msgstr "Fecha o projeto aberto agora"
+
 #: src/App.tsx
 msgid "Closing {APP_NAME} stops it."
 msgstr "Fechar o {APP_NAME} interrompe a tarefa."
@@ -3565,6 +3573,7 @@ msgstr "Da Biblioteca a um mod gerado: o tiro de uma arma substituído por áudi
 msgid "Full Names"
 msgstr "Nomes completos"
 
+#: src/Home.tsx
 #: src/Library.tsx
 msgid "Game"
 msgstr "Jogo"
@@ -4356,6 +4365,14 @@ msgstr "Criar um novo ID"
 #: src/Page.tsx
 msgid "Make a project from an existing mod"
 msgstr "Criar um projeto a partir de um mod existente"
+
+#: src/Home.tsx
+msgid "Make mods for Helldivers 1"
+msgstr "Fazer mods para Helldivers 1"
+
+#: src/Home.tsx
+msgid "Make mods for Helldivers 2"
+msgstr "Fazer mods para Helldivers 2"
 
 #: src/Home.tsx
 #: src/ToolsTab.tsx
@@ -7703,6 +7720,10 @@ msgstr "O jogo toca estes slots em outra ordem. <0>Ordem de reprodução</0>"
 #: src/Inspector.tsx
 msgid "The game plays this audio in other places too."
 msgstr "O jogo também toca este áudio em outros lugares."
+
+#: src/BuildTab.tsx
+msgid "The game replaces a sound bank all at once, so the mod carries every clip of it, not only the new ones"
+msgstr "O jogo substitui um banco de sons de uma vez, então o mod leva todos os clipes dele, não só os novos"
 
 #: src/ExportDialog.tsx
 msgid "The game shuffles parts of this music. The export uses the listed order."

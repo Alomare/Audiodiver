@@ -1,7 +1,7 @@
 import { memo, useDeferredValue, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ph, plural, t } from "@lingui/core/macro";
 import { Plural, Trans } from "@lingui/react/macro";
-import { call, type MusicItem, type MusicSection, type Place } from "./api";
+import { call, canAdd, type MusicItem, type MusicSection, type Place } from "./api";
 import { useContextMenu, type MenuEntry } from "./ContextMenu";
 import { PlayButton, playSlot } from "./CueView";
 import { Fold, useLastWhile, useLinger } from "./Fold";
@@ -13,7 +13,7 @@ import { addedNote, exportList, itemEntries } from "./exportList";
 import { CheckIcon, CollapseAllIcon, NoteIcon, PlusIcon, RemoveIcon, SearchIcon } from "./Icons";
 import { CatMark } from "./Tags";
 import { motionMs, scrollBehavior } from "./theme";
-import { FOLD_LIBRARY, isArchive, type LibraryGame } from "./nav";
+import { FOLD_LIBRARY, isArchive, useNav, type LibraryGame } from "./nav";
 import { Help } from "./Wiki";
 
 type Filter = "all" | "mine" | "game";
@@ -30,6 +30,9 @@ const SMALL = 30; // a category with no more items than this shows its sections 
 export function IndexTree({ game = "hd2" }: { game?: LibraryGame }) {
   const { index, itemIndex, project, itemId, openItem, goTo, actions, revision, scope, quick } = useEditor();
   const editing = scope === "editor";
+  // the game a project here makes a mod for: only its sounds can go in (the open one's, else the window's)
+  const { mode } = useNav();
+  const forGame = project?.game ?? mode;
   const [query, setQuery] = useState("");
   const [hi, setHi] = useState(-1); // the item the search box's arrow keys are on
   const [menu, openMenu] = useContextMenu();
@@ -57,7 +60,7 @@ export function IndexTree({ game = "hd2" }: { game?: LibraryGame }) {
     const all: Group[] = (index?.categories ?? []).map((c) => ({ id: c.id, name: c.name, about: c.about, flat: c.sections.length === 1, sections: c.sections, en: c.en, game: c.game }));
     if (!editing) return all.filter((g) => (g.game ?? "hd2") === game);
     const mine = all.map((g) => ({ ...g, sections: g.sections.map((s) => ({ ...s, items: s.items.filter((it) => listed.has(it.id)) })).filter((s) => s.items.length) }));
-    const archives = (project?.library ?? []).filter((id) => id.startsWith("archive:")).flatMap((id) => itemIndex.items.get(id) ?? []);
+    const archives = (project?.library ?? []).filter(isArchive).flatMap((id) => itemIndex.items.get(id) ?? []);
     if (archives.length) {
       mine.push({ id: "archives", name: t`Archives`, about: t`Whole archives, from All Archives`, flat: true,
         sections: [{ id: "archives", name: t`Archives`, about: "", unused: false, items: archives }] });
@@ -198,8 +201,8 @@ export function IndexTree({ game = "hd2" }: { game?: LibraryGame }) {
       { label: t`Add to the Export List`, run: () => toExport([it]) },
       ...(editing && skippable.length ? [{ label: count > 1 ? t`Skip All ${count}` : t`Skip It`,
         run: () => actions.skip(skippable, count > 1 ? t({ message: `${count} in ${name}`, comment: "Named in a note, as in “3 in Exploring → Battle skipped”" }) : it.full) } as MenuEntry] : []),
-      ...(it.game ? [] : ["-" as const]),
-      ...(it.game ? [] : editing ? [
+      ...(!canAdd(it, forGame) ? [] : ["-" as const]),
+      ...(!canAdd(it, forGame) ? [] : editing ? [
         { label: t`Show in the Library`, run: () => goTo({ scope: "library", itemId: it.id, cueId: null, source: null }) } as MenuEntry,
         { label: t`Remove from the Project`, run: () => actions.removeFromProject([it.id], it.full) } as MenuEntry,
       ] : added ? [
@@ -232,7 +235,7 @@ export function IndexTree({ game = "hd2" }: { game?: LibraryGame }) {
   const rows = (s: MusicSection, deep: boolean) => s.items.map((it) => (
     <ItemRow key={it.id} item={it} deep={deep} active={it.id === itemId} hi={hi >= 0 && shown[hi] === it}
       status={editing && project ? statusOfItem(it) : "na"} clash={clashing.has(it.id)} added={!editing && listed.has(it.id)}
-      held={held(it)} editing={editing} noProject={!project} hint={hints.get(it.id)} on={on} />
+      held={held(it)} editing={editing} noProject={!project} addable={canAdd(it, forGame)} hint={hints.get(it.id)} on={on} />
   ));
   /** A group's line (a category or a section): the head that folds it, and what acts on everything it shows (all of
       it, or what a search left) at once. In the Library a + adds it to the project; in the Audio tab an ✕ takes it
@@ -258,7 +261,7 @@ export function IndexTree({ game = "hd2" }: { game?: LibraryGame }) {
         </div>
       );
     }
-    if (items[0]?.game) return <div className="lib-group-line" onContextMenu={(e) => openMenu(e, [exporting])}>{head}</div>;
+    if (!canAdd(items[0], forGame)) return <div className="lib-group-line" onContextMenu={(e) => openMenu(e, [exporting])}>{head}</div>;
     const fresh = items.filter((it) => !listed.has(it.id) && !held(it));
     const add = () => actions.addToProject(fresh.map((it) => it.id), what(fresh));
     const tip = !fresh.length ? t`All in the project` : fresh.length === items.length ? t`Add all ${count} to the project`
@@ -346,13 +349,14 @@ const KIND_TIP: Partial<Record<MusicItem["kind"], string>> = { transition: t`A t
 
 /** One item of the tree. Memoised: it draws again only when something it shows changes, not with every keystroke of
     a search or every selection. */
-const ItemRow = memo(function ItemRow({ item, deep, active, hi, status, clash, added, held, editing, noProject, hint, on }: {
+const ItemRow = memo(function ItemRow({ item, deep, active, hi, status, clash, added, held, editing, noProject, addable, hint, on }: {
   item: MusicItem; deep: boolean; active: boolean; hi: boolean; status: Status; clash: boolean;
   hint?: Named;              // a search found it by this label of a slot in it, or by a global note
   added: boolean;            // the Library: the project lists it already
   held: MusicItem | null;    // the Library: what the project lists that has all its banks already (it can't be added)
   editing: boolean;          // the Audio tab's list (it can be taken off), else the Library's (it can be added)
   noProject: boolean;        // no project open: the + says to open one
+  addable: boolean;          // of the game the project makes a mod for (canAdd): only then is there a +
   on: { open: (it: MusicItem) => void; menu: (e: React.MouseEvent, it: MusicItem) => void; add: (it: MusicItem) => void; remove: (it: MusicItem) => void };
 }) {
   const { scope } = useLite();
@@ -375,7 +379,7 @@ const ItemRow = memo(function ItemRow({ item, deep, active, hi, status, clash, a
       <span className="mus-meta">
         {clash && <span className="clash" data-tip={t`Plays the original next to new music`}>!</span>}
         {status !== "na" && <Mark status={status} />}
-        {!editing && !item.game && (held ? <HeldMark held={held} />
+        {!editing && addable && (held ? <HeldMark held={held} />
           : <AddToggle added={added} run={() => (added ? on.remove(item) : on.add(item))}
             label={added ? t`Remove ${name} from the project` : t`Add ${name} to the project`}
             tip={added ? t`Remove from the project` : t`Add to the project`}

@@ -104,8 +104,12 @@ const STILL_RUNNING: Record<string, string> = {
     stay in place behind the other tabs, so coming back finds them as they were left (scroll position, search,
     selection). */
 function Shell() {
-  const { actions, quick, notify, itemIndex, jobs, scopes, project } = useEditor();
+  const { actions, quick, notify, itemIndex, jobs, scopes, project, status } = useEditor();
   const { tab, library: libraryTab } = useNav();
+  // Helldivers 1 mode needs that game: once it is gone (moved, uninstalled), the window makes Helldivers 2 mods
+  useEffect(() => {
+    if (!UTILS && status?.stage === "ready" && !status.hd1 && nav.get().mode === "hd1") nav.setMode("hd2");
+  }, [status?.stage, status?.hd1]);
   // the tabs that can be hidden: the open project's choice, else Settings' (a hidden tab that shows moves away)
   const shown = useShownTabs();
   useEffect(() => { if (!UTILS) nav.setShown(shown); }, [shown]);
@@ -488,9 +492,9 @@ function Rail() {
   return (
     <nav className="rail" aria-label={t({ message: "Main", comment: "The bar of main tabs, for screen readers" })}>
       <div className="rail-group" role="tablist" aria-orientation={orientation} aria-label={t`Tabs`} onKeyDown={tabArrows}>
-        <div className="rail-set">{(UTILS ? UTILS_TABS : APP_TABS).map(mainTab)}</div>
+        <div className="rail-set">{(UTILS ? UTILS_TABS : APP_TABS.filter((t) => nav.shown(t.id))).map(mainTab)}</div>
         {!UTILS && <div className={`rail-set rail-mod${project ? "" : " idle"}`}>
-          {MOD_TABS.filter((t) => !(HIDEABLE as readonly Tab[]).includes(t.id) || shown.includes(t.id as Hideable)).map(mainTab)}</div>}
+          {MOD_TABS.filter((t) => (!(HIDEABLE as readonly Tab[]).includes(t.id) || shown.includes(t.id as Hideable)) && nav.shown(t.id)).map(mainTab)}</div>}
         {!UTILS && project && <div className="rail-set rail-out">{mainTab(BUILD_TAB)}</div>}
       </div>
       <div className="rail-group" role="tablist" aria-orientation={orientation}

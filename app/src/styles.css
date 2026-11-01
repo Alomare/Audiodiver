@@ -1311,6 +1311,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .home-inner { padding: var(--home-m); container-type: inline-size; }
 .home-hero { display: flex; flex-direction: column; align-items: flex-start; gap: calc(18px * var(--sp)); max-width: calc(700px * var(--fs)); }
 .home-hero h1 { font-size: calc(36px * var(--fs)); line-height: 1.04; letter-spacing: -.015em; max-width: 15ch; }
+.home-hero .home-game { width: calc(320px * var(--fs)); max-width: 100%; }
 /* the menu, as the game draws its own: tall uppercase strips that fade out to the right, the way in yellow. Hovered or
    focused, a strip takes the accent bar on its left. */
 .home-menu { display: flex; flex-direction: column; gap: calc(6px * var(--sp)); max-width: calc(480px * var(--fs)); margin-top: calc(42px * var(--sp)); }

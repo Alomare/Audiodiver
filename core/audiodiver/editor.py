@@ -851,7 +851,7 @@ class Session:
         out, added = {}, self._added()
         for r in self.project.replacements:
             try:
-                out[r.target if r.target in added or not self.ix else self.ix.resolve(r.target)] = r
+                out[r.target if r.target in added or not self.ix or self._hd1p() else self.ix.resolve(r.target)] = r
             except KeyError:
                 pass
         return out
@@ -951,6 +951,7 @@ class Session:
         """New takes in a random container (the game's, or a layer's), one per file, in file-name order, as one
         undo step: the container picks them like its other takes. The answer's `sources` are their slots."""
         from .addition import take_problem
+        self._not_hd1()
         self.require_game()
         files = self._audio_files(files)
         cid, made = self._object_id(container), []
@@ -971,6 +972,7 @@ class Session:
         """A layer beside one of the game's containers, with a take per file, as one undo step: it plays whenever
         that container plays. The answer's `sources` are the takes' slots."""
         from .addition import layer_problem
+        self._not_hd1()
         self.require_game()
         files = self._audio_files(files)
         cid, made = self._object_id(beside), []
@@ -992,6 +994,7 @@ class Session:
         """Gives one Sound a clip of its own: the new audio in its slot plays only where that Sound plays, and the
         other Sounds that play the clip keep the original. The answer's `source` is the slot it moves to."""
         from .addition import sound_clip
+        self._not_hd1()
         self.require_game()
         sid, snd, made = self._source(source), self._object_id(sound), []
         if sound_clip(self.ix, snd) != sid:
@@ -1063,6 +1066,11 @@ class Session:
         """Whether a project (the open one) makes a mod for Helldivers 1."""
         p = p or self.project
         return bool(p) and p.game == "hd1"
+
+    def _not_hd1(self):
+        """Refuses what only a Helldivers 2 build can hold (hd1_build bakes gain and fades into new audio, no more)."""
+        if self._hd1p():
+            raise EditorError("A Helldivers 1 mod can't hold this")
 
     def _lookup(self, iid):
         """An item of either game's Library by its id. KeyError when there is none."""
@@ -1761,6 +1769,7 @@ class Session:
     def keep_curve(self, sources, keep):
         """Whether the clips of these slots keep the game's volume curves and fades on music tracks
         (Project.curves_off), as one undo step."""
+        self._not_hd1()
         self.require_game()
         if not isinstance(sources, list):
             raise EditorError(tr("Choose the slots to change"))
@@ -1774,6 +1783,7 @@ class Session:
 
     def original_gain(self, sources, gain_db):
         """Make-Up Gain on the original audio of slots (Project.gains), as one undo step; 0 takes it off."""
+        self._not_hd1()
         if not isinstance(sources, list):
             raise EditorError(tr("Choose the slots to change"))
         db = self._field("gain_db", gain_db)
@@ -1791,6 +1801,7 @@ class Session:
     def filters_set(self, sources, lowpass=None, highpass=None):
         """Low-Pass and High-Pass on slots (Project.filters), with new audio or without, as one undo step. None leaves
         that filter as it is; both at 0 take the slot off the list."""
+        self._not_hd1()
         if not isinstance(sources, list):
             raise EditorError(tr("Choose the slots to change"))
         for v in (lowpass, highpass):

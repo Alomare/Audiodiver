@@ -1018,6 +1018,10 @@ msgstr "はじめてのMODを順を追って作成"
 msgid "A folder for each item"
 msgstr "項目ごとにフォルダー"
 
+#: src/BuildTab.tsx
+msgid "A Helldivers 1 mod holds each sound bank it changes whole, in every language, so it can be large."
+msgstr "Helldivers 1 のMODは、変更するサウンドバンクをすべての言語で丸ごと含むため、大きくなることがあります。"
+
 #: src/App.tsx
 msgid "A job is still running."
 msgstr "ジョブがまだ実行中です。"
@@ -2389,6 +2393,10 @@ msgstr "プロジェクトを閉じる"
 msgid "Close the project"
 msgstr "プロジェクトを閉じる"
 
+#: src/Home.tsx
+msgid "Closes the project open now"
+msgstr "開いているプロジェクトを閉じます"
+
 #: src/App.tsx
 msgid "Closing {APP_NAME} stops it."
 msgstr "{APP_NAME}を閉じると停止します。"
@@ -3565,6 +3573,7 @@ msgstr "ライブラリからビルド済みのMODまで：武器のショット
 msgid "Full Names"
 msgstr "完全な名前"
 
+#: src/Home.tsx
 #: src/Library.tsx
 msgid "Game"
 msgstr "ゲーム"
@@ -4356,6 +4365,14 @@ msgstr "新しいIDを作成"
 #: src/Page.tsx
 msgid "Make a project from an existing mod"
 msgstr "既存のMODからプロジェクトを作成"
+
+#: src/Home.tsx
+msgid "Make mods for Helldivers 1"
+msgstr "Helldivers 1 のMODを作る"
+
+#: src/Home.tsx
+msgid "Make mods for Helldivers 2"
+msgstr "Helldivers 2 のMODを作る"
 
 #: src/Home.tsx
 #: src/ToolsTab.tsx
@@ -7703,6 +7720,10 @@ msgstr "ゲームはこれらのスロットを別の順序で再生します。
 #: src/Inspector.tsx
 msgid "The game plays this audio in other places too."
 msgstr "ゲームはこの音声を他の場所でも再生します。"
+
+#: src/BuildTab.tsx
+msgid "The game replaces a sound bank all at once, so the mod carries every clip of it, not only the new ones"
+msgstr "ゲームはサウンドバンクをまとめて置き換えるため、MODには新しいクリップだけでなくバンク内のすべてのクリップが入ります"
 
 #: src/ExportDialog.tsx
 msgid "The game shuffles parts of this music. The export uses the listed order."

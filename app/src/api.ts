@@ -120,7 +120,7 @@ export type MusicItem = {
   id_name?: boolean; // an archive with no single name: called by its ID ("Archive <id>")
   tags?: Tag[]; names?: string[]; // an archive: what the Index knows is in it
   en?: string;       // the name in English, where the window's language names it otherwise (a search finds both)
-  game?: "hd1";      // Helldivers 1: to play and export, never in a project (core hd1.py)
+  game?: "hd1";      // Helldivers 1: in a Helldivers 1 project only (core hd1.py); see canAdd
 };
 export type MusicSection = { id: string; name: string; about: string; unused: boolean; items: MusicItem[]; en?: string };
 export type MusicList = { sections: MusicSection[] };
@@ -129,7 +129,7 @@ export type Index = { categories: Category[] };
 /** A row of All Archives: an archive of the game with audio in it, and what the Index knows about it. */
 export type ArchiveRow = {
   id: string; names: string[]; tags: Tag[]; banks: number; sounds: number; language: string;
-  game?: "hd1";    // Helldivers 1: a bank, opened as `item`, never in a project
+  game?: "hd1";    // Helldivers 1: a bank, opened as `item`, in a Helldivers 1 project only
   item?: string;
   en?: string[];   // the English names of its sound sets, where the window's language names them otherwise (search)
   preview: string; // one of its sounds, to hear without opening it
@@ -166,6 +166,7 @@ export type IconFrame = { border: number; border_color: string; radius: number }
 export type Icon = Partial<IconFrame> & { image?: string };
 export type ProjectState = {
   path: string; folder: string; name: string; guid: string; version: number;
+  game: "hd2" | "hd1";   // the game it makes a mod for (core project.GAMES): a Helldivers 1 mod is built for the mod manager that takes them
   own_folder: boolean;      // the folder is the project's alone (core projectfiles.own_folder)
   folder_projects: number;  // other projects in its folder
   files_elsewhere: number;  // files it uses from outside its folder (Collect files copies them in)
@@ -220,6 +221,7 @@ export type Status = {
   // the data folder in use or tried, how it was found, and the one chosen in Settings (null: found through Steam)
   game_folder: { path: string | null; how: "chosen" | "env" | "steam" | null; chosen: string | null };
   hd1_folder: { path: string | null; how: "chosen" | "env" | "steam" | null; chosen: string | null };
+  hd1?: boolean;                   // Helldivers 1 was found and read: Home offers its mode
   // the game's language in Steam ("brazilian") and Windows' ("pt-BR"), for Automatic (i18n.ts); the core's own
   languages?: { game: string | null; system: string | null; core: string };
 };
@@ -360,3 +362,6 @@ export function nameProblem(name: string): string | null {
 /** A line of the game's text: in a string table (its file id), by its id. `text` is the original; `yours` (the new text) and `was`
     are there when the open project changes it (`was`: the game's text when it was changed). */
 export type TextLine = { table: string; id: number; text: string; yours?: string; was?: string; kind?: "subtitles" | "text" };
+
+/** Whether an item of the Library can go into a project of this game: each mod is for one game. */
+export const canAdd = (item: { game?: "hd1" } | undefined, game: "hd2" | "hd1") => (item?.game ?? "hd2") === game;

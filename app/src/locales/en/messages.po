@@ -1018,6 +1018,10 @@ msgstr "A first mod, step by step"
 msgid "A folder for each item"
 msgstr "A folder for each item"
 
+#: src/BuildTab.tsx
+msgid "A Helldivers 1 mod holds each sound bank it changes whole, in every language, so it can be large."
+msgstr "A Helldivers 1 mod holds each sound bank it changes whole, in every language, so it can be large."
+
 #: src/App.tsx
 msgid "A job is still running."
 msgstr "A job is still running."
@@ -2389,6 +2393,10 @@ msgstr "Close Project"
 msgid "Close the project"
 msgstr "Close the project"
 
+#: src/Home.tsx
+msgid "Closes the project open now"
+msgstr "Closes the project open now"
+
 #: src/App.tsx
 msgid "Closing {APP_NAME} stops it."
 msgstr "Closing {APP_NAME} stops it."
@@ -3565,6 +3573,7 @@ msgstr "From the Library to a built mod: a weapon's shot replaced with new audio
 msgid "Full Names"
 msgstr "Full Names"
 
+#: src/Home.tsx
 #: src/Library.tsx
 msgid "Game"
 msgstr "Game"
@@ -4356,6 +4365,14 @@ msgstr "Make a New ID"
 #: src/Page.tsx
 msgid "Make a project from an existing mod"
 msgstr "Make a project from an existing mod"
+
+#: src/Home.tsx
+msgid "Make mods for Helldivers 1"
+msgstr "Make mods for Helldivers 1"
+
+#: src/Home.tsx
+msgid "Make mods for Helldivers 2"
+msgstr "Make mods for Helldivers 2"
 
 #: src/Home.tsx
 #: src/ToolsTab.tsx
@@ -7703,6 +7720,10 @@ msgstr "The game plays these slots in another order. <0>Play Order</0>"
 #: src/Inspector.tsx
 msgid "The game plays this audio in other places too."
 msgstr "The game plays this audio in other places too."
+
+#: src/BuildTab.tsx
+msgid "The game replaces a sound bank all at once, so the mod carries every clip of it, not only the new ones"
+msgstr "The game replaces a sound bank all at once, so the mod carries every clip of it, not only the new ones"
 
 #: src/ExportDialog.tsx
 msgid "The game shuffles parts of this music. The export uses the listed order."

@@ -8,12 +8,16 @@ export type Tab = "home" | "project" | "library" | "editor" | "soundtrack" | "te
 export type SettingsTab = "system" | "shortcuts" | "theme";
 export type LibraryTab = "index" | "archives";
 export type LibraryGame = "hd2" | "hd1";
+/** The game the window makes mods for: Helldivers 2, or Helldivers 1 once it is found (Home switches; a project opens
+    in its own game). Helldivers 1 has no Soundtrack, Text or Tools (HD2_ONLY), and its Library shows only its own. */
+export type Mode = LibraryGame;
 export type ToolsTab = "repatch" | "combine";
 export type Nav = {
   tab: Tab;
   settings: SettingsTab; // the sub-tab Settings shows
   library: LibraryTab;   // the sub-tab the Library shows
   game: LibraryGame;     // the game the Library shows, with Helldivers 1 there too
+  mode: Mode;            // the game the window makes mods for
   tools: ToolsTab;       // the sub-tab Tools shows
   wiki: string;          // the Wiki page that is open ("" = the first one)
   anchor: string;        // a heading of that page to scroll to, once (a link to part of a page); not remembered
@@ -32,6 +36,8 @@ const LIBRARY: LibraryTab[] = ["index", "archives"];
 const TOOLS: ToolsTab[] = ["repatch", "combine"];
 const LIBRARY_KEY = "audiodiver.libraryTab";
 const GAME_KEY = "audiodiver.libraryGame";
+const MODE_KEY = "audiodiver.mode";
+const HD2_ONLY: Tab[] = ["soundtrack", "text", "tools"];
 const WIKI_KEY = "audiodiver.wikiPage";
 
 function lastLibraryTab(): LibraryTab {
@@ -40,6 +46,10 @@ function lastLibraryTab(): LibraryTab {
 
 function lastLibraryGame(): LibraryGame {
   try { return localStorage.getItem(GAME_KEY) === "hd1" ? "hd1" : "hd2"; } catch { return "hd2"; }
+}
+
+function lastMode(): Mode {
+  try { return localStorage.getItem(MODE_KEY) === "hd1" ? "hd1" : "hd2"; } catch { return "hd2"; }
 }
 
 function lastWikiPage(): string {
@@ -59,17 +69,18 @@ function reopened(): Partial<Nav> {
       settings: SETTINGS.includes(kept.settings) ? kept.settings : "system" };
   } catch { return {}; }
 }
-let current: Nav = { tab: START, settings: "system", library: lastLibraryTab(), game: lastLibraryGame(), tools: "repatch", wiki: lastWikiPage(), anchor: "", from: START, origin: {}, ...reopened() };
+const MODE = lastMode();
+let current: Nav = { tab: START, settings: "system", library: lastLibraryTab(), game: MODE === "hd1" ? "hd1" : lastLibraryGame(), mode: MODE, tools: "repatch", wiki: lastWikiPage(), anchor: "", from: START, origin: {}, ...reopened() };
 let off: readonly Tab[] = []; // the hideable tabs that are off now (App.tsx keeps it up to date)
 let open = false;             // a project is open: Build shows only then (the store keeps it up to date)
-let hidden = new Set<Tab>(["build"]);
+let hidden = new Set<Tab>(["build", ...(MODE === "hd1" ? HD2_ONLY : [])]);
 const listeners = new Set<() => void>();
 /** While the Wiki is in a window of its own (wikiWindow.ts): takes what the other window shows; true when it did. */
 let elsewhere: ((place: Tab | "about", sub?: string) => boolean) | null = null;
 /** The tabs out of the bar now; the one that shows, if hidden, moves to the Project tab. */
 function hide() {
-  hidden = new Set<Tab>(open ? off : [...off, "build"]);
-  if (hidden.has(current.tab)) nav.go("project");
+  hidden = new Set<Tab>([...(open ? off : [...off, "build" as Tab]), ...(current.mode === "hd1" ? HD2_ONLY : [])]);
+  if (hidden.has(current.tab)) nav.go(current.tab === "tools" ? "home" : "project");
 }
 
 /** An archive to open, from All Archives: of Helldivers 2, or a bank of Helldivers 1. */
@@ -96,11 +107,19 @@ export const nav = {
     current = next;
     listeners.forEach((f) => f());
   },
-  /** Shows a game in the Library. */
+  /** Shows a game in the Library (Helldivers 1 mode shows only its own). */
   pickGame(game: LibraryGame) {
-    if (game === current.game) return;
+    if (game === current.game || (current.mode === "hd1" && game !== "hd1")) return;
     current = { ...current, game };
     try { localStorage.setItem(GAME_KEY, game); } catch { /* storage off */ }
+    listeners.forEach((f) => f());
+  },
+  /** Makes mods for this game: its tabs show, the others go, and the Library shows its sounds. */
+  setMode(mode: Mode) {
+    if (mode === current.mode) return;
+    current = { ...current, mode, game: mode === "hd1" ? "hd1" : current.game };
+    try { localStorage.setItem(MODE_KEY, mode); } catch { /* storage off */ }
+    hide();
     listeners.forEach((f) => f());
   },
   /** The Library sub-tab that shows an item, with its game picked. */

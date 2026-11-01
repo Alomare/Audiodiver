@@ -71,7 +71,8 @@ function BuildPage() {
       </div>
 
       <aside className="bld-side">
-        <IconPreview bust={String(revision)} name={p.name} description={p.description} />
+        {/* a Helldivers 1 mod has no icon in the mod manager */}
+        {p.game === "hd2" && <IconPreview bust={String(revision)} name={p.name} description={p.description} />}
         <BuildBox />
       </aside>
     </div>
@@ -135,6 +136,10 @@ function BuildBox() {
         <p className="set-note">{plural(objects, { one: "The build also includes an imported mod's settings on a sound or container", other: "The build also includes an imported mod's settings on # sounds and containers" })}
           {" "}<Help tip={t`Volume, delays and similar settings, with the values the imported mod used. A slot's Make-Up Gain is applied on top.`} page="repatching#what-repatching-carries-over" /></p>
       )}
+      {p.game === "hd1" && (
+        <p className="set-note"><Trans>A Helldivers 1 mod holds each sound bank it changes whole, in every language, so it can be large.</Trans>{" "}
+          <Help tip={t`The game replaces a sound bank all at once, so the mod carries every clip of it, not only the new ones`} page="helldivers-1" /></p>
+      )}
       {p.last_build && (
         <p className="build-last"><Trans>Last build: <b>{zip}</b>, {mb} MB, {when}</Trans>
           <button className="link-inline" onClick={() => reveal(p.last_build!.zip)}><Trans>Show in Folder</Trans></button></p>
@@ -164,6 +169,7 @@ function BuildOptions() {
           <input type="checkbox" checked={s.revealBuild} onChange={(e) => settings.set({ revealBuild: e.target.checked })} />
           <span><Trans>Show the ZIP in Explorer when a build finishes</Trans></span>
         </label>
+        {p.game === "hd2" && <>
         <label className="check" data-tip={missing && !p.loudness_analysis ? missing : undefined}>
           <input type="checkbox" checked={p.loudness_analysis} disabled={!!missing && !p.loudness_analysis}
             onChange={(e) => actions.settings({ loudness_analysis: e.target.checked })} />
@@ -183,6 +189,7 @@ function BuildOptions() {
             onChange={(e) => actions.settings({ project_banks_only: e.target.checked })} />
           <span><Trans>Keep added audio to the project's banks</Trans> <Help tip={t`New takes, layers and new audio set to Only This Sound go into every bank with a copy of the sound, as the game plays the copy it loads first. With this on, they go only into the banks of the listed items. The mod gets smaller, but where the game loads another bank's copy first, the original plays.`} page={OWN_BANKS_PAGE} /></span>
         </label>
+        </>}
       </div>
     </section>
   );

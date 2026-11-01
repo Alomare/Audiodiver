@@ -1018,6 +1018,10 @@ msgstr ""
 msgid "A folder for each item"
 msgstr ""
 
+#: src/BuildTab.tsx
+msgid "A Helldivers 1 mod holds each sound bank it changes whole, in every language, so it can be large."
+msgstr ""
+
 #: src/App.tsx
 msgid "A job is still running."
 msgstr ""
@@ -2389,6 +2393,10 @@ msgstr ""
 msgid "Close the project"
 msgstr ""
 
+#: src/Home.tsx
+msgid "Closes the project open now"
+msgstr ""
+
 #: src/App.tsx
 msgid "Closing {APP_NAME} stops it."
 msgstr ""
@@ -3565,6 +3573,7 @@ msgstr ""
 msgid "Full Names"
 msgstr ""
 
+#: src/Home.tsx
 #: src/Library.tsx
 msgid "Game"
 msgstr ""
@@ -4355,6 +4364,14 @@ msgstr ""
 #: src/Home.tsx
 #: src/Page.tsx
 msgid "Make a project from an existing mod"
+msgstr ""
+
+#: src/Home.tsx
+msgid "Make mods for Helldivers 1"
+msgstr ""
+
+#: src/Home.tsx
+msgid "Make mods for Helldivers 2"
 msgstr ""
 
 #: src/Home.tsx
@@ -7702,6 +7719,10 @@ msgstr ""
 
 #: src/Inspector.tsx
 msgid "The game plays this audio in other places too."
+msgstr ""
+
+#: src/BuildTab.tsx
+msgid "The game replaces a sound bank all at once, so the mod carries every clip of it, not only the new ones"
 msgstr ""
 
 #: src/ExportDialog.tsx

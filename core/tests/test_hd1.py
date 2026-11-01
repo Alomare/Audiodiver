@@ -3,6 +3,7 @@ import os
 import struct
 import wave
 import zlib
+from types import SimpleNamespace
 
 import pytest
 
@@ -405,7 +406,7 @@ def test_a_helldivers_1_project_builds_a_mod_for_the_mod_manager(game, tmp_path,
     assert hd1_build.verify(zip_path, s.hd1) == []
     with zipfile.ZipFile(zip_path) as z:
         m = json.loads(z.read("obsidian.json"))
-        assert m["scope"] == "client" and m["id"].startswith("audiodiver.calm-admiral-") and m["version"] == "1.0.1"
+        assert m["scope"] == "client" and m["id"] == "audiodiver.hd1-" + s.project.guid.replace("-", "")[:16] and m["version"] == "1.0.1"
         [r] = m["resources"]
         assert (r["type"], r["name"], r["bundle"]) == ("timpani_bank", f"#{BANK_NAME:016x}", "0123456789abcdef")
         en, fr_v = r["variants"]
@@ -420,6 +421,46 @@ def test_a_helldivers_1_project_builds_a_mod_for_the_mod_manager(game, tmp_path,
         assert struct.unpack_from("<HHI", head, 48) == (hd1.PCM, 1, 48000), "the original's codec, channels and rate"
         assert ssize == 0 and struct.unpack_from("<I", head, 8)[0] == 9600, "PCM held whole; 0.2 s at 48 kHz"
     assert s.project_state()["version"] == 2
+
+
+def hd1_session(game, tmp_path, monkeypatch):
+    from audiodiver import editor
+    from audiodiver.editor import Session
+    monkeypatch.setattr(editor, "SETTINGS_FILE", tmp_path / "settings.json")
+    monkeypatch.setenv("HD1_CONTENTS", str(game))
+    s = Session(load=False)
+    s.stage = "ready"
+    s._load_hd1()
+    s.new_project(str(tmp_path / "proj" / "Slots.audi"), "Slots", game="hd1")
+    s.library_add([item_of(s.hd1, "Mission Complete Easy 2")["id"]])
+    return s, str(hd1.source(CLIPS["one"], 0x100))
+
+
+def test_a_slot_with_new_audio_is_found_by_its_helldivers_1_id(game, tmp_path, monkeypatch):
+    """Even with Helldivers 2 read too, whose index has no such id: the slot's settings and its waveform reach it."""
+    s, slot = hd1_session(game, tmp_path, monkeypatch)
+    s.ix = SimpleNamespace(resolve=lambda t: (_ for _ in ()).throw(KeyError(t)))
+    s.assign(slot, str(tone_file(tmp_path / "proj" / "tone.wav")))
+    assert list(s._sources()) == [int(slot)]
+    s.update(slot, gain_db=-3.0)
+    r = s.fades_set([slot], fade_in_ms=10)["assignments"][slot]
+    assert (r["gain_db"], r["fade_in_ms"]) == (-3.0, 10)
+    assert s.match_loudness([slot])["matched"][slot] != -3.0, "measured against the Helldivers 1 original"
+
+
+@pytest.mark.parametrize("change", [
+    lambda s, slot: s.original_gain([slot], -3.0),
+    lambda s, slot: s.filters_set([slot], lowpass=20),
+    lambda s, slot: s.keep_curve([slot], False),
+    lambda s, slot: s.add_takes("1", ["x.wav"]),
+    lambda s, slot: s.add_layer("1", ["x.wav"]),
+    lambda s, slot: s.own_clip(slot, "1"),
+])
+def test_what_a_helldivers_1_mod_cant_hold_is_refused(game, tmp_path, monkeypatch, change):
+    from audiodiver.editor import EditorError
+    s, slot = hd1_session(game, tmp_path, monkeypatch)
+    with pytest.raises(EditorError, match="Helldivers 1"):
+        change(s, slot)
 
 
 def test_a_project_keeps_its_game(tmp_path):

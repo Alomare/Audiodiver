@@ -4,7 +4,7 @@ import { Trans } from "@lingui/react/macro";
 import { call, projectIconUrl } from "./api";
 import { DISCORD_URL, HOME_ART, KOFI_URL, TICKER_URL } from "./content";
 import { CloseIcon, DiscordIcon, KofiIcon, NextIcon, PrevIcon, ProjectIcon } from "./Icons";
-import { nav } from "./nav";
+import { nav, useNav, type Mode } from "./nav";
 import { openUrl } from "./platform";
 import { useSettings } from "./settings";
 import { useEditor } from "./store";
@@ -14,8 +14,9 @@ import { DEFAULT_SIZE, motionOn, useTheme, useThemeValue } from "./theme";
     a mod, and which one is loaded; below, Repatch and Combine. With no project open, the Project tab lists all the
     recent projects. Audiodiver Utils has no Home. */
 export function Home() {
-  const { project, actions } = useEditor();
+  const { project, actions, status } = useEditor();
   const { homeTicker } = useSettings();
+  const { mode } = useNav();
   const name = project?.name;
   return (
     <section className={`home${HOME_ART.length ? " with-art" : ""}${homeTicker ? "" : " no-ticker"}`} aria-label={t`Home`}>
@@ -23,6 +24,7 @@ export function Home() {
         <div className="home-inner view-in">
           <header className="home-hero">
             <h1><Trans comment="The title on Home; <0/> is a line break">A new anthem<br />for Super Earth</Trans></h1>
+            {status?.hd1 && <GameSwitch />}
           </header>
 
           {/* a menu, as the game's own: the yellow item is the way in; the Tools tab's two pages after a gap.
@@ -35,8 +37,8 @@ export function Home() {
                 data-tip-more={t`A pack is a project and the files it uses, in one file`}><Trans>Open Project</Trans></button>
               <Recent />
             </div>
-            <button className="menu-item" onClick={() => actions.importMod()} data-tip={t`Make a project from an existing mod`}
-              data-tip-more={t`A ZIP or a .patch_0 file, with the audio, the sounds it adds and the text`}><Trans>Import Mod</Trans></button>
+            {mode === "hd2" && <button className="menu-item" onClick={() => actions.importMod()} data-tip={t`Make a project from an existing mod`}
+              data-tip-more={t`A ZIP or a .patch_0 file, with the audio, the sounds it adds and the text`}><Trans>Import Mod</Trans></button>}
             {project && (
               <div className="home-loaded">
                 <span className="home-loaded-name"><Trans>Loaded: <b data-tip={project.path} data-tip-clip>{name}</b></Trans></span>
@@ -46,14 +48,14 @@ export function Home() {
             )}
           </nav>
 
-          <nav className="home-menu home-tools" aria-label={t`Tools`}>
+          {mode === "hd2" && <nav className="home-menu home-tools" aria-label={t`Tools`}>
             <button className="menu-item" onClick={() => nav.go("tools", "repatch")}
               data-tip={t`Rebuild an existing audio mod for the current game version, without a project`}
               data-tip-more={t`For a mod that went silent or wrong after a game update, or that mutes other sounds`}><Trans>Repatch</Trans></button>
             <button className="menu-item" onClick={() => nav.go("tools", "combine")}
               data-tip={t`Make one mod out of several audio mods`}
               data-tip-more={t`For mods that change the same sound banks, where only the one deployed last plays`}><Trans>Combine Mods</Trans></button>
-          </nav>
+          </nav>}
 
         </div>
       </div>
@@ -61,6 +63,27 @@ export function Home() {
         : <><div className="home-art" aria-hidden><Meters /></div><div className="home-corner"><Community /></div></>}
       {homeTicker && <Ticker />}
     </section>
+  );
+}
+
+/** Which game the window makes mods for, once Helldivers 1 is found: each has its own tabs, and a project is for one
+    of them (nav.ts Mode). A project of the other game closes first. */
+function GameSwitch() {
+  const { project, actions } = useEditor();
+  const { mode } = useNav();
+  const pick = async (m: Mode) => {
+    if (m === mode) return;
+    if (project && project.game !== m) await actions.closeProject();
+    nav.setMode(m);
+  };
+  return (
+    <div className="segmented home-game" role="radiogroup" aria-label={t`Game`}>
+      {([["hd2", "Helldivers 2"], ["hd1", "Helldivers 1"]] as const).map(([id, name]) => (
+        <button key={id} role="radio" aria-checked={mode === id} className={mode === id ? "on" : ""} onClick={() => pick(id)}
+          data-tip={id === "hd1" ? t`Make mods for Helldivers 1` : t`Make mods for Helldivers 2`}
+          data-tip-more={project && project.game !== id ? t`Closes the project open now` : undefined}>{name}</button>
+      ))}
+    </div>
   );
 }
 

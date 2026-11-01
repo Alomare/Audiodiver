@@ -130,8 +130,8 @@ def _source_file(p: Project, r) -> Path:
 
 
 def mod_id(p: Project) -> str:
-    """The mod's id for the mod manager: stays the same from build to build of a project."""
-    return f"audiodiver.{arsenal.slug(p.name).replace('_', '-')[:40]}-{p.guid.replace('-', '')[:6]}".strip("-")
+    """The mod's id for the mod manager, from the project's guid: a renamed project still updates the mod installed."""
+    return f"audiodiver.hd1-{p.guid.replace('-', '').lower()[:16]}"
 
 
 def build(p: Project, game: hd1.Hd1, log=print, step=None) -> Path:

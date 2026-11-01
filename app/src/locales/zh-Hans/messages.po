@@ -1018,6 +1018,10 @@ msgstr "一步步制作第一个模组"
 msgid "A folder for each item"
 msgstr "每个条目一个文件夹"
 
+#: src/BuildTab.tsx
+msgid "A Helldivers 1 mod holds each sound bank it changes whole, in every language, so it can be large."
+msgstr "Helldivers 1 模组会完整包含每个被更改的音频库及其所有语言，因此可能很大。"
+
 #: src/App.tsx
 msgid "A job is still running."
 msgstr "有任务仍在运行。"
@@ -2389,6 +2393,10 @@ msgstr "关闭项目"
 msgid "Close the project"
 msgstr "关闭项目"
 
+#: src/Home.tsx
+msgid "Closes the project open now"
+msgstr "关闭当前打开的项目"
+
 #: src/App.tsx
 msgid "Closing {APP_NAME} stops it."
 msgstr "关闭 {APP_NAME} 会中止该任务。"
@@ -3565,6 +3573,7 @@ msgstr "从资源库到构建好的模组：用教程自带的新音频替换一
 msgid "Full Names"
 msgstr "完整名称"
 
+#: src/Home.tsx
 #: src/Library.tsx
 msgid "Game"
 msgstr "游戏"
@@ -4356,6 +4365,14 @@ msgstr "生成新 ID"
 #: src/Page.tsx
 msgid "Make a project from an existing mod"
 msgstr "从现有模组创建项目"
+
+#: src/Home.tsx
+msgid "Make mods for Helldivers 1"
+msgstr "为 Helldivers 1 制作模组"
+
+#: src/Home.tsx
+msgid "Make mods for Helldivers 2"
+msgstr "为 Helldivers 2 制作模组"
 
 #: src/Home.tsx
 #: src/ToolsTab.tsx
@@ -7703,6 +7720,10 @@ msgstr "游戏会以另一种顺序播放这些槽位。<0>播放顺序</0>"
 #: src/Inspector.tsx
 msgid "The game plays this audio in other places too."
 msgstr "游戏也会在其他地方播放此音频。"
+
+#: src/BuildTab.tsx
+msgid "The game replaces a sound bank all at once, so the mod carries every clip of it, not only the new ones"
+msgstr "游戏会一次替换整个音频库，因此模组包含其中所有片段，而不只是新的片段"
 
 #: src/ExportDialog.tsx
 msgid "The game shuffles parts of this music. The export uses the listed order."

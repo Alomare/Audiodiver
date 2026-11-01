@@ -39,6 +39,7 @@ export function Inspector() {
   const { slot, seg } = sel[0];
   const a = project?.assignments[slot.source];
   const usable = !slot.unused && !slot.locked && !slot.absent && !slot.added;
+  const hd1 = project?.game === "hd1"; // the build bakes gain and fades into new audio; originals stay as they are
   const also = slot.also_n ?? slot.also_in.length;
   const sub = slot.label && !seg.name.includes(slot.label) ? slot.label : null;
   return (
@@ -60,8 +61,8 @@ export function Inspector() {
         {a && (slot.was || (!slot.added && slot.object && ((slot.players ?? 1) > 1 || (slot.sound_banks ?? 0) < (slot.banks ?? 0)))) &&
           <Reach slot={slot} />}
         {a && !a.silence && <Gain sources={[slot.source]} value={a.gain_db} match={slot.added ? undefined : "one"} base={slot.added ? undefined : slot.game_gain ?? 0} />}
-        {!a && project && usable && <Gain original sources={[slot.source]} value={project.gains[slot.source] ?? 0} base={slot.game_gain ?? 0} />}
-        {project && usable && !a?.silence && <Filters sources={[slot.source]} />}
+        {!a && project && usable && !hd1 && <Gain original sources={[slot.source]} value={project.gains[slot.source] ?? 0} base={slot.game_gain ?? 0} />}
+        {project && usable && !hd1 && !a?.silence && <Filters sources={[slot.source]} />}
         {a && !a.silence && <Fades sources={[slot.source]} />}
         {project && usable && slot.curve && <CurveSwitch sources={[slot.source]} />}
         {a && !a.silence && seg.segment && (
@@ -145,11 +146,13 @@ function Replacement({ slot, a, music, what }: { slot: Slot; a?: Assignment; mus
     return (
       <section className="insp-sec">
         <h3><Trans>Silence</Trans> <Help tip={t`Silence plays nothing in place of the original.`} page="how-the-game-plays-music#silence" /></h3>
+        {project?.game !== "hd1" && <>
         <label className="check">
           <input type="checkbox" checked={!a.fit_timing} onChange={(e) => actions.update(slot.source, { fit_timing: !e.target.checked })} />
           <span><Trans>Keep original duration</Trans> <Help tip={keepTip()} page="how-the-game-plays-music#silence" /></span>
         </label>
         {!music && <p className="muted small"><Trans>Audiodiver also removes it from the mix.</Trans> <Help tip={t`A silenced sound no longer turns down the sounds around it.`} page="volume#the-game-s-hdr-mix" /></p>}
+        </>}
       </section>
     );
   }
@@ -675,7 +678,8 @@ function Bulk({ rows, sources, usable }: { rows: Row[]; sources: string[]; usabl
   const plain = usable.filter((s) => !a[s]), kept = project?.gains ?? {}; // the originals: their Make-Up Gain
   const cued = rows.filter((r) => r.seg.segment && a[r.slot.source] && !a[r.slot.source].silence); // music with new audio
   const toSilence = usable.filter((s) => !a[s]?.silence);
-  const curved = rows.filter((r) => r.slot.curve && usable.includes(r.slot.source)).map((r) => r.slot.source);
+  const hd1 = project?.game === "hd1";
+  const curved =rows.filter((r) => r.slot.curve && usable.includes(r.slot.source)).map((r) => r.slot.source);
   // the counts the messages below give
   const count = sources.length, fillable = usable.length, silenceable = toSilence.length, withNew = files.length,
     withOriginal = plain.length, silenced = silent.length, replaced = mine.length;
@@ -695,17 +699,17 @@ function Bulk({ rows, sources, usable }: { rows: Row[]; sources: string[]; usabl
       {files.length > 0 ? (
         <Gain sources={files} value={files.every((s) => a[s].gain_db === a[files[0]].gain_db) ? a[files[0]].gain_db : null}
           note={files.length < sources.length ? plural(withNew, { one: "Applies to the # slot with new audio.", other: "Applies to the # slots with new audio." }) : undefined} match="each" />
-      ) : project && plain.length > 0 && (
+      ) : project && !hd1 && plain.length > 0 && (
         <Gain original sources={plain} value={plain.every((s) => (kept[s] ?? 0) === (kept[plain[0]] ?? 0)) ? kept[plain[0]] ?? 0 : null}
           note={plain.length < sources.length ? plural(withOriginal, {
             one: "Applies to the # slot with the original audio.", other: "Applies to the # slots with the original audio.",
           }) : undefined} />
       )}
-      {project && usable.length > 0 && <Filters sources={usable} />}
+      {project && !hd1 && usable.length > 0 && <Filters sources={usable} />}
       {files.length > 0 && <Fades sources={files} />}
       {project && curved.length > 0 && <CurveSwitch sources={curved} />}
       {cued.length > 0 && <BulkMarkers rows={cued} partial={cued.length < sources.length} />}
-      {silent.length > 0 && (
+      {silent.length > 0 && !hd1 && (
         <section className="insp-sec">
           <h3>{plural(silenced, { one: "Silence in # slot", other: "Silence in # slots" })}</h3>
           <label className="check">

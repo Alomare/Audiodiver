@@ -2,7 +2,7 @@
 title: Audiodiver 的工作方式
 group: 入门
 summary: Audiodiver 做什么、项目是什么，以及每个选项卡的用途。
-source: c76f32ef9388
+source: a585c0bcfe7e
 ---
 
 Audiodiver 按照**它是什么、在哪里播放**来替换 Helldivers 2 的音频。在资源库中找到一首曲目或一组声音，将其添加到项目中，再为它提供新音频。之后，Audiodiver 会算出游戏所需的音频库、ID 和时序值。
@@ -45,7 +45,7 @@ Audiodiver 从不写入游戏文件夹。它从 Steam 库读取游戏音频，�
 
 ## Helldivers 1 {#helldivers-1}
 
-安装了 Helldivers 1 后，资源库的**索引**和**所有归档**下方会按游戏分出选项卡。Helldivers 1 的音频可以播放，也可以导出为 WAV、FLAC 或 MP3。Helldivers 1 的条目不能放入项目，但可以用 **Ctrl+C** 把任意片段复制到项目的槽位中。Audiodiver 不会改动这款游戏。
+安装了 Helldivers 1 后，资源库的**索引**和**所有归档**下方会按游戏分出选项卡。Helldivers 1 的音频可以播放，也可以导出为 WAV、FLAC 或 MP3。Helldivers 1 的条目不能放入 Helldivers 2 项目，但可以用 **Ctrl+C** 把任意片段复制到项目的槽位中。如何更改这款游戏，请参阅 [Helldivers 1 模组](wiki:helldivers-1)。
 
 索引中的每个条目是游戏中的一个声音事件，槽位是它从中挑选的片段。语音和部分音乐按语言分选项卡。条目以较短的形式显示游戏文件中的名称，例如 `fs_rock_run` 显示为 *Rock Run*，搜索时两者都能找到。武器、战备和敌人使用游戏中显示的名称。语音条目会给出播放时屏幕上显示的台词，搜索也能找到这段台词。语音片段很短，并不会读出整句台词。游戏中的许多名称只以数字保存，因此没有已知名称的声音只出现在**所有归档**中对应的音频库里。
 
