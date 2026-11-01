@@ -113,6 +113,12 @@ set to none of that isn't listed, and the key is left out while none is:
       "soundtrack": {"841554794": {"mode": "song", "segments": ["37386235", "524665816"], "gain_db": -3.0},
                      "213690393": {"mode": "same", "follows": "841554794"}}
 
+game is the game the project makes a mod for: Helldivers 2, the default and left out, or "hd1" for Helldivers 1
+(hd1_build.py), set when the project is made. A Helldivers 1 project replaces clips of the Helldivers 1 Library,
+whose sources are a clip id with its language flag above the lowest 64 bits:
+
+      "game": "hd1"
+
 tabs are the window's tabs the project shows of those it can hide (TABS: the Audio, Soundtrack and Text tabs). A new
 project takes Settings' choice; a file without the key shows what Settings says:
 
@@ -137,6 +143,7 @@ GAIN_DB = (-96.0, 96.0)  # Make-Up Gain, as the details panel's slider offers it
 FILTER_RANGE = (0, 100)  # Low-Pass and High-Pass
 FADE_MS = (0.0, 600_000.0)  # a fade baked into new audio
 TABS = ("editor", "soundtrack", "text")  # the window's tabs a project can hide, in the tab bar's order
+GAMES = ("hd2", "hd1")  # the games a project can make a mod for
 
 
 def tab_list(v) -> list[str] | None:
@@ -286,6 +293,7 @@ class Project:
     notes: dict[str, str] = field(default_factory=dict)  # the project's notes ({key: Markdown}, notes.py)
     soundtrack: dict[int, Piece] = field(default_factory=dict)  # how pieces of music play, by playlist (soundtrack.py)
     tabs: list[str] | None = None  # the hideable tabs it shows (TABS); None: as Settings says
+    game: str = "hd2"  # the game it makes a mod for (GAMES)
     repairs: list[str] = field(default_factory=list, repr=False, compare=False)  # damaged values opening put right (not saved)
 
     def added(self) -> dict[int, Addition]:
@@ -512,7 +520,8 @@ class Project:
                        radio_off={f for f in kind(d, "radio_off", list, [], tr("the radio filters")) if f in FAMILIES},
                        radio_quieter=kind(d, "radio_quieter", bool, False, tr("the radio filters")),
                        curves_off={int(t) for t in curves_off}, curves={int(t): c for t, c in curves.items()},
-                       notes=notes, soundtrack={k: v for k, v in pieces.items() if not v.plain()}, tabs=tabs)
+                       notes=notes, soundtrack={k: v for k, v in pieces.items() if not v.plain()}, tabs=tabs,
+                       game=d.get("game") if d.get("game") in GAMES else "hd2")
             p.repairs = list(dict.fromkeys(repairs))  # not saved: what opening it put right (project_state says it)
             return p
         except (TypeError, ValueError, OverflowError):
@@ -554,6 +563,7 @@ class Project:
             **({"notes": dict(self.notes)} if self.notes else {}),
             **({"soundtrack": {str(k): v.to_json() for k, v in self.soundtrack.items()}} if self.soundtrack else {}),
             **({"tabs": list(self.tabs)} if self.tabs is not None else {}),
+            **({"game": self.game} if self.game != "hd2" else {}),
         }
 
     def save(self, path=None):

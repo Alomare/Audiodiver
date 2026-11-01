@@ -164,7 +164,7 @@ msgstr "Parcheando los bancos de sonido"
 msgid "Checking the patch"
 msgstr "Comprobando el parche"
 
-#: build.py editor.py project.py
+#: build.py editor.py hd1_build.py project.py
 msgid "silence"
 msgstr "silencio"
 
@@ -565,6 +565,10 @@ msgid "Choose where to save the project (a full path)"
 msgstr "Elige dónde guardar el proyecto (una ruta completa)"
 
 #: editor.py
+msgid "Helldivers 1 wasn't found. Choose the game folder in Settings ▸ System."
+msgstr "No se ha encontrado Helldivers 1. Elige la carpeta del juego en Ajustes ▸ Sistema."
+
+#: editor.py
 msgid "Choose a .audi project file (a full path)"
 msgstr "Elige un fichero de proyecto .audi (una ruta completa)"
 
@@ -949,12 +953,24 @@ msgid "Slot {id} has no new audio"
 msgstr "El slot {id} no tiene audio nuevo"
 
 #: editor.py
+msgid "This project makes a mod for Helldivers 1. Add sounds of Helldivers 1."
+msgstr "Este proyecto crea un mod para Helldivers 1. Añade sonidos de Helldivers 1."
+
+#: editor.py
+msgid "Helldivers 1 sounds go into a Helldivers 1 project."
+msgstr "Los sonidos de Helldivers 1 van en un proyecto de Helldivers 1."
+
+#: editor.py
 msgid "{name}: can't read the audio file ({file})"
 msgstr "{name}: no se puede leer el fichero de audio ({file})"
 
 #: editor.py
 msgid "{file} is not an audio file Audiodiver can read"
 msgstr "{file} no es un fichero de audio que Audiodiver pueda leer"
+
+#: editor.py
+msgid "Sound {id} isn't in this version of Helldivers 1"
+msgstr "El sonido {id} no está en esta versión de Helldivers 1"
 
 #: editor.py
 msgid "{folder} is not a folder"
@@ -1098,7 +1114,7 @@ msgid_plural "This music has {n} segments for songs, so choose {n} songs at most
 msgstr[0] "Esta música tiene {n} segmento para canciones, así que elige {n} canción como máximo"
 msgstr[1] "Esta música tiene {n} segmentos para canciones, así que elige {n} canciones como máximo"
 
-#: editor.py
+#: editor.py hd1_build.py
 msgid "Can't read {file}: {why}"
 msgstr "No se puede leer {file}: {why}"
 
@@ -1279,6 +1295,10 @@ msgid "failed: {why}"
 msgstr "fallido: {why}"
 
 #: editor.py
+msgid "The build failed the check after building: {why}"
+msgstr "La compilación no ha superado la comprobación posterior: {why}"
+
+#: editor.py
 msgid "Fix the problems on the Build tab first: {problem}"
 msgstr "Corrige primero los problemas de la pestaña Generar: {problem}"
 
@@ -1298,7 +1318,7 @@ msgstr "No se pueden leer los ficheros aparte del audio: {why}"
 msgid "Reading {name}"
 msgstr "Leyendo {name}"
 
-#: editor.py
+#: editor.py hd1_build.py
 msgid "Can't write {file}: {why}"
 msgstr "No se puede escribir {file}: {why}"
 
@@ -1617,6 +1637,38 @@ msgstr "Toma {n}"
 #: hd1.py
 msgid "Event {id}"
 msgstr "Evento {id}"
+
+#: hd1_build.py
+msgid "Nothing to build yet. Replace some audio first."
+msgstr "Aún no hay nada que compilar. Sustituye algo de audio primero."
+
+#: hd1_build.py
+msgid "writing the mod"
+msgstr "escribiendo el mod"
+
+#: hd1_build.py
+msgid "{n} bank with new audio, {mb} MB"
+msgid_plural "{n} banks with new audio, {mb} MB"
+msgstr[0] "{n} banco con audio nuevo, {mb} MB"
+msgstr[1] "{n} bancos con audio nuevo, {mb} MB"
+
+#: hd1_build.py
+msgid "Can't encode the audio: {why}"
+msgstr "No se puede codificar el audio: {why}"
+
+#: hd1_build.py
+msgid "{name}: the audio file is missing ({file})"
+msgstr "{name}: falta el archivo de audio ({file})"
+
+#: hd1_build.py
+msgid "{n} replaced sound isn't in this version of Helldivers 1"
+msgid_plural "{n} replaced sounds aren't in this version of Helldivers 1"
+msgstr[0] "{n} sonido sustituido no está en esta versión de Helldivers 1"
+msgstr[1] "{n} sonidos sustituidos no están en esta versión de Helldivers 1"
+
+#: hd1_build.py
+msgid "encoding {name}"
+msgstr "codificando {name}"
 
 #: index.py
 msgid "English"

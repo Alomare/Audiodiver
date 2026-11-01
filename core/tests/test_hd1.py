@@ -334,3 +334,110 @@ def test_settings_can_point_at_another_folder(game, tmp_path, monkeypatch):
     got = s.set_hd1_folder(str(tmp_path))
     assert got["hd1_folder"] == {"path": str(game), "how": "chosen", "chosen": str(game)} and s.hd1
     assert s.set_hd1_folder(None)["hd1_folder"] == {"path": None, "how": None, "chosen": None} and not s.hd1
+
+
+# --- Helldivers 1 mods (hd1_build.py)
+
+def test_a_bank_rebuilt_with_nothing_new_is_the_games(game):
+    from audiodiver import hd1_build
+    h = hd1.Hd1.read(game)
+    for b in h.banks:
+        raw, stream = hd1_build.bank_files(h, b)
+        assert hd1_build.rebuild(raw, stream, {}) == (raw, stream)
+
+
+def test_a_new_clip_takes_its_place_and_the_rest_stays(game):
+    from audiodiver import hd1_build
+    h = hd1.Hd1.read(game)
+    raw, stream = hd1_build.bank_files(h, h.banks[0])
+    new = {CLIPS["two"]: (clip_head(kept=3) + b"abc", b"defgh")}
+    a, s = hd1_build.rebuild(raw, stream, new)
+    rows = {r[0]: r for r in hd1_build.rows_of(a)}
+    before = {r[0]: r for r in hd1_build.rows_of(raw)}
+    assert [r[0] for r in hd1_build.rows_of(a)] == [r[0] for r in hd1_build.rows_of(raw)], "rows stay in clip order"
+    _, off, size, soff, ssize = rows[CLIPS["two"]]
+    assert a[off:off + size].endswith(b"abc") and s[soff:soff + ssize] == b"defgh"
+    for clip in (CLIPS["one"], CLIPS["left"]):
+        _, o, n, so, sn = before[clip]
+        _, o2, n2, so2, sn2 = rows[clip]
+        assert a[o2:o2 + n2] == raw[o:o + n] and s[so2:so2 + sn2] == stream[so:so + sn]
+        assert o2 % hd1_build.PAD == 0
+    assert max(r[1] + r[2] for r in rows.values()) == len(a) and sum(r[4] for r in rows.values()) == len(s)
+
+
+def tone_file(path, seconds=0.2, rate=44100):
+    with wave.open(str(path), "wb") as w:
+        w.setnchannels(2)
+        w.setsampwidth(2)
+        w.setframerate(rate)
+        w.writeframes(struct.pack("<hh", 3000, -3000) * int(rate * seconds))
+    return path
+
+
+def test_a_helldivers_1_project_builds_a_mod_for_the_mod_manager(game, tmp_path, monkeypatch):
+    import json
+    import zipfile
+    from audiodiver import editor, hd1_build
+    from audiodiver.editor import EditorError, Session
+    monkeypatch.setattr(editor, "SETTINGS_FILE", tmp_path / "settings.json")
+    monkeypatch.setenv("HD1_CONTENTS", str(game))
+    s = Session(load=False)
+    s.stage = "ready"
+    s._load_hd1()
+    st = s.new_project(str(tmp_path / "proj" / "Calm Admiral.audi"), "Calm Admiral", game="hd1")
+    assert st["game"] == "hd1"
+    item = item_of(s.hd1, "Mission Complete Easy 2")
+    with pytest.raises(EditorError, match="Helldivers 1"):
+        s.library_add(["deploy/loadout"])  # a Helldivers 2 item has no place in this mod
+    s.library_add([item["id"]])
+    fr = str(hd1.source(CLIPS["one"], 0x100))
+    tone = tone_file(tmp_path / "proj" / "tone.wav")
+    st = s.assign(fr, str(tone))
+    assert fr in st["assignments"] and not st["unresolved"] and not st["problems"]
+    with pytest.raises(EditorError, match="Helldivers 1"):
+        s.assign(str(12345), str(tone))  # not a sound of Helldivers 1
+
+    job = s.build()
+    while (j := s.job(job["id"]))["state"] == "running":
+        __import__("time").sleep(0.1)
+    assert j["state"] == "done", j.get("error")
+    zip_path = j["result"]["zip"]
+    assert hd1_build.verify(zip_path, s.hd1) == []
+    with zipfile.ZipFile(zip_path) as z:
+        m = json.loads(z.read("obsidian.json"))
+        assert m["scope"] == "client" and m["id"].startswith("audiodiver.calm-admiral-") and m["version"] == "1.0.1"
+        [r] = m["resources"]
+        assert (r["type"], r["name"], r["bundle"]) == ("timpani_bank", f"#{BANK_NAME:016x}", "0123456789abcdef")
+        en, fr_v = r["variants"]
+        assert (en["lang"], fr_v["lang"]) == (0, 0x100)
+        h = s.hd1
+        game_en = hd1_build.bank_files(h, next(b for b in h.banks if b["lang"] == 0))
+        assert (z.read(en["data"]), z.read(en["stream"])) == game_en, "a language without new audio is the game's"
+        fr_bank = z.read(fr_v["data"])
+        rows = {x[0]: x for x in hd1_build.rows_of(fr_bank)}
+        _, off, size, _, ssize = rows[CLIPS["one"]]
+        head = fr_bank[off:off + hd1.HEAD]
+        assert struct.unpack_from("<HHI", head, 48) == (hd1.PCM, 1, 48000), "the original's codec, channels and rate"
+        assert ssize == 0 and struct.unpack_from("<I", head, 8)[0] == 9600, "PCM held whole; 0.2 s at 48 kHz"
+    assert s.project_state()["version"] == 2
+
+
+def test_a_project_keeps_its_game(tmp_path):
+    from audiodiver.project import Project
+    p = Project(name="x", path=tmp_path / "x.audi", game="hd1")
+    p.save()
+    assert Project.load(p.path).game == "hd1"
+    assert "game" not in Project(name="y").to_json(), "Helldivers 2 is the default and left out"
+    assert Project.from_json({**Project(name="z").to_json(), "game": "hd3"}).game == "hd2"
+
+
+@pytest.mark.game
+def test_every_bank_of_the_installed_game_rebuilds_byte_for_byte():
+    from audiodiver import hd1_build
+    contents, _ = hd1.locate()
+    if not contents:
+        pytest.skip("Helldivers 1 isn't installed")
+    h = hd1.Hd1.read(contents)
+    for b in h.banks:
+        raw, stream = hd1_build.bank_files(h, b)
+        assert hd1_build.rebuild(raw, stream, {}) == (raw, stream), f"{b['name']:016x} {b['lang']:#x}"

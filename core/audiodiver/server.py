@@ -63,7 +63,7 @@ def methods(s: Session) -> dict:
         "find": lambda query: s.find(query),
         "find_text": lambda query: s.find_text(query),
         "project": lambda: s.project_state() if s.project else None,
-        "project_new": lambda path, name="", folder=True, tabs=None: s.new_project(path, name, folder, tabs),
+        "project_new": lambda path, name="", folder=True, tabs=None, game="hd2": s.new_project(path, name, folder, tabs, game),
         "project_open": lambda path: s.open_project(path),
         "project_close": lambda: s.close_project(),
         "project_save": lambda: s.save_project(),

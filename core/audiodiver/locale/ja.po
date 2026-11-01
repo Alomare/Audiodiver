@@ -158,7 +158,7 @@ msgstr "サウンドバンクにパッチを適用中"
 msgid "Checking the patch"
 msgstr "パッチをチェック中"
 
-#: build.py editor.py project.py
+#: build.py editor.py hd1_build.py project.py
 msgid "silence"
 msgstr "無音"
 
@@ -531,6 +531,10 @@ msgstr "切り分ける曲を選択してください"
 #: editor.py
 msgid "Choose where to save the project (a full path)"
 msgstr "プロジェクトの保存先を選択してください（フルパス）"
+
+#: editor.py
+msgid "Helldivers 1 wasn't found. Choose the game folder in Settings ▸ System."
+msgstr "Helldivers 1 が見つかりません。設定 ▸ システムでゲームのフォルダーを選んでください。"
 
 #: editor.py
 msgid "Choose a .audi project file (a full path)"
@@ -915,12 +919,24 @@ msgid "Slot {id} has no new audio"
 msgstr "スロット {id} に新しい音声がありません"
 
 #: editor.py
+msgid "This project makes a mod for Helldivers 1. Add sounds of Helldivers 1."
+msgstr "このプロジェクトは Helldivers 1 のMODを作ります。Helldivers 1 のサウンドを追加してください。"
+
+#: editor.py
+msgid "Helldivers 1 sounds go into a Helldivers 1 project."
+msgstr "Helldivers 1 のサウンドは Helldivers 1 のプロジェクトに入れてください。"
+
+#: editor.py
 msgid "{name}: can't read the audio file ({file})"
 msgstr "{name}：音声ファイルを読み取れません（{file}）"
 
 #: editor.py
 msgid "{file} is not an audio file Audiodiver can read"
 msgstr "{file}はAudiodiverが読み取れる音声ファイルではありません"
+
+#: editor.py
+msgid "Sound {id} isn't in this version of Helldivers 1"
+msgstr "サウンド {id} はこのバージョンの Helldivers 1 にありません"
 
 #: editor.py
 msgid "{folder} is not a folder"
@@ -1051,7 +1067,7 @@ msgid "This music has {n} segment for songs, so choose {n} song at most"
 msgid_plural "This music has {n} segments for songs, so choose {n} songs at most"
 msgstr[0] "この音楽には曲を入れるセグメントが {n} 個あるため、曲は最大 {n} 曲まで選択してください"
 
-#: editor.py
+#: editor.py hd1_build.py
 msgid "Can't read {file}: {why}"
 msgstr "{file}を読み取れません：{why}"
 
@@ -1226,6 +1242,10 @@ msgid "failed: {why}"
 msgstr "失敗：{why}"
 
 #: editor.py
+msgid "The build failed the check after building: {why}"
+msgstr "ビルド後のチェックに通りませんでした: {why}"
+
+#: editor.py
 msgid "Fix the problems on the Build tab first: {problem}"
 msgstr "先にビルドタブで問題を修正してください：{problem}"
 
@@ -1245,7 +1265,7 @@ msgstr "音声以外のファイルを読み取れません：{why}"
 msgid "Reading {name}"
 msgstr "{name}を読み込み中"
 
-#: editor.py
+#: editor.py hd1_build.py
 msgid "Can't write {file}: {why}"
 msgstr "{file}に書き込めません：{why}"
 
@@ -1562,6 +1582,36 @@ msgstr "テイク {n}"
 #: hd1.py
 msgid "Event {id}"
 msgstr "イベント {id}"
+
+#: hd1_build.py
+msgid "Nothing to build yet. Replace some audio first."
+msgstr "まだビルドするものがありません。先にオーディオを置き換えてください。"
+
+#: hd1_build.py
+msgid "writing the mod"
+msgstr "MODを書き込み中"
+
+#: hd1_build.py
+msgid "{n} bank with new audio, {mb} MB"
+msgid_plural "{n} banks with new audio, {mb} MB"
+msgstr[0] "新しいオーディオのあるバンク {n} 個、{mb} MB"
+
+#: hd1_build.py
+msgid "Can't encode the audio: {why}"
+msgstr "オーディオをエンコードできません: {why}"
+
+#: hd1_build.py
+msgid "{name}: the audio file is missing ({file})"
+msgstr "{name}: オーディオファイルがありません（{file}）"
+
+#: hd1_build.py
+msgid "{n} replaced sound isn't in this version of Helldivers 1"
+msgid_plural "{n} replaced sounds aren't in this version of Helldivers 1"
+msgstr[0] "置き換えたサウンド {n} 個がこのバージョンの Helldivers 1 にありません"
+
+#: hd1_build.py
+msgid "encoding {name}"
+msgstr "{name} をエンコード中"
 
 #: index.py
 msgid "English"

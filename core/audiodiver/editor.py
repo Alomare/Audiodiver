@@ -350,7 +350,7 @@ class Session:
         stage = self.stage if self.stage in ("starting", "ready", "failed") else tr(self.stage)
         return {"version": __version__, "stage": stage, "error": self.load_error, "game": game,
                 "game_folder": {**self.game_where, "chosen": load_settings().get("game_data")},
-                "hd1_folder": {**self.hd1_where, "chosen": load_settings().get("hd1_contents")},
+                "hd1_folder": {**self.hd1_where, "chosen": load_settings().get("hd1_contents")}, "hd1": bool(self.hd1),
                 # for Automatic in Settings ▸ System ▸ Language: the game's language in Steam, then Windows'
                 "languages": {"game": self.game_language, "system": i18n.system_language(),
                               "core": i18n.language()},
@@ -718,14 +718,20 @@ class Session:
             path = path.parent / folder_name(path.stem) / path.name
         return path
 
-    def new_project(self, path, name, folder=False, tabs=None):
+    def new_project(self, path, name, folder=False, tabs=None, game="hd2"):
         """A new, empty project at path. folder: the project gets a folder of its own there, named like the file
         (`Dune.audi` chosen in Mods is Mods/Dune/Dune.audi), unless the folder chosen is named like it already.
-        tabs: the hideable tabs it shows (project.TABS), as Settings has them; None leaves it to Settings."""
+        tabs: the hideable tabs it shows (project.TABS), as Settings has them; None leaves it to Settings. game: the
+        game it makes a mod for (project.GAMES)."""
+        from .project import GAMES
         if not given(path) or not Path(path).is_absolute():
             raise EditorError(tr("Choose where to save the project (a full path)"))
         if tabs is not None and (tabs := tab_list(tabs)) is None:
             raise EditorError("The tabs are some of " + ", ".join(TABS))
+        if game not in GAMES:
+            raise EditorError("The game is one of " + ", ".join(GAMES))
+        if game == "hd1" and not self.hd1:
+            raise EditorError(tr("Helldivers 1 wasn't found. Choose the game folder in Settings ▸ System."))
         path = self._project_path(path, folder)
         if path.exists():
             raise EditorError(tr("{file} already exists in {folder}").format(file=path.name, folder=path.parent))
@@ -737,7 +743,7 @@ class Session:
         name = str(name or "").strip() or path.stem.strip() or "My mod"  # English: mod managers take ASCII names only
         with self.lock:
             self.flush()  # the project open until now keeps what waits
-            self.project = Project(name=name, path=path, library=[], tabs=tabs)  # blank: nothing to edit yet
+            self.project = Project(name=name, path=path, library=[], tabs=tabs, game=game)  # blank: nothing to edit yet
             self.project.save()
             self.undo_stack, self.redo_stack, self.opened_at = [], [], _now_ms()
             self.revision += 1
@@ -1042,17 +1048,37 @@ class Session:
         """The sounds of one part of a listed item (kept: a bank's can run to thousands)."""
         if cue_id not in self._cue_sets:
             try:
-                self._cue_sets[cue_id] = frozenset(self.lib.cue_sources(cue_id))
+                if cue_id.startswith("hd1:"):
+                    if not self.hd1:
+                        raise KeyError(cue_id)
+                    self.hd1.categories(i18n.language())
+                    self._cue_sets[cue_id] = frozenset(int(s) for s in self.hd1.view(cue_id)["slots"])
+                else:
+                    self._cue_sets[cue_id] = frozenset(self.lib.cue_sources(cue_id))
             except (KeyError, ValueError):
                 self._cue_sets[cue_id] = frozenset()
         return self._cue_sets[cue_id]
+
+    def _hd1p(self, p: Project | None = None) -> bool:
+        """Whether a project (the open one) makes a mod for Helldivers 1."""
+        p = p or self.project
+        return bool(p) and p.game == "hd1"
+
+    def _lookup(self, iid):
+        """An item of either game's Library by its id. KeyError when there is none."""
+        if str(iid).startswith("hd1:"):
+            if not self.hd1:
+                raise KeyError(iid)
+            self.hd1.categories(i18n.language())
+            return self.hd1.item(str(iid))
+        return self.lib.item(iid)
 
     def _listed(self, ids) -> tuple[dict[str, frozenset], list[str]]:
         """({part cue id: its sounds} over these items, the ids this game version has nothing for)."""
         parts, missing = {}, []
         for iid in ids:
             try:
-                item = self.lib.item(iid)
+                item = self._lookup(iid)
             except KeyError:
                 missing.append(iid)
                 continue
@@ -1081,6 +1107,8 @@ class Session:
     def _resolved(self, r: Replacement) -> int | None:
         """The game's sound a replacement is listed by: its target as this game version has it, or for an added
         clip its anchor; None for a target the game no longer has."""
+        if self._hd1p():
+            return r.target if self.hd1 and self.hd1.has(r.target) else None
         if r.target in self._added():
             return self._anchor(r.target)
         try:
@@ -1093,7 +1121,7 @@ class Session:
         A replacement in a slot nothing on the list holds adds the piece of music, sound set or archive it belongs
         to (skipping a transition the project doesn't list yet, importing a mod's patch), and so does Make-Up Gain on
         an Original (a mod's gain, imported)."""
-        if p.library is None or not self.lib:
+        if p.library is None or not self.lib or self._hd1p(p):  # a Helldivers 1 project replaces only what it lists
             return
         parts = self._listed(p.library)[0].values()
         gained = [s for s in map(self._target, p.gains) if self.ix.banks_for(s)]
@@ -1114,7 +1142,7 @@ class Session:
 
     def _list_name(self, iid) -> str:
         """An item as the Editor's list shows it, telling an archive from the sound set it is named after."""
-        it = self.lib.item(iid)
+        it = self._lookup(iid)
         # an archive named by its ID ("Archive <id>", `id_name`) says so already
         if "archive" in it and not it.get("id_name"):
             return tr("{name} (archive {archive})").format(name=it["full"], archive=it["archive"])
@@ -1127,7 +1155,11 @@ class Session:
         `notes` say so in a sentence each. Music goes by its cues and is always added."""
         self.require_game()
         ids = list(dict.fromkeys(str(i) for i in items))
+        hd1 = self._hd1p(self._need_project())
         for i in ids:
+            if i.startswith("hd1:") != hd1:  # a mod is for one game
+                raise EditorError(tr("This project makes a mod for Helldivers 1. Add sounds of Helldivers 1.") if hd1
+                                  else tr("Helldivers 1 sounds go into a Helldivers 1 project."))
             self.item(i)  # EditorError for one this game version doesn't have
         notes = []
         banks = lambda it: [x["cue"] for x in it["parts"] if x["cue"].startswith(("bank:", "streams:"))]
@@ -1136,7 +1168,7 @@ class Session:
             held = {}  # a bank (or an archive's loose streams) -> the listed item that has it
             for iid in p.library or []:
                 try:
-                    for c in banks(self.lib.item(iid)):
+                    for c in banks(self._lookup(iid)):
                         held.setdefault(c, iid)
                 except KeyError:
                     continue  # this game version has nothing for it
@@ -1144,7 +1176,7 @@ class Session:
             for iid in ids:
                 if iid in (p.library or []):
                     continue
-                it = self.lib.item(iid)
+                it = self._lookup(iid)
                 mine = banks(it)
                 have = [c for c in mine if c in held]
                 owners = ", ".join(self._list_name(o) for o in dict.fromkeys(held[c] for c in have))
@@ -1268,9 +1300,12 @@ class Session:
                 except OSError:
                     stats[k] = None
             return stats[k]
+        hd1 = self._hd1p(p)
         for r in p.replacements:
             try:
-                sid = self.ix.resolve(r.target) if self.ix and r.target not in added else r.target
+                if hd1 and not (self.hd1 and self.hd1.has(r.target)):
+                    raise KeyError(r.target)
+                sid = self.ix.resolve(r.target) if self.ix and r.target not in added and not hd1 else r.target
             except KeyError:
                 unresolved.append({"target": str(r.target), "audio": r.audio, "label": r.label})
                 continue
@@ -1341,7 +1376,8 @@ class Session:
                 "project_banks_only": p.project_banks_only, "patch_files": p.patch_files,
                 "build_folder": str(p.build_dir()), "build_folder_default": str(p.default_build_dir()),
                 "zip_name": zip_name(p), "last_build": (last := _last_build(p.build_dir(), slug(p.name))),
-                "game_updated": (updated := bool(self.ix) and _game_updated(p, self.ix.game, last)),
+                "game": p.game,
+                "game_updated": (updated := bool(self.ix) and not hd1 and _game_updated(p, self.ix.game, last)),
                 "rebuild": _rebuild(p, updated, last),
                 "assignments": assignments, "unresolved": unresolved,
                 "gains": {str(self._target(t)): db for t, db in p.gains.items()},
@@ -1472,7 +1508,7 @@ class Session:
     def _target(self, t: int) -> int:
         """The source a replacement's target plays now; the same id when this game version no longer has it (such a
         replacement stays in the project, listed as unresolved, until it is removed)."""
-        if not self.ix or t in self._added():
+        if not self.ix or t in self._added() or self._hd1p():
             return t
         try:
             return self.ix.resolve(t)
@@ -1485,6 +1521,10 @@ class Session:
             sid = int(s)
         except (TypeError, ValueError, OverflowError):
             raise EditorError(f"{s!r} isn't a sound ID") from None
+        if self._hd1p():
+            if self.hd1 and self.hd1.has(sid):
+                return sid
+            raise EditorError(tr("Sound {id} isn't in this version of Helldivers 1").format(id=sid))
         if not self.ix or sid in self._added() or (self.hd1 and self.hd1.has(sid)):
             return sid
         try:
@@ -2485,13 +2525,27 @@ class Session:
                 if total:
                     job.total = total
                 job.step(doing, done)
-            try:
-                zip_path = build(snapshot, self.ix, log=job.say, step=progress, listed=self._listed_banks(snapshot))
-            except BuildError as e:
-                raise EditorError(str(e)) from None
+            if self._hd1p(snapshot):
+                from . import hd1_build
+                if not self.hd1:
+                    raise EditorError(tr("Helldivers 1 wasn't found. Choose the game folder in Settings ▸ System."))
+                try:
+                    self.hd1.categories(i18n.language())
+                    zip_path = hd1_build.build(snapshot, self.hd1, log=job.say, step=progress)
+                except hd1_build.Hd1BuildError as e:
+                    raise EditorError(str(e)) from None
+                if wrong := hd1_build.verify(zip_path, self.hd1):
+                    raise EditorError(tr("The build failed the check after building: {why}").format(why=wrong[0]))
+                built_for = ""
+            else:
+                try:
+                    zip_path = build(snapshot, self.ix, log=job.say, step=progress, listed=self._listed_banks(snapshot))
+                except BuildError as e:
+                    raise EditorError(str(e)) from None
+                built_for = self.ix.game.version
             result = {"zip": str(zip_path), "folder": str(zip_path.parent), "version": snapshot.version,
-                      "mb": round(zip_path.stat().st_size / 1e6, 1)}
-            self._bump_version(snapshot.path, snapshot.version + 1 if bump else 0, self.ix.game.version, made_from)
+                      "mb": round(zip_path.stat().st_size / 1e6, 1), "game": snapshot.game}
+            self._bump_version(snapshot.path, snapshot.version + 1 if bump else 0, built_for, made_from)
             return result
         with self.build_lock:  # two builds sent together both started, and wrote one .partial ZIP
             if any(j.kind == "build" and j.state == "running" for j in self.jobs.values()):

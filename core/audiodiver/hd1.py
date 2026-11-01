@@ -48,7 +48,7 @@ from .index import CACHE_DIR, LANGUAGES
 from .library import BIG_GROUP, CHUNK as GROUP_CHUNK, Library, _part
 
 log = logging.getLogger(__name__)
-FORMAT = 3            # of the kept reading: a new one reads the game again
+FORMAT = 4            # of the kept reading: a new one reads the game again
 VERSION = 0xF0000004  # of a bundle
 CHUNK = 0x10000
 BANK, MASTER, STRINGS = murmur64_hash(b"timpani_bank"), murmur64_hash(b"timpani_master"), murmur64_hash(b"strings")
@@ -327,7 +327,7 @@ def event_clips(m: bytes) -> tuple[dict, dict, dict]:
 
 def scan(contents: Path) -> dict:
     """What the bundles hold, in the form the cache keeps."""
-    banks, seen, master, texts = [], set(), None, {}
+    banks, seen, master, texts = [], {}, None, {}
     wanted = _text_keys()
     for path in _bundles(contents):
         with Bundle(path) as b:
@@ -336,10 +336,13 @@ def scan(contents: Path) -> dict:
                     master = b.read(at, size)
                 elif kind == STRINGS and lang in TEXT.values():
                     texts.setdefault(lang, {}).update(_text(b.read(at, size), wanted))
-                elif kind == BANK and (name, lang) not in seen:  # a bank can sit in several bundles
-                    seen.add((name, lang))
-                    banks.append({"bundle": path.relative_to(contents).as_posix(), "name": name, "lang": lang, "at": at,
-                                  "stream": stream_at, "rows": _rows(b, at)})
+                elif kind == BANK and (name, lang) in seen:  # a bank can sit in several bundles: a mod goes into each
+                    seen[(name, lang)]["bundles"].append(path.relative_to(contents).as_posix())
+                elif kind == BANK:
+                    where = path.relative_to(contents).as_posix()
+                    seen[(name, lang)] = {"bundle": where, "bundles": [where], "name": name, "lang": lang, "at": at,
+                                          "size": size, "stream": stream_at, "stream_size": stream, "rows": _rows(b, at)}
+                    banks.append(seen[(name, lang)])
     if master is None:
         raise ValueError("no timpani_master in the game")
     clips = {r[0] for b in banks for r in b["rows"]}
