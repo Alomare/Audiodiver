@@ -767,6 +767,18 @@ msgid "No other music to set"
 msgstr "No hay otra música que definir"
 
 #: editor.py
+msgid "Choose a file to export to"
+msgstr "Elige un archivo al que exportar"
+
+#: editor.py
+msgid "Choose a file to import"
+msgstr "Elige un archivo para importar"
+
+#: editor.py
+msgid "Type the words to find"
+msgstr "Escribe las palabras que buscar"
+
+#: editor.py
 msgid "The export list can't be read. Clear it and add the items again."
 msgstr "No se puede leer la lista de exportación. Vacíala y vuelve a añadir los elementos."
 
@@ -897,12 +909,12 @@ msgid "This piece is set to Silent, so it plays nothing"
 msgstr "Esta pieza está en Silencio, así que no reproduce nada"
 
 #: editor.py
-msgid "That line isn't a game subtitle"
-msgstr "Esa línea no es un subtítulo del juego"
-
-#: editor.py
 msgid "That line isn't in the game text"
 msgstr "Esa línea no está en el texto del juego"
+
+#: editor.py
+msgid "That line isn't a game subtitle"
+msgstr "Esa línea no es un subtítulo del juego"
 
 #: editor.py
 msgid "(original)"
@@ -1248,6 +1260,14 @@ msgstr "toma {id} de {mod}"
 msgid "imported {id}"
 msgstr "importado {id}"
 
+#: editor.py hd1_build.py
+msgid "Can't write {file}: {why}"
+msgstr "No se puede escribir {file}: {why}"
+
+#: editor.py
+msgid "{file} isn't a text export: it needs the columns Language, ID and New text"
+msgstr "{file} no es una exportación de texto: necesita las columnas Language, ID y New text"
+
 #: editor.py
 msgid "{file} is damaged (it can't be read)"
 msgstr "{file} está dañado (no se puede leer)"
@@ -1317,10 +1337,6 @@ msgstr "No se pueden leer los ficheros aparte del audio: {why}"
 #: editor.py
 msgid "Reading {name}"
 msgstr "Leyendo {name}"
-
-#: editor.py hd1_build.py
-msgid "Can't write {file}: {why}"
-msgstr "No se puede escribir {file}: {why}"
 
 #: editor.py
 msgid "{n} line of text that the game doesn't have"
@@ -1462,7 +1478,7 @@ msgstr "No se ha encontrado {folder}"
 msgid "The HD2_DATA environment variable points to {folder}, which has no Helldivers 2 files"
 msgstr "La variable de entorno HD2_DATA apunta a {folder}, que no tiene ficheros de Helldivers 2"
 
-#: hd1.py
+#: hd1.py textsort.py
 msgid "Missions"
 msgstr "Misiones"
 
@@ -2339,6 +2355,114 @@ msgstr "{file} no es un fichero de audio"
 #: soundtrack.py
 msgid "every segment of the piece is left out"
 msgstr "se omiten todos los segmentos de la pieza"
+
+#: textsort.py
+msgid "Helldiver Voices"
+msgstr "Voces de Helldiver"
+
+#: textsort.py
+msgid "SEAF and Civilians"
+msgstr "SEAF y civiles"
+
+#: textsort.py
+msgid "Ship"
+msgstr "Nave"
+
+#: textsort.py
+msgid "Command"
+msgstr "Mando"
+
+#: textsort.py
+msgid "Training"
+msgstr "Entrenamiento"
+
+#: textsort.py
+msgid "Cutscenes"
+msgstr "Cinemáticas"
+
+#: textsort.py
+msgid "Other Voices"
+msgstr "Otras voces"
+
+#: textsort.py
+msgid "Subtitles Not Matched"
+msgstr "Subtítulos sin asociar"
+
+#: textsort.py
+msgid "Arsenal"
+msgstr "Arsenal"
+
+#: textsort.py
+msgid "Menus and Settings"
+msgstr "Menús y Ajustes"
+
+#: textsort.py
+msgid "HUD"
+msgstr "HUD"
+
+#: textsort.py
+msgid "Galactic War"
+msgstr "Guerra Galáctica"
+
+#: textsort.py
+msgid "Places and Enemies"
+msgstr "Lugares y Enemigos"
+
+#: textsort.py
+msgid "Other Text"
+msgstr "Otros textos"
+
+#: textsort.py
+msgid "Names"
+msgstr "Nombres"
+
+#: textsort.py
+msgid "Designations"
+msgstr "Designaciones"
+
+#: textsort.py
+msgid "Sentences"
+msgstr "Frases"
+
+#: textsort.py
+msgid "Filled In by the Game"
+msgstr "Rellenado por el juego"
+
+#: textsort.py
+msgid "Unfinished"
+msgstr "Sin terminar"
+
+#: textsort.py
+msgid "Platoons"
+msgstr "Pelotones"
+
+#: textsort.py
+msgid "Difficulty"
+msgstr "Dificultad"
+
+#: textsort.py
+msgid "Achievements"
+msgstr "Logros"
+
+#: textsort.py
+msgid "Orders"
+msgstr "Órdenes"
+
+#: textsort.py
+msgid "News"
+msgstr "Noticias"
+
+#: textsort.py
+msgid "Elections"
+msgstr "Elecciones"
+
+#: textsort.py
+msgid "Objects and Biomes"
+msgstr "Objetos y Biomas"
+
+#: textsort.py
+msgid "Subtitles"
+msgstr "Subtítulos"
 
 #: updates.py
 msgid "GitHub answered {code}"

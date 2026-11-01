@@ -1074,6 +1074,11 @@ function useEditorState() {
       const p = await run<ProjectState>("text_set", { table, id, text });
       return edited(p) ? p! : null;
     },
+    /** New text on several lines, as one undo step. */
+    async applyTexts(lines: { table: string; id: number; text: string }[]) {
+      if (!needProject()) return false;
+      return edited(await run<ProjectState>("text_apply", { lines }));
+    },
     async revertText(lines: { table: string; id: number }[]) {
       if (!needProject()) return false;
       return edited(await run<ProjectState>("text_revert", { lines }));

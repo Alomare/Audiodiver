@@ -2,16 +2,16 @@
 title: Texto e legendas
 group: Criando um mod
 summary: Como mudar legendas e qualquer outra linha do texto do jogo na aba Texto, incluindo palavras, cores e tamanhos, e o que manter intacto.
-source: 2248a591284e
+source: 6ed9fe0e493a
 ---
 
 A aba [Texto](app:text) tem todas as linhas do texto do jogo em todos os idiomas, incluindo as legendas das falas, os textos de missão e de menu, e os nomes. Pesquise uma linha para mudá-la, e o mod inclui a alteração.
 
 ## Encontrar uma linha {#finding-a-line}
 
-Escolha o **idioma** primeiro. Cada idioma é uma tabela separada, então uma alteração em *Inglês (EUA)* não muda *Inglês (Reino Unido)* nem *Francês*. Depois pesquise uma palavra da linha, ou cole o ID da linha. **Alteradas** lista as linhas que o projeto muda.
+Escolha primeiro o **idioma**. Cada idioma é uma tabela separada, então uma mudança em *English (US)* não muda *English (UK)* nem *French*. Cada linha está numa categoria: as legendas pela voz que as diz, e as outras linhas pelo uso e pela forma. Abra uma categoria, busque uma palavra da linha ou cole o ID da linha. **Alteradas** lista as linhas que o projeto muda.
 
-Cada linha da lista mostra se ela é uma **Legenda** ou outro **Texto**. O painel direito mostra o **Original**, a caixa **Texto novo** abaixo dele e uma **Prévia** da linha como aparece no jogo.
+O painel direito mostra o **Original**, a caixa **Texto novo** abaixo dele e uma **Prévia** da linha como aparece no jogo. Escolha um segundo idioma acima da lista para ler a linha nele também.
 
 ## Mudar uma linha {#changing-a-line}
 
@@ -27,6 +27,16 @@ Para formatar parte de uma linha, selecione as palavras e use a barra acima da c
 - **As palavras que o jogo preenche.** Palavras em maiúsculas depois de `#`, como `#COUNT` ou `#NAME`, são substituídas no jogo quando a linha aparece. O editor avisa se alguma sumir.
 - **As cores que o jogo preenche**, como `<c=#PLAYER_COLOR>`. Deixe-as sem alteração.
 - **Os colchetes** nas legendas, como em *[Grunts]*, marcam sons que não são palavras.
+
+## Localizar e substituir {#find-and-replace}
+
+**Localizar e substituir** muda palavras em muitas linhas de uma vez. Escolha as linhas, digite as palavras e veja cada mudança antes de aplicá-la. Tempo, cores, tamanhos e palavras que o jogo preenche ficam como estão, e tudo é um único passo para {key:undo}. A busca também encontra partes de palavras, então confira a lista antes de aplicar.
+
+## Exportar e importar {#exporting-and-importing}
+
+**Exportar** salva linhas num arquivo CSV ou JSON: as selecionadas, as alteradas, as mostradas ou uma categoria. Um segundo idioma adiciona uma coluna. Marque uma linha para selecioná-la, e use Shift+clique para selecionar várias em sequência. **Restaurar o original** também funciona com as linhas selecionadas.
+
+Preencha a coluna **New text** numa planilha, sem mudar as colunas **Language** e **ID**. **Importar** lê o arquivo e mostra o que muda antes de aplicar, como um único passo para {key:undo}. Uma linha sem texto novo fica como está, e as que perderam o tempo ou palavras que o jogo preenche ficam de fora, a menos que você desmarque essa opção.
 
 ## Como o texto é montado {#how-text-is-built}
 

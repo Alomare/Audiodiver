@@ -176,6 +176,14 @@ msgstr "{count, plural, other {新的互动教程}}"
 msgid "{count, plural, one {Add # Slot to the Export List} other {Add # Slots to the Export List}}"
 msgstr "{count, plural, other {将 # 个槽位添加到导出列表}}"
 
+#: src/TextTools.tsx
+msgid "{count, plural, one {Change # Line} other {Change # Lines}}"
+msgstr "{count, plural, other {更改 # 行}}"
+
+#: src/TextTools.tsx
+msgid "{count, plural, one {Changed # line} other {Changed # lines}}"
+msgstr "{count, plural, other {已更改 # 行}}"
+
 #: src/CueView.tsx
 msgid "{count, plural, one {Choose Files for the # Take} other {Choose Files for the # Takes}}"
 msgstr "{count, plural, other {为 # 个变体选择文件}}"
@@ -207,6 +215,10 @@ msgstr "{count, plural, other {移除新音频（# 个槽位）}}"
 #: src/CueView.tsx
 msgid "{count, plural, one {Remove the New Audio from the # Take} other {Remove the New Audio from the # Takes}}"
 msgstr "{count, plural, other {移除 # 个变体的新音频}}"
+
+#: src/TextTools.tsx
+msgid "{count, plural, one {Replace in # Line} other {Replace in # Lines}}"
+msgstr "{count, plural, other {在 # 行中替换}}"
 
 #: src/CueView.tsx
 msgid "{count, plural, one {Replace the # Take with Silence} other {Replace the # Takes with Silence}}"
@@ -371,6 +383,10 @@ msgstr "{latest} 现已可用"
 msgid "{left, plural, one {# file} other {# files}} left over, because there are no free slots."
 msgstr "多出 {left, plural, other {# 个文件}}，因为没有空闲的槽位。"
 
+#: src/TextTools.tsx
+msgid "{lines, plural, one {Exported # line} other {Exported # lines}}"
+msgstr "{lines, plural, other {已导出 # 行}}"
+
 #: src/Soundtrack.tsx
 msgid "{loop, plural, one {# time} other {# times}}"
 msgstr "{loop, plural, other {# 次}}"
@@ -411,6 +427,7 @@ msgstr "{more, plural, other {另外 # 个}}"
 
 #: src/ProjectTab.tsx
 #: src/TextTab.tsx
+#: src/TextTools.tsx
 msgid "{more, plural, one {and # more} other {and # more}}"
 msgstr "{more, plural, other {以及另外 # 个}}"
 
@@ -487,6 +504,10 @@ msgstr "{n, plural, other {文件将移到回收站。}}"
 #: src/ProjectTab.tsx
 msgid "{n, plural, one {Remove # unused file?} other {Remove # unused files?}}"
 msgstr "{n, plural, other {移除 # 个未使用的文件？}}"
+
+#: src/TextTab.tsx
+msgid "{n, plural, one {Restored # line} other {Restored # lines}}"
+msgstr "{n, plural, other {已恢复 # 行}}"
 
 #: src/IndexTree.tsx
 #: src/Library.tsx
@@ -578,6 +599,10 @@ msgstr "{patches, plural, other {无法 Repatch，保持原样}}"
 msgid "{patches, plural, one {Without audio, kept as it was} other {Without audio, kept as they were}}"
 msgstr "{patches, plural, other {不含音频，保持原样}}"
 
+#: src/TextTab.tsx
+msgid "{picked, plural, one {# line selected} other {# lines selected}}"
+msgstr "{picked, plural, other {已选择 # 行}}"
+
 #: src/SliceTool.tsx
 msgid "{pieces, plural, one {# piece} other {# pieces}}"
 msgstr "{pieces, plural, other {# 段}}"
@@ -630,6 +655,10 @@ msgstr "{replaced, plural, other {移除 # 个槽位的新音频}}"
 msgid "{replaced, plural, one {Remove the Silence from # Slot} other {Remove the Silence from # Slots}}"
 msgstr "{replaced, plural, other {移除 # 个槽位的静音}}"
 
+#: src/TextTools.tsx
+msgid "{risky, plural, one {Leave out # line that lost timing or words the game fills in} other {Leave out # lines that lost timing or words the game fills in}}"
+msgstr "{risky, plural, other {排除 # 行丢失了时间标记或由游戏填入的词的文本}}"
+
 #. searchKey is the key of the Search command, such as Ctrl+F.
 #: src/Wiki.tsx
 msgid "{searchKey} finds words on the open page"
@@ -655,6 +684,10 @@ msgstr "{silenceable, plural, other {将 # 个槽位替换为静音}}"
 #: src/Inspector.tsx
 msgid "{silenced, plural, one {Silence in # slot} other {Silence in # slots}}"
 msgstr "{silenced, plural, other {# 个槽位为静音}}"
+
+#: src/TextTools.tsx
+msgid "{skipped, plural, one {# line in the file isn't in the game, so it stays out.} other {# lines in the file aren't in the game, so they stay out.}}"
+msgstr "{skipped, plural, other {文件中有 # 行不在游戏中，因此不会导入。}}"
 
 #: src/store.tsx
 msgid "{skipped, plural, one {# sound} other {# sounds}} couldn't be decoded"
@@ -721,6 +754,10 @@ msgstr "{sounds, plural, other {最多略去 # 个声音}}"
 #: src/SettingsTab.tsx
 msgid "{speed, plural, one {# times normal} other {# times normal}}"
 msgstr "{speed, plural, other {正常速度的 # 倍}}"
+
+#: src/TextTools.tsx
+msgid "{stale, plural, one {The game has changed # line since the file was made. Check the new text.} other {The game has changed # lines since the file was made. Check the new text.}}"
+msgstr "{stale, plural, other {文件制作后，游戏更改了 # 行。请检查新文本。}}"
 
 #: src/CueView.tsx
 msgid "{stems, plural, one {One of # layer that play at the same time} other {One of # layers that play at the same time}}"
@@ -1185,6 +1222,10 @@ msgstr "作为一个整体播放的一段音乐。下一个段落从出点开始
 msgid "A sturdy sans-serif typeface, and the default."
 msgstr "稳重的无衬线字体，也是默认字体。"
 
+#: src/TextTools.tsx
+msgid "A subtitle needs timing to show, and the game replaces words like #COUNT when it shows a line"
+msgstr "字幕需要时间标记才能显示，游戏在显示文本时会替换 #COUNT 这样的词"
+
 #: src/CueView.tsx
 msgid "A take added by the project. The game picks it like the other takes. It has no original"
 msgstr "项目添加的变体。游戏会像选取其他变体一样选取它。它没有原版"
@@ -1373,6 +1414,10 @@ msgstr "已添加到导出列表"
 msgid "Added to the export list, as {total} entries (one per part)"
 msgstr "已添加到导出列表，共 {total} 个条目（每个部分一个）"
 
+#: src/TextTools.tsx
+msgid "Adds a column with these lines in another language"
+msgstr "添加一列，显示这些行的另一种语言"
+
 #: src/SettingsTab.tsx
 msgid "After the pointer rests for a second."
 msgstr "指针停留一秒后。"
@@ -1421,6 +1466,10 @@ msgstr "全部已在项目中"
 #: src/IndexTree.tsx
 msgid "All in the Project"
 msgstr "全部已在项目中"
+
+#: src/TextTab.tsx
+msgid "All lines"
+msgstr "所有行"
 
 #: src/TextTab.tsx
 msgid "All Lines"
@@ -1509,6 +1558,10 @@ msgstr "动画速度"
 #: src/SettingsTab.tsx
 msgid "Animations"
 msgstr "动画"
+
+#: src/TextTab.tsx
+msgid "Another language to read beside the line"
+msgstr "在文本行旁边阅读的另一种语言"
 
 #: src/CueView.tsx
 msgid "another sound"
@@ -1811,6 +1864,10 @@ msgstr "左下"
 msgid "Bottom Right"
 msgstr "右下"
 
+#: src/TextTab.tsx
+msgid "Bring back the new text of an exported file"
+msgstr "从导出的文件带回新文本"
+
 #: src/SettingsTab.tsx
 msgid "Bring the notes of an exported notes file or of a project into the global notes"
 msgstr "将导出的备注文件或项目中的备注导入全局备注"
@@ -1940,6 +1997,7 @@ msgstr "无法连接到 GitHub"
 #: src/RepatchPage.tsx
 #: src/SettingsTab.tsx
 #: src/SliceTool.tsx
+#: src/TextTools.tsx
 msgid "Cancel"
 msgstr "取消"
 
@@ -2004,6 +2062,10 @@ msgid "Change this key"
 msgstr "更改此按键"
 
 #: src/TextTab.tsx
+msgid "Change words in many lines at once"
+msgstr "一次更改多行中的词语"
+
+#: src/TextTab.tsx
 msgid "Changed"
 msgstr "已更改"
 
@@ -2016,6 +2078,11 @@ msgstr "已更改"
 msgctxt "Filter of the Text tab: the lines the project changes"
 msgid "Changed ({count})"
 msgstr "已更改（{count}）"
+
+#. Lines a panel of the Text tab works on: the ones the project changes
+#: src/TextTab.tsx
+msgid "Changed lines"
+msgstr "已更改的行"
 
 #: src/App.tsx
 msgid "changed since the last build"
@@ -2305,9 +2372,11 @@ msgstr "圆形"
 msgid "Clean voices come out louder. This turns them down to about the level of the radio"
 msgstr "去除滤镜后的语音会变响。此项将其调低到接近无线电的音量"
 
+#. Button of the Text tab: unticks the selected lines
 #. Button: deletes these files
 #. Button: deletes these files
 #: src/SettingsTab.tsx
+#: src/TextTab.tsx
 msgid "Clear"
 msgstr "清除"
 
@@ -2371,6 +2440,7 @@ msgstr "此音频库中没有任何声音播放的片段"
 #: src/Home.tsx
 #: src/ImportMod.tsx
 #: src/SliceTool.tsx
+#: src/TextTools.tsx
 #: src/Wiki.tsx
 msgid "Close"
 msgstr "关闭"
@@ -2730,6 +2800,10 @@ msgstr "致谢"
 #: src/ProjectTab.tsx
 msgid "Cropped to a centred square and resized to 540 × 540. Drop an image on the preview to use it."
 msgstr "按中心裁成正方形，再缩放到 540 × 540。也可以把图片拖到预览图上使用。"
+
+#: src/TextTools.tsx
+msgid "CSV opens in a spreadsheet. Fill in the New text column, then import the file"
+msgstr "CSV 可用电子表格打开。填写 New text 列，然后导入文件"
 
 #: src/keys.ts
 msgid "Ctrl+click, Shift+click, a slot's tick"
@@ -3256,6 +3330,7 @@ msgstr "出点 {time}"
 msgid "Exploring set to Silent"
 msgstr "探索已设为“静音”"
 
+#. Button of the Text tab: saves lines to a file
 #. Export Notes: saves the file
 #. Heading: exporting the project as a pack
 #: src/CueView.tsx
@@ -3263,6 +3338,8 @@ msgstr "探索已设为“静音”"
 #: src/ProjectTab.tsx
 #: src/SettingsTab.tsx
 #: src/Soundtrack.tsx
+#: src/TextTab.tsx
+#: src/TextTools.tsx
 msgid "Export"
 msgstr "导出"
 
@@ -3282,6 +3359,11 @@ msgstr "导出已取消"
 #: src/store.tsx
 msgid "Export failed: {why}"
 msgstr "导出失败：{why}"
+
+#: src/platform.ts
+#: src/TextTools.tsx
+msgid "Export Lines"
+msgstr "导出文本行"
 
 #: src/ExportDialog.tsx
 msgid "Export list"
@@ -3303,6 +3385,10 @@ msgstr "将项目导出为项目包"
 #: src/store.tsx
 msgid "Exported {files, plural, one {# file} other {# files}} of {title}."
 msgstr "已导出 {title} 的 {files, plural, other {# 个文件}}。"
+
+#: src/platform.ts
+msgid "Exported lines (CSV, JSON)"
+msgstr "导出的文本行（CSV、JSON）"
 
 #: src/jobs.ts
 msgid "Exporting"
@@ -3426,6 +3512,15 @@ msgstr "填充时会跳过它"
 msgid "Filters"
 msgstr "滤波器"
 
+#: src/TextTools.tsx
+msgid "Find"
+msgstr "查找"
+
+#: src/TextTab.tsx
+#: src/TextTools.tsx
+msgid "Find and Replace"
+msgstr "查找和替换"
+
 #: src/App.tsx
 #: src/SettingsTab.tsx
 msgid "Find It Through Steam Again"
@@ -3526,6 +3621,7 @@ msgstr "清除已选文件夹"
 #. Export Notes: the kind of file
 #: src/ExportDialog.tsx
 #: src/SettingsTab.tsx
+#: src/TextTools.tsx
 msgid "Format"
 msgstr "格式"
 
@@ -3832,7 +3928,9 @@ msgstr "图片"
 msgid "import"
 msgstr "导入"
 
+#. Button of the Text tab: brings lines back from a file
 #: src/ImportMod.tsx
+#: src/TextTab.tsx
 msgid "Import"
 msgstr "导入"
 
@@ -3856,6 +3954,11 @@ msgstr "导入失败：{why}"
 #: src/ImportMod.tsx
 msgid "Import into {projectName}"
 msgstr "导入到 {projectName}"
+
+#: src/platform.ts
+#: src/TextTools.tsx
+msgid "Import Lines"
+msgstr "导入文本行"
 
 #: src/Home.tsx
 #: src/ImportMod.tsx
@@ -4254,9 +4357,19 @@ msgstr "浅灰色"
 msgid "likely"
 msgstr "可能"
 
+#. Which lines a panel of the Text tab works on
 #: src/TextTab.tsx
+#: src/TextTools.tsx
 msgid "Lines"
 msgstr "行"
+
+#: src/platform.ts
+msgid "Lines of text (JSON)"
+msgstr "文本行（JSON）"
+
+#: src/TextTab.tsx
+msgid "Lines shown"
+msgstr "显示的行"
 
 #. Note editor button: makes the words a web link
 #: src/Notes.tsx
@@ -4430,6 +4543,10 @@ msgstr "手动"
 #: src/platform.ts
 msgid "Markdown document"
 msgstr "Markdown 文档"
+
+#: src/TextTools.tsx
+msgid "Match case"
+msgstr "区分大小写"
 
 #: src/Inspector.tsx
 msgid "Match Each to the Original Loudness"
@@ -4953,6 +5070,10 @@ msgstr "此语言中尚无已更改的行。"
 msgid "No line has “{words}”."
 msgstr "没有任何一行包含“{words}”。"
 
+#: src/TextTools.tsx
+msgid "No line has these words."
+msgstr "没有文本行包含这些词。"
+
 #: src/Wiki.tsx
 msgid "No matches"
 msgstr "无匹配项"
@@ -5009,6 +5130,11 @@ msgstr "没有空间再放一段。这段音乐从 {start} 起共有 {slots, plu
 msgid "No room for another piece. This cue has {slots, plural, one {# slot} other {# slots}} from here."
 msgstr "没有空间再放一段。这段音乐从此处起共有 {slots, plural, other {# 个槽位}}。"
 
+#. No second language beside the line
+#: src/TextTab.tsx
+msgid "No Second Language"
+msgstr "无第二语言"
+
 #: src/Soundtrack.tsx
 msgid "No slot for audio"
 msgstr "没有可放音频的槽位"
@@ -5034,9 +5160,11 @@ msgid "No unused files."
 msgstr "没有未使用的文件。"
 
 #. No log file
+#. No second language in the file
 #. The icon border: no border
 #: src/About.tsx
 #: src/ProjectTab.tsx
+#: src/TextTools.tsx
 msgid "None"
 msgstr "无"
 
@@ -5197,6 +5325,10 @@ msgstr "没有需要保留的内容"
 #: src/RepatchPage.tsx
 msgid "Nothing to carry over"
 msgstr "没有需要保留的内容"
+
+#: src/TextTools.tsx
+msgid "Nothing to change: the file has no new text that differs from the project."
+msgstr "没有可更改的内容：文件中没有与项目不同的新文本。"
 
 #: src/store.tsx
 msgid "Nothing to copy"
@@ -5388,6 +5520,10 @@ msgstr "在列表中打开 **AR-23“解放者”**。"
 #: src/Home.tsx
 msgid "Open a .audi project or a .audipack pack"
 msgstr "打开 .audi 项目或 .audipack 项目包"
+
+#: src/TextTab.tsx
+msgid "Open a category or search for a line to change words, colours or size."
+msgstr "打开一个类别或搜索文本行，以更改文字、颜色或大小。"
 
 #: src/keys.ts
 msgid "open a match"
@@ -6565,6 +6701,10 @@ msgstr "把它们换成一小段静音，下一段音乐就会马上开始。这
 msgid "Replace them with a short silence, so the next music starts right away. Undo{undo} brings them back"
 msgstr "把它们换成一小段静音，下一段音乐就会马上开始。撤销{undo} 就能找回来"
 
+#: src/TextTools.tsx
+msgid "Replace with"
+msgstr "替换为"
+
 #: src/CueView.tsx
 msgid "Replace with a short silence, so the next music starts right away"
 msgstr "替换为短暂的静音，让下一段音乐立即开始"
@@ -6739,6 +6879,10 @@ msgstr "保存"
 msgid "Save as WAV, FLAC, MP3 or WEM"
 msgstr "保存为 WAV、FLAC、MP3 或 WEM"
 
+#: src/TextTab.tsx
+msgid "Save lines to a CSV or JSON file"
+msgstr "将文本行保存为 CSV 或 JSON 文件"
+
 #: src/keys.ts
 msgid "Save the project"
 msgstr "保存项目"
@@ -6770,14 +6914,6 @@ msgstr "搜索快捷键"
 #: src/SettingsTab.tsx
 msgid "Search a shortcut by function or key"
 msgstr "按功能或按键搜索快捷键"
-
-#: src/TextTab.tsx
-msgid "Search every line, including subtitles, mission and menu text, and names."
-msgstr "搜索所有文本行，包括字幕、任务文本、菜单文本和名称。"
-
-#: src/TextTab.tsx
-msgid "Search for a line to change words, colours or size."
-msgstr "先搜出要改的那一行，再改文字、颜色或大小。"
 
 #: src/TextTab.tsx
 msgid "Search lines"
@@ -6821,6 +6957,11 @@ msgstr "搜索项目"
 msgid "Search, or paste an ID"
 msgstr "搜索或粘贴 ID"
 
+#: src/TextTab.tsx
+#: src/TextTools.tsx
+msgid "Second language"
+msgstr "第二语言"
+
 #: src/SettingsTab.tsx
 msgid "Secondary colour"
 msgstr "辅助色"
@@ -6859,6 +7000,11 @@ msgstr "选择所有显示的序列"
 msgid "Select every slot"
 msgstr "选择所有槽位"
 
+#. placeholder {0}: x.name
+#: src/TextTab.tsx
+msgid "Select everything in {0}"
+msgstr "选择 {0} 中的全部内容"
+
 #: src/CueView.tsx
 msgid "Select everything in {name}"
 msgstr "选择 {name} 中的全部内容"
@@ -6883,10 +7029,18 @@ msgstr "选择变体"
 msgid "Select the takes of {name}"
 msgstr "选择 {name} 的变体"
 
+#: src/TextTab.tsx
+msgid "Select this line"
+msgstr "选择此行"
+
 #: src/ExportDialog.tsx
 msgctxt "Which slots or sounds to export"
 msgid "Selected"
 msgstr "所选"
+
+#: src/TextTab.tsx
+msgid "Selected lines"
+msgstr "选中的行"
 
 #: src/SettingsTab.tsx
 msgid "Set by the HD1_CONTENTS environment variable."
@@ -7076,13 +7230,13 @@ msgstr "构建完成后在资源管理器中显示 ZIP"
 msgid "Show these shortcuts"
 msgstr "显示这些快捷键"
 
-#: src/TextTab.tsx
-msgid "Showing {shown} of {total}. Type more to narrow them down."
-msgstr "显示 {shown}/{total} 条。继续输入可缩小范围。"
-
 #: src/Notes.tsx
 msgid "Shown in every project and in the Library, from the notes file in the folder set in Settings ▸ System. A note on a slot shows wherever the clip plays. Markdown formats headings, lists, bold and links."
 msgstr "备注会显示在每个项目和资源库里，内容取自“设置 ▸ 系统”里所设文件夹中的备注文件。槽位上的备注会在该片段播放的每一处出现。Markdown 可写标题、列表、粗体和链接。"
+
+#: src/TextTab.tsx
+msgid "Shows what changes first"
+msgstr "先显示会更改的内容"
 
 #. Edit in Undo, Redo and History: shuffle turned on or off for a playlist
 #: src/store.tsx
@@ -7318,6 +7472,10 @@ msgstr "西班牙语（拉丁美洲）"
 msgid "Spanish (Spain)"
 msgstr "西班牙语（西班牙）"
 
+#: src/platform.ts
+msgid "Spreadsheet (CSV)"
+msgstr "电子表格（CSV）"
+
 #. The icon corners: not rounded
 #: src/ProjectTab.tsx
 msgid "Square"
@@ -7394,7 +7552,6 @@ msgid "subtitle"
 msgstr "字幕"
 
 #: src/Inspector.tsx
-#: src/TextTab.tsx
 msgid "Subtitle"
 msgstr "字幕"
 
@@ -7494,12 +7651,10 @@ msgid "text"
 msgstr "文本"
 
 #. Heading: the lines of game text the mod changes
-#. Kind of line: any line that isn't a subtitle
 #. Main tab: subtitles and all other game text
 #: src/App.tsx
 #: src/ImportMod.tsx
 #: src/SettingsTab.tsx
-#: src/TextTab.tsx
 msgid "Text"
 msgstr "文本"
 
@@ -8348,6 +8503,10 @@ msgctxt "Text tab button: adds a timing mark to a subtitle"
 msgid "Timing"
 msgstr "时间标记"
 
+#: src/TextTools.tsx
+msgid "Timing, colours, sizes and words the game fills in stay as they are"
+msgstr "时间标记、颜色、大小和由游戏填入的词保持不变"
+
 #: src/TextPreview.tsx
 msgid "Timing. When these words appear, in seconds from the start of the voice line"
 msgstr "时间标记。这些文字出现的时间，以距语音台词开始的秒数计"
@@ -8412,10 +8571,6 @@ msgstr "右上"
 #: src/content.ts
 msgid "transcribing voice lines to match them to subtitles"
 msgstr "转写语音台词以匹配字幕"
-
-#: src/TextTab.tsx
-msgid "Try {democracy}, {reinforcing} or {extraction}."
-msgstr "试试 {democracy}、{reinforcing} 或 {extraction}。"
 
 #: src/UpdatesTab.tsx
 msgid "Try Again"

@@ -767,6 +767,18 @@ msgid "No other music to set"
 msgstr "Aucune autre musique à régler"
 
 #: editor.py
+msgid "Choose a file to export to"
+msgstr "Choisissez un fichier où exporter"
+
+#: editor.py
+msgid "Choose a file to import"
+msgstr "Choisissez un fichier à importer"
+
+#: editor.py
+msgid "Type the words to find"
+msgstr "Saisissez les mots à rechercher"
+
+#: editor.py
 msgid "The export list can't be read. Clear it and add the items again."
 msgstr "La liste d’export est illisible. Videz-la et ajoutez de nouveau les éléments."
 
@@ -897,12 +909,12 @@ msgid "This piece is set to Silent, so it plays nothing"
 msgstr "Ce morceau est réglé sur Silencieux, donc il ne joue rien"
 
 #: editor.py
-msgid "That line isn't a game subtitle"
-msgstr "Cette ligne n’est pas un sous-titre du jeu"
-
-#: editor.py
 msgid "That line isn't in the game text"
 msgstr "Cette ligne n’est pas dans le texte du jeu"
+
+#: editor.py
+msgid "That line isn't a game subtitle"
+msgstr "Cette ligne n’est pas un sous-titre du jeu"
 
 #: editor.py
 msgid "(original)"
@@ -1248,6 +1260,14 @@ msgstr "{mod}, prise {id}"
 msgid "imported {id}"
 msgstr "{id} importé"
 
+#: editor.py hd1_build.py
+msgid "Can't write {file}: {why}"
+msgstr "Impossible d’écrire {file} : {why}"
+
+#: editor.py
+msgid "{file} isn't a text export: it needs the columns Language, ID and New text"
+msgstr "{file} n’est pas un export de texte : il lui faut les colonnes Language, ID et New text"
+
 #: editor.py
 msgid "{file} is damaged (it can't be read)"
 msgstr "{file} est endommagé (illisible)"
@@ -1317,10 +1337,6 @@ msgstr "Les fichiers autres que l’audio sont illisibles : {why}"
 #: editor.py
 msgid "Reading {name}"
 msgstr "Chargement de {name}"
-
-#: editor.py hd1_build.py
-msgid "Can't write {file}: {why}"
-msgstr "Impossible d’écrire {file} : {why}"
 
 #: editor.py
 msgid "{n} line of text that the game doesn't have"
@@ -1462,7 +1478,7 @@ msgstr "{folder} est introuvable"
 msgid "The HD2_DATA environment variable points to {folder}, which has no Helldivers 2 files"
 msgstr "La variable d’environnement HD2_DATA pointe vers {folder}, qui ne contient aucun fichier de Helldivers 2"
 
-#: hd1.py
+#: hd1.py textsort.py
 msgid "Missions"
 msgstr "Missions"
 
@@ -2339,6 +2355,114 @@ msgstr "{file} n’est pas un fichier audio"
 #: soundtrack.py
 msgid "every segment of the piece is left out"
 msgstr "tous les segments du morceau sont écartés"
+
+#: textsort.py
+msgid "Helldiver Voices"
+msgstr "Voix des Helldivers"
+
+#: textsort.py
+msgid "SEAF and Civilians"
+msgstr "SEAF et civils"
+
+#: textsort.py
+msgid "Ship"
+msgstr "Vaisseau"
+
+#: textsort.py
+msgid "Command"
+msgstr "Commandement"
+
+#: textsort.py
+msgid "Training"
+msgstr "Entraînement"
+
+#: textsort.py
+msgid "Cutscenes"
+msgstr "Cinématiques"
+
+#: textsort.py
+msgid "Other Voices"
+msgstr "Autres voix"
+
+#: textsort.py
+msgid "Subtitles Not Matched"
+msgstr "Sous-titres non associés"
+
+#: textsort.py
+msgid "Arsenal"
+msgstr "Arsenal"
+
+#: textsort.py
+msgid "Menus and Settings"
+msgstr "Menus et Paramètres"
+
+#: textsort.py
+msgid "HUD"
+msgstr "HUD"
+
+#: textsort.py
+msgid "Galactic War"
+msgstr "Guerre Galactique"
+
+#: textsort.py
+msgid "Places and Enemies"
+msgstr "Lieux et Ennemis"
+
+#: textsort.py
+msgid "Other Text"
+msgstr "Autres textes"
+
+#: textsort.py
+msgid "Names"
+msgstr "Noms"
+
+#: textsort.py
+msgid "Designations"
+msgstr "Désignations"
+
+#: textsort.py
+msgid "Sentences"
+msgstr "Phrases"
+
+#: textsort.py
+msgid "Filled In by the Game"
+msgstr "Rempli par le jeu"
+
+#: textsort.py
+msgid "Unfinished"
+msgstr "Inachevé"
+
+#: textsort.py
+msgid "Platoons"
+msgstr "Pelotons"
+
+#: textsort.py
+msgid "Difficulty"
+msgstr "Difficulté"
+
+#: textsort.py
+msgid "Achievements"
+msgstr "Succès"
+
+#: textsort.py
+msgid "Orders"
+msgstr "Ordres"
+
+#: textsort.py
+msgid "News"
+msgstr "Actualités"
+
+#: textsort.py
+msgid "Elections"
+msgstr "Élections"
+
+#: textsort.py
+msgid "Objects and Biomes"
+msgstr "Objets et Biomes"
+
+#: textsort.py
+msgid "Subtitles"
+msgstr "Sous-titres"
 
 #: updates.py
 msgid "GitHub answered {code}"

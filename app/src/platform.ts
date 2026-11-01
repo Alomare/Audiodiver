@@ -98,6 +98,23 @@ export async function pickNotesFile(): Promise<string | null> {
   return (r as string) ?? null;
 }
 
+/** Where exported lines of text go. */
+export async function pickTextToSave(suggested: string, form: "csv" | "json"): Promise<string | null> {
+  if (!isTauri()) return promptPaths(`Where to save the lines (.${form})`, false)?.[0] ?? null;
+  const { save } = await import("@tauri-apps/plugin-dialog");
+  return await save({ title: t`Export Lines`, defaultPath: suggested, filters: [form === "csv"
+    ? { name: t`Spreadsheet (CSV)`, extensions: ["csv"] } : { name: t`Lines of text (JSON)`, extensions: ["json"] }] });
+}
+
+/** Lines of text to bring back: a file the Text tab exported. */
+export async function pickTextFile(): Promise<string | null> {
+  if (!isTauri()) return promptPaths("Lines of text (.csv or .json)", false)?.[0] ?? null;
+  const { open } = await import("@tauri-apps/plugin-dialog");
+  const r = await open({ multiple: false, title: t`Import Lines`,
+    filters: [{ name: t`Exported lines (CSV, JSON)`, extensions: ["csv", "json"] }, { name: t`All files`, extensions: ["*"] }] });
+  return (r as string) ?? null;
+}
+
 export async function pickPatch(): Promise<string | null> {
   if (!isTauri()) return promptPaths("Patch file (.patch_0)", false)?.[0] ?? null;
   const { open } = await import("@tauri-apps/plugin-dialog");

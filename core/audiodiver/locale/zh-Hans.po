@@ -734,6 +734,18 @@ msgid "No other music to set"
 msgstr "没有其他可设置的音乐"
 
 #: editor.py
+msgid "Choose a file to export to"
+msgstr "选择要导出到的文件"
+
+#: editor.py
+msgid "Choose a file to import"
+msgstr "选择要导入的文件"
+
+#: editor.py
+msgid "Type the words to find"
+msgstr "输入要查找的词"
+
+#: editor.py
 msgid "The export list can't be read. Clear it and add the items again."
 msgstr "无法读取导出列表。请清空列表并重新添加条目。"
 
@@ -863,12 +875,12 @@ msgid "This piece is set to Silent, so it plays nothing"
 msgstr "此曲目已设为“静音”，因此不播放任何内容"
 
 #: editor.py
-msgid "That line isn't a game subtitle"
-msgstr "该行不是游戏字幕"
-
-#: editor.py
 msgid "That line isn't in the game text"
 msgstr "该行不在游戏文本中"
+
+#: editor.py
+msgid "That line isn't a game subtitle"
+msgstr "该行不是游戏字幕"
 
 #: editor.py
 msgid "(original)"
@@ -1196,6 +1208,14 @@ msgstr "{mod} 变体 {id}"
 msgid "imported {id}"
 msgstr "导入的 {id}"
 
+#: editor.py hd1_build.py
+msgid "Can't write {file}: {why}"
+msgstr "无法写入 {file}：{why}"
+
+#: editor.py
+msgid "{file} isn't a text export: it needs the columns Language, ID and New text"
+msgstr "{file} 不是文本导出文件：需要 Language、ID 和 New text 列"
+
 #: editor.py
 msgid "{file} is damaged (it can't be read)"
 msgstr "{file} 已损坏（无法读取）"
@@ -1264,10 +1284,6 @@ msgstr "无法读取音频以外的文件：{why}"
 #: editor.py
 msgid "Reading {name}"
 msgstr "正在读取 {name}"
-
-#: editor.py hd1_build.py
-msgid "Can't write {file}: {why}"
-msgstr "无法写入 {file}：{why}"
 
 #: editor.py
 msgid "{n} line of text that the game doesn't have"
@@ -1407,7 +1423,7 @@ msgstr "未找到 {folder}"
 msgid "The HD2_DATA environment variable points to {folder}, which has no Helldivers 2 files"
 msgstr "HD2_DATA 环境变量指向的 {folder} 中没有 Helldivers 2 文件"
 
-#: hd1.py
+#: hd1.py textsort.py
 msgid "Missions"
 msgstr "任务"
 
@@ -2279,6 +2295,114 @@ msgstr "{file} 不是音频文件"
 #: soundtrack.py
 msgid "every segment of the piece is left out"
 msgstr "该曲目的所有段落均被略去"
+
+#: textsort.py
+msgid "Helldiver Voices"
+msgstr "绝地潜兵语音"
+
+#: textsort.py
+msgid "SEAF and Civilians"
+msgstr "SEAF 和平民"
+
+#: textsort.py
+msgid "Ship"
+msgstr "飞船"
+
+#: textsort.py
+msgid "Command"
+msgstr "指挥部"
+
+#: textsort.py
+msgid "Training"
+msgstr "训练"
+
+#: textsort.py
+msgid "Cutscenes"
+msgstr "过场动画"
+
+#: textsort.py
+msgid "Other Voices"
+msgstr "其他语音"
+
+#: textsort.py
+msgid "Subtitles Not Matched"
+msgstr "未匹配的字幕"
+
+#: textsort.py
+msgid "Arsenal"
+msgstr "军械库"
+
+#: textsort.py
+msgid "Menus and Settings"
+msgstr "菜单和设置"
+
+#: textsort.py
+msgid "HUD"
+msgstr "HUD"
+
+#: textsort.py
+msgid "Galactic War"
+msgstr "银河战争"
+
+#: textsort.py
+msgid "Places and Enemies"
+msgstr "地点和敌人"
+
+#: textsort.py
+msgid "Other Text"
+msgstr "其他文本"
+
+#: textsort.py
+msgid "Names"
+msgstr "名称"
+
+#: textsort.py
+msgid "Designations"
+msgstr "型号"
+
+#: textsort.py
+msgid "Sentences"
+msgstr "句子"
+
+#: textsort.py
+msgid "Filled In by the Game"
+msgstr "由游戏填入"
+
+#: textsort.py
+msgid "Unfinished"
+msgstr "未完成"
+
+#: textsort.py
+msgid "Platoons"
+msgstr "排"
+
+#: textsort.py
+msgid "Difficulty"
+msgstr "难度"
+
+#: textsort.py
+msgid "Achievements"
+msgstr "成就"
+
+#: textsort.py
+msgid "Orders"
+msgstr "命令"
+
+#: textsort.py
+msgid "News"
+msgstr "新闻"
+
+#: textsort.py
+msgid "Elections"
+msgstr "选举"
+
+#: textsort.py
+msgid "Objects and Biomes"
+msgstr "物体和生态"
+
+#: textsort.py
+msgid "Subtitles"
+msgstr "字幕"
 
 #: updates.py
 msgid "GitHub answered {code}"

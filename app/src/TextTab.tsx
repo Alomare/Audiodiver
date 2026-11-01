@@ -1,20 +1,22 @@
 import { ph, plural, t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { andList, call, type ProjectState, type SaidBy, type TextLine } from "./api";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
+import { andList, call, fmtNumber, type ProjectState, type SaidBy, type TextGroup, type TextLine } from "./api";
 import { Mark } from "./IndexTree";
 import { chordOf, keymap } from "./keys";
+import { useListWindow, type WindowLine } from "./listWindow";
 import { nav } from "./nav";
 import { copyText } from "./platform";
 import { Splitter } from "./Resize";
 import { RESET_LAYOUT } from "./settings";
 import { useEditor } from "./store";
 import { TextPreview } from "./TextPreview";
+import { readTextFile, TextExport, TextImport, TextReplace, type ImportRead, type Scope } from "./TextTools";
 import { Help, WikiLink } from "./Wiki";
 
-/** The Text tab: the game's text in every language (subtitles, menus, names, everything), to find a line and change
-    it: words, colours, sizes. The project keeps the lines it changes; a build carries their whole tables
-    (core: strings.py, editor.py text_*). */
+/** The Text tab: the game's text in every language (subtitles, menus, names, everything), sorted into categories
+    (core textsort.py), to find a line and change it: words, colours, sizes. The project keeps the lines it changes; a
+    build carries their whole tables (core: strings.py, editor.py text_*). */
 type Lang = { code: string; name: string };
 type Found = { results: TextLine[]; total: number };
 /** The names of the game's text languages (core strings.LANGUAGES), by code, in the window's language; a code
@@ -39,21 +41,34 @@ export function showLines(s: Shown) {
 
 const LANG_KEY = "audiodiver.textLanguage";
 const WIDTH_KEY = "audiodiver.textLeft";
+const REF_KEY = "audiodiver.textReference";
+const OPEN_KEY = "audiodiver.textOpen";
 const TIMING = /\{(\d+(?:\.\d+)?)->(\d+(?:\.\d+)?)\}/g;
 const MARKUP = /<\/?[cifs](?:=[^>]*)?>/g;
 /** The words of a line, without its timing and markup: for the list. */
 export const plainText = (t: string) => t.replace(TIMING, " ").replace(MARKUP, "").replace(/\s+/g, " ").trim();
 
+/** A line of the list: a category's or section's head that folds, or a line of the game's text. */
+type ListLine = WindowLine & (
+  | { kind: "cat" | "sec"; name: string; open: boolean; ids: number[]; changed: number }
+  | { kind: "row"; line: TextLine; deep: boolean });
+type Panel = { kind: "export" | "replace"; start: string } | { kind: "import"; read: ImportRead } | null;
+
 export function TextTab({ hidden }: { hidden?: boolean }) {
-  const { project, actions, quick } = useEditor();
+  const { project, actions, quick, notify } = useEditor();
   const [langs, setLangs] = useState<Lang[]>([]);
   const [lang, setLang] = useState(() => { try { return asked?.lang ?? localStorage.getItem(LANG_KEY) ?? "us"; } catch { return "us"; } });
+  const [reference, setReference] = useState(() => { try { return localStorage.getItem(REF_KEY) ?? ""; } catch { return ""; } });
   const [query, setQuery] = useState("");
   const [mine, setMine] = useState(false);
-  const [found, setFound] = useState<Found | null>(null);
+  const [data, setData] = useState<{ groups: TextGroup[]; lines: TextLine[] } | null>(null);
   const [error, setError] = useState("");
   const [only, setOnly] = useState<Shown | null>(asked);
   const [pick, setPick] = useState<{ table: string; id: number } | null>(asked && { table: "", id: asked.pick });
+  const [open, setOpen] = useState<Record<string, boolean>>(() => { try { return JSON.parse(localStorage.getItem(OPEN_KEY) ?? "{}"); } catch { return {}; } });
+  const [ticked, setTicked] = useState<ReadonlySet<number>>(new Set());
+  const [panel, setPanel] = useState<Panel>(null);
+  const anchor = useRef<number | null>(null); // the tick a Shift+click runs from
   useEffect(() => {
     const show = (s: Shown) => { setOnly(s); setQuery(""); setMine(false); setPick({ table: "", id: s.pick }); if (s.lang) setLang(s.lang); };
     askers.add(show);
@@ -67,29 +82,74 @@ export function TextTab({ hidden }: { hidden?: boolean }) {
     window.addEventListener(RESET_LAYOUT, reset);
     return () => window.removeEventListener(RESET_LAYOUT, reset);
   }, []);
-  useEffect(() => { try { localStorage.setItem(LANG_KEY, lang); } catch { /* storage off */ } }, [lang]);
+  useEffect(() => { try { localStorage.setItem(LANG_KEY, lang); } catch { /* storage off */ } setTicked(new Set()); }, [lang]);
+  useEffect(() => { try { localStorage.setItem(REF_KEY, reference); } catch { /* storage off */ } }, [reference]);
+  useEffect(() => { try { localStorage.setItem(OPEN_KEY, JSON.stringify(open)); } catch { /* storage off */ } }, [open]);
   useEffect(() => { call<Lang[]>("text_languages").then(setLangs).catch((e) => setError(e.message)); }, []);
   // a language the game's text doesn't come in (a voice's, from a link): US English
   useEffect(() => { if (langs.length && !langs.some((l) => l.code === lang)) setLang("us"); }, [langs, lang]);
 
   const yours = project?.texts ?? [];
   const edits = useMemo(() => JSON.stringify(yours), [yours]);
-  // the list: what the search finds, or the lines the project changes; asked for again after an edit
+  // every line of the language, or what the search finds; only drawn once the tab shows. An edit doesn't ask again:
+  // its new text comes from the project
   useEffect(() => {
-    if (!query.trim() && !mine && !only) { setFound(null); return; }
+    if (hidden && !data) return;
     let live = true;
-    const t = setTimeout(() => {
-      call<Found>("text_search", { language: lang, query, mine, ...(only ? { ids: only.ids } : {}) })
-        .then((f) => { if (live) { setFound(f); setError(""); } })
+    const later = setTimeout(() => {
+      call<{ groups: TextGroup[]; lines: TextLine[] }>("text_lines", { language: lang, query, reference: reference && reference !== lang ? reference : null })
+        .then((f) => { if (live) { setData(f); setError(""); } })
         .catch((e) => live && setError(e.message));
-    }, only ? 0 : 220);
-    return () => { live = false; clearTimeout(t); };
-  }, [lang, query, mine, edits, only]);
+    }, query.trim() ? 220 : 0);
+    return () => { live = false; clearTimeout(later); };
+  }, [lang, query, reference, hidden]); // eslint-disable-line react-hooks/exhaustive-deps
+  const lines = useMemo(() => {
+    const mineNow = new Map(yours.map((y) => [`${y.table}:${y.id}`, y]));
+    return (data?.lines ?? []).map((l) => {
+      const y = mineNow.get(`${l.table}:${l.id}`);
+      return y ? { ...l, yours: y.text, was: y.was } : l;
+    });
+  }, [data, edits]); // eslint-disable-line react-hooks/exhaustive-deps
+  const byId = useMemo(() => new Map(lines.map((l) => [l.id, l])), [lines]);
+  const changedIds = useMemo(() => lines.filter((l) => l.yours !== undefined).map((l) => l.id), [lines]);
+  const shown = useMemo(() => (only ? only.ids.flatMap((i) => byId.get(i) ?? []) : mine ? lines.filter((l) => l.yours !== undefined) : lines), [only, mine, lines, byId]);
+  const words = query.trim();
 
-  // the open line: from the list, or (after the language changed) asked for by its id, which every language shares
+  const list = useMemo<ListLine[]>(() => {
+    if (only) return shown.map((line) => ({ key: `l:${line.id}`, kind: "row", line, deep: false }));
+    const out: ListLine[] = [];
+    const within = new Map<string, TextLine[]>();
+    for (const l of shown) {
+      const k = `${l.cat}/${l.sec}`;
+      const at = within.get(k);
+      if (at) at.push(l); else within.set(k, [l]);
+    }
+    const all = !!words || mine; // a search or the changed lines show open
+    const head = (kind: "cat" | "sec", key: string, name: string, of: TextLine[]): ListLine => ({
+      key, kind, name, open: all || !!open[key], ids: of.map((l) => l.id), changed: of.filter((l) => l.yours !== undefined).length });
+    for (const g of data?.groups ?? []) {
+      const parts = g.sections.map((s) => ({ s, of: within.get(`${g.id}/${s.id}`) ?? [] })).filter((p) => p.of.length);
+      if (!parts.length) continue;
+      const cat = head("cat", `c:${g.id}`, g.name, parts.flatMap((p) => p.of));
+      out.push(cat);
+      if (cat.kind === "cat" && !cat.open) continue;
+      for (const { s, of } of parts) {
+        const sec = parts.length > 1 ? head("sec", `s:${g.id}/${s.id}`, s.name, of) : null;
+        if (sec) out.push(sec);
+        if (!sec || (sec.kind === "sec" && sec.open)) for (const line of of) out.push({ key: `l:${line.id}`, kind: "row", line, deep: true });
+      }
+    }
+    return out;
+  }, [only, shown, data, open, words, mine]);
+  const rowIds = useMemo(() => list.flatMap((x) => (x.kind === "row" ? [x.line.id] : [])), [list]);
+
+  const box = useRef<HTMLDivElement>(null);
+  const win = useListWindow(box, list, true, (key) => box.current?.querySelector(`[data-key="${key}"]`));
+  useEffect(() => { if (only) win.reveal(`l:${only.pick}`, { block: "center" }); }, [only, data]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // the open line: from the list, or (after the search changed) asked for by its id, which every language shares
   const [extra, setExtra] = useState<TextLine | null>(null);
-  const listed = found?.results.find((r) => pick && r.table === pick.table && r.id === pick.id)
-    ?? found?.results.find((r) => pick && r.id === pick.id) ?? null;
+  const listed = (pick && byId.get(pick.id)) ?? null;
   const line = listed ?? (extra && pick && extra.id === pick.id ? extra : null);
   useEffect(() => {
     if (!pick || listed) { setExtra(null); return; }
@@ -119,18 +179,56 @@ export function TextTab({ hidden }: { hidden?: boolean }) {
     if (next < 0) (e.currentTarget.closest(".library")?.querySelector<HTMLInputElement>("input[type=search]"))?.focus();
     else rows[Math.min(next, rows.length - 1)]?.focus();
   };
-  const words = query.trim();
-  // the example searches are words of the game's lines in US English, the language the list starts in: they stay in
-  // English in every language of the window
-  const example = (word: string) => <button className="link-text" onClick={() => setQuery(word)}>{word}</button>;
-  const democracy = example("democracy"), reinforcing = example("reinforcing"), extraction = example("extraction");
+  /** A line's tick: Shift+click reaches from the last one ticked, in list order. */
+  const tick = (id: number, shift: boolean) => {
+    const from = shift && anchor.current !== null ? rowIds.indexOf(anchor.current) : -1;
+    const to = rowIds.indexOf(id);
+    const these = from >= 0 && to >= 0 ? rowIds.slice(Math.min(from, to), Math.max(from, to) + 1) : [id];
+    const on = !ticked.has(id);
+    setTicked((was) => { const next = new Set(was); for (const i of these) { if (on) next.add(i); else next.delete(i); } return next; });
+    anchor.current = id;
+  };
+  const tickAll = (ids: number[]) => setTicked((was) => {
+    const next = new Set(was), on = !ids.every((i) => was.has(i));
+    for (const i of ids) { if (on) next.add(i); else next.delete(i); }
+    return next;
+  });
+  const tickedIds = useMemo(() => [...ticked].filter((i) => byId.has(i)), [ticked, byId]);
+  const restorable = tickedIds.flatMap((i) => { const l = byId.get(i)!; return l.yours !== undefined ? [{ table: l.table, id: l.id }] : []; });
+  const restore = async () => {
+    const n = restorable.length;
+    if (await actions.revertText(restorable)) {
+      quick(plural(n, { one: "Restored # line", other: "Restored # lines" }), "undo");
+      setTicked(new Set());
+    }
+  };
+  // what the panels can work on, the likeliest first
+  const filtered = !!words || mine || !!only;
+  const scopes = useMemo<Scope[]>(() => [
+    ...(tickedIds.length ? [{ id: "ticked", name: t`Selected lines`, ids: tickedIds }] : []),
+    { id: "changed", name: t({ message: "Changed lines", comment: "Lines a panel of the Text tab works on: the ones the project changes" }), ids: changedIds },
+    filtered ? { id: "shown", name: t`Lines shown`, ids: shown.map((l) => l.id) } : { id: "all", name: t`All lines`, ids: lines.map((l) => l.id) },
+    ...(data?.groups ?? []).map((g) => ({ id: `c:${g.id}`, name: g.name, ids: lines.filter((l) => l.cat === g.id).map((l) => l.id) })),
+  ], [tickedIds, changedIds, filtered, shown, lines, data]);
+  const opening = tickedIds.length ? "ticked" : filtered ? "shown" : "all";
+  const named = (l: Lang) => LANG_NAMES[l.code] ?? l.name;
+  const importing = async () => {
+    const read = await readTextFile(notify);
+    if (read) setPanel({ kind: "import", read });
+  };
+  const picked = tickedIds.length;
+  const noProject = t`Open a project to change lines`;
+  // what a row does, the same object in every render: a row draws again only when its own line changes
+  const acts = useRef({ tick, pick: setPick });
+  acts.current = { tick, pick: setPick };
+  const rowActs = useMemo(() => ({ tick: (id: number, shift: boolean) => acts.current.tick(id, shift), pick: (l: TextLine) => acts.current.pick({ table: l.table, id: l.id }) }), []);
   return (
     <div className="panes two text-tab" hidden={hidden} style={{ ["--left" as any]: `${width}px` }}>
       <aside className="library" aria-label={t`Lines`} onKeyDown={listKeys}>
         <div className="lib-search">
           <select value={lang} onChange={(e) => setLang(e.target.value)} aria-label={t`Language`} data-tip={t`The language to show and change`}
             data-tip-more={t`Each language is a separate table, and a change in one doesn't change the others`}>
-            {(langs.length ? langs : [{ code: lang, name: lang }]).map((l) => <option key={l.code} value={l.code}>{LANG_NAMES[l.code] ?? l.name}</option>)}
+            {(langs.length ? langs : [{ code: lang, name: lang }]).map((l) => <option key={l.code} value={l.code}>{named(l)}</option>)}
           </select>
           <input type="search" placeholder={t`Search, or paste an ID`} value={query} onChange={(e) => { setOnly(null); setQuery(e.target.value); }}
             aria-label={t`Search lines`} data-tip={t`Words in this language, or a line ID`} data-tip-side="bottom"
@@ -140,12 +238,34 @@ export function TextTab({ hidden }: { hidden?: boolean }) {
           <div className="segmented mus-filter" role="radiogroup" aria-label={t({ message: "Show", comment: "Which lines the list shows: all of them, or the changed ones" })}>
             <button role="radio" aria-checked={!mine} className={!mine ? "on" : ""} onClick={() => { setOnly(null); setMine(false); }}><Trans>All Lines</Trans></button>
             <button role="radio" aria-checked={mine} className={mine ? "on" : ""} disabled={!project} onClick={() => { setOnly(null); setMine(true); }}
-              data-tip={project ? t`Only the lines the project changes in this language` : t`Open a project to change lines`}>
+              data-tip={project ? t`Only the lines the project changes in this language` : noProject}>
               {count ? t({ message: `Changed (${count})`, context: "Filter of the Text tab: the lines the project changes" })
                 : t({ message: "Changed", context: "Filter of the Text tab: the lines the project changes" })}</button>
           </div>
         </div>
-        <div className="lib-tree tx-list">
+        <div className="tx-tools">
+          <button className="btn small-btn" disabled={!lines.length} onClick={() => setPanel({ kind: "export", start: opening })}
+            data-tip={t`Save lines to a CSV or JSON file`}><Trans comment="Button of the Text tab: saves lines to a file">Export</Trans></button>
+          <button className="btn small-btn" disabled={!project} onClick={importing}
+            data-tip={project ? t`Bring back the new text of an exported file` : noProject} data-tip-more={project ? t`Shows what changes first` : undefined}>
+            <Trans comment="Button of the Text tab: brings lines back from a file">Import</Trans></button>
+          <button className="btn small-btn" disabled={!project || !lines.length} onClick={() => setPanel({ kind: "replace", start: opening })}
+            data-tip={project ? t`Change words in many lines at once` : noProject} data-tip-more={project ? t`Shows what changes first` : undefined}><Trans>Find and Replace</Trans></button>
+          <select value={reference} onChange={(e) => setReference(e.target.value)} aria-label={t`Second language`}
+            data-tip={t`Another language to read beside the line`}>
+            <option value=""><Trans comment="No second language beside the line">No Second Language</Trans></option>
+            {langs.filter((l) => l.code !== lang).map((l) => <option key={l.code} value={l.code}>{named(l)}</option>)}
+          </select>
+        </div>
+        {picked > 0 && (
+          <div className="tx-tools">
+            <span className="tx-picked">{plural(picked, { one: "# line selected", other: "# lines selected" })}</span>
+            <span className="spacer" />
+            {restorable.length > 0 && <button className="btn small-btn" onClick={restore}><Trans>Restore the Original</Trans></button>}
+            <button className="btn quiet small-btn" onClick={() => setTicked(new Set())}><Trans comment="Button of the Text tab: unticks the selected lines">Clear</Trans></button>
+          </div>
+        )}
+        <div className="lib-tree tx-list" ref={box}>
           {only && (
             <div className="tx-only">
               <span>{only.note}</span>
@@ -153,35 +273,38 @@ export function TextTab({ hidden }: { hidden?: boolean }) {
             </div>
           )}
           {error && <p className="empty-note">{error}</p>}
-          {!found && !error && (
-            <div className="empty-note">
-              <p><Trans>Search every line, including subtitles, mission and menu text, and names.</Trans></p>
-              <p className="muted small"><Trans>Try {democracy}, {reinforcing} or {extraction}.</Trans></p>
-            </div>
-          )}
-          {found && !found.results.length && <p className="empty-note tx-none">{mine
+          {data && !list.length && <p className="empty-note tx-none">{mine
             ? words ? t`No changed line has “${words}”.` : t`No line changed in this language yet.`
             : t`No line has “${words}”.`}</p>}
-          {found?.results.map((r) => (
-            <button key={`${r.table}:${r.id}`} className={`tx-row${line === r ? " active" : ""}`} onClick={() => setPick({ table: r.table, id: r.id })}>
-              <span className={`tx-kind ${r.kind}`}>{r.kind === "subtitles" ? t`Subtitle` : t({ message: "Text", comment: "Kind of line: any line that isn't a subtitle" })}</span>
-              <span className="tx-text" data-tip={plainText(r.yours ?? r.text) || undefined} data-tip-clip>{plainText(r.yours ?? r.text) || <i className="muted">{t`(empty)`}</i>}</span>
-              {r.yours !== undefined && <Mark status="done" label={t`Changed`} />}
-            </button>
-          ))}
-          {found && found.total > found.results.length && <p className="slots-note">
-            {t`Showing ${ph({ shown: found.results.length })} of ${ph({ total: found.total })}. Type more to narrow them down.`}</p>}
+          <div ref={win.gap.top} style={{ height: win.before }} aria-hidden />
+          {list.slice(win.first, win.last).map((x) => (x.kind === "row" ? (
+            <TextRow key={x.key} rowKey={x.key} line={x.line} deep={x.deep} ticked={ticked.has(x.line.id)} active={line?.id === x.line.id} on={rowActs} />
+          ) : (
+            <div key={x.key} data-key={x.key} className={`tx-line head${x.kind === "sec" ? " sub" : ""}`}>
+              <input type="checkbox" className="slot-check" tabIndex={-1} aria-label={t`Select everything in ${x.name}`}
+                checked={x.ids.every((i) => ticked.has(i))} readOnly onClick={() => tickAll(x.ids)}
+                ref={(el) => { if (el) el.indeterminate = x.ids.some((i) => ticked.has(i)) && !x.ids.every((i) => ticked.has(i)); }} />
+              <button className={`lib-group-head${x.kind === "sec" ? " sub" : ""}`} aria-expanded={x.open} onClick={() => setOpen((o) => ({ ...o, [x.key]: !x.open }))}>
+                <span className="caret" aria-hidden>▸</span>
+                <span className="lib-group-name">{x.name}</span>
+                {x.changed > 0 && <Mark status="done" label={t`Changed`} />}
+                <span className="tx-n">{fmtNumber(x.ids.length)}</span>
+              </button>
+            </div>
+          )))}
+          <div ref={win.gap.end} style={{ height: win.after }} aria-hidden />
         </div>
       </aside>
       <Splitter width={width} onResize={setWidth} initial={480} panel="left" label={t`Resize the list`} />
       <main className="center">
         {line ? <LineEditor key={`${line.table}:${line.id}`} line={line} lang={lang} canEdit={!!project}
+          reference={reference && reference !== lang ? named(langs.find((l) => l.code === reference) ?? { code: reference, name: reference }) : ""}
           onSave={(t) => actions.setText(line.table, line.id, t)}
           onRevert={async () => { if (await actions.revertText([{ table: line.table, id: line.id }])) quick(t`Original restored`, "undo"); }} />
           : (
             <section className="cue empty">
               <div className="empty-card">
-                <p><Trans>Search for a line to change words, colours or size.</Trans>
+                <p><Trans>Open a category or search for a line to change words, colours or size.</Trans>
                   {project ? <> <Trans>Changes go into <b>{ph({ project: project.name })}</b>.</Trans></>
                     : <> <Trans>Open or create a project on <button className="link-text" onClick={() => nav.go("home")}>Home</button> to change lines.</Trans></>}</p>
                 <p><WikiLink page="text" about={t`Changing text`}><Trans>How changing text works</Trans></WikiLink></p>
@@ -189,13 +312,34 @@ export function TextTab({ hidden }: { hidden?: boolean }) {
             </section>
           )}
       </main>
+      {panel?.kind === "export" && <TextExport scopes={scopes} start={panel.start} lang={{ code: lang, name: named(langs.find((l) => l.code === lang) ?? { code: lang, name: lang }) }}
+        langs={langs.map((l) => ({ code: l.code, name: named(l) }))} onClose={() => setPanel(null)} />}
+      {panel?.kind === "import" && <TextImport read={panel.read} onClose={() => setPanel(null)} />}
+      {panel?.kind === "replace" && <TextReplace scopes={scopes.filter((s) => s.id !== "changed" || s.ids.length)} start={panel.start} lang={lang} onClose={() => setPanel(null)} />}
     </div>
   );
 }
 
+const TextRow = memo(function TextRow({ rowKey, line, deep, ticked, active, on }: {
+  rowKey: string; line: TextLine; deep: boolean; ticked: boolean; active: boolean;
+  on: { tick: (id: number, shift: boolean) => void; pick: (line: TextLine) => void };
+}) {
+  const words = plainText(line.yours ?? line.text);
+  return (
+    <div data-key={rowKey} className={`tx-line${deep ? " deep" : ""}`}>
+      <input type="checkbox" className="slot-check" checked={ticked} readOnly tabIndex={-1} aria-label={t`Select this line`}
+        onClick={(e) => on.tick(line.id, e.shiftKey)} />
+      <button className={`tx-row${active ? " active" : ""}`} onClick={() => on.pick(line)}>
+        <span className="tx-text" data-tip={words || undefined} data-tip-clip>{words || <i className="muted">{t`(empty)`}</i>}</span>
+        {line.yours !== undefined && <Mark status="done" label={t`Changed`} />}
+      </button>
+    </div>
+  );
+});
+
 /** One line: the original, the new text (with a formatting bar), and a preview of how the game shows it. */
-function LineEditor({ line, lang, canEdit, onSave, onRevert }: {
-  line: TextLine; lang: string; canEdit: boolean; onSave: (text: string) => Promise<ProjectState | null>; onRevert: () => void;
+function LineEditor({ line, lang, canEdit, reference, onSave, onRevert }: {
+  line: TextLine; lang: string; canEdit: boolean; reference: string; onSave: (text: string) => Promise<ProjectState | null>; onRevert: () => void;
 }) {
   const { actions, quick, project } = useEditor();
   const rev = project?.revision ?? -1;
@@ -282,6 +426,12 @@ function LineEditor({ line, lang, canEdit, onSave, onRevert }: {
           <span className="field-label"><Trans>Original</Trans></span>
           <div className="tx-preview game"><TextPreview text={line.text} /></div>
         </div>
+        {reference && (
+          <div className="field">
+            <span className="field-label">{reference}</span>
+            <div className="tx-preview game">{line.ref !== undefined ? <TextPreview text={line.ref} /> : <i className="muted">{t`(empty)`}</i>}</div>
+          </div>
+        )}
         {subtitle && <VoiceLines id={line.id} lang={lang} />}
         <div className="field">
           <span className="field-label"><Trans>New text</Trans> <Help tip={t`What each format does, with examples`} page="formatting-text#applying-a-format" /></span>

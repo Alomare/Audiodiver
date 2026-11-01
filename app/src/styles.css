@@ -1823,6 +1823,21 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .tx-kind { flex: none; width: calc(56px * var(--fs)); font-size: calc(11px * var(--fs)); text-transform: uppercase; letter-spacing: .04em; color: var(--faint); }
 .tx-kind.subtitles { color: var(--second-fg); }
 .tx-text { flex: 1; min-width: 0; font-size: calc(14px * var(--fs)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tx-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: calc(6px * var(--sp)) 12px; border-bottom: 1px solid var(--line-soft); flex: none; }
+.tx-tools select { flex: 1 1 calc(120px * var(--fs)); min-width: 0; height: var(--ctl-sm); }
+.tx-picked { color: var(--muted); font-size: calc(13px * var(--fs)); }
+.tx-line { display: flex; align-items: center; }
+.tx-line .tx-row { flex: 1; min-width: 0; }
+.tx-line > .slot-check { position: static; translate: none; flex: none; margin-left: 12px; }
+.tx-line:hover > .slot-check, .tx-line > .slot-check:focus-visible { opacity: 1; }
+.tx-line.deep > .slot-check { margin-left: 34px; }
+.tx-line.head .lib-group-head { flex: 1; min-width: 0; }
+.tx-line.head.sub > .slot-check { margin-left: 22px; }
+.tx-n { flex: none; color: var(--faint); font-size: calc(12px * var(--fs)); font-variant-numeric: tabular-nums; }
+.tx-panel { max-height: 88vh; }
+.tx-changes { display: flex; flex-direction: column; gap: 8px; min-height: 0; overflow: auto; font-size: calc(14px * var(--fs)); }
+.tx-change { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--line-soft); overflow-wrap: anywhere; }
+.tx-before { color: var(--muted); }
 .tx-edit { overflow: auto; }
 .tx-body { display: flex; flex-direction: column; gap: calc(14px * var(--sp)); padding: calc(14px * var(--sp)) 20px 40px; max-width: 900px; }
 .tx-preview { padding: 10px 12px; background: var(--panel); border: 1px solid var(--line-soft); border-left: 3px solid var(--accent-fg); font-size: calc(16px * var(--fs)); line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }

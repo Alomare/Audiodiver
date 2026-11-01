@@ -8,9 +8,9 @@ The [Text](app:text) tab has every line of game text in every language, includin
 
 ## Finding a line
 
-Pick the **language** first. Each language is a separate table, so a change to *English (US)* doesn't change *English (UK)* or *French*. Then search for a word from the line, or paste the line ID. **Changed** lists the lines that the project changes.
+Pick the **language** first. Each language is a separate table, so a change to *English (US)* doesn't change *English (UK)* or *French*. Every line sits in a category: subtitles by the voice that says them, and other lines by what they are for and how they read. Open a category, search for a word from the line, or paste the line ID. **Changed** lists the lines that the project changes.
 
-Each row shows whether the line is a **Subtitle** or other **Text**. The right panel shows the **Original**, the **New text** box under it, and a **Preview** of the line as shown in game.
+The right panel shows the **Original**, the **New text** box under it, and a **Preview** of the line as shown in game. Choose a second language above the list to read the line in that language too.
 
 ## Changing a line
 
@@ -26,6 +26,16 @@ To format part of a line, select the words and use the bar above the box. It has
 - **Words the game fills in.** Capitalised words after `#`, like `#COUNT` or `#NAME`, are replaced in game when the line is shown. The editor warns if one goes missing.
 - **Colours the game fills in**, like `<c=#PLAYER_COLOR>`. Leave these unchanged.
 - **Square brackets** in subtitles, like *[Grunts]*, mark sounds that aren't words.
+
+## Find and replace
+
+**Find and Replace** changes words in many lines at once. Choose the lines, type the words, and see every change before it is made. Timing, colours, sizes and words the game fills in stay as they are, and the whole change is one step for {key:undo}. A search also finds parts of words, so check the list before you apply it.
+
+## Exporting and importing
+
+**Export** saves lines to a CSV or JSON file: the selected lines, the changed lines, the lines shown, or a category. A second language adds a column. Tick a line to select it, and Shift+click to select a run of lines. **Restore the Original** works on the selected lines too.
+
+Fill in the **New text** column in a spreadsheet, and leave the **Language** and **ID** columns as they are. **Import** reads the file and shows what changes before anything does, as one step for {key:undo}. A line with no new text stays as it is. Lines that lost timing or words the game fills in stay out, unless you untick that option.
 
 ## How text is built
 

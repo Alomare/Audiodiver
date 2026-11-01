@@ -361,7 +361,9 @@ export function nameProblem(name: string): string | null {
 
 /** A line of the game's text: in a string table (its file id), by its id. `text` is the original; `yours` (the new text) and `was`
     are there when the open project changes it (`was`: the game's text when it was changed). */
-export type TextLine = { table: string; id: number; text: string; yours?: string; was?: string; kind?: "subtitles" | "text" };
+export type TextLine = { table: string; id: number; text: string; yours?: string; was?: string; kind?: "subtitles" | "text";
+  cat?: string; sec?: string; ref?: string }; // cat, sec: where it belongs (core textsort.py); ref: in the reference language
+export type TextGroup = { id: string; name: string; sections: { id: string; name: string }[] };
 
 /** Whether an item of the Library can go into a project of this game: each mod is for one game. */
 export const canAdd = (item: { game?: "hd1" } | undefined, game: "hd2" | "hd1") => (item?.game ?? "hd2") === game;

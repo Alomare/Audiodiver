@@ -734,6 +734,18 @@ msgid "No other music to set"
 msgstr "設定できる他の音楽がありません"
 
 #: editor.py
+msgid "Choose a file to export to"
+msgstr "書き出し先のファイルを選んでください"
+
+#: editor.py
+msgid "Choose a file to import"
+msgstr "インポートするファイルを選んでください"
+
+#: editor.py
+msgid "Type the words to find"
+msgstr "検索する語句を入力してください"
+
+#: editor.py
 msgid "The export list can't be read. Clear it and add the items again."
 msgstr "エクスポートリストを読み取れません。リストをクリアして、項目をもう一度追加してください。"
 
@@ -863,12 +875,12 @@ msgid "This piece is set to Silent, so it plays nothing"
 msgstr "この曲は「無音」に設定されているため、何も再生されません"
 
 #: editor.py
-msgid "That line isn't a game subtitle"
-msgstr "その行はゲームの字幕ではありません"
-
-#: editor.py
 msgid "That line isn't in the game text"
 msgstr "その行はゲームのテキストにありません"
+
+#: editor.py
+msgid "That line isn't a game subtitle"
+msgstr "その行はゲームの字幕ではありません"
 
 #: editor.py
 msgid "(original)"
@@ -1196,6 +1208,14 @@ msgstr "{mod}のテイク {id}"
 msgid "imported {id}"
 msgstr "インポートした {id}"
 
+#: editor.py hd1_build.py
+msgid "Can't write {file}: {why}"
+msgstr "{file}に書き込めません：{why}"
+
+#: editor.py
+msgid "{file} isn't a text export: it needs the columns Language, ID and New text"
+msgstr "{file} はテキストの書き出しファイルではありません: Language、ID、New text の列が必要です"
+
 #: editor.py
 msgid "{file} is damaged (it can't be read)"
 msgstr "{file}は破損しています（読み取れません）"
@@ -1264,10 +1284,6 @@ msgstr "音声以外のファイルを読み取れません：{why}"
 #: editor.py
 msgid "Reading {name}"
 msgstr "{name}を読み込み中"
-
-#: editor.py hd1_build.py
-msgid "Can't write {file}: {why}"
-msgstr "{file}に書き込めません：{why}"
 
 #: editor.py
 msgid "{n} line of text that the game doesn't have"
@@ -1407,7 +1423,7 @@ msgstr "{folder}が見つかりません"
 msgid "The HD2_DATA environment variable points to {folder}, which has no Helldivers 2 files"
 msgstr "HD2_DATA環境変数が指す{folder}には、Helldivers 2のファイルがありません"
 
-#: hd1.py
+#: hd1.py textsort.py
 msgid "Missions"
 msgstr "ミッション"
 
@@ -2279,6 +2295,114 @@ msgstr "{file}は音声ファイルではありません"
 #: soundtrack.py
 msgid "every segment of the piece is left out"
 msgstr "この曲のすべてのセグメントが除外されています"
+
+#: textsort.py
+msgid "Helldiver Voices"
+msgstr "ヘルダイバーの音声"
+
+#: textsort.py
+msgid "SEAF and Civilians"
+msgstr "SEAF と民間人"
+
+#: textsort.py
+msgid "Ship"
+msgstr "艦船"
+
+#: textsort.py
+msgid "Command"
+msgstr "司令部"
+
+#: textsort.py
+msgid "Training"
+msgstr "訓練"
+
+#: textsort.py
+msgid "Cutscenes"
+msgstr "カットシーン"
+
+#: textsort.py
+msgid "Other Voices"
+msgstr "その他の音声"
+
+#: textsort.py
+msgid "Subtitles Not Matched"
+msgstr "対応なしの字幕"
+
+#: textsort.py
+msgid "Arsenal"
+msgstr "兵器庫"
+
+#: textsort.py
+msgid "Menus and Settings"
+msgstr "メニューと設定"
+
+#: textsort.py
+msgid "HUD"
+msgstr "HUD"
+
+#: textsort.py
+msgid "Galactic War"
+msgstr "銀河戦争"
+
+#: textsort.py
+msgid "Places and Enemies"
+msgstr "場所と敵"
+
+#: textsort.py
+msgid "Other Text"
+msgstr "その他のテキスト"
+
+#: textsort.py
+msgid "Names"
+msgstr "名前"
+
+#: textsort.py
+msgid "Designations"
+msgstr "型番"
+
+#: textsort.py
+msgid "Sentences"
+msgstr "文"
+
+#: textsort.py
+msgid "Filled In by the Game"
+msgstr "ゲームが埋める"
+
+#: textsort.py
+msgid "Unfinished"
+msgstr "未完成"
+
+#: textsort.py
+msgid "Platoons"
+msgstr "小隊"
+
+#: textsort.py
+msgid "Difficulty"
+msgstr "難易度"
+
+#: textsort.py
+msgid "Achievements"
+msgstr "実績"
+
+#: textsort.py
+msgid "Orders"
+msgstr "指令"
+
+#: textsort.py
+msgid "News"
+msgstr "ニュース"
+
+#: textsort.py
+msgid "Elections"
+msgstr "選挙"
+
+#: textsort.py
+msgid "Objects and Biomes"
+msgstr "物体とバイオーム"
+
+#: textsort.py
+msgid "Subtitles"
+msgstr "字幕"
 
 #: updates.py
 msgid "GitHub answered {code}"

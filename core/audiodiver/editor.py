@@ -4,6 +4,7 @@ this, so everything here is testable without a browser.
 """
 import collections
 import copy
+import csv
 import logging
 import math
 import os
@@ -4401,6 +4402,162 @@ class Session:
         if only is not None:
             out.sort(key=lambda r: only[r["id"]])
         return {"results": out, "total": total}
+
+    def _text_sort(self) -> dict:
+        from . import textsort
+        tx = self._texts()
+        if not hasattr(tx, "sorted"):
+            tx.sorted = textsort.classify(tx, self.lib)
+        return tx.sorted
+
+    def _text_lines(self, language) -> dict[int, tuple[int, str]]:
+        """{line id: (table, the game's text)} in a language."""
+        return {i: (fid, text) for fid, t in self._texts().tables(str(language)) for i, text in t.texts.items()}
+
+    def text_lines(self, language, query="", reference=None):
+        """The lines of a language with every word of query in them (none: all of them), each with where it belongs,
+        and the categories they fall in: {groups, lines}. reference: another language, whose words come as `ref`."""
+        from . import strings, textsort
+        tx, where = self._texts(), self._text_sort()
+        edits = {(t.table, t.id): t for t in (self.project.texts if self.project else [])}
+        words = str(query or "").lower().split()
+        other = self._text_lines(reference) if reference else {}
+        out = []
+        for fid, t in tx.tables(str(language)):
+            kind = tx.kind(fid)
+            for i, text in t.texts.items():
+                if words and not (len(words) == 1 and str(i) == words[0]):
+                    e = edits.get((fid, i))
+                    hay = f"{strings.plain(text)} {strings.plain(e.text) if e else ''}".lower()
+                    if not all(w in hay for w in words):
+                        continue
+                cat, sec, _ = where.get(i, ("other", "sentences", None))
+                out.append({"table": str(fid), "id": i, "kind": kind, "cat": cat, "sec": sec, "text": text,
+                            **({"ref": other[i][1]} if i in other else {})})
+        return {"groups": textsort.tree(out, self.lib), "lines": out}
+
+    def text_export(self, path, language, ids=None, reference=None):
+        """Writes lines of a language (ids: only these; none: all) to a .csv or .json file, with the project's new
+        text where it has some: a way to translate or check them outside the app, and text_import brings them back."""
+        from . import textsort
+        if not given(path):
+            raise EditorError(tr("Choose a file to export to"))
+        path, where = Path(path), self._text_sort()
+        lines = self._text_lines(language)
+        other = self._text_lines(reference) if reference else {}
+        edits = {(t.table, t.id): t.text for t in (self.project.texts if self.project else [])}
+        names = {c: tr(n) for c, n in textsort.CATEGORIES.items()}
+        chosen = [int(i) for i in ids] if ids is not None else list(lines)
+        rows = []
+        for i in chosen:
+            if i not in lines:
+                continue
+            fid, text = lines[i]
+            cat, _, home = where.get(i, ("other", "sentences", None))
+            rows.append({"Language": language, "ID": i, "Table": fid, "Category": names[cat],
+                         "Speaker": self.lib.items[home]["name"] if home else "", "Original": text,
+                         "New text": edits.get((fid, i), ""), "Reference": other[i][1] if i in other else ""})
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            textsort.write_rows(path, rows, reference)
+        except OSError as e:
+            raise EditorError(tr("Can't write {file}: {why}").format(file=path.name, why=os_error(e))) from None
+        return {"path": str(path), "lines": len(rows)}
+
+    def _text_changes(self, wanted) -> list[dict]:
+        """What giving these lines ((language, table, id, game's text, new text)) new text changes: [{language, table,
+        id, before, after, lost}]; lines that would stay as they are aren't in it."""
+        from . import textsort
+        edits = {(t.table, t.id): t.text for t in self.project.texts}
+        out = []
+        for language, fid, i, game, after in wanted:
+            before = edits.get((fid, i), game)
+            if after != before:
+                out.append({"language": language, "table": str(fid), "id": i, "before": before, "after": after,
+                            "lost": textsort.lost(game, after)})
+        return out
+
+    def text_import(self, path):
+        """Reads a file text_export wrote, changing nothing: {changes, same, unknown, stale}. A row with no New text
+        is left out, and text_apply takes the changes. unknown: rows whose language or id the game doesn't have;
+        stale: rows whose Original is no longer the game's, since an update."""
+        from . import textsort
+        self._need_project()
+        if not given(path):
+            raise EditorError(tr("Choose a file to import"))
+        path = Path(path)
+        try:
+            rows = textsort.read_rows(path)
+        except OSError as e:
+            raise EditorError(tr("Can't read {file}: {why}").format(file=path.name, why=os_error(e))) from None
+        except (ValueError, UnicodeError, KeyError, csv.Error):
+            raise EditorError(tr("{file} isn't a text export: it needs the columns Language, ID and New text").format(file=path.name)) from None
+        known, wanted, unknown, stale, empty = {}, [], 0, 0, 0
+        codes = set(self._texts().languages())
+        for r in rows:
+            new, language = r.get("New text"), str(r.get("Language") or "").strip()
+            if not isinstance(new, str) or not new:
+                empty += 1
+                continue
+            if language not in codes:
+                unknown += 1
+                continue
+            if language not in known:
+                known[language] = self._text_lines(language)
+            lines = known[language]
+            try:
+                fid, game = lines[int(str(r.get("ID")).strip())]
+            except (ValueError, KeyError):
+                unknown += 1
+                continue
+            stale += "Original" in r and r["Original"] != game
+            wanted.append((language, fid, int(str(r["ID"]).strip()), game, new))
+        changes = self._text_changes(wanted)
+        return {"changes": changes, "same": len(wanted) - len(changes), "unknown": unknown, "stale": stale, "empty": empty}
+
+    def text_replace(self, language, find, new, ids=None, case=False):
+        """What replacing these words in lines of a language would change, in the words only, as text_apply takes it
+        (ids: only these; none: all): {changes}. Timing, markup and what the game fills in stay as they are."""
+        from . import textsort
+        self._need_project()
+        if not isinstance(find, str) or not find or not isinstance(new, str):
+            raise EditorError(tr("Type the words to find"))
+        lines = self._text_lines(language)
+        edits = {(t.table, t.id): t.text for t in self.project.texts}
+        chosen = lines if ids is None else {int(i) for i in ids}
+        wanted = []
+        for i in chosen:
+            if i in lines:
+                fid, game = lines[i]
+                wanted.append((language, fid, i, game, textsort.replaced(edits.get((fid, i), game), find, new, bool(case))))
+        return {"changes": self._text_changes(wanted)}
+
+    def text_apply(self, lines):
+        """Gives several lines ([{table, id, text}]) new text, as one undo step; back to the game's own text, a line is
+        no longer the project's."""
+        tx = self._texts()
+        try:
+            checked = [(int(x["table"]), int(x["id"]), x["text"]) for x in lines]
+            was = {(fid, i): tx.table(fid).texts[i] for fid, i, _ in checked}
+        except (TypeError, ValueError, OverflowError, KeyError):
+            raise EditorError(tr("That line isn't in the game text")) from None
+        if not all(isinstance(text, str) for *_, text in checked):
+            raise EditorError("A line of text is text")
+
+        def apply(p):
+            mine = {(t.table, t.id): t for t in p.texts}
+            for fid, i, text in checked:
+                e = mine.get((fid, i))
+                if text == was[fid, i]:
+                    if e:
+                        p.texts.remove(e)
+                        del mine[fid, i]
+                elif e:
+                    e.text, e.was = text, was[fid, i]
+                else:
+                    mine[fid, i] = TextEdit(fid, i, text, was[fid, i])
+                    p.texts.append(mine[fid, i])
+        return self._edit("text", apply)
 
     def text_alike(self, id):
         """The subtitles with the same words as this one in US English, this one first: the game has a subtitle per

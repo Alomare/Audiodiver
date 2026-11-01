@@ -176,6 +176,14 @@ msgstr "{count, plural, one {Um novo tutorial interativo} other {Novos tutoriais
 msgid "{count, plural, one {Add # Slot to the Export List} other {Add # Slots to the Export List}}"
 msgstr "{count, plural, one {Adicionar # slot à lista de exportação} other {Adicionar # slots à lista de exportação}}"
 
+#: src/TextTools.tsx
+msgid "{count, plural, one {Change # Line} other {Change # Lines}}"
+msgstr "{count, plural, one {Mudar # linha} other {Mudar # linhas}}"
+
+#: src/TextTools.tsx
+msgid "{count, plural, one {Changed # line} other {Changed # lines}}"
+msgstr "{count, plural, one {# linha alterada} other {# linhas alteradas}}"
+
 #: src/CueView.tsx
 msgid "{count, plural, one {Choose Files for the # Take} other {Choose Files for the # Takes}}"
 msgstr "{count, plural, one {Escolher arquivos para o # take} other {Escolher arquivos para os # takes}}"
@@ -207,6 +215,10 @@ msgstr "{count, plural, one {Remover o áudio novo (# slot)} other {Remover o á
 #: src/CueView.tsx
 msgid "{count, plural, one {Remove the New Audio from the # Take} other {Remove the New Audio from the # Takes}}"
 msgstr "{count, plural, one {Remover o áudio novo do # take} other {Remover o áudio novo dos # takes}}"
+
+#: src/TextTools.tsx
+msgid "{count, plural, one {Replace in # Line} other {Replace in # Lines}}"
+msgstr "{count, plural, one {Substituir em # linha} other {Substituir em # linhas}}"
 
 #: src/CueView.tsx
 msgid "{count, plural, one {Replace the # Take with Silence} other {Replace the # Takes with Silence}}"
@@ -371,6 +383,10 @@ msgstr "{latest} está disponível"
 msgid "{left, plural, one {# file} other {# files}} left over, because there are no free slots."
 msgstr "{left, plural, one {# arquivo sobrou} other {# arquivos sobraram}}, porque não há slots livres."
 
+#: src/TextTools.tsx
+msgid "{lines, plural, one {Exported # line} other {Exported # lines}}"
+msgstr "{lines, plural, one {# linha exportada} other {# linhas exportadas}}"
+
 #: src/Soundtrack.tsx
 msgid "{loop, plural, one {# time} other {# times}}"
 msgstr "{loop, plural, one {# vez} other {# vezes}}"
@@ -411,6 +427,7 @@ msgstr "{more, plural, one {mais #} other {mais #}}"
 
 #: src/ProjectTab.tsx
 #: src/TextTab.tsx
+#: src/TextTools.tsx
 msgid "{more, plural, one {and # more} other {and # more}}"
 msgstr "{more, plural, one {e mais #} other {e mais #}}"
 
@@ -487,6 +504,10 @@ msgstr "{n, plural, one {Ele vai para a Lixeira.} other {Eles vão para a Lixeir
 #: src/ProjectTab.tsx
 msgid "{n, plural, one {Remove # unused file?} other {Remove # unused files?}}"
 msgstr "{n, plural, one {Remover # arquivo sem uso?} other {Remover # arquivos sem uso?}}"
+
+#: src/TextTab.tsx
+msgid "{n, plural, one {Restored # line} other {Restored # lines}}"
+msgstr "{n, plural, one {# linha restaurada} other {# linhas restauradas}}"
 
 #: src/IndexTree.tsx
 #: src/Library.tsx
@@ -578,6 +599,10 @@ msgstr "{patches, plural, one {Não foi possível fazer o repatch, mantido como 
 msgid "{patches, plural, one {Without audio, kept as it was} other {Without audio, kept as they were}}"
 msgstr "{patches, plural, one {Sem áudio, mantido como estava} other {Sem áudio, mantidos como estavam}}"
 
+#: src/TextTab.tsx
+msgid "{picked, plural, one {# line selected} other {# lines selected}}"
+msgstr "{picked, plural, one {# linha selecionada} other {# linhas selecionadas}}"
+
 #: src/SliceTool.tsx
 msgid "{pieces, plural, one {# piece} other {# pieces}}"
 msgstr "{pieces, plural, one {# pedaço} other {# pedaços}}"
@@ -630,6 +655,10 @@ msgstr "{replaced, plural, one {Remover o áudio novo de # slot} other {Remover 
 msgid "{replaced, plural, one {Remove the Silence from # Slot} other {Remove the Silence from # Slots}}"
 msgstr "{replaced, plural, one {Remover o silêncio de # slot} other {Remover o silêncio de # slots}}"
 
+#: src/TextTools.tsx
+msgid "{risky, plural, one {Leave out # line that lost timing or words the game fills in} other {Leave out # lines that lost timing or words the game fills in}}"
+msgstr "{risky, plural, one {Deixar de fora # linha que perdeu o tempo ou palavras que o jogo preenche} other {Deixar de fora # linhas que perderam o tempo ou palavras que o jogo preenche}}"
+
 #. searchKey is the key of the Search command, such as Ctrl+F.
 #: src/Wiki.tsx
 msgid "{searchKey} finds words on the open page"
@@ -655,6 +684,10 @@ msgstr "{silenceable, plural, one {Substituir # slot por silêncio} other {Subst
 #: src/Inspector.tsx
 msgid "{silenced, plural, one {Silence in # slot} other {Silence in # slots}}"
 msgstr "{silenced, plural, one {Silêncio em # slot} other {Silêncio em # slots}}"
+
+#: src/TextTools.tsx
+msgid "{skipped, plural, one {# line in the file isn't in the game, so it stays out.} other {# lines in the file aren't in the game, so they stay out.}}"
+msgstr "{skipped, plural, one {# linha do arquivo não está no jogo, então fica de fora.} other {# linhas do arquivo não estão no jogo, então ficam de fora.}}"
 
 #: src/store.tsx
 msgid "{skipped, plural, one {# sound} other {# sounds}} couldn't be decoded"
@@ -721,6 +754,10 @@ msgstr "{sounds, plural, one {até # som deixado de fora} other {até # sons dei
 #: src/SettingsTab.tsx
 msgid "{speed, plural, one {# times normal} other {# times normal}}"
 msgstr "{speed, plural, one {# vez o normal} other {# vezes o normal}}"
+
+#: src/TextTools.tsx
+msgid "{stale, plural, one {The game has changed # line since the file was made. Check the new text.} other {The game has changed # lines since the file was made. Check the new text.}}"
+msgstr "{stale, plural, one {O jogo mudou # linha desde que o arquivo foi feito. Confira o texto novo.} other {O jogo mudou # linhas desde que o arquivo foi feito. Confira o texto novo.}}"
 
 #: src/CueView.tsx
 msgid "{stems, plural, one {One of # layer that play at the same time} other {One of # layers that play at the same time}}"
@@ -1185,6 +1222,10 @@ msgstr "Um trecho de música que toca como uma unidade. O próximo segmento come
 msgid "A sturdy sans-serif typeface, and the default."
 msgstr "Uma fonte sem serifa robusta, a padrão."
 
+#: src/TextTools.tsx
+msgid "A subtitle needs timing to show, and the game replaces words like #COUNT when it shows a line"
+msgstr "Uma legenda precisa do tempo para aparecer, e o jogo substitui palavras como #COUNT ao mostrar uma linha"
+
 #: src/CueView.tsx
 msgid "A take added by the project. The game picks it like the other takes. It has no original"
 msgstr "Um take adicionado pelo projeto. O jogo o escolhe como os outros takes. Ele não tem original"
@@ -1373,6 +1414,10 @@ msgstr "Adicionado à lista de exportação"
 msgid "Added to the export list, as {total} entries (one per part)"
 msgstr "Adicionado à lista de exportação, como {total} entradas (uma por parte)"
 
+#: src/TextTools.tsx
+msgid "Adds a column with these lines in another language"
+msgstr "Adiciona uma coluna com estas linhas em outro idioma"
+
 #: src/SettingsTab.tsx
 msgid "After the pointer rests for a second."
 msgstr "Depois que o ponteiro para por um segundo."
@@ -1421,6 +1466,10 @@ msgstr "Todos já estão no projeto"
 #: src/IndexTree.tsx
 msgid "All in the Project"
 msgstr "Todos no projeto"
+
+#: src/TextTab.tsx
+msgid "All lines"
+msgstr "Todas as linhas"
 
 #: src/TextTab.tsx
 msgid "All Lines"
@@ -1509,6 +1558,10 @@ msgstr "Velocidade das animações"
 #: src/SettingsTab.tsx
 msgid "Animations"
 msgstr "Animações"
+
+#: src/TextTab.tsx
+msgid "Another language to read beside the line"
+msgstr "Outro idioma para ler ao lado da linha"
 
 #: src/CueView.tsx
 msgid "another sound"
@@ -1811,6 +1864,10 @@ msgstr "Inferior esquerdo"
 msgid "Bottom Right"
 msgstr "Inferior direito"
 
+#: src/TextTab.tsx
+msgid "Bring back the new text of an exported file"
+msgstr "Traz de volta o texto novo de um arquivo exportado"
+
 #: src/SettingsTab.tsx
 msgid "Bring the notes of an exported notes file or of a project into the global notes"
 msgstr "Traga para as notas globais as notas de um arquivo de notas exportado ou de um projeto"
@@ -1940,6 +1997,7 @@ msgstr "Não foi possível acessar o GitHub"
 #: src/RepatchPage.tsx
 #: src/SettingsTab.tsx
 #: src/SliceTool.tsx
+#: src/TextTools.tsx
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -2004,6 +2062,10 @@ msgid "Change this key"
 msgstr "Alterar esta tecla"
 
 #: src/TextTab.tsx
+msgid "Change words in many lines at once"
+msgstr "Muda palavras em muitas linhas de uma vez"
+
+#: src/TextTab.tsx
 msgid "Changed"
 msgstr "Alterado"
 
@@ -2016,6 +2078,11 @@ msgstr "Alteradas"
 msgctxt "Filter of the Text tab: the lines the project changes"
 msgid "Changed ({count})"
 msgstr "Alteradas ({count})"
+
+#. Lines a panel of the Text tab works on: the ones the project changes
+#: src/TextTab.tsx
+msgid "Changed lines"
+msgstr "Linhas alteradas"
 
 #: src/App.tsx
 msgid "changed since the last build"
@@ -2305,9 +2372,11 @@ msgstr "Círculo"
 msgid "Clean voices come out louder. This turns them down to about the level of the radio"
 msgstr "Vozes limpas saem mais altas. Isto as abaixa para perto do nível do rádio"
 
+#. Button of the Text tab: unticks the selected lines
 #. Button: deletes these files
 #. Button: deletes these files
 #: src/SettingsTab.tsx
+#: src/TextTab.tsx
 msgid "Clear"
 msgstr "Limpar"
 
@@ -2371,6 +2440,7 @@ msgstr "Clipes que nenhum som deste banco toca"
 #: src/Home.tsx
 #: src/ImportMod.tsx
 #: src/SliceTool.tsx
+#: src/TextTools.tsx
 #: src/Wiki.tsx
 msgid "Close"
 msgstr "Fechar"
@@ -2730,6 +2800,10 @@ msgstr "Créditos"
 #: src/ProjectTab.tsx
 msgid "Cropped to a centred square and resized to 540 × 540. Drop an image on the preview to use it."
 msgstr "Recortada em um quadrado centralizado e redimensionada para 540 × 540. Solte uma imagem na prévia para usá-la."
+
+#: src/TextTools.tsx
+msgid "CSV opens in a spreadsheet. Fill in the New text column, then import the file"
+msgstr "O CSV abre numa planilha. Preencha a coluna New text e importe o arquivo"
 
 #: src/keys.ts
 msgid "Ctrl+click, Shift+click, a slot's tick"
@@ -3256,6 +3330,7 @@ msgstr "saída em {time}"
 msgid "Exploring set to Silent"
 msgstr "Exploração definida como Silêncio"
 
+#. Button of the Text tab: saves lines to a file
 #. Export Notes: saves the file
 #. Heading: exporting the project as a pack
 #: src/CueView.tsx
@@ -3263,6 +3338,8 @@ msgstr "Exploração definida como Silêncio"
 #: src/ProjectTab.tsx
 #: src/SettingsTab.tsx
 #: src/Soundtrack.tsx
+#: src/TextTab.tsx
+#: src/TextTools.tsx
 msgid "Export"
 msgstr "Exportar"
 
@@ -3282,6 +3359,11 @@ msgstr "Exportação cancelada"
 #: src/store.tsx
 msgid "Export failed: {why}"
 msgstr "A exportação falhou: {why}"
+
+#: src/platform.ts
+#: src/TextTools.tsx
+msgid "Export Lines"
+msgstr "Exportar linhas"
 
 #: src/ExportDialog.tsx
 msgid "Export list"
@@ -3303,6 +3385,10 @@ msgstr "Exportar o projeto como pack"
 #: src/store.tsx
 msgid "Exported {files, plural, one {# file} other {# files}} of {title}."
 msgstr "{files, plural, one {# arquivo exportado} other {# arquivos exportados}} de {title}."
+
+#: src/platform.ts
+msgid "Exported lines (CSV, JSON)"
+msgstr "Linhas exportadas (CSV, JSON)"
 
 #: src/jobs.ts
 msgid "Exporting"
@@ -3426,6 +3512,15 @@ msgstr "O preenchimento o deixa de fora"
 msgid "Filters"
 msgstr "Filtros"
 
+#: src/TextTools.tsx
+msgid "Find"
+msgstr "Localizar"
+
+#: src/TextTab.tsx
+#: src/TextTools.tsx
+msgid "Find and Replace"
+msgstr "Localizar e substituir"
+
 #: src/App.tsx
 #: src/SettingsTab.tsx
 msgid "Find It Through Steam Again"
@@ -3526,6 +3621,7 @@ msgstr "Esquecer a pasta escolhida"
 #. Export Notes: the kind of file
 #: src/ExportDialog.tsx
 #: src/SettingsTab.tsx
+#: src/TextTools.tsx
 msgid "Format"
 msgstr "Formato"
 
@@ -3832,7 +3928,9 @@ msgstr "Imagens"
 msgid "import"
 msgstr "importar"
 
+#. Button of the Text tab: brings lines back from a file
 #: src/ImportMod.tsx
+#: src/TextTab.tsx
 msgid "Import"
 msgstr "Importar"
 
@@ -3856,6 +3954,11 @@ msgstr "A importação falhou: {why}"
 #: src/ImportMod.tsx
 msgid "Import into {projectName}"
 msgstr "Importar para {projectName}"
+
+#: src/platform.ts
+#: src/TextTools.tsx
+msgid "Import Lines"
+msgstr "Importar linhas"
 
 #: src/Home.tsx
 #: src/ImportMod.tsx
@@ -4254,9 +4357,19 @@ msgstr "Cinza-claro"
 msgid "likely"
 msgstr "provável"
 
+#. Which lines a panel of the Text tab works on
 #: src/TextTab.tsx
+#: src/TextTools.tsx
 msgid "Lines"
 msgstr "Linhas"
+
+#: src/platform.ts
+msgid "Lines of text (JSON)"
+msgstr "Linhas de texto (JSON)"
+
+#: src/TextTab.tsx
+msgid "Lines shown"
+msgstr "Linhas mostradas"
 
 #. Note editor button: makes the words a web link
 #: src/Notes.tsx
@@ -4430,6 +4543,10 @@ msgstr "Manual"
 #: src/platform.ts
 msgid "Markdown document"
 msgstr "Documento Markdown"
+
+#: src/TextTools.tsx
+msgid "Match case"
+msgstr "Diferenciar maiúsculas"
 
 #: src/Inspector.tsx
 msgid "Match Each to the Original Loudness"
@@ -4953,6 +5070,10 @@ msgstr "Nenhuma linha alterada neste idioma ainda."
 msgid "No line has “{words}”."
 msgstr "Nenhuma linha tem “{words}”."
 
+#: src/TextTools.tsx
+msgid "No line has these words."
+msgstr "Nenhuma linha tem estas palavras."
+
 #: src/Wiki.tsx
 msgid "No matches"
 msgstr "Nenhum resultado"
@@ -5009,6 +5130,11 @@ msgstr "Não há espaço para outro pedaço. Este cue tem {slots, plural, one {#
 msgid "No room for another piece. This cue has {slots, plural, one {# slot} other {# slots}} from here."
 msgstr "Não há espaço para outro pedaço. Este cue tem {slots, plural, one {# slot} other {# slots}} a partir daqui."
 
+#. No second language beside the line
+#: src/TextTab.tsx
+msgid "No Second Language"
+msgstr "Sem segundo idioma"
+
 #: src/Soundtrack.tsx
 msgid "No slot for audio"
 msgstr "Nenhum slot para áudio"
@@ -5034,9 +5160,11 @@ msgid "No unused files."
 msgstr "Nenhum arquivo sem uso."
 
 #. No log file
+#. No second language in the file
 #. The icon border: no border
 #: src/About.tsx
 #: src/ProjectTab.tsx
+#: src/TextTools.tsx
 msgid "None"
 msgstr "Nenhum"
 
@@ -5197,6 +5325,10 @@ msgstr "nada a manter"
 #: src/RepatchPage.tsx
 msgid "Nothing to carry over"
 msgstr "Nada a manter"
+
+#: src/TextTools.tsx
+msgid "Nothing to change: the file has no new text that differs from the project."
+msgstr "Nada a mudar: o arquivo não tem texto novo diferente do projeto."
 
 #: src/store.tsx
 msgid "Nothing to copy"
@@ -5388,6 +5520,10 @@ msgstr "Abra **AR-23 Liberador** na lista."
 #: src/Home.tsx
 msgid "Open a .audi project or a .audipack pack"
 msgstr "Abrir um projeto .audi ou um pack .audipack"
+
+#: src/TextTab.tsx
+msgid "Open a category or search for a line to change words, colours or size."
+msgstr "Abra uma categoria ou busque uma linha para mudar palavras, cores ou tamanho."
 
 #: src/keys.ts
 msgid "open a match"
@@ -6565,6 +6701,10 @@ msgstr "Substituí-los por um silêncio curto, para a próxima música começar 
 msgid "Replace them with a short silence, so the next music starts right away. Undo{undo} brings them back"
 msgstr "Substituí-los por um silêncio curto, para a próxima música começar logo. Desfazer{undo} os traz de volta"
 
+#: src/TextTools.tsx
+msgid "Replace with"
+msgstr "Substituir por"
+
 #: src/CueView.tsx
 msgid "Replace with a short silence, so the next music starts right away"
 msgstr "Substituir por um silêncio curto, para a próxima música começar logo"
@@ -6739,6 +6879,10 @@ msgstr "Salvar"
 msgid "Save as WAV, FLAC, MP3 or WEM"
 msgstr "Salvar como WAV, FLAC, MP3 ou WEM"
 
+#: src/TextTab.tsx
+msgid "Save lines to a CSV or JSON file"
+msgstr "Salva linhas num arquivo CSV ou JSON"
+
 #: src/keys.ts
 msgid "Save the project"
 msgstr "Salvar o projeto"
@@ -6770,14 +6914,6 @@ msgstr "Pesquisar um atalho"
 #: src/SettingsTab.tsx
 msgid "Search a shortcut by function or key"
 msgstr "Pesquisar um atalho por função ou tecla"
-
-#: src/TextTab.tsx
-msgid "Search every line, including subtitles, mission and menu text, and names."
-msgstr "Pesquise qualquer linha, incluindo legendas, textos de missões e menus, e nomes."
-
-#: src/TextTab.tsx
-msgid "Search for a line to change words, colours or size."
-msgstr "Pesquise uma linha para alterar palavras, cores ou tamanho."
 
 #: src/TextTab.tsx
 msgid "Search lines"
@@ -6821,6 +6957,11 @@ msgstr "Pesquisar no projeto"
 msgid "Search, or paste an ID"
 msgstr "Pesquise ou cole um ID"
 
+#: src/TextTab.tsx
+#: src/TextTools.tsx
+msgid "Second language"
+msgstr "Segundo idioma"
+
 #: src/SettingsTab.tsx
 msgid "Secondary colour"
 msgstr "Cor secundária"
@@ -6859,6 +7000,11 @@ msgstr "Selecionar todas as sequências exibidas"
 msgid "Select every slot"
 msgstr "Selecionar todos os slots"
 
+#. placeholder {0}: x.name
+#: src/TextTab.tsx
+msgid "Select everything in {0}"
+msgstr "Selecionar tudo em {0}"
+
 #: src/CueView.tsx
 msgid "Select everything in {name}"
 msgstr "Selecionar tudo em {name}"
@@ -6883,10 +7029,18 @@ msgstr "Selecionar os takes"
 msgid "Select the takes of {name}"
 msgstr "Selecionar os takes de {name}"
 
+#: src/TextTab.tsx
+msgid "Select this line"
+msgstr "Selecionar esta linha"
+
 #: src/ExportDialog.tsx
 msgctxt "Which slots or sounds to export"
 msgid "Selected"
 msgstr "Selecionados"
+
+#: src/TextTab.tsx
+msgid "Selected lines"
+msgstr "Linhas selecionadas"
 
 #: src/SettingsTab.tsx
 msgid "Set by the HD1_CONTENTS environment variable."
@@ -7076,13 +7230,13 @@ msgstr "Mostrar o ZIP no Explorador de Arquivos quando a geração terminar"
 msgid "Show these shortcuts"
 msgstr "Mostrar estes atalhos"
 
-#: src/TextTab.tsx
-msgid "Showing {shown} of {total}. Type more to narrow them down."
-msgstr "Mostrando {shown} de {total}. Digite mais para refinar."
-
 #: src/Notes.tsx
 msgid "Shown in every project and in the Library, from the notes file in the folder set in Settings ▸ System. A note on a slot shows wherever the clip plays. Markdown formats headings, lists, bold and links."
 msgstr "Aparece em todos os projetos e na Biblioteca, a partir do arquivo de notas na pasta definida em Configurações ▸ Sistema. Uma nota num slot aparece onde quer que o clipe toque. Markdown formata títulos, listas, negrito e links."
+
+#: src/TextTab.tsx
+msgid "Shows what changes first"
+msgstr "Mostra primeiro o que muda"
 
 #. Edit in Undo, Redo and History: shuffle turned on or off for a playlist
 #: src/store.tsx
@@ -7318,6 +7472,10 @@ msgstr "Espanhol (América Latina)"
 msgid "Spanish (Spain)"
 msgstr "Espanhol (Espanha)"
 
+#: src/platform.ts
+msgid "Spreadsheet (CSV)"
+msgstr "Planilha (CSV)"
+
 #. The icon corners: not rounded
 #: src/ProjectTab.tsx
 msgid "Square"
@@ -7394,7 +7552,6 @@ msgid "subtitle"
 msgstr "legenda"
 
 #: src/Inspector.tsx
-#: src/TextTab.tsx
 msgid "Subtitle"
 msgstr "Legenda"
 
@@ -7494,12 +7651,10 @@ msgid "text"
 msgstr "texto"
 
 #. Heading: the lines of game text the mod changes
-#. Kind of line: any line that isn't a subtitle
 #. Main tab: subtitles and all other game text
 #: src/App.tsx
 #: src/ImportMod.tsx
 #: src/SettingsTab.tsx
-#: src/TextTab.tsx
 msgid "Text"
 msgstr "Texto"
 
@@ -8348,6 +8503,10 @@ msgctxt "Text tab button: adds a timing mark to a subtitle"
 msgid "Timing"
 msgstr "Tempo"
 
+#: src/TextTools.tsx
+msgid "Timing, colours, sizes and words the game fills in stay as they are"
+msgstr "Tempo, cores, tamanhos e palavras que o jogo preenche ficam como estão"
+
 #: src/TextPreview.tsx
 msgid "Timing. When these words appear, in seconds from the start of the voice line"
 msgstr "Tempo. Quando estas palavras aparecem, em segundos desde o início da fala"
@@ -8412,10 +8571,6 @@ msgstr "Superior direito"
 #: src/content.ts
 msgid "transcribing voice lines to match them to subtitles"
 msgstr "transcrição de falas para associá-las às legendas"
-
-#: src/TextTab.tsx
-msgid "Try {democracy}, {reinforcing} or {extraction}."
-msgstr "Experimente {democracy}, {reinforcing} ou {extraction}."
 
 #: src/UpdatesTab.tsx
 msgid "Try Again"

@@ -2,16 +2,16 @@
 title: Texto y subtítulos
 group: Crear un mod
 summary: Cómo cambiar subtítulos y cualquier otra línea del texto del juego en la pestaña Texto, con palabras, colores y tamaños, y qué conservar intacto.
-source: 2248a591284e
+source: 6ed9fe0e493a
 ---
 
 La pestaña [Texto](app:text) tiene todas las líneas del texto del juego en todos los idiomas, incluidos los subtítulos de las frases, el texto de misiones y menús, y los nombres. Busca una línea para cambiarla, y el mod incluye el cambio.
 
 ## Encontrar una línea {#finding-a-line}
 
-Elige primero el **idioma**. Cada idioma es una tabla distinta, así que un cambio en *Inglés (EE. UU.)* no cambia *Inglés (Reino Unido)* ni *Francés*. Luego busca una palabra de la línea, o pega el ID de la línea. **Cambiado** enumera las líneas que cambia el proyecto.
+Elige primero el **idioma**. Cada idioma es una tabla aparte, así que un cambio en *English (US)* no cambia *English (UK)* ni *French*. Cada línea está en una categoría: los subtítulos por la voz que los dice, y las demás líneas por su uso y su forma. Abre una categoría, busca una palabra de la línea o pega el ID de la línea. **Cambiadas** lista las líneas que cambia el proyecto.
 
-Cada fila indica si la línea es un **Subtítulo** u otro **Texto**. El panel derecho muestra el **Original**, debajo el cuadro **Texto nuevo** y una **Vista previa** de la línea tal como se muestra en el juego.
+El panel derecho muestra el **Original**, el cuadro **Texto nuevo** debajo y una **Vista previa** de la línea tal como se ve en el juego. Elige un segundo idioma encima de la lista para leer también la línea en ese idioma.
 
 ## Cambiar una línea {#changing-a-line}
 
@@ -27,6 +27,16 @@ Para dar formato a parte de una línea, selecciona las palabras y usa la barra s
 - **Palabras que rellena el juego.** Las palabras en mayúsculas después de `#`, como `#COUNT` o `#NAME`, se sustituyen en el juego cuando se muestra la línea. El editor avisa si falta alguna.
 - **Colores que rellena el juego**, como `<c=#PLAYER_COLOR>`. Déjalos sin cambios.
 - **Los corchetes** de los subtítulos, como *[Grunts]*, marcan sonidos que no son palabras.
+
+## Buscar y sustituir {#find-and-replace}
+
+**Buscar y sustituir** cambia palabras en muchas líneas a la vez. Elige las líneas, escribe las palabras y mira cada cambio antes de aplicarlo. La temporización, los colores, los tamaños y las palabras que rellena el juego no cambian, y todo cuenta como un solo paso de {key:undo}. La búsqueda también encuentra partes de palabras, así que revisa la lista antes de aplicar.
+
+## Exportar e importar {#exporting-and-importing}
+
+**Exportar** guarda líneas en un archivo CSV o JSON: las seleccionadas, las cambiadas, las mostradas o una categoría. Un segundo idioma añade una columna. Marca una línea para seleccionarla, y usa Mayús+clic para seleccionar varias seguidas. **Restaurar el original** también funciona con las líneas seleccionadas.
+
+Rellena la columna **New text** en una hoja de cálculo, sin cambiar las columnas **Language** e **ID**. **Importar** lee el archivo y muestra lo que cambia antes de aplicarlo, en un solo paso de {key:undo}. Una línea sin texto nuevo se queda como está, y las que perdieron la temporización o palabras que rellena el juego se quedan fuera, salvo que desmarques esa opción.
 
 ## Cómo se construye el texto {#how-text-is-built}
 
