@@ -157,17 +157,19 @@ How the game writes the terms the app uses most, from the same string ids in its
 other term, compare those tables the same way before translating it: a translation can pass every check and still use a
 word players never see in the game.
 
-| English | Français | Español (España) | 日本語 |
-|---|---|---|---|
-| Stratagem | Stratagème | Estratagema | 戦略支援 |
-| Mission Control | Donneur de mission | Control de misión | 管制部 |
-| Extraction | Extraction | Extracción | 離脱 |
-| Super Destroyer | Super Destroyer | Superdestructor | スーパーデストロイヤー |
-| Hellpod | Hellpod | Cápsula hell | ヘルポッド |
-| Terminids | Terminides | Termínidos | ターミニッド |
-| Automatons | Automatons | Autómatas | オートマトン |
-| Illuminate | Illuministes | Iluminados | イルミネイト |
-| Sentry | Sentinelle | Centinela | 砲塔 |
-| Super Earth | Super-Terre | Supertierra | スーパーアース |
-| Democracy Officer | Officier de la démocratie | Oficial de Democracia | 民主主義担当官 |
-| Ship Master | Capitaine du vaisseau | Capitana de la nave | 艦長 |
+| English | Français | Español (España) | 日本語 | 简体中文 |
+|---|---|---|---|---|
+| Stratagem | Stratagème | Estratagema | 戦略支援 | 战略配备 |
+| Mission Control | Donneur de mission | Control de misión | 管制部 | 任务调度员 |
+| Extraction | Extraction | Extracción | 離脱 | 撤离 |
+| Super Destroyer | Super Destroyer | Superdestructor | スーパーデストロイヤー | 超级驱逐舰 |
+| Hellpod | Hellpod | Cápsula hell | ヘルポッド | 喷射舱 |
+| Terminids | Terminides | Termínidos | ターミニッド | 终结族 |
+| Automatons | Automatons | Autómatas | オートマトン | 机器人 |
+| Cyborgs | Cyborgs | Cíborgs | サイボーグ | 生化人 |
+| Illuminate | Illuministes | Iluminados | イルミネイト | 光能者 |
+| The Void | Le Néant | El Vacío | ヴォイド | 寂域 |
+| Sentry | Sentinelle | Centinela | 砲塔 | 哨戒炮 |
+| Super Earth | Super-Terre | Supertierra | スーパーアース | 超级地球 |
+| Democracy Officer | Officier de la démocratie | Oficial de Democracia | 民主主義担当官 | 民主官 |
+| Ship Master | Capitaine du vaisseau | Capitana de la nave | 艦長 | 舰长 |

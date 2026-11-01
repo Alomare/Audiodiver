@@ -2607,12 +2607,13 @@ class Session:
                                     "container picks sounds)",
                                     "{n} other changes in bank {id} (settings such as effects, positioning or how a "
                                     "container picks sounds)", n).format(n=n, id=bid))
-        replaced = {}  # the game's source id -> wem bytes
+        replaced, gone = {}, 0  # the game's source id -> wem bytes; streams this game version doesn't have
         for fid, data in d["streams"].items():
             try:
                 sid = self.ix.resolve(fid)
             except KeyError:
                 job.say(tr("stream {id} is not in this game version; skipped").format(id=fid))
+                gone += 1
                 continue
             try:
                 if same_audio(data, self.ix.wem(sid)):  # the game's clip in an older file: not the mod's audio
@@ -2647,6 +2648,9 @@ class Session:
         found = {**new, **replaced}
         if not found and (got.settings or got.curves or got.curves_off or got.radio):
             return got, replaced, {}, 0  # only settings
+        if not found and (gone or got.stale) and not got.left:  # e.g. the flag anthem, gone from the game in 7.2.2
+            raise EditorError(tr("{file} only changes audio that this game version no longer has. The game removed it "
+                                 "in an update, so there is nothing to bring in.").format(file=patch_path.name))
         if not found:
             raise EditorError(tr("{file} replaces, adds or sets nothing Audiodiver can bring in ({why})").format(
                 file=patch_path.name, why=got.left[0]) if got.left

@@ -81,7 +81,7 @@ Chaque ligne est un **emplacement**, c’est-à-dire un clip du jeu qui peut êt
 | **ne pas toucher** | Remplacer ce clip rend la musique saccadée. Les remplissages l’ignorent. |
 | **pas d’audio** | Les données du jeu nomment ce clip, mais les fichiers du jeu installés ne l’incluent pas. Il n’y a rien à jouer ni à remplacer. |
 | **tambours discrets** | Une couche de batterie à peine audible sous une autre couche du segment. |
-| **jamais jouée** | Le clip est dans les fichiers du jeu, mais le jeu ne le joue jamais. La musique de mort des Illuministes Void en est un exemple. |
+| **jamais jouée** | Le clip est dans les fichiers du jeu, mais le jeu ne le joue jamais. La musique de mort des Illuministes du Néant en est un exemple. |
 | **ce son uniquement** | Le nouvel audio n’est joué que dans ce son. Les autres sons qui jouent le clip gardent l’Original. Voir [Ce son uniquement](wiki:adding-audio#only-this-sound). |
 | **remplacé dans un autre son** | Un autre son joue du nouvel audio à la place de ce clip, avec **Ce son uniquement**. Celui-ci garde l’Original. |
 | **−6 dB** | Make-Up Gain sur l’Original, dans un emplacement sans nouvel audio. Voir [Make-Up Gain par emplacement](wiki:volume#make-up-gain-per-slot). |

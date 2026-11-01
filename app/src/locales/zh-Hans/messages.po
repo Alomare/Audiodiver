@@ -1679,7 +1679,7 @@ msgstr "自动：{auto}"
 
 #: src/ProjectTab.tsx
 msgid "Automaton red"
-msgstr "自动机械红"
+msgstr "机器人红"
 
 #: src/SettingsTab.tsx
 msgid "Autosave"

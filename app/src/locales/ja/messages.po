@@ -3812,7 +3812,7 @@ msgstr "イルミネイトバイオレット"
 
 #: src/content.ts
 msgid "Illuminate Void and Automaton clip names, when clips play, warnings and minimum lengths"
-msgstr "イルミネイトのVoidとオートマトンのクリップ名、クリップが再生されるタイミング、警告、最小の長さ"
+msgstr "イルミネイトのヴォイドとオートマトンのクリップ名、クリップが再生されるタイミング、警告、最小の長さ"
 
 #: src/platform.ts
 msgid "Images"

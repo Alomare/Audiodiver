@@ -977,6 +977,10 @@ msgid_plural "radio filter off for {n} voices, from the mod"
 msgstr[0] "来自模组：{n} 个语音的无线电滤镜已关闭"
 
 #: editor.py
+msgid "{file} only changes audio that this game version no longer has. The game removed it in an update, so there is nothing to bring in."
+msgstr "{file} 只更改了此游戏版本已不再包含的音频。游戏在一次更新中移除了它，因此没有可导入的内容。"
+
+#: editor.py
 msgid "Decoding {n} of {total}"
 msgstr "正在解码 {n}/{total}"
 
@@ -1501,7 +1505,7 @@ msgstr "炮塔"
 
 #: hd1.py
 msgid "Hellpods"
-msgstr "地狱舱"
+msgstr "喷射舱"
 
 #: hd1.py
 msgid "Extraction Shuttle"

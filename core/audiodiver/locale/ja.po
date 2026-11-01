@@ -977,6 +977,10 @@ msgid_plural "radio filter off for {n} voices, from the mod"
 msgstr[0] "Modから：{n} 個の音声で無線フィルターをオフ"
 
 #: editor.py
+msgid "{file} only changes audio that this game version no longer has. The game removed it in an update, so there is nothing to bring in."
+msgstr "{file} は、このバージョンのゲームにはもう存在しないオーディオだけを変更しています。ゲームのアップデートで削除されたため、取り込めるものはありません。"
+
+#: editor.py
 msgid "Decoding {n} of {total}"
 msgstr "デコード中（{n}/{total}）"
 

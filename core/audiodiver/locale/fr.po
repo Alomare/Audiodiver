@@ -1017,6 +1017,10 @@ msgstr[0] "filtre radio désactivé pour {n} voix, depuis le mod"
 msgstr[1] "filtre radio désactivé pour {n} voix, depuis le mod"
 
 #: editor.py
+msgid "{file} only changes audio that this game version no longer has. The game removed it in an update, so there is nothing to bring in."
+msgstr "{file} ne modifie que de l’audio que cette version du jeu n’a plus. Le jeu l’a retiré lors d’une mise à jour, il n’y a donc rien à importer."
+
+#: editor.py
 msgid "Decoding {n} of {total}"
 msgstr "Décodage de {n} sur {total}"
 

@@ -394,6 +394,21 @@ def test_a_mod_made_with_unwise_comes_in_as_takes_a_layer_and_a_clip_of_its_own(
 
 
 @pytest.mark.game
+def test_a_mod_of_audio_the_game_removed_says_so(session, tmp_path):
+    # GitHub issue #5: a flag anthem mod changes only the anthem's stream, which 7.2.2 took out of the game
+    from audiodiver import patch
+    s, anthem = session, 17321328497695381516
+    assert anthem not in s.ix.by_stream and anthem not in s.ix.orphans
+    path = tmp_path / "9ba626afa44a3aa3.patch_0"
+    patch.write_patch(str(path), {anthem: b"RIFF" + bytes(60)}, {}, {})
+    s.new_project(tmp_path / "a.audi", "A")
+    job = s.import_patch(str(path))
+    while (j := s.job(job["id"]))["state"] == "running":
+        time.sleep(0.2)
+    assert j["state"] != "done" and "no longer has" in j["error"]
+
+
+@pytest.mark.game
 def test_a_segment_whose_timing_follows_new_audio_is_not_a_change_left_out(session):
     # a music mod built with fit timing changes its segments' lengths and cue points: the rebuild makes them again, so
     # the import doesn't list them as other changes (Audiodiver's own builds showed 6 to 30 "left out" per bank)

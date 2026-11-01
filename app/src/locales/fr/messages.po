@@ -3812,7 +3812,7 @@ msgstr "Violet Illuministe"
 
 #: src/content.ts
 msgid "Illuminate Void and Automaton clip names, when clips play, warnings and minimum lengths"
-msgstr "noms des clips Illuminate Void et Automaton, moments de lecture des clips, avertissements et durées minimales"
+msgstr "noms des clips des Illuministes du Néant et des Automatons, moments de lecture des clips, avertissements et durées minimales"
 
 #: src/platform.ts
 msgid "Images"
