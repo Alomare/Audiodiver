@@ -151,17 +151,18 @@ export function TextReplace({ scopes, start, lang, onClose }: { scopes: Scope[];
   const [find, setFind] = useState("");
   const [to, setTo] = useState("");
   const [cased, setCased] = useState(false);
+  const [whole, setWhole] = useState(false);
   const [changes, setChanges] = useState<TextChange[] | null>(null);
   const ids = scopes.find((s) => s.id === scope)?.ids;
   useEffect(() => {
     if (!find) { setChanges(null); return; }
     let live = true;
     const later = setTimeout(() => {
-      call<{ changes: TextChange[] }>("text_replace", { language: lang, find, new: to, ids, case: cased })
+      call<{ changes: TextChange[] }>("text_replace", { language: lang, find, new: to, ids, case: cased, whole })
         .then((r) => { if (live) setChanges(r.changes); }).catch(() => { if (live) setChanges([]); });
     }, 220);
     return () => { live = false; clearTimeout(later); };
-  }, [find, to, cased, lang, ids, revision]);
+  }, [find, to, cased, whole, lang, ids, revision]);
   const count = changes?.length ?? 0;
   const apply = async () => {
     if (await actions.applyTexts((changes ?? []).map((c) => ({ table: c.table, id: c.id, text: c.after })))) {
@@ -180,6 +181,7 @@ export function TextReplace({ scopes, start, lang, onClose }: { scopes: Scope[];
       <label className="field"><span className="field-label"><Trans>Replace with</Trans> <Help tip={t`Timing, colours, sizes and words the game fills in stay as they are`} page="text#find-and-replace" /></span>
         <input value={to} onChange={(e) => setTo(e.target.value)} /></label>
       <label className="check"><input type="checkbox" checked={cased} onChange={(e) => setCased(e.target.checked)} /><span><Trans>Match case</Trans></span></label>
+      <label className="check"><input type="checkbox" checked={whole} onChange={(e) => setWhole(e.target.checked)} /><span><Trans>Whole words only</Trans></span></label>
       {changes && !changes.length && <p className="muted small"><Trans>No line has these words.</Trans></p>}
       {changes && changes.length > 0 && <Changes changes={changes} />}
     </Panel>

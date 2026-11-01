@@ -8961,6 +8961,10 @@ msgstr "Whole archives, from All Archives"
 msgid "Whole songs, one after another or shuffled"
 msgstr "Whole songs, one after another or shuffled"
 
+#: src/TextTools.tsx
+msgid "Whole words only"
+msgstr "Whole words only"
+
 #: src/store.tsx
 msgid "Why?"
 msgstr "Why?"

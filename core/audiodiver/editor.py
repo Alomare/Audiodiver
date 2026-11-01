@@ -4515,9 +4515,10 @@ class Session:
         changes = self._text_changes(wanted)
         return {"changes": changes, "same": len(wanted) - len(changes), "unknown": unknown, "stale": stale, "empty": empty}
 
-    def text_replace(self, language, find, new, ids=None, case=False):
+    def text_replace(self, language, find, new, ids=None, case=False, whole=False):
         """What replacing these words in lines of a language would change, in the words only, as text_apply takes it
-        (ids: only these; none: all): {changes}. Timing, markup and what the game fills in stay as they are."""
+        (ids: only these; none: all): {changes}. Timing, markup and what the game fills in stay as they are. whole:
+        only whole words, not parts of longer ones."""
         from . import textsort
         self._need_project()
         if not isinstance(find, str) or not find or not isinstance(new, str):
@@ -4529,7 +4530,7 @@ class Session:
         for i in chosen:
             if i in lines:
                 fid, game = lines[i]
-                wanted.append((language, fid, i, game, textsort.replaced(edits.get((fid, i), game), find, new, bool(case))))
+                wanted.append((language, fid, i, game, textsort.replaced(edits.get((fid, i), game), find, new, bool(case), bool(whole))))
         return {"changes": self._text_changes(wanted)}
 
     def text_apply(self, lines):

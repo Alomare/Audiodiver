@@ -8961,6 +8961,10 @@ msgstr "Archivos enteros, de Todos los Archivos"
 msgid "Whole songs, one after another or shuffled"
 msgstr "Canciones enteras, una tras otra o en orden aleatorio"
 
+#: src/TextTools.tsx
+msgid "Whole words only"
+msgstr "Solo palabras completas"
+
 #: src/store.tsx
 msgid "Why?"
 msgstr "¿Por qué?"

@@ -2,7 +2,7 @@
 title: Texto y subtítulos
 group: Crear un mod
 summary: Cómo cambiar subtítulos y cualquier otra línea del texto del juego en la pestaña Texto, con palabras, colores y tamaños, y qué conservar intacto.
-source: 6ed9fe0e493a
+source: d48b85a4f8e6
 ---
 
 La pestaña [Texto](app:text) tiene todas las líneas del texto del juego en todos los idiomas, incluidos los subtítulos de las frases, el texto de misiones y menús, y los nombres. Busca una línea para cambiarla, y el mod incluye el cambio.
@@ -30,7 +30,7 @@ Para dar formato a parte de una línea, selecciona las palabras y usa la barra s
 
 ## Buscar y sustituir {#find-and-replace}
 
-**Buscar y sustituir** cambia palabras en muchas líneas a la vez. Elige las líneas, escribe las palabras y mira cada cambio antes de aplicarlo. La temporización, los colores, los tamaños y las palabras que rellena el juego no cambian, y todo cuenta como un solo paso de {key:undo}. La búsqueda también encuentra partes de palabras, así que revisa la lista antes de aplicar.
+**Buscar y sustituir** cambia palabras en muchas líneas a la vez. Elige las líneas, escribe las palabras y mira cada cambio antes de aplicarlo. La temporización, los colores, los tamaños y las palabras que rellena el juego no cambian, y todo cuenta como un solo paso de {key:undo}. La búsqueda también encuentra partes de palabras, salvo que **Solo palabras completas** esté activado, así que revisa la lista antes de aplicar.
 
 ## Exportar e importar {#exporting-and-importing}
 

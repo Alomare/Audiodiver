@@ -143,7 +143,7 @@ def methods(s: Session) -> dict:
         "text_lines": lambda language, query="", reference=None: s.text_lines(language, query, reference),
         "text_export": lambda path, language, ids=None, reference=None: s.text_export(path, language, ids, reference),
         "text_import": lambda path: s.text_import(path),
-        "text_replace": lambda language, find, new, ids=None, case=False: s.text_replace(language, find, new, ids, case),
+        "text_replace": lambda language, find, new, ids=None, case=False, whole=False: s.text_replace(language, find, new, ids, case, whole),
         "text_apply": lambda lines: s.text_apply(lines),
         "text_alike": lambda id: s.text_alike(id),
         "text_voices": lambda ids, language: s.text_voices(ids, language),

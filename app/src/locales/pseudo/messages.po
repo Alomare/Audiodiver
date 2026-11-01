@@ -8961,6 +8961,10 @@ msgstr ""
 msgid "Whole songs, one after another or shuffled"
 msgstr ""
 
+#: src/TextTools.tsx
+msgid "Whole words only"
+msgstr ""
+
 #: src/store.tsx
 msgid "Why?"
 msgstr ""

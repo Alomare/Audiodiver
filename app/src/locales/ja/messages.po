@@ -8961,6 +8961,10 @@ msgstr "すべてのアーカイブから追加したアーカイブ全体"
 msgid "Whole songs, one after another or shuffled"
 msgstr "曲をまるごと、順番またはシャッフルで"
 
+#: src/TextTools.tsx
+msgid "Whole words only"
+msgstr "単語全体のみ"
+
 #: src/store.tsx
 msgid "Why?"
 msgstr "理由は？"

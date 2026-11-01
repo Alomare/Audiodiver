@@ -157,6 +157,21 @@ def test_replacing_words_leaves_timing_markup_and_fills_alone():
     assert textsort.replaced("a", "a", r"\1") == r"\1", "the new words are only words"
 
 
+def test_whole_words_leave_longer_words_alone_and_parts_are_the_default():
+    text = "Reinforce the reinforcements, reinforce-now (reinforce)"
+    assert textsort.replaced(text, "reinforce", "Help") == "Help the Helpments, Help-now (Help)"
+    assert textsort.replaced(text, "reinforce", "Help", whole=True) == "Help the reinforcements, Help-now (Help)"
+    assert textsort.replaced("Reinforce reinforce", "reinforce", "Help", case=True, whole=True) == "Reinforce Help"
+    assert textsort.replaced("(a) b(a)c", "(a)", "x", whole=True) == "x b(a)c", "words that start and end with signs"
+    assert textsort.replaced("#COUNT eagle", "COUNT", "x", whole=True) == "#COUNT eagle", "what the game fills in stays"
+
+
+def test_a_whole_word_replace_reaches_the_route(s):
+    s.text_apply([{"table": ARSENAL, "id": 41, "text": "PACK PACKS"}])
+    assert [c["after"] for c in s.text_replace("us", "pack", "Kit", ids=[41], whole=True)["changes"]] == ["Kit PACKS"]
+    assert [c["after"] for c in s.text_replace("us", "pack", "Kit", ids=[41])["changes"]] == ["Kit KitS"]
+
+
 def test_a_replace_starts_from_the_new_text_and_goes_by_the_chosen_lines(s):
     s.text_apply([{"table": ARSENAL, "id": 41, "text": "HOVER PACK II"}])
     got = s.text_replace("us", "pack", "Kit")["changes"]

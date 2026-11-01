@@ -29,7 +29,7 @@ To format part of a line, select the words and use the bar above the box. It has
 
 ## Find and replace
 
-**Find and Replace** changes words in many lines at once. Choose the lines, type the words, and see every change before it is made. Timing, colours, sizes and words the game fills in stay as they are, and the whole change is one step for {key:undo}. A search also finds parts of words, so check the list before you apply it.
+**Find and Replace** changes words in many lines at once. Choose the lines, type the words, and see every change before it is made. Timing, colours, sizes and words the game fills in stay as they are, and the whole change is one step for {key:undo}. A search also finds parts of words, unless **Whole words only** is on, so check the list before you apply it.
 
 ## Exporting and importing
 

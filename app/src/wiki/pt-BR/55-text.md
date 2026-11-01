@@ -2,7 +2,7 @@
 title: Texto e legendas
 group: Criando um mod
 summary: Como mudar legendas e qualquer outra linha do texto do jogo na aba Texto, incluindo palavras, cores e tamanhos, e o que manter intacto.
-source: 6ed9fe0e493a
+source: d48b85a4f8e6
 ---
 
 A aba [Texto](app:text) tem todas as linhas do texto do jogo em todos os idiomas, incluindo as legendas das falas, os textos de missão e de menu, e os nomes. Pesquise uma linha para mudá-la, e o mod inclui a alteração.
@@ -30,7 +30,7 @@ Para formatar parte de uma linha, selecione as palavras e use a barra acima da c
 
 ## Localizar e substituir {#find-and-replace}
 
-**Localizar e substituir** muda palavras em muitas linhas de uma vez. Escolha as linhas, digite as palavras e veja cada mudança antes de aplicá-la. Tempo, cores, tamanhos e palavras que o jogo preenche ficam como estão, e tudo é um único passo para {key:undo}. A busca também encontra partes de palavras, então confira a lista antes de aplicar.
+**Localizar e substituir** muda palavras em muitas linhas de uma vez. Escolha as linhas, digite as palavras e veja cada mudança antes de aplicá-la. Tempo, cores, tamanhos e palavras que o jogo preenche ficam como estão, e tudo é um único passo para {key:undo}. A busca também encontra partes de palavras, a menos que **Só palavras inteiras** esteja ativado, então confira a lista antes de aplicar.
 
 ## Exportar e importar {#exporting-and-importing}
 

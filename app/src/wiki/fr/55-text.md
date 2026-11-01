@@ -2,7 +2,7 @@
 title: Texte et sous-titres
 group: Créer un mod
 summary: Modifier les sous-titres et toute autre ligne du texte du jeu dans l’onglet Texte, y compris les mots, les couleurs et les tailles, et ce qu’il faut laisser intact.
-source: 6ed9fe0e493a
+source: d48b85a4f8e6
 ---
 
 L’onglet [Texte](app:text) contient chaque ligne du texte du jeu dans toutes les langues, y compris les sous-titres des répliques, les textes de mission et de menu, et les noms. Recherchez une ligne pour la modifier, et le mod inclut la modification.
@@ -30,7 +30,7 @@ Pour mettre en forme une partie d’une ligne, sélectionnez les mots et utilise
 
 ## Rechercher et remplacer {#find-and-replace}
 
-**Rechercher et remplacer** change des mots dans de nombreuses lignes d’un coup. Choisissez les lignes, saisissez les mots et voyez chaque changement avant de l’appliquer. Le minutage, les couleurs, les tailles et les mots remplis par le jeu ne changent pas, et le tout compte pour une seule étape de {key:undo}. La recherche trouve aussi des parties de mots : vérifiez donc la liste avant d’appliquer.
+**Rechercher et remplacer** change des mots dans de nombreuses lignes d’un coup. Choisissez les lignes, saisissez les mots et voyez chaque changement avant de l’appliquer. Le minutage, les couleurs, les tailles et les mots remplis par le jeu ne changent pas, et le tout compte pour une seule étape de {key:undo}. La recherche trouve aussi des parties de mots, sauf si **Mots entiers uniquement** est activé : vérifiez donc la liste avant d’appliquer.
 
 ## Exporter et importer {#exporting-and-importing}
 

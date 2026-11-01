@@ -105,9 +105,10 @@ def section_name(sec: str, lib) -> str:
     return tr(SECTIONS[sec]) if sec in SECTIONS else lib.items[sec]["name"]
 
 
-def replaced(text: str, find: str, new: str, case: bool = False) -> str:
-    """The line with these words changed, leaving timing, markup and what the game fills in as they are."""
-    what = re.compile(re.escape(find), 0 if case else re.I)
+def replaced(text: str, find: str, new: str, case: bool = False, whole: bool = False) -> str:
+    """The line with these words changed, leaving timing, markup and what the game fills in as they are. It matches
+    parts of words too, unless `whole`: no letter or digit right before or after."""
+    what = re.compile(rf"(?<!\w){re.escape(find)}(?!\w)" if whole else re.escape(find), 0 if case else re.I)
     parts = KEPT.split(text)
     parts[::2] = [what.sub(lambda _: new, p) for p in parts[::2]]
     return "".join(parts)

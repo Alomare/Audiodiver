@@ -8961,6 +8961,10 @@ msgstr "Pacotes inteiros, de Todos os Pacotes"
 msgid "Whole songs, one after another or shuffled"
 msgstr "Músicas inteiras, uma após a outra ou em ordem aleatória"
 
+#: src/TextTools.tsx
+msgid "Whole words only"
+msgstr "Só palavras inteiras"
+
 #: src/store.tsx
 msgid "Why?"
 msgstr "Por quê?"

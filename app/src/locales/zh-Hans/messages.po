@@ -8961,6 +8961,10 @@ msgstr "整个归档，来自“所有归档”"
 msgid "Whole songs, one after another or shuffled"
 msgstr "完整的歌曲，依次或随机播放"
 
+#: src/TextTools.tsx
+msgid "Whole words only"
+msgstr "仅全词匹配"
+
 #: src/store.tsx
 msgid "Why?"
 msgstr "为什么？"
