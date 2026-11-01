@@ -230,12 +230,16 @@ def verify(zip_path: Path, game: hd1.Hd1) -> list[str]:
                 wrong.append(f"{r.get('name')}: a resource holds only a type, a name and clips")
                 continue
             bank_id = int(r["name"][1:], 16)
+            listed = set()
             for row in r["clips"]:
                 where = f"{r['name']} {row.get('clip')}"
                 if not ID.fullmatch(str(row.get("clip"))):
                     wrong.append(f"{where}: a clip is # and 16 lowercase hex digits")
                     continue
                 clip, lang = int(row["clip"][1:], 16), row.get("lang", 0)
+                if (clip, lang) in listed:
+                    wrong.append(f"{where}: listed twice in one language")
+                listed.add((clip, lang))
                 bank = next((b for b in game.banks if b["name"] == bank_id and b["lang"] == lang), None)
                 original = bank and next((x for x in bank["rows"] if x[0] == clip), None)
                 if not original:

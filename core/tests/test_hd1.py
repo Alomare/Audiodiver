@@ -477,6 +477,7 @@ def spoil(zip_path, change):
     (lambda m, f: f.update({m["resources"][0]["clips"][0]["data"]: f[m["resources"][0]["clips"][0]["data"]] + b"x"}), "kept"),
     (lambda m, f: f.update({m["resources"][0]["clips"][0]["data"]: b"short"}), "header"),
     (lambda m, f: m.update(resources=[]), "nothing"),
+    (lambda m, f: m["resources"][0]["clips"].append(dict(m["resources"][0]["clips"][0])), "twice"),
 ])
 def test_the_check_after_a_build_finds_a_mod_the_mod_manager_would_refuse(game, tmp_path, monkeypatch, change, says):
     from audiodiver import hd1_build
