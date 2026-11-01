@@ -137,8 +137,8 @@ function BuildBox() {
           {" "}<Help tip={t`Volume, delays and similar settings, with the values the imported mod used. A slot's Make-Up Gain is applied on top.`} page="repatching#what-repatching-carries-over" /></p>
       )}
       {p.game === "hd1" && (
-        <p className="set-note"><Trans>A Helldivers 1 mod holds each sound bank it changes whole, in every language, so it can be large.</Trans>{" "}
-          <Help tip={t`The game replaces a sound bank all at once, so the mod carries every clip of it, not only the new ones`} page="helldivers-1" /></p>
+        <p className="set-note"><Trans>A Helldivers 1 mod holds only the new audio, but once deployed it can take several GB of disk.</Trans>{" "}
+          <Help tip={t`The game replaces a sound bank all at once, so the mod manager rebuilds each one the mod changes, in every language`} page="helldivers-1" /></p>
       )}
       {p.last_build && (
         <p className="build-last"><Trans>Last build: <b>{zip}</b>, {mb} MB, {when}</Trans>

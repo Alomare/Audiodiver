@@ -8,11 +8,14 @@ one after another in the clips' order. Rebuilt with nothing new, every bank of t
 A new clip keeps what the game knows the original by: its codec (Ogg Vorbis, or 16-bit PCM held whole), its rate,
 its channels, and how much of it sits in the bank before the stream takes over (8 KB, 32 KB for music, or all of it).
 
-A patch replaces a resource whole, every language of it at once, and a bundle reads only its own patches. So each
-bank with new audio goes into the mod with all its languages (the ones without new audio as the game has them) and
-into every bundle that holds it. Sound changes only what one player hears, so the mod's scope is client.
+A patch replaces a resource whole, every language of it at once, and a bundle reads only its own patches, which makes
+a whole bank up to 159 MB in each of 9 languages. So a mod holds only the new clips and names the banks they go in, and
+the mod manager rebuilds those banks from the installed game when it deploys: every language, and every bundle that
+holds them (rebuild here is the layout it follows). Sound changes only what one player hears, so the mod's scope is client.
 """
+import hashlib
 import json
+import re
 import struct
 import subprocess
 import tempfile
@@ -134,9 +137,17 @@ def mod_id(p: Project) -> str:
     return f"audiodiver.hd1-{p.guid.replace('-', '').lower()[:16]}"
 
 
+def clip_head(game: hd1.Hd1, bank: dict, row) -> bytes:
+    """The game's header of a clip, which says what a new clip in its place has to be."""
+    path = game.contents / bank["bundle"]
+    with hd1.Bundle(path, game.chunks.get(path)) as b:
+        game.chunks[path] = b.chunks
+        return b.read(bank["at"] + row[1], hd1.HEAD)
+
+
 def build(p: Project, game: hd1.Hd1, log=print, step=None) -> Path:
     """Builds the project as a Helldivers 1 mod: <build folder>/<name>-<version>.zip, holding obsidian.json and the
-    banks. Returns the ZIP's path."""
+    new clips, one resource per bank. Rows with the same bytes share a file. Returns the ZIP's path."""
     step = step or (lambda *_a, **_k: None)
     reps = [r for r in p.replacements if game.has(r.target)]
     if not reps:
@@ -145,53 +156,42 @@ def build(p: Project, game: hd1.Hd1, log=print, step=None) -> Path:
     if gone:
         raise Hd1BuildError(ntr("{n} replaced sound isn't in this version of Helldivers 1",
                                 "{n} replaced sounds aren't in this version of Helldivers 1", len(gone)).format(n=len(gone)))
-    by_clip = {}  # (bank name, language) -> {clip: replacement}
+    places = []  # (bank, its row of the clip, replacement)
     for r in reps:
         clip, lang = r.target & hd1.LOW, r.target >> 64
         for bank in game.banks:
-            if bank["lang"] == lang and any(row[0] == clip for row in bank["rows"]):
-                by_clip.setdefault((bank["name"], lang), {})[clip] = r
-    names = sorted({name for name, _ in by_clip})
+            if bank["lang"] == lang:
+                places += [(bank, row, r) for row in bank["rows"] if row[0] == clip]
     out_dir = p.build_dir()
     zip_path = out_dir / f"{arsenal.slug(p.name)}-{p.version}.zip"
-    resources, files = [], {}
+    rows: dict[int, list[dict]] = {}
     with tempfile.TemporaryDirectory(prefix="audiodiver-hd1-") as tmp:
         work = Path(tmp)
         res = work / "res"
         res.mkdir()
-        total = sum(len(v) for v in by_clip.values())
-        done = 0
-        for name in names:
-            variants = []
-            for bank in sorted((b for b in game.banks if b["name"] == name), key=lambda b: b["lang"]):
-                raw, stream = bank_files(game, bank)
-                mine = by_clip.get((name, bank["lang"]), {})
-                new = {}
-                rows = {row[0]: row for row in rows_of(raw)}
-                for clip, r in mine.items():
-                    done += 1
-                    step(tr("encoding {name}").format(name=r.label or Path(r.audio).name or tr("silence")), done)
-                    _, off, size, _, ssize = rows[clip]
-                    new[clip] = new_clip(_with_gain(_source_file(p, r), r.gain_db, work), raw[off:off + size], ssize > 0)
-                if new:
-                    raw, stream = rebuild(raw, stream, new)
-                stem = f"{name:016x}.{bank['lang']:x}"
-                (res / f"{stem}.timpani_bank").write_bytes(raw)
-                variant = {"lang": bank["lang"], "data": f"res/{stem}.timpani_bank"}
-                if stream:
-                    (res / f"{stem}.stream").write_bytes(stream)
-                    variant["stream"] = f"res/{stem}.stream"
-                variants.append(variant)
-                files[stem] = len(raw) + len(stream)
-            holders = sorted({b for bank in game.banks if bank["name"] == name for b in bank.get("bundles", [bank["bundle"]])})
-            for bundle in holders:
-                entry = {"type": "timpani_bank", "name": f"#{name:016x}", "bundle": Path(bundle).name}
-                if len(variants) == 1 and variants[0]["lang"] == 0:
-                    entry |= {k: v for k, v in variants[0].items() if k != "lang"}
-                else:
-                    entry["variants"] = variants
-                resources.append(entry)
-        step(tr("writing the mod"), total)
+
+        def kept(data: bytes, kind: str) -> str:
+            """The file with these bytes, which rows of the same clip share."""
+            name = f"res/{hashlib.sha256(data).hexdigest()[:16]}.{kind}"
+            if not (work / name).exists():
+                (work / name).write_bytes(data)
+            return name
+        encoded = {}  # a file comes out the same wherever the original has the same format
+        for done, (bank, row, r) in enumerate(places, 1):
+            step(tr("encoding {name}").format(name=r.label or Path(r.audio).name or tr("silence")), done)
+            head = clip_head(game, bank, row)
+            streamed = row[4] > 0
+            key = (id(r), struct.unpack_from("<HHI", head, 48), struct.unpack_from("<I", head, 4)[0] if streamed else 0)
+            if key not in encoded:
+                encoded[key] = new_clip(_with_gain(_source_file(p, r), r.gain_db, work), head, streamed)
+            data, stream = encoded[key]
+            entry = {"clip": f"#{row[0]:016x}", **({"lang": bank["lang"]} if bank["lang"] else {}), "data": kept(data, "clip")}
+            if stream:
+                entry["stream"] = kept(stream, "stream")
+            rows.setdefault(bank["name"], []).append(entry)
+        step(tr("writing the mod"), len(places))
+        resources = [{"type": "timpani_bank", "name": f"#{name:016x}",
+                      "clips": sorted(rows[name], key=lambda x: (x["clip"], x.get("lang", 0)))} for name in sorted(rows)]
         manifest = {"obsidian": 1, "id": mod_id(p), "version": f"1.0.{p.version}", "name": {"en": p.name},
                     "description": {"en": p.description or "New audio for Helldivers 1, made with Audiodiver."},  # English, as mod names
                     "authors": [], "scope": "client", "resources": resources, "loader_api": 1}
@@ -207,30 +207,51 @@ def build(p: Project, game: hd1.Hd1, log=print, step=None) -> Path:
             partial.replace(zip_path)
         except OSError as e:
             raise Hd1BuildError(tr("Can't write {file}: {why}").format(file=zip_path.name, why=str(e))) from None
-    log(ntr("{n} bank with new audio, {mb} MB", "{n} banks with new audio, {mb} MB", len(names)).format(
-        n=len(names), mb=round(zip_path.stat().st_size / 1e6, 1)))
+    log(ntr("{n} bank with new audio, {mb} MB", "{n} banks with new audio, {mb} MB", len(rows)).format(
+        n=len(rows), mb=round(zip_path.stat().st_size / 1e6, 1)))
     return zip_path
 
 
+ID = re.compile(r"#[0-9a-f]{16}")
+
+
 def verify(zip_path: Path, game: hd1.Hd1) -> list[str]:
-    """Reads a built mod back: every bank parses, ends on its last clip, and its stream holds what its rows say.
-    Returns what is wrong (nothing for a good mod)."""
+    """Reads a built mod back, as the mod manager will: each row names a bank, language and clip the game has, and
+    holds a clip in the original's format with the size its header says. The banks themselves are made at deploy, so
+    the check stops there. Returns what is wrong (nothing for a good mod)."""
     wrong = []
     with zipfile.ZipFile(zip_path) as z:
         m = json.loads(z.read(MANIFEST))
+        names = set(z.namelist())
+        if not m["resources"]:
+            wrong.append("the mod holds nothing")
         for r in m["resources"]:
-            for v in r.get("variants") or [r]:
-                raw = z.read(v["data"])
-                stream = z.read(v["stream"]) if v.get("stream") else b""
-                rows = rows_of(raw)
-                ends = max((off + size for _, off, size, _, _ in rows), default=8 + 24 * len(rows))
-                if ends != len(raw):
-                    wrong.append(f"{v['data']}: the bank doesn't end on the last clip")
-                if sum(s for *_, s in rows) != len(stream):
-                    wrong.append(f"{v['data']}: the stream isn't the size the rows say")
-                for clip, off, size, soff, ssize in rows:
-                    head = raw[off:off + hd1.HEAD]
-                    if len(head) < hd1.HEAD or struct.unpack_from("<H", head, 48)[0] not in (hd1.VORBIS, hd1.PCM):
-                        wrong.append(f"{v['data']}: clip {clip:016x} has no clip header")
-                        break
+            if set(r) != {"type", "name", "clips"} or r["type"] != "timpani_bank" or not ID.fullmatch(r["name"]):
+                wrong.append(f"{r.get('name')}: a resource holds only a type, a name and clips")
+                continue
+            bank_id = int(r["name"][1:], 16)
+            for row in r["clips"]:
+                where = f"{r['name']} {row.get('clip')}"
+                if not ID.fullmatch(str(row.get("clip"))):
+                    wrong.append(f"{where}: a clip is # and 16 lowercase hex digits")
+                    continue
+                clip, lang = int(row["clip"][1:], 16), row.get("lang", 0)
+                bank = next((b for b in game.banks if b["name"] == bank_id and b["lang"] == lang), None)
+                original = bank and next((x for x in bank["rows"] if x[0] == clip), None)
+                if not original:
+                    wrong.append(f"{where}: this clip and language isn't in the game's bank")
+                    continue
+                missing = [f for f in (row.get("data"), row.get("stream")) if f and f not in names]
+                if missing or not row.get("data"):
+                    wrong.append(f"{where}: the file is gone: {missing}")
+                    continue
+                data = z.read(row["data"])
+                if len(data) < hd1.HEAD or struct.unpack_from("<I", data)[0] != hd1.HEAD:
+                    wrong.append(f"{where}: no clip header")
+                    continue
+                if struct.unpack_from("<I", data, 4)[0] != len(data) - hd1.HEAD:
+                    wrong.append(f"{where}: the header's kept size isn't the size of the file")
+                head = clip_head(game, bank, original)
+                if data[48:56] != head[48:56]:
+                    wrong.append(f"{where}: not in the original's format")
     return wrong

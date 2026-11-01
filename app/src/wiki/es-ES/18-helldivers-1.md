@@ -2,7 +2,7 @@
 title: Mods de Helldivers 1
 group: Primeros pasos
 summary: Sustituir el audio de Helldivers 1: la elección del juego en Inicio, qué puede cambiar un proyecto y por qué un mod puede ocupar mucho.
-source: e3bca1d54467
+source: 05cbb54554ba
 ---
 
 Con Helldivers 1 instalado, los botones **Helldivers 2** y **Helldivers 1** de [Inicio](app:home) eligen el juego para el que Audiodiver crea mods. Cada proyecto pertenece a un solo juego, y abrir un proyecto cambia a ese juego. Elegir el otro juego cierra el proyecto abierto.
@@ -24,4 +24,4 @@ Las pestañas Banda Sonora, Texto y Herramientas, **Importar mod**, los **Filtro
 
 Algunos sonidos tienen una pestaña por idioma, con slots separados. El audio nuevo en un idioma solo suena en ese idioma.
 
-El juego sustituye un banco de sonido de una vez, en todos los idiomas y en todos los lugares que lo contienen. Por eso un mod lleva entero cada banco de sonido que cambia, y un sonido corto en un banco de sonido grande puede generar un ZIP de unos 3 GB.
+Un mod lleva solo el audio nuevo, así que el ZIP sigue siendo pequeño. El juego sustituye un banco de sonido de una vez, en todos los idiomas y en todos los lugares que lo contienen, así que al desplegar el gestor de mods reconstruye cada banco de sonido que cambia el mod a partir de los archivos del juego. Un sonido corto en un banco de sonido grande puede ocupar unos 3 GB de disco mientras está desplegado. Tras una actualización del juego, despliega de nuevo: el mod sigue como está. Los mods de Helldivers 1 necesitan la última versión del gestor de mods.

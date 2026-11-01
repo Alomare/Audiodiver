@@ -23,4 +23,4 @@ The Soundtrack, Text and Tools tabs, **Import Mod**, **Filters**, new takes and 
 
 Some sounds have a tab for each language, with separate slots. New audio in one language plays only in that language.
 
-The game replaces a sound bank all at once, in every language and in every place that holds it. So a mod holds each sound bank it changes whole, and one short sound in a big sound bank can make a ZIP of about 3 GB.
+A mod holds only the new audio, so the ZIP stays small. The game replaces a sound bank all at once, in every language and in every place that holds it, so the mod manager rebuilds each sound bank the mod changes from the game's files when it deploys. One short sound in a big sound bank can take about 3 GB of disk while deployed. After a game update, deploy again: the mod stays as it is. Helldivers 1 mods need the latest version of the mod manager.

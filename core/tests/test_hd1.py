@@ -408,19 +408,83 @@ def test_a_helldivers_1_project_builds_a_mod_for_the_mod_manager(game, tmp_path,
         m = json.loads(z.read("obsidian.json"))
         assert m["scope"] == "client" and m["id"] == "audiodiver.hd1-" + s.project.guid.replace("-", "")[:16] and m["version"] == "1.0.1"
         [r] = m["resources"]
-        assert (r["type"], r["name"], r["bundle"]) == ("timpani_bank", f"#{BANK_NAME:016x}", "0123456789abcdef")
-        en, fr_v = r["variants"]
-        assert (en["lang"], fr_v["lang"]) == (0, 0x100)
+        assert set(r) == {"type", "name", "clips"}, "the mod manager finds the bundles and keeps the rest of the bank"
+        assert (r["type"], r["name"]) == ("timpani_bank", f"#{BANK_NAME:016x}")
+        [row] = r["clips"]
+        assert (row["clip"], row["lang"]) == (f"#{CLIPS['one']:016x}", 0x100) and "stream" not in row, "PCM is held whole"
+        data = z.read(row["data"])
+        assert struct.unpack_from("<HHI", data, 48) == (hd1.PCM, 1, 48000), "the original's codec, channels and rate"
+        assert struct.unpack_from("<I", data, 4)[0] == len(data) - hd1.HEAD and struct.unpack_from("<I", data, 8)[0] == 9600
+        assert not [n for n in z.namelist() if n.endswith((".timpani_bank",))], "no bank goes in the mod"
+        # what the mod manager makes of it at deploy: the game's bank with this clip in place, the others as they were
         h = s.hd1
-        game_en = hd1_build.bank_files(h, next(b for b in h.banks if b["lang"] == 0))
-        assert (z.read(en["data"]), z.read(en["stream"])) == game_en, "a language without new audio is the game's"
-        fr_bank = z.read(fr_v["data"])
-        rows = {x[0]: x for x in hd1_build.rows_of(fr_bank)}
-        _, off, size, _, ssize = rows[CLIPS["one"]]
-        head = fr_bank[off:off + hd1.HEAD]
-        assert struct.unpack_from("<HHI", head, 48) == (hd1.PCM, 1, 48000), "the original's codec, channels and rate"
-        assert ssize == 0 and struct.unpack_from("<I", head, 8)[0] == 9600, "PCM held whole; 0.2 s at 48 kHz"
+        raw, stream = hd1_build.bank_files(h, next(b for b in h.banks if b["lang"] == 0x100))
+        built, _ = hd1_build.rebuild(raw, stream, {CLIPS["one"]: (data, b"")})
+        rows = {x[0]: x for x in hd1_build.rows_of(built)}
+        assert built[rows[CLIPS["one"]][1]:][:len(data)] == data and len(rows) == len(hd1_build.rows_of(raw))
     assert s.project_state()["version"] == 2
+
+
+def recipe_game(tmp_path, game, monkeypatch):
+    """A session with one project and new audio on one clip."""
+    s, slot = hd1_session(game, tmp_path, monkeypatch)
+    tone = tone_file(tmp_path / "proj" / "tone.wav")
+    s.assign(slot, str(tone))
+    return s, tone
+
+
+def test_rows_with_the_same_bytes_share_a_file_and_the_size_stays_the_new_audio(game, tmp_path, monkeypatch):
+    import json
+    import zipfile
+    from audiodiver import hd1_build
+    from audiodiver.project import Replacement
+    s, tone = recipe_game(tmp_path, game, monkeypatch)
+    p = s.project
+    p.replacements.append(Replacement(target=hd1.source(CLIPS["one"], 0), audio=p.replacements[0].audio))
+    p.replacements.append(Replacement(target=hd1.source(CLIPS["two"], 0x100), audio=p.replacements[0].audio))
+    zip_path = hd1_build.build(p, s.hd1, log=lambda *_: None)
+    assert hd1_build.verify(zip_path, s.hd1) == []
+    with zipfile.ZipFile(zip_path) as z:
+        [r] = json.loads(z.read("obsidian.json"))["resources"]
+        rows = r["clips"]
+        assert [(x["clip"], x.get("lang", 0)) for x in rows] == [
+            (f"#{CLIPS['one']:016x}", 0), (f"#{CLIPS['one']:016x}", 0x100), (f"#{CLIPS['two']:016x}", 0x100)]
+        assert "lang" not in rows[0], "the language 0 is left out"
+        assert len({x["data"] for x in rows}) == 1 and len([n for n in z.namelist() if n.startswith("res/")]) == 1
+
+
+def spoil(zip_path, change):
+    """The mod with its manifest and files changed: change(manifest, files)."""
+    import json
+    import zipfile
+    with zipfile.ZipFile(zip_path) as z:
+        files = {n: z.read(n) for n in z.namelist()}
+    m = json.loads(files["obsidian.json"])
+    change(m, files)
+    files["obsidian.json"] = json.dumps(m).encode()
+    with zipfile.ZipFile(zip_path, "w") as z:
+        for n, data in files.items():
+            z.writestr(n, data)
+
+
+@pytest.mark.parametrize("change, says", [
+    (lambda m, f: m["resources"][0]["clips"][0].update(clip="#ABCDEF0000000000"), "clip"),
+    (lambda m, f: m["resources"][0]["clips"][0].update(clip="#9999999999999999"), "isn't in"),
+    (lambda m, f: m["resources"][0]["clips"][0].update(lang=0x4000), "isn't in"),
+    (lambda m, f: m["resources"][0].update(name="#0000000000000001"), "isn't in"),
+    (lambda m, f: m["resources"][0].update(bundle="0123456789abcdef"), "only"),
+    (lambda m, f: m["resources"][0]["clips"][0].update(data="res/gone.clip"), "gone"),
+    (lambda m, f: f.update({m["resources"][0]["clips"][0]["data"]: f[m["resources"][0]["clips"][0]["data"]] + b"x"}), "kept"),
+    (lambda m, f: f.update({m["resources"][0]["clips"][0]["data"]: b"short"}), "header"),
+    (lambda m, f: m.update(resources=[]), "nothing"),
+])
+def test_the_check_after_a_build_finds_a_mod_the_mod_manager_would_refuse(game, tmp_path, monkeypatch, change, says):
+    from audiodiver import hd1_build
+    s, _ = recipe_game(tmp_path, game, monkeypatch)
+    zip_path = hd1_build.build(s.project, s.hd1, log=lambda *_: None)
+    assert hd1_build.verify(zip_path, s.hd1) == []
+    spoil(zip_path, change)
+    assert says in " ".join(hd1_build.verify(zip_path, s.hd1))
 
 
 def hd1_session(game, tmp_path, monkeypatch):

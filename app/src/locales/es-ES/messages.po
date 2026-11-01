@@ -1056,8 +1056,8 @@ msgid "A folder for each item"
 msgstr "Una carpeta por elemento"
 
 #: src/BuildTab.tsx
-msgid "A Helldivers 1 mod holds each sound bank it changes whole, in every language, so it can be large."
-msgstr "Un mod de Helldivers 1 lleva entero cada banco de sonido que cambia, en todos los idiomas, así que puede ocupar mucho."
+msgid "A Helldivers 1 mod holds only the new audio, but once deployed it can take several GB of disk."
+msgstr "Un mod de Helldivers 1 lleva solo el audio nuevo, pero una vez desplegado puede ocupar varios GB de disco."
 
 #: src/App.tsx
 msgid "A job is still running."
@@ -7877,8 +7877,8 @@ msgid "The game plays this audio in other places too."
 msgstr "El juego también reproduce este audio en otros lugares."
 
 #: src/BuildTab.tsx
-msgid "The game replaces a sound bank all at once, so the mod carries every clip of it, not only the new ones"
-msgstr "El juego sustituye un banco de sonido de una vez, así que el mod lleva todos los clips del banco, no solo los nuevos"
+msgid "The game replaces a sound bank all at once, so the mod manager rebuilds each one the mod changes, in every language"
+msgstr "El juego sustituye un banco de sonido de una vez, así que el gestor de mods reconstruye cada uno que cambia el mod, en todos los idiomas"
 
 #: src/ExportDialog.tsx
 msgid "The game shuffles parts of this music. The export uses the listed order."

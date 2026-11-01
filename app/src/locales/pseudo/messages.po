@@ -1056,7 +1056,7 @@ msgid "A folder for each item"
 msgstr ""
 
 #: src/BuildTab.tsx
-msgid "A Helldivers 1 mod holds each sound bank it changes whole, in every language, so it can be large."
+msgid "A Helldivers 1 mod holds only the new audio, but once deployed it can take several GB of disk."
 msgstr ""
 
 #: src/App.tsx
@@ -7877,7 +7877,7 @@ msgid "The game plays this audio in other places too."
 msgstr ""
 
 #: src/BuildTab.tsx
-msgid "The game replaces a sound bank all at once, so the mod carries every clip of it, not only the new ones"
+msgid "The game replaces a sound bank all at once, so the mod manager rebuilds each one the mod changes, in every language"
 msgstr ""
 
 #: src/ExportDialog.tsx
