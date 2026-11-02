@@ -1732,6 +1732,10 @@ msgstr ""
 msgid "Audiodiver notes"
 msgstr ""
 
+#: src/Home.tsx
+msgid "Audiodiver on GitHub"
+msgstr ""
+
 #: src/SettingsTab.tsx
 msgid "Audiodiver only reads from this folder, to play and export in the Library."
 msgstr ""
@@ -8418,6 +8422,10 @@ msgstr ""
 
 #: src/IndexTree.tsx
 msgid "The sounds are in {name}"
+msgstr ""
+
+#: src/Home.tsx
+msgid "The source code, issues and releases. Opens github.com/Alomare/Audiodiver"
 msgstr ""
 
 #: src/ExportDialog.tsx

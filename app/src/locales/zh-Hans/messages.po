@@ -1732,6 +1732,10 @@ msgstr "Audiodiver 无法读取核心的响应（HTTP {status}）"
 msgid "Audiodiver notes"
 msgstr "Audiodiver 备注"
 
+#: src/Home.tsx
+msgid "Audiodiver on GitHub"
+msgstr "GitHub 上的 Audiodiver"
+
 #: src/SettingsTab.tsx
 msgid "Audiodiver only reads from this folder, to play and export in the Library."
 msgstr "Audiodiver 只读取此文件夹，用于在资源库中播放和导出。"
@@ -8419,6 +8423,10 @@ msgstr "声音"
 #: src/IndexTree.tsx
 msgid "The sounds are in {name}"
 msgstr "这些声音位于 {name}"
+
+#: src/Home.tsx
+msgid "The source code, issues and releases. Opens github.com/Alomare/Audiodiver"
+msgstr "源代码、问题反馈和版本发布。打开 github.com/Alomare/Audiodiver"
 
 #: src/ExportDialog.tsx
 msgid "The source ID of each slot, as other modding tools name game audio"

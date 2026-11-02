@@ -1732,6 +1732,10 @@ msgstr "Audiodiver n'a pas pu lire la réponse du moteur (HTTP {status})"
 msgid "Audiodiver notes"
 msgstr "Notes Audiodiver"
 
+#: src/Home.tsx
+msgid "Audiodiver on GitHub"
+msgstr "Audiodiver sur GitHub"
+
 #: src/SettingsTab.tsx
 msgid "Audiodiver only reads from this folder, to play and export in the Library."
 msgstr "Audiodiver ne fait que lire dans ce dossier, pour écouter et exporter dans la Bibliothèque."
@@ -8419,6 +8423,10 @@ msgstr "Les sons"
 #: src/IndexTree.tsx
 msgid "The sounds are in {name}"
 msgstr "Les sons sont dans {name}"
+
+#: src/Home.tsx
+msgid "The source code, issues and releases. Opens github.com/Alomare/Audiodiver"
+msgstr "Le code source, les signalements et les versions. Ouvre github.com/Alomare/Audiodiver"
 
 #: src/ExportDialog.tsx
 msgid "The source ID of each slot, as other modding tools name game audio"

@@ -1732,6 +1732,10 @@ msgstr "Audiodiverはコアの応答を読み取れませんでした（HTTP {st
 msgid "Audiodiver notes"
 msgstr "Audiodiverのメモ"
 
+#: src/Home.tsx
+msgid "Audiodiver on GitHub"
+msgstr "GitHubのAudiodiver"
+
 #: src/SettingsTab.tsx
 msgid "Audiodiver only reads from this folder, to play and export in the Library."
 msgstr "Audiodiver はこのフォルダーを読み取るだけで、ライブラリでの再生とエクスポートに使います。"
@@ -8419,6 +8423,10 @@ msgstr "サウンド"
 #: src/IndexTree.tsx
 msgid "The sounds are in {name}"
 msgstr "サウンドは{name}にあります"
+
+#: src/Home.tsx
+msgid "The source code, issues and releases. Opens github.com/Alomare/Audiodiver"
+msgstr "ソースコード、問題の報告、リリース。github.com/Alomare/Audiodiverを開きます"
 
 #: src/ExportDialog.tsx
 msgid "The source ID of each slot, as other modding tools name game audio"

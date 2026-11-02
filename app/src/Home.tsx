@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { call, projectIconUrl } from "./api";
-import { DISCORD_URL, HOME_ART, HOME_ART_HD1, KOFI_URL, TICKER_URL } from "./content";
-import { CloseIcon, DiscordIcon, FolderIcon, ImportIcon, KofiIcon, MergeIcon, NextIcon, PlusIcon, PrevIcon, ProjectIcon, ToolsIcon } from "./Icons";
+import { DISCORD_URL, HOME_ART, HOME_ART_HD1, KOFI_URL, REPO_URL, TICKER_URL } from "./content";
+import { CloseIcon, DiscordIcon, FolderIcon, GithubIcon, ImportIcon, KofiIcon, MergeIcon, NextIcon, PrevIcon, ProjectIcon, ToolsIcon } from "./Icons";
 import { nav, useNav, type Mode } from "./nav";
 import { openUrl } from "./platform";
 import { useSettings } from "./settings";
@@ -22,8 +22,8 @@ export function Home() {
   return (
     <section className={`home${art.length ? " with-art" : ""}${homeTicker ? "" : " no-ticker"}`} aria-label={t`Home`}>
       <div className="home-scroll">
+        {status?.hd1 && <GameSwitch />}
         <div className="home-inner view-in">
-          {status?.hd1 && <GameSwitch />}
           <header className="home-hero">
             <h1><Trans comment="The title on Home; <0/> is a line break">A new anthem<br />for Super Earth</Trans></h1>
           </header>
@@ -33,7 +33,7 @@ export function Home() {
               line under Open Project says which, with Go to Project and Close */}
           <nav className="home-menu" aria-label={t({ message: "Start", comment: "The menu on Home with New Project, Open Project and Import Mod" })}>
             <button className="menu-item hot" onClick={actions.newProject} data-tip={t`Start a mod`} data-tip-cmd="newProject">
-              <span className="menu-mark"><PlusIcon /></span><span className="menu-label"><Trans>New Project</Trans></span><LevelMeter /></button>
+              <span className="menu-label"><Trans>New Project</Trans></span><LevelMeter /></button>
             <div className="menu-item menu-open">
               <button className="menu-open-btn" onClick={() => actions.openProject()} data-tip={t`Open a .audi project or a .audipack pack`} data-tip-cmd="openProject"
                 data-tip-more={t`A pack is a project and the files it uses, in one file`}><span className="menu-mark"><FolderIcon /></span><span className="menu-label"><Trans>Open Project</Trans></span></button>
@@ -80,8 +80,8 @@ function LevelMeter() {
   return <span className="menu-meter" aria-hidden>{LEVELS.map((h, i) => <i key={i} style={{ height: `${h}%`, ["--n" as any]: i }} />)}</span>;
 }
 
-/** Which game the window makes mods for, once Helldivers 1 is found, first on the page: a track as wide as the menu,
-    whose thumb slides to the game in use. Each has its own tabs and pictures, and a project is for one of them (nav.ts Mode). A project of
+/** Which game the window makes mods for, once Helldivers 1 is found, in the top-right corner: a track whose thumb
+    slides to the game in use. Each has its own tabs and pictures, and a project is for one of them (nav.ts Mode). A project of
     the other game closes first. */
 function GameSwitch() {
   const { project, actions } = useEditor();
@@ -133,8 +133,8 @@ function Recent() {
   );
 }
 
-/** The way to the modding community's Discord, for questions, feedback and help, and to Ko-fi, for supporting
-    Audiodiver (in the corner, over the art). */
+/** The way to the modding community's Discord, for questions, feedback and help, to Ko-fi, for supporting
+    Audiodiver, and to Audiodiver on GitHub, for the code, issues and releases (in the corner, over the art). */
 function Community() {
   return (
     <div className="home-links">
@@ -145,6 +145,9 @@ function Community() {
       <button className="home-link" onClick={() => openUrl(KOFI_URL)} data-tip={t`Support Audiodiver on Ko-fi`}
         data-tip-more={t`Opens ko-fi.com/alomare`} data-tip-side="top">
         <KofiIcon />Ko-fi</button>
+      <button className="home-link" onClick={() => openUrl(REPO_URL)} data-tip={t`Audiodiver on GitHub`}
+        data-tip-more={t`The source code, issues and releases. Opens github.com/Alomare/Audiodiver`} data-tip-side="top">
+        <GithubIcon />GitHub</button>
     </div>
   );
 }

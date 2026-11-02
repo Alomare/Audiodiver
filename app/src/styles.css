@@ -1332,7 +1332,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .home-hero { display: flex; flex-direction: column; align-items: flex-start; gap: calc(18px * var(--sp)); max-width: calc(700px * var(--fs)); }
 .home-hero h1 { font-size: calc(36px * var(--fs)); line-height: 1.04; letter-spacing: -.015em; max-width: 15ch; }
 /* the menu: tall uppercase squares of one plain colour, each with an icon on a darker square of its own. Hovered or
-   focused, that square lights up and a chevron comes forward. The way in is yellow, with a level meter at its end,
+   focused, that square lights up and a chevron comes forward. The way in is yellow, with no icon and a level meter at its end,
    like the bars on the logo's brow, which plays under the pointer. */
 .home-menu { display: flex; flex-direction: column; gap: calc(6px * var(--sp)); max-width: calc(480px * var(--fs)); margin-top: calc(42px * var(--sp)); }
 .menu-item { display: flex; align-items: stretch; width: 100%; min-height: calc(48px * var(--fs)); padding: 0; text-align: left; color: var(--text); background: var(--raised);
@@ -1346,16 +1346,15 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .menu-item:hover .menu-mark, .menu-item:focus-visible .menu-mark, .menu-open:has(> .menu-open-btn:focus-visible) .menu-mark { color: var(--accent-ink); background: var(--accent); }
 .menu-item:hover .menu-go, .menu-item:focus-visible .menu-go { color: var(--accent-fg); transform: translateX(5px); }
 .menu-item.hot { min-height: calc(56px * var(--fs)); font-size: calc(15.3px * var(--fs)); font-weight: 800; color: var(--accent-ink); background: var(--accent); }
-.menu-item.hot .menu-mark, .menu-item.hot:hover .menu-mark, .menu-item.hot:focus-visible .menu-mark { width: calc(56px * var(--fs)); color: var(--accent); background: var(--accent-ink); }
 .menu-item.hot:hover, .menu-item.hot:focus-visible { background: var(--accent-hover); }
 .menu-meter { display: flex; align-items: center; gap: 3px; height: calc(26px * var(--fs)); align-self: center; margin-left: auto; padding-right: 18px; }
 .menu-meter i { display: block; width: 4px; background: var(--accent-ink); transform-origin: center; }
 .menu-item.hot:hover .menu-meter i, .menu-item.hot:focus-visible .menu-meter i { animation: menu-level calc(520ms * var(--anim)) ease-in-out infinite alternate; animation-delay: calc(var(--n) * -130ms * var(--anim)); }
 @keyframes menu-level { from { transform: scaleY(.35); } to { transform: scaleY(1.15); } }
-/* which game, first on the page: not a button but a dark track as wide as the menu, whose slanted thumb slides to the
-   game in use. Both let a little of the picture through. */
-.game-switch { position: relative; display: grid; grid-template-columns: 1fr 1fr; max-width: calc(480px * var(--fs)); height: calc(40px * var(--fs));
-  margin-bottom: calc(30px * var(--sp)); overflow: hidden; background: color-mix(in srgb, var(--bg) 88%, transparent); box-shadow: inset 0 0 0 1px var(--line); }
+/* which game, in the top-right corner, the page's margin from both edges: not a button but a dark track whose slanted
+   thumb slides to the game in use. Both let a little of the picture through. */
+.game-switch { position: absolute; top: var(--home-m); right: var(--home-m); z-index: 1; display: grid; grid-template-columns: 1fr 1fr;
+  width: calc(340px * var(--fs)); height: calc(40px * var(--fs)); overflow: hidden; animation: view-in var(--t2) var(--ease) both; background: color-mix(in srgb, var(--bg) 88%, transparent); box-shadow: inset 0 0 0 1px var(--line); }
 .game-switch::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 54%; background: color-mix(in srgb, var(--accent) 88%, transparent); transform: translateX(-7.4%) skewX(-16deg);
   transition: transform var(--t3) var(--ease); }
 .game-switch[data-at="hd2"]::before { transform: translateX(92.6%) skewX(-16deg); }
