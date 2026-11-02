@@ -39,9 +39,11 @@ export function fmtDate(iso: string) {
 
 // ---- Home art: every image in src/art, in file-name order ("wp (2)" before "wp (10)"). Home shows them one after
 // the other; without any, it shows a wall of level meters.
-export const HOME_ART = Object.entries(import.meta.glob("./art/*.{jpg,jpeg,png,webp,avif}",
-  { query: "?url", import: "default", eager: true }) as Record<string, string>)
+const inOrder = (found: Record<string, string>) => Object.entries(found)
   .sort(([a], [b]) => a.localeCompare(b, undefined, { numeric: true })).map(([, url]) => url);
+export const HOME_ART = inOrder(import.meta.glob("./art/*.{jpg,jpeg,png,webp,avif}", { query: "?url", import: "default", eager: true }));
+/** In Helldivers 1 mode, the images in src/art/hd1 in their place. */
+export const HOME_ART_HD1 = inOrder(import.meta.glob("./art/hd1/*.{jpg,jpeg,png,webp,avif}", { query: "?url", import: "default", eager: true }));
 /** Where the art comes from: About ▸ Credits names it. */
 export const ART_CREDIT: { name: string; url?: string; for: string } = { name: "Alomare", for: t`the screenshots of Helldivers 2 behind Home` };
 

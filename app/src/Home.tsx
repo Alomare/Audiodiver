@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { call, projectIconUrl } from "./api";
-import { DISCORD_URL, HOME_ART, KOFI_URL, TICKER_URL } from "./content";
+import { DISCORD_URL, HOME_ART, HOME_ART_HD1, KOFI_URL, TICKER_URL } from "./content";
 import { CloseIcon, DiscordIcon, KofiIcon, NextIcon, PrevIcon, ProjectIcon } from "./Icons";
 import { nav, useNav, type Mode } from "./nav";
 import { openUrl } from "./platform";
@@ -18,13 +18,13 @@ export function Home() {
   const { homeTicker } = useSettings();
   const { mode } = useNav();
   const name = project?.name;
+  const art = mode === "hd1" ? HOME_ART_HD1 : HOME_ART;
   return (
-    <section className={`home${HOME_ART.length ? " with-art" : ""}${homeTicker ? "" : " no-ticker"}`} aria-label={t`Home`}>
+    <section className={`home${art.length ? " with-art" : ""}${homeTicker ? "" : " no-ticker"}`} aria-label={t`Home`}>
       <div className="home-scroll">
         <div className="home-inner view-in">
           <header className="home-hero">
             <h1><Trans comment="The title on Home; <0/> is a line break">A new anthem<br />for Super Earth</Trans></h1>
-            {status?.hd1 && <GameSwitch />}
           </header>
 
           {/* a menu, as the game's own: the yellow item is the way in; the Tools tab's two pages after a gap.
@@ -48,26 +48,30 @@ export function Home() {
             )}
           </nav>
 
-          {mode === "hd2" && <nav className="home-menu home-tools" aria-label={t`Tools`}>
+          {(mode === "hd2" || status?.hd1) && <nav className="home-menu home-tools" aria-label={t`Tools`}>
+            {mode === "hd2" && <>
             <button className="menu-item" onClick={() => nav.go("tools", "repatch")}
               data-tip={t`Rebuild an existing audio mod for the current game version, without a project`}
               data-tip-more={t`For a mod that went silent or wrong after a game update, or that mutes other sounds`}><Trans>Repatch</Trans></button>
             <button className="menu-item" onClick={() => nav.go("tools", "combine")}
               data-tip={t`Make one mod out of several audio mods`}
               data-tip-more={t`For mods that change the same sound banks, where only the one deployed last plays`}><Trans>Combine Mods</Trans></button>
+            </>}
+            {status?.hd1 && <GameSwitch />}
           </nav>}
 
         </div>
       </div>
-      {HOME_ART.length ? <HomeArt><Community /></HomeArt>
-        : <><div className="home-art" aria-hidden><Meters /></div><div className="home-corner"><Community /></div></>}
+      {art.length ? <HomeArt key={mode} art={art} set={mode}><Community /></HomeArt>
+        : <><div className="home-art" aria-hidden><Meters /><Veil /></div><div className="home-corner"><Community /></div></>}
       {homeTicker && <Ticker />}
     </section>
   );
 }
 
-/** Which game the window makes mods for, once Helldivers 1 is found: each has its own tabs, and a project is for one
-    of them (nav.ts Mode). A project of the other game closes first. */
+/** Which game the window makes mods for, once Helldivers 1 is found: a menu strip split in two, the one in use lit.
+    Each has its own tabs and pictures, and a project is for one of them (nav.ts Mode). A project of the other game
+    closes first. */
 function GameSwitch() {
   const { project, actions } = useEditor();
   const { mode } = useNav();
@@ -77,9 +81,9 @@ function GameSwitch() {
     nav.setMode(m);
   };
   return (
-    <div className="segmented home-game" role="radiogroup" aria-label={t`Game`}>
-      {([["hd2", "Helldivers 2"], ["hd1", "Helldivers 1"]] as const).map(([id, name]) => (
-        <button key={id} role="radio" aria-checked={mode === id} className={mode === id ? "on" : ""} onClick={() => pick(id)}
+    <div className="menu-split" role="radiogroup" aria-label={t`Game`}>
+      {([["hd1", "Helldivers 1"], ["hd2", "Helldivers 2"]] as const).map(([id, name]) => (
+        <button key={id} role="radio" aria-checked={mode === id} className={`menu-item${mode === id ? " on" : ""}`} onClick={() => pick(id)}
           data-tip={id === "hd1" ? t`Make mods for Helldivers 1` : t`Make mods for Helldivers 2`}
           data-tip-more={project && project.game !== id ? t`Closes the project open now` : undefined}>{name}</button>
       ))}
@@ -163,28 +167,35 @@ function Ticker() {
 const ART_SECONDS = 20;               // how long a picture stays before the next one comes
 const ART_KEY = "audiodiver.homeArt"; // the picture Home starts on, so each launch opens on the next one
 
-/** The picture Home opens on this time: the one after last time's. */
-function firstPicture() {
+/** The picture a set opens on this time: the one after last time's. */
+function firstPicture(set: Mode, count: number) {
+  const key = set === "hd1" ? `${ART_KEY}.hd1` : ART_KEY;
   let at = 0;
   try {
-    at = (Number(localStorage.getItem(ART_KEY) ?? -1) + 1) % HOME_ART.length || 0;
-    localStorage.setItem(ART_KEY, String(at));
+    at = (Number(localStorage.getItem(key) ?? -1) + 1) % count || 0;
+    localStorage.setItem(key, String(at));
   } catch { /* storage off: start on the first */ }
   return at;
 }
-let opening: number | null = null; // chosen once per launch; coming back to Home carries on from there
+const opening: Partial<Record<Mode, number>> = {}; // chosen once per launch; coming back to Home carries on from there
 
-/** The art behind Home: the pictures in src/art, one after the other. Each fills the tab (cropped to its shape,
+/** Over the art, under the page: blur and shade that start from nothing at the top right and are at their strongest
+    at the bottom left, under the menu. Four blurs, each stronger and reaching less far, so the blur grows smoothly. */
+function Veil() {
+  return <><div className="home-blur"><i /><i /><i /><i /></div><div className="home-shade" /></>;
+}
+
+/** The art behind Home: a game's pictures, one after the other. Each fills the tab (cropped to its shape,
     never stretched), drifts in very slowly (a 2% zoom over its time on screen) and gives way to the next with a
     cross-fade. With animations off (Settings ▸ Theme, or the system's own setting) one picture stays still, and
     the next launch shows the next one. The corner holds whatever Home puts there, on the left, and the picture
     controls (with more than one picture) on the right. */
-function HomeArt({ children }: { children?: ReactNode }) {
-  const moving = motionOn(useTheme()) && HOME_ART.length > 1;
+function HomeArt({ art, set, children }: { art: string[]; set: Mode; children?: ReactNode }) {
+  const moving = motionOn(useTheme()) && art.length > 1;
   // the picture that shows and, while it fades in, the one under it. A new key replays the fade and the zoom.
-  const [layers, setLayers] = useState(() => [{ key: 0, at: (opening ??= firstPicture()) }]);
+  const [layers, setLayers] = useState(() => [{ key: 0, at: (opening[set] ??= firstPicture(set, art.length)) }]);
   const top = layers[layers.length - 1];
-  useEffect(() => { opening = top.at; }, [top.at]);
+  useEffect(() => { opening[set] = top.at; }, [set, top.at]);
 
   // a window that was hidden when a picture was due carries on when it shows again
   const [woken, wake] = useState(0);
@@ -197,33 +208,34 @@ function HomeArt({ children }: { children?: ReactNode }) {
   /** Straight to the picture before or after this one (the buttons in the corner); its full time starts again. */
   const step = (by: number) => setLayers((ls) => {
     const cur = ls[ls.length - 1];
-    const next = { key: cur.key + 1, at: (cur.at + by + HOME_ART.length) % HOME_ART.length };
+    const next = { key: cur.key + 1, at: (cur.at + by + art.length) % art.length };
     return moving ? [cur, next] : [next];
   });
 
   useEffect(() => {
     if (!moving) return;
     const ready = new Image(); // read ahead, so the cross-fade never starts on a picture still loading
-    ready.src = HOME_ART[(top.at + 1) % HOME_ART.length];
+    ready.src = art[(top.at + 1) % art.length];
     const id = setTimeout(() => {
       if (document.hidden) return; // nobody is looking
       const show = () => setLayers((ls) => {
         const cur = ls[ls.length - 1];
-        return [cur, { key: cur.key + 1, at: (cur.at + 1) % HOME_ART.length }];
+        return [cur, { key: cur.key + 1, at: (cur.at + 1) % art.length }];
       });
       ready.decode().then(show, show);
     }, ART_SECONDS * 1000);
     return () => clearTimeout(id);
-  }, [moving, top.key, top.at, woken]);
+  }, [moving, top.key, top.at, woken, art]);
 
   return (
     <>
       <div className="home-art" aria-hidden style={{ ["--art-time" as any]: `${ART_SECONDS}s` }}>
-        {(moving ? layers : [top]).map((l) => <img key={l.key} className="home-art-img" src={HOME_ART[l.at]} alt="" draggable={false} />)}
+        {(moving ? layers : [top]).map((l) => <img key={l.key} className="home-art-img" src={art[l.at]} alt="" draggable={false} />)}
+        <Veil />
       </div>
       <div className="home-corner">
         {children}
-        {HOME_ART.length > 1 && (
+        {art.length > 1 && (
           <div className="home-steps">
             <button onClick={() => step(-1)} aria-label={t`Previous picture`} data-tip={t`Previous picture`} data-tip-side="top"><PrevIcon /></button>
             {/* how long until the next picture: refills with each one, and isn't there while pictures stay still */}

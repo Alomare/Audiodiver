@@ -8,13 +8,14 @@ next launch shows the next one. Without any image, Home shows a wall of level me
 - **Size:** at most the width of a big screen (the pictures here are 3440 × 1440). A wider picture than the window is
   cropped at its sides, a taller one at its top and bottom; it is never stretched.
 - **Format:** WebP at quality 85, sRGB. The three here are 110 to 210 KB each.
-- **Composition:** the left ~40% sits under the welcome text and is darkened; the lower half sits behind the Recent
-  projects panel. Keep the subject in the middle or on the right, in the upper two thirds.
-- **Theme:** the darkening follows the theme (darker in dark mode, lighter in light mode), so pick art that still
-  reads when its left side is dimmed.
+- **Helldivers 1:** the images in `hd1/` show in the same way while Home is in Helldivers 1 mode.
+- **Composition:** a blur and a shade start from nothing at the top right and grow to the bottom left, under the menu.
+  Keep the subject towards the top right.
+- **Theme:** the shade follows the theme (darker in dark mode, lighter in light mode).
 - **Credit:** `ART_CREDIT` in `src/content.ts` says where the art comes from; About ▸ Credits lists it. Home itself
   shows no credit, because its bottom right corner holds the picture controls (when there is more than one picture)
   and the Discord button.
 
 The pictures here (`home-1.webp` to `home-3.webp`) are screenshots of Helldivers 2 taken by Alomare. The originals
-are in `internal/art/`. The game in them belongs to Arrowhead Game Studios and isn't covered by Audiodiver's licence.
+are in `internal/art/`. The pictures in `hd1/` come from Helldivers 1's art and videos (originals in `internal/art/hd1/`).
+The games in them belong to Arrowhead Game Studios and aren't covered by Audiodiver's licence.
