@@ -222,6 +222,7 @@ export type Status = {
   game_folder: { path: string | null; how: "chosen" | "env" | "steam" | null; chosen: string | null };
   hd1_folder: { path: string | null; how: "chosen" | "env" | "steam" | null; chosen: string | null };
   hd1?: boolean;                   // Helldivers 1 was found and read: Home offers its mode
+  hd1_loading?: boolean;           // Helldivers 1 is being read, after the window opened: the Library gains it then
   // the game's language in Steam ("brazilian") and Windows' ("pt-BR"), for Automatic (i18n.ts); the core's own
   languages?: { game: string | null; system: string | null; core: string };
 };

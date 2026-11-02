@@ -3865,6 +3865,10 @@ msgstr "ヘルダイバー"
 msgid "Helldivers 1 art"
 msgstr "Helldivers 1のアート"
 
+#: src/store.tsx
+msgid "Helldivers 1 is ready"
+msgstr "Helldivers 1 の準備ができました"
+
 #. Helldivers 2 Modding is the name of the Discord server
 #: src/About.tsx
 #: src/Home.tsx
@@ -6446,6 +6450,10 @@ msgstr "ゲームアーカイブの読み込みと、HD2でのサウンドバン
 #: src/SettingsTab.tsx
 msgid "Reading Helldivers 1"
 msgstr "Helldivers 1 を読み込み中"
+
+#: src/store.tsx
+msgid "Reading Helldivers 1. It joins the Library when it's done."
+msgstr "Helldivers 1 を読み込み中です。終わるとライブラリに表示されます。"
 
 #: src/CueView.tsx
 msgid "Reading the bank…"

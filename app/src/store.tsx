@@ -31,6 +31,7 @@ export type Notice = {
 export type Toast = { id: number; text: string; icon: ToastIcon; leaving?: boolean };
 export type ToastIcon = "done" | "add" | "save" | "copy" | "undo" | "info";
 const TOAST_MS = 1800;
+const HD1_NOTICE_MS = 1200; // Helldivers 1 read for longer than this after the window opened: a notice says so
 /** Two answers about a job that show the same: its card counts whole seconds, so a tick within the same second with
     no other change draws nothing. */
 const sameJob = (a: Job | undefined, b: Job) => !!a && a.state === b.state && a.done === b.done && a.total === b.total
@@ -316,6 +317,7 @@ function useEditorState() {
     setNotices((n) => [...n.filter((x) => x.text !== text || x.leaving).slice(-3), { id, tone, text, action, sticky }]);
     noticeLog.add(tone, text, action?.go, action?.label);
     if (!sticky) setTimeout(() => dismiss(id), action ? 12000 : tone === "bad" ? 9000 : 4500);
+    return id; // for a sticky notice to be dismissed when what it says is over
   }, [dismiss]);
   /** An announcement: a notice in the primary colour with a title, which a click anywhere on it follows to `open`
       (the offer of the interactive tutorials at the first start); `hint` says where it leads, and `label` names it
@@ -509,6 +511,32 @@ function useEditorState() {
     })();
     return () => { stop = true; };
   }, [quick, notify, boot, applyProject, remember]);
+
+  // --- Helldivers 1 is read after the window opens (core _load_game): the Library gains it when it's done. A read that
+  // takes a while (the first after an update of either) says so in a notice, which goes when it's over
+  const hd1Loading = status?.stage === "ready" && !!status.hd1_loading;
+  useEffect(() => {
+    if (!hd1Loading) return;
+    let stop = false, shown: number | null = null;
+    const slow = setTimeout(() => { if (!stop) shown = notify("info", t`Reading Helldivers 1. It joins the Library when it's done.`, undefined, true); }, HD1_NOTICE_MS);
+    (async () => {
+      while (!stop) {
+        await new Promise((r) => setTimeout(r, 400));
+        try {
+          const s = await call<Status>("status");
+          if (stop || s.hd1_loading) continue;
+          const [ix, all] = s.hd1 ? await Promise.all([call<Index>("index"), call<ArchiveRow[]>("archives")]) : [null, null];
+          if (stop) return;
+          if (ix && all) { setIndex(ix); setArchives(all); }
+          if (shown !== null) { dismiss(shown); if (s.hd1) quick(t`Helldivers 1 is ready`, "done"); }
+          shown = null;
+          setStatus(s);
+          return;
+        } catch { /* the core is busy: the next try */ }
+      }
+    })();
+    return () => { stop = true; clearTimeout(slow); if (shown !== null) dismiss(shown); };
+  }, [hd1Loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // --- coming back to the window (from Explorer, say) looks at the project's files again: one deleted or renamed
   // meanwhile is a problem on the Build tab at once, not at the next edit

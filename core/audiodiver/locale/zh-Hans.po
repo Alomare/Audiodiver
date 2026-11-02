@@ -803,10 +803,6 @@ msgid "{name} can't be used as a folder name. Choose another name."
 msgstr "{name} 不能用作文件夹名称。请换一个名称。"
 
 #: editor.py
-msgid "Reading Helldivers 1"
-msgstr "正在读取 Helldivers 1"
-
-#: editor.py
 msgid "A new take has no original audio"
 msgstr "新变体没有原版音频"
 

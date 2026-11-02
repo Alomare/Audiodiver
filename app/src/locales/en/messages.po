@@ -3865,6 +3865,10 @@ msgstr "Helldivers"
 msgid "Helldivers 1 art"
 msgstr "Helldivers 1 art"
 
+#: src/store.tsx
+msgid "Helldivers 1 is ready"
+msgstr "Helldivers 1 is ready"
+
 #. Helldivers 2 Modding is the name of the Discord server
 #: src/About.tsx
 #: src/Home.tsx
@@ -6446,6 +6450,10 @@ msgstr "reading game archives, and how HD2 stores sound banks"
 #: src/SettingsTab.tsx
 msgid "Reading Helldivers 1"
 msgstr "Reading Helldivers 1"
+
+#: src/store.tsx
+msgid "Reading Helldivers 1. It joins the Library when it's done."
+msgstr "Reading Helldivers 1. It joins the Library when it's done."
 
 #: src/CueView.tsx
 msgid "Reading the bank…"

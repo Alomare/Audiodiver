@@ -108,8 +108,8 @@ function Shell() {
   const { tab, library: libraryTab } = useNav();
   // Helldivers 1 mode needs that game: once it is gone (moved, uninstalled), the window makes Helldivers 2 mods
   useEffect(() => {
-    if (!UTILS && status?.stage === "ready" && !status.hd1 && nav.get().mode === "hd1") nav.setMode("hd2");
-  }, [status?.stage, status?.hd1]);
+    if (!UTILS && status?.stage === "ready" && !status.hd1 && !status.hd1_loading && nav.get().mode === "hd1") nav.setMode("hd2");
+  }, [status?.stage, status?.hd1, status?.hd1_loading]);
   // the tabs that can be hidden: the open project's choice, else Settings' (a hidden tab that shows moves away)
   const shown = useShownTabs();
   useEffect(() => { if (!UTILS) nav.setShown(shown); }, [shown]);

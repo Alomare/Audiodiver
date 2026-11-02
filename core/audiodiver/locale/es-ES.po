@@ -837,10 +837,6 @@ msgid "{name} can't be used as a folder name. Choose another name."
 msgstr "{name} no se puede usar como nombre de carpeta. Elige otro nombre."
 
 #: editor.py
-msgid "Reading Helldivers 1"
-msgstr "Leyendo Helldivers 1"
-
-#: editor.py
 msgid "A new take has no original audio"
 msgstr "Una toma nueva no tiene audio original"
 

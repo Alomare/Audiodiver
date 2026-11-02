@@ -3865,6 +3865,10 @@ msgstr "绝地潜兵"
 msgid "Helldivers 1 art"
 msgstr "Helldivers 1 图片"
 
+#: src/store.tsx
+msgid "Helldivers 1 is ready"
+msgstr "Helldivers 1 已就绪"
+
 #. Helldivers 2 Modding is the name of the Discord server
 #: src/About.tsx
 #: src/Home.tsx
@@ -6446,6 +6450,10 @@ msgstr "读取游戏归档，以及 HD2 存储音频库的方式"
 #: src/SettingsTab.tsx
 msgid "Reading Helldivers 1"
 msgstr "正在读取 Helldivers 1"
+
+#: src/store.tsx
+msgid "Reading Helldivers 1. It joins the Library when it's done."
+msgstr "正在读取 Helldivers 1。读取完成后会出现在资源库中。"
 
 #: src/CueView.tsx
 msgid "Reading the bank…"

@@ -581,8 +581,26 @@ def test_a_helldivers_1_project_without_the_game_is_refused_once_loading_is_done
     s.hd1 = None
     with pytest.raises(EditorError, match="Settings"):
         s.open_project(path)
-    s.stage = "Reading Helldivers 1"  # still loading: the game may come yet
+    s.stage = "Mapping the music"  # still loading: the game may come yet
     assert s.open_project(path)["game"] == "hd1"
+
+
+def test_a_helldivers_1_project_waits_for_the_read_after_start_up(game, tmp_path, monkeypatch):
+    """The window opens once Helldivers 2 is read; a Helldivers 1 project opened meanwhile waits for that game."""
+    import threading
+    s, _ = hd1_session(game, tmp_path, monkeypatch)
+    path, read = str(s.project.path), s.hd1
+    s.save_project()
+    s.project, s.hd1, s.hd1_loading = None, None, True
+    s._hd1_done.clear()
+    assert s.status()["hd1_loading"] is True
+
+    def done():
+        s.hd1, s.hd1_loading = read, False
+        s._hd1_done.set()
+    threading.Timer(0.2, done).start()
+    assert s.open_project(path)["game"] == "hd1"
+    assert s.status()["hd1"] and not s.status()["hd1_loading"]
 
 
 def test_a_project_keeps_its_game(tmp_path):
