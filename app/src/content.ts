@@ -46,6 +46,8 @@ export const HOME_ART = inOrder(import.meta.glob("./art/*.{jpg,jpeg,png,webp,avi
 export const HOME_ART_HD1 = inOrder(import.meta.glob("./art/hd1/*.{jpg,jpeg,png,webp,avif}", { query: "?url", import: "default", eager: true }));
 /** Where the art comes from: About ▸ Credits names it. */
 export const ART_CREDIT: { name: string; url?: string; for: string } = { name: "Alomare", for: t`the screenshots of Helldivers 2 behind Home` };
+/** And for the Helldivers 1 pictures: the game's own art and stills from its trailers. */
+export const ART_CREDIT_HD1: { name: string; url?: string; for: string } = { name: "Arrowhead Game Studios", for: t`official art and trailer stills behind Home for Helldivers 1` };
 
 /** Everyone whose work Audiodiver builds on: About ▸ Credits (the ⓘ by the version), the one place the
     app names people and sources. Notes, tooltips, the Wiki and the core's data never do: they say what a thing is,
@@ -80,6 +82,8 @@ export const CREDITS: { group: string; items: Credit[] }[] = [
   ] },
   { group: t({ message: "Art and type", comment: "Credits group: the Home pictures and the typefaces" }), items: [
     { id: "home-art", name: t({ message: "Home art", comment: "Credit for the pictures behind the Home tab" }), by: ART_CREDIT.name, url: ART_CREDIT.url, for: ART_CREDIT.for },
+    { id: "home-art-hd1", name: t({ message: "Helldivers 1 art", comment: "Credit for the pictures behind the Home tab in Helldivers 1 mode" }),
+      by: ART_CREDIT_HD1.name, url: ART_CREDIT_HD1.url, for: ART_CREDIT_HD1.for },
     { name: andList(["Archivo", "Noto Serif", "Roboto Mono"]), url: "https://openfontlicense.org", licence: "SIL Open Font License", for: t`the typefaces` },
   ] },
   { group: t`News`, items: [

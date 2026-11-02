@@ -2,7 +2,7 @@ import { ph, t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { useDialog } from "./dialog";
 import { APP_NAME } from "./edition";
-import { APP_LABEL, APP_VERSION, CREDITS, DISCORD_URL, HOME_ART, KOFI_URL, LICENCE, REPO_URL, versionLabel } from "./content";
+import { APP_LABEL, APP_VERSION, CREDITS, DISCORD_URL, HOME_ART, HOME_ART_HD1, KOFI_URL, LICENCE, REPO_URL, versionLabel } from "./content";
 import { DiscordIcon, ExternalIcon, InfoIcon, KofiIcon } from "./Icons";
 import { Logo } from "./Logo";
 import { about, useAboutOpen } from "./nav";
@@ -74,7 +74,7 @@ function About() {
           <div key={g.group} className="credits">
             <h3>{g.group}</h3>
             <ul>
-              {g.items.filter((c) => c.id !== "home-art" || HOME_ART.length > 0).map((c) => (
+              {g.items.filter((c) => (c.id !== "home-art" || HOME_ART.length > 0) && (c.id !== "home-art-hd1" || HOME_ART_HD1.length > 0)).map((c) => (
                 <li key={c.name}>
                   {c.url ? <button className="link-text" onClick={() => openUrl(c.url!)}>{c.name}</button> : <b>{c.name}</b>}
                   {c.by && <span className="muted"> {t({ message: `by ${ph({ author: c.by })}`, comment: "Credits: who made the work named before" })}</span>}

@@ -3844,6 +3844,11 @@ msgstr "标题"
 msgid "Helldivers"
 msgstr "绝地潜兵"
 
+#. Credit for the pictures behind the Home tab in Helldivers 1 mode
+#: src/content.ts
+msgid "Helldivers 1 art"
+msgstr "Helldivers 1 图片"
+
 #. Helldivers 2 Modding is the name of the Discord server
 #: src/About.tsx
 #: src/Home.tsx
@@ -5442,6 +5447,10 @@ msgstr "系统要求减少动态效果，因此已关闭。"
 #: src/SettingsTab.tsx
 msgid "Off. The “?” buttons still show their text."
 msgstr "关闭。“?”按钮仍会显示说明文字。"
+
+#: src/content.ts
+msgid "official art and trailer stills behind Home for Helldivers 1"
+msgstr "Helldivers 1 主页背景中的官方美术和预告片截图"
 
 #: src/RepatchPage.tsx
 msgid "Older game version"

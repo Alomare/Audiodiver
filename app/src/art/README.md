@@ -17,5 +17,6 @@ next launch shows the next one. Without any image, Home shows a wall of level me
   and the Discord button.
 
 The pictures here (`home-1.webp` to `home-3.webp`) are screenshots of Helldivers 2 taken by Alomare. The originals
-are in `internal/art/`. The pictures in `hd1/` come from Helldivers 1's art and videos (originals in `internal/art/hd1/`).
+are in `internal/art/`. The pictures in `hd1/` are official art and trailer stills of Helldivers 1 (originals in `internal/art/hd1/`),
+credited to Arrowhead in About by `ART_CREDIT_HD1`.
 The games in them belong to Arrowhead Game Studios and aren't covered by Audiodiver's licence.

@@ -3844,6 +3844,11 @@ msgstr "Heading"
 msgid "Helldivers"
 msgstr "Helldivers"
 
+#. Credit for the pictures behind the Home tab in Helldivers 1 mode
+#: src/content.ts
+msgid "Helldivers 1 art"
+msgstr "Helldivers 1 art"
+
 #. Helldivers 2 Modding is the name of the Discord server
 #: src/About.tsx
 #: src/Home.tsx
@@ -5442,6 +5447,10 @@ msgstr "Off, because the system asks for less motion."
 #: src/SettingsTab.tsx
 msgid "Off. The “?” buttons still show their text."
 msgstr "Off. The “?” buttons still show their text."
+
+#: src/content.ts
+msgid "official art and trailer stills behind Home for Helldivers 1"
+msgstr "official art and trailer stills behind Home for Helldivers 1"
 
 #: src/RepatchPage.tsx
 msgid "Older game version"
