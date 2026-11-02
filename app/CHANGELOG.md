@@ -3,6 +3,49 @@
 The Updates tab shows this file. Each release starts with a second-level heading, `<version> - <date>`,
 newest first.
 
+## 1.6.0 - 2026-11-02
+
+### Highlights
+
+#### Helldivers 1 Mods
+
+Added Helldivers 1 mode. A switch at the top right of Home picks the game, and each game has separate tabs and pictures. A Helldivers 1 project takes new audio or silence, with Make-Up Gain, Fades and Match the Original Loudness, and builds a ZIP for a mod manager for Helldivers 1, version 1.1.0 or later. The ZIP holds only the new audio. The mod manager rebuilds the sound banks when it deploys, which can take a few GB of disk. The Library shows both games in either mode, and Ctrl+C copies the audio of one game into a project for the other.
+
+#### The Text Tab
+
+Reworked the Text tab to show every line before you type anything, in categories: subtitles by the voice that says them, and other lines by what they are for. Added Export Lines to a CSV or JSON file and Import Lines with a preview, Find and Replace with a Whole words only option, a second language beside each line, and Restore the Original on several lines at once. Replacing words leaves timing, colours and the words the game fills in as they are.
+
+#### Plays In
+
+Replaced Scope with **Plays In**, which is Only This Sound or Every Sound. You'll find it in the details panel even before a slot has new audio, for several selected slots at once, in the right-click menu, and as a toolbar button that sets every sound in view.
+
+#### Home
+
+Redesigned Home. The picture blurs and darkens behind the menu, each menu button has an icon, New Project has a level meter, and Helldivers 1 mode has pictures of that game. Added a GitHub button beside Discord and Ko-fi.
+
+### Additions
+
+- Added a button beside each Library group or item in the project that opens it in the Audio tab.
+
+### Changes
+
+- Changed the Radio Filter section to list each voice with On and Off, so the choice reads the way the game plays it. A mod can be just Radio Filter changes, with no new audio.
+- Audiodiver now opens as soon as Helldivers 2 is read. Helldivers 1 joins the Library a moment later, with a notice when that takes a while.
+- Reading Helldivers 1 for the first time takes about a third as long. On a hard drive, Audiodiver reads one file at a time.
+- Tooltips wait longer before they show: 0.9 s at Normal instead of 0.5 s.
+- Notices take at most half the window and scroll, and "Left out" names up to three banks on one line.
+- Removed the "The mod" title from the Repatch page.
+
+### Bug Fixes
+
+- Fixed Import Mod on a mod that only changes audio the game removed in an update, such as the flag-raise anthem. It now says so instead of "replaces, adds or sets nothing" (GitHub issue #5).
+- Fixed the Simplified Chinese names for the Hellpod, the Automatons, the Cyborgs and the Void to match the game (GitHub issue #4), the French and Japanese names for the Void, and the French names for Illuminate music and weapons.
+- Fixed Repatch offering only a file once a mod was read. Choose Another Folder is now beside Choose Another File.
+- Fixed Import Lines calling a CSV that Excel saved in the PC's own encoding "not a text export". It now says to save it as CSV UTF-8, and line breaks inside a cell come back as the game has them.
+- Fixed Find and Replace applying the previous search when Replace was pressed right after typing.
+- Fixed a Helldivers 1 project opening in Helldivers 2 mode when Helldivers 1 wasn't found. It now says so.
+- Fixed the replaced-sound dots in the Library not lining up between groups and items.
+
 ## 1.5.1 - 2026-10-31
 
 ### Additions
