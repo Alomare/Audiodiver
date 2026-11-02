@@ -589,6 +589,10 @@ msgid "That slot doesn't have a separate clip"
 msgstr "Ese slot no tiene un clip aparte"
 
 #: editor.py
+msgid "A Helldivers 1 mod can't hold this"
+msgstr "Un mod de Helldivers 1 no puede contener esto"
+
+#: editor.py
 msgid "Choose an audio file"
 msgstr "Elige un fichero de audio"
 
@@ -679,6 +683,16 @@ msgstr "Elige dónde desempaquetarlo (una ruta completa)"
 #: editor.py
 msgid "Choose a mod's .patch_0 file"
 msgstr "Elige el fichero .patch_0 de un mod"
+
+#: editor.py
+msgid "{n} other change"
+msgid_plural "{n} other changes"
+msgstr[0] "{n} cambio más"
+msgstr[1] "{n} cambios más"
+
+#: editor.py
+msgid "{changes} in {n} banks ({names}): settings such as effects, positioning or how a container picks sounds"
+msgstr "{changes} en {n} bancos ({names}): ajustes como efectos, posicionamiento o cómo elige sonidos un contenedor"
 
 #: editor.py
 msgid "The sound in {file} couldn't be decoded."
@@ -889,6 +903,16 @@ msgid "Another project was opened during the import. Open this project again and
 msgstr "Se ha abierto otro proyecto durante la importación. Vuelve a abrir este proyecto e importa de nuevo."
 
 #: editor.py
+msgid "{changes} in \"{bank}\": settings such as effects, positioning or how a container picks sounds"
+msgstr "{changes} en «{bank}»: ajustes como efectos, posicionamiento o cómo elige sonidos un contenedor"
+
+#: editor.py
+msgid "{names} and {n} more"
+msgid_plural "{names} and {n} more"
+msgstr[0] "{names} y {n} más"
+msgstr[1] "{names} y {n} más"
+
+#: editor.py
 msgid "reading {file}"
 msgstr "leyendo {file}"
 
@@ -955,6 +979,10 @@ msgstr "{file} ya existe en {folder}"
 #: editor.py
 msgid "{name} is a folder. Choose a .audi project file."
 msgstr "{name} es una carpeta. Elige un fichero de proyecto .audi."
+
+#: editor.py
+msgid "{file} makes a mod for Helldivers 1, which wasn't found. Choose the Helldivers 1 folder in Settings ▸ System."
+msgstr "{file} crea un mod para Helldivers 1, que no se ha encontrado. Elige la carpeta del juego en Ajustes ▸ Sistema."
 
 #: editor.py
 msgid "Sound {sound} doesn't play {source}"
@@ -1209,26 +1237,6 @@ msgid "{file} can't be read as a game patch"
 msgstr "{file} no se puede leer como parche del juego"
 
 #: editor.py
-msgid "{n} other change"
-msgid_plural "{n} other changes"
-msgstr[0] "{n} cambio más"
-msgstr[1] "{n} cambios más"
-
-#: editor.py
-msgid "{changes} in \"{bank}\": settings such as effects, positioning or how a container picks sounds"
-msgstr "{changes} en «{bank}»: ajustes como efectos, posicionamiento o cómo elige sonidos un contenedor"
-
-#: editor.py
-msgid "{changes} in {n} banks ({names}): settings such as effects, positioning or how a container picks sounds"
-msgstr "{changes} en {n} bancos ({names}): ajustes como efectos, posicionamiento o cómo elige sonidos un contenedor"
-
-#: editor.py
-msgid "{names} and {n} more"
-msgid_plural "{names} and {n} more"
-msgstr[0] "{names} y {n} más"
-msgstr[1] "{names} y {n} más"
-
-#: editor.py
 msgid "{file} replaces, adds or sets nothing Audiodiver can bring in ({why})"
 msgstr "{file} no sustituye, añade ni define nada que Audiodiver pueda incorporar ({why})"
 
@@ -1271,6 +1279,10 @@ msgstr "importado {id}"
 #: editor.py hd1_build.py
 msgid "Can't write {file}: {why}"
 msgstr "No se puede escribir {file}: {why}"
+
+#: editor.py
+msgid "{file} isn't saved as UTF-8, so letters outside English may have turned into ?. In Excel, choose Save As and CSV UTF-8 (Comma delimited), then import it again."
+msgstr "{file} no está guardado como UTF-8, así que las letras que no son del inglés pueden haberse convertido en ?. En Excel, elige Guardar como y CSV UTF-8 (delimitado por comas), y vuelve a importarlo."
 
 #: editor.py
 msgid "{file} isn't a text export: it needs the columns Language, ID and New text"

@@ -153,13 +153,16 @@ export function TextReplace({ scopes, start, lang, onClose }: { scopes: Scope[];
   const [cased, setCased] = useState(false);
   const [whole, setWhole] = useState(false);
   const [changes, setChanges] = useState<TextChange[] | null>(null);
+  const [pending, setPending] = useState(false); // a preview for what is typed now is on its way: Replace waits for it
   const ids = scopes.find((s) => s.id === scope)?.ids;
   useEffect(() => {
-    if (!find) { setChanges(null); return; }
+    if (!find) { setChanges(null); setPending(false); return; }
     let live = true;
+    setPending(true);
     const later = setTimeout(() => {
       call<{ changes: TextChange[] }>("text_replace", { language: lang, find, new: to, ids, case: cased, whole })
-        .then((r) => { if (live) setChanges(r.changes); }).catch(() => { if (live) setChanges([]); });
+        .then((r) => { if (live) setChanges(r.changes); }).catch(() => { if (live) setChanges([]); })
+        .finally(() => { if (live) setPending(false); });
     }, 220);
     return () => { live = false; clearTimeout(later); };
   }, [find, to, cased, whole, lang, ids, revision]);
@@ -173,7 +176,7 @@ export function TextReplace({ scopes, start, lang, onClose }: { scopes: Scope[];
   return (
     <Panel title={t`Find and Replace`} onClose={onClose} foot={<>
       <button className="btn quiet" onClick={onClose}><Trans>Cancel</Trans></button>
-      <button className="btn primary" disabled={!count} onClick={apply}>{plural(count, { one: "Replace in # Line", other: "Replace in # Lines" })}</button>
+      <button className="btn primary" disabled={!count || pending} onClick={apply}>{plural(count, { one: "Replace in # Line", other: "Replace in # Lines" })}</button>
     </>}>
       <ScopeField scopes={scopes} value={scope} onChange={setScope} />
       <label className="field"><span className="field-label"><Trans>Find</Trans></span>

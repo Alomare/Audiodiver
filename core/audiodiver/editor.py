@@ -772,6 +772,9 @@ class Session:
         except (ValueError, KeyError, TypeError):  # not JSON at all: cut short, or another kind of file
             raise EditorError((tr("{file} is damaged (it can't be read)") if path.suffix.lower() == ".audi"
                                else tr("{file} isn't an Audiodiver project")).format(file=path.name)) from None
+        if p.game == "hd1" and not self.hd1 and self.stage == "ready":  # still loading: Helldivers 1 may come yet
+            raise EditorError(tr("{file} makes a mod for Helldivers 1, which wasn't found. Choose the Helldivers 1 folder in "
+                                 "Settings ▸ System.").format(file=path.name))
         with self.lock:
             self.flush()
             self.project, self.undo_stack, self.redo_stack, self.opened_at = p, [], [], _now_ms()
@@ -1109,7 +1112,7 @@ class Session:
     def _not_hd1(self):
         """Refuses what only a Helldivers 2 build can hold (hd1_build bakes gain and fades into new audio, no more)."""
         if self._hd1p():
-            raise EditorError("A Helldivers 1 mod can't hold this")
+            raise EditorError(tr("A Helldivers 1 mod can't hold this"))
 
     def _lookup(self, iid):
         """An item of either game's Library by its id. KeyError when there is none."""
@@ -4537,7 +4540,10 @@ class Session:
             rows = textsort.read_rows(path)
         except OSError as e:
             raise EditorError(tr("Can't read {file}: {why}").format(file=path.name, why=os_error(e))) from None
-        except (ValueError, UnicodeError, KeyError, csv.Error):
+        except UnicodeError:
+            raise EditorError(tr("{file} isn't saved as UTF-8, so letters outside English may have turned into ?. In "
+                                 "Excel, choose Save As and CSV UTF-8 (Comma delimited), then import it again.").format(file=path.name)) from None
+        except (ValueError, KeyError, csv.Error):
             raise EditorError(tr("{file} isn't a text export: it needs the columns Language, ID and New text").format(file=path.name)) from None
         known, wanted, unknown, stale, empty = {}, [], 0, 0, 0
         codes = set(self._texts().languages())

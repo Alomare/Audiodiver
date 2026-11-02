@@ -148,6 +148,22 @@ def test_a_file_that_isnt_an_export_is_refused(s, tmp_path):
         s.text_import(str(out))
 
 
+def test_a_csv_not_saved_as_utf8_is_refused_with_how_to_save_it(s, tmp_path):
+    """Excel's plain CSV is the PC's code page, with ? for what it lacks: better refused than brought in."""
+    out = tmp_path / "lines.csv"
+    out.write_bytes("Language,ID,New text\nfr,41,RÉACTEUR\n".encode("cp1252"))
+    with pytest.raises(EditorError, match="CSV UTF-8"):
+        s.text_import(str(out))
+
+
+def test_a_line_break_inside_a_quoted_cell_stays_in_the_line(s, tmp_path):
+    """Written in text mode, so the break in the cell is CRLF on Windows, as Notepad saves it: it comes back as the game has it."""
+    out = tmp_path / "lines.csv"
+    out.write_text('Language,ID,New text\nfr,41,"UN\u2028DEUX\nTROIS"\n', encoding="utf-8-sig")
+    [change] = s.text_import(str(out))["changes"]
+    assert change["after"] == "UN\u2028DEUX\nTROIS"
+
+
 def test_replacing_words_leaves_timing_markup_and_fills_alone():
     text = "{1.10->2.10}<c=FF112233>Eagle #EAGLE</c> eagle"
     assert textsort.replaced(text, "eagle", "Falcon") == "{1.10->2.10}<c=FF112233>Falcon #EAGLE</c> Falcon"

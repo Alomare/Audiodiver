@@ -327,21 +327,55 @@ def event_clips(m: bytes) -> tuple[dict, dict, dict]:
     return out, tiers, ends
 
 
-def _on_threads(fn, items: list) -> list:
+def _seeks(path: Path) -> bool:
+    """Whether the drive under path is a spinning disk (Windows says reading it has a seek penalty): there, bundles read
+    side by side make the head jump between them, slower than one after another. False when it can't tell."""
+    if os.name != "nt":
+        return False
+    drive = os.path.splitdrive(str(path))[0]
+    if len(drive) != 2:  # a network share: nothing to ask
+        return False
+    try:
+        import ctypes
+        from ctypes import wintypes
+        k32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        k32.CreateFileW.restype = wintypes.HANDLE
+        k32.CreateFileW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, wintypes.LPVOID, wintypes.DWORD,
+                                    wintypes.DWORD, wintypes.HANDLE]
+        k32.DeviceIoControl.argtypes = [wintypes.HANDLE, wintypes.DWORD, wintypes.LPVOID, wintypes.DWORD, wintypes.LPVOID,
+                                        wintypes.DWORD, ctypes.POINTER(wintypes.DWORD), wintypes.LPVOID]
+        k32.CloseHandle.argtypes = [wintypes.HANDLE]
+        # no access asked: enough to query the device, without being an administrator
+        h = k32.CreateFileW(f"\\\\.\\{drive}", 0, 3, None, 3, 0, None)  # FILE_SHARE_READ | WRITE, OPEN_EXISTING
+        if not h or h == wintypes.HANDLE(-1).value:
+            return False
+        try:
+            query = struct.pack("<II4x", 7, 0)  # StorageDeviceSeekPenaltyProperty, PropertyStandardQuery
+            out, got = ctypes.create_string_buffer(12), wintypes.DWORD()
+            ok = k32.DeviceIoControl(h, 0x2D1400, query, len(query), out, len(out), ctypes.byref(got), None)  # IOCTL_STORAGE_QUERY_PROPERTY
+            return bool(ok) and got.value >= 9 and out.raw[8] != 0
+        finally:
+            k32.CloseHandle(h)
+    except (OSError, AttributeError, ValueError):
+        return False
+
+
+def _on_threads(fn, items: list, threads: int) -> list:
     """fn(item) of each, in order. Nearly all of a bundle's reading is zlib and the disk, which let other threads run."""
-    with ThreadPoolExecutor(min(SCAN_THREADS, os.cpu_count() or 1)) as pool:
+    with ThreadPoolExecutor(max(1, min(threads, os.cpu_count() or 1))) as pool:
         return list(pool.map(fn, items))
 
 
 def scan(contents: Path) -> dict:
     """What the bundles hold, in the form the cache keeps. First what each bundle lists, then only what is needed of
-    it: a bank that sits in several bundles is read once."""
+    it: a bank that sits in several bundles is read once. Side by side on threads, but one at a time on a disk that seeks."""
+    threads = 1 if _seeks(contents) else SCAN_THREADS
     def listed(path):
         with Bundle(path) as b:
             return path, b.chunks, list(_resources(b))
 
     banks, seen, jobs, has_master = [], {}, [], False
-    for path, chunks, held in _on_threads(listed, _bundles(contents)):
+    for path, chunks, held in _on_threads(listed, _bundles(contents), threads):
         where, wants = path.relative_to(contents).as_posix(), []
         for kind, name, lang, at, size, stream_at, stream in held:
             if kind == MASTER and not has_master:
@@ -367,7 +401,7 @@ def scan(contents: Path) -> dict:
                     for kind, _, at, size, _ in wants]
 
     master, texts = None, {}
-    for (_, _, wants), got in zip(jobs, _on_threads(read, jobs)):
+    for (_, _, wants), got in zip(jobs, _on_threads(read, jobs, threads)):
         for (kind, lang, _, _, bank), value in zip(wants, got):
             if kind == BANK:
                 bank["rows"] = value

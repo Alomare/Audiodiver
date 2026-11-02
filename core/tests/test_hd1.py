@@ -3,6 +3,7 @@ import os
 import struct
 import wave
 import zlib
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -157,6 +158,21 @@ def test_a_game_is_read_and_kept(game, monkeypatch):
     monkeypatch.setattr(hd1, "scan", lambda c: called.append(c) or {"banks": [], "events": {}})
     hd1.Hd1.read(game)
     assert called == [game]
+
+
+def test_a_disk_that_seeks_reads_one_bundle_at_a_time_and_gets_the_same(game, monkeypatch):
+    side_by_side = hd1.scan(game)
+    threads = []
+    real = hd1._on_threads
+    monkeypatch.setattr(hd1, "_seeks", lambda _: True)
+    monkeypatch.setattr(hd1, "_on_threads", lambda fn, items, n: threads.append(n) or real(fn, items, n))
+    assert hd1.scan(game) == side_by_side
+    assert threads == [1, 1]
+
+
+def test_the_seek_question_never_fails_the_scan(tmp_path):
+    assert hd1._seeks(Path("\\\\server\\share\\game")) is False  # a network share: nothing to ask
+    assert hd1._seeks(tmp_path) in (True, False)
 
 
 def test_a_named_event_is_an_item_with_a_part_per_language(game):
@@ -554,6 +570,19 @@ def test_what_a_helldivers_1_mod_cant_hold_is_refused(game, tmp_path, monkeypatc
     s, slot = hd1_session(game, tmp_path, monkeypatch)
     with pytest.raises(EditorError, match="Helldivers 1"):
         change(s, slot)
+
+
+def test_a_helldivers_1_project_without_the_game_is_refused_once_loading_is_done(game, tmp_path, monkeypatch):
+    from audiodiver.editor import EditorError
+    s, _ = hd1_session(game, tmp_path, monkeypatch)
+    path = str(s.project.path)
+    s.save_project()
+    s.project = None
+    s.hd1 = None
+    with pytest.raises(EditorError, match="Settings"):
+        s.open_project(path)
+    s.stage = "Reading Helldivers 1"  # still loading: the game may come yet
+    assert s.open_project(path)["game"] == "hd1"
 
 
 def test_a_project_keeps_its_game(tmp_path):

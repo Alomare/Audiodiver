@@ -165,12 +165,13 @@ def build(p: Project, game: hd1.Hd1, log=print, step=None) -> Path:
     if gone:
         raise Hd1BuildError(ntr("{n} replaced sound isn't in this version of Helldivers 1",
                                 "{n} replaced sounds aren't in this version of Helldivers 1", len(gone)).format(n=len(gone)))
-    places = []  # (bank, its row of the clip, replacement)
-    for r in reps:
-        clip, lang = r.target & hd1.LOW, r.target >> 64
-        for bank in game.banks:
-            if bank["lang"] == lang:
-                places += [(bank, row, r) for row in bank["rows"] if row[0] == clip]
+    wanted = {(r.target & hd1.LOW, r.target >> 64) for r in reps}
+    rows_at: dict[tuple[int, int], list] = {}  # (clip, language): [(bank, its row of the clip)], read once for them all
+    for bank in game.banks:
+        for row in bank["rows"]:
+            if (row[0], bank["lang"]) in wanted:
+                rows_at.setdefault((row[0], bank["lang"]), []).append((bank, row))
+    places = [(bank, row, r) for r in reps for bank, row in rows_at.get((r.target & hd1.LOW, r.target >> 64), [])]
     out_dir = p.build_dir()
     zip_path = out_dir / f"{arsenal.slug(p.name)}-{p.version}.zip"
     rows: dict[int, list[dict]] = {}

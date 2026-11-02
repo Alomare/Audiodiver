@@ -5,6 +5,7 @@ by the voice that says it (the Library's matches), any other line by its table a
 the same in every language and in one table only, so US English sorts them all, and a language and an id find a line.
 """
 import csv
+import io
 import json
 import re
 from pathlib import Path
@@ -139,7 +140,8 @@ def write_rows(path: Path, rows: list[dict], reference: str | None):
 
 def read_rows(path: Path) -> list[dict]:
     """The rows of a file write_rows made, after any spreadsheet has saved it: comma, semicolon or tab between the
-    columns. ValueError: not such a file."""
+    columns. ValueError: not such a file. UnicodeError: not UTF-8 (or UTF-16), as Excel's plain "CSV" saves it, in the
+    PC's own code page, with a ? for every letter that code page lacks: reading it would bring those ? in."""
     raw = path.read_bytes()
     text = raw.decode("utf-16") if raw[:2] in (b"\xff\xfe", b"\xfe\xff") else raw.decode("utf-8-sig")
     if path.suffix.lower() == ".json":
@@ -149,7 +151,10 @@ def read_rows(path: Path) -> list[dict]:
             raise ValueError("no lines")
     else:
         head = text.split("\n", 1)[0]
-        rows = list(csv.DictReader(text.splitlines(keepends=True), delimiter=max(",;\t", key=head.count)))
+        # as a file opened with newline="": only the CSV's own line ends end a row, not every break splitlines knows
+        rows = list(csv.DictReader(io.StringIO(text, newline=""), delimiter=max(",;\t", key=head.count)))
+        # a break inside a cell as Windows writes it (Notepad, a CRLF file): the game's text has \n alone
+        rows = [{k: v.replace("\r\n", "\n") if isinstance(v, str) else v for k, v in r.items()} for r in rows]
     if rows and not {"Language", "ID", "New text"} <= set(rows[0]):
         raise ValueError("no columns")
     return rows

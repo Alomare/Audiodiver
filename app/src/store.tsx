@@ -6,7 +6,7 @@ import { importAsk } from "./importAsk";
 import { liveGain } from "./gain";
 import { keyLabel } from "./keys";
 import { indexItems } from "./music";
-import { FOLD_LIBRARY, HIDEABLE, isArchive, nav as tabs, type Hideable } from "./nav";
+import { FOLD_LIBRARY, HIDEABLE, isArchive, nav as tabs, useNav, type Hideable } from "./nav";
 import { follow, noticeLog, type Go } from "./noticeLog";
 import { notes } from "./noteStore";
 import { UTILS } from "./edition";
@@ -1406,11 +1406,13 @@ export function useEditor() {
   return Object.assign(Object.create(BROWSING[scope]) as Browse, e, { scope, readOnly: scope === "library", show });
 }
 
-/** The tabs that can be hidden that show now: the open project's choice, else Settings ▸ System's. */
+/** The tabs that can be hidden that show now: the open project's choice, else Settings ▸ System's, less what the game
+    mode hides (Helldivers 1 has no Soundtrack or Text tab), so a link to one of them doesn't show for nothing. */
 export function useShownTabs(): Hideable[] {
   const project = useContext(Ctx)?.project;
   const system = useSettings().tabs;
-  const list = project?.tabs ?? system;
+  const { mode } = useNav();
+  const list = (project?.tabs ?? system).filter((t) => t === "editor" || mode !== "hd1");
   const key = list.join();
   return useMemo(() => list, [key]); // eslint-disable-line react-hooks/exhaustive-deps
 }

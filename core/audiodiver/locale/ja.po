@@ -557,6 +557,10 @@ msgid "That slot doesn't have a separate clip"
 msgstr "そのスロットには独立したクリップがありません"
 
 #: editor.py
+msgid "A Helldivers 1 mod can't hold this"
+msgstr "Helldivers 1 のMODにはこれを入れられません"
+
+#: editor.py
 msgid "Choose an audio file"
 msgstr "音声ファイルを選択してください"
 
@@ -647,6 +651,15 @@ msgstr "展開先を選択してください（フルパス）"
 #: editor.py
 msgid "Choose a mod's .patch_0 file"
 msgstr "MODの.patch_0ファイルを選択してください"
+
+#: editor.py
+msgid "{n} other change"
+msgid_plural "{n} other changes"
+msgstr[0] "その他の変更 {n} 件"
+
+#: editor.py
+msgid "{changes} in {n} banks ({names}): settings such as effects, positioning or how a container picks sounds"
+msgstr "{n} 個のバンク（{names}）の{changes}：エフェクト、ポジショニング、コンテナのサウンドの選び方などの設定"
 
 #: editor.py
 msgid "The sound in {file} couldn't be decoded."
@@ -855,6 +868,15 @@ msgid "Another project was opened during the import. Open this project again and
 msgstr "インポート中に別のプロジェクトが開かれました。このプロジェクトをもう一度開いて、インポートし直してください。"
 
 #: editor.py
+msgid "{changes} in \"{bank}\": settings such as effects, positioning or how a container picks sounds"
+msgstr "「{bank}」の{changes}：エフェクト、ポジショニング、コンテナのサウンドの選び方などの設定"
+
+#: editor.py
+msgid "{names} and {n} more"
+msgid_plural "{names} and {n} more"
+msgstr[0] "{names} ほか {n} 個"
+
+#: editor.py
 msgid "reading {file}"
 msgstr "{file}を読み込み中"
 
@@ -921,6 +943,10 @@ msgstr "{file}は{folder}にすでに存在します"
 #: editor.py
 msgid "{name} is a folder. Choose a .audi project file."
 msgstr "{name}はフォルダーです。.audiプロジェクトファイルを選択してください。"
+
+#: editor.py
+msgid "{file} makes a mod for Helldivers 1, which wasn't found. Choose the Helldivers 1 folder in Settings ▸ System."
+msgstr "{file} は Helldivers 1 用のMODですが、Helldivers 1 が見つかりません。設定 ▸ システムでゲームのフォルダーを選んでください。"
 
 #: editor.py
 msgid "Sound {sound} doesn't play {source}"
@@ -1161,24 +1187,6 @@ msgid "{file} can't be read as a game patch"
 msgstr "{file}をゲームのパッチとして読み取れません"
 
 #: editor.py
-msgid "{n} other change"
-msgid_plural "{n} other changes"
-msgstr[0] "その他の変更 {n} 件"
-
-#: editor.py
-msgid "{changes} in \"{bank}\": settings such as effects, positioning or how a container picks sounds"
-msgstr "「{bank}」の{changes}：エフェクト、ポジショニング、コンテナのサウンドの選び方などの設定"
-
-#: editor.py
-msgid "{changes} in {n} banks ({names}): settings such as effects, positioning or how a container picks sounds"
-msgstr "{n} 個のバンク（{names}）の{changes}：エフェクト、ポジショニング、コンテナのサウンドの選び方などの設定"
-
-#: editor.py
-msgid "{names} and {n} more"
-msgid_plural "{names} and {n} more"
-msgstr[0] "{names} ほか {n} 個"
-
-#: editor.py
 msgid "{file} replaces, adds or sets nothing Audiodiver can bring in ({why})"
 msgstr "{file}には、Audiodiverが取り込める置き換え、追加、設定がありません（{why}）"
 
@@ -1219,6 +1227,10 @@ msgstr "インポートした {id}"
 #: editor.py hd1_build.py
 msgid "Can't write {file}: {why}"
 msgstr "{file}に書き込めません：{why}"
+
+#: editor.py
+msgid "{file} isn't saved as UTF-8, so letters outside English may have turned into ?. In Excel, choose Save As and CSV UTF-8 (Comma delimited), then import it again."
+msgstr "{file} は UTF-8 で保存されていないため、英語以外の文字が ? になっている可能性があります。Excel で「名前を付けて保存」から「CSV UTF-8 (コンマ区切り)」を選び、もう一度インポートしてください。"
 
 #: editor.py
 msgid "{file} isn't a text export: it needs the columns Language, ID and New text"
