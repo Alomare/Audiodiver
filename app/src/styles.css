@@ -1352,10 +1352,10 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .menu-item.hot:hover .menu-meter i, .menu-item.hot:focus-visible .menu-meter i { animation: menu-level calc(520ms * var(--anim)) ease-in-out infinite alternate; animation-delay: calc(var(--n) * -130ms * var(--anim)); }
 @keyframes menu-level { from { transform: scaleY(.35); } to { transform: scaleY(1.15); } }
 /* which game, in the top-right corner, the page's margin from both edges: not a button but a dark track whose slanted
-   thumb slides to the game in use. Both let a little of the picture through. */
+   thumb slides to the game in use. */
 .game-switch { position: absolute; top: var(--home-m); right: var(--home-m); z-index: 1; display: grid; grid-template-columns: 1fr 1fr;
-  width: calc(340px * var(--fs)); height: calc(40px * var(--fs)); overflow: hidden; animation: view-in var(--t2) var(--ease) both; background: color-mix(in srgb, var(--bg) 88%, transparent); box-shadow: inset 0 0 0 1px var(--line); }
-.game-switch::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 54%; background: color-mix(in srgb, var(--accent) 88%, transparent); transform: translateX(-7.4%) skewX(-16deg);
+  width: calc(340px * var(--fs)); height: calc(40px * var(--fs)); overflow: hidden; animation: view-in var(--t2) var(--ease) both; background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); }
+.game-switch::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 54%; background: var(--accent); transform: translateX(-7.4%) skewX(-16deg);
   transition: transform var(--t3) var(--ease); }
 .game-switch[data-at="hd2"]::before { transform: translateX(92.6%) skewX(-16deg); }
 .game-switch button { position: relative; font-family: var(--title); font-stretch: 112%; font-size: calc(12.6px * var(--fs)); font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
