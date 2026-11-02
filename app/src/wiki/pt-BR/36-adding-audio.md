@@ -2,7 +2,7 @@
 title: Adicionando áudio
 group: Criando um mod
 summary: Takes novos para um som, uma camada que toca junto com ele e áudio novo só para um som, além do que o jogo tem.
-source: ea7154765378
+source: 07f3b9fcb042
 ---
 
 Substituir o áudio muda o que um slot toca. Os sons também podem receber áudio que o jogo não tem, de três jeitos, todos na aba Áudio. Eles funcionam para sons e vozes, mas não para música.
@@ -21,7 +21,9 @@ Uma camada toca junto com um som toda vez, como um estrondo mais grave por baixo
 
 ## Só este som {#only-this-sound}
 
-Muitas vezes vários sons tocam o mesmo clipe, e substituir o clipe o muda em todos eles. Para limitar uma substituição, defina **Escopo** nos detalhes de um slot substituído como **Só este som**. Os outros sons então mantêm o original, e os slots deles mostram **substituído em outro som**. Cada opção mostra quantos bancos ela muda.
+Muitas vezes vários sons tocam o mesmo clipe, e substituir o clipe o muda em todos eles. Para limitar uma substituição, defina **Toca em** nos detalhes de um slot como **Só este som**. Os outros sons então mantêm o Original, e os slots deles mostram **substituído em outro som**. Uma nota abaixo da escolha diz quantos bancos ela muda.
+
+Um slot com áudio novo que outros sons compartilham mostra **todos os sons** até então. Para vários sons de uma vez, marque os slots deles e escolha nos detalhes, ou clique neles com o botão direito. **Só este som em todos**, na barra de ferramentas, faz o banco inteiro.
 
 O áudio novo entra no mod com um ID novo. As ferramentas que listam clipes por ID mostram o ID antigo com o Original, embora o jogo toque o áudio novo nesse som.
 

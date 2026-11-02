@@ -603,6 +603,9 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .notice span, .notice-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .notice:has(.notice-text) { align-items: flex-start; } /* a notice of several lines keeps its buttons by its first line */
 .notice:has(.notice-text) > :is(.btn, .x) { margin-top: -2px; }
+/* at most half the window, its words scrolling inside: the ✕ stays in reach however long a notice is */
+.notice { max-height: 50vh; }
+.notice > span, .notice > .notice-text { max-height: calc(50vh - 20px * var(--sp) - 2px); overflow-y: auto; }
 .notice-text ul { margin: 6px 0 0; padding-left: 18px; color: var(--muted); }
 .notice-text li + li { margin-top: 2px; }
 .notice.good { border-left-color: var(--accent-fg); }
@@ -786,6 +789,12 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 /* the same distance from the edge on the lines of groups and on items (the item's padding makes up the rest) */
 .lib-group-line > .lib-add { margin-right: 10px; }
 .mus-item > .mus-meta > .lib-add { margin-right: 0; }
+/* left of the ✕, on what is in the project: goes to it in the Audio tab */
+.lib-open { display: inline-grid; place-items: center; flex: none; width: calc(26px * var(--fs)); height: calc(22px * var(--fs)); border-radius: 2px; color: var(--muted);
+  transition: background-color var(--t1), color var(--t1); }
+.lib-open svg { width: calc(15px * var(--fs)); height: calc(15px * var(--fs)); }
+.lib-open:hover { color: var(--accent-ink); background: var(--accent); }
+.lib-group-line > .lib-open { margin-right: 6px; }
 /* the Library's + and the ✕ it turns into once the item is in the project: always shown, wider than a row's other
    buttons, on a light fill of its colour with the sign in the full colour (the primary colour for +, red for ✕),
    filled with that colour on hover */
@@ -1240,6 +1249,13 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .set-sec { display: flex; flex-direction: column; gap: calc(12px * var(--sp)); padding: calc(18px * var(--sp)) 0; border-top: 1px solid var(--line-soft); }
 .set-sec h2 { font-size: calc(18px * var(--fs)); color: var(--text); }
 .set-note { margin: 0; max-width: 72ch; color: var(--muted); font-size: calc(14px * var(--fs)); }
+/* the Project tab's Radio Filter: a voice, and its filter on or off, in one column */
+.radio-list { display: flex; flex-direction: column; max-width: calc(460px * var(--fs)); border-top: 1px solid var(--line-soft); }
+.radio-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: calc(6px * var(--sp)) 0; border-bottom: 1px solid var(--line-soft); }
+.radio-voice { min-width: 0; font-size: calc(14px * var(--fs)); }
+.radio-voice small { display: block; color: var(--muted); font-size: calc(12px * var(--fs)); }
+.radio-row .segmented { flex: none; width: calc(116px * var(--fs)); }
+.radio-row .segmented button { padding: calc(3px * var(--sp)) 0; }
 .set-note b { color: var(--text); font-weight: 500; }
 .set-list { display: flex; flex-direction: column; gap: calc(10px * var(--sp)); }
 .set-reset { align-self: flex-start; margin-top: 14px; font-size: calc(14px * var(--fs)); }
@@ -1878,6 +1894,10 @@ kbd.none { color: var(--faint); font-weight: 400; }
 
 /* the Editor's tree: a category's or section's ✕ shows on its line only, like an item's (removing is undoable,
    but a whole group shouldn't sit one stray click away) */
+/* its ✕ and the dot before it where an item has them: 10px from the edge, 7px between, and a smaller dot on the same centre */
+.lib-group-line > .row-act { margin-right: 10px; }
+.lib-group-line > .lib-group-head:has(+ .row-act) { padding-right: 7px; }
+.lib-group-head > .mark-dot.small { margin: 0 1px; }
 .lib-group-line > .row-act.remove { opacity: 0; }
 .lib-group-line:hover > .row-act.remove, .lib-group-line > .row-act.remove:focus-visible { opacity: 1; }
 .row-act.remove:hover { color: var(--red); }

@@ -16,8 +16,8 @@ import { rangeVars } from "./range";
 const FRAME_KEYS: (keyof IconFrame)[] = ["border", "border_color", "radius"];
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
-/** Which voices lose their radio filter, and whether they are then turned down to about the radio's level. These
-    work without new audio, so a mod can be just this. */
+/** The radio filter of each voice, on or off, and whether the voices without it are turned down to about the radio's
+    level. These work without new audio, so a mod can be just this. */
 function RadioFilters() {
   const { project, actions } = useEditor();
   if (!project) return null;
@@ -26,22 +26,36 @@ function RadioFilters() {
     ["mission_control", t`Mission Control`], ["admiral", t`The Admiral`], ["eagle", t`Eagle-1`], ["pelican", t`Pelican-1`],
     ["helldivers", t`Helldivers`, t`Teammates on the radio, and anyone in a vehicle`],
   ];
-  const set = (voice: string, on: boolean) => actions.settings({ radio_off: on ? [...off, voice] : off.filter((v) => v !== voice) });
+  const set = (voice: string, filtered: boolean) => actions.settings({ radio_off: filtered ? off.filter((v) => v !== voice) : [...off, voice] });
+  const nothingElse = !Object.keys(project.assignments).length && !project.texts.length;
   return (
     <section className="set-sec">
-      <h2><Trans>Radio Filter</Trans> <Help tip={t`The radio sound isn't in the voice files, so new audio goes through it too. Tick a voice to play it clean, in every language`} page="volume#radio-filter" /></h2>
-      <div className="set-checks">
-        {voices.map(([id, name, tip]) => (
-          <label key={id} className="check" data-tip={tip}>
-            <input type="checkbox" checked={off.includes(id)} onChange={(e) => set(id, e.target.checked)} /> {name}
-          </label>
-        ))}
+      <h2><Trans>Radio Filter</Trans> <Help tip={t`The radio sound isn't in the voice files, so new audio on these voices goes through it too.`} page="volume#radio-filter" /></h2>
+      <p className="set-note"><Trans>These voices play through a radio effect, new audio included. Turn it off to hear a voice clean, in every language.</Trans></p>
+      <div className="radio-list">
+        {voices.map(([id, name, about]) => {
+          const filtered = !off.includes(id);
+          return (
+            <div key={id} className="radio-row">
+              <span className="radio-voice">{name}{about && <small>{about}</small>}</span>
+              <div className="segmented" role="radiogroup" aria-label={name}>
+                {[[true, t({ message: "On", comment: "The radio filter of a voice is on" })], [false, t({ message: "Off", comment: "The radio filter of a voice is off" })]].map(([value, label]) => (
+                  <button key={label as string} role="radio" aria-checked={filtered === value} className={filtered === value ? "on" : ""}
+                    onClick={() => { if (filtered !== value) set(id, value as boolean); }}>{label}</button>
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </div>
-      <label className="check">
-        <input type="checkbox" checked={project.radio_quieter} disabled={!off.length} onChange={(e) => actions.settings({ radio_quieter: e.target.checked })} />
-        <span><Trans>Normalize the loudness</Trans> <Help tip={t`Clean voices come out louder. This turns them down to about the level of the radio`} page="volume#radio-filter" /></span>
-      </label>
-      {off.length > 0 && <p className="set-note"><Trans>This mod carries the Init bank, which every sound goes through. Only one mod can carry it, so with two the last one wins.</Trans></p>}
+      {off.length > 0 && <>
+        <label className="check">
+          <input type="checkbox" checked={project.radio_quieter} onChange={(e) => actions.settings({ radio_quieter: e.target.checked })} />
+          <span><Trans>Turn these voices down to the radio's level</Trans> <Help tip={t`Without the filter, voices come out louder.`} page="volume#radio-filter" /></span>
+        </label>
+        <p className="set-note"><Trans>Only one mod can change radio filters. If another mod also carries the Init bank, the last one in the load order wins.</Trans>
+          {nothingElse && <>{" "}<Trans>A mod can be just this, with no new audio.</Trans> <button className="link-inline" onClick={() => nav.go("build")}>{t`Build Tab`}</button></>}</p>
+      </>}
     </section>
   );
 }

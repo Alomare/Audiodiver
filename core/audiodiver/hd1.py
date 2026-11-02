@@ -37,6 +37,7 @@ import struct
 import subprocess
 import wave
 import zlib
+from concurrent.futures import ThreadPoolExecutor
 from importlib import resources
 from pathlib import Path
 
@@ -51,6 +52,7 @@ log = logging.getLogger(__name__)
 FORMAT = 4            # of the kept reading: a new one reads the game again
 VERSION = 0xF0000004  # of a bundle
 CHUNK = 0x10000
+SCAN_THREADS = 8      # reading the game's bundles for the first time
 BANK, MASTER, STRINGS = murmur64_hash(b"timpani_bank"), murmur64_hash(b"timpani_master"), murmur64_hash(b"strings")
 HEAD = 68
 VORBIS, PCM = 0x566F, 1
@@ -325,24 +327,54 @@ def event_clips(m: bytes) -> tuple[dict, dict, dict]:
     return out, tiers, ends
 
 
+def _on_threads(fn, items: list) -> list:
+    """fn(item) of each, in order. Nearly all of a bundle's reading is zlib and the disk, which let other threads run."""
+    with ThreadPoolExecutor(min(SCAN_THREADS, os.cpu_count() or 1)) as pool:
+        return list(pool.map(fn, items))
+
+
 def scan(contents: Path) -> dict:
-    """What the bundles hold, in the form the cache keeps."""
-    banks, seen, master, texts = [], {}, None, {}
-    wanted = _text_keys()
-    for path in _bundles(contents):
+    """What the bundles hold, in the form the cache keeps. First what each bundle lists, then only what is needed of
+    it: a bank that sits in several bundles is read once."""
+    def listed(path):
         with Bundle(path) as b:
-            for kind, name, lang, at, size, stream_at, stream in _resources(b):
-                if kind == MASTER and master is None:
-                    master = b.read(at, size)
-                elif kind == STRINGS and lang in TEXT.values():
-                    texts.setdefault(lang, {}).update(_text(b.read(at, size), wanted))
-                elif kind == BANK and (name, lang) in seen:  # a bank can sit in several bundles: a mod goes into each
-                    seen[(name, lang)]["bundles"].append(path.relative_to(contents).as_posix())
-                elif kind == BANK:
-                    where = path.relative_to(contents).as_posix()
-                    seen[(name, lang)] = {"bundle": where, "bundles": [where], "name": name, "lang": lang, "at": at,
-                                          "size": size, "stream": stream_at, "stream_size": stream, "rows": _rows(b, at)}
-                    banks.append(seen[(name, lang)])
+            return path, b.chunks, list(_resources(b))
+
+    banks, seen, jobs, has_master = [], {}, [], False
+    for path, chunks, held in _on_threads(listed, _bundles(contents)):
+        where, wants = path.relative_to(contents).as_posix(), []
+        for kind, name, lang, at, size, stream_at, stream in held:
+            if kind == MASTER and not has_master:
+                has_master = True
+                wants.append((kind, lang, at, size, None))
+            elif kind == STRINGS and lang in TEXT.values():
+                wants.append((kind, lang, at, size, None))
+            elif kind == BANK and (name, lang) in seen:  # a bank can sit in several bundles: a mod goes into each
+                seen[(name, lang)]["bundles"].append(where)
+            elif kind == BANK:
+                seen[(name, lang)] = {"bundle": where, "bundles": [where], "name": name, "lang": lang, "at": at,
+                                      "size": size, "stream": stream_at, "stream_size": stream}
+                banks.append(seen[(name, lang)])
+                wants.append((kind, lang, at, size, seen[(name, lang)]))
+        if wants:
+            jobs.append((path, chunks, wants))
+    wanted = _text_keys()
+
+    def read(job):
+        path, chunks, wants = job
+        with Bundle(path, chunks) as b:
+            return [_rows(b, at) if kind == BANK else b.read(at, size) if kind == MASTER else _text(b.read(at, size), wanted)
+                    for kind, _, at, size, _ in wants]
+
+    master, texts = None, {}
+    for (_, _, wants), got in zip(jobs, _on_threads(read, jobs)):
+        for (kind, lang, _, _, bank), value in zip(wants, got):
+            if kind == BANK:
+                bank["rows"] = value
+            elif kind == MASTER:
+                master = value
+            else:
+                texts.setdefault(lang, {}).update(value)
     if master is None:
         raise ValueError("no timpani_master in the game")
     clips = {r[0] for b in banks for r in b["rows"]}

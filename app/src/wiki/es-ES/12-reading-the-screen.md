@@ -2,7 +2,7 @@
 title: Cómo leer la pantalla
 group: Primeros pasos
 summary: Qué muestra cada parte de la Biblioteca y de la pestaña Audio, y qué significan las etiquetas y las marcas de una fila.
-source: f754998fc425
+source: 2fe85c09eeb2
 ---
 
 La Biblioteca y la pestaña Audio comparten una disposición: una lista a la izquierda, el elemento abierto en el centro y el panel de detalles a la derecha. La Banda Sonora tiene otra disposición, que se describe en [Banda Sonora](wiki:soundtrack). Las palabras en **negrita** se explican en [El audio del juego, explicado](wiki:game-audio).
@@ -44,6 +44,7 @@ La barra de herramientas empieza con una casilla que selecciona todos los slots 
 | {icon:export} **Exportar** | Guarda el elemento, o los slots seleccionados, como ficheros WAV, FLAC, MP3 o WEM. **Lista de Exportación**, a su lado, abre la [lista de exportación](#the-export-list) cuando ya hay algo en ella. |
 | {icon:skip} **Saltarlo**, {icon:skipall} **Saltarlos todos** | Sustituyen una transición o un stinger por un silencio corto. |
 | {icon:clear} **Vaciar todo**, **Vaciar esta parte** | Quitan el audio nuevo de todos los slots mostrados, o de todos los slots de la parte. |
+| {icon:onlythis} **Solo este sonido en todos** | Define [Solo este sonido](wiki:adding-audio#only-this-sound) en cada slot de aquí con audio nuevo que otros sonidos comparten, secuencias plegadas incluidas. Cuando todos lo tienen, el mismo botón define **Todos los sonidos**. |
 
 {icon:search} **Buscar slots** reduce la lista por nombre, etiqueta, nota, nombre de fichero o ID. En un conjunto de sonidos también encuentra las palabras de una frase. Cuando nada de la lista coincide, **En otros lugares** enumera las piezas de música y los conjuntos de sonidos que tienen una coincidencia.
 
@@ -82,6 +83,7 @@ Cada fila es un **slot**, un clip del juego que se puede sustituir.
 | **sin audio** | Los datos del juego nombran este clip, pero los ficheros del juego instalados no lo incluyen. No hay nada que reproducir ni sustituir. |
 | **tambores suaves** | Una capa de percusión apenas audible bajo otra capa del segmento. |
 | **nunca suena** | El clip está en los ficheros del juego, pero el juego nunca lo reproduce. La música de muerte de los Iluminados del Vacío es un ejemplo. |
+| **todos los sonidos** | El audio nuevo suena en todos los sonidos que reproducen el clip. Consulta [Solo este sonido](wiki:adding-audio#only-this-sound). |
 | **solo este sonido** | El audio nuevo suena solo en este sonido. Los demás sonidos que reproducen el clip conservan el Original. Consulta [Solo este sonido](wiki:adding-audio#only-this-sound). |
 | **sustituido en otro sonido** | Otro sonido reproduce audio nuevo en lugar de este clip, con **Solo este sonido**. Este conserva el Original. |
 | **−6 dB** | Make-Up Gain en el Original, en un slot sin audio nuevo. Consulta [Make-Up Gain por slot](wiki:volume#make-up-gain-per-slot). |

@@ -206,6 +206,16 @@ def test_takes_layers_and_clips_of_their_own_show_where_they_play(session, tmp_p
     assert st["source"] == row["source"] and st["assignments"][row["source"]]["name"] == "d.wav"
     assert not any(a["kind"] == "own" for a in st["additions"]) and st["stand_ins"] == {}
 
+    # several at once, as one undo step: what can't take it stays as it is
+    undo = len(s.undo_stack)
+    st = s.own_clips([{"source": row["source"], "sound": row["object"]}, {"source": new[0], "sound": row["object"]}])
+    assert list(st["sources"]) == [row["source"]] and len(s.undo_stack) == undo + 1
+    mine = st["sources"][row["source"]]
+    assert st["assignments"][mine]["name"] == "d.wav"
+    assert s.own_clips([{"source": mine, "sound": row["object"]}])["sources"] == {}
+    st = s.shared_clips([mine, row["source"]])
+    assert st["sources"] == {mine: row["source"]} and not any(a["kind"] == "own" for a in st["additions"])
+
     st = s.unassign([new[0]])  # a take is its audio: without it, it goes
     assert len([a for a in st["additions"] if a["kind"] == "take"]) == 2
     st = s.unassign(st["outside"] + [x for x in st["assignments"] if x != row["source"]])

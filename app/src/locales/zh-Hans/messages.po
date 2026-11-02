@@ -87,8 +87,8 @@ msgid "{autosave, plural, one {Saved every # minute} other {Saved every # minute
 msgstr "{autosave, plural, other {每 # 分钟保存一次}}"
 
 #: src/Inspector.tsx
-msgid "{banks, plural, one {Changes it in # bank} other {Changes it in # banks}}"
-msgstr "{banks, plural, other {在 # 个音频库中更改}}"
+msgid "{banks, plural, one {Changes # bank. Other sounds that play the clip keep the Original.} other {Changes # banks. Other sounds that play the clip keep the Original.}}"
+msgstr "{banks, plural, other {更改 # 个音频库。播放该片段的其他声音保留原版。}}"
 
 #. Markdown. {buildIcon} shows the icon of the Build tab. **Build** is the tab name and must read as the translation of the tab name does.
 #: src/tutorials.ts
@@ -176,6 +176,10 @@ msgstr "{count, plural, other {新的互动教程}}"
 msgid "{count, plural, one {Add # Slot to the Export List} other {Add # Slots to the Export List}}"
 msgstr "{count, plural, other {将 # 个槽位添加到导出列表}}"
 
+#: src/Inspector.tsx
+msgid "{count, plural, one {Applies to the # slot with new audio that other sounds share.} other {Applies to the # slots with new audio that other sounds share.}}"
+msgstr "{count, plural, other {应用于有新音频且与其他声音共用的 # 个槽位。}}"
+
 #: src/TextTools.tsx
 msgid "{count, plural, one {Change # Line} other {Change # Lines}}"
 msgstr "{count, plural, other {更改 # 行}}"
@@ -203,6 +207,14 @@ msgstr "{count, plural, other {复制原版（# 个槽位）}}"
 #: src/SettingsTab.tsx
 msgid "{count, plural, one {Every # minute} other {Every # minutes}}"
 msgstr "{count, plural, other {每 # 分钟}}"
+
+#: src/CueView.tsx
+msgid "{count, plural, one {New audio plays in every sound again, on the # slot here} other {New audio plays in every sound again, on the # slots here}}"
+msgstr "{count, plural, other {此处的 # 个槽位：新音频重新在所有声音中播放}}"
+
+#: src/CueView.tsx
+msgid "{count, plural, one {New audio plays only in the sound it replaces, on the # slot here that other sounds share} other {New audio plays only in the sound it replaces, on the # slots here that other sounds share}}"
+msgstr "{count, plural, other {此处与其他声音共用的 # 个槽位：新音频只在所替换的声音中播放}}"
 
 #: src/CueView.tsx
 msgid "{count, plural, one {Paste (# Slot)} other {Paste (# Slots)}}"
@@ -272,6 +284,10 @@ msgstr "{downloaded}/{total}"
 #: src/ProjectTab.tsx
 msgid "{elsewhere, plural, one {# file the project uses is outside the project folder.} other {# files the project uses are outside the project folder.}}"
 msgstr "{elsewhere, plural, other {项目使用的 # 个文件位于项目文件夹之外。}}"
+
+#: src/Inspector.tsx
+msgid "{every, plural, one {Other sounds that play this clip change too, in # bank.} other {Other sounds that play this clip change too, in # banks.}}"
+msgstr "{every, plural, other {播放此片段的其他声音也会更改，涉及 # 个音频库。}}"
 
 #. facts: the release date and the download size; APP_LABEL: the version installed
 #: src/UpdatesTab.tsx
@@ -439,6 +455,14 @@ msgstr "{more, plural, other {应用到另外 # 个使用此文件的段落}}"
 msgid "{more, plural, one {It plays in # other place too.} other {It plays in # other places too.}}"
 msgstr "{more, plural, other {它也在其他 # 处播放。}}"
 
+#: src/store.tsx
+msgid "{moved, plural, one {**Every Sound** on # slot} other {**Every Sound** on # slots}}"
+msgstr "{moved, plural, other {已在 # 个槽位上设为**所有声音**}}"
+
+#: src/store.tsx
+msgid "{moved, plural, one {**Only This Sound** on # slot} other {**Only This Sound** on # slots}}"
+msgstr "{moved, plural, other {已在 # 个槽位上设为**仅此声音**}}"
+
 #. An empty cue point box: the point it stands for, in ms, fitted to the new audio
 #: src/Inspector.tsx
 msgid "{ms} (fitted)"
@@ -571,6 +595,10 @@ msgstr "{over, plural, other {多出 # 首歌曲}}。"
 msgid "{over, plural, one {# song left over} other {# songs left over}}. This music has {total, plural, one {# place} other {# places}}."
 msgstr "{over, plural, other {多出 # 首歌曲}}。这段音乐有 {total, plural, other {# 个位置}}。"
 
+#: src/Inspector.tsx
+msgid "{own, plural, one {# plays only in one sound. Choose to set them all.} other {# play only in one sound each. Choose to set them all.}}"
+msgstr "{own, plural, other {其中 # 个只在一个声音中播放。选择一项即可全部设置。}}"
+
 #: src/ItemHead.tsx
 msgid "{parts, plural, one {Stinger} other {Stingers}}"
 msgstr "{parts, plural, other {插入乐段}}"
@@ -638,6 +666,14 @@ msgstr "{problems, plural, other {构建前请先修复以下问题}}"
 #: src/SettingsTab.tsx
 msgid "{project} uses the tabs chosen on the Project tab."
 msgstr "{project} 沿用项目选项卡中选定的选项卡。"
+
+#: src/CueView.tsx
+msgid "{reachOwn, plural, one {Every Sound (# Slot)} other {Every Sound (# Slots)}}"
+msgstr "{reachOwn, plural, other {所有声音（# 个槽位）}}"
+
+#: src/CueView.tsx
+msgid "{reachShared, plural, one {Only This Sound (# Slot)} other {Only This Sound (# Slots)}}"
+msgstr "{reachShared, plural, other {仅此声音（# 个槽位）}}"
 
 #: src/ProjectTab.tsx
 msgid "{removed, plural, one {# file moved to the Recycle Bin} other {# files moved to the Recycle Bin}}"
@@ -733,10 +769,6 @@ msgstr "{songs, plural, other {已添加 # 首歌曲}}"
 #: src/Soundtrack.tsx
 msgid "{songs, plural, one {# song} other {# songs}} from place {place}"
 msgstr "从位置 {place} 起的 {songs, plural, other {# 首歌曲}}"
-
-#: src/Inspector.tsx
-msgid "{soundBanks, plural, one {Changes it in # bank. Other sounds that play the clip keep the original.} other {Changes it in # banks. Other sounds that play the clip keep the original.}}"
-msgstr "{soundBanks, plural, other {在 # 个音频库中更改。播放该片段的其他声音保留原版。}}"
 
 #: src/CombinePage.tsx
 #: src/RepatchPage.tsx
@@ -946,6 +978,14 @@ msgstr "已将 **{what}** 替换为静音"
 msgid "**{what}** skipped"
 msgstr "已跳过 **{what}**"
 
+#: src/store.tsx
+msgid "**Every Sound** on {moved} of {asked} slots. Another sound has new audio on the others"
+msgstr "已在 {asked} 个槽位中的 {moved} 个上设为**所有声音**。其余槽位有其他声音带新音频"
+
+#: src/store.tsx
+msgid "**Only This Sound** on {moved} of {asked} slots"
+msgstr "已在 {asked} 个槽位中的 {moved} 个上设为**仅此声音**"
+
 #. Markdown. **Sequence 7** and **Sequence 8** are the names the slot list shows for these sequences.
 #: src/tutorials.ts
 msgid "**Sequence 7** and **Sequence 8** play with the shot. Tick both, so the new shot plays alone."
@@ -1070,6 +1110,10 @@ msgstr "项目添加的层。只要上面那个声音一播放，它就会跟着
 #: src/CueView.tsx
 msgid "A layer left original still plays under the new audio"
 msgstr "保留原版的层仍会与新音频叠加播放"
+
+#: src/ProjectTab.tsx
+msgid "A mod can be just this, with no new audio."
+msgstr "模组可以只做这一件事，不含新音频。"
 
 #: src/TextTab.tsx
 msgid "A mod carries whole tables. When two mods change the same table, the one deployed later replaces the other"
@@ -1910,6 +1954,7 @@ msgstr "基于当前音频库，将这些模组构建为一个模组"
 msgid "Build options"
 msgstr "构建选项"
 
+#: src/ProjectTab.tsx
 #: src/store.tsx
 msgid "Build Tab"
 msgstr "构建选项卡"
@@ -2367,10 +2412,6 @@ msgstr "已在此处选定。"
 #: src/ProjectTab.tsx
 msgid "Circle"
 msgstr "圆形"
-
-#: src/ProjectTab.tsx
-msgid "Clean voices come out louder. This turns them down to about the level of the radio"
-msgstr "去除滤镜后的语音会变响。此项将其调低到接近无线电的音量"
 
 #. Button of the Text tab: unticks the selected lines
 #. Button: deletes these files
@@ -3273,23 +3314,29 @@ msgstr "所有部分均已折叠"
 msgid "Every sequence is collapsed"
 msgstr "所有序列均已折叠"
 
+#. Tag on a slot whose new audio plays in every sound that plays the clip
+#: src/CueView.tsx
+msgid "every sound"
+msgstr "所有声音"
+
+#: src/CueView.tsx
+#: src/Inspector.tsx
+msgid "Every Sound"
+msgstr "所有声音"
+
 #. Markdown. {libraryIcon} shows the icon of the Library tab. **Library** is the tab name and must read as the translation of the tab name does.
 #: src/tutorials.ts
 msgid "Every sound in the game is in the {libraryIcon} **Library**. Open it."
 msgstr "游戏中的每个声音都在 {libraryIcon} **资源库**中。请打开它。"
 
+#: src/CueView.tsx
+msgid "Every Sound on All"
+msgstr "全部设为所有声音"
+
 #. Edit in Undo, Redo and History: the new audio of a slot set to play in every sound that plays the clip
 #: src/store.tsx
 msgid "every sound that plays it"
 msgstr "所有播放它的声音"
-
-#: src/Inspector.tsx
-msgid "Every Sound That Plays It"
-msgstr "所有播放它的声音"
-
-#: src/Inspector.tsx
-msgid "Every sound that plays this clip gets the new audio"
-msgstr "所有播放此片段的声音都会获得新音频"
 
 #: src/SettingsTab.tsx
 msgid "Every theme setting goes back to the default. Dark or light, contrast and animations follow the system."
@@ -5181,10 +5228,6 @@ msgid "Normal"
 msgstr "正常"
 
 #: src/ProjectTab.tsx
-msgid "Normalize the loudness"
-msgstr "标准化响度"
-
-#: src/ProjectTab.tsx
 msgid "Not an Audiodiver project, or damaged"
 msgstr "不是 Audiodiver 项目，或文件已损坏"
 
@@ -5385,6 +5428,8 @@ msgstr "按音频库中的顺序编号。播放即可听出是什么"
 msgid "Of two mods with the same file besides audio, the one lower in the list goes in."
 msgstr "如果两个模组含有相同的非音频文件，则采用列表中靠下的那个。"
 
+#. The radio filter of a voice is off
+#: src/ProjectTab.tsx
 #: src/settings.ts
 #: src/SettingsTab.tsx
 msgid "Off"
@@ -5410,6 +5455,8 @@ msgstr "旧的共享设置"
 msgid "Older sound banks"
 msgstr "旧的音频库"
 
+#. The radio filter of a voice is on
+#: src/ProjectTab.tsx
 #: src/SettingsTab.tsx
 msgid "On"
 msgstr "开启"
@@ -5472,6 +5519,10 @@ msgstr "一场战斗的单条音轨，包含游戏播放时选取的段落"
 msgid "One track with the segments in play order, joined at their Exit points"
 msgstr "单条音轨，各段落按播放顺序排列，在出点处衔接"
 
+#: src/ProjectTab.tsx
+msgid "Only one mod can change radio filters. If another mod also carries the Init bank, the last one in the load order wins."
+msgstr "只有一个模组能更改无线电滤镜。如果另一个模组也带有 Init 音频库，以加载顺序中最后一个为准。"
+
 #: src/TextTab.tsx
 msgid "Only the lines the project changes in this language"
 msgstr "仅显示项目在此语言中更改的行"
@@ -5489,9 +5540,14 @@ msgstr "只有这个音频库会写入它。其他音频库里的这份音频，
 msgid "only this sound"
 msgstr "仅此声音"
 
+#: src/CueView.tsx
 #: src/Inspector.tsx
 msgid "Only This Sound"
 msgstr "仅此声音"
+
+#: src/CueView.tsx
+msgid "Only This Sound on All"
+msgstr "全部设为仅此声音"
 
 #: src/IndexTree.tsx
 msgid "Only what has new audio"
@@ -5752,6 +5808,14 @@ msgstr "其他文件"
 #: src/Library.tsx
 msgid "Other Replaced Sounds"
 msgstr "其他已替换的声音"
+
+#: src/Inspector.tsx
+msgid "Other sounds play these clips too. Add new audio here to choose."
+msgstr "其他声音也播放这些片段。在此添加新音频后即可选择。"
+
+#: src/Inspector.tsx
+msgid "Other sounds play this clip too. Add new audio here to choose."
+msgstr "其他声音也播放此片段。在此添加新音频后即可选择。"
 
 #: src/RepatchPage.tsx
 msgid "Other sounds, like all gunfire, go silent while the mod is installed. <0>Installed mods</0> below finds the mods that do this."
@@ -6121,6 +6185,10 @@ msgstr "实际为 {0} dB"
 #: src/Soundtrack.tsx
 msgid "Plays for"
 msgstr "播放时长"
+
+#: src/Inspector.tsx
+msgid "Plays In"
+msgstr "播放范围"
 
 #: src/CueView.tsx
 msgid "Plays nothing for the length of the original, so the timing doesn't change"
@@ -6899,10 +6967,6 @@ msgstr "保存在 {projectFolder}"
 msgid "Saving…"
 msgstr "正在保存…"
 
-#: src/Inspector.tsx
-msgid "Scope"
-msgstr "范围"
-
 #: src/keys.ts
 msgid "Search"
 msgstr "搜索"
@@ -7088,8 +7152,8 @@ msgid "Several small mods are easier to keep as one."
 msgstr "将多个小模组合并为一个，更便于管理。"
 
 #: src/Inspector.tsx
-msgid "Several sounds can play the same clip. Choose whether the new audio plays in all of them or only in this one."
-msgstr "多个声音可能播放同一个片段。请选择让新音频在所有这些声音里播放，还是只在这一处播放。"
+msgid "Several sounds can play the same clip. A replacement changes it in all of them, unless it plays only in this sound."
+msgstr "多个声音可以播放同一个片段。替换会在所有这些声音中生效，除非设为只在此声音中播放。"
 
 #: src/Inspector.tsx
 msgid "Several subtitles have these words, and the game files don't show which one matches this recording. The Text tab lists them all and opens the most likely one"
@@ -8002,10 +8066,6 @@ msgid "The middle lists the sounds of the Liberator. One shot is several sounds 
 msgstr "中间列出了“解放者”的声音。一次射击由同时播放的多个声音组成。每个声音有一个或多个**变体**，即游戏随机从中选取的录音。"
 
 #: src/RepatchPage.tsx
-msgid "The mod"
-msgstr "模组"
-
-#: src/RepatchPage.tsx
 msgid "The mod holds no audio"
 msgstr "该模组不含音频"
 
@@ -8081,6 +8141,10 @@ msgstr "新音频时长为 {length} ms。"
 #: src/CueView.tsx
 msgid "The new audio is too short. This clip needs at least {needed}"
 msgstr "新音频太短。此片段至少需要 {needed}"
+
+#: src/CueView.tsx
+msgid "The new audio plays in every sound that plays this clip"
+msgstr "新音频会在所有播放此片段的声音中播放"
 
 #: src/CueView.tsx
 msgid "The new audio plays only in this sound. Other sounds that play the clip keep the original"
@@ -8240,8 +8304,8 @@ msgid "The project's order and audio"
 msgstr "项目中的顺序和音频"
 
 #: src/ProjectTab.tsx
-msgid "The radio sound isn't in the voice files, so new audio goes through it too. Tick a voice to play it clean, in every language"
-msgstr "无线电声音不在语音文件中，因此新音频同样会经过它。勾选某个语音即可让它以干净的声音播放，所有语言都有效"
+msgid "The radio sound isn't in the voice files, so new audio on these voices goes through it too."
+msgstr "无线电声音不在语音文件中，因此这些语音的新音频也会经过它。"
 
 #: src/TextTab.tsx
 msgid "The recordings that say this subtitle. Open one in the Library to hear it or replace it"
@@ -8425,6 +8489,10 @@ msgstr "还有更新的改动。{undo}每次后退一项更改。"
 msgid "These sounds are in the project already"
 msgstr "这些声音已在项目中"
 
+#: src/ProjectTab.tsx
+msgid "These voices play through a radio effect, new audio included. Turn it off to hear a voice clean, in every language."
+msgstr "这些语音会经过无线电效果，新音频也一样。关闭它即可听到干净的语音，所有语言都有效。"
+
 #: src/ExportDialog.tsx
 msgid "Things collected from anywhere, to export together"
 msgstr "从各处收集的内容，可一并导出"
@@ -8440,10 +8508,6 @@ msgstr "此音频库在索引中为 {sets}。"
 #: src/Inspector.tsx
 msgid "This clip isn't in the installed game files, so there is nothing to play or replace."
 msgstr "此片段不在已安装的游戏文件中，因此无法播放或替换。"
-
-#: src/ProjectTab.tsx
-msgid "This mod carries the Init bank, which every sound goes through. Only one mod can carry it, so with two the last one wins."
-msgstr "此模组包含 Init 音频库，所有声音都会经过它。只有一个模组能包含它，两个同时存在时后加载的生效。"
 
 #: src/Inspector.tsx
 msgid "this music track"
@@ -8526,6 +8590,10 @@ msgstr "终止"
 msgid "To change the piece everywhere, give each variant new audio"
 msgstr "要在所有地方更改此曲目，请为每个版本提供新音频"
 
+#: src/CueView.tsx
+msgid "To limit it to this sound, choose Only This Sound under Plays In, in the details"
+msgstr "要限制到此声音，请在详情的“播放范围”中选择“仅此声音”"
+
 #: src/api.ts
 msgid "today, {time}"
 msgstr "今天 {time}"
@@ -8579,6 +8647,10 @@ msgstr "重试"
 #: src/CombinePage.tsx
 msgid "Turn off the combined mods in the mod manager, then import and deploy the new ZIP."
 msgstr "先把参与合并的模组在模组管理器里关掉，再导入并部署新的 ZIP。"
+
+#: src/ProjectTab.tsx
+msgid "Turn these voices down to the radio's level"
+msgstr "将这些语音调低到无线电的音量"
 
 #: src/Tutorial.tsx
 msgid "Tutorial finished"
@@ -9006,6 +9078,10 @@ msgstr "包括歌曲、“随机播放”、“继续”和音量"
 #: src/RepatchPage.tsx
 msgid "Without a manifest, each becomes an option of the new mod."
 msgstr "没有清单时，每个都会成为新模组的一个选项。"
+
+#: src/ProjectTab.tsx
+msgid "Without the filter, voices come out louder."
+msgstr "没有滤镜时，语音会变响。"
 
 #: src/TextTab.tsx
 msgid "Words in this language, or a line ID"

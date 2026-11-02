@@ -2,7 +2,7 @@
 title: Make-Up Gain y la mezcla
 group: Crear un mod
 summary: Cómo ajustar la sonoridad de un slot, cómo funciona la mezcla HDR del juego y por qué algunas pantallas suenan más bajas en el juego que en Audiodiver.
-source: c27b0b827853
+source: 45fe2fadf6d6
 ---
 
 ## Make-Up Gain por slot {#make-up-gain-per-slot}
@@ -75,7 +75,7 @@ El **fundido de entrada** y el **fundido de salida** van en milisegundos, en los
 
 ## Filtro de radio {#radio-filter}
 
-El sonido de radio de algunas voces no está en sus ficheros. Las frases pasan por un efecto de radio en la mezcla del juego, así que el audio nuevo de esas voces recibe el mismo efecto. La sección **Filtro de radio** de la pestaña [Proyecto](app:project) lo desactiva, voz por voz, en todos los idiomas:
+El sonido de radio de algunas voces no está en sus ficheros. Las frases pasan por un efecto de radio en la mezcla del juego, así que el audio nuevo de esas voces recibe el mismo efecto. La sección **Filtro de radio** de la pestaña [Proyecto](app:project) deja cada voz en **Activado** hasta que la pases a **Desactivado**, en todos los idiomas:
 
 - **Control de misión**
 - **El Almirante**
@@ -85,7 +85,7 @@ El sonido de radio de algunas voces no está en sus ficheros. Las frases pasan p
 
 Un mod puede ser solo esto, sin audio nuevo.
 
-Las voces limpias suenan más fuerte. **Normalizar el volumen** las baja a cerca del nivel de la radio.
+Las voces limpias suenan más fuerte. **Bajar estas voces al nivel de la radio** las acerca a él.
 
 La mezcla está en el banco Init del juego, por el que pasa todo sonido, así que el mod lleva una copia solo con estos cambios:
 

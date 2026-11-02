@@ -117,7 +117,6 @@ export function RepatchPage() {
     <div className="bld rp drop-page" data-drop={JSON.stringify({ kind: "repatch" })}>
       <div className="bld-main">
         <section className="set-sec" ref={top}>
-          <h2><Trans>The mod</Trans></h2>
           {scan ? (
             <div className="view-in rp-form drop-zone" key={scan.source}>
               <p className="path" data-tip={scan.source} data-tip-clip>{scan.source}</p>

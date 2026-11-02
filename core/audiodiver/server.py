@@ -60,6 +60,8 @@ def methods(s: Session) -> dict:
         "add_layer": lambda beside, files: s.add_layer(beside, files),
         "own_clip": lambda source, sound: s.own_clip(source, sound),
         "shared_clip": lambda source: s.shared_clip(source),
+        "own_clips": lambda items: s.own_clips(items),
+        "shared_clips": lambda sources: s.shared_clips(sources),
         "find": lambda query: s.find(query),
         "find_text": lambda query: s.find_text(query),
         "project": lambda: s.project_state() if s.project else None,

@@ -1,6 +1,6 @@
 import { createContext, use, useCallback, useContext, useEffect, useMemo, useRef, useState, type Context, type ReactNode } from "react";
 import { t, plural } from "@lingui/core/macro";
-import { andList, call, fmtNumber, type ArchiveRow, type Assignment, type Cue, type Index, type Job, type MusicItem, type Piece, type Place as Found, type ProjectState, type Status } from "./api";
+import { andList, call, fmtNumber, type ArchiveRow, type Assignment, type Cue, type Index, type Job, type MusicItem, type Piece, type Place as Found, type ProjectState, type Slot, type Status } from "./api";
 import { confirm } from "./Confirm";
 import { importAsk } from "./importAsk";
 import { liveGain } from "./gain";
@@ -1012,6 +1012,17 @@ function useEditorState() {
     async onlyThisSound(source: string, sound: string | undefined, only: boolean) {
       const p = await run<ProjectState & { source: string }>(only ? "own_clip" : "shared_clip", only ? { source, sound } : { source });
       if (p && edited(p)) scopes.editor.setSelected([p.source]);
+    },
+    /** The same on several slots, as one undo step. The selection follows them, and a note says how many changed. */
+    async onlyTheseSounds(slots: Slot[], only: boolean) {
+      const r = await run<ProjectState & { sources: Record<string, string> }>(only ? "own_clips" : "shared_clips",
+        only ? { items: slots.filter((s) => !s.was).map((s) => ({ source: s.source, sound: s.object })) } : { sources: slots.filter((s) => s.was).map((s) => s.source) });
+      if (!r || !edited(r)) return;
+      scopes.editor.setSelected(scopes.editor.selected.map((s) => r.sources[s] ?? s));
+      const moved = Object.keys(r.sources).length, asked = slots.filter((s) => !!s.was !== only).length;
+      quick(moved === asked ? (only ? plural(moved, { one: "**Only This Sound** on # slot", other: "**Only This Sound** on # slots" })
+        : plural(moved, { one: "**Every Sound** on # slot", other: "**Every Sound** on # slots" }))
+        : only ? t`**Only This Sound** on ${moved} of ${asked} slots` : t`**Every Sound** on ${moved} of ${asked} slots. Another sound has new audio on the others`, moved ? "done" : "info");
     },
     /** Swaps the audio of two slots (or moves it into an empty one). */
     async swap(a: string, b: string) {

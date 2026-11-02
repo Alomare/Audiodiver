@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ph, plural, t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { call, fmtDecimal, fmtTime, intlLocale, isMusic, shownId, type Assignment, type Place, type Slot } from "./api";
+import { call, choosesReach, fmtDecimal, fmtTime, intlLocale, isMusic, shownId, type Assignment, type Place, type Slot } from "./api";
 import { rowsOf, type Row } from "./CueView";
 import { liveGain } from "./gain";
 import { ClearIcon, FillIcon, FillPieceIcon, FolderIcon, ResetIcon, SilenceIcon } from "./Icons";
@@ -58,8 +58,7 @@ export function Inspector() {
 
       <Settle key={a?.silence ? "silence" : a ? "file" : "none"} still={shown.current !== slot.source}>
         <Replacement slot={slot} a={a} music={isMusic(cue)} what={seg.name} />
-        {a && (slot.was || (!slot.added && slot.object && ((slot.players ?? 1) > 1 || (slot.sound_banks ?? 0) < (slot.banks ?? 0)))) &&
-          <Reach slot={slot} />}
+        {!hd1 && usable && choosesReach(slot) && <Reach slot={slot} a={a} />}
         {a && !a.silence && <Gain sources={[slot.source]} value={a.gain_db} match={slot.added ? undefined : "one"} base={slot.added ? undefined : slot.game_gain ?? 0} />}
         {!a && project && usable && !hd1 && <Gain original sources={[slot.source]} value={project.gains[slot.source] ?? 0} base={slot.game_gain ?? 0} />}
         {project && usable && !hd1 && !a?.silence && <Filters sources={[slot.source]} />}
@@ -184,33 +183,51 @@ function Replacement({ slot, a, music, what }: { slot: Slot; a?: Assignment; mus
   );
 }
 
-/** Where the new audio plays, for a bank's sound whose clip other sounds play too: in every sound that plays the
-    clip, as any replacement does, or only in this sound (a clip of its own). The count is of banks, this one too. */
-function Reach({ slot }: { slot: Slot }) {
-  const { actions } = useEditor();
-  const own = !!slot.was;
-  // the banks each choice changes, this one too
-  const banks = (slot.banks ?? 0) + 1, soundBanks = (own ? slot.banks ?? 0 : slot.sound_banks ?? 0) + 1;
-  const choices = [
-    [false, t`Every Sound That Plays It`, own ? t`Every sound that plays this clip gets the new audio`
-      : plural(banks, { one: "Changes it in # bank", other: "Changes it in # banks" })],
-    [true, t`Only This Sound`, plural(soundBanks, {
-      one: "Changes it in # bank. Other sounds that play the clip keep the original.",
-      other: "Changes it in # banks. Other sounds that play the clip keep the original.",
-    })],
-  ] as const;
+/** Plays In's two choices: every sound that plays the clip, or only this sound. `state`: which holds now (null: some
+    of each, or none to choose for). */
+function PlaysIn({ state, disabled, pick, note }: { state: boolean | null; disabled?: boolean; pick: (only: boolean) => void; note: ReactNode }) {
   return (
-    <section className="insp-sec">
-      <h3><Trans>Scope</Trans> <Help tip={t`Several sounds can play the same clip. Choose whether the new audio plays in all of them or only in this one.`} page="adding-audio#only-this-sound" /></h3>
-      <div className="cards one" role="radiogroup" aria-label={t`Scope`}>
-        {choices.map(([only, title, text]) => (
-          <button key={title} role="radio" aria-checked={own === only} className={`card${own === only ? " on" : ""}`} data-tip={text}
-            onClick={() => { if (own !== only) actions.onlyThisSound(slot.source, slot.object, only); }}>
-            <b>{title}</b>
-          </button>
+    <section className="insp-sec plays-in">
+      <h3><Trans>Plays In</Trans> <Help tip={t`Several sounds can play the same clip. A replacement changes it in all of them, unless it plays only in this sound.`} page="adding-audio#only-this-sound" /></h3>
+      <div className="segmented" role="radiogroup" aria-label={t`Plays In`}>
+        {[[false, t`Every Sound`], [true, t`Only This Sound`]].map(([only, label]) => (
+          <button key={label as string} role="radio" aria-checked={state === only} className={state === only ? "on" : ""} disabled={disabled}
+            onClick={() => { if (state !== only) pick(only as boolean); }}>{label}</button>
         ))}
       </div>
+      <p className="muted small">{note}</p>
     </section>
+  );
+}
+
+/** Where the new audio plays, for a bank's sound whose clip other sounds play too: in every sound that plays the
+    clip, as any replacement does, or only in this sound (a clip of its own). Without new audio yet, it says the
+    choice is there. The count is of banks, this one too. */
+function Reach({ slot, a }: { slot: Slot; a?: Assignment }) {
+  const { actions } = useEditor();
+  const own = !!slot.was;
+  const banks = (own ? slot.banks ?? 0 : slot.sound_banks ?? 0) + 1, every = (slot.banks ?? 0) + 1;
+  return (
+    <PlaysIn state={a ? own : null} disabled={!a} pick={(only) => actions.onlyThisSound(slot.source, slot.object, only)}
+      note={!a ? t`Other sounds play this clip too. Add new audio here to choose.`
+        : own ? plural(banks, { one: "Changes # bank. Other sounds that play the clip keep the Original.", other: "Changes # banks. Other sounds that play the clip keep the Original." })
+        : plural(every, { one: "Other sounds that play this clip change too, in # bank.", other: "Other sounds that play this clip change too, in # banks." })} />
+  );
+}
+
+/** Plays In for several selected slots: the ones with new audio whose clip other sounds play too. */
+function BulkReach({ rows }: { rows: Row[] }) {
+  const { project, actions } = useEditor();
+  const a = project?.assignments ?? {};
+  const open = rows.filter((r) => choosesReach(r.slot));
+  const set = open.filter((r) => a[r.slot.source]);
+  if (!open.length) return null;
+  const own = set.filter((r) => r.slot.was).length, count = set.length;
+  return (
+    <PlaysIn state={!count || (own > 0 && own < count) ? null : own > 0} disabled={!count} pick={(only) => actions.onlyTheseSounds(set.map((r) => r.slot), only)}
+      note={!count ? t`Other sounds play these clips too. Add new audio here to choose.`
+        : own > 0 && own < count ? plural(own, { one: "# plays only in one sound. Choose to set them all.", other: "# play only in one sound each. Choose to set them all." })
+        : plural(count, { one: "Applies to the # slot with new audio that other sounds share.", other: "Applies to the # slots with new audio that other sounds share." })} />
   );
 }
 
@@ -696,6 +713,7 @@ function Bulk({ rows, sources, usable }: { rows: Row[]; sources: string[]; usabl
           <SilenceIcon />{toSilence.length > 0 && toSilence.length < sources.length
             ? plural(silenceable, { one: "Replace # Slot with Silence", other: "Replace # Slots with Silence" }) : t`Replace with Silence`}</button>
       </section>
+      {!hd1 && <BulkReach rows={rows.filter((r) => usable.includes(r.slot.source))} />}
       {files.length > 0 ? (
         <Gain sources={files} value={files.every((s) => a[s].gain_db === a[files[0]].gain_db) ? a[files[0]].gain_db : null}
           note={files.length < sources.length ? plural(withNew, { one: "Applies to the # slot with new audio.", other: "Applies to the # slots with new audio." }) : undefined} match="each" />

@@ -1161,14 +1161,22 @@ msgid "{file} can't be read as a game patch"
 msgstr "{file} 无法作为游戏补丁读取"
 
 #: editor.py
-msgid "{n} other change in the bank \"{bank}\" (settings such as effects, positioning or how a container picks sounds)"
-msgid_plural "{n} other changes in the bank \"{bank}\" (settings such as effects, positioning or how a container picks sounds)"
-msgstr[0] "音频库“{bank}”中的 {n} 项其他更改（效果、定位或容器选取声音的方式等设置）"
+msgid "{n} other change"
+msgid_plural "{n} other changes"
+msgstr[0] "{n} 项其他更改"
 
 #: editor.py
-msgid "{n} other change in bank {id} (settings such as effects, positioning or how a container picks sounds)"
-msgid_plural "{n} other changes in bank {id} (settings such as effects, positioning or how a container picks sounds)"
-msgstr[0] "音频库 {id} 中的 {n} 项其他更改（效果、定位或容器选取声音的方式等设置）"
+msgid "{changes} in \"{bank}\": settings such as effects, positioning or how a container picks sounds"
+msgstr "“{bank}”中的 {changes}：效果、定位或容器选取声音的方式等设置"
+
+#: editor.py
+msgid "{changes} in {n} banks ({names}): settings such as effects, positioning or how a container picks sounds"
+msgstr "{n} 个音频库（{names}）中的 {changes}：效果、定位或容器选取声音的方式等设置"
+
+#: editor.py
+msgid "{names} and {n} more"
+msgid_plural "{names} and {n} more"
+msgstr[0] "{names} 等另外 {n} 个"
 
 #: editor.py
 msgid "{file} replaces, adds or sets nothing Audiodiver can bring in ({why})"

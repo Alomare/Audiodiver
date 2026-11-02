@@ -2,7 +2,7 @@
 title: Ajouter de l’audio
 group: Créer un mod
 summary: De nouvelles prises pour un son, une couche jouée avec lui, et du nouvel audio pour un seul son, en plus de ce que le jeu possède.
-source: ea7154765378
+source: 07f3b9fcb042
 ---
 
 Remplacer l’audio change ce qu’un emplacement joue. Les sons peuvent aussi recevoir de l’audio que le jeu n’a pas, de trois façons, toutes dans l’onglet Audio. Elles fonctionnent pour les sons et les voix, mais pas pour la musique.
@@ -21,7 +21,9 @@ Une couche est jouée avec un son à chaque fois, comme un grondement plus grave
 
 ## Ce son uniquement {#only-this-sound}
 
-Plusieurs sons jouent souvent le même clip, et remplacer le clip le modifie dans tous. Pour limiter un remplacement, réglez **Portée** dans les détails d’un emplacement remplacé sur **Ce son uniquement**. Les autres sons gardent alors l’original, et leurs emplacements affichent **remplacé dans un autre son**. Chaque option indique le nombre de banques qu’elle modifie.
+Plusieurs sons jouent souvent le même clip, et remplacer le clip le modifie dans tous. Pour limiter un remplacement, réglez **Joué dans** dans les détails d’un emplacement sur **Ce son uniquement**. Les autres sons gardent alors l’Original, et leurs emplacements affichent **remplacé dans un autre son**. Une note sous le choix indique le nombre de banques qu’il modifie.
+
+Un emplacement avec du nouvel audio que d’autres sons partagent affiche **tous les sons** jusque-là. Pour plusieurs sons à la fois, cochez leurs emplacements et choisissez dans les détails, ou faites un clic droit dessus. **Ce son uniquement partout**, dans la barre d’outils, traite toute la banque.
 
 Le nouvel audio entre dans le mod sous un nouvel ID. Les outils qui listent les clips par ID montrent l’ancien ID avec l’Original, alors que le jeu joue le nouvel audio dans ce son.
 

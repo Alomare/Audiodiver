@@ -809,3 +809,10 @@ def test_cue_points_go_with_their_segments_new_audio(game_session, tmp_path):
     s.project.segment_overrides[first] = {"entry_marker": 600.0}  # past the new audio's end, where Exit is
     with pytest.raises(BuildError, match="Entry cue point"):
         make_patch(s.project, s.ix, tmp_path, log=lines.append)
+
+
+def test_a_mods_other_changes_are_one_line_however_many_banks():
+    s = Session(load=False)
+    assert s._other_changes({11: 1}) == '1 other change in "11": settings such as effects, positioning or how a container picks sounds'
+    line = s._other_changes({11: 2, 12: 1, 13: 1, 14: 3, 15: 1})
+    assert line.startswith("8 other changes in 5 banks (11, 12, 13 and 2 more): settings such as")

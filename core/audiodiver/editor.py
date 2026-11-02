@@ -31,6 +31,7 @@ LOG_FILE = CACHE_DIR / "logs" / "core.log"
 SETTINGS_FILE = CACHE_DIR / "settings.json"  # the core's own settings: where the game is
 AUDIO_TYPES = {".wav", ".flac", ".mp3", ".ogg", ".opus", ".m4a", ".aac", ".aif", ".aiff", ".wma", ".wem"}
 UNDO_LIMIT = 200
+OTHER_BANKS_NAMED = 3  # the banks a line about a mod's other changes names, before "and 16 more"
 AUTOSAVE_MAX = 30  # minutes: the longest wait Settings offers between saves
 
 
@@ -1029,6 +1030,43 @@ class Session:
                                      "first."))
             self._replacement(p, sid).target = was
         return {**self._edit("shared clip", apply), "source": str(was)}
+
+    def own_clips(self, items):
+        """own_clip on several slots ([{source, sound}]), as one undo step. A slot that can't take it (no new audio, a
+        clip of its own already) stays as it is. The answer's `sources`: {slot: the slot it moved to}."""
+        from .addition import sound_clip
+        self._not_hd1()
+        self.require_game()
+        moved = {}
+
+        def apply(p):
+            own = {a.sound for a in p.additions if a.kind == "own"}
+            for it in items:
+                sid, snd = self._source(it["source"]), self._object_id(it["sound"])
+                r = self._replacement(p, sid)
+                if r and snd not in own and sound_clip(self.ix, snd) == sid:
+                    (new,) = self._new_ids(p, 1)
+                    p.additions.append(Addition("own", sound=snd, source=new))
+                    r.target = new
+                    own.add(snd)
+                    moved[str(sid)] = str(new)
+        return {**self._edit("own clips", apply), "sources": moved}
+
+    def shared_clips(self, sources):
+        """shared_clip on several slots, as one undo step. A slot stays as it is where another sound that plays the
+        clip has new audio. The answer's `sources`: {slot: the slot it moved to}."""
+        self.require_game()
+        moved = {}
+
+        def apply(p):
+            added = self._added()
+            for source in sources:
+                sid = self._source(source)
+                a = added.get(sid)
+                if a and a.kind == "own" and not self._replacement(p, was := self._clip_of(a.sound)):
+                    self._replacement(p, sid).target = was
+                    moved[str(sid)] = str(was)
+        return {**self._edit("shared clips", apply), "sources": moved}
 
     @staticmethod
     def _object_id(v) -> int:
@@ -2645,6 +2683,22 @@ class Session:
         p.curves, p.curves_off, p.filters, p.radio_off, p.radio_quieter = {}, set(), {}, set(), False
         p.library, p.imported_banks = [], []
 
+    def _other_changes(self, other: dict) -> str:
+        """The line that says what a mod's patch changes in its banks and can't come in ({bank: how many}, Found.other):
+        the first banks by name, and how many more."""
+        names = [self.lib.bank_label(b) if self.lib and b in self.ix.banks else str(b) for b in other]
+        total = sum(other.values())
+        changes = ntr("{n} other change", "{n} other changes", total).format(n=total)
+        if len(names) == 1:
+            return tr('{changes} in "{bank}": settings such as effects, positioning or how a container picks sounds').format(
+                changes=changes, bank=names[0])
+        shown = ", ".join(names[:OTHER_BANKS_NAMED])
+        if len(names) > OTHER_BANKS_NAMED:
+            more = len(names) - OTHER_BANKS_NAMED
+            shown = ntr("{names} and {n} more", "{names} and {n} more", more).format(names=shown, n=more)
+        return tr("{changes} in {n} banks ({names}): settings such as effects, positioning or how a container picks "
+                  "sounds").format(changes=changes, n=len(names), names=shown)
+
     def _patch_audio(self, patch_path: Path, out_dir: Path, job, reuse=False):
         """What a mod's patch replaces, adds and sets (addition.from_patch), its audio decoded into out_dir as WAVs, each
         keeping the patch's own encoding for builds (build.keep_encoding). Returns (got, replaced, files, skipped):
@@ -2662,17 +2716,8 @@ class Session:
         except (AssertionError, struct.error, ValueError, KeyError, IndexError):
             raise EditorError(tr("{file} can't be read as a game patch").format(file=patch_path.name)) from None
         # the changes in each bank that can't come in (addition.Found.other), with the bank as the Library names it
-        for bid, n in got.other.items():
-            if self.lib and bid in self.ix.banks:
-                got.left.append(ntr('{n} other change in the bank "{bank}" (settings such as effects, positioning or how '
-                                    'a container picks sounds)',
-                                    '{n} other changes in the bank "{bank}" (settings such as effects, positioning or '
-                                    'how a container picks sounds)', n).format(n=n, bank=self.lib.bank_label(bid)))
-            else:
-                got.left.append(ntr("{n} other change in bank {id} (settings such as effects, positioning or how a "
-                                    "container picks sounds)",
-                                    "{n} other changes in bank {id} (settings such as effects, positioning or how a "
-                                    "container picks sounds)", n).format(n=n, id=bid))
+        if got.other:  # one line however many banks: a mod that touches every weapon has dozens
+            got.left.append(self._other_changes(got.other))
         replaced, gone = {}, 0  # the game's source id -> wem bytes; streams this game version doesn't have
         for fid, data in d["streams"].items():
             try:

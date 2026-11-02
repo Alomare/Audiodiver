@@ -10,7 +10,7 @@ import { clashes, COVERAGE, heldBy, isMusicItem, itemCoverage, listedBanks, list
 import { useEditor, useLite } from "./store";
 import { useStable } from "./stable";
 import { addedNote, exportList, itemEntries } from "./exportList";
-import { CheckIcon, CollapseAllIcon, NoteIcon, PlusIcon, RemoveIcon, SearchIcon } from "./Icons";
+import { AudioIcon, CheckIcon, CollapseAllIcon, NoteIcon, PlusIcon, RemoveIcon, SearchIcon } from "./Icons";
 import { CatMark } from "./Tags";
 import { motionMs, scrollBehavior } from "./theme";
 import { FOLD_LIBRARY, isArchive, useNav, type LibraryGame } from "./nav";
@@ -190,6 +190,11 @@ export function IndexTree({ game = "hd2" }: { game?: LibraryGame }) {
     const all = items.flatMap((it) => itemEntries(it, where(itemIndex, it), editing ? "mod" : "game"));
     quick(addedNote(exportList.add(all), all.length, items.length), "add");
   };
+  /** An item of the project in the Audio tab, or what the project holds it in. */
+  const openInAudio = (it: MusicItem) => {
+    const inside = listed.has(it.id) ? null : held(it);
+    goTo({ scope: "editor", itemId: (inside ?? it).id, cueId: inside ? it.parts[0].cue : null, source: null });
+  };
   /** The right-click menu of an item. */
   const itemMenu = (e: React.MouseEvent, it: MusicItem) => {
     const skippable = it.kind === "transition" || it.kind === "stinger" ? [...new Set(it.parts.flatMap((p) => p.own.filter((t) => !a[t])))] : [];
@@ -206,10 +211,10 @@ export function IndexTree({ game = "hd2" }: { game?: LibraryGame }) {
         { label: t`Show in the Library`, run: () => goTo({ scope: "library", itemId: it.id, cueId: null, source: null }) } as MenuEntry,
         { label: t`Remove from the Project`, run: () => actions.removeFromProject([it.id], it.full) } as MenuEntry,
       ] : added ? [
-        { label: t`Open in the Audio Tab`, run: () => goTo({ scope: "editor", itemId: it.id, cueId: null, source: null }) } as MenuEntry,
+        { label: t`Open in the Audio Tab`, run: () => openInAudio(it) } as MenuEntry,
         { label: t`Remove from the Project`, run: () => actions.removeFromProject([it.id], it.full) } as MenuEntry,
       ] : inside ? [
-        { label: t`Open in the Audio Tab`, run: () => goTo({ scope: "editor", itemId: inside.id, cueId: it.parts[0].cue, source: null }) } as MenuEntry,
+        { label: t`Open in the Audio Tab`, run: () => openInAudio(it) } as MenuEntry,
       ] : [
         { label: t`Add to the Project`, run: () => actions.addToProject([it.id], it.full) } as MenuEntry,
       ]),
@@ -224,6 +229,7 @@ export function IndexTree({ game = "hd2" }: { game?: LibraryGame }) {
     menu: (e: React.MouseEvent, it: MusicItem) => itemMenu(e, it),
     add: (it: MusicItem) => actions.addToProject([it.id], it.full),
     remove: (it: MusicItem) => actions.removeFromProject([it.id], it.full),
+    audio: (it: MusicItem) => openInAudio(it),
   });
   const narrowed = q.length > 0 || filter !== "all";
   const instant = useLinger(narrowed); // a search or a filter opens and closes groups at once
@@ -263,6 +269,7 @@ export function IndexTree({ game = "hd2" }: { game?: LibraryGame }) {
     }
     if (!canAdd(items[0], forGame)) return <div className="lib-group-line" onContextMenu={(e) => openMenu(e, [exporting])}>{head}</div>;
     const fresh = items.filter((it) => !listed.has(it.id) && !held(it));
+    const first = inProject[0] ?? items.find((it) => held(it)); // where its shortcut leads, once any of it is in the project
     const add = () => actions.addToProject(fresh.map((it) => it.id), what(fresh));
     const tip = !fresh.length ? t`All in the project` : fresh.length === items.length ? t`Add all ${count} to the project`
       : t`Add the ${ph({ count: fresh.length })} not in the project`;
@@ -272,9 +279,11 @@ export function IndexTree({ game = "hd2" }: { game?: LibraryGame }) {
     return (
       <div className="lib-group-line" onContextMenu={(e) => openMenu(e, [
         { label, disabled: !fresh.length, run: add },
+        ...(first ? [{ label: t`Open in the Audio Tab`, run: () => openInAudio(first) } as MenuEntry] : []),
         ...(inProject.length ? [{ label: removeLabel, run: remove } as MenuEntry] : []),
         "-", exporting])}>
         {head}
+        {first && <OpenInAudio run={() => openInAudio(first)} label={`${t`Open in the Audio Tab`}: ${name}`} />}
         {fresh.length ? <AddToggle added={false} run={add} label={`${tip}: ${name}`} tip={tip} more={project ? undefined : t`Open or create a project first`} />
           : inProject.length ? <AddToggle added run={remove} label={`${removeTip}: ${name}`} tip={removeTip} />
           : <span className="lib-add held" role="img" aria-label={t`All in the project`} data-tip={t`All in the project`}><CheckIcon /></span>}
@@ -357,7 +366,7 @@ const ItemRow = memo(function ItemRow({ item, deep, active, hi, status, clash, a
   editing: boolean;          // the Audio tab's list (it can be taken off), else the Library's (it can be added)
   noProject: boolean;        // no project open: the + says to open one
   addable: boolean;          // of the game the project makes a mod for (canAdd): only then is there a +
-  on: { open: (it: MusicItem) => void; menu: (e: React.MouseEvent, it: MusicItem) => void; add: (it: MusicItem) => void; remove: (it: MusicItem) => void };
+  on: { open: (it: MusicItem) => void; menu: (e: React.MouseEvent, it: MusicItem) => void; add: (it: MusicItem) => void; remove: (it: MusicItem) => void; audio: (it: MusicItem) => void };
 }) {
   const { scope } = useLite();
   const name = item.full;
@@ -379,6 +388,7 @@ const ItemRow = memo(function ItemRow({ item, deep, active, hi, status, clash, a
       <span className="mus-meta">
         {clash && <span className="clash" data-tip={t`Plays the original next to new music`}>!</span>}
         {status !== "na" && <Mark status={status} />}
+        {!editing && addable && (added || held) && <OpenInAudio run={() => on.audio(item)} label={`${t`Open in the Audio Tab`}: ${name}`} />}
         {!editing && addable && (held ? <HeldMark held={held} />
           : <AddToggle added={added} run={() => (added ? on.remove(item) : on.add(item))}
             label={added ? t`Remove ${name} from the project` : t`Add ${name} to the project`}
@@ -413,6 +423,14 @@ export function AddToggle({ added, run, label, tip, more }: {
   return (
     <button className={`lib-add${added ? " on" : ""}`} onClick={click} onDoubleClick={(e) => e.stopPropagation()}
       aria-label={label} data-tip={tip} data-tip-more={more}>{added ? <RemoveIcon /> : <PlusIcon />}</button>
+  );
+}
+
+/** Left of the ✕ in the Library, on what is in the project: goes to it in the Audio tab. */
+function OpenInAudio({ run, label }: { run: () => void; label: string }) {
+  return (
+    <button className="lib-open" onClick={(e) => { e.stopPropagation(); run(); }} onDoubleClick={(e) => e.stopPropagation()}
+      aria-label={label} data-tip={t`Open in the Audio Tab`}><AudioIcon /></button>
   );
 }
 

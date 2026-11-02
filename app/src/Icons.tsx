@@ -172,6 +172,10 @@ export const RepeatIcon = () => (
 );
 
 /** Fold everything: a box with a minus, another box behind it (as code editors draw it). */
+/** New audio in one sound alone (Plays In): a target, its centre filled. */
+export const OnlyThisIcon = () => (
+  <Icon size={1.05}><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="2.5" fill="currentColor" /></Icon>
+);
 export const CollapseAllIcon = () => (
   <Icon size={1.05}><rect x="3.5" y="8.5" width="12" height="12" rx="1" /><path d="M7 14.5h5M7.5 8.5v-4h12v12h-4" /></Icon>
 );

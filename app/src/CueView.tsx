@@ -1,11 +1,11 @@
 import { Fragment, memo, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import { ph, plural, t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { andList, audioUrl, fmtDecimal, fmtNumber, fmtTime, isMusic, shownId, type Assignment, type Cue, type Segment, type Slot, type StandIn } from "./api";
+import { andList, audioUrl, choosesReach, fmtDecimal, fmtNumber, fmtTime, isMusic, shownId, type Assignment, type Cue, type Segment, type Slot, type StandIn } from "./api";
 import { useContextMenu, type MenuEntry } from "./ContextMenu";
 import { ExportListChip, ExportPanel, useExportName, type ExportTarget } from "./ExportDialog";
 import { addedNote, exportList } from "./exportList";
-import { ClearIcon, CollapseAllIcon, ExportIcon, FillIcon, IdIcon, LinkIcon, OrderIcon, PlusIcon, SkipIcon, SliceIcon } from "./Icons";
+import { ClearIcon, CollapseAllIcon, ExportIcon, FillIcon, IdIcon, LinkIcon, OnlyThisIcon, OrderIcon, PlusIcon, SkipIcon, SliceIcon } from "./Icons";
 import { Mark } from "./IndexTree";
 import { ItemActions, ItemHead, PartHead, partsFold, PartTabs } from "./ItemHead";
 import { keyHint, keyLabel, useCommands, useKeymap } from "./keys";
@@ -542,6 +542,9 @@ function CueBody({ cue }: { cue: Cue }) {
     const count = sel.length, usableCount = silenceable.length, copied = clip.length;
     const many = count > 1;
     const adds = addEntries(r);
+    // where the new audio plays (Plays In): the slots with new audio whose clip other sounds play too
+    const reach = project?.game === "hd1" ? [] : rows.filter((x) => sel.includes(x.slot.source) && assigned[x.slot.source] && choosesReach(x.slot)).map((x) => x.slot);
+    const reachOwn = reach.filter((x) => x.was).length, reachShared = reach.length - reachOwn;
     const entries: MenuEntry[] = [
       { label: t`Play the Original`, keys: keyLabel("playGame"), disabled: r.slot.absent || !!r.slot.added, run: () => playSlot("vanilla", s, revision, rowName(r), at(s)) },
       { label: t`Play the New Audio`, keys: keyLabel("playMine"), disabled: !audible(a), run: () => playSlot("project", s, revision, rowName(r), at(s)) },
@@ -565,6 +568,11 @@ function CueBody({ cue }: { cue: Cue }) {
         run: () => actions.silence(silenceable, true, sel.length > 1 ? plural(usableCount, { one: "# slot", other: "# slots" }) : rowName(r)) },
       { label: many ? plural(count, { one: "Remove the New Audio (# Slot)", other: "Remove the New Audio (# Slots)" }) : t`Remove the New Audio`,
         keys: keyLabel("remove"), disabled: !withAudio.length, run: () => actions.unassign(withAudio) },
+      ...(reach.length ? ["-" as const] : []),
+      ...(reachShared ? [{ label: many ? plural(reachShared, { one: "Only This Sound (# Slot)", other: "Only This Sound (# Slots)" }) : t`Only This Sound`,
+        run: () => actions.onlyTheseSounds(reach, true) } as MenuEntry] : []),
+      ...(reachOwn ? [{ label: many ? plural(reachOwn, { one: "Every Sound (# Slot)", other: "Every Sound (# Slots)" }) : t`Every Sound`,
+        run: () => actions.onlyTheseSounds(reach, false) } as MenuEntry] : []),
       ...(adds.length ? ["-" as const, ...adds] : []),
       "-",
       exportEntry(sel, r),
@@ -742,6 +750,15 @@ function CueBody({ cue }: { cue: Cue }) {
                 comment: "undoKey is the key in brackets after a space, such as ' (Ctrl+Z)'",
               }) : t`Replace with a short silence, so the next music starts right away`} />
           )}
+          {!readOnly && project?.game !== "hd1" && (() => {
+            // Plays In for all of it, folded sequences too: Only This Sound until they all have it, then back
+            const reach = all.filter((r) => assigned[r.slot.source] && choosesReach(r.slot)).map((r) => r.slot);
+            const shared = reach.filter((s) => !s.was).length, only = shared > 0, count = only ? shared : reach.length;
+            return reach.length > 0 && <ToolButton icon={<OnlyThisIcon />} name={only ? t`Only This Sound on All` : t`Every Sound on All`}
+              about={only ? plural(count, { one: "New audio plays only in the sound it replaces, on the # slot here that other sounds share", other: "New audio plays only in the sound it replaces, on the # slots here that other sounds share" })
+                : plural(count, { one: "New audio plays in every sound again, on the # slot here", other: "New audio plays in every sound again, on the # slots here" })}
+              onClick={() => actions.onlyTheseSounds(reach, only)} />;
+          })()}
           {!readOnly && mine > 0 && (() => {
             const silent = all.every((r) => !assigned[r.slot.source] || assigned[r.slot.source].silence);
             const name = silent ? between ? t`Undo the skip` : t`Remove the silence` : part && item && item.parts.length > 1 ? t`Clear this part` : t`Clear all`;
@@ -852,6 +869,11 @@ const ADDED_TIP = {
   take: t`A take added by the project. The game picks it like the other takes. It has no original`,
   own: t`The new audio plays only in this sound. Other sounds that play the clip keep the original`,
 };
+/** On a slot with new audio that other sounds play too: where the new audio goes, and that it can go in this one alone. */
+function EveryTag() {
+  return <span className="tag" data-tip={t`The new audio plays in every sound that plays this clip`} data-tip-more={t`To limit it to this sound, choose Only This Sound under Plays In, in the details`}>
+    {t({ message: "every sound", comment: "Tag on a slot whose new audio plays in every sound that plays the clip" })}</span>;
+}
 /** The tag on a clip that other sounds play new audio in place of (Only this sound, there), on the sounds that keep
     the Original: without it the row looks as if the replacement had failed. A sound in the bank on screen is said
     to be here. */
@@ -1071,6 +1093,7 @@ const SlotRow = memo(function SlotRow({ row, a, standIns, gain, selected, now, i
             {slot.absent && <span className="tag" data-tip={NO_AUDIO_TIP}>{t`no audio`}</span>}
             {slot.locked && <LockedTag />}
             {seg.added !== "layer" && <AddedTag slot={slot} />}
+            {a && !slot.was && choosesReach(slot) && <EveryTag />}
             {!a && standIns && <StandInTag standIns={standIns} cueId={cueId} />}
             {!a && !!gain && <GainTag db={gain} />}
             <NoteTags slot={slot} />
@@ -1101,6 +1124,7 @@ const SlotRow = memo(function SlotRow({ row, a, standIns, gain, selected, now, i
             {slot.absent && <span className="tag" data-tip={NO_AUDIO_TIP}>{t`no audio`}</span>}
             {slot.locked && <LockedTag />}
             <AddedTag slot={slot} />
+            {a && !slot.was && choosesReach(slot) && <EveryTag />}
             {!a && standIns && <StandInTag standIns={standIns} cueId={cueId} />}
             {!a && !!gain && <GainTag db={gain} />}
             {audible(a) && slot.min_ms && a!.duration_ms != null && a!.duration_ms < slot.min_ms && (

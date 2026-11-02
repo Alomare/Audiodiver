@@ -87,8 +87,8 @@ msgid "{autosave, plural, one {Saved every # minute} other {Saved every # minute
 msgstr "{autosave, plural, one {Se guarda cada # minuto} other {Se guarda cada # minutos}}"
 
 #: src/Inspector.tsx
-msgid "{banks, plural, one {Changes it in # bank} other {Changes it in # banks}}"
-msgstr "{banks, plural, one {Lo cambia en # banco} other {Lo cambia en # bancos}}"
+msgid "{banks, plural, one {Changes # bank. Other sounds that play the clip keep the Original.} other {Changes # banks. Other sounds that play the clip keep the Original.}}"
+msgstr "{banks, plural, one {Cambia # banco. Los demás sonidos que reproducen el clip conservan el Original.} other {Cambia # bancos. Los demás sonidos que reproducen el clip conservan el Original.}}"
 
 #. Markdown. {buildIcon} shows the icon of the Build tab. **Build** is the tab name and must read as the translation of the tab name does.
 #: src/tutorials.ts
@@ -176,6 +176,10 @@ msgstr "{count, plural, one {Un tutorial interactivo nuevo} other {Tutoriales in
 msgid "{count, plural, one {Add # Slot to the Export List} other {Add # Slots to the Export List}}"
 msgstr "{count, plural, one {Añadir # slot a la lista de exportación} other {Añadir # slots a la lista de exportación}}"
 
+#: src/Inspector.tsx
+msgid "{count, plural, one {Applies to the # slot with new audio that other sounds share.} other {Applies to the # slots with new audio that other sounds share.}}"
+msgstr "{count, plural, one {Se aplica al # slot con audio nuevo que otros sonidos comparten.} other {Se aplica a los # slots con audio nuevo que otros sonidos comparten.}}"
+
 #: src/TextTools.tsx
 msgid "{count, plural, one {Change # Line} other {Change # Lines}}"
 msgstr "{count, plural, one {Cambiar # línea} other {Cambiar # líneas}}"
@@ -203,6 +207,14 @@ msgstr "{count, plural, one {Copiar el original (# slot)} other {Copiar el origi
 #: src/SettingsTab.tsx
 msgid "{count, plural, one {Every # minute} other {Every # minutes}}"
 msgstr "{count, plural, one {Cada # minuto} other {Cada # minutos}}"
+
+#: src/CueView.tsx
+msgid "{count, plural, one {New audio plays in every sound again, on the # slot here} other {New audio plays in every sound again, on the # slots here}}"
+msgstr "{count, plural, one {El audio nuevo vuelve a sonar en todos los sonidos, en el # slot de aquí} other {El audio nuevo vuelve a sonar en todos los sonidos, en los # slots de aquí}}"
+
+#: src/CueView.tsx
+msgid "{count, plural, one {New audio plays only in the sound it replaces, on the # slot here that other sounds share} other {New audio plays only in the sound it replaces, on the # slots here that other sounds share}}"
+msgstr "{count, plural, one {El audio nuevo suena solo en el sonido que sustituye, en el # slot de aquí que otros sonidos comparten} other {El audio nuevo suena solo en el sonido que sustituye, en los # slots de aquí que otros sonidos comparten}}"
 
 #: src/CueView.tsx
 msgid "{count, plural, one {Paste (# Slot)} other {Paste (# Slots)}}"
@@ -272,6 +284,10 @@ msgstr "{downloaded} de {total}"
 #: src/ProjectTab.tsx
 msgid "{elsewhere, plural, one {# file the project uses is outside the project folder.} other {# files the project uses are outside the project folder.}}"
 msgstr "{elsewhere, plural, one {# fichero que usa el proyecto está fuera de la carpeta del proyecto.} other {# ficheros que usa el proyecto están fuera de la carpeta del proyecto.}}"
+
+#: src/Inspector.tsx
+msgid "{every, plural, one {Other sounds that play this clip change too, in # bank.} other {Other sounds that play this clip change too, in # banks.}}"
+msgstr "{every, plural, one {Los demás sonidos que reproducen este clip también cambian, en # banco.} other {Los demás sonidos que reproducen este clip también cambian, en # bancos.}}"
 
 #. facts: the release date and the download size; APP_LABEL: the version installed
 #: src/UpdatesTab.tsx
@@ -439,6 +455,14 @@ msgstr "{more, plural, one {Aplicar a # segmento más con este fichero} other {A
 msgid "{more, plural, one {It plays in # other place too.} other {It plays in # other places too.}}"
 msgstr "{more, plural, one {También suena en otro lugar.} other {También suena en otros # lugares.}}"
 
+#: src/store.tsx
+msgid "{moved, plural, one {**Every Sound** on # slot} other {**Every Sound** on # slots}}"
+msgstr "{moved, plural, one {**Todos los sonidos** en # slot} other {**Todos los sonidos** en # slots}}"
+
+#: src/store.tsx
+msgid "{moved, plural, one {**Only This Sound** on # slot} other {**Only This Sound** on # slots}}"
+msgstr "{moved, plural, one {**Solo este sonido** en # slot} other {**Solo este sonido** en # slots}}"
+
 #. An empty cue point box: the point it stands for, in ms, fitted to the new audio
 #: src/Inspector.tsx
 msgid "{ms} (fitted)"
@@ -571,6 +595,10 @@ msgstr "{over, plural, one {Sobra # canción} other {Sobran # canciones}}."
 msgid "{over, plural, one {# song left over} other {# songs left over}}. This music has {total, plural, one {# place} other {# places}}."
 msgstr "{over, plural, one {Sobra # canción} other {Sobran # canciones}}. Esta música tiene {total, plural, one {# hueco} other {# huecos}}."
 
+#: src/Inspector.tsx
+msgid "{own, plural, one {# plays only in one sound. Choose to set them all.} other {# play only in one sound each. Choose to set them all.}}"
+msgstr "{own, plural, one {# suena solo en un sonido. Elige para ajustarlos todos.} other {# suenan solo en un sonido cada uno. Elige para ajustarlos todos.}}"
+
 #: src/ItemHead.tsx
 msgid "{parts, plural, one {Stinger} other {Stingers}}"
 msgstr "{parts, plural, one {Stinger} other {Stingers}}"
@@ -638,6 +666,14 @@ msgstr "{problems, plural, one {Corrige esto antes de generar} other {Corrige es
 #: src/SettingsTab.tsx
 msgid "{project} uses the tabs chosen on the Project tab."
 msgstr "{project} usa las pestañas elegidas en la pestaña Proyecto."
+
+#: src/CueView.tsx
+msgid "{reachOwn, plural, one {Every Sound (# Slot)} other {Every Sound (# Slots)}}"
+msgstr "{reachOwn, plural, one {Todos los sonidos (# slot)} other {Todos los sonidos (# slots)}}"
+
+#: src/CueView.tsx
+msgid "{reachShared, plural, one {Only This Sound (# Slot)} other {Only This Sound (# Slots)}}"
+msgstr "{reachShared, plural, one {Solo este sonido (# slot)} other {Solo este sonido (# slots)}}"
 
 #: src/ProjectTab.tsx
 msgid "{removed, plural, one {# file moved to the Recycle Bin} other {# files moved to the Recycle Bin}}"
@@ -733,10 +769,6 @@ msgstr "{songs, plural, one {# canción añadida} other {# canciones añadidas}}
 #: src/Soundtrack.tsx
 msgid "{songs, plural, one {# song} other {# songs}} from place {place}"
 msgstr "{songs, plural, one {# canción} other {# canciones}} desde el hueco {place}"
-
-#: src/Inspector.tsx
-msgid "{soundBanks, plural, one {Changes it in # bank. Other sounds that play the clip keep the original.} other {Changes it in # banks. Other sounds that play the clip keep the original.}}"
-msgstr "{soundBanks, plural, one {Lo cambia en # banco. Los demás sonidos que reproducen el clip conservan el original.} other {Lo cambia en # bancos. Los demás sonidos que reproducen el clip conservan el original.}}"
 
 #: src/CombinePage.tsx
 #: src/RepatchPage.tsx
@@ -946,6 +978,14 @@ msgstr "Silencio en **{what}**"
 msgid "**{what}** skipped"
 msgstr "Saltado: **{what}**"
 
+#: src/store.tsx
+msgid "**Every Sound** on {moved} of {asked} slots. Another sound has new audio on the others"
+msgstr "**Todos los sonidos** en {moved} de {asked} slots. Otro sonido tiene audio nuevo en los demás"
+
+#: src/store.tsx
+msgid "**Only This Sound** on {moved} of {asked} slots"
+msgstr "**Solo este sonido** en {moved} de {asked} slots"
+
 #. Markdown. **Sequence 7** and **Sequence 8** are the names the slot list shows for these sequences.
 #: src/tutorials.ts
 msgid "**Sequence 7** and **Sequence 8** play with the shot. Tick both, so the new shot plays alone."
@@ -1070,6 +1110,10 @@ msgstr "Una capa añadida por el proyecto. Suena siempre que suena el sonido de 
 #: src/CueView.tsx
 msgid "A layer left original still plays under the new audio"
 msgstr "Una capa que se deja original sigue sonando bajo el audio nuevo"
+
+#: src/ProjectTab.tsx
+msgid "A mod can be just this, with no new audio."
+msgstr "Un mod puede ser solo esto, sin audio nuevo."
 
 #: src/TextTab.tsx
 msgid "A mod carries whole tables. When two mods change the same table, the one deployed later replaces the other"
@@ -1910,6 +1954,7 @@ msgstr "Generar un mod a partir de estos sobre los bancos de sonido actuales"
 msgid "Build options"
 msgstr "Opciones de generación"
 
+#: src/ProjectTab.tsx
 #: src/store.tsx
 msgid "Build Tab"
 msgstr "Pestaña Generar"
@@ -2367,10 +2412,6 @@ msgstr "Elegida aquí."
 #: src/ProjectTab.tsx
 msgid "Circle"
 msgstr "Círculo"
-
-#: src/ProjectTab.tsx
-msgid "Clean voices come out louder. This turns them down to about the level of the radio"
-msgstr "Las voces limpias suenan más fuerte. Esto las baja a cerca del nivel de la radio"
 
 #. Button of the Text tab: unticks the selected lines
 #. Button: deletes these files
@@ -3273,23 +3314,29 @@ msgstr "Todas las partes están contraídas"
 msgid "Every sequence is collapsed"
 msgstr "Todas las secuencias están contraídas"
 
+#. Tag on a slot whose new audio plays in every sound that plays the clip
+#: src/CueView.tsx
+msgid "every sound"
+msgstr "todos los sonidos"
+
+#: src/CueView.tsx
+#: src/Inspector.tsx
+msgid "Every Sound"
+msgstr "Todos los sonidos"
+
 #. Markdown. {libraryIcon} shows the icon of the Library tab. **Library** is the tab name and must read as the translation of the tab name does.
 #: src/tutorials.ts
 msgid "Every sound in the game is in the {libraryIcon} **Library**. Open it."
 msgstr "Todos los sonidos del juego están en la {libraryIcon} **Biblioteca**. Ábrela."
 
+#: src/CueView.tsx
+msgid "Every Sound on All"
+msgstr "Todos los sonidos en todos"
+
 #. Edit in Undo, Redo and History: the new audio of a slot set to play in every sound that plays the clip
 #: src/store.tsx
 msgid "every sound that plays it"
 msgstr "todos los sonidos que lo reproducen"
-
-#: src/Inspector.tsx
-msgid "Every Sound That Plays It"
-msgstr "Todos los sonidos que lo reproducen"
-
-#: src/Inspector.tsx
-msgid "Every sound that plays this clip gets the new audio"
-msgstr "Todos los sonidos que reproducen este clip reciben el audio nuevo"
 
 #: src/SettingsTab.tsx
 msgid "Every theme setting goes back to the default. Dark or light, contrast and animations follow the system."
@@ -5181,10 +5228,6 @@ msgid "Normal"
 msgstr "Normal"
 
 #: src/ProjectTab.tsx
-msgid "Normalize the loudness"
-msgstr "Normalizar el volumen"
-
-#: src/ProjectTab.tsx
 msgid "Not an Audiodiver project, or damaged"
 msgstr "No es un proyecto de Audiodiver o está dañado"
 
@@ -5385,6 +5428,8 @@ msgstr "Numerado según el orden del banco. Reprodúcelo para oír qué es"
 msgid "Of two mods with the same file besides audio, the one lower in the list goes in."
 msgstr "De dos mods con el mismo fichero aparte del audio, se incluye el que está más abajo en la lista."
 
+#. The radio filter of a voice is off
+#: src/ProjectTab.tsx
 #: src/settings.ts
 #: src/SettingsTab.tsx
 msgid "Off"
@@ -5410,6 +5455,8 @@ msgstr "Ajustes compartidos antiguos"
 msgid "Older sound banks"
 msgstr "Bancos de sonido antiguos"
 
+#. The radio filter of a voice is on
+#: src/ProjectTab.tsx
 #: src/SettingsTab.tsx
 msgid "On"
 msgstr "Activado"
@@ -5472,6 +5519,10 @@ msgstr "Una pista de un combate, con los segmentos que el juego elige al reprodu
 msgid "One track with the segments in play order, joined at their Exit points"
 msgstr "Una pista con los segmentos en orden de reproducción, unidos en sus puntos de Salida"
 
+#: src/ProjectTab.tsx
+msgid "Only one mod can change radio filters. If another mod also carries the Init bank, the last one in the load order wins."
+msgstr "Solo un mod puede cambiar los filtros de radio. Si otro mod también lleva el banco Init, vale el último en el orden de carga."
+
 #: src/TextTab.tsx
 msgid "Only the lines the project changes in this language"
 msgstr "Solo las líneas que el proyecto cambia en este idioma"
@@ -5489,9 +5540,14 @@ msgstr "Solo lo recibe este banco. Los demás bancos con este audio lo reproduce
 msgid "only this sound"
 msgstr "solo este sonido"
 
+#: src/CueView.tsx
 #: src/Inspector.tsx
 msgid "Only This Sound"
 msgstr "Solo este sonido"
+
+#: src/CueView.tsx
+msgid "Only This Sound on All"
+msgstr "Solo este sonido en todos"
 
 #: src/IndexTree.tsx
 msgid "Only what has new audio"
@@ -5752,6 +5808,14 @@ msgstr "otros ficheros"
 #: src/Library.tsx
 msgid "Other Replaced Sounds"
 msgstr "Otros sonidos sustituidos"
+
+#: src/Inspector.tsx
+msgid "Other sounds play these clips too. Add new audio here to choose."
+msgstr "Otros sonidos también reproducen estos clips. Añade audio nuevo aquí para elegir."
+
+#: src/Inspector.tsx
+msgid "Other sounds play this clip too. Add new audio here to choose."
+msgstr "Otros sonidos también reproducen este clip. Añade audio nuevo aquí para elegir."
 
 #: src/RepatchPage.tsx
 msgid "Other sounds, like all gunfire, go silent while the mod is installed. <0>Installed mods</0> below finds the mods that do this."
@@ -6121,6 +6185,10 @@ msgstr "suena a {0} dB"
 #: src/Soundtrack.tsx
 msgid "Plays for"
 msgstr "Suena durante"
+
+#: src/Inspector.tsx
+msgid "Plays In"
+msgstr "Suena en"
 
 #: src/CueView.tsx
 msgid "Plays nothing for the length of the original, so the timing doesn't change"
@@ -6899,10 +6967,6 @@ msgstr "Guardado en {projectFolder}"
 msgid "Saving…"
 msgstr "Guardando…"
 
-#: src/Inspector.tsx
-msgid "Scope"
-msgstr "Alcance"
-
 #: src/keys.ts
 msgid "Search"
 msgstr "Buscar"
@@ -7088,8 +7152,8 @@ msgid "Several small mods are easier to keep as one."
 msgstr "Es más fácil mantener varios mods pequeños como uno solo."
 
 #: src/Inspector.tsx
-msgid "Several sounds can play the same clip. Choose whether the new audio plays in all of them or only in this one."
-msgstr "Varios sonidos pueden reproducir el mismo clip. Elige si el audio nuevo suena en todos o solo en este."
+msgid "Several sounds can play the same clip. A replacement changes it in all of them, unless it plays only in this sound."
+msgstr "Varios sonidos pueden reproducir el mismo clip. Una sustitución lo cambia en todos, salvo que suene solo en este sonido."
 
 #: src/Inspector.tsx
 msgid "Several subtitles have these words, and the game files don't show which one matches this recording. The Text tab lists them all and opens the most likely one"
@@ -8002,10 +8066,6 @@ msgid "The middle lists the sounds of the Liberator. One shot is several sounds 
 msgstr "En el centro se muestran los sonidos del Liberador. Un disparo son varios sonidos que suenan a la vez. Cada sonido tiene una o más **tomas**, grabaciones entre las que el juego elige al azar."
 
 #: src/RepatchPage.tsx
-msgid "The mod"
-msgstr "El mod"
-
-#: src/RepatchPage.tsx
 msgid "The mod holds no audio"
 msgstr "El mod no contiene audio"
 
@@ -8081,6 +8141,10 @@ msgstr "El audio nuevo dura {length} ms."
 #: src/CueView.tsx
 msgid "The new audio is too short. This clip needs at least {needed}"
 msgstr "El audio nuevo es demasiado corto. Este clip necesita al menos {needed}"
+
+#: src/CueView.tsx
+msgid "The new audio plays in every sound that plays this clip"
+msgstr "El audio nuevo suena en todos los sonidos que reproducen este clip"
 
 #: src/CueView.tsx
 msgid "The new audio plays only in this sound. Other sounds that play the clip keep the original"
@@ -8240,8 +8304,8 @@ msgid "The project's order and audio"
 msgstr "El orden y el audio del proyecto"
 
 #: src/ProjectTab.tsx
-msgid "The radio sound isn't in the voice files, so new audio goes through it too. Tick a voice to play it clean, in every language"
-msgstr "El sonido de radio no está en los ficheros de voz, así que el audio nuevo también pasa por él. Marca una voz para que suene limpia, en todos los idiomas"
+msgid "The radio sound isn't in the voice files, so new audio on these voices goes through it too."
+msgstr "El sonido de radio no está en los ficheros de voz, así que el audio nuevo de estas voces también pasa por él."
 
 #: src/TextTab.tsx
 msgid "The recordings that say this subtitle. Open one in the Library to hear it or replace it"
@@ -8425,6 +8489,10 @@ msgstr "Hay cambios más recientes. {undo} retrocede un cambio cada vez."
 msgid "These sounds are in the project already"
 msgstr "Estos sonidos ya están en el proyecto"
 
+#: src/ProjectTab.tsx
+msgid "These voices play through a radio effect, new audio included. Turn it off to hear a voice clean, in every language."
+msgstr "Estas voces suenan con un efecto de radio, audio nuevo incluido. Desactívalo para oír una voz limpia, en todos los idiomas."
+
 #: src/ExportDialog.tsx
 msgid "Things collected from anywhere, to export together"
 msgstr "Cosas reunidas desde cualquier sitio, para exportarlas a la vez"
@@ -8440,10 +8508,6 @@ msgstr "Este banco es {sets} en el Índice."
 #: src/Inspector.tsx
 msgid "This clip isn't in the installed game files, so there is nothing to play or replace."
 msgstr "Este clip no está en los ficheros del juego instalados, así que no hay nada que reproducir ni sustituir."
-
-#: src/ProjectTab.tsx
-msgid "This mod carries the Init bank, which every sound goes through. Only one mod can carry it, so with two the last one wins."
-msgstr "Este mod lleva el banco Init, por el que pasa todo sonido. Solo un mod puede llevarlo, así que con dos gana el último."
 
 #: src/Inspector.tsx
 msgid "this music track"
@@ -8526,6 +8590,10 @@ msgstr "Hasta"
 msgid "To change the piece everywhere, give each variant new audio"
 msgstr "Para cambiar la pieza en todas partes, da audio nuevo a cada variante"
 
+#: src/CueView.tsx
+msgid "To limit it to this sound, choose Only This Sound under Plays In, in the details"
+msgstr "Para limitarlo a este sonido, elige Solo este sonido en Suena en, en los detalles"
+
 #: src/api.ts
 msgid "today, {time}"
 msgstr "hoy, {time}"
@@ -8579,6 +8647,10 @@ msgstr "Volver a intentarlo"
 #: src/CombinePage.tsx
 msgid "Turn off the combined mods in the mod manager, then import and deploy the new ZIP."
 msgstr "Desactiva los mods combinados en el gestor de mods y luego importa y despliega el ZIP nuevo."
+
+#: src/ProjectTab.tsx
+msgid "Turn these voices down to the radio's level"
+msgstr "Bajar estas voces al nivel de la radio"
 
 #: src/Tutorial.tsx
 msgid "Tutorial finished"
@@ -9006,6 +9078,10 @@ msgstr "Con las canciones, Aleatorio, Continuar y el nivel"
 #: src/RepatchPage.tsx
 msgid "Without a manifest, each becomes an option of the new mod."
 msgstr "Sin manifiesto, cada uno pasa a ser una opción del mod nuevo."
+
+#: src/ProjectTab.tsx
+msgid "Without the filter, voices come out louder."
+msgstr "Sin el filtro, las voces suenan más fuerte."
 
 #: src/TextTab.tsx
 msgid "Words in this language, or a line ID"

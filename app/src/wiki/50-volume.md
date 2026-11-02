@@ -75,7 +75,7 @@ The game applies them, so previews and the waveforms in Audiodiver play without 
 
 ## Radio filter
 
-The radio sound on some voices isn't in their files. The lines pass through a radio effect in the game's mix, so new audio on those voices gets the same effect. The **Radio Filter** section of the [Project](app:project) tab turns it off, a voice at a time, for every language:
+The radio sound on some voices isn't in their files. The lines pass through a radio effect in the game's mix, so new audio on those voices gets the same effect. The **Radio Filter** section of the [Project](app:project) tab has each voice **On** until you set it to **Off**, for every language:
 
 - **Mission Control**
 - **The Admiral**
@@ -85,7 +85,7 @@ The radio sound on some voices isn't in their files. The lines pass through a ra
 
 A mod can be just this, with no new audio.
 
-Clean voices come out louder. **Normalize the loudness** turns them down to about the level of the radio.
+Clean voices come out louder. **Turn these voices down to the radio's level** brings them close to it.
 
 The mix is in the game's Init bank, which every sound goes through, so the mod carries a copy with only these changes:
 

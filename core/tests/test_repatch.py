@@ -127,6 +127,7 @@ def test_an_old_mod_comes_back_on_the_current_game_as_it_was(session, tmp_path):
     assert descent["imported"] > 0 and descent["settings"] == 0 and not descent["kept"]
     assert broken["kept"] and warp["added"] == 6 and warp["settings"] == 4
     assert all("other change" in x for x in warp["left"])  # what the game changed since the mod (positioning)
+    assert len(warp["left"]) <= 1, "one line, however many banks"
     # the Sounds the repatch adds are the mod's six, each with new audio: none the game had in the mod's day and
     # took out since (25988413 took 7 out of this bank, addition.older_version)
     warp_banks, _ = read_patch(str(_patch_of(got["zip"], "WoS/extras/warp/9ba626afa44a3aa3.patch_0", tmp_path / "w")))
