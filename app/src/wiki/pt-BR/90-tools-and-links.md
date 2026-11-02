@@ -2,13 +2,14 @@
 title: Ferramentas e links
 group: Recursos
 summary: Onde os mods são instalados e compartilhados, e ferramentas de áudio gratuitas que ajudam com mods de música.
-source: 8c4b133afed9
+source: 2ee3c9654d84
 ---
 
 ## Instalar e compartilhar mods {#installing-and-sharing-mods}
 
 - Os mods gerados são instalados com um gerenciador de mods do Helldivers 2.
 - [Helldivers 2 no Nexus Mods](https://www.nexusmods.com/helldivers2) é onde a maioria dos mods é compartilhada.
+- [Um gerenciador de mods para Helldivers 1](https://www.nexusmods.com/helldivers/mods/16) instala mods de Helldivers 1. Os que o Audiodiver faz precisam da versão 1.1.0 ou mais recente.
 - **Audiodiver Utils**, na [página de versões](https://github.com/Alomare/Audiodiver/releases/latest) do Audiodiver, é o Repatch e o Combinar Mods sem projetos: uma janela portátil menor, e o `audiodiver.cmd` para a linha de comando. `audiodiver.cmd repatch <mod>` gera um mod de novo, `combine <mod> <mod>` combina mods, `check` lista os mods instalados que precisam de repatch, e `scan <mod>` mostra as opções de um mod. Adicione `--json` para uma saída que outros programas leem, e `--help` para o resto.
 
 ## Editar áudio {#editing-audio}

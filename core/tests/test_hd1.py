@@ -422,6 +422,7 @@ def test_a_helldivers_1_project_builds_a_mod_for_the_mod_manager(game, tmp_path,
     assert hd1_build.verify(zip_path, s.hd1) == []
     with zipfile.ZipFile(zip_path) as z:
         m = json.loads(z.read("obsidian.json"))
+        assert m["min_obsidian"] == "1.1.0", "an older mod manager says to update instead of deploying slowly"
         assert m["scope"] == "client" and m["id"] == "audiodiver.hd1-" + s.project.guid.replace("-", "")[:16] and m["version"] == "1.0.1"
         [r] = m["resources"]
         assert set(r) == {"type", "name", "clips"}, "the mod manager finds the bundles and keeps the rest of the bank"

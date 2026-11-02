@@ -30,6 +30,7 @@ from .project import Project
 PAD = 4                  # a clip starts on a multiple of this, from the bank's start
 VORBIS_QUALITY = "6"     # libvorbis -q: about 190 kbps stereo, near the game's own clips
 MANIFEST = "obsidian.json"
+MIN_MANAGER = "1.1.0"    # the first that deploys these mods with its progress shown (older ones look stuck)
 
 
 class Hd1BuildError(Exception):
@@ -202,7 +203,8 @@ def build(p: Project, game: hd1.Hd1, log=print, step=None) -> Path:
         step(tr("writing the mod"), len(places))
         resources = [{"type": "timpani_bank", "name": f"#{name:016x}",
                       "clips": sorted(rows[name], key=lambda x: (x["clip"], x.get("lang", 0)))} for name in sorted(rows)]
-        manifest = {"obsidian": 1, "id": mod_id(p), "version": f"1.0.{p.version}", "name": {"en": p.name},
+        # min_obsidian: an older mod manager from 1.1.0 on refuses the mod and says to update (1.0.4 ignores it)
+        manifest = {"obsidian": 1, "min_obsidian": MIN_MANAGER, "id": mod_id(p), "version": f"1.0.{p.version}", "name": {"en": p.name},
                     "description": {"en": p.description or "New audio for Helldivers 1, made with Audiodiver."},  # English, as mod names
                     "authors": [], "scope": "client", "resources": resources, "loader_api": 1}
         (work / MANIFEST).write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

@@ -11,7 +11,7 @@ With Helldivers 1 installed, the **Helldivers 2** and **Helldivers 1** buttons o
 1. Choose **Helldivers 1** on Home and press **New Project**.
 2. In the [Library](app:library), press **+** on what you want to change.
 3. In the [Audio](app:editor) tab, drop audio on a slot, or choose a file.
-4. In the [Build](app:build) tab, press **Build**. The ZIP installs with a mod manager for Helldivers 1.
+4. In the [Build](app:build) tab, press **Build**. The ZIP installs with [a mod manager for Helldivers 1](https://www.nexusmods.com/helldivers/mods/16), version 1.1.0 or later.
 
 ## What a project can change
 
@@ -27,4 +27,4 @@ The Library shows Helldivers 2 as well. Select slots there and press **Ctrl+C**,
 
 Some sounds have a tab for each language, with separate slots. New audio in one language plays only in that language.
 
-A mod holds only the new audio, so the ZIP stays small. The game replaces a sound bank all at once, in every language and in every place that holds it, so the mod manager rebuilds each sound bank the mod changes from the game's files when it deploys. One short sound in a big sound bank can take about 3 GB of disk while deployed. After a game update, deploy again: the mod stays as it is. Helldivers 1 mods need the latest version of the mod manager.
+A mod holds only the new audio, so the ZIP stays small. The game replaces a sound bank all at once, in every language and in every place that holds it, so the mod manager rebuilds each sound bank the mod changes from the game's files when it deploys. One short sound in a big sound bank can take about 3 GB of disk while deployed. After a game update, deploy again: the mod stays as it is. Helldivers 1 mods need version 1.1.0 or later of the mod manager.

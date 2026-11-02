@@ -2,13 +2,14 @@
 title: ツールとリンク
 group: リソース
 summary: MODのインストール先と共有先、音楽MODの制作に役立つ無料の音声ツールを紹介します。
-source: 8c4b133afed9
+source: 2ee3c9654d84
 ---
 
 ## MODのインストールと共有 {#installing-and-sharing-mods}
 
 - ビルドは、Helldivers 2のMODマネージャーでインストールします。
 - [Nexus ModsのHelldivers 2](https://www.nexusmods.com/helldivers2)は、ほとんどのMODが共有されている場所です。
+- [Helldivers 1 用のMODマネージャー](https://www.nexusmods.com/helldivers/mods/16)で Helldivers 1 のMODをインストールします。Audiodiver で作ったMODにはバージョン 1.1.0 以降が必要です。
 - **Audiodiver Utils**は、Audiodiverの[リリースページ](https://github.com/Alomare/Audiodiver/releases/latest)にあるツールで、プロジェクトなしでRepatchと**MODを統合**を使えます。小さめのポータブルウィンドウと、コマンドライン用の`audiodiver.cmd`が付いています。`audiodiver.cmd repatch <mod>`はMODを作り直し、`combine <mod> <mod>`はMODを統合し、`check`はRepatchが必要なインストール済みのMODを一覧し、`scan <mod>`はMODのオプションを表示します。`--json`を付けると他のプログラムが読める形式で出力され、`--help`で残りのオプションがわかります。
 
 ## 音声の編集 {#editing-audio}
