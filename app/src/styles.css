@@ -1314,14 +1314,14 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .home-ticker.ready { opacity: 1; }
 .home-ticker-tip { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; height: var(--ticker-h); }
 @keyframes art-left { from { transform: scaleX(0); } }
-/* over the picture (Home.tsx Veil): strongest at the top right, gone by the bottom left. Each blur is stronger and
+/* over the picture (Home.tsx Veil): strongest at the top left, behind the page, gone by the bottom right. Each blur is stronger and
    reaches less far than the one before, so no edge shows. The shade follows the theme. */
 .home-blur, .home-blur i, .home-shade { position: absolute; inset: 0; }
-.home-blur i:nth-child(1) { backdrop-filter: blur(2px); mask-image: linear-gradient(to bottom left, #000, transparent); }
-.home-blur i:nth-child(2) { backdrop-filter: blur(6px); mask-image: linear-gradient(to bottom left, #000, rgba(0, 0, 0, .5) 40%, transparent 90%); }
-.home-blur i:nth-child(3) { backdrop-filter: blur(14px); mask-image: linear-gradient(to bottom left, #000, rgba(0, 0, 0, .35) 35%, transparent 75%); }
-.home-blur i:nth-child(4) { backdrop-filter: blur(28px); mask-image: linear-gradient(to bottom left, #000, rgba(0, 0, 0, .25) 30%, transparent 60%); }
-.home-shade { background: linear-gradient(to bottom left, color-mix(in srgb, var(--bg) 94%, transparent), color-mix(in srgb, var(--bg) 78%, transparent) 25%,
+.home-blur i:nth-child(1) { backdrop-filter: blur(2px); mask-image: linear-gradient(to bottom right, #000, transparent); }
+.home-blur i:nth-child(2) { backdrop-filter: blur(6px); mask-image: linear-gradient(to bottom right, #000, rgba(0, 0, 0, .5) 40%, transparent 90%); }
+.home-blur i:nth-child(3) { backdrop-filter: blur(14px); mask-image: linear-gradient(to bottom right, #000, rgba(0, 0, 0, .35) 35%, transparent 75%); }
+.home-blur i:nth-child(4) { backdrop-filter: blur(28px); mask-image: linear-gradient(to bottom right, #000, rgba(0, 0, 0, .25) 30%, transparent 60%); }
+.home-shade { background: linear-gradient(to bottom right, color-mix(in srgb, var(--bg) 94%, transparent), color-mix(in srgb, var(--bg) 78%, transparent) 25%,
   color-mix(in srgb, var(--bg) 50%, transparent) 50%, color-mix(in srgb, var(--bg) 18%, transparent) 76%, transparent); }
 .home-meters { position: absolute; inset: 0; width: 100%; height: 100%; }
 .home-meters rect { fill: var(--line-soft); }
@@ -1352,10 +1352,11 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .menu-meter i { display: block; width: 4px; background: var(--accent-ink); transform-origin: center; }
 .menu-item.hot:hover .menu-meter i, .menu-item.hot:focus-visible .menu-meter i { animation: menu-level calc(520ms * var(--anim)) ease-in-out infinite alternate; animation-delay: calc(var(--n) * -130ms * var(--anim)); }
 @keyframes menu-level { from { transform: scaleY(.35); } to { transform: scaleY(1.15); } }
-/* which game: not a button but a dark track as wide as the menu, whose slanted thumb slides to the game in use */
-.game-switch { position: relative; display: grid; grid-template-columns: 1fr 1fr; height: calc(40px * var(--fs)); margin-top: calc(14px * var(--sp)); overflow: hidden;
-  background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); }
-.game-switch::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 54%; background: var(--accent); transform: translateX(-7.4%) skewX(-16deg);
+/* which game, first on the page: not a button but a dark track as wide as the menu, whose slanted thumb slides to the
+   game in use. Both let a little of the picture through. */
+.game-switch { position: relative; display: grid; grid-template-columns: 1fr 1fr; max-width: calc(480px * var(--fs)); height: calc(40px * var(--fs));
+  margin-bottom: calc(30px * var(--sp)); overflow: hidden; background: color-mix(in srgb, var(--bg) 88%, transparent); box-shadow: inset 0 0 0 1px var(--line); }
+.game-switch::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 54%; background: color-mix(in srgb, var(--accent) 88%, transparent); transform: translateX(-7.4%) skewX(-16deg);
   transition: transform var(--t3) var(--ease); }
 .game-switch[data-at="hd2"]::before { transform: translateX(92.6%) skewX(-16deg); }
 .game-switch button { position: relative; font-family: var(--title); font-stretch: 112%; font-size: calc(12.6px * var(--fs)); font-weight: 600; letter-spacing: .06em; text-transform: uppercase;

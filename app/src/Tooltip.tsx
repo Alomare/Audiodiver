@@ -17,7 +17,8 @@ type Tip = { anchor: HTMLElement; text: string; keys: string; more: string; side
 
 const GAP = 7;       // between the element and its tooltip
 const EDGE = 6;      // kept clear along the window's edges
-const WARM_MS = 500; // moving on to another element within this time skips the wait
+const WARM_MS = 300; // moving on to another element within this time skips most of the wait
+const WARM_WAIT = 150; // the wait then left
 const WIDE = 360;    // an element wider than this gets its tooltip under the pointer, not under its middle
 
 function read(anchor: HTMLElement, x: number): Tip | null {
@@ -65,7 +66,7 @@ export function TooltipLayer() {
       const speed = settings.get().tips;
       // tooltips off leaves the "?"s: they are there only to hold their words (data-tip-always)
       if (!next || (speed === "off" && !next.hasAttribute("data-tip-always"))) return;
-      timer = window.setTimeout(show, warm ? 60 : Math.min(wait, TIP_DELAY[speed === "off" ? "normal" : speed]));
+      timer = window.setTimeout(show, warm ? WARM_WAIT : Math.min(wait, TIP_DELAY[speed === "off" ? "normal" : speed]));
     };
     /** The nearest element around what the event is on that has a tooltip to show now: a name that isn't cut off
         has none, so the row around it gets its turn. */

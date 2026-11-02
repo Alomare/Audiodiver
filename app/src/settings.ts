@@ -35,7 +35,7 @@ export const DEFAULT_SETTINGS: Settings = { openLast: false, tips: "normal", upd
 export const tabList = (v: unknown): Hideable[] | null =>
   Array.isArray(v) && v.every((t) => (HIDEABLE as readonly unknown[]).includes(t)) ? HIDEABLE.filter((t) => v.includes(t)) : null;
 /** How long the pointer rests on something before its tooltip shows, in ms. */
-export const TIP_DELAY: Record<Exclude<TipSpeed, "off">, number> = { quick: 150, normal: 500, slow: 1100 };
+export const TIP_DELAY: Record<Exclude<TipSpeed, "off">, number> = { quick: 300, normal: 900, slow: 1600 };
 export const TIP_SPEEDS: [TipSpeed, string][] = [["off", t`Off`], ["quick", t({ message: "Quick", comment: "Tooltip delay" })],
   ["normal", t({ message: "Normal", comment: "Tooltip delay" })], ["slow", t({ message: "Slow", comment: "Tooltip delay" })]];
 export const UPDATE_MODES: [UpdateMode, string][] = [["manual", t({ message: "Manual", comment: "Update mode" })], ["prompt", t`Prompt on Startup`],

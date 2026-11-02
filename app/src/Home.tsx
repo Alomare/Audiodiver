@@ -23,6 +23,7 @@ export function Home() {
     <section className={`home${art.length ? " with-art" : ""}${homeTicker ? "" : " no-ticker"}`} aria-label={t`Home`}>
       <div className="home-scroll">
         <div className="home-inner view-in">
+          {status?.hd1 && <GameSwitch />}
           <header className="home-hero">
             <h1><Trans comment="The title on Home; <0/> is a line break">A new anthem<br />for Super Earth</Trans></h1>
           </header>
@@ -49,16 +50,13 @@ export function Home() {
             )}
           </nav>
 
-          {(mode === "hd2" || status?.hd1) && <nav className="home-menu home-tools" aria-label={t`Tools`}>
-            {mode === "hd2" && <>
+          {mode === "hd2" && <nav className="home-menu home-tools" aria-label={t`Tools`}>
             <button className="menu-item" onClick={() => nav.go("tools", "repatch")}
               data-tip={t`Rebuild an existing audio mod for the current game version, without a project`}
               data-tip-more={t`For a mod that went silent or wrong after a game update, or that mutes other sounds`}><MenuInner icon={<ToolsIcon />}><Trans>Repatch</Trans></MenuInner></button>
             <button className="menu-item" onClick={() => nav.go("tools", "combine")}
               data-tip={t`Make one mod out of several audio mods`}
               data-tip-more={t`For mods that change the same sound banks, where only the one deployed last plays`}><MenuInner icon={<MergeIcon />}><Trans>Combine Mods</Trans></MenuInner></button>
-            </>}
-            {status?.hd1 && <GameSwitch />}
           </nav>}
 
         </div>
@@ -82,8 +80,8 @@ function LevelMeter() {
   return <span className="menu-meter" aria-hidden>{LEVELS.map((h, i) => <i key={i} style={{ height: `${h}%`, ["--n" as any]: i }} />)}</span>;
 }
 
-/** Which game the window makes mods for, once Helldivers 1 is found: a track as wide as the menu, whose thumb slides to
-    the game in use. Each has its own tabs and pictures, and a project is for one of them (nav.ts Mode). A project of
+/** Which game the window makes mods for, once Helldivers 1 is found, first on the page: a track as wide as the menu,
+    whose thumb slides to the game in use. Each has its own tabs and pictures, and a project is for one of them (nav.ts Mode). A project of
     the other game closes first. */
 function GameSwitch() {
   const { project, actions } = useEditor();
@@ -192,7 +190,7 @@ function firstPicture(set: Mode, count: number) {
 }
 const opening: Partial<Record<Mode, number>> = {}; // chosen once per launch; coming back to Home carries on from there
 
-/** Over the art, under the page: blur and shade at their strongest at the top right, gone by the bottom left. Four
+/** Over the art, under the page: blur and shade at their strongest at the top left, gone by the bottom right. Four
     blurs, each stronger and reaching less far, so the blur fades smoothly. */
 function Veil() {
   return <><div className="home-blur"><i /><i /><i /><i /></div><div className="home-shade" /></>;
