@@ -41,6 +41,10 @@ export const CheckIcon = () => <Icon size={1.1} stroke={2.2}><path d="m5 12.5 4.
 export const PlusIcon = () => <Icon size={1.1} stroke={2.2}><path d="M12 5v14M5 12h14" /></Icon>;
 /** The ✕ that takes back what a + added, as heavy as the +. */
 export const RemoveIcon = () => <Icon size={1.1} stroke={2.2}><path d="m6.5 6.5 11 11M17.5 6.5l-11 11" /></Icon>;
+/** Into the project: an arrow down into a tray (Import Mod). */
+export const ImportIcon = () => <Icon size={1}><path d="M12 3.8v10.7" /><path d="m7.6 10.1 4.4 4.4 4.4-4.4" /><path d="M4.5 13.5v6h15v-6" /></Icon>;
+/** Two lines that become one (Combine Mods). */
+export const MergeIcon = () => <Icon size={1}><path d="M5 4.5v3c0 3.5 7 4 7 8v4M19 4.5v3c0 3.5-7 4-7 8" /></Icon>;
 /** A disk with its label and shutter. */
 export const SaveIcon = () => (
   <Icon size={1.1}><path d="M5 4h11.5L20 7.5V20H4V4z" /><path d="M8 4v5h7V4M7.5 20v-6h9v6" /></Icon>

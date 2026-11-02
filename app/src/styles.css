@@ -1314,14 +1314,14 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .home-ticker.ready { opacity: 1; }
 .home-ticker-tip { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; height: var(--ticker-h); }
 @keyframes art-left { from { transform: scaleX(0); } }
-/* over the picture (Home.tsx Veil): nothing at the top right, growing to the bottom left, under the menu. Each blur is
-   stronger and reaches less far than the one before, so no edge shows. The shade follows the theme. */
+/* over the picture (Home.tsx Veil): strongest at the top right, gone by the bottom left. Each blur is stronger and
+   reaches less far than the one before, so no edge shows. The shade follows the theme. */
 .home-blur, .home-blur i, .home-shade { position: absolute; inset: 0; }
-.home-blur i:nth-child(1) { backdrop-filter: blur(2px); mask-image: linear-gradient(to top right, #000, transparent); }
-.home-blur i:nth-child(2) { backdrop-filter: blur(6px); mask-image: linear-gradient(to top right, #000, rgba(0, 0, 0, .5) 40%, transparent 90%); }
-.home-blur i:nth-child(3) { backdrop-filter: blur(14px); mask-image: linear-gradient(to top right, #000, rgba(0, 0, 0, .35) 35%, transparent 75%); }
-.home-blur i:nth-child(4) { backdrop-filter: blur(28px); mask-image: linear-gradient(to top right, #000, rgba(0, 0, 0, .25) 30%, transparent 60%); }
-.home-shade { background: linear-gradient(to top right, color-mix(in srgb, var(--bg) 94%, transparent), color-mix(in srgb, var(--bg) 78%, transparent) 25%,
+.home-blur i:nth-child(1) { backdrop-filter: blur(2px); mask-image: linear-gradient(to bottom left, #000, transparent); }
+.home-blur i:nth-child(2) { backdrop-filter: blur(6px); mask-image: linear-gradient(to bottom left, #000, rgba(0, 0, 0, .5) 40%, transparent 90%); }
+.home-blur i:nth-child(3) { backdrop-filter: blur(14px); mask-image: linear-gradient(to bottom left, #000, rgba(0, 0, 0, .35) 35%, transparent 75%); }
+.home-blur i:nth-child(4) { backdrop-filter: blur(28px); mask-image: linear-gradient(to bottom left, #000, rgba(0, 0, 0, .25) 30%, transparent 60%); }
+.home-shade { background: linear-gradient(to bottom left, color-mix(in srgb, var(--bg) 94%, transparent), color-mix(in srgb, var(--bg) 78%, transparent) 25%,
   color-mix(in srgb, var(--bg) 50%, transparent) 50%, color-mix(in srgb, var(--bg) 18%, transparent) 76%, transparent); }
 .home-meters { position: absolute; inset: 0; width: 100%; height: 100%; }
 .home-meters rect { fill: var(--line-soft); }
@@ -1331,21 +1331,38 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .home-inner { padding: var(--home-m); container-type: inline-size; }
 .home-hero { display: flex; flex-direction: column; align-items: flex-start; gap: calc(18px * var(--sp)); max-width: calc(700px * var(--fs)); }
 .home-hero h1 { font-size: calc(36px * var(--fs)); line-height: 1.04; letter-spacing: -.015em; max-width: 15ch; }
-/* the menu: tall uppercase squares of one plain colour, the way in yellow. Hovered or focused, one takes the accent
-   bar on its left. */
+/* the menu: tall uppercase squares of one plain colour, each with an icon on a darker square of its own. Hovered or
+   focused, that square lights up and a chevron comes forward. The way in is yellow, with a level meter at its end,
+   like the bars on the logo's brow, which plays under the pointer. */
 .home-menu { display: flex; flex-direction: column; gap: calc(6px * var(--sp)); max-width: calc(480px * var(--fs)); margin-top: calc(42px * var(--sp)); }
-.menu-item { display: flex; align-items: center; width: 100%; min-height: calc(48px * var(--fs)); padding: calc(7px * var(--sp)) 17px; text-align: left;
+.menu-item { display: flex; align-items: stretch; width: 100%; min-height: calc(48px * var(--fs)); padding: 0; text-align: left; color: var(--text); background: var(--raised);
   font-family: var(--title); font-stretch: 112%; font-size: calc(13.8px * var(--fs)); font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
-  color: var(--text); border-left: 3px solid transparent; border-radius: 0; background: var(--raised);
-  transition: background var(--t1), border-color var(--t1); }
-.menu-item:hover, .menu-item:focus-visible, .menu-open:has(> .menu-open-btn:focus-visible) { border-left-color: var(--accent-fg);
-  background: color-mix(in srgb, var(--accent-fg) 16%, var(--raised)); }
-.menu-item.hot { min-height: calc(53px * var(--fs)); font-size: calc(15.3px * var(--fs)); font-weight: 800; color: var(--accent-ink); border-left-color: var(--accent); background: var(--accent); }
-.menu-item.hot:hover, .menu-item.hot:focus-visible { border-left-color: var(--accent-hover); background: var(--accent-hover); }
-/* which game: one strip's width, split in two, the one in use lit */
-.menu-split { display: grid; grid-template-columns: 1fr 1fr; gap: calc(6px * var(--sp)); }
-.menu-split .menu-item { justify-content: center; padding-inline: 8px; border-left: 0; }
-.menu-split .menu-item.on, .menu-split .menu-item.on:hover, .menu-split .menu-item.on:focus-visible { color: var(--accent-ink); background: var(--accent); }
+  transition: background var(--t1); }
+.menu-mark { flex: none; display: grid; place-items: center; width: calc(48px * var(--fs)); color: var(--muted); background: var(--bg); transition: background var(--t1), color var(--t1); }
+.menu-mark .icon { width: calc(20px * var(--fs)); height: calc(20px * var(--fs)); }
+.menu-label { display: flex; align-items: center; padding: calc(7px * var(--sp)) 16px; }
+.menu-go { display: grid; place-items: center; margin-left: auto; padding-right: 14px; color: var(--faint); transition: transform var(--t2) var(--ease), color var(--t1); }
+.menu-item:hover, .menu-item:focus-visible, .menu-open:has(> .menu-open-btn:focus-visible) { background: color-mix(in srgb, var(--accent-fg) 13%, var(--raised)); }
+.menu-item:hover .menu-mark, .menu-item:focus-visible .menu-mark, .menu-open:has(> .menu-open-btn:focus-visible) .menu-mark { color: var(--accent-ink); background: var(--accent); }
+.menu-item:hover .menu-go, .menu-item:focus-visible .menu-go { color: var(--accent-fg); transform: translateX(5px); }
+.menu-item.hot { min-height: calc(56px * var(--fs)); font-size: calc(15.3px * var(--fs)); font-weight: 800; color: var(--accent-ink); background: var(--accent); }
+.menu-item.hot .menu-mark, .menu-item.hot:hover .menu-mark, .menu-item.hot:focus-visible .menu-mark { width: calc(56px * var(--fs)); color: var(--accent); background: var(--accent-ink); }
+.menu-item.hot:hover, .menu-item.hot:focus-visible { background: var(--accent-hover); }
+.menu-meter { display: flex; align-items: center; gap: 3px; height: calc(26px * var(--fs)); align-self: center; margin-left: auto; padding-right: 18px; }
+.menu-meter i { display: block; width: 4px; background: var(--accent-ink); transform-origin: center; }
+.menu-item.hot:hover .menu-meter i, .menu-item.hot:focus-visible .menu-meter i { animation: menu-level calc(520ms * var(--anim)) ease-in-out infinite alternate; animation-delay: calc(var(--n) * -130ms * var(--anim)); }
+@keyframes menu-level { from { transform: scaleY(.35); } to { transform: scaleY(1.15); } }
+/* which game: not a button but a dark track as wide as the menu, whose slanted thumb slides to the game in use */
+.game-switch { position: relative; display: grid; grid-template-columns: 1fr 1fr; height: calc(40px * var(--fs)); margin-top: calc(14px * var(--sp)); overflow: hidden;
+  background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); }
+.game-switch::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 54%; background: var(--accent); transform: translateX(-7.4%) skewX(-16deg);
+  transition: transform var(--t3) var(--ease); }
+.game-switch[data-at="hd2"]::before { transform: translateX(92.6%) skewX(-16deg); }
+.game-switch button { position: relative; font-family: var(--title); font-stretch: 112%; font-size: calc(12.6px * var(--fs)); font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--muted); transition: color var(--t2); }
+.game-switch button:hover { color: var(--text); }
+.game-switch button[aria-checked="true"] { font-weight: 800; color: var(--accent-ink); }
+.game-switch button:focus-visible { outline-offset: -3px; }
 /* with a project open, one line under Open Project: which, then Go to Project and Close, each with an icon on its
    left. The buttons sit on the picture as the corner's do, half see-through and blurred */
 .home-loaded { display: flex; align-items: center; gap: 8px; margin: calc(8px * var(--sp)) 0 0; padding: 0 0 0 20px; min-width: 0;
@@ -1358,16 +1375,17 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .home-loaded .btn:hover > .icon { color: var(--text); }
 /* Open project with the last project opened in it, right after the words: a solid block with the mod's icon and
    name, which opens that project. The words' button stretches over the whole strip, under the block. */
-.menu-open { position: relative; gap: 16px; }
-.menu-open-btn { flex: none; font: inherit; font-stretch: inherit; letter-spacing: inherit; text-transform: inherit; }
+.menu-open { position: relative; }
+.menu-open-btn { flex: none; display: flex; align-items: stretch; font: inherit; font-stretch: inherit; letter-spacing: inherit; text-transform: inherit; }
 .menu-open-btn::after { content: ""; position: absolute; inset: 0; }
 .menu-open-btn:focus-visible { outline: none; } /* the strip shows it */
-.menu-recent { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 9px; min-width: 0;
+.menu-recent { position: relative; z-index: 1; display: inline-flex; align-items: center; align-self: center; gap: 9px; min-width: 0; margin-right: 8px;
   height: calc(32px * var(--fs)); padding: 0 12px 0 4px; background: var(--bg); border: 1px solid var(--line); border-radius: 2px;
   font: 600 calc(13.5px * var(--fs)) var(--body); letter-spacing: normal; text-transform: none; color: var(--text);
   transition: border-color var(--t1), background-color var(--t1); }
 .menu-recent:hover { border-color: var(--second-fg); background: color-mix(in srgb, var(--second-fg) 14%, var(--bg)); }
-.menu-open:has(> .menu-recent:hover) { border-left-color: transparent; background: var(--raised); } /* the block lights up, the strip stays as it rests */
+.menu-open:has(> .menu-recent:hover) { background: var(--raised); } /* the block lights up, the strip stays as it rests */
+.menu-open:has(> .menu-recent:hover) .menu-mark { color: var(--muted); background: var(--bg); }
 .menu-recent-icon { flex: none; width: calc(24px * var(--fs)); height: calc(24px * var(--fs)); }
 .menu-recent-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .home-tools { margin-top: calc(32px * var(--sp)); }

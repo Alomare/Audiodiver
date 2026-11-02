@@ -9,8 +9,8 @@ next launch shows the next one. Without any image, Home shows a wall of level me
   cropped at its sides, a taller one at its top and bottom; it is never stretched.
 - **Format:** WebP at quality 85, sRGB. The three here are 110 to 210 KB each.
 - **Helldivers 1:** the images in `hd1/` show in the same way while Home is in Helldivers 1 mode.
-- **Composition:** a blur and a shade start from nothing at the top right and grow to the bottom left, under the menu.
-  Keep the subject towards the top right.
+- **Composition:** a blur and a shade are strongest at the top right and gone by the bottom left. Keep the subject
+  towards the bottom left and the middle.
 - **Theme:** the shade follows the theme (darker in dark mode, lighter in light mode).
 - **Credit:** `ART_CREDIT` in `src/content.ts` says where the art comes from; About ▸ Credits lists it. Home itself
   shows no credit, because its bottom right corner holds the picture controls (when there is more than one picture)

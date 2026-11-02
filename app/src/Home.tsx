@@ -3,7 +3,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { call, projectIconUrl } from "./api";
 import { DISCORD_URL, HOME_ART, HOME_ART_HD1, KOFI_URL, TICKER_URL } from "./content";
-import { CloseIcon, DiscordIcon, KofiIcon, NextIcon, PrevIcon, ProjectIcon } from "./Icons";
+import { CloseIcon, DiscordIcon, FolderIcon, ImportIcon, KofiIcon, MergeIcon, NextIcon, PlusIcon, PrevIcon, ProjectIcon, ToolsIcon } from "./Icons";
 import { nav, useNav, type Mode } from "./nav";
 import { openUrl } from "./platform";
 import { useSettings } from "./settings";
@@ -31,14 +31,15 @@ export function Home() {
               Open Project holds the last project opened, after its words. It stays the same with a project open: a
               line under Open Project says which, with Go to Project and Close */}
           <nav className="home-menu" aria-label={t({ message: "Start", comment: "The menu on Home with New Project, Open Project and Import Mod" })}>
-            <button className="menu-item hot" onClick={actions.newProject} data-tip={t`Start a mod`} data-tip-cmd="newProject"><Trans>New Project</Trans></button>
+            <button className="menu-item hot" onClick={actions.newProject} data-tip={t`Start a mod`} data-tip-cmd="newProject">
+              <span className="menu-mark"><PlusIcon /></span><span className="menu-label"><Trans>New Project</Trans></span><LevelMeter /></button>
             <div className="menu-item menu-open">
               <button className="menu-open-btn" onClick={() => actions.openProject()} data-tip={t`Open a .audi project or a .audipack pack`} data-tip-cmd="openProject"
-                data-tip-more={t`A pack is a project and the files it uses, in one file`}><Trans>Open Project</Trans></button>
+                data-tip-more={t`A pack is a project and the files it uses, in one file`}><span className="menu-mark"><FolderIcon /></span><span className="menu-label"><Trans>Open Project</Trans></span></button>
               <Recent />
             </div>
             {mode === "hd2" && <button className="menu-item" onClick={() => actions.importMod()} data-tip={t`Make a project from an existing mod`}
-              data-tip-more={t`A ZIP or a .patch_0 file, with the audio, the sounds it adds and the text`}><Trans>Import Mod</Trans></button>}
+              data-tip-more={t`A ZIP or a .patch_0 file, with the audio, the sounds it adds and the text`}><MenuInner icon={<ImportIcon />}><Trans>Import Mod</Trans></MenuInner></button>}
             {project && (
               <div className="home-loaded">
                 <span className="home-loaded-name"><Trans>Loaded: <b data-tip={project.path} data-tip-clip>{name}</b></Trans></span>
@@ -52,10 +53,10 @@ export function Home() {
             {mode === "hd2" && <>
             <button className="menu-item" onClick={() => nav.go("tools", "repatch")}
               data-tip={t`Rebuild an existing audio mod for the current game version, without a project`}
-              data-tip-more={t`For a mod that went silent or wrong after a game update, or that mutes other sounds`}><Trans>Repatch</Trans></button>
+              data-tip-more={t`For a mod that went silent or wrong after a game update, or that mutes other sounds`}><MenuInner icon={<ToolsIcon />}><Trans>Repatch</Trans></MenuInner></button>
             <button className="menu-item" onClick={() => nav.go("tools", "combine")}
               data-tip={t`Make one mod out of several audio mods`}
-              data-tip-more={t`For mods that change the same sound banks, where only the one deployed last plays`}><Trans>Combine Mods</Trans></button>
+              data-tip-more={t`For mods that change the same sound banks, where only the one deployed last plays`}><MenuInner icon={<MergeIcon />}><Trans>Combine Mods</Trans></MenuInner></button>
             </>}
             {status?.hd1 && <GameSwitch />}
           </nav>}
@@ -69,9 +70,21 @@ export function Home() {
   );
 }
 
-/** Which game the window makes mods for, once Helldivers 1 is found: a menu strip split in two, the one in use lit.
-    Each has its own tabs and pictures, and a project is for one of them (nav.ts Mode). A project of the other game
-    closes first. */
+/** A menu button's inside: the icon on a square of its own, the words, and a chevron that comes forward on hover. */
+function MenuInner({ icon, children }: { icon: ReactNode; children: ReactNode }) {
+  return <><span className="menu-mark">{icon}</span><span className="menu-label">{children}</span><span className="menu-go" aria-hidden><NextIcon /></span></>;
+}
+
+const LEVELS = [38, 72, 100, 56, 86, 44, 68, 30]; // the bars of New Project's meter, as the logo's brow has them
+
+/** At the end of New Project: a level meter, which plays while the pointer is on the button. */
+function LevelMeter() {
+  return <span className="menu-meter" aria-hidden>{LEVELS.map((h, i) => <i key={i} style={{ height: `${h}%`, ["--n" as any]: i }} />)}</span>;
+}
+
+/** Which game the window makes mods for, once Helldivers 1 is found: a track as wide as the menu, whose thumb slides to
+    the game in use. Each has its own tabs and pictures, and a project is for one of them (nav.ts Mode). A project of
+    the other game closes first. */
 function GameSwitch() {
   const { project, actions } = useEditor();
   const { mode } = useNav();
@@ -81,9 +94,9 @@ function GameSwitch() {
     nav.setMode(m);
   };
   return (
-    <div className="menu-split" role="radiogroup" aria-label={t`Game`}>
+    <div className="game-switch" data-at={mode} role="radiogroup" aria-label={t`Game`}>
       {([["hd1", "Helldivers 1"], ["hd2", "Helldivers 2"]] as const).map(([id, name]) => (
-        <button key={id} role="radio" aria-checked={mode === id} className={`menu-item${mode === id ? " on" : ""}`} onClick={() => pick(id)}
+        <button key={id} role="radio" aria-checked={mode === id} onClick={() => pick(id)}
           data-tip={id === "hd1" ? t`Make mods for Helldivers 1` : t`Make mods for Helldivers 2`}
           data-tip-more={project && project.game !== id ? t`Closes the project open now` : undefined}>{name}</button>
       ))}
@@ -179,8 +192,8 @@ function firstPicture(set: Mode, count: number) {
 }
 const opening: Partial<Record<Mode, number>> = {}; // chosen once per launch; coming back to Home carries on from there
 
-/** Over the art, under the page: blur and shade that start from nothing at the top right and are at their strongest
-    at the bottom left, under the menu. Four blurs, each stronger and reaching less far, so the blur grows smoothly. */
+/** Over the art, under the page: blur and shade at their strongest at the top right, gone by the bottom left. Four
+    blurs, each stronger and reaching less far, so the blur fades smoothly. */
 function Veil() {
   return <><div className="home-blur"><i /><i /><i /><i /></div><div className="home-shade" /></>;
 }
