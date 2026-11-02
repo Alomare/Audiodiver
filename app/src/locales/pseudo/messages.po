@@ -1140,6 +1140,10 @@ msgid "A mod needs a name."
 msgstr ""
 
 #: src/RepatchPage.tsx
+msgid "A mod unpacked into a folder"
+msgstr ""
+
+#: src/RepatchPage.tsx
 msgid "A mod's sounds went silent, wrong or missing after a game update."
 msgstr ""
 
@@ -1290,6 +1294,10 @@ msgstr ""
 
 #: src/BuildTab.tsx
 msgid "A whole number from 1 to 99999."
+msgstr ""
+
+#: src/RepatchPage.tsx
+msgid "A ZIP or a .patch_0 file"
 msgstr ""
 
 #: src/ProjectTab.tsx
@@ -2323,6 +2331,11 @@ msgstr ""
 msgid "Choose an image for the icon"
 msgstr ""
 
+#: src/RepatchPage.tsx
+msgid "Choose Another File"
+msgstr ""
+
+#: src/RepatchPage.tsx
 #: src/SettingsTab.tsx
 msgid "Choose Another Folder"
 msgstr ""
@@ -2340,7 +2353,6 @@ msgid "Choose Another Image"
 msgstr ""
 
 #: src/ImportMod.tsx
-#: src/RepatchPage.tsx
 msgid "Choose Another Mod"
 msgstr ""
 

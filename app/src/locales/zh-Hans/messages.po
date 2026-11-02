@@ -1140,6 +1140,10 @@ msgid "A mod needs a name."
 msgstr "模组需要一个名称。"
 
 #: src/RepatchPage.tsx
+msgid "A mod unpacked into a folder"
+msgstr "解压到文件夹中的模组"
+
+#: src/RepatchPage.tsx
 msgid "A mod's sounds went silent, wrong or missing after a game update."
 msgstr "游戏更新后，模组的声音会变哑、错乱或丢失。"
 
@@ -1291,6 +1295,10 @@ msgstr "有教程正在进行"
 #: src/BuildTab.tsx
 msgid "A whole number from 1 to 99999."
 msgstr "1 到 99999 之间的整数。"
+
+#: src/RepatchPage.tsx
+msgid "A ZIP or a .patch_0 file"
+msgstr "ZIP 或 .patch_0 文件"
 
 #: src/ProjectTab.tsx
 msgid "A ZIP or a .patch_0 file, such as a mod made with another tool"
@@ -2323,6 +2331,11 @@ msgstr "选择图片"
 msgid "Choose an image for the icon"
 msgstr "为图标选择图片"
 
+#: src/RepatchPage.tsx
+msgid "Choose Another File"
+msgstr "选择其他文件"
+
+#: src/RepatchPage.tsx
 #: src/SettingsTab.tsx
 msgid "Choose Another Folder"
 msgstr "选择其他文件夹"
@@ -2340,7 +2353,6 @@ msgid "Choose Another Image"
 msgstr "选择其他图片"
 
 #: src/ImportMod.tsx
-#: src/RepatchPage.tsx
 msgid "Choose Another Mod"
 msgstr "选择其他模组"
 

@@ -143,7 +143,10 @@ export function RepatchPage() {
                   <Help tip={t`The manifest is the file in a mod that gives the mod manager the name, icon, options and ID`} page="repatching#what-repatching-carries-over" /></p>
               )}
               <div className="row-btns">
-                <button className="btn quiet" disabled={running || reading} onClick={async () => read(await pickMod())}><Trans>Choose Another Mod</Trans></button>
+                <button className="btn quiet" disabled={running || reading} onClick={async () => read(await pickMod())}
+                  data-tip={t`A ZIP or a .patch_0 file`}><Trans>Choose Another File</Trans></button>
+                <button className="btn quiet" disabled={running || reading} onClick={async () => read(await pickFolder(undefined, t`Choose the mod folder`))}
+                  data-tip={t`A mod unpacked into a folder`}><Trans>Choose Another Folder</Trans></button>
               </div>
             </div>
           ) : (

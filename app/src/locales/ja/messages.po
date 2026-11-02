@@ -1140,6 +1140,10 @@ msgid "A mod needs a name."
 msgstr "MODには名前が必要です。"
 
 #: src/RepatchPage.tsx
+msgid "A mod unpacked into a folder"
+msgstr "フォルダーに展開したMOD"
+
+#: src/RepatchPage.tsx
 msgid "A mod's sounds went silent, wrong or missing after a game update."
 msgstr "ゲームのアップデート後に、MODのサウンドが鳴らなくなったり、おかしくなったり、消えたりした場合。"
 
@@ -1291,6 +1295,10 @@ msgstr "チュートリアルを実行中です"
 #: src/BuildTab.tsx
 msgid "A whole number from 1 to 99999."
 msgstr "1から99999までの整数です。"
+
+#: src/RepatchPage.tsx
+msgid "A ZIP or a .patch_0 file"
+msgstr "ZIP または .patch_0 ファイル"
 
 #: src/ProjectTab.tsx
 msgid "A ZIP or a .patch_0 file, such as a mod made with another tool"
@@ -2323,6 +2331,11 @@ msgstr "画像を選択"
 msgid "Choose an image for the icon"
 msgstr "アイコンにする画像を選択"
 
+#: src/RepatchPage.tsx
+msgid "Choose Another File"
+msgstr "別のファイルを選択"
+
+#: src/RepatchPage.tsx
 #: src/SettingsTab.tsx
 msgid "Choose Another Folder"
 msgstr "別のフォルダーを選択"
@@ -2340,7 +2353,6 @@ msgid "Choose Another Image"
 msgstr "別の画像を選択"
 
 #: src/ImportMod.tsx
-#: src/RepatchPage.tsx
 msgid "Choose Another Mod"
 msgstr "別のMODを選択"
 
