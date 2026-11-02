@@ -513,6 +513,34 @@ def test_a_slot_with_new_audio_is_found_by_its_helldivers_1_id(game, tmp_path, m
     assert s.match_loudness([slot])["matched"][slot] != -3.0, "measured against the Helldivers 1 original"
 
 
+def test_a_helldivers_2_original_pastes_into_a_helldivers_1_project_and_builds(game, tmp_path, monkeypatch):
+    """The Library shows both games in either mode: a copy of a Helldivers 2 slot goes in as the .wem the game has,
+    and the build decodes it before it takes the original's format."""
+    from audiodiver import hd1_build, wem
+    from audiodiver.editor import EditorError
+    s, slot = hd1_session(game, tmp_path, monkeypatch)
+    tone = tone_file(tmp_path / "tone.wav")
+    known = {4242: tone.read_bytes()}
+    s.ix = SimpleNamespace(resolve=lambda t: t if t in known else (_ for _ in ()).throw(KeyError(t)), wem=lambda t: known[t],
+                         game=SimpleNamespace(trim_caches=lambda: None))
+    st = s.copy_audio([["4242", slot]], original=True)
+    a = st["assignments"][slot]
+    assert a["audio"] == "audio/copied/4242.wem" and (tmp_path / "proj" / a["audio"]).exists()
+    with pytest.raises(EditorError, match="4243"):
+        s.copy_audio([["4243", slot]], original=True)  # in neither game
+    with pytest.raises(EditorError, match="Helldivers 1"):
+        s.copy_audio([[slot, "4242"]])  # the slot it goes into is still the project's game's
+
+    decoded = []
+    monkeypatch.setattr(wem, "decoded", lambda p: decoded.append(os.path.basename(p)) or str(tone))
+    job = s.build()
+    while (j := s.job(job["id"]))["state"] == "running":
+        __import__("time").sleep(0.1)
+    assert j["state"] == "done", j.get("error")
+    assert decoded == ["4242.wem"]
+    assert hd1_build.verify(j["result"]["zip"], s.hd1) == []
+
+
 @pytest.mark.parametrize("change", [
     lambda s, slot: s.original_gain([slot], -3.0),
     lambda s, slot: s.filters_set([slot], lowpass=20),

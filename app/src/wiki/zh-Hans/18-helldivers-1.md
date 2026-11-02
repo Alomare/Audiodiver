@@ -2,7 +2,7 @@
 title: Helldivers 1 模组
 group: 入门
 summary: 替换 Helldivers 1 的音频：主页上的游戏选择、项目可以更改的内容，以及模组可能很大的原因。
-source: 05cbb54554ba
+source: e169be9fc5d1
 ---
 
 安装了 Helldivers 1 后，[主页](app:home)上的 **Helldivers 2** 和 **Helldivers 1** 按钮用于选择 Audiodiver 为哪款游戏制作模组。每个项目只属于一款游戏，打开项目时会切换到该游戏。选择另一款游戏会关闭当前打开的项目。
@@ -19,6 +19,10 @@ source: 05cbb54554ba
 槽位可以使用新音频或静音。新音频可以使用 **Make-Up Gain**、**淡入淡出**和**匹配原版响度**，构建时会把这些直接写入音频。新音频会采用原版的格式、采样率和声道，因此立体声文件放在单声道槽位中会以单声道播放。
 
 配乐、文本和工具选项卡，**导入模组**，**滤波器**，新变体和新层，以及原版音频上的 Make-Up Gain，都只适用于 Helldivers 2。
+
+## 来自 Helldivers 2 的音频 {#audio-from-helldivers-2}
+
+资源库也会显示 Helldivers 2。在那里选中槽位并按 **Ctrl+C**，然后在[音频](app:editor)选项卡中选中槽位并按 **Ctrl+V**。原版音频会作为新音频放入，构建时会像其他文件一样让它适配槽位。反过来也可以，把 Helldivers 1 的音频复制到 Helldivers 2 项目中。
 
 ## 语言和大小 {#languages-and-size}
 

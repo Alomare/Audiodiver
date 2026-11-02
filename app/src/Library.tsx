@@ -22,10 +22,10 @@ const GAMES = [["hd2", "Helldivers 2"], ["hd1", "Helldivers 1"]] as const;
     the game has, named or not), of Helldivers 2 or, when it is there too, Helldivers 1. They stay as they were left
     when another shows. */
 export function LibraryPanel() {
-  const { library: sub, game: picked, mode } = useNav();
-  // Helldivers 1 mode shows Helldivers 1 alone; Helldivers 2 mode shows both games, to listen and export
-  const both = !!useEditor().index?.categories.some((c) => c.game) && mode === "hd2";
-  const game = mode === "hd1" ? "hd1" : both ? picked : "hd2";
+  const { library: sub, game: picked } = useNav();
+  // both games in either mode, to listen, export and copy the audio of one into a project for the other
+  const both = !!useEditor().index?.categories.some((c) => c.game);
+  const game = both ? picked : "hd2";
   return (
     <aside className="library" aria-label={t`Library`}>
       <div className="lib-tabs" role="tablist" aria-label={t`Library`} onKeyDown={tabArrows}>

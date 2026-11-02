@@ -1562,13 +1562,14 @@ class Session:
         except KeyError:
             return t
 
-    def _source(self, s) -> int:
-        """A source id the UI sends, as the source it plays in this game version."""
+    def _source(self, s, either=False) -> int:
+        """A source id the UI sends, as the source it plays in this game version. either: from the Library of either
+        game (what a copy takes its original from), not only the project's."""
         try:
             sid = int(s)
         except (TypeError, ValueError, OverflowError):
             raise EditorError(f"{s!r} isn't a sound ID") from None
-        if self._hd1p():
+        if self._hd1p() and not either:
             if self.hd1 and self.hd1.has(sid):
                 return sid
             raise EditorError(tr("Sound {id} isn't in this version of Helldivers 1").format(id=sid))
@@ -1635,7 +1636,7 @@ class Session:
         if not isinstance(pairs, list) or not all(isinstance(x, (list, tuple)) and len(x) == 2 for x in pairs):
             raise EditorError("Copy needs pairs of slots, from and to")
         names = names if isinstance(names, dict) else {}
-        pairs = [(self._source(a), self._source(b), str(a)) for a, b in pairs]
+        pairs = [(self._source(a, either=True), self._source(b), str(a)) for a, b in pairs]
         kept = {a: self._kept_original(a) for a, b, _ in pairs if a != b and (original or not self._replacement(self.project, a))}
 
         def apply(p):
@@ -1657,7 +1658,8 @@ class Session:
 
     def _kept_original(self, sid: int) -> Path:
         """The original audio of a slot as a file in the project (audio/copied), which the cache can't take away. A clip
-        of Helldivers 2 stays the .wem the game has, which a build puts in unchanged; Helldivers 1 has no WEM files."""
+        of Helldivers 2 stays the .wem the game has, which a build puts in unchanged (a Helldivers 1 build decodes it);
+        Helldivers 1 has no WEM files."""
         from_hd1 = bool(self.hd1 and self.hd1.has(sid))
         if not from_hd1 and sid in self._added():
             if (was := self._original(sid)) is None:

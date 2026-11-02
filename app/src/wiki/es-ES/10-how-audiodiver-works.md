@@ -2,7 +2,7 @@
 title: Cómo funciona Audiodiver
 group: Primeros pasos
 summary: Qué hace Audiodiver, qué es un proyecto y para qué sirve cada pestaña.
-source: a585c0bcfe7e
+source: a7972ede8bb7
 ---
 
 Audiodiver sustituye el audio de Helldivers 2 según **qué es y dónde suena**. Busca una pieza de música o un conjunto de sonidos en la Biblioteca, añádela a un proyecto y dale audio nuevo. Audiodiver calcula entonces los bancos de sonido, los ID y los valores de tiempo que necesita el juego.
@@ -45,7 +45,7 @@ Audio, Banda Sonora y Texto se pueden ocultar. Desmárcalas en **Pestañas**, de
 
 ## Helldivers 1 {#helldivers-1}
 
-Con Helldivers 1 instalado, la Biblioteca tiene una pestaña por juego bajo **Índice** y **Todos los Archivos**. El audio de Helldivers 1 se reproduce y se exporta como WAV, FLAC o MP3. Las entradas de Helldivers 1 no pueden entrar en un proyecto de Helldivers 2, pero **Ctrl+C** copia cualquier clip a un slot del proyecto. [Mods de Helldivers 1](wiki:helldivers-1) explica cómo cambiar ese juego.
+Con Helldivers 1 instalado, la Biblioteca tiene una pestaña por juego bajo **Índice** y **Todos los Archivos**, sea cual sea el juego para el que creas mods. El audio de Helldivers 1 se reproduce y se exporta como WAV, FLAC o MP3. Las entradas de un juego no pueden entrar en un proyecto del otro, pero **Ctrl+C** copia cualquier clip de cualquiera de los dos juegos a un slot del proyecto. [Mods de Helldivers 1](wiki:helldivers-1) explica cómo cambiar ese juego.
 
 Cada entrada del Índice es un evento de sonido del juego, y los slots son los clips entre los que elige. Las voces y parte de la música tienen una pestaña por idioma. Una entrada muestra el nombre de los ficheros del juego de forma más corta, así que `fs_rock_run` aparece como *Rock Run*, y la búsqueda encuentra ambos. Las armas, las estratagemas y los enemigos llevan los nombres que muestra el juego. Una entrada de voz da la frase que aparece en pantalla cuando suena, y la búsqueda también encuentra esa frase. Los clips de voz son cortos, así que no leen la frase entera. El juego guarda muchos nombres solo como números, así que los sonidos sin nombre conocido están solo en **Todos los Archivos**, en sus bancos.
 

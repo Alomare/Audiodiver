@@ -107,17 +107,19 @@ export const nav = {
     current = next;
     listeners.forEach((f) => f());
   },
-  /** Shows a game in the Library (Helldivers 1 mode shows only its own). */
+  /** Shows a game in the Library, whichever game the window makes mods for. */
   pickGame(game: LibraryGame) {
-    if (game === current.game || (current.mode === "hd1" && game !== "hd1")) return;
+    if (game === current.game) return;
     current = { ...current, game };
     try { localStorage.setItem(GAME_KEY, game); } catch { /* storage off */ }
     listeners.forEach((f) => f());
   },
-  /** Makes mods for this game: its tabs show, the others go, and the Library shows its sounds. */
+  /** Makes mods for this game: its tabs show, the others go, and the Library turns to its sounds (the other
+      game's stay a tab away). */
   setMode(mode: Mode) {
     if (mode === current.mode) return;
-    current = { ...current, mode, game: mode === "hd1" ? "hd1" : current.game };
+    current = { ...current, mode, game: mode };
+    try { localStorage.setItem(GAME_KEY, mode); } catch { /* storage off */ }
     try { localStorage.setItem(MODE_KEY, mode); } catch { /* storage off */ }
     hide();
     listeners.forEach((f) => f());

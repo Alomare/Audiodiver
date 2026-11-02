@@ -19,6 +19,10 @@ A slot can have new audio or silence. New audio can have **Make-Up Gain**, **Fad
 
 The Soundtrack, Text and Tools tabs, **Import Mod**, **Filters**, new takes and layers, and Make-Up Gain on the original audio are only for Helldivers 2.
 
+## Audio from Helldivers 2
+
+The Library shows Helldivers 2 as well. Select slots there and press **Ctrl+C**, then select slots in the [Audio](app:editor) tab and press **Ctrl+V**. The original audio goes in as new audio, and a build fits it to the slot like any other file. Copying works the other way too, from Helldivers 1 into a Helldivers 2 project.
+
 ## Languages and size
 
 Some sounds have a tab for each language, with separate slots. New audio in one language plays only in that language.

@@ -11,7 +11,7 @@ import { ItemActions, ItemHead, PartHead, partsFold, PartTabs } from "./ItemHead
 import { keyHint, keyLabel, useCommands, useKeymap } from "./keys";
 import { useListWindow, type WindowLine } from "./listWindow";
 import { coverage, COVERAGE, heldBy, isMusicItem, listedBanks, listName, statusOf, where } from "./music";
-import { nav as tabs } from "./nav";
+import { nav as tabs, useNav } from "./nav";
 import { copyText, fullPath, pickAudio, reveal } from "./platform";
 import { PlayThrough, type Mark as ThroughMark, type Through } from "./PlayThrough";
 import { player, usePlayerLook, type PlayedAt } from "./player";
@@ -186,6 +186,8 @@ const WINDOW_FROM = 150;  // a list with more lines than this draws only those n
 function CueBody({ cue }: { cue: Cue }) {
   const { project, selected, setSelected, actions, shownItemId, itemIndex, show, goTo, openItem, revision, clip, back, forward, nav: nav_,
     scope, readOnly, quick } = useEditor();
+  const { mode } = useNav();
+  const forGame = project?.game ?? mode; // a Helldivers 2 item goes only into a Helldivers 2 project
   const music = isMusic(cue);
   const grouped = cue.kind === "sounds";
   const bank = cue.id.startsWith("bank:");
@@ -717,7 +719,7 @@ function CueBody({ cue }: { cue: Cue }) {
           data-tip={ticked === shownSources.length ? t`Clear the selection` : grouped ? t`Select every sequence shown` : t`Select every slot`}
           data-tip-cmd={ticked === shownSources.length ? undefined : "selectAll"} />
         {music && cue.kind !== "sound" && <PlayThrough onThrough={setThrough} onMark={setMark} />}
-        {readOnly && item && !item.game && (listed ? (
+        {readOnly && item && !item.game && forGame === "hd2" && (listed ? (
           <button className="btn primary" data-tip={t`Replace audio there`}
             onClick={() => goTo({ scope: "editor", itemId: item.id, cueId: cue.id, source: selected[0] ?? null })}><Trans>Open in the Audio Tab</Trans></button>
         ) : inside ? (

@@ -2,7 +2,7 @@
 title: Cómo leer la pantalla
 group: Primeros pasos
 summary: Qué muestra cada parte de la Biblioteca y de la pestaña Audio, y qué significan las etiquetas y las marcas de una fila.
-source: 2fe85c09eeb2
+source: 5f5e51fc56da
 ---
 
 La Biblioteca y la pestaña Audio comparten una disposición: una lista a la izquierda, el elemento abierto en el centro y el panel de detalles a la derecha. La Banda Sonora tiene otra disposición, que se describe en [Banda Sonora](wiki:soundtrack). Las palabras en **negrita** se explican en [El audio del juego, explicado](wiki:game-audio).
@@ -11,7 +11,7 @@ La Biblioteca y la pestaña Audio comparten una disposición: una lista a la izq
 
 - **Índice** ordena el audio según lo que es. Categorías como Música, Armas y Enemigos contienen secciones como *En la nave* y *Armas primarias*. Cada sección enumera cosas que se pueden abrir, ya sea una **pieza de música** o un **conjunto de sonidos**. El número al final de una fila es la duración de una pieza de música, o el número de sonidos de un conjunto.
 - **Todos los Archivos** muestra en una tabla todos los **archivos** que contienen audio. Haz clic en el encabezado de una columna para ordenar por ella, y otra vez para invertir el orden. Los iconos de la columna *Índice* indican qué categorías incluyen el archivo. Todos los Archivos empieza más ancho que el Índice, y cada uno conserva el ancho que le des.
-- Con Helldivers 1 instalado, las pestañas **Helldivers 2** y **Helldivers 1** bajo estas dos eligen el juego. Mientras creas un mod de Helldivers 1, solo aparece Helldivers 1.
+- Con Helldivers 1 instalado, las pestañas **Helldivers 2** y **Helldivers 1** bajo estas dos eligen el juego. Los dos juegos aparecen sea cual sea aquel para el que creas mods, así que puedes copiar el audio de uno a un proyecto del otro.
 - En la Biblioteca, el **+** al final de una fila la añade al proyecto, y **✓** indica que el proyecto ya la tiene. Las líneas de categoría y de sección también tienen un **+**, que añade todo lo visible bajo ellas. Después de una búsqueda, ese **+** añade solo los resultados.
 - En la pestaña Audio, la lista muestra lo que tiene el proyecto. **✕** en una fila, o en una línea de categoría o de sección, la quita del proyecto junto con todo lo que el proyecto cambia en ella: el audio nuevo, también en los slots que comparte otro elemento del proyecto, las tomas y capas añadidas, el Make-Up Gain, y los puntos de cue y los ajustes de Banda Sonora de la música. Audiodiver pregunta antes cuando se perdería audio nuevo. El clic derecho hace lo mismo, y {key:undo} lo recupera.
 - {icon:collapse} **Contraer todo**, junto al cuadro de búsqueda, contrae todas las categorías y secciones. Una búsqueda expande lo que coincide.

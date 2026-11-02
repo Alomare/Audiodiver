@@ -2,7 +2,7 @@
 title: Mods de Helldivers 1
 group: Primeros pasos
 summary: Sustituir el audio de Helldivers 1: la elección del juego en Inicio, qué puede cambiar un proyecto y por qué un mod puede ocupar mucho.
-source: 05cbb54554ba
+source: e169be9fc5d1
 ---
 
 Con Helldivers 1 instalado, los botones **Helldivers 2** y **Helldivers 1** de [Inicio](app:home) eligen el juego para el que Audiodiver crea mods. Cada proyecto pertenece a un solo juego, y abrir un proyecto cambia a ese juego. Elegir el otro juego cierra el proyecto abierto.
@@ -19,6 +19,10 @@ Con Helldivers 1 instalado, los botones **Helldivers 2** y **Helldivers 1** de [
 Un slot puede tener audio nuevo o silencio. El audio nuevo puede tener **Make-Up Gain**, **Fundidos** e **Igualar la sonoridad original**, y la generación los integra en el propio audio. El audio nuevo toma el formato, la frecuencia de muestreo y los canales del original, así que un archivo estéreo en un slot mono suena en mono.
 
 Las pestañas Banda Sonora, Texto y Herramientas, **Importar mod**, los **Filtros**, las nuevas tomas y capas, y el Make-Up Gain sobre el audio original son solo para Helldivers 2.
+
+## Audio de Helldivers 2 {#audio-from-helldivers-2}
+
+La Biblioteca también muestra Helldivers 2. Selecciona slots allí y pulsa **Ctrl+C**, luego selecciona slots en la pestaña [Audio](app:editor) y pulsa **Ctrl+V**. El audio original entra como audio nuevo, y la generación lo ajusta al slot como cualquier otro archivo. La copia también funciona al revés, de Helldivers 1 a un proyecto de Helldivers 2.
 
 ## Idiomas y tamaño {#languages-and-size}
 

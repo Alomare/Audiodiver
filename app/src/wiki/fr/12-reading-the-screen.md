@@ -2,7 +2,7 @@
 title: Comprendre l’écran
 group: Pour commencer
 summary: Ce que montre chaque partie de la Bibliothèque et de l’onglet Audio, et ce que signifient les étiquettes et les marques d’une ligne.
-source: 2fe85c09eeb2
+source: 5f5e51fc56da
 ---
 
 La Bibliothèque et l’onglet Audio partagent une même disposition : une liste à gauche, l’élément ouvert au milieu et le panneau de détails à droite. La Bande-son a une disposition différente, décrite dans [Bande-son](wiki:soundtrack). Les mots en **gras** sont expliqués dans [L’audio du jeu, expliqué](wiki:game-audio).
@@ -11,7 +11,7 @@ La Bibliothèque et l’onglet Audio partagent une même disposition : une lis
 
 - **Index** classe l’audio selon ce qu’il est. Des catégories comme Musique, Armes et Ennemis contiennent des sections comme *À bord du vaisseau* et *Armes principales*. Chaque section liste des éléments que vous pouvez ouvrir, soit un **morceau de musique**, soit un **ensemble de sons**. Le nombre à la fin d’une ligne est la durée d’un morceau de musique, ou le nombre de sons d’un ensemble.
 - **Toutes les Archives** affiche chaque **archive** qui contient de l’audio, sous forme de tableau. Cliquez sur l’en-tête d’une colonne pour trier selon elle, et cliquez de nouveau pour inverser l’ordre. Les icônes de la colonne *Index* indiquent quelles catégories incluent l’archive. Toutes les Archives démarre plus large que l’Index, et chacun garde la largeur que vous lui donnez.
-- Quand Helldivers 1 est installé, les onglets **Helldivers 2** et **Helldivers 1** sous ces deux-là choisissent le jeu. Pendant la création d’un mod de Helldivers 1, seul Helldivers 1 s’affiche.
+- Quand Helldivers 1 est installé, les onglets **Helldivers 2** et **Helldivers 1** sous ces deux-là choisissent le jeu. Les deux jeux s’affichent quel que soit celui pour lequel vous créez des mods : vous pouvez donc copier l’audio de l’un dans un projet de l’autre.
 - Dans la Bibliothèque, le **+** à la fin d’une ligne l’ajoute au projet, et **✓** signifie que le projet l’a déjà. Les lignes de catégorie et de section ont aussi un **+**, qui ajoute tout ce qui est visible en dessous. Après une recherche, ce **+** ajoute uniquement les résultats.
 - Dans l’onglet Audio, la liste montre ce que le projet contient. **✕** sur une ligne, ou sur une ligne de catégorie ou de section, la retire du projet, avec tout ce que le projet y modifie : le nouvel audio, y compris dans les emplacements qu’un autre élément du projet partage, les prises et les couches ajoutées, le Make-Up Gain, ainsi que les points de repère et les réglages de la Bande-son d’une musique. Audiodiver demande d’abord confirmation quand du nouvel audio serait perdu. Le clic droit fait la même chose, et {key:undo} le rétablit.
 - {icon:collapse} **Tout replier**, à côté de la zone de recherche, replie chaque catégorie et chaque section. Une recherche déplie tout ce qui correspond.

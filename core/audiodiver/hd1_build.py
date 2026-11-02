@@ -74,6 +74,15 @@ def rebuild(raw: bytes, stream: bytes, new: dict[int, tuple[bytes, bytes]]) -> t
     return bytes(out), bytes(out_stream)
 
 
+def _readable(src: Path) -> Path:
+    """A file ffmpeg can read: a .wem (a Helldivers 2 clip copied from the Library, or one given as audio) decoded
+    to WAV first."""
+    try:
+        return Path(wem.decoded(src))
+    except (subprocess.CalledProcessError, OSError):
+        raise Hd1BuildError(tr("Can't read {file}: {why}").format(file=src.name, why="vgmstream")) from None
+
+
 def _pcm(src: Path, channels: int, rate: int) -> bytes:
     """Audio as raw 16-bit PCM at the original's channels and rate."""
     run = subprocess.run([wem.FFMPEG, "-v", "error", "-i", str(src), "-ac", str(channels), "-ar", str(rate),
@@ -183,7 +192,7 @@ def build(p: Project, game: hd1.Hd1, log=print, step=None) -> Path:
             streamed = row[4] > 0
             key = (id(r), struct.unpack_from("<HHI", head, 48), struct.unpack_from("<I", head, 4)[0] if streamed else 0)
             if key not in encoded:
-                encoded[key] = new_clip(_with_gain(_source_file(p, r), r.gain_db, work), head, streamed)
+                encoded[key] = new_clip(_with_gain(_readable(_source_file(p, r)), r.gain_db, work), head, streamed)
             data, stream = encoded[key]
             entry = {"clip": f"#{row[0]:016x}", **({"lang": bank["lang"]} if bank["lang"] else {}), "data": kept(data, "clip")}
             if stream:

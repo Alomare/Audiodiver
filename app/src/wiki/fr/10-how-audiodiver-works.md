@@ -2,7 +2,7 @@
 title: Comment fonctionne Audiodiver
 group: Pour commencer
 summary: Ce que fait Audiodiver, ce qu’est un projet et à quoi sert chaque onglet.
-source: a585c0bcfe7e
+source: a7972ede8bb7
 ---
 
 Audiodiver remplace l’audio de Helldivers 2 selon **ce qu’il est et l’endroit où il est joué**. Trouvez un morceau de musique ou un ensemble de sons dans la Bibliothèque, ajoutez-le à un projet et donnez-lui du nouvel audio. Audiodiver détermine ensuite les banques de sons, les ID et les valeurs de minutage dont le jeu a besoin.
@@ -45,7 +45,7 @@ Audio, Bande-son et Texte peuvent être masqués. Décochez-les sous **Onglets**
 
 ## Helldivers 1 {#helldivers-1}
 
-Quand Helldivers 1 est installé, la Bibliothèque a un onglet par jeu sous **Index** et **Toutes les Archives**. L’audio de Helldivers 1 se lit et s’exporte en WAV, FLAC ou MP3. Les entrées de Helldivers 1 ne peuvent pas entrer dans un projet Helldivers 2, mais **Ctrl+C** copie n’importe quel clip vers un emplacement du projet. [Mods de Helldivers 1](wiki:helldivers-1) explique comment modifier ce jeu.
+Quand Helldivers 1 est installé, la Bibliothèque a un onglet par jeu sous **Index** et **Toutes les Archives**, quel que soit le jeu pour lequel vous créez des mods. L’audio de Helldivers 1 se lit et s’exporte en WAV, FLAC ou MP3. Les entrées d’un jeu ne peuvent pas entrer dans un projet de l’autre, mais **Ctrl+C** copie n’importe quel clip de l’un ou l’autre jeu vers un emplacement du projet. [Mods de Helldivers 1](wiki:helldivers-1) explique comment modifier ce jeu.
 
 Chaque entrée de l’Index est un événement sonore du jeu, et les emplacements sont les clips parmi lesquels il choisit. Les voix et certaines musiques ont un onglet par langue. Une entrée affiche le nom tiré des fichiers du jeu sous une forme plus courte : `fs_rock_run` devient *Rock Run*, et la recherche trouve les deux. Les armes, les stratagèmes et les ennemis portent les noms affichés par le jeu. Une entrée de voix donne la réplique affichée à l’écran quand elle est jouée, et la recherche trouve aussi cette réplique. Les clips de voix sont courts : ils ne lisent pas toute la réplique. Le jeu ne garde beaucoup de noms que sous forme de nombres, donc les sons sans nom connu sont seulement dans **Toutes les Archives**, dans leurs banques.
 

@@ -2,7 +2,7 @@
 title: Entendendo a tela
 group: Primeiros passos
 summary: O que cada parte da Biblioteca e da aba Áudio mostra, e o que significam as tags e marcas de uma linha.
-source: 2fe85c09eeb2
+source: 5f5e51fc56da
 ---
 
 A Biblioteca e a aba Áudio têm o mesmo layout: uma lista à esquerda, o item aberto no meio e o painel de detalhes à direita. A Trilha Sonora tem outro layout, descrito em [Trilha Sonora](wiki:soundtrack). As palavras em **negrito** são explicadas em [O áudio do jogo, explicado](wiki:game-audio).
@@ -11,7 +11,7 @@ A Biblioteca e a aba Áudio têm o mesmo layout: uma lista à esquerda, o item a
 
 - **Índice** organiza o áudio pelo que ele é. Categorias como Música, Armas e Inimigos contêm seções como *Na nave* e *Armas principais*. Cada seção lista coisas que você pode abrir, seja uma **peça musical** ou um **conjunto de sons**. O número no fim de uma linha é a duração de uma peça musical, ou o número de sons de um conjunto.
 - **Todos os Pacotes** mostra, numa tabela, cada **pacote** que contém áudio. Clique no cabeçalho de uma coluna para ordenar por ela, e clique de novo para inverter a ordem. Os ícones na coluna *Índice* mostram quais categorias incluem o pacote. Todos os Pacotes começa mais largo que o Índice, e cada um mantém a largura que você arrastar.
-- Com o Helldivers 1 instalado, as abas **Helldivers 2** e **Helldivers 1** abaixo dessas duas escolhem o jogo. Enquanto você faz um mod de Helldivers 1, só o Helldivers 1 aparece.
+- Com o Helldivers 1 instalado, as abas **Helldivers 2** e **Helldivers 1** abaixo dessas duas escolhem o jogo. Os dois jogos aparecem seja qual for aquele para o qual você faz mods, então dá para copiar o áudio de um para um projeto do outro.
 - Na Biblioteca, o **+** no fim de uma linha a adiciona ao projeto, e **✓** indica que o projeto já a tem. As linhas de categoria e de seção também têm um **+**, que adiciona tudo o que está visível abaixo delas. Depois de uma pesquisa, esse **+** adiciona só os resultados.
 - Na aba Áudio, a lista mostra o que o projeto tem. **✕** numa linha, ou numa linha de categoria ou seção, remove isso do projeto, junto com tudo o que o projeto muda ali: o áudio novo, inclusive em slots que outro item do projeto compartilha, takes e camadas adicionados, Make-Up Gain, e os pontos de cue e as configurações de Trilha Sonora da música. O Audiodiver pergunta antes quando algum áudio novo seria removido. Clicar com o botão direito faz o mesmo, e {key:undo} traz de volta.
 - {icon:collapse} **Recolher tudo**, ao lado da caixa de pesquisa, recolhe todas as categorias e seções. Uma pesquisa expande o que corresponder.
