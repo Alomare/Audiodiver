@@ -26,7 +26,11 @@
 <br>
 
 <p align="center">
-  <img src="assets/readme/home.png" alt="Audiodiver's Home tab over a screenshot of a Helldiver kneeling in a desert sandstorm: New Project, Open Project and Import Mod, the loaded project with Go to Project and Close, then Repatch and Combine Mods, with Discord and Ko-fi in the corner" width="100%">
+  <img src="assets/readme/home.png" alt="Audiodiver's Home tab for Helldivers 2 over a screenshot of a Helldiver kneeling in a desert sandstorm: New Project, Open Project and Import Mod, the loaded project with Go to Project and Close, then Repatch and Combine Mods, the switch between Helldivers 1 and Helldivers 2 in the top right, and Discord, Ko-fi and GitHub in the corner" width="100%">
+</p>
+
+<p align="center">
+  <img src="assets/readme/home-hd1.png" alt="The same Home tab switched to Helldivers 1, over artwork of Helldivers fighting bugs: New Project and Open Project, the loaded Helldivers 1 project, and fewer tabs: Project, Library, Audio and Build" width="100%">
 </p>
 
 <p align="center">
@@ -52,7 +56,7 @@ The mod's name, description, icon and ID, with a preview as a mod manager shows 
 
 Every sound in Helldivers 2, sorted. Music goes by when it plays, from the ship to extraction, and weapons by loadout slot, then stratagems, enemies and planets. Search takes a name, a label or an ID.
 
-<img src="assets/readme/library.png" alt="The Library's Index with On the Ship, Bridge and War Map open: two parts, each segment with a row for each track under the segment name, a note on the transitions and stingers that play next to them, and the details panel with the Global Note" width="100%">
+<img src="assets/readme/library.png" alt="The Library's Index on Helldivers 2, with On the Ship, Bridge and War Map open: two parts, each segment with a row for each track under the segment name, a note on the transitions and stingers that play next to them, and the details panel with the Global Note" width="100%">
 
 ### 🎚️ Audio
 
