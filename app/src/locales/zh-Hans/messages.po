@@ -131,6 +131,10 @@ msgstr "{count, plural, =1 {撤销此更改} other {撤销全部 # 项更改}}"
 msgid "{count, plural, one {{full} (# slot)} other {{full} (# slots)}}"
 msgstr "{count, plural, other {{full}（# 个槽位）}}"
 
+#: src/CueView.tsx
+msgid "{count, plural, one {{name} · # slot together} other {{name} · # slots together}}"
+msgstr ""
+
 #: src/Inspector.tsx
 msgid "{count, plural, one {# Cue} other {# Cues}}"
 msgstr "{count, plural, other {# 段音乐}}"
@@ -886,6 +890,14 @@ msgstr "{tip} 打开 Wiki 章节。"
 #: src/Tutorial.tsx
 msgid "{titles}."
 msgstr "{titles}。"
+
+#: src/CueView.tsx
+msgid "{together, plural, one {Play Together (# Slot)} other {Play Together (# Slots)}}"
+msgstr ""
+
+#: src/CueView.tsx
+msgid "{togetherCount, plural, one {The # selected slot at the same time} other {The # selected slots at the same time}}"
+msgstr ""
 
 #: src/CombinePage.tsx
 msgid "{total, plural, one {# conflict} other {# conflicts}} in {items, plural, one {# item} other {# items}}"
@@ -6317,6 +6329,10 @@ msgstr "播放示例，或打开试听其中的内容"
 msgid "Play the selected slot, or pause and resume"
 msgstr "播放所选槽位，或暂停再继续"
 
+#: src/keys.ts
+msgid "Play the selected slots together"
+msgstr ""
+
 #: src/SliceTool.tsx
 msgid "Play the song from the first cut"
 msgstr "从第一个切点开始播放歌曲"
@@ -6345,6 +6361,10 @@ msgstr "连续播放 · 已替换"
 msgid "Play through stopped because this music changed"
 msgstr "这段音乐发生了变化，连续播放已停止"
 
+#: src/CueView.tsx
+msgid "Play together"
+msgstr ""
+
 #: src/keys.ts
 msgid "play, and select the slot"
 msgstr "播放并选择该槽位"
@@ -6356,6 +6376,10 @@ msgstr "播放"
 #: src/content.ts
 msgid "playing game audio"
 msgstr "播放游戏音频"
+
+#: src/CueView.tsx
+msgid "Playing the first {max} of {total} slots together"
+msgstr ""
 
 #. Edit in Undo, Redo and History: the songs of a playlist changed
 #: src/store.tsx

@@ -5,7 +5,7 @@ import { useEffect, useRef, useSyncExternalStore } from "react";
 import { t } from "@lingui/core/macro";
 
 export type CommandId =
-  | "playPause" | "stop" | "playGame" | "playMine"
+  | "playPause" | "stop" | "playGame" | "playMine" | "playTogether"
   | "selectPrev" | "selectNext" | "chooseFile" | "moveUp" | "moveDown" | "copy" | "paste" | "selectAll" | "remove"
   | "silence"
   | "search" | "back" | "forward"
@@ -26,6 +26,7 @@ export const COMMANDS: Command[] = [
   // the ids predate the words: playGame plays the original, playMine the replacement
   { id: "playGame", group: t`Playback`, label: t`Play the original of the selected slot`, keys: ["O"] },
   { id: "playMine", group: t`Playback`, label: t`Play the new audio of the selected slot`, keys: ["R"] },
+  { id: "playTogether", group: t`Playback`, label: t`Play the selected slots together`, keys: ["Shift+Space"] },
 
   { id: "selectPrev", group: t`Slots`, label: t`Select the previous slot`, keys: ["ArrowUp"] },
   { id: "selectNext", group: t`Slots`, label: t`Select the next slot`, keys: ["ArrowDown"] },

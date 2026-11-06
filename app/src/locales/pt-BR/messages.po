@@ -131,6 +131,10 @@ msgstr "{count, plural, =1 {Desfazer a alteração} other {Desfazer todas as # a
 msgid "{count, plural, one {{full} (# slot)} other {{full} (# slots)}}"
 msgstr "{count, plural, one {{full} (# slot)} other {{full} (# slots)}}"
 
+#: src/CueView.tsx
+msgid "{count, plural, one {{name} · # slot together} other {{name} · # slots together}}"
+msgstr ""
+
 #: src/Inspector.tsx
 msgid "{count, plural, one {# Cue} other {# Cues}}"
 msgstr "{count, plural, one {# cue} other {# cues}}"
@@ -886,6 +890,14 @@ msgstr "{tip} Abra a seção da Wiki."
 #: src/Tutorial.tsx
 msgid "{titles}."
 msgstr "{titles}."
+
+#: src/CueView.tsx
+msgid "{together, plural, one {Play Together (# Slot)} other {Play Together (# Slots)}}"
+msgstr ""
+
+#: src/CueView.tsx
+msgid "{togetherCount, plural, one {The # selected slot at the same time} other {The # selected slots at the same time}}"
+msgstr ""
 
 #: src/CombinePage.tsx
 msgid "{total, plural, one {# conflict} other {# conflicts}} in {items, plural, one {# item} other {# items}}"
@@ -6317,6 +6329,10 @@ msgstr "Reproduza a amostra ou abra o pacote para ouvir o que ele contém"
 msgid "Play the selected slot, or pause and resume"
 msgstr "Reproduzir o slot selecionado, ou pausar e retomar"
 
+#: src/keys.ts
+msgid "Play the selected slots together"
+msgstr ""
+
 #: src/SliceTool.tsx
 msgid "Play the song from the first cut"
 msgstr "Reproduzir a música a partir do primeiro corte"
@@ -6345,6 +6361,10 @@ msgstr "Reprodução contínua · Substituído"
 msgid "Play through stopped because this music changed"
 msgstr "A reprodução contínua parou porque esta música mudou"
 
+#: src/CueView.tsx
+msgid "Play together"
+msgstr ""
+
 #: src/keys.ts
 msgid "play, and select the slot"
 msgstr "reproduzir e selecionar o slot"
@@ -6356,6 +6376,10 @@ msgstr "Reprodução"
 #: src/content.ts
 msgid "playing game audio"
 msgstr "reprodução do áudio do jogo"
+
+#: src/CueView.tsx
+msgid "Playing the first {max} of {total} slots together"
+msgstr ""
 
 #. Edit in Undo, Redo and History: the songs of a playlist changed
 #: src/store.tsx

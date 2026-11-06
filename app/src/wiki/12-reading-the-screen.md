@@ -45,6 +45,8 @@ The toolbar starts with a tick that selects every slot, or clears the selection.
 | {icon:clear} **Clear all**, **Clear this part** | Removes the new audio from every slot shown, or from every slot of the part. |
 | {icon:onlythis} **Only This Sound on All** | Sets [Only this sound](wiki:adding-audio#only-this-sound) on every slot here with new audio that other sounds share, folded sequences too. Once all have it, the same button sets **Every Sound**. |
 
+With two or more slots selected, the toolbar also has {icon:together} **Play together**, in the Library and in the Audio tab. It plays the selected slots at the same time, such as the layers of a gunshot: the new audio of a slot that has some, else the original. {key:playTogether} and **Play Together** in the right-click menu do the same. Up to 16 play at once, each with the Make-Up Gain it has, and all turned down together so that they don't clip. The now-playing bar pauses, seeks and stops them as one.
+
 {icon:search} **Search slots** narrows the list by name, label, note, file name or ID. In a sound set it also finds the words of a voice line. When nothing in the list matches, **Elsewhere** lists the pieces of music and sound sets that have a match.
 
 {icon:id} after the search lists the sounds of a bank by [container ID](#container-ids). Press it again to go back to names.

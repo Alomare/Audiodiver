@@ -131,6 +131,10 @@ msgstr ""
 msgid "{count, plural, one {{full} (# slot)} other {{full} (# slots)}}"
 msgstr ""
 
+#: src/CueView.tsx
+msgid "{count, plural, one {{name} · # slot together} other {{name} · # slots together}}"
+msgstr ""
+
 #: src/Inspector.tsx
 msgid "{count, plural, one {# Cue} other {# Cues}}"
 msgstr ""
@@ -885,6 +889,14 @@ msgstr ""
 #. The names of the new tutorials, as a list
 #: src/Tutorial.tsx
 msgid "{titles}."
+msgstr ""
+
+#: src/CueView.tsx
+msgid "{together, plural, one {Play Together (# Slot)} other {Play Together (# Slots)}}"
+msgstr ""
+
+#: src/CueView.tsx
+msgid "{togetherCount, plural, one {The # selected slot at the same time} other {The # selected slots at the same time}}"
 msgstr ""
 
 #: src/CombinePage.tsx
@@ -6317,6 +6329,10 @@ msgstr ""
 msgid "Play the selected slot, or pause and resume"
 msgstr ""
 
+#: src/keys.ts
+msgid "Play the selected slots together"
+msgstr ""
+
 #: src/SliceTool.tsx
 msgid "Play the song from the first cut"
 msgstr ""
@@ -6345,6 +6361,10 @@ msgstr ""
 msgid "Play through stopped because this music changed"
 msgstr ""
 
+#: src/CueView.tsx
+msgid "Play together"
+msgstr ""
+
 #: src/keys.ts
 msgid "play, and select the slot"
 msgstr ""
@@ -6355,6 +6375,10 @@ msgstr ""
 
 #: src/content.ts
 msgid "playing game audio"
+msgstr ""
+
+#: src/CueView.tsx
+msgid "Playing the first {max} of {total} slots together"
 msgstr ""
 
 #. Edit in Undo, Redo and History: the songs of a playlist changed

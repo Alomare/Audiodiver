@@ -1,5 +1,6 @@
 // One shared audio player: whatever plays, plays here, so starting a preview stops the previous one. Switching
-// between the original and the replacement of one slot keeps the position (A/B comparison).
+// between the original and the replacement of one slot keeps the position (A/B comparison). Several slots can play
+// as one (Play Together, through Web Audio), which the same controls drive.
 import { useCallback, useMemo, useSyncExternalStore } from "react";
 import { t } from "@lingui/core/macro";
 
@@ -100,6 +101,7 @@ function open(l: Load) {
 }
 
 function start(key: string, url: string, startSec: number, label: string, at: PlayedAt | null) {
+  endMix();
   load = { n: ++loads, url, start: startSec, tries: 0 };
   set({ key, label, at, loading: true, playing: false, time: startSec, duration: 0, error: null });
   level();
@@ -121,10 +123,80 @@ function level() {
       graph = { ctx, gain };
     } catch { /* no Web Audio: the volume alone, as before */ }
   }
+  mixLevel();
   if (!graph) { audio.volume = state.volume; return; }
   audio.volume = 1;
   if (graph.ctx.state === "suspended") graph.ctx.resume().catch(() => {});
   graph.gain.gain.value = state.volume * 10 ** (db / 20);
+}
+
+// Several slots at once (Play Together): decoded into Web Audio and started on one clock, each at its own Make-Up
+// Gain, all of them at 1/√n of the volume (sounds that don't line up add up about that way) and through a limiter, so
+// a crowd doesn't clip. The now-playing bar drives them as one sound: pause, resume, seek and stop.
+export const TOGETHER_MAX = 16;
+type Mix = {
+  ctx: AudioContext; out: GainNode; limiter: DynamicsCompressorNode; parts: { key: string; buffer: AudioBuffer; gain: GainNode }[];
+  sources: AudioBufferSourceNode[]; startedAt: number; duration: number; ended: boolean;
+};
+let mix: Mix | null = null;
+let mixCtx: AudioContext | null = null;
+
+function mixLevel() {
+  if (!mix) return;
+  mix.out.gain.value = state.volume / Math.sqrt(mix.parts.length);
+  for (const p of mix.parts) p.gain.gain.value = 10 ** (gainOf(p.key, state.at) / 20);
+}
+
+function mixSilence() {
+  if (!mix) return;
+  for (const s of mix.sources) { s.onended = null; try { s.stop(); } catch { /* not started */ } s.disconnect(); }
+  mix.sources = [];
+}
+
+function endMix() {
+  if (!mix) return;
+  mixSilence();
+  mix.out.disconnect(); mix.limiter.disconnect();
+  mix = null;
+}
+
+/** Starts every part of the mix at `offset` seconds, together; paused (`play` false), they start on resuming. */
+function mixAt(offset: number, play = true) {
+  const m = mix;
+  if (!m) return;
+  mixSilence();
+  const when = m.ctx.currentTime + 0.05;
+  for (const p of m.parts) {
+    if (offset >= p.buffer.duration) continue;
+    const s = m.ctx.createBufferSource();
+    s.buffer = p.buffer;
+    s.connect(p.gain);
+    s.start(when, offset);
+    m.sources.push(s);
+  }
+  m.startedAt = when - offset;
+  m.ended = false;
+  set({ playing: play, loading: false, time: offset });
+  if (!play) return;
+  if (m.ctx.state === "suspended") m.ctx.resume().then(() => requestAnimationFrame(mixTick)).catch(() => {});
+  else requestAnimationFrame(mixTick);
+}
+
+function mixTick() {
+  const m = mix;
+  if (!m || m.ended || m.ctx.state !== "running") return;
+  const time = Math.max(0, m.ctx.currentTime - m.startedAt);
+  if (time >= m.duration) {
+    m.ended = true;
+    mixSilence();
+    m.ctx.suspend().catch(() => {}); // a seek now waits for ▶, as the single player does after the end
+    const key = state.key;
+    set({ playing: false, time: 0 });
+    if (key) enders.forEach((f) => f(key));
+    return;
+  }
+  set({ time });
+  requestAnimationFrame(mixTick);
 }
 
 export const player = {
@@ -149,18 +221,73 @@ export const player = {
     }
     start(key, url, Math.max(0, startSec), label ?? "", at);
   },
+  /** Plays several sounds at once, from the start, as one thing under `key` (the same key pauses and resumes them).
+      `parts`: each sound's own key, which its Make-Up Gain goes by, and its url; at most TOGETHER_MAX are taken. A
+      part that can't be read is left out; none readable is an error, as for one sound. */
+  playTogether(key: string, parts: { key: string; url: string }[], label = "", at: PlayedAt | null = null) {
+    if (state.key === key && mix) { player.toggle(); return; }
+    load = null; stopAt = null;
+    audio.pause();
+    endMix();
+    const n = ++loads;
+    set({ key, label, at, loading: true, playing: false, time: 0, duration: 0, error: null });
+    let ctx: AudioContext;
+    try {
+      ctx = mixCtx ??= new AudioContext();
+    } catch {
+      set({ loading: false, error: t`Can't play this audio. Press ▶ to try again.` });
+      return;
+    }
+    if (ctx.state === "suspended") ctx.resume().catch(() => {}); // within the click or key that asked for it
+    const read = async (p: { key: string; url: string }) => {
+      const res = await fetch(p.url);
+      if (!res.ok) throw new Error(String(res.status));
+      return { key: p.key, buffer: await ctx.decodeAudioData(await res.arrayBuffer()) };
+    };
+    Promise.allSettled(parts.slice(0, TOGETHER_MAX).map(read)).then((got) => {
+      if (loads !== n) return; // something else plays now
+      const ok = got.flatMap((g) => (g.status === "fulfilled" ? [g.value] : []));
+      if (!ok.length) { set({ loading: false, error: t`Can't play this audio. Press ▶ to try again.` }); return; }
+      const limiter = ctx.createDynamicsCompressor(); // a limiter: nothing past -1 dB
+      limiter.threshold.value = -1; limiter.knee.value = 0; limiter.ratio.value = 20;
+      limiter.attack.value = 0.002; limiter.release.value = 0.2;
+      const out = ctx.createGain();
+      out.connect(limiter).connect(ctx.destination);
+      const duration = Math.max(...ok.map((p) => p.buffer.duration));
+      mix = { ctx, out, limiter, sources: [], startedAt: 0, duration, ended: false,
+        parts: ok.map((p) => { const gain = ctx.createGain(); gain.connect(out); return { ...p, gain }; }) };
+      mixLevel();
+      set({ duration });
+      mixAt(0);
+    });
+  },
   /** Pauses or resumes whatever is loaded; false when nothing is. */
   toggle() {
+    if (mix) {
+      const m = mix;
+      if (m.ended) mixAt(0);
+      else if (m.ctx.state === "running") m.ctx.suspend().then(() => set({ playing: false })).catch(() => {});
+      else m.ctx.resume().then(() => { set({ playing: true }); requestAnimationFrame(mixTick); }).catch(() => {});
+      return true;
+    }
     if (!state.key || !audio.getAttribute("src") || state.error) return false;
     if (audio.paused) audio.play().catch(() => {}); else audio.pause();
     return true;
   },
   stop() {
     load = null;
+    endMix();
     audio.pause(); audio.removeAttribute("src"); audio.load();
     set({ key: null, playing: false, loading: false, time: 0, duration: 0, label: "", at: null, error: null });
   },
-  seek(fraction: number) { if (audio.duration) audio.currentTime = Math.max(0, Math.min(1, fraction)) * audio.duration; },
+  seek(fraction: number) {
+    const f = Math.max(0, Math.min(1, fraction));
+    if (mix) {
+      mixAt(f * mix.duration, mix.ctx.state === "running");
+      return;
+    }
+    if (audio.duration) audio.currentTime = f * audio.duration;
+  },
   setVolume(v: number) {
     set({ volume: Math.max(0, Math.min(1, v)) });
     level();

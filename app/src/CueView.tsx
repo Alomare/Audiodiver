@@ -5,7 +5,7 @@ import { andList, audioUrl, choosesReach, fmtDecimal, fmtNumber, fmtTime, isMusi
 import { useContextMenu, type MenuEntry } from "./ContextMenu";
 import { ExportListChip, ExportPanel, useExportName, type ExportTarget } from "./ExportDialog";
 import { addedNote, exportList } from "./exportList";
-import { ClearIcon, CollapseAllIcon, ExportIcon, FillIcon, IdIcon, LinkIcon, OnlyThisIcon, OrderIcon, PlusIcon, SkipIcon, SliceIcon } from "./Icons";
+import { ClearIcon, CollapseAllIcon, ExportIcon, FillIcon, IdIcon, LinkIcon, OnlyThisIcon, OrderIcon, PlayTogetherIcon, PlusIcon, SkipIcon, SliceIcon } from "./Icons";
 import { Mark } from "./IndexTree";
 import { ItemActions, ItemHead, PartHead, partsFold, PartTabs } from "./ItemHead";
 import { keyHint, keyLabel, useCommands, useKeymap } from "./keys";
@@ -14,7 +14,7 @@ import { coverage, COVERAGE, heldBy, isMusicItem, listedBanks, listName, statusO
 import { nav as tabs, useNav } from "./nav";
 import { copyText, fullPath, pickAudio, reveal } from "./platform";
 import { PlayThrough, type Mark as ThroughMark, type Through } from "./PlayThrough";
-import { player, usePlayerLook, type PlayedAt } from "./player";
+import { player, TOGETHER_MAX, usePlayerLook, type PlayedAt } from "./player";
 import { ResizeEdge, useStoredHeight } from "./Resize";
 import { settings, useSettings } from "./settings";
 import { SliceTool } from "./SliceTool";
@@ -328,6 +328,25 @@ function CueBody({ cue }: { cue: Cue }) {
     if (!mine && rows[i].slot.absent) return false; // nothing in the game's files to play
     playSlot(kind ?? (mine ? "project" : "vanilla"), s, revision, rowName(rows[i]), at(s));
   };
+  /** What Play Together plays of some slots, in list order, as ▶ on each row would: new audio where there is some
+      to hear (the Audio tab), else the original. A silenced slot adds nothing, nor one without audio. */
+  const playable = (sel: readonly string[]) => picks(sel).flatMap((r): { row: Row; kind: "vanilla" | "project" }[] => {
+    const a = readOnly ? undefined : assigned[r.slot.source];
+    if (audible(a)) return [{ row: r, kind: "project" }];
+    return a?.silence || r.slot.absent || r.slot.added ? [] : [{ row: r, kind: "vanilla" }];
+  });
+  /** Plays some slots at the same time (player.playTogether: the first TOGETHER_MAX of them); false for fewer than
+      two to play. */
+  const playTogether = (sel: readonly string[]) => {
+    const list = playable(sel);
+    if (list.length < 2) return false;
+    const parts = list.slice(0, TOGETHER_MAX).map(({ row, kind }) => ({
+      key: `${kind}:${row.slot.source}`, url: audioUrl(kind, row.slot.source, kind === "project" ? String(revision) : "") }));
+    const name = item?.full ?? cue.name, count = parts.length, max = TOGETHER_MAX, total = list.length;
+    player.playTogether(`together:${cue.id}:${parts.map((p) => p.key).join(",")}`, parts,
+      plural(count, { one: `${name} · # slot together`, other: `${name} · # slots together` }), at(list[0].row.slot.source));
+    if (total > max) quick(t`Playing the first ${max} of ${total} slots together`, "info");
+  };
   useCommands({
     selectPrev: () => step(-1),
     selectNext: () => step(1),
@@ -356,6 +375,7 @@ function CueBody({ cue }: { cue: Cue }) {
     },
     playGame: () => play("vanilla"),
     playMine: () => play("project"),
+    playTogether: () => (here() && playTogether(selected) !== false ? undefined : false),
     selectAll: () => { // folded sequences stay folded
       if (!here()) return false;
       picked.current = true;
@@ -531,9 +551,14 @@ function CueBody({ cue }: { cue: Cue }) {
     const sel = selected.includes(s) ? selected : [s];
     if (!selected.includes(s)) setSelected([s]);
     const a = assigned[s];
+    // several selected that can play: all of them at once
+    const together = playable(sel).length;
+    const playAll: MenuEntry[] = together > 1 ? [{ label: plural(together, { one: "Play Together (# Slot)", other: "Play Together (# Slots)" }),
+      keys: keyLabel("playTogether"), run: () => { playTogether(sel); } }] : [];
     if (readOnly) {
       openMenu(e, [
         { label: t`Play the Original`, keys: keyLabel("playGame"), disabled: r.slot.absent, run: () => playSlot("vanilla", s, revision, rowName(r), at(s)) },
+        ...playAll,
         exportEntry(sel, r),
         { label: sel.length > 1 ? plural(sel.length, { one: "Copy the Audio (# Slot)", other: "Copy the Audio (# Slots)" }) : t`Copy the Audio`, keys: keyLabel("copy"),
           disabled: r.slot.absent, run: () => copyRows(picks(sel)) },
@@ -560,6 +585,7 @@ function CueBody({ cue }: { cue: Cue }) {
     const entries: MenuEntry[] = [
       { label: t`Play the Original`, keys: keyLabel("playGame"), disabled: r.slot.absent || !!r.slot.added, run: () => playSlot("vanilla", s, revision, rowName(r), at(s)) },
       { label: t`Play the New Audio`, keys: keyLabel("playMine"), disabled: !audible(a), run: () => playSlot("project", s, revision, rowName(r), at(s)) },
+      ...playAll,
       "-",
       ...(sel.length > 1 ? [
         { label: plural(usableCount, { one: "Choose One File for # Slot", other: "Choose One File for # Slots" }), disabled: !project || !silenceable.length,
@@ -670,6 +696,9 @@ function CueBody({ cue }: { cue: Cue }) {
   // alike, as Ctrl+A)
   const shownSources = selectable;
   const ticked = shownSources.filter((s) => selSet.has(s)).length;
+  // Play Together on the toolbar: with two or more selected slots that can play
+  const togetherCount = useMemo(() => (selected.length > 1 ? playable(selected).length : 0),
+    [selected, all, assigned, readOnly]); // eslint-disable-line react-hooks/exhaustive-deps
   // what the header says besides the item's own facts, in its row of facts
   const facts: React.ReactNode[] = [];
   if (project && item && part?.kind === "playlist" && cue.ordered === false && shown.includes("soundtrack")) {
@@ -741,6 +770,11 @@ function CueBody({ cue }: { cue: Cue }) {
             onClick={() => actions.addToProject([item.id], item.full)}><Trans>Add to the Project</Trans></button>
         ))}
         <div className="tools">
+          {togetherCount > 1 && (
+            <ToolButton icon={<PlayTogetherIcon />} name={t`Play together`} cmd="playTogether"
+              about={plural(togetherCount, { one: "The # selected slot at the same time", other: "The # selected slots at the same time" })}
+              onClick={() => { playTogether(selected); }} />
+          )}
           {!readOnly && music && cue.kind !== "sound" && (
             <ToolButton icon={<FillIcon />} name={t`Fill from files`} about={t`A file for each slot, in play order and file-name order`} primary disabled={!fillable}
               onClick={async () => { const f = await pickAudio(true); if (f) actions.fill(cue.id, f); }} />

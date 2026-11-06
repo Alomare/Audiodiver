@@ -94,6 +94,8 @@ export const SliceIcon = () => (
 export const ExportIcon = () => (
   <Icon><path d="M12 14.5V3.8" /><path d="m7.6 8.2 4.4-4.4 4.4 4.4" /><path d="M4.5 13.5v6h15v-6" /></Icon>
 );
+/** ▶ beside three lines, one above the other: the selected slots played at the same time. */
+export const PlayTogetherIcon = () => <Icon><path d="M4.5 6.5v11l7-5.5z" /><path d="M14.5 7.5h5M14.5 12h5M14.5 16.5h5" /></Icon>;
 /** Skip forward: a short silence instead, so the next music comes at once. */
 export const SkipIcon = () => <Icon><path d="M6 6.5v11l8.5-5.5z" /><path d="M18 6.5v11" /></Icon>;
 /** A speaker with a cross: silence in place of the original. */
