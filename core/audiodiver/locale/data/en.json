@@ -610,21 +610,6 @@
  "Bastion Tank": [
   "sounds.json: sound set in Vehicles ▸ Vehicles"
  ],
- "Combat Walker Breacher": [
-  "sounds.json: sound set in Vehicles ▸ Vehicles"
- ],
- "EXO-51 Lumberer Cannon": [
-  "sounds.json: sound set in Vehicles ▸ Vehicles"
- ],
- "EXO-51 Lumberer Flamethrower": [
-  "sounds.json: sound set in Vehicles ▸ Vehicles"
- ],
- "EXO-55 Breakthrough Flak Cannon": [
-  "sounds.json: sound set in Vehicles ▸ Vehicles"
- ],
- "Exosuits": [
-  "sounds.json: sound set in Vehicles ▸ Vehicles"
- ],
  "Fast Recon Vehicle (FRV)": [
   "sounds.json: sound set in Vehicles ▸ Vehicles"
  ],
@@ -646,6 +631,39 @@
  ],
  "Storm Tank": [
   "sounds.json: sound set in Vehicles ▸ Vehicles"
+ ],
+ "Exosuits": [
+  "sounds.json: section of Vehicles"
+ ],
+ "One entry per exosuit, and the sounds every exosuit shares.": [
+  "sounds.json: description of the section Exosuits"
+ ],
+ "EXO-45 Patriot": [
+  "sounds.json: sound set in Vehicles ▸ Exosuits"
+ ],
+ "EXO-49 Emancipator": [
+  "sounds.json: sound set in Vehicles ▸ Exosuits"
+ ],
+ "EXO-51 Lumberer": [
+  "sounds.json: sound set in Vehicles ▸ Exosuits"
+ ],
+ "Cannon": [
+  "sounds.json: part of EXO-51 Lumberer, the bank wep_combat_walker_lumberer_cannon"
+ ],
+ "Flamethrower": [
+  "sounds.json: part of EXO-51 Lumberer, the bank wep_combat_walker_flamethrower"
+ ],
+ "EXO-55 Breakthrough": [
+  "sounds.json: sound set in Vehicles ▸ Exosuits"
+ ],
+ "Exosuit": [
+  "sounds.json: part of EXO-55 Breakthrough, the bank vehicle_combat_walker_breacher"
+ ],
+ "Flak Cannon": [
+  "sounds.json: part of EXO-55 Breakthrough, the bank wep_combat_walker_breacher_flak_cannon"
+ ],
+ "Shared Exosuit Sounds": [
+  "sounds.json: sound set in Vehicles ▸ Exosuits"
  ],
  "Helldivers": [
   "sounds.json: category"

@@ -1,5 +1,5 @@
 {
- "about": "The Index's sound sets (library.py), written by tools/import_sounds.py from the HD2 modding community's archive labeling workbook and filediver's name lists. A set is the banks it names: 'banks' by path name, 'ids' by file id where the path name isn't known, 'voice' one bank per language (content/audio/<language>/<name>). 'hue' colours a category's tags.",
+ "about": "The Index's sound sets (library.py), written by tools/import_sounds.py from the HD2 modding community's archive labeling workbook and filediver's name lists. A set is the banks it names: 'banks' by path name, 'ids' by file id where the path name isn't known, 'voice' one bank per language (content/audio/<language>/<name>); 'branches' keeps a bank to the sounds under some of its containers, 'parts' names the banks, and 'split_from' is a set it took part of the place of. 'hue' colours a category's tags.",
  "categories": [
   {"id": "weapons", "name": "Weapons", "hue": 60, "about": "Everything a Helldiver carries and fires: primaries, sidearms, grenades and support weapons.", "sections": [
    {"id": "weapons/primary", "name": "Primary Weapons", "about": "", "entries": [
@@ -208,11 +208,6 @@
   {"id": "vehicles", "name": "Vehicles", "hue": 215, "about": "Vehicles and exosuits.", "sections": [
    {"id": "vehicles", "name": "Vehicles", "about": "", "entries": [
     {"name": "Bastion Tank", "banks": ["content/audio/vehicle_tank"]},
-    {"name": "Combat Walker Breacher", "banks": ["content/audio/vehicle_combat_walker_breacher"]},
-    {"name": "EXO-51 Lumberer Cannon", "banks": ["content/audio/wep_combat_walker_lumberer_cannon"], "was": ["set:weapons/combat-walker-lumberer-cannon"]},
-    {"name": "EXO-51 Lumberer Flamethrower", "banks": ["content/audio/wep_combat_walker_flamethrower"], "was": ["set:weapons/combat-walker-flamethrower"]},
-    {"name": "EXO-55 Breakthrough Flak Cannon", "banks": ["content/audio/wep_combat_walker_breacher_flak_cannon"], "was": ["set:weapons/combat-walker-breacher-flak-cannon"]},
-    {"name": "Exosuits", "banks": ["content/audio/vehicle_combat_walker"]},
     {"name": "Fast Recon Vehicle (FRV)", "banks": ["content/audio/vehicle_frv"]},
     {"name": "M-103 Supply FRV Autoturret", "banks": ["content/audio/wep_frv_supply_autoturret"], "was": ["set:weapons/frv-supply-autoturret"]},
     {"name": "M-104 Incinerator FRV Flamer", "banks": ["content/audio/wep_frv_heavy_flamer"], "was": ["set:weapons/frv-heavy-flamer"]},
@@ -220,6 +215,13 @@
     {"name": "Shared Vehicle Sounds", "banks": ["content/audio/vehicle_shared"]},
     {"name": "Shuttle", "banks": ["content/audio/vehicle_shuttle"]},
     {"name": "Storm Tank", "banks": ["content/audio/vehicle_storm_tank"]}
+   ]},
+   {"id": "vehicles/exosuits", "name": "Exosuits", "about": "One entry per exosuit, and the sounds every exosuit shares.", "entries": [
+    {"name": "EXO-45 Patriot", "banks": ["content/audio/vehicle_combat_walker"], "branches": {"content/audio/vehicle_combat_walker": [38237115, 327879572]}, "split_from": ["set:vehicles/exosuits"]},
+    {"name": "EXO-49 Emancipator", "banks": ["content/audio/vehicle_combat_walker"], "branches": {"content/audio/vehicle_combat_walker": [437830584]}, "split_from": ["set:vehicles/exosuits"]},
+    {"name": "EXO-51 Lumberer", "banks": ["content/audio/wep_combat_walker_lumberer_cannon", "content/audio/wep_combat_walker_flamethrower"], "parts": {"content/audio/wep_combat_walker_lumberer_cannon": "Cannon", "content/audio/wep_combat_walker_flamethrower": "Flamethrower"}, "was": ["set:vehicles/exo-51-lumberer-cannon", "set:vehicles/exo-51-lumberer-flamethrower", "set:weapons/combat-walker-flamethrower", "set:weapons/combat-walker-lumberer-cannon"]},
+    {"name": "EXO-55 Breakthrough", "banks": ["content/audio/vehicle_combat_walker_breacher", "content/audio/wep_combat_walker_breacher_flak_cannon"], "parts": {"content/audio/vehicle_combat_walker_breacher": "Exosuit", "content/audio/wep_combat_walker_breacher_flak_cannon": "Flak Cannon"}, "was": ["set:vehicles/combat-walker-breacher", "set:vehicles/exo-55-breakthrough-flak-cannon", "set:weapons/combat-walker-breacher-flak-cannon"]},
+    {"name": "Shared Exosuit Sounds", "banks": ["content/audio/vehicle_combat_walker"], "branches": {"content/audio/vehicle_combat_walker": [102304742]}, "split_from": ["set:vehicles/exosuits"]}
    ]}
   ]},
   {"id": "helldivers", "name": "Helldivers", "hue": 190, "about": "The Helldiver's own voices, movement and gear.", "sections": [

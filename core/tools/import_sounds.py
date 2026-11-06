@@ -63,7 +63,8 @@ CATEGORIES = [
     ("stratagems", "Stratagems", 250, "Orbitals, Eagles, sentries, emplacements, mines and backpacks.", [
         ("stratagems", "Stratagems", "")]),
     ("vehicles", "Vehicles", 215, "Vehicles and exosuits.", [
-        ("vehicles", "Vehicles", "")]),
+        ("vehicles", "Vehicles", ""),
+        ("vehicles/exosuits", "Exosuits", "One entry per exosuit, and the sounds every exosuit shares.")]),
     ("helldivers", "Helldivers", 190, "The Helldiver's own voices, movement and gear.", [
         ("helldivers/voices", "Voices", "The four Helldiver voices, one part per installed language, and the grunts they share."),
         ("helldivers/body", "Movement and Body", "Footsteps on every surface, gear rustle and gore."),
@@ -270,6 +271,51 @@ def slot_weapons(sections: dict):
         moved = {**e, "name": shown, **({"was": sorted(set(e.get("was", [])) | set(was))} if was else {})}
         assert shown not in sections[section], f"two weapon sets named {shown} in {section}"
         sections[section][shown] = moved
+
+
+# One entry per exosuit (a user asked, 2026-11-05: "Exosuits" was one set). From the game data: the archive the
+# workbook's "Weapons & Attachment IDs" tab gives each exosuit holds these banks (the Patriot's 22749a294788af66 and the
+# Emancipator's e72d3e9b05c3db0b only vehicle_combat_walker, the Lumberer's 0a4bd8a1833f11b2 that and its two weapon
+# banks, the Breakthrough's 7de417db7552d9fc a vehicle bank and a weapon bank of its own). vehicle_combat_walker splits
+# by branch: under 102304742, the exosuit itself (all 375 of its clips are in the Breakthrough's vehicle bank too, so
+# every exosuit has them); under 38237115, a machine gun (its clips are the MG-206's, the Stalwart's and the Bullet
+# Storm's), which the Patriot's archive names "combat_walker_turret"; under 437830584, the autocannons (the AC-8's
+# clips and the Lumberer cannon's), the Emancipator's "combat_walker_autocannon_left/right"; and under 327879572, the
+# Patriot's other weapon, "combat_walker_missle_launcher", the only one left among the two exosuits that carry the
+# bank. A branch this game version doesn't have makes no part (library.py), and the tool stops when a set this table
+# replaces is missing or holds other banks.
+X, WALKER = "vehicles/exosuits", PREFIX + "vehicle_combat_walker"
+EXOSUITS = [
+    {"name": "EXO-45 Patriot", "banks": [WALKER], "branches": {WALKER: [38237115, 327879572]},
+     "split_from": ["set:vehicles/exosuits"]},
+    {"name": "EXO-49 Emancipator", "banks": [WALKER], "branches": {WALKER: [437830584]}, "split_from": ["set:vehicles/exosuits"]},
+    {"name": "EXO-51 Lumberer", "banks": [PREFIX + "wep_combat_walker_lumberer_cannon", PREFIX + "wep_combat_walker_flamethrower"],
+     "parts": {PREFIX + "wep_combat_walker_lumberer_cannon": "Cannon", PREFIX + "wep_combat_walker_flamethrower": "Flamethrower"}},
+    {"name": "EXO-55 Breakthrough", "banks": [PREFIX + "vehicle_combat_walker_breacher", PREFIX + "wep_combat_walker_breacher_flak_cannon"],
+     "parts": {PREFIX + "vehicle_combat_walker_breacher": "Exosuit", PREFIX + "wep_combat_walker_breacher_flak_cannon": "Flak Cannon"}},
+    {"name": "Shared Exosuit Sounds", "banks": [WALKER], "branches": {WALKER: [102304742]}, "split_from": ["set:vehicles/exosuits"]},
+]
+# the sets of Vehicles they take the place of, by the banks those had
+EXOSUIT_SETS = {"Exosuits": [WALKER], "Combat Walker Breacher": [PREFIX + "vehicle_combat_walker_breacher"],
+                "EXO-51 Lumberer Cannon": [PREFIX + "wep_combat_walker_lumberer_cannon"],
+                "EXO-51 Lumberer Flamethrower": [PREFIX + "wep_combat_walker_flamethrower"],
+                "EXO-55 Breakthrough Flak Cannon": [PREFIX + "wep_combat_walker_breacher_flak_cannon"]}
+
+
+def sort_exosuits(sections: dict):
+    """Takes the exosuit sets out of Vehicles into Exosuits, one entry per exosuit (EXOSUITS). An entry keeps the ids
+    the sets it takes the place of had: by their banks, the one it holds them in ("was"), or all the entries a set
+    was split into ("split_from")."""
+    vehicles = sections["vehicles"]
+    for name, banks in EXOSUIT_SETS.items():
+        assert vehicles.get(name, {}).get("banks") == banks, f"the Vehicles set {name} is gone or holds other banks: check EXOSUITS"
+    for e in EXOSUITS:
+        was = sorted({f"set:vehicles/{slug(n)}" for n, banks in EXOSUIT_SETS.items() if set(banks) <= set(e["banks"])
+                      and "branches" not in e} | {w for n, b in EXOSUIT_SETS.items() if set(b) <= set(e["banks"])
+                                                  and "branches" not in e for w in vehicles[n].get("was", [])})
+        sections[X][e["name"]] = {**e, **({"was": was} if was else {})}
+    for name in EXOSUIT_SETS:
+        del vehicles[name]
 
 
 # weapon banks without the wep_ prefix (the game's own names, from its wwise_dep resources)
@@ -509,11 +555,14 @@ def main():
     # a voice bank (content/audio/<language>/<name>) VOICES doesn't list is left out too: add it there
     left = [t for t in tails if t not in claimed and t not in PLACED and (in_game(t) or voiced(t))]
     slot_weapons(sections)
+    sort_exosuits(sections)
 
     out = {"about": "The Index's sound sets (library.py), written by tools/import_sounds.py from the HD2 modding community's "
                     "archive labeling workbook and filediver's name lists. A set is the banks it names: 'banks' by path "
                     "name, 'ids' by file id where the path name isn't known, 'voice' one bank per language "
-                    "(content/audio/<language>/<name>). 'hue' colours a category's tags.",
+                    "(content/audio/<language>/<name>); 'branches' keeps a bank to the sounds under some of its "
+                    "containers, 'parts' names the banks, and 'split_from' is a set it took part of the place of. "
+                    "'hue' colours a category's tags.",
            "categories": []}
     for cid, cname, hue, about, secs in CATEGORIES:
         cat = {"id": cid, "name": cname, "hue": hue, "about": about, "sections": []}

@@ -345,6 +345,50 @@ def test_a_set_renamed_in_the_index_is_found_by_its_old_name(session, tmp_path):
 
 
 @pytest.mark.game
+def test_each_exosuit_has_an_entry_and_the_bank_they_share_splits_by_branch(session, tmp_path):
+    """A user asked for the Emancipator: "Exosuits" was one set, vehicle_combat_walker, which the Patriot's, the
+    Emancipator's and the Lumberer's archives all carry. It splits by branch (EXOSUITS in tools/import_sounds.py): the
+    exosuit itself, shared; a machine gun, the Patriot's turret, whose clips the MG-206 plays too; its missiles; and the
+    Emancipator's autocannons, whose clips the AC-8 plays too. The Lumberer and the Breakthrough have banks of their
+    own. A project that listed the old sets lists the new ones."""
+    s = session
+    it = _items(s)
+    exo = {i["name"]: i for i in it.values() if i["id"].startswith("set:vehicles/exosuits/")}
+    assert list(exo) == ["EXO-45 Patriot", "EXO-49 Emancipator", "EXO-51 Lumberer", "EXO-55 Breakthrough", "Shared Exosuit Sounds"]
+    assert not {"set:vehicles/exosuits", "set:vehicles/combat-walker-breacher"} & set(it)
+    walker = murmur64_hash(b"content/audio/vehicle_combat_walker")
+    patriot, emancipator, shared = (set(s.lib.item_sources(exo[n]["id"]))
+                                    for n in ("EXO-45 Patriot", "EXO-49 Emancipator", "Shared Exosuit Sounds"))
+    assert patriot and emancipator and shared and not (patriot & emancipator or patriot & shared or emancipator & shared)
+    whole = s.cue(f"bank:{walker}")
+    played = {int(sl["source"]) for g in whole["segments_detail"] if g["kind"] not in ("other", "absent", "wordless")
+              for st in g["stems"] for sl in st["slots"]}
+    assert patriot | emancipator | shared == played  # every sound of the bank, in one entry each
+    sources_of = lambda name: {x for p in it[next(i for i in it if it[i]["name"] == name)]["parts"]
+                               for x in s.lib.cue_sources(p["cue"])}
+    assert emancipator & sources_of("AC-8 Autocannon") and not patriot & sources_of("AC-8 Autocannon")
+    assert patriot & sources_of("MG-206 Heavy Machine Gun") and not emancipator & sources_of("MG-206 Heavy Machine Gun")
+    assert [p["name"] for p in exo["EXO-51 Lumberer"]["parts"]] == ["Cannon", "Flamethrower"]
+    assert [p["name"] for p in exo["EXO-55 Breakthrough"]["parts"]] == ["Exosuit", "Flak Cannon"]
+    # a branch opens as a view of its own: the set's name, its sounds and no others
+    cue = exo["EXO-49 Emancipator"]["parts"][0]["cue"]
+    view = s.cue(cue)
+    assert cue.startswith(f"bank:{walker}/") and view["id"] == cue and view["name"] == "EXO-49 Emancipator"
+    assert {int(x) for x in view["slots"]} == emancipator and view["path"][-1] == "Exosuits"
+    one = next(x for x in sorted(emancipator) if s.ix.banks_for(x) == {walker})  # a clip no other bank has
+    assert s.lib.home(one) == exo["EXO-49 Emancipator"]["id"]
+    assert any(p["cue"] == cue and p["item"] == exo["EXO-49 Emancipator"]["id"] for p in s.lib.places(one))
+    assert s.lib.banks([exo["EXO-49 Emancipator"]["id"]]) == {walker}
+    old = Project(name="Exo", path=tmp_path / "x.audi",
+                  library=["set:vehicles/exosuits", "set:vehicles/exo-51-lumberer-cannon", "set:weapons/combat-walker-breacher-flak-cannon"])
+    old.save()
+    st = s.open_project(tmp_path / "x.audi")
+    assert st["library"] == [exo[n]["id"] for n in ("EXO-45 Patriot", "EXO-49 Emancipator", "Shared Exosuit Sounds",
+                                                    "EXO-51 Lumberer", "EXO-55 Breakthrough")]
+    assert st["library_missing"] == []
+
+
+@pytest.mark.game
 def test_seaf_and_civilian_voices_are_two_sets(session, tmp_path):
     """The SEAF's voice lines and the civilians' are two banks in each language (Mission_SEAF_VO, Mission_Civilian_VO)
     with no clip in common, so two sets, and an archive with both banks is named after both. A project that listed
@@ -385,7 +429,7 @@ def test_weapons_by_loadout_slot_keep_the_ids_projects_listed(session, tmp_path)
     old.save()
     st = s.open_project(tmp_path / "w.audi")
     assert st["library"] == ["set:weapons/support/ac-8-autocannon", "set:weapons/primary/smg-203-gallant",
-                             "set:allies/civilians/seaf-liberator", "set:vehicles/exo-51-lumberer-flamethrower"]
+                             "set:allies/civilians/seaf-liberator", "set:vehicles/exosuits/exo-51-lumberer"]
     assert st["library_missing"] == []
 
 

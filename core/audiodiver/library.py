@@ -4,7 +4,8 @@ Two views of the same audio:
 
   The Index is what is known: the music by where a player hears it (musiclist.py), and the sound sets the community
   has named (data/sounds.json: weapons, stratagems, enemies, voices, environments...). A sound set is one or more
-  banks; its parts are those banks.
+  banks; its parts are those banks. A bank that several things share can be split between sets by branch: a part
+  `bank:<id>/<container>.<container>` holds the sounds under those containers only (the exosuits share one bank).
 
   All Archives is everything there is: each archive of the game that has audio in it, with the banks it holds. An
   archive nobody has named yet is listed all the same, so new audio can be found, heard and replaced before anyone
@@ -57,6 +58,32 @@ from .titles import named, title
 
 PREFIX = "content/audio/"
 CONTAINERS = (0x05, 0x06, 0x07, 0x09)  # random/sequence, switch, actor-mixer, layer: what a Sound can sit in
+
+
+def bank_cue(cue_id: str) -> tuple[int, frozenset]:
+    """(bank id, the containers of a branch) of `bank:<id>` (the whole bank: no containers) or of a branch,
+    `bank:<id>/<container>.<container>`. ValueError for anything else."""
+    kind, _, key = cue_id.partition(":")
+    bid, _, branch = key.partition("/")
+    if kind != "bank":
+        raise ValueError(cue_id)
+    return int(bid), frozenset(int(c) for c in branch.split(".") if c)
+
+
+def branch_cue(bid: int, containers) -> str:
+    """The part id of a bank's branch (bank_cue reads it back), or of the whole bank without containers."""
+    return f"bank:{bid}" + (f"/{'.'.join(str(c) for c in sorted(containers))}" if containers else "")
+
+
+def _under(oid: int, branch: frozenset, parent: dict) -> bool:
+    """Whether an object sits under one of a branch's containers ({object: its parent})."""
+    seen = set()
+    while oid in parent and oid not in seen:
+        if oid in branch:
+            return True
+        seen.add(oid)
+        oid = parent[oid]
+    return oid in branch
 MUSIC = {"id": "music", "name": N_("Music"), "hue": 300,
          "about": N_("Music by where it plays, from the ship to the credits.")}
 BIG_GROUP, CHUNK = 150, 100  # a group with more sounds than this is listed in runs of CHUNK
@@ -139,6 +166,9 @@ class Library:
         self.where = {}                                # item id -> (category name, section name)
         self.renamed = {}                              # an id an item had before (a set's older name, "was"; a piece
         #                                                of music before it was named) -> its id now
+        self.split = {}                                # an id a set had before it became several -> their ids now
+        self.branch_sets = {}                          # a bank's branch (its part id) -> the sound set it is
+        self._branches = {}                            # a branch's part id -> its sounds (kept)
         self.categories = self._index()
         self.music_in_archive = collections.defaultdict(list)  # archive -> the music sections with cues in it
         for cid, cue in self.cm.cues.items():
@@ -170,22 +200,33 @@ class Library:
         return tr("Bank {id}").format(id=bid)
 
     # --- the Index
-    def _set_parts(self, e: dict) -> list[tuple[str, int]]:
-        """[(part name, bank id)] of a sound set: its banks that this game version has. A bank goes by its path name
-        ("banks") or, where nobody knows that, by its file id ("ids"); a voice has one bank per language."""
-        ids = [murmur64_hash(p.encode()) for p in e.get("banks", [])] + [int(i) for i in e.get("ids", [])]
-        out = [("", bid) for bid in ids if self._has_audio(bid)]
+    def _set_parts(self, e: dict) -> list[tuple[str, int, str]]:
+        """[(part name, bank id, part id)] of a sound set: its banks that this game version has. A bank goes by its
+        path name ("banks") or, where nobody knows that, by its file id ("ids"); a voice has one bank per language.
+        "branches" keeps a bank to the sounds under some of its containers ({path name: [container ids]}): a branch
+        this game version doesn't have is left out. "parts" names the banks ({path name: name})."""
+        branches, names = e.get("branches", {}), e.get("parts", {})
+        out = []
+        for path in e.get("banks", []):
+            bid = murmur64_hash(path.encode())
+            if not self._has_audio(bid):
+                continue
+            cue = branch_cue(bid, branches.get(path, ()))
+            if path in branches and not self.cue_sources(cue):
+                continue
+            out.append((named(names[path]) if path in names else "", bid, cue))
+        out += [("", bid, f"bank:{bid}") for bid in map(int, e.get("ids", [])) if self._has_audio(bid)]
         if "voice" in e:
             for code in LANGUAGES:
                 bid = murmur64_hash(f"{PREFIX}{code}/{e['voice']}".encode())
                 if self._has_audio(bid):
-                    out.append((_language(code), bid))
+                    out.append((_language(code), bid, f"bank:{bid}"))
         if len(out) > 1:  # several banks: tell them apart
-            named = []
-            for n, (name, bid) in enumerate(out, 1):
-                named.append((name or (title(self.bank_names[bid].replace("_", " ")) if bid in self.bank_names
-                                       else tr("Bank {n}").format(n=n)), bid))
-            out = named
+            told = []
+            for n, (name, bid, cue) in enumerate(out, 1):
+                told.append((name or (title(self.bank_names[bid].replace("_", " ")) if bid in self.bank_names
+                                      else tr("Bank {n}").format(n=n)), bid, cue))
+            out = told
         return out
 
     def _index(self) -> list[dict]:
@@ -220,13 +261,13 @@ class Library:
                     n = 2
                     while iid in self.items:
                         iid, n = f"{base}-{n}", n + 1
-                    counts = [len(self.sources(bid)) for _, bid in parts]
-                    first = self.sources(parts[0][1])
+                    counts = [len(self.cue_sources(cue)) for _, _, cue in parts]
+                    first = self.cue_sources(parts[0][2])
                     name = named(e["name"])
                     it = {
                         "id": iid, "name": name, "full": name, "about": dtr(e.get("about", "")),
                         "kind": "sounds", "role": "", "category": cat["id"],
-                        "parts": [_part(f"bank:{bid}", part, c) for (part, bid), c in zip(parts, counts)],
+                        "parts": [_part(cue, part, c) for (part, _, cue), c in zip(parts, counts)],
                         "targets": [], "duration_ms": 0, "preview": str(first[0]) if first else "", "around": [],
                         "shares": [], "count": sum(counts), **en(e["name"], name),
                     }
@@ -234,15 +275,20 @@ class Library:
                     self.where[iid] = (out["name"], named(sec["name"]))
                     # a project that listed it by an older name finds it: a "was" is a name in this section, or the
                     # whole id it had elsewhere ("set:weapons/seaf-liberator"); and a category that was one section
-                    # once (Weapons) has its sets' ids of that time
+                    # once (Weapons) has its sets' ids of that time. A set split into several ("split_from", a whole
+                    # id) is all of them
                     for old in e.get("was", []):
                         self.renamed.setdefault(old if old.startswith("set:") else f"set:{sec['id']}/{slug(old)}", iid)
                     if sec["id"] != cat["id"] and sec["id"].startswith(f"{cat['id']}/"):
                         for old in [e["name"], *(w for w in e.get("was", []) if not w.startswith("set:"))]:
                             self.renamed.setdefault(f"set:{cat['id']}/{slug(old)}", iid)
+                    for old in e.get("split_from", []):
+                        self.split.setdefault(old, []).append(iid)
                     items.append(it)
-                    for _, bid in parts:
+                    for _, bid, cue in parts:
                         self.bank_sets[bid].append(iid)
+                        if cue != f"bank:{bid}":
+                            self.branch_sets[cue] = iid
                 if items:
                     name = named(sec["name"])
                     out["sections"].append({"id": sec["id"], "name": name, "about": dtr(sec.get("about", "")),
@@ -341,16 +387,34 @@ class Library:
         return self.items[iid]
 
     def cue_sources(self, cue_id: str) -> list[int]:
-        """The sounds of one part: a music cue's slots, a bank's sounds, an archive's loose streams or a plain
-        sound."""
+        """The sounds of one part: a music cue's slots, a bank's sounds (or a branch's), an archive's loose streams
+        or a plain sound."""
         kind, _, key = cue_id.partition(":")
         if kind == "bank":
-            return self.sources(int(key))
+            bid, branch = bank_cue(cue_id)
+            return self._branch_sources(cue_id, bid, branch) if branch else self.sources(bid)
         if kind == "streams":
             return sorted(o for o in self.ix.orphans if key in self.ix.streams[o])
         if kind == "sfx":
             return [int(key)]
         return slots(self.cm.cues[int(cue_id)])
+
+    def _branch_sources(self, cue_id: str, bid: int, branch: frozenset) -> list[int]:
+        """The clips the Sounds under a branch's containers play, in bank order, without repeats (kept)."""
+        if cue_id not in self._branches:
+            parent, sounds = {}, []
+            if bid in self.ix.banks:
+                for t, oid, body in music.iter_hirc(wbank.hirc(self.ix.bank_files(bid)[0])):
+                    if t != wbank.SOUND and t not in CONTAINERS:
+                        continue
+                    try:
+                        parent[oid] = music.read_node_base_params(music.Reader(body, 18 if t == wbank.SOUND else 0))[1]
+                    except Exception:
+                        continue
+                    if t == wbank.SOUND and (src := wbank.SOURCE.unpack_from(body, 0))[0] & 0xF == 1:
+                        sounds.append((oid, src[2]))
+            self._branches[cue_id] = list(dict.fromkeys(sid for oid, sid in sounds if _under(oid, branch, parent)))
+        return self._branches[cue_id]
 
     def item_sources(self, iid: str) -> set[int]:
         """Every sound of an item, over all its parts."""
@@ -361,24 +425,29 @@ class Library:
         every bank that has a piece of music's sounds or a single sound. An id this game version has nothing for
         adds none."""
         out = set()
-        for iid in ids:
+        for iid in [x for i in ids for x in self.now(i)]:
             try:
-                parts = self.item(self.renamed.get(iid, iid))["parts"]
+                parts = self.item(iid)["parts"]
             except KeyError:
                 continue
             for p in parts:
                 kind, _, key = p["cue"].partition(":")
                 if kind == "bank":
-                    out.add(int(key))
+                    out.add(bank_cue(p["cue"])[0])
                 elif kind != "streams":
                     for s in self.cue_sources(p["cue"]):
                         out |= self.ix.banks_for(s)
         return out
 
+    def now(self, iid: str) -> list[str]:
+        """The ids an item a project listed goes by now: its own, the one it was renamed to, or the sets it was
+        split into."""
+        return self.split.get(iid) or [self.renamed.get(iid, iid)]
+
     # --- a bank's sounds, as something to open
     def view(self, cue_id: str, added: "Added | None" = None, ids=False) -> dict:
-        """The cue-shaped view of `bank:<id>` or `streams:<archive>`, a bank's with the audio a project adds to it
-        (ids: as the bank's tree of containers, _bank). KeyError when there is no such thing."""
+        """The cue-shaped view of `bank:<id>` (or a branch of it) or `streams:<archive>`, a bank's with the audio a
+        project adds to it (ids: as the bank's tree of containers, _bank). KeyError when there is no such thing."""
         kind, _, key = cue_id.partition(":")
         # a view is kept per language: the names it makes up are in the language it was made in
         at = (cue_id, added if kind == "bank" and added else None, bool(ids) and kind == "bank", i18n.language())
@@ -387,7 +456,7 @@ class Library:
                 self._views.move_to_end(at)
                 return self._views[at]
         try:
-            v = (self._bank(int(key), at[1], at[2]) if kind == "bank" else self._streams(key) if kind == "streams"
+            v = (self._bank(*bank_cue(cue_id), at[1], at[2]) if kind == "bank" else self._streams(key) if kind == "streams"
                  else self._sound(int(key)) if kind == "sfx" else None)
         except (ValueError, KeyError):
             v = None
@@ -526,10 +595,11 @@ class Library:
                     self._en[bid] = {o: e for (o, _), (e, _) in zip(mine, theirs) if o != e}
         return self._en[bid]
 
-    def _bank(self, bid: int, added: "Added | None" = None, ids=False) -> dict:
+    def _bank(self, bid: int, branch: frozenset = frozenset(), added: "Added | None" = None, ids=False) -> dict:
         """A bank's sounds as groups: music segments first, then the takes of each sound, then the audio no Sound
         here plays. ids (the Container ids view, Settings): each group is the container right above its Sounds,
-        named by its id, in the bank's tree order, with the containers above it (_tree)."""
+        named by its id, in the bank's tree order, with the containers above it (_tree). A branch (its containers)
+        has only the takes of the sounds under it."""
         ix = self.ix
         info = ix.banks[bid]
         didx, data, hirc = [], b"", bytes(4)  # a bank that only stores audio has no objects at all
@@ -585,6 +655,9 @@ class Library:
                     sounds.append((snd, src))
                     parent[snd] = container
                     new_takes.add(snd)
+        if branch:  # the sounds under the branch's containers, and nothing else of the bank
+            sounds = [(oid, sid) for oid, sid in sounds if _under(oid, branch, parent)]
+            segments = []
 
         groups, listed = [], set()
         # 1. music segments, as the cue map has them (named and timed), each tagged with the piece of music it is
@@ -742,7 +815,7 @@ class Library:
         # does, or nothing seen does), then what it names that has no audio in this install at all
         # (a voice bank holds the grunts and breaths of a voice's Sounds in another bank: listed by what they are)
         rest = [self._voice(self._slot(s, held.get(s), self.cat.clip_label(s), bid), None, s)
-                for s in self.sources(bid) if s not in listed]
+                for s in ([] if branch else self.sources(bid)) if s not in listed]
         kinds = collections.Counter(r["sound"] for r in rest if r.get("sound") and not r["absent"])
         for title_, kind, slots_ in (*((_kind_group(k), "wordless",
                                         sorted((r for r in rest if r.get("sound") == k and not r["absent"]),
@@ -760,7 +833,8 @@ class Library:
                 heard[sl["sound"]] += 1
                 sl["label"] = f"{wordless_label(sl)} {heard[sl['sound']]}"
 
-        sets = self.bank_sets.get(bid, [])
+        cue_id = branch_cue(bid, branch)
+        sets = [self.branch_sets[cue_id]] if cue_id in self.branch_sets else self.bank_sets.get(bid, [])
         notes = []  # sentences, each whole
         if rest and not sounds and not segments:
             notes.append(tr("This bank only stores audio. The sounds that play it are in another bank."))
@@ -796,8 +870,9 @@ class Library:
                             sl["sound_in"] = self._reach(copies, bid)["also_in"]
         all_slots = list(dict.fromkeys(sl["source"] for g in groups for st in g["stems"] for sl in st["slots"]))
         return {
-            "id": f"bank:{bid}", "kind": "sounds", "path": list(self.where[sets[0]]) if sets else [tr("All Archives")],
-            "name": self.bank_label(bid), "detail": "", "notes": " ".join(notes), "locked": False, "curated": bool(sets),
+            "id": cue_id, "kind": "sounds", "path": list(self.where[sets[0]]) if sets else [tr("All Archives")],
+            "name": self.items[sets[0]]["full"] if branch and sets else self.bank_label(bid), "detail": "",
+            "notes": " ".join(notes), "locked": False, "curated": bool(sets),
             "segments": len(groups), "slots": all_slots, "duration_ms": 0, "archives": len(info["archives"]),
             "contexts": 0, "archive_names": info["archives"], "segments_detail": groups, "context_list": [],
             "labels": [], "tags": [self._tag(i) for i in sets],
@@ -839,6 +914,11 @@ class Library:
         sets = self.bank_sets.get(bid, [])
         return sets[0] if sets else f"archive:{self.ix.banks[bid]['archives'][0]}"
 
+    def _holds(self, iid: str, bid: int, sid: int) -> bool:
+        """Whether a set's part of a bank has the sound: all of it does, a branch only what is under it."""
+        return all(sid in self.cue_sources(p["cue"]) for p in self.items[iid]["parts"]
+                   if p["cue"] in self.branch_sets and p["cue"].startswith(f"bank:{bid}/"))
+
     def home(self, sid: int) -> str | None:
         """The Index item a sound belongs to, else the archive it is in: where a project lists it. A sound many
         sets share goes to the first of them in the Index."""
@@ -849,7 +929,7 @@ class Library:
         if sid in self.sound_items:
             return self.sound_items[sid]
         banks = sorted(self.ix.users.get(sid, ())) or sorted(self.ix.holders.get(sid, ()))
-        known = [i for b in banks for i in self.bank_sets.get(b, [])]
+        known = [i for b in banks for i in self.bank_sets.get(b, []) if self._holds(i, b, sid)]
         if known:
             return min(known, key=self.order.__getitem__)
         if banks:
@@ -898,8 +978,11 @@ class Library:
         out = []
         cue = lambda cid, sid: {"cue": str(cid), "source": sid, "archives": self.cm.cues[cid]["archives"],
                                 "item": (lambda at: at[0].id if at else None)(self.cat.music.cue_item.get(cid))}
-        bank = lambda bid, sid: {"cue": f"bank:{bid}", "source": sid, "item": self._bank_home(bid),
-                                 "archives": self.ix.banks[bid]["archives"]}
+        def bank(bid, sid):  # a sound in a bank that sets share by branch: the branch of the set that holds it
+            at = next((c for c, i in self.branch_sets.items() if c.startswith(f"bank:{bid}/") and sid is not None
+                       and int(sid) in self.cue_sources(c)), None)
+            return {"cue": at or f"bank:{bid}", "source": sid, "item": self.branch_sets[at] if at else self._bank_home(bid),
+                    "archives": self.ix.banks[bid]["archives"]}
         if n in self.cm.cues:
             out.append(cue(n, None))
         if n in self.ix.banks and self._has_audio(n):

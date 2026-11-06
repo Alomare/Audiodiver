@@ -1206,12 +1206,13 @@ class Session:
     def _adopt(self, p: Project):
         """A project from before projects listed what they work on gets its list: the piece of music, sound set or
         archive each of its replacements belongs to. It needs the game, so until that is read there is no list.
-        A sound set the Index has renamed since the list was written goes by its new name."""
+        A sound set the Index has renamed since the list was written goes by its new name, and one it has split goes
+        by the sets it became."""
         if p.library is None and self.lib:
             p.library = []
             self._cover(p)
-        elif p.library and self.lib and any(i in self.lib.renamed for i in p.library):
-            p.library = list(dict.fromkeys(self.lib.renamed.get(i, i) for i in p.library))
+        elif p.library and self.lib and any(i in self.lib.renamed or i in self.lib.split for i in p.library):
+            p.library = list(dict.fromkeys(x for i in p.library for x in self.lib.now(i)))
 
     def _list_name(self, iid) -> str:
         """An item as the Editor's list shows it, telling an archive from the sound set it is named after."""

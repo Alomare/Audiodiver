@@ -893,7 +893,7 @@ function EveryTag() {
     the Original: without it the row looks as if the replacement had failed. A sound in the bank on screen is said
     to be here. */
 function StandInTag({ standIns, cueId }: { standIns: StandIn[]; cueId: string }) {
-  const here = cueId.startsWith("bank:") ? cueId.slice(5) : "";
+  const here = cueId.startsWith("bank:") ? cueId.slice(5).split("/")[0] : ""; // a branch's bank too
   const places = [...new Set(standIns.map((s) => (here && s.banks.includes(here) ? t`another sound here` : s.place || t`another sound`)))];
   const where = andList(places), count = standIns.length;
   return (

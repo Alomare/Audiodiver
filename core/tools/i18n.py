@@ -129,6 +129,8 @@ def collect_data() -> dict:
             for e in sec["entries"]:
                 add(e["name"], f"sounds.json: sound set in {cat['name']} ▸ {sec['name']}", True)
                 add(e.get("about"), f"sounds.json: description of {e['name']}")
+                for path, part in e.get("parts", {}).items():
+                    add(part, f"sounds.json: part of {e['name']}, the bank {path.removeprefix('content/audio/')}", True)
 
     music = load("music.json")
     for s in music["sections"]:
