@@ -12,6 +12,22 @@ msgstr ""
 msgid "(empty)"
 msgstr "（空）"
 
+#. placeholder {0}: scan.banks
+#: src/PatchContentPage.tsx
+msgid "{0, plural, one {# bank} other {# banks}}"
+msgstr "{0, plural, other {#個のサウンドバンク}}"
+
+#. placeholder {0}: scan.sounds.length
+#: src/PatchContentPage.tsx
+msgid "{0, plural, one {# sound} other {# sounds}}"
+msgstr "{0, plural, other {#個のサウンド}}"
+
+#. placeholder {0}: m.sounds
+#. placeholder {1}: m.banks
+#: src/PatchContentPage.tsx
+msgid "{0, plural, one {# sound} other {# sounds}} in {1, plural, one {# bank} other {# banks}}"
+msgstr "{1, plural, other {#個のサウンドバンク}}に{0, plural, other {#個のサウンド}}"
+
 #. placeholder {0}: sel.length
 #: src/CueView.tsx
 msgid "{0, plural, one {Copy the Audio (# Slot)} other {Copy the Audio (# Slots)}}"
@@ -318,6 +334,11 @@ msgstr "{fillable, plural, other {# 個のスロット}}"
 msgid "{fillable, plural, one {The same file in all # slot} other {The same file in all # slots}}"
 msgstr "{fillable, plural, other {# 個のスロットすべてに同じファイル}}"
 
+#. placeholder {0}: s.banks.length - 1
+#: src/PatchContentPage.tsx
+msgid "{first} and {0, plural, one {# more bank} other {# more banks}}"
+msgstr "{first}ほか{0, plural, other {#個のサウンドバンク}}"
+
 #: src/RepatchPage.tsx
 msgid "{first}, and {more} more"
 msgstr "{first}、ほか {more} 件"
@@ -352,6 +373,10 @@ msgstr "{full} · セグメント"
 msgid "{full} (archive {archive})"
 msgstr "{full}（アーカイブ {archive}）"
 
+#: src/PatchContentPage.tsx
+msgid "{gone, plural, one {# of them is not in the current game.} other {# of them are not in the current game.}}"
+msgstr "{gone, plural, other {そのうち#個は現在のゲームにありません。}}"
+
 #: src/RepatchPage.tsx
 msgid "{hi, plural, one {{lo} to # replaced or added sound each} other {{lo} to # replaced or added sounds each}}"
 msgstr "{hi, plural, other {それぞれ置き換え・追加されたサウンド {lo}～# 個}}"
@@ -382,6 +407,12 @@ msgstr "{keyName}は「{command}」に割り当てられました。「{previous
 #: src/App.tsx
 msgid "{label} didn't install: {why}"
 msgstr "{label}をインストールできませんでした：{why}"
+
+#. A sound to play, after Play or Pause and in the now-playing bar
+#. A sound to play, after Play or Pause and in the now-playing bar
+#: src/PatchContentPage.tsx
+msgid "{label} in the mod"
+msgstr "MOD内の{label}"
 
 #: src/ProjectTab.tsx
 msgid "{label}: any colour"
@@ -630,6 +661,10 @@ msgstr "{patches, plural, other {音声がないため、元のまま残しま�
 #: src/TextTab.tsx
 msgid "{picked, plural, one {# line selected} other {# lines selected}}"
 msgstr "{picked, plural, other {# 行を選択中}}"
+
+#: src/PatchContentPage.tsx
+msgid "{picked, plural, one {# sound with new audio} other {# sounds with new audio}}"
+msgstr "{picked, plural, other {新しい音声のあるサウンド：#個}}"
 
 #: src/SliceTool.tsx
 msgid "{pieces, plural, one {# piece} other {# pieces}}"
@@ -1132,6 +1167,10 @@ msgid "A mod carries whole tables. When two mods change the same table, the one 
 msgstr "MODにはテーブル全体が含まれます。2つのMODが同じテーブルを変更すると、後からデプロイしたほうがもう一方を置き換えます"
 
 #: src/ToolsTab.tsx
+msgid "A mod holds copies of the sound banks from the game version it was made for, and the game plays those copies instead of the current banks. A sound the copies still have can get new audio there"
+msgstr "MODには、作られたときのゲームバージョンのサウンドバンクのコピーが入っていて、ゲームは現在のサウンドバンクの代わりにそのコピーを再生します。コピーにまだあるサウンドには、そこで新しい音声を入れられます"
+
+#: src/ToolsTab.tsx
 msgid "A mod holds copies of the sound banks from the game version it was made for. Repatching puts the mod's audio into the current banks"
 msgstr "MODには、作られたときのゲームバージョンのサウンドバンクのコピーが入っています。RepatchするとMODの音声が現在のバンクに入ります"
 
@@ -1147,10 +1186,15 @@ msgstr "デフォルトでは、リストの下にあるMODが競合で優先さ
 msgid "A mod made for an older game version carries the text of that version too. Untick the lines where only the game changed."
 msgstr "古いゲームバージョン向けに作られたMODには、そのバージョンのテキストも含まれています。ゲーム側だけが変わった行はチェックを外してください。"
 
+#: src/PatchContentPage.tsx
+msgid "A mod made this way is still the work of the original author. Keep it for personal use, and share it only with the author's permission."
+msgstr "この方法で作ったMODも元の作者の作品です。個人での使用にとどめ、共有は作者の許可がある場合だけにしてください。"
+
 #: src/api.ts
 msgid "A mod needs a name."
 msgstr "MODには名前が必要です。"
 
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "A mod unpacked into a folder"
 msgstr "フォルダーに展開したMOD"
@@ -1308,6 +1352,7 @@ msgstr "チュートリアルを実行中です"
 msgid "A whole number from 1 to 99999."
 msgstr "1から99999までの整数です。"
 
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "A ZIP or a .patch_0 file"
 msgstr "ZIP または .patch_0 ファイル"
@@ -1551,6 +1596,10 @@ msgstr "すべてのショートカット"
 msgid "All shortcuts reset to default."
 msgstr "すべてのショートカットをデフォルトにリセットしました。"
 
+#: src/PatchContentPage.tsx
+msgid "All Sounds ({n})"
+msgstr "すべてのサウンド（{n}）"
+
 #: src/SettingsTab.tsx
 msgid "Almost immediately."
 msgstr "ほぼすぐに表示されます。"
@@ -1596,6 +1645,10 @@ msgstr "古いビルドでは、変更していないサウンド（すべての
 #: src/App.tsx
 msgid "An unpack is still running."
 msgstr "展開処理がまだ実行中です。"
+
+#: src/PatchContentPage.tsx
+msgid "An update took a sound out of the game, and a mod made before it still has the sound. The game plays the banks in the mod, so the sound comes back with the new audio."
+msgstr "アップデートでゲームから消えたサウンドでも、それ以前に作られたMODにはまだ残っています。ゲームはMOD内のサウンドバンクを再生するので、そのサウンドが新しい音声で戻ります。"
 
 #. Between two groups of the play order that play in a random order
 #: src/Soundtrack.tsx
@@ -2062,6 +2115,7 @@ msgstr "GitHubに接続できません"
 #: src/Confirm.tsx
 #: src/ExportDialog.tsx
 #: src/ImportMod.tsx
+#: src/PatchContentPage.tsx
 #: src/ProjectTab.tsx
 #: src/RepatchPage.tsx
 #: src/SettingsTab.tsx
@@ -2076,6 +2130,7 @@ msgid "cancelled"
 msgstr "キャンセル済み"
 
 #: src/CombinePage.tsx
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Cancelled"
 msgstr "キャンセルしました"
@@ -2106,11 +2161,13 @@ msgstr "変更"
 
 #. Button that chooses another destination folder
 #. Button that chooses another destination folder
+#. Button that chooses another destination folder
 #. Button: choose another destination folder for builds
 #. Button: opens Settings to change the update mode
 #. Button: type another mod ID
 #: src/BuildTab.tsx
 #: src/CombinePage.tsx
+#: src/PatchContentPage.tsx
 #: src/ProjectTab.tsx
 #: src/RepatchPage.tsx
 #: src/SliceTool.tsx
@@ -2289,6 +2346,7 @@ msgstr "選択したスロットのファイルを選択"
 msgid "Choose a folder"
 msgstr "フォルダーを選択"
 
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Choose a Folder"
 msgstr "フォルダーを選択"
@@ -2301,6 +2359,11 @@ msgstr "グローバルメモのフォルダーを選択"
 msgid "Choose a line of text to import"
 msgstr "インポートするテキスト行を選択"
 
+#: src/PatchContentPage.tsx
+msgid "Choose a mod"
+msgstr "MODを選択"
+
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Choose a mod first"
 msgstr "先にMODを選択してください"
@@ -2331,6 +2394,7 @@ msgstr "スロットに切り分ける曲を選んでください。"
 msgid "Choose a song to cut into up to {pieces, plural, one {# piece} other {# pieces}}, or drop one here."
 msgstr "最大{pieces, plural, other {# 個のピース}}に切り分ける曲を選ぶか、ここにドロップしてください。"
 
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Choose a ZIP or Patch File"
 msgstr "ZIPまたはパッチファイルを選択"
@@ -2343,10 +2407,12 @@ msgstr "画像を選択"
 msgid "Choose an image for the icon"
 msgstr "アイコンにする画像を選択"
 
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Choose Another File"
 msgstr "別のファイルを選択"
 
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 #: src/SettingsTab.tsx
 msgid "Choose Another Folder"
@@ -2375,6 +2441,10 @@ msgstr "別の曲を選択"
 #: src/Soundtrack.tsx
 msgid "Choose Another Song"
 msgstr "別の曲を選択"
+
+#: src/PatchContentPage.tsx
+msgid "Choose File"
+msgstr "ファイルを選択"
 
 #: src/Inspector.tsx
 msgid "Choose Files"
@@ -2412,6 +2482,7 @@ msgstr "Helldivers 2のインストールフォルダーを選択"
 msgid "Choose the Helldivers 2 install folder, usually <0>…\\steamapps\\common\\Helldivers 2</0>. Audiodiver only reads from it."
 msgstr "Helldivers 2のインストールフォルダーを選択してください。通常は<0>…\\steamapps\\common\\Helldivers 2</0>です。Audiodiverはこのフォルダーを読み取るだけです。"
 
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Choose the mod folder"
 msgstr "MODフォルダーを選択"
@@ -2423,6 +2494,10 @@ msgstr "統合したMODの保存先を選択"
 #: src/RepatchPage.tsx
 msgid "Choose where repatched mods go"
 msgstr "RepatchしたMODの保存先を選択"
+
+#: src/PatchContentPage.tsx
+msgid "Choose where the new mod goes"
+msgstr "新しいMODの保存先を選択"
 
 #: src/ImportMod.tsx
 msgid "Choose where the project goes"
@@ -2993,6 +3068,7 @@ msgstr "説明"
 #: src/BuildTab.tsx
 #: src/CombinePage.tsx
 #: src/ExportDialog.tsx
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Destination folder"
 msgstr "保存先フォルダー"
@@ -3075,6 +3151,7 @@ msgstr "このゲインで表示・再生されます"
 msgid "Drawn as the line around the waveform"
 msgstr "波形の周りの線で表示されます"
 
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Drop a mod here as a <0>ZIP</0>, a <1>folder</1> or a <2>.patch_0</2> file."
 msgstr "MODを<0>ZIP</0>、<1>フォルダー</1>、または<2>.patch_0</2>ファイルとしてここにドロップしてください。"
@@ -3082,6 +3159,10 @@ msgstr "MODを<0>ZIP</0>、<1>フォルダー</1>、または<2>.patch_0</2>フ�
 #: src/Soundtrack.tsx
 msgid "Drop a Song or Choose a File"
 msgstr "曲をドロップ、またはファイルを選択"
+
+#: src/App.tsx
+msgid "Drop an audio file on a sound"
+msgstr "サウンドに音声ファイルをドロップしてください"
 
 #: src/App.tsx
 msgid "Drop an image here to make it the icon"
@@ -3094,6 +3175,10 @@ msgstr "オーディオタブのスロットに音声をドロップしてくだ
 #: src/App.tsx
 msgid "Drop audio on a slot, a group of takes, a piece in the list or a title"
 msgstr "スロット、テイクのグループ、リストの曲、またはタイトルに音声をドロップしてください"
+
+#: src/PatchContentPage.tsx
+msgid "Drop audio on a sound, or choose a file for it. The sounds without new audio stay as the mod has them."
+msgstr "サウンドに音声をドロップするか、ファイルを選択します。新しい音声のないサウンドはMODのままです。"
 
 #: src/Inspector.tsx
 msgid "Drop audio on the slot, or press {choose} to choose a file."
@@ -3381,6 +3466,10 @@ msgstr "すべてのバリアントを1つずつファイルに"
 #: src/UpdatesTab.tsx
 msgid "Every version is collapsed"
 msgstr "すべてのバージョンが折りたたまれています"
+
+#: src/PatchContentPage.tsx
+msgid "Everything else in the mod"
+msgstr "MODのそれ以外のすべて"
 
 #: src/IndexTree.tsx
 msgid "Everything here is replaced."
@@ -3781,9 +3870,17 @@ msgstr "GitHubでは1時間に60回まで確認できます。"
 msgid "GitHub allows 60 checks an hour. Try again in a few minutes."
 msgstr "GitHubでは1時間に60回まで確認できます。数分後にもう一度お試しください。"
 
+#: src/PatchContentPage.tsx
+msgid "Give a sound new audio first"
+msgstr "先にサウンドに新しい音声を入れてください"
+
 #: src/CueView.tsx
 msgid "Give every take new audio to replace the sound completely"
 msgstr "サウンドを完全に置き換えるには、すべてのテイクに新しい音声を割り当ててください"
+
+#: src/ToolsTab.tsx
+msgid "Give new audio to sounds inside an existing mod, also sounds the game no longer has"
+msgstr "既存のMOD内のサウンドに新しい音声を入れます。ゲームにもうないサウンドも対象です"
 
 #: src/SettingsTab.tsx
 msgid "Give this a key"
@@ -3994,6 +4091,10 @@ msgstr "アイコン"
 #: src/SettingsTab.tsx
 msgid "Icons only. Names show in tooltips."
 msgstr "アイコンのみ。名前はツールチップに表示されます。"
+
+#: src/PatchContentPage.tsx
+msgid "ID {id}"
+msgstr "ID {id}"
 
 #: src/SettingsTab.tsx
 msgid "If something is wrong with a translation, please <0>report it as an issue</0>."
@@ -4224,6 +4325,7 @@ msgstr "その時点で再生中のセグメントで終わり、「次の戦闘
 msgid "It ends with the segment playing at that time, and Play Again goes on from there"
 msgstr "その時点で再生中のセグメントで終わり、「もう一度再生」はそこから続きます"
 
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "It keeps the old mod ID, so importing it in a mod manager updates the old mod."
 msgstr "古いMOD IDを維持するため、MODマネージャーでインポートすると古いMODが更新されます。"
@@ -4292,6 +4394,10 @@ msgstr "ボリュームカーブを維持"
 msgid "Keep Working"
 msgstr "作業を続ける"
 
+#: src/PatchContentPage.tsx
+msgid "Keeps everything else as the mod has it: the banks, the other sounds, the options, files and ID."
+msgstr "それ以外はすべてMODのまま残します：サウンドバンク、ほかのサウンド、オプション、ファイル、ID。"
+
 #. Tag on a slot replaced with silence: it stays silent as long as the original plays
 #: src/CueView.tsx
 msgid "keeps timing"
@@ -4301,6 +4407,7 @@ msgstr "タイミング維持"
 msgid "Keeps what the patches hold besides audio, like text, models or textures, as it was."
 msgstr "テキスト、モデル、テクスチャなど、パッチ内の音声以外のものは元のまま残します。"
 
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Kept as it was"
 msgstr "元のまま"
@@ -4505,8 +4612,10 @@ msgstr "オリジナルを読み込み中…"
 #. Noun: the lines written while the job ran
 #. Noun: the lines written while the job ran
 #. Noun: the lines written while the job ran
+#. Noun: the lines written while the job ran
 #: src/BuildTab.tsx
 #: src/CombinePage.tsx
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Log"
 msgstr "ログ"
@@ -4732,6 +4841,7 @@ msgid "More"
 msgstr "その他"
 
 #: src/CombinePage.tsx
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "More in the Wiki"
 msgstr "詳しくはWikiで"
@@ -4852,6 +4962,7 @@ msgstr "マイMOD"
 
 #: src/CombinePage.tsx
 #: src/Library.tsx
+#: src/PatchContentPage.tsx
 #: src/ProjectTab.tsx
 #: src/RepatchPage.tsx
 msgid "Name"
@@ -4870,6 +4981,7 @@ msgid "Name in the Index"
 msgstr "インデックスでの名前"
 
 #: src/CombinePage.tsx
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Name shown in the mod manager."
 msgstr "MODマネージャーに表示される名前です。"
@@ -4942,6 +5054,7 @@ msgid "new and recent projects"
 msgstr "新規プロジェクトと最近のプロジェクト"
 
 #: src/Inspector.tsx
+#: src/PatchContentPage.tsx
 #: src/SliceTool.tsx
 msgid "New audio"
 msgstr "新しい音声"
@@ -5239,6 +5352,10 @@ msgstr "ここには曲を入れられません"
 msgid "No sound here matches “{query}”."
 msgstr "「{query}」に一致するサウンドはありません。"
 
+#: src/PatchContentPage.tsx
+msgid "No sound matches the search."
+msgstr "検索に一致するサウンドはありません。"
+
 #: src/ImportMod.tsx
 msgid "No text"
 msgstr "テキストなし"
@@ -5280,6 +5397,14 @@ msgstr "まだビルドされていません"
 #: src/SettingsTab.tsx
 msgid "Not found"
 msgstr "見つかりません"
+
+#: src/PatchContentPage.tsx
+msgid "Not in the game"
+msgstr "ゲームにない"
+
+#: src/PatchContentPage.tsx
+msgid "Not in the Game ({n})"
+msgstr "ゲームにない（{n}）"
 
 #: src/Inspector.tsx
 #: src/Timeline.tsx
@@ -5667,6 +5792,10 @@ msgstr "プロジェクトメモをエクスポートするにはプロジェク
 msgid "Open an entry on the left and drop audio on the slots. Find more in the <0>Library</0>."
 msgstr "左の項目を開いて、スロットに音声をドロップしてください。<0>ライブラリ</0>でさらに探せます。"
 
+#: src/PatchContentPage.tsx
+msgid "Open Another Mod"
+msgstr "別のMODを開く"
+
 #: src/CueView.tsx
 #: src/IndexTree.tsx
 #: src/Library.tsx
@@ -5761,6 +5890,10 @@ msgstr "テキストタブで字幕を開く"
 #: src/Soundtrack.tsx
 msgid "Openings"
 msgstr "オープニング"
+
+#: src/PatchContentPage.tsx
+msgid "Opens a mod as it is and lists the sounds in the patches, also those the current game no longer has."
+msgstr "MODをそのまま開き、パッチ内のサウンドを一覧表示します。現在のゲームにもうないサウンドも含みます。"
 
 #: src/About.tsx
 #: src/Home.tsx
@@ -5971,6 +6104,10 @@ msgstr "{copied, plural, other {# 件のファイル}}を{slots, plural, other {
 msgid "Pasted into {slots, plural, one {# slot} other {# slots}}"
 msgstr "{slots, plural, other {# 個のスロット}}に貼り付けました"
 
+#: src/ToolsTab.tsx
+msgid "Patch Content"
+msgstr "パッチの内容"
+
 #: src/BuildTab.tsx
 #: src/CombinePage.tsx
 #: src/RepatchPage.tsx
@@ -5996,6 +6133,14 @@ msgstr "一時停止"
 #: src/CueView.tsx
 msgid "Pause {label}"
 msgstr "{label}を一時停止"
+
+#: src/PatchContentPage.tsx
+msgid "Pause {name}"
+msgstr "{name}を一時停止"
+
+#: src/PatchContentPage.tsx
+msgid "Pause {what}"
+msgstr "{what}を一時停止"
 
 #: src/SliceTool.tsx
 msgid "Pause piece {piece}"
@@ -6078,9 +6223,14 @@ msgid "Play {n}, Replaced"
 msgstr "再生 {n}、置き換え済み"
 
 #. A checkbox: whether the segment plays or is left out
+#: src/PatchContentPage.tsx
 #: src/Soundtrack.tsx
 msgid "Play {name}"
 msgstr "{name}を再生"
+
+#: src/PatchContentPage.tsx
+msgid "Play {what}"
+msgstr "{what}を再生"
 
 #: src/Soundtrack.tsx
 msgid "Play a fight · Original"
@@ -6434,6 +6584,10 @@ msgstr "ファイルを元の場所に戻すか、オーディオタブでスロ
 msgid "put the songs there and in the places after it"
 msgstr "その枠と後続の枠に曲を入れる"
 
+#: src/PatchContentPage.tsx
+msgid "Puts new audio into the sounds chosen, in every bank and stream of the mod that has them."
+msgstr "選んだサウンドに新しい音声を入れます。そのサウンドがあるMOD内のすべてのサウンドバンクとストリームが対象です。"
+
 #: src/About.tsx
 msgid "Questions, feedback and help"
 msgstr "質問、フィードバック、ヘルプ"
@@ -6513,6 +6667,7 @@ msgstr "曲を読み込み中…"
 
 #: src/CombinePage.tsx
 #: src/ExportDialog.tsx
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Reading…"
 msgstr "読み込み中…"
@@ -6678,6 +6833,7 @@ msgid "Remove the audio"
 msgstr "音声を削除"
 
 #: src/CueView.tsx
+#: src/PatchContentPage.tsx
 msgid "Remove the new audio"
 msgstr "新しい音声を削除"
 
@@ -6693,6 +6849,11 @@ msgstr "ここにあるすべてのスロットから新しい音声を削除"
 msgid "Remove the new audio from the selected slots"
 msgstr "選択したスロットから新しい音声を削除"
 
+#: src/PatchContentPage.tsx
+msgid "Remove the new audio of {label}"
+msgstr "{label}の新しい音声を削除"
+
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Remove the old mod in the mod manager before importing this one."
 msgstr "これをインポートする前に、MODマネージャーで古いMODを削除してください。"
@@ -6794,6 +6955,10 @@ msgstr "ゲームが次に進むまで繰り返します"
 msgid "Replace audio there"
 msgstr "そこで音声を置き換え"
 
+#: src/ToolsTab.tsx
+msgid "Replace sounds inside an existing mod, also sounds that an update took out of the game."
+msgstr "既存のMOD内のサウンドを置き換えます。アップデートでゲームから消えたサウンドも対象です。"
+
 #: src/App.tsx
 msgid "replace the audio of what the project lists"
 msgstr "プロジェクトにある項目の音声を置き換え"
@@ -6813,6 +6978,10 @@ msgstr "ショットを置き換える"
 #: src/CueView.tsx
 msgid "Replace the silence with a file"
 msgstr "無音をファイルに置き換え"
+
+#: src/PatchContentPage.tsx
+msgid "Replace the sound with silence"
+msgstr "サウンドを無音に置き換え"
 
 #: src/IndexTree.tsx
 #: src/ItemHead.tsx
@@ -7039,6 +7208,10 @@ msgstr "ショートカットを検索"
 #: src/SettingsTab.tsx
 msgid "Search a shortcut by function or key"
 msgstr "機能またはキーでショートカットを検索"
+
+#: src/PatchContentPage.tsx
+msgid "Search by ID or name"
+msgstr "IDまたは名前で検索"
 
 #: src/TextTab.tsx
 msgid "Search lines"
@@ -7294,6 +7467,7 @@ msgstr "フォルダーで表示"
 #: src/BuildTab.tsx
 #: src/CombinePage.tsx
 #: src/CueView.tsx
+#: src/PatchContentPage.tsx
 #: src/ProjectTab.tsx
 #: src/RepatchPage.tsx
 #: src/SettingsTab.tsx
@@ -7355,6 +7529,10 @@ msgstr "ビルドが終わったらZIPをエクスプローラーで表示"
 msgid "Show these shortcuts"
 msgstr "このショートカット一覧を表示"
 
+#: src/PatchContentPage.tsx
+msgid "Showing {n} of {total}. Search to narrow the list."
+msgstr "{total}個中{n}個を表示しています。検索して絞り込んでください。"
+
 #: src/Notes.tsx
 msgid "Shown in every project and in the Library, from the notes file in the folder set in Settings ▸ System. A note on a slot shows wherever the clip plays. Markdown formats headings, lists, bold and links."
 msgstr "すべてのプロジェクトとライブラリに表示されます。設定 ▸ システムで指定したフォルダー内のメモファイルから読み込まれます。スロットのメモは、そのクリップが再生されるすべての場所に表示されます。Markdownで見出し、リスト、太字、リンクを書式設定できます。"
@@ -7386,6 +7564,7 @@ msgstr "無音"
 #: src/CueView.tsx
 #: src/Inspector.tsx
 #: src/Library.tsx
+#: src/PatchContentPage.tsx
 #: src/Soundtrack.tsx
 msgid "Silence"
 msgstr "無音"
@@ -7553,15 +7732,24 @@ msgstr "曲"
 msgid "sound"
 msgstr "サウンド"
 
+#: src/PatchContentPage.tsx
+msgid "Sound {id}"
+msgstr "サウンド {id}"
+
 #: src/CueView.tsx
 #: src/ExportDialog.tsx
 #: src/Library.tsx
+#: src/PatchContentPage.tsx
 msgid "Sounds"
 msgstr "サウンド"
 
 #: src/tutorials.ts
 msgid "Sounds and their takes"
 msgstr "サウンドとそのテイク"
+
+#: src/PatchContentPage.tsx
+msgid "Sounds shown"
+msgstr "表示するサウンド"
 
 #: src/CombinePage.tsx
 msgid "Sounds that more than one mod changes. Choose which mod's version goes in."
@@ -7631,6 +7819,7 @@ msgstr "開始中"
 
 #: src/App.tsx
 #: src/CombinePage.tsx
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Starting…"
 msgstr "開始中…"
@@ -7883,6 +8072,10 @@ msgstr "この音声は他の音楽の一部で、その音楽と一緒に変わ
 msgid "The Audio tab"
 msgstr "オーディオタブ"
 
+#: src/PatchContentPage.tsx
+msgid "The banks in the mod stay as the game version it was made for had them. For sounds the game still has, a project or <0>Repatch</0> builds on the current banks."
+msgstr "MOD内のサウンドバンクは、作られたときのゲームバージョンのままです。ゲームにまだあるサウンドなら、プロジェクトや<0>Repatch</0>が現在のサウンドバンクをもとにビルドします。"
+
 #: src/Soundtrack.tsx
 msgid "The Battle music plays here, at the Battle level"
 msgstr "バトルの音楽が、バトルのレベルでここで流れます"
@@ -7906,6 +8099,10 @@ msgstr "「色」で適用される色"
 #: src/CombinePage.tsx
 msgid "The combined mod"
 msgstr "統合したMOD"
+
+#: src/PatchContentPage.tsx
+msgid "The current game doesn't have this sound. The banks in the mod bring it back."
+msgstr "現在のゲームにはこのサウンドがありません。MOD内のサウンドバンクで戻ります。"
 
 #: src/SettingsTab.tsx
 msgid "The default."
@@ -8208,6 +8405,7 @@ msgid "The new audio plays only in this sound. Other sounds that play the clip k
 msgstr "新しい音声はこのサウンドでのみ再生されます。このクリップを再生する他のサウンドはオリジナルのままです"
 
 #: src/CombinePage.tsx
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "The new ZIP goes here. A ZIP with the same name stays, and the new one gets a number."
 msgstr "新しいZIPはここに保存されます。同じ名前のZIPは残り、新しいZIPには番号が付きます。"
@@ -8467,6 +8665,10 @@ msgstr "サウンド"
 #: src/IndexTree.tsx
 msgid "The sounds are in {name}"
 msgstr "サウンドは{name}にあります"
+
+#: src/PatchContentPage.tsx
+msgid "The sounds that only the mod has, such as audio an update took out of the game"
+msgstr "MODにしかないサウンド（アップデートでゲームから消えた音声など）"
 
 #: src/Home.tsx
 msgid "The source code, issues and releases. Opens github.com/Alomare/Audiodiver"
@@ -9000,6 +9202,7 @@ msgid "What each template does. Undo takes back a whole template"
 msgstr "各テンプレートの機能。元に戻すでテンプレート全体を取り消せます"
 
 #: src/CombinePage.tsx
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "What it does"
 msgstr "機能"
@@ -9020,6 +9223,10 @@ msgstr "オープニングとは何か、その変更方法"
 #: src/ExportDialog.tsx
 msgid "What to export"
 msgstr "エクスポートする内容"
+
+#: src/PatchContentPage.tsx
+msgid "What to know"
+msgstr "知っておくこと"
 
 #: src/SettingsTab.tsx
 msgid "When changes go into the project file."
@@ -9046,6 +9253,7 @@ msgid "When this is on, the next segment starts when the new audio ends. When it
 msgstr "オンにすると、新しい音声が終わったときに次のセグメントが始まります。オフにすると、オリジナルのタイミングが使われます。"
 
 #: src/CombinePage.tsx
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "When to use it"
 msgstr "使いどころ"
@@ -9155,6 +9363,40 @@ msgstr "処理中"
 #: src/Notes.tsx
 msgid "Write a note"
 msgstr "メモを書く"
+
+#: src/PatchContentPage.tsx
+msgid "Write the Mod"
+msgstr "MODを書き込み"
+
+#: src/PatchContentPage.tsx
+msgid "Write the mod again with the new audio, everything else as it was"
+msgstr "新しい音声でMODを書き込み直します。それ以外はそのままです"
+
+#: src/PatchContentPage.tsx
+msgid "Writing"
+msgstr "書き込み中"
+
+#. Tools ▸ Patch Content: writing a mod again with new audio for some of the sounds in it
+#: src/store.tsx
+msgid "Writing cancelled"
+msgstr "書き込みをキャンセルしました"
+
+#: src/PatchContentPage.tsx
+msgid "Writing failed"
+msgstr "書き込みに失敗しました"
+
+#. Tools ▸ Patch Content: writing a mod again with new audio for some of the sounds in it
+#: src/store.tsx
+msgid "Writing the mod failed: {why}"
+msgstr "MODの書き込みに失敗しました：{why}"
+
+#: src/PatchContentPage.tsx
+msgid "Written"
+msgstr "書き込み完了"
+
+#: src/store.tsx
+msgid "Wrote {title}: {file} ({mb} MB)."
+msgstr "{title}を書き込みました：{file}（{mb} MB）。"
 
 #: src/content.ts
 msgid "Wwise property IDs, the difference between Volume and Make-Up Gain, and how new takes, layers and clips go into a bank"

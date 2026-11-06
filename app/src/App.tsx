@@ -5,6 +5,7 @@ import { AboutButton, AboutDialog } from "./About";
 import { ConfirmDialog } from "./Confirm";
 import { BuildTab } from "./BuildTab";
 import { combineInbox } from "./CombinePage";
+import { contentInbox } from "./PatchContentPage";
 import { repatchInbox } from "./RepatchPage";
 import { CueView } from "./CueView";
 import { Home } from "./Home";
@@ -166,6 +167,12 @@ function Shell() {
   handler.current = async (raw, target) => {
     // mods to combine: anything on the Combine Mods page
     if (target?.kind === "combine") return combineInbox.offer(raw);
+    // Patch Content: audio on a sound of the mod is its new audio; anything else on the page is a mod to open
+    if (target?.kind === "content-sound") {
+      const audio = (await expandDropped(raw)).filter((p) => !/\.(patch_\d+|audi|audipack|zip)$/i.test(p) && !isImage(p));
+      return audio.length ? contentInbox.offerAudio(target.source, audio[0]) : quick(t`Drop an audio file on a sound`, "info");
+    }
+    if (target?.kind === "content") return contentInbox.offer(raw[0]);
     // Audiodiver Utils takes no projects: whatever else is dropped is a mod to repatch
     if (UTILS) { nav.go("tools", "repatch"); return repatchInbox.offer(raw[0]); }
     // a mod to repatch: anything on the Repatch page, or a ZIP anywhere else (nothing else takes one)

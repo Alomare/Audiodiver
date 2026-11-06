@@ -2,7 +2,7 @@
 title: Repatch
 group: Générer et partager
 summary: Reconstruire un mod audio créé pour une ancienne version du jeu, ou avec un autre outil, pour le jeu actuel.
-source: 81a4ed7b98b3
+source: ee026f268f43
 ---
 
 Le patch d’un mod contient des copies complètes des banques de sons qu’il modifie, telles qu’elles étaient dans la version du jeu pour laquelle le mod a été créé. Après une mise à jour du jeu, ces copies sont périmées. Le mod peut devenir silencieux ou jouer les mauvais sons, et, une fois installé, il ramène l’audio plus récent en arrière. Il peut même rendre silencieux des sons qu’il n’a jamais modifiés, car les banques contiennent aussi des réglages que beaucoup d’autres banques partagent. **Repatch**, dans [Outils](app:tools/repatch), reconstruit un tel mod pour le jeu actuel. Il ne demande ni projet ni expérience en modding.
@@ -81,7 +81,7 @@ Audiodiver les reconnaît de deux façons :
 - Il se souvient des sons que les versions précédentes du jeu avaient dans chaque banque.
 - Un son que le mod a ajouté joue du nouvel audio. Un son qui joue un audio que le jeu actuel a encore est un son d’origine.
 
-Si le mod a remplacé l’audio d’un son que le jeu a supprimé depuis, il n’y a rien où mettre cet audio, et le mod repatché joue les sons actuels à cet endroit.
+Si le mod a remplacé l’audio d’un son que le jeu a supprimé depuis, il n’y a rien où mettre cet audio, et le mod repatché joue les sons actuels à cet endroit. Pour donner un nouvel audio à un tel son, ouvrez l’ancien mod dans [Contenu du Patch](wiki:patch-content), qui garde les banques du mod.
 
 ## Réglages partagés d’une ancienne version du jeu {#shared-settings-from-an-older-game-version}
 

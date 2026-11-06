@@ -255,7 +255,7 @@ msgid "cue points of {n} segment without new audio left out"
 msgid_plural "cue points of {n} segments without new audio left out"
 msgstr[0] "已略去 {n} 个未添加新音频的段落的提示点"
 
-#: build.py
+#: build.py editor.py
 msgid "The patch failed verification:"
 msgstr "补丁未通过验证："
 
@@ -307,7 +307,7 @@ msgstr "{folder} 位于游戏文件夹内，Audiodiver 从不向其中写入。�
 msgid "encoding {file}"
 msgstr "正在编码 {file}"
 
-#: build.py
+#: build.py editor.py
 msgid "Encoding {name}"
 msgstr "正在编码 {name}"
 
@@ -351,7 +351,7 @@ msgstr "{folder} 中的补丁文件"
 msgid "Icon: {why}"
 msgstr "图标：{why}"
 
-#: build.py
+#: build.py editor.py
 msgid "{name}: can't read the audio in {file}"
 msgstr "{name}：无法读取 {file} 中的音频"
 
@@ -702,6 +702,22 @@ msgstr "选择 Repatch 后模组的存放位置（完整路径）"
 msgid "A build is already running"
 msgstr "已有构建正在进行"
 
+#: editor.py hd1.py library.py
+msgid "Bank {id}"
+msgstr "音频库 {id}"
+
+#: editor.py
+msgid "Choose a mod first"
+msgstr "请先选择模组"
+
+#: editor.py
+msgid "Give a sound new audio first"
+msgstr "请先为一个声音提供新音频"
+
+#: editor.py
+msgid "Choose where the mod goes (a full path)"
+msgstr "请选择模组的存放位置（完整路径）"
+
 #: editor.py
 msgid "Choose the mods to combine"
 msgstr "选择要合并的模组"
@@ -877,6 +893,10 @@ msgid "reading {file}"
 msgstr "正在读取 {file}"
 
 #: editor.py
+msgid "Open the mod in Tools ▸ Patch Content to replace that audio inside the mod."
+msgstr "在“工具 ▸ 补丁内容”中打开该模组，即可在模组内替换这段音频。"
+
+#: editor.py
 msgid "{name} holds no audio or text that Audiodiver can bring in"
 msgstr "{name} 不含 Audiodiver 可以导入的音频或文本"
 
@@ -1025,10 +1045,6 @@ msgstr[0] "来自模组的 {n} 条音量曲线"
 msgid "radio filter off for {n} voice, from the mod"
 msgid_plural "radio filter off for {n} voices, from the mod"
 msgstr[0] "来自模组：{n} 个语音的无线电滤镜已关闭"
-
-#: editor.py
-msgid "{file} only changes audio that this game version no longer has. The game removed it in an update, so there is nothing to bring in."
-msgstr "{file} 只更改了此游戏版本已不再包含的音频。游戏在一次更新中移除了它，因此没有可导入的内容。"
 
 #: editor.py
 msgid "Decoding {n} of {total}"
@@ -1201,6 +1217,14 @@ msgid_plural "{n} other files, such as models or textures"
 msgstr[0] "{n} 个其他文件，如模型或纹理"
 
 #: editor.py
+msgid "Can't decode sound {id}"
+msgstr "无法解码声音 {id}"
+
+#: editor.py patchcontent.py
+msgid "The mod has no sound {id}"
+msgstr "模组中没有声音 {id}"
+
+#: editor.py
 msgid "--- {name} ({n} of {total})"
 msgstr "--- {name}（{n}/{total}）"
 
@@ -1290,12 +1314,25 @@ msgid "stream {id} is not in this game version; skipped"
 msgstr "流 {id} 不在当前游戏版本中，已跳过"
 
 #: editor.py
+msgid "{file} only changes audio that this game version no longer has. The game removed it in an update, so there is nothing to bring in."
+msgstr "{file} 只更改了此游戏版本已不再包含的音频。游戏在一次更新中移除了它，因此没有可导入的内容。"
+
+#: editor.py
 msgid "source {id}: can't decode the audio; skipped"
 msgstr "源 {id}：无法解码音频，已跳过"
 
 #: editor.py
 msgid "The files besides audio can't be read: {why}"
 msgstr "无法读取音频以外的文件：{why}"
+
+#: editor.py
+msgid "Writing {file}"
+msgstr "正在写入 {file}"
+
+#: editor.py
+msgid "{file}: new audio in {n} bank"
+msgid_plural "{file}: new audio in {n} banks"
+msgstr[0] "{file}：{n} 个音频库中有新音频"
 
 #: editor.py
 msgid "Reading {name}"
@@ -1346,10 +1383,6 @@ msgstr "{segment}，{n}/{total}"
 #: editor.py
 msgid "segment"
 msgstr "段落"
-
-#: editor.py
-msgid "Writing {file}"
-msgstr "正在写入 {file}"
 
 #: errors.py
 msgid "{file} wasn't found"
@@ -1590,10 +1623,6 @@ msgstr "没有事件播放的片段"
 #: hd1.py library.py
 msgid "All Archives"
 msgstr "所有归档"
-
-#: hd1.py library.py
-msgid "Bank {id}"
-msgstr "音频库 {id}"
 
 #: hd1.py
 msgid "{n} languages"
@@ -1991,6 +2020,18 @@ msgstr "{file} 缺失"
 #: patch.py
 msgid "{file} is cut short"
 msgstr "{file} 不完整"
+
+#: patchcontent.py
+msgid "The audio of sound {id} isn't in the mod or the game"
+msgstr "声音 {id} 的音频既不在模组中，也不在游戏中"
+
+#: patchcontent.py
+msgid "{file} holds no audio"
+msgstr "{file} 中没有音频"
+
+#: patchcontent.py
+msgid "{file} can't be read as a game patch: {why}"
+msgstr "无法将 {file} 读取为游戏补丁：{why}"
 
 #: project.py
 msgid "The project in {pack} isn't an Audiodiver project"

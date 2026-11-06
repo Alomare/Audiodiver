@@ -133,6 +133,7 @@ const jobCancelled = (kind: string) => ({
   pack: t({ message: "Pack cancelled", comment: "Packing the project and the files it uses into one .audipack file" }),
   unpack: t`Unpack cancelled`, check: t({ message: "Check cancelled", comment: "Checking the installed mods for sound banks of an older game version" }),
   combine_read: t`Conflict check cancelled`, combine: t`Combine cancelled`,
+  content: t({ message: "Writing cancelled", comment: "Tools ▸ Patch Content: writing a mod again with new audio for some of the sounds in it" }),
 } as Record<string, string>)[kind] ?? t`Export cancelled`;
 /** A job that failed, and why (the core's words), in a sentence for each kind of job (any other kind is an export). */
 const jobFailure = (kind: string, why: string) => ({
@@ -140,6 +141,7 @@ const jobFailure = (kind: string, why: string) => ({
   pack: t({ message: `Pack failed: ${why}`, comment: "Packing the project and the files it uses into one .audipack file" }),
   unpack: t`Unpack failed: ${why}`, check: t({ message: `Check failed: ${why}`, comment: "Checking the installed mods for sound banks of an older game version" }),
   combine_read: t`Conflict check failed: ${why}`, combine: t`Combine failed: ${why}`,
+  content: t({ message: `Writing the mod failed: ${why}`, comment: "Tools ▸ Patch Content: writing a mod again with new audio for some of the sounds in it" }),
 } as Record<string, string>)[kind] ?? t`Export failed: ${why}`;
 
 /** The two tabs that show audio. The Library is everything the game has, to hear and to add to a project; the
@@ -665,11 +667,11 @@ function useEditorState() {
       notify("good", t`Built ${file} (${mb} MB).`,
         { label: t`Show in Folder`, go: { reveal: j.result.zip } });
       if (settings.get().revealBuild) platform.reveal(j.result.zip).catch(() => {});
-    } else if (j.kind === "repatch" || j.kind === "combine") { // the Repatch and Combine Mods pages show the rest
+    } else if (j.kind === "repatch" || j.kind === "combine" || j.kind === "content") { // their pages show the rest
       const zip: string = j.result.zip;
       const title = j.title, file = zip.split(/[\\/]/).pop()!, mb = fmtTenth(j.result.mb);
-      notify("good", j.kind === "repatch" ? t`Repatched ${title}: ${file} (${mb} MB).` : t`Combined ${title}: ${file} (${mb} MB).`,
-        { label: t`Show in Folder`, go: { reveal: zip } });
+      notify("good", j.kind === "repatch" ? t`Repatched ${title}: ${file} (${mb} MB).` : j.kind === "content" ? t`Wrote ${title}: ${file} (${mb} MB).`
+        : t`Combined ${title}: ${file} (${mb} MB).`, { label: t`Show in Folder`, go: { reveal: zip } });
       if (settings.get().revealBuild) platform.reveal(zip).catch(() => {});
     } else if (j.kind === "import") {
       // replacements, what the mod adds (new takes, layers, sounds with a clip of their own) and the lines of text;
@@ -1290,6 +1292,13 @@ function useEditorState() {
     /** Rebuilds an existing mod on the game as it is now, as the one mod it was (the Repatch page). */
     async repatch(path: string, name: string, folder: string, everyBank: boolean) {
       const job = await run<Job>("repatch", { path, name, folder, every_bank: everyBank });
+      if (job) watchJob(job, finishJob);
+      return !!job;
+    },
+    /** Writes the mod Patch Content read again, with new audio for the sounds chosen ({source: file, or "" for
+        silence}) and everything else as it was. */
+    async contentWrite(choices: Record<string, string>, name: string, folder: string) {
+      const job = await run<Job>("content_write", { choices, name, folder });
       if (job) watchJob(job, finishJob);
       return !!job;
     },

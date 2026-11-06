@@ -80,7 +80,7 @@ Audiodiver recognizes them in two ways:
 - It remembers which sounds earlier game versions had in each bank.
 - A sound that the mod added plays new audio. A sound that plays audio the current game still has is an original sound.
 
-If the mod replaced the audio of a sound that the game has since removed, there is nothing to put that audio on, and the repatched mod plays the current sounds there.
+If the mod replaced the audio of a sound that the game has since removed, there is nothing to put that audio on, and the repatched mod plays the current sounds there. To give such a sound new audio, open the old mod in [Patch Content](wiki:patch-content), which keeps the banks in the mod.
 
 ## Shared settings from an older game version
 

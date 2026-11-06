@@ -1466,6 +1466,22 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .rp-all[open] > summary { margin-bottom: 10px; }
 .rp-all .rp-mod ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: calc(13px * var(--fs)); }
 .rp-all > .rp-log { margin-top: 4px; }
+/* Tools ▸ Patch Content: the sounds of a mod, each with its new audio */
+.pc-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 10px; }
+.pc-tools .segmented { flex: 1 1 280px; }
+.pc-search { flex: 1 1 180px; }
+.pc-search input { width: 100%; }
+.pc-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; border-top: 1px solid var(--line-soft); }
+.pc-row { display: flex; align-items: center; gap: 8px; min-width: 0; padding: calc(5px * var(--sp)) 6px; border-bottom: 1px solid var(--line-soft); }
+.pc-row.on { background: var(--sel-bg); box-shadow: inset 3px 0 0 var(--second-fg); }
+.pc-row.drop-over { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.pc-what { display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; }
+.pc-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: calc(14px * var(--fs)); }
+.pc-what small { color: var(--faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pc-row > .tag { margin-left: 0; flex: none; }
+.pc-new { display: flex; align-items: center; gap: 6px; flex: none; max-width: 45%; min-width: 0; }
+.pc-new .btn { padding: calc(3px * var(--sp)) 10px; font-size: calc(13px * var(--fs)); }
+.pc-file { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: calc(13px * var(--fs)); }
 .rp-mod h3 { margin: 0; font-size: calc(14px * var(--fs)); }
 .rp-go { margin-top: 4px; }
 .rp-progress { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--muted); font-size: calc(13px * var(--fs)); }

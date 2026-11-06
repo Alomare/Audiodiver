@@ -274,7 +274,7 @@ msgid_plural "cue points of {n} segments without new audio left out"
 msgstr[0] "pontos de cue de {n} segmento sem áudio novo deixados de fora"
 msgstr[1] "pontos de cue de {n} segmentos sem áudio novo deixados de fora"
 
-#: build.py
+#: build.py editor.py
 msgid "The patch failed verification:"
 msgstr "O patch falhou na verificação:"
 
@@ -334,7 +334,7 @@ msgstr "{folder} está dentro da pasta do jogo, e o Audiodiver nunca grava lá. 
 msgid "encoding {file}"
 msgstr "codificando {file}"
 
-#: build.py
+#: build.py editor.py
 msgid "Encoding {name}"
 msgstr "Codificando {name}"
 
@@ -382,7 +382,7 @@ msgstr "arquivos de patch em {folder}"
 msgid "Icon: {why}"
 msgstr "Ícone: {why}"
 
-#: build.py
+#: build.py editor.py
 msgid "{name}: can't read the audio in {file}"
 msgstr "{name}: não foi possível ler o áudio de {file}"
 
@@ -736,6 +736,22 @@ msgstr "Escolha para onde vão os mods com repatch (um caminho completo)"
 msgid "A build is already running"
 msgstr "Uma geração já está em andamento"
 
+#: editor.py hd1.py library.py
+msgid "Bank {id}"
+msgstr "Banco {id}"
+
+#: editor.py
+msgid "Choose a mod first"
+msgstr "Escolha um mod primeiro"
+
+#: editor.py
+msgid "Give a sound new audio first"
+msgstr "Dê áudio novo a um som primeiro"
+
+#: editor.py
+msgid "Choose where the mod goes (a full path)"
+msgstr "Escolha para onde vai o mod (um caminho completo)"
+
 #: editor.py
 msgid "Choose the mods to combine"
 msgstr "Escolha os mods para combinar"
@@ -913,6 +929,10 @@ msgid "reading {file}"
 msgstr "lendo {file}"
 
 #: editor.py
+msgid "Open the mod in Tools ▸ Patch Content to replace that audio inside the mod."
+msgstr "Abra o mod em Ferramentas ▸ Conteúdo do Patch para substituir esse áudio dentro do mod."
+
+#: editor.py
 msgid "{name} holds no audio or text that Audiodiver can bring in"
 msgstr "{name} não contém áudio nem texto que o Audiodiver possa importar"
 
@@ -1067,10 +1087,6 @@ msgid "radio filter off for {n} voice, from the mod"
 msgid_plural "radio filter off for {n} voices, from the mod"
 msgstr[0] "filtro de rádio desligado em {n} voz, vindo do mod"
 msgstr[1] "filtro de rádio desligado em {n} vozes, vindo do mod"
-
-#: editor.py
-msgid "{file} only changes audio that this game version no longer has. The game removed it in an update, so there is nothing to bring in."
-msgstr "{file} só altera áudio que esta versão do jogo não tem mais. O jogo o removeu em uma atualização, então não há nada para importar."
 
 #: editor.py
 msgid "Decoding {n} of {total}"
@@ -1253,6 +1269,14 @@ msgstr[0] "{n} outro arquivo, como modelos ou texturas"
 msgstr[1] "{n} outros arquivos, como modelos ou texturas"
 
 #: editor.py
+msgid "Can't decode sound {id}"
+msgstr "Não é possível decodificar o som {id}"
+
+#: editor.py patchcontent.py
+msgid "The mod has no sound {id}"
+msgstr "O mod não tem o som {id}"
+
+#: editor.py
 msgid "--- {name} ({n} of {total})"
 msgstr "--- {name} ({n} de {total})"
 
@@ -1343,12 +1367,26 @@ msgid "stream {id} is not in this game version; skipped"
 msgstr "o stream {id} não está nesta versão do jogo; pulado"
 
 #: editor.py
+msgid "{file} only changes audio that this game version no longer has. The game removed it in an update, so there is nothing to bring in."
+msgstr "{file} só altera áudio que esta versão do jogo não tem mais. O jogo o removeu em uma atualização, então não há nada para importar."
+
+#: editor.py
 msgid "source {id}: can't decode the audio; skipped"
 msgstr "fonte {id}: não foi possível decodificar o áudio; pulada"
 
 #: editor.py
 msgid "The files besides audio can't be read: {why}"
 msgstr "Não é possível ler os arquivos além de áudio: {why}"
+
+#: editor.py
+msgid "Writing {file}"
+msgstr "Gravando {file}"
+
+#: editor.py
+msgid "{file}: new audio in {n} bank"
+msgid_plural "{file}: new audio in {n} banks"
+msgstr[0] "{file}: áudio novo em {n} banco"
+msgstr[1] "{file}: áudio novo em {n} bancos"
 
 #: editor.py
 msgid "Reading {name}"
@@ -1401,10 +1439,6 @@ msgstr "{segment}, {n} de {total}"
 #: editor.py
 msgid "segment"
 msgstr "segmento"
-
-#: editor.py
-msgid "Writing {file}"
-msgstr "Gravando {file}"
 
 #: errors.py
 msgid "{file} wasn't found"
@@ -1645,10 +1679,6 @@ msgstr "Clipes que nenhum evento toca"
 #: hd1.py library.py
 msgid "All Archives"
 msgstr "Todos os Pacotes"
-
-#: hd1.py library.py
-msgid "Bank {id}"
-msgstr "Banco {id}"
 
 #: hd1.py
 msgid "{n} languages"
@@ -2051,6 +2081,18 @@ msgstr "{file} está ausente"
 #: patch.py
 msgid "{file} is cut short"
 msgstr "{file} está incompleto"
+
+#: patchcontent.py
+msgid "The audio of sound {id} isn't in the mod or the game"
+msgstr "O áudio do som {id} não está no mod nem no jogo"
+
+#: patchcontent.py
+msgid "{file} holds no audio"
+msgstr "{file} não tem áudio"
+
+#: patchcontent.py
+msgid "{file} can't be read as a game patch: {why}"
+msgstr "{file} não pode ser lido como um patch do jogo: {why}"
 
 #: project.py
 msgid "The project in {pack} isn't an Audiodiver project"

@@ -438,7 +438,7 @@ def test_a_mod_of_audio_the_game_removed_says_so(session, tmp_path):
     job = s.import_patch(str(path))
     while (j := s.job(job["id"]))["state"] == "running":
         time.sleep(0.2)
-    assert j["state"] != "done" and "no longer has" in j["error"]
+    assert j["state"] != "done" and "no longer has" in j["error"] and "Patch Content" in j["error"], "and where to go instead"
 
 
 @pytest.mark.game

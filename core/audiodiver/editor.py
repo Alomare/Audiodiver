@@ -215,6 +215,7 @@ class Session:
         self._facts = {}  # what project_state found out about the project's folder (_folder_facts)
         # Combine: each patch read (combine.Part) by its digest, and the digest of a patch by where it is and its time
         self._combine_parts, self._combine_ids = collections.OrderedDict(), {}
+        self._content = None  # patchcontent.Content: the mod Tools ▸ Patch Content read last (content_scan)
         self._music_objs = None  # (index, the game's music objects): read when the Soundtrack first needs them
         self._reach = (None, {})  # (the project's settings, what they reach): _setting_reach, read again on a change
         self.game_language = None  # the language the game is set to in Steam ("brazilian"), once the game is found
@@ -2790,7 +2791,8 @@ class Session:
             return got, replaced, {}, 0  # only settings
         if not found and (gone or got.stale) and not got.left:  # e.g. the flag anthem, gone from the game in 7.2.2
             raise EditorError(tr("{file} only changes audio that this game version no longer has. The game removed it "
-                                 "in an update, so there is nothing to bring in.").format(file=patch_path.name))
+                                 "in an update, so there is nothing to bring in.").format(file=patch_path.name) + " "
+                              + tr("Open the mod in Tools ▸ Patch Content to replace that audio inside the mod."))
         if not found:
             raise EditorError(tr("{file} replaces, adds or sets nothing Audiodiver can bring in ({why})").format(
                 file=patch_path.name, why=got.left[0]) if got.left
@@ -3417,6 +3419,173 @@ class Session:
             return {"name": name, "zip": str(zip_path), "mb": round(zip_path.stat().st_size / 1e6, 1),
                     "kept_id": bool(f.manifest and f.guid), "manifest": bool(f.manifest), "parts": parts}
         return self._start("repatch", run, title=name)
+
+    # --- Patch Content (patchcontent.py): new audio for the sounds inside a mod, on the mod's own banks
+    def content_scan(self, path):
+        """What a mod's patches (a .patch_N, a folder or a mod's ZIP) hold for Tools ▸ Patch Content: each sound with
+        the banks it is in, how long it plays and whether the current game has it. The mod stays read for
+        content_preview and content_write."""
+        from .patchcontent import ContentError, read
+        from .repatch import RepatchError, scan
+        try:
+            c = read(scan(path), self.ix)
+        except (RepatchError, ContentError) as e:
+            raise EditorError(str(e)) from None
+        except OSError as e:
+            raise EditorError(tr("Can't read {file}: {why}").format(file=Path(str(path)).name, why=os_error(e))) from None
+        with self.lock:
+            if self._content:
+                self._content.close()
+            self._content = c
+        return self._content_json(c)
+
+    def _in_game(self, sid: int) -> bool:
+        try:
+            return bool(self.ix) and self.ix.resolve(sid) is not None
+        except KeyError:
+            return False
+
+    def _content_bank(self, c, bid: int) -> str:
+        """A bank of a mod by name: as the Library names it, else by the path name the mod spells, else by its ID."""
+        from .titles import title
+        if self.lib and self.ix and bid in self.ix.banks:
+            return self.lib.bank_label(bid)
+        if path := c.banks.get(bid):
+            return title(path.rsplit("/", 1)[-1].replace("_", " "))
+        return tr("Bank {id}").format(id=bid)
+
+    def _content_json(self, c) -> dict:
+        f, sounds = c.found, []
+        for sid, s in sorted(c.sounds.items(), key=lambda x: (self._in_game(x[0]), x[0])):
+            here = self._in_game(sid)
+            name = ""
+            if here and self.lib:
+                item = next((p["item"] for p in self.lib.places(sid) if p.get("item") in self.lib.items), None)
+                name = self.lib.items[item]["full"] if item else ""
+            sounds.append({"source": str(sid), "name": name, "banks": sorted({self._content_bank(c, b) for b in s.banks}),
+                           "kind": s.kind, "duration_ms": round(s.duration_ms, 1), "in_game": here})
+        return {"source": str(f.source), "name": f.name or "Patched mod", "manifest": bool(f.manifest), "zip": f.is_zip,
+                "guid": bool(f.guid), "folder": str(self._repatch_root()), "patches": len(c.files), "banks": len(c.banks),
+                "sounds": sounds}
+
+    def content_preview(self, source):
+        """The mod's audio of one of its sounds as a WAV to play (/audio/file), from the mod content_scan read."""
+        from .patchcontent import ContentError, preview
+        c = self._content
+        if c is None:
+            raise EditorError(tr("Choose a mod first"))
+        try:
+            return {"path": str(preview(c, int(source), self.ix))}
+        except ContentError as e:
+            raise EditorError(str(e)) from None
+        except (subprocess.CalledProcessError, OSError):
+            raise EditorError(tr("Can't decode sound {id}").format(id=source)) from None
+
+    def content_write(self, choices, name="", folder="", remember=True):
+        """The mod content_scan read, made again with new audio: choices {source: an audio file, or "" for silence}.
+        Each patch with one of those sounds is written again, the new audio in every bank and stream that has it and
+        everything else as it was (patchcontent.rewrite), and checked. The ZIP is the mod as it was, its manifest,
+        options, files and ID kept (repatch.repackage); without a manifest it is a mod manager ZIP with an option for
+        each part. A job; its result names the ZIP."""
+        import tempfile
+        from .arsenal import default_icon, name_problem, package
+        from .audio import silence_wav
+        from .build import PATCH, encode_cached
+        from .game import in_game_folder
+        from .patch import Replacement
+        from .patchcontent import rewrite, streams_for, verify
+        from .repatch import clean_name, repackage
+        c = self._content
+        if c is None:
+            raise EditorError(tr("Choose a mod first"))
+        if not isinstance(choices, dict) or not choices:
+            raise EditorError(tr("Give a sound new audio first"))
+        picked = {}
+        for k, v in choices.items():
+            if not str(k).isdigit() or int(k) not in c.sounds:
+                raise EditorError(tr("The mod has no sound {id}").format(id=k))
+            if given(v) and not Path(v).is_file():
+                raise EditorError(tr("{path} wasn't found").format(path=v))
+            picked[int(k)] = str(v) if given(v) else ""
+        f = c.found
+        name = str(name or "").strip() or f.name or "Patched mod"
+        if problem := name_problem(name):
+            raise EditorError(problem)
+        root = Path(folder) if given(folder) else self._repatch_root()
+        if not root.is_absolute():
+            raise EditorError(tr("Choose where the mod goes (a full path)"))
+        if self.ix and in_game_folder(root, self.ix.game.data):
+            raise EditorError(tr("{folder} is inside the game folder, and Audiodiver never writes there").format(folder=root))
+        if any(j.kind in ("build", "repatch", "content") and j.state == "running" for j in self.jobs.values()):
+            raise EditorError(tr("A build is already running"))
+        if given(folder) and remember:
+            save_settings(repatch_folder=str(root))
+
+        def run(job):
+            reps = {}
+            job.total = len(picked) + len(c.files) + 1
+            for i, (sid, src) in enumerate(sorted(picked.items())):
+                job.step(tr("Encoding {name}").format(name=Path(src).name if src else tr("silence")), i)
+                try:
+                    data = wem.with_codebook_hash(encode_cached(Path(src) if src else silence_wav(), log=job.say))
+                except (subprocess.CalledProcessError, OSError, ValueError):
+                    raise EditorError(tr("{name}: can't read the audio in {file}").format(name=sid, file=Path(src).name)) from None
+                reps[sid] = Replacement(sid, data, mute=not src)
+            streams_of = streams_for(c, reps, self.ix)
+            try:
+                root.mkdir(parents=True, exist_ok=True)
+            except OSError as e:
+                raise EditorError(tr("Can't make the folder {folder}: {why}").format(folder=root, why=os_error(e))) from None
+            n = 1
+            while (zip_path := root / (f"{name}.zip" if n == 1 else f"{name} {n}.zip")).exists():
+                n += 1
+            partial = zip_path.with_name(f".{zip_path.name}.partial")
+            with tempfile.TemporaryDirectory(prefix="audiodiver-content-", ignore_cleanup_errors=True) as tmp:
+                rebuilt, banks = {}, set()
+                for i, (key, src) in enumerate(c.files.items()):
+                    job.step(tr("Writing {file}").format(file=Path(key).name), len(picked) + i)
+                    mine = {sid: r for sid, r in reps.items() if key in c.sounds[sid].keys}
+                    if not mine:
+                        continue  # stays as it was
+                    out = Path(tmp) / str(i) / PATCH
+                    out.parent.mkdir(parents=True)
+                    edits = rewrite(src, out, mine, {sid: streams_of[sid] for sid in mine})
+                    if problems := verify(src, out, mine, {sid: streams_of[sid] for sid in mine}):
+                        raise EditorError(tr("The patch failed verification:") + "\n  " + "\n  ".join(problems))
+                    rebuilt[key] = out
+                    banks |= set(edits)
+                    job.say(ntr("{file}: new audio in {n} bank", "{file}: new audio in {n} banks", len(edits)).format(
+                        file=Path(key).name, n=len(edits)))
+                job.step(tr("Packing the ZIP"), job.total - 1)
+                try:
+                    if f.manifest:
+                        repackage(f, partial, rebuilt, name)
+                    else:  # an option for each part of the mod, as Repatch packs a mod without a manifest
+                        icon = Path(tmp) / "icon.png"
+                        icon.write_bytes(default_icon())
+                        options = []
+                        for i, pt in enumerate(f.patches):
+                            label = clean_name(pt.label.replace("/", " ")) or name
+                            for k, key in enumerate(pt.keys):
+                                folder_k = Path(tmp) / f"o{i}-{k}"
+                                folder_k.mkdir()
+                                for suffix in ("", ".stream", ".gpu_resources"):
+                                    made = Path(str(rebuilt.get(key, c.files[key])) + suffix)
+                                    if made.is_file():
+                                        shutil.copyfile(made, folder_k / (PATCH + suffix))
+                                options.append({"name": f"{label} {k + 1}" if pt.also else label, "description": "",
+                                                "folder": folder_k})
+                        package(partial, name=name, guid=str(uuid.uuid4()), icon=icon, options=options)
+                    os.replace(partial, zip_path)
+                except OSError as e:
+                    raise EditorError(tr("Can't write the ZIP into {folder}: {why}").format(folder=root, why=os_error(e))) from None
+                finally:
+                    partial.unlink(missing_ok=True)
+            job.say(tr("{path} ({mb} MB)").format(path=zip_path, mb=f"{zip_path.stat().st_size / 1e6:.1f}"))
+            return {"name": name, "zip": str(zip_path), "mb": round(zip_path.stat().st_size / 1e6, 1), "sounds": len(reps),
+                    "patches": len(rebuilt), "banks": len(banks), "kept_id": bool(f.manifest and f.guid),
+                    "manifest": bool(f.manifest)}
+        return self._start("content", run, title=name)
 
     # --- combining mods (combine.py): several mods in one, built on the game as it is now
     COMBINE_KEPT = 64  # patches read for Combine kept in memory (combine.Part: no audio, the WAVs are on disk)

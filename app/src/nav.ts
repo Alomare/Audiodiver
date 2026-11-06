@@ -11,7 +11,7 @@ export type LibraryGame = "hd2" | "hd1";
 /** The game the window makes mods for: Helldivers 2, or Helldivers 1 once it is found (Home switches; a project opens
     in its own game). Helldivers 1 has no Soundtrack, Text or Tools (HD2_ONLY), and its Library shows only its own. */
 export type Mode = LibraryGame;
-export type ToolsTab = "repatch" | "combine";
+export type ToolsTab = "repatch" | "combine" | "content";
 export type Nav = {
   tab: Tab;
   settings: SettingsTab; // the sub-tab Settings shows
@@ -33,7 +33,7 @@ export type Hideable = typeof HIDEABLE[number];
 const MAIN: Tab[] = ["home", "project", "library", "editor", "soundtrack", "text", "build", "tools"];
 const SETTINGS: SettingsTab[] = ["system", "shortcuts", "theme"];
 const LIBRARY: LibraryTab[] = ["index", "archives"];
-const TOOLS: ToolsTab[] = ["repatch", "combine"];
+const TOOLS: ToolsTab[] = ["repatch", "combine", "content"];
 const LIBRARY_KEY = "audiodiver.libraryTab";
 const GAME_KEY = "audiodiver.libraryGame";
 const MODE_KEY = "audiodiver.mode";

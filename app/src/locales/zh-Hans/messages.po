@@ -12,6 +12,22 @@ msgstr ""
 msgid "(empty)"
 msgstr "（空）"
 
+#. placeholder {0}: scan.banks
+#: src/PatchContentPage.tsx
+msgid "{0, plural, one {# bank} other {# banks}}"
+msgstr "{0, plural, other {# 个音频库}}"
+
+#. placeholder {0}: scan.sounds.length
+#: src/PatchContentPage.tsx
+msgid "{0, plural, one {# sound} other {# sounds}}"
+msgstr "{0, plural, other {# 个声音}}"
+
+#. placeholder {0}: m.sounds
+#. placeholder {1}: m.banks
+#: src/PatchContentPage.tsx
+msgid "{0, plural, one {# sound} other {# sounds}} in {1, plural, one {# bank} other {# banks}}"
+msgstr "{1, plural, other {# 个音频库}}中的{0, plural, other {# 个声音}}"
+
 #. placeholder {0}: sel.length
 #: src/CueView.tsx
 msgid "{0, plural, one {Copy the Audio (# Slot)} other {Copy the Audio (# Slots)}}"
@@ -318,6 +334,11 @@ msgstr "{fillable, plural, other {# 个槽位}}"
 msgid "{fillable, plural, one {The same file in all # slot} other {The same file in all # slots}}"
 msgstr "{fillable, plural, other {所有 # 个槽位使用同一个文件}}"
 
+#. placeholder {0}: s.banks.length - 1
+#: src/PatchContentPage.tsx
+msgid "{first} and {0, plural, one {# more bank} other {# more banks}}"
+msgstr "{first}等{0, plural, other {另外 # 个音频库}}"
+
 #: src/RepatchPage.tsx
 msgid "{first}, and {more} more"
 msgstr "{first}，以及另外 {more} 个"
@@ -352,6 +373,10 @@ msgstr "{full} · 段落"
 msgid "{full} (archive {archive})"
 msgstr "{full}（归档 {archive}）"
 
+#: src/PatchContentPage.tsx
+msgid "{gone, plural, one {# of them is not in the current game.} other {# of them are not in the current game.}}"
+msgstr "{gone, plural, other {其中 # 个不在当前游戏中。}}"
+
 #: src/RepatchPage.tsx
 msgid "{hi, plural, one {{lo} to # replaced or added sound each} other {{lo} to # replaced or added sounds each}}"
 msgstr "{hi, plural, other {每个含 {lo} 到 # 个已替换或新增的声音}}"
@@ -382,6 +407,12 @@ msgstr "{keyName} 现在用于“{command}”。它原本用于“{previous}”�
 #: src/App.tsx
 msgid "{label} didn't install: {why}"
 msgstr "{label} 未能安装：{why}"
+
+#. A sound to play, after Play or Pause and in the now-playing bar
+#. A sound to play, after Play or Pause and in the now-playing bar
+#: src/PatchContentPage.tsx
+msgid "{label} in the mod"
+msgstr "模组中的{label}"
 
 #: src/ProjectTab.tsx
 msgid "{label}: any colour"
@@ -630,6 +661,10 @@ msgstr "{patches, plural, other {不含音频，保持原样}}"
 #: src/TextTab.tsx
 msgid "{picked, plural, one {# line selected} other {# lines selected}}"
 msgstr "{picked, plural, other {已选择 # 行}}"
+
+#: src/PatchContentPage.tsx
+msgid "{picked, plural, one {# sound with new audio} other {# sounds with new audio}}"
+msgstr "{picked, plural, other {# 个声音有新音频}}"
 
 #: src/SliceTool.tsx
 msgid "{pieces, plural, one {# piece} other {# pieces}}"
@@ -1132,6 +1167,10 @@ msgid "A mod carries whole tables. When two mods change the same table, the one 
 msgstr "模组包含完整的文本表。两个模组改动同一张表时，后部署的会覆盖先部署的"
 
 #: src/ToolsTab.tsx
+msgid "A mod holds copies of the sound banks from the game version it was made for, and the game plays those copies instead of the current banks. A sound the copies still have can get new audio there"
+msgstr "模组保存着制作时那个游戏版本的音频库副本，游戏会用这些副本代替当前的音频库。副本中仍有的声音可以在那里换上新音频"
+
+#: src/ToolsTab.tsx
 msgid "A mod holds copies of the sound banks from the game version it was made for. Repatching puts the mod's audio into the current banks"
 msgstr "模组里带着制作它时那版游戏的音频库副本。Repatch 会将模组的音频放入当前的音频库"
 
@@ -1147,10 +1186,15 @@ msgstr "默认情况下，列表中靠下的模组在冲突中优先"
 msgid "A mod made for an older game version carries the text of that version too. Untick the lines where only the game changed."
 msgstr "为旧版本游戏制作的模组也带有那一版的文本。请取消勾选那些只是游戏本身改动的行。"
 
+#: src/PatchContentPage.tsx
+msgid "A mod made this way is still the work of the original author. Keep it for personal use, and share it only with the author's permission."
+msgstr "以这种方式制作的模组仍是原作者的作品。仅供个人使用，如需分享，须获得作者许可。"
+
 #: src/api.ts
 msgid "A mod needs a name."
 msgstr "模组需要一个名称。"
 
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "A mod unpacked into a folder"
 msgstr "解压到文件夹中的模组"
@@ -1308,6 +1352,7 @@ msgstr "有教程正在进行"
 msgid "A whole number from 1 to 99999."
 msgstr "1 到 99999 之间的整数。"
 
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "A ZIP or a .patch_0 file"
 msgstr "ZIP 或 .patch_0 文件"
@@ -1551,6 +1596,10 @@ msgstr "所有快捷键"
 msgid "All shortcuts reset to default."
 msgstr "所有快捷键已重置为默认值。"
 
+#: src/PatchContentPage.tsx
+msgid "All Sounds ({n})"
+msgstr "所有声音（{n}）"
+
 #: src/SettingsTab.tsx
 msgid "Almost immediately."
 msgstr "几乎立即。"
@@ -1596,6 +1645,10 @@ msgstr "用旧版本构建的模组可能会把没改动过的声音也变成静
 #: src/App.tsx
 msgid "An unpack is still running."
 msgstr "解包仍在进行中。"
+
+#: src/PatchContentPage.tsx
+msgid "An update took a sound out of the game, and a mod made before it still has the sound. The game plays the banks in the mod, so the sound comes back with the new audio."
+msgstr "更新从游戏中移除了某个声音，而更新前制作的模组里仍有这个声音。游戏会播放模组中的音频库，因此这个声音会带着新音频回来。"
 
 #. Between two groups of the play order that play in a random order
 #: src/Soundtrack.tsx
@@ -2062,6 +2115,7 @@ msgstr "无法连接到 GitHub"
 #: src/Confirm.tsx
 #: src/ExportDialog.tsx
 #: src/ImportMod.tsx
+#: src/PatchContentPage.tsx
 #: src/ProjectTab.tsx
 #: src/RepatchPage.tsx
 #: src/SettingsTab.tsx
@@ -2076,6 +2130,7 @@ msgid "cancelled"
 msgstr "已取消"
 
 #: src/CombinePage.tsx
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Cancelled"
 msgstr "已取消"
@@ -2106,11 +2161,13 @@ msgstr "更改"
 
 #. Button that chooses another destination folder
 #. Button that chooses another destination folder
+#. Button that chooses another destination folder
 #. Button: choose another destination folder for builds
 #. Button: opens Settings to change the update mode
 #. Button: type another mod ID
 #: src/BuildTab.tsx
 #: src/CombinePage.tsx
+#: src/PatchContentPage.tsx
 #: src/ProjectTab.tsx
 #: src/RepatchPage.tsx
 #: src/SliceTool.tsx
@@ -2289,6 +2346,7 @@ msgstr "为所选槽位选择文件"
 msgid "Choose a folder"
 msgstr "选择文件夹"
 
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Choose a Folder"
 msgstr "选择文件夹"
@@ -2301,6 +2359,11 @@ msgstr "选择存放全局备注的文件夹"
 msgid "Choose a line of text to import"
 msgstr "选择要导入的文本行"
 
+#: src/PatchContentPage.tsx
+msgid "Choose a mod"
+msgstr "选择模组"
+
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Choose a mod first"
 msgstr "请先选择模组"
@@ -2331,6 +2394,7 @@ msgstr "选择要切分到各槽位的歌曲。"
 msgid "Choose a song to cut into up to {pieces, plural, one {# piece} other {# pieces}}, or drop one here."
 msgstr "选择歌曲，最多切成 {pieces, plural, other {# 段}}，也可以直接拖一首到这里。"
 
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Choose a ZIP or Patch File"
 msgstr "选择 ZIP 或补丁文件"
@@ -2343,10 +2407,12 @@ msgstr "选择图片"
 msgid "Choose an image for the icon"
 msgstr "为图标选择图片"
 
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Choose Another File"
 msgstr "选择其他文件"
 
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 #: src/SettingsTab.tsx
 msgid "Choose Another Folder"
@@ -2375,6 +2441,10 @@ msgstr "选择其他歌曲"
 #: src/Soundtrack.tsx
 msgid "Choose Another Song"
 msgstr "选择其他歌曲"
+
+#: src/PatchContentPage.tsx
+msgid "Choose File"
+msgstr "选择文件"
 
 #: src/Inspector.tsx
 msgid "Choose Files"
@@ -2412,6 +2482,7 @@ msgstr "选择 Helldivers 2 安装文件夹"
 msgid "Choose the Helldivers 2 install folder, usually <0>…\\steamapps\\common\\Helldivers 2</0>. Audiodiver only reads from it."
 msgstr "选择 Helldivers 2 的安装文件夹，通常为 <0>…\\steamapps\\common\\Helldivers 2</0>。Audiodiver 只会读取其中的内容。"
 
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Choose the mod folder"
 msgstr "选择模组文件夹"
@@ -2423,6 +2494,10 @@ msgstr "选择合并后模组的存放位置"
 #: src/RepatchPage.tsx
 msgid "Choose where repatched mods go"
 msgstr "选择 Repatch 后模组的存放位置"
+
+#: src/PatchContentPage.tsx
+msgid "Choose where the new mod goes"
+msgstr "选择新模组的存放位置"
 
 #: src/ImportMod.tsx
 msgid "Choose where the project goes"
@@ -2993,6 +3068,7 @@ msgstr "描述"
 #: src/BuildTab.tsx
 #: src/CombinePage.tsx
 #: src/ExportDialog.tsx
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Destination folder"
 msgstr "目标文件夹"
@@ -3075,6 +3151,7 @@ msgstr "按此增益绘制和播放"
 msgid "Drawn as the line around the waveform"
 msgstr "以波形周围的线表示"
 
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Drop a mod here as a <0>ZIP</0>, a <1>folder</1> or a <2>.patch_0</2> file."
 msgstr "把模组拖到这里：<0>ZIP</0>、<1>文件夹</1>或 <2>.patch_0</2> 文件都行。"
@@ -3082,6 +3159,10 @@ msgstr "把模组拖到这里：<0>ZIP</0>、<1>文件夹</1>或 <2>.patch_0</2>
 #: src/Soundtrack.tsx
 msgid "Drop a Song or Choose a File"
 msgstr "拖入歌曲或选择文件"
+
+#: src/App.tsx
+msgid "Drop an audio file on a sound"
+msgstr "请把音频文件拖放到声音上"
 
 #: src/App.tsx
 msgid "Drop an image here to make it the icon"
@@ -3094,6 +3175,10 @@ msgstr "在音频选项卡中将音频拖到槽位上"
 #: src/App.tsx
 msgid "Drop audio on a slot, a group of takes, a piece in the list or a title"
 msgstr "将音频拖到槽位、变体组、列表中的曲目或标题上"
+
+#: src/PatchContentPage.tsx
+msgid "Drop audio on a sound, or choose a file for it. The sounds without new audio stay as the mod has them."
+msgstr "把音频拖放到声音上，或为它选择文件。没有新音频的声音保持模组中的原样。"
 
 #: src/Inspector.tsx
 msgid "Drop audio on the slot, or press {choose} to choose a file."
@@ -3381,6 +3466,10 @@ msgstr "每个变体各一个文件"
 #: src/UpdatesTab.tsx
 msgid "Every version is collapsed"
 msgstr "所有版本均已折叠"
+
+#: src/PatchContentPage.tsx
+msgid "Everything else in the mod"
+msgstr "模组中的其他所有内容"
 
 #: src/IndexTree.tsx
 msgid "Everything here is replaced."
@@ -3781,9 +3870,17 @@ msgstr "GitHub 每小时允许检查 60 次。"
 msgid "GitHub allows 60 checks an hour. Try again in a few minutes."
 msgstr "GitHub 每小时允许检查 60 次。请几分钟后再试。"
 
+#: src/PatchContentPage.tsx
+msgid "Give a sound new audio first"
+msgstr "请先为一个声音提供新音频"
+
 #: src/CueView.tsx
 msgid "Give every take new audio to replace the sound completely"
 msgstr "为每个变体提供新音频，即可完全替换该声音"
+
+#: src/ToolsTab.tsx
+msgid "Give new audio to sounds inside an existing mod, also sounds the game no longer has"
+msgstr "为已有模组中的声音提供新音频，包括游戏中已没有的声音"
 
 #: src/SettingsTab.tsx
 msgid "Give this a key"
@@ -3994,6 +4091,10 @@ msgstr "图标"
 #: src/SettingsTab.tsx
 msgid "Icons only. Names show in tooltips."
 msgstr "仅显示图标。名称显示在工具提示中。"
+
+#: src/PatchContentPage.tsx
+msgid "ID {id}"
+msgstr "ID {id}"
 
 #: src/SettingsTab.tsx
 msgid "If something is wrong with a translation, please <0>report it as an issue</0>."
@@ -4224,6 +4325,7 @@ msgstr "结束于当时正在播放的段落，“下一场战斗”从那里接
 msgid "It ends with the segment playing at that time, and Play Again goes on from there"
 msgstr "结束于当时正在播放的段落，“再次播放”从那里接着往下走"
 
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "It keeps the old mod ID, so importing it in a mod manager updates the old mod."
 msgstr "沿用旧模组 ID，因此在模组管理器中导入会直接更新旧模组。"
@@ -4292,6 +4394,10 @@ msgstr "保留音量曲线"
 msgid "Keep Working"
 msgstr "继续工作"
 
+#: src/PatchContentPage.tsx
+msgid "Keeps everything else as the mod has it: the banks, the other sounds, the options, files and ID."
+msgstr "其他所有内容保持模组中的原样：音频库、其他声音、选项、文件和 ID。"
+
 #. Tag on a slot replaced with silence: it stays silent as long as the original plays
 #: src/CueView.tsx
 msgid "keeps timing"
@@ -4301,6 +4407,7 @@ msgstr "保持时长"
 msgid "Keeps what the patches hold besides audio, like text, models or textures, as it was."
 msgstr "补丁中音频以外的内容，例如文本、模型或纹理，都会保持原样。"
 
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Kept as it was"
 msgstr "保持原样"
@@ -4505,8 +4612,10 @@ msgstr "正在加载原版…"
 #. Noun: the lines written while the job ran
 #. Noun: the lines written while the job ran
 #. Noun: the lines written while the job ran
+#. Noun: the lines written while the job ran
 #: src/BuildTab.tsx
 #: src/CombinePage.tsx
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Log"
 msgstr "日志"
@@ -4732,6 +4841,7 @@ msgid "More"
 msgstr "更多"
 
 #: src/CombinePage.tsx
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "More in the Wiki"
 msgstr "在 Wiki 中了解更多"
@@ -4852,6 +4962,7 @@ msgstr "我的模组"
 
 #: src/CombinePage.tsx
 #: src/Library.tsx
+#: src/PatchContentPage.tsx
 #: src/ProjectTab.tsx
 #: src/RepatchPage.tsx
 msgid "Name"
@@ -4870,6 +4981,7 @@ msgid "Name in the Index"
 msgstr "索引中的名称"
 
 #: src/CombinePage.tsx
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Name shown in the mod manager."
 msgstr "在模组管理器中显示的名称。"
@@ -4942,6 +5054,7 @@ msgid "new and recent projects"
 msgstr "新建和最近的项目"
 
 #: src/Inspector.tsx
+#: src/PatchContentPage.tsx
 #: src/SliceTool.tsx
 msgid "New audio"
 msgstr "新音频"
@@ -5239,6 +5352,10 @@ msgstr "此处不能放歌曲"
 msgid "No sound here matches “{query}”."
 msgstr "此处没有与“{query}”匹配的声音。"
 
+#: src/PatchContentPage.tsx
+msgid "No sound matches the search."
+msgstr "没有与搜索匹配的声音。"
+
 #: src/ImportMod.tsx
 msgid "No text"
 msgstr "无文本"
@@ -5280,6 +5397,14 @@ msgstr "尚未构建"
 #: src/SettingsTab.tsx
 msgid "Not found"
 msgstr "未找到"
+
+#: src/PatchContentPage.tsx
+msgid "Not in the game"
+msgstr "不在游戏中"
+
+#: src/PatchContentPage.tsx
+msgid "Not in the Game ({n})"
+msgstr "不在游戏中（{n}）"
 
 #: src/Inspector.tsx
 #: src/Timeline.tsx
@@ -5667,6 +5792,10 @@ msgstr "请先打开项目，才能导出项目备注"
 msgid "Open an entry on the left and drop audio on the slots. Find more in the <0>Library</0>."
 msgstr "打开左侧的条目，将音频拖到槽位上。在<0>资源库</0>中查找更多内容。"
 
+#: src/PatchContentPage.tsx
+msgid "Open Another Mod"
+msgstr "打开另一个模组"
+
 #: src/CueView.tsx
 #: src/IndexTree.tsx
 #: src/Library.tsx
@@ -5761,6 +5890,10 @@ msgstr "在文本选项卡中打开字幕"
 #: src/Soundtrack.tsx
 msgid "Openings"
 msgstr "开场"
+
+#: src/PatchContentPage.tsx
+msgid "Opens a mod as it is and lists the sounds in the patches, also those the current game no longer has."
+msgstr "按原样打开模组，列出补丁中的声音，包括当前游戏中已没有的声音。"
 
 #: src/About.tsx
 #: src/Home.tsx
@@ -5971,6 +6104,10 @@ msgstr "已将 {copied, plural, other {# 个文件}}粘贴到 {slots, plural, ot
 msgid "Pasted into {slots, plural, one {# slot} other {# slots}}"
 msgstr "已粘贴到 {slots, plural, other {# 个槽位}}"
 
+#: src/ToolsTab.tsx
+msgid "Patch Content"
+msgstr "补丁内容"
+
 #: src/BuildTab.tsx
 #: src/CombinePage.tsx
 #: src/RepatchPage.tsx
@@ -5996,6 +6133,14 @@ msgstr "暂停"
 #: src/CueView.tsx
 msgid "Pause {label}"
 msgstr "暂停 {label}"
+
+#: src/PatchContentPage.tsx
+msgid "Pause {name}"
+msgstr "暂停 {name}"
+
+#: src/PatchContentPage.tsx
+msgid "Pause {what}"
+msgstr "暂停 {what}"
 
 #: src/SliceTool.tsx
 msgid "Pause piece {piece}"
@@ -6078,9 +6223,14 @@ msgid "Play {n}, Replaced"
 msgstr "第 {n} 次播放，已替换"
 
 #. A checkbox: whether the segment plays or is left out
+#: src/PatchContentPage.tsx
 #: src/Soundtrack.tsx
 msgid "Play {name}"
 msgstr "播放 {name}"
+
+#: src/PatchContentPage.tsx
+msgid "Play {what}"
+msgstr "播放 {what}"
 
 #: src/Soundtrack.tsx
 msgid "Play a fight · Original"
@@ -6434,6 +6584,10 @@ msgstr "把文件放回原处，或者到音频选项卡给这个槽位换一个
 msgid "put the songs there and in the places after it"
 msgstr "将歌曲放到该位置及其后的位置"
 
+#: src/PatchContentPage.tsx
+msgid "Puts new audio into the sounds chosen, in every bank and stream of the mod that has them."
+msgstr "把新音频放入所选的声音，模组中凡是包含这些声音的音频库和流都会写入。"
+
 #: src/About.tsx
 msgid "Questions, feedback and help"
 msgstr "问题、反馈与帮助"
@@ -6513,6 +6667,7 @@ msgstr "正在读取歌曲…"
 
 #: src/CombinePage.tsx
 #: src/ExportDialog.tsx
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Reading…"
 msgstr "正在读取…"
@@ -6678,6 +6833,7 @@ msgid "Remove the audio"
 msgstr "移除音频"
 
 #: src/CueView.tsx
+#: src/PatchContentPage.tsx
 msgid "Remove the new audio"
 msgstr "移除新音频"
 
@@ -6693,6 +6849,11 @@ msgstr "移除此处所有槽位的新音频"
 msgid "Remove the new audio from the selected slots"
 msgstr "移除所选槽位的新音频"
 
+#: src/PatchContentPage.tsx
+msgid "Remove the new audio of {label}"
+msgstr "移除 {label} 的新音频"
+
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Remove the old mod in the mod manager before importing this one."
 msgstr "导入此模组前，请先在模组管理器中移除旧模组。"
@@ -6794,6 +6955,10 @@ msgstr "重复播放，直到游戏进入下一段"
 msgid "Replace audio there"
 msgstr "在那里替换音频"
 
+#: src/ToolsTab.tsx
+msgid "Replace sounds inside an existing mod, also sounds that an update took out of the game."
+msgstr "替换已有模组中的声音，包括更新从游戏中移除的声音。"
+
 #: src/App.tsx
 msgid "replace the audio of what the project lists"
 msgstr "替换项目所列内容的音频"
@@ -6813,6 +6978,10 @@ msgstr "替换枪声"
 #: src/CueView.tsx
 msgid "Replace the silence with a file"
 msgstr "用文件替换静音"
+
+#: src/PatchContentPage.tsx
+msgid "Replace the sound with silence"
+msgstr "用静音替换该声音"
 
 #: src/IndexTree.tsx
 #: src/ItemHead.tsx
@@ -7039,6 +7208,10 @@ msgstr "搜索快捷键"
 #: src/SettingsTab.tsx
 msgid "Search a shortcut by function or key"
 msgstr "按功能或按键搜索快捷键"
+
+#: src/PatchContentPage.tsx
+msgid "Search by ID or name"
+msgstr "按 ID 或名称搜索"
 
 #: src/TextTab.tsx
 msgid "Search lines"
@@ -7294,6 +7467,7 @@ msgstr "在文件夹中显示"
 #: src/BuildTab.tsx
 #: src/CombinePage.tsx
 #: src/CueView.tsx
+#: src/PatchContentPage.tsx
 #: src/ProjectTab.tsx
 #: src/RepatchPage.tsx
 #: src/SettingsTab.tsx
@@ -7355,6 +7529,10 @@ msgstr "构建完成后在资源管理器中显示 ZIP"
 msgid "Show these shortcuts"
 msgstr "显示这些快捷键"
 
+#: src/PatchContentPage.tsx
+msgid "Showing {n} of {total}. Search to narrow the list."
+msgstr "显示 {total} 个中的 {n} 个。搜索以缩小列表。"
+
 #: src/Notes.tsx
 msgid "Shown in every project and in the Library, from the notes file in the folder set in Settings ▸ System. A note on a slot shows wherever the clip plays. Markdown formats headings, lists, bold and links."
 msgstr "备注会显示在每个项目和资源库里，内容取自“设置 ▸ 系统”里所设文件夹中的备注文件。槽位上的备注会在该片段播放的每一处出现。Markdown 可写标题、列表、粗体和链接。"
@@ -7386,6 +7564,7 @@ msgstr "静音"
 #: src/CueView.tsx
 #: src/Inspector.tsx
 #: src/Library.tsx
+#: src/PatchContentPage.tsx
 #: src/Soundtrack.tsx
 msgid "Silence"
 msgstr "静音"
@@ -7553,15 +7732,24 @@ msgstr "歌曲"
 msgid "sound"
 msgstr "声音"
 
+#: src/PatchContentPage.tsx
+msgid "Sound {id}"
+msgstr "声音 {id}"
+
 #: src/CueView.tsx
 #: src/ExportDialog.tsx
 #: src/Library.tsx
+#: src/PatchContentPage.tsx
 msgid "Sounds"
 msgstr "声音"
 
 #: src/tutorials.ts
 msgid "Sounds and their takes"
 msgstr "声音及其变体"
+
+#: src/PatchContentPage.tsx
+msgid "Sounds shown"
+msgstr "显示的声音"
 
 #: src/CombinePage.tsx
 msgid "Sounds that more than one mod changes. Choose which mod's version goes in."
@@ -7631,6 +7819,7 @@ msgstr "正在启动"
 
 #: src/App.tsx
 #: src/CombinePage.tsx
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Starting…"
 msgstr "正在启动…"
@@ -7883,6 +8072,10 @@ msgstr "此音频是其他音乐的一部分，会随之改变"
 msgid "The Audio tab"
 msgstr "音频选项卡"
 
+#: src/PatchContentPage.tsx
+msgid "The banks in the mod stay as the game version it was made for had them. For sounds the game still has, a project or <0>Repatch</0> builds on the current banks."
+msgstr "模组中的音频库保持制作时那个游戏版本的样子。对于游戏中仍有的声音，项目或 <0>Repatch</0> 会基于当前的音频库构建。"
+
 #: src/Soundtrack.tsx
 msgid "The Battle music plays here, at the Battle level"
 msgstr "此处播放战斗音乐，音量与战斗相同"
@@ -7906,6 +8099,10 @@ msgstr "“着色”应用的颜色"
 #: src/CombinePage.tsx
 msgid "The combined mod"
 msgstr "合并后的模组"
+
+#: src/PatchContentPage.tsx
+msgid "The current game doesn't have this sound. The banks in the mod bring it back."
+msgstr "当前游戏没有这个声音。模组中的音频库会把它带回来。"
 
 #: src/SettingsTab.tsx
 msgid "The default."
@@ -8208,6 +8405,7 @@ msgid "The new audio plays only in this sound. Other sounds that play the clip k
 msgstr "新音频仅在此声音中播放。播放该片段的其他声音保留原版"
 
 #: src/CombinePage.tsx
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "The new ZIP goes here. A ZIP with the same name stays, and the new one gets a number."
 msgstr "新的 ZIP 就放在这里。同名 ZIP 会保留，新 ZIP 自动加编号。"
@@ -8467,6 +8665,10 @@ msgstr "声音"
 #: src/IndexTree.tsx
 msgid "The sounds are in {name}"
 msgstr "这些声音位于 {name}"
+
+#: src/PatchContentPage.tsx
+msgid "The sounds that only the mod has, such as audio an update took out of the game"
+msgstr "只有模组中才有的声音，例如更新从游戏中移除的音频"
 
 #: src/Home.tsx
 msgid "The source code, issues and releases. Opens github.com/Alomare/Audiodiver"
@@ -9000,6 +9202,7 @@ msgid "What each template does. Undo takes back a whole template"
 msgstr "各模板的作用。撤销会撤回整个模板"
 
 #: src/CombinePage.tsx
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "What it does"
 msgstr "作用"
@@ -9020,6 +9223,10 @@ msgstr "什么是开场，以及如何更改"
 #: src/ExportDialog.tsx
 msgid "What to export"
 msgstr "导出内容"
+
+#: src/PatchContentPage.tsx
+msgid "What to know"
+msgstr "须知"
 
 #: src/SettingsTab.tsx
 msgid "When changes go into the project file."
@@ -9046,6 +9253,7 @@ msgid "When this is on, the next segment starts when the new audio ends. When it
 msgstr "开启时，新音频结束后下一个段落才开始。关闭时，沿用原版的时序。"
 
 #: src/CombinePage.tsx
+#: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "When to use it"
 msgstr "何时使用"
@@ -9155,6 +9363,40 @@ msgstr "处理中"
 #: src/Notes.tsx
 msgid "Write a note"
 msgstr "写备注"
+
+#: src/PatchContentPage.tsx
+msgid "Write the Mod"
+msgstr "写入模组"
+
+#: src/PatchContentPage.tsx
+msgid "Write the mod again with the new audio, everything else as it was"
+msgstr "用新音频重新写入模组，其他所有内容保持原样"
+
+#: src/PatchContentPage.tsx
+msgid "Writing"
+msgstr "正在写入"
+
+#. Tools ▸ Patch Content: writing a mod again with new audio for some of the sounds in it
+#: src/store.tsx
+msgid "Writing cancelled"
+msgstr "写入已取消"
+
+#: src/PatchContentPage.tsx
+msgid "Writing failed"
+msgstr "写入失败"
+
+#. Tools ▸ Patch Content: writing a mod again with new audio for some of the sounds in it
+#: src/store.tsx
+msgid "Writing the mod failed: {why}"
+msgstr "写入模组失败：{why}"
+
+#: src/PatchContentPage.tsx
+msgid "Written"
+msgstr "已写入"
+
+#: src/store.tsx
+msgid "Wrote {title}: {file} ({mb} MB)."
+msgstr "已写入 {title}：{file}（{mb} MB）。"
 
 #: src/content.ts
 msgid "Wwise property IDs, the difference between Volume and Make-Up Gain, and how new takes, layers and clips go into a bank"

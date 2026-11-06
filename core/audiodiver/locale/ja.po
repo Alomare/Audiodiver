@@ -255,7 +255,7 @@ msgid "cue points of {n} segment without new audio left out"
 msgid_plural "cue points of {n} segments without new audio left out"
 msgstr[0] "新しい音声のない {n} 個のセグメントのキューポイントを除外"
 
-#: build.py
+#: build.py editor.py
 msgid "The patch failed verification:"
 msgstr "パッチの検証に失敗しました："
 
@@ -307,7 +307,7 @@ msgstr "{folder}はゲームフォルダー内にあり、Audiodiverはそこに
 msgid "encoding {file}"
 msgstr "{file}をエンコード中"
 
-#: build.py
+#: build.py editor.py
 msgid "Encoding {name}"
 msgstr "{name}をエンコード中"
 
@@ -351,7 +351,7 @@ msgstr "{folder}内のパッチファイル"
 msgid "Icon: {why}"
 msgstr "アイコン：{why}"
 
-#: build.py
+#: build.py editor.py
 msgid "{name}: can't read the audio in {file}"
 msgstr "{name}：{file}の音声を読み取れません"
 
@@ -702,6 +702,22 @@ msgstr "RepatchしたMODの保存先を選択してください（フルパス�
 msgid "A build is already running"
 msgstr "ビルドはすでに実行中です"
 
+#: editor.py hd1.py library.py
+msgid "Bank {id}"
+msgstr "バンク {id}"
+
+#: editor.py
+msgid "Choose a mod first"
+msgstr "先にMODを選択してください"
+
+#: editor.py
+msgid "Give a sound new audio first"
+msgstr "先にサウンドに新しい音声を入れてください"
+
+#: editor.py
+msgid "Choose where the mod goes (a full path)"
+msgstr "MODの保存先を選択してください（フルパス）"
+
 #: editor.py
 msgid "Choose the mods to combine"
 msgstr "統合するMODを選択してください"
@@ -877,6 +893,10 @@ msgid "reading {file}"
 msgstr "{file}を読み込み中"
 
 #: editor.py
+msgid "Open the mod in Tools ▸ Patch Content to replace that audio inside the mod."
+msgstr "その音声をMOD内で置き換えるには、ツール ▸ パッチの内容でMODを開いてください。"
+
+#: editor.py
 msgid "{name} holds no audio or text that Audiodiver can bring in"
 msgstr "{name}には、Audiodiverが取り込める音声やテキストがありません"
 
@@ -1025,10 +1045,6 @@ msgstr[0] "MODのボリュームカーブ {n} 個"
 msgid "radio filter off for {n} voice, from the mod"
 msgid_plural "radio filter off for {n} voices, from the mod"
 msgstr[0] "Modから：{n} 個の音声で無線フィルターをオフ"
-
-#: editor.py
-msgid "{file} only changes audio that this game version no longer has. The game removed it in an update, so there is nothing to bring in."
-msgstr "{file} は、このバージョンのゲームにはもう存在しないオーディオだけを変更しています。ゲームのアップデートで削除されたため、取り込めるものはありません。"
 
 #: editor.py
 msgid "Decoding {n} of {total}"
@@ -1201,6 +1217,14 @@ msgid_plural "{n} other files, such as models or textures"
 msgstr[0] "その他のファイル（モデルやテクスチャなど）{n} 個"
 
 #: editor.py
+msgid "Can't decode sound {id}"
+msgstr "サウンド {id} をデコードできません"
+
+#: editor.py patchcontent.py
+msgid "The mod has no sound {id}"
+msgstr "MODにサウンド {id} はありません"
+
+#: editor.py
 msgid "--- {name} ({n} of {total})"
 msgstr "--- {name}（{n}/{total}）"
 
@@ -1290,12 +1314,25 @@ msgid "stream {id} is not in this game version; skipped"
 msgstr "ストリーム {id} はこのゲームバージョンにないため、スキップしました"
 
 #: editor.py
+msgid "{file} only changes audio that this game version no longer has. The game removed it in an update, so there is nothing to bring in."
+msgstr "{file} は、このバージョンのゲームにはもう存在しないオーディオだけを変更しています。ゲームのアップデートで削除されたため、取り込めるものはありません。"
+
+#: editor.py
 msgid "source {id}: can't decode the audio; skipped"
 msgstr "ソース {id}：音声をデコードできないため、スキップしました"
 
 #: editor.py
 msgid "The files besides audio can't be read: {why}"
 msgstr "音声以外のファイルを読み取れません：{why}"
+
+#: editor.py
+msgid "Writing {file}"
+msgstr "{file}を書き込み中"
+
+#: editor.py
+msgid "{file}: new audio in {n} bank"
+msgid_plural "{file}: new audio in {n} banks"
+msgstr[0] "{file}：{n}個のサウンドバンクに新しい音声"
 
 #: editor.py
 msgid "Reading {name}"
@@ -1346,10 +1383,6 @@ msgstr "{segment}、{n}/{total}"
 #: editor.py
 msgid "segment"
 msgstr "セグメント"
-
-#: editor.py
-msgid "Writing {file}"
-msgstr "{file}を書き込み中"
 
 #: errors.py
 msgid "{file} wasn't found"
@@ -1590,10 +1623,6 @@ msgstr "どのイベントも再生しないクリップ"
 #: hd1.py library.py
 msgid "All Archives"
 msgstr "すべてのアーカイブ"
-
-#: hd1.py library.py
-msgid "Bank {id}"
-msgstr "バンク {id}"
 
 #: hd1.py
 msgid "{n} languages"
@@ -1991,6 +2020,18 @@ msgstr "{file}がありません"
 #: patch.py
 msgid "{file} is cut short"
 msgstr "{file}が途中で切れています"
+
+#: patchcontent.py
+msgid "The audio of sound {id} isn't in the mod or the game"
+msgstr "サウンド {id} の音声はMODにもゲームにもありません"
+
+#: patchcontent.py
+msgid "{file} holds no audio"
+msgstr "{file}に音声はありません"
+
+#: patchcontent.py
+msgid "{file} can't be read as a game patch: {why}"
+msgstr "{file}をゲームのパッチとして読み込めません：{why}"
 
 #: project.py
 msgid "The project in {pack} isn't an Audiodiver project"

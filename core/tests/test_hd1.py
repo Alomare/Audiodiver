@@ -470,6 +470,37 @@ def test_rows_with_the_same_bytes_share_a_file_and_the_size_stays_the_new_audio(
         assert len({x["data"] for x in rows}) == 1 and len([n for n in z.namelist() if n.startswith("res/")]) == 1
 
 
+def test_the_mod_manager_deploys_new_clips_beside_the_master_and_leaves_the_banks(game, tmp_path, monkeypatch):
+    """The overlay (Obsidian's overlay.rs): the master names a new ID where it named a replaced clip, and a bank of
+    those IDs holds, in each language, what that language plays; a language like language 0 has no variant."""
+    import zipfile
+    from audiodiver import hd1_build
+    from audiodiver.project import Replacement
+    s, _ = recipe_game(tmp_path, game, monkeypatch)  # new audio for "one" in French only
+    h, p = s.hd1, s.project
+    zip_path = hd1_build.build(p, h, log=lambda *_: None)
+    master, banks = hd1_build.overlay(h, zip_path)
+    new = hd1_build.overlay_ids({CLIPS["one"]}, set())[CLIPS["one"]]
+    assert new == murmur64_hash(f"obsidian/clip/{CLIPS['one']:016x}".encode())
+    assert [c for _, c in hd1_build.clip_places(master)] == [new, CLIPS["two"], CLIPS["two"]]
+    assert len(master) == len(hd1_build.game_master(h)), "only the IDs change"
+    assert sorted(banks) == [0, 0x100], "French plays other audio than the rest"
+    with zipfile.ZipFile(zip_path) as z:
+        mine = z.read(next(n for n in z.namelist() if n.startswith("res/")))
+
+    def clip(raw, clip_id):
+        r = {r[0]: r for r in hd1_build.rows_of(raw)}[clip_id]
+        return raw[r[1]:r[1] + r[2]]
+    english, _ = hd1_build.bank_files(h, next(b for b in h.banks if b["lang"] == 0))
+    assert clip(banks[0x100][0], new) == mine, "the new clip in French"
+    assert clip(banks[0][0], new) == clip(english, CLIPS["one"]), "the game's own clip in the other languages"
+    # the same file in both languages: one variant, which every language falls back to
+    p.replacements.append(Replacement(target=hd1.source(CLIPS["one"], 0), audio=p.replacements[0].audio))
+    p.version += 1
+    _, banks = hd1_build.overlay(h, hd1_build.build(p, h, log=lambda *_: None))
+    assert sorted(banks) == [0] and hd1_build.rows_of(banks[0][0])[0][0] == new
+
+
 def spoil(zip_path, change):
     """The mod with its manifest and files changed: change(manifest, files)."""
     import json
