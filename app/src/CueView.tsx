@@ -232,6 +232,12 @@ function CueBody({ cue }: { cue: Cue }) {
   }, [all, q, assigned]);
   /** The slots that show: all of a music cue's; of a bank's, those of the open groups or the ones the filter finds. */
   const rows = useMemo(() => (hits ? hits.slice(0, MAX_SHOWN) : grouped ? all.filter(isOpen) : all), [hits, grouped, all, isOpen]);
+  /** What Select All and the toolbar's tick take: every slot on the list, the takes of folded sequences too, or
+      the matches a search shows. */
+  const selectable = useMemo(() => (grouped && !hits ? all : rows).map((r) => r.slot.source), [grouped, hits, all, rows]);
+  /** The slots of a selection, in list order: those of folded sequences too, which a sequence's tick or Select All
+      selects without opening them. */
+  const picks = (sel: readonly string[]) => { const s = new Set(sel); return all.filter((r) => s.has(r.slot.source)); };
   // a slot that gets selected from elsewhere (a search, the now-playing bar, "also plays in") shows: its group opens,
   // and the list scrolls to it if none of it is on screen. One clicked or ticked here stays where it is, and a folded
   // sound ticked as a whole stays folded.
@@ -239,9 +245,10 @@ function CueBody({ cue }: { cue: Cue }) {
   // a selection made before the list has its slots (new takes, selected as the bank reloads): shown once it has them
   const waiting = useRef<{ sel: string[]; own: boolean } | null>(null);
   const showSelected = (sel: string[], own: boolean) => {
-    if (grouped && !all.some((r) => sel.includes(r.slot.source))) { waiting.current = { sel, own }; return; }
+    const has = new Set(sel);
+    if (grouped && !all.some((r) => has.has(r.slot.source))) { waiting.current = { sel, own }; return; }
     waiting.current = null;
-    const shut = grouped && !own ? all.filter((r) => sel.includes(r.slot.source) && !isOpen(r)).map((r) => r.segIndex) : [];
+    const shut = grouped && !own ? all.filter((r) => has.has(r.slot.source) && !isOpen(r)).map((r) => r.segIndex) : [];
     if (shut.length) setFlipped((f) => { const next = new Set(f); for (const i of shut) if (openByDefault) next.delete(i); else next.add(i); return next; });
     if (!own && sel.length === 1) win.reveal(sel[0], { block: "center", hidden: true });
   };
@@ -271,8 +278,8 @@ function CueBody({ cue }: { cue: Cue }) {
       const i = rows.findIndex((r) => r.slot.source === selected[0]);
       return rows.slice(Math.max(0, i)).filter(usable).slice(0, clip.length).map((r) => r.slot.source);
     }
-    return rows.filter((r) => selected.includes(r.slot.source)).map((r) => r.slot.source);
-  }, [rows, selected, clip]);
+    return picks(selected).map((r) => r.slot.source);
+  }, [rows, all, selected, clip]); // eslint-disable-line react-hooks/exhaustive-deps
   /** Copies slots, to paste in the Audio tab: new audio where a slot has it, else the original. The Library has the
       originals alone. */
   const copyRows = (list: Row[]) => {
@@ -280,8 +287,8 @@ function CueBody({ cue }: { cue: Cue }) {
     actions.copySlots(got.map((r) => r.slot.source), Object.fromEntries(got.map((r) => [r.slot.source, rowName(r)])), readOnly);
   };
   /** Where audio files copied in Explorer go: the selected slots that take audio, in play order. */
-  const pasteSelection = useCallback(() => rows.filter((r) => selected.includes(r.slot.source) && usable(r)).map((r) => r.slot.source),
-    [rows, selected]);
+  const pasteSelection = useCallback(() => picks(selected).filter(usable).map((r) => r.slot.source),
+    [all, selected]); // eslint-disable-line react-hooks/exhaustive-deps
   /** Moves the selected slot's audio to the next usable slot up or down, swapping with what is there. One move at
       a time: a key held down or pressed fast moves on from where the last move put the audio. */
   const moving = useRef(false);
@@ -332,7 +339,7 @@ function CueBody({ cue }: { cue: Cue }) {
       actions.unassign(mine);
     },
     silence: () => {
-      const targets = rows.filter((r) => selected.includes(r.slot.source) && usable(r)).map((r) => r.slot.source);
+      const targets = picks(selected).filter(usable).map((r) => r.slot.source);
       if (!editing() || !targets.length || !project) return false;
       actions.silence(targets, true);
     },
@@ -349,13 +356,14 @@ function CueBody({ cue }: { cue: Cue }) {
     },
     playGame: () => play("vanilla"),
     playMine: () => play("project"),
-    selectAll: () => {
+    selectAll: () => { // folded sequences stay folded
       if (!here()) return false;
-      setSelected(rows.map((r) => r.slot.source));
+      picked.current = true;
+      setSelected(selectable);
     },
     copy: () => { // with text selected, the key copies that text
       if (!here() || !selected.length || window.getSelection()?.toString()) return false;
-      copyRows(rows.filter((r) => selected.includes(r.slot.source)));
+      copyRows(picks(selected));
     },
     paste: () => {
       if (!editing() || !selected.length) return false;
@@ -464,8 +472,9 @@ function CueBody({ cue }: { cue: Cue }) {
   /** A group's tick: all its takes in the selection, or none of them. */
   const checkGroup = (sources: string[]) => {
     picked.current = true;
-    const all = sources.every((s) => selected.includes(s));
-    setSelected(all ? selected.filter((s) => !sources.includes(s)) : [...selected, ...sources.filter((s) => !selected.includes(s))]);
+    const have = new Set(selected), these = new Set(sources);
+    const all = sources.every((s) => have.has(s));
+    setSelected(all ? selected.filter((s) => !these.has(s)) : [...selected, ...sources.filter((s) => !have.has(s))]);
   };
   const choose = async (source: string) => {
     setSelected([source]);
@@ -476,7 +485,7 @@ function CueBody({ cue }: { cue: Cue }) {
   /** Puts some slots of this cue on the export list (in list order), named after the one or after the cue: in the
       Audio tab as the mod plays them. */
   const toExport = (sources: string[], name: string) => {
-    const ordered = all.filter((x) => sources.includes(x.slot.source)).map((x) => x.slot.source);
+    const ordered = picks(sources).map((x) => x.slot.source);
     const n = exportList.add([{ cue: cue.id, sources: ordered, name, count: ordered.length, whose: readOnly ? "game" : "mod",
       where: item ? where(itemIndex, item) : cue.path.join(" ▸ ") }]);
     quick(addedNote(n, 1), "add");
@@ -527,7 +536,7 @@ function CueBody({ cue }: { cue: Cue }) {
         { label: t`Play the Original`, keys: keyLabel("playGame"), disabled: r.slot.absent, run: () => playSlot("vanilla", s, revision, rowName(r), at(s)) },
         exportEntry(sel, r),
         { label: sel.length > 1 ? plural(sel.length, { one: "Copy the Audio (# Slot)", other: "Copy the Audio (# Slots)" }) : t`Copy the Audio`, keys: keyLabel("copy"),
-          disabled: r.slot.absent, run: () => copyRows(rows.filter((x) => sel.includes(x.slot.source))) },
+          disabled: r.slot.absent, run: () => copyRows(picks(sel)) },
         "-",
         ...(item && !item.game ? [listed
           ? { label: t`Open in the Audio Tab`, run: () => goTo({ scope: "editor", itemId: item.id, cueId: cue.id, source: s }) } as MenuEntry
@@ -537,15 +546,16 @@ function CueBody({ cue }: { cue: Cue }) {
       ]);
       return;
     }
-    const ordered = rows.filter((x) => sel.includes(x.slot.source)).map((x) => x.slot.source);
+    const chosen = picks(sel); // folded takes too
+    const ordered = chosen.map((x) => x.slot.source);
     const withAudio = ordered.filter((x) => assigned[x]);
-    const silenceable = rows.filter((x) => sel.includes(x.slot.source) && usable(x)).map((x) => x.slot.source);
+    const silenceable = chosen.filter(usable).map((x) => x.slot.source);
     // the counts in the labels: the slots acted on, those that take audio, and the slots copied
     const count = sel.length, usableCount = silenceable.length, copied = clip.length;
     const many = count > 1;
     const adds = addEntries(r);
     // where the new audio plays (Plays In): the slots with new audio whose clip other sounds play too
-    const reach = project?.game === "hd1" ? [] : rows.filter((x) => sel.includes(x.slot.source) && assigned[x.slot.source] && choosesReach(x.slot)).map((x) => x.slot);
+    const reach = project?.game === "hd1" ? [] : chosen.filter((x) => assigned[x.slot.source] && choosesReach(x.slot)).map((x) => x.slot);
     const reachOwn = reach.filter((x) => x.was).length, reachShared = reach.length - reachOwn;
     const entries: MenuEntry[] = [
       { label: t`Play the Original`, keys: keyLabel("playGame"), disabled: r.slot.absent || !!r.slot.added, run: () => playSlot("vanilla", s, revision, rowName(r), at(s)) },
@@ -559,7 +569,7 @@ function CueBody({ cue }: { cue: Cue }) {
       ] : [{ label: a ? t`Replace with Another File` : t`Choose a File`, keys: keyLabel("chooseFile"), disabled: !project || !usable(r), run: () => choose(s) }]),
       { label: withAudio.length ? (many ? plural(count, { one: "Copy the New Audio (# Slot)", other: "Copy the New Audio (# Slots)" }) : t`Copy the New Audio`)
         : many ? plural(count, { one: "Copy the Original (# Slot)", other: "Copy the Original (# Slots)" }) : t`Copy the Original`,
-        keys: keyLabel("copy"), disabled: !withAudio.length && r.slot.absent, run: () => copyRows(rows.filter((x) => sel.includes(x.slot.source))) },
+        keys: keyLabel("copy"), disabled: !withAudio.length && r.slot.absent, run: () => copyRows(chosen) },
       { label: clip.length > 1 && sel.length === 1 ? plural(copied, { one: "Paste # Slot from Here", other: "Paste # Slots from Here" })
         : many ? plural(count, { one: "Paste (# Slot)", other: "Paste (# Slots)" }) : t`Paste`, keys: keyLabel("paste"),
         disabled: !project, run: () => actions.pasteSlots(pasteTargets().length ? pasteTargets() : [s], pasteSelection().length ? pasteSelection() : [s]) },
@@ -656,8 +666,9 @@ function CueBody({ cue }: { cue: Cue }) {
         status={readOnly || !project ? "na" : groupStatus.get(l.row.segIndex) ?? "na"} on={on} />
     );
   };
-  // the toolbar's tick: every slot shown, or none (the ones that take audio and the rest alike, as Ctrl+A)
-  const shownSources = useMemo(() => rows.map((r) => r.slot.source), [rows]);
+  // the toolbar's tick: every slot on the list, folded takes too, or none (the ones that take audio and the rest
+  // alike, as Ctrl+A)
+  const shownSources = selectable;
   const ticked = shownSources.filter((s) => selSet.has(s)).length;
   // what the header says besides the item's own facts, in its row of facts
   const facts: React.ReactNode[] = [];

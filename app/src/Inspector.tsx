@@ -24,7 +24,7 @@ import { rangeVars } from "./range";
 export function Inspector() {
   const { cue, selected, project, actions } = useEditor();
   const rows = useMemo(() => (cue ? rowsOf(cue.segments_detail) : []), [cue]);
-  const sel = rows.filter((r) => selected.includes(r.slot.source));
+  const sel = useMemo(() => { const s = new Set(selected); return rows.filter((r) => s.has(r.slot.source)); }, [rows, selected]);
   const text = useShownTabs().includes("text"); // a subtitle shows while the Text tab does
   useKeymap();
   // the slot the panel showed last: what replaces it settles in when that changes, not when another slot is selected
@@ -380,7 +380,7 @@ function ModSettings({ list }: { list: NonNullable<Slot["mod_settings"]> }) {
 export function LibraryDetails() {
   const { cue, selected, shownItemId, itemIndex } = useEditor();
   const rows = useMemo(() => (cue ? rowsOf(cue.segments_detail) : []), [cue]);
-  const sel = rows.filter((r) => selected.includes(r.slot.source));
+  const sel = useMemo(() => { const s = new Set(selected); return rows.filter((r) => s.has(r.slot.source)); }, [rows, selected]);
   const item = shownItemId ? itemIndex.items.get(shownItemId) : undefined;
   if (sel.length === 1 && !sel[0].slot.absent) {
     const { slot, seg } = sel[0];
@@ -696,7 +696,8 @@ function Bulk({ rows, sources, usable }: { rows: Row[]; sources: string[]; usabl
   const cued = rows.filter((r) => r.seg.segment && a[r.slot.source] && !a[r.slot.source].silence); // music with new audio
   const toSilence = usable.filter((s) => !a[s]?.silence);
   const hd1 = project?.game === "hd1";
-  const curved =rows.filter((r) => r.slot.curve && usable.includes(r.slot.source)).map((r) => r.slot.source);
+  const open = new Set(usable); // a lookup: a bank's Select All gives thousands
+  const curved = rows.filter((r) => r.slot.curve && open.has(r.slot.source)).map((r) => r.slot.source);
   // the counts the messages below give
   const count = sources.length, fillable = usable.length, silenceable = toSilence.length, withNew = files.length,
     withOriginal = plain.length, silenced = silent.length, replaced = mine.length;
@@ -713,7 +714,7 @@ function Bulk({ rows, sources, usable }: { rows: Row[]; sources: string[]; usabl
           <SilenceIcon />{toSilence.length > 0 && toSilence.length < sources.length
             ? plural(silenceable, { one: "Replace # Slot with Silence", other: "Replace # Slots with Silence" }) : t`Replace with Silence`}</button>
       </section>
-      {!hd1 && <BulkReach rows={rows.filter((r) => usable.includes(r.slot.source))} />}
+      {!hd1 && <BulkReach rows={rows.filter((r) => open.has(r.slot.source))} />}
       {files.length > 0 ? (
         <Gain sources={files} value={files.every((s) => a[s].gain_db === a[files[0]].gain_db) ? a[files[0]].gain_db : null}
           note={files.length < sources.length ? plural(withNew, { one: "Applies to the # slot with new audio.", other: "Applies to the # slots with new audio." }) : undefined} match="each" />

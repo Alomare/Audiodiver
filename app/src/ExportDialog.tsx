@@ -206,7 +206,7 @@ function useItem(target: ExportTarget | null, prefs: Prefs, pref: (p: Partial<Pr
     if (cue) call<ExportOptions>("export_options", { cue: cue.id }).then(setOptions).catch((e) => notify("bad", e.message));
   }, [cue, notify]);
   const rows = useMemo(() => (cue ? rowsOf(cue.segments_detail).filter((r) => !r.slot.absent) : []), [cue]);
-  const selected = useMemo(() => rows.filter((r) => target?.selected.includes(r.slot.source)).map((r) => r.slot.source), [rows, target]);
+  const selected = useMemo(() => { const s = new Set(target?.selected); return rows.filter((r) => s.has(r.slot.source)).map((r) => r.slot.source); }, [rows, target]);
   const withMod = !!project && !!target && target.context !== "library";
   const replaced = useMemo(() => (withMod ? rows.filter((r) => project!.assignments[r.slot.source]).map((r) => r.slot.source) : []),
     [rows, withMod, project]);
