@@ -778,7 +778,9 @@ class Library:
                             "place, and the words may differ."))
         # a sound's slot names the Sound object that plays it (the first, where several do), for reference and for a
         # clip of its own: `players` counts the Sounds here that play the clip, `sound_banks` the other banks that
-        # have that Sound (a clip of its own changes it in those, where a replacement changes it in `banks`)
+        # have that Sound (a clip of its own changes it in those, where a replacement changes it in `banks`), and
+        # `sound_in` names the first of them: the game plays the copies as one Sound, so Only This Sound can't keep
+        # the Original there
         played_by, players = {}, collections.Counter(sid for _, sid in sounds)
         for oid, sid in sounds:
             played_by.setdefault(sid, oid)
@@ -788,7 +790,10 @@ class Library:
                     if int(sl["source"]) in played_by:
                         sl.setdefault("object", str(played_by[int(sl["source"])]))
                         sl["players"] = players[int(sl["source"])]
-                        sl["sound_banks"] = max(0, len(self.ix.copies(int(sl["object"]))) - 1)
+                        copies = self.ix.copies(int(sl["object"]))
+                        sl["sound_banks"] = max(0, len(copies) - 1)
+                        if sl["sound_banks"]:
+                            sl["sound_in"] = self._reach(copies, bid)["also_in"]
         all_slots = list(dict.fromkeys(sl["source"] for g in groups for st in g["stems"] for sl in st["slots"]))
         return {
             "id": f"bank:{bid}", "kind": "sounds", "path": list(self.where[sets[0]]) if sets else [tr("All Archives")],

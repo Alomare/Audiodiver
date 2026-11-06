@@ -5,7 +5,7 @@ import { confirm } from "./Confirm";
 import { importAsk } from "./importAsk";
 import { liveGain } from "./gain";
 import { keyLabel } from "./keys";
-import { indexItems } from "./music";
+import { indexItems, sameSoundWarning } from "./music";
 import { FOLD_LIBRARY, HIDEABLE, isArchive, nav as tabs, useNav, type Hideable } from "./nav";
 import { follow, noticeLog, type Go } from "./noticeLog";
 import { notes } from "./noteStore";
@@ -1041,8 +1041,10 @@ function useEditorState() {
       const p = await run<ProjectState & { source: string }>(only ? "own_clip" : "shared_clip", only ? { source, sound } : { source });
       if (p && edited(p)) scopes.editor.setSelected([p.source]);
     },
-    /** The same on several slots, as one undo step. The selection follows them, and a note says how many changed. */
-    async onlyTheseSounds(slots: Slot[], only: boolean) {
+    /** The same on several slots, as one undo step. The selection follows them, and a note says how many changed.
+        Where the Sound of one is in other banks too, a notice says Only This Sound can't keep the Original there,
+        unless the details panel says so already (`warned`). */
+    async onlyTheseSounds(slots: Slot[], only: boolean, warned = false) {
       const r = await run<ProjectState & { sources: Record<string, string> }>(only ? "own_clips" : "shared_clips",
         only ? { items: slots.filter((s) => !s.was).map((s) => ({ source: s.source, sound: s.object })) } : { sources: slots.filter((s) => s.was).map((s) => s.source) });
       if (!r || !edited(r)) return;
@@ -1051,6 +1053,8 @@ function useEditorState() {
       quick(moved === asked ? (only ? plural(moved, { one: "**Only This Sound** on # slot", other: "**Only This Sound** on # slots" })
         : plural(moved, { one: "**Every Sound** on # slot", other: "**Every Sound** on # slots" }))
         : only ? t`**Only This Sound** on ${moved} of ${asked} slots` : t`**Every Sound** on ${moved} of ${asked} slots. Another sound has new audio on the others`, moved ? "done" : "info");
+      const same = only && !warned ? sameSoundWarning(idx.current, slots.filter((s) => r.sources[s.source])) : null;
+      if (same) notify("info", same, { label: t`Why?`, go: { tab: "wiki", sub: "adding-audio#only-this-sound" } });
     },
     /** Swaps the audio of two slots (or moves it into an empty one). */
     async swap(a: string, b: string) {

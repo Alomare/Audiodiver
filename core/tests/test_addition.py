@@ -265,6 +265,29 @@ def test_a_clip_of_its_own_can_keep_to_the_projects_bank(session, tmp_path, monk
     assert set(build.additions(s.project, ix, reps, {home}).banks) == {home}
 
 
+@pytest.mark.game
+def test_a_sound_in_other_banks_names_them_for_only_this_sound(session):
+    """A Sound that other banks have too (a weapon's handling sounds are in a hundred of them) is one Sound to the
+    game, so a clip of its own changes it in all of them and Only This Sound can't keep the Original there. Its slot
+    names the first of those banks, those the Index names first, and never the bank shown (`sound_in`)."""
+    from audiodiver.game import murmur64_hash
+    from audiodiver.library import ALSO_LISTED
+    s, ix = session, session.ix
+    here = int(AUTOCANNON.split(":")[1])
+    sounds = lambda cue: [r for g in s.cue(cue, mine=True)["segments_detail"] for r in g["stems"][0]["slots"]
+                          if r.get("object") and not r.get("added")]
+    copied = [r for r in sounds(AUTOCANNON) if r["sound_banks"]]  # every autocannon Sound is in other banks
+    alone = [r for r in sounds(f"bank:{murmur64_hash(b'content/audio/bots_assaultwalker')}") if not r["sound_banks"]]
+    assert copied and alone and not any("sound_in" in r for r in alone)
+    for r in copied:
+        others = [b for b in ix.copies(int(r["object"])) if b != here]
+        listed = [int(x.removeprefix("bank:")) for x in r["sound_in"]]
+        assert r["sound_banks"] == len(others) and len(listed) == min(len(others), ALSO_LISTED)
+        assert set(listed) <= set(others) and here not in listed
+        named = [bool(s.lib.bank_sets.get(b)) for b in listed]
+        assert named == sorted(named, reverse=True)  # the Index's banks first
+
+
 def _with_prop(t, body: bytes, pid: int, value: float) -> bytes:
     """A container's or Sound's body with one more float property (the bundle keeps its ids in order)."""
     p = add.parent_at(t, body) + 5

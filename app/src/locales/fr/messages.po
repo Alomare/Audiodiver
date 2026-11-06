@@ -691,6 +691,14 @@ msgstr "{replaced, plural, one {Retirer le nouvel audio de # emplacement} other 
 msgid "{replaced, plural, one {Remove the Silence from # Slot} other {Remove the Silence from # Slots}}"
 msgstr "{replaced, plural, one {Retirer le silence de # emplacement} other {Retirer le silence de # emplacements}}"
 
+#: src/music.ts
+msgid "{rest, plural, one {# more bank} other {# more banks}}"
+msgstr "{rest, plural, one {# autre banque} other {# autres banques}}"
+
+#: src/music.ts
+msgid "{rest, plural, one {# other bank} other {# other banks}}"
+msgstr "{rest, plural, one {# autre banque} other {# autres banques}}"
+
 #: src/TextTools.tsx
 msgid "{risky, plural, one {Leave out # line that lost timing or words the game fills in} other {Leave out # lines that lost timing or words the game fills in}}"
 msgstr "{risky, plural, one {Laisser de côté # ligne qui a perdu son minutage ou des mots remplis par le jeu} other {Laisser de côté # lignes qui ont perdu leur minutage ou des mots remplis par le jeu}}"
@@ -778,6 +786,10 @@ msgstr "{sounds, plural, one {# son d’une ancienne version du jeu écarté} ot
 #: src/RepatchPage.tsx
 msgid "{sounds, plural, one {# sound left out} other {# sounds left out}}"
 msgstr "{sounds, plural, one {# son écarté} other {# sons écartés}}"
+
+#: src/music.ts
+msgid "{sounds, plural, one {Only This Sound can't keep the Original in {places}: # of these sounds is there too.} other {Only This Sound can't keep the Original in {places}: # of these sounds are there too.}}"
+msgstr "{sounds, plural, one {Ce son uniquement ne peut pas garder l’Original dans {places} : # de ces sons s’y trouve aussi.} other {Ce son uniquement ne peut pas garder l’Original dans {places} : # de ces sons s’y trouvent aussi.}}"
 
 #: src/RepatchPage.tsx
 msgid "{sounds, plural, one {up to # sound left out} other {up to # sounds left out}}"
@@ -5578,6 +5590,14 @@ msgstr "ce son uniquement"
 msgid "Only This Sound"
 msgstr "Ce son uniquement"
 
+#: src/music.ts
+msgid "Only This Sound can't keep the Original in {places}: it has this same sound."
+msgstr "Ce son uniquement ne peut pas garder l’Original dans {places} : le même son s’y trouve."
+
+#: src/music.ts
+msgid "Only This Sound can't keep the Original in {places}: they have this same sound."
+msgstr "Ce son uniquement ne peut pas garder l’Original dans {places} : le même son s’y trouve."
+
 #: src/CueView.tsx
 msgid "Only This Sound on All"
 msgstr "Ce son uniquement partout"
@@ -5833,6 +5853,10 @@ msgstr "Originaux"
 #: src/SliceTool.tsx
 msgid "Originals · {number} of {count} · {slot}"
 msgstr "Originaux · {number} sur {count} · {slot}"
+
+#: src/music.ts
+msgid "other banks"
+msgstr "d’autres banques"
 
 #: src/RepatchPage.tsx
 msgid "other files"

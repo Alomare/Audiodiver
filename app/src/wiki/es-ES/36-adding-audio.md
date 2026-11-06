@@ -2,7 +2,7 @@
 title: Añadir audio
 group: Crear un mod
 summary: Tomas nuevas para un sonido, una capa que suena con él y audio nuevo solo para un sonido, además de lo que tiene el juego.
-source: 07f3b9fcb042
+source: 4fae8936e389
 ---
 
 Sustituir audio cambia lo que reproduce un slot. Los sonidos también pueden recibir audio que el juego no tiene, de tres maneras, todas en la pestaña Audio. Sirven para sonidos y voces, pero no para música.
@@ -27,7 +27,7 @@ Un slot con audio nuevo que otros sonidos comparten muestra **todos los sonidos*
 
 El audio nuevo entra en el mod con un ID nuevo. Las herramientas que enumeran clips por ID muestran el ID antiguo con el Original, aunque el juego reproduce el audio nuevo en ese sonido.
 
-Esta opción funciona por sonido. Cuando el juego copia un sonido entero en otros bancos, como los sonidos de manejo del arma en cada banco de armas, las copias son el mismo sonido y todas cambian.
+Esta opción funciona por sonido. Cuando el juego copia un sonido entero en otros bancos, como los sonidos de manejo del arma en cada banco de armas, las copias son el mismo sonido y todas cambian. **Suena en** indica los bancos que tienen el mismo sonido.
 
 ## Tamaño {#size}
 

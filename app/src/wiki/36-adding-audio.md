@@ -26,7 +26,7 @@ A slot with new audio that other sounds share shows **every sound** until then. 
 
 The new audio goes into the mod under a new ID. Tools that list clips by ID show the old ID with the Original, though the game plays the new audio in that sound.
 
-This option works per sound. When the game copies a whole sound into other banks, like the weapon handling sounds in every weapon bank, the copies are the same sound and all of them change.
+This option works per sound. When the game copies a whole sound into other banks, like the weapon handling sounds in every weapon bank, the copies are the same sound and all of them change. **Plays In** names the banks that have the same sound.
 
 ## Size
 

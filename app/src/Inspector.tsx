@@ -6,7 +6,7 @@ import { rowsOf, type Row } from "./CueView";
 import { liveGain } from "./gain";
 import { ClearIcon, FillIcon, FillPieceIcon, FolderIcon, ResetIcon, SilenceIcon } from "./Icons";
 import { keyLabel, useKeymap, type CommandId } from "./keys";
-import { where } from "./music";
+import { sameSoundWarning, where } from "./music";
 import { nav } from "./nav";
 import { NoteSection } from "./Notes";
 import { noteKeys } from "./noteStore";
@@ -184,8 +184,10 @@ function Replacement({ slot, a, music, what }: { slot: Slot; a?: Assignment; mus
 }
 
 /** Plays In's two choices: every sound that plays the clip, or only this sound. `state`: which holds now (null: some
-    of each, or none to choose for). */
-function PlaysIn({ state, disabled, pick, note }: { state: boolean | null; disabled?: boolean; pick: (only: boolean) => void; note: ReactNode }) {
+    of each, or none to choose for). `warn`: what Only This Sound can't do here (sameSoundWarning). */
+function PlaysIn({ state, disabled, pick, note, warn }: {
+  state: boolean | null; disabled?: boolean; pick: (only: boolean) => void; note: ReactNode; warn?: string | null;
+}) {
   return (
     <section className="insp-sec plays-in">
       <h3><Trans>Plays In</Trans> <Help tip={t`Several sounds can play the same clip. A replacement changes it in all of them, unless it plays only in this sound.`} page="adding-audio#only-this-sound" /></h3>
@@ -196,6 +198,7 @@ function PlaysIn({ state, disabled, pick, note }: { state: boolean | null; disab
         ))}
       </div>
       <p className="muted small">{note}</p>
+      {warn && <p className="warn-box">{warn}</p>}
     </section>
   );
 }
@@ -204,11 +207,12 @@ function PlaysIn({ state, disabled, pick, note }: { state: boolean | null; disab
     clip, as any replacement does, or only in this sound (a clip of its own). Without new audio yet, it says the
     choice is there. The count is of banks, this one too. */
 function Reach({ slot, a }: { slot: Slot; a?: Assignment }) {
-  const { actions } = useEditor();
+  const { actions, itemIndex } = useEditor();
   const own = !!slot.was;
   const banks = (own ? slot.banks ?? 0 : slot.sound_banks ?? 0) + 1, every = (slot.banks ?? 0) + 1;
   return (
     <PlaysIn state={a ? own : null} disabled={!a} pick={(only) => actions.onlyThisSound(slot.source, slot.object, only)}
+      warn={sameSoundWarning(itemIndex, [slot])}
       note={!a ? t`Other sounds play this clip too. Add new audio here to choose.`
         : own ? plural(banks, { one: "Changes # bank. Other sounds that play the clip keep the Original.", other: "Changes # banks. Other sounds that play the clip keep the Original." })
         : plural(every, { one: "Other sounds that play this clip change too, in # bank.", other: "Other sounds that play this clip change too, in # banks." })} />
@@ -217,14 +221,15 @@ function Reach({ slot, a }: { slot: Slot; a?: Assignment }) {
 
 /** Plays In for several selected slots: the ones with new audio whose clip other sounds play too. */
 function BulkReach({ rows }: { rows: Row[] }) {
-  const { project, actions } = useEditor();
+  const { project, actions, itemIndex } = useEditor();
   const a = project?.assignments ?? {};
   const open = rows.filter((r) => choosesReach(r.slot));
   const set = open.filter((r) => a[r.slot.source]);
   if (!open.length) return null;
   const own = set.filter((r) => r.slot.was).length, count = set.length;
   return (
-    <PlaysIn state={!count || (own > 0 && own < count) ? null : own > 0} disabled={!count} pick={(only) => actions.onlyTheseSounds(set.map((r) => r.slot), only)}
+    <PlaysIn state={!count || (own > 0 && own < count) ? null : own > 0} disabled={!count}
+      pick={(only) => actions.onlyTheseSounds(set.map((r) => r.slot), only, true)} warn={sameSoundWarning(itemIndex, open.map((r) => r.slot))}
       note={!count ? t`Other sounds play these clips too. Add new audio here to choose.`
         : own > 0 && own < count ? plural(own, { one: "# plays only in one sound. Choose to set them all.", other: "# play only in one sound each. Choose to set them all." })
         : plural(count, { one: "Applies to the # slot with new audio that other sounds share.", other: "Applies to the # slots with new audio that other sounds share." })} />

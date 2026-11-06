@@ -691,6 +691,14 @@ msgstr "{replaced, plural, other {移除 # 个槽位的新音频}}"
 msgid "{replaced, plural, one {Remove the Silence from # Slot} other {Remove the Silence from # Slots}}"
 msgstr "{replaced, plural, other {移除 # 个槽位的静音}}"
 
+#: src/music.ts
+msgid "{rest, plural, one {# more bank} other {# more banks}}"
+msgstr "{rest, plural, other {另外 # 个音频库}}"
+
+#: src/music.ts
+msgid "{rest, plural, one {# other bank} other {# other banks}}"
+msgstr "{rest, plural, other {其他 # 个音频库}}"
+
 #: src/TextTools.tsx
 msgid "{risky, plural, one {Leave out # line that lost timing or words the game fills in} other {Leave out # lines that lost timing or words the game fills in}}"
 msgstr "{risky, plural, other {排除 # 行丢失了时间标记或由游戏填入的词的文本}}"
@@ -778,6 +786,10 @@ msgstr "{sounds, plural, other {已略去 # 个来自旧游戏版本的声音}}"
 #: src/RepatchPage.tsx
 msgid "{sounds, plural, one {# sound left out} other {# sounds left out}}"
 msgstr "{sounds, plural, other {已略去 # 个声音}}"
+
+#: src/music.ts
+msgid "{sounds, plural, one {Only This Sound can't keep the Original in {places}: # of these sounds is there too.} other {Only This Sound can't keep the Original in {places}: # of these sounds are there too.}}"
+msgstr "{sounds, plural, other {“仅此声音”无法让{places}保留原版：这些声音中有 # 个那里也有。}}"
 
 #: src/RepatchPage.tsx
 msgid "{sounds, plural, one {up to # sound left out} other {up to # sounds left out}}"
@@ -5578,6 +5590,14 @@ msgstr "仅此声音"
 msgid "Only This Sound"
 msgstr "仅此声音"
 
+#: src/music.ts
+msgid "Only This Sound can't keep the Original in {places}: it has this same sound."
+msgstr "“仅此声音”无法让{places}保留原版：那里也是同一个声音。"
+
+#: src/music.ts
+msgid "Only This Sound can't keep the Original in {places}: they have this same sound."
+msgstr "“仅此声音”无法让{places}保留原版：那里也是同一个声音。"
+
 #: src/CueView.tsx
 msgid "Only This Sound on All"
 msgstr "全部设为仅此声音"
@@ -5833,6 +5853,10 @@ msgstr "原版"
 #: src/SliceTool.tsx
 msgid "Originals · {number} of {count} · {slot}"
 msgstr "原版 · {number}/{count} · {slot}"
+
+#: src/music.ts
+msgid "other banks"
+msgstr "其他音频库"
 
 #: src/RepatchPage.tsx
 msgid "other files"

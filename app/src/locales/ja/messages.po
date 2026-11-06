@@ -691,6 +691,14 @@ msgstr "{replaced, plural, other {# 個のスロットから新しい音声を�
 msgid "{replaced, plural, one {Remove the Silence from # Slot} other {Remove the Silence from # Slots}}"
 msgstr "{replaced, plural, other {# 個のスロットから無音を削除}}"
 
+#: src/music.ts
+msgid "{rest, plural, one {# more bank} other {# more banks}}"
+msgstr "{rest, plural, other {ほか # 個のバンク}}"
+
+#: src/music.ts
+msgid "{rest, plural, one {# other bank} other {# other banks}}"
+msgstr "{rest, plural, other {他の # 個のバンク}}"
+
 #: src/TextTools.tsx
 msgid "{risky, plural, one {Leave out # line that lost timing or words the game fills in} other {Leave out # lines that lost timing or words the game fills in}}"
 msgstr "{risky, plural, other {タイミングまたはゲームが埋める語を失った # 行を除外する}}"
@@ -778,6 +786,10 @@ msgstr "{sounds, plural, other {古いゲームバージョンのサウンド # 
 #: src/RepatchPage.tsx
 msgid "{sounds, plural, one {# sound left out} other {# sounds left out}}"
 msgstr "{sounds, plural, other {# 個のサウンドを除外}}"
+
+#: src/music.ts
+msgid "{sounds, plural, one {Only This Sound can't keep the Original in {places}: # of these sounds is there too.} other {Only This Sound can't keep the Original in {places}: # of these sounds are there too.}}"
+msgstr "{sounds, plural, other {このサウンドのみでは、{places}をオリジナルのままにできません。これらのサウンドのうち # 個がそこにもあります。}}"
 
 #: src/RepatchPage.tsx
 msgid "{sounds, plural, one {up to # sound left out} other {up to # sounds left out}}"
@@ -5578,6 +5590,14 @@ msgstr "このサウンドのみ"
 msgid "Only This Sound"
 msgstr "このサウンドのみ"
 
+#: src/music.ts
+msgid "Only This Sound can't keep the Original in {places}: it has this same sound."
+msgstr "このサウンドのみでは、{places}をオリジナルのままにできません。同じサウンドがそこにもあります。"
+
+#: src/music.ts
+msgid "Only This Sound can't keep the Original in {places}: they have this same sound."
+msgstr "このサウンドのみでは、{places}をオリジナルのままにできません。同じサウンドがそこにもあります。"
+
 #: src/CueView.tsx
 msgid "Only This Sound on All"
 msgstr "すべてこのサウンドのみに"
@@ -5833,6 +5853,10 @@ msgstr "オリジナル"
 #: src/SliceTool.tsx
 msgid "Originals · {number} of {count} · {slot}"
 msgstr "オリジナル · {number}/{count} · {slot}"
+
+#: src/music.ts
+msgid "other banks"
+msgstr "他のバンク"
 
 #: src/RepatchPage.tsx
 msgid "other files"

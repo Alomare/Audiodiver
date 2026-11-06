@@ -2,7 +2,7 @@
 title: Ajouter de l’audio
 group: Créer un mod
 summary: De nouvelles prises pour un son, une couche jouée avec lui, et du nouvel audio pour un seul son, en plus de ce que le jeu possède.
-source: 07f3b9fcb042
+source: 4fae8936e389
 ---
 
 Remplacer l’audio change ce qu’un emplacement joue. Les sons peuvent aussi recevoir de l’audio que le jeu n’a pas, de trois façons, toutes dans l’onglet Audio. Elles fonctionnent pour les sons et les voix, mais pas pour la musique.
@@ -27,7 +27,7 @@ Un emplacement avec du nouvel audio que d’autres sons partagent affiche **tous
 
 Le nouvel audio entre dans le mod sous un nouvel ID. Les outils qui listent les clips par ID montrent l’ancien ID avec l’Original, alors que le jeu joue le nouvel audio dans ce son.
 
-Cette option fonctionne son par son. Quand le jeu copie un son entier dans d’autres banques, comme les sons de maniement des armes dans chaque banque d’arme, les copies sont le même son et toutes changent.
+Cette option fonctionne son par son. Quand le jeu copie un son entier dans d’autres banques, comme les sons de maniement des armes dans chaque banque d’arme, les copies sont le même son et toutes changent. **Joué dans** indique les banques qui ont le même son.
 
 ## Taille {#size}
 

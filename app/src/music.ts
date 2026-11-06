@@ -1,7 +1,7 @@
 // The Index as the app looks things up in it, what a project covers of an item or a part, and the transitions and
 // stingers that would still play the original next to new music.
-import { t } from "@lingui/core/macro";
-import type { Assignment, Category, Index, MusicItem, MusicPart, MusicSection, ProjectState } from "./api";
+import { plural, t } from "@lingui/core/macro";
+import { andList, type Assignment, type Category, type Index, type MusicItem, type MusicPart, type MusicSection, type ProjectState, type Slot } from "./api";
 
 export type Coverage = { n: number; total: number };
 export type Status = "none" | "part" | "done" | "na";
@@ -141,3 +141,38 @@ export function where(idx: ItemIndex, item: MusicItem) {
 /** The colour a category's tags are drawn in: its hue, at the lightness and strength the theme sets (styles.css,
     --tag-l and --tag-c). */
 export const hueOf = (idx: ItemIndex, category: string | undefined) => (category ? idx.category.get(category)?.hue : undefined);
+
+const SAME_NAMED = 3; // the places a warning about the same sound names, before "and 107 more banks"
+
+/** What Only This Sound can't do for slots whose Sound other banks have too (`sound_banks`, the first of them in
+    `sound_in`): the game plays those copies as one Sound, so they get the new audio as well. The warning names the
+    first places as the Index does and counts the other banks; null when no slot's Sound is anywhere else. */
+export function sameSoundWarning(idx: ItemIndex, slots: Slot[]): string | null {
+  const copied = slots.filter((s) => (s.sound_banks ?? 0) > 0);
+  if (!copied.length) return null;
+  const ids = [...new Set(copied.flatMap((s) => s.sound_in ?? []))];
+  const names: string[] = [], named = new Set<string>(); // the Index names shown, and the banks they stand for
+  for (const id of ids) {
+    const name = idx.byCue.get(id)?.item.full;
+    if (!name || (!names.includes(name) && names.length === SAME_NAMED)) continue;
+    if (!names.includes(name)) names.push(name);
+    named.add(id);
+  }
+  // the banks in all: one slot counts them; several, by the banks they list, when each lists all of its own (null:
+  // more than listed, "other banks" uncounted)
+  const total = copied.length === 1 ? copied[0].sound_banks ?? 0
+    : copied.every((s) => (s.sound_in?.length ?? 0) >= (s.sound_banks ?? 0)) ? ids.length : null;
+  const rest = total === null ? null : total - named.size;
+  const tail = rest === null ? t`other banks` : rest <= 0 ? null
+    : names.length ? plural(rest, { one: "# more bank", other: "# more banks" }) : plural(rest, { one: "# other bank", other: "# other banks" });
+  const places = andList(tail ? [...names, tail] : names);
+  if (slots.length === 1) {
+    return names.length + Math.max(0, rest ?? 2) === 1 ? t`Only This Sound can't keep the Original in ${places}: it has this same sound.`
+      : t`Only This Sound can't keep the Original in ${places}: they have this same sound.`;
+  }
+  const sounds = copied.length;
+  return plural(sounds, {
+    one: `Only This Sound can't keep the Original in ${places}: # of these sounds is there too.`,
+    other: `Only This Sound can't keep the Original in ${places}: # of these sounds are there too.`,
+  });
+}

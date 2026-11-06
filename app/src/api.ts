@@ -36,6 +36,7 @@ export type Slot = {
   was?: string;      // a clip of its own: the clip this sound played, its original
   players?: number;  // how many Sounds of this bank play the clip
   sound_banks?: number; // the other banks that have the Sound: where a clip of its own would change it
+  sound_in?: string[];  // the first of them ("bank:<id>"): the game plays the copies as one Sound
   game_gain?: number;   // the Make-Up Gain the game gives the Sound that plays it: a slot's gain adds to it
   // a voice line: the subtitle it says (an id of the game's text), false where it is one of several with its words;
   // or, for a clip without words, what it is ("Grunt")
