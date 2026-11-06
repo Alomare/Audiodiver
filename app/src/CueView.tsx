@@ -225,7 +225,7 @@ function CueBody({ cue }: { cue: Cue }) {
     return all.filter((r) => {
       const sl = r.slot, a = assigned[sl.source];
       const hay = `${r.seg.name} ${r.seg.alias ?? ""} ${r.seg.key ?? ""} ${(r.seg.above ?? []).map((x) => x.ids.join(" ")).join(" ")}
-        ${sl.label} ${sl.source} ${sl.stream ?? ""} ${sl.object ?? ""} ${r.seg.stems[r.stemIndex]?.track ?? ""} ${sl.was ?? ""}
+        ${sl.label} ${sl.en ?? ""} ${sl.source} ${sl.stream ?? ""} ${sl.object ?? ""} ${r.seg.stems[r.stemIndex]?.track ?? ""} ${sl.was ?? ""}
         ${(sl.notes ?? []).map((n) => `${n.tag ?? ""} ${n.text}`).join(" ")} ${a && !a.silence ? a.audio : ""}`.toLowerCase();
       return words.every((w) => hay.includes(w));
     });

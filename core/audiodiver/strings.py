@@ -11,6 +11,8 @@ Subtitles start with their timing, "{0.00->3.85}" (seconds from the start of the
 <c=#NAME>…</c> a colour the game fills in, <i=N>…</i> a style, <f=N>…</f> a font; words in capitals after # (#COUNT)
 are filled in by the game. <s=NN>…</s> (a size) is used by players in chat, but no line of the game uses it.
 One table, 13281693659630462238 in US English, is lip-sync timing, not text, and is left out.
+The Library names voice lines by their subtitles in the language of the app (`subtitles`, `FOR_APP`): every language
+of the game has one subtitle table, with the same ids as the US English one.
 Format found by the HD2 modding community (hd2-audio-modder, filediver) and checked against the installed game.
 """
 import re
@@ -27,6 +29,10 @@ LANGUAGES = {"us": "English (US)", "gb": "English (UK)", "fr": "French", "de": "
              "pl": "Polish", "ru": "Russian", "nl": "Dutch", "jp": "Japanese", "ko": "Korean",
              "cn": "Chinese (Simplified)", "tc": "Chinese (Traditional)"}
 CODE_OF = {murmur64_hash(c.encode()) >> 32: c for c in LANGUAGES}
+# the language of the game's text for each language the app speaks (i18n tags), the ones the app may gain too
+FOR_APP = {"en": "us", "pt-BR": "bp", "zh-Hans": "cn", "fr": "fr", "es-ES": "es", "ja": "jp", "de": "de", "it": "it",
+           "pl": "pl", "ru": "ru", "ko": "ko", "zh-Hant": "tc", "pt-PT": "pt", "es-419": "ms"}
+SPACELESS = {"cn", "tc"}  # written without spaces between words: the pieces of a subtitle join with none
 TIMING = re.compile(r"\{(\d+(?:\.\d+)?)->(\d+(?:\.\d+)?)\}")
 MARKUP = re.compile(r"</?[cifs](?:=[^>]*)?>")
 
@@ -64,6 +70,32 @@ def serialize(table: Table) -> bytes:
 def plain(text: str) -> str:
     """The words of a line: no timing, no markup."""
     return " ".join(MARKUP.sub("", TIMING.sub(" ", text)).split())
+
+
+def said(text: str, code: str) -> str:
+    """A subtitle's words on one line, as plain() gives them; in Chinese the timed pieces join without a space."""
+    if code not in SPACELESS:
+        return plain(text)
+    return "".join(plain(piece) for piece in TIMING.sub("\0", text).split("\0"))
+
+
+def subtitles(game, code: str) -> dict[int, str]:
+    """{subtitle id: its words (said)} in one language of the game's text, from that language's subtitle table: of
+    the other tables only the header is read. {} for a language the game doesn't have."""
+    want = next((n for n, c in CODE_OF.items() if c == code), None)
+    out: dict[int, str] = {}
+    if want is None:
+        return out
+    at = game.contents(ARCHIVE)
+    for fid, tid, _off, size in game.package_toc(ARCHIVE):
+        if tid != STRINGS or size <= 16:
+            continue
+        if struct.unpack_from("<I", game.package_part(ARCHIVE, at[(fid, STRINGS)][0] + 12, 4))[0] != want:
+            continue
+        table = parse(game.resource(ARCHIVE, fid, STRINGS)[0])
+        if kind_of(table) == "subtitles":
+            out.update((i, said(t, code)) for i, t in table.texts.items())
+    return out
 
 
 def kind_of(table: Table) -> str:

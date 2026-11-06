@@ -41,6 +41,7 @@ export type Slot = {
   // a voice line: the subtitle it says (an id of the game's text), false where it is one of several with its words;
   // or, for a clip without words, what it is ("Grunt")
   subtitle?: string; subtitle_sure?: boolean; sound?: string;
+  en?: string;       // a voice line whose label is its subtitle in the window's language: the English words, for the filter
 };
 /** The id a slot shows: its stream's, as other audio tools list streamed audio, else its source id (audio only
     inside banks). */

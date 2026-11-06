@@ -16,7 +16,10 @@ Both lead to the same things to open: a piece of music's cue (catalog.py), or a 
 come as a cue-shaped dict so the editor shows either the same way. A bank's sounds are grouped the way the bank
 nests them: the takes of one sound (the children of one random container) sit together. A voice line is labelled
 with what it says: its subtitle where it was matched to one (data/subtitles.json, which also says which subtitle, so
-the Text tab can open it), else what the community wrote down (data/voices.json). A clip without words is named by
+the Text tab can open it), else what the community wrote down (data/voices.json). A subtitle is in the language of
+the app, as the game's text has it (strings.subtitles, read when first needed), with the English beside it (`en`, which
+the slot filter finds too); English where the game has no such line in that language. The community's words and
+the calls named after another voice are in English only. A clip without words is named by
 what it is ("Grunt 3", numbered per bank); a voice bank lists those it holds for other banks' Sounds by kind
 ("Grunts", "Laughs"). In the Audio tab a bank's sounds
 come with the audio the project adds (Added, addition.py): its new takes after the game's (`added: "take"`), a layer
@@ -39,6 +42,7 @@ number ("Sequence 6"); an archive named by its ID ("Archive <id>") has `id_name`
 """
 import collections
 import json
+import logging
 import re
 import struct
 import threading
@@ -47,7 +51,7 @@ from functools import cached_property
 from importlib import resources
 
 from . import bank as wbank
-from . import i18n, music, wem
+from . import i18n, music, strings, wem
 from .addition import ACTION, LAYER, MIXER, RANSEQ, SWITCH, base_end, play_target
 from .cuemap import slots
 from .game import murmur64_hash
@@ -56,6 +60,7 @@ from .index import LANGUAGES
 from .patch import MAKEUP_GAIN
 from .titles import named, title
 
+log = logging.getLogger("audiodiver")
 PREFIX = "content/audio/"
 CONTAINERS = (0x05, 0x06, 0x07, 0x09)  # random/sequence, switch, actor-mixer, layer: what a Sound can sit in
 
@@ -140,6 +145,7 @@ class Library:
         self.cat, self.cm, self.ix = catalog, catalog.cm, catalog.cm.ix
         voices, subs = _data("voices.json"), _data("subtitles.json")
         self.said = {int(k): v for k, v in subs["texts"].items()}  # subtitle id -> its English words
+        self._said_in, self._said_lock = {}, threading.Lock()  # the game's text language -> {subtitle id: its words}
         # a voice line's subtitle (id, certain), by its English Sound (other languages: _english) or its English clip
         self.subtitles = {int(k): (v[0], bool(v[1])) for k, v in subs["lines"].items()}
         self.clip_subtitles = {int(k): (v[0], bool(v[1])) for k, v in subs["clips"].items()}
@@ -484,14 +490,34 @@ class Library:
                 "label": label, "locked": False, "also_in": also[:ALSO_LISTED], "also_n": len(also),
                 "banks": len(banks), **self.cat.clip_notes(sid)}
 
+    def said_in(self, sub: int) -> str:
+        """A subtitle's words in the language of the app, as the game writes them there, else in English."""
+        code = strings.FOR_APP.get(i18n.language(), "us")
+        if code == "us":
+            return self.said[sub]
+        if code not in self._said_in:
+            with self._said_lock:
+                if code not in self._said_in:
+                    try:
+                        self._said_in[code] = strings.subtitles(self.ix.game, code)
+                    except Exception:  # the names stay in English
+                        log.exception("reading the subtitles in %s failed", code)
+                        self._said_in[code] = {}
+        return self._said_in[code].get(sub) or self.said[sub]
+
     def _voice(self, slot: dict, oid: int | None, sid: int) -> dict:
         """A voice line's subtitle on its slot (`subtitle`, `subtitle_sure`: false where it is one of several with
-        the same words), its words as the label where it has none; or, for a clip without words, what it is
-        (`sound`, its label until the bank numbers it)."""
+        the same words), its words as the label where it has none or has them in English (`en`: the English words,
+        where the label is in another language); or, for a clip without words, what it is (`sound`, its label until
+        the bank numbers it)."""
         sub = (oid is not None and self.subtitles.get(oid)) or self.clip_subtitles.get(sid)
         if sub:
             slot.update(subtitle=str(sub[0]), subtitle_sure=sub[1])
-            slot["label"] = slot["label"] or self.said[sub[0]]
+            en = self.said[sub[0]]
+            if slot["label"] in ("", en):
+                slot["label"] = self.said_in(sub[0])
+                if slot["label"] != en:
+                    slot["en"] = en
         elif kind := (oid is not None and self.wordless.get(f"o{oid}")) or self.wordless.get(f"s{sid}"):
             slot.update(sound=kind, label=slot["label"] or dtr(kind))  # sound: in English, a key
         return slot

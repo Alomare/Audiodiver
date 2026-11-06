@@ -18,6 +18,17 @@ def test_a_table_round_trips_and_lines_read_without_their_markup():
     assert strings.kind_of(t) == "subtitles" or strings.kind_of(t) == "text"
 
 
+def test_a_subtitle_reads_as_one_line_in_each_language_and_every_app_language_has_its_game_text():
+    """The timed pieces of a subtitle join with a space, and in Chinese with none, as the language is written."""
+    line = "{0.00->1.00}第8章第28节：{1.20->2.00}我们相信，<c=FFFFE900>政府</c>"
+    assert strings.said(line, "cn") == strings.said(line, "tc") == "第8章第28节：我们相信，政府"
+    assert strings.said("{0.04->5.66}今日の一文は “市民の誓い”　第８章28節{6.80->13.69}政府は", "jp") \
+        == "今日の一文は “市民の誓い” 第８章28節 政府は"
+    assert strings.said("{0.00->1.00}We trust,{1.00->2.00}the Government.", "us") == "We trust, the Government."
+    from audiodiver import i18n
+    assert set(i18n.available()) | {"en"} <= set(strings.FOR_APP) and set(strings.FOR_APP.values()) <= set(strings.LANGUAGES)
+
+
 @pytest.fixture(scope="module")
 def session():
     s = Session()

@@ -231,6 +231,34 @@ def test_voice_lines_say_their_subtitles_and_clips_without_words_are_named(sessi
 
 
 @pytest.mark.game
+def test_voice_lines_say_their_subtitles_in_the_language_of_the_app(session):
+    """With the app in Chinese, a voice line is labelled with the game's own Chinese subtitle, read from the game's
+    text, and keeps the English words for the filter (`en`); the voice's own language doesn't matter (this is the
+    English voice). A line the game has no Chinese for stays in English. Back in English, nothing changed."""
+    from audiodiver import i18n, strings
+    part = _items(session)["set:allies/ship/pa-system-and-ship-tv"]["parts"][0]
+    english = {r["source"]: r for r in _rows(session.cue(part["cue"]))}
+    assert not any("en" in r for r in english.values())
+    try:
+        i18n.set_language("zh-Hans")
+        view = session.cue(part["cue"])
+        rows = [r for r in _rows(view) if r.get("subtitle")]
+        han = lambda text: any("一" <= ch <= "鿿" for ch in text)
+        assert len(rows) > 100 and sum(han(r["label"]) and "en" in r for r in rows) > len(rows) * 0.95
+        assert all(r["en"] == english[r["source"]]["label"] for r in rows if "en" in r)
+        oath = next(r for r in rows if r.get("en", "").startswith("A reading from the Citizens' Oath, passage 8:28"))
+        assert oath["label"].startswith("选自《公民誓言》") and " " not in oath["label"]
+        assert any(g["name"] == f"“{oath['label']}”" for g in view["segments_detail"])  # its takes go by those words
+        chinese = strings.subtitles(session.ix.game, "cn")
+        lacking = next(i for i in session.lib.said if i not in chinese)
+        assert session.lib.said_in(lacking) == session.lib.said[lacking]
+        assert strings.subtitles(session.ix.game, "xx") == {}
+    finally:
+        i18n.set_language("en")
+    assert {s: r["label"] for s, r in english.items()} == {r["source"]: r["label"] for r in _rows(session.cue(part["cue"]))}
+
+
+@pytest.mark.game
 def test_exertions_are_named_by_kind_and_voice(session):
     """A group per kind and voice (data/exertions.json), listed by name, each take saying when it plays; the grunts
     the bank holds for the voice banks stay grouped by what they are."""

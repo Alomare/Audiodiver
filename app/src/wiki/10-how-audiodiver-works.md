@@ -62,7 +62,7 @@ An update replaces only the app. Projects, audio files and settings are kept.
 
 ### Language
 
-**Language** in [Settings ▸ System](app:settings/system) sets the language of the window and of the messages Audiodiver shows. **Automatic** takes the language Helldivers 2 is set to in Steam. When Audiodiver has no translation for it, Automatic takes the language of Windows, and otherwise English. After a change the window loads again in the new language, on the same tab. Subtitles and voice lines from the game stay as they are, and the Text tab still chooses which language of the game text to edit.
+**Language** in [Settings ▸ System](app:settings/system) sets the language of the window and of the messages Audiodiver shows. **Automatic** takes the language Helldivers 2 is set to in Steam. When Audiodiver has no translation for it, Automatic takes the language of Windows, and otherwise English. After a change the window loads again in the new language, on the same tab. Voice lines show the words of their subtitles in that language, as the game writes them, or in English where the game has no translation of a line. The Text tab still chooses which language of the game text to edit.
 
 ### Game folder
 
