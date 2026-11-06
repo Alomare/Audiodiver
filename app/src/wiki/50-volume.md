@@ -81,7 +81,7 @@ The radio sound on some voices isn't in their files. The lines pass through a ra
 - **The Admiral**
 - **Eagle-1**
 - **Pelican-1**
-- **Helldivers**, for teammates on the radio and anyone in a vehicle
+- **Helldivers**, for your own Helldiver, teammates on the radio and anyone in a vehicle. On foot, your Helldiver has a helmet sound instead of the radio, and **Off** takes that off too
 
 A mod can be just this, with no new audio.
 

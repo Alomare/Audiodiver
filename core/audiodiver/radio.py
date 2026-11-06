@@ -1,7 +1,8 @@
 """The radio filters. Radio voices aren't filtered in their files: their lines pass through mixing buses in the Init
 bank, and a FutzBox effect on those buses makes the radio sound. Turning a family's radio off bypasses the FutzBox on
 its buses, for every language at once; the compressor and gain after it stay, and so does what the game's code does
-with the bus.
+with the bus. The player's own Helldiver, on foot, takes no radio: the voice goes through a helmet sound instead (a
+convolution reverb and an EQ on vo_helldiver_player), which the Helldivers' switch takes off too.
 
 Without the FutzBox the voices come out louder. `quieter` lowers those buses' Bus Volume, for a level near the game's
 radio. It is a bus setting, so it comes after the effects.
@@ -16,6 +17,7 @@ from . import music
 INIT_PATH = "content/audio/Init"
 BUS, SHARE_SET, CUSTOM_FX = 0x08, 0x10, 0x11
 FUTZBOX = 0x006E1003      # McDSP's plugin id
+HELMET_FX = (0x007F0003, 0x1D130403)  # Wwise Convolution Reverb (the helmet's impulse, bank Helldiver_IR); ParamEqV2
 BUS_VOLUME = 0x04         # in a bus's props
 BYPASS, IS_SHARE_SET = 1, 2   # the bits of an effect slot
 QUIETER_DB = -7.0        # by ear in game: -6 was a little loud, -9 a little quiet
@@ -23,6 +25,9 @@ QUIETER_DB = -7.0        # by ear in game: -6 was a little loud, -9 a little qui
 # radio, and a teammate or the player in a vehicle
 FAMILIES = {"mission_control": (1149102368,), "admiral": (3416783710,), "eagle": (2421160179,), "pelican": (2211648952,),
             "helldivers": (508400881, 3231114864, 2771513447)}
+# and the buses of a family's helmet sound: the player's own Helldiver on foot (vo_helldiver_player). Its effects
+# (HELMET_FX) go too, and Bus Volume stays: there is no radio level to come down to
+HELMET = {"helldivers": (3113584510,)}
 
 
 @dataclass
@@ -33,8 +38,17 @@ class Plan:
     def __bool__(self):
         return bool(self.off)
 
-    def buses(self) -> set[int]:
+    def radios(self) -> set[int]:
+        """The buses whose FutzBox goes."""
         return {b for f in self.off for b in FAMILIES[f]}
+
+    def helmets(self) -> set[int]:
+        """The buses whose helmet sound goes."""
+        return {b for f in self.off for b in HELMET.get(f, ())}
+
+    def buses(self) -> set[int]:
+        """Every bus the plan changes."""
+        return self.radios() | self.helmets()
 
 
 def _layout(body) -> tuple[int, int]:
@@ -80,20 +94,26 @@ def with_bus_volume(body, db: float) -> bytes:
     return bytes(body[:p]) + bundle + bytes(body[p + 1 + 5 * body[p]:])
 
 
+def effects(entries, plugins) -> set[tuple[int, int]]:
+    """(type, id) of the effects that are one of these plugins, of (type, id, body) objects."""
+    return {(t, i) for t, i, b in entries if t in (SHARE_SET, CUSTOM_FX) and struct.unpack_from("<I", b)[0] in plugins}
+
+
 def futzboxes(entries) -> set[tuple[int, int]]:
     """(type, id) of the effects that are FutzBoxes, of (type, id, body) objects."""
-    return {(t, i) for t, i, b in entries if t in (SHARE_SET, CUSTOM_FX) and struct.unpack_from("<I", b)[0] == FUTZBOX}
+    return effects(entries, (FUTZBOX,))
 
 
-def _is_futzbox(fx, bits, boxes) -> bool:
+def _is_one_of(fx, bits, boxes) -> bool:
     return (SHARE_SET if bits & IS_SHARE_SET else CUSTOM_FX, fx) in boxes
 
 
 def off(body, boxes, quieter: bool) -> bytes | None:
-    """A bus with its FutzBox bypassed; None when it has none to bypass."""
+    """A bus with the effects of `boxes` (its FutzBox, or the helmet sound's) bypassed; None when it has none of them
+    to bypass."""
     new, found = bytearray(body), False
     for at, fx, bits in slots(body):
-        if _is_futzbox(fx, bits, boxes) and not bits & BYPASS:
+        if _is_one_of(fx, bits, boxes) and not bits & BYPASS:
             new[at] |= BYPASS
             found = True
     if not found:
@@ -103,9 +123,10 @@ def off(body, boxes, quieter: bool) -> bytes | None:
 
 def apply_to(entries, plan: Plan) -> dict[int, bytes]:
     """{bus: its new body} of Init's objects as the plan sets them. A bus this game version doesn't have, or that has
-    no FutzBox on any more, stays out."""
-    boxes, wanted = futzboxes(entries), plan.buses()
-    changed = {i: off(b, boxes, plan.quieter) for t, i, b in entries if t == BUS and i in wanted}
+    no FutzBox (or helmet effect) on any more, stays out."""
+    boxes, helmet, radios, helmets = futzboxes(entries), effects(entries, HELMET_FX), plan.radios(), plan.helmets()
+    changed = {i: off(b, boxes, plan.quieter) if i in radios else off(b, helmet, False)
+               for t, i, b in entries if t == BUS and (i in radios or i in helmets)}
     return {i: b for i, b in changed.items() if b is not None}
 
 
@@ -113,22 +134,24 @@ def read_mod(mod: dict, game: dict) -> tuple[Plan, set[int]]:
     """What a mod's Init sets of this (mod, game: {id: (type, body)}, bank.parse): the plan, and the buses that differ
     from the game's in only that way. Anything else in a mod's Init is the game's mix of some version, so it stays out."""
     entries = [(t, i, b) for i, (t, b) in game.items()]
-    boxes, plan, explained = futzboxes(entries), Plan(set(), False), set()
+    boxes, helmet, plan, explained = futzboxes(entries), effects(entries, HELMET_FX), Plan(set(), False), set()
+    usable = lambda bus: bus in mod and bus in game and mod[bus][0] == BUS and game[bus][0] == BUS
     for family, buses in FAMILIES.items():
         bypassed = []
         for bus in buses:
-            if bus not in mod or bus not in game or mod[bus][0] != BUS or game[bus][0] != BUS:
+            if not usable(bus):
                 continue
             mine, was = mod[bus][1], game[bus][1]
-            ours = [b for (_, fx, b), (_, _, g) in zip(slots(mine), slots(was)) if _is_futzbox(fx, g, boxes) and b & BYPASS and not g & BYPASS]
+            ours = [b for (_, fx, b), (_, _, g) in zip(slots(mine), slots(was)) if _is_one_of(fx, g, boxes) and b & BYPASS and not g & BYPASS]
             if ours:
                 bypassed.append(bus)
                 quieter = props(mine).get(BUS_VOLUME, 0.0) < props(was).get(BUS_VOLUME, 0.0)
                 plan.quieter |= quieter
                 if bytes(mine) == off(was, boxes, quieter):
                     explained.add(bus)
-        if bypassed:
+        if bypassed:  # the radio is what says a family is off: a helmet sound taken off alone is another mod's mix
             plan.off.add(family)
+            explained.update(bus for bus in HELMET.get(family, ()) if usable(bus) and bytes(mod[bus][1]) == off(game[bus][1], helmet, False))
     return plan, explained
 
 

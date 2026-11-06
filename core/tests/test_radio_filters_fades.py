@@ -74,15 +74,48 @@ def diff_positions(a, b):
 
 
 @pytest.mark.game
-def test_every_voice_off_is_seven_bytes_of_init_and_nothing_else(ix, tmp_path):
+def test_every_voice_off_is_nine_bytes_of_init_and_nothing_else(ix, tmp_path):
+    """Seven FutzBoxes, and the two effects of the helmet sound on the player's own voice."""
     p = Project(name="R", path=tmp_path / "r.audi", radio_off=set(radio.FAMILIES))
     edits = make_patch(p, ix, tmp_path, log=lambda *_: None)  # verified
     init = radio.init_of(ix)
-    assert list(edits) == [init] and sorted(edits[init].radio) == sorted(b for bs in radio.FAMILIES.values() for b in bs)
+    buses = [b for f in radio.FAMILIES for b in radio.FAMILIES[f] + radio.HELMET.get(f, ())]
+    assert list(edits) == [init] and sorted(edits[init].radio) == sorted(buses)
     made = next(d for _, d in patch._files(str(tmp_path / PATCH), patch.WWISE_BANK, init))
     raw, dep = ix.bank_files(init)
-    assert len(made) == len(raw) and len(diff_positions(raw, made)) == 7
+    assert len(made) == len(raw) and len(diff_positions(raw, made)) == 9
     assert [d for _, d in patch._files(str(tmp_path / PATCH), patch.WWISE_DEP)] == [dep]
+
+
+@pytest.mark.game
+def test_the_helldivers_switch_takes_the_helmet_sound_off_the_players_own_voice(ix, tmp_path):
+    """A user's report: with the Helldivers' radio off, teammates were clean and the player's own voice wasn't. On
+    foot it takes no radio: vo_helldiver_player (3113584510) has a Convolution Reverb with the helmet's impulse and an
+    EQ. The switch bypasses both, and only those, and leaves the bus's level alone, Normalize or not. A mod built so
+    reads back as the switch; a mod that takes only the helmet sound off is another mix, left out."""
+    init = radio.init_of(ix)
+    raw, dep = ix.bank_files(init)
+    player = radio.HELMET["helldivers"][0]
+    game = {i: b for t, i, b in radio.entries_of(raw) if t == radio.BUS}
+    plugin = {(t, i): struct.unpack_from("<I", b)[0] for t, i, b in radio.entries_of(raw) if t in (radio.SHARE_SET, radio.CUSTOM_FX)}
+    of = lambda body: [(plugin.get((radio.SHARE_SET if bits & radio.IS_SHARE_SET else radio.CUSTOM_FX, fx)), bits & radio.BYPASS)
+                       for _, fx, bits in radio.slots(body)]
+    assert of(game[player]) == [(radio.HELMET_FX[0], 0), (radio.HELMET_FX[1], 0)]
+    for quieter in (False, True):
+        made = patch.apply_radio(raw, radio.Plan({"helldivers"}, quieter))[0]
+        now = {i: b for t, i, b in radio.entries_of(made) if t == radio.BUS}
+        assert of(now[player]) == [(radio.HELMET_FX[0], 1), (radio.HELMET_FX[1], 1)]
+        assert radio.props(now[player]) == radio.props(game[player])
+        assert {i for i in game if game[i] != now[i]} == set(radio.FAMILIES["helldivers"]) | {player}
+        found = addition.from_patch(ix, {"streams": {}, "unknown": [], "banks": {init: patch._bank_diff(init, wbank.parse(made), ix)}})
+        assert found.radio.off == {"helldivers"} and found.radio.quieter is quieter and found.other == {}
+    helmet_only = patch._with_objects(raw, lambda t, i, b: radio.off(b, radio.effects(radio.entries_of(raw), radio.HELMET_FX), False)
+                                      if t == radio.BUS and i == player else None)[0]
+    found = addition.from_patch(ix, {"streams": {}, "unknown": [], "banks": {init: patch._bank_diff(init, wbank.parse(helmet_only), ix)}})
+    assert found.radio.off == set() and found.other == {init: 1}
+    # the Eagle's switch leaves the player's voice alone
+    made = patch.apply_radio(raw, radio.Plan({"eagle"}, False))[0]
+    assert next(b for t, i, b in radio.entries_of(made) if t == radio.BUS and i == player) == game[player]
 
 
 @pytest.mark.game

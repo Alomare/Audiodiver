@@ -24,7 +24,7 @@ function RadioFilters() {
   const off = project.radio_off;
   const voices: [string, string, string?][] = [
     ["mission_control", t`Mission Control`], ["admiral", t`The Admiral`], ["eagle", t`Eagle-1`], ["pelican", t`Pelican-1`],
-    ["helldivers", t`Helldivers`, t`Teammates on the radio, and anyone in a vehicle`],
+    ["helldivers", t`Helldivers`, t`Your Helldiver, teammates on the radio, and anyone in a vehicle`],
   ];
   const set = (voice: string, filtered: boolean) => actions.settings({ radio_off: filtered ? off.filter((v) => v !== voice) : [...off, voice] });
   const nothingElse = !Object.keys(project.assignments).length && !project.texts.length;

@@ -2,7 +2,7 @@
 title: Make-Up Gain et le mixage
 group: Créer un mod
 summary: Régler le volume d’un emplacement, comment fonctionne le mixage HDR du jeu, et pourquoi certains écrans sonnent plus faible dans le jeu que dans Audiodiver.
-source: 45fe2fadf6d6
+source: 1e6df7389eef
 ---
 
 ## Make-Up Gain par emplacement {#make-up-gain-per-slot}
@@ -81,7 +81,7 @@ Le son radio de certaines voix n’est pas dans leurs fichiers. Les répliques p
 - **L’Amiral**
 - **Aigle 1**
 - **Pélican 1**
-- **Helldivers**, pour les coéquipiers à la radio et tout le monde dans un véhicule
+- **Helldivers**, pour votre propre Helldiver, les coéquipiers à la radio et tout le monde dans un véhicule. À pied, votre Helldiver a un son de casque au lieu de la radio, et **Désactivé** l’enlève aussi
 
 Un mod peut se limiter à cela, sans nouvel audio.
 

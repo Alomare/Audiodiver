@@ -7754,10 +7754,6 @@ msgstr "Reprend l’audio que le mod remplace et ajoute, avec les réglages de s
 msgid "Taller, to see quiet audio. It plays as loud as before. Ctrl+wheel on the waveforms zooms too"
 msgstr "Plus haut, pour voir l'audio faible. Il est joué aussi fort qu'avant. Ctrl+molette sur les formes d'onde zoome aussi"
 
-#: src/ProjectTab.tsx
-msgid "Teammates on the radio, and anyone in a vehicle"
-msgstr "Les coéquipiers à la radio, et tout le monde dans un véhicule"
-
 #: src/content.ts
 msgid "telling grunts, breaths and laughs from words"
 msgstr "distinction des grognements, respirations et rires d'avec les mots"
@@ -9175,3 +9171,7 @@ msgstr "Vous pouvez le relancer à tout moment depuis le Wiki."
 #: src/UpdatesTab.tsx
 msgid "You have {APP_LABEL}."
 msgstr "Votre version : {APP_LABEL}."
+
+#: src/ProjectTab.tsx
+msgid "Your Helldiver, teammates on the radio, and anyone in a vehicle"
+msgstr "Votre Helldiver, les coéquipiers à la radio, et tout le monde dans un véhicule"

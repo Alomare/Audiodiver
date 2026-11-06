@@ -7754,10 +7754,6 @@ msgstr "MODが置き換え・追加する音声を、音量や遅延などのサ
 msgid "Taller, to see quiet audio. It plays as loud as before. Ctrl+wheel on the waveforms zooms too"
 msgstr "高くすると小さな音も見やすくなります。再生音量は変わりません。波形上でCtrl+ホイールを使ってもズームできます"
 
-#: src/ProjectTab.tsx
-msgid "Teammates on the radio, and anyone in a vehicle"
-msgstr "無線の味方、および車両内の全員"
-
 #: src/content.ts
 msgid "telling grunts, breaths and laughs from words"
 msgstr "うなり声、息づかい、笑い声と言葉の判別"
@@ -9175,3 +9171,7 @@ msgstr "Wikiからいつでももう一度始められます。"
 #: src/UpdatesTab.tsx
 msgid "You have {APP_LABEL}."
 msgstr "現在のバージョンは{APP_LABEL}です。"
+
+#: src/ProjectTab.tsx
+msgid "Your Helldiver, teammates on the radio, and anyone in a vehicle"
+msgstr "自分のヘルダイバー、無線の味方、および車両内の全員"

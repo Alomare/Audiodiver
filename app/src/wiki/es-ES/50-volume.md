@@ -2,7 +2,7 @@
 title: Make-Up Gain y la mezcla
 group: Crear un mod
 summary: Cómo ajustar la sonoridad de un slot, cómo funciona la mezcla HDR del juego y por qué algunas pantallas suenan más bajas en el juego que en Audiodiver.
-source: 45fe2fadf6d6
+source: 1e6df7389eef
 ---
 
 ## Make-Up Gain por slot {#make-up-gain-per-slot}
@@ -81,7 +81,7 @@ El sonido de radio de algunas voces no está en sus ficheros. Las frases pasan p
 - **El Almirante**
 - **Águila 1**
 - **Pelícano 1**
-- **Helldivers**, para compañeros por radio y cualquiera en un vehículo
+- **Helldivers**, para tu propio Helldiver, compañeros por radio y cualquiera en un vehículo. A pie, tu Helldiver tiene un sonido de casco en lugar de la radio, y **Desactivado** también lo quita
 
 Un mod puede ser solo esto, sin audio nuevo.
 
