@@ -12,9 +12,11 @@ A patch replaces a resource whole, every language of it at once, and a bundle re
 a whole bank up to 159 MB in each of 9 languages. So a mod holds only the new clips and names the banks they go in, and
 the mod manager makes the patches from the installed game when it deploys. Up to Obsidian 1.3.1 it rebuilt those banks:
 every language, and every bundle that holds them (rebuild here is that layout), about 2.7 GB for one footstep. The
-overlay that follows (overlay below, Obsidian's overlay.rs) leaves the game's banks alone: the replaced clips go into
-one small bank under new IDs, beside the game's one list of sounds (timpani_master, in the boot bundle), which names
-the new IDs where it named the old. Sound changes only what one player hears, so the mod's scope is client.
+overlay that follows (overlay below, Obsidian's overlay.rs) leaves the game's banks alone: the game's one list of sounds
+(timpani_master, in the boot bundle) names new IDs where it named the replaced clips, and the clips go under those IDs
+into a small bank beside each bank they replace, in every bundle that holds it (the boot bundle loads before the
+language is set, so a bank there plays language 0 in every language). Sound changes only what one player hears, so the
+mod's scope is client.
 """
 import hashlib
 import json
@@ -277,7 +279,6 @@ def verify(zip_path: Path, game: hd1.Hd1) -> list[str]:
 
 
 # --- what the mod manager deploys: the overlay (Obsidian's overlay.rs), for checks and sizes. The same layout in both.
-OVERLAY_BANK = hd1.murmur64_hash(b"obsidian/timpani/clips")
 MASTER_MAGIC = 0x61914940
 
 
@@ -322,39 +323,49 @@ def overlay_bank(clips: dict[int, tuple[bytes, bytes]]) -> tuple[bytes, bytes]:
     return bytes(out), bytes(stream)
 
 
-def overlay(game: hd1.Hd1, zip_path: Path) -> tuple[bytes, dict[int, tuple[bytes, bytes]]]:
-    """What the mod manager deploys for a mod, in the bundle that holds the game's master, with the game's banks left
-    as they are: (the master with every replaced clip named by a new ID, Obsidian's bank of those clips by language).
-    In each language a replaced clip plays the mod's clip in that language, else the game's own in that language, else
-    the one of language 0; a language whose clips are those of language 0 has no variant (the game falls back to 0)."""
+def overlay_name(bank: int) -> int:
+    """The resource name of Obsidian's bank of new clips beside a bank of the game."""
+    return hd1.murmur64_hash(f"obsidian/timpani/clips/{bank:016x}".encode())
+
+
+def overlay(game: hd1.Hd1, zip_path: Path) -> tuple[bytes, dict[int, dict[int, tuple[bytes, bytes]]]]:
+    """What the mod manager deploys for a mod, the game's banks left as they are: (the master with every replaced clip
+    named by a new ID, for the boot bundle; {bank: {language: (Obsidian's bank of the new clips, its stream)}}, which
+    goes in every bundle that holds that bank, as the game loads those after it sets the language). In each language
+    of a bank, a replaced clip plays the mod's clip in that language, else the bank's own clip there; a language
+    whose clips are those of language 0 has no variant (the game falls back to 0)."""
     with zipfile.ZipFile(zip_path) as z:
         m = json.loads(z.read(MANIFEST))
-        new, banks = {}, set()
+        new, mine = {}, {}
         for r in m["resources"]:
-            banks.add(int(r["name"][1:], 16))
+            bank = int(r["name"][1:], 16)
             for row in r["clips"]:
-                new[(int(row["clip"][1:], 16), row.get("lang", 0))] = (z.read(row["data"]), z.read(row["stream"]) if row.get("stream") else b"")
+                clip = int(row["clip"][1:], 16)
+                mine.setdefault(bank, set()).add(clip)
+                new[(clip, row.get("lang", 0))] = (z.read(row["data"]), z.read(row["stream"]) if row.get("stream") else b"")
     master = game_master(game)
     taken = {c for _, c in clip_places(master)}
-    clips = {c for c, _ in new}
-    originals, langs = {}, {0}
-    for bank in (b for b in game.banks if b["name"] in banks):
-        langs.add(bank["lang"])
-        taken.update(r[0] for r in bank["rows"])
-        held = {r[0]: r for r in bank["rows"] if r[0] in clips}
-        if held:
-            raw, stream = bank_files(game, bank)
-            for c, r in held.items():
-                originals.setdefault((c, bank["lang"]), (raw[r[1]:r[1] + r[2]], stream[r[3]:r[3] + r[4]]))
-    ids = overlay_ids(clips, taken)
+    variants = [b for b in game.banks if b["name"] in mine]
+    for b in variants:
+        taken.update(r[0] for r in b["rows"])
+    ids = overlay_ids({c for c, _ in new}, taken)
     out = bytearray(master)
     for at, c in clip_places(master):
         if c in ids:
             struct.pack_into("<Q", out, at, ids[c])
-    heard = {lang: {ids[c]: new.get((c, lang)) or originals.get((c, lang)) or new.get((c, 0)) or originals[(c, 0)]
-                    for c in clips} for lang in sorted(langs)}
-    return bytes(out), {lang: overlay_bank(got) for lang, got in heard.items() if lang == 0 or got != heard[0]}
-
+    own = {}  # (bank, language, clip): the bank's own clip there
+    for b in variants:
+        rows = {r[0]: r for r in b["rows"] if r[0] in mine[b["name"]]}
+        if rows:
+            raw, stream = bank_files(game, b)
+            for c, r in rows.items():
+                own[(b["name"], b["lang"], c)] = (raw[r[1]:r[1] + r[2]], stream[r[3]:r[3] + r[4]])
+    banks = {}
+    for bank, clips in mine.items():
+        heard = {lang: {ids[c]: new.get((c, lang)) or own.get((bank, lang, c)) or own.get((bank, 0, c)) or new[(c, 0)] for c in clips}
+                 for lang in sorted({b["lang"] for b in variants if b["name"] == bank} | {0})}
+        banks[bank] = {lang: overlay_bank(got) for lang, got in heard.items() if lang == 0 or got != heard[0]}
+    return bytes(out), banks
 
 def game_master(game: hd1.Hd1) -> bytes:
     """The game's timpani_master (in the boot bundle)."""

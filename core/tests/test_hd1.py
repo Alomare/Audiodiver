@@ -470,16 +470,19 @@ def test_rows_with_the_same_bytes_share_a_file_and_the_size_stays_the_new_audio(
         assert len({x["data"] for x in rows}) == 1 and len([n for n in z.namelist() if n.startswith("res/")]) == 1
 
 
-def test_the_mod_manager_deploys_new_clips_beside_the_master_and_leaves_the_banks(game, tmp_path, monkeypatch):
+def test_the_mod_manager_deploys_new_clips_beside_each_bank_and_names_them_in_the_master(game, tmp_path, monkeypatch):
     """The overlay (Obsidian's overlay.rs): the master names a new ID where it named a replaced clip, and a bank of
-    those IDs holds, in each language, what that language plays; a language like language 0 has no variant."""
+    those IDs beside the bank holds, in each of its languages, what that language plays; one like language 0 has none."""
     import zipfile
     from audiodiver import hd1_build
     from audiodiver.project import Replacement
     s, _ = recipe_game(tmp_path, game, monkeypatch)  # new audio for "one" in French only
     h, p = s.hd1, s.project
     zip_path = hd1_build.build(p, h, log=lambda *_: None)
-    master, banks = hd1_build.overlay(h, zip_path)
+    master, beside = hd1_build.overlay(h, zip_path)
+    assert sorted(beside) == [BANK_NAME], "a bank of new clips for the bank the mod changes"
+    banks = beside[BANK_NAME]
+    assert hd1_build.overlay_name(BANK_NAME) == murmur64_hash(f"obsidian/timpani/clips/{BANK_NAME:016x}".encode())
     new = hd1_build.overlay_ids({CLIPS["one"]}, set())[CLIPS["one"]]
     assert new == murmur64_hash(f"obsidian/clip/{CLIPS['one']:016x}".encode())
     assert [c for _, c in hd1_build.clip_places(master)] == [new, CLIPS["two"], CLIPS["two"]]
@@ -497,7 +500,7 @@ def test_the_mod_manager_deploys_new_clips_beside_the_master_and_leaves_the_bank
     # the same file in both languages: one variant, which every language falls back to
     p.replacements.append(Replacement(target=hd1.source(CLIPS["one"], 0), audio=p.replacements[0].audio))
     p.version += 1
-    _, banks = hd1_build.overlay(h, hd1_build.build(p, h, log=lambda *_: None))
+    banks = hd1_build.overlay(h, hd1_build.build(p, h, log=lambda *_: None))[1][BANK_NAME]
     assert sorted(banks) == [0] and hd1_build.rows_of(banks[0][0])[0][0] == new
 
 
