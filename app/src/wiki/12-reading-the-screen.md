@@ -39,7 +39,7 @@ The toolbar starts with a tick that selects every slot, or clears the selection.
 |---|---|
 | {icon:fill} **Fill from files** | Fills the slots with files, one file per slot, in play order and file-name order. |
 | {icon:fillpiece} **Fill the whole piece** | Fills the slots of every part the same way, part by part. |
-| {icon:slice} **Slice a song** | Cuts one song into pieces, one per slot. |
+| {icon:slice} **Slice a song** | Cuts one song into pieces, one per slot, or cuts a stretch of a song for a cue with one slot. |
 | {icon:export} **Export** | Saves the item, or the selected slots, as WAV, FLAC, MP3 or WEM files. **Export List** beside it opens the [export list](#the-export-list) once something is on it. |
 | {icon:skip} **Skip it**, {icon:skipall} **Skip all** | Replace a transition or stinger with a short silence. |
 | {icon:clear} **Clear all**, **Clear this part** | Removes the new audio from every slot shown, or from every slot of the part. |

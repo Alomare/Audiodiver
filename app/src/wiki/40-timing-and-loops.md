@@ -36,6 +36,8 @@ A segment marked **loops** repeats until the game moves on. A segment marked **Ã
 
 {icon:slice} **Slice a song** cuts one long file into consecutive pieces at exact sample positions, so the pieces sound like the uncut song when they play back to back. Each piece goes to one segment, in play order. The layers of a segment play together, so all of the pieces go into the layer of the **From** slot.
 
+A cue with one slot, such as a transition, takes one piece: move **Start** and **End** to the stretch of the song it should play.
+
 The window shows the song and the original on one time scale:
 
 - The **New audio** lane shows the song, the cuts, and the number and slot of each piece.

@@ -2,7 +2,7 @@
 title: Entendendo a tela
 group: Primeiros passos
 summary: O que cada parte da Biblioteca e da aba Áudio mostra, e o que significam as tags e marcas de uma linha.
-source: 5f5e51fc56da
+source: f0e4698cd5ff
 ---
 
 A Biblioteca e a aba Áudio têm o mesmo layout: uma lista à esquerda, o item aberto no meio e o painel de detalhes à direita. A Trilha Sonora tem outro layout, descrito em [Trilha Sonora](wiki:soundtrack). As palavras em **negrito** são explicadas em [O áudio do jogo, explicado](wiki:game-audio).
@@ -40,7 +40,7 @@ A barra de ferramentas começa com uma caixa de seleção que seleciona todos os
 |---|---|
 | {icon:fill} **Preencher com arquivos** | Preenche os slots com arquivos, um arquivo por slot, na ordem de reprodução e na ordem dos nomes de arquivo. |
 | {icon:fillpiece} **Preencher a peça inteira** | Preenche os slots de todas as partes do mesmo jeito, parte por parte. |
-| {icon:slice} **Fatiar uma música** | Corta uma música em pedaços, um por slot. |
+| {icon:slice} **Fatiar uma música** | Corta uma música em pedaços, um por slot, ou corta um trecho de uma música para um cue com um só slot. |
 | {icon:export} **Exportar** | Salva o item, ou os slots selecionados, como arquivos WAV, FLAC, MP3 ou WEM. **Lista de Exportação**, ao lado, abre a [lista de exportação](#the-export-list) quando há algo nela. |
 | {icon:skip} **Pular**, {icon:skipall} **Pular todos** | Substituem uma transição ou um stinger por um silêncio curto. |
 | {icon:clear} **Limpar tudo**, **Limpar esta parte** | Remove o áudio novo de todos os slots mostrados, ou de todos os slots da parte. |

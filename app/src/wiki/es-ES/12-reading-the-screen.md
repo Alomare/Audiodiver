@@ -2,7 +2,7 @@
 title: Cómo leer la pantalla
 group: Primeros pasos
 summary: Qué muestra cada parte de la Biblioteca y de la pestaña Audio, y qué significan las etiquetas y las marcas de una fila.
-source: 5f5e51fc56da
+source: f0e4698cd5ff
 ---
 
 La Biblioteca y la pestaña Audio comparten una disposición: una lista a la izquierda, el elemento abierto en el centro y el panel de detalles a la derecha. La Banda Sonora tiene otra disposición, que se describe en [Banda Sonora](wiki:soundtrack). Las palabras en **negrita** se explican en [El audio del juego, explicado](wiki:game-audio).
@@ -40,7 +40,7 @@ La barra de herramientas empieza con una casilla que selecciona todos los slots 
 |---|---|
 | {icon:fill} **Rellenar desde ficheros** | Rellena los slots con ficheros, uno por slot, en orden de reproducción y de nombre de fichero. |
 | {icon:fillpiece} **Rellenar la pieza entera** | Rellena de la misma manera los slots de todas las partes, parte por parte. |
-| {icon:slice} **Cortar una canción** | Corta una canción en trozos, uno por slot. |
+| {icon:slice} **Cortar una canción** | Corta una canción en trozos, uno por slot, o corta un tramo de una canción para un cue con un solo slot. |
 | {icon:export} **Exportar** | Guarda el elemento, o los slots seleccionados, como ficheros WAV, FLAC, MP3 o WEM. **Lista de Exportación**, a su lado, abre la [lista de exportación](#the-export-list) cuando ya hay algo en ella. |
 | {icon:skip} **Saltarlo**, {icon:skipall} **Saltarlos todos** | Sustituyen una transición o un stinger por un silencio corto. |
 | {icon:clear} **Vaciar todo**, **Vaciar esta parte** | Quitan el audio nuevo de todos los slots mostrados, o de todos los slots de la parte. |

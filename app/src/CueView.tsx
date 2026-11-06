@@ -746,8 +746,10 @@ function CueBody({ cue }: { cue: Cue }) {
               onClick={async () => { const f = await pickAudio(true); if (f) actions.fill(cue.id, f); }} />
           )}
           {!readOnly && item && isMusicItem(item) && <ItemActions item={item} />}
-          {!readOnly && music && fillable > 1 && (
-            <ToolButton icon={<SliceIcon />} name={t`Slice a song`} about={project ? t`Cut one song into pieces, one per slot` : t`Open a project first`}
+          {/* one slot takes a stretch of a song: the end of a song another cue plays the start of, say */}
+          {!readOnly && music && fillable > 0 && (
+            <ToolButton icon={<SliceIcon />} name={t`Slice a song`} about={!project ? t`Open a project first`
+              : fillable > 1 ? t`Cut one song into pieces, one per slot` : t`Cut a stretch of a song for this slot`}
               disabled={!project} onClick={() => setSlicing(true)} />
           )}
           {cue.kind !== "sound" && (

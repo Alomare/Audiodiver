@@ -2,7 +2,7 @@
 title: Tempo, pontos de cue e loops
 group: Criando um mod
 summary: Como o jogo passa de um segmento para o seguinte, como fazer a música nova passar a vez sem emendas e como fatiar uma música num cue.
-source: 116b5d6a7112
+source: f2d067e6af1c
 ---
 
 ## Ajustar o tempo ao áudio novo {#fitting-the-timing-to-the-new-audio}
@@ -36,6 +36,8 @@ Um segmento marcado com **em loop** se repete até o jogo seguir em frente. Um s
 ## Fatiar uma música longa {#slicing-one-long-song}
 
 {icon:slice} **Fatiar uma música** corta um arquivo longo em pedaços consecutivos, em posições exatas de amostra, para que os pedaços soem como a música inteira quando tocam um após o outro. Cada pedaço vai para um segmento, na ordem de reprodução. As camadas de um segmento tocam juntas, então todos os pedaços vão para a camada do slot **Primeiro**.
+
+Um cue com um só slot, como uma transição, recebe um pedaço: mova **Início** e **Fim** para o trecho da música que ele deve tocar.
 
 A janela mostra a música e o original na mesma escala de tempo:
 

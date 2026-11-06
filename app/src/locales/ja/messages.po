@@ -2896,6 +2896,10 @@ msgstr "カット (ms)"
 msgid "Cut {number}"
 msgstr "カット {number}"
 
+#: src/CueView.tsx
+msgid "Cut a stretch of a song for this slot"
+msgstr "曲の一部を切り出して、このスロットに割り当て"
+
 #: src/store.tsx
 msgid "Cut into {pieces, plural, one {# piece} other {# pieces}}."
 msgstr "{pieces, plural, other {# 個のピースに分割しました。}}"

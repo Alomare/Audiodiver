@@ -2,7 +2,7 @@
 title: Minutage, points de repère et boucles
 group: Créer un mod
 summary: Comment le jeu passe d’un segment au suivant, comment faire en sorte que la nouvelle musique s’enchaîne proprement, et comment découper une chanson dans un cue.
-source: 116b5d6a7112
+source: f2d067e6af1c
 ---
 
 ## Ajuster le minutage au nouvel audio {#fitting-the-timing-to-the-new-audio}
@@ -36,6 +36,8 @@ Un segment marqué **en boucle** se répète jusqu’à ce que le jeu passe à l
 ## Découper une longue chanson {#slicing-one-long-song}
 
 {icon:slice} **Découper une chanson** découpe un long fichier en morceaux consécutifs à des positions d’échantillon exactes, si bien que les morceaux sonnent comme la chanson non découpée quand ils sont joués bout à bout. Chaque morceau va dans un segment, dans l’ordre de lecture. Les couches d’un segment sont jouées ensemble, donc tous les morceaux vont dans la couche de l’emplacement **Début**.
+
+Un cue d’un seul emplacement, comme une transition, reçoit un seul morceau : placez **Début** et **Fin** sur le passage de la chanson qu’il doit jouer.
 
 La fenêtre montre la chanson et l’original sur une même échelle de temps :
 

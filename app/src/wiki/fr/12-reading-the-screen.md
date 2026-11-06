@@ -2,7 +2,7 @@
 title: Comprendre l’écran
 group: Pour commencer
 summary: Ce que montre chaque partie de la Bibliothèque et de l’onglet Audio, et ce que signifient les étiquettes et les marques d’une ligne.
-source: 5f5e51fc56da
+source: f0e4698cd5ff
 ---
 
 La Bibliothèque et l’onglet Audio partagent une même disposition : une liste à gauche, l’élément ouvert au milieu et le panneau de détails à droite. La Bande-son a une disposition différente, décrite dans [Bande-son](wiki:soundtrack). Les mots en **gras** sont expliqués dans [L’audio du jeu, expliqué](wiki:game-audio).
@@ -40,7 +40,7 @@ La barre d’outils commence par une case qui sélectionne tous les emplacements
 |---|---|
 | {icon:fill} **Remplir depuis des fichiers** | Remplit les emplacements avec des fichiers, un fichier par emplacement, dans l’ordre de lecture et l’ordre des noms de fichiers. |
 | {icon:fillpiece} **Remplir tout le morceau** | Remplit de la même façon les emplacements de chaque partie, partie par partie. |
-| {icon:slice} **Découper une chanson** | Découpe une chanson en morceaux, un par emplacement. |
+| {icon:slice} **Découper une chanson** | Découpe une chanson en morceaux, un par emplacement, ou découpe un passage d’une chanson pour un cue d’un seul emplacement. |
 | {icon:export} **Exporter** | Enregistre l’élément, ou les emplacements sélectionnés, en fichiers WAV, FLAC, MP3 ou WEM. **Liste d’Export** à côté ouvre la [liste d’export](#the-export-list) dès qu’elle contient quelque chose. |
 | {icon:skip} **Sauter**, {icon:skipall} **Tout sauter** | Remplacent une transition ou un stinger par un court silence. |
 | {icon:clear} **Tout effacer**, **Effacer cette partie** | Retirent le nouvel audio de tous les emplacements affichés, ou de tous les emplacements de la partie. |

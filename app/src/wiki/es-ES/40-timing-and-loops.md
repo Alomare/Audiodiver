@@ -2,7 +2,7 @@
 title: Sincronización, puntos de cue y bucles
 group: Crear un mod
 summary: Cómo pasa el juego de un segmento al siguiente, cómo hacer que la música nueva enlace sin cortes y cómo cortar una canción en un cue.
-source: 116b5d6a7112
+source: f2d067e6af1c
 ---
 
 ## Ajustar los tiempos al audio nuevo {#fitting-the-timing-to-the-new-audio}
@@ -36,6 +36,8 @@ Un segmento marcado como **en bucle** se repite hasta que el juego pasa a lo sig
 ## Cortar una canción larga {#slicing-one-long-song}
 
 {icon:slice} **Cortar una canción** corta un fichero largo en trozos consecutivos en posiciones de muestra exactas, de modo que los trozos suenen como la canción sin cortar cuando se reproducen uno tras otro. Cada trozo va a un segmento, en orden de reproducción. Las capas de un segmento suenan juntas, así que todos los trozos van a la capa del slot **Desde**.
+
+Un cue con un solo slot, como una transición, recibe un trozo: mueve **Inicio** y **Fin** al tramo de la canción que debe sonar.
 
 La ventana muestra la canción y el original en una misma escala de tiempo:
 
