@@ -122,6 +122,7 @@ def methods(s: Session) -> dict:
         "repatch": lambda path, name="", folder="", every_bank=False: s.repatch(path, name, folder, every_bank),
         "content_scan": lambda path: s.content_scan(path),
         "content_preview": lambda source: s.content_preview(source),
+        "content_audio": lambda path: s.content_audio(path),
         "content_write": lambda choices, name="", folder="": s.content_write(choices, name, folder),
         "combine_scan": lambda path: s.combine_scan(path),
         "combine_installed": lambda: s.combine_installed(),

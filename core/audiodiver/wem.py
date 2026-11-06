@@ -1,6 +1,7 @@
 """Encodes any audio file to a Wwise Vorbis .wem that HD2 plays, without a Wwise install.
 
-Pipeline: ffmpeg (decode, resample to 48 kHz, fold to mono/stereo) -> wav2wem (Vorbis) -> set the AkChannelConfig
+Pipeline: ffmpeg (decode, resample to 48 kHz, fold to mono/stereo; a WAV already 16-bit at 48 kHz, mono or stereo,
+skips it, so silence and such WAVs encode without ffmpeg) -> wav2wem (Vorbis) -> set the AkChannelConfig
 wav2wem leaves zeroed (the game drops a source whose config is 0) and the codebook hash of the clip's own setup
 (wav2wem writes one hash for every setup) -> vgmstream check. A .wem given as audio is read through vgmstream
 (`decoded`): ffmpeg reads no Wwise audio.
@@ -171,9 +172,42 @@ def decoded(path) -> str:
     return str(out)
 
 
+def has_ffmpeg() -> bool:
+    """Whether ffmpeg is there to convert audio (Audiodiver Utils leaves it out)."""
+    return bool(shutil.which(FFMPEG)) or os.path.isfile(FFMPEG)
+
+
+def ready_wav(path) -> int | None:
+    """The channels of a WAV that already is what the encoder takes (16-bit PCM at 48 kHz, mono or stereo): it goes
+    to wav2wem without ffmpeg. None for any other file."""
+    if not str(path).lower().endswith(".wav"):
+        return None
+    try:
+        with wave.open(str(path)) as w:
+            if w.getsampwidth() == 2 and w.getframerate() == RATE and w.getnchannels() in (1, 2) and w.getcomptype() == "NONE":
+                return w.getnchannels()
+    except (wave.Error, EOFError, OSError, ValueError):
+        pass
+    return None
+
+
+def needs_ffmpeg(path) -> bool:
+    """Whether encoding this file takes ffmpeg: anything but a .wem (vgmstream reads it) and a ready WAV."""
+    return not str(path).lower().endswith(".wem") and ready_wav(path) is None
+
+
 def prepare_wav(src: str, wav: str) -> tuple[int, int]:
-    """Decodes src to the 16-bit 48 kHz mono/stereo WAV the encoder takes; returns (channels, samples)."""
+    """Decodes src to the 16-bit 48 kHz mono/stereo WAV the encoder takes; returns (channels, samples). A WAV that
+    already is one (silence, a .wem vgmstream decoded at 48 kHz) is copied as it is, without ffmpeg."""
     src = decoded(src)
+    if channels := ready_wav(src):
+        with wave.open(src) as r, wave.open(wav, "wb") as w:
+            w.setnchannels(channels)
+            w.setsampwidth(2)
+            w.setframerate(RATE)
+            while frames := r.readframes(1 << 16):
+                w.writeframes(frames)
+            return channels, r.getnframes()
     channels = int(subprocess.run(
         [FFPROBE, "-v", "error", "-select_streams", "a:0", "-show_entries", "stream=channels", "-of", "csv=p=0", src],
         capture_output=True, text=True, check=True).stdout.strip())

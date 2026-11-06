@@ -25,6 +25,7 @@ The list starts with the sounds the current game doesn't have, tagged **Not in t
 - Drop an audio file on a sound, or press **Choose File** on the row. **Silence** replaces the sound with silence.
 - ✕ takes the new audio away again.
 - The new audio goes into every bank and stream of the mod that has the sound. A file is encoded as a build encodes it, and a `.wem` that the game plays as it is goes in unchanged.
+- In Audiodiver Utils, new audio is a 16-bit WAV at 48 kHz, mono or stereo, or a `.wem`. Convert other formats first, for example in Audacity, or use the full Audiodiver.
 
 ## Writing the mod
 

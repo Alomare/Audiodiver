@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { t, plural, ph } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { fileUrl, fmtTime, intlLocale, nameProblem, type Job } from "./api";
+import { UTILS } from "./edition";
 import { nav } from "./nav";
 import { pickAudio, pickFolder, pickMod, reveal } from "./platform";
 import { player, usePlayerLook } from "./player";
@@ -19,6 +20,7 @@ type Scan = {
 type Made = { name: string; zip: string; mb: number; sounds: number; patches: number; banks: number; kept_id: boolean; manifest: boolean };
 
 const SHOWN = 300; // rows drawn at once: a music mod can hold thousands of sounds
+const UTILS_AUDIO = ["wav", "wem"]; // the files Audiodiver Utils encodes without ffmpeg (a WAV only at 48 kHz, 16-bit)
 const PAGE = "patch-content";
 
 /** A mod or a file dropped on the window for this page (App.tsx's drop handler): held until the page takes it. A file
@@ -61,6 +63,9 @@ export function PatchContentPage() {
   jobsNow.current = jobs;
   const top = useRef<HTMLElement>(null);
 
+  /** Whether the core takes a file as new audio: without ffmpeg (Audiodiver Utils) only a .wem or a 16-bit WAV at
+      48 kHz, and a notice says why not, before anything is written (Session.content_audio). */
+  const takes = async (path: string) => !!(await run<{ path: string }>("content_audio", { path }));
   const read = async (path: string | null) => {
     if (!path) return;
     setReading(true);
@@ -79,7 +84,10 @@ export function PatchContentPage() {
       const p = contentInbox.take();
       if (p) read(p);
       const dropped = contentInbox.takeAudio();
-      if (dropped.length) setChoices((c) => ({ ...c, ...Object.fromEntries(dropped) }));
+      if (dropped.length) void Promise.all(dropped.map(async ([s, f]) => (await takes(f) ? [s, f] : null))).then((ok) => {
+        const kept = ok.filter((x): x is [string, string] => !!x);
+        if (kept.length) setChoices((c) => ({ ...c, ...Object.fromEntries(kept) }));
+      });
     };
     take();
     return contentInbox.subscribe(take);
@@ -107,8 +115,8 @@ export function PatchContentPage() {
     if (f) setFolder(f);
   };
   const choose = async (source: string) => {
-    const files = await pickAudio(false);
-    if (files?.length) setChoices((c) => ({ ...c, [source]: files[0] }));
+    const files = await pickAudio(false, UTILS ? UTILS_AUDIO : undefined);
+    if (files?.length && await takes(files[0])) setChoices((c) => ({ ...c, [source]: files[0] }));
   };
   const clear = (source: string) => setChoices(({ [source]: _, ...rest }) => rest);
 

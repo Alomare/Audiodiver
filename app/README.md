@@ -31,9 +31,12 @@ the window's place) and nothing in AppData, and Update opens the release's page 
 The Audiodiver Utils ZIP (`scripts/release.py utils`) is the same exe, renamed, with a `utils.txt` beside it as well:
 the shell then sets `window.__AUDIODIVER_EDITION__` before the page loads, titles the window Audiodiver Utils and
 skips the single-instance hand-over, so it runs beside Audiodiver. The page (`src/edition.ts`, `UTILS`) starts on
-Tools (Repatch, Combine Mods, Installed mods) and has no Home; Settings has no Startup, Layout or Shortcuts, Theme
-only Dark/Light, contrast and text size, the Wiki three pages, and it takes no projects (a drop goes to Repatch).
-Its core leaves out ffmpeg, ffprobe, numpy and Pillow, which only the editor uses, and `audiodiver.cmd` runs the
+Tools (Repatch, Combine Mods, Patch Content, Installed mods) and has no Home; Settings has no Startup, Layout or
+Shortcuts, Theme only Dark/Light, contrast and text size, the Wiki four pages, and it takes no projects (a drop goes
+to Repatch). Its core leaves out ffmpeg, ffprobe, numpy and Pillow, which only the editor uses: Patch Content there
+takes silence, a `.wem` and a 16-bit WAV at 48 kHz (mono or stereo), which encode without ffmpeg (core
+`wem.needs_ffmpeg`); the file picker shows only WAV and WEM, and `content_audio` refuses anything else with a notice
+as the file is chosen or dropped. `audiodiver.cmd` runs the
 core's command line (`audiodiver repatch|combine|check|scan`) on the same `data` folder. In a browser,
 `?edition=utils` shows the same.
 

@@ -186,7 +186,8 @@ def portable():
 
 def utils():
     """Audiodiver-Utils-<version>-portable.zip: the same exe (a utils.txt beside it makes it show only the Tools) with
-    the core minus ffmpeg, ffprobe, numpy and Pillow (Repatch and Combine decode with vgmstream and play WAVs), and
+    the core minus ffmpeg, ffprobe, numpy and Pillow (Repatch, Combine and Patch Content decode with vgmstream and
+    play WAVs; Patch Content encodes silence, a .wem or a 16-bit WAV at 48 kHz, which need no ffmpeg), and
     audiodiver.cmd for the command line (`audiodiver repatch`, `combine`, `check`, `scan`), on the same data folder as
     the window."""
     exe = TAURI / "target" / "release" / "audiodiver.exe"
@@ -217,8 +218,9 @@ def utils():
     print(f"{out}: {out.stat().st_size / 1e6:.0f} MB")
 
 
-UTILS_TXT = """This is Audiodiver Utils: the Tools of Audiodiver (Repatch, Combine Mods and the installed mods check) without
-projects. Audiodiver Utils.exe is the window; audiodiver.cmd runs the same tools from a command line:
+UTILS_TXT = """This is Audiodiver Utils: the Tools of Audiodiver (Repatch, Combine Mods, Patch Content and the installed mods
+check) without projects. Patch Content takes new audio as a 16-bit WAV at 48 kHz or a .wem: the full Audiodiver
+converts other formats. Audiodiver Utils.exe is the window; audiodiver.cmd runs the other tools from a command line:
 
     audiodiver scan <mod>              what a mod holds: its patches, options and the choice it starts with
     audiodiver repatch <mod> [--out DIR] [--name NAME] [--every-bank]

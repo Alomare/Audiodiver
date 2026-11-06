@@ -23,11 +23,12 @@ let audioStart: string | null = null;
 /** Where the audio picker opens while a tutorial runs (the folder of the audio it made); null: the last folder used. */
 export function startAudioPickerIn(folder: string | null) { audioStart = folder; }
 
-export async function pickAudio(multiple = true): Promise<string[] | null> {
+/** Audio files to use. extensions: only these kinds (Patch Content in Audiodiver Utils: what encodes without ffmpeg). */
+export async function pickAudio(multiple = true, extensions: string[] = AUDIO): Promise<string[] | null> {
   if (!isTauri()) return promptPaths("Audio file", multiple);
   const { open } = await import("@tauri-apps/plugin-dialog");
   const r = await open({ multiple, defaultPath: audioStart ?? lastAudioDir(),
-    filters: [{ name: t({ message: "Audio", comment: "File type in the file picker: audio files" }), extensions: AUDIO }] });
+    filters: [{ name: t({ message: "Audio", comment: "File type in the file picker: audio files" }), extensions }] });
   if (!r) return null;
   const files = Array.isArray(r) ? r : [r];
   try { localStorage.setItem(AUDIO_DIR_KEY, folderOf(files[0]) ?? ""); } catch { /* storage off */ }

@@ -155,6 +155,72 @@ def test_what_patch_content_refuses(session, tmp_path):
         s.content_write({str(ANTHEM): ""}, folder=str(s.ix.game.data))
 
 
+# Patch Content as Audiodiver Utils runs it: numpy and Pillow can't be imported and ffmpeg isn't there. Encodings go to
+# a folder of the run's own, so nothing comes from the cache. argv: the mod, the work folder, the settings file.
+UTILS_RUN = """
+import json, sys, time
+sys.modules.update(numpy=None, PIL=None)
+from pathlib import Path
+from audiodiver import build, editor, wem
+mod, work = Path(sys.argv[1]), Path(sys.argv[2])
+editor.SETTINGS_FILE = Path(sys.argv[3])
+wem.FFMPEG = wem.FFPROBE = str(work / "no-ffmpeg.exe")
+cached = build._encoded
+build._encoded = lambda data, quality: work / "wem" / cached(data, quality).name
+s = editor.Session()
+s.wait_ready()
+anthem, out = sys.argv[4], {"ffmpeg": wem.has_ffmpeg()}
+s.content_scan(str(mod))
+out["preview"] = Path(s.content_preview(anthem)["path"]).is_file()
+for what, audio in (("silence", ""), ("wav", str(work / "new.wav"))):
+    job = s.content_write({anthem: audio}, folder=str(work / what), remember=False)
+    while (j := s.job(job["id"]))["state"] == "running":
+        time.sleep(0.2)
+    out[what] = {"state": j["state"], "zip": (j.get("result") or {}).get("zip"), "error": j.get("error")}
+out["refused"] = []
+for audio in ("x.mp3", "cd.wav"):
+    for call in (lambda: s.content_audio(str(work / audio)), lambda: s.content_write({anthem: str(work / audio)}, folder=str(work / "no"), remember=False)):
+        try:
+            call()
+            out["refused"].append(None)
+        except editor.EditorError as e:
+            out["refused"].append(str(e))
+out["taken"] = s.content_audio(str(work / "new.wav"))["path"]
+out["encoded"] = len(list((work / "wem").glob("*.wem")))
+print("RESULT " + json.dumps(out))
+"""
+
+
+@pytest.mark.game
+def test_patch_content_works_without_ffmpeg_numpy_and_pillow(session, tmp_path):
+    """Audiodiver Utils leaves ffmpeg, numpy and Pillow out: Patch Content still plays the mod's audio and writes the
+    mod with silence or a 16-bit WAV at 48 kHz (wav2wem takes both as they are), with the default icon, and refuses
+    an MP3 or a 44.1 kHz WAV as it is chosen, before any job, saying what it takes."""
+    import subprocess
+    import sys
+    from audiodiver import editor
+    base, _ = older_mod(session, tmp_path / "Old Anthem")
+    work = tmp_path / "work"
+    work.mkdir()
+    tone(work / "new.wav", hz=523)
+    (work / "x.mp3").write_bytes(b"ID3\x04" + bytes(64))
+    with wave.open(str(work / "cd.wav"), "wb") as w:
+        w.setnchannels(2), w.setsampwidth(2), w.setframerate(44100), w.writeframes(bytes(4 * 4410))
+    done = subprocess.run([sys.executable, "-c", UTILS_RUN, str(base), str(work), str(editor.SETTINGS_FILE), str(ANTHEM)],
+                          capture_output=True, text=True, encoding="utf-8", timeout=600)
+    line = next((x for x in done.stdout.splitlines() if x.startswith("RESULT ")), None)
+    assert line, done.stdout + done.stderr
+    got = json.loads(line[7:])
+    assert got["ffmpeg"] is False and got["preview"] is True
+    for what in ("silence", "wav"):
+        assert got[what]["state"] == "done", got[what]
+        with zipfile.ZipFile(got[what]["zip"]) as z:
+            assert any(n.endswith(".patch_0") for n in z.namelist()) and any(n.endswith(".png") for n in z.namelist())
+    assert got["encoded"] == 2, "silence and the WAV, encoded in the run without ffmpeg"
+    assert len(got["refused"]) == 4 and all(r and "needs converting" in r and "full Audiodiver" in r for r in got["refused"])
+    assert "x.mp3" in got["refused"][0] and "cd.wav" in got["refused"][2] and got["taken"].endswith("new.wav")
+
+
 def test_a_rewrite_that_changes_more_than_the_audio_fails_the_check(tmp_path):
     # verify reads the patches as they are: a bank whose other media changed is caught
     data = bytes(range(256)) * 4

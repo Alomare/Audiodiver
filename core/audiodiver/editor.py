@@ -3481,6 +3481,15 @@ class Session:
         except (subprocess.CalledProcessError, OSError):
             raise EditorError(tr("Can't decode sound {id}").format(id=source)) from None
 
+    def content_audio(self, path):
+        """Checks a file chosen as new audio in Patch Content before it is taken: it is there, and without ffmpeg
+        (Audiodiver Utils) it is a .wem or a 16-bit WAV at 48 kHz, mono or stereo, which encode without converting."""
+        if not given(path) or not Path(path).is_file():
+            raise EditorError(tr("{path} wasn't found").format(path=path))
+        if problem := _unconvertible([str(path)]):
+            raise EditorError(problem)
+        return {"path": str(path)}
+
     def content_write(self, choices, name="", folder="", remember=True):
         """The mod content_scan read, made again with new audio: choices {source: an audio file, or "" for silence}.
         Each patch with one of those sounds is written again, the new audio in every bank and stream that has it and
@@ -3507,6 +3516,8 @@ class Session:
             if given(v) and not Path(v).is_file():
                 raise EditorError(tr("{path} wasn't found").format(path=v))
             picked[int(k)] = str(v) if given(v) else ""
+        if problem := _unconvertible([v for v in picked.values() if v]):
+            raise EditorError(problem)
         f = c.found
         name = str(name or "").strip() or f.name or "Patched mod"
         if problem := name_problem(name):
@@ -5115,6 +5126,20 @@ def _slots_of(detail):
                     continue
                 seen.add(sl["source"])
                 yield seg, sl
+
+
+def _unconvertible(paths) -> str | None:
+    """What stops these files from encoding where ffmpeg isn't there (Audiodiver Utils): any but a .wem and a 16-bit
+    WAV at 48 kHz, mono or stereo, needs converting. None when ffmpeg is there or no file needs it."""
+    if wem.has_ffmpeg():
+        return None
+    names = [Path(p).name for p in dict.fromkeys(paths) if wem.needs_ffmpeg(p)]
+    if not names:
+        return None
+    return ntr("{files} needs converting, which Audiodiver Utils can't do. Give a 16-bit WAV at 48 kHz or a .wem, or "
+               "use the full Audiodiver.",
+               "{files} need converting, which Audiodiver Utils can't do. Give 16-bit WAVs at 48 kHz or .wem files, "
+               "or use the full Audiodiver.", len(names)).format(files=", ".join(names))
 
 
 def _slot_name(seg, sl) -> str:
