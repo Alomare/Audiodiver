@@ -40,6 +40,27 @@ def test_the_main_moments_are_named_and_complete(session):
     assert not [i["name"] for i in it.values() if re.search(r"\d{6,}", i["name"])]  # nothing named by a bare id
 
 
+def test_the_title_screen_and_the_squad_jump_have_a_place_on_the_ship(session, tmp_path):
+    """Players' reports: stream 2724847495560933971 plays during the FTL jump on joining or leaving a squad, and
+    7486365861729135686 (the intro) then 4325589761797325839 (the loop) while the game stays on the title screen. A
+    project that listed either piece while it was not identified yet finds it under the new name."""
+    it, ix, cat = items(session), session.ix, session.catalog
+    ship = [i["id"] for sec in session.music()["sections"] if sec["id"] == "ship" for i in sec["items"]]
+    assert ship[0] == "ship/title" and ship.index("ship/squad") == ship.index("ship/ftl") + 1
+    squad, title_ = it["ship/squad"], it["ship/title"]
+    assert [p["cue"] for p in squad["parts"]] == ["522993376"] and [p["cue"] for p in title_["parts"]] == ["913964047"]
+    assert squad["targets"] == [str(ix.by_stream[2724847495560933971])]
+    assert title_["targets"] == [str(ix.by_stream[f]) for f in (7486365861729135686, 4325589761797325839)]
+    segs = cat.cue(913964047)["segments_detail"]
+    assert [s["name"] for s in segs] == ["Intro", "Loop"] and [s["loop"] for s in segs] == [1, 0]
+    names = {e["id"]: (e["path"], e["name"]) for e in session.cues()}
+    assert names["913964047"] == (["Menu"], "Title Screen") and names["522993376"] == (["Ship"], "Joining or Leaving a Squad")
+    from audiodiver.project import Project
+    Project(name="Old", path=tmp_path / "o.audi", library=["unknown/913964047", "unknown/522993376"]).save()
+    st = session.open_project(tmp_path / "o.audi")
+    assert st["library"] == ["ship/title", "ship/squad"] and st["library_missing"] == []
+
+
 def test_transitions_are_named_by_what_they_connect(session):
     it = items(session)
     hellpod = it["deploy/hellpod-in"]

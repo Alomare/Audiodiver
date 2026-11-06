@@ -1471,7 +1471,7 @@
  "On the Ship": [
   "music.json: section"
  ],
- "Music on the Super Destroyer, before and between missions.": [
+ "Music on the title screen and the Super Destroyer, before and between missions.": [
   "music.json: description of the section On the Ship"
  ],
  "Before the Drop": [
@@ -1611,6 +1611,13 @@
  "Short pieces between two parts of the music. They play the original until replaced or skipped. Transitions into a fight are also called battle stingers, and those out of it calm stingers.": [
   "music.json: description of the role Transitions"
  ],
+ "Title Screen": [
+  "music.json: piece of music",
+  "catalog.json: piece of music (a cue)"
+ ],
+ "Plays while the game stays on the title screen: an intro, then a loop.": [
+  "music.json: description of Title Screen"
+ ],
  "Bridge and War Map": [
   "music.json: piece of music"
  ],
@@ -1631,6 +1638,13 @@
  ],
  "Plays over the bridge music when the destroyer jumps to another system (also called 'warping to a system').": [
   "music.json: description of FTL Jump"
+ ],
+ "Joining or Leaving a Squad": [
+  "music.json: piece of music",
+  "catalog.json: piece of music (a cue)"
+ ],
+ "Plays during the FTL jump when joining or leaving a squad.": [
+  "music.json: description of Joining or Leaving a Squad"
  ],
  "Loadout Background Stinger": [
   "music.json: piece of music",
@@ -1935,6 +1949,12 @@
   "labels.json: name of a slot",
   "labels.json: another name of a piece ('Also called …')",
   "labels.json: name of a piece of music nothing else names"
+ ],
+ "Loop": [
+  "catalog.json: name of each segment of Title Screen ({n} counts from 1, {n0} from 0: keep them)"
+ ],
+ "Intro": [
+  "catalog.json: name of the first segment of Title Screen"
  ],
  "Void Death": [
   "notes.json: label of a clip"

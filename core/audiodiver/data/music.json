@@ -9,7 +9,7 @@
     "respawn": "music_respawn_select"
   },
   "sections": [
-    {"id": "ship", "name": "On the Ship", "about": "Music on the Super Destroyer, before and between missions."},
+    {"id": "ship", "name": "On the Ship", "about": "Music on the title screen and the Super Destroyer, before and between missions."},
     {"id": "deploy", "name": "Before the Drop", "about": "From stepping into the hellpod to landing on the planet."},
     {"id": "combat", "about": "One section per enemy faction (see factions)."},
     {"id": "objectives", "name": "Objectives", "about": "Short cues for completed objectives, and the flag raising."},
@@ -64,6 +64,9 @@
     "812540907": "the hellpod drop"
   },
   "items": [
+    {"id": "ship/title", "section": "ship", "name": "Title Screen",
+     "about": "Plays while the game stays on the title screen: an intro, then a loop.",
+     "parts": [{"match": {"MUSIC": "130418946"}}, {"match": {"MUSIC": "133931938"}}]},
     {"id": "ship/bridge", "section": "ship", "name": "Bridge and War Map",
      "about": "Music at the galactic war map, in three layers that play together (music, war-map music and a white-noise bed). The second part opens with a short piece for travelling to an operation (also called 'Travel to New Operation'). The two parts share most of the audio.",
      "parts": [{"match": {"MUSIC": "music_bridge_play", "music_bridge_hellpod": "bridge_default"}, "name": "On the Bridge"},
@@ -71,6 +74,9 @@
     {"id": "ship/ftl", "section": "ship", "name": "FTL Jump",
      "about": "Plays over the bridge music when the destroyer jumps to another system (also called 'warping to a system').",
      "parts": [{"cue": 139653327}]},
+    {"id": "ship/squad", "section": "ship", "name": "Joining or Leaving a Squad",
+     "about": "Plays during the FTL jump when joining or leaving a squad.",
+     "parts": [{"match": {"MUSIC": "3296490148"}}]},
     {"id": "ship/loadout-stinger", "section": "ship", "name": "Loadout Background Stinger",
      "about": "A stinger over the bridge music, linked to picking a loadout.",
      "parts": [{"cue": 565617291}]},

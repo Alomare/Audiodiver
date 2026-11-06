@@ -71,6 +71,12 @@
       "name": "FTL Jump",
       "notes": "Stinger over the war map music."
     },
+    "522993376": {
+      "path": [
+        "Ship"
+      ],
+      "name": "Joining or Leaving a Squad"
+    },
     "565617291": {
       "path": [
         "Ship"
@@ -204,6 +210,14 @@
         "Menu"
       ],
       "name": "Idle"
+    },
+    "913964047": {
+      "path": [
+        "Menu"
+      ],
+      "name": "Title Screen",
+      "slot_first": "Intro",
+      "slot": "Loop"
     }
   },
   "groups": {

@@ -137,7 +137,8 @@ class Library:
         self.bank_sets = collections.defaultdict(list)  # bank id -> the sound sets it is a part of
         self.sound_items = {}                          # a plain sound a piece of music lists -> that piece
         self.where = {}                                # item id -> (category name, section name)
-        self.renamed = {}                              # the id a set had under an older name ("was") -> its id now
+        self.renamed = {}                              # an id an item had before (a set's older name, "was"; a piece
+        #                                                of music before it was named) -> its id now
         self.categories = self._index()
         self.music_in_archive = collections.defaultdict(list)  # archive -> the music sections with cues in it
         for cid, cue in self.cm.cues.items():
@@ -199,6 +200,10 @@ class Library:
                 for p in it["parts"]:
                     if p["cue"].startswith("sfx:"):
                         self.sound_items.setdefault(int(p["cue"][4:]), it["id"])
+                    elif not it["id"].startswith("unknown/"):
+                        # a piece named since it was listed among the pieces not identified yet: a project that
+                        # listed it by that id finds it
+                        self.renamed.setdefault(f"unknown/{p['cue']}", it["id"])
         cats.append({**MUSIC, "name": music_name, "about": tr(MUSIC["about"]), "sections": sections})
         en = lambda name, shown: {"en": title(name)} if title(name) != shown else {}  # the English, when translated
         for cat in _data("sounds.json")["categories"]:
