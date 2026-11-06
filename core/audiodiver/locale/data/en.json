@@ -167,9 +167,6 @@
  "Pistols, melee weapons and the other sidearms.": [
   "sounds.json: description of the section Secondary Weapons"
  ],
- "Bull Machine Pistol": [
-  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
- ],
  "CQC-19 Stun Lance": [
   "sounds.json: sound set in Weapons ▸ Secondary Weapons"
  ],
@@ -225,6 +222,9 @@
   "sounds.json: sound set in Weapons ▸ Secondary Weapons"
  ],
  "P-41 Ombudsman": [
+  "sounds.json: sound set in Weapons ▸ Secondary Weapons"
+ ],
+ "P-44 Mist": [
   "sounds.json: sound set in Weapons ▸ Secondary Weapons"
  ],
  "P-69 Veto": [
@@ -629,7 +629,7 @@
  "Shuttle": [
   "sounds.json: sound set in Vehicles ▸ Vehicles"
  ],
- "Storm Tank": [
+ "TD-110 Maelstrom": [
   "sounds.json: sound set in Vehicles ▸ Vehicles"
  ],
  "Exosuits": [

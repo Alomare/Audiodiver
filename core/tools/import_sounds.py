@@ -3,8 +3,9 @@
     python core/tools/import_sounds.py [labeling.xlsx] [names folder]
 
   labeling.xlsx  the HD2 modding community's "Helldivers 2 Archive Labeling" workbook (kept next to the project, in
-                 _examples/). Its Audio tab names audio archives; its transcription tabs give the words of voice
-                 lines by stream file id.
+                 _examples/). Its Audio tab names audio archives; its "Weapons & Attachment IDs" tab gives each
+                 weapon's own archive, where the newer weapons keep their audio; its transcription tabs give the
+                 words of voice lines by stream file id.
   names folder   filediver's hash lists (hashes.txt, cracked.txt), for the path names of the game's Wwise banks. The
                  game's own wwise_dep resources name the banks it has now (the index's "path").
 
@@ -121,6 +122,7 @@ PLACED = {
     "stratagems_orbital_380mm_he_dss": ("stratagems", "Orbital 380mm HE Barrage (DSS)"),
     "vehicle_shared": ("vehicles", "Shared Vehicle Sounds"), "vehicle_shuttle": ("vehicles", "Shuttle"),
     "vehicle_oilrig": ("vehicles", "Oil Rig"), "vehicle_combat_walker": ("vehicles", "Exosuits"),
+    "vehicle_storm_tank": ("vehicles", "TD-110 Maelstrom"),  # the Weapons tab's name for the archive with this bank
     "Helldiver_Standard_VO": ("helldivers/voices", "Helldiver Exertions"),
     "foley_player": ("helldivers/body", "Movement and Gear"), "gore_player": ("helldivers/body", "Gore"),
     "passive_armor_constitution": ("helldivers/gear", "Armor Passive: Constitution"),
@@ -164,7 +166,7 @@ PLACED = {
 # finds it under the new one (library.py, Library.renamed). "SEAF Soldier" was the SEAF's voice while its bank had no
 # known name, found through the archives the community lists it in
 WAS = {"Vox Engine": ["Cyborg Siege Engine"], "Game Init": ["Game Start"], "Civilian Voices": ["Civilians"],
-       "SEAF Voices": ["SEAF Soldier"]}
+       "SEAF Voices": ["SEAF Soldier"], "TD-110 Maelstrom": ["Storm Tank"]}
 # named rows of the Audio tab placed by hand: the community's name -> (section, name)
 RENAMED = {
     "SEAF Exertions": ("allies/civilians", "SEAF Exertions"),
@@ -204,7 +206,7 @@ WEAPONS = {
     "ARC-12 Blitzer": (P, None), "ARC-3 Arc Thrower": (U, None),
     "Belt-Fed Grenade Launcher": (U, "GL-28 Belt-Fed Grenade Launcher"), "BR-14 Adjudicator": (P, None),
     "Breaching Hammer": (U, "CQC-20 Breaching Hammer"), "Break-Action Shotgun": (U, "SG-88 Break-Action Shotgun"),
-    "Broomhandle": (S, "P-69 Veto"), "Bull Machine Pistol": (S, None), "CB-9 Exploding Crossbow": (P, None),
+    "Broomhandle": (S, "P-69 Veto"), "Bull Machine Pistol": (S, "P-44 Mist"), "CB-9 Exploding Crossbow": (P, None),
     "Combat Walker Breacher Flak Cannon": ("vehicles", "EXO-55 Breakthrough Flak Cannon"),
     "Combat Walker Flamethrower": ("vehicles", "EXO-51 Lumberer Flamethrower"),
     "Combat Walker Lumberer Cannon": ("vehicles", "EXO-51 Lumberer Cannon"),
@@ -256,14 +258,43 @@ WEAPONS = {
 }
 
 
-def slot_weapons(sections: dict):
+# The workbook's "Weapons & Attachment IDs" tab gives each weapon's own archive, and the newer weapons keep their audio
+# there, not in an archive the Audio tab lists (the community, 2026-11; in the game of 2026-11-05, 32 weapon archives
+# with audio aren't on the Audio tab, and the Index had the banks of all of them). A weapon set WEAPONS doesn't place
+# yet (a new one after a game update) takes its name and slot from the tab, by the archive that holds its bank: the
+# tool says so, to be checked and added to WEAPONS.
+SLOT_OF = {"Assault Rifle": P, "Marksman Rifle": P, "Submachine Gun": P, "Shotgun": P, "Energy": P, "Explosive": P,
+           "Special": P, "Pistol": S, "Melee": S, "Support": U, "Throwable": G}
+
+
+def weapons_tab(path) -> dict[str, tuple[str, str]]:
+    """{archive: (in-game name, type)} of the workbook's "Weapons & Attachment IDs" tab: the weapons (not their scopes,
+    magazines and other attachments)."""
+    out = {}
+    for r in list(openpyxl.load_workbook(path, read_only=True, data_only=True)["Weapons & Attachment IDs"].iter_rows(values_only=True))[1:]:
+        a, name, kind = (str(c or "").strip() for c in (list(r) + [None] * 3)[:3])
+        if re.fullmatch(r"[0-9a-f]{16}", a) and name and kind in SLOT_OF:
+            out.setdefault(a, (name, kind))
+    return out
+
+
+def slot_weapons(sections: dict, tab: dict | None = None, archives_of=lambda bank: []):
     """Moves the weapon sets out of the one "weapons" section the Audio tab fills, into their loadout slots (WEAPONS),
     under their in-game names. A set renamed or moved keeps its old name and id as its "was", so a project that
-    listed it finds it (library.py)."""
-    unplaced = sorted(set(sections.get("weapons", {})) - set(WEAPONS))
+    listed it finds it (library.py). One WEAPONS doesn't place goes by the weapon the Weapons tab (`tab`, weapons_tab)
+    gives its banks' archives (archives_of: a bank's path name or file id -> its archives), when that is one."""
+    placed = dict(WEAPONS)
+    for name in sorted(set(sections.get("weapons", {})) - set(WEAPONS)):
+        e = sections["weapons"][name]
+        hits = {tab[a] for b in [*e.get("banks", []), *e.get("ids", [])] for a in archives_of(b) if a in (tab or {})}
+        if len(hits) == 1:
+            (shown, kind), = hits
+            placed[name] = (SLOT_OF[kind], shown)
+            print(f"  placed by the Weapons & Attachment IDs tab (check it, then add it to WEAPONS): {name} -> {shown}, {kind}")
+    unplaced = sorted(set(sections.get("weapons", {})) - set(placed))
     assert not unplaced, f"weapon sets WEAPONS doesn't place (look them up and add them): {unplaced}"
     for name, e in sections.pop("weapons", {}).items():
-        section, shown = WEAPONS[name]
+        section, shown = placed[name]
         shown = shown or name
         was = [name] if shown != name else []
         if not section.startswith("weapons/"):
@@ -550,11 +581,12 @@ def main():
         claimed.update(named)
     for tail in tails:  # banks nobody listed: placed by their own name, if this game version has them
         if tail not in claimed and in_game(tail) and (place := pretty(tail)):
-            add(place[0], place[1], banks=[PREFIX + tail])
+            add(place[0], place[1], banks=[PREFIX + tail], **({"was": WAS[place[1]]} if place[1] in WAS else {}))
             claimed.add(tail)
     # a voice bank (content/audio/<language>/<name>) VOICES doesn't list is left out too: add it there
     left = [t for t in tails if t not in claimed and t not in PLACED and (in_game(t) or voiced(t))]
-    slot_weapons(sections)
+    archives_of = lambda b: ix.banks.get(int(b) if str(b).isdigit() else murmur64_hash(b.encode()), {}).get("archives", [])
+    slot_weapons(sections, weapons_tab(sheet), archives_of)
     sort_exosuits(sections)
 
     out = {"about": "The Index's sound sets (library.py), written by tools/import_sounds.py from the HD2 modding community's "

@@ -56,7 +56,6 @@
     {"name": "VG-70 Variable", "banks": ["content/audio/wep_volley_gun"]}
    ]},
    {"id": "weapons/secondary", "name": "Secondary Weapons", "about": "Pistols, melee weapons and the other sidearms.", "entries": [
-    {"name": "Bull Machine Pistol", "banks": ["content/audio/bull_machine_pistol"]},
     {"name": "CQC-19 Stun Lance", "banks": ["content/audio/wep_melee_stun_spear"]},
     {"name": "CQC-2 Saber", "banks": ["content/audio/wep_melee_ceremonial_sword"]},
     {"name": "CQC-30 Stun Baton", "banks": ["content/audio/wep_melee_stun_baton"]},
@@ -76,6 +75,7 @@
     {"name": "P-35 Re-Educator", "banks": ["content/audio/wep_caustic_dart_gun"]},
     {"name": "P-4 Senator", "banks": ["content/audio/p8_senator"], "was": ["P-8 Senator"]},
     {"name": "P-41 Ombudsman", "banks": ["content/audio/ombudsman"], "was": ["Ombudsman"]},
+    {"name": "P-44 Mist", "banks": ["content/audio/bull_machine_pistol"], "was": ["Bull Machine Pistol"]},
     {"name": "P-69 Veto", "banks": ["content/audio/broomhandle"], "was": ["Broomhandle"]},
     {"name": "P-72 Crisper", "banks": ["content/audio/flam_flamer_pistol"]},
     {"name": "P-92 Warrant", "banks": ["content/audio/k9_smart_pistol"], "was": ["PT-92 Warrant"]},
@@ -214,7 +214,7 @@
     {"name": "Oil Rig", "banks": ["content/audio/vehicle_oilrig"]},
     {"name": "Shared Vehicle Sounds", "banks": ["content/audio/vehicle_shared"]},
     {"name": "Shuttle", "banks": ["content/audio/vehicle_shuttle"]},
-    {"name": "Storm Tank", "banks": ["content/audio/vehicle_storm_tank"]}
+    {"name": "TD-110 Maelstrom", "banks": ["content/audio/vehicle_storm_tank"], "was": ["Storm Tank"]}
    ]},
    {"id": "vehicles/exosuits", "name": "Exosuits", "about": "One entry per exosuit, and the sounds every exosuit shares.", "entries": [
     {"name": "EXO-45 Patriot", "banks": ["content/audio/vehicle_combat_walker"], "branches": {"content/audio/vehicle_combat_walker": [38237115, 327879572]}, "split_from": ["set:vehicles/exosuits"]},

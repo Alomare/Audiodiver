@@ -344,6 +344,51 @@ def test_a_set_renamed_in_the_index_is_found_by_its_old_name(session, tmp_path):
     assert st["library"] == ["set:enemies/automatons/vox-engine", "set:interface/ui/game-init"] and st["library_missing"] == []
 
 
+def _import_sounds():
+    """tools/import_sounds.py as a module (it runs only as a script). It reads workbooks with openpyxl, which only a
+    developer's setup has."""
+    import importlib.util
+    from pathlib import Path
+    pytest.importorskip("openpyxl")
+    spec = importlib.util.spec_from_file_location("import_sounds", Path(__file__).parents[1] / "tools" / "import_sounds.py")
+    tool = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(tool)
+    return tool
+
+
+def test_a_new_weapon_takes_its_name_and_slot_from_the_weapons_tab():
+    """The newer weapons keep their audio in the weapon's own archive, which the workbook's "Weapons & Attachment IDs"
+    tab names, not the Audio tab. A weapon set the WEAPONS table doesn't place yet goes by the weapon the tab gives the
+    archive its bank is in; one the tab can't tell still stops the tool."""
+    import collections
+    tool = _import_sounds()
+    tab = {"0123456789abcdef": ("AR-99 Newgun", "Assault Rifle"), "fedcba9876543210": ("CQC-99 Club", "Melee")}
+    where = {"content/audio/wep_newgun": ["0123456789abcdef", "1111111111111111"], "123": ["fedcba9876543210"]}
+    sections = collections.defaultdict(dict, weapons={
+        "Newgun": {"name": "Newgun", "banks": ["content/audio/wep_newgun"]}, "Club": {"name": "Club", "ids": ["123"]},
+        "AC-8 Autocannon": {"name": "AC-8 Autocannon", "banks": ["content/audio/wep_autocannon"]}})
+    tool.slot_weapons(sections, tab, lambda b: where.get(b, []))
+    assert sections["weapons/primary"]["AR-99 Newgun"] == {"name": "AR-99 Newgun", "banks": ["content/audio/wep_newgun"], "was": ["Newgun"]}
+    assert sections["weapons/secondary"]["CQC-99 Club"]["was"] == ["Club"]
+    assert "AC-8 Autocannon" in sections["weapons/support"] and "weapons" not in sections
+    sections = collections.defaultdict(dict, weapons={"Mystery": {"name": "Mystery", "banks": ["content/audio/wep_mystery"]}})
+    with pytest.raises(AssertionError, match="Mystery"):
+        tool.slot_weapons(sections, tab, lambda b: [])
+
+
+@pytest.mark.game
+def test_two_sets_take_the_names_the_weapons_tab_and_the_game_give(session, tmp_path):
+    """bull_machine_pistol is in the archive the Weapons tab calls P-44 Mist, and vehicle_storm_tank in its TD-110
+    Maelstrom's; the game's text has both names. A project that listed the old names finds the sets."""
+    s = session
+    it = _items(s)
+    assert it["set:weapons/secondary/p-44-mist"]["parts"][0]["cue"] == f"bank:{murmur64_hash(b'content/audio/bull_machine_pistol')}"
+    assert it["set:vehicles/td-110-maelstrom"]["parts"][0]["cue"] == f"bank:{murmur64_hash(b'content/audio/vehicle_storm_tank')}"
+    Project(name="Old", path=tmp_path / "m.audi", library=["set:weapons/secondary/bull-machine-pistol", "set:vehicles/storm-tank"]).save()
+    st = s.open_project(tmp_path / "m.audi")
+    assert st["library"] == ["set:weapons/secondary/p-44-mist", "set:vehicles/td-110-maelstrom"] and st["library_missing"] == []
+
+
 @pytest.mark.game
 def test_each_exosuit_has_an_entry_and_the_bank_they_share_splits_by_branch(session, tmp_path):
     """A user asked for the Emancipator: "Exosuits" was one set, vehicle_combat_walker, which the Patriot's, the
