@@ -495,8 +495,8 @@ msgid "{moved, plural, one {**Every Sound** on # slot} other {**Every Sound** on
 msgstr "{moved, plural, one {**Every Sound** on # slot} other {**Every Sound** on # slots}}"
 
 #: src/store.tsx
-msgid "{moved, plural, one {**Only This Sound** on # slot} other {**Only This Sound** on # slots}}"
-msgstr "{moved, plural, one {**Only This Sound** on # slot} other {**Only This Sound** on # slots}}"
+msgid "{moved, plural, one {**Isolate Audio** on # slot} other {**Isolate Audio** on # slots}}"
+msgstr "{moved, plural, one {**Isolate Audio** on # slot} other {**Isolate Audio** on # slots}}"
 
 #. An empty cue point box: the point it stands for, in ms, fitted to the new audio
 #: src/Inspector.tsx
@@ -711,8 +711,8 @@ msgid "{reachOwn, plural, one {Every Sound (# Slot)} other {Every Sound (# Slots
 msgstr "{reachOwn, plural, one {Every Sound (# Slot)} other {Every Sound (# Slots)}}"
 
 #: src/CueView.tsx
-msgid "{reachShared, plural, one {Only This Sound (# Slot)} other {Only This Sound (# Slots)}}"
-msgstr "{reachShared, plural, one {Only This Sound (# Slot)} other {Only This Sound (# Slots)}}"
+msgid "{reachShared, plural, one {Isolate Audio (# Slot)} other {Isolate Audio (# Slots)}}"
+msgstr "{reachShared, plural, one {Isolate Audio (# Slot)} other {Isolate Audio (# Slots)}}"
 
 #: src/ProjectTab.tsx
 msgid "{removed, plural, one {# file moved to the Recycle Bin} other {# files moved to the Recycle Bin}}"
@@ -827,8 +827,8 @@ msgid "{sounds, plural, one {# sound left out} other {# sounds left out}}"
 msgstr "{sounds, plural, one {# sound left out} other {# sounds left out}}"
 
 #: src/music.ts
-msgid "{sounds, plural, one {Only This Sound can't keep the Original in {places}: # of these sounds is there too.} other {Only This Sound can't keep the Original in {places}: # of these sounds are there too.}}"
-msgstr "{sounds, plural, one {Only This Sound can't keep the Original in {places}: # of these sounds is there too.} other {Only This Sound can't keep the Original in {places}: # of these sounds are there too.}}"
+msgid "{sounds, plural, one {Isolate Audio can't keep the Original in {places}, where # of these sounds also plays.} other {Isolate Audio can't keep the Original in {places}, where # of these sounds also play.}}"
+msgstr "{sounds, plural, one {Isolate Audio can't keep the Original in {places}, where # of these sounds also plays.} other {Isolate Audio can't keep the Original in {places}, where # of these sounds also play.}}"
 
 #: src/RepatchPage.tsx
 msgid "{sounds, plural, one {up to # sound left out} other {up to # sounds left out}}"
@@ -1042,8 +1042,8 @@ msgid "**Every Sound** on {moved} of {asked} slots. Another sound has new audio 
 msgstr "**Every Sound** on {moved} of {asked} slots. Another sound has new audio on the others"
 
 #: src/store.tsx
-msgid "**Only This Sound** on {moved} of {asked} slots"
-msgstr "**Only This Sound** on {moved} of {asked} slots"
+msgid "**Isolate Audio** on {moved} of {asked} slots"
+msgstr "**Isolate Audio** on {moved} of {asked} slots"
 
 #. Markdown. **Sequence 7** and **Sequence 8** are the names the slot list shows for these sequences.
 #: src/tutorials.ts
@@ -3463,6 +3463,7 @@ msgid "Every Sound on All"
 msgstr "Every Sound on All"
 
 #. Edit in Undo, Redo and History: the new audio of a slot set to play in every sound that plays the clip
+#. Edit in Undo, Redo and History: the new audio of a slot set to play in every sound that plays the clip
 #: src/store.tsx
 msgid "every sound that plays it"
 msgstr "every sound that plays it"
@@ -4329,6 +4330,36 @@ msgstr "interactive tutorials walkthroughs"
 msgid "Into"
 msgstr "Into"
 
+#. Edit in Undo, Redo and History: Isolate Audio, the new audio of a slot set to play only in this sound
+#. Edit in Undo, Redo and History: Isolate Audio, the new audio of a slot set to play only in this sound
+#: src/store.tsx
+msgid "isolate audio"
+msgstr "isolate audio"
+
+#: src/CueView.tsx
+#: src/Inspector.tsx
+msgid "Isolate Audio"
+msgstr "Isolate Audio"
+
+#: src/music.ts
+msgid "Isolate Audio can't keep the Original in {places}, which has this same sound."
+msgstr "Isolate Audio can't keep the Original in {places}, which has this same sound."
+
+#: src/music.ts
+msgid "Isolate Audio can't keep the Original in {places}, which have this same sound."
+msgstr "Isolate Audio can't keep the Original in {places}, which have this same sound."
+
+#: src/CueView.tsx
+msgid "Isolate Audio on All"
+msgstr "Isolate Audio on All"
+
+#. After the name of a conflict: a clip that a mod added for this sound only, as Isolate Audio does
+#. Tag on a slot set to Isolate Audio: the new audio plays only in this sound, not in the other sounds that play the clip
+#: src/CombinePage.tsx
+#: src/CueView.tsx
+msgid "isolated audio"
+msgstr "isolated audio"
+
 #: src/Soundtrack.tsx
 msgid "It ends with the segment playing at that time, and Next Fight goes on from there"
 msgstr "It ends with the segment playing at that time, and Next Fight goes on from there"
@@ -5130,8 +5161,8 @@ msgid "New takes for this layer"
 msgstr "New takes for this layer"
 
 #: src/BuildTab.tsx
-msgid "New takes, layers and new audio set to Only This Sound go into every bank with a copy of the sound, as the game plays the copy it loads first. With this on, they go only into the banks of the listed items. The mod gets smaller, but where the game loads another bank's copy first, the original plays."
-msgstr "New takes, layers and new audio set to Only This Sound go into every bank with a copy of the sound, as the game plays the copy it loads first. With this on, they go only into the banks of the listed items. The mod gets smaller, but where the game loads another bank's copy first, the original plays."
+msgid "New takes, layers and new audio with Isolate Audio go into every bank with a copy of the sound, as the game plays the copy it loads first. With this on, they go only into the banks of the listed items. The mod gets smaller, but where the game loads another bank's copy first, the original plays."
+msgstr "New takes, layers and new audio with Isolate Audio go into every bank with a copy of the sound, as the game plays the copy it loads first. With this on, they go only into the banks of the listed items. The mod gets smaller, but where the game loads another bank's copy first, the original plays."
 
 #: src/CueView.tsx
 msgid "New takes, or a layer that plays with it"
@@ -5712,32 +5743,6 @@ msgstr "Only the lines the project changes in this language"
 #: src/CueView.tsx
 msgid "Only this bank gets it. The other banks with this audio play it from separate sounds"
 msgstr "Only this bank gets it. The other banks with this audio play it from separate sounds"
-
-#. After the name of a conflict: a clip that a mod added for this sound only
-#. Edit in Undo, Redo and History: the new audio of a slot set to play only in this sound
-#. Tag on a slot whose new audio plays only in this sound, not in the other sounds that play the clip
-#: src/CombinePage.tsx
-#: src/CueView.tsx
-#: src/store.tsx
-msgid "only this sound"
-msgstr "only this sound"
-
-#: src/CueView.tsx
-#: src/Inspector.tsx
-msgid "Only This Sound"
-msgstr "Only This Sound"
-
-#: src/music.ts
-msgid "Only This Sound can't keep the Original in {places}: it has this same sound."
-msgstr "Only This Sound can't keep the Original in {places}: it has this same sound."
-
-#: src/music.ts
-msgid "Only This Sound can't keep the Original in {places}: they have this same sound."
-msgstr "Only This Sound can't keep the Original in {places}: they have this same sound."
-
-#: src/CueView.tsx
-msgid "Only This Sound on All"
-msgstr "Only This Sound on All"
 
 #: src/IndexTree.tsx
 msgid "Only what has new audio"
@@ -7410,8 +7415,8 @@ msgid "Several small mods are easier to keep as one."
 msgstr "Several small mods are easier to keep as one."
 
 #: src/Inspector.tsx
-msgid "Several sounds can play the same clip. A replacement changes it in all of them, unless it plays only in this sound."
-msgstr "Several sounds can play the same clip. A replacement changes it in all of them, unless it plays only in this sound."
+msgid "Several sounds can play the same clip. A replacement changes it in all of them, and Isolate Audio keeps it to this sound."
+msgstr "Several sounds can play the same clip. A replacement changes it in all of them, and Isolate Audio keeps it to this sound."
 
 #: src/Inspector.tsx
 msgid "Several subtitles have these words, and the game files don't show which one matches this recording. The Text tab lists them all and opens the most likely one"
@@ -8878,8 +8883,8 @@ msgid "To change the piece everywhere, give each variant new audio"
 msgstr "To change the piece everywhere, give each variant new audio"
 
 #: src/CueView.tsx
-msgid "To limit it to this sound, choose Only This Sound under Plays In, in the details"
-msgstr "To limit it to this sound, choose Only This Sound under Plays In, in the details"
+msgid "To limit it to this sound, choose Isolate Audio under Plays In, in the details"
+msgstr "To limit it to this sound, choose Isolate Audio under Plays In, in the details"
 
 #: src/api.ts
 msgid "today, {time}"

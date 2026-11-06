@@ -44,7 +44,7 @@ La barre d’outils commence par une case qui sélectionne tous les emplacements
 | {icon:export} **Exporter** | Enregistre l’élément, ou les emplacements sélectionnés, en fichiers WAV, FLAC, MP3 ou WEM. **Liste d’Export** à côté ouvre la [liste d’export](#the-export-list) dès qu’elle contient quelque chose. |
 | {icon:skip} **Sauter**, {icon:skipall} **Tout sauter** | Remplacent une transition ou un stinger par un court silence. |
 | {icon:clear} **Tout effacer**, **Effacer cette partie** | Retirent le nouvel audio de tous les emplacements affichés, ou de tous les emplacements de la partie. |
-| {icon:onlythis} **Ce son uniquement partout** | Règle [Ce son uniquement](wiki:adding-audio#only-this-sound) sur chaque emplacement ici avec du nouvel audio que d’autres sons partagent, séquences repliées comprises. Une fois tous réglés, le même bouton règle **Tous les sons**. |
+| {icon:onlythis} **Ce son uniquement partout** | Règle [Ce son uniquement](wiki:adding-audio#isolate-audio) sur chaque emplacement ici avec du nouvel audio que d’autres sons partagent, séquences repliées comprises. Une fois tous réglés, le même bouton règle **Tous les sons**. |
 
 {icon:search} **Rechercher des emplacements** restreint la liste par nom, étiquette, note, nom de fichier ou ID. Dans un ensemble de sons, elle trouve aussi les mots d’une réplique. Quand rien dans la liste ne correspond, **Ailleurs** liste les morceaux de musique et les ensembles de sons qui ont un résultat.
 
@@ -83,8 +83,8 @@ Chaque ligne est un **emplacement**, c’est-à-dire un clip du jeu qui peut êt
 | **pas d’audio** | Les données du jeu nomment ce clip, mais les fichiers du jeu installés ne l’incluent pas. Il n’y a rien à jouer ni à remplacer. |
 | **tambours discrets** | Une couche de batterie à peine audible sous une autre couche du segment. |
 | **jamais jouée** | Le clip est dans les fichiers du jeu, mais le jeu ne le joue jamais. La musique de mort des Illuministes du Néant en est un exemple. |
-| **tous les sons** | Le nouvel audio est joué dans tous les sons qui jouent le clip. Voir [Ce son uniquement](wiki:adding-audio#only-this-sound). |
-| **ce son uniquement** | Le nouvel audio n’est joué que dans ce son. Les autres sons qui jouent le clip gardent l’Original. Voir [Ce son uniquement](wiki:adding-audio#only-this-sound). |
+| **tous les sons** | Le nouvel audio est joué dans tous les sons qui jouent le clip. Voir [Ce son uniquement](wiki:adding-audio#isolate-audio). |
+| **ce son uniquement** | Le nouvel audio n’est joué que dans ce son. Les autres sons qui jouent le clip gardent l’Original. Voir [Ce son uniquement](wiki:adding-audio#isolate-audio). |
 | **remplacé dans un autre son** | Un autre son joue du nouvel audio à la place de ce clip, avec **Ce son uniquement**. Celui-ci garde l’Original. |
 | **−6 dB** | Make-Up Gain sur l’Original, dans un emplacement sans nouvel audio. Voir [Make-Up Gain par emplacement](wiki:volume#make-up-gain-per-slot). |
 | une étiquette colorée | Une entrée de l’Index liée à cet emplacement. Cliquez sur l’étiquette pour l’ouvrir. |

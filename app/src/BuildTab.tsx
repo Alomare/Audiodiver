@@ -187,7 +187,7 @@ function BuildOptions() {
         <label className="check" data-tip={p.every_bank ? t({ message: "Patch every bank with the sounds is on", comment: "Names the checkbox above it, as it reads" }) : undefined}>
           <input type="checkbox" checked={p.project_banks_only} disabled={p.every_bank}
             onChange={(e) => actions.settings({ project_banks_only: e.target.checked })} />
-          <span><Trans>Keep added audio to the project's banks</Trans> <Help tip={t`New takes, layers and new audio set to Only This Sound go into every bank with a copy of the sound, as the game plays the copy it loads first. With this on, they go only into the banks of the listed items. The mod gets smaller, but where the game loads another bank's copy first, the original plays.`} page={OWN_BANKS_PAGE} /></span>
+          <span><Trans>Keep added audio to the project's banks</Trans> <Help tip={t`New takes, layers and new audio with Isolate Audio go into every bank with a copy of the sound, as the game plays the copy it loads first. With this on, they go only into the banks of the listed items. The mod gets smaller, but where the game loads another bank's copy first, the original plays.`} page={OWN_BANKS_PAGE} /></span>
         </label>
         </>}
       </div>

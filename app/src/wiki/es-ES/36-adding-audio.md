@@ -19,7 +19,7 @@ Una capa suena junto con un sonido cada vez, como un estruendo más grave bajo u
 
 **Nueva capa** aparece atenuada en los sonidos que no pueden tener una capa. Un sonido que es una de las opciones aleatorias de otro sonido no puede tenerla, porque la capa sería solo otra opción. Tampoco puede tenerla un sonido que nada reproduce directamente.
 
-## Solo este sonido {#only-this-sound}
+## Solo este sonido {#isolate-audio}
 
 Varios sonidos suelen reproducir el mismo clip, y sustituir el clip lo cambia en todos ellos. Para limitar una sustitución, define **Suena en** en los detalles de un slot como **Solo este sonido**. Los demás sonidos conservan entonces el Original, y sus slots muestran **sustituido en otro sonido**. Una nota bajo la opción dice cuántos bancos cambia.
 

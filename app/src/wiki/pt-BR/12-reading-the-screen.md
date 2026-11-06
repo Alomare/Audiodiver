@@ -44,7 +44,7 @@ A barra de ferramentas começa com uma caixa de seleção que seleciona todos os
 | {icon:export} **Exportar** | Salva o item, ou os slots selecionados, como arquivos WAV, FLAC, MP3 ou WEM. **Lista de Exportação**, ao lado, abre a [lista de exportação](#the-export-list) quando há algo nela. |
 | {icon:skip} **Pular**, {icon:skipall} **Pular todos** | Substituem uma transição ou um stinger por um silêncio curto. |
 | {icon:clear} **Limpar tudo**, **Limpar esta parte** | Remove o áudio novo de todos os slots mostrados, ou de todos os slots da parte. |
-| {icon:onlythis} **Só este som em todos** | Define [Só este som](wiki:adding-audio#only-this-sound) em cada slot aqui com áudio novo que outros sons compartilham, inclusive sequências recolhidas. Quando todos já têm, o mesmo botão define **Todos os sons**. |
+| {icon:onlythis} **Só este som em todos** | Define [Só este som](wiki:adding-audio#isolate-audio) em cada slot aqui com áudio novo que outros sons compartilham, inclusive sequências recolhidas. Quando todos já têm, o mesmo botão define **Todos os sons**. |
 
 {icon:search} **Pesquisar slots** filtra a lista por nome, rótulo, nota, nome de arquivo ou ID. Num conjunto de sons, também encontra as palavras de uma fala. Quando nada na lista corresponde, **Em outros lugares** lista as peças musicais e os conjuntos de sons que têm uma correspondência.
 
@@ -83,8 +83,8 @@ Cada linha é um **slot**, um único clipe do jogo que pode ser substituído.
 | **sem áudio** | Os dados do jogo nomeiam este clipe, mas os arquivos do jogo instalado não o incluem. Não há nada para tocar ou substituir. |
 | **tambores baixos** | Uma camada de bateria quase inaudível abaixo de outra camada do segmento. |
 | **nunca toca** | O clipe está nos arquivos do jogo, mas o jogo nunca o toca. A música de morte do Vazio dos Iluminados é um exemplo. |
-| **todos os sons** | O áudio novo toca em todos os sons que tocam o clipe. Veja [Só este som](wiki:adding-audio#only-this-sound). |
-| **só este som** | O áudio novo toca só neste som. Os outros sons que tocam o clipe mantêm o Original. Veja [Só este som](wiki:adding-audio#only-this-sound). |
+| **todos os sons** | O áudio novo toca em todos os sons que tocam o clipe. Veja [Só este som](wiki:adding-audio#isolate-audio). |
+| **só este som** | O áudio novo toca só neste som. Os outros sons que tocam o clipe mantêm o Original. Veja [Só este som](wiki:adding-audio#isolate-audio). |
 | **substituído em outro som** | Outro som toca áudio novo no lugar deste clipe, com **Só este som**. Este mantém o Original. |
 | **−6 dB** | Make-Up Gain no Original, num slot sem áudio novo. Veja [Make-Up Gain por slot](wiki:volume#make-up-gain-per-slot). |
 | uma tag colorida | Uma entrada do Índice relacionada a este slot. Clique na tag para abri-la. |

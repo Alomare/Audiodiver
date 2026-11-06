@@ -95,7 +95,7 @@ export type Assignment = {
   duration_ms: number | null; // the file's length
   file_segments: number; // the music segments that play the file, in this slot and others (0 for silence)
 };
-/** A Sound with a clip of its own (Only this sound) in place of one of the game's clips: where it is (the Library's
+/** A Sound with a clip of its own (Isolate Audio) in place of one of the game's clips: where it is (the Library's
     name of its first bank) and every bank that has it. */
 export type StandIn = { place: string; banks: string[] };
 /** The Library's Index (core library.py): categories (the music first, then the named sound sets),

@@ -72,8 +72,10 @@ export const EDIT_NAMES: Record<string, string> = {
   text: t({ message: "text change", comment: "Edit in Undo, Redo and History: a line of game text changed" }),
   "add take": t({ message: "new takes", comment: "Edit in Undo, Redo and History: new takes added to a sound" }),
   "add layer": t({ message: "new layer", comment: "Edit in Undo, Redo and History: a layer added beside a sound" }),
-  "own clip": t({ message: "only this sound", comment: "Edit in Undo, Redo and History: the new audio of a slot set to play only in this sound" }),
+  "own clip": t({ message: "isolate audio", comment: "Edit in Undo, Redo and History: Isolate Audio, the new audio of a slot set to play only in this sound" }),
   "shared clip": t({ message: "every sound that plays it", comment: "Edit in Undo, Redo and History: the new audio of a slot set to play in every sound that plays the clip" }),
+  "own clips": t({ message: "isolate audio", comment: "Edit in Undo, Redo and History: Isolate Audio, the new audio of a slot set to play only in this sound" }),
+  "shared clips": t({ message: "every sound that plays it", comment: "Edit in Undo, Redo and History: the new audio of a slot set to play in every sound that plays the clip" }),
   note: t({ message: "note", comment: "Edit in Undo, Redo and History: a note written in the project" }),
   curve: t({ message: "volume curve", comment: "Edit in Undo, Redo and History: a slot set to keep or drop the volume curve on the clip" }),
   collect: t({ message: "collect files", comment: "Edit in Undo, Redo and History: files copied into the project folder" }),
@@ -1037,14 +1039,14 @@ function useEditorState() {
         quick(t`New layer on **${what}**`, "add");
       }
     },
-    /** The slot's new audio plays only in this sound (a clip of its own), or again in every sound that plays the
+    /** Isolate Audio: the slot's new audio plays only in this sound (a clip of its own), or again in every sound that plays the
         clip. The slot it moves to stays selected. */
     async onlyThisSound(source: string, sound: string | undefined, only: boolean) {
       const p = await run<ProjectState & { source: string }>(only ? "own_clip" : "shared_clip", only ? { source, sound } : { source });
       if (p && edited(p)) scopes.editor.setSelected([p.source]);
     },
     /** The same on several slots, as one undo step. The selection follows them, and a note says how many changed.
-        Where the Sound of one is in other banks too, a notice says Only This Sound can't keep the Original there,
+        Where the Sound of one is in other banks too, a notice says Isolate Audio can't keep the Original there,
         unless the details panel says so already (`warned`). */
     async onlyTheseSounds(slots: Slot[], only: boolean, warned = false) {
       const r = await run<ProjectState & { sources: Record<string, string> }>(only ? "own_clips" : "shared_clips",
@@ -1052,11 +1054,11 @@ function useEditorState() {
       if (!r || !edited(r)) return;
       scopes.editor.setSelected(scopes.editor.selected.map((s) => r.sources[s] ?? s));
       const moved = Object.keys(r.sources).length, asked = slots.filter((s) => !!s.was !== only).length;
-      quick(moved === asked ? (only ? plural(moved, { one: "**Only This Sound** on # slot", other: "**Only This Sound** on # slots" })
+      quick(moved === asked ? (only ? plural(moved, { one: "**Isolate Audio** on # slot", other: "**Isolate Audio** on # slots" })
         : plural(moved, { one: "**Every Sound** on # slot", other: "**Every Sound** on # slots" }))
-        : only ? t`**Only This Sound** on ${moved} of ${asked} slots` : t`**Every Sound** on ${moved} of ${asked} slots. Another sound has new audio on the others`, moved ? "done" : "info");
+        : only ? t`**Isolate Audio** on ${moved} of ${asked} slots` : t`**Every Sound** on ${moved} of ${asked} slots. Another sound has new audio on the others`, moved ? "done" : "info");
       const same = only && !warned ? sameSoundWarning(idx.current, slots.filter((s) => r.sources[s.source])) : null;
-      if (same) notify("info", same, { label: t`Why?`, go: { tab: "wiki", sub: "adding-audio#only-this-sound" } });
+      if (same) notify("info", same, { label: t`Why?`, go: { tab: "wiki", sub: "adding-audio#isolate-audio" } });
     },
     /** Swaps the audio of two slots (or moves it into an empty one). */
     async swap(a: string, b: string) {

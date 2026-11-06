@@ -19,7 +19,7 @@ Une couche est jouée avec un son à chaque fois, comme un grondement plus grave
 
 **Nouvelle couche** est grisé pour les sons qui ne peuvent pas avoir de couche. Un son qui est l’un des choix aléatoires d’un autre son ne peut pas en avoir, car la couche deviendrait simplement un autre choix. Un son que rien ne joue directement ne le peut pas non plus.
 
-## Ce son uniquement {#only-this-sound}
+## Ce son uniquement {#isolate-audio}
 
 Plusieurs sons jouent souvent le même clip, et remplacer le clip le modifie dans tous. Pour limiter un remplacement, réglez **Joué dans** dans les détails d’un emplacement sur **Ce son uniquement**. Les autres sons gardent alors l’Original, et leurs emplacements affichent **remplacé dans un autre son**. Une note sous le choix indique le nombre de banques qu’il modifie.
 

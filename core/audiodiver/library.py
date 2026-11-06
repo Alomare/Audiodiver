@@ -879,7 +879,7 @@ class Library:
         # a sound's slot names the Sound object that plays it (the first, where several do), for reference and for a
         # clip of its own: `players` counts the Sounds here that play the clip, `sound_banks` the other banks that
         # have that Sound (a clip of its own changes it in those, where a replacement changes it in `banks`), and
-        # `sound_in` names the first of them: the game plays the copies as one Sound, so Only This Sound can't keep
+        # `sound_in` names the first of them: the game plays the copies as one Sound, so Isolate Audio can't keep
         # the Original there
         played_by, players = {}, collections.Counter(sid for _, sid in sounds)
         for oid, sid in sounds:

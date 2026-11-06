@@ -351,7 +351,7 @@ function Conflicts({ read, winners, choose }: { read: Read; winners: Record<stri
 /** One conflict: the original to play, what it is, and under it each mod's version to play and choose. */
 function ClashLine({ c, winner, modName, pick }: { c: Clash; winner: number; modName: (i: number) => string; pick: (m: number) => void }) {
   const what = c.kind === "setting" ? t({ message: "a setting", comment: "After the name of a conflict: the mods change a setting, not audio" })
-    : c.kind === "clip" ? t({ message: "only this sound", comment: "After the name of a conflict: a clip that a mod added for this sound only" }) : "";
+    : c.kind === "clip" ? t({ message: "isolated audio", comment: "After the name of a conflict: a clip that a mod added for this sound only, as Isolate Audio does" }) : "";
   return (
     <li className="cmb-clash">
       <div className="cmb-clash-head">

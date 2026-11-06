@@ -183,16 +183,16 @@ function Replacement({ slot, a, music, what }: { slot: Slot; a?: Assignment; mus
   );
 }
 
-/** Plays In's two choices: every sound that plays the clip, or only this sound. `state`: which holds now (null: some
-    of each, or none to choose for). `warn`: what Only This Sound can't do here (sameSoundWarning). */
+/** Plays In's two choices: every sound that plays the clip, or this sound alone (Isolate Audio). `state`: which holds
+    now (null: some of each, or none to choose for). `warn`: what Isolate Audio can't do here (sameSoundWarning). */
 function PlaysIn({ state, disabled, pick, note, warn }: {
   state: boolean | null; disabled?: boolean; pick: (only: boolean) => void; note: ReactNode; warn?: string | null;
 }) {
   return (
     <section className="insp-sec plays-in">
-      <h3><Trans>Plays In</Trans> <Help tip={t`Several sounds can play the same clip. A replacement changes it in all of them, unless it plays only in this sound.`} page="adding-audio#only-this-sound" /></h3>
+      <h3><Trans>Plays In</Trans> <Help tip={t`Several sounds can play the same clip. A replacement changes it in all of them, and Isolate Audio keeps it to this sound.`} page="adding-audio#isolate-audio" /></h3>
       <div className="segmented" role="radiogroup" aria-label={t`Plays In`}>
-        {[[false, t`Every Sound`], [true, t`Only This Sound`]].map(([only, label]) => (
+        {[[false, t`Every Sound`], [true, t`Isolate Audio`]].map(([only, label]) => (
           <button key={label as string} role="radio" aria-checked={state === only} className={state === only ? "on" : ""} disabled={disabled}
             onClick={() => { if (state !== only) pick(only as boolean); }}>{label}</button>
         ))}
@@ -204,7 +204,7 @@ function PlaysIn({ state, disabled, pick, note, warn }: {
 }
 
 /** Where the new audio plays, for a bank's sound whose clip other sounds play too: in every sound that plays the
-    clip, as any replacement does, or only in this sound (a clip of its own). Without new audio yet, it says the
+    clip, as any replacement does, or only in this sound (Isolate Audio: a clip of its own). Without new audio yet, it says the
     choice is there. The count is of banks, this one too. */
 function Reach({ slot, a }: { slot: Slot; a?: Assignment }) {
   const { actions, itemIndex } = useEditor();

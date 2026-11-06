@@ -607,7 +607,7 @@ function CueBody({ cue }: { cue: Cue }) {
       { label: many ? plural(count, { one: "Remove the New Audio (# Slot)", other: "Remove the New Audio (# Slots)" }) : t`Remove the New Audio`,
         keys: keyLabel("remove"), disabled: !withAudio.length, run: () => actions.unassign(withAudio) },
       ...(reach.length ? ["-" as const] : []),
-      ...(reachShared ? [{ label: many ? plural(reachShared, { one: "Only This Sound (# Slot)", other: "Only This Sound (# Slots)" }) : t`Only This Sound`,
+      ...(reachShared ? [{ label: many ? plural(reachShared, { one: "Isolate Audio (# Slot)", other: "Isolate Audio (# Slots)" }) : t`Isolate Audio`,
         run: () => actions.onlyTheseSounds(reach, true) } as MenuEntry] : []),
       ...(reachOwn ? [{ label: many ? plural(reachOwn, { one: "Every Sound (# Slot)", other: "Every Sound (# Slots)" }) : t`Every Sound`,
         run: () => actions.onlyTheseSounds(reach, false) } as MenuEntry] : []),
@@ -800,10 +800,10 @@ function CueBody({ cue }: { cue: Cue }) {
               }) : t`Replace with a short silence, so the next music starts right away`} />
           )}
           {!readOnly && project?.game !== "hd1" && (() => {
-            // Plays In for all of it, folded sequences too: Only This Sound until they all have it, then back
+            // Plays In for all of it, folded sequences too: Isolate Audio until they all have it, then back
             const reach = all.filter((r) => assigned[r.slot.source] && choosesReach(r.slot)).map((r) => r.slot);
             const shared = reach.filter((s) => !s.was).length, only = shared > 0, count = only ? shared : reach.length;
-            return reach.length > 0 && <ToolButton icon={<OnlyThisIcon />} name={only ? t`Only This Sound on All` : t`Every Sound on All`}
+            return reach.length > 0 && <ToolButton icon={<OnlyThisIcon />} name={only ? t`Isolate Audio on All` : t`Every Sound on All`}
               about={only ? plural(count, { one: "New audio plays only in the sound it replaces, on the # slot here that other sounds share", other: "New audio plays only in the sound it replaces, on the # slots here that other sounds share" })
                 : plural(count, { one: "New audio plays in every sound again, on the # slot here", other: "New audio plays in every sound again, on the # slots here" })}
               onClick={() => actions.onlyTheseSounds(reach, only)} />;
@@ -911,7 +911,7 @@ function LockedTag() {
 /** A tag on a row of audio the project adds: a new take, or a clip of its own. */
 function AddedTag({ slot }: { slot: Slot }) {
   if (slot.added) return <span className="tag new" data-tip={ADDED_TIP.take}>{t`new take`}</span>;
-  if (slot.was) return <span className="tag new" data-tip={ADDED_TIP.own}>{t({ message: "only this sound", comment: "Tag on a slot whose new audio plays only in this sound, not in the other sounds that play the clip" })}</span>;
+  if (slot.was) return <span className="tag new" data-tip={ADDED_TIP.own}>{t({ message: "isolated audio", comment: "Tag on a slot set to Isolate Audio: the new audio plays only in this sound, not in the other sounds that play the clip" })}</span>;
   return null;
 }
 const ADDED_TIP = {
@@ -920,10 +920,10 @@ const ADDED_TIP = {
 };
 /** On a slot with new audio that other sounds play too: where the new audio goes, and that it can go in this one alone. */
 function EveryTag() {
-  return <span className="tag" data-tip={t`The new audio plays in every sound that plays this clip`} data-tip-more={t`To limit it to this sound, choose Only This Sound under Plays In, in the details`}>
+  return <span className="tag" data-tip={t`The new audio plays in every sound that plays this clip`} data-tip-more={t`To limit it to this sound, choose Isolate Audio under Plays In, in the details`}>
     {t({ message: "every sound", comment: "Tag on a slot whose new audio plays in every sound that plays the clip" })}</span>;
 }
-/** The tag on a clip that other sounds play new audio in place of (Only this sound, there), on the sounds that keep
+/** The tag on a clip that other sounds play new audio in place of (Isolate Audio, there), on the sounds that keep
     the Original: without it the row looks as if the replacement had failed. A sound in the bank on screen is said
     to be here. */
 function StandInTag({ standIns, cueId }: { standIns: StandIn[]; cueId: string }) {

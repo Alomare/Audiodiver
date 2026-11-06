@@ -268,7 +268,7 @@ def test_a_clip_of_its_own_can_keep_to_the_projects_bank(session, tmp_path, monk
 @pytest.mark.game
 def test_a_sound_in_other_banks_names_them_for_only_this_sound(session):
     """A Sound that other banks have too (a weapon's handling sounds are in a hundred of them) is one Sound to the
-    game, so a clip of its own changes it in all of them and Only This Sound can't keep the Original there. Its slot
+    game, so a clip of its own changes it in all of them and Isolate Audio can't keep the Original there. Its slot
     names the first of those banks, those the Index names first, and never the bank shown (`sound_in`)."""
     from audiodiver.game import murmur64_hash
     from audiodiver.library import ALSO_LISTED

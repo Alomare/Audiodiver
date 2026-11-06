@@ -43,7 +43,7 @@ The toolbar starts with a tick that selects every slot, or clears the selection.
 | {icon:export} **Export** | Saves the item, or the selected slots, as WAV, FLAC, MP3 or WEM files. **Export List** beside it opens the [export list](#the-export-list) once something is on it. |
 | {icon:skip} **Skip it**, {icon:skipall} **Skip all** | Replace a transition or stinger with a short silence. |
 | {icon:clear} **Clear all**, **Clear this part** | Removes the new audio from every slot shown, or from every slot of the part. |
-| {icon:onlythis} **Only This Sound on All** | Sets [Only this sound](wiki:adding-audio#only-this-sound) on every slot here with new audio that other sounds share, folded sequences too. Once all have it, the same button sets **Every Sound**. |
+| {icon:onlythis} **Isolate Audio on All** | Sets [Isolate audio](wiki:adding-audio#isolate-audio) on every slot here with new audio that other sounds share, folded sequences too. Once all have it, the same button sets **Every Sound**. |
 
 With two or more slots selected, the toolbar also has {icon:together} **Play together**, in the Library and in the Audio tab. It plays the selected slots at the same time, such as the layers of a gunshot: the new audio of a slot that has some, else the original. {key:playTogether} and **Play Together** in the right-click menu do the same. Up to 16 play at once, each with the Make-Up Gain it has, and all turned down together so that they don't clip. The now-playing bar pauses, seeks and stops them as one.
 
@@ -84,9 +84,9 @@ Each row is one **slot**, a single game clip that can be replaced.
 | **no audio** | The game data names this clip, but the installed game files don't include it. There is nothing to play or replace. |
 | **quiet drums** | A barely audible drum layer under another layer of the segment. |
 | **never plays** | The clip is in the game files, but the game never plays it. The Illuminate Void's death music is one example. |
-| **every sound** | The new audio plays in every sound that plays the clip. See [Only this sound](wiki:adding-audio#only-this-sound). |
-| **only this sound** | The new audio plays in this sound only. The other sounds that play the clip keep the Original. See [Only this sound](wiki:adding-audio#only-this-sound). |
-| **replaced in another sound** | Another sound plays new audio in place of this clip, with **Only This Sound**. This one keeps the Original. |
+| **every sound** | The new audio plays in every sound that plays the clip. See [Isolate audio](wiki:adding-audio#isolate-audio). |
+| **isolated audio** | The new audio plays in this sound only (**Isolate Audio**). The other sounds that play the clip keep the Original. See [Isolate audio](wiki:adding-audio#isolate-audio). |
+| **replaced in another sound** | Another sound plays new audio in place of this clip, with **Isolate Audio**. This one keeps the Original. |
 | **−6 dB** | Make-Up Gain on the Original, in a slot without new audio. See [Make-Up Gain per slot](wiki:volume#make-up-gain-per-slot). |
 | a coloured tag | An Index entry related to this slot. Click the tag to open it. |
 

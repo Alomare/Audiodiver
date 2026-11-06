@@ -19,7 +19,7 @@ Uma camada toca junto com um som toda vez, como um estrondo mais grave por baixo
 
 **Nova camada** fica desativado para sons que não podem ter uma camada. Um som que é uma das escolhas aleatórias de outro som não pode ter uma, porque a camada viraria só mais uma escolha. Um som que nada toca diretamente também não pode.
 
-## Só este som {#only-this-sound}
+## Só este som {#isolate-audio}
 
 Muitas vezes vários sons tocam o mesmo clipe, e substituir o clipe o muda em todos eles. Para limitar uma substituição, defina **Toca em** nos detalhes de um slot como **Só este som**. Os outros sons então mantêm o Original, e os slots deles mostram **substituído em outro som**. Uma nota abaixo da escolha diz quantos bancos ela muda.
 

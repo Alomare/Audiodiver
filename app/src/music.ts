@@ -144,7 +144,7 @@ export const hueOf = (idx: ItemIndex, category: string | undefined) => (category
 
 const SAME_NAMED = 3; // the places a warning about the same sound names, before "and 107 more banks"
 
-/** What Only This Sound can't do for slots whose Sound other banks have too (`sound_banks`, the first of them in
+/** What Isolate Audio can't do for slots whose Sound other banks have too (`sound_banks`, the first of them in
     `sound_in`): the game plays those copies as one Sound, so they get the new audio as well. The warning names the
     first places as the Index does and counts the other banks; null when no slot's Sound is anywhere else. */
 export function sameSoundWarning(idx: ItemIndex, slots: Slot[]): string | null {
@@ -167,12 +167,12 @@ export function sameSoundWarning(idx: ItemIndex, slots: Slot[]): string | null {
     : names.length ? plural(rest, { one: "# more bank", other: "# more banks" }) : plural(rest, { one: "# other bank", other: "# other banks" });
   const places = andList(tail ? [...names, tail] : names);
   if (slots.length === 1) {
-    return names.length + Math.max(0, rest ?? 2) === 1 ? t`Only This Sound can't keep the Original in ${places}: it has this same sound.`
-      : t`Only This Sound can't keep the Original in ${places}: they have this same sound.`;
+    return names.length + Math.max(0, rest ?? 2) === 1 ? t`Isolate Audio can't keep the Original in ${places}, which has this same sound.`
+      : t`Isolate Audio can't keep the Original in ${places}, which have this same sound.`;
   }
   const sounds = copied.length;
   return plural(sounds, {
-    one: `Only This Sound can't keep the Original in ${places}: # of these sounds is there too.`,
-    other: `Only This Sound can't keep the Original in ${places}: # of these sounds are there too.`,
+    one: `Isolate Audio can't keep the Original in ${places}, where # of these sounds also plays.`,
+    other: `Isolate Audio can't keep the Original in ${places}, where # of these sounds also play.`,
   });
 }
