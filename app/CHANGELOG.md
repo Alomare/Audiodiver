@@ -3,6 +3,45 @@
 The Updates tab shows this file. Each release starts with a second-level heading, `<version> - <date>`,
 newest first.
 
+## 1.7.0 - 2026-11-07
+
+### Highlights
+
+#### Patch Content
+
+Added **Patch Content** to Tools. It opens a mod as it is, lists every sound in its patches with those the game no longer has first, plays the audio as the mod has it, and writes the mod again with new audio or silence for the sounds you choose. It works in Audiodiver Utils too.
+
+#### Play Together
+
+Added **Play Together**, which plays the selected slots at the same time, up to 16 at once and kept from clipping, to hear a gunshot's layers together. It's in the toolbar and the right-click menu, or Shift+Space, and pressing it again starts the slots over.
+
+#### Clip Sharing Mode
+
+Replaced Plays In with **Clip Sharing Mode**: **Keep Sharing** or **Isolate Audio**. When Isolate Audio can't keep the Original somewhere, because other banks play the same sound, the details name those banks.
+
+### Additions
+
+- Added an entry for each exosuit under Vehicles ▸ Exosuits, and one for the sounds they share. Projects that listed the old set keep those sounds under the new entries.
+- Named the Title Screen music and Joining or Leaving a Squad in On the Ship.
+
+### Changes
+
+- Changed voice lines to show their subtitles in the language Audiodiver is set to, as the game writes them, in every voice tab. The filter finds a line by the words shown and by the English ones.
+- Changed **Open Project** on Home to offer the last project of the selected game, so it no longer switches to the other game.
+- Changed Import Mod to point to **Patch Content** when a mod only changes audio the game removed in an update.
+- Renamed Bull Machine Pistol to P-44 Mist and Storm Tank to TD-110 Maelstrom, as the game names them.
+- Shortened labels such as **Write Mod**, **Add to Project**, **Copy Sound ID** and **Show ZIP**.
+- 16-bit WAVs at 48 kHz and silence now encode faster, with the same result.
+- Updated the Wiki's Helldivers 1 page: from version 1.4.0 of the mod manager, a deploy takes about as much disk as the new audio.
+
+### Bug Fixes
+
+- Fixed Helldivers 2 sounds in the Library not playing or showing waveforms with a Helldivers 1 project open.
+- Fixed the Library sometimes failing to load with both games found.
+- Fixed Radio Filter: Helldivers set to Off now also takes the helmet sound off your own Helldiver's voice on foot.
+- Fixed **Slice a song** on music with a single slot to fill, such as transitions and stingers.
+- Fixed Select All and the toolbar's tick missing the takes of folded sequences.
+
 ## 1.6.0 - 2026-11-02
 
 ### Highlights
