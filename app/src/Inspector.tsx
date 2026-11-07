@@ -183,16 +183,16 @@ function Replacement({ slot, a, music, what }: { slot: Slot; a?: Assignment; mus
   );
 }
 
-/** Plays In's two choices: every sound that plays the clip, or this sound alone (Isolate Audio). `state`: which holds
+/** Clip Sharing Mode's two choices: every sound that plays the clip (Keep Sharing), or this sound alone (Isolate Audio). `state`: which holds
     now (null: some of each, or none to choose for). `warn`: what Isolate Audio can't do here (sameSoundWarning). */
 function PlaysIn({ state, disabled, pick, note, warn }: {
   state: boolean | null; disabled?: boolean; pick: (only: boolean) => void; note: ReactNode; warn?: string | null;
 }) {
   return (
     <section className="insp-sec plays-in">
-      <h3><Trans>Plays In</Trans> <Help tip={t`Several sounds can play the same clip. A replacement changes it in all of them, and Isolate Audio keeps it to this sound.`} page="adding-audio#isolate-audio" /></h3>
-      <div className="segmented" role="radiogroup" aria-label={t`Plays In`}>
-        {[[false, t`Every Sound`], [true, t`Isolate Audio`]].map(([only, label]) => (
+      <h3><Trans>Clip Sharing Mode</Trans> <Help tip={t`Several sounds can play the same clip. Keep Sharing changes it in all of them, and Isolate Audio keeps the new audio to this sound.`} page="adding-audio#isolate-audio" /></h3>
+      <div className="segmented" role="radiogroup" aria-label={t`Clip Sharing Mode`}>
+        {[[false, t`Keep Sharing`], [true, t`Isolate Audio`]].map(([only, label]) => (
           <button key={label as string} role="radio" aria-checked={state === only} className={state === only ? "on" : ""} disabled={disabled}
             onClick={() => { if (state !== only) pick(only as boolean); }}>{label}</button>
         ))}
@@ -219,7 +219,7 @@ function Reach({ slot, a }: { slot: Slot; a?: Assignment }) {
   );
 }
 
-/** Plays In for several selected slots: the ones with new audio whose clip other sounds play too. */
+/** Clip Sharing Mode for several selected slots: the ones with new audio whose clip other sounds play too. */
 function BulkReach({ rows }: { rows: Row[] }) {
   const { project, actions, itemIndex } = useEditor();
   const a = project?.assignments ?? {};

@@ -43,9 +43,9 @@ The toolbar starts with a tick that selects every slot, or clears the selection.
 | {icon:export} **Export** | Saves the item, or the selected slots, as WAV, FLAC, MP3 or WEM files. **Export List** beside it opens the [export list](#the-export-list) once something is on it. |
 | {icon:skip} **Skip it**, {icon:skipall} **Skip all** | Replace a transition or stinger with a short silence. |
 | {icon:clear} **Clear all**, **Clear this part** | Removes the new audio from every slot shown, or from every slot of the part. |
-| {icon:onlythis} **Isolate Audio on All** | Sets [Isolate audio](wiki:adding-audio#isolate-audio) on every slot here with new audio that other sounds share, folded sequences too. Once all have it, the same button sets **Every Sound**. |
+| {icon:onlythis} **Isolate Audio on All** | Sets [Isolate audio](wiki:adding-audio#isolate-audio) on every slot here with new audio that other sounds share, folded sequences too. Once all have it, the same button sets **Keep Sharing**. |
 
-With two or more slots selected, the toolbar also has {icon:together} **Play together**, in the Library and in the Audio tab. It plays the selected slots at the same time, such as the layers of a gunshot: the new audio of a slot that has some, else the original. {key:playTogether} and **Play Together** in the right-click menu do the same. Up to 16 play at once, each with the Make-Up Gain it has, and all turned down together so that they don't clip. The now-playing bar pauses, seeks and stops them as one.
+With two or more slots selected, the toolbar also has {icon:together} **Play together**, in the Library and in the Audio tab. It plays the selected slots at the same time, such as the layers of a gunshot: the new audio of a slot that has some, else the original. Pressed again, it starts them over. {key:playTogether} and **Play Together** in the right-click menu do the same. Up to 16 play at once, the first 16 in the list, each with the Make-Up Gain it has, and all turned down together so that they don't clip. The now-playing bar pauses, seeks and stops them as one.
 
 {icon:search} **Search slots** narrows the list by name, label, note, file name or ID. In a sound set it also finds the words of a voice line. When nothing in the list matches, **Elsewhere** lists the pieces of music and sound sets that have a match.
 

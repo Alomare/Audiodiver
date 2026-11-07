@@ -1055,8 +1055,8 @@ function useEditorState() {
       scopes.editor.setSelected(scopes.editor.selected.map((s) => r.sources[s] ?? s));
       const moved = Object.keys(r.sources).length, asked = slots.filter((s) => !!s.was !== only).length;
       quick(moved === asked ? (only ? plural(moved, { one: "**Isolate Audio** on # slot", other: "**Isolate Audio** on # slots" })
-        : plural(moved, { one: "**Every Sound** on # slot", other: "**Every Sound** on # slots" }))
-        : only ? t`**Isolate Audio** on ${moved} of ${asked} slots` : t`**Every Sound** on ${moved} of ${asked} slots. Another sound has new audio on the others`, moved ? "done" : "info");
+        : plural(moved, { one: "**Keep Sharing** on # slot", other: "**Keep Sharing** on # slots" }))
+        : only ? t`**Isolate Audio** on ${moved} of ${asked} slots` : t`**Keep Sharing** on ${moved} of ${asked} slots. Another sound has new audio on the others`, moved ? "done" : "info");
       const same = only && !warned ? sameSoundWarning(idx.current, slots.filter((s) => r.sources[s.source])) : null;
       if (same) notify("info", same, { label: t`Why?`, go: { tab: "wiki", sub: "adding-audio#isolate-audio" } });
     },

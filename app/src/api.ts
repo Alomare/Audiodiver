@@ -368,7 +368,7 @@ export type TextLine = { table: string; id: number; text: string; yours?: string
   cat?: string; sec?: string; ref?: string }; // cat, sec: where it belongs (core textsort.py); ref: in the reference language
 export type TextGroup = { id: string; name: string; sections: { id: string; name: string }[] };
 
-/** Whether a slot can choose where its new audio plays (Plays In): a bank's sound whose clip other sounds or banks play
+/** Whether a slot can choose where its new audio plays (Clip Sharing Mode): a bank's sound whose clip other sounds or banks play
     too, or one that plays only in its sound already. */
 export const choosesReach = (slot: Slot) => !!slot.was
   || (!slot.added && !!slot.object && ((slot.players ?? 1) > 1 || (slot.sound_banks ?? 0) < (slot.banks ?? 0)));

@@ -185,7 +185,7 @@ export const RepeatIcon = () => (
 );
 
 /** Fold everything: a box with a minus, another box behind it (as code editors draw it). */
-/** New audio in one sound alone (Plays In): a target, its centre filled. */
+/** New audio in one sound alone (Clip Sharing Mode): a target, its centre filled. */
 export const OnlyThisIcon = () => (
   <Icon size={1.05}><circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="2.5" fill="currentColor" /></Icon>
 );

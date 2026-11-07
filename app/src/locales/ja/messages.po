@@ -491,11 +491,11 @@ msgid "{more, plural, one {It plays in # other place too.} other {It plays in # 
 msgstr "{more, plural, other {他の # か所でも再生されます。}}"
 
 #: src/store.tsx
-msgid "{moved, plural, one {**Every Sound** on # slot} other {**Every Sound** on # slots}}"
-msgstr "{moved, plural, other {# 個のスロットを**すべてのサウンド**に設定しました}}"
+msgid "{moved, plural, one {**Isolate Audio** on # slot} other {**Isolate Audio** on # slots}}"
+msgstr ""
 
 #: src/store.tsx
-msgid "{moved, plural, one {**Isolate Audio** on # slot} other {**Isolate Audio** on # slots}}"
+msgid "{moved, plural, one {**Keep Sharing** on # slot} other {**Keep Sharing** on # slots}}"
 msgstr ""
 
 #. An empty cue point box: the point it stands for, in ms, fitted to the new audio
@@ -707,8 +707,8 @@ msgid "{project} uses the tabs chosen on the Project tab."
 msgstr "{project}はプロジェクトタブで選んだタブを使います。"
 
 #: src/CueView.tsx
-msgid "{reachOwn, plural, one {Every Sound (# Slot)} other {Every Sound (# Slots)}}"
-msgstr "{reachOwn, plural, other {すべてのサウンド（# スロット）}}"
+msgid "{reachOwn, plural, one {Keep Sharing (# Slot)} other {Keep Sharing (# Slots)}}"
+msgstr ""
 
 #: src/CueView.tsx
 msgid "{reachShared, plural, one {Isolate Audio (# Slot)} other {Isolate Audio (# Slots)}}"
@@ -896,7 +896,7 @@ msgid "{together, plural, one {Play Together (# Slot)} other {Play Together (# S
 msgstr ""
 
 #: src/CueView.tsx
-msgid "{togetherCount, plural, one {The # selected slot at the same time} other {The # selected slots at the same time}}"
+msgid "{togetherCount, plural, one {The # selected slot at the same time, from the start. Up to 16 slots play at once.} other {The # selected slots at the same time, from the start. Up to 16 slots play at once.}}"
 msgstr ""
 
 #: src/CombinePage.tsx
@@ -1038,11 +1038,11 @@ msgid "**{what}** skipped"
 msgstr "**{what}**をスキップしました"
 
 #: src/store.tsx
-msgid "**Every Sound** on {moved} of {asked} slots. Another sound has new audio on the others"
-msgstr "{asked} 個中 {moved} 個のスロットを**すべてのサウンド**に設定しました。残りは他のサウンドに新しい音声があります"
+msgid "**Isolate Audio** on {moved} of {asked} slots"
+msgstr ""
 
 #: src/store.tsx
-msgid "**Isolate Audio** on {moved} of {asked} slots"
+msgid "**Keep Sharing** on {moved} of {asked} slots. Another sound has new audio on the others"
 msgstr ""
 
 #. Markdown. **Sequence 7** and **Sequence 8** are the names the slot list shows for these sequences.
@@ -2587,6 +2587,10 @@ msgstr "キー割り当てをクリックすると変更できます。Escでキ
 msgid "Click to keep it shown"
 msgstr "クリックすると表示したままにします"
 
+#: src/Inspector.tsx
+msgid "Clip Sharing Mode"
+msgstr ""
+
 #: src/CueView.tsx
 msgid "Clips that no sound in this bank plays"
 msgstr "このバンクのどのサウンドも再生しないクリップ"
@@ -3448,19 +3452,10 @@ msgstr "すべてのシーケンスが折りたたまれています"
 msgid "every sound"
 msgstr "すべてのサウンド"
 
-#: src/CueView.tsx
-#: src/Inspector.tsx
-msgid "Every Sound"
-msgstr "すべてのサウンド"
-
 #. Markdown. {libraryIcon} shows the icon of the Library tab. **Library** is the tab name and must read as the translation of the tab name does.
 #: src/tutorials.ts
 msgid "Every sound in the game is in the {libraryIcon} **Library**. Open it."
 msgstr "ゲームのすべてのサウンドは{libraryIcon} **ライブラリ**にあります。開いてください。"
-
-#: src/CueView.tsx
-msgid "Every Sound on All"
-msgstr "すべてすべてのサウンドに"
 
 #. Edit in Undo, Redo and History: the new audio of a slot set to play in every sound that plays the clip
 #. Edit in Undo, Redo and History: the new audio of a slot set to play in every sound that plays the clip
@@ -4424,6 +4419,15 @@ msgstr "元の長さを保つ"
 #: src/CueView.tsx
 msgid "Keep original duration, in the details, sets this"
 msgstr "詳細の「元の長さを保つ」で設定します"
+
+#: src/CueView.tsx
+#: src/Inspector.tsx
+msgid "Keep Sharing"
+msgstr ""
+
+#: src/CueView.tsx
+msgid "Keep Sharing on All"
+msgstr ""
 
 #: src/ImportMod.tsx
 msgid "Keep the mod ID"
@@ -6422,10 +6426,6 @@ msgstr "{0} dBで再生"
 msgid "Plays for"
 msgstr "再生時間"
 
-#: src/Inspector.tsx
-msgid "Plays In"
-msgstr "再生先"
-
 #: src/CueView.tsx
 msgid "Plays nothing for the length of the original, so the timing doesn't change"
 msgstr "オリジナルの長さだけ何も再生しないため、タイミングは変わりません"
@@ -7415,7 +7415,7 @@ msgid "Several small mods are easier to keep as one."
 msgstr "複数の小さなMODは、1つにまとめると管理しやすくなります。"
 
 #: src/Inspector.tsx
-msgid "Several sounds can play the same clip. A replacement changes it in all of them, and Isolate Audio keeps it to this sound."
+msgid "Several sounds can play the same clip. Keep Sharing changes it in all of them, and Isolate Audio keeps the new audio to this sound."
 msgstr ""
 
 #: src/Inspector.tsx
@@ -8883,7 +8883,7 @@ msgid "To change the piece everywhere, give each variant new audio"
 msgstr "すべての場所で曲を変えるには、各バリアントに新しい音声を割り当ててください"
 
 #: src/CueView.tsx
-msgid "To limit it to this sound, choose Isolate Audio under Plays In, in the details"
+msgid "To limit it to this sound, choose Isolate Audio under Clip Sharing Mode, in the details"
 msgstr ""
 
 #: src/api.ts

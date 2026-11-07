@@ -491,11 +491,11 @@ msgid "{more, plural, one {It plays in # other place too.} other {It plays in # 
 msgstr "{more, plural, other {它也在其他 # 处播放。}}"
 
 #: src/store.tsx
-msgid "{moved, plural, one {**Every Sound** on # slot} other {**Every Sound** on # slots}}"
-msgstr "{moved, plural, other {已在 # 个槽位上设为**所有声音**}}"
+msgid "{moved, plural, one {**Isolate Audio** on # slot} other {**Isolate Audio** on # slots}}"
+msgstr ""
 
 #: src/store.tsx
-msgid "{moved, plural, one {**Isolate Audio** on # slot} other {**Isolate Audio** on # slots}}"
+msgid "{moved, plural, one {**Keep Sharing** on # slot} other {**Keep Sharing** on # slots}}"
 msgstr ""
 
 #. An empty cue point box: the point it stands for, in ms, fitted to the new audio
@@ -707,8 +707,8 @@ msgid "{project} uses the tabs chosen on the Project tab."
 msgstr "{project} 沿用项目选项卡中选定的选项卡。"
 
 #: src/CueView.tsx
-msgid "{reachOwn, plural, one {Every Sound (# Slot)} other {Every Sound (# Slots)}}"
-msgstr "{reachOwn, plural, other {所有声音（# 个槽位）}}"
+msgid "{reachOwn, plural, one {Keep Sharing (# Slot)} other {Keep Sharing (# Slots)}}"
+msgstr ""
 
 #: src/CueView.tsx
 msgid "{reachShared, plural, one {Isolate Audio (# Slot)} other {Isolate Audio (# Slots)}}"
@@ -896,7 +896,7 @@ msgid "{together, plural, one {Play Together (# Slot)} other {Play Together (# S
 msgstr ""
 
 #: src/CueView.tsx
-msgid "{togetherCount, plural, one {The # selected slot at the same time} other {The # selected slots at the same time}}"
+msgid "{togetherCount, plural, one {The # selected slot at the same time, from the start. Up to 16 slots play at once.} other {The # selected slots at the same time, from the start. Up to 16 slots play at once.}}"
 msgstr ""
 
 #: src/CombinePage.tsx
@@ -1038,11 +1038,11 @@ msgid "**{what}** skipped"
 msgstr "已跳过 **{what}**"
 
 #: src/store.tsx
-msgid "**Every Sound** on {moved} of {asked} slots. Another sound has new audio on the others"
-msgstr "已在 {asked} 个槽位中的 {moved} 个上设为**所有声音**。其余槽位有其他声音带新音频"
+msgid "**Isolate Audio** on {moved} of {asked} slots"
+msgstr ""
 
 #: src/store.tsx
-msgid "**Isolate Audio** on {moved} of {asked} slots"
+msgid "**Keep Sharing** on {moved} of {asked} slots. Another sound has new audio on the others"
 msgstr ""
 
 #. Markdown. **Sequence 7** and **Sequence 8** are the names the slot list shows for these sequences.
@@ -2587,6 +2587,10 @@ msgstr "点击按键绑定即可更改。按 Esc 取消。<0/>每个按键只能
 msgid "Click to keep it shown"
 msgstr "点击可保持显示"
 
+#: src/Inspector.tsx
+msgid "Clip Sharing Mode"
+msgstr ""
+
 #: src/CueView.tsx
 msgid "Clips that no sound in this bank plays"
 msgstr "此音频库中没有任何声音播放的片段"
@@ -3448,19 +3452,10 @@ msgstr "所有序列均已折叠"
 msgid "every sound"
 msgstr "所有声音"
 
-#: src/CueView.tsx
-#: src/Inspector.tsx
-msgid "Every Sound"
-msgstr "所有声音"
-
 #. Markdown. {libraryIcon} shows the icon of the Library tab. **Library** is the tab name and must read as the translation of the tab name does.
 #: src/tutorials.ts
 msgid "Every sound in the game is in the {libraryIcon} **Library**. Open it."
 msgstr "游戏中的每个声音都在 {libraryIcon} **资源库**中。请打开它。"
-
-#: src/CueView.tsx
-msgid "Every Sound on All"
-msgstr "全部设为所有声音"
 
 #. Edit in Undo, Redo and History: the new audio of a slot set to play in every sound that plays the clip
 #. Edit in Undo, Redo and History: the new audio of a slot set to play in every sound that plays the clip
@@ -4424,6 +4419,15 @@ msgstr "保持原版时长"
 #: src/CueView.tsx
 msgid "Keep original duration, in the details, sets this"
 msgstr "由详情中的“保持原始时长”设置"
+
+#: src/CueView.tsx
+#: src/Inspector.tsx
+msgid "Keep Sharing"
+msgstr ""
+
+#: src/CueView.tsx
+msgid "Keep Sharing on All"
+msgstr ""
 
 #: src/ImportMod.tsx
 msgid "Keep the mod ID"
@@ -6422,10 +6426,6 @@ msgstr "实际为 {0} dB"
 msgid "Plays for"
 msgstr "播放时长"
 
-#: src/Inspector.tsx
-msgid "Plays In"
-msgstr "播放范围"
-
 #: src/CueView.tsx
 msgid "Plays nothing for the length of the original, so the timing doesn't change"
 msgstr "在原版的时长内不播放任何声音，因此时序不变"
@@ -7415,7 +7415,7 @@ msgid "Several small mods are easier to keep as one."
 msgstr "将多个小模组合并为一个，更便于管理。"
 
 #: src/Inspector.tsx
-msgid "Several sounds can play the same clip. A replacement changes it in all of them, and Isolate Audio keeps it to this sound."
+msgid "Several sounds can play the same clip. Keep Sharing changes it in all of them, and Isolate Audio keeps the new audio to this sound."
 msgstr ""
 
 #: src/Inspector.tsx
@@ -8883,7 +8883,7 @@ msgid "To change the piece everywhere, give each variant new audio"
 msgstr "要在所有地方更改此曲目，请为每个版本提供新音频"
 
 #: src/CueView.tsx
-msgid "To limit it to this sound, choose Isolate Audio under Plays In, in the details"
+msgid "To limit it to this sound, choose Isolate Audio under Clip Sharing Mode, in the details"
 msgstr ""
 
 #: src/api.ts

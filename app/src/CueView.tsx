@@ -579,7 +579,7 @@ function CueBody({ cue }: { cue: Cue }) {
     const count = sel.length, usableCount = silenceable.length, copied = clip.length;
     const many = count > 1;
     const adds = addEntries(r);
-    // where the new audio plays (Plays In): the slots with new audio whose clip other sounds play too
+    // where the new audio plays (Clip Sharing Mode): the slots with new audio whose clip other sounds play too
     const reach = project?.game === "hd1" ? [] : chosen.filter((x) => assigned[x.slot.source] && choosesReach(x.slot)).map((x) => x.slot);
     const reachOwn = reach.filter((x) => x.was).length, reachShared = reach.length - reachOwn;
     const entries: MenuEntry[] = [
@@ -609,7 +609,7 @@ function CueBody({ cue }: { cue: Cue }) {
       ...(reach.length ? ["-" as const] : []),
       ...(reachShared ? [{ label: many ? plural(reachShared, { one: "Isolate Audio (# Slot)", other: "Isolate Audio (# Slots)" }) : t`Isolate Audio`,
         run: () => actions.onlyTheseSounds(reach, true) } as MenuEntry] : []),
-      ...(reachOwn ? [{ label: many ? plural(reachOwn, { one: "Every Sound (# Slot)", other: "Every Sound (# Slots)" }) : t`Every Sound`,
+      ...(reachOwn ? [{ label: many ? plural(reachOwn, { one: "Keep Sharing (# Slot)", other: "Keep Sharing (# Slots)" }) : t`Keep Sharing`,
         run: () => actions.onlyTheseSounds(reach, false) } as MenuEntry] : []),
       ...(adds.length ? ["-" as const, ...adds] : []),
       "-",
@@ -772,7 +772,10 @@ function CueBody({ cue }: { cue: Cue }) {
         <div className="tools">
           {togetherCount > 1 && (
             <ToolButton icon={<PlayTogetherIcon />} name={t`Play together`} cmd="playTogether"
-              about={plural(togetherCount, { one: "The # selected slot at the same time", other: "The # selected slots at the same time" })}
+              about={plural(togetherCount, {
+                one: "The # selected slot at the same time, from the start. Up to 16 slots play at once.",
+                other: "The # selected slots at the same time, from the start. Up to 16 slots play at once.",
+              })}
               onClick={() => { playTogether(selected); }} />
           )}
           {!readOnly && music && cue.kind !== "sound" && (
@@ -800,10 +803,10 @@ function CueBody({ cue }: { cue: Cue }) {
               }) : t`Replace with a short silence, so the next music starts right away`} />
           )}
           {!readOnly && project?.game !== "hd1" && (() => {
-            // Plays In for all of it, folded sequences too: Isolate Audio until they all have it, then back
+            // Clip Sharing Mode for all of it, folded sequences too: Isolate Audio until they all have it, then back
             const reach = all.filter((r) => assigned[r.slot.source] && choosesReach(r.slot)).map((r) => r.slot);
             const shared = reach.filter((s) => !s.was).length, only = shared > 0, count = only ? shared : reach.length;
-            return reach.length > 0 && <ToolButton icon={<OnlyThisIcon />} name={only ? t`Isolate Audio on All` : t`Every Sound on All`}
+            return reach.length > 0 && <ToolButton icon={<OnlyThisIcon />} name={only ? t`Isolate Audio on All` : t`Keep Sharing on All`}
               about={only ? plural(count, { one: "New audio plays only in the sound it replaces, on the # slot here that other sounds share", other: "New audio plays only in the sound it replaces, on the # slots here that other sounds share" })
                 : plural(count, { one: "New audio plays in every sound again, on the # slot here", other: "New audio plays in every sound again, on the # slots here" })}
               onClick={() => actions.onlyTheseSounds(reach, only)} />;
@@ -920,7 +923,7 @@ const ADDED_TIP = {
 };
 /** On a slot with new audio that other sounds play too: where the new audio goes, and that it can go in this one alone. */
 function EveryTag() {
-  return <span className="tag" data-tip={t`The new audio plays in every sound that plays this clip`} data-tip-more={t`To limit it to this sound, choose Isolate Audio under Plays In, in the details`}>
+  return <span className="tag" data-tip={t`The new audio plays in every sound that plays this clip`} data-tip-more={t`To limit it to this sound, choose Isolate Audio under Clip Sharing Mode, in the details`}>
     {t({ message: "every sound", comment: "Tag on a slot whose new audio plays in every sound that plays the clip" })}</span>;
 }
 /** The tag on a clip that other sounds play new audio in place of (Isolate Audio, there), on the sounds that keep

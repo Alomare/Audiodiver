@@ -491,12 +491,12 @@ msgid "{more, plural, one {It plays in # other place too.} other {It plays in # 
 msgstr "{more, plural, one {It plays in # other place too.} other {It plays in # other places too.}}"
 
 #: src/store.tsx
-msgid "{moved, plural, one {**Every Sound** on # slot} other {**Every Sound** on # slots}}"
-msgstr "{moved, plural, one {**Every Sound** on # slot} other {**Every Sound** on # slots}}"
-
-#: src/store.tsx
 msgid "{moved, plural, one {**Isolate Audio** on # slot} other {**Isolate Audio** on # slots}}"
 msgstr "{moved, plural, one {**Isolate Audio** on # slot} other {**Isolate Audio** on # slots}}"
+
+#: src/store.tsx
+msgid "{moved, plural, one {**Keep Sharing** on # slot} other {**Keep Sharing** on # slots}}"
+msgstr "{moved, plural, one {**Keep Sharing** on # slot} other {**Keep Sharing** on # slots}}"
 
 #. An empty cue point box: the point it stands for, in ms, fitted to the new audio
 #: src/Inspector.tsx
@@ -707,8 +707,8 @@ msgid "{project} uses the tabs chosen on the Project tab."
 msgstr "{project} uses the tabs chosen on the Project tab."
 
 #: src/CueView.tsx
-msgid "{reachOwn, plural, one {Every Sound (# Slot)} other {Every Sound (# Slots)}}"
-msgstr "{reachOwn, plural, one {Every Sound (# Slot)} other {Every Sound (# Slots)}}"
+msgid "{reachOwn, plural, one {Keep Sharing (# Slot)} other {Keep Sharing (# Slots)}}"
+msgstr "{reachOwn, plural, one {Keep Sharing (# Slot)} other {Keep Sharing (# Slots)}}"
 
 #: src/CueView.tsx
 msgid "{reachShared, plural, one {Isolate Audio (# Slot)} other {Isolate Audio (# Slots)}}"
@@ -896,8 +896,8 @@ msgid "{together, plural, one {Play Together (# Slot)} other {Play Together (# S
 msgstr "{together, plural, one {Play Together (# Slot)} other {Play Together (# Slots)}}"
 
 #: src/CueView.tsx
-msgid "{togetherCount, plural, one {The # selected slot at the same time} other {The # selected slots at the same time}}"
-msgstr "{togetherCount, plural, one {The # selected slot at the same time} other {The # selected slots at the same time}}"
+msgid "{togetherCount, plural, one {The # selected slot at the same time, from the start. Up to 16 slots play at once.} other {The # selected slots at the same time, from the start. Up to 16 slots play at once.}}"
+msgstr "{togetherCount, plural, one {The # selected slot at the same time, from the start. Up to 16 slots play at once.} other {The # selected slots at the same time, from the start. Up to 16 slots play at once.}}"
 
 #: src/CombinePage.tsx
 msgid "{total, plural, one {# conflict} other {# conflicts}} in {items, plural, one {# item} other {# items}}"
@@ -1038,12 +1038,12 @@ msgid "**{what}** skipped"
 msgstr "**{what}** skipped"
 
 #: src/store.tsx
-msgid "**Every Sound** on {moved} of {asked} slots. Another sound has new audio on the others"
-msgstr "**Every Sound** on {moved} of {asked} slots. Another sound has new audio on the others"
-
-#: src/store.tsx
 msgid "**Isolate Audio** on {moved} of {asked} slots"
 msgstr "**Isolate Audio** on {moved} of {asked} slots"
+
+#: src/store.tsx
+msgid "**Keep Sharing** on {moved} of {asked} slots. Another sound has new audio on the others"
+msgstr "**Keep Sharing** on {moved} of {asked} slots. Another sound has new audio on the others"
 
 #. Markdown. **Sequence 7** and **Sequence 8** are the names the slot list shows for these sequences.
 #: src/tutorials.ts
@@ -2587,6 +2587,10 @@ msgstr "Click on a key bind to change it. Press Esc to cancel.<0/>Key functions 
 msgid "Click to keep it shown"
 msgstr "Click to keep it shown"
 
+#: src/Inspector.tsx
+msgid "Clip Sharing Mode"
+msgstr "Clip Sharing Mode"
+
 #: src/CueView.tsx
 msgid "Clips that no sound in this bank plays"
 msgstr "Clips that no sound in this bank plays"
@@ -3448,19 +3452,10 @@ msgstr "Every sequence is collapsed"
 msgid "every sound"
 msgstr "every sound"
 
-#: src/CueView.tsx
-#: src/Inspector.tsx
-msgid "Every Sound"
-msgstr "Every Sound"
-
 #. Markdown. {libraryIcon} shows the icon of the Library tab. **Library** is the tab name and must read as the translation of the tab name does.
 #: src/tutorials.ts
 msgid "Every sound in the game is in the {libraryIcon} **Library**. Open it."
 msgstr "Every sound in the game is in the {libraryIcon} **Library**. Open it."
-
-#: src/CueView.tsx
-msgid "Every Sound on All"
-msgstr "Every Sound on All"
 
 #. Edit in Undo, Redo and History: the new audio of a slot set to play in every sound that plays the clip
 #. Edit in Undo, Redo and History: the new audio of a slot set to play in every sound that plays the clip
@@ -4424,6 +4419,15 @@ msgstr "Keep original duration"
 #: src/CueView.tsx
 msgid "Keep original duration, in the details, sets this"
 msgstr "Keep original duration, in the details, sets this"
+
+#: src/CueView.tsx
+#: src/Inspector.tsx
+msgid "Keep Sharing"
+msgstr "Keep Sharing"
+
+#: src/CueView.tsx
+msgid "Keep Sharing on All"
+msgstr "Keep Sharing on All"
 
 #: src/ImportMod.tsx
 msgid "Keep the mod ID"
@@ -6422,10 +6426,6 @@ msgstr "plays at {0} dB"
 msgid "Plays for"
 msgstr "Plays for"
 
-#: src/Inspector.tsx
-msgid "Plays In"
-msgstr "Plays In"
-
 #: src/CueView.tsx
 msgid "Plays nothing for the length of the original, so the timing doesn't change"
 msgstr "Plays nothing for the length of the original, so the timing doesn't change"
@@ -7415,8 +7415,8 @@ msgid "Several small mods are easier to keep as one."
 msgstr "Several small mods are easier to keep as one."
 
 #: src/Inspector.tsx
-msgid "Several sounds can play the same clip. A replacement changes it in all of them, and Isolate Audio keeps it to this sound."
-msgstr "Several sounds can play the same clip. A replacement changes it in all of them, and Isolate Audio keeps it to this sound."
+msgid "Several sounds can play the same clip. Keep Sharing changes it in all of them, and Isolate Audio keeps the new audio to this sound."
+msgstr "Several sounds can play the same clip. Keep Sharing changes it in all of them, and Isolate Audio keeps the new audio to this sound."
 
 #: src/Inspector.tsx
 msgid "Several subtitles have these words, and the game files don't show which one matches this recording. The Text tab lists them all and opens the most likely one"
@@ -8883,8 +8883,8 @@ msgid "To change the piece everywhere, give each variant new audio"
 msgstr "To change the piece everywhere, give each variant new audio"
 
 #: src/CueView.tsx
-msgid "To limit it to this sound, choose Isolate Audio under Plays In, in the details"
-msgstr "To limit it to this sound, choose Isolate Audio under Plays In, in the details"
+msgid "To limit it to this sound, choose Isolate Audio under Clip Sharing Mode, in the details"
+msgstr "To limit it to this sound, choose Isolate Audio under Clip Sharing Mode, in the details"
 
 #: src/api.ts
 msgid "today, {time}"

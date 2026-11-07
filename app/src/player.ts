@@ -221,11 +221,12 @@ export const player = {
     }
     start(key, url, Math.max(0, startSec), label ?? "", at);
   },
-  /** Plays several sounds at once, from the start, as one thing under `key` (the same key pauses and resumes them).
-      `parts`: each sound's own key, which its Make-Up Gain goes by, and its url; at most TOGETHER_MAX are taken. A
-      part that can't be read is left out; none readable is an error, as for one sound. */
+  /** Plays several sounds at once, from the start, as one thing under `key`; the same key again starts them over
+      (the now-playing bar pauses and resumes them). `parts`: each sound's own key, which its Make-Up Gain goes by,
+      and its url; at most TOGETHER_MAX are taken. A part that can't be read is left out; none readable is an error,
+      as for one sound. */
   playTogether(key: string, parts: { key: string; url: string }[], label = "", at: PlayedAt | null = null) {
-    if (state.key === key && mix) { player.toggle(); return; }
+    if (state.key === key && mix) { mixAt(0); return; }
     load = null; stopAt = null;
     audio.pause();
     endMix();

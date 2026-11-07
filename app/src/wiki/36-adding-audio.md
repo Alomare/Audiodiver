@@ -20,13 +20,13 @@ A layer plays along with a sound every time, like a deeper boom under a gunshot.
 
 ## Isolate audio
 
-Several sounds often play the same clip, and replacing the clip changes it in all of them. To keep a replacement to one sound, set **Plays In** in the details of the slot to **Isolate Audio**. The other sounds then keep the Original, and their slots show **replaced in another sound**. A note under the choice says how many banks it changes.
+Several sounds often play the same clip, and replacing the clip changes it in all of them. To keep a replacement to one sound, set **Clip Sharing Mode** in the details of the slot to **Isolate Audio**. The other sounds then keep the Original, and their slots show **replaced in another sound**. A note under the choice says how many banks it changes.
 
-A slot with new audio that other sounds share shows **every sound** until then. For several sounds at once, tick their slots and choose in the details, or right-click them. **Isolate Audio on All** in the toolbar does the whole bank.
+A slot with new audio that other sounds share is on **Keep Sharing** and shows **every sound** until then. For several sounds at once, tick their slots and choose in the details, or right-click them. **Isolate Audio on All** in the toolbar does the whole bank.
 
 The new audio goes into the mod under a new ID. Tools that list clips by ID show the old ID with the Original, though the game plays the new audio in that sound.
 
-Isolate Audio works per sound. When the game copies a whole sound into other banks, like the weapon handling sounds in every weapon bank, the copies are the same sound and all of them change. **Plays In** names the banks that have the same sound.
+Isolate Audio works per sound. When the game copies a whole sound into other banks, like the weapon handling sounds in every weapon bank, the copies are the same sound and all of them change. **Clip Sharing Mode** names the banks that have the same sound.
 
 ## Size
 
