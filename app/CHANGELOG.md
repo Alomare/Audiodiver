@@ -3,13 +3,13 @@
 The Updates tab shows this file. Each release starts with a second-level heading, `<version> - <date>`,
 newest first.
 
-## 1.7.0 - 2026-11-07
+## 1.7.1 - 2026-11-07
 
 ### Highlights
 
 #### Patch Content
 
-Added **Patch Content** to Tools. It opens a mod as it is, lists every sound in its patches with those the game no longer has first, plays the audio as the mod has it, and writes the mod again with new audio or silence for the sounds you choose. It works in Audiodiver Utils too.
+Added **Patch Content** to Tools. It opens a mod as it is, lists every sound in the mod's patches with those the game no longer has first, plays the audio as the mod has it, and writes the mod again with new audio or silence for the sounds you choose. It works in Audiodiver Utils too.
 
 #### Play Together
 
