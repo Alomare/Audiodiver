@@ -2,7 +2,7 @@
 title: Texte et sous-titres
 group: Créer un mod
 summary: Modifier les sous-titres et toute autre ligne du texte du jeu dans l’onglet Texte, y compris les mots, les couleurs et les tailles, et ce qu’il faut laisser intact.
-source: d48b85a4f8e6
+source: 9c5e38424ff4
 ---
 
 L’onglet [Texte](app:text) contient chaque ligne du texte du jeu dans toutes les langues, y compris les sous-titres des répliques, les textes de mission et de menu, et les noms. Recherchez une ligne pour la modifier, et le mod inclut la modification.
@@ -15,7 +15,7 @@ Le panneau de droite montre l’**Original**, la zone **Nouveau texte** en desso
 
 ## Modifier une ligne {#changing-a-line}
 
-Saisissez dans **Nouveau texte**. La modification est enregistrée peu après que vous avez cessé de taper, ou immédiatement avec {key:save}, et chaque enregistrement compte pour une étape de {key:undo}. **Restaurer l’original** remet la ligne d’origine.
+Saisissez dans **Nouveau texte**. La modification est enregistrée peu après que vous avez cessé de taper, ou immédiatement avec {key:save}, et chaque enregistrement compte pour une étape de {key:undo}. **Restaurer original** remet la ligne d’origine.
 
 Pour mettre en forme une partie d’une ligne, sélectionnez les mots et utilisez la barre au-dessus de la zone. Elle contient **Couleur**, **Taille** et **Mise en valeur**, ainsi que **Minutage** pour les sous-titres. Quand rien n’est sélectionné, un bouton met en forme toute la ligne. **Effacer la mise en forme** retire toutes les couleurs, tailles et styles.
 
@@ -34,7 +34,7 @@ Pour mettre en forme une partie d’une ligne, sélectionnez les mots et utilise
 
 ## Exporter et importer {#exporting-and-importing}
 
-**Exporter** enregistre des lignes dans un fichier CSV ou JSON : les lignes sélectionnées, changées, affichées ou une catégorie. Une seconde langue ajoute une colonne. Cochez une ligne pour la sélectionner, et utilisez Maj+clic pour en sélectionner une suite. **Restaurer l’original** fonctionne aussi sur les lignes sélectionnées.
+**Exporter** enregistre des lignes dans un fichier CSV ou JSON : les lignes sélectionnées, changées, affichées ou une catégorie. Une seconde langue ajoute une colonne. Cochez une ligne pour la sélectionner, et utilisez Maj+clic pour en sélectionner une suite. **Restaurer original** fonctionne aussi sur les lignes sélectionnées.
 
 Remplissez la colonne **New text** dans un tableur, sans changer les colonnes **Language** et **ID**. **Importer** lit le fichier et montre ce qui change avant de l’appliquer, en une seule étape de {key:undo}. Une ligne sans nouveau texte reste telle quelle, et celles qui ont perdu leur minutage ou des mots remplis par le jeu restent de côté, sauf si vous décochez cette option.
 

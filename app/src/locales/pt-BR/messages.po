@@ -31,7 +31,7 @@ msgstr "{0, plural, one {# som} other {# sons}} em {1, plural, one {# banco} oth
 #. placeholder {0}: sel.length
 #: src/CueView.tsx
 msgid "{0, plural, one {Copy Audio (# Slot)} other {Copy Audio (# Slots)}}"
-msgstr "{0, plural, one {Copiar o áudio (# slot)} other {Copiar o áudio (# slots)}}"
+msgstr "{0, plural, one {Copiar áudio (# slot)} other {Copiar áudio (# slots)}}"
 
 #. placeholder {0}: r.count
 #: src/SettingsTab.tsx
@@ -133,7 +133,7 @@ msgstr "{count, plural, one {{full} (# slot)} other {{full} (# slots)}}"
 
 #: src/CueView.tsx
 msgid "{count, plural, one {{name} · # slot together} other {{name} · # slots together}}"
-msgstr ""
+msgstr "{count, plural, one {{name} · # slot junto} other {{name} · # slots juntos}}"
 
 #: src/Inspector.tsx
 msgid "{count, plural, one {# Cue} other {# Cues}}"
@@ -218,11 +218,11 @@ msgstr "{count, plural, one {Clique aqui para vê-lo na Wiki.} other {Clique aqu
 
 #: src/CueView.tsx
 msgid "{count, plural, one {Copy New Audio (# Slot)} other {Copy New Audio (# Slots)}}"
-msgstr "{count, plural, one {Copiar o áudio novo (# slot)} other {Copiar o áudio novo (# slots)}}"
+msgstr "{count, plural, one {Copiar áudio novo (# slot)} other {Copiar áudio novo (# slots)}}"
 
 #: src/CueView.tsx
 msgid "{count, plural, one {Copy Original (# Slot)} other {Copy Original (# Slots)}}"
-msgstr "{count, plural, one {Copiar o original (# slot)} other {Copiar o original (# slots)}}"
+msgstr "{count, plural, one {Copiar original (# slot)} other {Copiar original (# slots)}}"
 
 #: src/SettingsTab.tsx
 msgid "{count, plural, one {Every # minute} other {Every # minutes}}"
@@ -242,11 +242,11 @@ msgstr "{count, plural, one {Colar (# slot)} other {Colar (# slots)}}"
 
 #: src/CueView.tsx
 msgid "{count, plural, one {Remove New Audio (# Slot)} other {Remove New Audio (# Slots)}}"
-msgstr "{count, plural, one {Remover o áudio novo (# slot)} other {Remover o áudio novo (# slots)}}"
+msgstr "{count, plural, one {Remover áudio novo (# slot)} other {Remover áudio novo (# slots)}}"
 
 #: src/CueView.tsx
 msgid "{count, plural, one {Remove New Audio from # Take} other {Remove New Audio from # Takes}}"
-msgstr "{count, plural, one {Remover o áudio novo do # take} other {Remover o áudio novo dos # takes}}"
+msgstr "{count, plural, one {Remover áudio novo do # take} other {Remover áudio novo dos # takes}}"
 
 #: src/TextTools.tsx
 msgid "{count, plural, one {Replace in # Line} other {Replace in # Lines}}"
@@ -492,11 +492,11 @@ msgstr "{more, plural, one {Também toca em # outro lugar.} other {Também toca 
 
 #: src/store.tsx
 msgid "{moved, plural, one {**Isolate Audio** on # slot} other {**Isolate Audio** on # slots}}"
-msgstr ""
+msgstr "{moved, plural, one {**Isolar áudio** em # slot} other {**Isolar áudio** em # slots}}"
 
 #: src/store.tsx
 msgid "{moved, plural, one {**Keep Sharing** on # slot} other {**Keep Sharing** on # slots}}"
-msgstr ""
+msgstr "{moved, plural, one {**Manter compartilhado** em # slot} other {**Manter compartilhado** em # slots}}"
 
 #. An empty cue point box: the point it stands for, in ms, fitted to the new audio
 #: src/Inspector.tsx
@@ -708,11 +708,11 @@ msgstr "{project} usa as abas escolhidas na aba Projeto."
 
 #: src/CueView.tsx
 msgid "{reachOwn, plural, one {Keep Sharing (# Slot)} other {Keep Sharing (# Slots)}}"
-msgstr ""
+msgstr "{reachOwn, plural, one {Manter compartilhado (# slot)} other {Manter compartilhado (# slots)}}"
 
 #: src/CueView.tsx
 msgid "{reachShared, plural, one {Isolate Audio (# Slot)} other {Isolate Audio (# Slots)}}"
-msgstr ""
+msgstr "{reachShared, plural, one {Isolar áudio (# slot)} other {Isolar áudio (# slots)}}"
 
 #: src/ProjectTab.tsx
 msgid "{removed, plural, one {# file moved to the Recycle Bin} other {# files moved to the Recycle Bin}}"
@@ -828,7 +828,7 @@ msgstr "{sounds, plural, one {# som deixado de fora} other {# sons deixados de f
 
 #: src/music.ts
 msgid "{sounds, plural, one {Isolate Audio can't keep the Original in {places}, where # of these sounds also plays.} other {Isolate Audio can't keep the Original in {places}, where # of these sounds also play.}}"
-msgstr ""
+msgstr "{sounds, plural, one {Isolar áudio não consegue manter o Original em {places}, onde # destes sons também toca.} other {Isolar áudio não consegue manter o Original em {places}, onde # destes sons também tocam.}}"
 
 #: src/RepatchPage.tsx
 msgid "{sounds, plural, one {up to # sound left out} other {up to # sounds left out}}"
@@ -893,11 +893,11 @@ msgstr "{titles}."
 
 #: src/CueView.tsx
 msgid "{together, plural, one {Play Together (# Slot)} other {Play Together (# Slots)}}"
-msgstr ""
+msgstr "{together, plural, one {Reproduzir juntos (# slot)} other {Reproduzir juntos (# slots)}}"
 
 #: src/CueView.tsx
 msgid "{togetherCount, plural, one {The # selected slot at the same time, from the start. Up to 16 slots play at once.} other {The # selected slots at the same time, from the start. Up to 16 slots play at once.}}"
-msgstr ""
+msgstr "{togetherCount, plural, one {O # slot selecionado ao mesmo tempo, desde o início. Até 16 slots tocam de uma vez.} other {Os # slots selecionados ao mesmo tempo, desde o início. Até 16 slots tocam de uma vez.}}"
 
 #: src/CombinePage.tsx
 msgid "{total, plural, one {# conflict} other {# conflicts}} in {items, plural, one {# item} other {# items}}"
@@ -1039,11 +1039,11 @@ msgstr "O jogo agora pula **{what}**"
 
 #: src/store.tsx
 msgid "**Isolate Audio** on {moved} of {asked} slots"
-msgstr ""
+msgstr "**Isolar áudio** em {moved} de {asked} slots"
 
 #: src/store.tsx
 msgid "**Keep Sharing** on {moved} of {asked} slots. Another sound has new audio on the others"
-msgstr ""
+msgstr "**Manter compartilhado** em {moved} de {asked} slots. Outro som tem áudio novo nos demais"
 
 #. Markdown. **Sequence 7** and **Sequence 8** are the names the slot list shows for these sequences.
 #: src/tutorials.ts
@@ -1384,7 +1384,7 @@ msgstr "Sobre o {APP_NAME}"
 
 #: src/IndexTree.tsx
 msgid "Add {count} Not in Project"
-msgstr "Adicionar os {count} que não estão no projeto"
+msgstr "Adicionar {count} que não estão no projeto"
 
 #: src/CueView.tsx
 msgid "Add {name} to Project"
@@ -1449,7 +1449,7 @@ msgstr "Adicione ao projeto e depois solte o áudio nos slots da aba Áudio"
 
 #: src/tutorials.ts
 msgid "Add Liberator"
-msgstr "Adicionar o Liberador"
+msgstr "Adicionar Liberador"
 
 #: src/CueView.tsx
 msgid "Add new audio"
@@ -2004,7 +2004,7 @@ msgstr "Traga para as notas globais as notas de um arquivo de notas exportado ou
 
 #: src/Wiki.tsx
 msgid "Bring Wiki Back"
-msgstr "Trazer a Wiki de volta"
+msgstr "Trazer Wiki de volta"
 
 #. The name of the Build tab, as the title of a tutorial step
 #. Title of the Build tab
@@ -2186,7 +2186,7 @@ msgstr "Alterar"
 
 #: src/Soundtrack.tsx
 msgid "Change Cuts"
-msgstr "Alterar os cortes"
+msgstr "Alterar cortes"
 
 #: src/tutorials.ts
 msgid "Change Them Too"
@@ -2461,7 +2461,7 @@ msgstr "Escolher arquivos"
 
 #: src/App.tsx
 msgid "Choose Game Folder"
-msgstr "Escolher a pasta do jogo"
+msgstr "Escolher pasta do jogo"
 
 #: src/ProjectTab.tsx
 msgid "Choose it before sharing. Mod managers keep the name from the first import. Leave out the version."
@@ -2543,7 +2543,7 @@ msgstr "Limpar formatação"
 
 #: src/ExportDialog.tsx
 msgid "Clear List"
-msgstr "Limpar a lista"
+msgstr "Limpar lista"
 
 #: src/CueView.tsx
 msgid "Clear the selection"
@@ -2586,7 +2586,7 @@ msgstr "Clique para mantê-la visível"
 
 #: src/Inspector.tsx
 msgid "Clip Sharing Mode"
-msgstr ""
+msgstr "Modo de compartilhamento do clipe"
 
 #: src/CueView.tsx
 msgid "Clips that no sound in this bank plays"
@@ -2837,40 +2837,40 @@ msgstr "copiar / colar"
 
 #: src/Library.tsx
 msgid "Copy Archive Name"
-msgstr "Copiar o nome do pacote"
+msgstr "Copiar nome do pacote"
 
 #: src/CueView.tsx
 msgid "Copy Audio"
-msgstr "Copiar o áudio"
+msgstr "Copiar áudio"
 
 #: src/CueView.tsx
 msgid "Copy Container ID"
-msgstr "Copiar o ID de contêiner"
+msgstr "Copiar ID de contêiner"
 
 #: src/CueView.tsx
 #: src/TextTab.tsx
 msgid "Copy ID"
-msgstr "Copiar o ID"
+msgstr "Copiar ID"
 
 #: src/CueView.tsx
 msgid "Copy New Audio"
-msgstr "Copiar o áudio novo"
+msgstr "Copiar áudio novo"
 
 #: src/CueView.tsx
 msgid "Copy Original"
-msgstr "Copiar o original"
+msgstr "Copiar original"
 
 #: src/CueView.tsx
 msgid "Copy Sound ID"
-msgstr "Copiar o ID do som"
+msgstr "Copiar ID do som"
 
 #: src/CueView.tsx
 msgid "Copy Source ID"
-msgstr "Copiar o ID da fonte"
+msgstr "Copiar ID da fonte"
 
 #: src/CueView.tsx
 msgid "Copy Stream ID"
-msgstr "Copiar o ID do stream"
+msgstr "Copiar ID do stream"
 
 #: src/keys.ts
 msgid "Copy the audio of the selected slots"
@@ -2896,7 +2896,7 @@ msgstr "Copiar para"
 
 #: src/CueView.tsx
 msgid "Copy Track ID"
-msgstr "Copiar o ID da faixa"
+msgstr "Copiar ID da faixa"
 
 #. The version of the Audiodiver core, the program behind the window
 #: src/About.tsx
@@ -3088,7 +3088,7 @@ msgstr "Pasta de destino"
 
 #: src/Wiki.tsx
 msgid "Detach Wiki"
-msgstr "Destacar a Wiki"
+msgstr "Destacar Wiki"
 
 #: src/Inspector.tsx
 msgid "Details"
@@ -3768,7 +3768,7 @@ msgstr "Nome da pasta (clique para renomear)"
 
 #: src/SettingsTab.tsx
 msgid "Follow System"
-msgstr "Seguir o sistema"
+msgstr "Seguir sistema"
 
 #: src/SettingsTab.tsx
 msgid "Following the system."
@@ -4326,31 +4326,31 @@ msgstr "Entrando"
 #. Edit in Undo, Redo and History: Isolate Audio, the new audio of a slot set to play only in this sound
 #: src/store.tsx
 msgid "isolate audio"
-msgstr ""
+msgstr "isolar áudio"
 
 #: src/CueView.tsx
 #: src/Inspector.tsx
 msgid "Isolate Audio"
-msgstr ""
+msgstr "Isolar áudio"
 
 #: src/music.ts
 msgid "Isolate Audio can't keep the Original in {places}, which has this same sound."
-msgstr ""
+msgstr "Isolar áudio não consegue manter o Original em {places}, que tem este mesmo som."
 
 #: src/music.ts
 msgid "Isolate Audio can't keep the Original in {places}, which have this same sound."
-msgstr ""
+msgstr "Isolar áudio não consegue manter o Original em {places}, que têm este mesmo som."
 
 #: src/CueView.tsx
 msgid "Isolate Audio on All"
-msgstr ""
+msgstr "Isolar áudio em todos"
 
 #. After the name of a conflict: a clip that a mod added for this sound only, as Isolate Audio does
 #. Tag on a slot set to Isolate Audio: the new audio plays only in this sound, not in the other sounds that play the clip
 #: src/CombinePage.tsx
 #: src/CueView.tsx
 msgid "isolated audio"
-msgstr ""
+msgstr "áudio isolado"
 
 #: src/Soundtrack.tsx
 msgid "It ends with the segment playing at that time, and Next Fight goes on from there"
@@ -4411,7 +4411,7 @@ msgstr "Manter aqui"
 
 #: src/ImportMod.tsx
 msgid "Keep mod ID"
-msgstr "Manter o ID do mod"
+msgstr "Manter ID do mod"
 
 #: src/Inspector.tsx
 msgid "Keep original duration"
@@ -4424,15 +4424,15 @@ msgstr "A opção Manter a duração original, nos detalhes, define isto"
 #: src/CueView.tsx
 #: src/Inspector.tsx
 msgid "Keep Sharing"
-msgstr ""
+msgstr "Manter compartilhado"
 
 #: src/CueView.tsx
 msgid "Keep Sharing on All"
-msgstr ""
+msgstr "Manter compartilhado em todos"
 
 #: src/Inspector.tsx
 msgid "Keep volume curve"
-msgstr "Manter a curva de volume"
+msgstr "Manter curva de volume"
 
 #: src/App.tsx
 msgid "Keep Working"
@@ -4934,11 +4934,11 @@ msgstr "movê-la para outra posição"
 
 #: src/CueView.tsx
 msgid "Move New Audio Down"
-msgstr "Mover o áudio novo para baixo"
+msgstr "Mover áudio novo para baixo"
 
 #: src/CueView.tsx
 msgid "Move New Audio Up"
-msgstr "Mover o áudio novo para cima"
+msgstr "Mover áudio novo para cima"
 
 #: src/ProjectTab.tsx
 msgid "Move Project"
@@ -5163,7 +5163,7 @@ msgstr "Novos takes para esta camada"
 
 #: src/BuildTab.tsx
 msgid "New takes, layers and new audio with Isolate Audio go into every bank with a copy of the sound, as the game plays the copy it loads first. With this on, they go only into the banks of the listed items. The mod gets smaller, but where the game loads another bank's copy first, the original plays."
-msgstr ""
+msgstr "Takes novos, camadas e áudio novo com Isolar áudio vão para todos os bancos com uma cópia do som, já que o jogo toca a cópia que carrega primeiro. Com esta opção ativada, eles vão só para os bancos dos itens listados. O mod fica menor, mas onde o jogo carrega primeiro a cópia de outro banco, toca o original."
 
 #: src/CueView.tsx
 msgid "New takes, or a layer that plays with it"
@@ -5816,7 +5816,7 @@ msgstr "Abrir Outro Mod"
 
 #: src/UpdatesTab.tsx
 msgid "Open Download Page"
-msgstr "Abrir a página de download"
+msgstr "Abrir página de download"
 
 #: src/CueView.tsx
 #: src/IndexTree.tsx
@@ -5834,11 +5834,11 @@ msgstr "Abrir na Biblioteca"
 
 #: src/tutorials.ts
 msgid "Open Liberator"
-msgstr "Abrir o Liberador"
+msgstr "Abrir Liberador"
 
 #: src/Library.tsx
 msgid "Open Library"
-msgstr "Abrir a Biblioteca"
+msgstr "Abrir Biblioteca"
 
 #: src/store.tsx
 msgid "Open Log"
@@ -6269,11 +6269,11 @@ msgstr "Reproduzir de novo"
 
 #: src/CueView.tsx
 msgid "Play First Take"
-msgstr "Reproduzir o primeiro take"
+msgstr "Reproduzir primeiro take"
 
 #: src/CueView.tsx
 msgid "Play New Audio"
-msgstr "Reproduzir o áudio novo"
+msgstr "Reproduzir áudio novo"
 
 #: src/Inspector.tsx
 msgid "Play nothing here instead of the original"
@@ -6297,7 +6297,7 @@ msgstr "Ordem de reprodução no projeto"
 
 #: src/CueView.tsx
 msgid "Play Original"
-msgstr "Reproduzir o original"
+msgstr "Reproduzir original"
 
 #: src/SliceTool.tsx
 msgid "Play piece {piece}"
@@ -6337,7 +6337,7 @@ msgstr "Reproduzir o slot selecionado, ou pausar e retomar"
 
 #: src/keys.ts
 msgid "Play the selected slots together"
-msgstr ""
+msgstr "Reproduzir juntos os slots selecionados"
 
 #: src/SliceTool.tsx
 msgid "Play the song from the first cut"
@@ -6369,7 +6369,7 @@ msgstr "A reprodução contínua parou porque esta música mudou"
 
 #: src/CueView.tsx
 msgid "Play together"
-msgstr ""
+msgstr "Reproduzir juntos"
 
 #: src/keys.ts
 msgid "play, and select the slot"
@@ -6385,7 +6385,7 @@ msgstr "reprodução do áudio do jogo"
 
 #: src/CueView.tsx
 msgid "Playing the first {max} of {total} slots together"
-msgstr ""
+msgstr "Reproduzindo juntos os primeiros {max} de {total} slots"
 
 #. Edit in Undo, Redo and History: the songs of a playlist changed
 #: src/store.tsx
@@ -6645,7 +6645,7 @@ msgstr "Aumentar a versão a cada geração"
 
 #: src/UpdatesTab.tsx
 msgid "Read Changelog"
-msgstr "Ler as notas de versão"
+msgstr "Ler notas de versão"
 
 #: src/content.ts
 msgid "reading and converting audio files"
@@ -6778,7 +6778,7 @@ msgstr "Remover"
 
 #: src/IndexTree.tsx
 msgid "Remove {count} in Project"
-msgstr "Remover os {count} que estão no projeto"
+msgstr "Remover {count} que estão no projeto"
 
 #: src/SettingsTab.tsx
 msgid "Remove {keyName}"
@@ -6852,7 +6852,7 @@ msgstr "Remover do projeto"
 
 #: src/CueView.tsx
 msgid "Remove New Audio"
-msgstr "Remover o áudio novo"
+msgstr "Remover áudio novo"
 
 #: src/IndexTree.tsx
 msgid "Remove the {count} in the project"
@@ -6983,7 +6983,7 @@ msgstr "Substituir o áudio lá"
 
 #: src/ImportMod.tsx
 msgid "Replace Project Audio"
-msgstr "Substituir o áudio do projeto"
+msgstr "Substituir áudio do projeto"
 
 #: src/ToolsTab.tsx
 msgid "Replace sounds inside an existing mod, also sounds that an update took out of the game."
@@ -7165,7 +7165,7 @@ msgstr "Redimensionar as formas de onda"
 
 #: src/TextTab.tsx
 msgid "Restore Original"
-msgstr "Restaurar o original"
+msgstr "Restaurar original"
 
 #: src/IndexTree.tsx
 msgid "Review"
@@ -7413,7 +7413,7 @@ msgstr "Vários mods pequenos são mais fáceis de manter como um só."
 
 #: src/Inspector.tsx
 msgid "Several sounds can play the same clip. Keep Sharing changes it in all of them, and Isolate Audio keeps the new audio to this sound."
-msgstr ""
+msgstr "Vários sons podem tocar o mesmo clipe. Manter compartilhado o muda em todos eles, e Isolar áudio deixa o áudio novo só neste som."
 
 #: src/Inspector.tsx
 msgid "Several subtitles have these words, and the game files don't show which one matches this recording. The Text tab lists them all and opens the most likely one"
@@ -7482,7 +7482,7 @@ msgstr "Mostrar IDs de contêiner"
 
 #: src/SettingsTab.tsx
 msgid "Show Folder"
-msgstr "Mostrar a pasta"
+msgstr "Mostrar pasta"
 
 #: src/IndexTree.tsx
 #: src/ItemHead.tsx
@@ -7516,7 +7516,7 @@ msgstr "Mostrar na Biblioteca"
 
 #: src/BuildTab.tsx
 msgid "Show Log File"
-msgstr "Mostrar o arquivo de log"
+msgstr "Mostrar arquivo de log"
 
 #: src/CueView.tsx
 msgid "Show names"
@@ -7553,7 +7553,7 @@ msgstr "Mostrar estes atalhos"
 
 #: src/tutorials.ts
 msgid "Show ZIP"
-msgstr "Mostrar o ZIP"
+msgstr "Mostrar ZIP"
 
 #: src/PatchContentPage.tsx
 msgid "Showing {n} of {total}. Search to narrow the list."
@@ -8881,7 +8881,7 @@ msgstr "Para alterar a peça em todo lugar, dê áudio novo a cada variante"
 
 #: src/CueView.tsx
 msgid "To limit it to this sound, choose Isolate Audio under Clip Sharing Mode, in the details"
-msgstr ""
+msgstr "Para limitar a este som, escolha Isolar áudio em Modo de compartilhamento do clipe, nos detalhes"
 
 #: src/api.ts
 msgid "today, {time}"
@@ -9094,11 +9094,11 @@ msgstr "Atualizando para {label}. O Audiodiver reinicia quando a atualização �
 
 #: src/SettingsTab.tsx
 msgid "Use Default Folder"
-msgstr "Usar a pasta padrão"
+msgstr "Usar pasta padrão"
 
 #: src/ProjectTab.tsx
 msgid "Use Default Icon"
-msgstr "Usar o ícone padrão"
+msgstr "Usar ícone padrão"
 
 #: src/Inspector.tsx
 msgid "Use Silence"
@@ -9392,7 +9392,7 @@ msgstr "Escreva uma nota"
 
 #: src/PatchContentPage.tsx
 msgid "Write Mod"
-msgstr "Gravar o Mod"
+msgstr "Gravar Mod"
 
 #: src/PatchContentPage.tsx
 msgid "Write the mod again with the new audio, everything else as it was"

@@ -2,7 +2,7 @@
 title: Make-Up Gainとミックス
 group: MODの作成
 summary: スロットの音量の設定方法、ゲームのHDRミックスの仕組み、画面によってゲーム内のほうがAudiodiverより静かに聞こえる理由を説明します。
-source: 1e6df7389eef
+source: 60b772e3b57c
 ---
 
 ## スロットごとのMake-Up Gain {#make-up-gain-per-slot}

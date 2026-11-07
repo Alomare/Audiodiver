@@ -2,7 +2,7 @@
 title: Un premier mod
 group: Pour commencer
 summary: D’un projet vide à de la nouvelle musique dans le jeu, en neuf étapes.
-source: 42abc2715a07
+source: 8612e4a5d5aa
 ---
 
 Cette page explique comment remplacer la musique de l’écran d’équipement et entendre le résultat dans le jeu, installé avec un gestionnaire de mods.

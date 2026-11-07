@@ -537,6 +537,12 @@ msgid "Wait until the running build, repatch or combine is done"
 msgstr "Aguarde até que a geração, o repatch ou a combinação em andamento termine"
 
 #: editor.py
+msgid "{files} needs converting, which Audiodiver Utils can't do. Give a 16-bit WAV at 48 kHz or a .wem, or use the full Audiodiver."
+msgid_plural "{files} need converting, which Audiodiver Utils can't do. Give 16-bit WAVs at 48 kHz or .wem files, or use the full Audiodiver."
+msgstr[0] "{files} precisa ser convertido, o que o Audiodiver Utils não faz. Forneça um WAV de 16 bits a 48 kHz ou um .wem, ou use o Audiodiver completo."
+msgstr[1] "{files} precisam ser convertidos, o que o Audiodiver Utils não faz. Forneça WAVs de 16 bits a 48 kHz ou arquivos .wem, ou use o Audiodiver completo."
+
+#: editor.py
 msgid "Reading the game audio from the new folder"
 msgstr "Lendo o áudio do jogo da nova pasta"
 

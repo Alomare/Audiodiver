@@ -2,7 +2,7 @@
 title: Ajouter de l’audio
 group: Créer un mod
 summary: De nouvelles prises pour un son, une couche jouée avec lui, et du nouvel audio pour un seul son, en plus de ce que le jeu possède.
-source: 4fae8936e389
+source: a201dd52aa12
 ---
 
 Remplacer l’audio change ce qu’un emplacement joue. Les sons peuvent aussi recevoir de l’audio que le jeu n’a pas, de trois façons, toutes dans l’onglet Audio. Elles fonctionnent pour les sons et les voix, mais pas pour la musique.
@@ -19,15 +19,15 @@ Une couche est jouée avec un son à chaque fois, comme un grondement plus grave
 
 **Nouvelle couche** est grisé pour les sons qui ne peuvent pas avoir de couche. Un son qui est l’un des choix aléatoires d’un autre son ne peut pas en avoir, car la couche deviendrait simplement un autre choix. Un son que rien ne joue directement ne le peut pas non plus.
 
-## Ce son uniquement {#isolate-audio}
+## Isoler l’audio {#isolate-audio}
 
-Plusieurs sons jouent souvent le même clip, et remplacer le clip le modifie dans tous. Pour limiter un remplacement, réglez **Joué dans** dans les détails d’un emplacement sur **Ce son uniquement**. Les autres sons gardent alors l’Original, et leurs emplacements affichent **remplacé dans un autre son**. Une note sous le choix indique le nombre de banques qu’il modifie.
+Plusieurs sons jouent souvent le même clip, et remplacer le clip le modifie dans tous. Pour réserver un remplacement à un seul son, réglez **Mode de partage du clip** dans les détails de l’emplacement sur **Isoler audio**. Les autres sons gardent alors l’Original, et leurs emplacements affichent **remplacé dans un autre son**. Une note sous le choix indique le nombre de banques qu’il modifie.
 
-Un emplacement avec du nouvel audio que d’autres sons partagent affiche **tous les sons** jusque-là. Pour plusieurs sons à la fois, cochez leurs emplacements et choisissez dans les détails, ou faites un clic droit dessus. **Ce son uniquement partout**, dans la barre d’outils, traite toute la banque.
+Un emplacement avec du nouvel audio que d’autres sons partagent est sur **Garder partagé** et affiche **tous les sons** jusque-là. Pour plusieurs sons à la fois, cochez leurs emplacements et choisissez dans les détails, ou faites un clic droit dessus. **Isoler audio partout**, dans la barre d’outils, traite toute la banque.
 
 Le nouvel audio entre dans le mod sous un nouvel ID. Les outils qui listent les clips par ID montrent l’ancien ID avec l’Original, alors que le jeu joue le nouvel audio dans ce son.
 
-Cette option fonctionne son par son. Quand le jeu copie un son entier dans d’autres banques, comme les sons de maniement des armes dans chaque banque d’arme, les copies sont le même son et toutes changent. **Joué dans** indique les banques qui ont le même son.
+Isoler audio fonctionne son par son. Quand le jeu copie un son entier dans d’autres banques, comme les sons de maniement des armes dans chaque banque d’arme, les copies sont le même son et toutes changent. **Mode de partage du clip** indique les banques qui ont le même son.
 
 ## Taille {#size}
 

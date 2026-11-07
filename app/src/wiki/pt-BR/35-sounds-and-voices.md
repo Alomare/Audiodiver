@@ -2,7 +2,7 @@
 title: Sons e vozes
 group: Criando um mod
 summary: Armas, inimigos, vozes e todo o outro áudio que não é música. Como a Biblioteca os mostra e o que verificar antes de substituir um deles.
-source: 8d3ce8429e30
+source: 610221a84e2d
 ---
 
 O Audiodiver tem mais informações sobre música, mas a Biblioteca contém todo o áudio do jogo. Esta página aborda tudo o que não é música.
@@ -46,7 +46,7 @@ Substituir um som compartilhado o muda em todo lugar onde ele toca, e os detalhe
 
 Uma voz tem uma parte para cada idioma instalado, como *Inglês* e *Italiano*, com gravações separadas para cada um. Uma fala substituída na parte em inglês só é ouvida por quem joga em inglês.
 
-Uma fala recebe o nome das palavras da legenda correspondente, e o filtro a encontra por essas palavras. Quando vários takes dizem a mesma fala, o grupo e cada take mostram as palavras.
+Uma fala recebe o nome das palavras da legenda correspondente, no idioma definido em Configurações, seja qual for o idioma da voz. Onde o jogo não tem tradução de uma fala, as palavras ficam em inglês. O filtro encontra uma fala pelas palavras mostradas e pelas em inglês. Quando vários takes dizem a mesma fala, o grupo e cada take mostram as palavras.
 
 Os sons sem palavras recebem o nome do que são, como *Grunhido 1* ou *Ofego 3*, e são numerados separadamente para cada voz. Os grunhidos são sons curtos de esforço. **Ofego** abrange a respiração mais longa, os suspiros e as risadas. A maioria desses sons fica no fim de uma voz de Helldiver e em **Sons de esforço dos Helldivers**, em grupos chamados **Grunhidos** e **Ofego**. Cada um desses clipes é compartilhado por duas vozes de Helldiver: as vozes 1 e 3, e as vozes 2 e 4.
 

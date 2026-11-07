@@ -2,7 +2,7 @@
 title: Gerando e instalando
 group: Geração e compartilhamento
 summary: O que uma geração cria, como instalá-la com um gerenciador de mods e como as atualizações chegam ao mod instalado.
-source: 518c0af357e6
+source: a5decf27e8e8
 ---
 
 ## Gerar {#building}
@@ -44,7 +44,7 @@ Para que as gerações atualizem um mod que você fez antes, pressione **Alterar
 Estas configurações ficam em **Opções de geração** na aba Gerar.
 
 - **Aumentar a versão a cada geração** dá a cada geração um novo nome de ZIP, e os ZIPs anteriores ficam. Desligado, a próxima geração substitui o último ZIP. O [ID do mod](wiki:build-and-install#mod-id), e não a versão, decide se um gerenciador de mods trata uma geração como atualização. A configuração vale para todos os projetos.
-- **Mostrar o ZIP no Explorador de Arquivos quando a geração terminar** abre o Explorador de Arquivos com o ZIP selecionado.
+- **Mostrar ZIP no Explorador de Arquivos quando a geração terminar** abre o Explorador de Arquivos com o ZIP selecionado.
 
 ### Arquivos de patch {#patch-files}
 
@@ -72,7 +72,7 @@ Um projeto com um mod importado também conta os bancos em que esse mod aplicou 
 
 ### Áudio adicionado em outros bancos {#added-audio-in-other-banks}
 
-Takes novos, camadas e áudio novo definidos como **Só este som** vão para todos os bancos que têm uma cópia do som, inclusive bancos que o projeto não lista, porque o jogo toca a cópia que carrega primeiro. Os sons do AC-8 Canhão Automático, por exemplo, também têm cópias nos bancos da Plataforma de petróleo e do Transporte. Um projeto que adiciona áudio a esses sons aplica patch nesses dois bancos também, o que coloca no mod cerca de 30 MB do áudio próprio desses bancos.
+Takes novos, camadas e áudio novo com **Isolar áudio** vão para todos os bancos que têm uma cópia do som, inclusive bancos que o projeto não lista, porque o jogo toca a cópia que carrega primeiro. Os sons do AC-8 Canhão Automático, por exemplo, também têm cópias nos bancos da Plataforma de petróleo e do Transporte. Um projeto que adiciona áudio a esses sons aplica patch nesses dois bancos também, o que coloca no mod cerca de 30 MB do áudio próprio desses bancos.
 
 **Limitar o áudio adicionado aos bancos do projeto** coloca o áudio adicionado só nos bancos da lista do projeto e de um mod importado nele. O mod fica menor, mas onde quer que o jogo carregue primeiro a cópia do som de outro banco, toca o original. Deixe desligado, a menos que o tamanho do mod importe mais que o som nesses lugares. Um som que nenhum banco da lista tem continua indo para todos os bancos que o têm. A configuração vale para o projeto aberto e não faz nada enquanto **Aplicar patch em todos os bancos com os sons** está ligado.
 

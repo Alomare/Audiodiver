@@ -2,7 +2,7 @@
 title: Make-Up Gain y la mezcla
 group: Crear un mod
 summary: Cómo ajustar la sonoridad de un slot, cómo funciona la mezcla HDR del juego y por qué algunas pantallas suenan más bajas en el juego que en Audiodiver.
-source: 1e6df7389eef
+source: 60b772e3b57c
 ---
 
 ## Make-Up Gain por slot {#make-up-gain-per-slot}
@@ -13,7 +13,7 @@ En un slot sin audio nuevo, Make-Up Gain sube o baja el volumen del Original. El
 
 Las formas de onda bajo los slots se dibujan con la ganancia y siguen al control deslizante mientras se mueve, en la misma escala que el Original, así que el audio nuevo se puede dejar tan fuerte como el Original a ojo. El rojo marca el audio que pasa del fondo de escala, que satura. ▶ también reproduce el audio nuevo con la ganancia, y el Original con la ganancia que tiene.
 
-**Igualar la sonoridad original** define el Make-Up Gain que hace que el audio nuevo suene tan fuerte como el Original. Audiodiver mide la sonoridad de ambos (como lo hacen los medidores de sonoridad de radiodifusión): un sonido de menos de 3 segundos, como un disparo o una frase, por su momento más fuerte, y el audio más largo, como la música, en conjunto. Con varios slots seleccionados, **Igualar cada uno a la sonoridad original** define una ganancia distinta para cada slot.
+**Igualar sonoridad original** define el Make-Up Gain que hace que el audio nuevo suene tan fuerte como el Original. Audiodiver mide la sonoridad de ambos (como lo hacen los medidores de sonoridad de radiodifusión): un sonido de menos de 3 segundos, como un disparo o una frase, por su momento más fuerte, y el audio más largo, como la música, en conjunto. Con varios slots seleccionados, **Igualar cada uno a la sonoridad original** define una ganancia distinta para cada slot.
 
 > [!NOTE]
 > Algunos clips ignoran el Make-Up Gain en el juego, entre ellos los stingers de calma de los Iluminados. Sus detalles muestran una advertencia. Define la sonoridad de estos clips en el fichero de audio.
@@ -24,7 +24,7 @@ El control deslizante **Vol** de la barra de estado define solo el volumen de es
 
 El juego cambia el nivel de parte de la música mientras suena: una curva de volumen en el clip baja o sube el nivel con el tiempo, y un fundido hace que el sonido entre o salga poco a poco. La curva forma parte de la pista de música, no del fichero de audio, así que el audio nuevo de ese slot también la sigue. Un slot con curva la muestra como una línea alrededor de la forma de onda, con **Curva de volumen** al lado.
 
-Desactiva **Mantener la curva de volumen** en los detalles para reproducir el slot a un nivel constante. El Make-Up Gain no puede hacerlo, porque fija un solo nivel para todo el clip. Esta opción quita las curvas de volumen y los fundidos, funciona en slots con o sin audio nuevo y, con varios slots seleccionados, se aplica a los que tienen curva. Un clip puede estar en varias pistas de música, y la opción las cubre todas.
+Desactiva **Mantener curva de volumen** en los detalles para reproducir el slot a un nivel constante. El Make-Up Gain no puede hacerlo, porque fija un solo nivel para todo el clip. Esta opción quita las curvas de volumen y los fundidos, funciona en slots con o sin audio nuevo y, con varios slots seleccionados, se aplica a los que tienen curva. Un clip puede estar en varias pistas de música, y la opción las cubre todas.
 
 Por ejemplo, uno de los dos clips de Descenso de la cápsula Hell tiene una curva que va bajando el nivel, y el otro no tiene ninguna. Con la misma canción en los dos, uno suena más bajo que el otro hasta que se desactiva la curva.
 

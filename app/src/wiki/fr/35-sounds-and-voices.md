@@ -2,7 +2,7 @@
 title: Sons et voix
 group: Créer un mod
 summary: Les armes, les ennemis, les voix et tout l’audio qui n’est pas de la musique. Comment la Bibliothèque les montre, et ce qu’il faut vérifier avant d’en remplacer un.
-source: 8d3ce8429e30
+source: 610221a84e2d
 ---
 
 C’est pour la musique qu’Audiodiver a le plus d’informations, mais la Bibliothèque contient tout l’audio du jeu. Cette page couvre tout ce qui n’est pas de la musique.
@@ -46,7 +46,7 @@ Remplacer un son partagé le modifie partout où il est joué, et les détails l
 
 Une voix a une partie pour chaque langue installée, comme *Anglais* et *Italien*, avec des enregistrements distincts pour chacune. Une réplique remplacée dans la partie anglaise n’est entendue que par les joueurs qui jouent en anglais.
 
-Une réplique porte le nom des mots du sous-titre correspondant, et le filtre la trouve grâce à ces mots. Quand plusieurs prises disent la même réplique, le groupe et chaque prise affichent les mots.
+Une réplique porte le nom des mots du sous-titre correspondant, dans la langue choisie dans les Paramètres, quelle que soit la langue de la voix. Là où le jeu n’a pas de traduction d’une réplique, les mots sont en anglais. Le filtre trouve une réplique par les mots affichés et par les mots anglais. Quand plusieurs prises disent la même réplique, le groupe et chaque prise affichent les mots.
 
 Les sons sans paroles portent le nom de ce qu’ils sont, comme *Grognement 1* ou *Halètement 3*, et sont numérotés séparément pour chaque voix. Les grognements sont de courts bruits d’effort. **Halètement** couvre les respirations plus longues, les soupirs et les rires. La plupart de ces sons se trouvent à la fin d’une voix de Helldiver et dans **Bruits d’effort du Helldiver**, dans des groupes appelés **Grognements** et **Halètement**. Chacun de ces clips est partagé par deux voix de Helldiver : les voix 1 et 3, et les voix 2 et 4.
 

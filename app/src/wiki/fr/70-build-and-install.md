@@ -2,7 +2,7 @@
 title: Génération et installation
 group: Générer et partager
 summary: Ce que produit une génération, comment l’installer avec un gestionnaire de mods, et comment les mises à jour parviennent au mod installé.
-source: 518c0af357e6
+source: a5decf27e8e8
 ---
 
 ## Générer {#building}
@@ -44,7 +44,7 @@ Pour que les générations mettent à jour un mod créé auparavant, appuyez sur
 Ces réglages se trouvent sous **Options de génération** dans l’onglet Générer.
 
 - **Augmenter la version après chaque génération** donne à chaque génération un nouveau nom de ZIP, et les ZIP précédents restent. Quand il est désactivé, la génération suivante remplace le dernier ZIP. C’est l’[ID du mod](wiki:build-and-install#mod-id), et non la version, qui décide si un gestionnaire de mods prend une génération pour une mise à jour. Le réglage s’applique à tous les projets.
-- **Afficher le ZIP dans l’Explorateur à la fin d’une génération** ouvre l’Explorateur avec le ZIP sélectionné.
+- **Afficher ZIP dans l’Explorateur à la fin d’une génération** ouvre l’Explorateur avec le ZIP sélectionné.
 
 ### Fichiers patch {#patch-files}
 
@@ -72,7 +72,7 @@ Un projet avec un mod importé compte aussi les banques que ce mod a patchées. 
 
 ### Audio ajouté dans d’autres banques {#added-audio-in-other-banks}
 
-Les nouvelles prises, les couches et le nouvel audio réglé sur **Ce son uniquement** vont dans chaque banque qui a une copie du son, y compris les banques que le projet ne liste pas, car le jeu joue la copie qu’il charge en premier. Les sons du Canon automatique AC-8, par exemple, ont aussi des copies dans les banques de la Plateforme pétrolière et de la Navette. Un projet qui ajoute de l’audio à ces sons patche aussi ces deux banques, ce qui met environ 30 Mo de l’audio de ces banques dans le mod.
+Les nouvelles prises, les couches et le nouvel audio avec **Isoler audio** vont dans chaque banque qui a une copie du son, y compris les banques que le projet ne liste pas, car le jeu joue la copie qu’il charge en premier. Les sons du Canon automatique AC-8, par exemple, ont aussi des copies dans les banques de la Plateforme pétrolière et de la Navette. Un projet qui ajoute de l’audio à ces sons patche aussi ces deux banques, ce qui met environ 30 Mo de l’audio de ces banques dans le mod.
 
 **Limiter l’audio ajouté aux banques du projet** place l’audio ajouté uniquement dans les banques de la liste du projet, et d’un mod importé dedans. Le mod devient plus petit, mais partout où le jeu charge d’abord la copie du son d’une autre banque, l’original est joué. Laissez-le désactivé, sauf si la taille du mod compte plus que le son à ces endroits. Un son qu’aucune banque de la liste ne contient va quand même dans chaque banque qui l’a. Le réglage s’applique au projet ouvert et ne fait rien tant que **Patcher chaque banque contenant les sons** est activé.
 

@@ -2,7 +2,7 @@
 title: Añadir audio
 group: Crear un mod
 summary: Tomas nuevas para un sonido, una capa que suena con él y audio nuevo solo para un sonido, además de lo que tiene el juego.
-source: 4fae8936e389
+source: a201dd52aa12
 ---
 
 Sustituir audio cambia lo que reproduce un slot. Los sonidos también pueden recibir audio que el juego no tiene, de tres maneras, todas en la pestaña Audio. Sirven para sonidos y voces, pero no para música.
@@ -19,15 +19,15 @@ Una capa suena junto con un sonido cada vez, como un estruendo más grave bajo u
 
 **Nueva capa** aparece atenuada en los sonidos que no pueden tener una capa. Un sonido que es una de las opciones aleatorias de otro sonido no puede tenerla, porque la capa sería solo otra opción. Tampoco puede tenerla un sonido que nada reproduce directamente.
 
-## Solo este sonido {#isolate-audio}
+## Aislar audio {#isolate-audio}
 
-Varios sonidos suelen reproducir el mismo clip, y sustituir el clip lo cambia en todos ellos. Para limitar una sustitución, define **Suena en** en los detalles de un slot como **Solo este sonido**. Los demás sonidos conservan entonces el Original, y sus slots muestran **sustituido en otro sonido**. Una nota bajo la opción dice cuántos bancos cambia.
+Varios sonidos suelen reproducir el mismo clip, y sustituir el clip lo cambia en todos ellos. Para que una sustitución se quede en un solo sonido, define **Modo de uso compartido del clip** en los detalles del slot como **Aislar audio**. Los demás sonidos conservan entonces el Original, y sus slots muestran **sustituido en otro sonido**. Una nota bajo la opción dice cuántos bancos cambia.
 
-Un slot con audio nuevo que otros sonidos comparten muestra **todos los sonidos** hasta entonces. Para varios sonidos a la vez, marca sus slots y elige en los detalles, o haz clic derecho sobre ellos. **Solo este sonido en todos**, en la barra de herramientas, hace todo el banco.
+Un slot con audio nuevo que otros sonidos comparten está en **Mantener compartido** y muestra **todos los sonidos** hasta entonces. Para varios sonidos a la vez, marca sus slots y elige en los detalles, o haz clic derecho sobre ellos. **Aislar audio en todos**, en la barra de herramientas, hace todo el banco.
 
 El audio nuevo entra en el mod con un ID nuevo. Las herramientas que enumeran clips por ID muestran el ID antiguo con el Original, aunque el juego reproduce el audio nuevo en ese sonido.
 
-Esta opción funciona por sonido. Cuando el juego copia un sonido entero en otros bancos, como los sonidos de manejo del arma en cada banco de armas, las copias son el mismo sonido y todas cambian. **Suena en** indica los bancos que tienen el mismo sonido.
+Aislar audio funciona por sonido. Cuando el juego copia un sonido entero en otros bancos, como los sonidos de manejo del arma en cada banco de armas, las copias son el mismo sonido y todas cambian. **Modo de uso compartido del clip** indica los bancos que tienen el mismo sonido.
 
 ## Tamaño {#size}
 

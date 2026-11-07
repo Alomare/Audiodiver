@@ -2,7 +2,7 @@
 title: Generar e instalar
 group: Generar y compartir
 summary: Qué crea una generación, cómo instalarla con un gestor de mods y cómo llegan las actualizaciones al mod instalado.
-source: 518c0af357e6
+source: a5decf27e8e8
 ---
 
 ## Generar {#building}
@@ -44,7 +44,7 @@ Para hacer que las generaciones actualicen un mod que hiciste antes, pulsa **Cam
 Estos ajustes están en **Opciones de generación**, en la pestaña Generar.
 
 - **Subir la versión después de cada generación** da a cada generación un nombre de ZIP nuevo, y los ZIP anteriores se conservan. Con la opción desactivada, la siguiente generación reemplaza el último ZIP. El [ID del mod](wiki:build-and-install#mod-id), y no la versión, decide si un gestor de mods toma una generación como una actualización. El ajuste se aplica a todos los proyectos.
-- **Mostrar el ZIP en el Explorador de archivos al terminar de generar** abre el Explorador de archivos con el ZIP seleccionado.
+- **Mostrar ZIP en el Explorador de archivos al terminar de generar** abre el Explorador de archivos con el ZIP seleccionado.
 
 ### Ficheros de parche {#patch-files}
 
@@ -72,7 +72,7 @@ Un proyecto con un mod importado también cuenta los bancos que parcheó ese mod
 
 ### Audio añadido en otros bancos {#added-audio-in-other-banks}
 
-Las tomas nuevas, las capas y el audio nuevo configurado en **Solo este sonido** van a todos los bancos que tienen una copia del sonido, también a los bancos que el proyecto no incluye, porque el juego reproduce la copia que carga primero. Los sonidos del Cañón automático AC-8, por ejemplo, también tienen copias en los bancos de la Plataforma petrolífera y la Lanzadera. Un proyecto que añade audio a esos sonidos parchea también esos dos bancos, lo que mete en el mod unos 30 MB del audio de esos bancos.
+Las tomas nuevas, las capas y el audio nuevo con **Aislar audio** van a todos los bancos que tienen una copia del sonido, también a los bancos que el proyecto no incluye, porque el juego reproduce la copia que carga primero. Los sonidos del Cañón automático AC-8, por ejemplo, también tienen copias en los bancos de la Plataforma petrolífera y la Lanzadera. Un proyecto que añade audio a esos sonidos parchea también esos dos bancos, lo que mete en el mod unos 30 MB del audio de esos bancos.
 
 **Limitar el audio añadido a los bancos del proyecto** pone el audio añadido solo en los bancos de la lista del proyecto y de un mod importado en él. El mod ocupa menos, pero dondequiera que el juego cargue primero la copia del sonido de otro banco, suena el original. Déjalo desactivado salvo que el tamaño del mod importe más que el sonido en esos lugares. Un sonido que no tiene ningún banco de la lista sigue yendo a todos los bancos que lo tienen. El ajuste se aplica al proyecto abierto y no hace nada mientras **Parchear todos los bancos con los sonidos** está activado.
 

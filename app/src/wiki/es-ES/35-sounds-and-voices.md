@@ -2,7 +2,7 @@
 title: Sonidos y voces
 group: Crear un mod
 summary: Armas, enemigos, voces y todo el demás audio que no es música. Cómo los muestra la Biblioteca y qué comprobar antes de sustituir uno.
-source: 8d3ce8429e30
+source: 610221a84e2d
 ---
 
 Audiodiver tiene más información sobre la música, pero la Biblioteca contiene todo el audio del juego. Esta página trata todo lo que no es música.
@@ -46,7 +46,7 @@ Sustituir un sonido compartido lo cambia en todos los lugares donde suena, y los
 
 Una voz tiene una parte por cada idioma instalado, como *Inglés* e *Italiano*, con grabaciones distintas para cada uno. Una frase sustituida en la parte en inglés solo la oyen los jugadores que juegan en inglés.
 
-Una frase recibe el nombre de las palabras del subtítulo correspondiente, y el filtro la encuentra por esas palabras. Cuando varias tomas dicen la misma frase, el grupo y cada toma muestran las palabras.
+Una frase recibe el nombre de las palabras del subtítulo correspondiente, en el idioma elegido en Ajustes, sea cual sea el idioma de la voz. Donde el juego no tiene traducción de una frase, las palabras están en inglés. El filtro encuentra una frase por las palabras mostradas y por las inglesas. Cuando varias tomas dicen la misma frase, el grupo y cada toma muestran las palabras.
 
 Los sonidos sin palabras reciben el nombre de lo que son, como *Gruñido 1* o *Jadeo 3*, y se numeran por separado para cada voz. Los gruñidos son sonidos cortos de esfuerzo. **Jadeo** abarca las respiraciones más largas, los suspiros y las risas. La mayoría de estos sonidos están al final de una voz de Helldiver y en **Sonidos de esfuerzo de los Helldivers**, en grupos llamados **Gruñidos** y **Jadeo**. Cada uno de estos clips lo comparten dos voces de Helldiver: las voces 1 y 3, y las voces 2 y 4.
 

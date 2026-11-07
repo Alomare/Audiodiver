@@ -2,7 +2,7 @@
 title: Contenu du Patch
 group: Générer et partager
 summary: Remplacer des sons d’un mod existant, sur les banques de sons du mod lui-même, aussi des sons qu’une mise à jour a retirés du jeu.
-source: 120fdcca46f4
+source: 2095c6ad8368
 ---
 
 Le patch d’un mod contient des copies des banques de sons qu’il modifie, telles qu’elles étaient dans la version du jeu pour laquelle le mod a été fait, et le jeu lit ces copies à la place des banques actuelles. **Contenu du Patch**, dans [Outils](app:tools/content), ouvre un tel mod tel quel, liste les sons de ses patchs et écrit à nouveau le mod avec un nouvel audio pour les sons choisis. Tout le reste reste tel que le mod l’a.
@@ -26,10 +26,11 @@ La liste commence par les sons que le jeu actuel n’a pas, marqués **Absent du
 - Déposez un fichier audio sur un son, ou appuyez sur **Choisir un Fichier** dans la ligne. **Silence** remplace le son par du silence.
 - ✕ retire à nouveau le nouvel audio.
 - Le nouvel audio va dans chaque banque et chaque flux du mod qui a le son. Un fichier est encodé comme une génération l’encode, et un `.wem` que le jeu lit tel quel entre sans changement.
+- Dans Audiodiver Utils, le nouvel audio est un WAV 16 bits à 48 kHz, mono ou stéréo, ou un `.wem`. Convertissez d’abord les autres formats, par exemple dans Audacity, ou utilisez l’Audiodiver complet.
 
 ## Écrire le mod {#writing-the-mod}
 
-Choisissez le nom que montre le gestionnaire de mods et un dossier de destination, puis appuyez sur **Écrire le Mod**. Le nouveau ZIP est le mod tel qu’il était : le manifeste, les options, les autres fichiers et l’ID du mod restent, donc l’importer dans un gestionnaire de mods met à jour l’ancien mod. Un mod sans manifeste devient un ZIP pour gestionnaire de mods, avec une option pour chaque partie du mod.
+Choisissez le nom que montre le gestionnaire de mods et un dossier de destination, puis appuyez sur **Écrire Mod**. Le nouveau ZIP est le mod tel qu’il était : le manifeste, les options, les autres fichiers et l’ID du mod restent, donc l’importer dans un gestionnaire de mods met à jour l’ancien mod. Un mod sans manifeste devient un ZIP pour gestionnaire de mods, avec une option pour chaque partie du mod.
 
 Chaque patch qui contient un son choisi est écrit à nouveau et comparé à l’ancien : seuls l’audio de ces sons, les tailles qui le décrivent et le minutage de la musique qui le joue diffèrent.
 

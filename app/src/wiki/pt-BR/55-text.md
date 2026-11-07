@@ -2,7 +2,7 @@
 title: Texto e legendas
 group: Criando um mod
 summary: Como mudar legendas e qualquer outra linha do texto do jogo na aba Texto, incluindo palavras, cores e tamanhos, e o que manter intacto.
-source: d48b85a4f8e6
+source: 9c5e38424ff4
 ---
 
 A aba [Texto](app:text) tem todas as linhas do texto do jogo em todos os idiomas, incluindo as legendas das falas, os textos de missão e de menu, e os nomes. Pesquise uma linha para mudá-la, e o mod inclui a alteração.
@@ -15,7 +15,7 @@ O painel direito mostra o **Original**, a caixa **Texto novo** abaixo dele e uma
 
 ## Mudar uma linha {#changing-a-line}
 
-Digite em **Texto novo**. A alteração é salva logo depois que você para de digitar, ou na hora com {key:save}, e cada salvamento é um passo para {key:undo}. **Restaurar o original** coloca a linha original de volta.
+Digite em **Texto novo**. A alteração é salva logo depois que você para de digitar, ou na hora com {key:save}, e cada salvamento é um passo para {key:undo}. **Restaurar original** coloca a linha original de volta.
 
 Para formatar parte de uma linha, selecione as palavras e use a barra acima da caixa. Ela tem **Cor**, **Tamanho** e **Ênfase**, e **Tempo** para legendas. Sem nada selecionado, um botão formata a linha inteira. **Limpar formatação** remove todas as cores, tamanhos e estilos.
 
@@ -34,7 +34,7 @@ Para formatar parte de uma linha, selecione as palavras e use a barra acima da c
 
 ## Exportar e importar {#exporting-and-importing}
 
-**Exportar** salva linhas num arquivo CSV ou JSON: as selecionadas, as alteradas, as mostradas ou uma categoria. Um segundo idioma adiciona uma coluna. Marque uma linha para selecioná-la, e use Shift+clique para selecionar várias em sequência. **Restaurar o original** também funciona com as linhas selecionadas.
+**Exportar** salva linhas num arquivo CSV ou JSON: as selecionadas, as alteradas, as mostradas ou uma categoria. Um segundo idioma adiciona uma coluna. Marque uma linha para selecioná-la, e use Shift+clique para selecionar várias em sequência. **Restaurar original** também funciona com as linhas selecionadas.
 
 Preencha a coluna **New text** numa planilha, sem mudar as colunas **Language** e **ID**. **Importar** lê o arquivo e mostra o que muda antes de aplicar, como um único passo para {key:undo}. Uma linha sem texto novo fica como está, e as que perderam o tempo ou palavras que o jogo preenche ficam de fora, a menos que você desmarque essa opção.
 

@@ -2,7 +2,7 @@
 title: Trilha Sonora
 group: Criando um mod
 summary: Como cada peça musical toca, na ordem original, como uma única música, como playlist, em silêncio ou como a música de batalha.
-source: f86e437dcedb
+source: 567d14475a70
 ---
 
 O jogo não toca uma peça musical de cima para baixo. A playlist de uma peça mistura grupos que tocam em ordem, grupos que tocam o segmento seguinte a cada vez e grupos que escolhem ao acaso. A maioria das músicas de combate começa cada combate numa abertura curta, e um combate novo continua de onde o anterior parou. Uma música cortada nos slots na ordem da lista toca fora de ordem no jogo.
@@ -42,7 +42,7 @@ Desfazer reverte um modelo inteiro. Um modelo que não encontra nada para mudar 
 
 A lista continua depois do último pedaço com os segmentos que a música não alcança. Um arquivo em um deles toca depois da música e continua lá se você cortar a música de novo, a menos que um novo pedaço caia nesse segmento.
 
-**Alterar os cortes** abre a ferramenta de fatiar de novo com a mesma música e os mesmos cortes. **Escolher outra música** começa com uma nova.
+**Alterar cortes** abre a ferramenta de fatiar de novo com a mesma música e os mesmos cortes. **Escolher outra música** começa com uma nova.
 
 ## Playlist {#playlist}
 

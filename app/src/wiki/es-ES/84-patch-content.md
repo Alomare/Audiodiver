@@ -2,7 +2,7 @@
 title: Contenido del Parche
 group: Generar y compartir
 summary: Sustituir sonidos de un mod existente, sobre los propios bancos de sonido del mod, también sonidos que una actualización quitó del juego.
-source: 120fdcca46f4
+source: 2095c6ad8368
 ---
 
 El parche de un mod guarda copias de los bancos de sonido que cambia, tal como estaban en la versión del juego para la que se hizo el mod, y el juego reproduce esas copias en lugar de los bancos actuales. **Contenido del Parche**, en [Herramientas](app:tools/content), abre un mod tal como está, muestra los sonidos de sus parches y vuelve a escribir el mod con audio nuevo para los sonidos elegidos. Todo lo demás se queda como lo tiene el mod.
@@ -26,10 +26,11 @@ La lista empieza por los sonidos que el juego actual no tiene, marcados con **No
 - Suelta un fichero de audio sobre un sonido, o pulsa **Elegir Fichero** en la fila. **Silencio** sustituye el sonido por silencio.
 - ✕ vuelve a quitar el audio nuevo.
 - El audio nuevo va a cada banco y cada stream del mod que tiene el sonido. Un fichero se codifica como lo codifica una generación, y un `.wem` que el juego reproduce tal cual entra sin cambios.
+- En Audiodiver Utils, el audio nuevo es un WAV de 16 bits a 48 kHz, mono o estéreo, o un `.wem`. Convierte antes los demás formatos, por ejemplo en Audacity, o usa el Audiodiver completo.
 
 ## Escribir el mod {#writing-the-mod}
 
-Elige el nombre que muestra el gestor de mods y una carpeta de destino, y pulsa **Escribir el Mod**. El nuevo ZIP es el mod tal como era: el manifiesto, las opciones, los otros ficheros y el ID del mod se conservan, así que importarlo en un gestor de mods actualiza el mod antiguo. Un mod sin manifiesto pasa a ser un ZIP para gestor de mods, con una opción para cada parte del mod.
+Elige el nombre que muestra el gestor de mods y una carpeta de destino, y pulsa **Escribir Mod**. El nuevo ZIP es el mod tal como era: el manifiesto, las opciones, los otros ficheros y el ID del mod se conservan, así que importarlo en un gestor de mods actualiza el mod antiguo. Un mod sin manifiesto pasa a ser un ZIP para gestor de mods, con una opción para cada parte del mod.
 
 Cada parche que tiene un sonido elegido se vuelve a escribir y se compara con el antiguo: solo cambian el audio de esos sonidos, los tamaños que lo describen y el tiempo de la música que lo reproduce.
 

@@ -2,7 +2,7 @@
 title: Cómo funciona Audiodiver
 group: Primeros pasos
 summary: Qué hace Audiodiver, qué es un proyecto y para qué sirve cada pestaña.
-source: a7972ede8bb7
+source: 09d7bb1340e0
 ---
 
 Audiodiver sustituye el audio de Helldivers 2 según **qué es y dónde suena**. Busca una pieza de música o un conjunto de sonidos en la Biblioteca, añádela a un proyecto y dale audio nuevo. Audiodiver calcula entonces los bancos de sonido, los ID y los valores de tiempo que necesita el juego.
@@ -31,7 +31,7 @@ La barra de pestañas de la parte superior de la ventana contiene las pestañas 
 - {icon:build} **Generar** contiene la próxima versión, las **Opciones de generación** y el botón **Generar**. Un punto en la pestaña indica que el proyecto aún no se ha generado, o que ha cambiado o el juego se ha actualizado desde la última generación. Un número rojo cuenta los problemas que impiden generar.
 - {icon:updates} **Actualizaciones**, {icon:wiki} **Wiki** ({key:wiki}) y {icon:settings} **Ajustes** están al final de la barra de pestañas. Actualizaciones se resalta cuando hay una versión nueva de Audiodiver y enumera los cambios de cada versión. En una página de la Wiki, {key:search} busca palabras en esa página.
 
-El botón {icon:detach} junto al cuadro de búsqueda de las guías mueve la Wiki a una ventana aparte, para leerla junto a un proyecto. La pestaña Wiki muestra entonces **Volver a acoplar la Wiki**, y cerrar la ventana hace lo mismo. Mientras la Wiki está en esa ventana, un **?** o un enlace a una página se abre allí. Al iniciar un tutorial, la Wiki se acopla de nuevo antes.
+El botón {icon:detach} junto al cuadro de búsqueda de las guías mueve la Wiki a una ventana aparte, para leerla junto a un proyecto. La pestaña Wiki muestra entonces **Volver a acoplar Wiki**, y cerrar la ventana hace lo mismo. Mientras la Wiki está en esa ventana, un **?** o un enlace a una página se abre allí. Al iniciar un tutorial, la Wiki se acopla de nuevo antes.
 
 El número de versión del extremo derecho de la barra de estado también abre Actualizaciones. El botón {icon:info} de al lado abre [Acerca de](app:about), con la licencia, el fichero de registro y los créditos.
 
@@ -53,7 +53,7 @@ Cada entrada del Índice es un evento de sonido del juego, y los slots son los c
 
 Audiodiver busca una versión nueva en GitHub cada vez que se inicia. [Ajustes ▸ Sistema](app:settings/system) controla qué ocurre cuando hay una:
 
-- **Preguntar al iniciar** (el valor predeterminado) pregunta antes, con **Actualizar ahora**, **Leer el registro de cambios** y **Ahora no**.
+- **Preguntar al iniciar** (el valor predeterminado) pregunta antes, con **Actualizar ahora**, **Leer registro de cambios** y **Ahora no**.
 - **Manual** no pregunta. La pestaña Actualizaciones y la versión de la barra de estado se resaltan, y **Actualizar ahora** está en la pestaña Actualizaciones.
 - **Automático** instala la versión nueva al iniciar y reinicia Audiodiver.
 
@@ -63,7 +63,7 @@ Una actualización reemplaza solo la aplicación. Los proyectos, los ficheros de
 
 ### Idioma {#language}
 
-**Idioma** en [Ajustes ▸ Sistema](app:settings/system) define el idioma de la ventana y de los mensajes que muestra Audiodiver. **Automático** toma el idioma al que está configurado Helldivers 2 en Steam. Si Audiodiver no tiene traducción para ese idioma, Automático toma el de Windows y, si tampoco, el inglés. Tras un cambio, la ventana se vuelve a cargar en el idioma nuevo, en la misma pestaña. Los subtítulos y las frases del juego se quedan como están, y la pestaña Texto sigue eligiendo en qué idioma del texto del juego se edita.
+**Idioma** en [Ajustes ▸ Sistema](app:settings/system) define el idioma de la ventana y de los mensajes que muestra Audiodiver. **Automático** toma el idioma al que está configurado Helldivers 2 en Steam. Si Audiodiver no tiene traducción para ese idioma, Automático toma el de Windows y, si tampoco, el inglés. Tras un cambio, la ventana se vuelve a cargar en el idioma nuevo, en la misma pestaña. Las frases muestran las palabras de sus subtítulos en ese idioma, tal como las escribe el juego, o en inglés donde el juego no tiene traducción de una frase. La pestaña Texto sigue eligiendo en qué idioma del texto del juego se edita.
 
 ### Carpeta del juego {#game-folder}
 
@@ -89,7 +89,7 @@ Con **Mostrar el teletipo de noticias** desactivado, Inicio no muestra la franja
 
 ### Notas globales {#global-notes}
 
-**Notas globales** en [Ajustes ▸ Sistema](app:settings/system) muestra el fichero de notas, que empieza en la carpeta de ajustes de Audiodiver. **Elegir otra carpeta** guarda las notas en otra, como una carpeta sincronizada entre dos ordenadores. Cuando esa carpeta ya tiene un fichero de notas, las notas que contiene y estas se unen, y si algo tiene una nota distinta en cada una se conservan los dos textos. **Usar la carpeta predeterminada** vuelve a la carpeta original. El fichero de la carpeta anterior se queda como estaba.
+**Notas globales** en [Ajustes ▸ Sistema](app:settings/system) muestra el fichero de notas, que empieza en la carpeta de ajustes de Audiodiver. **Elegir otra carpeta** guarda las notas en otra, como una carpeta sincronizada entre dos ordenadores. Cuando esa carpeta ya tiene un fichero de notas, las notas que contiene y estas se unen, y si algo tiene una nota distinta en cada una se conservan los dos textos. **Usar carpeta predeterminada** vuelve a la carpeta original. El fichero de la carpeta anterior se queda como estaba.
 
 **Exportar notas** guarda las notas globales, las notas del proyecto abierto o ambas, ya sea como un documento Markdown para leer, con cada nota bajo el nombre de aquello a lo que pertenece, o como un fichero de notas JSON. **Importar notas** trae a las notas globales las notas de un fichero JSON de ese tipo, o de un fichero de proyecto.
 

@@ -2,7 +2,7 @@
 title: Audiodiver 的工作方式
 group: 入门
 summary: Audiodiver 做什么、项目是什么，以及每个选项卡的用途。
-source: a7972ede8bb7
+source: 09d7bb1340e0
 ---
 
 Audiodiver 按照**它是什么、在哪里播放**来替换 Helldivers 2 的音频。在资源库中找到一首曲目或一组声音，将其添加到项目中，再为它提供新音频。之后，Audiodiver 会算出游戏所需的音频库、ID 和时序值。
@@ -63,7 +63,7 @@ Audiodiver 每次启动时都会在 GitHub 上检查新版本。[设置 ▸ 系�
 
 ### 语言 {#language}
 
-[设置 ▸ 系统](app:settings/system)中的**语言**决定窗口以及 Audiodiver 提示消息用哪种语言。**自动**采用 Helldivers 2 在 Steam 中设置的语言。如果 Audiodiver 没有该语言的翻译，“自动”会采用 Windows 的语言，再不行就用英语。更改后，窗口会以新语言重新加载，并停留在同一选项卡上。游戏中的字幕和语音台词保持不变，文本选项卡仍可选择要编辑哪种语言的游戏文本。
+[设置 ▸ 系统](app:settings/system)中的**语言**决定窗口以及 Audiodiver 提示消息用哪种语言。**自动**采用 Helldivers 2 在 Steam 中设置的语言。如果 Audiodiver 没有该语言的翻译，“自动”会采用 Windows 的语言，再不行就用英语。更改后，窗口会以新语言重新加载，并停留在同一选项卡上。语音台词会以该语言显示其字幕的文字，与游戏中的写法一致；游戏没有某句台词的译文时则显示英语。文本选项卡仍可选择要编辑哪种语言的游戏文本。
 
 ### 游戏文件夹 {#game-folder}
 

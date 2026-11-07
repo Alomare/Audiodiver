@@ -2,7 +2,7 @@
 title: Mods de Helldivers 1
 group: Pour commencer
 summary: Remplacer l’audio de Helldivers 1 : le choix du jeu sur l’Accueil, ce qu’un projet peut changer, et pourquoi un mod peut être volumineux.
-source: 7b5996439e04
+source: e6cda1560050
 ---
 
 Quand Helldivers 1 est installé, les boutons **Helldivers 2** et **Helldivers 1** de l’[Accueil](app:home) choisissent le jeu pour lequel Audiodiver crée des mods. Chaque projet appartient à un seul jeu, et ouvrir un projet passe à ce jeu. Choisir l’autre jeu ferme le projet ouvert.
@@ -28,4 +28,4 @@ La Bibliothèque affiche aussi Helldivers 2. Sélectionnez-y des emplacements et
 
 Certains sons ont un onglet par langue, avec des emplacements séparés. Un nouvel audio dans une langue ne se joue que dans cette langue.
 
-Un mod ne contient que le nouvel audio : le ZIP reste donc petit. Le jeu remplace une banque de sons d’un seul coup, dans toutes les langues et partout où elle se trouve : au déploiement, le gestionnaire de mods reconstruit donc chaque banque de sons que le mod change à partir des fichiers du jeu. Un son court dans une grande banque de sons peut occuper environ 3 Go de disque une fois déployé. Après une mise à jour du jeu, déployez de nouveau : le mod reste tel quel. Les mods de Helldivers 1 nécessitent la version 1.1.0 ou ultérieure du gestionnaire de mods.
+Un mod ne contient que le nouvel audio : le ZIP reste donc petit. Depuis la version 1.4.0, le gestionnaire de mods place les nouveaux clips dans de petites banques de sons à côté de celles du jeu, et les banques de sons du jeu restent telles quelles : un déploiement occupe donc à peu près autant de disque que le nouvel audio. Une langue pour laquelle le mod ne donne pas de nouvel audio garde les sons du jeu, que le déploiement copie : environ 4 Mo pour un bruit de pas en anglais américain. Après une mise à jour du jeu, déployez de nouveau : le mod reste tel quel. Les mods de Helldivers 1 nécessitent la version 1.1.0 ou ultérieure du gestionnaire de mods. Avant la 1.4.0, il reconstruit chaque banque de sons que le mod change, et un son court dans une grande banque de sons peut occuper environ 3 Go de disque une fois déployé.

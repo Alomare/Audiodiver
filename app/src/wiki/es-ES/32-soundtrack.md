@@ -2,7 +2,7 @@
 title: Banda Sonora
 group: Crear un mod
 summary: Cómo se reproduce cada pieza de música: en el orden original, como una sola canción, como lista de reproducción, en silencio o como la música de batalla.
-source: f86e437dcedb
+source: 567d14475a70
 ---
 
 El juego no reproduce una pieza de música de arriba abajo. La lista de reproducción de una pieza combina grupos que suenan en orden, grupos que reproducen cada vez el siguiente segmento y grupos que eligen al azar. La mayor parte de la música de combate empieza cada combate con una intro corta, y un combate nuevo continúa desde donde se detuvo el último. Una canción cortada en los slots en el orden de la lista suena desordenada en el juego.
@@ -42,7 +42,7 @@ Deshacer revierte una plantilla entera. Una plantilla que no encuentra nada que 
 
 La lista sigue después del último trozo con los segmentos a los que no llega la canción. Un fichero en uno de ellos suena después de la canción y se queda ahí si vuelves a cortar la canción, salvo que un trozo nuevo caiga en ese segmento.
 
-**Cambiar los cortes** vuelve a abrir la herramienta de corte con la misma canción y los mismos cortes. **Elegir otra canción** empieza con una nueva.
+**Cambiar cortes** vuelve a abrir la herramienta de corte con la misma canción y los mismos cortes. **Elegir otra canción** empieza con una nueva.
 
 ## Lista de reproducción {#playlist}
 

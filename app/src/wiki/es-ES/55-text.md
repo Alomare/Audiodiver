@@ -2,7 +2,7 @@
 title: Texto y subtítulos
 group: Crear un mod
 summary: Cómo cambiar subtítulos y cualquier otra línea del texto del juego en la pestaña Texto, con palabras, colores y tamaños, y qué conservar intacto.
-source: d48b85a4f8e6
+source: 9c5e38424ff4
 ---
 
 La pestaña [Texto](app:text) tiene todas las líneas del texto del juego en todos los idiomas, incluidos los subtítulos de las frases, el texto de misiones y menús, y los nombres. Busca una línea para cambiarla, y el mod incluye el cambio.
@@ -15,7 +15,7 @@ El panel derecho muestra el **Original**, el cuadro **Texto nuevo** debajo y una
 
 ## Cambiar una línea {#changing-a-line}
 
-Escribe en **Texto nuevo**. El cambio se guarda poco después de dejar de escribir, o de inmediato con {key:save}, y cada guardado es un paso para {key:undo}. **Restaurar el original** devuelve la línea original.
+Escribe en **Texto nuevo**. El cambio se guarda poco después de dejar de escribir, o de inmediato con {key:save}, y cada guardado es un paso para {key:undo}. **Restaurar original** devuelve la línea original.
 
 Para dar formato a parte de una línea, selecciona las palabras y usa la barra sobre el cuadro. Tiene **Color**, **Tamaño** y **Énfasis**, y **Sincronización** para los subtítulos. Sin nada seleccionado, un botón da formato a toda la línea. **Borrar el formato** quita todos los colores, tamaños y estilos.
 
@@ -34,7 +34,7 @@ Para dar formato a parte de una línea, selecciona las palabras y usa la barra s
 
 ## Exportar e importar {#exporting-and-importing}
 
-**Exportar** guarda líneas en un archivo CSV o JSON: las seleccionadas, las cambiadas, las mostradas o una categoría. Un segundo idioma añade una columna. Marca una línea para seleccionarla, y usa Mayús+clic para seleccionar varias seguidas. **Restaurar el original** también funciona con las líneas seleccionadas.
+**Exportar** guarda líneas en un archivo CSV o JSON: las seleccionadas, las cambiadas, las mostradas o una categoría. Un segundo idioma añade una columna. Marca una línea para seleccionarla, y usa Mayús+clic para seleccionar varias seguidas. **Restaurar original** también funciona con las líneas seleccionadas.
 
 Rellena la columna **New text** en una hoja de cálculo, sin cambiar las columnas **Language** e **ID**. **Importar** lee el archivo y muestra lo que cambia antes de aplicarlo, en un solo paso de {key:undo}. Una línea sin texto nuevo se queda como está, y las que perdieron la temporización o palabras que rellena el juego se quedan fuera, salvo que desmarques esa opción.
 

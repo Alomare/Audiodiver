@@ -2,7 +2,7 @@
 title: Importar un mod
 group: Primeros pasos
 summary: Un mod hecho con cualquier herramienta, como un proyecto con el que seguir trabajando: el audio, los sonidos que añade, los ajustes y el texto.
-source: 672ff32999fa
+source: 2b69a2798627
 ---
 
 **Importar mod** en [Inicio](app:home), o en la pestaña [Proyecto](app:project) mientras no hay ningún proyecto abierto, crea un proyecto nuevo a partir de un mod existente. Elige el ZIP del mod, o un fichero `.patch_0`. El panel que se abre muestra el mod como lo muestra un gestor de mods, y enumera lo que se importa antes de escribir nada.
@@ -11,7 +11,7 @@ source: 672ff32999fa
 
 1. Elige las opciones. Un mod con opciones, como una selección de voces o una versión con subtítulos, empieza con las opciones que tiene activadas el gestor de mods, o con todas. **Qué se importa** enumera los parches que despliegan esas opciones.
 2. Pon un nombre al proyecto y elige la carpeta. El proyecto va a una carpeta nueva dentro de ella.
-3. **Conservar el ID del mod** hace que las generaciones del proyecto actualicen este mod en el gestor de mods. Desactívalo para instalar las generaciones junto al mod como otro distinto ([ID del mod](wiki:build-and-install#mod-id)).
+3. **Conservar ID del mod** hace que las generaciones del proyecto actualicen este mod en el gestor de mods. Desactívalo para instalar las generaciones junto al mod como otro distinto ([ID del mod](wiki:build-and-install#mod-id)).
 4. **Usar el icono del mod** pone en el proyecto la imagen que muestra el gestor de mods. Sin ella, el proyecto tiene el icono predeterminado.
 5. Pulsa **Crear proyecto**. El proyecto se abre en la pestaña Audio cuando termina la importación.
 
@@ -33,6 +33,6 @@ El texto entra como cambios en la pestaña [Texto](app:text), uno por cada líne
 
 ## En el proyecto abierto {#into-the-open-project}
 
-**Importar parches**, en la pestaña Proyecto, o un fichero `.patch_0` soltado en la ventana, trae un mod al proyecto abierto. Se abre el mismo panel, sin el nombre y la carpeta. Si el proyecto no está vacío, elige cómo entra el audio. **Añadir al proyecto** conserva el contenido actual, y donde ambos tienen audio para un slot, entra el audio del mod. **Sustituir el audio del proyecto** quita primero el audio nuevo, los sonidos añadidos, los puntos de cue y la lista. El texto y los ficheros de audio se quedan en ambos casos, y Deshacer restaura el proyecto.
+**Importar parches**, en la pestaña Proyecto, o un fichero `.patch_0` soltado en la ventana, trae un mod al proyecto abierto. Se abre el mismo panel, sin el nombre y la carpeta. Si el proyecto no está vacío, elige cómo entra el audio. **Añadir al proyecto** conserva el contenido actual, y donde ambos tienen audio para un slot, entra el audio del mod. **Sustituir audio del proyecto** quita primero el audio nuevo, los sonidos añadidos, los puntos de cue y la lista. El texto y los ficheros de audio se quedan en ambos casos, y Deshacer restaura el proyecto.
 
 Para reconstruir un mod para la versión actual del juego sin un proyecto, usa [Repatch](wiki:repatching).

@@ -2,7 +2,7 @@
 title: Importer un mod
 group: Pour commencer
 summary: Un mod créé avec n’importe quel outil, comme projet sur lequel continuer à travailler : l’audio, les sons qu’il ajoute, les réglages et le texte.
-source: 672ff32999fa
+source: 2b69a2798627
 ---
 
 **Importer un mod** sur [Accueil](app:home), ou dans l’onglet [Projet](app:project) tant qu’aucun projet n’est ouvert, crée un nouveau projet à partir d’un mod existant. Choisissez le ZIP du mod, ou un fichier `.patch_0`. Le panneau qui s’ouvre montre le mod comme un gestionnaire de mods le montre, et liste ce qui est importé avant que quoi que ce soit soit écrit.
@@ -11,7 +11,7 @@ source: 672ff32999fa
 
 1. Choisissez les options. Un mod avec des options, comme un choix de voix ou une version avec sous-titres, démarre avec les options que le gestionnaire de mods a activées, ou avec toutes. **Ce qui est importé** liste les patchs que ces options déploient.
 2. Nommez le projet et choisissez le dossier. Le projet va dans un nouveau dossier à cet endroit.
-3. **Garder l’ID du mod** fait que les générations du projet mettent à jour ce mod dans le gestionnaire de mods. Désactivez-le pour installer les générations à côté du mod, comme un autre mod ([ID du mod](wiki:build-and-install#mod-id)).
+3. **Garder ID du mod** fait que les générations du projet mettent à jour ce mod dans le gestionnaire de mods. Désactivez-le pour installer les générations à côté du mod, comme un autre mod ([ID du mod](wiki:build-and-install#mod-id)).
 4. **Utiliser l’icône du mod** place sur le projet l’image que le gestionnaire de mods affiche. Sans cette option, le projet a l’icône par défaut.
 5. Appuyez sur **Créer le projet**. Le projet s’ouvre sur l’onglet Audio une fois l’import terminé.
 
@@ -33,6 +33,6 @@ Le texte arrive sous forme de modifications dans l’onglet [Texte](app:text), u
 
 ## Dans le projet ouvert {#into-the-open-project}
 
-**Importer des patchs** dans l’onglet Projet, ou un fichier `.patch_0` déposé sur la fenêtre, ajoute un mod au projet ouvert. Le même panneau s’ouvre, sans le nom ni le dossier. Si le projet n’est pas vide, choisissez comment l’audio arrive. **Ajouter au projet** garde le contenu actuel, et quand les deux ont de l’audio pour un emplacement, c’est l’audio du mod qui est retenu. **Remplacer l’audio du projet** retire d’abord le nouvel audio, les sons ajoutés, les points de repère et la liste. Le texte et les fichiers audio restent dans les deux cas, et Annuler restaure le projet.
+**Importer des patchs** dans l’onglet Projet, ou un fichier `.patch_0` déposé sur la fenêtre, ajoute un mod au projet ouvert. Le même panneau s’ouvre, sans le nom ni le dossier. Si le projet n’est pas vide, choisissez comment l’audio arrive. **Ajouter au projet** garde le contenu actuel, et quand les deux ont de l’audio pour un emplacement, c’est l’audio du mod qui est retenu. **Remplacer audio du projet** retire d’abord le nouvel audio, les sons ajoutés, les points de repère et la liste. Le texte et les fichiers audio restent dans les deux cas, et Annuler restaure le projet.
 
 Pour reconstruire un mod pour la version actuelle du jeu sans projet, utilisez [Repatch](wiki:repatching).

@@ -2,7 +2,7 @@
 title: Mods de Helldivers 1
 group: Primeiros passos
 summary: Substituir o áudio do Helldivers 1: a escolha do jogo em Início, o que um projeto pode mudar e por que um mod pode ficar grande.
-source: 7b5996439e04
+source: e6cda1560050
 ---
 
 Com o Helldivers 1 instalado, os botões **Helldivers 2** e **Helldivers 1** em [Início](app:home) escolhem o jogo para o qual o Audiodiver faz mods. Cada projeto pertence a um jogo, e abrir um projeto muda para esse jogo. Escolher o outro jogo fecha o projeto aberto.
@@ -28,4 +28,4 @@ A Biblioteca também mostra o Helldivers 2. Selecione slots lá e pressione **Ct
 
 Alguns sons têm uma aba para cada idioma, com slots separados. O áudio novo em um idioma toca só nesse idioma.
 
-Um mod leva só o áudio novo, então o ZIP fica pequeno. O jogo substitui um banco de sons de uma vez, em todos os idiomas e em todos os lugares que o contêm, então o gerenciador de mods remonta cada banco de sons que o mod muda a partir dos arquivos do jogo ao implantar. Um som curto num banco de sons grande pode ocupar cerca de 3 GB de disco enquanto estiver implantado. Depois de uma atualização do jogo, implante de novo: o mod continua como está. Mods de Helldivers 1 precisam da versão 1.1.0 ou mais recente do gerenciador de mods.
+Um mod leva só o áudio novo, então o ZIP fica pequeno. A partir da versão 1.4.0, o gerenciador de mods coloca os clipes novos em pequenos bancos de sons ao lado dos do jogo, e os bancos de sons do próprio jogo ficam como estão, então uma implantação ocupa no disco mais ou menos o mesmo que o áudio novo. Um idioma para o qual o mod não dá áudio novo mantém os sons do jogo, que a implantação copia: cerca de 4 MB para um passo em inglês dos EUA. Depois de uma atualização do jogo, implante de novo: o mod continua como está. Mods de Helldivers 1 precisam da versão 1.1.0 ou mais recente do gerenciador de mods. Antes da 1.4.0, ele remonta cada banco de sons que o mod muda, e um som curto num banco de sons grande pode ocupar cerca de 3 GB de disco enquanto estiver implantado.

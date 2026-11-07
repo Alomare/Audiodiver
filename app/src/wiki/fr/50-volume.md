@@ -2,7 +2,7 @@
 title: Make-Up Gain et le mixage
 group: Créer un mod
 summary: Régler le volume d’un emplacement, comment fonctionne le mixage HDR du jeu, et pourquoi certains écrans sonnent plus faible dans le jeu que dans Audiodiver.
-source: 1e6df7389eef
+source: 60b772e3b57c
 ---
 
 ## Make-Up Gain par emplacement {#make-up-gain-per-slot}
@@ -24,7 +24,7 @@ Le curseur **Vol** de la barre d’état règle uniquement le volume d’écoute
 
 Le jeu modifie le niveau de certaines musiques pendant leur lecture : une courbe de volume sur le clip abaisse ou relève le niveau au fil du temps, et un fondu fait entrer ou sortir le son progressivement. La courbe fait partie de la piste de musique, pas du fichier audio, donc le nouvel audio de cet emplacement la suit aussi. Un emplacement avec une courbe l’affiche sous forme de ligne autour de la forme d’onde, avec **Courbe de volume** à côté.
 
-Désactivez **Conserver la courbe de volume** dans les détails pour jouer l’emplacement à un niveau constant. Le Make-Up Gain ne peut pas le faire, car il fixe un seul niveau pour tout le clip. Cette option retire les courbes de volume et les fondus, fonctionne sur les emplacements avec ou sans nouvel audio et, avec plusieurs emplacements sélectionnés, s’applique à ceux qui ont une courbe. Un clip peut se trouver sur plusieurs pistes de musique, et l’option les couvre toutes.
+Désactivez **Conserver courbe de volume** dans les détails pour jouer l’emplacement à un niveau constant. Le Make-Up Gain ne peut pas le faire, car il fixe un seul niveau pour tout le clip. Cette option retire les courbes de volume et les fondus, fonctionne sur les emplacements avec ou sans nouvel audio et, avec plusieurs emplacements sélectionnés, s’applique à ceux qui ont une courbe. Un clip peut se trouver sur plusieurs pistes de musique, et l’option les couvre toutes.
 
 Par exemple, l’un des deux clips de Descente en Hellpod a une courbe qui abaisse peu à peu le niveau, et l’autre n’en a pas. Avec le même morceau dans les deux, l’un joue moins fort que l’autre tant que la courbe est en place.
 

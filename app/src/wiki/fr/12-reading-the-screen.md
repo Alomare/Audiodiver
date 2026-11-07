@@ -2,7 +2,7 @@
 title: Comprendre l’écran
 group: Pour commencer
 summary: Ce que montre chaque partie de la Bibliothèque et de l’onglet Audio, et ce que signifient les étiquettes et les marques d’une ligne.
-source: f0e4698cd5ff
+source: 95386bc1f331
 ---
 
 La Bibliothèque et l’onglet Audio partagent une même disposition : une liste à gauche, l’élément ouvert au milieu et le panneau de détails à droite. La Bande-son a une disposition différente, décrite dans [Bande-son](wiki:soundtrack). Les mots en **gras** sont expliqués dans [L’audio du jeu, expliqué](wiki:game-audio).
@@ -44,7 +44,9 @@ La barre d’outils commence par une case qui sélectionne tous les emplacements
 | {icon:export} **Exporter** | Enregistre l’élément, ou les emplacements sélectionnés, en fichiers WAV, FLAC, MP3 ou WEM. **Liste d’Export** à côté ouvre la [liste d’export](#the-export-list) dès qu’elle contient quelque chose. |
 | {icon:skip} **Sauter**, {icon:skipall} **Tout sauter** | Remplacent une transition ou un stinger par un court silence. |
 | {icon:clear} **Tout effacer**, **Effacer cette partie** | Retirent le nouvel audio de tous les emplacements affichés, ou de tous les emplacements de la partie. |
-| {icon:onlythis} **Ce son uniquement partout** | Règle [Ce son uniquement](wiki:adding-audio#isolate-audio) sur chaque emplacement ici avec du nouvel audio que d’autres sons partagent, séquences repliées comprises. Une fois tous réglés, le même bouton règle **Tous les sons**. |
+| {icon:onlythis} **Isoler audio partout** | Règle [Isoler l’audio](wiki:adding-audio#isolate-audio) sur chaque emplacement ici avec du nouvel audio que d’autres sons partagent, séquences repliées comprises. Une fois tous réglés, le même bouton règle **Garder partagé**. |
+
+Avec deux emplacements sélectionnés ou plus, la barre d’outils a aussi {icon:together} **Lire ensemble**, dans la Bibliothèque et dans l’onglet Audio. Il lit les emplacements sélectionnés en même temps, comme les couches d’un coup de feu : le nouvel audio d’un emplacement qui en a, sinon l’original. Un nouvel appui les relance depuis le début. {key:playTogether} et **Lire ensemble** dans le menu du clic droit font de même. Jusqu’à 16 sont lus à la fois, les 16 premiers de la liste, chacun avec son Make-Up Gain, et tous baissés ensemble pour ne pas saturer. La barre de lecture les met en pause, les déplace et les arrête ensemble.
 
 {icon:search} **Rechercher des emplacements** restreint la liste par nom, étiquette, note, nom de fichier ou ID. Dans un ensemble de sons, elle trouve aussi les mots d’une réplique. Quand rien dans la liste ne correspond, **Ailleurs** liste les morceaux de musique et les ensembles de sons qui ont un résultat.
 
@@ -83,9 +85,9 @@ Chaque ligne est un **emplacement**, c’est-à-dire un clip du jeu qui peut êt
 | **pas d’audio** | Les données du jeu nomment ce clip, mais les fichiers du jeu installés ne l’incluent pas. Il n’y a rien à jouer ni à remplacer. |
 | **tambours discrets** | Une couche de batterie à peine audible sous une autre couche du segment. |
 | **jamais jouée** | Le clip est dans les fichiers du jeu, mais le jeu ne le joue jamais. La musique de mort des Illuministes du Néant en est un exemple. |
-| **tous les sons** | Le nouvel audio est joué dans tous les sons qui jouent le clip. Voir [Ce son uniquement](wiki:adding-audio#isolate-audio). |
-| **ce son uniquement** | Le nouvel audio n’est joué que dans ce son. Les autres sons qui jouent le clip gardent l’Original. Voir [Ce son uniquement](wiki:adding-audio#isolate-audio). |
-| **remplacé dans un autre son** | Un autre son joue du nouvel audio à la place de ce clip, avec **Ce son uniquement**. Celui-ci garde l’Original. |
+| **tous les sons** | Le nouvel audio est joué dans tous les sons qui jouent le clip. Voir [Isoler l’audio](wiki:adding-audio#isolate-audio). |
+| **audio isolé** | Le nouvel audio n’est joué que dans ce son (**Isoler audio**). Les autres sons qui jouent le clip gardent l’Original. Voir [Isoler l’audio](wiki:adding-audio#isolate-audio). |
+| **remplacé dans un autre son** | Un autre son joue du nouvel audio à la place de ce clip, avec **Isoler audio**. Celui-ci garde l’Original. |
 | **−6 dB** | Make-Up Gain sur l’Original, dans un emplacement sans nouvel audio. Voir [Make-Up Gain par emplacement](wiki:volume#make-up-gain-per-slot). |
 | une étiquette colorée | Une entrée de l’Index liée à cet emplacement. Cliquez sur l’étiquette pour l’ouvrir. |
 

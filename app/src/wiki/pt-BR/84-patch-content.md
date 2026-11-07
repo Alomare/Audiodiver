@@ -2,7 +2,7 @@
 title: Conteúdo do Patch
 group: Geração e compartilhamento
 summary: Como substituir sons dentro de um mod existente, sobre os próprios bancos de sons do mod, também sons que uma atualização tirou do jogo.
-source: 120fdcca46f4
+source: 2095c6ad8368
 ---
 
 O patch de um mod guarda cópias dos bancos de sons que ele altera, como estavam na versão do jogo para a qual o mod foi feito, e o jogo toca essas cópias no lugar dos bancos atuais. **Conteúdo do Patch**, em [Ferramentas](app:tools/content), abre um mod como ele é, lista os sons dos patches e grava o mod de novo com áudio novo para os sons escolhidos. Todo o resto fica como o mod tem.
@@ -26,10 +26,11 @@ A lista começa pelos sons que o jogo atual não tem, marcados com **Fora do jog
 - Solte um arquivo de áudio em um som, ou pressione **Escolher Arquivo** na linha. **Silêncio** substitui o som por silêncio.
 - O ✕ tira o áudio novo de novo.
 - O áudio novo vai para cada banco e stream do mod que tem o som. Um arquivo é codificado como uma geração o codifica, e um `.wem` que o jogo toca como está entra sem mudança.
+- No Audiodiver Utils, o áudio novo é um WAV de 16 bits a 48 kHz, mono ou estéreo, ou um `.wem`. Converta outros formatos antes, por exemplo no Audacity, ou use o Audiodiver completo.
 
 ## Gravando o mod {#writing-the-mod}
 
-Escolha o nome que o gerenciador de mods mostra e uma pasta de destino, depois pressione **Gravar o Mod**. O novo ZIP é o mod como era: o manifesto, as opções, os outros arquivos e o ID do mod ficam, então importá-lo em um gerenciador de mods atualiza o mod antigo. Um mod sem manifesto vira um ZIP para gerenciador de mods, com uma opção para cada parte do mod.
+Escolha o nome que o gerenciador de mods mostra e uma pasta de destino, depois pressione **Gravar Mod**. O novo ZIP é o mod como era: o manifesto, as opções, os outros arquivos e o ID do mod ficam, então importá-lo em um gerenciador de mods atualiza o mod antigo. Um mod sem manifesto vira um ZIP para gerenciador de mods, com uma opção para cada parte do mod.
 
 Cada patch que tem um som escolhido é gravado de novo e conferido com o antigo: só o áudio desses sons, os tamanhos que o descrevem e o tempo da música que o toca mudam.
 

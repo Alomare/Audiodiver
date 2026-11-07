@@ -2,7 +2,7 @@
 title: Um primeiro mod
 group: Primeiros passos
 summary: De um projeto vazio a música nova no jogo, em nove passos.
-source: 42abc2715a07
+source: 8612e4a5d5aa
 ---
 
 Esta página mostra como substituir a música da tela do aparato e ouvir o resultado no jogo, instalado com um gerenciador de mods.

@@ -2,7 +2,7 @@
 title: Outils et liens
 group: Ressources
 summary: Où les mods sont installés et partagés, et des outils audio gratuits qui aident pour les mods de musique.
-source: 2ee3c9654d84
+source: bbf51a2ca734
 ---
 
 ## Installer et partager des mods {#installing-and-sharing-mods}
@@ -10,7 +10,7 @@ source: 2ee3c9654d84
 - Les générations s’installent avec un gestionnaire de mods pour Helldivers 2.
 - [Helldivers 2 sur Nexus Mods](https://www.nexusmods.com/helldivers2) est l’endroit où la plupart des mods sont partagés.
 - [Un gestionnaire de mods pour Helldivers 1](https://www.nexusmods.com/helldivers/mods/16) installe les mods de Helldivers 1. Ceux qu’Audiodiver crée nécessitent la version 1.1.0 ou ultérieure.
-- **Audiodiver Utils**, sur la [page des versions](https://github.com/Alomare/Audiodiver/releases/latest) d’Audiodiver, propose Repatch et Combiner des Mods sans projet : une fenêtre portable plus petite, et `audiodiver.cmd` pour la ligne de commande. `audiodiver.cmd repatch <mod>` reconstruit un mod, `combine <mod> <mod>` combine des mods, `check` liste les mods installés qui ont besoin d’un repatch, et `scan <mod>` montre les options d’un mod. Ajoutez `--json` pour une sortie que d’autres programmes lisent, et `--help` pour le reste.
+- **Audiodiver Utils**, sur la [page des versions](https://github.com/Alomare/Audiodiver/releases/latest) d’Audiodiver, propose Repatch, Combiner des Mods et [Contenu du Patch](wiki:patch-content) sans projet : une fenêtre portable plus petite, et `audiodiver.cmd` pour la ligne de commande. Contenu du Patch y prend le nouvel audio en WAV 16 bits à 48 kHz, en `.wem` ou en silence, car Audiodiver Utils n’a pas de convertisseur pour les autres formats. `audiodiver.cmd repatch <mod>` reconstruit un mod, `combine <mod> <mod>` combine des mods, `check` liste les mods installés qui ont besoin d’un repatch, et `scan <mod>` montre les options d’un mod. Ajoutez `--json` pour une sortie que d’autres programmes lisent, et `--help` pour le reste.
 
 ## Éditer l’audio {#editing-audio}
 

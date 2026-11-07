@@ -2,7 +2,7 @@
 title: 工具和链接
 group: 资源
 summary: 在哪里安装和分享模组，以及有助于制作音乐模组的免费音频工具。
-source: 2ee3c9654d84
+source: bbf51a2ca734
 ---
 
 ## 安装和分享模组 {#installing-and-sharing-mods}
@@ -10,7 +10,7 @@ source: 2ee3c9654d84
 - 构建结果用 Helldivers 2 模组管理器安装。
 - 大多数模组在 [Nexus Mods 的 Helldivers 2 页面](https://www.nexusmods.com/helldivers2)上分享。
 - [Helldivers 1 的模组管理器](https://www.nexusmods.com/helldivers/mods/16)用于安装 Helldivers 1 模组。Audiodiver 制作的模组需要 1.1.0 或更高版本。
-- **Audiodiver Utils** 位于 Audiodiver 的[发布页面](https://github.com/Alomare/Audiodiver/releases/latest)，它是不需要项目的 Repatch 和合并模组：一个更小的便携窗口，以及用于命令行的 `audiodiver.cmd`。`audiodiver.cmd repatch <mod>` 会重新构建模组，`combine <mod> <mod>` 会合并模组，`check` 会列出需要 Repatch 的已安装模组，`scan <mod>` 会显示模组的选项。加上 `--json` 可输出供其他程序读取的结果，加上 `--help` 可查看其余用法。
+- **Audiodiver Utils** 位于 Audiodiver 的[发布页面](https://github.com/Alomare/Audiodiver/releases/latest)，它是不需要项目的 Repatch、合并模组和[补丁内容](wiki:patch-content)：一个更小的便携窗口，以及用于命令行的 `audiodiver.cmd`。其中的补丁内容接受 48 kHz 的 16 位 WAV、`.wem` 或静音作为新音频，因为 Audiodiver Utils 没有转换其他格式的工具。`audiodiver.cmd repatch <mod>` 会重新构建模组，`combine <mod> <mod>` 会合并模组，`check` 会列出需要 Repatch 的已安装模组，`scan <mod>` 会显示模组的选项。加上 `--json` 可输出供其他程序读取的结果，加上 `--help` 可查看其余用法。
 
 ## 编辑音频 {#editing-audio}
 

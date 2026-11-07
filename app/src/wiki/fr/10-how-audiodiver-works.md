@@ -2,7 +2,7 @@
 title: Comment fonctionne Audiodiver
 group: Pour commencer
 summary: Ce que fait Audiodiver, ce qu’est un projet et à quoi sert chaque onglet.
-source: a7972ede8bb7
+source: 09d7bb1340e0
 ---
 
 Audiodiver remplace l’audio de Helldivers 2 selon **ce qu’il est et l’endroit où il est joué**. Trouvez un morceau de musique ou un ensemble de sons dans la Bibliothèque, ajoutez-le à un projet et donnez-lui du nouvel audio. Audiodiver détermine ensuite les banques de sons, les ID et les valeurs de minutage dont le jeu a besoin.
@@ -31,7 +31,7 @@ La barre d’onglets, en haut de la fenêtre, contient les onglets principaux. A
 - {icon:build} **Générer** contient la version suivante, les Options de génération et le bouton de génération. Un point sur l’onglet signifie que le projet n’est pas encore généré, ou qu’il a changé ou que le jeu a été mis à jour depuis la dernière génération. Un nombre rouge compte les problèmes qui bloquent une génération.
 - {icon:updates} **Mises à jour**, {icon:wiki} **Wiki** ({key:wiki}) et {icon:settings} **Paramètres** sont à la fin de la barre d’onglets. Mises à jour est mis en évidence quand une nouvelle version d’Audiodiver est disponible, et liste les changements de chaque version. Sur une page du Wiki, {key:search} cherche des mots dans cette page.
 
-Le bouton {icon:detach} à côté de la zone de recherche des guides déplace le Wiki dans une fenêtre séparée, pour le lire à côté d’un projet. L’onglet Wiki affiche alors **Rattacher le Wiki**, et fermer la fenêtre a le même effet. Tant que le Wiki est dans cette fenêtre, un **?** ou un lien vers une page s’y ouvre. Lancer un tutoriel rattache d’abord le Wiki.
+Le bouton {icon:detach} à côté de la zone de recherche des guides déplace le Wiki dans une fenêtre séparée, pour le lire à côté d’un projet. L’onglet Wiki affiche alors **Rattacher Wiki**, et fermer la fenêtre a le même effet. Tant que le Wiki est dans cette fenêtre, un **?** ou un lien vers une page s’y ouvre. Lancer un tutoriel rattache d’abord le Wiki.
 
 Le numéro de version à l’extrémité droite de la barre d’état ouvre aussi Mises à jour. Le bouton {icon:info} à côté ouvre [À propos](app:about), avec la licence, le fichier journal et les crédits.
 
@@ -53,7 +53,7 @@ Chaque entrée de l’Index est un événement sonore du jeu, et les emplacement
 
 Audiodiver recherche une nouvelle version sur GitHub à chaque démarrage. [Paramètres ▸ Système](app:settings/system) définit ce qui se passe quand il y en a une :
 
-- **Demander au démarrage** (le choix par défaut) demande d’abord, avec **Mettre à jour maintenant**, **Lire les notes de version** et **Pas maintenant**.
+- **Demander au démarrage** (le choix par défaut) demande d’abord, avec **Mettre à jour maintenant**, **Lire notes de version** et **Pas maintenant**.
 - **Manuel** ne demande rien. L’onglet Mises à jour et la version dans la barre d’état sont mis en évidence, et **Mettre à jour maintenant** se trouve dans l’onglet Mises à jour.
 - **Automatique** installe la nouvelle version au démarrage et redémarre Audiodiver.
 
@@ -63,7 +63,7 @@ Une mise à jour remplace uniquement l’application. Les projets, les fichiers 
 
 ### Langue {#language}
 
-**Langue** dans [Paramètres ▸ Système](app:settings/system) définit la langue de la fenêtre et des messages qu’Audiodiver affiche. **Automatique** prend la langue réglée pour Helldivers 2 dans Steam. Quand Audiodiver n’a pas de traduction pour cette langue, Automatique prend la langue de Windows, et sinon l’anglais. Après un changement, la fenêtre se recharge dans la nouvelle langue, sur le même onglet. Les sous-titres et les répliques du jeu restent tels quels, et l’onglet Texte permet toujours de choisir quelle langue du texte du jeu modifier.
+**Langue** dans [Paramètres ▸ Système](app:settings/system) définit la langue de la fenêtre et des messages qu’Audiodiver affiche. **Automatique** prend la langue réglée pour Helldivers 2 dans Steam. Quand Audiodiver n’a pas de traduction pour cette langue, Automatique prend la langue de Windows, et sinon l’anglais. Après un changement, la fenêtre se recharge dans la nouvelle langue, sur le même onglet. Les répliques affichent les mots de leurs sous-titres dans cette langue, tels que le jeu les écrit, ou en anglais là où le jeu n’a pas de traduction d’une réplique. L’onglet Texte permet toujours de choisir quelle langue du texte du jeu modifier.
 
 ### Dossier du jeu {#game-folder}
 
@@ -89,7 +89,7 @@ Quand **Afficher le bandeau d’actualités** est désactivé, Accueil n’affic
 
 ### Notes globales {#global-notes}
 
-**Notes globales** dans [Paramètres ▸ Système](app:settings/system) affiche le fichier de notes, qui se trouve au départ dans le dossier des paramètres d’Audiodiver. **Choisir un autre dossier** conserve les notes dans un autre dossier, par exemple un dossier synchronisé entre deux ordinateurs. Quand ce dossier contient déjà un fichier de notes, les notes qu’il contient et celles-ci sont fusionnées, et un élément qui a une note différente dans chacun garde les deux textes. **Utiliser le dossier par défaut** revient en arrière. Le fichier de l’ancien dossier reste tel quel.
+**Notes globales** dans [Paramètres ▸ Système](app:settings/system) affiche le fichier de notes, qui se trouve au départ dans le dossier des paramètres d’Audiodiver. **Choisir un autre dossier** conserve les notes dans un autre dossier, par exemple un dossier synchronisé entre deux ordinateurs. Quand ce dossier contient déjà un fichier de notes, les notes qu’il contient et celles-ci sont fusionnées, et un élément qui a une note différente dans chacun garde les deux textes. **Utiliser dossier par défaut** revient en arrière. Le fichier de l’ancien dossier reste tel quel.
 
 **Exporter des notes** enregistre les notes globales, les notes du projet ouvert ou les deux, soit sous forme de document Markdown à lire, avec chaque note sous le nom de l’élément auquel elle se rapporte, soit sous forme de fichier de notes JSON. **Importer des notes** ajoute aux notes globales les notes d’un tel fichier JSON, ou d’un fichier de projet.
 
