@@ -156,7 +156,7 @@ export function PatchContentPage() {
               <div className="segmented narrow" role="radiogroup" aria-label={t`Sounds shown`}>
                 <button role="radio" aria-checked={!all} className={!all ? "on" : ""} disabled={!gone} onClick={() => setAll(false)}
                   data-tip={t`The sounds that only the mod has, such as audio an update took out of the game`}>
-                  {t`Not in the Game (${ph({ n: gone })})`}</button>
+                  {t`Not in Game (${ph({ n: gone })})`}</button>
                 <button role="radio" aria-checked={all} className={all ? "on" : ""} onClick={() => setAll(true)}>
                   {t`All Sounds (${ph({ n: scan.sounds.length })})`}</button>
               </div>
@@ -194,7 +194,7 @@ export function PatchContentPage() {
         <div className="bld-box rp-go">
           <button className="btn primary build" onClick={go} disabled={!scan || !picked || !!problem || busy}
             data-tip={!scan ? t`Choose a mod first` : !picked ? t`Give a sound new audio first` : t`Write the mod again with the new audio, everything else as it was`}>
-            {running ? t`Writing` : t`Write the Mod`}
+            {running ? t`Writing` : t`Write Mod`}
           </button>
           {scan && picked > 0 && !running && <p className="set-note">{plural(picked, { one: "# sound with new audio", other: "# sounds with new audio" })}</p>}
           {running && job && (
@@ -228,7 +228,7 @@ function Row({ s, choice, busy, choose, silence, clear }: {
         <span className="pc-name" data-tip={label} data-tip-clip>{label}</span>
         <small>{s.name ? `${t`ID ${ph({ id: s.source })}`} · ` : ""}{banks}{s.duration_ms ? ` · ${fmtTime(s.duration_ms)}` : ""}</small>
       </span>
-      {!s.in_game && <span className="tag warn" data-tip={t`The current game doesn't have this sound. The banks in the mod bring it back.`}>{t`Not in the game`}</span>}
+      {!s.in_game && <span className="tag warn" data-tip={t`The current game doesn't have this sound. The banks in the mod bring it back.`}>{t`Not in game`}</span>}
       <span className="pc-new">
         {choice === undefined ? (
           <>
@@ -346,7 +346,7 @@ function About() {
         <li><Trans>The banks in the mod stay as the game version it was made for had them. For sounds the game still has, a project or <b>Repatch</b> builds on the current banks.</Trans></li>
       </ul>
       <p className="set-note"><Trans>A mod made this way is still the work of the original author. Keep it for personal use, and share it only with the author's permission.</Trans></p>
-      <p className="set-note"><button className="link-text" onClick={() => nav.go("wiki", PAGE)}><Trans>More in the Wiki</Trans></button></p>
+      <p className="set-note"><button className="link-text" onClick={() => nav.go("wiki", PAGE)}><Trans>More in Wiki</Trans></button></p>
     </div>
   );
 }

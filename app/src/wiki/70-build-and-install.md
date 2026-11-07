@@ -14,7 +14,7 @@ If the project has problems, such as a missing file or a name that mod managers 
 
 ### Destination folder
 
-The ZIP goes into the `build` folder next to the project file. To build into another folder, press **Change** under **Destination folder**. **Back to the Default** returns to the `build` folder. A build adds only the ZIP, and the [patch files](#patch-files) when you turn them on, so several mods can share one folder. Audiodiver doesn't build into the game folder.
+The ZIP goes into the `build` folder next to the project file. To build into another folder, press **Change** under **Destination folder**. **Back to Default** returns to the `build` folder. A build adds only the ZIP, and the [patch files](#patch-files) when you turn them on, so several mods can share one folder. Audiodiver doesn't build into the game folder.
 
 ## What the mod manager shows
 

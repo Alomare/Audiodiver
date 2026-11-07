@@ -354,7 +354,7 @@ def make_handler(session: Session, token: str):
                 if len(parts) != 3 and parts[:2] != ["audio", "file"]:
                     return self._json(404, {"error": "not found"})
                 if parts[:2] == ["audio", "vanilla"]:
-                    path = session.vanilla_wav(session._source(parts[2]))
+                    path = session.vanilla_wav(session._source(parts[2], either=True))  # the Library of either game
                 elif parts[:2] == ["audio", "project"]:
                     path = playable(session.project_audio(session._source(parts[2])))
                 elif parts[:2] == ["audio", "file"] and q.get("path"):

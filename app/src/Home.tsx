@@ -102,13 +102,15 @@ function GameSwitch() {
   );
 }
 
-type Info = { path: string; exists: boolean; readable: boolean; name: string; modified: number | null };
-const RECENT_ASKED = 4; // the last projects looked at, for one that is still there
+type Info = { path: string; exists: boolean; readable: boolean; name: string; game: Mode; modified: number | null };
+const RECENT_ASKED = 8; // the last projects looked at, for one of the selected game that is still there
 
-/** The last project opened (not the loaded one), inside Open project: the mod's icon and name, and a click opens it.
-    A project that is gone or can't be read gives way to the one before. The Project tab lists them all. */
+/** The last project opened for the game selected (not the loaded one), inside Open project: the mod's icon and name,
+    and a click opens it. A project that is gone, can't be read or is for the other game gives way to the one before:
+    opening it would switch the game without saying so. The Project tab lists them all. */
 function Recent() {
   const { recent, project, actions } = useEditor();
+  const { mode } = useNav();
   const paths = recent.filter((p) => p !== project?.path).slice(0, RECENT_ASKED);
   const key = paths.join("\n");
   const [info, setInfo] = useState<Record<string, Info>>({});
@@ -119,7 +121,7 @@ function Recent() {
     call<Info[]>("projects_info", { paths }).then((list) => { if (live) setInfo(Object.fromEntries(list.map((i) => [i.path, i]))); }).catch(() => {});
     return () => { live = false; };
   }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
-  const p = paths.find((x) => info[x]?.exists && info[x].readable);
+  const p = paths.find((x) => info[x]?.exists && info[x].readable && (info[x].game ?? "hd2") === mode);
   if (!p) return null;
   const name = info[p].name;
   return (

@@ -1014,7 +1014,7 @@ const SongBody = memo(function SongBody({ map, cue, piece, firsts, fight, onChoo
     <div className="st-song" data-drop={drop}>
       <div className="st-row-btns">
         {piece.song && <span className="st-songname" data-tip={piece.song}>{fileName(piece.song)}</span>}
-        {piece.song && <button className="btn small-btn" onClick={onRecut}><Trans>Change the Cuts</Trans></button>}
+        {piece.song && <button className="btn small-btn" onClick={onRecut}><Trans>Change Cuts</Trans></button>}
         <button className="btn quiet small-btn" onClick={onChoose}><Trans>Choose Another Song</Trans></button>
       </div>
       <p className="st-note">{fight

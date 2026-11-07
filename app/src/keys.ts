@@ -54,7 +54,7 @@ export const COMMANDS: Command[] = [
   { id: "tabHome", group: t`Tabs`, label: t`Go to Home`, keys: ["Ctrl+1"], inputs: true },
   { id: "tabTools", group: t`Tabs`, label: t`Go to Tools`, keys: ["Ctrl+2"], inputs: true },
   { id: "tabProject", group: t`Tabs`, label: t`Go to Project`, keys: ["Ctrl+3"], inputs: true },
-  { id: "tabLibrary", group: t`Tabs`, label: t`Go to the Library`, keys: ["Ctrl+4"], inputs: true },
+  { id: "tabLibrary", group: t`Tabs`, label: t`Go to Library`, keys: ["Ctrl+4"], inputs: true },
   { id: "tabEditor", group: t`Tabs`, label: t`Go to Audio`, keys: ["Ctrl+5"], inputs: true },
   { id: "tabSoundtrack", group: t`Tabs`, label: t`Go to Soundtrack`, keys: ["Ctrl+6"], inputs: true },
   { id: "tabText", group: t`Tabs`, label: t`Go to Text`, keys: ["Ctrl+7"], inputs: true },

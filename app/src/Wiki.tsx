@@ -30,7 +30,7 @@ function WikiAway() {
   return (
     <section className="wiki-away" aria-label={t`Wiki`}>
       <p><Trans>The Wiki is open in a separate window.</Trans></p>
-      <button className="btn primary" onClick={attachWiki}><Trans>Bring the Wiki Back</Trans></button>
+      <button className="btn primary" onClick={attachWiki}><Trans>Bring Wiki Back</Trans></button>
     </section>
   );
 }
@@ -124,8 +124,8 @@ function Guides() {
               else if (e.key === "Enter" && faqFound) openFound(FAQ!.id);
             }} />
           {!WIKI_WINDOW && (
-            <button className="icon-btn" disabled={tutorialRuns} onClick={() => detachWiki().catch(() => {})} aria-label={t`Detach the Wiki`}
-              data-tip={tutorialRuns ? t`A tutorial is running` : t`Detach the Wiki`} data-tip-more={tutorialRuns ? undefined : t`Opens the Wiki in a separate window`}><DetachIcon /></button>
+            <button className="icon-btn" disabled={tutorialRuns} onClick={() => detachWiki().catch(() => {})} aria-label={t`Detach Wiki`}
+              data-tip={tutorialRuns ? t`A tutorial is running` : t`Detach Wiki`} data-tip-more={tutorialRuns ? undefined : t`Opens the Wiki in a separate window`}><DetachIcon /></button>
           )}
         </div>
         <div className="wiki-list">

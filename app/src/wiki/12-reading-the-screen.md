@@ -33,7 +33,7 @@ Under the title, a row of boxes says more about the item. They sit side by side 
 
 {icon:through} **Play through** plays the whole piece of music segment by segment, in the same order the game uses. The grey button plays the **Original** audio, the yellow one the **Replaced** audio. While one plays, a bar shows where it is.
 
-The toolbar starts with a tick that selects every slot, or clears the selection. In the Library it then has **Add to the Project**, and in the Audio tab these tools:
+The toolbar starts with a tick that selects every slot, or clears the selection. In the Library it then has **Add to Project**, and in the Audio tab these tools:
 
 | Tool | What it does |
 |---|---|
@@ -180,7 +180,7 @@ Exporting a piece of music by segment saves one file per segment. **Lead-in and 
 
 ## The export list
 
-Collect things from different places to export them together. Right-click a slot, a group of takes, an Index entry, a category or section line, or an archive, and choose **Add to the Export List**. **Add to the Export List** in the Export panel adds the open item with the choices made there. **Export List** on the toolbar opens the list. Rename an entry to name the folder it goes to, change what it saves and which audio, remove entries, and export everything as one job. The list is kept until you clear it.
+Collect things from different places to export them together. Right-click a slot, a group of takes, an Index entry, a category or section line, or an archive, and choose **Add to Export List**. **Add to Export List** in the Export panel adds the open item with the choices made there. **Export List** on the toolbar opens the list. Rename an entry to name the folder it goes to, change what it saves and which audio, remove entries, and export everything as one job. The list is kept until you clear it.
 
 ## Colours
 

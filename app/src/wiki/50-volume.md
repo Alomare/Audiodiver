@@ -12,7 +12,7 @@ On a slot without new audio, Make-Up Gain makes the Original louder or quieter. 
 
 The waveforms under the slots are drawn at the gain and follow the slider as it moves, on the same scale as the Original, so the new audio can be set as loud as the Original by eye. Red marks audio pushed past full scale, which clips. ▶ plays the new audio at the gain too, and the Original at the gain on it.
 
-**Match the Original Loudness** sets the Make-Up Gain that makes the new audio as loud as the Original. Audiodiver measures the loudness of both (as broadcast loudness meters do): a sound shorter than 3 seconds, such as a shot or a voice line, by the loudest moment, and longer audio, such as music, by the whole. With several slots selected, **Match Each to the Original Loudness** sets a separate gain for each slot.
+**Match Original Loudness** sets the Make-Up Gain that makes the new audio as loud as the Original. Audiodiver measures the loudness of both (as broadcast loudness meters do): a sound shorter than 3 seconds, such as a shot or a voice line, by the loudest moment, and longer audio, such as music, by the whole. With several slots selected, **Match Each to Original Loudness** sets a separate gain for each slot.
 
 > [!NOTE]
 > A few clips ignore Make-Up Gain in game, including the Illuminate calm stingers. Their details show a warning. Set the loudness of these clips in the audio file.
@@ -23,7 +23,7 @@ The **Vol** slider in the status bar sets only the preview volume in Audiodiver.
 
 The game changes the level of some music while it plays: a volume curve on the clip lowers or raises the level over time, and a fade brings the sound in or takes it out. The curve is part of the music track, not of the audio file, so new audio in that slot follows it too. A slot with a curve shows it as a line around the waveform, with **Volume curve** beside it.
 
-Turn off **Keep the volume curve** in the details to play the slot at an even level. Make-Up Gain can't do this, because it sets one level for the whole clip. The switch takes off volume curves and fades, works on slots with or without new audio and, with several slots selected, applies to the ones that have a curve. A clip can be on several music tracks, and the switch covers all of them.
+Turn off **Keep volume curve** in the details to play the slot at an even level. Make-Up Gain can't do this, because it sets one level for the whole clip. The switch takes off volume curves and fades, works on slots with or without new audio and, with several slots selected, applies to the ones that have a curve. A clip can be on several music tracks, and the switch covers all of them.
 
 For example, one of the two clips of Hellpod Descent has a curve that keeps lowering the level, and the other has none. With the same song in both, one plays quieter than the other until the curve is off.
 

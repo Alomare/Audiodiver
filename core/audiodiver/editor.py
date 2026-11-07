@@ -671,7 +671,7 @@ class Session:
         if full not in (255, 32767):
             raise EditorError("Peaks go up to 255 or 32767")
         if kind == "vanilla":
-            f = self.vanilla_wav(self._source(source))
+            f = self.vanilla_wav(self._source(source, either=True))  # the Library of either game
         elif kind == "project":
             f = self.project_audio(self._source(source))
         elif kind == "file":
@@ -5239,19 +5239,21 @@ def _digest(patch: Path) -> str:
 
 
 def projects_info(paths):
-    """What the Home tab lists for each recent project: whether the file is still there, the mod's name and when it
-    was last saved."""
+    """What the Home tab lists for each recent project: whether the file is still there, the mod's name, the game it
+    makes a mod for ("hd1" or "hd2", so Home offers only the selected game's) and when it was last saved."""
     import json
+    from .project import GAMES
     out = []
     for path in paths if isinstance(paths, list) else []:
         f = Path(str(path))
-        info = {"path": str(path), "exists": False, "readable": False, "name": f.stem, "modified": None}
+        info = {"path": str(path), "exists": False, "readable": False, "name": f.stem, "game": "hd2", "modified": None}
         try:
             info["modified"] = f.stat().st_mtime
             info["exists"] = f.is_file()
             d = json.loads(f.read_text(encoding="utf-8"))
             if isinstance(d, dict) and d.get("audiodiver") == 1:
                 info["name"] = str(d.get("name") or f.stem)
+                info["game"] = d.get("game") if d.get("game") in GAMES else "hd2"
                 info["readable"] = True
         except (OSError, ValueError, AttributeError):
             pass  # moved, deleted or not a project: the list says which

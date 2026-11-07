@@ -65,7 +65,7 @@ function Startup({ error, stage }: { error: string | null; stage?: string }) {
             {!picked && <p className="muted"><Trans>Choose the Helldivers 2 install folder,
               usually <code>…\steamapps\common\Helldivers 2</code>. Audiodiver only reads from it.</Trans></p>}
             <div className="row-btns">
-              <button className="btn primary" onClick={() => choose()}><Trans>Choose the Game Folder</Trans></button>
+              <button className="btn primary" onClick={() => choose()}><Trans>Choose Game Folder</Trans></button>
               {where?.chosen && <button className="btn quiet" onClick={() => choose(null)} data-tip={t`Forget the chosen folder`}><Trans>Find It Through Steam Again</Trans></button>}
             </div>
           </>

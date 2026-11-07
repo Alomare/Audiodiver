@@ -261,7 +261,7 @@ export function TextTab({ hidden }: { hidden?: boolean }) {
           <div className="tx-tools">
             <span className="tx-picked">{plural(picked, { one: "# line selected", other: "# lines selected" })}</span>
             <span className="spacer" />
-            {restorable.length > 0 && <button className="btn small-btn" onClick={restore}><Trans>Restore the Original</Trans></button>}
+            {restorable.length > 0 && <button className="btn small-btn" onClick={restore}><Trans>Restore Original</Trans></button>}
             <button className="btn quiet small-btn" onClick={() => setTicked(new Set())}><Trans comment="Button of the Text tab: unticks the selected lines">Clear</Trans></button>
           </div>
         )}
@@ -417,7 +417,7 @@ function LineEditor({ line, lang, canEdit, reference, onSave, onRevert }: {
       <div className="cue-top"><header className="cue-head">
         <div className="head-row"><div className="crumbs">{subtitle ? t`Subtitle · line ${id} · table ${table}` : t`Text · line ${id} · table ${table}`}{" "}
           <Help tip={t`A mod carries whole tables. When two mods change the same table, the one deployed later replaces the other`} page="text#how-text-is-built" /></div>
-          <button className="link-text small" onClick={() => copyText(String(line.id), quick, `**${line.id}**`)} data-tip={t`Copy the line ID`}><Trans>Copy the ID</Trans></button></div>
+          <button className="link-text small" onClick={() => copyText(String(line.id), quick, `**${line.id}**`)} data-tip={t`Copy the line ID`}><Trans>Copy ID</Trans></button></div>
         <div className="item-title"><h1>{plainText(line.text).slice(0, 80) || t`(empty)`}</h1>
           {line.yours !== undefined && <span className="item-cov done"><Mark status="done" label={t`Changed`} />{t`Changed`}</span>}</div>
       </header></div>
@@ -478,7 +478,7 @@ function LineEditor({ line, lang, canEdit, reference, onSave, onRevert }: {
           <div className="tx-preview"><TextPreview text={draft} /></div>
         </div>
         <div className="row-btns">
-          {line.yours !== undefined && <button className="btn" onClick={onRevert} disabled={!canEdit}><Trans>Restore the Original</Trans></button>}
+          {line.yours !== undefined && <button className="btn" onClick={onRevert} disabled={!canEdit}><Trans>Restore Original</Trans></button>}
           {changed && pending && <span className="muted small"><Trans>Saving…</Trans></span>}
         </div>
       </div>

@@ -421,7 +421,7 @@ function About() {
         <li><Trans>Import the new ZIP in the mod manager in place of the old mod.</Trans></li>
       </ul>
       <p className="set-note"><Trans>A repatched mod is still the work of the original author. Keep it for personal use, and share it only with the author's permission.</Trans></p>
-      <p className="set-note"><button className="link-text" onClick={() => nav.go("wiki", "repatching")}><Trans>More in the Wiki</Trans></button></p>
+      <p className="set-note"><button className="link-text" onClick={() => nav.go("wiki", "repatching")}><Trans>More in Wiki</Trans></button></p>
     </div>
   );
 }

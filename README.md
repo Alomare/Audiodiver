@@ -157,7 +157,7 @@ you build.
    isn't code-signed yet, so Windows may say it protected your PC: choose **More info**, then **Run anyway**.
 2. Start Audiodiver. It finds the game through Steam and reads the audio, which takes about a minute the first time.
 3. On Home, choose **New Project**.
-4. In the Library, find what you want to change and press **Add to the Project**.
+4. In the Library, find what you want to change and press **Add to Project**.
 5. On the Audio tab, drop audio files on the slots.
 6. Press **Build**, then import the ZIP in the mod manager and deploy it.
 

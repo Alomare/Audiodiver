@@ -203,20 +203,20 @@ export function IndexTree({ game = "hd2" }: { game?: LibraryGame }) {
     const entries: MenuEntry[] = [
       { label: t`Open`, run: () => openItem(it.id) },
       { label: t`Play a Sample`, disabled: !it.preview, run: () => playSlot("vanilla", it.preview, revision, t`${name} (sample)`, { scope, itemId: it.id, cueId: null, source: it.preview }) },
-      { label: t`Add to the Export List`, run: () => toExport([it]) },
+      { label: t`Add to Export List`, run: () => toExport([it]) },
       ...(editing && skippable.length ? [{ label: count > 1 ? t`Skip All ${count}` : t`Skip It`,
         run: () => actions.skip(skippable, count > 1 ? t({ message: `${count} in ${name}`, comment: "Named in a note, as in “3 in Exploring → Battle skipped”" }) : it.full) } as MenuEntry] : []),
       ...(!canAdd(it, forGame) ? [] : ["-" as const]),
       ...(!canAdd(it, forGame) ? [] : editing ? [
-        { label: t`Show in the Library`, run: () => goTo({ scope: "library", itemId: it.id, cueId: null, source: null }) } as MenuEntry,
-        { label: t`Remove from the Project`, run: () => actions.removeFromProject([it.id], it.full) } as MenuEntry,
+        { label: t`Show in Library`, run: () => goTo({ scope: "library", itemId: it.id, cueId: null, source: null }) } as MenuEntry,
+        { label: t`Remove from Project`, run: () => actions.removeFromProject([it.id], it.full) } as MenuEntry,
       ] : added ? [
-        { label: t`Open in the Audio Tab`, run: () => openInAudio(it) } as MenuEntry,
-        { label: t`Remove from the Project`, run: () => actions.removeFromProject([it.id], it.full) } as MenuEntry,
+        { label: t`Open in Audio Tab`, run: () => openInAudio(it) } as MenuEntry,
+        { label: t`Remove from Project`, run: () => actions.removeFromProject([it.id], it.full) } as MenuEntry,
       ] : inside ? [
-        { label: t`Open in the Audio Tab`, run: () => openInAudio(it) } as MenuEntry,
+        { label: t`Open in Audio Tab`, run: () => openInAudio(it) } as MenuEntry,
       ] : [
-        { label: t`Add to the Project`, run: () => actions.addToProject([it.id], it.full) } as MenuEntry,
+        { label: t`Add to Project`, run: () => actions.addToProject([it.id], it.full) } as MenuEntry,
       ]),
     ];
     openMenu(e, entries);
@@ -249,7 +249,7 @@ export function IndexTree({ game = "hd2" }: { game?: LibraryGame }) {
       project open, it says to open one. */
   const groupLine = (head: ReactNode, items: MusicItem[], name: string) => {
     const count = items.length;
-    const exporting: MenuEntry = { label: count === 1 ? t`Add It to the Export List` : t`Add All ${count} to the Export List`, run: () => toExport(items) };
+    const exporting: MenuEntry = { label: count === 1 ? t`Add It to Export List` : t`Add All ${count} to Export List`, run: () => toExport(items) };
     const inProject = items.filter((it) => listed.has(it.id));
     const what = (some: MusicItem[]) => (some.length === 1 ? some[0].full : some.length === items.length ? name
       : t({ message: `${ph({ count: some.length })} from ${name}`, comment: "Named in a note, as in “3 from Weapons added to My Mod”" }));
@@ -257,8 +257,8 @@ export function IndexTree({ game = "hd2" }: { game?: LibraryGame }) {
     // the menu says it in Title Case, as buttons do; the ✕ and the + say the same as a tip
     const removeTip = inProject.length === items.length ? (count === 1 ? t`Remove it from the project` : t`Remove all ${count} from the project`)
       : t`Remove the ${ph({ count: inProject.length })} in the project`;
-    const removeLabel = inProject.length === items.length ? (count === 1 ? t`Remove It from the Project` : t`Remove All ${count} from the Project`)
-      : t`Remove the ${ph({ count: inProject.length })} in the Project`;
+    const removeLabel = inProject.length === items.length ? (count === 1 ? t`Remove It from Project` : t`Remove All ${count} from Project`)
+      : t`Remove ${ph({ count: inProject.length })} in Project`;
     if (editing) {
       return (
         <div className="lib-group-line" onContextMenu={(e) => openMenu(e, [{ label: removeLabel, run: remove }, "-", exporting])}>
@@ -273,17 +273,17 @@ export function IndexTree({ game = "hd2" }: { game?: LibraryGame }) {
     const add = () => actions.addToProject(fresh.map((it) => it.id), what(fresh));
     const tip = !fresh.length ? t`All in the project` : fresh.length === items.length ? t`Add all ${count} to the project`
       : t`Add the ${ph({ count: fresh.length })} not in the project`;
-    const label = !fresh.length ? t`All in the Project` : fresh.length === items.length ? t`Add All ${count} to the Project`
-      : t`Add the ${ph({ count: fresh.length })} Not in the Project`;
+    const label = !fresh.length ? t`All in Project` : fresh.length === items.length ? t`Add All ${count} to Project`
+      : t`Add ${ph({ count: fresh.length })} Not in Project`;
     // the + while something here can be added; once all of it is in, the ✕ that takes it off
     return (
       <div className="lib-group-line" onContextMenu={(e) => openMenu(e, [
         { label, disabled: !fresh.length, run: add },
-        ...(first ? [{ label: t`Open in the Audio Tab`, run: () => openInAudio(first) } as MenuEntry] : []),
+        ...(first ? [{ label: t`Open in Audio Tab`, run: () => openInAudio(first) } as MenuEntry] : []),
         ...(inProject.length ? [{ label: removeLabel, run: remove } as MenuEntry] : []),
         "-", exporting])}>
         {head}
-        {first && <OpenInAudio run={() => openInAudio(first)} label={`${t`Open in the Audio Tab`}: ${name}`} />}
+        {first && <OpenInAudio run={() => openInAudio(first)} label={`${t`Open in Audio Tab`}: ${name}`} />}
         {fresh.length ? <AddToggle added={false} run={add} label={`${tip}: ${name}`} tip={tip} more={project ? undefined : t`Open or create a project first`} />
           : inProject.length ? <AddToggle added run={remove} label={`${removeTip}: ${name}`} tip={removeTip} />
           : <span className="lib-add held" role="img" aria-label={t`All in the project`} data-tip={t`All in the project`}><CheckIcon /></span>}
@@ -332,7 +332,7 @@ export function IndexTree({ game = "hd2" }: { game?: LibraryGame }) {
     <>
       <div className="lib-search">
         <input type="search" placeholder={`${t`Search, or paste an ID`}${searchKey ? `  ( ${searchKey} )` : ""}`} value={query}
-          onChange={(e) => setQuery(e.target.value)} aria-label={editing ? t`Search the project` : t`Search the Index`} onKeyDown={searchKeys}
+          onChange={(e) => setQuery(e.target.value)} aria-label={editing ? t`Search the project` : t`Search Index`} onKeyDown={searchKeys}
           data-tip={t`Names, descriptions and slot labels`} data-tip-more={t`Or paste a source, stream, bank or cue ID to find where it plays`} />
         <button className="icon-btn" onClick={collapseAll} aria-label={t`Collapse all`} data-tip={t`Collapse all`}><CollapseAllIcon /></button>
       </div>
@@ -388,7 +388,7 @@ const ItemRow = memo(function ItemRow({ item, deep, active, hi, status, clash, a
       <span className="mus-meta">
         {clash && <span className="clash" data-tip={t`Plays the original next to new music`}>!</span>}
         {status !== "na" && <Mark status={status} />}
-        {!editing && addable && (added || held) && <OpenInAudio run={() => on.audio(item)} label={`${t`Open in the Audio Tab`}: ${name}`} />}
+        {!editing && addable && (added || held) && <OpenInAudio run={() => on.audio(item)} label={`${t`Open in Audio Tab`}: ${name}`} />}
         {!editing && addable && (held ? <HeldMark held={held} />
           : <AddToggle added={added} run={() => (added ? on.remove(item) : on.add(item))}
             label={added ? t`Remove ${name} from the project` : t`Add ${name} to the project`}
@@ -430,7 +430,7 @@ export function AddToggle({ added, run, label, tip, more }: {
 function OpenInAudio({ run, label }: { run: () => void; label: string }) {
   return (
     <button className="lib-open" onClick={(e) => { e.stopPropagation(); run(); }} onDoubleClick={(e) => e.stopPropagation()}
-      aria-label={label} data-tip={t`Open in the Audio Tab`}><AudioIcon /></button>
+      aria-label={label} data-tip={t`Open in Audio Tab`}><AudioIcon /></button>
   );
 }
 
@@ -465,7 +465,7 @@ function FoundElsewhere({ place, more }: { place: Place; more: number }) {
     <div className="sfx-hit">
       <p>{said}
         {more > 0 && ` ${plural(more, { one: "It plays in # other place too.", other: "It plays in # other places too." })}`}</p>
-      <button className="btn" onClick={() => openFound("library", place)}>{archive ? t`Show in All Archives` : t`Show in the Library`}</button>
+      <button className="btn" onClick={() => openFound("library", place)}>{archive ? t`Show in All Archives` : t`Show in Library`}</button>
     </div>
   );
 }

@@ -129,7 +129,7 @@ function BuildBox() {
             data-tip={p.patch_files ? t`Choose another folder for builds. Only the ZIP and the patch files are written there.`
               : t`Choose another folder for builds. Only the ZIP is written there.`}><Trans comment="Button: choose another destination folder for builds">Change</Trans></button>
           {elsewhere && <button className="btn" onClick={() => actions.settings({ build_folder: null })} disabled={building}
-            data-tip={p.build_folder_default}><Trans>Back to the Default</Trans></button>}
+            data-tip={p.build_folder_default}><Trans>Back to Default</Trans></button>}
         </div>
       </div>
       {p.settings > 0 && (
@@ -205,7 +205,7 @@ function Log() {
         <div className="log">{list.map((j) => <LogJob key={j.id} job={j} />)}</div>
       ) : <p className="set-note"><Trans>This session's builds, imports and exports.</Trans></p>}
       {status?.log && <button className="link-inline log-file" onClick={() => reveal(status.log)}
-        data-tip={t`Show the log file in Explorer`} data-tip-more={t`Attach it to a bug report`}><Trans>Show the Log File</Trans></button>}
+        data-tip={t`Show the log file in Explorer`} data-tip-more={t`Attach it to a bug report`}><Trans>Show Log File</Trans></button>}
     </section>
   );
 }

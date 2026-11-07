@@ -30,7 +30,7 @@ msgstr "{1, plural, other {#個のサウンドバンク}}に{0, plural, other {#
 
 #. placeholder {0}: sel.length
 #: src/CueView.tsx
-msgid "{0, plural, one {Copy the Audio (# Slot)} other {Copy the Audio (# Slots)}}"
+msgid "{0, plural, one {Copy Audio (# Slot)} other {Copy Audio (# Slots)}}"
 msgstr "{0, plural, other {音声をコピー (# スロット)}}"
 
 #. placeholder {0}: r.count
@@ -193,7 +193,7 @@ msgid "{count, plural, one {A new interactive tutorial} other {New interactive t
 msgstr "{count, plural, other {新しいインタラクティブチュートリアル}}"
 
 #: src/CueView.tsx
-msgid "{count, plural, one {Add # Slot to the Export List} other {Add # Slots to the Export List}}"
+msgid "{count, plural, one {Add # Slot to Export List} other {Add # Slots to Export List}}"
 msgstr "{count, plural, other {# 個のスロットをエクスポートリストに追加}}"
 
 #: src/Inspector.tsx
@@ -217,11 +217,11 @@ msgid "{count, plural, one {Click here to see it in the Wiki.} other {Click here
 msgstr "{count, plural, other {ここをクリックするとWikiで確認できます。}}"
 
 #: src/CueView.tsx
-msgid "{count, plural, one {Copy the New Audio (# Slot)} other {Copy the New Audio (# Slots)}}"
+msgid "{count, plural, one {Copy New Audio (# Slot)} other {Copy New Audio (# Slots)}}"
 msgstr "{count, plural, other {新しい音声をコピー（# 個のスロット）}}"
 
 #: src/CueView.tsx
-msgid "{count, plural, one {Copy the Original (# Slot)} other {Copy the Original (# Slots)}}"
+msgid "{count, plural, one {Copy Original (# Slot)} other {Copy Original (# Slots)}}"
 msgstr "{count, plural, other {オリジナルをコピー (# スロット)}}"
 
 #: src/SettingsTab.tsx
@@ -241,11 +241,11 @@ msgid "{count, plural, one {Paste (# Slot)} other {Paste (# Slots)}}"
 msgstr "{count, plural, other {貼り付け（# 個のスロット）}}"
 
 #: src/CueView.tsx
-msgid "{count, plural, one {Remove the New Audio (# Slot)} other {Remove the New Audio (# Slots)}}"
+msgid "{count, plural, one {Remove New Audio (# Slot)} other {Remove New Audio (# Slots)}}"
 msgstr "{count, plural, other {新しい音声を削除（# 個のスロット）}}"
 
 #: src/CueView.tsx
-msgid "{count, plural, one {Remove the New Audio from the # Take} other {Remove the New Audio from the # Takes}}"
+msgid "{count, plural, one {Remove New Audio from # Take} other {Remove New Audio from # Takes}}"
 msgstr "{count, plural, other {# 個のテイクから新しい音声を削除}}"
 
 #: src/TextTools.tsx
@@ -1383,12 +1383,16 @@ msgid "About {APP_NAME}"
 msgstr "{APP_NAME}について"
 
 #: src/IndexTree.tsx
-#: src/Library.tsx
-msgid "Add {name} to the project"
-msgstr "{name}をプロジェクトに追加"
+msgid "Add {count} Not in Project"
+msgstr "プロジェクトにない {count} 件を追加"
 
 #: src/CueView.tsx
-msgid "Add {name} to the Project"
+msgid "Add {name} to Project"
+msgstr "{name}をプロジェクトに追加"
+
+#: src/IndexTree.tsx
+#: src/Library.tsx
+msgid "Add {name} to the project"
 msgstr "{name}をプロジェクトに追加"
 
 #: src/CombinePage.tsx
@@ -1408,15 +1412,15 @@ msgid "Add a timing mark at the cursor"
 msgstr "カーソル位置にタイミングマークを追加"
 
 #: src/IndexTree.tsx
-msgid "Add All {count} to the Export List"
+msgid "Add All {count} to Export List"
 msgstr "{count} 件すべてをエクスポートリストに追加"
 
 #: src/IndexTree.tsx
-msgid "Add all {count} to the project"
+msgid "Add All {count} to Project"
 msgstr "{count} 件すべてをプロジェクトに追加"
 
 #: src/IndexTree.tsx
-msgid "Add All {count} to the Project"
+msgid "Add all {count} to the project"
 msgstr "{count} 件すべてをプロジェクトに追加"
 
 #: src/SettingsTab.tsx
@@ -1428,7 +1432,7 @@ msgid "Add at least two mods"
 msgstr "MODを2つ以上追加してください"
 
 #: src/Library.tsx
-msgid "Add from the Library"
+msgid "Add from Library"
 msgstr "ライブラリから追加"
 
 #: src/Notes.tsx
@@ -1436,12 +1440,16 @@ msgid "Add Global Note"
 msgstr "グローバルメモを追加"
 
 #: src/IndexTree.tsx
-msgid "Add It to the Export List"
+msgid "Add It to Export List"
 msgstr "エクスポートリストに追加"
 
 #: src/App.tsx
 msgid "Add it to the project, then drop audio on the slots in the Audio tab"
 msgstr "プロジェクトに追加してから、オーディオタブのスロットに音声をドロップしてください"
+
+#: src/tutorials.ts
+msgid "Add Liberator"
+msgstr "リベレイターを追加"
 
 #: src/CueView.tsx
 msgid "Add new audio"
@@ -1463,14 +1471,6 @@ msgstr "曲を追加"
 msgid "Add the {count} not in the project"
 msgstr "プロジェクトにない {count} 件を追加"
 
-#: src/IndexTree.tsx
-msgid "Add the {count} Not in the Project"
-msgstr "プロジェクトにない {count} 件を追加"
-
-#: src/tutorials.ts
-msgid "Add the Liberator"
-msgstr "リベレイターを追加"
-
 #: src/CueView.tsx
 msgid "Add to {name}"
 msgstr "{name}に追加"
@@ -1479,8 +1479,15 @@ msgstr "{name}に追加"
 #: src/ExportDialog.tsx
 #: src/IndexTree.tsx
 #: src/Library.tsx
-msgid "Add to the Export List"
+msgid "Add to Export List"
 msgstr "エクスポートリストに追加"
+
+#: src/CueView.tsx
+#: src/ImportMod.tsx
+#: src/IndexTree.tsx
+#: src/Library.tsx
+msgid "Add to Project"
+msgstr "プロジェクトに追加"
 
 #: src/CombinePage.tsx
 msgid "Add to the list"
@@ -1494,13 +1501,6 @@ msgstr "プロジェクトに追加"
 #: src/IndexTree.tsx
 #: src/Library.tsx
 msgid "Add to the project"
-msgstr "プロジェクトに追加"
-
-#: src/CueView.tsx
-#: src/ImportMod.tsx
-#: src/IndexTree.tsx
-#: src/Library.tsx
-msgid "Add to the Project"
 msgstr "プロジェクトに追加"
 
 #: src/BuildTab.tsx
@@ -1581,12 +1581,12 @@ msgid "all game audio, to find, hear and add to the project"
 msgstr "検索、試聴、プロジェクトへの追加ができるゲームの全音声"
 
 #: src/IndexTree.tsx
-msgid "All in the project"
-msgstr "すべてプロジェクトにあります"
+msgid "All in Project"
+msgstr "すべて追加済み"
 
 #: src/IndexTree.tsx
-msgid "All in the Project"
-msgstr "すべて追加済み"
+msgid "All in the project"
+msgstr "すべてプロジェクトにあります"
 
 #: src/TextTab.tsx
 msgid "All lines"
@@ -1897,6 +1897,7 @@ msgstr "Archivoに戻す"
 msgid "Back to Blue"
 msgstr "青に戻す"
 
+#: src/BuildTab.tsx
 #: src/SettingsTab.tsx
 msgid "Back to Default"
 msgstr "デフォルトに戻す"
@@ -1908,10 +1909,6 @@ msgstr "キーなしに戻す"
 #: src/SettingsTab.tsx
 msgid "Back to Normal"
 msgstr "標準に戻す"
-
-#: src/BuildTab.tsx
-msgid "Back to the Default"
-msgstr "デフォルトに戻す"
 
 #: src/Inspector.tsx
 msgid "Back to the original level"
@@ -2006,7 +2003,7 @@ msgid "Bring the notes of an exported notes file or of a project into the global
 msgstr "エクスポートしたメモファイルまたはプロジェクトのメモを、グローバルメモに取り込みます"
 
 #: src/Wiki.tsx
-msgid "Bring the Wiki Back"
+msgid "Bring Wiki Back"
 msgstr "Wikiを戻す"
 
 #. The name of the Build tab, as the title of a tutorial step
@@ -2158,7 +2155,7 @@ msgid "Carried over"
 msgstr "引き継ぎ"
 
 #: src/Library.tsx
-msgid "Categories in the Index"
+msgid "Categories in Index"
 msgstr "インデックスのカテゴリー"
 
 #. The unit of pitch: hundredths of a semitone, after a number
@@ -2188,7 +2185,7 @@ msgid "Change"
 msgstr "変更"
 
 #: src/Soundtrack.tsx
-msgid "Change the Cuts"
+msgid "Change Cuts"
 msgstr "カットを変更"
 
 #: src/tutorials.ts
@@ -2462,6 +2459,10 @@ msgstr "ファイルを選択"
 msgid "Choose Files"
 msgstr "ファイルを選択"
 
+#: src/App.tsx
+msgid "Choose Game Folder"
+msgstr "ゲームフォルダーを選択"
+
 #: src/ProjectTab.tsx
 msgid "Choose it before sharing. Mod managers keep the name from the first import. Leave out the version."
 msgstr "共有する前に決めてください。MODマネージャーは最初にインポートしたときの名前を使い続けます。バージョンは含めないでください。"
@@ -2477,10 +2478,6 @@ msgstr "左で音楽を選んでください。"
 #: src/Inspector.tsx
 msgid "Choose One File for All"
 msgstr "すべてに1つのファイルを選択"
-
-#: src/App.tsx
-msgid "Choose the Game Folder"
-msgstr "ゲームフォルダーを選択"
 
 #: src/store.tsx
 msgid "Choose the Helldivers 1 install folder"
@@ -2545,7 +2542,7 @@ msgid "Clear Formatting"
 msgstr "書式をクリア"
 
 #: src/ExportDialog.tsx
-msgid "Clear the List"
+msgid "Clear List"
 msgstr "リストをクリア"
 
 #: src/CueView.tsx
@@ -2839,41 +2836,49 @@ msgid "copy / paste"
 msgstr "コピー／貼り付け"
 
 #: src/Library.tsx
-msgid "Copy the Archive Name"
+msgid "Copy Archive Name"
 msgstr "アーカイブ名をコピー"
 
 #: src/CueView.tsx
-msgid "Copy the Audio"
+msgid "Copy Audio"
 msgstr "音声をコピー"
+
+#: src/CueView.tsx
+msgid "Copy Container ID"
+msgstr "コンテナIDをコピー"
+
+#: src/CueView.tsx
+#: src/TextTab.tsx
+msgid "Copy ID"
+msgstr "IDをコピー"
+
+#: src/CueView.tsx
+msgid "Copy New Audio"
+msgstr "新しい音声をコピー"
+
+#: src/CueView.tsx
+msgid "Copy Original"
+msgstr "オリジナルをコピー"
+
+#: src/CueView.tsx
+msgid "Copy Sound ID"
+msgstr "サウンドIDをコピー"
+
+#: src/CueView.tsx
+msgid "Copy Source ID"
+msgstr "ソースIDをコピー"
+
+#: src/CueView.tsx
+msgid "Copy Stream ID"
+msgstr "ストリームIDをコピー"
 
 #: src/keys.ts
 msgid "Copy the audio of the selected slots"
 msgstr "選択したスロットの音声をコピー"
 
-#: src/CueView.tsx
-msgid "Copy the Container ID"
-msgstr "コンテナIDをコピー"
-
-#: src/CueView.tsx
-#: src/TextTab.tsx
-msgid "Copy the ID"
-msgstr "IDをコピー"
-
 #: src/TextTab.tsx
 msgid "Copy the line ID"
 msgstr "行IDをコピー"
-
-#: src/CueView.tsx
-msgid "Copy the New Audio"
-msgstr "新しい音声をコピー"
-
-#: src/CueView.tsx
-msgid "Copy the Original"
-msgstr "オリジナルをコピー"
-
-#: src/CueView.tsx
-msgid "Copy the Sound ID"
-msgstr "サウンドIDをコピー"
 
 #: src/CueView.tsx
 #: src/Inspector.tsx
@@ -2881,25 +2886,17 @@ msgid "Copy the source ID"
 msgstr "ソースIDをコピー"
 
 #: src/CueView.tsx
-msgid "Copy the Source ID"
-msgstr "ソースIDをコピー"
-
-#: src/CueView.tsx
 #: src/Inspector.tsx
 msgid "Copy the stream ID"
 msgstr "ストリームIDをコピー"
 
-#: src/CueView.tsx
-msgid "Copy the Stream ID"
-msgstr "ストリームIDをコピー"
-
-#: src/CueView.tsx
-msgid "Copy the Track ID"
-msgstr "トラックIDをコピー"
-
 #: src/Soundtrack.tsx
 msgid "Copy To"
 msgstr "コピー先"
+
+#: src/CueView.tsx
+msgid "Copy Track ID"
+msgstr "トラックIDをコピー"
 
 #. The version of the Audiodiver core, the program behind the window
 #: src/About.tsx
@@ -3090,7 +3087,7 @@ msgid "Destination folder"
 msgstr "保存先フォルダー"
 
 #: src/Wiki.tsx
-msgid "Detach the Wiki"
+msgid "Detach Wiki"
 msgstr "Wikiを分離"
 
 #: src/Inspector.tsx
@@ -3770,7 +3767,7 @@ msgid "Folder name (click to rename)"
 msgstr "フォルダー名（クリックで名前を変更）"
 
 #: src/SettingsTab.tsx
-msgid "Follow the System"
+msgid "Follow System"
 msgstr "システムに従う"
 
 #: src/SettingsTab.tsx
@@ -3930,6 +3927,10 @@ msgstr "ホームへ移動"
 msgid "Go to it"
 msgstr "その場所へ移動"
 
+#: src/keys.ts
+msgid "Go to Library"
+msgstr "ライブラリへ移動"
+
 #: src/Home.tsx
 #: src/keys.ts
 msgid "Go to Project"
@@ -3942,10 +3943,6 @@ msgstr "サウンドトラックへ移動"
 #: src/keys.ts
 msgid "Go to Text"
 msgstr "テキストへ移動"
-
-#: src/keys.ts
-msgid "Go to the Library"
-msgstr "ライブラリへ移動"
 
 #: src/keys.ts
 msgid "Go to Tools"
@@ -4412,6 +4409,10 @@ msgstr "続ける"
 msgid "Keep It Here"
 msgstr "ここに残す"
 
+#: src/ImportMod.tsx
+msgid "Keep mod ID"
+msgstr "MOD IDを維持"
+
 #: src/Inspector.tsx
 msgid "Keep original duration"
 msgstr "元の長さを保つ"
@@ -4429,12 +4430,8 @@ msgstr ""
 msgid "Keep Sharing on All"
 msgstr ""
 
-#: src/ImportMod.tsx
-msgid "Keep the mod ID"
-msgstr "MOD IDを維持"
-
 #: src/Inspector.tsx
-msgid "Keep the volume curve"
+msgid "Keep volume curve"
 msgstr "ボリュームカーブを維持"
 
 #: src/App.tsx
@@ -4793,7 +4790,7 @@ msgid "Match case"
 msgstr "大文字と小文字を区別"
 
 #: src/Inspector.tsx
-msgid "Match Each to the Original Loudness"
+msgid "Match Each to Original Loudness"
 msgstr "それぞれをオリジナルのラウドネスに合わせる"
 
 #. Edit in Undo, Redo and History: Make-Up Gain set so the new audio is as loud as the original
@@ -4802,7 +4799,7 @@ msgid "match loudness"
 msgstr "ラウドネスを合わせる"
 
 #: src/Inspector.tsx
-msgid "Match the Original Loudness"
+msgid "Match Original Loudness"
 msgstr "オリジナルのラウドネスに合わせる"
 
 #: src/Inspector.tsx
@@ -4890,7 +4887,7 @@ msgstr "その他"
 #: src/CombinePage.tsx
 #: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
-msgid "More in the Wiki"
+msgid "More in Wiki"
 msgstr "詳しくはWikiで"
 
 #: src/Tutorial.tsx
@@ -4935,6 +4932,14 @@ msgstr "下へ移動"
 msgid "move it to another place"
 msgstr "別の枠に移動"
 
+#: src/CueView.tsx
+msgid "Move New Audio Down"
+msgstr "新しい音声を下へ移動"
+
+#: src/CueView.tsx
+msgid "Move New Audio Up"
+msgstr "新しい音声を上へ移動"
+
 #: src/ProjectTab.tsx
 msgid "Move Project"
 msgstr "プロジェクトを移動"
@@ -4943,17 +4948,9 @@ msgstr "プロジェクトを移動"
 msgid "move the new audio"
 msgstr "新しい音声を移動"
 
-#: src/CueView.tsx
-msgid "Move the New Audio Down"
-msgstr "新しい音声を下へ移動"
-
 #: src/keys.ts
 msgid "Move the new audio down a slot"
 msgstr "新しい音声を1つ下のスロットに移動"
-
-#: src/CueView.tsx
-msgid "Move the New Audio Up"
-msgstr "新しい音声を上へ移動"
 
 #: src/keys.ts
 msgid "Move the new audio up a slot"
@@ -5020,12 +5017,12 @@ msgid "Name and description"
 msgstr "名前と説明"
 
 #: src/Library.tsx
-msgid "Name in the game files"
-msgstr "ゲームファイル内の名前"
+msgid "Name in Index"
+msgstr "インデックスでの名前"
 
 #: src/Library.tsx
-msgid "Name in the Index"
-msgstr "インデックスでの名前"
+msgid "Name in the game files"
+msgstr "ゲームファイル内の名前"
 
 #: src/CombinePage.tsx
 #: src/PatchContentPage.tsx
@@ -5446,11 +5443,11 @@ msgid "Not found"
 msgstr "見つかりません"
 
 #: src/PatchContentPage.tsx
-msgid "Not in the game"
+msgid "Not in game"
 msgstr "ゲームにない"
 
 #: src/PatchContentPage.tsx
-msgid "Not in the Game ({n})"
+msgid "Not in Game ({n})"
 msgstr "ゲームにない（{n}）"
 
 #: src/Inspector.tsx
@@ -5817,10 +5814,14 @@ msgstr "左の項目を開いて、スロットに音声をドロップしてく
 msgid "Open Another Mod"
 msgstr "別のMODを開く"
 
+#: src/UpdatesTab.tsx
+msgid "Open Download Page"
+msgstr "ダウンロードページを開く"
+
 #: src/CueView.tsx
 #: src/IndexTree.tsx
 #: src/Library.tsx
-msgid "Open in the Audio Tab"
+msgid "Open in Audio Tab"
 msgstr "オーディオタブで開く"
 
 #: src/RepatchPage.tsx
@@ -5830,6 +5831,14 @@ msgstr "上のフォームで開き、Repatchできる状態にします"
 #: src/TextTab.tsx
 msgid "Open it in the Library"
 msgstr "ライブラリで開く"
+
+#: src/tutorials.ts
+msgid "Open Liberator"
+msgstr "リベレイターを開く"
+
+#: src/Library.tsx
+msgid "Open Library"
+msgstr "ライブラリを開く"
 
 #: src/store.tsx
 msgid "Open Log"
@@ -5880,10 +5889,6 @@ msgstr "<0>ホーム</0>で開くか作成してください。"
 msgid "Open Project"
 msgstr "プロジェクトを開く"
 
-#: src/UpdatesTab.tsx
-msgid "Open the Download Page"
-msgstr "ダウンロードページを開く"
-
 #: src/IndexTree.tsx
 msgid "Open the first one and add it to the project"
 msgstr "最初の1つを開いてプロジェクトに追加"
@@ -5895,14 +5900,6 @@ msgstr "インタラクティブチュートリアルを開く"
 #: src/SettingsTab.tsx
 msgid "Open the last project when Audiodiver starts"
 msgstr "Audiodiverの起動時に前回のプロジェクトを開く"
-
-#: src/tutorials.ts
-msgid "Open the Liberator"
-msgstr "リベレイターを開く"
-
-#: src/Library.tsx
-msgid "Open the Library"
-msgstr "ライブラリを開く"
 
 #: src/Inspector.tsx
 msgid "Open the subtitle in the Text tab"
@@ -6270,6 +6267,14 @@ msgstr "サンプルを再生"
 msgid "Play Again"
 msgstr "もう一度再生"
 
+#: src/CueView.tsx
+msgid "Play First Take"
+msgstr "最初のテイクを再生"
+
+#: src/CueView.tsx
+msgid "Play New Audio"
+msgstr "新しい音声を再生"
+
 #: src/Inspector.tsx
 msgid "Play nothing here instead of the original"
 msgstr "オリジナルの代わりにここでは何も再生しない"
@@ -6290,17 +6295,13 @@ msgstr "再生順"
 msgid "Play order in the project"
 msgstr "プロジェクトでの再生順"
 
+#: src/CueView.tsx
+msgid "Play Original"
+msgstr "オリジナルを再生"
+
 #: src/SliceTool.tsx
 msgid "Play piece {piece}"
 msgstr "ピース {piece} を再生"
-
-#: src/CueView.tsx
-msgid "Play the First Take"
-msgstr "最初のテイクを再生"
-
-#: src/CueView.tsx
-msgid "Play the New Audio"
-msgstr "新しい音声を再生"
 
 #: src/keys.ts
 msgid "Play the new audio of the selected slot"
@@ -6309,10 +6310,6 @@ msgstr "選択したスロットの新しい音声を再生"
 #: src/keys.ts
 msgid "play the new audio, or the original if there is none"
 msgstr "新しい音声を再生（なければオリジナル）"
-
-#: src/CueView.tsx
-msgid "Play the Original"
-msgstr "オリジナルを再生"
 
 #: src/SliceTool.tsx
 msgid "Play the original {slot}"
@@ -6647,7 +6644,7 @@ msgid "Raise the version after each build"
 msgstr "ビルドのたびにバージョンを上げる"
 
 #: src/UpdatesTab.tsx
-msgid "Read the Changelog"
+msgid "Read Changelog"
 msgstr "変更履歴を読む"
 
 #: src/content.ts
@@ -6779,6 +6776,10 @@ msgstr "削除"
 msgid "Remove"
 msgstr "削除"
 
+#: src/IndexTree.tsx
+msgid "Remove {count} in Project"
+msgstr "プロジェクトにある {count} 件を削除"
+
 #: src/SettingsTab.tsx
 msgid "Remove {keyName}"
 msgstr "{keyName}を削除"
@@ -6806,16 +6807,21 @@ msgid "Remove {what} from the project?"
 msgstr "{what}をプロジェクトから削除しますか？"
 
 #: src/IndexTree.tsx
-msgid "Remove all {count} from the project"
+msgid "Remove All {count} from Project"
 msgstr "{count} 件すべてをプロジェクトから削除"
 
 #: src/IndexTree.tsx
-msgid "Remove All {count} from the Project"
+msgid "Remove all {count} from the project"
 msgstr "{count} 件すべてをプロジェクトから削除"
 
 #: src/TextTab.tsx
 msgid "Remove every colour, size and style"
 msgstr "すべての色、サイズ、スタイルを削除"
+
+#: src/IndexTree.tsx
+#: src/Library.tsx
+msgid "Remove from Project"
+msgstr "プロジェクトから削除"
 
 #: src/CombinePage.tsx
 #: src/ExportDialog.tsx
@@ -6832,29 +6838,24 @@ msgstr "プロジェクトから削除"
 msgid "Remove from the project"
 msgstr "プロジェクトから削除"
 
-#: src/IndexTree.tsx
-#: src/Library.tsx
-msgid "Remove from the Project"
-msgstr "プロジェクトから削除"
-
 #: src/ProjectTab.tsx
 msgid "Remove from this list"
 msgstr "このリストから削除"
 
 #: src/IndexTree.tsx
+msgid "Remove It from Project"
+msgstr "プロジェクトから削除"
+
+#: src/IndexTree.tsx
 msgid "Remove it from the project"
 msgstr "プロジェクトから削除"
 
-#: src/IndexTree.tsx
-msgid "Remove It from the Project"
-msgstr "プロジェクトから削除"
+#: src/CueView.tsx
+msgid "Remove New Audio"
+msgstr "新しい音声を削除"
 
 #: src/IndexTree.tsx
 msgid "Remove the {count} in the project"
-msgstr "プロジェクトにある {count} 件を削除"
-
-#: src/IndexTree.tsx
-msgid "Remove the {count} in the Project"
 msgstr "プロジェクトにある {count} 件を削除"
 
 #: src/Soundtrack.tsx
@@ -6864,10 +6865,6 @@ msgstr "音声を削除"
 #: src/CueView.tsx
 #: src/PatchContentPage.tsx
 msgid "Remove the new audio"
-msgstr "新しい音声を削除"
-
-#: src/CueView.tsx
-msgid "Remove the New Audio"
 msgstr "新しい音声を削除"
 
 #: src/CueView.tsx
@@ -6984,6 +6981,10 @@ msgstr "ゲームが次に進むまで繰り返します"
 msgid "Replace audio there"
 msgstr "そこで音声を置き換え"
 
+#: src/ImportMod.tsx
+msgid "Replace Project Audio"
+msgstr "プロジェクトの音声を置き換え"
+
 #: src/ToolsTab.tsx
 msgid "Replace sounds inside an existing mod, also sounds that an update took out of the game."
 msgstr "既存のMOD内のサウンドを置き換えます。アップデートでゲームから消えたサウンドも対象です。"
@@ -6991,10 +6992,6 @@ msgstr "既存のMOD内のサウンドを置き換えます。アップデート
 #: src/App.tsx
 msgid "replace the audio of what the project lists"
 msgstr "プロジェクトにある項目の音声を置き換え"
-
-#: src/ImportMod.tsx
-msgid "Replace the Project's Audio"
-msgstr "プロジェクトの音声を置き換え"
 
 #: src/keys.ts
 msgid "Replace the selected slots with silence"
@@ -7167,7 +7164,7 @@ msgid "Resize the waveforms"
 msgstr "波形のサイズを変更"
 
 #: src/TextTab.tsx
-msgid "Restore the Original"
+msgid "Restore Original"
 msgstr "オリジナルに戻す"
 
 #: src/IndexTree.tsx
@@ -7242,6 +7239,10 @@ msgstr "機能またはキーでショートカットを検索"
 msgid "Search by ID or name"
 msgstr "IDまたは名前で検索"
 
+#: src/IndexTree.tsx
+msgid "Search Index"
+msgstr "インデックスを検索"
+
 #: src/TextTab.tsx
 msgid "Search lines"
 msgstr "行を検索"
@@ -7261,10 +7262,6 @@ msgstr "アーカイブを検索"
 #: src/Wiki.tsx
 msgid "Search the guides"
 msgstr "ガイドを検索"
-
-#: src/IndexTree.tsx
-msgid "Search the Index"
-msgstr "インデックスを検索"
 
 #: src/Soundtrack.tsx
 msgid "Search the music"
@@ -7483,6 +7480,10 @@ msgstr "すべての行を表示"
 msgid "Show container IDs"
 msgstr "コンテナIDを表示"
 
+#: src/SettingsTab.tsx
+msgid "Show Folder"
+msgstr "フォルダーを表示"
+
 #: src/IndexTree.tsx
 #: src/ItemHead.tsx
 msgid "Show in All Archives"
@@ -7506,12 +7507,16 @@ msgstr "フォルダーで表示"
 
 #: src/CueView.tsx
 #: src/ItemHead.tsx
-msgid "Show in the Index"
+msgid "Show in Index"
 msgstr "インデックスで表示"
 
 #: src/IndexTree.tsx
-msgid "Show in the Library"
+msgid "Show in Library"
 msgstr "ライブラリで表示"
+
+#: src/BuildTab.tsx
+msgid "Show Log File"
+msgstr "ログファイルを表示"
 
 #: src/CueView.tsx
 msgid "Show names"
@@ -7521,17 +7526,9 @@ msgstr "名前を表示"
 msgid "Show the description"
 msgstr "説明を表示"
 
-#: src/SettingsTab.tsx
-msgid "Show the Folder"
-msgstr "フォルダーを表示"
-
 #: src/Tools.tsx
 msgid "Show the header"
 msgstr "ヘッダーを表示"
-
-#: src/BuildTab.tsx
-msgid "Show the Log File"
-msgstr "ログファイルを表示"
 
 #: src/About.tsx
 #: src/BuildTab.tsx
@@ -7546,10 +7543,6 @@ msgstr "ニュースティッカーを表示"
 msgid "Show the waveforms"
 msgstr "波形を表示"
 
-#: src/tutorials.ts
-msgid "Show the ZIP"
-msgstr "ZIPを表示"
-
 #: src/BuildTab.tsx
 msgid "Show the ZIP in Explorer when a build finishes"
 msgstr "ビルドが終わったらZIPをエクスプローラーで表示"
@@ -7557,6 +7550,10 @@ msgstr "ビルドが終わったらZIPをエクスプローラーで表示"
 #: src/keys.ts
 msgid "Show these shortcuts"
 msgstr "このショートカット一覧を表示"
+
+#: src/tutorials.ts
+msgid "Show ZIP"
+msgstr "ZIPを表示"
 
 #: src/PatchContentPage.tsx
 msgid "Showing {n} of {total}. Search to narrow the list."
@@ -8328,7 +8325,7 @@ msgid "The list changed since the last check."
 msgstr "前回のチェック以降にリストが変更されました。"
 
 #: src/ExportDialog.tsx
-msgid "The list is empty. Collect slots, groups, Index entries or archives with a right-click, or with <0>Add to the Export List</0> here, to export them together."
+msgid "The list is empty. Collect slots, groups, Index entries or archives with a right-click, or with <0>Add to Export List</0> here, to export them together."
 msgstr "リストは空です。スロット、グループ、インデックスの項目、アーカイブを右クリックするか、ここの<0>エクスポートリストに追加</0>で集めると、まとめてエクスポートできます。"
 
 #: src/Inspector.tsx
@@ -9095,17 +9092,17 @@ msgstr "アップデート：新しいバージョンと変更履歴"
 msgid "Updating to {label}. Audiodiver restarts when the update is installed."
 msgstr "{label}にアップデートしています。インストールが終わるとAudiodiverが再起動します。"
 
-#: src/Inspector.tsx
-msgid "Use Silence"
-msgstr "無音を使用"
-
 #: src/SettingsTab.tsx
-msgid "Use the Default Folder"
+msgid "Use Default Folder"
 msgstr "デフォルトのフォルダーを使用"
 
 #: src/ProjectTab.tsx
-msgid "Use the Default Icon"
+msgid "Use Default Icon"
 msgstr "デフォルトのアイコンを使用"
+
+#: src/Inspector.tsx
+msgid "Use Silence"
+msgstr "無音を使用"
 
 #: src/ImportMod.tsx
 msgid "Use the icon of the mod"
@@ -9394,7 +9391,7 @@ msgid "Write a note"
 msgstr "メモを書く"
 
 #: src/PatchContentPage.tsx
-msgid "Write the Mod"
+msgid "Write Mod"
 msgstr "MODを書き込み"
 
 #: src/PatchContentPage.tsx

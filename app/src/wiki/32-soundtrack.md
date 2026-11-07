@@ -41,7 +41,7 @@ Undo takes back a whole template. A template that finds nothing to change says s
 
 The list goes on past the last piece with the segments the song doesn't reach. A file on one of them plays after the song, and stays there if you cut the song again, unless a new piece lands on that segment.
 
-**Change the Cuts** opens the slice tool again with the same song and the same cuts. **Choose Another Song** starts with a new one.
+**Change Cuts** opens the slice tool again with the same song and the same cuts. **Choose Another Song** starts with a new one.
 
 ## Playlist
 

@@ -61,7 +61,7 @@ export function ItemHead({ item, part, cue, nav, facts = [] }: { item: MusicItem
   const inside = readOnly && project && !listed ? heldBy(listedBanks(itemIndex, project.library), item) : null;
   // in an archive, what the Index knows of the bank that shows: a link to the sound set it is
   const known = item.kind === "archive" ? (cue.tags ?? []).filter((t) => t.item) : [];
-  const sets = known.length ? listOf(known.map((tag) => <CatTag key={tag.item} tag={tag} tip={t`Show in the Index`} onOpen={() => show(tag.item!, cue.id)} />)) : null;
+  const sets = known.length ? listOf(known.map((tag) => <CatTag key={tag.item} tag={tag} tip={t`Show in Index`} onOpen={() => show(tag.item!, cue.id)} />)) : null;
   const archives = cue.kind === "sounds" ? cue.archive_names : [];
   // the archives that hold the bank, as links: the first four, then how many more
   const count = archives.length;

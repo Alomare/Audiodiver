@@ -30,7 +30,7 @@ msgstr "{1, plural, other {# 个音频库}}中的{0, plural, other {# 个声音}
 
 #. placeholder {0}: sel.length
 #: src/CueView.tsx
-msgid "{0, plural, one {Copy the Audio (# Slot)} other {Copy the Audio (# Slots)}}"
+msgid "{0, plural, one {Copy Audio (# Slot)} other {Copy Audio (# Slots)}}"
 msgstr "{0, plural, other {复制音频（# 个槽位）}}"
 
 #. placeholder {0}: r.count
@@ -193,7 +193,7 @@ msgid "{count, plural, one {A new interactive tutorial} other {New interactive t
 msgstr "{count, plural, other {新的互动教程}}"
 
 #: src/CueView.tsx
-msgid "{count, plural, one {Add # Slot to the Export List} other {Add # Slots to the Export List}}"
+msgid "{count, plural, one {Add # Slot to Export List} other {Add # Slots to Export List}}"
 msgstr "{count, plural, other {将 # 个槽位添加到导出列表}}"
 
 #: src/Inspector.tsx
@@ -217,11 +217,11 @@ msgid "{count, plural, one {Click here to see it in the Wiki.} other {Click here
 msgstr "{count, plural, other {点击此处在 Wiki 中查看。}}"
 
 #: src/CueView.tsx
-msgid "{count, plural, one {Copy the New Audio (# Slot)} other {Copy the New Audio (# Slots)}}"
+msgid "{count, plural, one {Copy New Audio (# Slot)} other {Copy New Audio (# Slots)}}"
 msgstr "{count, plural, other {复制新音频（# 个槽位）}}"
 
 #: src/CueView.tsx
-msgid "{count, plural, one {Copy the Original (# Slot)} other {Copy the Original (# Slots)}}"
+msgid "{count, plural, one {Copy Original (# Slot)} other {Copy Original (# Slots)}}"
 msgstr "{count, plural, other {复制原版（# 个槽位）}}"
 
 #: src/SettingsTab.tsx
@@ -241,11 +241,11 @@ msgid "{count, plural, one {Paste (# Slot)} other {Paste (# Slots)}}"
 msgstr "{count, plural, other {粘贴（# 个槽位）}}"
 
 #: src/CueView.tsx
-msgid "{count, plural, one {Remove the New Audio (# Slot)} other {Remove the New Audio (# Slots)}}"
+msgid "{count, plural, one {Remove New Audio (# Slot)} other {Remove New Audio (# Slots)}}"
 msgstr "{count, plural, other {移除新音频（# 个槽位）}}"
 
 #: src/CueView.tsx
-msgid "{count, plural, one {Remove the New Audio from the # Take} other {Remove the New Audio from the # Takes}}"
+msgid "{count, plural, one {Remove New Audio from # Take} other {Remove New Audio from # Takes}}"
 msgstr "{count, plural, other {移除 # 个变体的新音频}}"
 
 #: src/TextTools.tsx
@@ -1383,12 +1383,16 @@ msgid "About {APP_NAME}"
 msgstr "关于 {APP_NAME}"
 
 #: src/IndexTree.tsx
-#: src/Library.tsx
-msgid "Add {name} to the project"
-msgstr "将 {name} 添加到项目"
+msgid "Add {count} Not in Project"
+msgstr "添加不在项目中的 {count} 项"
 
 #: src/CueView.tsx
-msgid "Add {name} to the Project"
+msgid "Add {name} to Project"
+msgstr "将 {name} 添加到项目"
+
+#: src/IndexTree.tsx
+#: src/Library.tsx
+msgid "Add {name} to the project"
 msgstr "将 {name} 添加到项目"
 
 #: src/CombinePage.tsx
@@ -1408,15 +1412,15 @@ msgid "Add a timing mark at the cursor"
 msgstr "在光标处添加时间标记"
 
 #: src/IndexTree.tsx
-msgid "Add All {count} to the Export List"
+msgid "Add All {count} to Export List"
 msgstr "将全部 {count} 项添加到导出列表"
 
 #: src/IndexTree.tsx
-msgid "Add all {count} to the project"
+msgid "Add All {count} to Project"
 msgstr "将全部 {count} 项添加到项目"
 
 #: src/IndexTree.tsx
-msgid "Add All {count} to the Project"
+msgid "Add all {count} to the project"
 msgstr "将全部 {count} 项添加到项目"
 
 #: src/SettingsTab.tsx
@@ -1428,7 +1432,7 @@ msgid "Add at least two mods"
 msgstr "请至少添加两个模组"
 
 #: src/Library.tsx
-msgid "Add from the Library"
+msgid "Add from Library"
 msgstr "从资源库添加"
 
 #: src/Notes.tsx
@@ -1436,12 +1440,16 @@ msgid "Add Global Note"
 msgstr "添加全局备注"
 
 #: src/IndexTree.tsx
-msgid "Add It to the Export List"
+msgid "Add It to Export List"
 msgstr "将其添加到导出列表"
 
 #: src/App.tsx
 msgid "Add it to the project, then drop audio on the slots in the Audio tab"
 msgstr "将其添加到项目，然后在音频选项卡中把音频拖到槽位上"
+
+#: src/tutorials.ts
+msgid "Add Liberator"
+msgstr "添加“解放者”"
 
 #: src/CueView.tsx
 msgid "Add new audio"
@@ -1463,14 +1471,6 @@ msgstr "添加歌曲"
 msgid "Add the {count} not in the project"
 msgstr "添加不在项目中的 {count} 项"
 
-#: src/IndexTree.tsx
-msgid "Add the {count} Not in the Project"
-msgstr "添加不在项目中的 {count} 项"
-
-#: src/tutorials.ts
-msgid "Add the Liberator"
-msgstr "添加“解放者”"
-
 #: src/CueView.tsx
 msgid "Add to {name}"
 msgstr "添加到 {name}"
@@ -1479,8 +1479,15 @@ msgstr "添加到 {name}"
 #: src/ExportDialog.tsx
 #: src/IndexTree.tsx
 #: src/Library.tsx
-msgid "Add to the Export List"
+msgid "Add to Export List"
 msgstr "添加到导出列表"
+
+#: src/CueView.tsx
+#: src/ImportMod.tsx
+#: src/IndexTree.tsx
+#: src/Library.tsx
+msgid "Add to Project"
+msgstr "添加到项目"
 
 #: src/CombinePage.tsx
 msgid "Add to the list"
@@ -1494,13 +1501,6 @@ msgstr "添加到项目"
 #: src/IndexTree.tsx
 #: src/Library.tsx
 msgid "Add to the project"
-msgstr "添加到项目"
-
-#: src/CueView.tsx
-#: src/ImportMod.tsx
-#: src/IndexTree.tsx
-#: src/Library.tsx
-msgid "Add to the Project"
 msgstr "添加到项目"
 
 #: src/BuildTab.tsx
@@ -1581,11 +1581,11 @@ msgid "all game audio, to find, hear and add to the project"
 msgstr "所有游戏音频，可查找、试听并添加到项目"
 
 #: src/IndexTree.tsx
-msgid "All in the project"
+msgid "All in Project"
 msgstr "全部已在项目中"
 
 #: src/IndexTree.tsx
-msgid "All in the Project"
+msgid "All in the project"
 msgstr "全部已在项目中"
 
 #: src/TextTab.tsx
@@ -1897,6 +1897,7 @@ msgstr "恢复为 Archivo"
 msgid "Back to Blue"
 msgstr "恢复为蓝色"
 
+#: src/BuildTab.tsx
 #: src/SettingsTab.tsx
 msgid "Back to Default"
 msgstr "恢复默认"
@@ -1908,10 +1909,6 @@ msgstr "恢复为未绑定"
 #: src/SettingsTab.tsx
 msgid "Back to Normal"
 msgstr "恢复正常"
-
-#: src/BuildTab.tsx
-msgid "Back to the Default"
-msgstr "恢复默认"
 
 #: src/Inspector.tsx
 msgid "Back to the original level"
@@ -2006,7 +2003,7 @@ msgid "Bring the notes of an exported notes file or of a project into the global
 msgstr "将导出的备注文件或项目中的备注导入全局备注"
 
 #: src/Wiki.tsx
-msgid "Bring the Wiki Back"
+msgid "Bring Wiki Back"
 msgstr "把 Wiki 放回来"
 
 #. The name of the Build tab, as the title of a tutorial step
@@ -2158,7 +2155,7 @@ msgid "Carried over"
 msgstr "已保留"
 
 #: src/Library.tsx
-msgid "Categories in the Index"
+msgid "Categories in Index"
 msgstr "索引中的类别"
 
 #. The unit of pitch: hundredths of a semitone, after a number
@@ -2188,7 +2185,7 @@ msgid "Change"
 msgstr "更改"
 
 #: src/Soundtrack.tsx
-msgid "Change the Cuts"
+msgid "Change Cuts"
 msgstr "更改切点"
 
 #: src/tutorials.ts
@@ -2462,6 +2459,10 @@ msgstr "选择文件"
 msgid "Choose Files"
 msgstr "选择多个文件"
 
+#: src/App.tsx
+msgid "Choose Game Folder"
+msgstr "选择游戏文件夹"
+
 #: src/ProjectTab.tsx
 msgid "Choose it before sharing. Mod managers keep the name from the first import. Leave out the version."
 msgstr "请在分享前确定名称。模组管理器会沿用首次导入时的名称。名称中不要包含版本号。"
@@ -2477,10 +2478,6 @@ msgstr "请在左侧选择音乐。"
 #: src/Inspector.tsx
 msgid "Choose One File for All"
 msgstr "为全部选择同一个文件"
-
-#: src/App.tsx
-msgid "Choose the Game Folder"
-msgstr "选择游戏文件夹"
 
 #: src/store.tsx
 msgid "Choose the Helldivers 1 install folder"
@@ -2545,7 +2542,7 @@ msgid "Clear Formatting"
 msgstr "清除格式"
 
 #: src/ExportDialog.tsx
-msgid "Clear the List"
+msgid "Clear List"
 msgstr "清空列表"
 
 #: src/CueView.tsx
@@ -2839,41 +2836,49 @@ msgid "copy / paste"
 msgstr "复制 / 粘贴"
 
 #: src/Library.tsx
-msgid "Copy the Archive Name"
+msgid "Copy Archive Name"
 msgstr "复制归档名称"
 
 #: src/CueView.tsx
-msgid "Copy the Audio"
+msgid "Copy Audio"
 msgstr "复制音频"
+
+#: src/CueView.tsx
+msgid "Copy Container ID"
+msgstr "复制容器 ID"
+
+#: src/CueView.tsx
+#: src/TextTab.tsx
+msgid "Copy ID"
+msgstr "复制 ID"
+
+#: src/CueView.tsx
+msgid "Copy New Audio"
+msgstr "复制新音频"
+
+#: src/CueView.tsx
+msgid "Copy Original"
+msgstr "复制原版"
+
+#: src/CueView.tsx
+msgid "Copy Sound ID"
+msgstr "复制声音 ID"
+
+#: src/CueView.tsx
+msgid "Copy Source ID"
+msgstr "复制源 ID"
+
+#: src/CueView.tsx
+msgid "Copy Stream ID"
+msgstr "复制流 ID"
 
 #: src/keys.ts
 msgid "Copy the audio of the selected slots"
 msgstr "复制所选槽位的音频"
 
-#: src/CueView.tsx
-msgid "Copy the Container ID"
-msgstr "复制容器 ID"
-
-#: src/CueView.tsx
-#: src/TextTab.tsx
-msgid "Copy the ID"
-msgstr "复制 ID"
-
 #: src/TextTab.tsx
 msgid "Copy the line ID"
 msgstr "复制行 ID"
-
-#: src/CueView.tsx
-msgid "Copy the New Audio"
-msgstr "复制新音频"
-
-#: src/CueView.tsx
-msgid "Copy the Original"
-msgstr "复制原版"
-
-#: src/CueView.tsx
-msgid "Copy the Sound ID"
-msgstr "复制声音 ID"
 
 #: src/CueView.tsx
 #: src/Inspector.tsx
@@ -2881,25 +2886,17 @@ msgid "Copy the source ID"
 msgstr "复制源 ID"
 
 #: src/CueView.tsx
-msgid "Copy the Source ID"
-msgstr "复制源 ID"
-
-#: src/CueView.tsx
 #: src/Inspector.tsx
 msgid "Copy the stream ID"
 msgstr "复制流 ID"
 
-#: src/CueView.tsx
-msgid "Copy the Stream ID"
-msgstr "复制流 ID"
-
-#: src/CueView.tsx
-msgid "Copy the Track ID"
-msgstr "复制音轨 ID"
-
 #: src/Soundtrack.tsx
 msgid "Copy To"
 msgstr "复制到"
+
+#: src/CueView.tsx
+msgid "Copy Track ID"
+msgstr "复制音轨 ID"
 
 #. The version of the Audiodiver core, the program behind the window
 #: src/About.tsx
@@ -3090,7 +3087,7 @@ msgid "Destination folder"
 msgstr "目标文件夹"
 
 #: src/Wiki.tsx
-msgid "Detach the Wiki"
+msgid "Detach Wiki"
 msgstr "分离 Wiki"
 
 #: src/Inspector.tsx
@@ -3770,7 +3767,7 @@ msgid "Folder name (click to rename)"
 msgstr "文件夹名称（点击重命名）"
 
 #: src/SettingsTab.tsx
-msgid "Follow the System"
+msgid "Follow System"
 msgstr "跟随系统"
 
 #: src/SettingsTab.tsx
@@ -3930,6 +3927,10 @@ msgstr "转到主页"
 msgid "Go to it"
 msgstr "转到"
 
+#: src/keys.ts
+msgid "Go to Library"
+msgstr "转到资源库"
+
 #: src/Home.tsx
 #: src/keys.ts
 msgid "Go to Project"
@@ -3942,10 +3943,6 @@ msgstr "转到配乐"
 #: src/keys.ts
 msgid "Go to Text"
 msgstr "转到文本"
-
-#: src/keys.ts
-msgid "Go to the Library"
-msgstr "转到资源库"
 
 #: src/keys.ts
 msgid "Go to Tools"
@@ -4412,6 +4409,10 @@ msgstr "继续"
 msgid "Keep It Here"
 msgstr "保留在此处"
 
+#: src/ImportMod.tsx
+msgid "Keep mod ID"
+msgstr "保留模组 ID"
+
 #: src/Inspector.tsx
 msgid "Keep original duration"
 msgstr "保持原版时长"
@@ -4429,12 +4430,8 @@ msgstr ""
 msgid "Keep Sharing on All"
 msgstr ""
 
-#: src/ImportMod.tsx
-msgid "Keep the mod ID"
-msgstr "保留模组 ID"
-
 #: src/Inspector.tsx
-msgid "Keep the volume curve"
+msgid "Keep volume curve"
 msgstr "保留音量曲线"
 
 #: src/App.tsx
@@ -4793,7 +4790,7 @@ msgid "Match case"
 msgstr "区分大小写"
 
 #: src/Inspector.tsx
-msgid "Match Each to the Original Loudness"
+msgid "Match Each to Original Loudness"
 msgstr "逐个匹配原版响度"
 
 #. Edit in Undo, Redo and History: Make-Up Gain set so the new audio is as loud as the original
@@ -4802,7 +4799,7 @@ msgid "match loudness"
 msgstr "匹配响度"
 
 #: src/Inspector.tsx
-msgid "Match the Original Loudness"
+msgid "Match Original Loudness"
 msgstr "匹配原版响度"
 
 #: src/Inspector.tsx
@@ -4890,7 +4887,7 @@ msgstr "更多"
 #: src/CombinePage.tsx
 #: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
-msgid "More in the Wiki"
+msgid "More in Wiki"
 msgstr "在 Wiki 中了解更多"
 
 #: src/Tutorial.tsx
@@ -4935,6 +4932,14 @@ msgstr "下移"
 msgid "move it to another place"
 msgstr "将其移到另一个位置"
 
+#: src/CueView.tsx
+msgid "Move New Audio Down"
+msgstr "将新音频下移"
+
+#: src/CueView.tsx
+msgid "Move New Audio Up"
+msgstr "将新音频上移"
+
 #: src/ProjectTab.tsx
 msgid "Move Project"
 msgstr "移动项目"
@@ -4943,17 +4948,9 @@ msgstr "移动项目"
 msgid "move the new audio"
 msgstr "移动新音频"
 
-#: src/CueView.tsx
-msgid "Move the New Audio Down"
-msgstr "将新音频下移"
-
 #: src/keys.ts
 msgid "Move the new audio down a slot"
 msgstr "将新音频下移一个槽位"
-
-#: src/CueView.tsx
-msgid "Move the New Audio Up"
-msgstr "将新音频上移"
 
 #: src/keys.ts
 msgid "Move the new audio up a slot"
@@ -5020,12 +5017,12 @@ msgid "Name and description"
 msgstr "名称和描述"
 
 #: src/Library.tsx
-msgid "Name in the game files"
-msgstr "游戏文件中的名称"
+msgid "Name in Index"
+msgstr "索引中的名称"
 
 #: src/Library.tsx
-msgid "Name in the Index"
-msgstr "索引中的名称"
+msgid "Name in the game files"
+msgstr "游戏文件中的名称"
 
 #: src/CombinePage.tsx
 #: src/PatchContentPage.tsx
@@ -5446,11 +5443,11 @@ msgid "Not found"
 msgstr "未找到"
 
 #: src/PatchContentPage.tsx
-msgid "Not in the game"
+msgid "Not in game"
 msgstr "不在游戏中"
 
 #: src/PatchContentPage.tsx
-msgid "Not in the Game ({n})"
+msgid "Not in Game ({n})"
 msgstr "不在游戏中（{n}）"
 
 #: src/Inspector.tsx
@@ -5817,10 +5814,14 @@ msgstr "打开左侧的条目，将音频拖到槽位上。在<0>资源库</0>�
 msgid "Open Another Mod"
 msgstr "打开另一个模组"
 
+#: src/UpdatesTab.tsx
+msgid "Open Download Page"
+msgstr "打开下载页面"
+
 #: src/CueView.tsx
 #: src/IndexTree.tsx
 #: src/Library.tsx
-msgid "Open in the Audio Tab"
+msgid "Open in Audio Tab"
 msgstr "在音频选项卡中打开"
 
 #: src/RepatchPage.tsx
@@ -5830,6 +5831,14 @@ msgstr "在上方的表单中打开，随时可以 Repatch"
 #: src/TextTab.tsx
 msgid "Open it in the Library"
 msgstr "在资源库中打开"
+
+#: src/tutorials.ts
+msgid "Open Liberator"
+msgstr "打开“解放者”"
+
+#: src/Library.tsx
+msgid "Open Library"
+msgstr "打开资源库"
 
 #: src/store.tsx
 msgid "Open Log"
@@ -5880,10 +5889,6 @@ msgstr "可在<0>主页</0>打开或创建项目。"
 msgid "Open Project"
 msgstr "打开项目"
 
-#: src/UpdatesTab.tsx
-msgid "Open the Download Page"
-msgstr "打开下载页面"
-
 #: src/IndexTree.tsx
 msgid "Open the first one and add it to the project"
 msgstr "打开第一个，添加到项目中"
@@ -5895,14 +5900,6 @@ msgstr "打开互动教程"
 #: src/SettingsTab.tsx
 msgid "Open the last project when Audiodiver starts"
 msgstr "Audiodiver 启动时打开上次的项目"
-
-#: src/tutorials.ts
-msgid "Open the Liberator"
-msgstr "打开“解放者”"
-
-#: src/Library.tsx
-msgid "Open the Library"
-msgstr "打开资源库"
 
 #: src/Inspector.tsx
 msgid "Open the subtitle in the Text tab"
@@ -6270,6 +6267,14 @@ msgstr "播放示例"
 msgid "Play Again"
 msgstr "再次播放"
 
+#: src/CueView.tsx
+msgid "Play First Take"
+msgstr "播放第一个变体"
+
+#: src/CueView.tsx
+msgid "Play New Audio"
+msgstr "播放新音频"
+
 #: src/Inspector.tsx
 msgid "Play nothing here instead of the original"
 msgstr "此处用静音代替原版"
@@ -6290,17 +6295,13 @@ msgstr "播放顺序"
 msgid "Play order in the project"
 msgstr "项目中的播放顺序"
 
+#: src/CueView.tsx
+msgid "Play Original"
+msgstr "播放原版"
+
 #: src/SliceTool.tsx
 msgid "Play piece {piece}"
 msgstr "播放第 {piece} 段"
-
-#: src/CueView.tsx
-msgid "Play the First Take"
-msgstr "播放第一个变体"
-
-#: src/CueView.tsx
-msgid "Play the New Audio"
-msgstr "播放新音频"
 
 #: src/keys.ts
 msgid "Play the new audio of the selected slot"
@@ -6309,10 +6310,6 @@ msgstr "播放所选槽位的新音频"
 #: src/keys.ts
 msgid "play the new audio, or the original if there is none"
 msgstr "播放新音频；没有新音频时播放原版"
-
-#: src/CueView.tsx
-msgid "Play the Original"
-msgstr "播放原版"
 
 #: src/SliceTool.tsx
 msgid "Play the original {slot}"
@@ -6647,7 +6644,7 @@ msgid "Raise the version after each build"
 msgstr "每次构建后提升版本号"
 
 #: src/UpdatesTab.tsx
-msgid "Read the Changelog"
+msgid "Read Changelog"
 msgstr "查看更新日志"
 
 #: src/content.ts
@@ -6779,6 +6776,10 @@ msgstr "移除"
 msgid "Remove"
 msgstr "移除"
 
+#: src/IndexTree.tsx
+msgid "Remove {count} in Project"
+msgstr "移除项目中的 {count} 项"
+
 #: src/SettingsTab.tsx
 msgid "Remove {keyName}"
 msgstr "移除 {keyName}"
@@ -6806,16 +6807,21 @@ msgid "Remove {what} from the project?"
 msgstr "从项目中移除 {what}？"
 
 #: src/IndexTree.tsx
-msgid "Remove all {count} from the project"
+msgid "Remove All {count} from Project"
 msgstr "从项目中移除全部 {count} 项"
 
 #: src/IndexTree.tsx
-msgid "Remove All {count} from the Project"
+msgid "Remove all {count} from the project"
 msgstr "从项目中移除全部 {count} 项"
 
 #: src/TextTab.tsx
 msgid "Remove every colour, size and style"
 msgstr "移除所有颜色、大小和样式"
+
+#: src/IndexTree.tsx
+#: src/Library.tsx
+msgid "Remove from Project"
+msgstr "从项目中移除"
 
 #: src/CombinePage.tsx
 #: src/ExportDialog.tsx
@@ -6832,29 +6838,24 @@ msgstr "从项目中移除"
 msgid "Remove from the project"
 msgstr "从项目中移除"
 
-#: src/IndexTree.tsx
-#: src/Library.tsx
-msgid "Remove from the Project"
-msgstr "从项目中移除"
-
 #: src/ProjectTab.tsx
 msgid "Remove from this list"
 msgstr "从此列表中移除"
 
 #: src/IndexTree.tsx
+msgid "Remove It from Project"
+msgstr "将其从项目中移除"
+
+#: src/IndexTree.tsx
 msgid "Remove it from the project"
 msgstr "将其从项目中移除"
 
-#: src/IndexTree.tsx
-msgid "Remove It from the Project"
-msgstr "将其从项目中移除"
+#: src/CueView.tsx
+msgid "Remove New Audio"
+msgstr "移除新音频"
 
 #: src/IndexTree.tsx
 msgid "Remove the {count} in the project"
-msgstr "移除项目中的 {count} 项"
-
-#: src/IndexTree.tsx
-msgid "Remove the {count} in the Project"
 msgstr "移除项目中的 {count} 项"
 
 #: src/Soundtrack.tsx
@@ -6864,10 +6865,6 @@ msgstr "移除音频"
 #: src/CueView.tsx
 #: src/PatchContentPage.tsx
 msgid "Remove the new audio"
-msgstr "移除新音频"
-
-#: src/CueView.tsx
-msgid "Remove the New Audio"
 msgstr "移除新音频"
 
 #: src/CueView.tsx
@@ -6984,6 +6981,10 @@ msgstr "重复播放，直到游戏进入下一段"
 msgid "Replace audio there"
 msgstr "在那里替换音频"
 
+#: src/ImportMod.tsx
+msgid "Replace Project Audio"
+msgstr "替换项目的音频"
+
 #: src/ToolsTab.tsx
 msgid "Replace sounds inside an existing mod, also sounds that an update took out of the game."
 msgstr "替换已有模组中的声音，包括更新从游戏中移除的声音。"
@@ -6991,10 +6992,6 @@ msgstr "替换已有模组中的声音，包括更新从游戏中移除的声音
 #: src/App.tsx
 msgid "replace the audio of what the project lists"
 msgstr "替换项目所列内容的音频"
-
-#: src/ImportMod.tsx
-msgid "Replace the Project's Audio"
-msgstr "替换项目的音频"
 
 #: src/keys.ts
 msgid "Replace the selected slots with silence"
@@ -7167,7 +7164,7 @@ msgid "Resize the waveforms"
 msgstr "调整波形大小"
 
 #: src/TextTab.tsx
-msgid "Restore the Original"
+msgid "Restore Original"
 msgstr "恢复原版"
 
 #: src/IndexTree.tsx
@@ -7242,6 +7239,10 @@ msgstr "按功能或按键搜索快捷键"
 msgid "Search by ID or name"
 msgstr "按 ID 或名称搜索"
 
+#: src/IndexTree.tsx
+msgid "Search Index"
+msgstr "搜索索引"
+
 #: src/TextTab.tsx
 msgid "Search lines"
 msgstr "搜索行"
@@ -7261,10 +7262,6 @@ msgstr "搜索归档"
 #: src/Wiki.tsx
 msgid "Search the guides"
 msgstr "搜索指南"
-
-#: src/IndexTree.tsx
-msgid "Search the Index"
-msgstr "搜索索引"
 
 #: src/Soundtrack.tsx
 msgid "Search the music"
@@ -7483,6 +7480,10 @@ msgstr "显示所有行"
 msgid "Show container IDs"
 msgstr "显示容器 ID"
 
+#: src/SettingsTab.tsx
+msgid "Show Folder"
+msgstr "打开文件夹"
+
 #: src/IndexTree.tsx
 #: src/ItemHead.tsx
 msgid "Show in All Archives"
@@ -7506,12 +7507,16 @@ msgstr "在文件夹中显示"
 
 #: src/CueView.tsx
 #: src/ItemHead.tsx
-msgid "Show in the Index"
+msgid "Show in Index"
 msgstr "在索引中显示"
 
 #: src/IndexTree.tsx
-msgid "Show in the Library"
+msgid "Show in Library"
 msgstr "在资源库中显示"
+
+#: src/BuildTab.tsx
+msgid "Show Log File"
+msgstr "显示日志文件"
 
 #: src/CueView.tsx
 msgid "Show names"
@@ -7521,17 +7526,9 @@ msgstr "显示名称"
 msgid "Show the description"
 msgstr "显示描述"
 
-#: src/SettingsTab.tsx
-msgid "Show the Folder"
-msgstr "打开文件夹"
-
 #: src/Tools.tsx
 msgid "Show the header"
 msgstr "显示标题区"
-
-#: src/BuildTab.tsx
-msgid "Show the Log File"
-msgstr "显示日志文件"
 
 #: src/About.tsx
 #: src/BuildTab.tsx
@@ -7546,10 +7543,6 @@ msgstr "显示新闻滚动条"
 msgid "Show the waveforms"
 msgstr "显示波形"
 
-#: src/tutorials.ts
-msgid "Show the ZIP"
-msgstr "显示 ZIP"
-
 #: src/BuildTab.tsx
 msgid "Show the ZIP in Explorer when a build finishes"
 msgstr "构建完成后在资源管理器中显示 ZIP"
@@ -7557,6 +7550,10 @@ msgstr "构建完成后在资源管理器中显示 ZIP"
 #: src/keys.ts
 msgid "Show these shortcuts"
 msgstr "显示这些快捷键"
+
+#: src/tutorials.ts
+msgid "Show ZIP"
+msgstr "显示 ZIP"
 
 #: src/PatchContentPage.tsx
 msgid "Showing {n} of {total}. Search to narrow the list."
@@ -8328,7 +8325,7 @@ msgid "The list changed since the last check."
 msgstr "自上次检查以来列表已更改。"
 
 #: src/ExportDialog.tsx
-msgid "The list is empty. Collect slots, groups, Index entries or archives with a right-click, or with <0>Add to the Export List</0> here, to export them together."
+msgid "The list is empty. Collect slots, groups, Index entries or archives with a right-click, or with <0>Add to Export List</0> here, to export them together."
 msgstr "列表为空。右键单击可收集槽位、组、索引条目或归档，也可在此处点<0>添加到导出列表</0>，把它们一起导出。"
 
 #: src/Inspector.tsx
@@ -9095,17 +9092,17 @@ msgstr "更新：新版本和更新日志"
 msgid "Updating to {label}. Audiodiver restarts when the update is installed."
 msgstr "正在更新到 {label}。更新安装完成后 Audiodiver 会重新启动。"
 
-#: src/Inspector.tsx
-msgid "Use Silence"
-msgstr "使用静音"
-
 #: src/SettingsTab.tsx
-msgid "Use the Default Folder"
+msgid "Use Default Folder"
 msgstr "使用默认文件夹"
 
 #: src/ProjectTab.tsx
-msgid "Use the Default Icon"
+msgid "Use Default Icon"
 msgstr "使用默认图标"
+
+#: src/Inspector.tsx
+msgid "Use Silence"
+msgstr "使用静音"
 
 #: src/ImportMod.tsx
 msgid "Use the icon of the mod"
@@ -9394,7 +9391,7 @@ msgid "Write a note"
 msgstr "写备注"
 
 #: src/PatchContentPage.tsx
-msgid "Write the Mod"
+msgid "Write Mod"
 msgstr "写入模组"
 
 #: src/PatchContentPage.tsx

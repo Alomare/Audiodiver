@@ -592,6 +592,69 @@ def test_a_helldivers_2_original_pastes_into_a_helldivers_1_project_and_builds(g
     assert hd1_build.verify(j["result"]["zip"], s.hd1) == []
 
 
+def test_the_helldivers_2_library_plays_and_draws_with_a_helldivers_1_project_open(game, tmp_path, monkeypatch):
+    """The Library shows both games in either mode, so its originals play (▶ asks /audio/vanilla) and draw (peaks)
+    whichever game the open project is for. They used to answer "isn't in this version of Helldivers 1"."""
+    import threading
+    import urllib.request
+    from http.server import ThreadingHTTPServer
+    from audiodiver.editor import Session
+    from audiodiver.server import make_handler
+    s, slot = hd1_session(game, tmp_path, monkeypatch)
+    tone = tone_file(tmp_path / "tone.wav")
+    s.ix = SimpleNamespace(resolve=lambda t: t if t == 4242 else (_ for _ in ()).throw(KeyError(t)))
+    asked = []
+    monkeypatch.setattr(Session, "vanilla_wav", lambda self, sid: asked.append(sid) or tone)
+    assert s.peaks("vanilla", "4242", buckets=16)
+    httpd = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(s, "tok"))
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    try:
+        with urllib.request.urlopen(f"http://127.0.0.1:{httpd.server_address[1]}/audio/vanilla/4242?token=tok") as r:
+            assert r.status == 200 and r.read(4) == b"RIFF"
+    finally:
+        httpd.shutdown()
+    assert asked == [4242, 4242]
+
+
+def test_a_helldivers_1_original_pastes_into_a_helldivers_2_project(game, tmp_path, monkeypatch):
+    """The other way: a slot copied from the Library's Helldivers 1 goes into a Helldivers 2 project as a WAV of the
+    clip, which the build encodes as it does any new audio."""
+    from audiodiver import editor
+    from audiodiver.editor import Session
+    monkeypatch.setattr(editor, "SETTINGS_FILE", tmp_path / "settings.json")
+    monkeypatch.setenv("HD1_CONTENTS", str(game))
+    s = Session(load=False)
+    s.stage = "ready"
+    s._load_hd1()
+    s.ix = SimpleNamespace(resolve=lambda t: t if t == 4242 else (_ for _ in ()).throw(KeyError(t)),
+                         game=SimpleNamespace(trim_caches=lambda: None))
+    s.new_project(str(tmp_path / "two" / "Two.audi"), "Two")
+    clip = str(hd1.source(CLIPS["one"], 0x100))
+    st = s.copy_audio([[clip, "4242"]], original=True)
+    a = st["assignments"]["4242"]
+    assert a["audio"].startswith("audio/copied/hd1-") and (tmp_path / "two" / a["audio"]).read_bytes()[:4] == b"RIFF"
+
+
+def test_the_library_can_ask_for_its_helldivers_1_lists_at_once(game):
+    """The window asks for the index and All Archives together. Each built the lists from scratch, and one could empty
+    the titles under the other (KeyError in the core log)."""
+    import threading
+    errors = []
+    def ask(f):
+        try:
+            for _ in range(5):
+                game_hd1.made = (None, [], [])
+                f("en")
+        except Exception as e:  # noqa: BLE001 - any failure is the test's
+            errors.append(e)
+    game_hd1 = hd1.Hd1.read(game)
+    ts = [threading.Thread(target=ask, args=(f,)) for f in (game_hd1.categories, game_hd1.archives) * 3]
+    [t.start() for t in ts]
+    [t.join() for t in ts]
+    assert errors == []
+    assert game_hd1.categories("en") and game_hd1.archives("en")
+
+
 @pytest.mark.parametrize("change", [
     lambda s, slot: s.original_gain([slot], -3.0),
     lambda s, slot: s.filters_set([slot], lowpass=20),

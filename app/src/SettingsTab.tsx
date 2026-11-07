@@ -227,7 +227,7 @@ function System() {
               {clearing === "encoded" ? t({ message: "Clearing", comment: "The Clear button while it deletes the files" }) : t({ message: "Clear", comment: "Button: deletes these files" })}</button>
           </div>
         </div>
-        {cache && <button className="link-text" onClick={() => reveal(cache.folder)}><Trans>Show the Folder</Trans></button>}
+        {cache && <button className="link-text" onClick={() => reveal(cache.folder)}><Trans>Show Folder</Trans></button>}
       </section>
 
       {!UTILS && <section className="set-sec">
@@ -282,7 +282,7 @@ function GlobalNotesSettings() {
       <p className="set-note">{count ? plural(count, { one: "# global note", other: "# global notes" }) : t`No global notes yet`}</p>
       <div className="row-btns">
         <button className="btn" onClick={choose}><Trans>Choose Another Folder</Trans></button>
-        {!g.default && <button className="btn quiet" onClick={() => move(null)}><Trans>Use the Default Folder</Trans></button>}
+        {!g.default && <button className="btn quiet" onClick={() => move(null)}><Trans>Use Default Folder</Trans></button>}
         {g.folder && <button className="btn quiet" onClick={() => reveal(count ? g.file : g.folder)}><Trans>Show in Folder</Trans></button>}
       </div>
       <div className="row-btns">
@@ -544,7 +544,7 @@ function Theme() {
         <h2><Trans>Colours</Trans></h2>
         <div className="field">
           <span className="field-label"><Trans>Theme</Trans>
-            {th.mode !== null && <button className="link-inline" onClick={() => theme.set({ mode: null })}><Trans>Follow the System</Trans></button>}
+            {th.mode !== null && <button className="link-inline" onClick={() => theme.set({ mode: null })}><Trans>Follow System</Trans></button>}
           </span>
           <div className="segmented narrow" role="radiogroup" aria-label={t`Theme`}>
             {(["dark", "light"] as const).map((m) => (
@@ -556,7 +556,7 @@ function Theme() {
         </div>
         <div className="field">
           <span className="field-label"><Trans>Contrast</Trans>
-            {th.contrast !== null && <button className="link-inline" onClick={() => theme.set({ contrast: null })}><Trans>Follow the System</Trans></button>}
+            {th.contrast !== null && <button className="link-inline" onClick={() => theme.set({ contrast: null })}><Trans>Follow System</Trans></button>}
           </span>
           <div className="segmented narrow" role="radiogroup" aria-label={t`Contrast`}>
             {([false, true] as const).map((high) => (
@@ -678,7 +678,7 @@ function Theme() {
         <h2><Trans>Animations</Trans></h2>
         <div className="field">
           <span className="field-label"><Trans>Animations</Trans>
-            {th.motion !== null && <button className="link-inline" onClick={() => theme.set({ motion: null })}><Trans>Follow the System</Trans></button>}
+            {th.motion !== null && <button className="link-inline" onClick={() => theme.set({ motion: null })}><Trans>Follow System</Trans></button>}
           </span>
           <div className="segmented narrow" role="radiogroup" aria-label={t`Animations`}>
             {([true, false] as const).map((on) => (

@@ -18,7 +18,7 @@ For sounds the game still has, a project or [Repatch](wiki:repatching) is the be
 1. Open [Tools](app:tools/content) and choose **Patch Content**.
 2. Drop the mod on the page as a ZIP, a folder or a `.patch_0` file, or press **Choose a ZIP or Patch File** or **Choose a Folder**.
 
-The list starts with the sounds the current game doesn't have, tagged **Not in the game**. **All Sounds** shows every sound in the mod, and the search finds a sound by ID, name or bank. Each row plays the audio as the mod has it and names the banks in the mod that hold the sound.
+The list starts with the sounds the current game doesn't have, tagged **Not in game**. **All Sounds** shows every sound in the mod, and the search finds a sound by ID, name or bank. Each row plays the audio as the mod has it and names the banks in the mod that hold the sound.
 
 ## Giving sounds new audio
 
@@ -29,7 +29,7 @@ The list starts with the sounds the current game doesn't have, tagged **Not in t
 
 ## Writing the mod
 
-Choose the name the mod manager shows and a destination folder, then press **Write the Mod**. The new ZIP is the mod as it was: the manifest, the options, the other files and the mod ID stay, so importing it in a mod manager updates the old mod. A mod without a manifest becomes a ZIP for a mod manager, with an option for each part of the mod.
+Choose the name the mod manager shows and a destination folder, then press **Write Mod**. The new ZIP is the mod as it was: the manifest, the options, the other files and the mod ID stay, so importing it in a mod manager updates the old mod. A mod without a manifest becomes a ZIP for a mod manager, with an option for each part of the mod.
 
 Each patch that holds a chosen sound is written again and checked against the old one: only the audio of those sounds, the sizes that describe it and the timing of music that plays it differ.
 

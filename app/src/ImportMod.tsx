@@ -131,8 +131,8 @@ function ImportMod({ path, into }: { path: string; into: boolean }) {
                 <div className="field">
                   <span className="field-label"><Trans>Audio in the project</Trans></span>
                   <div className="segmented" role="radiogroup" aria-label={t`Audio in the project`}>
-                    <button role="radio" aria-checked={mode === "add"} className={mode === "add" ? "on" : ""} onClick={() => setMode("add")}><Trans>Add to the Project</Trans></button>
-                    <button role="radio" aria-checked={mode === "replace"} className={mode === "replace" ? "on" : ""} onClick={() => setMode("replace")}><Trans>Replace the Project's Audio</Trans></button>
+                    <button role="radio" aria-checked={mode === "add"} className={mode === "add" ? "on" : ""} onClick={() => setMode("add")}><Trans>Add to Project</Trans></button>
+                    <button role="radio" aria-checked={mode === "replace"} className={mode === "replace" ? "on" : ""} onClick={() => setMode("replace")}><Trans>Replace Project Audio</Trans></button>
                   </div>
                   <small>{mode === "add" ? t`Where both have audio for a slot, the mod's is used.`
                     : t`Removes the new audio, added sounds, cue points and list first. The audio files stay, and Undo brings them back.`}</small>
@@ -154,7 +154,7 @@ function ImportMod({ path, into }: { path: string; into: boolean }) {
                   </div>
                   {scan.guid && (
                     <label className="check"><input type="checkbox" checked={keepId} onChange={(e) => setKeepId(e.target.checked)} />
-                      <span><Trans>Keep the mod ID</Trans> <Help tip={t`A build of the project then updates this mod in the mod manager. Turned off, the build installs beside it as another mod.`} page="build-and-install#mod-id" /></span></label>
+                      <span><Trans>Keep mod ID</Trans> <Help tip={t`A build of the project then updates this mod in the mod manager. Turned off, the build installs beside it as another mod.`} page="build-and-install#mod-id" /></span></label>
                   )}
                   {scan.icon && (
                     <label className="check"><input type="checkbox" checked={useIcon} onChange={(e) => setUseIcon(e.target.checked)} />

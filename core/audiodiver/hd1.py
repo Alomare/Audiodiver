@@ -35,6 +35,7 @@ import os
 import re
 import struct
 import subprocess
+import threading
 import wave
 import zlib
 from concurrent.futures import ThreadPoolExecutor
@@ -147,6 +148,8 @@ WORDS = {"ar": "AR", "bf": "BF", "ifv": "IFV", "rpg": "RPG", "sg": "SG", "smg": 
          "defendevent": "Defense Event", "wardeclared": "War Declared", "diffunlocked": "Difficulty Unlocked", "ammoempty": "Ammo Empty", "ammolow": "Ammo Low",
          "cannotgetout": "Cannot Get Out", "helpme": "Help Me", "jumpfail": "Jump Fail", "reloadme": "Reload Me", "emptyclick": "Empty Click", "magins": "Magazine In",
          "magrel": "Magazine Release", "noammo": "No Ammo", "lowammo": "Low Ammo", "explose": "Explosion"}
+
+_MAKING = threading.Lock()  # one build of the Library's Helldivers 1 categories at a time (HD1._make)
 
 
 def contents_folder(path) -> Path:
@@ -559,13 +562,19 @@ class Hd1:
         return self._make(language)[2]
 
     def _make(self, language: str):
-        if self.made[0] == language:
-            return self.made
+        # The window asks for the index and the archives at once, each on a thread of its own: one builds, the other
+        # waits and takes what it built. The titles go in whole at the end, so nothing reads them half made.
+        with _MAKING:
+            if self.made[0] == language:
+                return self.made
+            return self._build(language)
+
+    def _build(self, language: str):
         names = _names()
         made = {cid: {"id": f"hd1/{cid}", "name": self._name(name, language) if name.startswith("@") else tr(name), "hue": hue,
                       "about": "", "sections": [], "game": "hd1"} for cid, name, hue in CATEGORIES}
         sections = collections.defaultdict(dict)
-        self.titles = {}
+        titles = {}
         by_bank, named = collections.defaultdict(collections.Counter), collections.defaultdict(list)
         for event, name in sorted(names.items(), key=lambda e: (ORDER.get(e[1], len(ORDER)), e[1])):
             if event not in self.events:
@@ -573,10 +582,10 @@ class Hd1:
             cid, sec, drop = _place(name)
             title = self._name(sec, language)
             short = MUSIC[name][1] if name in MUSIC else label(name, drop) or title or label(name, 0)
-            self.titles[event] = f"{title} {short}" if title and short != title else short
+            titles[event] = f"{title} {short}" if title and short != title else short
             line = next((said for k in _line_keys(name) if (said := self._say(k, language))), None) if cid == "voices" else None
             for iid, clips, tier in self._themes(event):
-                sections[cid].setdefault(sec, []).append(self._item(iid, clips, short + tier, _spoken(line) if line else "", made[cid], self.titles[event] + tier, name))
+                sections[cid].setdefault(sec, []).append(self._item(iid, clips, short + tier, _spoken(line) if line else "", made[cid], titles[event] + tier, name))
             bank = self._bank_of(self.events[event])
             by_bank[bank][cid] += 1
             named[bank].append(short)
@@ -588,6 +597,7 @@ class Hd1:
                                         "about": "", "unused": False, "items": items})
         rows = [self._bank_row(bank, by_bank[bank], named[bank], made) for bank in sorted({b["name"] for b in self.banks})]
         rows.sort(key=lambda r: (not r["names"], -r["sounds"], r["id"]))
+        self.titles = titles
         self.made = (language, [c for c in made.values() if c["sections"]], rows)
         return self.made
 

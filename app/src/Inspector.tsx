@@ -357,7 +357,7 @@ function CurveSwitch({ sources }: { sources: string[] }) {
       <label className="check">
         <input type="checkbox" checked={!off} ref={(el) => { if (el) el.indeterminate = off > 0 && off < sources.length; }}
           onChange={(e) => actions.keepCurve(sources, e.target.checked)} />
-        <span><Trans>Keep the volume curve</Trans> <Help tip={t`The game changes the level of this clip as it plays, and new audio follows the same curve. Turn this off to play it at an even level`} page="volume#volume-curves" /></span>
+        <span><Trans>Keep volume curve</Trans> <Help tip={t`The game changes the level of this clip as it plays, and new audio follows the same curve. Turn this off to play it at an even level`} page="volume#volume-curves" /></span>
       </label>
     </section>
   );
@@ -620,7 +620,7 @@ function Gain({ sources, value, note, original, match, base }: {
             data-tip={match === "one" ? t`The Make-Up Gain that makes the new audio as loud as the original`
               : t`Each slot gets the Make-Up Gain that makes the new audio as loud as the original`}
             data-tip-more={t`Short sounds by the loudest moment, longer ones by the whole`}>
-            {matching ? t`Measuring` : match === "one" ? t`Match the Original Loudness` : t`Match Each to the Original Loudness`}</button>
+            {matching ? t`Measuring` : match === "one" ? t`Match Original Loudness` : t`Match Each to Original Loudness`}</button>
         </p>
       )}
     </section>

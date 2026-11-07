@@ -185,8 +185,8 @@ export function ExportPanel({ target, start, onClose }: { target: ExportTarget |
 
         <div className="modal-foot">
           {tab === "item" ? (
-            <button className="btn" onClick={toList} disabled={!item.entry} data-tip={t`Collect it with other items to export together`}><Trans>Add to the Export List</Trans></button>
-          ) : list.length > 0 && <button className="btn quiet" onClick={() => exportList.clear()}><Trans>Clear the List</Trans></button>}
+            <button className="btn" onClick={toList} disabled={!item.entry} data-tip={t`Collect it with other items to export together`}><Trans>Add to Export List</Trans></button>
+          ) : list.length > 0 && <button className="btn quiet" onClick={() => exportList.clear()}><Trans>Clear List</Trans></button>}
           <span className="spacer" />
           <button className="btn quiet" onClick={onClose}><Trans>Cancel</Trans></button>
           <button className="btn primary" disabled={!entries.length || preview?.total === 0} onClick={submit}>
@@ -324,7 +324,7 @@ function ListForm({ withMod }: { withMod: boolean }) {
   const list = useExportList();
   if (!list.length) {
     return <p className="set-note xp-empty"><Trans>The list is empty. Collect slots, groups, Index entries or archives with a right-click,
-      or with <b>Add to the Export List</b> here, to export them together.</Trans></p>;
+      or with <b>Add to Export List</b> here, to export them together.</Trans></p>;
   }
   const kindsOf = (e: ExportEntry): What[] => (!isMusicCue(e.cue) ? ["slots"] : e.what === "fight" ? ["fight", "cue", "segments", "slots"] : ["slots", "segments", "cue"]);
   return (

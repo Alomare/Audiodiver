@@ -15,7 +15,7 @@ With Helldivers 1 installed, the **Helldivers 2** and **Helldivers 1** buttons o
 
 ## What a project can change
 
-A slot can have new audio or silence. New audio can have **Make-Up Gain**, **Fades** and **Match the Original Loudness**, and a build puts these into the audio itself. New audio takes the format, sample rate and channels of the original, so a stereo file in a mono slot plays in mono.
+A slot can have new audio or silence. New audio can have **Make-Up Gain**, **Fades** and **Match Original Loudness**, and a build puts these into the audio itself. New audio takes the format, sample rate and channels of the original, so a stereo file in a mono slot plays in mono.
 
 The Soundtrack, Text and Tools tabs, **Import Mod**, **Filters**, new takes and layers, and Make-Up Gain on the original audio are only for Helldivers 2.
 
@@ -27,4 +27,4 @@ The Library shows Helldivers 2 as well. Select slots there and press **Ctrl+C**,
 
 Some sounds have a tab for each language, with separate slots. New audio in one language plays only in that language.
 
-A mod holds only the new audio, so the ZIP stays small. The game replaces a sound bank all at once, in every language and in every place that holds it, so the mod manager rebuilds each sound bank the mod changes from the game's files when it deploys. One short sound in a big sound bank can take about 3 GB of disk while deployed. After a game update, deploy again: the mod stays as it is. Helldivers 1 mods need version 1.1.0 or later of the mod manager.
+A mod holds only the new audio, so the ZIP stays small. From version 1.4.0, the mod manager puts the new clips into small sound banks beside the game's, and the game's own sound banks stay as they are, so a deploy takes about as much disk as the new audio. A language the mod gives no new audio keeps the game's sounds, which the deploy copies: about 4 MB for one footstep in US English. After a game update, deploy again: the mod stays as it is. Helldivers 1 mods need version 1.1.0 or later of the mod manager. Before 1.4.0, it rebuilds each sound bank the mod changes, and one short sound in a big sound bank can take about 3 GB of disk while deployed.

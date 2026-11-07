@@ -30,7 +30,7 @@ msgstr ""
 
 #. placeholder {0}: sel.length
 #: src/CueView.tsx
-msgid "{0, plural, one {Copy the Audio (# Slot)} other {Copy the Audio (# Slots)}}"
+msgid "{0, plural, one {Copy Audio (# Slot)} other {Copy Audio (# Slots)}}"
 msgstr ""
 
 #. placeholder {0}: r.count
@@ -193,7 +193,7 @@ msgid "{count, plural, one {A new interactive tutorial} other {New interactive t
 msgstr ""
 
 #: src/CueView.tsx
-msgid "{count, plural, one {Add # Slot to the Export List} other {Add # Slots to the Export List}}"
+msgid "{count, plural, one {Add # Slot to Export List} other {Add # Slots to Export List}}"
 msgstr ""
 
 #: src/Inspector.tsx
@@ -217,11 +217,11 @@ msgid "{count, plural, one {Click here to see it in the Wiki.} other {Click here
 msgstr ""
 
 #: src/CueView.tsx
-msgid "{count, plural, one {Copy the New Audio (# Slot)} other {Copy the New Audio (# Slots)}}"
+msgid "{count, plural, one {Copy New Audio (# Slot)} other {Copy New Audio (# Slots)}}"
 msgstr ""
 
 #: src/CueView.tsx
-msgid "{count, plural, one {Copy the Original (# Slot)} other {Copy the Original (# Slots)}}"
+msgid "{count, plural, one {Copy Original (# Slot)} other {Copy Original (# Slots)}}"
 msgstr ""
 
 #: src/SettingsTab.tsx
@@ -241,11 +241,11 @@ msgid "{count, plural, one {Paste (# Slot)} other {Paste (# Slots)}}"
 msgstr ""
 
 #: src/CueView.tsx
-msgid "{count, plural, one {Remove the New Audio (# Slot)} other {Remove the New Audio (# Slots)}}"
+msgid "{count, plural, one {Remove New Audio (# Slot)} other {Remove New Audio (# Slots)}}"
 msgstr ""
 
 #: src/CueView.tsx
-msgid "{count, plural, one {Remove the New Audio from the # Take} other {Remove the New Audio from the # Takes}}"
+msgid "{count, plural, one {Remove New Audio from # Take} other {Remove New Audio from # Takes}}"
 msgstr ""
 
 #: src/TextTools.tsx
@@ -1383,12 +1383,16 @@ msgid "About {APP_NAME}"
 msgstr ""
 
 #: src/IndexTree.tsx
-#: src/Library.tsx
-msgid "Add {name} to the project"
+msgid "Add {count} Not in Project"
 msgstr ""
 
 #: src/CueView.tsx
-msgid "Add {name} to the Project"
+msgid "Add {name} to Project"
+msgstr ""
+
+#: src/IndexTree.tsx
+#: src/Library.tsx
+msgid "Add {name} to the project"
 msgstr ""
 
 #: src/CombinePage.tsx
@@ -1408,15 +1412,15 @@ msgid "Add a timing mark at the cursor"
 msgstr ""
 
 #: src/IndexTree.tsx
-msgid "Add All {count} to the Export List"
+msgid "Add All {count} to Export List"
+msgstr ""
+
+#: src/IndexTree.tsx
+msgid "Add All {count} to Project"
 msgstr ""
 
 #: src/IndexTree.tsx
 msgid "Add all {count} to the project"
-msgstr ""
-
-#: src/IndexTree.tsx
-msgid "Add All {count} to the Project"
 msgstr ""
 
 #: src/SettingsTab.tsx
@@ -1428,7 +1432,7 @@ msgid "Add at least two mods"
 msgstr ""
 
 #: src/Library.tsx
-msgid "Add from the Library"
+msgid "Add from Library"
 msgstr ""
 
 #: src/Notes.tsx
@@ -1436,11 +1440,15 @@ msgid "Add Global Note"
 msgstr ""
 
 #: src/IndexTree.tsx
-msgid "Add It to the Export List"
+msgid "Add It to Export List"
 msgstr ""
 
 #: src/App.tsx
 msgid "Add it to the project, then drop audio on the slots in the Audio tab"
+msgstr ""
+
+#: src/tutorials.ts
+msgid "Add Liberator"
 msgstr ""
 
 #: src/CueView.tsx
@@ -1463,14 +1471,6 @@ msgstr ""
 msgid "Add the {count} not in the project"
 msgstr ""
 
-#: src/IndexTree.tsx
-msgid "Add the {count} Not in the Project"
-msgstr ""
-
-#: src/tutorials.ts
-msgid "Add the Liberator"
-msgstr ""
-
 #: src/CueView.tsx
 msgid "Add to {name}"
 msgstr ""
@@ -1479,7 +1479,14 @@ msgstr ""
 #: src/ExportDialog.tsx
 #: src/IndexTree.tsx
 #: src/Library.tsx
-msgid "Add to the Export List"
+msgid "Add to Export List"
+msgstr ""
+
+#: src/CueView.tsx
+#: src/ImportMod.tsx
+#: src/IndexTree.tsx
+#: src/Library.tsx
+msgid "Add to Project"
 msgstr ""
 
 #: src/CombinePage.tsx
@@ -1494,13 +1501,6 @@ msgstr ""
 #: src/IndexTree.tsx
 #: src/Library.tsx
 msgid "Add to the project"
-msgstr ""
-
-#: src/CueView.tsx
-#: src/ImportMod.tsx
-#: src/IndexTree.tsx
-#: src/Library.tsx
-msgid "Add to the Project"
 msgstr ""
 
 #: src/BuildTab.tsx
@@ -1581,11 +1581,11 @@ msgid "all game audio, to find, hear and add to the project"
 msgstr ""
 
 #: src/IndexTree.tsx
-msgid "All in the project"
+msgid "All in Project"
 msgstr ""
 
 #: src/IndexTree.tsx
-msgid "All in the Project"
+msgid "All in the project"
 msgstr ""
 
 #: src/TextTab.tsx
@@ -1897,6 +1897,7 @@ msgstr ""
 msgid "Back to Blue"
 msgstr ""
 
+#: src/BuildTab.tsx
 #: src/SettingsTab.tsx
 msgid "Back to Default"
 msgstr ""
@@ -1907,10 +1908,6 @@ msgstr ""
 
 #: src/SettingsTab.tsx
 msgid "Back to Normal"
-msgstr ""
-
-#: src/BuildTab.tsx
-msgid "Back to the Default"
 msgstr ""
 
 #: src/Inspector.tsx
@@ -2006,7 +2003,7 @@ msgid "Bring the notes of an exported notes file or of a project into the global
 msgstr ""
 
 #: src/Wiki.tsx
-msgid "Bring the Wiki Back"
+msgid "Bring Wiki Back"
 msgstr ""
 
 #. The name of the Build tab, as the title of a tutorial step
@@ -2158,7 +2155,7 @@ msgid "Carried over"
 msgstr ""
 
 #: src/Library.tsx
-msgid "Categories in the Index"
+msgid "Categories in Index"
 msgstr ""
 
 #. The unit of pitch: hundredths of a semitone, after a number
@@ -2188,7 +2185,7 @@ msgid "Change"
 msgstr ""
 
 #: src/Soundtrack.tsx
-msgid "Change the Cuts"
+msgid "Change Cuts"
 msgstr ""
 
 #: src/tutorials.ts
@@ -2462,6 +2459,10 @@ msgstr ""
 msgid "Choose Files"
 msgstr ""
 
+#: src/App.tsx
+msgid "Choose Game Folder"
+msgstr ""
+
 #: src/ProjectTab.tsx
 msgid "Choose it before sharing. Mod managers keep the name from the first import. Leave out the version."
 msgstr ""
@@ -2476,10 +2477,6 @@ msgstr ""
 
 #: src/Inspector.tsx
 msgid "Choose One File for All"
-msgstr ""
-
-#: src/App.tsx
-msgid "Choose the Game Folder"
 msgstr ""
 
 #: src/store.tsx
@@ -2545,7 +2542,7 @@ msgid "Clear Formatting"
 msgstr ""
 
 #: src/ExportDialog.tsx
-msgid "Clear the List"
+msgid "Clear List"
 msgstr ""
 
 #: src/CueView.tsx
@@ -2839,40 +2836,48 @@ msgid "copy / paste"
 msgstr ""
 
 #: src/Library.tsx
-msgid "Copy the Archive Name"
+msgid "Copy Archive Name"
 msgstr ""
 
 #: src/CueView.tsx
-msgid "Copy the Audio"
+msgid "Copy Audio"
+msgstr ""
+
+#: src/CueView.tsx
+msgid "Copy Container ID"
+msgstr ""
+
+#: src/CueView.tsx
+#: src/TextTab.tsx
+msgid "Copy ID"
+msgstr ""
+
+#: src/CueView.tsx
+msgid "Copy New Audio"
+msgstr ""
+
+#: src/CueView.tsx
+msgid "Copy Original"
+msgstr ""
+
+#: src/CueView.tsx
+msgid "Copy Sound ID"
+msgstr ""
+
+#: src/CueView.tsx
+msgid "Copy Source ID"
+msgstr ""
+
+#: src/CueView.tsx
+msgid "Copy Stream ID"
 msgstr ""
 
 #: src/keys.ts
 msgid "Copy the audio of the selected slots"
 msgstr ""
 
-#: src/CueView.tsx
-msgid "Copy the Container ID"
-msgstr ""
-
-#: src/CueView.tsx
-#: src/TextTab.tsx
-msgid "Copy the ID"
-msgstr ""
-
 #: src/TextTab.tsx
 msgid "Copy the line ID"
-msgstr ""
-
-#: src/CueView.tsx
-msgid "Copy the New Audio"
-msgstr ""
-
-#: src/CueView.tsx
-msgid "Copy the Original"
-msgstr ""
-
-#: src/CueView.tsx
-msgid "Copy the Sound ID"
 msgstr ""
 
 #: src/CueView.tsx
@@ -2881,24 +2886,16 @@ msgid "Copy the source ID"
 msgstr ""
 
 #: src/CueView.tsx
-msgid "Copy the Source ID"
-msgstr ""
-
-#: src/CueView.tsx
 #: src/Inspector.tsx
 msgid "Copy the stream ID"
 msgstr ""
 
-#: src/CueView.tsx
-msgid "Copy the Stream ID"
-msgstr ""
-
-#: src/CueView.tsx
-msgid "Copy the Track ID"
-msgstr ""
-
 #: src/Soundtrack.tsx
 msgid "Copy To"
+msgstr ""
+
+#: src/CueView.tsx
+msgid "Copy Track ID"
 msgstr ""
 
 #. The version of the Audiodiver core, the program behind the window
@@ -3090,7 +3087,7 @@ msgid "Destination folder"
 msgstr ""
 
 #: src/Wiki.tsx
-msgid "Detach the Wiki"
+msgid "Detach Wiki"
 msgstr ""
 
 #: src/Inspector.tsx
@@ -3770,7 +3767,7 @@ msgid "Folder name (click to rename)"
 msgstr ""
 
 #: src/SettingsTab.tsx
-msgid "Follow the System"
+msgid "Follow System"
 msgstr ""
 
 #: src/SettingsTab.tsx
@@ -3930,6 +3927,10 @@ msgstr ""
 msgid "Go to it"
 msgstr ""
 
+#: src/keys.ts
+msgid "Go to Library"
+msgstr ""
+
 #: src/Home.tsx
 #: src/keys.ts
 msgid "Go to Project"
@@ -3941,10 +3942,6 @@ msgstr ""
 
 #: src/keys.ts
 msgid "Go to Text"
-msgstr ""
-
-#: src/keys.ts
-msgid "Go to the Library"
 msgstr ""
 
 #: src/keys.ts
@@ -4412,6 +4409,10 @@ msgstr ""
 msgid "Keep It Here"
 msgstr ""
 
+#: src/ImportMod.tsx
+msgid "Keep mod ID"
+msgstr ""
+
 #: src/Inspector.tsx
 msgid "Keep original duration"
 msgstr ""
@@ -4429,12 +4430,8 @@ msgstr ""
 msgid "Keep Sharing on All"
 msgstr ""
 
-#: src/ImportMod.tsx
-msgid "Keep the mod ID"
-msgstr ""
-
 #: src/Inspector.tsx
-msgid "Keep the volume curve"
+msgid "Keep volume curve"
 msgstr ""
 
 #: src/App.tsx
@@ -4793,7 +4790,7 @@ msgid "Match case"
 msgstr ""
 
 #: src/Inspector.tsx
-msgid "Match Each to the Original Loudness"
+msgid "Match Each to Original Loudness"
 msgstr ""
 
 #. Edit in Undo, Redo and History: Make-Up Gain set so the new audio is as loud as the original
@@ -4802,7 +4799,7 @@ msgid "match loudness"
 msgstr ""
 
 #: src/Inspector.tsx
-msgid "Match the Original Loudness"
+msgid "Match Original Loudness"
 msgstr ""
 
 #: src/Inspector.tsx
@@ -4890,7 +4887,7 @@ msgstr ""
 #: src/CombinePage.tsx
 #: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
-msgid "More in the Wiki"
+msgid "More in Wiki"
 msgstr ""
 
 #: src/Tutorial.tsx
@@ -4935,6 +4932,14 @@ msgstr ""
 msgid "move it to another place"
 msgstr ""
 
+#: src/CueView.tsx
+msgid "Move New Audio Down"
+msgstr ""
+
+#: src/CueView.tsx
+msgid "Move New Audio Up"
+msgstr ""
+
 #: src/ProjectTab.tsx
 msgid "Move Project"
 msgstr ""
@@ -4943,16 +4948,8 @@ msgstr ""
 msgid "move the new audio"
 msgstr ""
 
-#: src/CueView.tsx
-msgid "Move the New Audio Down"
-msgstr ""
-
 #: src/keys.ts
 msgid "Move the new audio down a slot"
-msgstr ""
-
-#: src/CueView.tsx
-msgid "Move the New Audio Up"
 msgstr ""
 
 #: src/keys.ts
@@ -5020,11 +5017,11 @@ msgid "Name and description"
 msgstr ""
 
 #: src/Library.tsx
-msgid "Name in the game files"
+msgid "Name in Index"
 msgstr ""
 
 #: src/Library.tsx
-msgid "Name in the Index"
+msgid "Name in the game files"
 msgstr ""
 
 #: src/CombinePage.tsx
@@ -5446,11 +5443,11 @@ msgid "Not found"
 msgstr ""
 
 #: src/PatchContentPage.tsx
-msgid "Not in the game"
+msgid "Not in game"
 msgstr ""
 
 #: src/PatchContentPage.tsx
-msgid "Not in the Game ({n})"
+msgid "Not in Game ({n})"
 msgstr ""
 
 #: src/Inspector.tsx
@@ -5817,10 +5814,14 @@ msgstr ""
 msgid "Open Another Mod"
 msgstr ""
 
+#: src/UpdatesTab.tsx
+msgid "Open Download Page"
+msgstr ""
+
 #: src/CueView.tsx
 #: src/IndexTree.tsx
 #: src/Library.tsx
-msgid "Open in the Audio Tab"
+msgid "Open in Audio Tab"
 msgstr ""
 
 #: src/RepatchPage.tsx
@@ -5829,6 +5830,14 @@ msgstr ""
 
 #: src/TextTab.tsx
 msgid "Open it in the Library"
+msgstr ""
+
+#: src/tutorials.ts
+msgid "Open Liberator"
+msgstr ""
+
+#: src/Library.tsx
+msgid "Open Library"
 msgstr ""
 
 #: src/store.tsx
@@ -5880,10 +5889,6 @@ msgstr ""
 msgid "Open Project"
 msgstr ""
 
-#: src/UpdatesTab.tsx
-msgid "Open the Download Page"
-msgstr ""
-
 #: src/IndexTree.tsx
 msgid "Open the first one and add it to the project"
 msgstr ""
@@ -5894,14 +5899,6 @@ msgstr ""
 
 #: src/SettingsTab.tsx
 msgid "Open the last project when Audiodiver starts"
-msgstr ""
-
-#: src/tutorials.ts
-msgid "Open the Liberator"
-msgstr ""
-
-#: src/Library.tsx
-msgid "Open the Library"
 msgstr ""
 
 #: src/Inspector.tsx
@@ -6270,6 +6267,14 @@ msgstr ""
 msgid "Play Again"
 msgstr ""
 
+#: src/CueView.tsx
+msgid "Play First Take"
+msgstr ""
+
+#: src/CueView.tsx
+msgid "Play New Audio"
+msgstr ""
+
 #: src/Inspector.tsx
 msgid "Play nothing here instead of the original"
 msgstr ""
@@ -6290,16 +6295,12 @@ msgstr ""
 msgid "Play order in the project"
 msgstr ""
 
+#: src/CueView.tsx
+msgid "Play Original"
+msgstr ""
+
 #: src/SliceTool.tsx
 msgid "Play piece {piece}"
-msgstr ""
-
-#: src/CueView.tsx
-msgid "Play the First Take"
-msgstr ""
-
-#: src/CueView.tsx
-msgid "Play the New Audio"
 msgstr ""
 
 #: src/keys.ts
@@ -6308,10 +6309,6 @@ msgstr ""
 
 #: src/keys.ts
 msgid "play the new audio, or the original if there is none"
-msgstr ""
-
-#: src/CueView.tsx
-msgid "Play the Original"
 msgstr ""
 
 #: src/SliceTool.tsx
@@ -6647,7 +6644,7 @@ msgid "Raise the version after each build"
 msgstr ""
 
 #: src/UpdatesTab.tsx
-msgid "Read the Changelog"
+msgid "Read Changelog"
 msgstr ""
 
 #: src/content.ts
@@ -6779,6 +6776,10 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
+#: src/IndexTree.tsx
+msgid "Remove {count} in Project"
+msgstr ""
+
 #: src/SettingsTab.tsx
 msgid "Remove {keyName}"
 msgstr ""
@@ -6806,15 +6807,20 @@ msgid "Remove {what} from the project?"
 msgstr ""
 
 #: src/IndexTree.tsx
-msgid "Remove all {count} from the project"
+msgid "Remove All {count} from Project"
 msgstr ""
 
 #: src/IndexTree.tsx
-msgid "Remove All {count} from the Project"
+msgid "Remove all {count} from the project"
 msgstr ""
 
 #: src/TextTab.tsx
 msgid "Remove every colour, size and style"
+msgstr ""
+
+#: src/IndexTree.tsx
+#: src/Library.tsx
+msgid "Remove from Project"
 msgstr ""
 
 #: src/CombinePage.tsx
@@ -6832,29 +6838,24 @@ msgstr ""
 msgid "Remove from the project"
 msgstr ""
 
-#: src/IndexTree.tsx
-#: src/Library.tsx
-msgid "Remove from the Project"
-msgstr ""
-
 #: src/ProjectTab.tsx
 msgid "Remove from this list"
+msgstr ""
+
+#: src/IndexTree.tsx
+msgid "Remove It from Project"
 msgstr ""
 
 #: src/IndexTree.tsx
 msgid "Remove it from the project"
 msgstr ""
 
-#: src/IndexTree.tsx
-msgid "Remove It from the Project"
+#: src/CueView.tsx
+msgid "Remove New Audio"
 msgstr ""
 
 #: src/IndexTree.tsx
 msgid "Remove the {count} in the project"
-msgstr ""
-
-#: src/IndexTree.tsx
-msgid "Remove the {count} in the Project"
 msgstr ""
 
 #: src/Soundtrack.tsx
@@ -6864,10 +6865,6 @@ msgstr ""
 #: src/CueView.tsx
 #: src/PatchContentPage.tsx
 msgid "Remove the new audio"
-msgstr ""
-
-#: src/CueView.tsx
-msgid "Remove the New Audio"
 msgstr ""
 
 #: src/CueView.tsx
@@ -6984,16 +6981,16 @@ msgstr ""
 msgid "Replace audio there"
 msgstr ""
 
+#: src/ImportMod.tsx
+msgid "Replace Project Audio"
+msgstr ""
+
 #: src/ToolsTab.tsx
 msgid "Replace sounds inside an existing mod, also sounds that an update took out of the game."
 msgstr ""
 
 #: src/App.tsx
 msgid "replace the audio of what the project lists"
-msgstr ""
-
-#: src/ImportMod.tsx
-msgid "Replace the Project's Audio"
 msgstr ""
 
 #: src/keys.ts
@@ -7167,7 +7164,7 @@ msgid "Resize the waveforms"
 msgstr ""
 
 #: src/TextTab.tsx
-msgid "Restore the Original"
+msgid "Restore Original"
 msgstr ""
 
 #: src/IndexTree.tsx
@@ -7242,6 +7239,10 @@ msgstr ""
 msgid "Search by ID or name"
 msgstr ""
 
+#: src/IndexTree.tsx
+msgid "Search Index"
+msgstr ""
+
 #: src/TextTab.tsx
 msgid "Search lines"
 msgstr ""
@@ -7260,10 +7261,6 @@ msgstr ""
 
 #: src/Wiki.tsx
 msgid "Search the guides"
-msgstr ""
-
-#: src/IndexTree.tsx
-msgid "Search the Index"
 msgstr ""
 
 #: src/Soundtrack.tsx
@@ -7483,6 +7480,10 @@ msgstr ""
 msgid "Show container IDs"
 msgstr ""
 
+#: src/SettingsTab.tsx
+msgid "Show Folder"
+msgstr ""
+
 #: src/IndexTree.tsx
 #: src/ItemHead.tsx
 msgid "Show in All Archives"
@@ -7506,11 +7507,15 @@ msgstr ""
 
 #: src/CueView.tsx
 #: src/ItemHead.tsx
-msgid "Show in the Index"
+msgid "Show in Index"
 msgstr ""
 
 #: src/IndexTree.tsx
-msgid "Show in the Library"
+msgid "Show in Library"
+msgstr ""
+
+#: src/BuildTab.tsx
+msgid "Show Log File"
 msgstr ""
 
 #: src/CueView.tsx
@@ -7521,16 +7526,8 @@ msgstr ""
 msgid "Show the description"
 msgstr ""
 
-#: src/SettingsTab.tsx
-msgid "Show the Folder"
-msgstr ""
-
 #: src/Tools.tsx
 msgid "Show the header"
-msgstr ""
-
-#: src/BuildTab.tsx
-msgid "Show the Log File"
 msgstr ""
 
 #: src/About.tsx
@@ -7546,16 +7543,16 @@ msgstr ""
 msgid "Show the waveforms"
 msgstr ""
 
-#: src/tutorials.ts
-msgid "Show the ZIP"
-msgstr ""
-
 #: src/BuildTab.tsx
 msgid "Show the ZIP in Explorer when a build finishes"
 msgstr ""
 
 #: src/keys.ts
 msgid "Show these shortcuts"
+msgstr ""
+
+#: src/tutorials.ts
+msgid "Show ZIP"
 msgstr ""
 
 #: src/PatchContentPage.tsx
@@ -8328,7 +8325,7 @@ msgid "The list changed since the last check."
 msgstr ""
 
 #: src/ExportDialog.tsx
-msgid "The list is empty. Collect slots, groups, Index entries or archives with a right-click, or with <0>Add to the Export List</0> here, to export them together."
+msgid "The list is empty. Collect slots, groups, Index entries or archives with a right-click, or with <0>Add to Export List</0> here, to export them together."
 msgstr ""
 
 #: src/Inspector.tsx
@@ -9095,16 +9092,16 @@ msgstr ""
 msgid "Updating to {label}. Audiodiver restarts when the update is installed."
 msgstr ""
 
-#: src/Inspector.tsx
-msgid "Use Silence"
-msgstr ""
-
 #: src/SettingsTab.tsx
-msgid "Use the Default Folder"
+msgid "Use Default Folder"
 msgstr ""
 
 #: src/ProjectTab.tsx
-msgid "Use the Default Icon"
+msgid "Use Default Icon"
+msgstr ""
+
+#: src/Inspector.tsx
+msgid "Use Silence"
 msgstr ""
 
 #: src/ImportMod.tsx
@@ -9394,7 +9391,7 @@ msgid "Write a note"
 msgstr ""
 
 #: src/PatchContentPage.tsx
-msgid "Write the Mod"
+msgid "Write Mod"
 msgstr ""
 
 #: src/PatchContentPage.tsx

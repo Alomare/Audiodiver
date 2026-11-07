@@ -10,7 +10,7 @@ summary: A mod made with any tool, as a project to keep working on: the audio, t
 
 1. Choose the options. A mod with options, such as a choice of voices or a version with subtitles, starts with the options the mod manager has on, or all of them. **What comes in** lists the patches those options deploy.
 2. Name the project and choose the folder. The project goes into a new folder there.
-3. **Keep the mod ID** makes the builds of the project update this mod in the mod manager. Turn it off to install the builds beside the mod as another one ([Mod ID](wiki:build-and-install#mod-id)).
+3. **Keep mod ID** makes the builds of the project update this mod in the mod manager. Turn it off to install the builds beside the mod as another one ([Mod ID](wiki:build-and-install#mod-id)).
 4. **Use the icon of the mod** puts the image the mod manager shows on the project. Without it, the project has the default icon.
 5. Press **Create Project**. The project opens on the Audio tab when the import is done.
 
@@ -32,6 +32,6 @@ The text comes in as changes on the [Text](app:text) tab, one for each line the 
 
 ## Into the open project
 
-**Import Patches** on the Project tab, or a `.patch_0` file dropped on the window, brings a mod into the open project. The same panel opens, without the name and the folder. If the project isn't empty, choose how the audio comes in. **Add to the Project** keeps the current content, and where both have audio for a slot, the audio of the mod goes in. **Replace the Project's Audio** removes the new audio, added sounds, cue points and list first. Text and audio files stay either way, and Undo restores the project.
+**Import Patches** on the Project tab, or a `.patch_0` file dropped on the window, brings a mod into the open project. The same panel opens, without the name and the folder. If the project isn't empty, choose how the audio comes in. **Add to Project** keeps the current content, and where both have audio for a slot, the audio of the mod goes in. **Replace Project Audio** removes the new audio, added sounds, cue points and list first. Text and audio files stay either way, and Undo restores the project.
 
 To rebuild a mod for the current game version without a project, use [Repatch](wiki:repatching).

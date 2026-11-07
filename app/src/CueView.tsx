@@ -515,7 +515,7 @@ function CueBody({ cue }: { cue: Cue }) {
   const exportEntry = (sel: string[], r: Row): MenuEntry => {
     const count = sel.length, full = item?.full ?? cue.name;
     return {
-      label: count > 1 ? plural(count, { one: "Add # Slot to the Export List", other: "Add # Slots to the Export List" }) : t`Add to the Export List`,
+      label: count > 1 ? plural(count, { one: "Add # Slot to Export List", other: "Add # Slots to Export List" }) : t`Add to Export List`,
       run: () => toExport(sel, count > 1 ? plural(count, { one: `${full} (# slot)`, other: `${full} (# slots)` }) : `${full} - ${rowName(r)}`),
     };
   };
@@ -526,11 +526,11 @@ function CueBody({ cue }: { cue: Cue }) {
     const sl = r.slot, track = r.seg.stems[r.stemIndex]?.track;
     const entry = (label: string, id: string): MenuEntry => ({ label, keys: id, run: () => copyId(id, quick) });
     return [
-      ...(sl.stream ? [entry(t`Copy the Stream ID`, sl.stream)] : []),
-      ...(item?.game ? [] : [entry(t`Copy the Source ID`, sl.source)]),
-      ...(sl.object ? [entry(t`Copy the Sound ID`, sl.object)] : []),
-      ...(r.seg.key ? [entry(t`Copy the Container ID`, r.seg.key)] : []),
-      ...(track && track !== "0" ? [entry(t`Copy the Track ID`, track)] : []),
+      ...(sl.stream ? [entry(t`Copy Stream ID`, sl.stream)] : []),
+      ...(item?.game ? [] : [entry(t`Copy Source ID`, sl.source)]),
+      ...(sl.object ? [entry(t`Copy Sound ID`, sl.object)] : []),
+      ...(r.seg.key ? [entry(t`Copy Container ID`, r.seg.key)] : []),
+      ...(track && track !== "0" ? [entry(t`Copy Track ID`, track)] : []),
     ];
   };
 
@@ -557,16 +557,16 @@ function CueBody({ cue }: { cue: Cue }) {
       keys: keyLabel("playTogether"), run: () => { playTogether(sel); } }] : [];
     if (readOnly) {
       openMenu(e, [
-        { label: t`Play the Original`, keys: keyLabel("playGame"), disabled: r.slot.absent, run: () => playSlot("vanilla", s, revision, rowName(r), at(s)) },
+        { label: t`Play Original`, keys: keyLabel("playGame"), disabled: r.slot.absent, run: () => playSlot("vanilla", s, revision, rowName(r), at(s)) },
         ...playAll,
         exportEntry(sel, r),
-        { label: sel.length > 1 ? plural(sel.length, { one: "Copy the Audio (# Slot)", other: "Copy the Audio (# Slots)" }) : t`Copy the Audio`, keys: keyLabel("copy"),
+        { label: sel.length > 1 ? plural(sel.length, { one: "Copy Audio (# Slot)", other: "Copy Audio (# Slots)" }) : t`Copy Audio`, keys: keyLabel("copy"),
           disabled: r.slot.absent, run: () => copyRows(picks(sel)) },
         "-",
         ...(item && !item.game ? [listed
-          ? { label: t`Open in the Audio Tab`, run: () => goTo({ scope: "editor", itemId: item.id, cueId: cue.id, source: s }) } as MenuEntry
-          : inside ? { label: t`Open in the Audio Tab`, run: () => openInside(s) } as MenuEntry
-          : { label: t`Add ${ph({ name: item.full })} to the Project`, run: () => actions.addToProject([item.id], item.full) } as MenuEntry] : []),
+          ? { label: t`Open in Audio Tab`, run: () => goTo({ scope: "editor", itemId: item.id, cueId: cue.id, source: s }) } as MenuEntry
+          : inside ? { label: t`Open in Audio Tab`, run: () => openInside(s) } as MenuEntry
+          : { label: t`Add ${ph({ name: item.full })} to Project`, run: () => actions.addToProject([item.id], item.full) } as MenuEntry] : []),
         ...copyIds(r),
       ]);
       return;
@@ -583,8 +583,8 @@ function CueBody({ cue }: { cue: Cue }) {
     const reach = project?.game === "hd1" ? [] : chosen.filter((x) => assigned[x.slot.source] && choosesReach(x.slot)).map((x) => x.slot);
     const reachOwn = reach.filter((x) => x.was).length, reachShared = reach.length - reachOwn;
     const entries: MenuEntry[] = [
-      { label: t`Play the Original`, keys: keyLabel("playGame"), disabled: r.slot.absent || !!r.slot.added, run: () => playSlot("vanilla", s, revision, rowName(r), at(s)) },
-      { label: t`Play the New Audio`, keys: keyLabel("playMine"), disabled: !audible(a), run: () => playSlot("project", s, revision, rowName(r), at(s)) },
+      { label: t`Play Original`, keys: keyLabel("playGame"), disabled: r.slot.absent || !!r.slot.added, run: () => playSlot("vanilla", s, revision, rowName(r), at(s)) },
+      { label: t`Play New Audio`, keys: keyLabel("playMine"), disabled: !audible(a), run: () => playSlot("project", s, revision, rowName(r), at(s)) },
       ...playAll,
       "-",
       ...(sel.length > 1 ? [
@@ -593,18 +593,18 @@ function CueBody({ cue }: { cue: Cue }) {
         { label: plural(usableCount, { one: "Choose Files for # Slot", other: "Choose Files for # Slots" }), disabled: !project || !silenceable.length,
           run: async () => { const f = await pickAudio(true); if (f) actions.fillSources(silenceable, f, plural(usableCount, { one: "# slot", other: "# slots" })); } },
       ] : [{ label: a ? t`Replace with Another File` : t`Choose a File`, keys: keyLabel("chooseFile"), disabled: !project || !usable(r), run: () => choose(s) }]),
-      { label: withAudio.length ? (many ? plural(count, { one: "Copy the New Audio (# Slot)", other: "Copy the New Audio (# Slots)" }) : t`Copy the New Audio`)
-        : many ? plural(count, { one: "Copy the Original (# Slot)", other: "Copy the Original (# Slots)" }) : t`Copy the Original`,
+      { label: withAudio.length ? (many ? plural(count, { one: "Copy New Audio (# Slot)", other: "Copy New Audio (# Slots)" }) : t`Copy New Audio`)
+        : many ? plural(count, { one: "Copy Original (# Slot)", other: "Copy Original (# Slots)" }) : t`Copy Original`,
         keys: keyLabel("copy"), disabled: !withAudio.length && r.slot.absent, run: () => copyRows(chosen) },
       { label: clip.length > 1 && sel.length === 1 ? plural(copied, { one: "Paste # Slot from Here", other: "Paste # Slots from Here" })
         : many ? plural(count, { one: "Paste (# Slot)", other: "Paste (# Slots)" }) : t`Paste`, keys: keyLabel("paste"),
         disabled: !project, run: () => actions.pasteSlots(pasteTargets().length ? pasteTargets() : [s], pasteSelection().length ? pasteSelection() : [s]) },
-      { label: t`Move the New Audio Up`, keys: keyLabel("moveUp"), disabled: sel.length > 1 || !project || !a, run: () => moveAudio(-1) },
-      { label: t`Move the New Audio Down`, keys: keyLabel("moveDown"), disabled: sel.length > 1 || !project || !a, run: () => moveAudio(1) },
+      { label: t`Move New Audio Up`, keys: keyLabel("moveUp"), disabled: sel.length > 1 || !project || !a, run: () => moveAudio(-1) },
+      { label: t`Move New Audio Down`, keys: keyLabel("moveDown"), disabled: sel.length > 1 || !project || !a, run: () => moveAudio(1) },
       { label: many ? plural(count, { one: "Replace with Silence (# Slot)", other: "Replace with Silence (# Slots)" }) : t`Replace with Silence`,
         keys: keyLabel("silence"), disabled: !project || !silenceable.length || silenceable.every((x) => assigned[x]?.silence),
         run: () => actions.silence(silenceable, true, sel.length > 1 ? plural(usableCount, { one: "# slot", other: "# slots" }) : rowName(r)) },
-      { label: many ? plural(count, { one: "Remove the New Audio (# Slot)", other: "Remove the New Audio (# Slots)" }) : t`Remove the New Audio`,
+      { label: many ? plural(count, { one: "Remove New Audio (# Slot)", other: "Remove New Audio (# Slots)" }) : t`Remove New Audio`,
         keys: keyLabel("remove"), disabled: !withAudio.length, run: () => actions.unassign(withAudio) },
       ...(reach.length ? ["-" as const] : []),
       ...(reachShared ? [{ label: many ? plural(reachShared, { one: "Isolate Audio (# Slot)", other: "Isolate Audio (# Slots)" }) : t`Isolate Audio`,
@@ -654,19 +654,19 @@ function CueBody({ cue }: { cue: Cue }) {
       const takes = takesOf.get(first.segIndex) ?? NONE, replaced = takes.filter((s) => assigned[s]);
       const name = first.seg.name, count = takes.length, total = first.takes; // the takes that take audio, and all of them
       openMenu(e, [
-        { label: t`Play the First Take`, run: () => playSlot("vanilla", first.slot.source, revision, rowName(first), at(first.slot.source)) },
+        { label: t`Play First Take`, run: () => playSlot("vanilla", first.slot.source, revision, rowName(first), at(first.slot.source)) },
         ...(readOnly ? [] : ["-",
           { label: plural(count, { one: "Choose Files for the # Take", other: "Choose Files for the # Takes" }), disabled: !project || !takes.length,
             run: async () => { const f = await pickAudio(true); if (f) actions.fillSources(takes, f, t`the takes of ${name}`); } },
           { label: plural(count, { one: "Replace the # Take with Silence", other: "Replace the # Takes with Silence" }),
             disabled: !project || !takes.length || takes.every((s) => assigned[s]?.silence), run: () => actions.silence(takes, true, name) },
-          { label: plural(count, { one: "Remove the New Audio from the # Take", other: "Remove the New Audio from the # Takes" }),
+          { label: plural(count, { one: "Remove New Audio from # Take", other: "Remove New Audio from # Takes" }),
             disabled: !replaced.length, run: () => actions.unassign(replaced) },
           ...(addEntries(first).length ? ["-", ...addEntries(first)] : []),
           "-"] as MenuEntry[]),
         { label: plural(total, { one: "Add the # Take to the Export List", other: "Add the # Takes to the Export List" }),
           run: () => toExport(all.filter((r) => r.segIndex === first.segIndex).map((r) => r.slot.source), `${item?.full ?? cue.name} - ${name}`) },
-        ...(first.seg.key ? [{ label: t`Copy the Container ID`, keys: first.seg.key, run: () => copyId(first.seg.key!, quick) }] : []),
+        ...(first.seg.key ? [{ label: t`Copy Container ID`, keys: first.seg.key, run: () => copyId(first.seg.key!, quick) }] : []),
       ]);
     },
   });
@@ -761,13 +761,13 @@ function CueBody({ cue }: { cue: Cue }) {
         {music && cue.kind !== "sound" && <PlayThrough onThrough={setThrough} onMark={setMark} />}
         {readOnly && item && !item.game && forGame === "hd2" && (listed ? (
           <button className="btn primary" data-tip={t`Replace audio there`}
-            onClick={() => goTo({ scope: "editor", itemId: item.id, cueId: cue.id, source: selected[0] ?? null })}><Trans>Open in the Audio Tab</Trans></button>
+            onClick={() => goTo({ scope: "editor", itemId: item.id, cueId: cue.id, source: selected[0] ?? null })}><Trans>Open in Audio Tab</Trans></button>
         ) : inside ? (
           <button className="btn primary" data-tip={t`These sounds are in the project already`} data-tip-more={t`In ${ph({ name: listName(inside) })}`}
-            onClick={() => openInside(selected[0] ?? null)}><Trans>Open in the Audio Tab</Trans></button>
+            onClick={() => openInside(selected[0] ?? null)}><Trans>Open in Audio Tab</Trans></button>
         ) : (
           <button className="btn primary" data-tip={project ? t`Add to ${ph({ name: project.name })}` : t`Open or create a project first`}
-            onClick={() => actions.addToProject([item.id], item.full)}><Trans>Add to the Project</Trans></button>
+            onClick={() => actions.addToProject([item.id], item.full)}><Trans>Add to Project</Trans></button>
         ))}
         <div className="tools">
           {togetherCount > 1 && (
@@ -994,7 +994,7 @@ const GroupHead = memo(function GroupHead({ row, open, shown, status, itemId, cu
             : shown < takes ? plural(takes, { one: `${shown} of # take`, other: `${shown} of # takes` }) : plural(takes, { one: "# take", other: "# takes" })}</span>
       </button>
       <span className="grp-meta">
-        {(seg.tags ?? []).map((tag) => <CatTag key={tag.item ?? tag.name} tag={tag} tip={t`Show in the Index`} onOpen={tag.item ? () => on.openTag(tag.item!, seg.cue ?? "") : undefined} />)}
+        {(seg.tags ?? []).map((tag) => <CatTag key={tag.item ?? tag.name} tag={tag} tip={t`Show in Index`} onOpen={tag.item ? () => on.openTag(tag.item!, seg.cue ?? "") : undefined} />)}
         {seg.added === "layer" && <span className="tag new" data-tip={LAYER_TIP}>{t({ message: "layer", comment: "Tag on a sound the project added: a layer that plays with the sound above it" })}</span>}
         {shared > 0 && <Linked tip={plural(shared, {
           one: "Also in # other bank. New audio on these takes plays there too", other: "Also in # other banks. New audio on these takes plays there too",
@@ -1013,7 +1013,7 @@ const SegmentHead = memo(function SegmentHead({ row, line, on }: { row: Row; lin
   return (
     <div className="seg-head" data-line={line} data-seg={seg.segment} style={depthStyle(seg)}>
       <span className="seg-name">{seg.name}</span>
-      {(seg.tags ?? []).map((tag) => <CatTag key={tag.item ?? tag.name} tag={tag} tip={t`Show in the Index`}
+      {(seg.tags ?? []).map((tag) => <CatTag key={tag.item ?? tag.name} tag={tag} tip={t`Show in Index`}
         onOpen={tag.item ? () => on.openTag(tag.item!, seg.cue ?? "") : undefined} />)}
     </div>
   );
@@ -1035,7 +1035,7 @@ function TreeLine({ ids, type, depth, sources, picked, on }: {
       {ids.map((id, i) => (
         <Fragment key={id}>
           {i > 0 && <span className="tree-sep" aria-hidden>›</span>}
-          <button className="tree-id" data-tip={t`Copy the ID`} onClick={(e) => { e.stopPropagation(); copyId(id, quick); }}>{id}</button>
+          <button className="tree-id" data-tip={t`Copy ID`} onClick={(e) => { e.stopPropagation(); copyId(id, quick); }}>{id}</button>
         </Fragment>
       ))}
     </div>
@@ -1149,7 +1149,7 @@ const SlotRow = memo(function SlotRow({ row, a, standIns, gain, selected, now, i
             {!a && standIns && <StandInTag standIns={standIns} cueId={cueId} />}
             {!a && !!gain && <GainTag db={gain} />}
             <NoteTags slot={slot} />
-            {(seg.tags ?? []).map((tag) => <CatTag key={tag.item ?? tag.name} tag={tag} tip={t`Show in the Index`} onOpen={tag.item ? () => on.openTag(tag.item!, seg.cue ?? "") : undefined} />)}
+            {(seg.tags ?? []).map((tag) => <CatTag key={tag.item ?? tag.name} tag={tag} tip={t`Show in Index`} onOpen={tag.item ? () => on.openTag(tag.item!, seg.cue ?? "") : undefined} />)}
             {also > 0 && <Linked>{banks >= also ? <OtherBanks n={also} /> : banks ? moreTag(also) : cuesTag(also)}</Linked>}
             <AddButton row={row} on={on} />
           </span>
@@ -1183,7 +1183,7 @@ const SlotRow = memo(function SlotRow({ row, a, standIns, gain, selected, now, i
               <span className="tag warn" data-tip={t`The new audio is too short. This clip needs at least ${ph({ needed: fmtTime(slot.min_ms) })}`}>{t`too short`}</span>
             )}
             <NoteTags slot={slot} />
-            {named && (seg.tags ?? []).map((tag) => <CatTag key={tag.item ?? tag.name} tag={tag} tip={t`Show in the Index`}
+            {named && (seg.tags ?? []).map((tag) => <CatTag key={tag.item ?? tag.name} tag={tag} tip={t`Show in Index`}
               onOpen={tag.item ? () => on.openTag(tag.item!, seg.cue ?? "") : undefined} />)}
             {also > 0 && !(inGroup && (seg.shared ?? 0) > 0) && (
               <Linked>{banks >= also ? plural(also, { one: "+# bank", other: "+# banks" }) : banks ? moreTag(also) : cuesTag(also)}</Linked>

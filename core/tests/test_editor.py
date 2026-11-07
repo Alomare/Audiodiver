@@ -530,6 +530,12 @@ def test_recent_projects_say_whether_they_are_still_there(tmp_path):
     here, gone = projects_info([str(tmp_path / "file-name.audi"), str(tmp_path / "moved.audi")])
     assert here["exists"] and here["name"] == "Mod Name" and here["modified"] > 0
     assert not gone["exists"] and gone["name"] == "moved" and gone["modified"] is None
+    # the game each is for, so Home offers only the selected game's
+    import json
+    d = json.loads((tmp_path / "file-name.audi").read_text(encoding="utf-8"))
+    (tmp_path / "old.audi").write_text(json.dumps({**d, "name": "Old", "game": "hd1"}), encoding="utf-8")
+    hd2, hd1 = projects_info([str(tmp_path / "file-name.audi"), str(tmp_path / "old.audi")])
+    assert hd2["game"] == "hd2" and hd1["game"] == "hd1" and gone["game"] == "hd2"
 
 
 def test_last_build_is_the_newest_zip(tmp_path):

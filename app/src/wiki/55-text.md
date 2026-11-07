@@ -14,7 +14,7 @@ The right panel shows the **Original**, the **New text** box under it, and a **P
 
 ## Changing a line
 
-Type in **New text**. The change is saved shortly after you stop typing, or immediately with {key:save}, and each save is one step for {key:undo}. **Restore the Original** puts the original line back.
+Type in **New text**. The change is saved shortly after you stop typing, or immediately with {key:save}, and each save is one step for {key:undo}. **Restore Original** puts the original line back.
 
 To format part of a line, select the words and use the bar above the box. It has **Colour**, **Size** and **Emphasis**, and **Timing** for subtitles. With nothing selected, a button formats the whole line. **Clear Formatting** removes every colour, size and style.
 
@@ -33,7 +33,7 @@ To format part of a line, select the words and use the bar above the box. It has
 
 ## Exporting and importing
 
-**Export** saves lines to a CSV or JSON file: the selected lines, the changed lines, the lines shown, or a category. A second language adds a column. Tick a line to select it, and Shift+click to select a run of lines. **Restore the Original** works on the selected lines too.
+**Export** saves lines to a CSV or JSON file: the selected lines, the changed lines, the lines shown, or a category. A second language adds a column. Tick a line to select it, and Shift+click to select a run of lines. **Restore Original** works on the selected lines too.
 
 Fill in the **New text** column in a spreadsheet, and leave the **Language** and **ID** columns as they are. **Import** reads the file and shows what changes before anything does, as one step for {key:undo}. A line with no new text stays as it is. Lines that lost timing or words the game fills in stay out, unless you untick that option.
 

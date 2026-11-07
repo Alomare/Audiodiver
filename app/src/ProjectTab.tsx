@@ -439,7 +439,7 @@ function IconEditor({ icon, frame, setIcon, saveIcon }: IconProps) {
           <button className="btn" onClick={() => actions.setIcon()}>{image ? t`Choose Another Image` : t`Choose an Image`}</button>
           {image && <button className="btn quiet" disabled={p.problem_kinds.includes("icon_missing")}
             onClick={() => reveal(fullPath(p.folder, image))}><Trans>Show in Folder</Trans></button>}
-          {image && <button className="btn quiet" onClick={toDefault} data-tip={t`The image file stays where it is`}><Trans>Use the Default Icon</Trans></button>}
+          {image && <button className="btn quiet" onClick={toDefault} data-tip={t`The image file stays where it is`}><Trans>Use Default Icon</Trans></button>}
         </div>
       </div>
 

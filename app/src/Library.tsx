@@ -50,8 +50,8 @@ export function LibraryPanel() {
 type SortKey = "name" | "cat" | "archive" | "language" | "banks" | "sounds";
 /** The table's columns: what each sorts by, its heading and what it says. */
 const COLUMNS: [SortKey, string, string][] = [
-  ["name", t`Name`, t`Name in the Index`],
-  ["cat", t`Index`, t`Categories in the Index`],
+  ["name", t`Name`, t`Name in Index`],
+  ["cat", t`Index`, t`Categories in Index`],
   ["archive", t`Archive`, t`Name in the game files`],
   ["language", t`Language`, t`Voice pack language`],
   ["banks", t`Banks`, t`Number of sound banks`],
@@ -239,7 +239,7 @@ function ArchiveList({ game }: { game: LibraryGame }) {
     const entries: MenuEntry[] = [
       { label: t`Open`, run: () => openItem(id) },
       { label: t`Play a Sample`, run: () => playSlot("vanilla", a.preview, revision, t`${ph({ name: title(a) })} (sample)`, { scope, itemId: id, cueId: null, source: a.preview }) },
-      { label: t`Add to the Export List`, run: async () => {
+      { label: t`Add to Export List`, run: async () => {
         const it = itemIndex.items.get(id) ?? await resolveItem(id);
         if (!it) return;
         const all = itemEntries({ ...it, full: a.names.length ? `${title(a)} (${a.id})` : t`Archive ${ph({ id: a.id })}` }, t`All Archives`);
@@ -247,10 +247,10 @@ function ArchiveList({ game }: { game: LibraryGame }) {
       } },
       "-",
       ...(!canAdd(a, forGame) ? [] : listed.has(id) ? [
-        { label: t`Open in the Audio Tab`, run: () => goTo({ scope: "editor", itemId: id, cueId: null, source: null }) } as MenuEntry,
-        { label: t`Remove from the Project`, run: () => actions.removeFromProject([id], title(a)) } as MenuEntry,
-      ] : [{ label: t`Add to the Project`, run: () => actions.addToProject([id], title(a)) } as MenuEntry]),
-      { label: t`Copy the Archive Name`, run: () => copyText(a.id, quick) },
+        { label: t`Open in Audio Tab`, run: () => goTo({ scope: "editor", itemId: id, cueId: null, source: null }) } as MenuEntry,
+        { label: t`Remove from Project`, run: () => actions.removeFromProject([id], title(a)) } as MenuEntry,
+      ] : [{ label: t`Add to Project`, run: () => actions.addToProject([id], title(a)) } as MenuEntry]),
+      { label: t`Copy Archive Name`, run: () => copyText(a.id, quick) },
     ];
     openMenu(e, entries);
   };
@@ -354,12 +354,12 @@ export function ProjectPanel() {
     <aside className="library" aria-label={t`Project`}>
       <div className="lib-title">
         <h2 data-tip={project.name} data-tip-clip><Trans>In This Project</Trans></h2>
-        <button className="btn quiet small-btn" onClick={() => nav.go("library")} data-tip={t`Find more in the Library`}><Trans>Add from the Library</Trans></button>
+        <button className="btn quiet small-btn" onClick={() => nav.go("library")} data-tip={t`Find more in the Library`}><Trans>Add from Library</Trans></button>
       </div>
       {empty ? (
         <div className="lib-empty">
           <p><Trans>The project is empty. Add music or sounds from the Library.</Trans></p>
-          <div className="row-btns"><button className="btn primary" onClick={() => nav.go("library")}><Trans>Open the Library</Trans></button></div>
+          <div className="row-btns"><button className="btn primary" onClick={() => nav.go("library")}><Trans>Open Library</Trans></button></div>
         </div>
       ) : (
         <>

@@ -470,7 +470,7 @@ function About() {
         <li><Trans>Turn off the combined mods in the mod manager, then import and deploy the new ZIP.</Trans></li>
       </ul>
       <p className="set-note"><Trans>A combined mod is still the work of the original authors. Keep it for personal use, and share it only with their permission.</Trans></p>
-      <p className="set-note"><button className="link-text" onClick={() => nav.go("wiki", "combining-mods")}><Trans>More in the Wiki</Trans></button></p>
+      <p className="set-note"><button className="link-text" onClick={() => nav.go("wiki", "combining-mods")}><Trans>More in Wiki</Trans></button></p>
     </div>
   );
 }

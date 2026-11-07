@@ -161,7 +161,7 @@ const liberator: Tutorial = {
       target: listPane,
     },
     {
-      id: "add", tab: "library", title: t`Add the Liberator`,
+      id: "add", tab: "library", title: t`Add Liberator`,
       text: t({ message: `Find the **AR-23 Liberator** and press ${addIcon} on the row to add it to the project.`,
         comment: "Markdown. **AR-23 Liberator** is the weapon as the Library lists it. {addIcon} shows the + button of the row." }),
       target: listPane, done: (s) => !!s.project?.library.includes(LIBERATOR),
@@ -173,7 +173,7 @@ const liberator: Tutorial = {
       target: tabButton("tabEditor"), done: (s) => s.tab === "editor",
     },
     {
-      id: "open", tab: "editor", title: t`Open the Liberator`,
+      id: "open", tab: "editor", title: t`Open Liberator`,
       text: t({ message: "Open **AR-23 Liberator** in the list.", comment: "Markdown. **AR-23 Liberator** is the weapon as the list shows it." }),
       target: listPane, done: (s) => s.audioItem === LIBERATOR,
     },
@@ -276,7 +276,7 @@ const liberator: Tutorial = {
       id: "done", title: t`The mod is ready`,
       text: t`Install the ZIP with a mod manager, then fire the Liberator in the game. The practice project stays in the projects folder, to change further or to delete.`,
       action: {
-        label: t`Show the ZIP`,
+        label: t`Show ZIP`,
         async run(kit, s) { if (s.project?.last_build) kit.reveal(s.project.last_build.zip); },
       },
       next: t({ message: "Finish", comment: "The button that ends a tutorial, on the last step" }),
