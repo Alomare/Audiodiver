@@ -2,7 +2,7 @@
 title: Volver a parchear
 group: Generar y compartir
 summary: Reconstruir para el juego actual un mod de audio hecho para una versión anterior del juego o con otra herramienta.
-source: ee026f268f43
+source: ba47fe51fb25
 ---
 
 El parche de un mod contiene copias completas de los bancos de sonido que cambia, tal como estaban en la versión del juego para la que se hizo el mod. Después de una actualización del juego, esas copias están desfasadas. El mod puede quedarse en silencio o reproducir sonidos equivocados, y mientras está instalado revierte audio más nuevo. Incluso puede silenciar sonidos que nunca cambió, porque los bancos también contienen ajustes que comparten muchos otros bancos. **Repatch**, en [Herramientas](app:tools/repatch), reconstruye un mod así para el juego actual. No necesita ningún proyecto ni experiencia con mods.
@@ -15,7 +15,7 @@ El parche de un mod contiene copias completas de los bancos de sonido que cambia
 ## Volver a parchear un mod {#repatching-a-mod}
 
 1. Abre [Herramientas ▸ Repatch](app:tools/repatch).
-2. Suelta el mod en la página. Puedes soltar el ZIP descargado, la carpeta del mod o el fichero `.patch_0` con el fichero `.stream` junto a él. **Elegir un ZIP o un fichero de parche** y **Elegir una carpeta** hacen lo mismo. Un ZIP soltado en cualquier parte de Audiodiver también se abre en esta página.
+2. Suelta el mod en la página. Puedes soltar el ZIP descargado, la carpeta del mod o el fichero `.patch_0` con el fichero `.stream` junto a él. **Elegir ZIP o ficheros de parche** y **Elegir una carpeta** hacen lo mismo. Un ZIP soltado en cualquier parte de Audiodiver también se abre en esta página. Para volver a parchear más de un mod, consulta [Volver a parchear varios mods](#repatching-several-mods).
 3. Revisa el nombre. Audiodiver lo toma del manifiesto si hay uno, y si no del nombre del fichero o de la carpeta, sin los números y las fechas que Nexus Mods añade a las descargas.
 4. Marca **Parchear todos los bancos con los sonidos** para que el audio del mod suene dondequiera que se usen esos sonidos. Si se deja desactivado, el audio va solo a los bancos que parcheó el mod, como en el original, y el tamaño se queda más o menos igual. [Más información](wiki:build-and-install#every-bank-with-the-sounds).
 5. Pulsa **Repatch**.
@@ -26,6 +26,14 @@ Algunos mods tienen varias opciones, con un parche para cada una. Un mod así si
 
 Algunos mods tienen varios ficheros de parche en una carpeta, como `.patch_0`, `.patch_1` y `.patch_2`. El juego los carga uno sobre otro como un solo mod. Audiodiver los lee en el mismo orden y los construye en un solo parche.
 
+## Volver a parchear varios mods {#repatching-several-mods}
+
+Suelta o elige varios mods a la vez y Audiodiver los vuelve a parchear uno tras otro. Pueden ser ZIP, ficheros `.patch_0` o carpetas de mods. También puedes elegir una carpeta con varios mods: cada ZIP que contiene es un mod, igual que cada subcarpeta con un manifiesto. Una carpeta con un manifiesto o un fichero de parche directamente dentro cuenta como un mod. **Añadir ZIP o ficheros de parche** y **Añadir una carpeta** amplían la lista, y un mod que ya está en ella no se añade dos veces.
+
+Con dos mods o más, la página muestra una lista. Cada fila tiene el nombre del ZIP nuevo, que puedes cambiar, y **✕** quita el mod de la lista. Un mod con la etiqueta **Sin audio** no tiene nada que volver a parchear y se omite. **Parchear todos los bancos con los sonidos** se aplica a todos los mods de la lista, y el botón de Repatch indica cuántos mods se procesarán.
+
+Cada mod recibe un ZIP distinto en la [Carpeta de destino](#destination-folder). Si un mod falla, los demás siguen adelante. La página enumera entonces los ZIP nuevos y los mods que han fallado, con el motivo. **En parte** marca un mod con un parche que se ha quedado como estaba. **Mostrar todo** tiene lo que ha conservado cada mod y el registro, y **Volver a parchear más mods** vacía la página.
+
 ## Comprobar los mods instalados {#checking-installed-mods}
 
 **Mods instalados**, al final de la página Repatch, encuentra los mods que necesitan un Repatch. **Comprobar los mods instalados** revisa los mods de la biblioteca de un gestor de mods, desplegados o no, y los ficheros de parche de la carpeta `data` del juego. Enumera todos los mods con bancos de sonido:
@@ -35,7 +43,7 @@ Algunos mods tienen varios ficheros de parche en una carpeta, como `.patch_0`, `
 - **Actualizado.** Nada de los bancos es más antiguo que el juego actual. O el mod se hizo para esta versión, o las actualizaciones posteriores no tocaron esos bancos.
 - **No se puede leer.** Audiodiver no pudo leer el fichero de parche.
 
-**Desplegado** marca los mods que están ahora en la carpeta del juego. Un mod con opciones aparece una vez, con **Opciones** mostrando cada opción cuando difieren. **Repatch** abre un mod marcado en el formulario de la parte superior de la página, listo para volver a parchearlo.
+**Desplegado** marca los mods que están ahora en la carpeta del juego. Un mod con opciones aparece una vez, con **Opciones** mostrando cada opción cuando difieren. **Repatch** añade un mod marcado a la parte superior de la página, listo para volver a parchearlo.
 
 La comprobación solo informa de lo que el autor de un mod no habría cambiado a propósito, así que un mod hecho para el juego actual nunca aparece como antiguo.
 

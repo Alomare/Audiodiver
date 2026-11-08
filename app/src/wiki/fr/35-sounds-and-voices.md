@@ -2,7 +2,7 @@
 title: Sons et voix
 group: Créer un mod
 summary: Les armes, les ennemis, les voix et tout l’audio qui n’est pas de la musique. Comment la Bibliothèque les montre, et ce qu’il faut vérifier avant d’en remplacer un.
-source: 610221a84e2d
+source: 260014a3bd17
 ---
 
 C’est pour la musique qu’Audiodiver a le plus d’informations, mais la Bibliothèque contient tout l’audio du jeu. Cette page couvre tout ce qui n’est pas de la musique.
@@ -45,6 +45,8 @@ Remplacer un son partagé le modifie partout où il est joué, et les détails l
 ## Voix {#voices}
 
 Une voix a une partie pour chaque langue installée, comme *Anglais* et *Italien*, avec des enregistrements distincts pour chacune. Une réplique remplacée dans la partie anglaise n’est entendue que par les joueurs qui jouent en anglais.
+
+Un mod peut contenir une seule langue d’une voix. Avec deux, le jeu rend muettes toutes les répliques de cette voix ; [Générer](app:build) s’arrête donc quand une voix a du nouvel audio dans plusieurs langues. Gardez le nouvel audio dans une seule langue, ou faites un mod pour chacune.
 
 Une réplique porte le nom des mots du sous-titre correspondant, dans la langue choisie dans les Paramètres, quelle que soit la langue de la voix. Là où le jeu n’a pas de traduction d’une réplique, les mots sont en anglais. Le filtre trouve une réplique par les mots affichés et par les mots anglais. Quand plusieurs prises disent la même réplique, le groupe et chaque prise affichent les mots.
 

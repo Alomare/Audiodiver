@@ -2,7 +2,7 @@
 title: Sons e vozes
 group: Criando um mod
 summary: Armas, inimigos, vozes e todo o outro áudio que não é música. Como a Biblioteca os mostra e o que verificar antes de substituir um deles.
-source: 610221a84e2d
+source: 260014a3bd17
 ---
 
 O Audiodiver tem mais informações sobre música, mas a Biblioteca contém todo o áudio do jogo. Esta página aborda tudo o que não é música.
@@ -45,6 +45,8 @@ Substituir um som compartilhado o muda em todo lugar onde ele toca, e os detalhe
 ## Vozes {#voices}
 
 Uma voz tem uma parte para cada idioma instalado, como *Inglês* e *Italiano*, com gravações separadas para cada um. Uma fala substituída na parte em inglês só é ouvida por quem joga em inglês.
+
+Um mod pode levar um idioma de cada voz. Com dois, o jogo toca todas as falas dessa voz em silêncio, então [Gerar](app:build) para quando uma voz tem áudio novo em mais de um idioma. Mantenha o áudio novo em um idioma, ou faça um mod para cada um.
 
 Uma fala recebe o nome das palavras da legenda correspondente, no idioma definido em Configurações, seja qual for o idioma da voz. Onde o jogo não tem tradução de uma fala, as palavras ficam em inglês. O filtro encontra uma fala pelas palavras mostradas e pelas em inglês. Quando vários takes dizem a mesma fala, o grupo e cada take mostram as palavras.
 

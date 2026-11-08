@@ -365,6 +365,10 @@ msgstr[0] "texte : {n} ligne n’est plus dans la table {table} et est écart�
 msgstr[1] "texte : {n} lignes ne sont plus dans la table {table} et sont écartées (ID {ids})"
 
 #: build.py
+msgid "The voice {voice} has new audio in more than one language ({languages}). A mod can carry one language of a voice: with two, the game plays every line of that voice silent. Keep the new audio in one language, or make a mod for each."
+msgstr "La voix {voice} a du nouvel audio dans plusieurs langues ({languages}). Un mod peut contenir une seule langue d’une voix : avec deux, le jeu rend muettes toutes les répliques de cette voix. Gardez le nouvel audio dans une seule langue, ou faites un mod pour chacune."
+
+#: build.py
 msgid "Music segment {segment}: the Entry cue point ({entry} s) is at or after the Exit ({exit} s), so the game would play the music before it until the Entry. Move the cue points on the Audio tab, or reset them."
 msgstr "Segment de musique {segment} : le point de repère d’Entrée ({entry} s) est à la Sortie ({exit} s) ou après, donc le jeu jouerait la musique précédente jusqu’à l’Entrée. Déplacez les points de repère dans l’onglet Audio, ou réinitialisez-les."
 
@@ -735,6 +739,16 @@ msgid "installed mods"
 msgstr "mods installés"
 
 #: editor.py
+msgid "Choose the mods to repatch"
+msgstr "Choisissez les mods à repatcher"
+
+#: editor.py
+msgid "{n} mod"
+msgid_plural "{n} mods"
+msgstr[0] "{n} mod"
+msgstr[1] "{n} mods"
+
+#: editor.py
 msgid "Choose where repatched mods go (a full path)"
 msgstr "Choisissez où vont les mods repatchés (un chemin complet)"
 
@@ -942,6 +956,14 @@ msgstr "Ouvrez le mod dans Outils ▸ Contenu du Patch pour remplacer cet audio 
 msgid "{name} holds no audio or text that Audiodiver can bring in"
 msgstr "{name} ne contient ni audio ni texte qu’Audiodiver peut importer"
 
+#: editor.py
+msgid "The mod has no audio to repatch"
+msgstr "Le mod n’a pas d’audio à repatcher"
+
+#: editor.py
+msgid "{path} ({mb} MB)"
+msgstr "{path} ({mb} MB)"
+
 #: editor.py hd1.py library.py
 msgid "Other Sounds"
 msgstr "Autres sons"
@@ -1115,16 +1137,12 @@ msgid "project {path}"
 msgstr "projet {path}"
 
 #: editor.py
+msgid "{n} of {total}, {name}: "
+msgstr "{n} sur {total}, {name} : "
+
+#: editor.py
 msgid "{folder} is inside the game folder, and Audiodiver never writes there"
 msgstr "{folder} se trouve dans le dossier du jeu, et Audiodiver n’y écrit jamais"
-
-#: editor.py
-msgid "The mod has no audio to repatch"
-msgstr "Le mod n’a pas d’audio à repatcher"
-
-#: editor.py
-msgid "{path} ({mb} MB)"
-msgstr "{path} ({mb} MB)"
 
 #: editor.py
 msgid "Object {id}"
@@ -1135,12 +1153,6 @@ msgid "{n} clash"
 msgid_plural "{n} clashes"
 msgstr[0] "{n} conflit"
 msgstr[1] "{n} conflits"
-
-#: editor.py
-msgid "{n} mod"
-msgid_plural "{n} mods"
-msgstr[0] "{n} mod"
-msgstr[1] "{n} mods"
 
 #: editor.py
 msgid "{id} is not a piece of music. Only music has segments to mix and play through."
@@ -1273,6 +1285,10 @@ msgid "{n} other file, such as models or textures"
 msgid_plural "{n} other files, such as models or textures"
 msgstr[0] "{n} autre fichier, comme des modèles ou des textures"
 msgstr[1] "{n} autres fichiers, comme des modèles ou des textures"
+
+#: editor.py
+msgid "=== {name} ({n} of {total})"
+msgstr "=== {name} ({n} sur {total})"
 
 #: editor.py
 msgid "Can't decode sound {id}"
@@ -1409,6 +1425,10 @@ msgid "The new project is in {folder}. It wasn't opened, because the open projec
 msgstr "Le nouveau projet est dans {folder}. Il n’a pas été ouvert, car le projet ouvert n’a pas pu être enregistré."
 
 #: editor.py
+msgid "kept as it was: {why}"
+msgstr "conservé tel quel : {why}"
+
+#: editor.py
 msgid "{n} file besides audio that a later mod replaces"
 msgid_plural "{n} files besides audio that a later mod replaces"
 msgstr[0] "{n} fichier autre que l’audio qu’un mod ultérieur remplace"
@@ -1421,10 +1441,6 @@ msgstr "Analyse de sonie : {why}"
 #: editor.py
 msgid "the icon ({why})"
 msgstr "l’icône ({why})"
-
-#: editor.py
-msgid "kept as it was: {why}"
-msgstr "conservé tel quel : {why}"
 
 #: editor.py
 msgid "Export"
@@ -2083,6 +2099,12 @@ msgstr "Aucune note."
 #: patch.py
 msgid "{file} is missing"
 msgstr "{file} est manquant"
+
+#: patch.py
+msgid "{n} copy of a voice in another language left out (a mod carries one language of a voice)"
+msgid_plural "{n} copies of a voice in other languages left out (a mod carries one language of a voice)"
+msgstr[0] "{n} copie d’une voix dans une autre langue écartée (un mod contient une seule langue d’une voix)"
+msgstr[1] "{n} copies d’une voix dans d’autres langues écartées (un mod contient une seule langue d’une voix)"
 
 #: patch.py
 msgid "{file} is cut short"

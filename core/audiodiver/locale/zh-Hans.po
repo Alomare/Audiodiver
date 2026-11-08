@@ -335,6 +335,10 @@ msgid_plural "text: {n} lines are not in table {table} any more and are left out
 msgstr[0] "文本：{n} 行已不在表 {table} 中，已略去（ID {ids}）"
 
 #: build.py
+msgid "The voice {voice} has new audio in more than one language ({languages}). A mod can carry one language of a voice: with two, the game plays every line of that voice silent. Keep the new audio in one language, or make a mod for each."
+msgstr "语音 {voice} 在多种语言中有新音频（{languages}）。一个模组中每套语音只能包含一种语言：如果有两种，游戏中这套语音的所有台词都会静音。请只在一种语言中保留新音频，或为每种语言分别制作模组。"
+
+#: build.py
 msgid "Music segment {segment}: the Entry cue point ({entry} s) is at or after the Exit ({exit} s), so the game would play the music before it until the Entry. Move the cue points on the Audio tab, or reset them."
 msgstr "音乐段落 {segment}：入点（{entry} s）与出点（{exit} s）重合或在其后，因此游戏会把前一段音乐一直播放到入点。请在音频选项卡中移动提示点，或将其重置。"
 
@@ -700,6 +704,15 @@ msgid "installed mods"
 msgstr "已安装的模组"
 
 #: editor.py
+msgid "Choose the mods to repatch"
+msgstr "选择要 Repatch 的模组"
+
+#: editor.py
+msgid "{n} mod"
+msgid_plural "{n} mods"
+msgstr[0] "{n} 个模组"
+
+#: editor.py
 msgid "Choose where repatched mods go (a full path)"
 msgstr "选择 Repatch 后模组的存放位置（完整路径）"
 
@@ -905,6 +918,14 @@ msgstr "在“工具 ▸ 补丁内容”中打开该模组，即可在模组内�
 msgid "{name} holds no audio or text that Audiodiver can bring in"
 msgstr "{name} 不含 Audiodiver 可以导入的音频或文本"
 
+#: editor.py
+msgid "The mod has no audio to repatch"
+msgstr "该模组没有可 Repatch 的音频"
+
+#: editor.py
+msgid "{path} ({mb} MB)"
+msgstr "{path}（{mb} MB）"
+
 #: editor.py hd1.py library.py
 msgid "Other Sounds"
 msgstr "其他声音"
@@ -1070,16 +1091,12 @@ msgid "project {path}"
 msgstr "项目 {path}"
 
 #: editor.py
+msgid "{n} of {total}, {name}: "
+msgstr "{n}/{total}，{name}："
+
+#: editor.py
 msgid "{folder} is inside the game folder, and Audiodiver never writes there"
 msgstr "{folder} 位于游戏文件夹内，Audiodiver 从不向其中写入"
-
-#: editor.py
-msgid "The mod has no audio to repatch"
-msgstr "该模组没有可 Repatch 的音频"
-
-#: editor.py
-msgid "{path} ({mb} MB)"
-msgstr "{path}（{mb} MB）"
 
 #: editor.py
 msgid "Object {id}"
@@ -1089,11 +1106,6 @@ msgstr "对象 {id}"
 msgid "{n} clash"
 msgid_plural "{n} clashes"
 msgstr[0] "{n} 处冲突"
-
-#: editor.py
-msgid "{n} mod"
-msgid_plural "{n} mods"
-msgstr[0] "{n} 个模组"
 
 #: editor.py
 msgid "{id} is not a piece of music. Only music has segments to mix and play through."
@@ -1220,6 +1232,10 @@ msgstr[0] "{n} 个字符串表"
 msgid "{n} other file, such as models or textures"
 msgid_plural "{n} other files, such as models or textures"
 msgstr[0] "{n} 个其他文件，如模型或纹理"
+
+#: editor.py
+msgid "=== {name} ({n} of {total})"
+msgstr "=== {name}（{n}/{total}）"
 
 #: editor.py
 msgid "Can't decode sound {id}"
@@ -1353,6 +1369,10 @@ msgid "The new project is in {folder}. It wasn't opened, because the open projec
 msgstr "新项目位于 {folder}。由于当前打开的项目无法保存，新项目未打开。"
 
 #: editor.py
+msgid "kept as it was: {why}"
+msgstr "保持原样：{why}"
+
+#: editor.py
 msgid "{n} file besides audio that a later mod replaces"
 msgid_plural "{n} files besides audio that a later mod replaces"
 msgstr[0] "{n} 个音频以外的文件被后续模组替换"
@@ -1364,10 +1384,6 @@ msgstr "响度分析：{why}"
 #: editor.py
 msgid "the icon ({why})"
 msgstr "图标（{why}）"
-
-#: editor.py
-msgid "kept as it was: {why}"
-msgstr "保持原样：{why}"
 
 #: editor.py
 msgid "Export"
@@ -2021,6 +2037,11 @@ msgstr "没有备注。"
 #: patch.py
 msgid "{file} is missing"
 msgstr "{file} 缺失"
+
+#: patch.py
+msgid "{n} copy of a voice in another language left out (a mod carries one language of a voice)"
+msgid_plural "{n} copies of a voice in other languages left out (a mod carries one language of a voice)"
+msgstr[0] "已略去 {n} 个其他语言的语音副本（一个模组中每套语音只包含一种语言）"
 
 #: patch.py
 msgid "{file} is cut short"

@@ -335,6 +335,10 @@ msgid_plural "text: {n} lines are not in table {table} any more and are left out
 msgstr[0] "テキスト：{n} 行がテーブル {table} になくなったため、除外しました（ID {ids}）"
 
 #: build.py
+msgid "The voice {voice} has new audio in more than one language ({languages}). A mod can carry one language of a voice: with two, the game plays every line of that voice silent. Keep the new audio in one language, or make a mod for each."
+msgstr "ボイス {voice} には複数の言語に新しい音声があります（{languages}）。1つのMODに入れられるのは、1つのボイスにつき1言語です。2言語あると、そのボイスのセリフはゲーム内ですべて無音になります。新しい音声を1つの言語にまとめるか、言語ごとにMODを作成してください。"
+
+#: build.py
 msgid "Music segment {segment}: the Entry cue point ({entry} s) is at or after the Exit ({exit} s), so the game would play the music before it until the Entry. Move the cue points on the Audio tab, or reset them."
 msgstr "音楽セグメント {segment}：Entryキューポイント（{entry} s）がExit（{exit} s）と同じかそれより後なので、ゲームはEntryまでその前の音楽を再生します。オーディオタブでキューポイントを移動するか、リセットしてください。"
 
@@ -700,6 +704,15 @@ msgid "installed mods"
 msgstr "インストール済みのMOD"
 
 #: editor.py
+msgid "Choose the mods to repatch"
+msgstr "RepatchするMODを選択してください"
+
+#: editor.py
+msgid "{n} mod"
+msgid_plural "{n} mods"
+msgstr[0] "{n} 個のMOD"
+
+#: editor.py
 msgid "Choose where repatched mods go (a full path)"
 msgstr "RepatchしたMODの保存先を選択してください（フルパス）"
 
@@ -905,6 +918,14 @@ msgstr "その音声をMOD内で置き換えるには、ツール ▸ パッチ�
 msgid "{name} holds no audio or text that Audiodiver can bring in"
 msgstr "{name}には、Audiodiverが取り込める音声やテキストがありません"
 
+#: editor.py
+msgid "The mod has no audio to repatch"
+msgstr "MODにRepatchする音声がありません"
+
+#: editor.py
+msgid "{path} ({mb} MB)"
+msgstr "{path}（{mb} MB）"
+
 #: editor.py hd1.py library.py
 msgid "Other Sounds"
 msgstr "その他のサウンド"
@@ -1070,16 +1091,12 @@ msgid "project {path}"
 msgstr "プロジェクト {path}"
 
 #: editor.py
+msgid "{n} of {total}, {name}: "
+msgstr "{n}/{total}、{name}："
+
+#: editor.py
 msgid "{folder} is inside the game folder, and Audiodiver never writes there"
 msgstr "{folder}はゲームフォルダー内にあり、Audiodiverはそこに書き込みません"
-
-#: editor.py
-msgid "The mod has no audio to repatch"
-msgstr "MODにRepatchする音声がありません"
-
-#: editor.py
-msgid "{path} ({mb} MB)"
-msgstr "{path}（{mb} MB）"
 
 #: editor.py
 msgid "Object {id}"
@@ -1089,11 +1106,6 @@ msgstr "オブジェクト {id}"
 msgid "{n} clash"
 msgid_plural "{n} clashes"
 msgstr[0] "競合 {n} 件"
-
-#: editor.py
-msgid "{n} mod"
-msgid_plural "{n} mods"
-msgstr[0] "{n} 個のMOD"
 
 #: editor.py
 msgid "{id} is not a piece of music. Only music has segments to mix and play through."
@@ -1220,6 +1232,10 @@ msgstr[0] "文字列テーブル {n} 個"
 msgid "{n} other file, such as models or textures"
 msgid_plural "{n} other files, such as models or textures"
 msgstr[0] "その他のファイル（モデルやテクスチャなど）{n} 個"
+
+#: editor.py
+msgid "=== {name} ({n} of {total})"
+msgstr "=== {name}（{n}/{total}）"
 
 #: editor.py
 msgid "Can't decode sound {id}"
@@ -1353,6 +1369,10 @@ msgid "The new project is in {folder}. It wasn't opened, because the open projec
 msgstr "新しいプロジェクトは{folder}にあります。開いているプロジェクトを保存できなかったため、開きませんでした。"
 
 #: editor.py
+msgid "kept as it was: {why}"
+msgstr "元のまま残しました：{why}"
+
+#: editor.py
 msgid "{n} file besides audio that a later mod replaces"
 msgid_plural "{n} files besides audio that a later mod replaces"
 msgstr[0] "後のMODが置き換える、音声以外のファイル {n} 個"
@@ -1364,10 +1384,6 @@ msgstr "ラウドネス解析：{why}"
 #: editor.py
 msgid "the icon ({why})"
 msgstr "アイコン（{why}）"
-
-#: editor.py
-msgid "kept as it was: {why}"
-msgstr "元のまま残しました：{why}"
 
 #: editor.py
 msgid "Export"
@@ -2021,6 +2037,11 @@ msgstr "メモはありません。"
 #: patch.py
 msgid "{file} is missing"
 msgstr "{file}がありません"
+
+#: patch.py
+msgid "{n} copy of a voice in another language left out (a mod carries one language of a voice)"
+msgid_plural "{n} copies of a voice in other languages left out (a mod carries one language of a voice)"
+msgstr[0] "他の言語のボイスのコピー {n} 個を除外しました（1つのMODに入るのは1つのボイスにつき1言語です）"
 
 #: patch.py
 msgid "{file} is cut short"

@@ -43,6 +43,16 @@ msgstr "{0, plural, other {已导出 # 条备注。}}"
 msgid "{0, plural, one {Imported notes on # thing} other {Imported notes on # things}}"
 msgstr "{0, plural, other {已导入 # 个对象的备注}}"
 
+#. placeholder {0}: unread.length
+#: src/RepatchPage.tsx
+msgid "{0, plural, one {Not added: # path isn't a mod} other {Not added: # paths aren't mods}}"
+msgstr "{0, plural, other {未添加：# 个路径不是模组}}"
+
+#. placeholder {0}: ready.length
+#: src/RepatchPage.tsx
+msgid "{0, plural, one {Repatch # Mod} other {Repatch # Mods}}"
+msgstr "{0, plural, other {Repatch # 个模组}}"
+
 #. The suggested file name for a project's exported notes, without the extension
 #. placeholder {0}: project.name
 #: src/SettingsTab.tsx
@@ -296,6 +306,10 @@ msgstr "{total} 个槽位中已替换 {count} 个"
 #: src/Wiki.tsx
 msgid "{current} of {total}"
 msgstr "{current}/{total}"
+
+#: src/RepatchPage.tsx
+msgid "{done} of {total} mods repatched."
+msgstr "已 Repatch {total} 个模组中的 {done} 个。"
 
 #: src/UpdatesTab.tsx
 msgid "{downloaded} of {total}"
@@ -645,6 +659,10 @@ msgstr "{parts, plural, other {过渡段}}"
 #: src/RepatchPage.tsx
 msgid "{patches, plural, one {# patch with audio, rebuilt on the current game} other {# patches with audio, rebuilt on the current game}}"
 msgstr "{patches, plural, other {# 个含音频的补丁，已基于当前游戏重新构建}}"
+
+#: src/RepatchPage.tsx
+msgid "{patches, plural, one {# patch with audio} other {# patches with audio}}"
+msgstr "{patches, plural, other {# 个含音频的补丁}}"
 
 #: src/RepatchPage.tsx
 msgid "{patches, plural, one {# patch without audio} other {# patches without audio}}"
@@ -1207,9 +1225,12 @@ msgid "A mod needs a name."
 msgstr "模组需要一个名称。"
 
 #: src/PatchContentPage.tsx
-#: src/RepatchPage.tsx
 msgid "A mod unpacked into a folder"
 msgstr "解压到文件夹中的模组"
+
+#: src/RepatchPage.tsx
+msgid "A mod unpacked into a folder, or a folder of mods"
+msgstr "解压到文件夹中的模组，或包含多个模组的文件夹"
 
 #: src/RepatchPage.tsx
 msgid "A mod's sounds went silent, wrong or missing after a game update."
@@ -1365,7 +1386,6 @@ msgid "A whole number from 1 to 99999."
 msgstr "1 到 99999 之间的整数。"
 
 #: src/PatchContentPage.tsx
-#: src/RepatchPage.tsx
 msgid "A ZIP or a .patch_0 file"
 msgstr "ZIP 或 .patch_0 文件"
 
@@ -1396,6 +1416,7 @@ msgid "Add {name} to the project"
 msgstr "将 {name} 添加到项目"
 
 #: src/CombinePage.tsx
+#: src/RepatchPage.tsx
 msgid "Add a Folder"
 msgstr "添加文件夹"
 
@@ -1438,6 +1459,10 @@ msgstr "从资源库添加"
 #: src/Notes.tsx
 msgid "Add Global Note"
 msgstr "添加全局备注"
+
+#: src/RepatchPage.tsx
+msgid "Add it above, ready to repatch"
+msgstr "添加到上方，准备 Repatch"
 
 #: src/IndexTree.tsx
 msgid "Add It to Export List"
@@ -1508,6 +1533,7 @@ msgid "Add Wwise loudness analysis"
 msgstr "添加 Wwise 响度分析"
 
 #: src/CombinePage.tsx
+#: src/RepatchPage.tsx
 msgid "Add ZIPs or Patch Files"
 msgstr "添加 ZIP 或补丁文件"
 
@@ -1719,6 +1745,10 @@ msgstr "适用于此项目。每个 ZIP 旁都有一个同名文件夹，存放�
 #: src/BuildTab.tsx
 msgid "Applies to this project. The game's audio includes this data, but it makes no audible difference. It needs Wwise installed and makes builds slower."
 msgstr "适用于此项目。游戏音频本身就有这项数据，听不出区别。需要安装 Wwise，构建也会变慢。"
+
+#: src/RepatchPage.tsx
+msgid "Apply each mod's audio and settings to the current sound banks and build a new ZIP for each"
+msgstr "将每个模组的音频和设置应用到当前的音频库，并为每个模组构建新的 ZIP"
 
 #: src/RepatchPage.tsx
 msgid "Apply the mod's audio and settings to the current sound banks and build a new ZIP"
@@ -2381,6 +2411,10 @@ msgstr "请先选择模组"
 msgid "Choose a mod folder"
 msgstr "选择模组文件夹"
 
+#: src/RepatchPage.tsx
+msgid "Choose a mod folder, or a folder of mods"
+msgstr "选择模组文件夹，或包含多个模组的文件夹"
+
 #: src/ImportMod.tsx
 #: src/store.tsx
 msgid "Choose a mod to import"
@@ -2404,7 +2438,6 @@ msgid "Choose a song to cut into up to {pieces, plural, one {# piece} other {# p
 msgstr "选择歌曲，最多切成 {pieces, plural, other {# 段}}，也可以直接拖一首到这里。"
 
 #: src/PatchContentPage.tsx
-#: src/RepatchPage.tsx
 msgid "Choose a ZIP or Patch File"
 msgstr "选择 ZIP 或补丁文件"
 
@@ -2417,12 +2450,10 @@ msgid "Choose an image for the icon"
 msgstr "为图标选择图片"
 
 #: src/PatchContentPage.tsx
-#: src/RepatchPage.tsx
 msgid "Choose Another File"
 msgstr "选择其他文件"
 
 #: src/PatchContentPage.tsx
-#: src/RepatchPage.tsx
 #: src/SettingsTab.tsx
 msgid "Choose Another Folder"
 msgstr "选择其他文件夹"
@@ -2471,6 +2502,10 @@ msgstr "请在分享前确定名称。模组管理器会沿用首次导入时的
 msgid "Choose mods to combine"
 msgstr "选择要合并的模组"
 
+#: src/RepatchPage.tsx
+msgid "Choose mods to repatch"
+msgstr "选择要 Repatch 的模组"
+
 #: src/Soundtrack.tsx
 msgid "Choose music on the left."
 msgstr "请在左侧选择音乐。"
@@ -2492,7 +2527,6 @@ msgid "Choose the Helldivers 2 install folder, usually <0>…\\steamapps\\common
 msgstr "选择 Helldivers 2 的安装文件夹，通常为 <0>…\\steamapps\\common\\Helldivers 2</0>。Audiodiver 只会读取其中的内容。"
 
 #: src/PatchContentPage.tsx
-#: src/RepatchPage.tsx
 msgid "Choose the mod folder"
 msgstr "选择模组文件夹"
 
@@ -2515,6 +2549,10 @@ msgstr "选择项目的存放位置"
 #: src/ProjectTab.tsx
 msgid "Choose where to move the project"
 msgstr "选择项目要移动到的位置"
+
+#: src/RepatchPage.tsx
+msgid "Choose ZIPs or Patch Files"
+msgstr "选择 ZIP 或补丁文件"
 
 #: src/SettingsTab.tsx
 msgid "Chosen here."
@@ -2542,6 +2580,7 @@ msgid "Clear Formatting"
 msgstr "清除格式"
 
 #: src/ExportDialog.tsx
+#: src/RepatchPage.tsx
 msgid "Clear List"
 msgstr "清空列表"
 
@@ -2913,6 +2952,10 @@ msgstr "位置"
 msgid "Corners"
 msgstr "圆角"
 
+#: src/RepatchPage.tsx
+msgid "Couldn't be repatched"
+msgstr "无法 Repatch"
+
 #: src/UpdatesTab.tsx
 msgid "Couldn't check again ({reason}). The list below is from {checked}."
 msgstr "无法再次检查（{reason}）。下方列表是 {checked} 的检查结果。"
@@ -3165,7 +3208,6 @@ msgid "Drawn as the line around the waveform"
 msgstr "以波形周围的线表示"
 
 #: src/PatchContentPage.tsx
-#: src/RepatchPage.tsx
 msgid "Drop a mod here as a <0>ZIP</0>, a <1>folder</1> or a <2>.patch_0</2> file."
 msgstr "把模组拖到这里：<0>ZIP</0>、<1>文件夹</1>或 <2>.patch_0</2> 文件都行。"
 
@@ -3221,6 +3263,10 @@ msgstr "在项目选项卡中将图片拖到图标上"
 #: src/CombinePage.tsx
 msgid "Drop mods here as <0>ZIPs</0>, <1>folders</1> or <2>.patch_0</2> files."
 msgstr "可以直接把 <0>ZIP</0>、<1>文件夹</1>或 <2>.patch_0</2> 文件拖到这里。"
+
+#: src/RepatchPage.tsx
+msgid "Drop mods here as <0>ZIPs</0>, <1>folders</1> or <2>.patch_0</2> files. Several are repatched one after another."
+msgstr "将模组以 <0>ZIP</0>、<1>文件夹</1>或 <2>.patch_0</2> 文件的形式拖放到这里。多个模组会逐个 Repatch。"
 
 #: src/App.tsx
 msgid "Drop songs on a place of a playlist, or a song on One Song"
@@ -4456,6 +4502,10 @@ msgstr "补丁中音频以外的内容，例如文本、模型或纹理，都会
 msgid "Kept as it was"
 msgstr "保持原样"
 
+#: src/RepatchPage.tsx
+msgid "Kept as it was: {patches}"
+msgstr "保持原样：{patches}"
+
 #: src/store.tsx
 msgid "Kept current: {older, plural, one {# sound object} other {# sound objects}} the patch had from an older game version"
 msgstr "已更新到当前版本：补丁中 {older, plural, other {# 个来自旧游戏版本的声音对象}}"
@@ -4872,6 +4922,7 @@ msgid "Mode"
 msgstr "模式"
 
 #: src/CombinePage.tsx
+#: src/RepatchPage.tsx
 msgid "Mods"
 msgstr "模组"
 
@@ -5023,6 +5074,10 @@ msgstr "索引中的名称"
 #: src/Library.tsx
 msgid "Name in the game files"
 msgstr "游戏文件中的名称"
+
+#: src/RepatchPage.tsx
+msgid "Name of {file}"
+msgstr "{file} 的名称"
 
 #: src/CombinePage.tsx
 #: src/PatchContentPage.tsx
@@ -5244,6 +5299,7 @@ msgstr "没有与“{query}”匹配的归档。"
 msgid "no audio"
 msgstr "无音频"
 
+#: src/RepatchPage.tsx
 #: src/Soundtrack.tsx
 msgid "No audio"
 msgstr "无音频"
@@ -5824,10 +5880,6 @@ msgstr "打开下载页面"
 msgid "Open in Audio Tab"
 msgstr "在音频选项卡中打开"
 
-#: src/RepatchPage.tsx
-msgid "Open it in the form above, ready to repatch"
-msgstr "在上方的表单中打开，随时可以 Repatch"
-
 #: src/TextTab.tsx
 msgid "Open it in the Library"
 msgstr "在资源库中打开"
@@ -6086,6 +6138,10 @@ msgstr "第 {n} 部分"
 #: src/ItemHead.tsx
 msgid "Part {number}"
 msgstr "第 {number} 部分"
+
+#: src/RepatchPage.tsx
+msgid "Partly"
+msgstr "部分"
 
 #. What a transition or stinger plays now
 #: src/ItemHead.tsx
@@ -6771,6 +6827,7 @@ msgid "remove"
 msgstr "移除"
 
 #: src/ProjectTab.tsx
+#: src/RepatchPage.tsx
 #: src/Soundtrack.tsx
 #: src/store.tsx
 msgid "Remove"
@@ -6786,6 +6843,7 @@ msgstr "移除 {keyName}"
 
 #: src/CombinePage.tsx
 #: src/ExportDialog.tsx
+#: src/RepatchPage.tsx
 msgid "Remove {name} from the list"
 msgstr "从列表中移除 {name}"
 
@@ -6825,6 +6883,7 @@ msgstr "从项目中移除"
 
 #: src/CombinePage.tsx
 #: src/ExportDialog.tsx
+#: src/RepatchPage.tsx
 msgid "Remove from the list"
 msgstr "从列表中移除"
 
@@ -6944,12 +7003,24 @@ msgid "Repatch failed: {why}"
 msgstr "Repatch 失败：{why}"
 
 #: src/RepatchPage.tsx
+msgid "Repatch More Mods"
+msgstr "Repatch 更多模组"
+
+#: src/RepatchPage.tsx
 msgid "Repatched"
 msgstr "已 Repatch"
 
 #: src/store.tsx
+msgid "Repatched {done} of {total} mods."
+msgstr "已 Repatch {total} 个模组中的 {done} 个。"
+
+#: src/store.tsx
 msgid "Repatched {title}: {file} ({mb} MB)."
 msgstr "已 Repatch {title}：{file}（{mb} MB）。"
+
+#: src/RepatchPage.tsx
+msgid "Repatched one after another, each into a separate ZIP. Each name goes on the new ZIP and shows in mod managers."
+msgstr "逐个 Repatch，每个模组生成单独的 ZIP。每个名称都会用于新的 ZIP，并显示在模组管理器中。"
 
 #: src/jobs.ts
 #: src/RepatchPage.tsx
@@ -7732,6 +7803,10 @@ msgstr "更慢"
 msgid "Some jobs are still running."
 msgstr "有些任务仍在运行。"
 
+#: src/RepatchPage.tsx
+msgid "Some patches couldn't be repatched and are kept as they were"
+msgstr "部分补丁无法 Repatch，已保持原样"
+
 #: src/ExportDialog.tsx
 msgid "Some slots play only under a condition, such as a biome. The export uses the one chosen here"
 msgstr "有些槽位仅在特定条件下播放，例如某个生物群系。导出时使用此处所选的版本"
@@ -8348,6 +8423,10 @@ msgstr "中间列出了“解放者”的声音。一次射击由同时播放的
 #: src/RepatchPage.tsx
 msgid "The mod holds no audio"
 msgstr "该模组不含音频"
+
+#: src/RepatchPage.tsx
+msgid "The mod holds no audio, so it is left out"
+msgstr "该模组不含音频，因此已略去"
 
 #: src/RepatchPage.tsx
 msgid "The mod holds no audio, so there is nothing to repatch."
@@ -9443,3 +9522,7 @@ msgstr "当前版本为 {APP_LABEL}。"
 #: src/ProjectTab.tsx
 msgid "Your Helldiver, teammates on the radio, and anyone in a vehicle"
 msgstr "你自己的绝地潜兵、无线电中的队友，以及载具中的任何人"
+
+#: src/RepatchPage.tsx
+msgid "ZIPs or .patch_0 files"
+msgstr "ZIP 或 .patch_0 文件"

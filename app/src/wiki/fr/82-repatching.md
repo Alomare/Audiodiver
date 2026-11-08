@@ -2,7 +2,7 @@
 title: Repatch
 group: Générer et partager
 summary: Reconstruire un mod audio créé pour une ancienne version du jeu, ou avec un autre outil, pour le jeu actuel.
-source: ee026f268f43
+source: ba47fe51fb25
 ---
 
 Le patch d’un mod contient des copies complètes des banques de sons qu’il modifie, telles qu’elles étaient dans la version du jeu pour laquelle le mod a été créé. Après une mise à jour du jeu, ces copies sont périmées. Le mod peut devenir silencieux ou jouer les mauvais sons, et, une fois installé, il ramène l’audio plus récent en arrière. Il peut même rendre silencieux des sons qu’il n’a jamais modifiés, car les banques contiennent aussi des réglages que beaucoup d’autres banques partagent. **Repatch**, dans [Outils](app:tools/repatch), reconstruit un tel mod pour le jeu actuel. Il ne demande ni projet ni expérience en modding.
@@ -15,7 +15,7 @@ Le patch d’un mod contient des copies complètes des banques de sons qu’il m
 ## Repatcher un mod {#repatching-a-mod}
 
 1. Ouvrez [Outils ▸ Repatch](app:tools/repatch).
-2. Déposez le mod sur la page. Vous pouvez déposer le ZIP téléchargé, le dossier du mod, ou le fichier `.patch_0` avec le fichier `.stream` à côté. **Choisir un ZIP ou un fichier patch** et **Choisir un dossier** font la même chose. Un ZIP déposé n’importe où dans Audiodiver s’ouvre aussi sur cette page.
+2. Déposez le mod sur la page. Vous pouvez déposer le ZIP téléchargé, le dossier du mod, ou le fichier `.patch_0` avec le fichier `.stream` à côté. **Choisir des ZIP ou des fichiers patch** et **Choisir un dossier** font la même chose. Un ZIP déposé n’importe où dans Audiodiver s’ouvre aussi sur cette page. Pour repatcher plusieurs mods, voir [Repatcher plusieurs mods](#repatching-several-mods).
 3. Vérifiez le nom. Audiodiver le prend dans le manifeste s’il y en a un, et sinon dans le nom du fichier ou du dossier, sans les numéros et les dates que Nexus Mods ajoute aux téléchargements.
 4. Cochez **Patcher chaque banque contenant les sons** pour que l’audio du mod soit joué partout où ces sons sont utilisés. Décochée, l’audio ne va que dans les banques que le mod a patchées, comme dans l’original, et la taille reste à peu près la même. [En savoir plus](wiki:build-and-install#every-bank-with-the-sounds).
 5. Appuyez sur **Repatch**.
@@ -26,6 +26,14 @@ Certains mods ont plusieurs options, avec un patch pour chacune. Un tel mod rest
 
 Certains mods ont plusieurs fichiers patch dans un même dossier, comme `.patch_0`, `.patch_1` et `.patch_2`. Le jeu les charge les uns par-dessus les autres comme un seul mod. Audiodiver les lit dans le même ordre et les assemble en un seul patch.
 
+## Repatcher plusieurs mods {#repatching-several-mods}
+
+Déposez ou choisissez plusieurs mods à la fois, et Audiodiver les repatche l’un après l’autre. Ce peuvent être des ZIP, des fichiers `.patch_0` ou des dossiers de mods. Vous pouvez aussi choisir un dossier qui contient plusieurs mods : chaque ZIP qu’il contient est un mod, de même que chaque sous-dossier avec un manifeste. Un dossier qui contient directement un manifeste ou un fichier patch compte pour un seul mod. **Ajouter des ZIP ou des fichiers patch** et **Ajouter un dossier** complètent la liste, et un mod déjà présent n’est pas ajouté deux fois.
+
+Avec deux mods ou plus, la page affiche une liste. Chaque ligne porte le nom du nouveau ZIP, que vous pouvez changer, et **✕** retire le mod de la liste. Un mod marqué **Pas d’audio** n’a rien à repatcher et il est écarté. **Patcher chaque banque contenant les sons** s’applique à tous les mods de la liste, et le bouton Repatch indique combien de mods seront traités.
+
+Chaque mod reçoit un ZIP séparé dans le [Dossier de destination](#destination-folder). Si un mod échoue, les autres continuent. La page liste ensuite les nouveaux ZIP et les mods qui ont échoué, avec la raison. **En partie** marque un mod dont un patch reste tel quel. **Tout afficher** contient ce que chaque mod a repris et le journal, et **Repatcher d’autres mods** vide la page.
+
 ## Vérifier les mods installés {#checking-installed-mods}
 
 **Mods installés**, en bas de la page Repatch, trouve les mods qui ont besoin d’un repatch. **Vérifier les mods installés** examine les mods de la bibliothèque d’un gestionnaire de mods, déployés ou non, et les fichiers patch du dossier `data` du jeu. Il liste chaque mod qui a des banques de sons :
@@ -35,7 +43,7 @@ Certains mods ont plusieurs fichiers patch dans un même dossier, comme `.patch_
 - **À jour.** Rien dans les banques n’est plus ancien que le jeu actuel. Soit le mod a été créé pour cette version, soit les mises à jour suivantes n’ont pas touché ces banques.
 - **Illisible.** Audiodiver n’a pas pu lire le fichier patch.
 
-**Déployé** marque les mods actuellement dans le dossier du jeu. Un mod avec des options est listé une seule fois, avec **Options** qui montre chaque option quand elles diffèrent. **Repatch** ouvre un mod signalé dans le formulaire en haut de la page, prêt à être repatché.
+**Déployé** marque les mods actuellement dans le dossier du jeu. Un mod avec des options est listé une seule fois, avec **Options** qui montre chaque option quand elles diffèrent. **Repatch** ajoute un mod signalé en haut de la page, prêt à être repatché.
 
 La vérification ne signale que ce que l’auteur d’un mod n’aurait pas modifié volontairement, donc un mod créé pour le jeu actuel n’apparaît jamais comme ancien.
 

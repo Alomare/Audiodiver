@@ -43,6 +43,16 @@ msgstr "{0, plural, one {Exported # note.} other {Exported # notes.}}"
 msgid "{0, plural, one {Imported notes on # thing} other {Imported notes on # things}}"
 msgstr "{0, plural, one {Imported notes on # thing} other {Imported notes on # things}}"
 
+#. placeholder {0}: unread.length
+#: src/RepatchPage.tsx
+msgid "{0, plural, one {Not added: # path isn't a mod} other {Not added: # paths aren't mods}}"
+msgstr "{0, plural, one {Not added: # path isn't a mod} other {Not added: # paths aren't mods}}"
+
+#. placeholder {0}: ready.length
+#: src/RepatchPage.tsx
+msgid "{0, plural, one {Repatch # Mod} other {Repatch # Mods}}"
+msgstr "{0, plural, one {Repatch # Mod} other {Repatch # Mods}}"
+
 #. The suggested file name for a project's exported notes, without the extension
 #. placeholder {0}: project.name
 #: src/SettingsTab.tsx
@@ -296,6 +306,10 @@ msgstr "{count} of {total} slots replaced"
 #: src/Wiki.tsx
 msgid "{current} of {total}"
 msgstr "{current} of {total}"
+
+#: src/RepatchPage.tsx
+msgid "{done} of {total} mods repatched."
+msgstr "{done} of {total} mods repatched."
 
 #: src/UpdatesTab.tsx
 msgid "{downloaded} of {total}"
@@ -645,6 +659,10 @@ msgstr "{parts, plural, one {Transition} other {Transitions}}"
 #: src/RepatchPage.tsx
 msgid "{patches, plural, one {# patch with audio, rebuilt on the current game} other {# patches with audio, rebuilt on the current game}}"
 msgstr "{patches, plural, one {# patch with audio, rebuilt on the current game} other {# patches with audio, rebuilt on the current game}}"
+
+#: src/RepatchPage.tsx
+msgid "{patches, plural, one {# patch with audio} other {# patches with audio}}"
+msgstr "{patches, plural, one {# patch with audio} other {# patches with audio}}"
 
 #: src/RepatchPage.tsx
 msgid "{patches, plural, one {# patch without audio} other {# patches without audio}}"
@@ -1207,9 +1225,12 @@ msgid "A mod needs a name."
 msgstr "A mod needs a name."
 
 #: src/PatchContentPage.tsx
-#: src/RepatchPage.tsx
 msgid "A mod unpacked into a folder"
 msgstr "A mod unpacked into a folder"
+
+#: src/RepatchPage.tsx
+msgid "A mod unpacked into a folder, or a folder of mods"
+msgstr "A mod unpacked into a folder, or a folder of mods"
 
 #: src/RepatchPage.tsx
 msgid "A mod's sounds went silent, wrong or missing after a game update."
@@ -1365,7 +1386,6 @@ msgid "A whole number from 1 to 99999."
 msgstr "A whole number from 1 to 99999."
 
 #: src/PatchContentPage.tsx
-#: src/RepatchPage.tsx
 msgid "A ZIP or a .patch_0 file"
 msgstr "A ZIP or a .patch_0 file"
 
@@ -1396,6 +1416,7 @@ msgid "Add {name} to the project"
 msgstr "Add {name} to the project"
 
 #: src/CombinePage.tsx
+#: src/RepatchPage.tsx
 msgid "Add a Folder"
 msgstr "Add a Folder"
 
@@ -1438,6 +1459,10 @@ msgstr "Add from Library"
 #: src/Notes.tsx
 msgid "Add Global Note"
 msgstr "Add Global Note"
+
+#: src/RepatchPage.tsx
+msgid "Add it above, ready to repatch"
+msgstr "Add it above, ready to repatch"
 
 #: src/IndexTree.tsx
 msgid "Add It to Export List"
@@ -1508,6 +1533,7 @@ msgid "Add Wwise loudness analysis"
 msgstr "Add Wwise loudness analysis"
 
 #: src/CombinePage.tsx
+#: src/RepatchPage.tsx
 msgid "Add ZIPs or Patch Files"
 msgstr "Add ZIPs or Patch Files"
 
@@ -1719,6 +1745,10 @@ msgstr "Applies to this project. Beside each ZIP, a folder with the same name ho
 #: src/BuildTab.tsx
 msgid "Applies to this project. The game's audio includes this data, but it makes no audible difference. It needs Wwise installed and makes builds slower."
 msgstr "Applies to this project. The game's audio includes this data, but it makes no audible difference. It needs Wwise installed and makes builds slower."
+
+#: src/RepatchPage.tsx
+msgid "Apply each mod's audio and settings to the current sound banks and build a new ZIP for each"
+msgstr "Apply each mod's audio and settings to the current sound banks and build a new ZIP for each"
 
 #: src/RepatchPage.tsx
 msgid "Apply the mod's audio and settings to the current sound banks and build a new ZIP"
@@ -2381,6 +2411,10 @@ msgstr "Choose a mod first"
 msgid "Choose a mod folder"
 msgstr "Choose a mod folder"
 
+#: src/RepatchPage.tsx
+msgid "Choose a mod folder, or a folder of mods"
+msgstr "Choose a mod folder, or a folder of mods"
+
 #: src/ImportMod.tsx
 #: src/store.tsx
 msgid "Choose a mod to import"
@@ -2404,7 +2438,6 @@ msgid "Choose a song to cut into up to {pieces, plural, one {# piece} other {# p
 msgstr "Choose a song to cut into up to {pieces, plural, one {# piece} other {# pieces}}, or drop one here."
 
 #: src/PatchContentPage.tsx
-#: src/RepatchPage.tsx
 msgid "Choose a ZIP or Patch File"
 msgstr "Choose a ZIP or Patch File"
 
@@ -2417,12 +2450,10 @@ msgid "Choose an image for the icon"
 msgstr "Choose an image for the icon"
 
 #: src/PatchContentPage.tsx
-#: src/RepatchPage.tsx
 msgid "Choose Another File"
 msgstr "Choose Another File"
 
 #: src/PatchContentPage.tsx
-#: src/RepatchPage.tsx
 #: src/SettingsTab.tsx
 msgid "Choose Another Folder"
 msgstr "Choose Another Folder"
@@ -2471,6 +2502,10 @@ msgstr "Choose it before sharing. Mod managers keep the name from the first impo
 msgid "Choose mods to combine"
 msgstr "Choose mods to combine"
 
+#: src/RepatchPage.tsx
+msgid "Choose mods to repatch"
+msgstr "Choose mods to repatch"
+
 #: src/Soundtrack.tsx
 msgid "Choose music on the left."
 msgstr "Choose music on the left."
@@ -2492,7 +2527,6 @@ msgid "Choose the Helldivers 2 install folder, usually <0>…\\steamapps\\common
 msgstr "Choose the Helldivers 2 install folder, usually <0>…\\steamapps\\common\\Helldivers 2</0>. Audiodiver only reads from it."
 
 #: src/PatchContentPage.tsx
-#: src/RepatchPage.tsx
 msgid "Choose the mod folder"
 msgstr "Choose the mod folder"
 
@@ -2515,6 +2549,10 @@ msgstr "Choose where the project goes"
 #: src/ProjectTab.tsx
 msgid "Choose where to move the project"
 msgstr "Choose where to move the project"
+
+#: src/RepatchPage.tsx
+msgid "Choose ZIPs or Patch Files"
+msgstr "Choose ZIPs or Patch Files"
 
 #: src/SettingsTab.tsx
 msgid "Chosen here."
@@ -2542,6 +2580,7 @@ msgid "Clear Formatting"
 msgstr "Clear Formatting"
 
 #: src/ExportDialog.tsx
+#: src/RepatchPage.tsx
 msgid "Clear List"
 msgstr "Clear List"
 
@@ -2913,6 +2952,10 @@ msgstr "Corner"
 msgid "Corners"
 msgstr "Corners"
 
+#: src/RepatchPage.tsx
+msgid "Couldn't be repatched"
+msgstr "Couldn't be repatched"
+
 #: src/UpdatesTab.tsx
 msgid "Couldn't check again ({reason}). The list below is from {checked}."
 msgstr "Couldn't check again ({reason}). The list below is from {checked}."
@@ -3165,7 +3208,6 @@ msgid "Drawn as the line around the waveform"
 msgstr "Drawn as the line around the waveform"
 
 #: src/PatchContentPage.tsx
-#: src/RepatchPage.tsx
 msgid "Drop a mod here as a <0>ZIP</0>, a <1>folder</1> or a <2>.patch_0</2> file."
 msgstr "Drop a mod here as a <0>ZIP</0>, a <1>folder</1> or a <2>.patch_0</2> file."
 
@@ -3221,6 +3263,10 @@ msgstr "Drop images on the icon on the Project tab"
 #: src/CombinePage.tsx
 msgid "Drop mods here as <0>ZIPs</0>, <1>folders</1> or <2>.patch_0</2> files."
 msgstr "Drop mods here as <0>ZIPs</0>, <1>folders</1> or <2>.patch_0</2> files."
+
+#: src/RepatchPage.tsx
+msgid "Drop mods here as <0>ZIPs</0>, <1>folders</1> or <2>.patch_0</2> files. Several are repatched one after another."
+msgstr "Drop mods here as <0>ZIPs</0>, <1>folders</1> or <2>.patch_0</2> files. Several are repatched one after another."
 
 #: src/App.tsx
 msgid "Drop songs on a place of a playlist, or a song on One Song"
@@ -4456,6 +4502,10 @@ msgstr "Keeps what the patches hold besides audio, like text, models or textures
 msgid "Kept as it was"
 msgstr "Kept as it was"
 
+#: src/RepatchPage.tsx
+msgid "Kept as it was: {patches}"
+msgstr "Kept as it was: {patches}"
+
 #: src/store.tsx
 msgid "Kept current: {older, plural, one {# sound object} other {# sound objects}} the patch had from an older game version"
 msgstr "Kept current: {older, plural, one {# sound object} other {# sound objects}} the patch had from an older game version"
@@ -4872,6 +4922,7 @@ msgid "Mode"
 msgstr "Mode"
 
 #: src/CombinePage.tsx
+#: src/RepatchPage.tsx
 msgid "Mods"
 msgstr "Mods"
 
@@ -5023,6 +5074,10 @@ msgstr "Name in Index"
 #: src/Library.tsx
 msgid "Name in the game files"
 msgstr "Name in the game files"
+
+#: src/RepatchPage.tsx
+msgid "Name of {file}"
+msgstr "Name of {file}"
 
 #: src/CombinePage.tsx
 #: src/PatchContentPage.tsx
@@ -5244,6 +5299,7 @@ msgstr "No archive matches “{query}”."
 msgid "no audio"
 msgstr "no audio"
 
+#: src/RepatchPage.tsx
 #: src/Soundtrack.tsx
 msgid "No audio"
 msgstr "No audio"
@@ -5824,10 +5880,6 @@ msgstr "Open Download Page"
 msgid "Open in Audio Tab"
 msgstr "Open in Audio Tab"
 
-#: src/RepatchPage.tsx
-msgid "Open it in the form above, ready to repatch"
-msgstr "Open it in the form above, ready to repatch"
-
 #: src/TextTab.tsx
 msgid "Open it in the Library"
 msgstr "Open it in the Library"
@@ -6086,6 +6138,10 @@ msgstr "Part {n}"
 #: src/ItemHead.tsx
 msgid "Part {number}"
 msgstr "Part {number}"
+
+#: src/RepatchPage.tsx
+msgid "Partly"
+msgstr "Partly"
 
 #. What a transition or stinger plays now
 #: src/ItemHead.tsx
@@ -6771,6 +6827,7 @@ msgid "remove"
 msgstr "remove"
 
 #: src/ProjectTab.tsx
+#: src/RepatchPage.tsx
 #: src/Soundtrack.tsx
 #: src/store.tsx
 msgid "Remove"
@@ -6786,6 +6843,7 @@ msgstr "Remove {keyName}"
 
 #: src/CombinePage.tsx
 #: src/ExportDialog.tsx
+#: src/RepatchPage.tsx
 msgid "Remove {name} from the list"
 msgstr "Remove {name} from the list"
 
@@ -6825,6 +6883,7 @@ msgstr "Remove from Project"
 
 #: src/CombinePage.tsx
 #: src/ExportDialog.tsx
+#: src/RepatchPage.tsx
 msgid "Remove from the list"
 msgstr "Remove from the list"
 
@@ -6944,12 +7003,24 @@ msgid "Repatch failed: {why}"
 msgstr "Repatch failed: {why}"
 
 #: src/RepatchPage.tsx
+msgid "Repatch More Mods"
+msgstr "Repatch More Mods"
+
+#: src/RepatchPage.tsx
 msgid "Repatched"
 msgstr "Repatched"
 
 #: src/store.tsx
+msgid "Repatched {done} of {total} mods."
+msgstr "Repatched {done} of {total} mods."
+
+#: src/store.tsx
 msgid "Repatched {title}: {file} ({mb} MB)."
 msgstr "Repatched {title}: {file} ({mb} MB)."
+
+#: src/RepatchPage.tsx
+msgid "Repatched one after another, each into a separate ZIP. Each name goes on the new ZIP and shows in mod managers."
+msgstr "Repatched one after another, each into a separate ZIP. Each name goes on the new ZIP and shows in mod managers."
 
 #: src/jobs.ts
 #: src/RepatchPage.tsx
@@ -7732,6 +7803,10 @@ msgstr "Slower"
 msgid "Some jobs are still running."
 msgstr "Some jobs are still running."
 
+#: src/RepatchPage.tsx
+msgid "Some patches couldn't be repatched and are kept as they were"
+msgstr "Some patches couldn't be repatched and are kept as they were"
+
 #: src/ExportDialog.tsx
 msgid "Some slots play only under a condition, such as a biome. The export uses the one chosen here"
 msgstr "Some slots play only under a condition, such as a biome. The export uses the one chosen here"
@@ -8348,6 +8423,10 @@ msgstr "The middle lists the sounds of the Liberator. One shot is several sounds
 #: src/RepatchPage.tsx
 msgid "The mod holds no audio"
 msgstr "The mod holds no audio"
+
+#: src/RepatchPage.tsx
+msgid "The mod holds no audio, so it is left out"
+msgstr "The mod holds no audio, so it is left out"
 
 #: src/RepatchPage.tsx
 msgid "The mod holds no audio, so there is nothing to repatch."
@@ -9443,3 +9522,7 @@ msgstr "You have {APP_LABEL}."
 #: src/ProjectTab.tsx
 msgid "Your Helldiver, teammates on the radio, and anyone in a vehicle"
 msgstr "Your Helldiver, teammates on the radio, and anyone in a vehicle"
+
+#: src/RepatchPage.tsx
+msgid "ZIPs or .patch_0 files"
+msgstr "ZIPs or .patch_0 files"
