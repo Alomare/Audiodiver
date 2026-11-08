@@ -14,7 +14,7 @@ A mod's patch contains complete copies of the sound banks it changes, as they we
 ## Repatching a mod
 
 1. Open [Tools ▸ Repatch](app:tools/repatch).
-2. Drop the mod on the page. You can drop the downloaded ZIP, the mod folder, or the `.patch_0` file with the `.stream` file next to it. **Choose a ZIP or Patch File** and **Choose a Folder** do the same. A ZIP dropped anywhere in Audiodiver also opens on this page.
+2. Drop the mod on the page. You can drop the downloaded ZIP, the mod folder, or the `.patch_0` file with the `.stream` file next to it. **Choose ZIPs or Patch Files** and **Choose a Folder** do the same. A ZIP dropped anywhere in Audiodiver also opens on this page. To repatch more than one mod, see [Repatching several mods](#repatching-several-mods).
 3. Check the name. Audiodiver takes it from the manifest if there is one, and otherwise from the file or folder name, without the numbers and dates that Nexus Mods adds to downloads.
 4. Tick **Patch every bank with the sounds** to play the mod's audio wherever those sounds are used. Left off, the audio goes only into the banks the mod patched, as in the original, and the size stays about the same. [More about it](wiki:build-and-install#every-bank-with-the-sounds).
 5. Press **Repatch**.
@@ -25,6 +25,14 @@ Some mods have several options, with one patch for each. Such a mod stays one mo
 
 Some mods have several patch files in one folder, such as `.patch_0`, `.patch_1` and `.patch_2`. The game loads them over each other as one mod. Audiodiver reads them in the same order and builds them into one patch.
 
+## Repatching several mods
+
+Drop or choose several mods at once, and Audiodiver repatches them one after another. They can be ZIPs, `.patch_0` files or mod folders. You can also choose a folder that holds several mods: each ZIP in it is one mod, and so is each subfolder with a manifest. A folder with a manifest or a patch file directly inside it counts as one mod. **Add ZIPs or Patch Files** and **Add a Folder** add to the list, and a mod already on the list isn't added twice.
+
+With two or more mods, the page shows a list. Each row has the name of the new ZIP, which you can change, and **✕** takes the mod off the list. A mod tagged **No audio** has nothing to repatch and is left out. **Patch every bank with the sounds** applies to every mod on the list, and the Repatch button shows how many mods will run.
+
+Each mod gets a separate ZIP in the [Destination folder](#destination-folder). If one mod fails, the others still go through. The page then lists the new ZIPs and the mods that failed, with the reason. **Partly** marks a mod with a patch that stays as it was. **Show All** has what each mod carried over and the log, and **Repatch More Mods** clears the page.
+
 ## Checking installed mods
 
 **Installed mods**, at the bottom of the Repatch page, finds the mods that need a repatch. **Check Installed Mods** looks through the mods in a mod manager's library, deployed or not, and the patch files in the game's `data` folder. It lists every mod with sound banks:
@@ -34,7 +42,7 @@ Some mods have several patch files in one folder, such as `.patch_0`, `.patch_1`
 - **Up to date.** Nothing in the banks is older than the current game. Either the mod was made for this version, or later updates didn't touch those banks.
 - **Can't be read.** Audiodiver couldn't read the patch file.
 
-**Deployed** marks the mods currently in the game folder. A mod with options is listed once, with **Options** showing each option when they differ. **Repatch** opens a flagged mod in the form at the top of the page, ready to repatch.
+**Deployed** marks the mods currently in the game folder. A mod with options is listed once, with **Options** showing each option when they differ. **Repatch** adds a flagged mod to the top of the page, ready to repatch.
 
 The check only reports what a mod's author wouldn't have changed on purpose, so a mod made for the current game never shows up as older.
 

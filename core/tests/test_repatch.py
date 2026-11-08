@@ -295,3 +295,50 @@ def test_objects_as_an_older_game_version_had_them_are_not_the_mods(monkeypatch)
     after = addition.from_patch(ix, d)
     assert not after.other and not after.settings
     assert len(after.takes) == len(before.takes) and after.replaced == before.replaced  # the mod's own, as before
+
+
+def test_a_folder_of_mods_is_each_mod_and_a_mod_folder_is_one(tmp_path):
+    one = tmp_path / "one"  # a mod unpacked: its manifest and option folders
+    (one / "a").mkdir(parents=True)
+    (one / "manifest.json").write_text("{}")
+    (one / "a" / "9ba626afa44a3aa3.patch_0").write_bytes(b"x")
+    assert repatch.mods_in(one) == [one]
+    loose = tmp_path / "loose"
+    loose.mkdir()
+    (loose / "9ba626afa44a3aa3.patch_0").write_bytes(b"x")
+    assert repatch.mods_in(loose) == [loose]
+    many = tmp_path / "many"  # downloads: ZIPs, and mods unpacked into a folder of their own name (once or twice)
+    (many / "Beta" / "Beta").mkdir(parents=True)
+    (many / "Beta" / "Beta" / "manifest.json").write_text("{}")
+    (many / "notes").mkdir()
+    (many / "notes" / "readme.txt").write_text("hi")
+    for n in ("alpha.zip", "Gamma.zip"):
+        (many / n).write_bytes(b"zip")
+    assert repatch.mods_in(many) == [many / "alpha.zip", many / "Beta", many / "Gamma.zip"]
+    options = tmp_path / "options"  # no manifest, a patch in each folder: one mod, its options as scan reads them
+    (options / "x").mkdir(parents=True)
+    (options / "x" / "9ba626afa44a3aa3.patch_0").write_bytes(b"x")
+    assert repatch.mods_in(options) == [options]
+    assert repatch.mods_in(one / "a" / "9ba626afa44a3aa3.patch_0") == [one / "a" / "9ba626afa44a3aa3.patch_0"]
+
+
+def test_several_mods_repatch_one_after_another(session, tmp_path):
+    """Repatch with a list: each mod into a ZIP of its own; one that can't be read says so and the rest go on."""
+    good = tmp_path / "in" / "warp" / "9ba626afa44a3aa3.patch_0"
+    good.parent.mkdir(parents=True)
+    good.write_bytes(WARP.read_bytes())
+    _zip(tmp_path / "in" / "broken.zip", {"9ba626afa44a3aa3.patch_0": b"not a patch"}, ("manifest.json", {"Name": "Broken"}))
+    (tmp_path / "in" / "warp" / "manifest.json").write_text(json.dumps({"Name": "Warp"}))
+    seen = session.repatch_list_scan([str(tmp_path / "in"), str(tmp_path / "in" / "warp")])
+    assert [m["name"] for m in seen["mods"]] == ["Broken", "Warp"] and seen["failed"] == []  # each once
+    items = [{"path": m["source"], "name": m["name"]} for m in seen["mods"]]
+    items.append({"path": str(tmp_path / "gone.zip"), "name": "Gone"})
+    j = _wait(session, session.repatch_list(items, str(tmp_path / "out")))
+    assert j["state"] == "done", j["error"]
+    broken, warp, gone = j["result"]["mods"]
+    assert "error" in broken and "error" in gone and "wasn't found" in gone["error"]
+    assert warp["made"]["parts"][0]["added"] == 6 and Path(warp["made"]["zip"]) == tmp_path / "out" / "Warp.zip"
+    assert sorted(x.name for x in (tmp_path / "out").iterdir()) == ["Warp.zip"]
+    assert any("2 of 3" in line for line in j["log"])
+    with pytest.raises(EditorError):
+        session.repatch_list([{"path": str(good), "name": "a/b"}], str(tmp_path / "out"))

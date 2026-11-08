@@ -133,11 +133,11 @@ export async function pickMod(title = t`Choose a mod to repatch`): Promise<strin
   return (r as string) ?? null;
 }
 
-/** Mods to combine: ZIPs and patch files, several at once. */
-export async function pickMods(): Promise<string[] | null> {
+/** Mods to combine or repatch: ZIPs and patch files, several at once. */
+export async function pickMods(title = t`Choose mods to combine`): Promise<string[] | null> {
   if (!isTauri()) return promptPaths("Mod ZIPs or .patch_0 files", true);
   const { open } = await import("@tauri-apps/plugin-dialog");
-  const r = await open({ multiple: true, title: t`Choose mods to combine`,
+  const r = await open({ multiple: true, title,
     filters: [{ name: t`Mods (.zip, .patch_0)`, extensions: ["zip", "patch_0", "patch_1", "patch_2", "patch_3", "patch_4"] }, { name: t`All files`, extensions: ["*"] }] });
   return r ? (Array.isArray(r) ? r : [r]) : null;
 }

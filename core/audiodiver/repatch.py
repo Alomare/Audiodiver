@@ -264,6 +264,29 @@ def scan(path) -> Found:
     return found
 
 
+def mods_in(path) -> list[Path]:
+    """The mods a path given to Repatch holds: a file is one mod; a folder is one when it has a manifest or patch
+    files of its own, else each ZIP and each folder with a manifest in it is a mod (a folder of downloaded mods).
+    A folder with neither is one mod, which scan reads (its patches in option folders, or its error)."""
+    path = Path(str(path or "")).expanduser()
+    if not path.is_dir():
+        return [path]
+    files = [p for p in path.iterdir() if p.is_file()]
+    if any(p.name.lower() == "manifest.json" or PATCH_RE.search(p.name) for p in files):
+        return [path]
+
+    def has_manifest(folder: Path, depth=2) -> bool:  # a mod unpacked into a folder of its own name, often twice
+        try:
+            entries = list(folder.iterdir())
+        except OSError:
+            return False
+        return any(p.is_file() and p.name.lower() == "manifest.json" for p in entries) or \
+            (depth > 1 and any(p.is_dir() and has_manifest(p, depth - 1) for p in entries))
+    mods = sorted([p for p in files if p.suffix.lower() == ".zip"] +
+                  [p for p in path.iterdir() if p.is_dir() and has_manifest(p)], key=lambda p: p.name.lower())
+    return mods or [path]
+
+
 def documents() -> Path:
     """The user's Documents folder (where Windows has moved it, OneDrive's included)."""
     if hasattr(__import__("ctypes"), "windll"):

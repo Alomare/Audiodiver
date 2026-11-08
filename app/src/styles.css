@@ -1457,6 +1457,17 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .rp-patches small { display: block; color: var(--muted); }
 .rp-patches details ul { margin-top: 8px; }
 .rp-patches .warn-box { margin: 0; }
+/* several mods: a row each, its name the new ZIP's, then the file it is and its patches */
+.rp-list { margin: 0; }
+.rp-list .rp-name { flex: 1; min-width: 0; height: 30px; }
+.rp-list .cmb-mod-head { gap: 8px; }
+.rp-list .tag { margin-left: 0; }
+.rp-list .cmb-other { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rp-bad { padding-left: 30px; }
+.rp-unread { margin: 0; }
+.rp-unread ul { margin: 6px 0 0; padding-left: 18px; }
+.rp-made-list { margin: 0 0 12px; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.rp-made-list li { overflow-wrap: anywhere; }
 .rp-made > p { margin: 0 0 10px; overflow-wrap: anywhere; }
 .rp-made > .row-btns { margin-bottom: 14px; }
 /* the outcome in short; Show all holds each patch and the log */

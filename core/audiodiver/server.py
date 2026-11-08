@@ -120,6 +120,8 @@ def methods(s: Session) -> dict:
             tabs=None: s.import_mod(path, picks, name, folder, texts, keep_id, icon, mode, tabs),
         "repatch_scan": lambda path: s.repatch_scan(path),
         "repatch": lambda path, name="", folder="", every_bank=False: s.repatch(path, name, folder, every_bank),
+        "repatch_list_scan": lambda paths: s.repatch_list_scan(paths),
+        "repatch_list": lambda items, folder="", every_bank=False: s.repatch_list(items, folder, every_bank),
         "content_scan": lambda path: s.content_scan(path),
         "content_preview": lambda source: s.content_preview(source),
         "content_audio": lambda path: s.content_audio(path),

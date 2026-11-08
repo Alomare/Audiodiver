@@ -669,6 +669,12 @@ function useEditorState() {
       notify("good", t`Built ${file} (${mb} MB).`,
         { label: t`Show in Folder`, go: { reveal: j.result.zip } });
       if (settings.get().revealBuild) platform.reveal(j.result.zip).catch(() => {});
+    } else if (j.kind === "repatch" && j.result.mods) { // several mods: how many made it, the page shows each
+      const list: { made?: { zip: string }; error?: string }[] = j.result.mods, zips = list.flatMap((m) => (m.made ? [m.made.zip] : []));
+      const done = zips.length, total = list.length;
+      notify(done ? "good" : "bad", t`Repatched ${done} of ${total} mods.`,
+        done ? { label: t`Show in Folder`, go: { reveal: zips[0] } } : undefined, done < total);
+      if (done && settings.get().revealBuild) platform.reveal(zips[0]).catch(() => {});
     } else if (j.kind === "repatch" || j.kind === "combine" || j.kind === "content") { // their pages show the rest
       const zip: string = j.result.zip;
       const title = j.title, file = zip.split(/[\\/]/).pop()!, mb = fmtTenth(j.result.mb);
@@ -1294,6 +1300,12 @@ function useEditorState() {
     /** Rebuilds an existing mod on the game as it is now, as the one mod it was (the Repatch page). */
     async repatch(path: string, name: string, folder: string, everyBank: boolean) {
       const job = await run<Job>("repatch", { path, name, folder, every_bank: everyBank });
+      if (job) watchJob(job, finishJob);
+      return !!job;
+    },
+    /** Repatches several mods one after another, each into its own ZIP (the Repatch page's list). */
+    async repatchList(items: { path: string; name: string }[], folder: string, everyBank: boolean) {
+      const job = await run<Job>("repatch_list", { items, folder, every_bank: everyBank });
       if (job) watchJob(job, finishJob);
       return !!job;
     },

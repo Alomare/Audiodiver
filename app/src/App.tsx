@@ -174,12 +174,12 @@ function Shell() {
     }
     if (target?.kind === "content") return contentInbox.offer(raw[0]);
     // Audiodiver Utils takes no projects: whatever else is dropped is a mod to repatch
-    if (UTILS) { nav.go("tools", "repatch"); return repatchInbox.offer(raw[0]); }
-    // a mod to repatch: anything on the Repatch page, or a ZIP anywhere else (nothing else takes one)
-    const zip = raw.find((p) => /\.zip$/i.test(p));
-    if (target?.kind === "repatch" || zip) {
+    if (UTILS) { nav.go("tools", "repatch"); return repatchInbox.offer(raw); }
+    // mods to repatch: anything on the Repatch page, or ZIPs anywhere else (nothing else takes one)
+    const zips = raw.filter((p) => /\.zip$/i.test(p));
+    if (target?.kind === "repatch" || zips.length) {
       nav.go("tools", "repatch");
-      return repatchInbox.offer(target?.kind === "repatch" ? raw[0] : zip!);
+      return repatchInbox.offer(target?.kind === "repatch" ? raw : zips);
     }
     const paths = await expandDropped(raw);
     const patch = paths.find((p) => /\.patch_\d+$/i.test(p));

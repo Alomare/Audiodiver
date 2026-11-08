@@ -4,7 +4,7 @@ import { Trans } from "@lingui/react/macro";
 import { andList, intlLocale, nameProblem, type Job } from "./api";
 import { EVERY_BANK_PAGE } from "./content";
 import { nav } from "./nav";
-import { pickFolder, pickMod, reveal } from "./platform";
+import { pickFolder, pickMods, reveal } from "./platform";
 import { useEditor } from "./store";
 import { Help } from "./Wiki";
 
@@ -45,52 +45,67 @@ const fileName = (path: string) => path.split(/[\\/]/).pop()!;
 /** "a, b and c", leaving out the empty ones. */
 const listed = (items: (string | false | 0 | undefined)[]) => andList(items.filter(Boolean) as string[]);
 
-/** A mod dropped on the window for this page (App.tsx's drop handler): held until the page takes it. */
+/** Mods dropped on the window for this page (App.tsx's drop handler): held until the page takes them. */
 export const repatchInbox = (() => {
-  let waiting: string | null = null;
+  let waiting: string[] = [];
   const listeners = new Set<() => void>();
   return {
-    offer(path: string) { waiting = path; listeners.forEach((f) => f()); },
-    take() { const p = waiting; waiting = null; return p; },
+    offer(paths: string[]) { waiting = [...waiting, ...paths]; listeners.forEach((f) => f()); },
+    take() { const p = waiting; waiting = []; return p; },
     subscribe(f: () => void) { listeners.add(f); return () => { listeners.delete(f); }; },
   };
 })();
 
-// the mod being set up, kept while another tab shows
-let kept: { scan: Scan; name: string; folder: string; everyBank: boolean } | null = null;
+/** A mod on the list: what the core found in it and the name its new ZIP gets. */
+type Item = { scan: Scan; name: string };
+/** What the core found in the paths given (Session.repatch_list_scan): a folder of mods gives each of them. */
+type ListScan = { mods: Scan[]; failed: { path: string; error: string }[] };
+/** One mod of a list repatch (Session.repatch_list's result): what it made, or why it failed. */
+type ListMade = { source: string; name: string; made?: Made; error?: string };
+
+// the mods being set up, kept while another tab shows
+let kept: { mods: Item[]; folder: string; everyBank: boolean } | null = null;
 let staleJob: string | null = null;
 
-/** Tools ▸ Repatch: an existing audio mod (a ZIP, a folder or a .patch_0) rebuilt on the game as it is now, as the
-    one mod it was: each of its patches made again, its options and files as they were. The explanations sit beside
-    it, the rest in the Wiki. */
+const hasAudio = (s: Scan) => s.patches.some((p) => p.audio);
+
+/** Tools ▸ Repatch: existing audio mods (ZIPs, folders or .patch_0 files) rebuilt on the game as it is now, each as
+    the one mod it was: each of its patches made again, its options and files as they were. One mod shows its form;
+    several are a list, repatched one after another into a ZIP each. The explanations sit beside it, the rest in the
+    Wiki. */
 export function RepatchPage() {
   const { run, actions, jobs } = useEditor();
-  const [scan, setScan] = useState<Scan | null>(kept?.scan ?? null);
-  const [name, setName] = useState(kept?.name ?? "");
+  const [mods, setMods] = useState<Item[]>(kept?.mods ?? []);
+  const [unread, setUnread] = useState<ListScan["failed"]>([]);
   const [folder, setFolder] = useState(kept?.folder ?? "");
   const [everyBank, setEveryBank] = useState(kept?.everyBank ?? false);
   const [reading, setReading] = useState(false);
-  const [stale, setStale] = useState(staleJob); // the repatch whose outcome belongs to the mod chosen before this one
-  useEffect(() => { kept = scan && { scan, name, folder, everyBank }; }, [scan, name, folder, everyBank]);
+  const [stale, setStale] = useState(staleJob); // the repatch whose outcome belongs to the mods chosen before these
+  useEffect(() => { kept = mods.length ? { mods, folder, everyBank } : null; }, [mods, folder, everyBank]);
   useEffect(() => { staleJob = stale; }, [stale]);
-  const jobsNow = useRef(jobs); // read when a mod is chosen, also from a drop the first render subscribed to
+  const jobsNow = useRef(jobs); // read when mods are added, also from a drop the first render subscribed to
   jobsNow.current = jobs;
   const top = useRef<HTMLElement>(null);
 
-  const read = async (path: string | null) => {
-    if (!path) return;
+  // the mods in the paths join the list (each once), and the last outcome is put away
+  const read = async (paths: string[] | null) => {
+    if (!paths?.length) return;
     setReading(true);
-    const s = await run<Scan>("repatch_scan", { path });
+    const r = await run<ListScan>("repatch_list_scan", { paths });
     setReading(false);
-    if (!s) return;
+    if (!r) return;
+    setUnread(r.failed);
+    if (!r.mods.length) return;
     setStale(Object.values(jobsNow.current).filter((j) => j.kind === "repatch").pop()?.id ?? null);
-    setScan(s);
-    setName(s.name);
-    setFolder((f) => f || s.folder);
+    setMods((list) => {
+      const have = new Set(list.map((m) => m.scan.source.toLowerCase()));
+      return [...list, ...r.mods.filter((s) => !have.has(s.source.toLowerCase())).map((s) => ({ scan: s, name: s.name }))];
+    });
+    setFolder((f) => f || r.mods[0].folder);
   };
-  // a mod dropped on the window, now or while this page wasn't showing
+  // mods dropped on the window, now or while this page wasn't showing
   useEffect(() => {
-    const take = () => { const p = repatchInbox.take(); if (p) read(p); };
+    const take = () => { const p = repatchInbox.take(); if (p.length) read(p); };
     take();
     return repatchInbox.subscribe(take);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -98,13 +113,21 @@ export function RepatchPage() {
   const job = Object.values(jobs).filter((j) => j.kind === "repatch").pop();
   const running = job?.state === "running";
   const busy = Object.values(jobs).some((j) => (j.kind === "build" || j.kind === "repatch") && j.state === "running");
-  const problem = scan ? nameProblem(name) : null;
-  const silent = !!scan && !scan.patches.some((p) => p.audio); // nothing to repatch
-  const go = () => scan && !silent && actions.repatch(scan.source, name.trim(), folder, everyBank);
-  // Repatch another mod: the page as it was before a mod was chosen, its last outcome put away
+  const one = mods.length === 1 ? mods[0] : null, scan = one?.scan ?? null;
+  const ready = mods.filter((m) => hasAudio(m.scan)); // a mod without audio has nothing to repatch: left out
+  const problem = mods.map((m) => nameProblem(m.name)).find(Boolean) ?? null;
+  const silent = !ready.length;
+  const rename = (i: number, name: string) => setMods((list) => list.map((m, j) => (j === i ? { ...m, name } : m)));
+  const remove = (i: number) => setMods((list) => list.filter((_, j) => j !== i));
+  const go = () => {
+    if (problem || silent) return;
+    if (one) actions.repatch(one.scan.source, one.name.trim(), folder, everyBank);
+    else actions.repatchList(ready.map((m) => ({ path: m.scan.source, name: m.name.trim() })), folder, everyBank);
+  };
+  // Repatch other mods: the page as it was before any was chosen, the last outcome put away
   const again = () => {
-    setScan(null);
-    setName("");
+    setMods([]);
+    setUnread([]);
     setStale(job?.id ?? null);
     top.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
@@ -112,12 +135,26 @@ export function RepatchPage() {
     const f = await pickFolder(folder || undefined, t`Choose where repatched mods go`);
     if (f) setFolder(f);
   };
+  const addFiles = async () => read(await pickMods(t`Choose mods to repatch`));
+  const addFolder = async () => { const f = await pickFolder(undefined, t`Choose a mod folder, or a folder of mods`); if (f) read([f]); };
+  const adding = (
+    <div className="row-btns">
+      <button className="btn quiet" disabled={running || reading} onClick={addFiles} data-tip={t`ZIPs or .patch_0 files`}><Trans>Add ZIPs or Patch Files</Trans></button>
+      <button className="btn quiet" disabled={running || reading} onClick={addFolder} data-tip={t`A mod unpacked into a folder, or a folder of mods`}><Trans>Add a Folder</Trans></button>
+      <button className="btn quiet" disabled={running} onClick={() => setMods([])}>{one ? <Trans>Remove</Trans> : <Trans>Clear List</Trans>}</button>
+    </div>
+  );
+  const notRead = unread.length > 0 && (
+    <div className="warn-box rp-unread"><b>{plural(unread.length, { one: "Not added: # path isn't a mod", other: "Not added: # paths aren't mods" })}</b>
+      <ul>{unread.map((u) => <li key={u.path}>{u.error}</li>)}</ul>
+    </div>
+  );
 
   return (
     <div className="bld rp drop-page" data-drop={JSON.stringify({ kind: "repatch" })}>
       <div className="bld-main">
         <section className="set-sec" ref={top}>
-          {scan ? (
+          {scan && one ? (
             <div className="view-in rp-form drop-zone" key={scan.source}>
               <p className="path" data-tip={scan.source} data-tip-clip>{scan.source}</p>
               {scan.patches.length > 1 ? <Patches scan={scan} /> : silent ? (
@@ -132,8 +169,8 @@ export function RepatchPage() {
               )}
               <label className="field">
                 <span className="field-label"><Trans>Name</Trans> <Help tip={t`Name shown in the mod manager.`} page="repatching#repatching-a-mod" /></span>
-                <input value={name} maxLength={80} spellCheck={false} aria-invalid={!!problem} disabled={running}
-                  onChange={(e) => setName(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !problem) go(); }} />
+                <input value={one.name} maxLength={80} spellCheck={false} aria-invalid={!!problem} disabled={running}
+                  onChange={(e) => rename(0, e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !problem) go(); }} />
                 {problem && <small className="bad">{problem}</small>}
               </label>
               {scan.manifest && (
@@ -142,21 +179,44 @@ export function RepatchPage() {
                   {scan.guid && <>{" "}<Trans>Importing the new ZIP in a mod manager updates the old mod.</Trans></>}{" "}
                   <Help tip={t`The manifest is the file in a mod that gives the mod manager the name, icon, options and ID`} page="repatching#what-repatching-carries-over" /></p>
               )}
-              <div className="row-btns">
-                <button className="btn quiet" disabled={running || reading} onClick={async () => read(await pickMod())}
-                  data-tip={t`A ZIP or a .patch_0 file`}><Trans>Choose Another File</Trans></button>
-                <button className="btn quiet" disabled={running || reading} onClick={async () => read(await pickFolder(undefined, t`Choose the mod folder`))}
-                  data-tip={t`A mod unpacked into a folder`}><Trans>Choose Another Folder</Trans></button>
-              </div>
+              {adding}
+              {notRead}
+            </div>
+          ) : mods.length > 1 ? (
+            <div className="view-in rp-form drop-zone">
+              <span className="field-label"><Trans>Mods</Trans> <Help tip={t`Repatched one after another, each into a separate ZIP. Each name goes on the new ZIP and shows in mod managers.`} page="repatching#repatching-several-mods" /></span>
+              <ol className="cmb-mods rp-list">
+                {mods.map((m, i) => {
+                  const bad = nameProblem(m.name), audio = m.scan.patches.filter((p) => p.audio).length;
+                  return (
+                    <li key={m.scan.source} className="cmb-mod view-in">
+                      <div className="cmb-mod-head">
+                        <span className="cmb-n" aria-hidden>{i + 1}</span>
+                        <input className="rp-name" value={m.name} maxLength={80} spellCheck={false} aria-invalid={!!bad} disabled={running}
+                          aria-label={t`Name of ${ph({ file: fileName(m.scan.source) })}`} onChange={(e) => rename(i, e.target.value)} />
+                        {!audio && <span className="tag warn" data-tip={t`The mod holds no audio, so it is left out`}>{t`No audio`}</span>}
+                        <button className="icon-btn" disabled={running} onClick={() => remove(i)}
+                          aria-label={t`Remove ${ph({ name: m.name })} from the list`} data-tip={t`Remove from the list`}>✕</button>
+                      </div>
+                      <small className="cmb-other" data-tip={m.scan.source} data-tip-clip>{fileName(m.scan.source)}
+                        {audio > 0 && <>{", "}{plural(ph({ patches: audio }), { one: "# patch with audio", other: "# patches with audio" })}</>}</small>
+                      {bad && <small className="bad rp-bad">{bad}</small>}
+                    </li>
+                  );
+                })}
+              </ol>
+              {adding}
+              {notRead}
             </div>
           ) : (
             <div className="rp-drop drop-zone">
-              <p><Trans>Drop a mod here as a <b>ZIP</b>, a <b>folder</b> or a <b>.patch_0</b> file.</Trans></p>
+              <p><Trans>Drop mods here as <b>ZIPs</b>, <b>folders</b> or <b>.patch_0</b> files. Several are repatched one after another.</Trans></p>
               <div className="row-btns">
-                <button className="btn" disabled={reading} onClick={async () => read(await pickMod())}><Trans>Choose a ZIP or Patch File</Trans></button>
-                <button className="btn" disabled={reading} onClick={async () => read(await pickFolder(undefined, t`Choose the mod folder`))}><Trans>Choose a Folder</Trans></button>
+                <button className="btn" disabled={reading} onClick={addFiles}><Trans>Choose ZIPs or Patch Files</Trans></button>
+                <button className="btn" disabled={reading} onClick={addFolder}><Trans>Choose a Folder</Trans></button>
               </div>
               {reading && <p className="set-note"><Trans>Reading…</Trans></p>}
+              {notRead}
             </div>
           )}
         </section>
@@ -180,9 +240,10 @@ export function RepatchPage() {
         </section>
 
         <div className="bld-box rp-go">
-          <button className="btn primary build" onClick={go} disabled={!scan || !!problem || busy || silent}
-            data-tip={!scan ? t`Choose a mod first` : silent ? t`The mod holds no audio` : t`Apply the mod's audio and settings to the current sound banks and build a new ZIP`}>
-            {running ? t`Repatching` : t`Repatch`}
+          <button className="btn primary build" onClick={go} disabled={!mods.length || !!problem || busy || silent}
+            data-tip={!mods.length ? t`Choose a mod first` : silent ? t`The mod holds no audio` : one ? t`Apply the mod's audio and settings to the current sound banks and build a new ZIP`
+              : t`Apply each mod's audio and settings to the current sound banks and build a new ZIP for each`}>
+            {running ? t`Repatching` : mods.length < 2 ? t`Repatch` : plural(ready.length, { one: "Repatch # Mod", other: "Repatch # Mods" })}
           </button>
           {running && job && (
             <div className="rp-progress">
@@ -192,9 +253,9 @@ export function RepatchPage() {
           )}
         </div>
 
-        {job && !running && job.id !== stale && <Outcome job={job} again={again} />}
+        {job && !running && job.id !== stale && (job.result?.mods ? <ListOutcome job={job} again={again} /> : <Outcome job={job} again={again} />)}
 
-        <InstalledMods busy={running} onPick={(path) => { read(path); top.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }} />
+        <InstalledMods busy={running} onPick={(path) => { read([path]); top.current?.scrollIntoView({ behavior: "smooth", block: "start" }); }} />
       </div>
 
       <aside className="bld-side rp-about">
@@ -309,6 +370,53 @@ function Outcome({ job, again }: { job: Job; again: () => void }) {
   );
 }
 
+/** What the last repatch of several mods made: each mod's ZIP, the mods that failed and why, then Show all for what
+    each carried over and the log. */
+function ListOutcome({ job, again }: { job: Job; again: () => void }) {
+  const list: ListMade[] = job.result.mods;
+  const made = list.filter((m) => m.made), failed = list.filter((m) => !m.made);
+  return (
+    <section className="set-sec view-in rp-made" aria-label={t`Repatched`}>
+      <h2><Trans>Repatched</Trans></h2>
+      <p>{t`${ph({ done: made.length })} of ${ph({ total: list.length })} mods repatched.`}</p>
+      <div className="row-btns">
+        {made.length > 0 && <button className="btn" onClick={() => reveal(made[0].made!.zip)}><Trans>Show in Folder</Trans></button>}
+        <button className="btn quiet" onClick={again}><Trans>Repatch More Mods</Trans></button>
+      </div>
+      {failed.length > 0 && (
+        <div className="warn-box"><b>{t`Couldn't be repatched`}</b>
+          <ul>{failed.map((m) => <li key={m.source}>{m.name}: {m.error}</li>)}</ul>
+        </div>
+      )}
+      {made.length > 0 && (
+        <ul className="rp-made-list">
+          {made.map((m) => (
+            <li key={m.source}><b>{m.name}</b>: {fileName(m.made!.zip)}, {m.made!.mb.toLocaleString(intlLocale())} MB
+              {m.made!.parts.some((p) => p.kept && p.audio) && <span className="tag warn" data-tip={t`Some patches couldn't be repatched and are kept as they were`}>{t`Partly`}</span>}</li>
+          ))}
+        </ul>
+      )}
+      <details className="rp-log rp-all">
+        <summary><Trans>Show All</Trans></summary>
+        {made.map(({ source, name, made: m }) => {
+          const built = m!.parts.filter((p) => !p.kept), stuck = m!.parts.filter((p) => p.kept && p.audio);
+          const left = [...new Set(built.flatMap((p) => p.left))];
+          return (
+            <div key={source} className="rp-mod">
+              <h3>{name}</h3>
+              <p className="set-note">{built.length > 1 ? rebuilt(built) : carried(built[0])}.{" "}
+                {m!.kept_id ? t`It keeps the old mod ID, so importing it in a mod manager updates the old mod.` : t`Remove the old mod in the mod manager before importing this one.`}</p>
+              {stuck.length > 0 && <p className="set-note">{t`Kept as it was: ${ph({ patches: andList(stuck.map((p) => `${p.label} (${p.kept})`)) })}`}</p>}
+              {left.length > 0 && <div className="info-box"><b>{t`Left out`}</b><ul>{left.map((x, i) => <li key={i}>{x}</li>)}</ul></div>}
+            </div>
+          );
+        })}
+        <Details job={job} />
+      </details>
+    </section>
+  );
+}
+
 /** The mods in the mod managers' libraries and in the game's folder, checked for sound banks of an older game version; a flagged
     one opens in the form above with its Repatch button. */
 function InstalledMods({ busy, onPick }: { busy: boolean; onPick: (path: string) => void }) {
@@ -358,7 +466,7 @@ function InstalledMod({ m, busy, onPick }: { m: Installed; busy: boolean; onPick
       )}
       {flagged && (
         <div className="row-btns">
-          <button className="btn quiet" disabled={busy} onClick={() => onPick(m.source)} data-tip={t`Open it in the form above, ready to repatch`}>{t`Repatch`}</button>
+          <button className="btn quiet" disabled={busy} onClick={() => onPick(m.source)} data-tip={t`Add it above, ready to repatch`}>{t`Repatch`}</button>
         </div>
       )}
     </div>
