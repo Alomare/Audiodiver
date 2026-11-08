@@ -3,6 +3,16 @@
 The Updates tab shows this file. Each release starts with a second-level heading, `<version> - <date>`,
 newest first.
 
+## 1.7.2 - 2026-11-08
+
+### Additions
+
+- Added a list to **Repatch**: drop or choose several mods, or a folder of mods, and each is repatched into a separate ZIP, one after another. A mod that fails doesn't stop the others.
+
+### Bug Fixes
+
+- Fixed voice mods going silent in game when settings imported from a mod brought other languages of the voice into the patch. A mod now keeps one language of a voice, and **Build** stops if a voice has new audio in two languages.
+
 ## 1.7.1 - 2026-11-07
 
 ### Highlights
