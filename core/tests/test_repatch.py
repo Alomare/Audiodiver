@@ -322,6 +322,8 @@ def test_a_folder_of_mods_is_each_mod_and_a_mod_folder_is_one(tmp_path):
     assert repatch.mods_in(one / "a" / "9ba626afa44a3aa3.patch_0") == [one / "a" / "9ba626afa44a3aa3.patch_0"]
 
 
+@pytest.mark.game
+@pytest.mark.skipif(not WARP.exists(), reason="the Warp Pack isn't here")
 def test_several_mods_repatch_one_after_another(session, tmp_path):
     """Repatch with a list: each mod into a ZIP of its own; one that can't be read says so and the rest go on."""
     good = tmp_path / "in" / "warp" / "9ba626afa44a3aa3.patch_0"
