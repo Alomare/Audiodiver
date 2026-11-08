@@ -730,3 +730,33 @@ def test_a_build_can_save_the_patch_files_beside_the_zip(tmp_path):
     with zipfile.ZipFile(zip_path) as z:
         assert {f.name: f.read_bytes() for f in folder.iterdir()} == \
             {Path(n).name: z.read(n) for n in z.namelist() if "/" in n}
+
+
+class _Voices:
+    """An index with one voice installed in three languages, and a bank that isn't a voice's."""
+    banks = {
+        1: {"lang": "us", "path": "content/audio/us/helldiver_soldier_female2_VO", "objects": [5, 6]},
+        2: {"lang": "de", "path": "content/audio/de/helldiver_soldier_female2_VO", "objects": [5, 6]},
+        3: {"lang": "jp", "path": "", "objects": [5, 6]},  # a name that didn't hash: known by its objects
+        4: {"lang": "", "path": "content/audio/Helldiver_Standard_VO", "objects": [5, 7]},
+    }
+    from audiodiver.index import AudioIndex
+    voice = AudioIndex.voice
+
+
+def test_a_voice_keeps_the_language_its_new_audio_is_in():
+    """A mod built where German and Japanese voices were installed carried their banks too (settings go into every
+    copy of an object), and in game every line of the voice was silent: one language per voice in a patch."""
+    from audiodiver.patch import LanguageError, one_language
+    ix = _Voices()
+    assert ix.voice(1) == ix.voice(2) == "content/audio/helldiver_soldier_female2_VO"
+    assert ix.voice(3) == "objects:5,6" and ix.voice(4) is None
+    every = {1, 2, 4}
+    assert one_language(ix, every, direct={1, 4}) == {2}       # the English lines were replaced: English stays
+    assert one_language(ix, every, direct={2}) == {1}          # German ones: German stays
+    assert one_language(ix, every, direct=set()) == {2}        # only settings: English
+    assert one_language(ix, every, direct=set(), own={2}) == {1}  # the project's own bank before English
+    assert one_language(ix, {1, 4}, direct=set()) == set()     # one language already
+    with pytest.raises(LanguageError) as e:
+        one_language(ix, every, direct={1, 2})
+    assert e.value.languages == ["de", "us"]

@@ -10,7 +10,7 @@ from . import addition, akd, arsenal, cuemap, music, patch, radio, soundtrack, s
 from .errors import os_error
 from .game import in_game_folder
 from .i18n import ntr, tr
-from .index import AudioIndex, CACHE_DIR
+from .index import AudioIndex, CACHE_DIR, LANGUAGES
 from .project import Project
 
 PATCH = "9ba626afa44a3aa3.patch_0"
@@ -317,7 +317,14 @@ def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, ste
     radio_plan = radio.Plan(set(project.radio_off), project.radio_quieter)
     try:
         edits = patch.build_patch(str(patch_dir / PATCH), reps, ix, project.segment_overrides, tables, plan,
-                                  settings, where, set_where, carried, music_plan, curves_off, track_curves, radio_plan)
+                                  settings, where, set_where, carried, music_plan, curves_off, track_curves, radio_plan,
+                                  own=set(project.imported_banks) | set(listed or ()), log=log)
+    except patch.LanguageError as e:
+        names = ", ".join(tr(LANGUAGES[c]) if c in LANGUAGES else c for c in e.languages)
+        raise BuildError(tr("The voice {voice} has new audio in more than one language ({languages}). A mod can carry "
+                            "one language of a voice: with two, the game plays every line of that voice silent. Keep "
+                            "the new audio in one language, or make a mod for each.").format(
+                                voice=e.voice.rsplit("/", 1)[-1], languages=names)) from None
     except patch.CueError as e:
         raise BuildError(tr("Music segment {segment}: the Entry cue point ({entry} s) is at or after the Exit ({exit} s), "
                             "so the game would play the music before it until the Entry. Move the cue points on the "

@@ -45,6 +45,8 @@ Replacing a shared sound changes it everywhere it plays, and the details list th
 
 A voice has one part for each installed language, such as *English* and *Italian*, with separate recordings for each. A line replaced in the English part is heard only by players who play in English.
 
+A mod can carry one language of a voice. With two, the game plays every line of that voice silent, so [Build](app:build) stops when a voice has new audio in more than one language. Keep the new audio in one language, or make a mod for each.
+
 A voice line is named after the words of the matching subtitle, in the language set in Settings, whatever the language of the voice. Where the game has no translation of a line, the words are in English. The filter finds a line by the words shown and by the English ones. When several takes say the same line, the group and each take show the words.
 
 Sounds without words are named after what they are, like *Grunt 1* or *Panting 3*, and numbered separately for each voice. Grunts are short sounds of effort. **Panting** covers the longer breathing, sighs and laughs. Most of these sounds are at the end of a Helldiver voice and in **Helldiver Exertions**, in groups called **Grunts** and **Panting**. Each of these clips is shared by two Helldiver voices, voices 1 and 3, and voices 2 and 4.

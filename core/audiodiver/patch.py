@@ -13,7 +13,7 @@ from . import addition, music, radio, soundtrack
 from . import bank as wbank
 from .bank import SOUND, MUSIC_SEGMENT, MUSIC_TRACK, TYPE_NAMES
 from .game import WWISE_STREAM, WWISE_BANK, WWISE_DEP, toc_entries
-from .i18n import tr
+from .i18n import ntr, tr
 from .index import AudioIndex
 from .strings import STRINGS
 from .wem import prefetch_size
@@ -130,6 +130,39 @@ class CueError(ValueError):
     def __init__(self, segment: int, entry_ms: float, exit_ms: float):
         super().__init__(f"segment {segment}: Entry at {entry_ms:.0f} ms, Exit at {exit_ms:.0f} ms")
         self.segment, self.entry_ms, self.exit_ms = segment, entry_ms, exit_ms
+
+
+class LanguageError(ValueError):
+    """New audio for one voice in more than one language: one patch can carry only one of a voice's banks."""
+    def __init__(self, voice: str, languages: list[str]):
+        super().__init__(f"{voice}: new audio in {', '.join(languages)}")
+        self.voice, self.languages = voice, languages
+
+
+def one_language(ix: AudioIndex, banks: set[int], direct: set[int], own=()) -> set[int]:
+    """The banks to leave out so that each voice keeps one language's bank. Every language's bank of a voice has
+    the same object ids, and with two of them in one patch the game took the objects of one for the other: the
+    voice's Sounds played another language's clips, and every line of the voice was silent (and Audio Modder,
+    reading such a patch, took no new audio at all). Settings and added audio go into every copy of an object, so
+    without this they bring in each installed language. The bank kept is the one the project's audio is in
+    (direct: the banks that hold or play a replaced source); with none, one of the project's own banks (own),
+    English before others; else English, else the first. LanguageError when direct has two languages of a voice."""
+    voices = {}
+    for bid in banks:
+        if (v := ix.voice(bid)) is not None:
+            voices.setdefault(v, []).append(bid)
+    out = set()
+    for voice, group in voices.items():
+        if len(group) < 2:
+            continue
+        mine = sorted(b for b in group if b in direct)
+        if len(mine) > 1:
+            raise LanguageError(voice, sorted(ix.banks[b]["lang"] for b in mine))
+        if not mine:
+            pick = sorted(group, key=lambda b: (b not in own, ix.banks[b]["lang"] != "us", b))
+            mine = pick[:1]
+        out |= set(group) - set(mine)
+    return out
 
 
 def _align(n, a):
@@ -454,7 +487,7 @@ def write_patch(path, streams: dict[int, bytes], banks: dict[int, bytes], deps: 
 def build_patch(path, reps: list[Replacement], ix: AudioIndex, overrides=None, strings=None,
                 plan: addition.Plan | None = None, settings=None, where=None, set_where=None, carried=None,
                 music_plan: soundtrack.Plan | None = None, curves_off=(), track_curves=None,
-                radio_plan: radio.Plan | None = None):
+                radio_plan: radio.Plan | None = None, own=(), log=None):
     """Patches every bank that holds or plays a replaced source, gets new audio (the plan; reps hold the new
     clips' audio too) or has an object with settings ({object id: {prop id: value or None}}: an imported mod's,
     applied before the replacements' gain and silence), and adds string tables ({file id: table bytes}) and the
@@ -462,13 +495,17 @@ def build_patch(path, reps: list[Replacement], ix: AudioIndex, overrides=None, s
     Soundtrack's, soundtrack.plan) changes every copy of the playlists and switches it names. where ({source: banks}) and set_where ({object: banks}) keep a source or an
     object to those banks (build.reach); a bank patched for something else still gets them where it has them.
     curves_off (clips) and track_curves ({track: [music.ClipCurve]}) change the curves in every copy of the tracks.
-    radio_plan takes the radio filters off in Init."""
+    radio_plan takes the radio filters off in Init. A voice keeps one language's bank (one_language; own: the
+    project's banks, for the choice); the plan loses the banks left out, so verify doesn't look for them."""
     overrides, settings, where, set_where = overrides or {}, settings or {}, where or {}, set_where or {}
     track_curves = track_curves or {}
     by_source = {r.source: r for r in reps}
-    banks = set(plan.banks) if plan else set()
+    direct = set()  # the banks the project's own sounds are in
     for r in reps:
-        banks |= where.get(r.source) or ix.banks_for(r.source)
+        direct |= where.get(r.source) or ix.banks_for(r.source)
+    banks = (set(plan.banks) if plan else set()) | direct
+    for sid in curves_off:
+        direct |= ix.banks_for(sid)
     for oid in settings:
         banks |= set_where.get(oid) or set(ix.copies(oid))
     for oid in music_plan.objects if music_plan else ():
@@ -480,6 +517,14 @@ def build_patch(path, reps: list[Replacement], ix: AudioIndex, overrides=None, s
     init = radio.init_of(ix) if radio_plan else None
     if radio_plan:
         banks.add(init)
+    if left := one_language(ix, banks, direct, set(own)):
+        banks -= left
+        for bid in left & set(plan.banks if plan else ()):
+            del plan.banks[bid]
+        if log:
+            log(ntr("{n} copy of a voice in another language left out (a mod carries one language of a voice)",
+                    "{n} copies of a voice in other languages left out (a mod carries one language of a voice)",
+                    len(left)).format(n=len(left)))
     # a sound's stream goes by the index: a voice line's is filed under its language, and a stream no bank plays
     # is its own target
     streams = {ix.stream_file(r.source): r.wem for r in reps if r.wem is not None and ix.stream_file(r.source) is not None}

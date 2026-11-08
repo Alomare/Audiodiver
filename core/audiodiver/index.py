@@ -181,6 +181,18 @@ class AudioIndex:
             dep = None
         return bank[16:], dep
 
+    def voice(self, bank_id: int) -> str | None:
+        """For a voice bank (one language's lines of a voice), what names the voice in every language: its path name
+        without the language ("content/audio/helldiver_soldier_female2_VO"), else its object ids, which every
+        language's bank of a voice shares. None for a bank that isn't a voice's."""
+        b = self.banks.get(bank_id)
+        if not b or not b.get("lang"):
+            return None
+        path, lang = b.get("path") or "", b["lang"]
+        if f"/{lang}/" in path:
+            return path.replace(f"/{lang}/", "/", 1)
+        return "objects:" + ",".join(map(str, sorted(b.get("objects", ()))))
+
     def has_dep(self, bank_id: int) -> bool:
         """Whether the archive bank_files reads the bank from has a dep for it (its table of contents says)."""
         return (bank_id, WWISE_DEP) in self.game.contents(self.banks[bank_id]["archives"][0])
