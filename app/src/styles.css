@@ -915,6 +915,10 @@ button.ctag:hover { background: color-mix(in oklch, var(--c) 24%, transparent); 
   padding: calc(5px * var(--sp)) 8px calc(1px * var(--sp)) calc(8px + 22px * var(--fs) + var(--depth, 0) * 14px); border-top: 1px solid var(--line-soft);
   font-size: calc(12px * var(--fs)); color: var(--muted); }
 .tree-line:hover { background: color-mix(in srgb, var(--panel) 50%, var(--raised)); }
+/* the tick stays just before what it selects, at the line's depth; on a container line, centred on the text (more
+   space above it than below) */
+.cue .slots > [style*="--depth"] > .slot-check { left: calc(7px + var(--depth, 0) * 14px); }
+.tree-line > .slot-check { top: calc(50% + 2px * var(--sp)); }
 .tree-type, .tree-sep { flex: none; color: var(--faint); }
 .tree-type { margin-right: 2px; }
 .tree-id { flex: none; padding: 0 3px; border-radius: 2px; color: var(--muted); font: calc(12px * var(--fs)) "Roboto Mono Variable", Consolas, monospace; }
