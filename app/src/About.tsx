@@ -6,7 +6,7 @@ import { APP_LABEL, APP_VERSION, CREDITS, DISCORD_URL, HOME_ART, HOME_ART_HD1, K
 import { DiscordIcon, ExternalIcon, InfoIcon, KofiIcon } from "./Icons";
 import { Logo } from "./Logo";
 import { about, useAboutOpen } from "./nav";
-import { openUrl, reveal } from "./platform";
+import { LINUX, openUrl, reveal } from "./platform";
 import { useEditor } from "./store";
 
 // About Audiodiver: the version, the licence and the source, the log file, and the credits (the one place the app
@@ -65,7 +65,7 @@ function About() {
       <dl className="set-facts">
         <dt><Trans>Log file</Trans></dt>
         <dd>{status?.log ? <><span className="path-text">{status.log}</span><button className="link-inline" onClick={() => reveal(status.log)}
-          data-tip={t`Show the log file in Explorer`} data-tip-more={t`Attach it to a bug report`}><Trans comment="Button: shows the log file in Explorer">Show</Trans></button></>
+          data-tip={LINUX ? t`Show the log file in the file manager` : t`Show the log file in Explorer`} data-tip-more={t`Attach it to a bug report`}><Trans comment="Button: shows the log file in Explorer">Show</Trans></button></>
           : t({ message: "None", comment: "No log file" })}</dd>
       </dl>
       <section className="about-credits">

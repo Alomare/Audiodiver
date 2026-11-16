@@ -1,5 +1,6 @@
-# A release: pushing a tag like v1.2.0 builds the installer (signed for the updater, with its .sig and latest.json)
-# and the portable ZIPs (Audiodiver and Audiodiver Utils), and puts them in a draft release whose text is the
+# A release: pushing a tag like v1.2.0 builds, on Windows, the installer (signed for the updater, with its .sig and
+# latest.json) and the portable ZIPs (Audiodiver and Audiodiver Utils), then on Linux the AppImage and the .deb
+# (signed, added to latest.json) and the Audiodiver Utils .tar.gz, all in a draft release whose text is the
 # changelog's section for that version.
 # Publishing the draft makes it the release the app's updater and Updates tab see.
 #
@@ -19,6 +20,8 @@ jobs:
     runs-on: windows-latest
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    outputs:
+      id: ${{ steps.draft.outputs.id }}
     defaults:
       run:
         shell: bash
@@ -83,3 +86,68 @@ jobs:
           python app/scripts/release.py portable
           python app/scripts/release.py utils
           gh release upload "$GITHUB_REF_NAME" app/src-tauri/target/release/bundle/portable/*.zip
+
+  # After Windows: tauri-action reads latest.json from the draft and adds the Linux platforms, so the two builds
+  # never write it at once.
+  linux:
+    needs: release
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+          cache: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: app/src-tauri
+          shared-key: linux
+
+      - name: System packages (WebKitGTK, and GStreamer for the AppImage to carry)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev \
+            libfuse2t64 patchelf file gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-libav
+
+      - name: The core, Python and the tools the release carries
+        run: python app/scripts/release.py core
+
+      - name: Core tests (with the tools the release carries)
+        run: |
+          python -m pip install -e "core[test]" numpy==2.5.4 pillow==12.3.0 lz4==4.4.5
+          PATH="$PWD/app/src-tauri/core/tools:$PATH" python -m pytest core -q -m "not game"
+
+      - name: Install the app's packages
+        working-directory: app
+        run: npm ci
+
+      - name: The AppImage, the .deb, their signatures and latest.json
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          projectPath: app
+          args: --config src-tauri/tauri.release.conf.json
+          releaseId: ${{ needs.release.outputs.id }}
+
+      - name: The Audiodiver Utils archive
+        run: |
+          python app/scripts/release.py utils
+          gh release upload "$GITHUB_REF_NAME" app/src-tauri/target/release/bundle/portable/*.tar.gz

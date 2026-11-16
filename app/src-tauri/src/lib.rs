@@ -75,6 +75,23 @@ struct Launch {
     env: HashMap<String, String>,
 }
 
+/// The interpreter a release carries, in its `core` folder: Python's embeddable package on Windows, a standalone
+/// build (python-build-standalone) on Linux.
+#[cfg(windows)]
+const BUNDLED_PYTHON: &str = "python/python.exe";
+#[cfg(not(windows))]
+const BUNDLED_PYTHON: &str = "python/bin/python3";
+
+/// Starts the app again on the version just installed. The Windows installer closes and reopens the app itself; on
+/// Linux the new AppImage or package is in place while the old version still runs. An AppImage starts again from
+/// the AppImage file, not from the copy it ran from.
+#[tauri::command]
+fn restart_app(app: tauri::AppHandle) {
+    if cfg!(not(windows)) {
+        app.restart();
+    }
+}
+
 fn spawn_core(core: &Core, paths: Paths) {
     let file = paths.config.as_ref().map_or("core.json".into(), |f| f.display().to_string());
     let (launch, unread) = match paths.config.as_ref().and_then(|f| std::fs::read_to_string(f).ok()) {
@@ -84,13 +101,20 @@ fn spawn_core(core: &Core, paths: Paths) {
         },
         None => (Launch::default(), String::new()),
     };
-    let bundled = paths.bundled.filter(|d| d.join("python").join("python.exe").is_file());
+    let bundled = paths.bundled.filter(|d| d.join(BUNDLED_PYTHON).is_file());
     let python = std::env::var("AUDIODIVER_PYTHON")
         .ok()
         .or(launch.python)
-        .or_else(|| bundled.as_ref().map(|d| d.join("python").join("python.exe").display().to_string()))
-        .unwrap_or_else(|| "python".into());
+        .or_else(|| bundled.as_ref().map(|d| d.join(BUNDLED_PYTHON).display().to_string()))
+        .unwrap_or_else(|| if cfg!(windows) { "python" } else { "python3" }.into());
     let mut cmd = Command::new(&python);
+    if bundled.as_ref().is_some_and(|d| python == d.join(BUNDLED_PYTHON).display().to_string()) {
+        // the Python a release carries finds its own library: an AppImage sets PYTHONHOME to its folder (the core
+        // then stops at once, "No module named 'encodings'"), and another Python's settings mean nothing to it
+        for var in ["PYTHONHOME", "PYTHONPATH", "PYTHONSTARTUP", "PYTHONUSERBASE"] {
+            cmd.env_remove(var);
+        }
+    }
     let mut dirs: Vec<PathBuf> = launch.path.iter().map(PathBuf::from).collect();
     dirs.extend(bundled.as_ref().map(|d| d.join("tools")));
     if !dirs.is_empty() {
@@ -192,6 +216,7 @@ fn core_endpoint(core: tauri::State<'_, Core>) -> Endpoint {
     })
 }
 
+#[cfg(windows)]
 const WEBVIEW2_URL: &str = "https://developer.microsoft.com/microsoft-edge/webview2/";
 
 /// The window is drawn by the WebView2 Runtime. Windows 11 always has it and nearly every Windows 10 PC does; on one
@@ -362,6 +387,13 @@ fn close_wiki(app: tauri::AppHandle) {
 }
 
 pub fn run() {
+    // WebKitGTK's DMA-BUF renderer leaves a blank window with NVIDIA's driver (the same guard as Obsidian's).
+    // Elsewhere it stays on: the older path draws slowly. A value already set wins.
+    #[cfg(target_os = "linux")]
+    if std::env::var_os("WEBKIT_DISABLE_DMABUF_RENDERER").is_none() && Path::new("/sys/module/nvidia").exists() {
+        // SAFETY: nothing else runs yet; no other thread reads the environment.
+        unsafe { std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1") };
+    }
     #[cfg(windows)]
     if !has_webview2() {
         ask_for_webview2();
@@ -436,13 +468,19 @@ pub fn run() {
                     Some(data) => Some(data.join("core.json")),
                     None => app.path().app_local_data_dir().ok().map(|d| d.join("core.json")),
                 },
-                bundled: app.path().resource_dir().ok().map(|d| d.join("core")),
+                // beside the program in a portable copy (the ZIP, the Linux .tar.gz), else with the resources (the
+                // installer, the AppImage and the .deb put them elsewhere on Linux)
+                bundled: std::env::current_exe()
+                    .ok()
+                    .and_then(|exe| exe.parent().map(|d| d.join("core")))
+                    .filter(|d| d.join(BUNDLED_PYTHON).is_file())
+                    .or_else(|| app.path().resource_dir().ok().map(|d| d.join("core"))),
                 cache: portable.clone(),
             };
             spawn_core(&app.state::<Core>(), paths);
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![core_endpoint, is_portable, launch_file, open_wiki, close_wiki, wiki_is_open, bring_forward])
+        .invoke_handler(tauri::generate_handler![core_endpoint, is_portable, launch_file, open_wiki, close_wiki, wiki_is_open, bring_forward, restart_app])
         .build(tauri::generate_context!())
         .expect("error while building the app");
     app.run(|handle, event| {

@@ -9,7 +9,7 @@ import { UTILS } from "./edition";
 import { captureChord, COMMANDS, FIXED, fmtChord, keyLabel, keymap, useKeymap, type CommandId } from "./keys";
 import { HIDEABLE, nav, useNav, type Hideable, type SettingsTab as Sub } from "./nav";
 import { Page, tabArrows } from "./Page";
-import { openUrl, pickFolder, pickNotesFile, pickNotesToSave, reveal } from "./platform";
+import { LINUX, openUrl, pickFolder, pickNotesFile, pickNotesToSave, reveal } from "./platform";
 import { rangeVars } from "./range";
 import { player } from "./player";
 import { AUTOSAVE_DEFAULT, AUTOSAVE_MAX, DEFAULT_SETTINGS, NOTICE_CORNERS, resetLayout, settings, TIP_SPEEDS, UPDATE_MODES, UPDATE_NOTES, useSettings } from "./settings";
@@ -80,7 +80,7 @@ function LanguagePicker() {
   const auto = languageName(autoLanguage());
   return (
     <section className="set-sec">
-      <h2>{t`Language`} <Help tip={t`Automatic takes the language the game is set to in Steam, else the language of Windows.`} page="how-audiodiver-works#language" /></h2>
+      <h2>{t`Language`} <Help tip={LINUX ? t`Automatic takes the language the game is set to in Steam, else the language of the system.` : t`Automatic takes the language the game is set to in Steam, else the language of Windows.`} page="how-audiodiver-works#language" /></h2>
       <div className="field">
         <select className="lang-select" value={chosenLanguage()} aria-label={t`Language`} onChange={(e) => chooseLanguage(e.target.value as Choice)}>
           <option value="auto">{t`Automatic: ${auto}`}</option>

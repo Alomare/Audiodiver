@@ -48,7 +48,7 @@ A file the project uses goes missing when it is moved, renamed or deleted outsid
 
 ## Unused files
 
-**Find Unused Files** lists what Audiodiver made for the project that nothing uses any more: slices of an older cut, decoded audio of an imported patch, collected files that no slot plays. **Remove** sends them to the Recycle Bin, and Windows can put them back. On a drive without a Recycle Bin, such as a network drive, Audiodiver asks before it deletes them for good.
+**Find Unused Files** lists what Audiodiver made for the project that nothing uses any more: slices of an older cut, decoded audio of an imported patch, collected files that no slot plays. **Remove** sends them to the Recycle Bin (the trash on Linux), and the system can put them back. On a drive without a Recycle Bin, such as a network drive, Audiodiver asks before it deletes them for good.
 
 Audiodiver searches only the folders it makes, which are `audio\slices`, `audio\imported`, `audio\added` and the older `slices` and `imported`. Before removing anything, Audiodiver checks the list again and keeps any file used by the project, by the Undo history or by another project in the folder.
 

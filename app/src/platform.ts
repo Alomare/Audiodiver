@@ -142,6 +142,9 @@ export async function pickMods(title = t`Choose mods to combine`): Promise<strin
   return r ? (Array.isArray(r) ? r : [r]) : null;
 }
 
+/** Running on Linux (WebKitGTK): the file manager in place of Explorer, the locale in place of Windows' language. */
+export const LINUX = typeof navigator !== "undefined" && /Linux/.test(navigator.userAgent) && !/Android/.test(navigator.userAgent);
+
 export const IMAGES = ["png", "jpg", "jpeg", "webp", "bmp", "gif", "tif", "tiff"];
 export const isImage = (path: string) => IMAGES.includes(path.split(".").pop()?.toLowerCase() ?? "");
 export const isAudio = (path: string) => AUDIO.includes(path.split(".").pop()?.toLowerCase() ?? "");

@@ -6,7 +6,7 @@ import { EVERY_BANK_PAGE, OWN_BANKS_PAGE } from "./content";
 import { JOB_NAMES } from "./jobs";
 import { nav } from "./nav";
 import { NoProjectCard, Page, useDraft } from "./Page";
-import { pickFolder, reveal } from "./platform";
+import { LINUX, pickFolder, reveal } from "./platform";
 import { IconPreview } from "./ProjectTab";
 import { settings, useSettings } from "./settings";
 import { useEditor } from "./store";
@@ -167,7 +167,7 @@ function BuildOptions() {
         </label>
         <label className="check">
           <input type="checkbox" checked={s.revealBuild} onChange={(e) => settings.set({ revealBuild: e.target.checked })} />
-          <span><Trans>Show the ZIP in Explorer when a build finishes</Trans></span>
+          <span>{LINUX ? t`Show the ZIP in the file manager when a build finishes` : t`Show the ZIP in Explorer when a build finishes`}</span>
         </label>
         {p.game === "hd2" && <>
         <label className="check" data-tip={missing && !p.loudness_analysis ? missing : undefined}>
@@ -205,7 +205,7 @@ function Log() {
         <div className="log">{list.map((j) => <LogJob key={j.id} job={j} />)}</div>
       ) : <p className="set-note"><Trans>This session's builds, imports and exports.</Trans></p>}
       {status?.log && <button className="link-inline log-file" onClick={() => reveal(status.log)}
-        data-tip={t`Show the log file in Explorer`} data-tip-more={t`Attach it to a bug report`}><Trans>Show Log File</Trans></button>}
+        data-tip={LINUX ? t`Show the log file in the file manager` : t`Show the log file in Explorer`} data-tip-more={t`Attach it to a bug report`}><Trans>Show Log File</Trans></button>}
     </section>
   );
 }

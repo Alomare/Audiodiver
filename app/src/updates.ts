@@ -133,7 +133,10 @@ export const updates = {
         else if (ev.event === "Progress") set({ got: state.got + ev.data.chunkLength }, true);
         else set({ phase: "installing" });
       });
-      return "installing"; // the installer closes Audiodiver and opens the new version
+      // Windows: the installer closes Audiodiver and opens the new version. Linux: the new AppImage or package is in
+      // place, and the shell starts it
+      await import("@tauri-apps/api/core").then(({ invoke }) => invoke("restart_app")).catch(() => undefined);
+      return "installing";
     } catch (e: any) {
       set({ phase: "ready", installError: e.message ?? String(e) });
       return "failed";

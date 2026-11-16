@@ -58,11 +58,20 @@ Audiodiver checks GitHub for a new version every time it starts. [Settings ▸ S
 
 An update replaces only the app. Projects, audio files and settings are kept.
 
+## Linux
+
+Audiodiver runs on Linux as an AppImage, a `.deb` package for Debian and Ubuntu, and Audiodiver Utils as a `.tar.gz`. The AppImage updates itself like the Windows installer and suits SteamOS, Bazzite and other systems that don't install packages. Make the AppImage runnable (in the file properties, or with `chmod +x`) and start it.
+
+- Audiodiver finds Helldivers 2 and Helldivers 1 in the Steam libraries of Steam installed from the system, from Flathub or as a Snap. A game in another place can be chosen under **Game folder**.
+- Settings, caches and the log are in `~/.local/share/Audiodiver`, and new projects go to the Documents folder, as on Windows.
+- The file manager takes the place of Explorer, and the trash the place of the Recycle Bin.
+- Pasting audio files copied in the file manager with **Ctrl+V** works on Windows only. Drag the files onto the slots instead.
+
 ## Settings
 
 ### Language
 
-**Language** in [Settings ▸ System](app:settings/system) sets the language of the window and of the messages Audiodiver shows. **Automatic** takes the language Helldivers 2 is set to in Steam. When Audiodiver has no translation for it, Automatic takes the language of Windows, and otherwise English. After a change the window loads again in the new language, on the same tab. Voice lines show the words of their subtitles in that language, as the game writes them, or in English where the game has no translation of a line. The Text tab still chooses which language of the game text to edit.
+**Language** in [Settings ▸ System](app:settings/system) sets the language of the window and of the messages Audiodiver shows. **Automatic** takes the language Helldivers 2 is set to in Steam. When Audiodiver has no translation for it, Automatic takes the language of the system (Windows, or the locale on Linux), and otherwise English. After a change the window loads again in the new language, on the same tab. Voice lines show the words of their subtitles in that language, as the game writes them, or in English where the game has no translation of a line. The Text tab still chooses which language of the game text to edit.
 
 ### Game folder
 
