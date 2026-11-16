@@ -22,6 +22,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 
+from .archives import ArchiveError, TYPES as ARCHIVE_TYPES, is_archive, unpack
 from .i18n import tr
 
 PATCH_RE = re.compile(r"\.patch_\d+$", re.I)
@@ -56,10 +57,16 @@ class Found:
     manifest: dict = field(default_factory=dict)  # the manifest as it was read ({} without one)
     manifest_key: str = ""  # where it is (like Patch.key)
     names: list[str] = field(default_factory=list)  # every file of the mod (keys), for repackage
+    root: Path | None = None  # a .7z or .rar source: the folder it is unpacked in (archives.unpack)
 
     @property
     def is_zip(self) -> bool:
         return self.source.is_file() and self.source.suffix.lower() == ".zip"
+
+    @property
+    def folder(self) -> Path:
+        """Where the keys of a mod that isn't a ZIP are."""
+        return self.root or (self.source.parent if self.source.is_file() else self.source)
 
     def read(self, key: str) -> bytes | None:
         """A file of the mod by its key; None when it isn't there."""
@@ -69,7 +76,7 @@ class Found:
                     return z.read(key)
                 except KeyError:
                     return None
-        root = self.source.parent if self.source.is_file() else self.source
+        root = self.folder
         f = root / key
         return f.read_bytes() if f.is_file() else None
 
@@ -81,7 +88,7 @@ class Found:
             with zipfile.ZipFile(self.source) as z, z.open(key) as f:
                 yield f
         else:
-            with open((self.source.parent if self.source.is_file() else self.source) / key, "rb") as f:
+            with open(self.folder / key, "rb") as f:
                 yield f
 
     def place(self, key: str, folder: Path) -> Path:
@@ -89,7 +96,7 @@ class Found:
         folder, or taken out of the ZIP into `folder` (each under its own name: nothing in the ZIP picks where it
         lands)."""
         if not self.is_zip:
-            return (self.source.parent if self.source.is_file() else self.source) / key
+            return self.folder / key
         folder.mkdir(parents=True, exist_ok=True)
         out = folder / PurePosixPath(key).name
         with zipfile.ZipFile(self.source) as z:
@@ -107,7 +114,7 @@ class Found:
             with zipfile.ZipFile(self.source) as z, z.open(key) as src:
                 shutil.copyfileobj(src, dst)
         else:
-            with open((self.source.parent if self.source.is_file() else self.source) / key, "rb") as src:
+            with open(self.folder / key, "rb") as src:
                 shutil.copyfileobj(src, dst)
 
 
@@ -202,7 +209,7 @@ def scan(path) -> Found:
     path = Path(str(path or "")).expanduser()
     if not str(path).strip() or not path.exists():
         raise RepatchError(tr("{path} wasn't found").format(path=path) if str(path).strip()
-                           else tr("Choose a .patch_0 file, a mod folder or a ZIP"))
+                           else tr("Choose a .patch_0 file, a mod folder, a ZIP, a .7z or a .rar"))
     if path.is_file() and path.suffix.lower() == ".zip":
         try:
             with zipfile.ZipFile(path) as z:
@@ -210,14 +217,18 @@ def scan(path) -> Found:
         except (zipfile.BadZipFile, OSError):
             raise RepatchError(tr("{file} can't be opened as a ZIP").format(file=path.name)) from None
         found = Found(path, file_name(path.stem))
+    elif path.is_file() and is_archive(path):
+        try:
+            root = unpack(path)
+        except (ArchiveError, OSError) as e:
+            raise RepatchError(str(e) if isinstance(e, ArchiveError)
+                               else tr("{file} can't be opened as a .7z or .rar file").format(file=path.name)) from None
+        names = [p.relative_to(root).as_posix() for p in root.rglob("*") if p.is_file() and p.name != ".done"]
+        found = Found(path, file_name(path.stem), root=root)
     elif path.is_file():
         if not PATCH_RE.search(path.name):
-            if path.suffix.lower() in (".7z", ".rar"):
-                why = tr("{file} isn't a mod. Choose a .patch_0 file (Audiodiver also reads the .stream file next to it), "
-                         "a mod folder or a ZIP. Unpack .7z and .rar files first")
-            else:
-                why = tr("{file} isn't a mod. Choose a .patch_0 file (Audiodiver also reads the .stream file next to it), "
-                         "a mod folder or a ZIP")
+            why = tr("{file} isn't a mod. Choose a .patch_0 file (Audiodiver also reads the .stream file next to it), "
+                     "a mod folder, a ZIP, a .7z or a .rar")
             raise RepatchError(why.format(file=path.name))
         found = Found(path, file_name(path.parent.name))
         found.patches = [Patch(path.name, "")]
@@ -282,7 +293,7 @@ def mods_in(path) -> list[Path]:
             return False
         return any(p.is_file() and p.name.lower() == "manifest.json" for p in entries) or \
             (depth > 1 and any(p.is_dir() and has_manifest(p, depth - 1) for p in entries))
-    mods = sorted([p for p in files if p.suffix.lower() == ".zip"] +
+    mods = sorted([p for p in files if p.suffix.lower() in (".zip", *ARCHIVE_TYPES)] +
                   [p for p in path.iterdir() if p.is_dir() and has_manifest(p)], key=lambda p: p.name.lower())
     return mods or [path]
 

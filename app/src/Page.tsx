@@ -46,7 +46,7 @@ export function NoProjectCard({ text, recent = true }: { text: string; recent?: 
         <button className="btn primary" onClick={actions.newProject}><Trans>New Project</Trans></button>
         <button className="btn" onClick={() => actions.openProject()}><Trans>Open Project</Trans></button>
         <button className="btn" onClick={() => actions.importMod()} data-tip={t`Make a project from an existing mod`}
-          data-tip-more={t`A ZIP or a .patch_0 file, with the audio, the sounds it adds and the text`}><Trans>Import Mod</Trans></button>
+          data-tip-more={t`A ZIP, .7z, .rar or .patch_0 file, with the audio, the sounds it adds and the text`}><Trans>Import Mod</Trans></button>
         {recent && <button className="btn quiet" onClick={() => nav.go("project")}><Trans>Recent Projects</Trans></button>}
       </div>
     </div>

@@ -14,7 +14,7 @@ A mod's patch contains complete copies of the sound banks it changes, as they we
 ## Repatching a mod
 
 1. Open [Tools ▸ Repatch](app:tools/repatch).
-2. Drop the mod on the page. You can drop the downloaded ZIP, the mod folder, or the `.patch_0` file with the `.stream` file next to it. **Choose ZIPs or Patch Files** and **Choose a Folder** do the same. A ZIP dropped anywhere in Audiodiver also opens on this page. To repatch more than one mod, see [Repatching several mods](#repatching-several-mods).
+2. Drop the mod on the page. You can drop the downloaded ZIP (or `.7z` or `.rar`), the mod folder, or the `.patch_0` file with the `.stream` file next to it. **Choose ZIPs or Patch Files** and **Choose a Folder** do the same. A ZIP, `.7z` or `.rar` dropped anywhere in Audiodiver also opens on this page. To repatch more than one mod, see [Repatching several mods](#repatching-several-mods).
 3. Check the name. Audiodiver takes it from the manifest if there is one, and otherwise from the file or folder name, without the numbers and dates that Nexus Mods adds to downloads.
 4. Tick **Patch every bank with the sounds** to play the mod's audio wherever those sounds are used. Left off, the audio goes only into the banks the mod patched, as in the original, and the size stays about the same. [More about it](wiki:build-and-install#every-bank-with-the-sounds).
 5. Press **Repatch**.
@@ -27,7 +27,7 @@ Some mods have several patch files in one folder, such as `.patch_0`, `.patch_1`
 
 ## Repatching several mods
 
-Drop or choose several mods at once, and Audiodiver repatches them one after another. They can be ZIPs, `.patch_0` files or mod folders. You can also choose a folder that holds several mods: each ZIP in it is one mod, and so is each subfolder with a manifest. A folder with a manifest or a patch file directly inside it counts as one mod. **Add ZIPs or Patch Files** and **Add a Folder** add to the list, and a mod already on the list isn't added twice.
+Drop or choose several mods at once, and Audiodiver repatches them one after another. They can be ZIPs, `.7z` and `.rar` files, `.patch_0` files or mod folders. You can also choose a folder that holds several mods: each ZIP, `.7z` or `.rar` in it is one mod, and so is each subfolder with a manifest. A folder with a manifest or a patch file directly inside it counts as one mod. **Add ZIPs or Patch Files** and **Add a Folder** add to the list, and a mod already on the list isn't added twice.
 
 With two or more mods, the page shows a list. Each row has the name of the new ZIP, which you can change, and **✕** takes the mod off the list. A mod tagged **No audio** has nothing to repatch and is left out. **Patch every bank with the sounds** applies to every mod on the list, and the Repatch button shows how many mods will run.
 

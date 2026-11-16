@@ -2,13 +2,14 @@
 as it is now."""
 import json
 import struct
+import subprocess
 import time
 import zipfile
 from pathlib import Path
 
 import pytest
 
-from audiodiver import patch, repatch
+from audiodiver import archives, patch, repatch
 from audiodiver import bank as wbank
 from audiodiver.editor import EditorError, Session
 from audiodiver.game import WWISE_BANK, WWISE_STREAM, WWISE_DEP
@@ -70,6 +71,44 @@ def test_a_mod_managers_zip_names_its_patches_by_their_options(tmp_path):
             bad.write_bytes(b"not a zip")
         with pytest.raises(repatch.RepatchError, match=why):
             repatch.scan(bad)
+
+
+@pytest.mark.skipif(not archives.seven_zip(), reason="7-Zip isn't here")
+def test_a_7z_mod_is_read_as_a_zip_is(tmp_path, monkeypatch):
+    unpacked = tmp_path / "unpacked"
+    monkeypatch.setattr(archives, "_folder", lambda: unpacked)
+    src = tmp_path / "src" / "My Mod"
+    for d in ("base", "loud"):
+        (src / d).mkdir(parents=True)
+        (src / d / "9ba626afa44a3aa3.patch_0").write_bytes(d.encode())
+    (src / "manifest.json").write_text(json.dumps({"Version": 1, "Guid": GUID, "Name": "Packed",
+                                                  "Options": [{"Name": "Base", "Include": ["base"]},
+                                                              {"Name": "Loud", "Include": ["loud"]}]}))
+    seven = tmp_path / "Packed Mod-1234-1-0.7z"
+    subprocess.run([archives.seven_zip(), "a", "-bso0", str(seven), str(src)], check=True, capture_output=True)
+
+    f = repatch.scan(seven)
+    assert f.source == seven and not f.is_zip and f.root and f.root.parent == unpacked
+    assert f.name == "Packed" and f.guid == GUID and [p.label for p in f.patches] == ["Base", "Loud"]
+    assert f.read(f.patches[1].key) == b"loud" and f.place(f.patches[0].key, tmp_path / "x").read_bytes() == b"base"
+    assert ".done" not in " ".join(f.names)
+    out = repatch.repackage(f, tmp_path / "out.zip", {}, "Packed")  # a repatch is written as a ZIP
+    with zipfile.ZipFile(out) as z:
+        assert sorted(z.namelist()) == sorted(f.names)
+    assert repatch.scan(seven).root == f.root  # unpacked once
+    assert seven in repatch.mods_in(seven.parent)  # a folder of downloads holds it as a mod
+
+    for n in range(archives.KEEP + 2):  # only the newest unpacked archives stay
+        more = tmp_path / f"more{n}.7z"
+        subprocess.run([archives.seven_zip(), "a", "-bso0", str(more), str(src)], check=True, capture_output=True)
+        repatch.scan(more)
+    assert len([d for d in unpacked.iterdir() if (d / ".done").is_file()]) == archives.KEEP
+
+    for bad in ("broken.7z", "broken.rar"):
+        (tmp_path / bad).write_bytes(b"not an archive")
+        with pytest.raises(repatch.RepatchError, match="can't be opened"):
+            repatch.scan(tmp_path / bad)
+    assert not list(unpacked.glob("*.part"))
 
 
 @pytest.fixture(scope="module")

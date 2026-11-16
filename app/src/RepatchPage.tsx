@@ -139,7 +139,7 @@ export function RepatchPage() {
   const addFolder = async () => { const f = await pickFolder(undefined, t`Choose a mod folder, or a folder of mods`); if (f) read([f]); };
   const adding = (
     <div className="row-btns">
-      <button className="btn quiet" disabled={running || reading} onClick={addFiles} data-tip={t`ZIPs or .patch_0 files`}><Trans>Add ZIPs or Patch Files</Trans></button>
+      <button className="btn quiet" disabled={running || reading} onClick={addFiles} data-tip={t`ZIPs, .7z, .rar or .patch_0 files`}><Trans>Add ZIPs or Patch Files</Trans></button>
       <button className="btn quiet" disabled={running || reading} onClick={addFolder} data-tip={t`A mod unpacked into a folder, or a folder of mods`}><Trans>Add a Folder</Trans></button>
       <button className="btn quiet" disabled={running} onClick={() => setMods([])}>{one ? <Trans>Remove</Trans> : <Trans>Clear List</Trans>}</button>
     </div>
@@ -210,7 +210,7 @@ export function RepatchPage() {
             </div>
           ) : (
             <div className="rp-drop drop-zone">
-              <p><Trans>Drop mods here as <b>ZIPs</b>, <b>folders</b> or <b>.patch_0</b> files. Several are repatched one after another.</Trans></p>
+              <p><Trans>Drop mods here as <b>ZIPs</b>, <b>.7z</b>, <b>.rar</b>, <b>folders</b> or <b>.patch_0</b> files. Several are repatched one after another.</Trans></p>
               <div className="row-btns">
                 <button className="btn" disabled={reading} onClick={addFiles}><Trans>Choose ZIPs or Patch Files</Trans></button>
                 <button className="btn" disabled={reading} onClick={addFolder}><Trans>Choose a Folder</Trans></button>

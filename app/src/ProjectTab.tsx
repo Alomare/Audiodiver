@@ -232,7 +232,7 @@ function ProjectPage() {
         <div className="side-actions">
           {p.game === "hd2" && <button className="btn" onClick={() => actions.importPatch()}
             data-tip={t`Import the audio, added sounds and text of a mod into this project`}
-            data-tip-more={t`A ZIP or a .patch_0 file, such as a mod made with another tool`}><Trans>Import Patches</Trans></button>}
+            data-tip-more={t`A ZIP, .7z, .rar or .patch_0 file, such as a mod made with another tool`}><Trans>Import Patches</Trans></button>}
           <button className="btn quiet" onClick={actions.closeProject} data-tip={t`Close the project`} data-tip-cmd="closeProject"><Trans>Close Project</Trans></button>
         </div>
         {p.game === "hd2" && <IconPreview preview={same(icon, p.icon) ? undefined : icon} bust={String(revision)} name={name.trim() || p.name}

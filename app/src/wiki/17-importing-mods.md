@@ -4,7 +4,7 @@ group: Getting started
 summary: A mod made with any tool, as a project to keep working on: the audio, the sounds it adds, the settings and the text.
 ---
 
-**Import Mod** on [Home](app:home), or on the [Project](app:project) tab while no project is open, makes a new project from an existing mod. Choose the ZIP of the mod, or a `.patch_0` file. The panel that opens shows the mod as a mod manager shows it, and lists what comes in before anything is written.
+**Import Mod** on [Home](app:home), or on the [Project](app:project) tab while no project is open, makes a new project from an existing mod. Choose the ZIP, `.7z` or `.rar` of the mod, or a `.patch_0` file. The panel that opens shows the mod as a mod manager shows it, and lists what comes in before anything is written.
 
 ## Options, name and folder
 

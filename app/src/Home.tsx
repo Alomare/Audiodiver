@@ -40,7 +40,7 @@ export function Home() {
               <Recent />
             </div>
             {mode === "hd2" && <button className="menu-item" onClick={() => actions.importMod()} data-tip={t`Make a project from an existing mod`}
-              data-tip-more={t`A ZIP or a .patch_0 file, with the audio, the sounds it adds and the text`}><MenuInner icon={<ImportIcon />}><Trans>Import Mod</Trans></MenuInner></button>}
+              data-tip-more={t`A ZIP, .7z, .rar or .patch_0 file, with the audio, the sounds it adds and the text`}><MenuInner icon={<ImportIcon />}><Trans>Import Mod</Trans></MenuInner></button>}
             {project && (
               <div className="home-loaded">
                 <span className="home-loaded-name"><Trans>Loaded: <b data-tip={project.path} data-tip-clip>{name}</b></Trans></span>

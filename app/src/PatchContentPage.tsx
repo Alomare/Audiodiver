@@ -132,14 +132,14 @@ export function PatchContentPage() {
                 {gone > 0 && plural(gone, { one: "# of them is not in the current game.", other: "# of them are not in the current game." })}</p>
               <div className="row-btns">
                 <button className="btn quiet" disabled={running || reading} onClick={async () => read(await pickMod(t`Choose a mod`))}
-                  data-tip={t`A ZIP or a .patch_0 file`}><Trans>Choose Another File</Trans></button>
+                  data-tip={t`A ZIP, .7z, .rar or .patch_0 file`}><Trans>Choose Another File</Trans></button>
                 <button className="btn quiet" disabled={running || reading} onClick={async () => read(await pickFolder(undefined, t`Choose the mod folder`))}
                   data-tip={t`A mod unpacked into a folder`}><Trans>Choose Another Folder</Trans></button>
               </div>
             </div>
           ) : (
             <div className="rp-drop drop-zone">
-              <p><Trans>Drop a mod here as a <b>ZIP</b>, a <b>folder</b> or a <b>.patch_0</b> file.</Trans></p>
+              <p><Trans>Drop a mod here as a <b>ZIP</b>, <b>.7z</b>, <b>.rar</b>, <b>folder</b> or <b>.patch_0</b> file.</Trans></p>
               <div className="row-btns">
                 <button className="btn" disabled={reading} onClick={async () => read(await pickMod(t`Choose a mod`))}><Trans>Choose a ZIP or Patch File</Trans></button>
                 <button className="btn" disabled={reading} onClick={async () => read(await pickFolder(undefined, t`Choose the mod folder`))}><Trans>Choose a Folder</Trans></button>

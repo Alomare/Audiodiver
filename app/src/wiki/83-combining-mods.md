@@ -14,7 +14,7 @@ A mod contains complete copies of the sound banks it changes. When two mods chan
 ## Combining mods
 
 1. Open [Tools ▸ Combine Mods](app:tools/combine).
-2. Drop the mods on the page. You can drop the downloaded ZIPs, the mod folders, or the `.patch_0` files with the `.stream` files next to them. **Add ZIPs or Patch Files** and **Add a Folder** do the same, and **Installed mods…** lists the mods in a mod manager's library and the game folder.
+2. Drop the mods on the page. You can drop the downloaded ZIPs (or `.7z` and `.rar` files), the mod folders, or the `.patch_0` files with the `.stream` files next to them. **Add ZIPs or Patch Files** and **Add a Folder** do the same, and **Installed mods…** lists the mods in a mod manager's library and the game folder.
 3. Choose the options for each mod. A mod with options lists them under the mod name, starting from the choices that the mod manager recorded. An option with several choices takes one of them.
 4. Put the mods in order with ↑ and ↓. See [Order and conflicts](#order-and-conflicts).
 5. Press **Check for Conflicts**, and choose a mod for each conflict it finds.

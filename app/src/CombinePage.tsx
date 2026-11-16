@@ -172,7 +172,7 @@ export function CombinePage() {
             </ol>
           )}
           <div className={mods.length ? "row-btns" : "rp-drop drop-zone"}>
-            {!mods.length && <p><Trans>Drop mods here as <b>ZIPs</b>, <b>folders</b> or <b>.patch_0</b> files.</Trans></p>}
+            {!mods.length && <p><Trans>Drop mods here as <b>ZIPs</b>, <b>.7z</b>, <b>.rar</b>, <b>folders</b> or <b>.patch_0</b> files.</Trans></p>}
             <div className="row-btns">
               <button className="btn" disabled={combining} onClick={async () => { const p = await pickMods(); if (p) add(p); }}><Trans>Add ZIPs or Patch Files</Trans></button>
               <button className="btn" disabled={combining} onClick={async () => { const f = await pickFolder(undefined, t`Choose a mod folder`); if (f) add([f]); }}><Trans>Add a Folder</Trans></button>

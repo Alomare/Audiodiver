@@ -169,14 +169,14 @@ function Shell() {
     if (target?.kind === "combine") return combineInbox.offer(raw);
     // Patch Content: audio on a sound of the mod is its new audio; anything else on the page is a mod to open
     if (target?.kind === "content-sound") {
-      const audio = (await expandDropped(raw)).filter((p) => !/\.(patch_\d+|audi|audipack|zip)$/i.test(p) && !isImage(p));
+      const audio = (await expandDropped(raw)).filter((p) => !/\.(patch_\d+|audi|audipack|zip|7z|rar)$/i.test(p) && !isImage(p));
       return audio.length ? contentInbox.offerAudio(target.source, audio[0]) : quick(t`Drop an audio file on a sound`, "info");
     }
     if (target?.kind === "content") return contentInbox.offer(raw[0]);
     // Audiodiver Utils takes no projects: whatever else is dropped is a mod to repatch
     if (UTILS) { nav.go("tools", "repatch"); return repatchInbox.offer(raw); }
-    // mods to repatch: anything on the Repatch page, or ZIPs anywhere else (nothing else takes one)
-    const zips = raw.filter((p) => /\.zip$/i.test(p));
+    // mods to repatch: anything on the Repatch page, or ZIPs, .7z and .rar files anywhere else (nothing else takes one)
+    const zips = raw.filter((p) => /\.(zip|7z|rar)$/i.test(p));
     if (target?.kind === "repatch" || zips.length) {
       nav.go("tools", "repatch");
       return repatchInbox.offer(target?.kind === "repatch" ? raw : zips);

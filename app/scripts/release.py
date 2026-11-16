@@ -44,6 +44,9 @@ DOWNLOADS = {
                "60f467265b1e312373dbcd92200c2618a74850f98d3d078e94296bb3fa2047ba"),
     "vgmstream": ("https://github.com/vgmstream/vgmstream/releases/download/r2117/vgmstream-win64.zip",
                   "6c4a8a3813864fefed081bbd337dbc0ad93bf88e0b92f5db98d7ab258b22dc6c"),
+    # 7-Zip's installer, a 7z archive itself: its 7z.exe and 7z.dll read .7z and .rar mods (archives.py)
+    "7zip": ("https://github.com/ip7z/7zip/releases/download/26.05/7z2605-x64.exe",
+             "fd99e86f57d8f429ef5ed045bf98315af962e2309b0f1ba87a147a44c71647d0"),
 }
 SOURCES = f"""The programs in this folder and where their source is. Audiodiver runs them as separate programs.
 
@@ -58,6 +61,8 @@ vgmstream r2117 (vgmstream-cli and its DLLs)    ISC-style licence (vgmstream.txt
     https://github.com/vgmstream/vgmstream/tree/r2117
 wav2wem ({WAV2WEM.split('@')[1]})    GPL-2.0 (wav2wem.txt, wav2wem-third-party.md)
     https://github.com/pas2k/wav2wem/tree/{WAV2WEM.rsplit('-', 1)[1]}
+7-Zip 26.05 (7z, 7z.dll)    GNU LGPL with the unRAR restriction (7zip.txt)
+    https://github.com/ip7z/7zip/releases/tag/26.05
 """
 
 
@@ -121,8 +126,16 @@ def core():
     src = Path(f"{mod / WAV2WEM.split('/cmd/')[0]}@{WAV2WEM.split('@')[1]}")  # the module's source, with its licence
     shutil.copy(src / "LICENSE", lic / "wav2wem.txt")
     shutil.copy(src / "THIRD_PARTY_NOTICES.md", lic / "wav2wem-third-party.md")
+    # 7-Zip's installer unpacked by the 7-Zip already on the computer (GitHub's Windows runners have one)
+    sys.path.insert(0, str(ROOT / "core"))
+    from audiodiver.archives import seven_zip
+    if not (have := seven_zip()):
+        sys.exit("7-Zip is needed to unpack 7-Zip's installer")
+    run(have, "e", "-y", "-bso0", f"-o{tools}", fetch("7zip"), "7z.exe", "7z.dll")
+    run(have, "e", "-y", "-bso0", f"-o{lic}", fetch("7zip"), "License.txt")
+    (lic / "License.txt").replace(lic / "7zip.txt")
     (lic / "README.txt").write_text(SOURCES)
-    for t in ("ffmpeg", "ffprobe", "vgmstream-cli", "wav2wem"):
+    for t in ("ffmpeg", "ffprobe", "vgmstream-cli", "wav2wem", "7z"):
         if not (tools / f"{t}.exe").is_file():
             sys.exit(f"{t}.exe is missing from {tools}")
     size = sum(f.stat().st_size for f in OUT.rglob("*") if f.is_file())
