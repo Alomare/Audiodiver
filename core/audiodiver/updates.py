@@ -26,10 +26,12 @@ _last: dict = {"at": 0.0, "answer": None}
 
 
 def _installer(assets):
-    """The Windows installer among a release's files, if it has one."""
+    """What the updater installs among a release's files, if it has one: the Windows installer, or on Linux the
+    AppImage."""
+    end = "-setup.exe" if os.name == "nt" else ".appimage"
     for a in assets or []:
         name = a.get("name") or ""
-        if name.lower().endswith("-setup.exe"):
+        if name.lower().endswith(end):
             return {"name": name, "size": a.get("size") or 0, "url": a.get("browser_download_url") or ""}
     return None
 

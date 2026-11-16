@@ -129,14 +129,9 @@ def language() -> str:
 
 
 def system_language() -> str | None:
-    """The language Windows shows ("pt-BR"), or None elsewhere."""
-    try:
-        import ctypes
-        import locale
-        name = locale.windows_locale.get(ctypes.windll.kernel32.GetUserDefaultUILanguage())
-        return name.replace("_", "-") if name else None
-    except (AttributeError, OSError):
-        return None
+    """The language the system shows ("pt-BR"), or None when it can't tell."""
+    from .host import system_language
+    return system_language()
 
 
 def tr(message: str) -> str:

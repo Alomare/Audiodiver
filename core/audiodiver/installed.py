@@ -25,11 +25,12 @@ from pathlib import Path
 
 from . import addition, patch, radio
 from . import bank as wbank
+from . import host
 from .i18n import tr
 from .repatch import PATCH_RE, RepatchError, scan
 
-ARSENAL_DATA = Path(os.environ.get("LOCALAPPDATA") or Path.home() / "AppData" / "Local") / "hd2arsenal" / "hd2a_data.json"
-ECHELON_DATA = Path(os.environ.get("APPDATA") or Path.home() / "AppData" / "Roaming") / "Echelon" / "library.json"
+ARSENAL_DATA = host.data_home() / "hd2arsenal" / "hd2a_data.json"
+ECHELON_DATA = host.config_home() / "Echelon" / "library.json"
 # what a patch says, worst first
 SHARED, OLDER, CURRENT, NO_AUDIO, UNREADABLE = "shared", "older", "current", "no_audio", "unreadable"
 RANK = {SHARED: 0, OLDER: 1, UNREADABLE: 2, CURRENT: 3, NO_AUDIO: 4}

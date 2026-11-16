@@ -25,9 +25,10 @@ from pathlib import Path
 
 from . import bank as wbank
 from .game import Game, WWISE_BANK, WWISE_STREAM, WWISE_DEP, murmur64_hash, stream_id
+from . import host
 from .i18n import N_
 
-CACHE_DIR = Path(os.environ.get("AUDIODIVER_CACHE") or Path(os.environ.get("LOCALAPPDATA", Path.home())) / "Audiodiver")
+CACHE_DIR = Path(os.environ.get("AUDIODIVER_CACHE") or host.data_home() / "Audiodiver")
 FORMAT = 6
 # the game's codes for the languages it has voices in, as its stream names spell them, and their names in English
 # (translated where they are shown: library.py)

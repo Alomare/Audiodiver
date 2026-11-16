@@ -1,6 +1,7 @@
 """A project's folder (projectfiles.py): new projects in a folder of their own, moving one there, unused files,
 collecting files from elsewhere, packs. None of it needs the game."""
 import json
+import os
 import wave
 import zipfile
 from pathlib import Path
@@ -152,7 +153,7 @@ def test_only_what_audiodiver_named_counts_in_the_folders_beside_the_project(tmp
     _session(tmp_path / "other.audi")
     found = {f["rel"] for f in s.unused_files()["files"]}
     assert found == {str(f.relative_to(tmp_path)) for f in ours} | {str(Path("slices/song-abc123/cuts.json"))}
-    assert all("\\" in r for r in found)  # as Windows writes a path
+    assert all(os.sep in r for r in found)  # as the system writes a path
     s.remove_unused_files([str(f) for f in ours + theirs])
     assert all(f.exists() for f in theirs) and not any(f.exists() for f in ours)
     assert (tmp_path / "imported" / "Album").is_dir() and not (tmp_path / "imported" / "9ba626afa44a3aa3").exists()

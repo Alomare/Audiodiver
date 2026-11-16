@@ -1,5 +1,6 @@
 """The Updates tab's release list (updates.py). Nothing here reaches GitHub."""
 import json
+import os
 import urllib.error
 
 import pytest
@@ -12,7 +13,9 @@ LISTING = [
      "published_at": "2026-11-02T18:00:00Z", "body": "### Fixed\n- A thing", "html_url": "https://example/b2",
      "assets": [{"name": "latest.json", "size": 900, "browser_download_url": "https://example/latest.json"},
                 {"name": "Audiodiver_1.0.0-beta.2_x64-setup.exe", "size": 25_000_000,
-                 "browser_download_url": "https://example/setup.exe"}]},
+                 "browser_download_url": "https://example/setup.exe"},
+                {"name": "Audiodiver_1.0.0-beta.2_amd64.AppImage", "size": 90_000_000,
+                 "browser_download_url": "https://example/a.AppImage"}]},
     {"tag_name": "1.0.0-beta.1", "name": "", "draft": False, "published_at": "2026-10-18T10:00:00Z", "body": None, "assets": []},
 ]
 
@@ -29,7 +32,9 @@ def test_parse_lists_published_releases_with_their_installer():
     assert [r["version"] for r in found] == ["1.0.0-beta.2", "1.0.0-beta.1"]  # the draft is left out, "v" taken off
     b2, b1 = found
     assert b2["date"] == "2026-11-02" and b2["notes"].startswith("### Fixed") and b2["url"] == "https://example/b2"
-    assert b2["installer"] == {"name": "Audiodiver_1.0.0-beta.2_x64-setup.exe", "size": 25_000_000, "url": "https://example/setup.exe"}
+    assert b2["installer"] == ({"name": "Audiodiver_1.0.0-beta.2_x64-setup.exe", "size": 25_000_000, "url": "https://example/setup.exe"}
+                               if os.name == "nt" else  # what the updater installs on the system the core runs on
+                               {"name": "Audiodiver_1.0.0-beta.2_amd64.AppImage", "size": 90_000_000, "url": "https://example/a.AppImage"})
     assert b1["name"] == "1.0.0-beta.1" and b1["notes"] == "" and b1["installer"] is None
     assert b1["url"].endswith("/releases/tag/1.0.0-beta.1")
     assert updates.parse({"message": "Not Found"}) == []

@@ -5504,8 +5504,5 @@ def _filename(stem: str) -> str:
 
 def reveal(path):
     """Opens Explorer at path (used when the UI runs in a plain browser)."""
-    path = Path(path)
-    if os.name == "nt":
-        subprocess.Popen(["explorer", "/select,", str(path)] if path.is_file() else ["explorer", str(path)])
-    elif shutil.which("xdg-open"):
-        subprocess.Popen(["xdg-open", str(path if path.is_dir() else path.parent)])
+    from .host import open_folder
+    open_folder(Path(path))

@@ -299,11 +299,6 @@ def mods_in(path) -> list[Path]:
 
 
 def documents() -> Path:
-    """The user's Documents folder (where Windows has moved it, OneDrive's included)."""
-    if hasattr(__import__("ctypes"), "windll"):
-        import ctypes
-        from ctypes import wintypes
-        buf = ctypes.create_unicode_buffer(wintypes.MAX_PATH)
-        if ctypes.windll.shell32.SHGetFolderPathW(None, 5, None, 0, buf) == 0 and buf.value:  # CSIDL_PERSONAL
-            return Path(buf.value)
-    return Path.home() / "Documents"
+    """The user's Documents folder (where Windows has moved it, OneDrive's included; the XDG one on Linux)."""
+    from .host import documents
+    return documents()

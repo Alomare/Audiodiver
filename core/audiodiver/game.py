@@ -242,7 +242,8 @@ def is_dsar(path: Path) -> bool:
 
 
 def _steam_roots() -> list[str]:
-    """Where Steam is installed: the registry's answer first (Steam can live anywhere), then the usual place."""
+    """Where Steam is installed: on Windows the registry's answer first (Steam can live anywhere), then the usual
+    place; on Linux the folders a native, Flatpak or Snap Steam keeps its files in."""
     roots = []
     if os.name == "nt":
         import winreg
@@ -253,6 +254,9 @@ def _steam_roots() -> list[str]:
                     roots.append(str(Path(winreg.QueryValueEx(k, value)[0])))
             except OSError:
                 pass
+    else:
+        from .host import steam_roots_linux
+        return steam_roots_linux()
     return list(dict.fromkeys(roots + [_STEAM_DEFAULT]))
 
 

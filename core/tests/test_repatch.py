@@ -1,6 +1,7 @@
 """Repatching (repatch.py, Session.repatch): an existing mod found in a file, folder or ZIP, and rebuilt on the game
 as it is now."""
 import json
+import os
 import struct
 import subprocess
 import time
@@ -289,7 +290,8 @@ def test_a_mods_settings_go_on_the_games_objects():
 
 
 def test_repatched_mods_go_to_documents_by_default():
-    assert repatch.documents().is_dir()
+    d = repatch.documents()  # on Linux it can be missing until something is saved there (a fresh WSL)
+    assert d.is_dir() or (os.name != "nt" and d.parent.is_dir())
 
 
 @pytest.mark.game
@@ -313,6 +315,7 @@ def test_the_tools_work_without_numpy_and_pillow(tmp_path):
 
 
 @pytest.mark.game
+@pytest.mark.skipif(not WARP.exists(), reason="the Warp Pack isn't here")
 def test_objects_as_an_older_game_version_had_them_are_not_the_mods(monkeypatch):
     """A mod's copy of an object exactly as an earlier game version had it (bank_history's fingerprints) is that
     version's, not a change of the mod's: not listed as an other change, and no settings taken from it. Here the

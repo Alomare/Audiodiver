@@ -236,8 +236,8 @@ def prune(folder: Path):
 
 
 def recycle(paths: list[Path]) -> list[Path]:
-    """Moves files to the Recycle Bin. Returns those still there after (none, unless Windows refused some). On a
-    drive without a Recycle Bin, Windows asks before it deletes them for good."""
+    """Moves files to the Recycle Bin (the trash on Linux). Returns those still there after (none, unless the system
+    refused some). On a drive without a Recycle Bin, Windows asks before it deletes them for good."""
     paths = [Path(p) for p in paths if Path(p).exists()]
     if not paths:
         return []
@@ -256,12 +256,9 @@ def recycle(paths: list[Path]) -> list[Path]:
             op = FileOp(None, FO_DELETE, names, None, FOF_SILENT | FOF_NOCONFIRMATION | FOF_ALLOWUNDO | FOF_NOERRORUI
                         | FOF_WANTNUKEWARNING, False, None, None)
             ctypes.windll.shell32.SHFileOperationW(ctypes.byref(op))
-    else:
-        for p in paths:
-            try:
-                p.unlink()
-            except OSError:
-                pass
+    else:  # the trash, as file managers on Linux have it
+        from .host import trash
+        trash(paths)
     return [p for p in paths if p.exists()]
 
 
