@@ -479,7 +479,7 @@ def test_game_folder_is_checked_saved_and_found_from_the_game_or_library_folder(
 
     s = Session(load=False)
     loads = []
-    monkeypatch.setattr(s, "_load_game", lambda: loads.append(1))
+    monkeypatch.setattr(s, "_load_game", lambda **_: loads.append(1))
     with pytest.raises(EditorError):
         s.set_game_folder(data)  # still loading
     s.stage = "failed"

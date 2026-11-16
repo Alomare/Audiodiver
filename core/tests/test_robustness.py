@@ -320,3 +320,35 @@ def test_a_file_that_isnt_a_patch_is_refused(game_session, tmp_path):
     (tmp_path / "notes.txt").write_text("x")
     with pytest.raises(EditorError, match="isn't a patch file"):
         s.import_patch(str(tmp_path / "notes.txt"))
+
+
+def test_a_game_update_while_the_core_runs_is_read_again(tmp_path, monkeypatch):
+    """Steam updating the game under a running core moved every archive in the bundles: reads failed with an
+    AssertionError until a restart (a player's report, 2026-11-16). Now the core sees the files change and reads the game
+    again, and a read of the wrong bytes says what happened."""
+    import os
+    from audiodiver import game as g
+    data = tmp_path / "data"
+    data.mkdir()
+    (data / "bundles.00.nxa").write_bytes(b"x" * 10)
+    fake = object.__new__(g.Game)
+    fake.data, fake.loose = data, {}
+    assert not fake.changed()
+    (data / "bundles.00.nxa").write_bytes(b"y" * 12)
+    assert fake.changed()
+
+    s = Session(load=False)
+    s.stage, s.ix, s.game_where = "ready", type("Ix", (), {"game": fake})(), {"path": str(data), "how": "steam"}
+    again = []
+    monkeypatch.setattr(s, "_load_game", lambda chosen=None, updated=False: again.append(updated))
+    with pytest.raises(EditorError, match="game updated while Audiodiver was open"):
+        s.require_game()
+    assert s.stage == "starting" and s.ix is None
+    threading.Event().wait(0.2)
+    assert again == [True]
+
+    with pytest.raises(g.GameFileUnreadable):
+        g.Game._toc("abc", b"\0" * 72)
+    assert "verify the integrity" in plain(g.GameFileUnreadable("x"))
+    with pytest.raises(g.NotAnArchive):  # a mod's patch that is no patch stays a ValueError, as before
+        g.toc_entries(b"\0" * 72)

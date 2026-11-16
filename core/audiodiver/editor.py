@@ -218,6 +218,9 @@ class Session:
         self._combine_parts, self._combine_ids = collections.OrderedDict(), {}
         self._content = None  # patchcontent.Content: the mod Tools ▸ Patch Content read last (content_scan)
         self._music_objs = None  # (index, the game's music objects): read when the Soundtrack first needs them
+        self._started_with = None  # the game folder the command line named, kept when the game is read again
+        self._game_checked = 0.0  # when _game_updated last looked at the game files
+        self._update_failed = False  # reading the game again after an update failed: Steam was still writing
         self._reach = (None, {})  # (the project's settings, what they reach): _setting_reach, read again on a change
         self.game_language = None  # the language the game is set to in Steam ("brazilian"), once the game is found
         self.names_language = None  # the language the Index and the cue views are named in (the catalog, the library)
@@ -271,9 +274,11 @@ class Session:
                 return
 
     # --- game data
-    def _load_game(self, chosen=None):
-        """Reads the game: from `chosen` (a folder the command line names), else as Settings has it."""
+    def _load_game(self, chosen=None, updated=False):
+        """Reads the game: from `chosen` (a folder the command line names), else as Settings has it. updated: again,
+        after Steam changed the game files (_game_updated)."""
         started = time.perf_counter()
+        self._started_with = chosen
         try:
             from .catalog import Catalog
             from .cuemap import CueMap
@@ -293,7 +298,8 @@ class Session:
             self.game_where = {"path": str(folder), "how": how}
             self.game_language = steam_language(folder)
             # the stages are translated as status() sends them: the window may set the language after this
-            self.stage = (N_("Reading the game audio from the new folder") if again
+            self.stage = (N_("The game updated. Reading the game audio again (about a minute)") if updated
+                          else N_("Reading the game audio from the new folder") if again
                           else N_("Reading the game audio (the first run after a game update takes about a minute)"))
             ix = AudioIndex(Game(folder), log=lambda *a: None)
             self.stage = N_("Mapping the music")
@@ -313,7 +319,11 @@ class Session:
             log.info("game data from %s (%s), ready in %.1f s", folder, how, time.perf_counter() - started)
         except Exception as e:
             self.load_error, self.stage = str(e) if isinstance(e, FileNotFoundError) else f"{type(e).__name__}: {e}", "failed"
+            if updated:  # Steam may still be writing: status() tries again a little later
+                self.load_error = tr("The game files are still changing. Audiodiver reads them again when Steam is done.")
+                self._game_checked = time.time()
             log.exception("loading the game failed")
+        self._update_failed = updated and self.stage == "failed"
         try:
             self._load_hd1()  # the window is open by now: the Library gains Helldivers 1 when this is done
         finally:
@@ -339,14 +349,42 @@ class Session:
             except ValueError as e:
                 raise EditorError(str(e)) from None
         save_settings(game_data=chosen)
+        self._read_game_again({"path": chosen, "how": "chosen" if chosen else None})
+        return self.status()
+
+    def _read_game_again(self, where: dict, updated=False):
+        """Drops what was read of the game and reads it again, as at start-up."""
         with self.lock:
             self.ix, self.catalog, self.lib, self.load_error, self.texts = None, None, None, None, None
             self._cue_sets, self._clips, self._segments, self.names_language = {}, {}, {}, None
+            self._music_objs = None
             self.__dict__.pop("_music_json", None)
             self.stage = "starting"
-            self.game_where = {"path": chosen, "how": "chosen" if chosen else None}
-        threading.Thread(target=self._load_game, daemon=True).start()
-        return self.status()
+            self.game_where = where
+        threading.Thread(target=self._load_game, kwargs={"chosen": self._started_with, "updated": updated},
+                         daemon=True).start()
+
+    GAME_CHECK_S = 5  # how often, at most, the core looks whether Steam changed the game files
+
+    def _game_updated(self, now=False) -> bool:
+        """Whether Steam changed the game files since they were read (an update while the core runs). If so, and no
+        job is running, the game is read again; meanwhile the window shows the loading, as at start-up."""
+        if not now and time.time() - self._game_checked < self.GAME_CHECK_S:
+            return False
+        if self.stage == "failed" and self._update_failed and time.time() - self._game_checked >= 6 * self.GAME_CHECK_S:
+            self._game_checked = time.time()
+            self._read_game_again(dict(self.game_where), updated=True)
+            return True
+        if self.stage != "ready" or not self.ix:
+            return False
+        self._game_checked = time.time()
+        changed = getattr(getattr(self.ix, "game", None), "changed", None)
+        if not callable(changed) or not changed():
+            return False
+        if not any(j.state == "running" for j in self.jobs.values()):
+            log.info("the game files changed (a game update): reading them again")
+            self._read_game_again(dict(self.game_where), updated=True)
+        return True
 
     def wait_ready(self, timeout=600):
         t0 = time.time()
@@ -355,7 +393,12 @@ class Session:
         if self.stage != "ready":
             raise EditorError(self.load_error or "game data not loaded")
 
+    UPDATED = N_("The game updated while Audiodiver was open. Audiodiver is reading it again: try again when that is done.")
+    UNREADABLE = N_("A game file can't be read. In Steam, verify the integrity of the game files, then try again.")
+
     def require_game(self):
+        if self._game_updated():
+            raise EditorError(tr(self.UPDATED))
         if self.stage != "ready":
             # a step of the loading is a message (translated as status() sends it); "starting" is a state
             stage = self.stage if self.stage in ("starting", "ready", "failed") else tr(self.stage)
@@ -363,6 +406,7 @@ class Session:
 
     def status(self):
         from . import __version__, akd
+        self._game_updated()
         game = None
         if self.ix:
             game = {"data": str(self.ix.game.data), "banks": len(self.ix.banks),
@@ -2570,9 +2614,16 @@ class Session:
                 job.error, job.state = "cancelled", "cancelled"
                 log.info("job %s cancelled after %.1fs", job.id, time.time() - job.started)
             except Exception as e:
-                job.error, job.state = plain(e), "failed"
+                from .game import GameFileUnreadable
+                ix = self.ix
+                moved = callable(changed := getattr(getattr(ix, "game", None), "changed", None)) and changed()  # Steam updated the game under the job
+                job.error = (tr(self.UPDATED) if moved
+                             else tr(self.UNREADABLE) if isinstance(e, GameFileUnreadable) else plain(e))
+                job.state = "failed"
                 job.say(tr("failed: {why}").format(why=job.error))  # the traceback is in the log file, not the Build tab
                 log.exception("job %s (%s: %s) failed", job.id, kind, title)
+                if moved:
+                    self._game_updated(now=True)
             job.ended = time.time()
             if self.ix and not any(j.state == "running" for j in self.jobs.values()):
                 self.ix.game.trim_caches()  # the streams a job read, and packages the Library opened

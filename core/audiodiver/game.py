@@ -368,17 +368,30 @@ class Game:
                 out[p.name] = p
         return out
 
-    @functools.cached_property
-    def fingerprint(self) -> str:
+    def _bundles_print(self) -> str:
         files = sorted(glob.glob(str(self.data / "bundles.*")))
         return ";".join(f"{os.path.basename(f)}:{os.path.getsize(f)}:{int(os.path.getmtime(f))}" for f in files)
+
+    def _loose_print(self) -> str:
+        return ";".join(f"{n}:{p.stat().st_size}:{int(p.stat().st_mtime)}" for n, p in sorted(self.loose.items()))
+
+    @functools.cached_property
+    def fingerprint(self) -> str:
+        return self._bundles_print()
 
     @functools.cached_property
     def audio_fingerprint(self) -> str:
         """fingerprint plus the archives outside the bundles: a language added or removed in Steam changes what
         audio there is, without touching the bundles."""
-        loose = ";".join(f"{n}:{p.stat().st_size}:{int(p.stat().st_mtime)}" for n, p in sorted(self.loose.items()))
-        return f"{self.fingerprint}|{loose}"
+        return f"{self.fingerprint}|{self._loose_print()}"
+
+    def changed(self) -> bool:
+        """Whether the data files are no longer the ones read: Steam updated the game while the core ran. Where the
+        bundles hold each archive was read at the start, so every read after such an update is of the wrong bytes."""
+        try:
+            return f"{self._bundles_print()}|{self._loose_print()}" != self.audio_fingerprint
+        except OSError:  # a file gone, or held by Steam mid-update
+            return True
 
     @functools.cached_property
     def steam(self) -> dict:
@@ -403,7 +416,7 @@ class Game:
     def package_toc(self, name):
         """[(file id, type id, toc offset, toc size)], read from the start of the package only."""
         if name in self.loose:
-            return [(fid, tid, off, size) for fid, tid, off, size, *_ in toc_entries(self.package(name))]
+            return [(fid, tid, off, size) for fid, tid, off, size, *_ in self._toc(name, self.package(name))]
         p = slim.package_contents[name]
         first = min(p.entries, key=lambda e: e.original_archive_offset)
         bundle = str(self.data / f"bundles.{first.bundle_index:02d}.nxa")
@@ -414,7 +427,7 @@ class Game:
         need = 72 + ntypes * 32 + nfiles * 80
         if len(head) < need:
             head = b"".join(slim.get_resources_from_bundle(bundle, first.start_offset, need))
-        return [(fid, tid, off, size) for fid, tid, off, size, *_ in toc_entries(head)]
+        return [(fid, tid, off, size) for fid, tid, off, size, *_ in self._toc(name, head)]
 
     def package(self, name) -> bytes:
         return self._package_cache.get(name, lambda: dsar_read(self.loose[name]) if name in self.loose
@@ -450,7 +463,7 @@ class Game:
             types, files = struct.unpack_from("<II", head, 4)
             head = self.package_part(name, 0, 72 + 32 * types + 80 * files)
         return {(fid, tid): (off, size, s_off, s_size)
-                for fid, tid, off, size, s_off, s_size in toc_entries(head)}
+                for fid, tid, off, size, s_off, s_size in self._toc(name, head)}
 
     def resource(self, name, file_id, type_id):
         """(toc data, stream data) of one resource in a package. Only its own bytes are read: a build reads its
@@ -467,11 +480,28 @@ class Game:
         at = self.contents(name).get((file_id, WWISE_STREAM)) if name in self.loose else None
         return self.stream_part(name, at[2], min(size, at[3])) if at else None
 
+    @staticmethod
+    def _toc(name, data: bytes):
+        try:
+            return toc_entries(data)
+        except NotAnArchive:
+            raise GameFileUnreadable(f"the game's archive {name} can't be read") from None
+
+
+class NotAnArchive(ValueError):
+    """Bytes read as a game archive or a mod's patch that aren't one."""
+
+
+class GameFileUnreadable(NotAnArchive):
+    """One of the game's own archives read wrong: the files changed after the core read them (Game.changed) or are
+    damaged."""
+
 
 def toc_entries(data: bytes):
     """[(file id, type id, toc offset, toc size, stream offset, stream size)] of a package or patch."""
     magic, nt, nf = struct.unpack_from("<III", data)
-    assert magic == PATCH_MAGIC, "not a game archive"
+    if magic != PATCH_MAGIC:
+        raise NotAnArchive("not a game archive")
     base, out = 72 + nt * 32, []
     for i in range(nf):
         e = base + 80 * i

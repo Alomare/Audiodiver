@@ -38,6 +38,10 @@ def plain(e: BaseException, log_hint=True) -> str:
     its words; log_hint (that the log has the details) is false where there is no log (the command line)."""
     if getattr(e, "for_people", False):
         return str(e)
+    from .game import GameFileUnreadable
+    if isinstance(e, GameFileUnreadable):  # the core looks for a game update meanwhile (Session._game_updated)
+        return tr("A game file can't be read. If Steam is updating the game, wait for it to finish; else verify the "
+                  "integrity of the game files in Steam.")
     if isinstance(e, OSError):
         return os_error(e)
     if isinstance(e, subprocess.CalledProcessError):
