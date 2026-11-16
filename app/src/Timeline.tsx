@@ -106,7 +106,9 @@ function TrimLane({ file, fileMs, trim, view, onSet, onSeek }: {
           const m = moving.current, box = wrap.current?.getBoundingClientRect();
           moving.current = null;
           if (!m || !box) return;
-          if (m.moved) set({ start, end, delay });
+          // from the release itself: the last move's state may not be drawn yet (WebKit sends the release right after)
+          const moved = m.moved || Math.abs(e.clientX - m.x) >= 3;
+          if (moved) set({ start, end, delay: Math.max(0, Math.round(m.delay + ((e.clientX - m.x) / box.width) * view.spanMs)) });
           else onSeek(view.fromMs + ((e.clientX - box.left) / box.width) * view.spanMs);
         }} />
     </div>

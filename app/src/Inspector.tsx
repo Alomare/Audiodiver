@@ -296,7 +296,7 @@ function FilterRow({ name, value, onSet }: { name: string; value: number | null;
     <label className="insp-filter">
       <span>{name}</span>
       <input type="range" className="r-fader" style={rangeVars(v, 0, 100, 0)} min={0} max={100} step={1} value={v} aria-label={name}
-        onChange={(e) => setV(Number(e.target.value))} onPointerUp={() => commit(v)} onBlur={() => commit(v)}
+        onChange={(e) => setV(Number(e.target.value))} onPointerUp={(e) => commit(Number(e.currentTarget.value))} onBlur={() => commit(v)}
         onKeyUp={(e) => { if (/^(Arrow|Home|End|Page)/.test(e.key)) commit(v); }} />
       <span className="val">{value === null && v === 0 ? t({ message: "Mixed", comment: "The selected slots have different values" }) : v}</span>
     </label>
@@ -607,7 +607,7 @@ function Gain({ sources, value, note, original, match, base }: {
           <ResetLevel off={value === 0 && v === 0} onReset={reset} more={kept ?? (sources.length > 1 ? t`0 dB on every selected slot` : undefined)} /></span></h3>
       {note && <p className="muted small insp-note">{note}</p>}
       <input type="range" className="r-fader" style={rangeVars(v, -GAIN_MAX, GAIN_MAX, 0)} min={-GAIN_MAX} max={GAIN_MAX} step={0.5} value={v} aria-label={t`Make-Up Gain in dB`}
-        onChange={(e) => move(Number(e.target.value))} onPointerUp={() => commit(v)}
+        onChange={(e) => move(Number(e.target.value))} onPointerUp={(e) => commit(Number(e.currentTarget.value))}
         onKeyUp={(e) => { if (/^(Arrow|Home|End|Page)/.test(e.key)) commitSoon(v); }} onBlur={() => commit(v)}
         onKeyDown={(e) => { if (e.ctrlKey || e.metaKey || e.altKey) commit(v); }} /* a nudge on its way goes first: then Ctrl+Z undoes it */ />
       {base !== undefined && sources.length === 1 && (

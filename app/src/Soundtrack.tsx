@@ -640,7 +640,7 @@ function Level({ db, onSet, off }: { db: number; onSet: (db: number) => void; of
     <div className={`st-level${off ? " off" : ""}`} data-tip={off ?? t`The level of the whole piece, on top of each slot's Make-Up Gain`}>
       <span>{t`Level`}</span>
       <input type="range" className="r-fader" style={rangeVars(v, -LEVEL_MAX, LEVEL_MAX, 0)} min={-LEVEL_MAX} max={LEVEL_MAX} step={0.5} value={v} aria-label={t`Level in dB`} disabled={!!off}
-        onChange={(e) => setV(Number(e.target.value))} onPointerUp={() => commit(v)} onBlur={() => commit(v)}
+        onChange={(e) => setV(Number(e.target.value))} onPointerUp={(e) => commit(Number(e.currentTarget.value))} onBlur={() => commit(v)}
         onKeyUp={(e) => { if (/^(Arrow|Home|End|Page)/.test(e.key)) commitSoon(v); }}
         onKeyDown={(e) => { if (e.ctrlKey || e.metaKey || e.altKey) commit(v); }} /* a nudge on its way goes first: then Ctrl+Z undoes it */ />
       <span className="st-db">

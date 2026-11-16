@@ -12,6 +12,17 @@ import { WIKI_WINDOW } from "./edition";
 import { startLanguage } from "./i18n";
 import { theme } from "./theme";
 
+// WebKit (the window on Linux, WebKitGTK) has no requestIdleCallback, which the tabs drawn after the first and Home's
+// news use: without this, the window stayed blank on Linux. A short timeout stands in for the idle moment.
+if (!("requestIdleCallback" in window)) {
+  const w = window as Window & typeof globalThis;
+  w.requestIdleCallback = ((cb: IdleRequestCallback) => {
+    const start = performance.now();
+    return window.setTimeout(() => cb({ didTimeout: false, timeRemaining: () => Math.max(0, 50 - (performance.now() - start)) }), 1);
+  }) as typeof requestIdleCallback;
+  w.cancelIdleCallback = ((id: number) => window.clearTimeout(id)) as typeof cancelIdleCallback;
+}
+
 theme.init();
 
 // Night mode's tint: one layer over everything, the start-up screens included. theme.ts turns it on and colours it.

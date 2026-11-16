@@ -163,9 +163,12 @@ export function Waveform({ peaks, spanMs, fromMs = 0, zoomY = 1, tone, height: f
     setDrag({ id: m.id, ms });
     onMarkerMove?.(m.id, ms);
   };
-  const endDrag = (m: Marker) => {
+  // where the release is, not the last move's state: that may not be drawn yet when the release comes right after it
+  // (WebKit, the window on Linux), and the marker went back to where the drag began
+  const endDrag = (e: React.PointerEvent, m: Marker) => {
     if (!drag || drag.id !== m.id) return;
-    onMarkerCommit?.(m.id, Math.round(drag.ms), "drag");
+    const ms = Math.max(m.min ?? 0, Math.min(m.max ?? spanMs, msAt(e.clientX)));
+    onMarkerCommit?.(m.id, Math.round(ms), "drag");
     setDrag(null);
   };
 
@@ -203,7 +206,7 @@ export function Waveform({ peaks, spanMs, fromMs = 0, zoomY = 1, tone, height: f
             style={{ left }} role={m.draggable ? "slider" : undefined} tabIndex={m.draggable ? 0 : undefined}
             aria-label={m.label} aria-valuenow={m.draggable ? Math.round(ms) : undefined} data-tip={drag ? undefined : t`${ph({ name: m.label })} at ${ph({ time: fmtTime(ms) })}`} data-tip-side="top"
             data-tip-more={drag ? undefined : m.about}
-            onPointerDown={(e) => startDrag(e, m)} onPointerMove={(e) => moveDrag(e, m)} onPointerUp={() => endDrag(m)}
+            onPointerDown={(e) => startDrag(e, m)} onPointerMove={(e) => moveDrag(e, m)} onPointerUp={(e) => endDrag(e, m)}
             onKeyDown={(e) => {
               if (!m.draggable) return;
               const step = (e.key === "ArrowLeft" ? -1 : e.key === "ArrowRight" ? 1 : 0) * (e.shiftKey ? 100 : 10);
