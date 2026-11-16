@@ -92,7 +92,9 @@ export type Assignment = {
   name: string; cues: string[];
   fade_in_ms: number; fade_out_ms: number; // fades baked into the new audio
   silence: boolean; // plays the built-in silence: with fit_timing the game moves straight on, else it keeps its timing
-  duration_ms: number | null; // the file's length
+  duration_ms: number | null; // how long it plays: its stretch of the file, after its delay
+  file_ms?: number | null; // the file's length
+  start_ms?: number; end_ms?: number; delay_ms?: number; // the stretch of the file that plays (end 0: to its end), and the silence before it
   file_segments: number; // the music segments that play the file, in this slot and others (0 for silence)
 };
 /** A Sound with a clip of its own (Isolate Audio) in place of one of the game's clips: where it is (the Library's

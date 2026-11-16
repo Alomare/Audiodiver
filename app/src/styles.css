@@ -702,6 +702,18 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .inspector .shared-groups > div:first-child dt { margin-top: 0; }
 .tl-note { margin: 0 0 0 calc(64px * var(--fs) + 10px); font-size: calc(12px * var(--fs)); color: var(--muted); }
 .tl-note b { color: var(--text); font-weight: 500; }
+/* Trim: the new audio's file under Replaced, slimmer; the stretch that plays drags, its handles are the markers */
+.tl-row.trim { flex: 0 0 calc(34px * var(--fs)); min-height: calc(34px * var(--fs)); }
+.trim-wrap { position: relative; display: grid; min-width: 0; overflow: hidden; }
+.trim-wrap > .wave { grid-area: 1 / 1; }
+.trim-body { position: absolute; top: 0; bottom: 0; z-index: 1; min-width: 4px; cursor: grab; border-radius: 2px; }
+.trim-body:hover { background: color-mix(in srgb, var(--accent-fg) 10%, transparent); }
+.trim-body:active { cursor: grabbing; }
+.trim-wrap .marker { z-index: 2; }
+.tl-trim { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin-left: calc(64px * var(--fs) + 10px); font-size: calc(12px * var(--fs)); color: var(--muted); }
+.trim-field { display: flex; align-items: center; gap: 6px; }
+.trim-field input { width: calc(76px * var(--fs)); padding: 2px 6px; font: inherit; font-variant-numeric: tabular-nums; color: var(--text); }
+.tl-trim .link-inline { margin-left: 0; }
 .link-inline { margin-left: 10px; color: var(--second-fg); font-size: calc(12px * var(--fs)); text-decoration: underline; }
 .modal-back { position: fixed; inset: 0; background: rgb(0 0 0 / .6); display: grid; place-items: center; z-index: 40; }
 .modal { width: min(1100px, 94vw); max-height: 90vh; display: flex; flex-direction: column; gap: 10px; background: var(--raised); border: 1px solid var(--line); padding: 16px 18px; box-shadow: 0 24px 60px var(--shadow); }

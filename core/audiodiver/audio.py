@@ -47,13 +47,17 @@ def silence_wav() -> Path:
     return out
 
 
-def faded(src: Path, fade_in_ms: float, fade_out_ms: float) -> Path:
-    """src as a 48 kHz WAV with these fades in it, a straight line in level, kept with the caches. Fades too long for
-    the audio stop at its length. Builds and previews both use it, so what is heard here is what the game plays."""
+def faded(src: Path, fade_in_ms: float, fade_out_ms: float, start_ms: float = 0.0, end_ms: float = 0.0,
+          delay_ms: float = 0.0) -> Path:
+    """src as a 48 kHz WAV with these fades in it, a straight line in level, kept with the caches: only the stretch
+    from start_ms to end_ms (0: the end) of it, after delay_ms of silence. Fades too long for the audio stop at its
+    length, and fade the audio, not the silence before it. Builds and previews both use it, so what is heard here is
+    what the game plays."""
     import numpy as np
     src = Path(src)
     st = src.stat()
-    key = hashlib.sha1(json.dumps([str(src.resolve()), st.st_size, st.st_mtime_ns, fade_in_ms, fade_out_ms]).encode())
+    shape = [fade_in_ms, fade_out_ms] + ([start_ms, end_ms, delay_ms] if start_ms or end_ms or delay_ms else [])
+    key = hashlib.sha1(json.dumps([str(src.resolve()), st.st_size, st.st_mtime_ns, *shape]).encode())
     out = CACHE_DIR / "fades" / f"{key.hexdigest()[:20]}.wav"
     with cache_lock(out):
         if out.exists():
@@ -64,11 +68,16 @@ def faded(src: Path, fade_in_ms: float, fade_out_ms: float) -> Path:
         with wave.open(str(tmp)) as w:
             params, frames = w.getparams(), w.readframes(w.getnframes())
         pcm = np.frombuffer(frames, "<i2").astype(np.float32).reshape(-1, params.nchannels)
+        first = min(len(pcm), round(start_ms * wem.RATE / 1000))
+        last = min(len(pcm), round(end_ms * wem.RATE / 1000)) if end_ms else len(pcm)
+        pcm = pcm[first:max(first + 1, last)].copy()  # never empty: a sample at least
         n = min(len(pcm), round(fade_in_ms * wem.RATE / 1000))
         pcm[:n] *= np.linspace(0, 1, n, endpoint=False)[:, None]
         n = min(len(pcm), round(fade_out_ms * wem.RATE / 1000))
         if n:
             pcm[-n:] *= np.linspace(1, 0, n)[:, None]
+        if delay := round(delay_ms * wem.RATE / 1000):
+            pcm = np.concatenate([np.zeros((delay, pcm.shape[1]), np.float32), pcm])
         with wave.open(str(tmp), "wb") as w:
             w.setparams(params)
             w.writeframes(pcm.round().astype("<i2").tobytes())

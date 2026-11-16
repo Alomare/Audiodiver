@@ -93,6 +93,7 @@ def methods(s: Session) -> dict:
         "original_gain": lambda sources, gain_db: s.original_gain(sources, gain_db),
         "filters_set": lambda sources, lowpass=None, highpass=None: s.filters_set(sources, lowpass, highpass),
         "fades_set": lambda sources, fade_in_ms=None, fade_out_ms=None: s.fades_set(sources, fade_in_ms, fade_out_ms),
+        "trim_set": lambda source, start_ms=0, end_ms=0, delay_ms=0: s.trim_set(source, start_ms, end_ms, delay_ms),
         "keep_curve": lambda sources, keep: s.keep_curve(sources, keep),
         "match_loudness": lambda sources: s.match_loudness(sources),
         "settings": lambda **f: s.settings(**f),

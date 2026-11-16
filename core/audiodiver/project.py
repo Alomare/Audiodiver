@@ -142,6 +142,7 @@ FORMAT = 1
 GAIN_DB = (-96.0, 96.0)  # Make-Up Gain, as the details panel's slider offers it
 FILTER_RANGE = (0, 100)  # Low-Pass and High-Pass
 FADE_MS = (0.0, 600_000.0)  # a fade baked into new audio
+TRIM_MS = (0.0, 3_600_000.0)  # where new audio starts and ends in its file, and its delay
 TABS = ("editor", "soundtrack", "text")  # the window's tabs a project can hide, in the tab bar's order
 GAMES = ("hd2", "hd1")  # the games a project can make a mod for
 
@@ -237,6 +238,23 @@ class Replacement:
                              # the slot stays silent for as long as the game's audio would play
     fade_in_ms: float = 0.0  # fades baked into the audio (audio.faded)
     fade_out_ms: float = 0.0
+    # the stretch of the file that plays (end 0: to its end), and the silence before it, baked in as the fades are
+    start_ms: float = 0.0
+    end_ms: float = 0.0
+    delay_ms: float = 0.0
+
+    @property
+    def shaped(self) -> bool:
+        """Whether its audio plays other than the file as it is."""
+        return not self.silence and bool(self.fade_in_ms or self.fade_out_ms or self.start_ms or self.end_ms or self.delay_ms)
+
+
+def heard_ms(r: Replacement, file_ms: float | None) -> float | None:
+    """How long a replacement plays, from its file's length: its stretch of the file, after its delay."""
+    if file_ms is None or r.silence:
+        return file_ms
+    end = min(r.end_ms or file_ms, file_ms)
+    return r.delay_ms + max(0.0, end - min(r.start_ms, end))
 
 
 @dataclass
@@ -328,12 +346,12 @@ class Project:
         return self.file(r.audio)
 
     def heard_path(self, r: Replacement) -> Path:
-        """What a replacement plays: its audio with its fades in it."""
+        """What a replacement plays: the stretch of its audio that plays, after its delay, with its fades in it."""
         path = self.audio_path(r)
-        if r.silence or not (r.fade_in_ms or r.fade_out_ms):
+        if not r.shaped:
             return path
         from .audio import faded
-        return faded(path, r.fade_in_ms, r.fade_out_ms)
+        return faded(path, r.fade_in_ms, r.fade_out_ms, r.start_ms, r.end_ms, r.delay_ms)
 
     def icon_path(self) -> Path | None:
         """The image the icon is made from, or None when the mod takes Audiodiver's default icon."""
@@ -435,18 +453,23 @@ class Project:
             # a repair names the slot by its new audio, as the screen does, else by its sound ID
             of = (r.get("label") if isinstance(r.get("label"), str) and r["label"].strip() else "") or Path(audio).stem
             if of:
-                label_of, gain_of, fit_of, fade_of = (tr("the label of {name}"), tr("the Make-Up Gain of {name}"),
-                                                      tr("Fit timing for {name}"), tr("the fades of {name}"))
+                label_of, gain_of, fit_of, fade_of, trim_of = (tr("the label of {name}"), tr("the Make-Up Gain of {name}"),
+                                                      tr("Fit timing for {name}"), tr("the fades of {name}"),
+                                                      tr("where the audio of {name} starts and ends"))
             else:
-                label_of, gain_of, fit_of, fade_of = (tr("the label of sound {id}"), tr("the Make-Up Gain of sound {id}"),
-                                                      tr("Fit timing for sound {id}"), tr("the fades of sound {id}"))
+                label_of, gain_of, fit_of, fade_of, trim_of = (tr("the label of sound {id}"), tr("the Make-Up Gain of sound {id}"),
+                                                      tr("Fit timing for sound {id}"), tr("the fades of sound {id}"),
+                                                      tr("where the audio of sound {id} starts and ends"))
             reps.append(Replacement(target=target, audio="" if silence else audio,
                                     label=kind(r, "label", str, "", label_of.format(name=of, id=target)),
                                     gain_db=number(r.get("gain_db", 0.0), 0.0, *GAIN_DB, gain_of.format(name=of, id=target)),
                                     fit_timing=kind(r, "fit_timing", bool, True, fit_of.format(name=of, id=target)),
                                     silence=silence,
                                     fade_in_ms=number(r.get("fade_in_ms", 0.0), 0.0, *FADE_MS, fade_of.format(name=of, id=target)),
-                                    fade_out_ms=number(r.get("fade_out_ms", 0.0), 0.0, *FADE_MS, fade_of.format(name=of, id=target))))
+                                    fade_out_ms=number(r.get("fade_out_ms", 0.0), 0.0, *FADE_MS, fade_of.format(name=of, id=target)),
+                                    start_ms=number(r.get("start_ms", 0.0), 0.0, *TRIM_MS, trim_of.format(name=of, id=target)),
+                                    end_ms=number(r.get("end_ms", 0.0), 0.0, *TRIM_MS, trim_of.format(name=of, id=target)),
+                                    delay_ms=number(r.get("delay_ms", 0.0), 0.0, *TRIM_MS, trim_of.format(name=of, id=target))))
         icon = d.get("icon") or {}
         if isinstance(icon, str):  # an image path, before the icon had a frame
             icon = {"image": icon}
@@ -532,7 +555,7 @@ class Project:
             out = {**asdict(r), "target": str(r.target)}
             if not r.silence:
                 del out["silence"]  # files stay as they were for everything but silence
-            for k in ("fade_in_ms", "fade_out_ms"):
+            for k in ("fade_in_ms", "fade_out_ms", "start_ms", "end_ms", "delay_ms"):
                 if not out[k]:
                     del out[k]
             return out

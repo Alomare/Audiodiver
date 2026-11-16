@@ -28,6 +28,7 @@ from .project import FADE_MS, GAIN_DB, TABS, Addition, Project, ProjectFormatErr
 
 log = logging.getLogger("audiodiver")
 LOG_FILE = CACHE_DIR / "logs" / "core.log"
+MIN_TRIM_MS = 10  # the shortest stretch of a file new audio can play (trim_set)
 SETTINGS_FILE = CACHE_DIR / "settings.json"  # the core's own settings: where the game is
 AUDIO_TYPES = {".wav", ".flac", ".mp3", ".ogg", ".opus", ".m4a", ".aac", ".aif", ".aiff", ".wma", ".wem"}
 UNDO_LIMIT = 200
@@ -1407,6 +1408,7 @@ class Session:
     def project_state(self):
         from .arsenal import icon_frame, slug
         from .audio import SILENCE_MS, duration_ms
+        from .project import heard_ms
         from .build import zip_name
         p = self._need_project()
         self._adopt(p)
@@ -1433,12 +1435,15 @@ class Session:
             audio = None if r.silence else p.audio_path(r)
             st = audio and stat(audio)
             exists = r.silence or st is not None
+            file_ms = SILENCE_MS if r.silence else duration_ms(audio, st) if exists else None
             assignments[str(sid)] = {
                 "target": str(r.target), "audio": r.audio, "label": r.label, "gain_db": r.gain_db,
                 "fit_timing": r.fit_timing, "silence": r.silence, "exists": exists,
                 "fade_in_ms": r.fade_in_ms, "fade_out_ms": r.fade_out_ms,
+                "start_ms": r.start_ms, "end_ms": r.end_ms, "delay_ms": r.delay_ms,
                 "name": tr("Silence") if r.silence else Path(r.audio).name, "cues": [str(c) for c in cues],
-                "duration_ms": SILENCE_MS if r.silence else duration_ms(audio, st) if exists else None}
+                # what plays (its stretch after its delay), and the file's own length
+                "duration_ms": heard_ms(r, file_ms), "file_ms": file_ms}
         by_file = {}  # a file -> the music segments that play it: where one slot's cue points can go too
         for sid, a in assignments.items():
             if not a["silence"]:
@@ -1660,6 +1665,8 @@ class Session:
             r = current[sid]
             if r.silence:  # a file in place of silence: its timing follows the file again, as for any new file
                 r.silence, r.fit_timing = False, True
+            if r.audio != rel:  # where another file started and ended means nothing for this one
+                r.start_ms = r.end_ms = r.delay_ms = 0.0
             r.audio, r.label = rel, label if label is not None else Path(audio).stem
         else:
             p.replacements.append(Replacement(target=sid, audio=rel, label=label or Path(audio).stem))
@@ -1727,6 +1734,7 @@ class Session:
                 dst.audio, dst.label, dst.gain_db, dst.fit_timing, dst.silence = \
                     src.audio, src.label, src.gain_db, src.fit_timing, src.silence
                 dst.fade_in_ms, dst.fade_out_ms = src.fade_in_ms, src.fade_out_ms
+                dst.start_ms, dst.end_ms, dst.delay_ms = src.start_ms, src.end_ms, src.delay_ms
         return self._edit("paste", apply)
 
     def _kept_original(self, sid: int) -> Path:
@@ -1949,6 +1957,31 @@ class Session:
                     r.fade_in_ms = r.fade_in_ms if fade_in_ms is None else float(fade_in_ms)
                     r.fade_out_ms = r.fade_out_ms if fade_out_ms is None else float(fade_out_ms)
         return self._edit("fades", apply)
+
+    def trim_set(self, source, start_ms=0, end_ms=0, delay_ms=0):
+        """Where a slot's new audio starts and ends in its file (end 0: at the end) and the silence before it, as
+        one undo step. All three at 0: the file as it is."""
+        from .audio import duration_ms
+        from .project import TRIM_MS
+        for v in (start_ms, end_ms, delay_ms):
+            if isinstance(v, bool) or not isinstance(v, (int, float)) or not TRIM_MS[0] <= v <= TRIM_MS[1]:
+                raise EditorError(tr("Start, end and delay are from 0 to {ms} ms").format(ms=int(TRIM_MS[1])))
+        self._need_project()
+        sid = self._source(source)
+        r = self._replacement(self.project, sid)
+        if not r or r.silence:
+            raise EditorError(tr("This slot has no new audio to trim"))
+        length = duration_ms(self.project.audio_path(r))
+        if length is None:
+            raise EditorError(tr("{path} wasn't found").format(path=self.project.audio_path(r)))
+        end = float(end_ms) if end_ms and end_ms < length - 0.5 else 0.0  # at the file's end: none
+        if start_ms >= (end or length) - MIN_TRIM_MS:
+            raise EditorError(tr("The audio must play for at least {ms} ms").format(ms=MIN_TRIM_MS))
+
+        def apply(p):
+            r = self._replacement(p, sid)
+            r.start_ms, r.end_ms, r.delay_ms = float(start_ms), end, float(delay_ms)
+        return self._edit("trim", apply)
 
     @staticmethod
     def _icon(p: Project, v) -> dict:
@@ -4490,6 +4523,7 @@ class Session:
             if sid in whole:
                 r.audio, r.label, r.silence, r.gain_db, r.fit_timing = song.audio, song.label, False, song.gain_db, True
                 r.fade_in_ms, r.fade_out_ms = song.fade_in_ms, song.fade_out_ms
+                r.start_ms, r.end_ms, r.delay_ms = song.start_ms, song.end_ms, song.delay_ms
             else:
                 r.audio, r.label, r.silence, r.gain_db, r.fit_timing = "", "", True, 0.0, False
 

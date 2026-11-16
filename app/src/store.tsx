@@ -1089,6 +1089,11 @@ function useEditorState() {
     async setFades(sources: string[], fades: { fade_in_ms?: number; fade_out_ms?: number }) {
       if (needProject()) edited(await run<ProjectState>("fades_set", { sources, ...fades }));
     },
+    /** Where a slot's new audio starts and ends in its file (end 0: at its end), and the silence before it. */
+    async setTrim(source: string, trim: { start_ms: number; end_ms: number; delay_ms: number }) {
+      if (needProject()) return edited(await run<ProjectState>("trim_set", { source, ...trim }));
+      return false;
+    },
     /** Whether the clips of slots keep their volume curves: the line over the waveform. */
     async keepCurve(sources: string[], keep: boolean) {
       if (needProject()) edited(await run<ProjectState>("keep_curve", { sources, keep }));

@@ -28,7 +28,7 @@ import zipfile
 from pathlib import Path
 
 from . import arsenal, hd1, wem
-from .audio import faded, silence_wav
+from .audio import silence_wav
 from .i18n import ntr, tr
 from .project import Project
 
@@ -144,7 +144,7 @@ def _source_file(p: Project, r) -> Path:
     path = p.audio_path(r)
     if not path or not path.is_file():
         raise Hd1BuildError(tr("{name}: the audio file is missing ({file})").format(name=r.label or r.audio, file=r.audio))
-    return faded(path, r.fade_in_ms, r.fade_out_ms) if (r.fade_in_ms or r.fade_out_ms) else path
+    return p.heard_path(r)  # its stretch, delay and fades, as in a Helldivers 2 build
 
 
 def mod_id(p: Project) -> str:
