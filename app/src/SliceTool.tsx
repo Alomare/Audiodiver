@@ -107,13 +107,15 @@ function diffText(ms: number) {
 export type SongTarget = { cue: Cue; segments: string[]; fill: (file: string, boundsMs: number[]) => Promise<boolean> };
 
 /** `file`: the song to start on (one dropped, or the song a piece was cut from), else the picker opens. */
-export function SliceTool({ onClose, target, file: given }: { onClose: () => void; target?: SongTarget; file?: string }) {
+/** only: one slot gets one stretch of the song (a sound's take, which plays in no order with the others). */
+export function SliceTool({ onClose, target, file: given, only }: { onClose: () => void; target?: SongTarget; file?: string; only?: string }) {
   const editor = useEditor();
   const { selected, actions, notify } = editor;
   const cue = target?.cue ?? editor.cue;
   const box = useDialog(onClose);
   const rows = useMemo(() => (cue ? rowsOf(cue.segments_detail).filter((r) => !r.slot.unused && !r.slot.locked && !r.slot.absent) : []), [cue]);
-  const fixed = useMemo(() => (target ? target.segments.flatMap((seg) => rows.find((r) => r.seg.segment === seg) ?? []) : null), [target, rows]);
+  const fixed = useMemo(() => (only ? rows.filter((r) => r.slot.source === only)
+    : target ? target.segments.flatMap((seg) => rows.find((r) => r.seg.segment === seg) ?? []) : null), [only, target, rows]);
   // the pieces go From one slot To another: one piece per segment between them
   const [start, setStart] = useState(() => (rows.find((r) => r.slot.source === selected[0]) ?? rows[0])?.slot.source ?? "");
   const [stop, setStop] = useState(""); // the To slot; none chosen yet: as far as the cue goes
@@ -339,7 +341,7 @@ export function SliceTool({ onClose, target, file: given }: { onClose: () => voi
         </div>
         {!file || !info ? (
           <div className="slice-empty">
-            <p>{file ? t`Reading the song…` : t`Choose a song to cut into the slots.`}</p>
+            <p>{file ? t`Reading the song…` : only ? t`Choose a song to take a stretch of for this slot.` : t`Choose a song to cut into the slots.`}</p>
             {!file && <button className="btn primary" onClick={choose}><Trans>Choose a Song</Trans></button>}
           </div>
         ) : (
@@ -349,6 +351,9 @@ export function SliceTool({ onClose, target, file: given }: { onClose: () => voi
               <span className="muted">{fmtTime(info.duration_ms)}</span>
               <button className="btn small-btn" onClick={choose} data-tip={t`Choose another song`}><Trans>Change</Trans></button>
               <span className="spacer" />
+              {only ? (
+                <span className="slice-field">{fixed?.[0] ? slotName(fixed[0]) : null}</span>
+              ) : <>
               {!target && (
                 <label className="slice-field" data-tip={t`The slot that gets the first piece`}><Trans comment="Slice tool: the slot that gets the first piece of the song">From</Trans>
                   <select value={start} onChange={(e) => setStart(e.target.value)}>
@@ -363,6 +368,7 @@ export function SliceTool({ onClose, target, file: given }: { onClose: () => voi
                   {reach.map((r, i) => <option key={r.slot.source} value={r.slot.source}>{slotName(r)} · {plural({ pieces: i + 1 }, { one: "# piece", other: "# pieces" })}</option>)}
                 </select>
               </label>
+              </>}
               {n < targets.length && <span className="muted slice-through" data-tip={t`The song is too short for a piece in every slot`}>
                 {t`${ph({ pieces: n })} of ${plural({ slots: targets.length }, { one: "# slot", other: "# slots" })}`}</span>}
             </div>

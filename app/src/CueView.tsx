@@ -194,7 +194,7 @@ function CueBody({ cue }: { cue: Cue }) {
   const ids = useSettings().soundNames === "ids"; // a bank's sounds by container ID: the toggle beside the search
   const all = useMemo(() => rowsOf(cue.segments_detail), [cue]);
   const listRef = useRef<HTMLDivElement>(null);
-  const [slicing, setSlicing] = useState(false);
+  const [slicing, setSlicing] = useState<boolean | string>(false); // a string: the one slot a sound's slice goes to
   const [exporting, setExporting] = useState<"item" | "list" | null>(null); // the Export panel, on its first tab or on the list
   const [through, setThrough] = useState<Through | null>(null);  // the play-through that is playing, if one is
   const [mark, setMark] = useState<ThroughMark | null>(null);    // where it is: the segment whose Entry it passed last
@@ -410,6 +410,9 @@ function CueBody({ cue }: { cue: Cue }) {
     const open = all.filter(usable).map((r) => r.slot.source);
     return { mine: all.filter((r) => assigned[r.slot.source]).length, cov: coverage(open, assigned), fillable: open.length };
   }, [all, assigned]); // eslint-disable-line react-hooks/exhaustive-deps
+  // a sound's slot a stretch of a song can go to: the one selected, or the only one there is
+  const sliceOne = music ? null : selected.length === 1 ? (all.find((r) => r.slot.source === selected[0] && usable(r))?.slot.source ?? null)
+    : fillable === 1 ? (all.find(usable)?.slot.source ?? null) : null;
   const groupStatus = useMemo(() => new Map([...takesOf].map(([g, sources]) => [g, statusOf(coverage(sources, assigned))])),
     [takesOf, assigned]);
   // the item this cue was opened as a part of, and that part
@@ -789,6 +792,11 @@ function CueBody({ cue }: { cue: Cue }) {
               : fillable > 1 ? t`Cut one song into pieces, one per slot` : t`Cut a stretch of a song for this slot`}
               disabled={!project} onClick={() => setSlicing(true)} />
           )}
+          {/* a sound's takes play in no order: one stretch of a song for the selected slot */}
+          {!readOnly && !music && sliceOne && (
+            <ToolButton icon={<SliceIcon />} name={t`Slice a song`} about={!project ? t`Open a project first` : t`Cut a stretch of a song for this slot`}
+              disabled={!project} onClick={() => setSlicing(sliceOne)} />
+          )}
           {cue.kind !== "sound" && (
             <ToolButton icon={<ExportIcon />} name={t`Export`} about={selected.length > 1 ? plural(selectedCount, {
               one: "All of it or the # selected, as WAV, FLAC, MP3 or WEM", other: "All of it or the # selected, as WAV, FLAC, MP3 or WEM",
@@ -862,7 +870,7 @@ function CueBody({ cue }: { cue: Cue }) {
       </div>
       {panels.waves && <Timeline room={() => room("wave")} through={through} at={selected.length === 1 ? at(selected[0]) : null} />}
       {menu}
-      {slicing && <SliceTool onClose={() => setSlicing(false)} />}
+      {slicing && <SliceTool only={typeof slicing === "string" ? slicing : undefined} onClose={() => setSlicing(false)} />}
       {exporting && <ExportPanel target={cue.kind !== "sound" ? target : null} start={exporting} onClose={() => setExporting(null)} />}
     </section>
   );
