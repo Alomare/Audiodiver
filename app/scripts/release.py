@@ -139,8 +139,8 @@ EXE = ".exe" if not LINUX else ""
 
 
 def core():
-    if OUT.exists():
-        shutil.rmtree(OUT)
+    if OUT.exists():  # Go's module files arrive read-only, which Windows won't delete as they are
+        shutil.rmtree(OUT, onexc=lambda f, p, _: (os.chmod(p, 0o666), f(p)))
     py, tools, lic = OUT / "python", OUT / "tools", OUT / "licenses"
     for d in (py, tools, lic):
         d.mkdir(parents=True)
