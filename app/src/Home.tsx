@@ -5,7 +5,8 @@ import { call, projectIconUrl } from "./api";
 import { DISCORD_URL, HOME_ART, HOME_ART_HD1, KOFI_URL, REPO_URL, TICKER_URL } from "./content";
 import { CloseIcon, DiscordIcon, FolderIcon, GithubIcon, ImportIcon, KofiIcon, MergeIcon, NextIcon, PrevIcon, ProjectIcon, ToolsIcon } from "./Icons";
 import { nav, useNav, type Mode } from "./nav";
-import { openUrl } from "./platform";
+import { BakedVeil } from "./HomeVeil";
+import { LINUX, openUrl } from "./platform";
 import { useSettings } from "./settings";
 import { useEditor } from "./store";
 import { DEFAULT_SIZE, motionOn, useTheme, useThemeValue } from "./theme";
@@ -170,9 +171,12 @@ function Ticker() {
   }, []);
   const scale = +(TICKER_SCALE * size / DEFAULT_SIZE).toFixed(3);
   if (!load) return null;
+  // WebKit (Linux) lays the overlay out taller than its CSS zoom says, and the strip's lower half was cut off: there it
+  // comes at its own size and the frame is scaled instead
+  const frame = LINUX ? { width: `${100 / scale}%`, height: "56px", transform: `scale(${scale})`, transformOrigin: "left bottom" } : undefined;
   return (
     <>
-      <iframe className={`home-ticker${ready ? " ready" : ""}`} src={`${TICKER_URL}?scale=${scale}`} title={t`Divershub news ticker`}
+      <iframe className={`home-ticker${ready ? " ready" : ""}`} src={`${TICKER_URL}?scale=${LINUX ? 1 : scale}`} style={frame} title={t`Divershub news ticker`}
         aria-hidden tabIndex={-1} sandbox="allow-scripts allow-same-origin" referrerPolicy="no-referrer" onLoad={() => setReady(true)} />
       {/* the frame takes no pointer, so the tooltip that says what the strip is sits over it */}
       {ready && <div className="home-ticker-tip" aria-hidden data-tip={t`News and orders from the war`} />}
@@ -246,8 +250,12 @@ function HomeArt({ art, set, children }: { art: string[]; set: Mode; children?: 
   return (
     <>
       <div className="home-art" aria-hidden style={{ ["--art-time" as any]: `${ART_SECONDS}s` }}>
-        {(moving ? layers : [top]).map((l) => <img key={l.key} className="home-art-img" src={art[l.at]} alt="" draggable={false} />)}
-        <Veil />
+        {LINUX
+          ? (moving ? layers : [top]).map((l) => ( // the veil drawn once with each picture, zooming and fading with it (HomeVeil.tsx)
+            <div key={l.key} className="home-art-layer">
+              <img className="home-art-img" src={art[l.at]} alt="" draggable={false} /><BakedVeil src={art[l.at]} />
+            </div>))
+          : <>{(moving ? layers : [top]).map((l) => <img key={l.key} className="home-art-img" src={art[l.at]} alt="" draggable={false} />)}<Veil /></>}
       </div>
       <div className="home-corner">
         {children}
