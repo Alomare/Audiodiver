@@ -95,10 +95,10 @@ function NewAudioLane({ file, fileMs, trim, fades, view, gainDb, curve, playhead
     ...cues.map((c) => ({ ...c, ms: c.ms - offset, min: c.min != null ? c.min - offset : -offset, max: c.max != null ? c.max - offset : undefined })),
     { id: "start", ms: start, label: t({ message: "Start", context: "Trim handle", comment: "Where the new audio starts playing in the file" }), draggable: true,
       min: Math.max(0, -offset), max: end - MIN_TRIM - fIn - fOut, about: t`Where the new audio starts in the file. Drag the line to move it`,
-      bend: start + fIn, bendMin: start, bendMax: end - fOut, bendAbout: t`Drag to fade the new audio in` },
+      bend: start + fIn, bendMin: start, bendMax: end - fOut, bendLabel: t`Fade In`, bendAbout: t`Drag to fade the new audio in` },
     { id: "end", ms: end, label: t({ message: "End", context: "Trim handle", comment: "Where the new audio stops playing in the file" }), draggable: true,
       min: start + MIN_TRIM + fIn + fOut, max: fileMs, about: t`Where the new audio ends in the file. Drag the line to move it`,
-      bend: end - fOut, bendMin: start + fIn, bendMax: end, bendAbout: t`Drag to fade the new audio out` },
+      bend: end - fOut, bendMin: start + fIn, bendMax: end, bendLabel: t`Fade Out`, bendAbout: t`Drag to fade the new audio out` },
   ];
   const isCue = (id: string) => cues.some((c) => c.id === id);
   return (
@@ -154,27 +154,30 @@ function TrimFields({ trim, fades, fileMs, onSet, onFades }: {
   trim: Trim; fades: FadeMs; fileMs: number; onSet: (t: Trim) => void;
   onFades: (f: Partial<{ fade_in_ms: number; fade_out_ms: number }>) => void;
 }) {
-  const field = (key: string, now: number, label: string, tip: string, set: (v: number) => void) => (
-    <label className="trim-field" data-tip={tip}>{label}
-      <input type="number" min={0} step={1} key={`${key}:${now}`} defaultValue={Math.round(now)}
+  // the short names the lane's handles and the details already use, each value in ms
+  const field = (key: string, now: number, name: string, tip: string, set: (v: number) => void) => (
+    <label className="trim-field" data-tip={tip}>{name}
+      <input type="number" min={0} step={1} key={`${key}:${now}`} defaultValue={Math.round(now)} aria-label={t`${name} in ms`}
         onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
         onBlur={(e) => {
           const v = Math.max(0, Math.round(Number(e.target.value)));
           if (!Number.isFinite(v) || v === Math.round(now)) { e.target.value = String(Math.round(now)); return; }
           set(v);
-        }} />
+        }} /><span className="unit">ms</span>
     </label>
   );
   const changed = trim.start > 0 || trim.end < fileMs - 0.5 || trim.delay > 0 || fades.in > 0 || fades.out > 0;
   return (
     <div className="tl-trim">
-      {field("start", trim.start, t`Start (ms)`, t`Where the new audio starts in the file`, (v) => onSet({ ...trim, start: v }))}
-      {field("end", trim.end, t`End (ms)`, t`Where the new audio ends in the file`, (v) => onSet({ ...trim, end: v }))}
-      {field("delay", trim.delay, t`Delay (ms)`, t`Silence before the new audio, so it starts later than the original`, (v) => onSet({ ...trim, delay: v }))}
-      {field("fadeIn", fades.in, t`Fade In (ms)`, t`How long the new audio takes to rise from silence`, (v) => onFades({ fade_in_ms: Math.min(600_000, v) }))}
-      {field("fadeOut", fades.out, t`Fade Out (ms)`, t`How long the new audio takes to fall to silence before it ends`, (v) => onFades({ fade_out_ms: Math.min(600_000, v) }))}
+      {/* in the room under the lanes' names, so it never wraps with the fields */}
+      <span className="tl-trim-help"><Help tip={t`Trim, move and fade the new audio`} page="timing-and-loops#trimming-and-moving-new-audio" /></span>
+      {field("start", trim.start, t({ message: "Start", context: "Trim handle" }), t`Where the new audio starts in the file`, (v) => onSet({ ...trim, start: v }))}
+      {field("end", trim.end, t({ message: "End", context: "Trim handle" }), t`Where the new audio ends in the file`, (v) => onSet({ ...trim, end: v }))}
+      {field("delay", trim.delay, t({ message: "Delay", context: "Trim field", comment: "Silence before the new audio, so it starts later" }),
+        t`Silence before the new audio, so it starts later than the original`, (v) => onSet({ ...trim, delay: v }))}
+      {field("fadeIn", fades.in, t`Fade In`, t`How long the new audio takes to rise from silence`, (v) => onFades({ fade_in_ms: Math.min(600_000, v) }))}
+      {field("fadeOut", fades.out, t`Fade Out`, t`How long the new audio takes to fall to silence before it ends`, (v) => onFades({ fade_out_ms: Math.min(600_000, v) }))}
       {changed && <button className="link-inline" onClick={() => { onSet({ start: 0, end: fileMs, delay: 0 }); if (fades.in || fades.out) onFades({ fade_in_ms: 0, fade_out_ms: 0 }); }}>{t`Reset`}</button>}
-      <Help tip={t`Trim and move the new audio`} page="timing-and-loops#trimming-and-moving-new-audio" />
     </div>
   );
 }

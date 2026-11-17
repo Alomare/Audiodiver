@@ -593,6 +593,7 @@ msgid "{name} at {time}"
 msgstr "{name}（{time}）"
 
 #: src/Inspector.tsx
+#: src/Timeline.tsx
 msgid "{name} in ms"
 msgstr "{name}（ms）"
 
@@ -3098,9 +3099,11 @@ msgstr "デフォルト：{gain} dB"
 msgid "Delay"
 msgstr "遅延"
 
+#. Silence before the new audio, so it starts later
 #: src/Timeline.tsx
-msgid "Delay (ms)"
-msgstr "遅延 (ms)"
+msgctxt "Trim field"
+msgid "Delay"
+msgstr ""
 
 #: src/Notes.tsx
 msgid "Delete"
@@ -3214,6 +3217,14 @@ msgstr "ドラッグして曲の終わりを除外"
 #: src/SliceTool.tsx
 msgid "Drag it to leave out the start of the song"
 msgstr "ドラッグして曲の始まりを除外"
+
+#: src/Timeline.tsx
+msgid "Drag to fade the new audio in"
+msgstr ""
+
+#: src/Timeline.tsx
+msgid "Drag to fade the new audio out"
+msgstr ""
 
 #: src/Timeline.tsx
 msgid "Drag to play the new audio later or earlier"
@@ -3445,10 +3456,6 @@ msgctxt "Trim handle"
 msgid "End"
 msgstr "終了"
 
-#: src/Timeline.tsx
-msgid "End (ms)"
-msgstr "終了 (ms)"
-
 #: src/Tutorial.tsx
 msgid "End Tutorial"
 msgstr "チュートリアルを終了"
@@ -3652,10 +3659,12 @@ msgid "Exports of the original are for reference and mod work. Don't upload them
 msgstr "オリジナルのエクスポートは参考用とMOD制作用です。アップロードしないでください。"
 
 #: src/Inspector.tsx
+#: src/Timeline.tsx
 msgid "Fade In"
 msgstr "フェードイン"
 
 #: src/Inspector.tsx
+#: src/Timeline.tsx
 msgid "Fade Out"
 msgstr "フェードアウト"
 
@@ -4143,6 +4152,14 @@ msgstr "戦闘の継続時間"
 #: src/Soundtrack.tsx
 msgid "How long the music plays"
 msgstr "音楽の再生時間"
+
+#: src/Timeline.tsx
+msgid "How long the new audio takes to fall to silence before it ends"
+msgstr ""
+
+#: src/Timeline.tsx
+msgid "How long the new audio takes to rise from silence"
+msgstr ""
 
 #: src/SliceTool.tsx
 msgid "How long the original is"
@@ -7955,10 +7972,6 @@ msgctxt "Trim handle"
 msgid "Start"
 msgstr "開始"
 
-#: src/Timeline.tsx
-msgid "Start (ms)"
-msgstr "開始 (ms)"
-
 #: src/Home.tsx
 msgid "Start a mod"
 msgstr "MODを作り始める"
@@ -9062,14 +9075,9 @@ msgstr "右上"
 msgid "transcribing voice lines to match them to subtitles"
 msgstr "字幕と照合するためのセリフの書き起こし"
 
-#. The lane that sets where the new audio starts and ends
 #: src/Timeline.tsx
-msgid "Trim"
-msgstr "トリム"
-
-#: src/Timeline.tsx
-msgid "Trim and move the new audio"
-msgstr "新しい音声のトリムと移動"
+msgid "Trim, move and fade the new audio"
+msgstr ""
 
 #: src/UpdatesTab.tsx
 msgid "Try Again"
@@ -9447,16 +9455,16 @@ msgid "Where the new audio ends in the file"
 msgstr "ファイル内で新しい音声が終わる位置"
 
 #: src/Timeline.tsx
-msgid "Where the new audio ends in the file. Drag to move it"
-msgstr "ファイル内で新しい音声が終わる位置。ドラッグで移動します"
+msgid "Where the new audio ends in the file. Drag the line to move it"
+msgstr ""
 
 #: src/Timeline.tsx
 msgid "Where the new audio starts in the file"
 msgstr "ファイル内で新しい音声が始まる位置"
 
 #: src/Timeline.tsx
-msgid "Where the new audio starts in the file. Drag to move it"
-msgstr "ファイル内で新しい音声が始まる位置。ドラッグで移動します"
+msgid "Where the new audio starts in the file. Drag the line to move it"
+msgstr ""
 
 #: src/SliceTool.tsx
 msgid "Where the piece starts and ends in the song"

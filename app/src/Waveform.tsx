@@ -10,9 +10,9 @@ import { useTheme } from "./theme";
 export type Peaks = { duration_ms: number; peaks: number[]; full?: number };
 export type Marker = {
   id: string; ms: number; label: string; about?: string; draggable?: boolean; min?: number; max?: number;
-  // a line that bends: its top at `bend` while its foot stays at `ms` (a fade from the foot to the top). Its flag,
-  // at the top, drags the bend; the rest of the line drags the marker, the bend going along
-  bend?: number; bendMin?: number; bendMax?: number; bendAbout?: string;
+  // a line that bends: its top at `bend` while its foot stays at `ms` (a fade from the foot to the top). A grip at
+  // the top drags the bend (bendLabel and bendAbout its tooltip); the line drags the marker, the bend going along
+  bend?: number; bendMin?: number; bendMax?: number; bendLabel?: string; bendAbout?: string;
 };
 type Part = "line" | "bend";
 /** Fades on a stretch of audio, in its ms: the level rises in a straight line over `in` from `from`, and falls over
@@ -169,7 +169,7 @@ export function Waveform({ peaks, spanMs, fromMs = 0, zoomY = 1, tone, height: f
     if (!m.draggable) return;
     e.stopPropagation(); e.preventDefault();
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    const bend = m.bend != null && !!(e.target as HTMLElement).closest(".marker-flag");
+    const bend = m.bend != null && !!(e.target as HTMLElement).closest(".marker-grip");
     setDrag({ id: m.id, ms: bend ? m.bend! : m.ms, part: bend ? "bend" : "line" });
   };
   const clamp = (m: Marker, part: Part, ms: number) =>
@@ -224,9 +224,9 @@ export function Waveform({ peaks, spanMs, fromMs = 0, zoomY = 1, tone, height: f
         const ms = drag?.id === m.id ? drag.ms : m.ms;
         const left = x(foot), dx = x(top) - left, row = flagRows.get(m.id) ?? 0;
         if (!inView(left) && !inView(left + dx) && drag?.id !== m.id) return null; // zoomed in elsewhere
-        const bent = Math.abs(dx) >= 0.5;
+        const bent = Math.abs(dx) >= 0.5, flip = left + dx > width - 90;
         return (
-          <div key={m.id} className={`marker${m.draggable ? " draggable" : ""}${drag?.id === m.id ? " dragging" : ""}${left + dx > width - 90 ? " flip" : ""}${bent ? " bent" : ""}${m.bend != null ? " bendable" : ""}`}
+          <div key={m.id} className={`marker${m.draggable ? " draggable" : ""}${drag?.id === m.id ? " dragging" : ""}${flip ? " flip" : ""}${bent ? " bent" : ""}${m.bend != null ? " bendable" : ""}`}
             style={{ left }} role={m.draggable ? "slider" : undefined} tabIndex={m.draggable ? 0 : undefined}
             aria-label={m.label} aria-valuenow={m.draggable ? Math.round(ms) : undefined} data-tip={drag ? undefined : t`${ph({ name: m.label })} at ${ph({ time: fmtTime(m.ms) })}`} data-tip-side="top"
             data-tip-more={drag ? undefined : m.about}
@@ -249,8 +249,12 @@ export function Waveform({ peaks, spanMs, fromMs = 0, zoomY = 1, tone, height: f
                 <line className="grab" x1={dx > 0 ? "0%" : "100%"} y1="100%" x2={dx > 0 ? "100%" : "0%"} y2="0%" />
               </svg>
             )}
-            <span className="marker-flag" style={{ ...(row ? { top: `calc(${row} * (16px * var(--fs) + 1px))` } : {}), ...(bent ? { marginLeft: dx } : {}) }}
-              data-tip={m.bend != null && !drag ? m.bendAbout : undefined} data-tip-side="top">
+            {/* the fade's grip, at the top of the line: the flag sits beside it */}
+            {m.bend != null && (
+              <span className="marker-grip" style={{ left: dx }} data-tip={drag ? undefined : m.bendLabel} data-tip-more={drag ? undefined : m.bendAbout} data-tip-side="top" />
+            )}
+            <span className="marker-flag" style={{ ...(row ? { top: `calc(${row} * (16px * var(--fs) + 1px))` } : {}),
+              ...(m.bend != null ? { transform: `translateX(calc(${dx}px ${flip ? "-" : "+"} var(--grip) / 2 + ${flip ? "-" : ""}2px))` } : {}) }}>
               {m.label}{drag?.id === m.id ? ` ${fmtTime(drag.part === "bend" ? Math.abs(drag.ms - m.ms) : ms)}` : ""}</span>
           </div>
         );

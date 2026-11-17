@@ -593,6 +593,7 @@ msgid "{name} at {time}"
 msgstr "{name} at {time}"
 
 #: src/Inspector.tsx
+#: src/Timeline.tsx
 msgid "{name} in ms"
 msgstr "{name} in ms"
 
@@ -3098,9 +3099,11 @@ msgstr "Default: {gain} dB"
 msgid "Delay"
 msgstr "Delay"
 
+#. Silence before the new audio, so it starts later
 #: src/Timeline.tsx
-msgid "Delay (ms)"
-msgstr "Delay (ms)"
+msgctxt "Trim field"
+msgid "Delay"
+msgstr "Delay"
 
 #: src/Notes.tsx
 msgid "Delete"
@@ -3214,6 +3217,14 @@ msgstr "Drag it to leave out the end of the song"
 #: src/SliceTool.tsx
 msgid "Drag it to leave out the start of the song"
 msgstr "Drag it to leave out the start of the song"
+
+#: src/Timeline.tsx
+msgid "Drag to fade the new audio in"
+msgstr "Drag to fade the new audio in"
+
+#: src/Timeline.tsx
+msgid "Drag to fade the new audio out"
+msgstr "Drag to fade the new audio out"
 
 #: src/Timeline.tsx
 msgid "Drag to play the new audio later or earlier"
@@ -3445,10 +3456,6 @@ msgctxt "Trim handle"
 msgid "End"
 msgstr "End"
 
-#: src/Timeline.tsx
-msgid "End (ms)"
-msgstr "End (ms)"
-
 #: src/Tutorial.tsx
 msgid "End Tutorial"
 msgstr "End Tutorial"
@@ -3652,10 +3659,12 @@ msgid "Exports of the original are for reference and mod work. Don't upload them
 msgstr "Exports of the original are for reference and mod work. Don't upload them."
 
 #: src/Inspector.tsx
+#: src/Timeline.tsx
 msgid "Fade In"
 msgstr "Fade In"
 
 #: src/Inspector.tsx
+#: src/Timeline.tsx
 msgid "Fade Out"
 msgstr "Fade Out"
 
@@ -4143,6 +4152,14 @@ msgstr "How long the fight lasts"
 #: src/Soundtrack.tsx
 msgid "How long the music plays"
 msgstr "How long the music plays"
+
+#: src/Timeline.tsx
+msgid "How long the new audio takes to fall to silence before it ends"
+msgstr "How long the new audio takes to fall to silence before it ends"
+
+#: src/Timeline.tsx
+msgid "How long the new audio takes to rise from silence"
+msgstr "How long the new audio takes to rise from silence"
 
 #: src/SliceTool.tsx
 msgid "How long the original is"
@@ -7955,10 +7972,6 @@ msgctxt "Trim handle"
 msgid "Start"
 msgstr "Start"
 
-#: src/Timeline.tsx
-msgid "Start (ms)"
-msgstr "Start (ms)"
-
 #: src/Home.tsx
 msgid "Start a mod"
 msgstr "Start a mod"
@@ -9062,14 +9075,9 @@ msgstr "Top Right"
 msgid "transcribing voice lines to match them to subtitles"
 msgstr "transcribing voice lines to match them to subtitles"
 
-#. The lane that sets where the new audio starts and ends
 #: src/Timeline.tsx
-msgid "Trim"
-msgstr "Trim"
-
-#: src/Timeline.tsx
-msgid "Trim and move the new audio"
-msgstr "Trim and move the new audio"
+msgid "Trim, move and fade the new audio"
+msgstr "Trim, move and fade the new audio"
 
 #: src/UpdatesTab.tsx
 msgid "Try Again"
@@ -9447,16 +9455,16 @@ msgid "Where the new audio ends in the file"
 msgstr "Where the new audio ends in the file"
 
 #: src/Timeline.tsx
-msgid "Where the new audio ends in the file. Drag to move it"
-msgstr "Where the new audio ends in the file. Drag to move it"
+msgid "Where the new audio ends in the file. Drag the line to move it"
+msgstr "Where the new audio ends in the file. Drag the line to move it"
 
 #: src/Timeline.tsx
 msgid "Where the new audio starts in the file"
 msgstr "Where the new audio starts in the file"
 
 #: src/Timeline.tsx
-msgid "Where the new audio starts in the file. Drag to move it"
-msgstr "Where the new audio starts in the file. Drag to move it"
+msgid "Where the new audio starts in the file. Drag the line to move it"
+msgstr "Where the new audio starts in the file. Drag the line to move it"
 
 #: src/SliceTool.tsx
 msgid "Where the piece starts and ends in the song"

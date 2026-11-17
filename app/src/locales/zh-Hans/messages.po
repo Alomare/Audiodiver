@@ -593,6 +593,7 @@ msgid "{name} at {time}"
 msgstr "{name}，位于 {time}"
 
 #: src/Inspector.tsx
+#: src/Timeline.tsx
 msgid "{name} in ms"
 msgstr "{name}（毫秒）"
 
@@ -3098,9 +3099,11 @@ msgstr "默认：{gain} dB"
 msgid "Delay"
 msgstr "延迟"
 
+#. Silence before the new audio, so it starts later
 #: src/Timeline.tsx
-msgid "Delay (ms)"
-msgstr "延迟 (ms)"
+msgctxt "Trim field"
+msgid "Delay"
+msgstr ""
 
 #: src/Notes.tsx
 msgid "Delete"
@@ -3214,6 +3217,14 @@ msgstr "拖动可略去歌曲的结尾"
 #: src/SliceTool.tsx
 msgid "Drag it to leave out the start of the song"
 msgstr "拖动可略去歌曲的开头"
+
+#: src/Timeline.tsx
+msgid "Drag to fade the new audio in"
+msgstr ""
+
+#: src/Timeline.tsx
+msgid "Drag to fade the new audio out"
+msgstr ""
 
 #: src/Timeline.tsx
 msgid "Drag to play the new audio later or earlier"
@@ -3445,10 +3456,6 @@ msgctxt "Trim handle"
 msgid "End"
 msgstr "结束"
 
-#: src/Timeline.tsx
-msgid "End (ms)"
-msgstr "结束 (ms)"
-
 #: src/Tutorial.tsx
 msgid "End Tutorial"
 msgstr "结束教程"
@@ -3652,10 +3659,12 @@ msgid "Exports of the original are for reference and mod work. Don't upload them
 msgstr "导出的原版只供参考和做模组用。请勿上传。"
 
 #: src/Inspector.tsx
+#: src/Timeline.tsx
 msgid "Fade In"
 msgstr "淡入"
 
 #: src/Inspector.tsx
+#: src/Timeline.tsx
 msgid "Fade Out"
 msgstr "淡出"
 
@@ -4143,6 +4152,14 @@ msgstr "战斗持续多久"
 #: src/Soundtrack.tsx
 msgid "How long the music plays"
 msgstr "音乐播放多久"
+
+#: src/Timeline.tsx
+msgid "How long the new audio takes to fall to silence before it ends"
+msgstr ""
+
+#: src/Timeline.tsx
+msgid "How long the new audio takes to rise from silence"
+msgstr ""
 
 #: src/SliceTool.tsx
 msgid "How long the original is"
@@ -7955,10 +7972,6 @@ msgctxt "Trim handle"
 msgid "Start"
 msgstr "开始"
 
-#: src/Timeline.tsx
-msgid "Start (ms)"
-msgstr "开始 (ms)"
-
 #: src/Home.tsx
 msgid "Start a mod"
 msgstr "开始制作模组"
@@ -9062,14 +9075,9 @@ msgstr "右上"
 msgid "transcribing voice lines to match them to subtitles"
 msgstr "转写语音台词以匹配字幕"
 
-#. The lane that sets where the new audio starts and ends
 #: src/Timeline.tsx
-msgid "Trim"
-msgstr "裁剪"
-
-#: src/Timeline.tsx
-msgid "Trim and move the new audio"
-msgstr "裁剪并移动新音频"
+msgid "Trim, move and fade the new audio"
+msgstr ""
 
 #: src/UpdatesTab.tsx
 msgid "Try Again"
@@ -9447,16 +9455,16 @@ msgid "Where the new audio ends in the file"
 msgstr "新音频在文件中结束的位置"
 
 #: src/Timeline.tsx
-msgid "Where the new audio ends in the file. Drag to move it"
-msgstr "新音频在文件中结束的位置。拖动可移动"
+msgid "Where the new audio ends in the file. Drag the line to move it"
+msgstr ""
 
 #: src/Timeline.tsx
 msgid "Where the new audio starts in the file"
 msgstr "新音频在文件中开始的位置"
 
 #: src/Timeline.tsx
-msgid "Where the new audio starts in the file. Drag to move it"
-msgstr "新音频在文件中开始的位置。拖动可移动"
+msgid "Where the new audio starts in the file. Drag the line to move it"
+msgstr ""
 
 #: src/SliceTool.tsx
 msgid "Where the piece starts and ends in the song"

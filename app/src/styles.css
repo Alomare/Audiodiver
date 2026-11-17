@@ -715,11 +715,16 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .marker-bend { position: absolute; top: 0; height: 100%; overflow: visible; pointer-events: none; }
 .marker-bend line { stroke: var(--accent-fg); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
 .marker-bend line.grab { stroke: transparent; stroke-width: 12; pointer-events: stroke; cursor: ew-resize; }
-.marker.bendable .marker-flag { pointer-events: auto; cursor: ew-resize; }
-.marker.bendable .marker-flag:hover { outline: 1px solid var(--accent-fg); }
-.tl-trim { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin-left: calc(64px * var(--fs) + 10px); font-size: calc(12px * var(--fs)); color: var(--muted); }
-.trim-field { display: flex; align-items: center; gap: 6px; }
-.trim-field input { width: calc(76px * var(--fs)); padding: 2px 6px; font: inherit; font-variant-numeric: tabular-nums; color: var(--text); }
+/* the fade's grip: a square at the top of the line, the flag beside it */
+.marker { --grip: calc(10px * var(--fs)); }
+.marker-grip { position: absolute; top: 0; width: var(--grip); height: var(--grip); margin-left: calc(var(--grip) / -2); z-index: 3;
+  background: var(--text); border: 1px solid var(--bg); box-sizing: border-box; cursor: ew-resize; }
+.marker-grip:hover, .marker.dragging .marker-grip { background: var(--accent-fg); }
+.tl-trim { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin-left: calc(64px * var(--fs) + 10px); font-size: calc(12px * var(--fs)); color: var(--muted); }
+.tl-trim-help { position: absolute; right: calc(100% + 10px); top: 50%; transform: translateY(-50%); display: flex; }
+.trim-field { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+.trim-field input { width: calc(64px * var(--fs)); padding: 2px 6px; font: inherit; font-variant-numeric: tabular-nums; color: var(--text); }
+.trim-field .unit { margin-left: -1px; }
 .tl-trim .link-inline { margin-left: 0; }
 .link-inline { margin-left: 10px; color: var(--second-fg); font-size: calc(12px * var(--fs)); text-decoration: underline; }
 .modal-back { position: fixed; inset: 0; background: rgb(0 0 0 / .6); display: grid; place-items: center; z-index: 40; }
