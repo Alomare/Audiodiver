@@ -3453,6 +3453,10 @@ msgstr "エンコード済みの音声"
 msgid "encoding audio for the game"
 msgstr "ゲーム用の音声エンコード"
 
+#: src/content.ts
+msgid "encoding audio for the game on Linux"
+msgstr "Linux でのゲーム用の音声エンコード"
+
 #: src/SliceTool.tsx
 msgctxt "Slice tool: the cut where the last piece ends"
 msgid "End"
@@ -6019,6 +6023,10 @@ msgstr "Audiodiverの起動時に前回のプロジェクトを開く"
 #: src/Inspector.tsx
 msgid "Open the subtitle in the Text tab"
 msgstr "テキストタブで字幕を開く"
+
+#: src/content.ts
+msgid "opening mods packed as .7z or .rar"
+msgstr ".7z や .rar で圧縮された MOD を開く"
 
 #: src/Soundtrack.tsx
 msgid "Openings"

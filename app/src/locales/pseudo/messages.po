@@ -3453,6 +3453,10 @@ msgstr ""
 msgid "encoding audio for the game"
 msgstr ""
 
+#: src/content.ts
+msgid "encoding audio for the game on Linux"
+msgstr ""
+
 #: src/SliceTool.tsx
 msgctxt "Slice tool: the cut where the last piece ends"
 msgid "End"
@@ -6018,6 +6022,10 @@ msgstr ""
 
 #: src/Inspector.tsx
 msgid "Open the subtitle in the Text tab"
+msgstr ""
+
+#: src/content.ts
+msgid "opening mods packed as .7z or .rar"
 msgstr ""
 
 #: src/Soundtrack.tsx

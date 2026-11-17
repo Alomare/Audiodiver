@@ -79,6 +79,8 @@ export const CREDITS: { group: string; items: Credit[] }[] = [
     { name: "FFmpeg", url: "https://ffmpeg.org", for: t`reading and converting audio files` },
     { name: "vgmstream", url: "https://github.com/vgmstream/vgmstream", for: t`playing game audio` },
     { name: "wav2wem", by: "pas2k", url: "https://github.com/pas2k/wav2wem", licence: "GPL-2.0", for: t`encoding audio for the game` },
+    { name: "oggenc, aoTuV", url: "https://github.com/xiph/vorbis-tools", licence: "GPL-2.0", for: t`encoding audio for the game on Linux` },
+    { name: "7-Zip", by: "Igor Pavlov", url: "https://www.7-zip.org", licence: "GNU LGPL", for: t`opening mods packed as .7z or .rar` },
   ] },
   { group: t({ message: "Art and type", comment: "Credits group: the Home pictures and the typefaces" }), items: [
     { id: "home-art", name: t({ message: "Home art", comment: "Credit for the pictures behind the Home tab" }), by: ART_CREDIT.name, url: ART_CREDIT.url, for: ART_CREDIT.for },

@@ -3453,6 +3453,10 @@ msgstr "인코딩된 오디오"
 msgid "encoding audio for the game"
 msgstr "게임용 오디오 인코딩"
 
+#: src/content.ts
+msgid "encoding audio for the game on Linux"
+msgstr "Linux에서 게임용 오디오 인코딩"
+
 #: src/SliceTool.tsx
 msgctxt "Slice tool: the cut where the last piece ends"
 msgid "End"
@@ -6019,6 +6023,10 @@ msgstr "Audiodiver를 시작할 때 마지막 프로젝트 열기"
 #: src/Inspector.tsx
 msgid "Open the subtitle in the Text tab"
 msgstr "텍스트 탭에서 자막 열기"
+
+#: src/content.ts
+msgid "opening mods packed as .7z or .rar"
+msgstr ".7z 또는 .rar로 압축된 모드 열기"
 
 #: src/Soundtrack.tsx
 msgid "Openings"

@@ -3453,6 +3453,10 @@ msgstr "已编码的音频"
 msgid "encoding audio for the game"
 msgstr "为游戏编码音频"
 
+#: src/content.ts
+msgid "encoding audio for the game on Linux"
+msgstr "在 Linux 上为游戏编码音频"
+
 #: src/SliceTool.tsx
 msgctxt "Slice tool: the cut where the last piece ends"
 msgid "End"
@@ -6019,6 +6023,10 @@ msgstr "Audiodiver 启动时打开上次的项目"
 #: src/Inspector.tsx
 msgid "Open the subtitle in the Text tab"
 msgstr "在文本选项卡中打开字幕"
+
+#: src/content.ts
+msgid "opening mods packed as .7z or .rar"
+msgstr "打开以 .7z 或 .rar 打包的模组"
 
 #: src/Soundtrack.tsx
 msgid "Openings"

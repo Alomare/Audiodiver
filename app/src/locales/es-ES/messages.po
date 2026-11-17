@@ -3453,6 +3453,10 @@ msgstr "Audio codificado"
 msgid "encoding audio for the game"
 msgstr "codificar audio para el juego"
 
+#: src/content.ts
+msgid "encoding audio for the game on Linux"
+msgstr "codificar audio para el juego en Linux"
+
 #: src/SliceTool.tsx
 msgctxt "Slice tool: the cut where the last piece ends"
 msgid "End"
@@ -6019,6 +6023,10 @@ msgstr "Abrir el último proyecto al iniciar Audiodiver"
 #: src/Inspector.tsx
 msgid "Open the subtitle in the Text tab"
 msgstr "Abrir el subtítulo en la pestaña Texto"
+
+#: src/content.ts
+msgid "opening mods packed as .7z or .rar"
+msgstr "abrir mods empaquetados como .7z o .rar"
 
 #: src/Soundtrack.tsx
 msgid "Openings"
