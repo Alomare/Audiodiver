@@ -21,9 +21,20 @@ class BuildError(Exception):
     for_people = True
 
 
-def _encoded(wav: bytes, quality: float) -> Path:
-    """Where the encoding of this audio is cached."""
-    return CACHE_DIR / "wem" / f"{hashlib.sha1(wav + f'q{quality}'.encode()).hexdigest()[:16]}.wem"
+def _encoded(wav: bytes, quality: float, folded: bool = False) -> Path:
+    """Where the encoding of this audio is cached. folded: audio of more than 2 channels, whose fold to stereo changed
+    (wem.FOLDS), so encodings made before keep no other key."""
+    return CACHE_DIR / "wem" / f"{hashlib.sha1(wav + f'q{quality}'.encode() + (b'fold' if folded else b'')).hexdigest()[:16]}.wem"
+
+
+def _many_channels(src: Path) -> bool:
+    """Whether a file has more than 2 channels (a ready WAV has 1 or 2, without asking ffprobe)."""
+    if wem.ready_wav(src):
+        return False
+    try:
+        return wem.channels_of(wem.decoded(src)) > 2
+    except (subprocess.CalledProcessError, ValueError, OSError):
+        return False
 
 
 def ready_wem(src: Path, data: bytes) -> bytes | None:
@@ -43,7 +54,7 @@ def encode_cached(src: Path, quality: float = 6, log=None) -> bytes:
     data = src.read_bytes()
     if (ready := ready_wem(src, data)) is not None:
         return ready
-    out = _encoded(data, quality)
+    out = _encoded(data, quality, _many_channels(src))
     key = out.stem
     if not out.exists():
         if log:

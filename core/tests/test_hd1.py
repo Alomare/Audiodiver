@@ -382,6 +382,29 @@ def test_a_new_clip_takes_its_place_and_the_rest_stays(game):
     assert max(r[1] + r[2] for r in rows.values()) == len(a) and sum(r[4] for r in rows.values()) == len(s)
 
 
+def quad_file(path, front=3000, rear=0, rate=48000, seconds=0.2):
+    """A 4-channel WAV as vgmstream writes a Helldivers 2 quad clip: no channel mask."""
+    with wave.open(str(path), "wb") as w:
+        w.setnchannels(4)
+        w.setsampwidth(2)
+        w.setframerate(rate)
+        w.writeframes(struct.pack("<hhhh", front, front, rear, rear) * int(rate * seconds))
+    return path
+
+
+def test_quad_audio_folds_to_stereo_at_its_front_level(tmp_path):
+    """ffmpeg's own fold of 4 channels scaled the sum down: Helldivers 2's quad music came out about 7 dB quieter."""
+    from audiodiver import hd1_build, wem
+    src = quad_file(tmp_path / "quad.wav")
+    left = struct.unpack_from("<h", hd1_build._pcm(src, 2, 48000), 4000)[0]
+    assert 2900 <= left <= 3100, left
+    louder = struct.unpack_from("<h", hd1_build._pcm(src, 2, 48000, gain_db=6.0), 4000)[0]
+    assert 5800 <= louder <= 6200, "Make-Up Gain applies after the fold"
+    channels, _ = wem.prepare_wav(str(src), str(tmp_path / "out.wav"))
+    with wave.open(str(tmp_path / "out.wav")) as w:
+        assert channels == 2 and 2900 <= struct.unpack_from("<h", w.readframes(100), 200)[0] <= 3100
+
+
 def tone_file(path, seconds=0.2, rate=44100):
     with wave.open(str(path), "wb") as w:
         w.setnchannels(2)

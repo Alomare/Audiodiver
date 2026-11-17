@@ -196,6 +196,28 @@ def needs_ffmpeg(path) -> bool:
     return not str(path).lower().endswith(".wem") and ready_wav(path) is None
 
 
+def channels_of(src) -> int:
+    """How many channels ffmpeg reads in a file."""
+    return int(subprocess.run(
+        [FFPROBE, "-v", "error", "-select_streams", "a:0", "-show_entries", "stream=channels", "-of", "csv=p=0", str(src)],
+        capture_output=True, text=True, check=True).stdout.strip())
+
+
+# Quad and 5.1 (as Wwise lays them out, CHANNEL_MASKS) folded as a player folds them: the front at full level, the
+# center and surrounds 3 dB down. ffmpeg's own fold scales the sum down so it can never clip, which made a Helldivers 2
+# quad clip about 7 dB quieter in stereo.
+FOLDS = {(4, 2): "pan=stereo|FL=c0+0.707*c2|FR=c1+0.707*c3",
+         (4, 1): "pan=mono|c0=0.5*c0+0.5*c1+0.354*c2+0.354*c3",
+         (6, 2): "pan=stereo|FL=c0+0.707*c2+0.707*c4|FR=c1+0.707*c2+0.707*c5",
+         (6, 1): "pan=mono|c0=0.5*c0+0.5*c1+0.707*c2+0.354*c4+0.354*c5"}
+
+
+def fold_args(src, channels: int, have: int | None = None) -> list[str]:
+    """ffmpeg's arguments that bring src to this many channels."""
+    have = have or channels_of(src)
+    return ["-af", FOLDS[have, channels]] if (have, channels) in FOLDS else ["-ac", str(channels)]
+
+
 def prepare_wav(src: str, wav: str) -> tuple[int, int]:
     """Decodes src to the 16-bit 48 kHz mono/stereo WAV the encoder takes; returns (channels, samples). A WAV that
     already is one (silence, a .wem vgmstream decoded at 48 kHz) is copied as it is, without ffmpeg."""
@@ -208,11 +230,9 @@ def prepare_wav(src: str, wav: str) -> tuple[int, int]:
             while frames := r.readframes(1 << 16):
                 w.writeframes(frames)
             return channels, r.getnframes()
-    channels = int(subprocess.run(
-        [FFPROBE, "-v", "error", "-select_streams", "a:0", "-show_entries", "stream=channels", "-of", "csv=p=0", src],
-        capture_output=True, text=True, check=True).stdout.strip())
-    channels = 1 if channels == 1 else 2
-    subprocess.run([FFMPEG, "-v", "error", "-y", "-i", src, "-ac", str(channels), "-ar", str(RATE),
+    have = channels_of(src)
+    channels = 1 if have == 1 else 2
+    subprocess.run([FFMPEG, "-v", "error", "-y", "-i", src, *fold_args(src, channels, have), "-ar", str(RATE),
                     "-c:a", "pcm_s16le", wav], check=True)
     with wave.open(wav) as w:
         return channels, w.getnframes()

@@ -20,11 +20,15 @@ mod's scope is client.
 """
 import hashlib
 import json
+import os
 import re
+import shutil
 import struct
 import subprocess
 import tempfile
+import threading
 import zipfile
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 from . import arsenal, hd1, wem
@@ -89,9 +93,16 @@ def _readable(src: Path) -> Path:
         raise Hd1BuildError(tr("Can't read {file}: {why}").format(file=src.name, why="vgmstream")) from None
 
 
-def _pcm(src: Path, channels: int, rate: int) -> bytes:
-    """Audio as raw 16-bit PCM at the original's channels and rate."""
-    run = subprocess.run([wem.FFMPEG, "-v", "error", "-i", str(src), "-ac", str(channels), "-ar", str(rate),
+def _pcm(src: Path, channels: int, rate: int, gain_db: float = 0) -> bytes:
+    """Audio as raw 16-bit PCM at the original's channels and rate, with its Make-Up Gain."""
+    try:
+        fold = wem.fold_args(src, channels)
+    except (subprocess.CalledProcessError, ValueError, OSError):
+        fold = ["-ac", str(channels)]  # ffmpeg says what is wrong with the file below
+    if gain_db:
+        gain = f"volume={gain_db}dB"
+        fold = ["-af", f"{fold[1]},{gain}"] if fold[0] == "-af" else [*fold, "-af", gain]
+    run = subprocess.run([wem.FFMPEG, "-v", "error", "-i", str(src), *fold, "-ar", str(rate),
                           "-f", "s16le", "-c:a", "pcm_s16le", "-"], capture_output=True)
     if run.returncode or not run.stdout:
         raise Hd1BuildError(tr("Can't read {file}: {why}").format(file=src.name, why=run.stderr.decode(errors="replace").strip()[-300:]))
@@ -106,23 +117,11 @@ def _vorbis(pcm: bytes, channels: int, rate: int) -> bytes:
     return run.stdout
 
 
-def _with_gain(src: Path, gain_db: float, work: Path) -> Path:
-    if not gain_db:
-        return src
-    out = work / f"gain-{abs(hash((str(src), gain_db))):x}.wav"
-    if not out.exists():
-        run = subprocess.run([wem.FFMPEG, "-v", "error", "-y", "-i", str(src), "-af", f"volume={gain_db}dB",
-                              "-c:a", "pcm_s16le", str(out)], capture_output=True)
-        if run.returncode:
-            raise Hd1BuildError(tr("Can't read {file}: {why}").format(file=src.name, why=run.stderr.decode(errors="replace").strip()[-300:]))
-    return out
-
-
-def new_clip(src: Path, original: bytes, streamed: bool) -> tuple[bytes, bytes]:
+def new_clip(src: Path, original: bytes, streamed: bool, gain_db: float = 0) -> tuple[bytes, bytes]:
     """A file as a clip in the original's place: (what goes in the bank, what goes in the stream). original: the
     game's clip as the bank holds it, header first; streamed: whether the rest of it was in the stream."""
     tag, channels, rate = struct.unpack_from("<HHI", original, 48)
-    pcm = _pcm(src, channels, rate)
+    pcm = _pcm(src, channels, rate, gain_db)
     samples = len(pcm) // (2 * channels)
     if tag == hd1.VORBIS:
         audio = _vorbis(pcm, channels, rate)
@@ -145,6 +144,68 @@ def _source_file(p: Project, r) -> Path:
     if not path or not path.is_file():
         raise Hd1BuildError(tr("{name}: the audio file is missing ({file})").format(name=r.label or r.audio, file=r.audio))
     return p.heard_path(r)  # its stretch, delay and fades, as in a Helldivers 2 build
+
+
+ENCODING = 2         # changes the cache's keys when the encoding changes (2: quad and 5.1 folded as players fold them)
+KEEP_PROJECTS = 3    # the projects whose clips stay cached, the ones built last
+
+
+def _clip_cache(p: Project) -> Path:
+    """Where a project's encoded clips are kept between builds, so a build encodes only what changed."""
+    from .index import CACHE_DIR
+    return CACHE_DIR / "hd1_clips" / p.guid
+
+
+def _clip_name(src: Path, head: bytes, streamed: bool, gain_db: float) -> str:
+    """An encoding's name in the cache: the file it comes from as it is now, and everything that shapes the clip."""
+    st = src.stat()
+    what = [str(src), st.st_size, st.st_mtime_ns, head[48:56].hex(), struct.unpack_from("<I", head, 4)[0] if streamed else 0,
+            gain_db, VORBIS_QUALITY, ENCODING]
+    return hashlib.sha1(json.dumps(what).encode()).hexdigest()[:20]
+
+
+def _encode_all(p: Project, jobs: dict, step) -> dict:
+    """Encodes each job {key: (replacement, the original's header, streamed)} on as many threads as the computer has
+    cores to spare (each encoder runs on one), taking what the cache already holds. Returns {key: cache name}."""
+    cache = _clip_cache(p)
+    cache.mkdir(parents=True, exist_ok=True)
+
+    def make(key):
+        r, head, streamed = jobs[key]
+        src = _readable(_source_file(p, r))
+        name = _clip_name(src, head, streamed, r.gain_db)
+        clip, stream = cache / f"{name}.clip", cache / f"{name}.stream"
+        if not (clip.exists() and stream.exists()):
+            data, rest = new_clip(src, head, streamed, r.gain_db)
+            for path, b in ((stream, rest), (clip, data)):  # the clip last: with it there, both are whole
+                tmp = path.with_name(path.name + f".{threading.get_ident()}.partial")
+                tmp.write_bytes(b)
+                tmp.replace(path)
+        return key, name
+
+    names = {}
+    pool = ThreadPoolExecutor(max(1, (os.cpu_count() or 2) - 1))
+    try:
+        futures = [pool.submit(make, key) for key in jobs]
+        for done, f in enumerate(as_completed(futures), 1):
+            key, names[key] = f.result()
+            r = jobs[key][0]
+            step(tr("encoding {name}").format(name=r.label or Path(r.audio).name or tr("silence")), done, len(jobs))
+    finally:
+        pool.shutdown(wait=True, cancel_futures=True)  # a cancel (step raises) or an error stops what hasn't started
+    return names
+
+
+def _prune(p: Project, used: set[str]):
+    """Drops the project's cached clips this build didn't use, and the caches of all but the last projects built."""
+    cache = _clip_cache(p)
+    for f in cache.iterdir():
+        if f.name.split(".")[0] not in used:
+            f.unlink(missing_ok=True)
+    cache.touch()
+    others = sorted((d for d in cache.parent.iterdir() if d.is_dir()), key=lambda d: d.stat().st_mtime, reverse=True)
+    for d in others[KEEP_PROJECTS:]:
+        shutil.rmtree(d, ignore_errors=True)
 
 
 def mod_id(p: Project) -> str:
@@ -202,20 +263,29 @@ def build(p: Project, game: hd1.Hd1, log=print, step=None) -> Path:
             if not (work / name).exists():
                 (work / name).write_bytes(data)
             return name
-        encoded = {}  # a file comes out the same wherever the original has the same format
-        for done, (bank, row, r) in enumerate(places, 1):
-            step(tr("encoding {name}").format(name=r.label or Path(r.audio).name or tr("silence")), done)
+        # a file comes out the same wherever the original has the same format: one encoding per (replacement, format)
+        jobs: dict[tuple, tuple] = {}
+        keys = []
+        for bank, row, r in places:
             head = clip_head(game, bank, row)
             streamed = row[4] > 0
             key = (id(r), struct.unpack_from("<HHI", head, 48), struct.unpack_from("<I", head, 4)[0] if streamed else 0)
-            if key not in encoded:
-                encoded[key] = new_clip(_with_gain(_readable(_source_file(p, r)), r.gain_db, work), head, streamed)
-            data, stream = encoded[key]
-            entry = {"clip": f"#{row[0]:016x}", **({"lang": bank["lang"]} if bank["lang"] else {}), "data": kept(data, "clip")}
+            keys.append(key)
+            jobs.setdefault(key, (r, head, streamed))
+        names = _encode_all(p, jobs, step)
+        files = {}  # an encoding's (bank file, stream file) in the mod
+        for (bank, row, r), key in zip(places, keys):
+            name = names[key]
+            if name not in files:
+                stream = (_clip_cache(p) / f"{name}.stream").read_bytes()
+                files[name] = (kept((_clip_cache(p) / f"{name}.clip").read_bytes(), "clip"), kept(stream, "stream") if stream else None)
+            data, stream = files[name]
+            entry = {"clip": f"#{row[0]:016x}", **({"lang": bank["lang"]} if bank["lang"] else {}), "data": data}
             if stream:
-                entry["stream"] = kept(stream, "stream")
+                entry["stream"] = stream
             rows.setdefault(bank["name"], []).append(entry)
-        step(tr("writing the mod"), len(places))
+        _prune(p, set(names.values()))
+        step(tr("writing the mod"), len(jobs), len(jobs))
         resources = [{"type": "timpani_bank", "name": f"#{name:016x}",
                       "clips": sorted(rows[name], key=lambda x: (x["clip"], x.get("lang", 0)))} for name in sorted(rows)]
         # min_obsidian: an older mod manager from 1.1.0 on refuses the mod and says to update (1.0.4 ignores it)
