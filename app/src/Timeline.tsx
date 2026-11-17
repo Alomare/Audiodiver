@@ -26,7 +26,7 @@ import { Help } from "./Wiki";
     and its selected slot. */
 const HEIGHT = 210;
 const HEIGHT_ONE = 190; // the Library's: the game's waveform under the slot's facts
-const TRIM_ROOM = 70;   // added for the Trim lane and its fields, so the two waveforms keep their height
+const TRIM_ROOM = 34;   // added for the new audio's fields, so the two waveforms keep their height
 const MIN_SPAN = 20;    // ms: the closest the time zoom goes
 // the cue points' names, on the flags
 const ENTRY = t({ message: "Entry", comment: "A music segment's Entry cue point (Wwise term): where the segment counts as started" });
@@ -58,18 +58,28 @@ function CurveLabel() {
 type Trim = { start: number; end: number; delay: number };
 const MIN_TRIM = 10; // ms: the shortest stretch that can play (the core's MIN_TRIM_MS)
 
-/** The new audio's whole file on the waveforms' time scale, placed where it plays: the stretch that plays is
-    bright, the rest dim. Start and End set the stretch, and dragging the stretch moves it later or earlier against
-    the original (the silence before it is the delay). The file stays put while a handle moves, so a handle stays
-    under the pointer; what plays shows on the Replaced lane above once the change is made. */
-function TrimLane({ file, fileMs, trim, view, onSet, onSeek }: {
-  file: string; fileMs: number; trim: Trim; view: { spanMs: number; fromMs: number };
-  onSet: (t: Trim) => void; onSeek: (ms: number) => void;
+type FadeMs = { in: number; out: number };
+
+/** The new audio as one lane: its whole file on the waveforms' time scale, placed where it plays, the stretch that
+    plays bright and the rest dim, drawn with its fades and at its Make-Up Gain. Start and End set the stretch,
+    Fade In and Fade Out the fades inside it, and dragging the stretch moves it later or earlier against the original
+    (the silence before it is the delay). The file stays put while a handle moves, so a handle stays under the
+    pointer. A music segment's Entry and Exit sit on it too. Everything given and returned here is on the time scale
+    (what plays, from the slot's start), except the trim and fades, which are in the file's own ms. */
+function NewAudioLane({ file, fileMs, trim, fades, view, gainDb, curve, playheadMs, cues, active, onCue, onSet, onFades, onSeek }: {
+  file: string; fileMs: number; trim: Trim; fades: FadeMs; view: { spanMs: number; fromMs: number; zoomY: number };
+  gainDb: number; curve?: number[][]; playheadMs: number | null; cues: Marker[]; active?: [number, number];
+  onCue: (id: string, ms: number, how: "drag" | "key") => void;
+  onSet: (t: Trim) => void; onFades: (f: Partial<{ fade_in_ms: number; fade_out_ms: number }>) => void; onSeek: (ms: number) => void;
 }) {
-  const { peaks } = usePeaks("file", file);
+  const { peaks, error, retry } = usePeaks("file", file);
   const [live, setLive] = useState<Trim | null>(null);
+  const [liveFades, setLiveFades] = useState<FadeMs | null>(null);
   useEffect(() => setLive(null), [trim.start, trim.end, trim.delay]); // the project's answer replaces what was dragged
+  useEffect(() => setLiveFades(null), [fades.in, fades.out]);
   const { start, end, delay } = live ?? trim;
+  // fades longer than the stretch stop at it, as the build makes them
+  const fIn = Math.min((liveFades ?? fades).in, end - start), fOut = Math.min((liveFades ?? fades).out, end - start - fIn);
   const offset = delay - start; // where the file's first moment sits on the time scale
   const wrap = useRef<HTMLDivElement>(null);
   const moving = useRef<{ x: number; delay: number; moved: boolean } | null>(null);
@@ -77,17 +87,41 @@ function TrimLane({ file, fileMs, trim, view, onSet, onSeek }: {
   const set = (t: Trim) => { setLive(t); onSet(t); };
   // a handle: Start keeps the file where it is, so the stretch begins under the pointer (the delay follows it)
   const handle = (id: string, ms: number): Trim => (id === "start" ? { start: ms, end, delay: offset + ms } : { start, end: ms, delay });
+  // the top of Start bends right into the fade in, the top of End left into the fade out
+  const fadeAt = (id: string, ms: number): FadeMs => (id === "start" ? { in: ms - start, out: fOut } : { in: fIn, out: end - ms });
   const markers: Marker[] = [
+    // the cue points, from the time scale into the file's ms, under Start and End: with Fit timing, Exit sits on End
+    // and Entry on Start, and a drag there moves the end of the audio (the cue point follows it)
+    ...cues.map((c) => ({ ...c, ms: c.ms - offset, min: c.min != null ? c.min - offset : -offset, max: c.max != null ? c.max - offset : undefined })),
     { id: "start", ms: start, label: t({ message: "Start", context: "Trim handle", comment: "Where the new audio starts playing in the file" }), draggable: true,
-      min: Math.max(0, -offset), max: end - MIN_TRIM, about: t`Where the new audio starts in the file. Drag to move it` },
+      min: Math.max(0, -offset), max: end - MIN_TRIM - fIn - fOut, about: t`Where the new audio starts in the file. Drag the line to move it`,
+      bend: start + fIn, bendMin: start, bendMax: end - fOut, bendAbout: t`Drag to fade the new audio in` },
     { id: "end", ms: end, label: t({ message: "End", context: "Trim handle", comment: "Where the new audio stops playing in the file" }), draggable: true,
-      min: start + MIN_TRIM, max: fileMs, about: t`Where the new audio ends in the file. Drag to move it` },
+      min: start + MIN_TRIM + fIn + fOut, max: fileMs, about: t`Where the new audio ends in the file. Drag the line to move it`,
+      bend: end - fOut, bendMin: start + fIn, bendMax: end, bendAbout: t`Drag to fade the new audio out` },
   ];
+  const isCue = (id: string) => cues.some((c) => c.id === id);
   return (
     <div className="trim-wrap" ref={wrap}>
-      <Waveform peaks={peaks} spanMs={view.spanMs} fromMs={view.fromMs - offset} tone="mine" markers={markers}
-        activeFrom={start} activeTo={end} label={t`Reading the new audio…`}
-        onMarkerMove={(id, ms) => setLive(handle(id, ms))} onMarkerCommit={(id, ms) => set(handle(id, Math.round(ms)))} />
+      <Waveform peaks={peaks} spanMs={view.spanMs} fromMs={view.fromMs - offset} zoomY={view.zoomY} tone="mine" markers={markers}
+        activeFrom={active ? Math.max(start, active[0] - offset) : start} activeTo={active ? Math.min(end, active[1] - offset) : end}
+        gainDb={gainDb} curve={curve?.map(([ms, level]) => [ms - offset, level])} fades={{ from: start, to: end, in: fIn, out: fOut }}
+        playheadMs={playheadMs == null ? null : playheadMs - offset} label={t`Reading the new audio…`} error={error} onRetry={retry}
+        onSeek={(ms) => onSeek(Math.max(0, ms + offset))}
+        onMarkerMove={(id, ms, part) => {
+          if (isCue(id)) return;
+          if (part === "bend") setLiveFades(fadeAt(id, ms));
+          else setLive(handle(id, ms));
+        }}
+        onMarkerCommit={(id, ms, how, part) => {
+          if (isCue(id)) onCue(id, Math.round(ms + offset), how);
+          else if (part === "line") set(handle(id, Math.round(ms)));
+          else {
+            const f = fadeAt(id, Math.round(ms));
+            setLiveFades(f);
+            onFades(id === "start" ? { fade_in_ms: Math.max(0, f.in) } : { fade_out_ms: Math.max(0, f.out) });
+          }
+        }} />
       {/* the stretch that plays: a drag moves it, a click plays from there */}
       <div className="trim-body" style={{ left: `calc(${at(delay)} + 6px)`, width: `calc(${((end - start) / view.spanMs) * 100}% - 12px)` }}
         data-tip={t`Drag to play the new audio later or earlier`} data-tip-more={t`Before it, the slot plays silence`}
@@ -115,26 +149,31 @@ function TrimLane({ file, fileMs, trim, view, onSet, onSeek }: {
   );
 }
 
-/** The trim in numbers, in ms: where the new audio starts and ends in its file, and how late it starts. */
-function TrimFields({ trim, fileMs, onSet }: { trim: Trim; fileMs: number; onSet: (t: Trim) => void }) {
-  const field = (key: keyof Trim, label: string, tip: string) => (
+/** The new audio's lane in numbers, in ms: where it starts and ends in its file, how late it starts, its fades. */
+function TrimFields({ trim, fades, fileMs, onSet, onFades }: {
+  trim: Trim; fades: FadeMs; fileMs: number; onSet: (t: Trim) => void;
+  onFades: (f: Partial<{ fade_in_ms: number; fade_out_ms: number }>) => void;
+}) {
+  const field = (key: string, now: number, label: string, tip: string, set: (v: number) => void) => (
     <label className="trim-field" data-tip={tip}>{label}
-      <input type="number" min={0} step={1} key={`${key}:${trim[key]}`} defaultValue={Math.round(trim[key])}
+      <input type="number" min={0} step={1} key={`${key}:${now}`} defaultValue={Math.round(now)}
         onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
         onBlur={(e) => {
           const v = Math.max(0, Math.round(Number(e.target.value)));
-          if (!Number.isFinite(v) || v === Math.round(trim[key])) { e.target.value = String(Math.round(trim[key])); return; }
-          onSet({ ...trim, [key]: v });
+          if (!Number.isFinite(v) || v === Math.round(now)) { e.target.value = String(Math.round(now)); return; }
+          set(v);
         }} />
     </label>
   );
-  const trimmed = trim.start > 0 || trim.end < fileMs - 0.5 || trim.delay > 0;
+  const changed = trim.start > 0 || trim.end < fileMs - 0.5 || trim.delay > 0 || fades.in > 0 || fades.out > 0;
   return (
     <div className="tl-trim">
-      {field("start", t`Start (ms)`, t`Where the new audio starts in the file`)}
-      {field("end", t`End (ms)`, t`Where the new audio ends in the file`)}
-      {field("delay", t`Delay (ms)`, t`Silence before the new audio, so it starts later than the original`)}
-      {trimmed && <button className="link-inline" onClick={() => onSet({ start: 0, end: fileMs, delay: 0 })}>{t`Reset`}</button>}
+      {field("start", trim.start, t`Start (ms)`, t`Where the new audio starts in the file`, (v) => onSet({ ...trim, start: v }))}
+      {field("end", trim.end, t`End (ms)`, t`Where the new audio ends in the file`, (v) => onSet({ ...trim, end: v }))}
+      {field("delay", trim.delay, t`Delay (ms)`, t`Silence before the new audio, so it starts later than the original`, (v) => onSet({ ...trim, delay: v }))}
+      {field("fadeIn", fades.in, t`Fade In (ms)`, t`How long the new audio takes to rise from silence`, (v) => onFades({ fade_in_ms: Math.min(600_000, v) }))}
+      {field("fadeOut", fades.out, t`Fade Out (ms)`, t`How long the new audio takes to fall to silence before it ends`, (v) => onFades({ fade_out_ms: Math.min(600_000, v) }))}
+      {changed && <button className="link-inline" onClick={() => { onSet({ start: 0, end: fileMs, delay: 0 }); if (fades.in || fades.out) onFades({ fade_in_ms: 0, fade_out_ms: 0 }); }}>{t`Reset`}</button>}
       <Help tip={t`Trim and move the new audio`} page="timing-and-loops#trimming-and-moving-new-audio" />
     </div>
   );
@@ -165,10 +204,12 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
   const gameDb = !a && source && !readOnly ? live ?? project?.gains[source] ?? 0 : 0;
   const none = !!(row?.slot.absent || row?.slot.added); // "No audio", or a new take: no original to draw
   const gameWave = usePeaks("vanilla", none ? null : source);
-  const mineWave = usePeaks("project", audible(a) ? source : null, String(revision));
-  // the new audio's file, where it plays (TrimLane): its whole length is on the scale, so its end can be dragged out
+  // the new audio's file, where it plays (NewAudioLane): its whole length is on the scale, so its end can be dragged out
   const fileMs = audible(a) && a!.exists && a!.file_ms ? a!.file_ms : 0;
   const trim: Trim | null = fileMs ? { start: a!.start_ms ?? 0, end: a!.end_ms || fileMs, delay: a!.delay_ms ?? 0 } : null;
+  const fades: FadeMs = { in: a?.fade_in_ms ?? 0, out: a?.fade_out_ms ?? 0 };
+  // what plays, drawn from the project's audio only where the file can't be (an older core gives no file length)
+  const mineWave = usePeaks("project", audible(a) && !trim ? source : null, String(revision));
   const extra = !readOnly && trim ? TRIM_ROOM : 0;
   // one zoom for both, from the controls at the right; zoomed in, finer peaks take over once they come
   const span = Math.max(gameWave.peaks?.duration_ms ?? 0, mineWave.peaks?.duration_ms ?? 0,
@@ -176,8 +217,9 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
   const zoom = useWaveZoom(span, MIN_SPAN, source);
   const fineGame = finePeaks(zoom, gameWave.peaks?.duration_ms), fineMine = finePeaks(zoom, mineWave.peaks?.duration_ms);
   const gameFine = usePeaks("vanilla", fineGame && !none ? source : null, "", fineGame);
-  const mineFine = usePeaks("project", fineMine && audible(a) ? source : null, String(revision), fineMine);
+  const mineFine = usePeaks("project", fineMine && audible(a) && !trim ? source : null, String(revision), fineMine);
   const game = gameFine.peaks ?? gameWave.peaks, mine = mineFine.peaks ?? mineWave.peaks;
+  const heardMs = trim ? trim.delay + trim.end - trim.start : mine?.duration_ms; // how long the new audio plays
   const waves = useRef<HTMLDivElement>(null);
   useWheelZoom(waves, zoom, !!row);
   const curve = useMemo(() => (row?.slot.curve ? curveLine(row.slot.curve) : undefined), [row?.slot.curve]);
@@ -216,15 +258,15 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
   const fit = a?.fit_timing ?? true;
   // what the build writes: with "fit timing", entry 0 and exit at the clip's end, unless a cue point overrides it
   const autoEntry = fit ? 0 : seg.entry_ms ?? 0;
-  const autoExit = fit ? mine?.duration_ms ?? 0 : seg.exit_ms ?? seg.duration_ms;
+  const autoExit = fit ? heardMs ?? 0 : seg.exit_ms ?? seg.duration_ms;
   const entry = o.entry_marker ?? autoEntry;
   const exit = o.exit_marker ?? autoExit;
 
   const gameMarkers: Marker[] = hasCues && seg.exit_ms != null
     ? [{ id: "entry", ms: seg.entry_ms ?? 0, label: ENTRY, about: ENTRY_ABOUT }, { id: "exit", ms: seg.exit_ms, label: EXIT, about: EXIT_ABOUT }] : [];
-  const myMarkers: Marker[] = hasCues && mine
+  const myMarkers: Marker[] = hasCues && heardMs
     ? [{ id: "entry", ms: entry, label: ENTRY, about: ENTRY_DRAG, draggable: true, min: 0, max: exit - 50 },
-       { id: "exit", ms: exit, label: EXIT, about: EXIT_DRAG, draggable: true, min: entry + 50, max: mine.duration_ms }] : [];
+       { id: "exit", ms: exit, label: EXIT, about: EXIT_DRAG, draggable: true, min: entry + 50, max: heardMs }] : [];
 
   const commit = (id: string, ms: number, how: "drag" | "key") => {
     // a drag that ends near the automatic spot snaps back onto it, clearing the override; a key's 10 ms step never does
@@ -234,7 +276,7 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
     actions.segmentOverride(seg.segment, e, x);
   };
   const overridden = o.entry_marker != null || o.exit_marker != null;
-  const tail = mine ? mine.duration_ms - exit : 0;
+  const tail = heardMs ? heardMs - exit : 0;
   const last = fmtTime(tail);
 
   return (
@@ -253,10 +295,15 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
           </div>
           {!readOnly && (
             <div className="tl-row">
-              <div className="tl-label mine"><b>{t`Replaced`}</b><span>{a?.silence ? t({ message: "silence", comment: "In place of the length of the new audio: the slot plays silence" }) : a ? fmtTime(mine?.duration_ms) : ""}</span>{mineDb !== 0 && <Db db={mineDb} />}{audible(a) && mineCurve && <CurveLabel />}</div>
+              <div className="tl-label mine"><b>{t`Replaced`}</b><span>{a?.silence ? t({ message: "silence", comment: "In place of the length of the new audio: the slot plays silence" }) : a ? fmtTime(heardMs) : ""}</span>{mineDb !== 0 && <Db db={mineDb} />}{audible(a) && mineCurve && <CurveLabel />}</div>
               {a?.silence ? (
                 <div className="wave placeholder">{a.fit_timing ? t`Silence: plays nothing, and the game moves straight on`
                   : t`Silence: plays nothing for the length of the original, so the timing doesn't change`}</div>
+              ) : trim && project ? (
+                <NewAudioLane file={fullPath(project.folder, a!.audio)} fileMs={fileMs} trim={trim} fades={fades} view={view}
+                  gainDb={mineDb} curve={mineCurve} playheadMs={head(kMine, true, heardMs)} cues={myMarkers}
+                  active={hasCues ? [entry, exit] : undefined} onCue={commit} onSeek={(ms) => seek("project", ms)}
+                  onSet={(x) => setTrim(source, x)} onFades={(f) => void actions.setFades([source], f)} />
               ) : a?.exists ? (
                 <Waveform peaks={mine} {...view} tone="mine" markers={myMarkers} playheadMs={head(kMine, true, mine?.duration_ms)} gainDb={mineDb} curve={mineCurve}
                   activeFrom={hasCues ? entry : undefined} activeTo={hasCues ? exit : undefined}
@@ -267,17 +314,11 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
               )}
             </div>
           )}
-          {!readOnly && trim && project && (
-            <div className="tl-row trim">
-              <div className="tl-label mine"><span>{t({ message: "Trim", comment: "The lane that sets where the new audio starts and ends" })}</span></div>
-              <TrimLane file={fullPath(project.folder, a!.audio)} fileMs={fileMs} trim={trim} view={view} onSeek={(ms) => seek("project", ms)}
-                onSet={(x) => setTrim(source, x)} />
-            </div>
-          )}
         </div>
         <WaveZoom zoom={zoom} foot={zoom.x > 1 ? <WaveScroll zoom={zoom} /> : null} />
       </div>
-      {!readOnly && trim && <TrimFields trim={trim} fileMs={fileMs} onSet={(x) => setTrim(source, x)} />}
+      {!readOnly && trim && <TrimFields trim={trim} fades={fades} fileMs={fileMs} onSet={(x) => setTrim(source, x)}
+        onFades={(f) => void actions.setFades([source], f)} />}
       {audible(a) && hasCues && (
         <p className="tl-note">
           {fit ? t`Drag Exit to move where the next segment starts.` : t`Fit timing is off, so the original cue points apply until one is moved.`}

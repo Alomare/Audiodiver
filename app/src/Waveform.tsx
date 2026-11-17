@@ -8,7 +8,18 @@ import { useTheme } from "./theme";
 
 /** The loudest sample of each slice of the audio, from 0 to `full` (255, or 32767 for a waveform zoomed in on). */
 export type Peaks = { duration_ms: number; peaks: number[]; full?: number };
-export type Marker = { id: string; ms: number; label: string; about?: string; draggable?: boolean; min?: number; max?: number };
+export type Marker = {
+  id: string; ms: number; label: string; about?: string; draggable?: boolean; min?: number; max?: number;
+  // a line that bends: its top at `bend` while its foot stays at `ms` (a fade from the foot to the top). Its flag,
+  // at the top, drags the bend; the rest of the line drags the marker, the bend going along
+  bend?: number; bendMin?: number; bendMax?: number; bendAbout?: string;
+};
+type Part = "line" | "bend";
+/** Fades on a stretch of audio, in its ms: the level rises in a straight line over `in` from `from`, and falls over
+    `out` up to `to` (audio.faded). */
+export type Fades = { from: number; to: number; in: number; out: number };
+const fadeLevel = (f: Fades, ms: number) =>
+  Math.max(0, Math.min(1, f.in > 0 ? (ms - f.from) / f.in : 1, f.out > 0 ? (f.to - ms) / f.out : 1));
 /** Finer peaks for a zoomed-in waveform: more slices, on the 16-bit scale. */
 type Fine = { buckets: number };
 
@@ -64,23 +75,24 @@ type Props = {
   activeTo?: number;
   bands?: number[];            // boundaries; alternate pieces are shaded (slice tool)
   onSeek?: (ms: number) => void;
-  onMarkerMove?: (id: string, ms: number) => void;
-  onMarkerCommit?: (id: string, ms: number, how: "drag" | "key") => void; // how: a drag snaps back onto the automatic spot, keys never do
+  onMarkerMove?: (id: string, ms: number, part: Part) => void;
+  onMarkerCommit?: (id: string, ms: number, how: "drag" | "key", part: Part) => void; // how: a drag snaps back onto the automatic spot, keys never do
   label?: string;                // shown while there are no peaks yet
   error?: string | null;         // shown instead when they failed, with a way to ask again
   onRetry?: () => void;
   gainDb?: number;               // drawn this much louder or quieter (Make-Up Gain); past full scale in red
   curve?: number[][];            // [ms, level]: the level the game gives the clip as it plays, 1 as mixed, as a line each side
+  fades?: Fades;                 // drawn into the shape (a marker's bent line shows each ramp)
 };
 
-export function Waveform({ peaks, spanMs, fromMs = 0, zoomY = 1, tone, height: fixed, markers = [], playheadMs, activeFrom, activeTo, bands, onSeek, onMarkerMove, onMarkerCommit, label, error, onRetry, gainDb = 0, curve }: Props) {
+export function Waveform({ peaks, spanMs, fromMs = 0, zoomY = 1, tone, height: fixed, markers = [], playheadMs, activeFrom, activeTo, bands, onSeek, onMarkerMove, onMarkerCommit, label, error, onRetry, gainDb = 0, curve, fades }: Props) {
   // where key nudges put each marker, until the project's answer puts it there too
   const nudged = useRef<Record<string, number>>({});
   for (const m of markers) if (nudged.current[m.id] === m.ms) delete nudged.current[m.id];
   const wrap = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
-  const [drag, setDrag] = useState<{ id: string; ms: number } | null>(null);
+  const [drag, setDrag] = useState<{ id: string; ms: number; part: Part } | null>(null);
   const look = useTheme(); // the canvas reads colours from CSS, so redraw when they change
 
   useEffect(() => {
@@ -97,7 +109,8 @@ export function Waveform({ peaks, spanMs, fromMs = 0, zoomY = 1, tone, height: f
   const x = (ms: number) => (spanMs > 0 ? ((ms - fromMs) / spanMs) * width : 0);
   const msAt = (clientX: number) => {
     const r = wrap.current!.getBoundingClientRect();
-    return Math.max(0, fromMs + Math.min(spanMs, Math.max(0, ((clientX - r.left) / r.width) * spanMs)));
+    // before 0 only where the view starts there (new audio placed later than the original: its delay)
+    return Math.max(Math.min(0, fromMs), fromMs + Math.min(spanMs, Math.max(0, ((clientX - r.left) / r.width) * spanMs)));
   };
   const inView = (px: number) => px >= -1 && px <= width + 1;
 
@@ -128,7 +141,7 @@ export function Waveform({ peaks, spanMs, fromMs = 0, zoomY = 1, tone, height: f
       const a = Math.max(0, Math.floor((ms / dur) * n)), b = Math.min(n, Math.max(a + 1, Math.ceil((ms2 / dur) * n)));
       let v = 0;
       for (let i = a; i < b; i++) v = Math.max(v, peaks.peaks[i]);
-      v = (v / full) * k;
+      v = (v / full) * k * (fades && ms >= from && ms <= to ? fadeLevel(fades, ms) : 1);
       const h = Math.max(1, Math.min(1, v * zoomY) * (height - 6));
       g.fillStyle = v > 1 ? red : ms >= from && ms <= to ? bright : dim;
       g.globalAlpha = ms >= from && ms <= to ? 0.9 : 0.45;
@@ -149,36 +162,45 @@ export function Waveform({ peaks, spanMs, fromMs = 0, zoomY = 1, tone, height: f
       }
       g.globalAlpha = 1;
     }
-  }, [peaks, width, height, spanMs, fromMs, zoomY, tone, activeFrom, activeTo, bands?.join(","), look, gainDb, curve]);
+  }, [peaks, width, height, spanMs, fromMs, zoomY, tone, activeFrom, activeTo, bands?.join(","), look, gainDb, curve,
+    fades?.from, fades?.to, fades?.in, fades?.out]);
 
   const startDrag = (e: React.PointerEvent, m: Marker) => {
     if (!m.draggable) return;
     e.stopPropagation(); e.preventDefault();
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    setDrag({ id: m.id, ms: m.ms });
+    const bend = m.bend != null && !!(e.target as HTMLElement).closest(".marker-flag");
+    setDrag({ id: m.id, ms: bend ? m.bend! : m.ms, part: bend ? "bend" : "line" });
   };
+  const clamp = (m: Marker, part: Part, ms: number) =>
+    part === "bend" ? Math.max(m.bendMin ?? m.ms, Math.min(m.bendMax ?? m.ms, ms)) : Math.max(m.min ?? 0, Math.min(m.max ?? spanMs, ms));
   const moveDrag = (e: React.PointerEvent, m: Marker) => {
     if (!drag || drag.id !== m.id) return;
-    const ms = Math.max(m.min ?? 0, Math.min(m.max ?? spanMs, msAt(e.clientX)));
-    setDrag({ id: m.id, ms });
-    onMarkerMove?.(m.id, ms);
+    const ms = clamp(m, drag.part, msAt(e.clientX));
+    setDrag({ ...drag, ms });
+    onMarkerMove?.(m.id, ms, drag.part);
   };
   // where the release is, not the last move's state: that may not be drawn yet when the release comes right after it
   // (WebKit, the window on Linux), and the marker went back to where the drag began
   const endDrag = (e: React.PointerEvent, m: Marker) => {
     if (!drag || drag.id !== m.id) return;
-    const ms = Math.max(m.min ?? 0, Math.min(m.max ?? spanMs, msAt(e.clientX)));
-    onMarkerCommit?.(m.id, Math.round(ms), "drag");
+    onMarkerCommit?.(m.id, Math.round(clamp(m, drag.part, msAt(e.clientX))), "drag", drag.part);
     setDrag(null);
+  };
+  /** Where a marker's foot and top are drawn, with a drag in progress: dragging the line takes the bend along. */
+  const placed = (m: Marker) => {
+    const d = drag?.id === m.id ? drag : null;
+    const foot = d?.part === "line" ? d.ms : m.ms;
+    const top = d?.part === "bend" ? d.ms : m.bend != null ? m.bend + (foot - m.ms) : foot;
+    return { foot, top };
   };
 
   // a flag that would cover the one before it (Entry and Exit close together on short audio) goes a row lower. A
   // flag's width is guessed from its label, on the generous side: too generous only stacks two that would just fit.
   const flagRows = new Map<string, number>();
   let flagEnd = -Infinity, flagRow = 0;
-  for (const m of [...markers].sort((a, b) => a.ms - b.ms)) {
-    const ms = drag?.id === m.id ? drag.ms : m.ms;
-    const left = x(ms), w = 14 + (m.label.length + (drag?.id === m.id ? 7 : 0)) * 8;
+  for (const m of [...markers].sort((a, b) => placed(a).top - placed(b).top)) {
+    const left = x(placed(m).top), w = 14 + (m.label.length + (drag?.id === m.id ? 7 : 0)) * 8;
     const from = left > width - 90 ? left - w : left; // a flipped flag reaches back from its line
     flagRow = from < flagEnd ? flagRow + 1 : 0;
     flagRows.set(m.id, flagRow);
@@ -198,13 +220,15 @@ export function Waveform({ peaks, spanMs, fromMs = 0, zoomY = 1, tone, height: f
       {/* moved by a transform: it moves on every frame of playback, and a transform needs no layout or paint */}
       {playheadMs != null && inView(x(playheadMs)) && <div className="playhead" style={{ transform: `translateX(${x(playheadMs)}px)` }} />}
       {markers.map((m) => {
+        const { foot, top } = placed(m);
         const ms = drag?.id === m.id ? drag.ms : m.ms;
-        const left = x(ms), row = flagRows.get(m.id) ?? 0;
-        if (!inView(left) && drag?.id !== m.id) return null; // zoomed in elsewhere
+        const left = x(foot), dx = x(top) - left, row = flagRows.get(m.id) ?? 0;
+        if (!inView(left) && !inView(left + dx) && drag?.id !== m.id) return null; // zoomed in elsewhere
+        const bent = Math.abs(dx) >= 0.5;
         return (
-          <div key={m.id} className={`marker${m.draggable ? " draggable" : ""}${drag?.id === m.id ? " dragging" : ""}${left > width - 90 ? " flip" : ""}`}
+          <div key={m.id} className={`marker${m.draggable ? " draggable" : ""}${drag?.id === m.id ? " dragging" : ""}${left + dx > width - 90 ? " flip" : ""}${bent ? " bent" : ""}${m.bend != null ? " bendable" : ""}`}
             style={{ left }} role={m.draggable ? "slider" : undefined} tabIndex={m.draggable ? 0 : undefined}
-            aria-label={m.label} aria-valuenow={m.draggable ? Math.round(ms) : undefined} data-tip={drag ? undefined : t`${ph({ name: m.label })} at ${ph({ time: fmtTime(ms) })}`} data-tip-side="top"
+            aria-label={m.label} aria-valuenow={m.draggable ? Math.round(ms) : undefined} data-tip={drag ? undefined : t`${ph({ name: m.label })} at ${ph({ time: fmtTime(m.ms) })}`} data-tip-side="top"
             data-tip-more={drag ? undefined : m.about}
             onPointerDown={(e) => startDrag(e, m)} onPointerMove={(e) => moveDrag(e, m)} onPointerUp={(e) => endDrag(e, m)}
             onKeyDown={(e) => {
@@ -215,10 +239,19 @@ export function Waveform({ peaks, spanMs, fromMs = 0, zoomY = 1, tone, height: f
               const from = nudged.current[m.id] ?? ms;
               const to = Math.max(m.min ?? 0, Math.min(m.max ?? spanMs, Math.round(from + step)));
               nudged.current[m.id] = to;
-              onMarkerCommit?.(m.id, to, "key");
+              onMarkerCommit?.(m.id, to, "key", "line");
             }}>
-            <span className="marker-flag" style={row ? { top: `calc(${row} * (16px * var(--fs) + 1px))` } : undefined}>
-              {m.label}{drag?.id === m.id ? ` ${fmtTime(ms)}` : ""}</span>
+            {/* the bent line: from the foot at the bottom to the top, where the flag is */}
+            {bent && (
+              <svg className="marker-bend" style={{ left: Math.min(0, dx), width: Math.abs(dx) }} aria-hidden="true">
+                <line x1={dx > 0 ? "0%" : "100%"} y1="100%" x2={dx > 0 ? "100%" : "0%"} y2="0%" />
+                {/* the slant itself drags the marker, as the straight line does */}
+                <line className="grab" x1={dx > 0 ? "0%" : "100%"} y1="100%" x2={dx > 0 ? "100%" : "0%"} y2="0%" />
+              </svg>
+            )}
+            <span className="marker-flag" style={{ ...(row ? { top: `calc(${row} * (16px * var(--fs) + 1px))` } : {}), ...(bent ? { marginLeft: dx } : {}) }}
+              data-tip={m.bend != null && !drag ? m.bendAbout : undefined} data-tip-side="top">
+              {m.label}{drag?.id === m.id ? ` ${fmtTime(drag.part === "bend" ? Math.abs(drag.ms - m.ms) : ms)}` : ""}</span>
           </div>
         );
       })}

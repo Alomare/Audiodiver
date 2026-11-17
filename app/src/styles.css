@@ -645,7 +645,7 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .marker { position: absolute; top: 0; bottom: 0; width: 0; border-left: 1px solid var(--muted); }
 .wave.mine .marker { border-left-color: var(--accent-fg); }
 .marker-flag { position: absolute; top: 0; left: 0; font-size: calc(11px * var(--fs)); line-height: calc(16px * var(--fs)); padding: 0 5px; background: var(--muted); color: var(--steel-ink); white-space: nowrap; pointer-events: none; }
-.wave.mine .marker-flag { background: var(--accent); color: var(--accent-ink); }
+.wave.mine .marker-flag { background: var(--text); color: var(--bg); } /* the accent would vanish on the accent waveform */
 .marker.flip .marker-flag { left: auto; right: 0; }
 .marker.draggable { cursor: ew-resize; }
 .marker.draggable::before { content: ""; position: absolute; top: 0; bottom: 0; left: -6px; width: 12px; } /* a wider grab area */
@@ -702,14 +702,21 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .inspector .shared-groups > div:first-child dt { margin-top: 0; }
 .tl-note { margin: 0 0 0 calc(64px * var(--fs) + 10px); font-size: calc(12px * var(--fs)); color: var(--muted); }
 .tl-note b { color: var(--text); font-weight: 500; }
-/* Trim: the new audio's file under Replaced, slimmer; the stretch that plays drags, its handles are the markers */
-.tl-row.trim { flex: 0 0 calc(34px * var(--fs)); min-height: calc(34px * var(--fs)); }
-.trim-wrap { position: relative; display: grid; min-width: 0; overflow: hidden; }
+/* the new audio's lane: its whole file under Replaced; the stretch that plays drags, its ends and fades are markers */
+.trim-wrap { position: relative; display: grid; grid-template-rows: minmax(0, 1fr); min-width: 0; overflow: hidden; }
 .trim-wrap > .wave { grid-area: 1 / 1; }
 .trim-body { position: absolute; top: 0; bottom: 0; z-index: 1; min-width: 4px; cursor: grab; border-radius: 2px; }
 .trim-body:hover { background: color-mix(in srgb, var(--accent-fg) 10%, transparent); }
 .trim-body:active { cursor: grabbing; }
 .trim-wrap .marker { z-index: 2; }
+/* a line bent into a fade: drawn slanted from its foot to its flag; the flag drags the fade, the slant the marker */
+.marker.bent { border-left-color: transparent !important; }
+.marker.bent::before { top: 50%; } /* the foot only: above it is the fade, not the line */
+.marker-bend { position: absolute; top: 0; height: 100%; overflow: visible; pointer-events: none; }
+.marker-bend line { stroke: var(--accent-fg); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.marker-bend line.grab { stroke: transparent; stroke-width: 12; pointer-events: stroke; cursor: ew-resize; }
+.marker.bendable .marker-flag { pointer-events: auto; cursor: ew-resize; }
+.marker.bendable .marker-flag:hover { outline: 1px solid var(--accent-fg); }
 .tl-trim { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin-left: calc(64px * var(--fs) + 10px); font-size: calc(12px * var(--fs)); color: var(--muted); }
 .trim-field { display: flex; align-items: center; gap: 6px; }
 .trim-field input { width: calc(76px * var(--fs)); padding: 2px 6px; font: inherit; font-variant-numeric: tabular-nums; color: var(--text); }

@@ -70,7 +70,7 @@ The game applies them, so previews and the waveforms in Audiodiver play without 
 
 ## Fades
 
-**Fade In** and **Fade Out** are in milliseconds, in the details of a slot with new audio. They go into the audio itself, so the waveform and the preview show them, and the length doesn't change. A `.wem` that would go in unchanged is encoded again when it has a fade.
+**Fade In** and **Fade Out** are in milliseconds, under the waveforms and in the details of a slot with new audio. On the **Replaced** waveform, the label at the top of the **Start** or **End** line drags a fade (see [Trimming and moving new audio](wiki:timing-and-loops#trimming-and-moving-new-audio)). Fades go into the audio itself, so the waveform and the preview show them, and the length doesn't change. A `.wem` that would go in unchanged is encoded again when it has a fade.
 
 
 ## Radio filter

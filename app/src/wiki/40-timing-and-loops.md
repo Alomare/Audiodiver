@@ -26,13 +26,14 @@ When one file plays in several segments, **Apply to … more segments with this 
 
 ## Trimming and moving new audio
 
-The **Trim** lane under **Replaced** shows the whole file of the new audio, on the same time scale. The part that plays is bright, and the rest is dim. This works on every slot with new audio: music, sounds and voice lines.
+The **Replaced** waveform shows the whole file of the new audio, on the same time scale as the original. The part that plays is bright, and the rest is dim. This works on every slot with new audio: music, sounds and voice lines.
 
-- Drag **Start** and **End** to choose the stretch of the file that plays.
+- Drag the **Start** and **End** lines to choose the stretch of the file that plays.
+- Drag the **Start** or **End** label at the top of a line to fade the audio in or out. The line bends from where the audio is silent to where it reaches full level.
 - Drag the bright stretch to the right to make the new audio start later than the original. The slot plays silence before it. Drag it back to the left to start sooner.
-- Type exact values in **Start**, **End** and **Delay** under the waveforms, in milliseconds. **Reset** plays the whole file again, from the start.
+- Type exact values in **Start**, **End**, **Delay**, **Fade In** and **Fade Out** under the waveforms, in milliseconds. **Reset** plays the whole file again, from the start, without fades.
 
-The file stays as it is. The project keeps the three values, and builds, previews and the **Replaced** waveform all use them. Fades and Make-Up Gain apply to the stretch that plays. Choosing another file for the slot starts it untrimmed.
+The file stays as it is. The project keeps these values, and builds and previews use them. Make-Up Gain applies to the stretch that plays. Choosing another file for the slot starts it untrimmed.
 
 ## Hearing the result
 
