@@ -3,6 +3,43 @@
 The Updates tab shows this file. Each release starts with a second-level heading, `<version> - <date>`,
 newest first.
 
+## 1.8.0 - 2026-11-17
+
+### Highlights
+
+#### Linux
+
+Audiodiver runs on Linux, in beta: an AppImage that updates itself, a .deb package, and Audiodiver Utils as a .tar.gz. It finds the games in native, Flatpak and Snap Steam.
+
+#### Trim, move and fade new audio
+
+The Replaced waveform now sets where new audio starts and ends in the file, how long after the Original it starts, and how long it takes to fade in and out. Drag the **Start** and **End** lines to trim, the square at the top of either line to fade, and the stretch between them to start later. The exact values, in ms, are under the waveform. Builds and previews follow these settings and leave the file as it is.
+
+#### Korean
+
+Added Korean (한국어) to the app, the Wiki and the game names. Audiodiver picks it on a Korean Steam or system.
+
+### Additions
+
+- Added .7z and .rar mods to Import Mod, Repatch, Combine and Patch Content, which now read them as mod managers do (GitHub issue #6).
+- Added **Slice a song** for sounds: with one slot of a sound selected, it cuts a stretch of a song for that slot.
+
+### Changes
+
+- Helldivers 1 mods build several times faster, and a build after a small change takes seconds. Audio is encoded on every spare processor core and kept between builds, and slots with the same audio share one copy, so mods are smaller.
+- Replaced "Also save the patch files in a folder" with two Build options, **Export zipped mod** (on) and **Export raw patch files** (off), so a build can make the patch files alone. With both off, **Build** is off and says why.
+- Removed the blur from Home's pictures, which are now only shaded behind the page.
+
+### Bug Fixes
+
+- Fixed quad and 5.1 audio, such as music copied from Helldivers 2, coming out about 7 dB quieter in stereo slots.
+- Fixed Helldivers 1 objective music, and other sounds the game keeps the same in every language, playing new audio only in the language it was set in. These items now open as one part in the Library.
+- Fixed builds and previews failing with an AssertionError after a game update while Audiodiver was open. Audiodiver now reads the game again by itself.
+- Fixed the Container IDs ticks standing in one column at the left. Each tick now sits right before the line it selects.
+- Fixed cue points and the Make-Up Gain, filter and Level sliders jumping back when let go quickly after a drag.
+- Fixed the Library staying on the other game when a project opened, with no + buttons. It now turns to the project's game.
+- Fixed Patch Content showing "Something went wrong (TypeError)" when silence can't be encoded. It now says which audio failed.
+
 ## 1.7.2 - 2026-11-08
 
 ### Additions
