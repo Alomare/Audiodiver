@@ -10,7 +10,7 @@
 as resources; the shell runs `core/python/python.exe` with `core/tools` on PATH):
 
     core/python/     Python's embeddable package, with the core, numpy, pillow and lz4 in Lib/site-packages
-    core/tools/      ffmpeg, ffprobe, vgmstream-cli (with its DLLs) and wav2wem
+    core/tools/      ffmpeg, ffprobe, vgmstream-cli (with its DLLs) and wav2wem (on Linux also oggenc, built here)
     core/licenses/   each one's licence, and where its source is
 
 Every download is pinned to a version and checked against its SHA-256. wav2wem is built from its source with Go
@@ -66,6 +66,13 @@ DOWNLOADS = {
                           "fcc26d35c4c4365e31f21734f846e4ee362ff0b57ba696085605a7b4768d8763"),
     "7zip-linux": ("https://github.com/ip7z/7zip/releases/download/26.05/7z2605-linux-x64.tar.xz",
                    "22cf82fcc6eb7474f1d5bb4f02c0f8ebd573a718089d6833dc30f8350a3b232e"),
+    # oggenc for Linux, with the aoTuV libvorbis of wav2wem's own (Windows) encoder: built from these (oggenc_linux)
+    "libogg": ("https://downloads.xiph.org/releases/ogg/libogg-1.3.6.tar.xz",
+               "5c8253428e181840cd20d41f3ca16557a9cc04bad4a3d04cce84808677fa1061"),
+    "aotuv": ("https://github.com/AO-Yumi/vorbis_aotuv/archive/refs/tags/beta6.03-2020.tar.gz",
+              "b529eb656a28cdd3a3ce22fe470a2f7705a088a87ccabe6675f1748e843aef0d"),
+    "vorbis-tools": ("https://downloads.xiph.org/releases/vorbis/vorbis-tools-1.4.3.tar.gz",
+                     "a1fe3ddc6777bdcebf6b797e7edfe0437954b24756ffcc8c6b816b63e0460dde"),
 }
 SOURCES = f"""The programs in this folder and where their source is. Audiodiver runs them as separate programs.
 
@@ -97,6 +104,11 @@ vgmstream r2117 (vgmstream-cli)    ISC-style licence (vgmstream.txt)
     https://github.com/vgmstream/vgmstream/tree/r2117
 wav2wem ({WAV2WEM.split('@')[1]})    GPL-2.0 (wav2wem.txt, wav2wem-third-party.md)
     https://github.com/pas2k/wav2wem/tree/{WAV2WEM.rsplit('-', 1)[1]}
+oggenc (vorbis-tools 1.4.3, static, with libvorbis aoTuV b6.03 2020 and libogg 1.3.6)    GPL-2.0 (oggenc.txt);
+    libvorbis and libogg BSD-3-Clause (aotuv.txt, libogg.txt)
+    https://downloads.xiph.org/releases/vorbis/vorbis-tools-1.4.3.tar.gz
+    https://github.com/AO-Yumi/vorbis_aotuv/tree/beta6.03-2020
+    https://downloads.xiph.org/releases/ogg/libogg-1.3.6.tar.xz
 7-Zip 26.05 (7zz)    GNU LGPL with the unRAR restriction (7zip.txt)
     https://github.com/ip7z/7zip/releases/tag/26.05
 """
@@ -151,7 +163,7 @@ def core():
         run(have, "e", "-y", "-bso0", f"-o{lic}", fetch("7zip"), "License.txt")
         (lic / "License.txt").replace(lic / "7zip.txt")
     (lic / "README.txt").write_text(SOURCES_LINUX if LINUX else SOURCES)
-    for t in ("ffmpeg", "ffprobe", "vgmstream-cli", "wav2wem", "7zz" if LINUX else "7z"):
+    for t in ("ffmpeg", "ffprobe", "vgmstream-cli", "wav2wem", *(("7zz", "oggenc") if LINUX else ("7z",))):
         if not (tools / f"{t}{EXE}").is_file():
             sys.exit(f"{t}{EXE} is missing from {tools}")
     if LINUX:  # the run permission, which the archives and downloads don't all keep
@@ -213,6 +225,7 @@ def core_linux(py, tools, lic):
         (tools / "vgmstream-cli").write_bytes(z.read("vgmstream-cli"))
     shutil.copy(fetch("vgmstream-copying"), lic / "vgmstream.txt")
     wav2wem(tools, lic)
+    oggenc_linux(tools, lic)
     # links as plain files: what Tauri, the AppImage and the .tar.gz all keep the same way
     for f in [f for f in OUT.rglob("*") if f.is_symlink()]:
         target = f.resolve()
@@ -229,6 +242,46 @@ def wav2wem(tools, lic):
     src = Path(f"{mod / WAV2WEM.split('/cmd/')[0]}@{WAV2WEM.split('@')[1]}")  # the module's source, with its licence
     shutil.copy(src / "LICENSE", lic / "wav2wem.txt")
     shutil.copy(src / "THIRD_PARTY_NOTICES.md", lic / "wav2wem-third-party.md")
+
+
+def oggenc_linux(tools, lic):
+    """oggenc as one static program: wav2wem's own encoder is oggenc2.exe (libvorbis aoTuV b6.03), which runs only on
+    Windows, so the core encodes with this one off Windows and wav2wem takes its .ogg (wem.OGGENC). Static, so it runs
+    on any Linux whatever its C library."""
+    work = CACHE.parent / "oggenc-build"
+    shutil.rmtree(work, ignore_errors=True)
+    prefix = work / "prefix"
+    dirs = {}
+    for name in ("libogg", "aotuv", "vorbis-tools"):
+        with tarfile.open(fetch(name)) as t:
+            t.extractall(work, filter="tar")
+            dirs[name] = work / t.getnames()[0].split("/")[0]
+    env = {**os.environ, "CFLAGS": "-O2", "PKG_CONFIG_PATH": str(prefix / "lib" / "pkgconfig")}
+    jobs = f"-j{os.cpu_count() or 2}"
+    static = ("--disable-shared", "--enable-static")
+
+    def configure(d, *args):
+        for f in ("configure", "config.guess", "config.sub", "install-sh", "missing", "depcomp", "compile"):
+            if (d / f).is_file():  # aoTuV's archive leaves out the run permission
+                (d / f).chmod(0o755)
+        run("./configure", "-q", f"--prefix={prefix}", *args, cwd=d, env=env)
+
+    for name in ("libogg", "aotuv"):
+        configure(dirs[name], *static, *((f"--with-ogg={prefix}",) if name == "aotuv" else ()))
+        run("make", "-s", jobs, cwd=dirs[name], env=env)
+        run("make", "-s", "install", cwd=dirs[name], env=env)
+    vt = dirs["vorbis-tools"]
+    configure(vt, "--disable-nls", "--disable-ogg123", "--disable-oggdec", "--disable-ogginfo", "--disable-vcut",
+              "--disable-vorbiscomment", "--without-flac", "--without-speex", "--without-kate", "--without-curl",
+              f"--with-ogg={prefix}", f"--with-vorbis={prefix}")
+    run("make", "-s", jobs, "-C", "share", cwd=vt, env=env)
+    run("make", "-s", jobs, "-C", "oggenc", "LDFLAGS=-all-static", cwd=vt, env=env)
+    shutil.copy(vt / "oggenc" / "oggenc", tools / "oggenc")
+    run("strip", tools / "oggenc")
+    shutil.copy(vt / "COPYING", lic / "oggenc.txt")
+    shutil.copy(dirs["aotuv"] / "COPYING", lic / "aotuv.txt")
+    shutil.copy(dirs["libogg"] / "COPYING", lic / "libogg.txt")
+    shutil.rmtree(work, ignore_errors=True)
 
 
 def core_windows(py, tools, lic):

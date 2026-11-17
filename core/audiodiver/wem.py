@@ -1,7 +1,8 @@
 """Encodes any audio file to a Wwise Vorbis .wem that HD2 plays, without a Wwise install.
 
 Pipeline: ffmpeg (decode, resample to 48 kHz, fold to mono/stereo; a WAV already 16-bit at 48 kHz, mono or stereo,
-skips it, so silence and such WAVs encode without ffmpeg) -> wav2wem (Vorbis) -> set the AkChannelConfig
+skips it, so silence and such WAVs encode without ffmpeg) -> wav2wem (Vorbis; off Windows, oggenc encodes and
+wav2wem repacks its .ogg) -> set the AkChannelConfig
 wav2wem leaves zeroed (the game drops a source whose config is 0) and the codebook hash of the clip's own setup
 (wav2wem writes one hash for every setup) -> vgmstream check. A .wem given as audio is read through vgmstream
 (`decoded`): ffmpeg reads no Wwise audio.
@@ -12,6 +13,9 @@ import glob, hashlib, os, re, shutil, struct, subprocess, sys, tempfile, wave
 
 RATE = 48000
 WAV2WEM = shutil.which("wav2wem") or os.path.expanduser("~/go/bin/wav2wem.exe")
+# Off Windows, the Vorbis encode itself: wav2wem's own encoder is a Windows program (oggenc2.exe, aoTuV), so a Linux
+# release carries the same aoTuV encoder built for Linux (app/scripts/release.py) and wav2wem takes its .ogg as it is
+OGGENC = None if os.name == "nt" else shutil.which("oggenc")
 VGMSTREAM = shutil.which("vgmstream-cli") or r"C:\Tools\vgmstream\vgmstream-cli.exe"
 FFMPEG = shutil.which("ffmpeg") or next(iter(glob.glob(os.path.expandvars(
     r"%LOCALAPPDATA%\Microsoft\WinGet\Packages\Gyan.FFmpeg*\ffmpeg-*\bin\ffmpeg.exe"))), "ffmpeg")
@@ -242,6 +246,10 @@ def encode(src: str, dst: str, quality: float = 6) -> dict:
     with tempfile.TemporaryDirectory() as tmp:
         wav = os.path.join(tmp, "in.wav")
         channels, samples = prepare_wav(src, wav)
+        if OGGENC:
+            ogg = os.path.join(tmp, "in.ogg")
+            subprocess.run([OGGENC, "--quiet", "-q", str(quality), "-o", ogg, wav], check=True, capture_output=True)
+            wav = ogg
         subprocess.run([WAV2WEM, "-q", str(quality), "-o", dst, wav], check=True, capture_output=True)
     with open(dst, "r+b") as f:
         data = with_codebook_hash(fix_channel_config(bytearray(f.read())))
