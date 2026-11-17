@@ -369,6 +369,9 @@ function useEditorState() {
     if ((p?.path ?? null) !== projectPath.current) { // new audio copied belongs to one project, an original to none
       projectPath.current = p?.path ?? null;
       if (!clipFrom.current.original) setClip([]);
+      // the Library turns to the game the project makes a mod for, the one whose sounds it can add (it stayed on the
+      // other game when the window's mode was already this one, and showed no +)
+      if (!UTILS && p) tabs.pickGame(p.game ?? "hd2");
     }
     // a change since a notice was shown (an edit, an undo, another project) makes its Undo refuse; a no-op doesn't
     const rev = p ? p.revision : -1;
