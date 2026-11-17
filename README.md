@@ -102,7 +102,7 @@ New versions, looked for at every start. Audiodiver asks before installing one, 
 
 ### 🧰 Audiodiver Utils
 
-The two tools of the Tools tab on their own, for players who only need to fix or merge mods: a portable window of about 30 MB and a command line, for Windows and Linux. Both read mods as ZIP, .7z or .rar files, as mod managers download them, or as patch files.
+The two tools of the Tools tab on their own, for players who only need to fix or merge mods: a portable window and a command line, for Windows (about 30 MB) and Linux. Both read mods as ZIP, .7z or .rar files, as mod managers download them, or as patch files.
 
 #### Repatch
 
