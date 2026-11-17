@@ -7,7 +7,6 @@
 <p align="center">
   <img alt="Windows 10 and 11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-2f7bf5?style=flat-square">
   <img alt="Linux (beta)" src="https://img.shields.io/badge/Linux-beta-f5a623?style=flat-square">
-  <img alt="Mods for Helldivers 2 and Helldivers 1" src="https://img.shields.io/badge/mods%20for-Helldivers%202%20%7C%201-ffe81f?style=flat-square">
   <img alt="License: MPL-2.0" src="https://img.shields.io/badge/license-MPL--2.0-3a3a3a?style=flat-square">
   <!-- the count of LANGUAGES in app/src/i18n.ts, listed under Supported Languages -->
   <a href="#-supported-languages"><img alt="7 languages" src="https://img.shields.io/badge/languages-7-3a3a3a?style=flat-square"></a>
