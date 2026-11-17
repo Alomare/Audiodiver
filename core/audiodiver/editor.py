@@ -1500,7 +1500,7 @@ class Session:
                 **self._folder_facts(p),
                 "revision": self.revision, "version": p.version, "description": p.description, "icon": p.icon, "icon_frame": frame,
                 "loudness_analysis": p.loudness_analysis, "every_bank": p.every_bank,
-                "project_banks_only": p.project_banks_only, "patch_files": p.patch_files,
+                "project_banks_only": p.project_banks_only, "patch_files": p.patch_files, "zip_mod": p.zip_mod,
                 "build_folder": str(p.build_dir()), "build_folder_default": str(p.default_build_dir()),
                 "zip_name": zip_name(p), "last_build": (last := _last_build(p.build_dir(), slug(p.name))),
                 "game": p.game,
@@ -2030,7 +2030,8 @@ class Session:
         is checked before any is changed."""
         from . import akd
         bad = set(fields) - {"name", "version", "description", "icon", "build_folder", "guid", "loudness_analysis",
-                             "every_bank", "project_banks_only", "patch_files", "tabs", "radio_off", "radio_quieter"}
+                             "every_bank", "project_banks_only", "patch_files", "zip_mod", "tabs", "radio_off",
+                             "radio_quieter"}
         if bad:
             raise EditorError(f"Unknown setting {sorted(bad)[0]}")
         checked = {}
@@ -2060,8 +2061,8 @@ class Session:
                 raise EditorError("The radio loudness is on or off")
             elif k == "project_banks_only" and not isinstance(v, bool):
                 raise EditorError("Only the project's banks is on or off")
-            elif k == "patch_files" and not isinstance(v, bool):
-                raise EditorError("Patch files are on or off")
+            elif k in ("patch_files", "zip_mod") and not isinstance(v, bool):
+                raise EditorError("Patch files and the zipped mod are on or off")
             elif k == "tabs" and v is not None and (v := tab_list(v)) is None:
                 raise EditorError("The tabs are some of " + ", ".join(TABS))
             checked[k] = v
@@ -2093,6 +2094,8 @@ class Session:
                     p.radio_quieter = v
                 elif k == "patch_files":
                     p.patch_files = v
+                elif k == "zip_mod":
+                    p.zip_mod = v
                 elif k == "tabs":  # None: as Settings says again
                     p.tabs = v
         return self._edit("tabs" if set(checked) == {"tabs"} else "settings", apply)
@@ -2710,13 +2713,17 @@ class Session:
                 except BuildError as e:
                     raise EditorError(str(e)) from None
                 built_for = self.ix.game.version
+            # zip: what the build made, the ZIP or, without one, the folder of patch files
             result = {"zip": str(zip_path), "folder": str(zip_path.parent), "version": snapshot.version,
-                      "mb": round(zip_path.stat().st_size / 1e6, 1), "game": snapshot.game}
+                      "mb": round(_size(zip_path) / 1e6, 1), "game": snapshot.game, "is_zip": zip_path.is_file()}
             self._bump_version(snapshot.path, snapshot.version + 1 if bump else 0, built_for, made_from)
             return result
         with self.build_lock:  # two builds sent together both started, and wrote one .partial ZIP
             if any(j.kind == "build" and j.state == "running" for j in self.jobs.values()):
                 raise EditorError(tr("A build is already running"))
+            if not self._hd1p(p) and not (p.zip_mod or p.patch_files):
+                from .build import no_output
+                raise EditorError(no_output())
             if not self._has_work(p):
                 raise EditorError(tr("Nothing to build yet. Replace some audio, set a piece in the Soundtrack or "
                                      "change a line of text first."))
@@ -5377,16 +5384,27 @@ def _rebuild(p: Project, game_updated: bool, last) -> str | None:
 
 
 def _last_build(folder: Path, slug: str):
-    """The newest build of a mod in its build folder, <slug>-<version>.zip (other mods may build into the same
-    folder): {zip, mb, modified}, or None."""
+    """The newest build of a mod in its build folder (other mods may build into the same folder): its ZIP,
+    <slug>-<version>.zip, or, for a build without one, its folder of patch files, <slug>-<version>. {zip (the ZIP or
+    that folder), mb, modified}, or None. A folder beside a ZIP of its name is that ZIP's build."""
     try:
-        zips = [(f.stat(), f) for f in folder.glob(f"{slug}-*.zip") if f.stem[len(slug) + 1:].isdigit()]
+        made = [(f.stat(), f) for f in folder.glob(f"{slug}-*")
+                if (f.suffix == ".zip" and f.is_file() or f.suffix == "" and f.is_dir()) and f.stem[len(slug) + 1:].isdigit()
+                and not (f.is_dir() and f.with_suffix(".zip").is_file())]
     except OSError:
         return None
-    if not zips:
+    if not made:
         return None
-    st, f = max(zips, key=lambda z: z[0].st_mtime)
-    return {"zip": str(f), "mb": round(st.st_size / 1e6, 1), "modified": st.st_mtime}
+    st, f = max(made, key=lambda z: z[0].st_mtime)
+    return {"zip": str(f), "mb": round(_size(f) / 1e6, 1), "modified": st.st_mtime}
+
+
+def _size(path: Path) -> int:
+    """A file's size, or the size of the files in a folder."""
+    try:
+        return path.stat().st_size if path.is_file() else sum(f.stat().st_size for f in path.rglob("*") if f.is_file())
+    except OSError:
+        return 0
 
 
 def _digest(patch: Path) -> str:

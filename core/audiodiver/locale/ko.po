@@ -163,6 +163,10 @@ msgid "Piece {n} is empty: the song ends before it"
 msgstr "조각 {n}이(가) 비어 있습니다. 노래가 그 전에 끝납니다"
 
 #: build.py
+msgid "Turn on Export zipped mod or Export raw patch files: with both off, a build has nothing to make."
+msgstr "ZIP 모드로 내보내기 또는 패치 파일 그대로 내보내기를 켜세요. 둘 다 꺼져 있으면 빌드로 만들 것이 없습니다."
+
+#: build.py
 msgid "Patching the sound banks"
 msgstr "사운드 뱅크 패치 중"
 
@@ -191,10 +195,6 @@ msgstr "무전 필터: 이 게임 버전에서 해당 버스 일부가 바뀌어
 #: build.py
 msgid "verified ({seconds}s)"
 msgstr "확인됨 ({seconds}s)"
-
-#: build.py editor.py
-msgid "Packing the ZIP"
-msgstr "ZIP 묶는 중"
 
 #: build.py
 msgid "curves: {n} sound or track is not in this game version; left out"
@@ -314,6 +314,10 @@ msgstr[0] "오디오 외 파일 {n}개(텍스트, 모델, 텍스처...)를 그�
 #: build.py
 msgid "{folder} is inside the game folder, and Audiodiver never writes there. Choose another folder for the builds."
 msgstr "{folder}은(는) 게임 폴더 안에 있으며, Audiodiver는 그곳에 쓰지 않습니다. 빌드용으로 다른 폴더를 선택하세요."
+
+#: build.py editor.py
+msgid "Packing the ZIP"
+msgstr "ZIP 묶는 중"
 
 #: build.py
 msgid "encoding {file}"
@@ -2282,6 +2286,10 @@ msgstr "뱅크"
 #: project.py
 msgid "Patch files"
 msgstr "패치 파일"
+
+#: project.py
+msgid "Zipped mod"
+msgstr "ZIP 모드"
 
 #: project.py
 msgid "the game version of the last build"

@@ -163,6 +163,10 @@ msgid "Piece {n} is empty: the song ends before it"
 msgstr "第 {n} 段为空：歌曲在它之前就已结束"
 
 #: build.py
+msgid "Turn on Export zipped mod or Export raw patch files: with both off, a build has nothing to make."
+msgstr "请开启“导出 ZIP 模组”或“导出原始补丁文件”：两者都关闭时，构建没有可生成的内容。"
+
+#: build.py
 msgid "Patching the sound banks"
 msgstr "正在修补音频库"
 
@@ -191,10 +195,6 @@ msgstr "无线电滤镜：此游戏版本更改了其中一些总线，因此它
 #: build.py
 msgid "verified ({seconds}s)"
 msgstr "已验证（{seconds}s）"
-
-#: build.py editor.py
-msgid "Packing the ZIP"
-msgstr "正在打包 ZIP"
 
 #: build.py
 msgid "curves: {n} sound or track is not in this game version; left out"
@@ -314,6 +314,10 @@ msgstr[0] "{n} 个音频以外的文件（文本、模型、纹理等）按原�
 #: build.py
 msgid "{folder} is inside the game folder, and Audiodiver never writes there. Choose another folder for the builds."
 msgstr "{folder} 位于游戏文件夹内，Audiodiver 从不向其中写入。请为构建选择其他文件夹。"
+
+#: build.py editor.py
+msgid "Packing the ZIP"
+msgstr "正在打包 ZIP"
 
 #: build.py
 msgid "encoding {file}"
@@ -2282,6 +2286,10 @@ msgstr "音频库"
 #: project.py
 msgid "Patch files"
 msgstr "补丁文件"
+
+#: project.py
+msgid "Zipped mod"
+msgstr "ZIP 模组"
 
 #: project.py
 msgid "the game version of the last build"

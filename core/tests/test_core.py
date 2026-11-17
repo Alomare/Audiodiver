@@ -524,12 +524,15 @@ def test_project_keeps_its_banks_setting_and_an_imported_mods_banks(tmp_path):
     p = Project(name="Test", path=tmp_path / "t.audi")
     p.save()
     text = (tmp_path / "t.audi").read_text()
-    assert not {"every_bank", "project_banks_only", "imported_banks", "patch_files"} & set(json.loads(text))  # as they were
+    assert not {"every_bank", "project_banks_only", "imported_banks", "patch_files", "zip_mod"} & set(json.loads(text))  # as they were
+    assert Project.load(tmp_path / "t.audi").zip_mod  # a ZIP, unless turned off
     p.every_bank, p.imported_banks, p.patch_files, p.project_banks_only = True, [6187728386225981464], True, True
+    p.zip_mod = False
     p.save()
     assert '"6187728386225981464"' in (tmp_path / "t.audi").read_text()
     q = Project.load(tmp_path / "t.audi")
     assert q.every_bank and q.imported_banks == [6187728386225981464] and q.patch_files and q.project_banks_only
+    assert not q.zip_mod
 
 
 def test_project_keeps_make_up_gain_on_the_original_audio(tmp_path):
@@ -730,6 +733,38 @@ def test_a_build_can_save_the_patch_files_beside_the_zip(tmp_path):
     with zipfile.ZipFile(zip_path) as z:
         assert {f.name: f.read_bytes() for f in folder.iterdir()} == \
             {Path(n).name: z.read(n) for n in z.namelist() if "/" in n}
+    zipped = {f.name: f.read_bytes() for f in folder.iterdir()}
+
+    # Export zipped mod off: the folder alone, the same files, and the build says it made the folder
+    p.zip_mod, p.version = False, 2
+    made = build.build(p, ix, tmp_path / "out", log=lambda *_: None)
+    assert made == tmp_path / "out" / "test-2" and made.is_dir()
+    assert sorted(f.name for f in (tmp_path / "out").iterdir()) == ["test-1", "test-1.zip", "test-2"]
+    assert {f.name: f.read_bytes() for f in made.iterdir()} == zipped
+
+    # both off: nothing to make, and nothing written
+    p.patch_files, p.version = False, 3
+    with pytest.raises(build.BuildError, match="Export zipped mod"):
+        build.build(p, ix, tmp_path / "out", log=lambda *_: None)
+    assert sorted(f.name for f in (tmp_path / "out").iterdir()) == ["test-1", "test-1.zip", "test-2"]
+
+
+def test_the_last_build_is_a_zip_or_a_folder_of_patch_files(tmp_path):
+    """The Build tab's Last build: the newest ZIP, or a folder of patch files from a build without a ZIP; a folder
+    beside its ZIP is that ZIP's build, and other mods' builds in the folder don't count."""
+    import os
+    from audiodiver.editor import _last_build
+    assert _last_build(tmp_path, "test") is None
+    (tmp_path / "test-1.zip").write_bytes(b"x" * 10)
+    (tmp_path / "test-1").mkdir()
+    (tmp_path / "test-1" / "a.patch_0").write_bytes(b"y" * 2_000_000)
+    (tmp_path / "other-9.zip").write_bytes(b"z")
+    assert _last_build(tmp_path, "test")["zip"] == str(tmp_path / "test-1.zip")
+    (tmp_path / "test-2").mkdir()
+    (tmp_path / "test-2" / "a.patch_0").write_bytes(b"y" * 3_000_000)
+    os.utime(tmp_path / "test-2", (2e9, 2e9))
+    last = _last_build(tmp_path, "test")
+    assert last["zip"] == str(tmp_path / "test-2") and last["mb"] == 3.0
 
 
 class _Voices:

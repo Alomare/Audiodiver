@@ -2,7 +2,7 @@
 title: Génération et installation
 group: Générer et partager
 summary: Ce que produit une génération, comment l’installer avec un gestionnaire de mods, et comment les mises à jour parviennent au mod installé.
-source: a5decf27e8e8
+source: 1511bf82abe2
 ---
 
 ## Générer {#building}
@@ -15,7 +15,7 @@ Si le projet a des problèmes, comme un fichier manquant ou un nom que les gesti
 
 ### Dossier de destination {#destination-folder}
 
-Le ZIP va dans le dossier `build` à côté du fichier du projet. Pour générer dans un autre dossier, appuyez sur **Modifier** sous **Dossier de destination**. **Revenir à la valeur par défaut** retourne au dossier `build`. Une génération n’ajoute que le ZIP, et les [fichiers patch](#patch-files) quand vous les activez, donc plusieurs mods peuvent partager un même dossier. Audiodiver ne génère jamais dans le dossier du jeu.
+Le ZIP va dans le dossier `build` à côté du fichier du projet. Pour générer dans un autre dossier, appuyez sur **Modifier** sous **Dossier de destination**. **Revenir à la valeur par défaut** retourne au dossier `build`. Une génération n’ajoute que le ZIP et les [fichiers patch](#patch-files), selon vos choix dans les options de génération, donc plusieurs mods peuvent partager un même dossier. Audiodiver ne génère jamais dans le dossier du jeu.
 
 ## Ce que montre le gestionnaire de mods {#what-the-mod-manager-shows}
 
@@ -48,7 +48,12 @@ Ces réglages se trouvent sous **Options de génération** dans l’onglet Gén�
 
 ### Fichiers patch {#patch-files}
 
-**Enregistrer aussi les fichiers patch dans un dossier** place les fichiers patch du mod à côté de chaque ZIP, dans un dossier portant le même nom que le ZIP. Ce sont le fichier `.patch_0` et, quand le mod a de l’audio en flux, le fichier `.patch_0.stream`. Utilisez-les pour empaqueter le mod vous-même, par exemple dans une archive 7z avec un manifeste personnel. Pour les installer, empaquetez-les pour un gestionnaire de mods plutôt que de les copier dans le dossier du jeu ([Installation](#installing)). Le réglage s’applique au projet ouvert.
+Deux réglages choisissent ce que produit une génération Helldivers 2. Les deux s’appliquent au projet ouvert.
+
+- **Exporter le mod en ZIP** empaquette le mod en ZIP, le fichier qu’installe un gestionnaire de mods. Il est activé au départ.
+- **Exporter les fichiers patch bruts** enregistre les fichiers patch du mod dans un dossier portant le même nom que le ZIP. Ce sont le fichier `.patch_0` et, quand le mod a de l’audio en flux, le fichier `.patch_0.stream`. Utilisez-les pour empaqueter le mod vous-même, par exemple dans une archive 7z avec un manifeste personnel. Pour les installer, empaquetez-les pour un gestionnaire de mods plutôt que de les copier dans le dossier du jeu ([Installation](#installing)). Il est désactivé au départ.
+
+Avec les deux activés, le dossier va à côté du ZIP. Avec les deux désactivés, une génération n’a rien à produire : le bouton Générer est alors désactivé et l’indique.
 
 Une génération n’a un fichier `.patch_0.gpu_resources` que si le projet transporte les textures ou les modèles d’un mod importé. L’audio n’en a pas besoin.
 

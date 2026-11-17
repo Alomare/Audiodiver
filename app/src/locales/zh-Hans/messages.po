@@ -1665,10 +1665,6 @@ msgstr "还包含 {others}，已一并保留。"
 msgid "Also removes the new audio. Undo brings both back."
 msgstr "也会一并移除新音频。撤销后两者都能恢复。"
 
-#: src/BuildTab.tsx
-msgid "Also save the patch files in a folder"
-msgstr "同时将补丁文件保存到文件夹中"
-
 #: src/App.tsx
 msgid "An export is still running."
 msgstr "导出仍在进行中。"
@@ -1740,8 +1736,12 @@ msgid "Applies to the slots with new audio."
 msgstr "应用于有新音频的槽位。"
 
 #: src/BuildTab.tsx
-msgid "Applies to this project. Beside each ZIP, a folder with the same name holds the mod's .patch_0 files, for packing the mod yourself."
-msgstr "适用于此项目。每个 ZIP 旁都有一个同名文件夹，存放模组的 .patch_0 文件，便于自行打包模组。"
+msgid "Applies to this project. Each build packs the mod as a ZIP, the file a mod manager installs."
+msgstr "适用于此项目。每次构建都会把模组打包为 ZIP，即模组管理器安装的文件。"
+
+#: src/BuildTab.tsx
+msgid "Applies to this project. Each build saves the mod's .patch_0 files in a folder named like the ZIP, for packing the mod yourself."
+msgstr "适用于此项目。每次构建都会把模组的 .patch_0 文件保存到与 ZIP 同名的文件夹中，供你自己打包模组。"
 
 #: src/BuildTab.tsx
 msgid "Applies to this project. The game's audio includes this data, but it makes no audible difference. It needs Wwise installed and makes builds slower."
@@ -2472,6 +2472,10 @@ msgid "Choose Another Folder"
 msgstr "选择其他文件夹"
 
 #: src/BuildTab.tsx
+msgid "Choose another folder for builds. Only the patch files are written there."
+msgstr "为构建选择另一个文件夹。只有补丁文件会写入其中。"
+
+#: src/BuildTab.tsx
 msgid "Choose another folder for builds. Only the ZIP and the patch files are written there."
 msgstr "为构建选择另一个文件夹。只有 ZIP 和补丁文件会写入其中。"
 
@@ -3103,7 +3107,7 @@ msgstr "延迟"
 #: src/Timeline.tsx
 msgctxt "Trim field"
 msgid "Delay"
-msgstr ""
+msgstr "延迟"
 
 #: src/Notes.tsx
 msgid "Delete"
@@ -3220,11 +3224,11 @@ msgstr "拖动可略去歌曲的开头"
 
 #: src/Timeline.tsx
 msgid "Drag to fade the new audio in"
-msgstr ""
+msgstr "拖动为新音频添加淡入"
 
 #: src/Timeline.tsx
 msgid "Drag to fade the new audio out"
-msgstr ""
+msgstr "拖动为新音频添加淡出"
 
 #: src/Timeline.tsx
 msgid "Drag to play the new audio later or earlier"
@@ -3437,6 +3441,10 @@ msgstr "空"
 msgid "Encode, patch the sound banks, verify and pack the ZIP"
 msgstr "编码、修补音频库、验证并打包 ZIP"
 
+#: src/BuildTab.tsx
+msgid "Encode, patch the sound banks, verify and save the patch files"
+msgstr "编码、修补音频库、验证并保存补丁文件"
+
 #: src/SettingsTab.tsx
 msgid "Encoded audio"
 msgstr "已编码的音频"
@@ -3634,9 +3642,17 @@ msgstr "导出列表"
 msgid "Export Notes"
 msgstr "导出备注"
 
+#: src/BuildTab.tsx
+msgid "Export raw patch files"
+msgstr "导出原始补丁文件"
+
 #: src/platform.ts
 msgid "Export the project as a pack"
 msgstr "将项目导出为项目包"
+
+#: src/BuildTab.tsx
+msgid "Export zipped mod"
+msgstr "导出 ZIP 模组"
 
 #: src/store.tsx
 msgid "Exported {files, plural, one {# file} other {# files}} of {title}."
@@ -4155,11 +4171,11 @@ msgstr "音乐播放多久"
 
 #: src/Timeline.tsx
 msgid "How long the new audio takes to fall to silence before it ends"
-msgstr ""
+msgstr "新音频在结束前降到静音所需的时间"
 
 #: src/Timeline.tsx
 msgid "How long the new audio takes to rise from silence"
-msgstr ""
+msgstr "新音频从静音升起所需的时间"
 
 #: src/SliceTool.tsx
 msgid "How long the original is"
@@ -9077,7 +9093,7 @@ msgstr "转写语音台词以匹配字幕"
 
 #: src/Timeline.tsx
 msgid "Trim, move and fade the new audio"
-msgstr ""
+msgstr "裁剪、移动新音频并添加淡入淡出"
 
 #: src/UpdatesTab.tsx
 msgid "Try Again"
@@ -9086,6 +9102,14 @@ msgstr "重试"
 #: src/CombinePage.tsx
 msgid "Turn off the combined mods in the mod manager, then import and deploy the new ZIP."
 msgstr "先把参与合并的模组在模组管理器里关掉，再导入并部署新的 ZIP。"
+
+#: src/BuildTab.tsx
+msgid "Turn on <0>Export zipped mod</0> or <1>Export raw patch files</1> under Build options. With both off, a build has nothing to make."
+msgstr "请在构建选项中开启<0>导出 ZIP 模组</0>或<1>导出原始补丁文件</1>。两者都关闭时，构建没有可生成的内容。"
+
+#: src/BuildTab.tsx
+msgid "Turn on an export under Build options"
+msgstr "请在构建选项中开启一项导出"
 
 #: src/ProjectTab.tsx
 msgid "Turn these voices down to the radio's level"
@@ -9456,7 +9480,7 @@ msgstr "新音频在文件中结束的位置"
 
 #: src/Timeline.tsx
 msgid "Where the new audio ends in the file. Drag the line to move it"
-msgstr ""
+msgstr "新音频在文件中结束的位置。拖动这条线来移动它"
 
 #: src/Timeline.tsx
 msgid "Where the new audio starts in the file"
@@ -9464,7 +9488,7 @@ msgstr "新音频在文件中开始的位置"
 
 #: src/Timeline.tsx
 msgid "Where the new audio starts in the file. Drag the line to move it"
-msgstr ""
+msgstr "新音频在文件中开始的位置。拖动这条线来移动它"
 
 #: src/SliceTool.tsx
 msgid "Where the piece starts and ends in the song"

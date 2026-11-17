@@ -183,10 +183,11 @@ export type ProjectState = {
   loudness_analysis: boolean;
   every_bank: boolean;   // a replaced sound goes into every bank that has it (Patch every bank with the sounds)
   project_banks_only: boolean; // added audio keeps to the project's banks (Keep added audio to the project's banks)
-  patch_files: boolean;  // each build also saves the patch files in a folder named like the ZIP
+  patch_files: boolean;  // each build saves the patch files in a folder named like the ZIP (Export raw patch files)
+  zip_mod: boolean;      // each build packs the mod as a ZIP (Export zipped mod); a Helldivers 2 build needs one of the two
   build_folder: string; zip_name: string; // where the next build goes, and what it is called
   build_folder_default: string;           // the build folder next to the project file: where builds go unless another is chosen
-  last_build: { zip: string; mb: number; modified: number } | null; // this mod's newest ZIP there (modified: Unix seconds)
+  last_build: { zip: string; mb: number; modified: number } | null; // this mod's newest build there: its ZIP, or its folder of patch files without one (modified: Unix seconds)
   game_updated: boolean; // the game updated since that build: its banks are stale (core editor._game_updated)
   rebuild: "new" | "game" | "changed" | null; // why that build isn't the project as it is now (core editor._rebuild)
   assignments: Record<string, Assignment>; unresolved: { target: string; audio: string; label: string }[];

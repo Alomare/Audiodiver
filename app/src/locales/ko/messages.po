@@ -1665,10 +1665,6 @@ msgstr "{others}도 들어 있으며, 그대로 옮겨집니다."
 msgid "Also removes the new audio. Undo brings both back."
 msgstr "새 오디오도 제거됩니다. 실행 취소로 둘 다 되돌릴 수 있습니다."
 
-#: src/BuildTab.tsx
-msgid "Also save the patch files in a folder"
-msgstr "패치 파일을 폴더에도 저장"
-
 #: src/App.tsx
 msgid "An export is still running."
 msgstr "내보내기가 아직 실행 중입니다."
@@ -1740,8 +1736,12 @@ msgid "Applies to the slots with new audio."
 msgstr "새 오디오가 있는 슬롯에 적용됩니다."
 
 #: src/BuildTab.tsx
-msgid "Applies to this project. Beside each ZIP, a folder with the same name holds the mod's .patch_0 files, for packing the mod yourself."
-msgstr "이 프로젝트에 적용됩니다. 각 ZIP 옆에 같은 이름의 폴더가 생기고, 모드를 직접 묶을 수 있도록 모드의 .patch_0 파일이 들어갑니다."
+msgid "Applies to this project. Each build packs the mod as a ZIP, the file a mod manager installs."
+msgstr "이 프로젝트에 적용됩니다. 빌드할 때마다 모드를 ZIP으로 묶습니다. 모드 관리자가 설치하는 파일입니다."
+
+#: src/BuildTab.tsx
+msgid "Applies to this project. Each build saves the mod's .patch_0 files in a folder named like the ZIP, for packing the mod yourself."
+msgstr "이 프로젝트에 적용됩니다. 빌드할 때마다 모드의 .patch_0 파일을 ZIP과 같은 이름의 폴더에 저장합니다. 모드를 직접 묶을 때 씁니다."
 
 #: src/BuildTab.tsx
 msgid "Applies to this project. The game's audio includes this data, but it makes no audible difference. It needs Wwise installed and makes builds slower."
@@ -2472,6 +2472,10 @@ msgid "Choose Another Folder"
 msgstr "다른 폴더 선택"
 
 #: src/BuildTab.tsx
+msgid "Choose another folder for builds. Only the patch files are written there."
+msgstr "빌드를 저장할 다른 폴더를 선택합니다. 그 폴더에는 패치 파일만 저장됩니다."
+
+#: src/BuildTab.tsx
 msgid "Choose another folder for builds. Only the ZIP and the patch files are written there."
 msgstr "빌드를 저장할 다른 폴더를 선택합니다. 그 폴더에는 ZIP과 패치 파일만 저장됩니다."
 
@@ -3103,7 +3107,7 @@ msgstr "지연 시간"
 #: src/Timeline.tsx
 msgctxt "Trim field"
 msgid "Delay"
-msgstr ""
+msgstr "지연 시간"
 
 #: src/Notes.tsx
 msgid "Delete"
@@ -3220,11 +3224,11 @@ msgstr "끌어서 노래의 앞부분을 제외합니다"
 
 #: src/Timeline.tsx
 msgid "Drag to fade the new audio in"
-msgstr ""
+msgstr "드래그해 새 오디오에 페이드 인 적용"
 
 #: src/Timeline.tsx
 msgid "Drag to fade the new audio out"
-msgstr ""
+msgstr "드래그해 새 오디오에 페이드 아웃 적용"
 
 #: src/Timeline.tsx
 msgid "Drag to play the new audio later or earlier"
@@ -3437,6 +3441,10 @@ msgstr "비어 있음"
 msgid "Encode, patch the sound banks, verify and pack the ZIP"
 msgstr "인코딩, 사운드 뱅크 패치, 검증 후 ZIP으로 묶기"
 
+#: src/BuildTab.tsx
+msgid "Encode, patch the sound banks, verify and save the patch files"
+msgstr "인코딩, 사운드 뱅크 패치, 검증 후 패치 파일 저장"
+
 #: src/SettingsTab.tsx
 msgid "Encoded audio"
 msgstr "인코딩된 오디오"
@@ -3634,9 +3642,17 @@ msgstr "내보내기 목록"
 msgid "Export Notes"
 msgstr "메모 내보내기"
 
+#: src/BuildTab.tsx
+msgid "Export raw patch files"
+msgstr "패치 파일 그대로 내보내기"
+
 #: src/platform.ts
 msgid "Export the project as a pack"
 msgstr "프로젝트를 팩으로 내보내기"
+
+#: src/BuildTab.tsx
+msgid "Export zipped mod"
+msgstr "ZIP 모드로 내보내기"
 
 #: src/store.tsx
 msgid "Exported {files, plural, one {# file} other {# files}} of {title}."
@@ -4155,11 +4171,11 @@ msgstr "음악이 재생되는 시간"
 
 #: src/Timeline.tsx
 msgid "How long the new audio takes to fall to silence before it ends"
-msgstr ""
+msgstr "새 오디오가 끝나기 전에 무음까지 줄어드는 시간"
 
 #: src/Timeline.tsx
 msgid "How long the new audio takes to rise from silence"
-msgstr ""
+msgstr "새 오디오가 무음에서 커지는 시간"
 
 #: src/SliceTool.tsx
 msgid "How long the original is"
@@ -9077,7 +9093,7 @@ msgstr "대사를 받아써서 자막과 연결하기"
 
 #: src/Timeline.tsx
 msgid "Trim, move and fade the new audio"
-msgstr ""
+msgstr "새 오디오 다듬기, 옮기기, 페이드"
 
 #: src/UpdatesTab.tsx
 msgid "Try Again"
@@ -9086,6 +9102,14 @@ msgstr "다시 시도"
 #: src/CombinePage.tsx
 msgid "Turn off the combined mods in the mod manager, then import and deploy the new ZIP."
 msgstr "모드 관리자에서 합치는 데 쓴 모드들을 끈 다음, 새 ZIP을 가져와 배포하세요."
+
+#: src/BuildTab.tsx
+msgid "Turn on <0>Export zipped mod</0> or <1>Export raw patch files</1> under Build options. With both off, a build has nothing to make."
+msgstr "빌드 옵션에서 <0>ZIP 모드로 내보내기</0> 또는 <1>패치 파일 그대로 내보내기</1>를 켜세요. 둘 다 꺼져 있으면 빌드로 만들 것이 없습니다."
+
+#: src/BuildTab.tsx
+msgid "Turn on an export under Build options"
+msgstr "빌드 옵션에서 내보내기를 하나 켜세요"
 
 #: src/ProjectTab.tsx
 msgid "Turn these voices down to the radio's level"
@@ -9456,7 +9480,7 @@ msgstr "파일에서 새 오디오가 끝나는 위치"
 
 #: src/Timeline.tsx
 msgid "Where the new audio ends in the file. Drag the line to move it"
-msgstr ""
+msgstr "파일에서 새 오디오가 끝나는 지점입니다. 선을 드래그해 옮깁니다"
 
 #: src/Timeline.tsx
 msgid "Where the new audio starts in the file"
@@ -9464,7 +9488,7 @@ msgstr "파일에서 새 오디오가 시작하는 위치"
 
 #: src/Timeline.tsx
 msgid "Where the new audio starts in the file. Drag the line to move it"
-msgstr ""
+msgstr "파일에서 새 오디오가 시작하는 지점입니다. 선을 드래그해 옮깁니다"
 
 #: src/SliceTool.tsx
 msgid "Where the piece starts and ends in the song"

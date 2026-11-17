@@ -163,6 +163,10 @@ msgid "Piece {n} is empty: the song ends before it"
 msgstr "ピース {n} が空です。その前に曲が終わっています"
 
 #: build.py
+msgid "Turn on Export zipped mod or Export raw patch files: with both off, a build has nothing to make."
+msgstr "「MODをZIPで書き出す」か「パッチファイルをそのまま書き出す」をオンにしてください。両方オフでは、ビルドで作るものがありません。"
+
+#: build.py
 msgid "Patching the sound banks"
 msgstr "サウンドバンクにパッチを適用中"
 
@@ -191,10 +195,6 @@ msgstr "無線フィルター：このゲームバージョンで一部のバス
 #: build.py
 msgid "verified ({seconds}s)"
 msgstr "検証済み（{seconds}s）"
-
-#: build.py editor.py
-msgid "Packing the ZIP"
-msgstr "ZIPをパック中"
 
 #: build.py
 msgid "curves: {n} sound or track is not in this game version; left out"
@@ -314,6 +314,10 @@ msgstr[0] "音声以外のファイル（テキスト、モデル、テクスチ
 #: build.py
 msgid "{folder} is inside the game folder, and Audiodiver never writes there. Choose another folder for the builds."
 msgstr "{folder}はゲームフォルダー内にあり、Audiodiverはそこに書き込みません。ビルドの保存先に別のフォルダーを選択してください。"
+
+#: build.py editor.py
+msgid "Packing the ZIP"
+msgstr "ZIPをパック中"
 
 #: build.py
 msgid "encoding {file}"
@@ -2282,6 +2286,10 @@ msgstr "バンク"
 #: project.py
 msgid "Patch files"
 msgstr "パッチファイル"
+
+#: project.py
+msgid "Zipped mod"
+msgstr "ZIPのMOD"
 
 #: project.py
 msgid "the game version of the last build"

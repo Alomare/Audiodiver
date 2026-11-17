@@ -2,7 +2,7 @@
 title: Make-Up Gain et le mixage
 group: Créer un mod
 summary: Régler le volume d’un emplacement, comment fonctionne le mixage HDR du jeu, et pourquoi certains écrans sonnent plus faible dans le jeu que dans Audiodiver.
-source: 60b772e3b57c
+source: 5f03f242e197
 ---
 
 ## Make-Up Gain par emplacement {#make-up-gain-per-slot}
@@ -71,7 +71,7 @@ C’est le jeu qui les applique, donc les aperçus et les formes d’onde d’Au
 
 ## Fondus {#fades}
 
-Le **fondu d’entrée** et le **fondu de sortie** sont en millisecondes, dans les détails d’un slot avec du nouvel audio. Ils sont intégrés à l’audio lui-même, donc la forme d’onde et l’aperçu les montrent, et la durée ne change pas. Un `.wem` qui passerait sans changement est encodé à nouveau quand il a un fondu.
+Le **fondu d’entrée** et le **fondu de sortie** sont en millisecondes, sous les formes d’onde et dans les détails d’un slot avec du nouvel audio. Sur la forme d’onde **Remplacé**, l’étiquette en haut de la ligne **Début** ou **Fin** fait glisser un fondu (voir [Rogner et déplacer le nouvel audio](wiki:timing-and-loops#trimming-and-moving-new-audio)). Les fondus sont intégrés à l’audio lui-même, donc la forme d’onde et l’aperçu les montrent, et la durée ne change pas. Un `.wem` qui passerait sans changement est encodé à nouveau quand il a un fondu.
 
 ## Filtre radio {#radio-filter}
 

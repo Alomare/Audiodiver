@@ -169,6 +169,10 @@ msgid "Piece {n} is empty: the song ends before it"
 msgstr "El trozo {n} está vacío, porque la canción termina antes"
 
 #: build.py
+msgid "Turn on Export zipped mod or Export raw patch files: with both off, a build has nothing to make."
+msgstr "Activa Exportar el mod en ZIP o Exportar los ficheros de parche sin empaquetar: con los dos desactivados, una generación no tiene nada que crear."
+
+#: build.py
 msgid "Patching the sound banks"
 msgstr "Parcheando los bancos de sonido"
 
@@ -199,10 +203,6 @@ msgstr "filtro de radio: esta versión del juego ha cambiado algunos de esos bus
 #: build.py
 msgid "verified ({seconds}s)"
 msgstr "verificado ({seconds} s)"
-
-#: build.py editor.py
-msgid "Packing the ZIP"
-msgstr "Empaquetando el ZIP"
 
 #: build.py
 msgid "curves: {n} sound or track is not in this game version; left out"
@@ -341,6 +341,10 @@ msgstr[1] "{n} ficheros aparte del audio (texto, modelos, texturas...) conservad
 #: build.py
 msgid "{folder} is inside the game folder, and Audiodiver never writes there. Choose another folder for the builds."
 msgstr "{folder} está dentro de la carpeta del juego, y Audiodiver nunca escribe ahí. Elige otra carpeta para los mods generados."
+
+#: build.py editor.py
+msgid "Packing the ZIP"
+msgstr "Empaquetando el ZIP"
 
 #: build.py
 msgid "encoding {file}"
@@ -2345,6 +2349,10 @@ msgstr "Bancos"
 #: project.py
 msgid "Patch files"
 msgstr "Ficheros de parche"
+
+#: project.py
+msgid "Zipped mod"
+msgstr "Mod en ZIP"
 
 #: project.py
 msgid "the game version of the last build"

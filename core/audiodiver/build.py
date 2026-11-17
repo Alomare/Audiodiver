@@ -388,47 +388,59 @@ def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, ste
 
 def build(project: Project, ix: AudioIndex, out_dir=None, version=None, log=print, step=None, listed=None,
           carried=None) -> Path:
-    """Writes <out_dir>/<name>-<version>.zip and returns its path; out_dir defaults to the project's build folder.
-    step(doing, done, total), when given, follows the build (the job's progress; it may stop the build there).
-    The patch and the icon are made and checked in a scratch folder, so the ZIP is all a build adds to out_dir
-    (with the project's patch_files, also a folder named like the ZIP holding the patch files): any folder can take
-    builds, also one that other mods build into."""
+    """Writes <out_dir>/<name>-<version>.zip, the project's patch files in a folder <out_dir>/<name>-<version>
+    (project.patch_files), or both, and returns the ZIP's path, or the folder's when there is no ZIP (project.zip_mod
+    off); out_dir defaults to the project's build folder. step(doing, done, total), when given, follows the build
+    (the job's progress; it may stop the build there). The patch and the icon are made and checked in a scratch
+    folder, so those are all a build adds to out_dir: any folder can take builds, also one that other mods build
+    into."""
     out_dir = Path(out_dir or project.build_dir())
     if in_game_folder(out_dir, ix.game.data):  # a project file can name any folder; the editor refuses this one
         raise BuildError(tr("{folder} is inside the game folder, and Audiodiver never writes there. Choose another "
                             "folder for the builds.").format(folder=out_dir))
+    if not (project.zip_mod or project.patch_files):
+        raise BuildError(no_output())
     if problems := project.problems():
         raise BuildError(tr("Project problems:") + "\n  " + "\n  ".join(problems))
-    icon = icon_bytes(project)  # an image that can't be read fails the build before the long part
+    icon = icon_bytes(project) if project.zip_mod else b""  # an image that can't be read fails before the long part
+    version = version or project.version
+    made = out_dir / zip_name(project, version)
     with tempfile.TemporaryDirectory(prefix="audiodiver-build-", ignore_cleanup_errors=True) as scratch:
         patch_dir = Path(scratch) / "patch"
         patch_dir.mkdir()
         make_patch(project, ix, patch_dir, log, step, after=1, listed=listed, carried=carried)
-        icon_path = Path(scratch) / "icon.png"
-        icon_path.write_bytes(icon)
-        version = version or project.version
-        if step:
-            steps = len(project.replacements) + 3
-            step(tr("Packing the ZIP"), steps - 1, steps)
-        try:
-            out_dir.mkdir(parents=True, exist_ok=True)
-            zip_path = arsenal.package(out_dir / zip_name(project, version), name=project.name,
-                                       guid=project.guid, icon=icon_path, description=project.description,
+        if project.zip_mod:
+            icon_path = Path(scratch) / "icon.png"
+            icon_path.write_bytes(icon)
+            if step:
+                steps = len(project.replacements) + 3
+                step(tr("Packing the ZIP"), steps - 1, steps)
+            try:
+                out_dir.mkdir(parents=True, exist_ok=True)
+                made = arsenal.package(made, name=project.name, guid=project.guid, icon=icon_path,
+                                       description=project.description,
                                        options=[{"name": project.name, "description": "", "folder": patch_dir}])
-        except OSError as e:
-            raise BuildError(tr("Can't write the ZIP into {folder}: {why}").format(folder=out_dir, why=os_error(e))) \
-                from None
-        # the ZIP's path first, no words: Session.combine leaves out the line that starts with its temp folder
-        log(f"{zip_path} ({zip_path.stat().st_size / 1e6:.1f} MB)")
+            except OSError as e:
+                raise BuildError(tr("Can't write the ZIP into {folder}: {why}").format(folder=out_dir, why=os_error(e))) \
+                    from None
+            # the ZIP's path first, no words: Session.combine leaves out the line that starts with its temp folder
+            log(f"{made} ({made.stat().st_size / 1e6:.1f} MB)")
         if project.patch_files:
-            folder = out_dir / zip_path.stem
+            folder = made.with_suffix("")  # named like the ZIP
             try:
                 arsenal.save_patch_files(patch_dir, folder)
             except OSError as e:
                 raise BuildError(tr("Can't save the patch files into {folder}: {why}").format(folder=folder,
                                                                                             why=os_error(e))) from None
             log(tr("patch files in {folder}").format(folder=folder))
-    return zip_path
+            if not project.zip_mod:
+                made = folder
+    return made
+
+
+def no_output() -> str:
+    """Why a build can't start with neither output on (the Build tab says it too)."""
+    return tr("Turn on Export zipped mod or Export raw patch files: with both off, a build has nothing to make.")
 
 
 def zip_name(project: Project, version=None) -> str:

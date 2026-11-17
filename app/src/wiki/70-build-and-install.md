@@ -14,7 +14,7 @@ If the project has problems, such as a missing file or a name that mod managers 
 
 ### Destination folder
 
-The ZIP goes into the `build` folder next to the project file. To build into another folder, press **Change** under **Destination folder**. **Back to Default** returns to the `build` folder. A build adds only the ZIP, and the [patch files](#patch-files) when you turn them on, so several mods can share one folder. Audiodiver doesn't build into the game folder.
+The ZIP goes into the `build` folder next to the project file. To build into another folder, press **Change** under **Destination folder**. **Back to Default** returns to the `build` folder. A build adds only the ZIP and the [patch files](#patch-files), as you choose under Build options, so several mods can share one folder. Audiodiver doesn't build into the game folder.
 
 ## What the mod manager shows
 
@@ -47,7 +47,12 @@ These settings are under **Build options** on the Build tab.
 
 ### Patch files
 
-**Also save the patch files in a folder** puts the mod's patch files next to each ZIP, in a folder with the same name as the ZIP. They are the `.patch_0` file and, when the mod has streamed audio, the `.patch_0.stream` file. Use them to pack the mod yourself, for example in a 7z archive with a manifest of your own. To install them, pack them for a mod manager rather than copying them into the game folder ([Installing](#installing)). The setting applies to the open project.
+Two settings choose what a Helldivers 2 build makes. Both apply to the open project.
+
+- **Export zipped mod** packs the mod as a ZIP, the file a mod manager installs. It is on to start with.
+- **Export raw patch files** saves the mod's patch files in a folder with the same name as the ZIP. They are the `.patch_0` file and, when the mod has streamed audio, the `.patch_0.stream` file. Use them to pack the mod yourself, for example in a 7z archive with a manifest of your own. To install them, pack them for a mod manager rather than copying them into the game folder ([Installing](#installing)). It is off to start with.
+
+With both on, the folder goes next to the ZIP. With both off, a build has nothing to make, so the Build button is turned off and says so.
 
 A build has a `.patch_0.gpu_resources` file only when the project carries an imported mod's textures or models. Audio needs none.
 

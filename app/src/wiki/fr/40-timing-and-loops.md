@@ -2,7 +2,7 @@
 title: Minutage, points de repère et boucles
 group: Créer un mod
 summary: Comment le jeu passe d’un segment au suivant, comment faire en sorte que la nouvelle musique s’enchaîne proprement, comment rogner et déplacer le nouvel audio, et comment découper une chanson dans un cue.
-source: ccdd8e82518d
+source: 87b1cca62b82
 ---
 
 ## Ajuster le minutage au nouvel audio {#fitting-the-timing-to-the-new-audio}
@@ -27,13 +27,14 @@ Quand un même fichier est joué dans plusieurs segments, **Appliquer à … aut
 
 ## Rogner et déplacer le nouvel audio {#trimming-and-moving-new-audio}
 
-La piste **Rognage** sous **Remplacé** montre tout le fichier du nouvel audio, sur la même échelle de temps. La partie jouée est en surbrillance, et le reste est estompé. Cela fonctionne sur tout emplacement avec du nouvel audio : musique, sons et répliques.
+La forme d’onde **Remplacé** montre tout le fichier du nouvel audio, sur la même échelle de temps que l’original. La partie jouée est en surbrillance, et le reste est estompé. Cela fonctionne sur tout emplacement avec du nouvel audio : musique, sons et répliques.
 
-- Faites glisser **Début** et **Fin** pour choisir le passage du fichier qui est joué.
+- Faites glisser les lignes **Début** et **Fin** pour choisir le passage du fichier qui est joué.
+- Faites glisser l’étiquette **Début** ou **Fin** en haut d’une ligne pour ajouter un fondu d’entrée ou de sortie. La ligne s’incline de l’endroit où l’audio est silencieux jusqu’à celui où il atteint son plein niveau.
 - Faites glisser le passage en surbrillance vers la droite pour que le nouvel audio commence plus tard que l’original. L’emplacement joue du silence avant lui. Ramenez-le vers la gauche pour qu’il commence plus tôt.
-- Saisissez des valeurs exactes dans **Début**, **Fin** et **Délai** sous les formes d’onde, en millisecondes. **Réinitialiser** rejoue tout le fichier, depuis le début.
+- Saisissez des valeurs exactes dans **Début**, **Fin**, **Délai**, **Fondu d’entrée** et **Fondu de sortie** sous les formes d’onde, en millisecondes. **Réinitialiser** rejoue tout le fichier, depuis le début et sans fondus.
 
-Le fichier reste tel quel. Le projet garde les trois valeurs, et les générations, les aperçus et la forme d’onde **Remplacé** les utilisent tous. Les fondus et le Make-Up Gain s’appliquent au passage joué. Choisir un autre fichier pour l’emplacement le fait repartir sans rognage.
+Le fichier reste tel quel. Le projet garde ces valeurs, et les générations et les aperçus les utilisent. Le Make-Up Gain s’applique au passage joué. Choisir un autre fichier pour l’emplacement le fait repartir sans rognage.
 
 ## Écouter le résultat {#hearing-the-result}
 

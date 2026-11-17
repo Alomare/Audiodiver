@@ -90,6 +90,7 @@ function BuildBox() {
   const empty = !Object.keys(p.assignments).length && !Object.keys(p.gains ?? {}).length && !p.texts.length && !p.settings && !Object.keys(p.soundtrack ?? {}).length
     && !Object.keys(p.filters ?? {}).length && !p.radio_off.length;
   const elsewhere = p.build_folder !== p.build_folder_default;
+  const nothing = p.game === "hd2" && !p.zip_mod && !p.patch_files; // both exports off (Build options)
   const chooseFolder = async () => {
     // the picker starts in a folder that is there: the default build folder isn't, before the first build
     const folder = await pickFolder(elsewhere ? p.build_folder : p.folder, t`Choose a destination folder for builds`);
@@ -118,15 +119,20 @@ function BuildBox() {
           the <button className="link-text" onClick={() => nav.go("library")}>Library</button>, then replace them on
           the <button className="link-text" onClick={() => nav.go("editor")}>Audio</button> tab.</Trans></p>
       )}
-      <button className="btn primary build" onClick={actions.build} disabled={building || empty || p.problems.length > 0} data-tip-cmd="build"
-        data-tip={p.problems.length ? t`Fix the problems first` : empty ? t`Nothing to build yet` : t`Encode, patch the sound banks, verify and pack the ZIP`}>
+      {nothing && !empty && !p.problems.length && (
+        <p className="info-box"><Trans>Turn on <b>Export zipped mod</b> or <b>Export raw patch files</b> under Build options. With both off, a build has nothing to make.</Trans></p>
+      )}
+      <button className="btn primary build" onClick={actions.build} disabled={building || empty || nothing || p.problems.length > 0} data-tip-cmd="build"
+        data-tip={p.problems.length ? t`Fix the problems first` : empty ? t`Nothing to build yet` : nothing ? t`Turn on an export under Build options`
+          : p.game === "hd2" && !p.zip_mod ? t`Encode, patch the sound banks, verify and save the patch files` : t`Encode, patch the sound banks, verify and pack the ZIP`}>
         {building ? t({ message: "Building", comment: "The Build button while a build runs" }) : t`Build v${version}`}
       </button>
       <div className="bld-out">
         <p><Trans>Destination folder</Trans> <span className="path" data-tip={p.build_folder} data-tip-clip>{p.build_folder}</span></p>
         <div className="row-btns">
           <button className="btn" onClick={chooseFolder} disabled={building}
-            data-tip={p.patch_files ? t`Choose another folder for builds. Only the ZIP and the patch files are written there.`
+            data-tip={p.game === "hd2" && !p.zip_mod ? t`Choose another folder for builds. Only the patch files are written there.`
+              : p.game === "hd2" && p.patch_files ? t`Choose another folder for builds. Only the ZIP and the patch files are written there.`
               : t`Choose another folder for builds. Only the ZIP is written there.`}><Trans comment="Button: choose another destination folder for builds">Change</Trans></button>
           {elsewhere && <button className="btn" onClick={() => actions.settings({ build_folder: null })} disabled={building}
             data-tip={p.build_folder_default}><Trans>Back to Default</Trans></button>}
@@ -177,8 +183,12 @@ function BuildOptions() {
             {missing && <small>{p.loudness_analysis ? t`${missing}. Builds fail until you turn this off.` : missing}</small>}</span>
         </label>
         <label className="check">
+          <input type="checkbox" checked={p.zip_mod} onChange={(e) => actions.settings({ zip_mod: e.target.checked })} />
+          <span><Trans>Export zipped mod</Trans> <Help tip={t`Applies to this project. Each build packs the mod as a ZIP, the file a mod manager installs.`} page="build-and-install#build-options" /></span>
+        </label>
+        <label className="check">
           <input type="checkbox" checked={p.patch_files} onChange={(e) => actions.settings({ patch_files: e.target.checked })} />
-          <span><Trans>Also save the patch files in a folder</Trans> <Help tip={t`Applies to this project. Beside each ZIP, a folder with the same name holds the mod's .patch_0 files, for packing the mod yourself.`} page="build-and-install#build-options" /></span>
+          <span><Trans>Export raw patch files</Trans> <Help tip={t`Applies to this project. Each build saves the mod's .patch_0 files in a folder named like the ZIP, for packing the mod yourself.`} page="build-and-install#build-options" /></span>
         </label>
         <label className="check">
           <input type="checkbox" checked={p.every_bank} onChange={(e) => actions.settings({ every_bank: e.target.checked })} />

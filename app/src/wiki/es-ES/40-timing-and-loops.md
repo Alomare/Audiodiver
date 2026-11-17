@@ -2,7 +2,7 @@
 title: Sincronización, puntos de cue y bucles
 group: Crear un mod
 summary: Cómo pasa el juego de un segmento al siguiente, cómo hacer que la música nueva enlace sin cortes, cómo recortar y mover el audio nuevo y cómo cortar una canción en un cue.
-source: ccdd8e82518d
+source: 87b1cca62b82
 ---
 
 ## Ajustar los tiempos al audio nuevo {#fitting-the-timing-to-the-new-audio}
@@ -27,13 +27,14 @@ Cuando un fichero suena en varios segmentos, **Aplicar a … segmentos más con 
 
 ## Recortar y mover el audio nuevo {#trimming-and-moving-new-audio}
 
-El carril **Recorte** bajo **Sustituido** muestra el fichero entero del audio nuevo, en la misma escala de tiempo. La parte que suena está iluminada, y el resto, atenuado. Esto funciona en cualquier slot con audio nuevo: música, sonidos y frases.
+La forma de onda **Sustituido** muestra el fichero entero del audio nuevo, en la misma escala de tiempo que el original. La parte que suena está iluminada, y el resto, atenuado. Esto funciona en cualquier slot con audio nuevo: música, sonidos y frases.
 
-- Arrastra **Inicio** y **Fin** para elegir el tramo del fichero que suena.
+- Arrastra las líneas de **Inicio** y **Fin** para elegir el tramo del fichero que suena.
+- Arrastra la etiqueta **Inicio** o **Fin** de lo alto de una línea para hacer un fundido de entrada o de salida. La línea se inclina desde donde el audio está en silencio hasta donde alcanza el nivel completo.
 - Arrastra el tramo iluminado hacia la derecha para que el audio nuevo empiece más tarde que el original. Antes, el slot reproduce silencio. Arrástralo de vuelta hacia la izquierda para que empiece antes.
-- Escribe valores exactos en **Inicio**, **Fin** y **Retraso** bajo las formas de onda, en milisegundos. **Restablecer** vuelve a reproducir el fichero entero, desde el principio.
+- Escribe valores exactos en **Inicio**, **Fin**, **Retraso**, **Fundido de entrada** y **Fundido de salida** bajo las formas de onda, en milisegundos. **Restablecer** vuelve a reproducir el fichero entero, desde el principio y sin fundidos.
 
-El fichero queda tal cual. El proyecto guarda los tres valores, y las generaciones, las previsualizaciones y la forma de onda **Sustituido** los usan. Los fundidos y el Make-Up Gain se aplican al tramo que suena. Al elegir otro fichero para el slot, este empieza sin recortar.
+El fichero queda tal cual. El proyecto guarda estos valores, y las generaciones y las previsualizaciones los usan. El Make-Up Gain se aplica al tramo que suena. Al elegir otro fichero para el slot, este empieza sin recortar.
 
 ## Escuchar el resultado {#hearing-the-result}
 

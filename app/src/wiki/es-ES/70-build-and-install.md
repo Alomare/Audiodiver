@@ -2,7 +2,7 @@
 title: Generar e instalar
 group: Generar y compartir
 summary: Qué crea una generación, cómo instalarla con un gestor de mods y cómo llegan las actualizaciones al mod instalado.
-source: a5decf27e8e8
+source: 1511bf82abe2
 ---
 
 ## Generar {#building}
@@ -15,7 +15,7 @@ Si el proyecto tiene problemas, como un fichero que falta o un nombre que los ge
 
 ### Carpeta de destino {#destination-folder}
 
-El ZIP va a la carpeta `build` junto al fichero del proyecto. Para generar en otra carpeta, pulsa **Cambiar** en **Carpeta de destino**. **Volver al valor predeterminado** vuelve a la carpeta `build`. Una generación añade solo el ZIP, y los [ficheros de parche](#patch-files) cuando los activas, así que varios mods pueden compartir una carpeta. Audiodiver no genera en la carpeta del juego.
+El ZIP va a la carpeta `build` junto al fichero del proyecto. Para generar en otra carpeta, pulsa **Cambiar** en **Carpeta de destino**. **Volver al valor predeterminado** vuelve a la carpeta `build`. Una generación añade solo el ZIP y los [ficheros de parche](#patch-files), según elijas en Opciones de generación, así que varios mods pueden compartir una carpeta. Audiodiver no genera en la carpeta del juego.
 
 ## Lo que muestra el gestor de mods {#what-the-mod-manager-shows}
 
@@ -48,7 +48,12 @@ Estos ajustes están en **Opciones de generación**, en la pestaña Generar.
 
 ### Ficheros de parche {#patch-files}
 
-**Guardar también los ficheros de parche en una carpeta** pone los ficheros de parche del mod junto a cada ZIP, en una carpeta con el mismo nombre que el ZIP. Son el fichero `.patch_0` y, cuando el mod tiene audio en stream, el fichero `.patch_0.stream`. Úsalos para empaquetar el mod tú mismo, por ejemplo en un archivo 7z con un manifiesto propio. Para instalarlos, empaquétalos para un gestor de mods en lugar de copiarlos en la carpeta del juego ([Instalar](#installing)). El ajuste se aplica al proyecto abierto.
+Dos ajustes eligen lo que crea una generación de Helldivers 2. Los dos se aplican al proyecto abierto.
+
+- **Exportar el mod en ZIP** empaqueta el mod como un ZIP, el fichero que instala un gestor de mods. Empieza activado.
+- **Exportar los ficheros de parche sin empaquetar** guarda los ficheros de parche del mod en una carpeta con el mismo nombre que el ZIP. Son el fichero `.patch_0` y, cuando el mod tiene audio en stream, el fichero `.patch_0.stream`. Úsalos para empaquetar el mod tú mismo, por ejemplo en un archivo 7z con un manifiesto propio. Para instalarlos, empaquétalos para un gestor de mods en lugar de copiarlos en la carpeta del juego ([Instalar](#installing)). Empieza desactivado.
+
+Con los dos activados, la carpeta va junto al ZIP. Con los dos desactivados, una generación no tiene nada que crear, así que el botón Generar se desactiva y lo indica.
 
 Una generación tiene un fichero `.patch_0.gpu_resources` solo cuando el proyecto lleva texturas o modelos de un mod importado. El audio no necesita ninguno.
 

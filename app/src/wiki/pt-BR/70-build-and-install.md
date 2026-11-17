@@ -2,7 +2,7 @@
 title: Gerando e instalando
 group: Geração e compartilhamento
 summary: O que uma geração cria, como instalá-la com um gerenciador de mods e como as atualizações chegam ao mod instalado.
-source: a5decf27e8e8
+source: 1511bf82abe2
 ---
 
 ## Gerar {#building}
@@ -15,7 +15,7 @@ Se o projeto tiver problemas, como um arquivo ausente ou um nome que os gerencia
 
 ### Pasta de destino {#destination-folder}
 
-O ZIP vai para a pasta `build` ao lado do arquivo do projeto. Para gerar em outra pasta, pressione **Alterar** em **Pasta de destino**. **Voltar ao padrão** volta para a pasta `build`. Uma geração adiciona só o ZIP, e os [arquivos de patch](#patch-files) quando você os ativa, então vários mods podem dividir uma pasta. O Audiodiver não gera na pasta do jogo.
+O ZIP vai para a pasta `build` ao lado do arquivo do projeto. Para gerar em outra pasta, pressione **Alterar** em **Pasta de destino**. **Voltar ao padrão** volta para a pasta `build`. Uma geração adiciona só o ZIP e os [arquivos de patch](#patch-files), conforme você escolher em Opções de geração, então vários mods podem dividir uma pasta. O Audiodiver não gera na pasta do jogo.
 
 ## O que o gerenciador de mods mostra {#what-the-mod-manager-shows}
 
@@ -48,7 +48,12 @@ Estas configurações ficam em **Opções de geração** na aba Gerar.
 
 ### Arquivos de patch {#patch-files}
 
-**Salvar também os arquivos de patch em uma pasta** coloca os arquivos de patch do mod ao lado de cada ZIP, numa pasta com o mesmo nome do ZIP. São o arquivo `.patch_0` e, quando o mod tem áudio em stream, o arquivo `.patch_0.stream`. Use-os para empacotar o mod você mesmo, por exemplo num pacote 7z com um manifesto próprio. Para instalá-los, empacote-os para um gerenciador de mods em vez de copiá-los para a pasta do jogo ([Instalar](#installing)). A configuração vale para o projeto aberto.
+Duas configurações escolhem o que uma geração de Helldivers 2 cria. As duas valem para o projeto aberto.
+
+- **Exportar mod em ZIP** empacota o mod como ZIP, o arquivo que um gerenciador de mods instala. Começa ativada.
+- **Exportar arquivos de patch soltos** salva os arquivos de patch do mod numa pasta com o mesmo nome do ZIP. São o arquivo `.patch_0` e, quando o mod tem áudio em stream, o arquivo `.patch_0.stream`. Use-os para empacotar o mod você mesmo, por exemplo num pacote 7z com um manifesto próprio. Para instalá-los, empacote-os para um gerenciador de mods em vez de copiá-los para a pasta do jogo ([Instalar](#installing)). Começa desativada.
+
+Com as duas ativadas, a pasta fica ao lado do ZIP. Com as duas desativadas, a geração não tem nada a criar, então o botão Gerar fica desativado e diz o motivo.
 
 Uma geração só tem um arquivo `.patch_0.gpu_resources` quando o projeto carrega texturas ou modelos de um mod importado. O áudio não precisa de nenhum.
 

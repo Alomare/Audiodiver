@@ -2,7 +2,7 @@
 title: Tempo, pontos de cue e loops
 group: Criando um mod
 summary: Como o jogo passa de um segmento para o seguinte, como fazer a música nova passar a vez sem emendas, como recortar e mover o áudio novo e como fatiar uma música num cue.
-source: ccdd8e82518d
+source: 87b1cca62b82
 ---
 
 ## Ajustar o tempo ao áudio novo {#fitting-the-timing-to-the-new-audio}
@@ -27,13 +27,14 @@ Quando um arquivo toca em vários segmentos, **Aplicar a mais … segmentos com 
 
 ## Recortar e mover o áudio novo {#trimming-and-moving-new-audio}
 
-A faixa **Recorte** abaixo de **Substituído** mostra o arquivo inteiro do áudio novo, na mesma escala de tempo. A parte que toca fica clara, e o resto fica apagado. Isso funciona em todo slot com áudio novo: música, sons e falas.
+A forma de onda **Substituído** mostra o arquivo inteiro do áudio novo, na mesma escala de tempo do original. A parte que toca fica clara, e o resto fica apagado. Isso funciona em todo slot com áudio novo: música, sons e falas.
 
-- Arraste **Início** e **Fim** para escolher o trecho do arquivo que toca.
+- Arraste as linhas de **Início** e **Fim** para escolher o trecho do arquivo que toca.
+- Arraste o rótulo **Início** ou **Fim** no alto de uma linha para aplicar fade in ou fade out no áudio. A linha se inclina de onde o áudio está em silêncio até onde ele chega ao nível máximo.
 - Arraste o trecho claro para a direita para o áudio novo começar depois do original. O slot toca silêncio antes dele. Arraste de volta para a esquerda para começar mais cedo.
-- Digite valores exatos em **Início**, **Fim** e **Atraso** abaixo das formas de onda, em milissegundos. **Redefinir** volta a tocar o arquivo inteiro, desde o início.
+- Digite valores exatos em **Início**, **Fim**, **Atraso**, **Fade In** e **Fade Out** abaixo das formas de onda, em milissegundos. **Redefinir** volta a tocar o arquivo inteiro, desde o início e sem fades.
 
-O arquivo fica como está. O projeto guarda os três valores, e as gerações, as prévias e a forma de onda **Substituído** usam todos eles. Os fades e o Make-Up Gain valem para o trecho que toca. Escolher outro arquivo para o slot o deixa sem recorte.
+O arquivo fica como está. O projeto guarda esses valores, e as gerações e as prévias os usam. O Make-Up Gain vale para o trecho que toca. Escolher outro arquivo para o slot o deixa sem recorte.
 
 ## Ouvir o resultado {#hearing-the-result}
 

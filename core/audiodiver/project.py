@@ -44,8 +44,9 @@ without one, in a frame (arsenal.icon_frame; keys left out take the defaults). I
 older projects store that text (and an image as a plain path): loading keeps only the image and the frame.
 
 build_folder is where builds go, relative to the project file (absolute on another drive); "" is the build folder
-next to it. "patch_files": true makes each build also save the patch files in a folder named like its ZIP, for
-packing the mod another way (left out while unused). built_for is the game version its last build was made on (Steam's build id), so the Build tab can say
+next to it. "patch_files": true makes each build save the patch files in a folder named like its ZIP, for packing
+the mod another way, and "zip_mod": false makes it leave out the ZIP (each left out while as by default; a build
+needs one of the two). built_for is the game version its last build was made on (Steam's build id), so the Build tab can say
 when the game updated since: a build carries whole banks, and their copies of what many banks share go stale.
 built_from is a fingerprint of what that build was made from (editor.build_inputs), so the tab bar can say when the
 project changed since.
@@ -289,7 +290,8 @@ class Project:
     loudness_analysis: bool = False
     every_bank: bool = False  # a replaced sound goes into every bank that has it, not only the project's (build.reach)
     project_banks_only: bool = False  # added audio and settings keep to the project's banks too (build.own_banks)
-    patch_files: bool = False  # each build also saves the patch files beside the ZIP (build.build)
+    patch_files: bool = False  # each build saves the patch files in a folder named like the ZIP (build.build)
+    zip_mod: bool = True       # each build packs the mod as a ZIP for the mod manager (build.build)
     imported_banks: list[int] = field(default_factory=list)  # the banks the mods imported into it patched
     built_for: str = ""     # the game version (Game.version) its last build was made on; "" before one
     built_from: str = ""    # a fingerprint of what its last build was made from (editor.build_inputs); "" before one
@@ -524,6 +526,7 @@ class Project:
                        every_bank=kind(d, "every_bank", bool, False, tr("Banks")),
                        project_banks_only=kind(d, "project_banks_only", bool, False, tr("Banks")),
                        patch_files=kind(d, "patch_files", bool, False, tr("Patch files")),
+                       zip_mod=kind(d, "zip_mod", bool, True, tr("Zipped mod")),
                        imported_banks=[int(b) for b in kind(d, "imported_banks", list, [], tr("the imported mods' banks"))],
                        built_for=kind(d, "built_for", str, "", tr("the game version of the last build")),
                        built_from=kind(d, "built_from", str, "", tr("what the last build was made from")),
@@ -566,6 +569,7 @@ class Project:
             **({"every_bank": True} if self.every_bank else {}),
             **({"project_banks_only": True} if self.project_banks_only else {}),
             **({"patch_files": True} if self.patch_files else {}),
+            **({} if self.zip_mod else {"zip_mod": False}),
             **({"imported_banks": [str(b) for b in self.imported_banks]} if self.imported_banks else {}),
             **({"built_for": self.built_for} if self.built_for else {}),
             **({"built_from": self.built_from} if self.built_from else {}),
