@@ -10,6 +10,7 @@ export const LANGUAGES = [
   { tag: "fr", name: "Français" },
   { tag: "es-ES", name: "Español" },
   { tag: "ja", name: "日本語" },
+  { tag: "ko", name: "한국어" },
 ] as const;
 export type Language = (typeof LANGUAGES)[number]["tag"];
 /** Development only (lingui.config.ts): every message stretched and accented, to find what isn't translatable yet. */

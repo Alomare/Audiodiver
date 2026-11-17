@@ -1,0 +1,2540 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=utf-8\n"
+"Language: ko\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: addition.py
+msgid "Only a sound with takes the game picks from can have a new take"
+msgstr "게임이 테이크 중에서 골라 재생하는 사운드에만 새 테이크를 추가할 수 있습니다"
+
+#: addition.py
+msgid "This sound has no take to copy"
+msgstr "이 사운드에는 복사할 테이크가 없습니다"
+
+#: addition.py
+msgid "Only a sound with takes the game picks from can have a layer"
+msgstr "게임이 테이크 중에서 골라 재생하는 사운드에만 레이어를 추가할 수 있습니다"
+
+#: addition.py
+msgid "This sound is one of the random choices of another sound, so a layer would only add another choice"
+msgstr "이 사운드는 다른 사운드가 무작위로 고르는 선택지 중 하나이므로, 레이어를 추가해도 선택지가 하나 늘어날 뿐입니다"
+
+#: addition.py
+msgid "Nothing plays this sound directly, so a layer beside it would never play"
+msgstr "이 사운드를 직접 재생하는 것이 없으므로, 옆에 둔 레이어는 재생되지 않습니다"
+
+#: addition.py
+msgid "A new container ({id}) with {n} sound can't be a layer, because it has no sounds"
+msgid_plural "A new container ({id}) with {n} sounds can't be a layer, because it has no sounds"
+msgstr[0] "사운드가 없으므로, 사운드 {n}개가 든 새 컨테이너({id})는 레이어가 될 수 없습니다"
+
+#: addition.py
+msgid "A new container ({id}) with {n} sound can't be a layer, because only a sound with takes the game picks from can have a layer"
+msgid_plural "A new container ({id}) with {n} sounds can't be a layer, because only a sound with takes the game picks from can have a layer"
+msgstr[0] "게임이 테이크 중에서 골라 재생하는 사운드에만 레이어를 추가할 수 있으므로, 사운드 {n}개가 든 새 컨테이너({id})는 레이어가 될 수 없습니다"
+
+#: addition.py
+msgid "A new container ({id}) with {n} sound can't be a layer, because this sound has no take to copy"
+msgid_plural "A new container ({id}) with {n} sounds can't be a layer, because this sound has no take to copy"
+msgstr[0] "이 사운드에는 복사할 테이크가 없으므로, 사운드 {n}개가 든 새 컨테이너({id})는 레이어가 될 수 없습니다"
+
+#: addition.py
+msgid "bank {id}, which this version of the game doesn't have"
+msgstr "이 게임 버전에 없는 뱅크 {id}"
+
+#: addition.py
+msgid "A new container ({id}) with {n} sound can't be a layer, because this sound is one of the random choices of another sound, so a layer would only add another choice"
+msgid_plural "A new container ({id}) with {n} sounds can't be a layer, because this sound is one of the random choices of another sound, so a layer would only add another choice"
+msgstr[0] "이 사운드는 다른 사운드가 무작위로 고르는 선택지 중 하나여서 레이어를 추가해도 선택지가 하나 늘어날 뿐이므로, 사운드 {n}개가 든 새 컨테이너({id})는 레이어가 될 수 없습니다"
+
+#: addition.py
+msgid "Container {id} has no take to copy"
+msgstr "컨테이너 {id}에는 복사할 테이크가 없습니다"
+
+#: addition.py
+msgid "A new container ({id}) with {n} sound can't be a layer, because nothing plays this sound directly, so a layer beside it would never play"
+msgid_plural "A new container ({id}) with {n} sounds can't be a layer, because nothing plays this sound directly, so a layer beside it would never play"
+msgstr[0] "이 사운드를 직접 재생하는 것이 없어 옆에 둔 레이어가 재생되지 않으므로, 사운드 {n}개가 든 새 컨테이너({id})는 레이어가 될 수 없습니다"
+
+#: addition.py
+msgid "A new container ({id}) with {n} sound can't be a layer, because Audiodiver can't tell which sound it plays with"
+msgid_plural "A new container ({id}) with {n} sounds can't be a layer, because Audiodiver can't tell which sound it plays with"
+msgstr[0] "Audiodiver가 어떤 사운드와 함께 재생되는지 알 수 없으므로, 사운드 {n}개가 든 새 컨테이너({id})는 레이어가 될 수 없습니다"
+
+#: addition.py
+msgid "Container {id} is one of the choices of a random container, so a layer beside it would only be another choice"
+msgstr "컨테이너 {id}은(는) 랜덤 컨테이너의 선택지 중 하나이므로, 옆에 둔 레이어는 선택지 하나가 될 뿐입니다"
+
+#: addition.py
+msgid "Nothing plays container {id} straight from an event, so a layer beside it would never play"
+msgstr "이벤트에서 컨테이너 {id}을(를) 직접 재생하는 것이 없으므로, 옆에 둔 레이어는 재생되지 않습니다"
+
+#: addition.py
+msgid "Sound {id} plays no clip"
+msgstr "사운드 {id}은(는) 클립을 재생하지 않습니다"
+
+#: addition.py editor.py
+msgid "Sound {id} isn't in this version of the game"
+msgstr "사운드 {id}은(는) 이 게임 버전에 없습니다"
+
+#: addition.py
+msgid "Container {id} isn't in this version of the game"
+msgstr "컨테이너 {id}은(는) 이 게임 버전에 없습니다"
+
+#: addition.py
+msgid "Layer {id} has no takes"
+msgstr "레이어 {id}에 테이크가 없습니다"
+
+#: addition.py
+msgid "A new sound ({id}) has no audio in the patch"
+msgstr "새 사운드({id})의 오디오가 패치에 없습니다"
+
+#: addition.py
+msgid "Sound {id} plays a clip that has no audio in the patch"
+msgstr "사운드 {id}이(가) 재생하는 클립의 오디오가 패치에 없습니다"
+
+#: addition.py
+msgid "A new sound ({id}) is in a place where Audiodiver can't add a take (under object {parent})"
+msgstr "새 사운드({id})가 Audiodiver가 테이크를 추가할 수 없는 위치에 있습니다(오브젝트 {parent} 아래)"
+
+#: akd.py
+msgid "Needs Wwise installed on this computer"
+msgstr "이 컴퓨터에 Wwise가 설치되어 있어야 합니다"
+
+#: akd.py
+msgid "Needs the waapi-client package next to the core"
+msgstr "코어 옆에 waapi-client 패키지가 있어야 합니다"
+
+#: archives.py
+msgid "{file} has a password. Unpack it with the password first"
+msgstr "{file}에 암호가 걸려 있습니다. 먼저 암호를 입력해 압축을 푸세요"
+
+#: archives.py repatch.py
+msgid "{file} can't be opened as a .7z or .rar file"
+msgstr "{file}을(를) .7z 또는 .rar 파일로 열 수 없습니다"
+
+#: archives.py
+msgid "{file} can't be opened: reading .7z and .rar files needs 7-Zip"
+msgstr "{file}을(를) 열 수 없습니다. .7z와 .rar 파일을 읽으려면 7-Zip이 필요합니다"
+
+#: arsenal.py
+msgid "A mod needs a name"
+msgstr "모드에는 이름이 필요합니다"
+
+#: arsenal.py
+msgid "The name starts or ends with a space"
+msgstr "이름이 공백으로 시작하거나 끝납니다"
+
+#: arsenal.py
+msgid "The name needs a letter or a digit"
+msgstr "이름에 문자나 숫자가 하나 이상 있어야 합니다"
+
+#: arsenal.py
+msgid "a tab"
+msgstr "탭"
+
+#: arsenal.py
+msgid "Mod managers can't use {characters} in a name (letters, digits, spaces and - _ ( ) are fine)"
+msgstr "모드 관리자는 이름에 {characters}을(를) 쓸 수 없습니다(문자, 숫자, 공백과 - _ ( )는 쓸 수 있습니다)"
+
+#: arsenal.py editor.py
+msgid "{file} is too large to use as an icon"
+msgstr "{file}은(는) 아이콘으로 쓰기에 너무 큽니다"
+
+#: arsenal.py
+msgid "{file} is not an image Audiodiver can read"
+msgstr "{file}은(는) Audiodiver가 읽을 수 있는 이미지가 아닙니다"
+
+#: audio.py
+msgid "The cut points lie outside the song"
+msgstr "자르기 지점이 노래 밖에 있습니다"
+
+#: audio.py editor.py
+msgid "Can't read the audio in {file}"
+msgstr "{file}의 오디오를 읽을 수 없습니다"
+
+#: audio.py
+msgid "Piece {n} is shorter than {seconds} s"
+msgstr "조각 {n}이(가) {seconds}초보다 짧습니다"
+
+#: audio.py
+msgid "Piece {n} is empty: the song ends before it"
+msgstr "조각 {n}이(가) 비어 있습니다. 노래가 그 전에 끝납니다"
+
+#: build.py
+msgid "Patching the sound banks"
+msgstr "사운드 뱅크 패치 중"
+
+#: build.py
+msgid "Checking the patch"
+msgstr "패치 확인 중"
+
+#: build.py editor.py hd1_build.py project.py
+msgid "silence"
+msgstr "무음"
+
+#: build.py
+msgid "{n} line"
+msgid_plural "{n} lines"
+msgstr[0] "{n}줄"
+
+#: build.py
+msgid "{replacements} -> {n} bank patched"
+msgid_plural "{replacements} -> {n} banks patched"
+msgstr[0] "{replacements} -> 뱅크 {n}개 패치됨"
+
+#: build.py
+msgid "radio filter: this game version has changed some of those buses, so they keep the filter"
+msgstr "무전 필터: 이 게임 버전에서 해당 버스 일부가 바뀌어, 그 버스에는 필터가 유지됩니다"
+
+#: build.py
+msgid "verified ({seconds}s)"
+msgstr "확인됨 ({seconds}s)"
+
+#: build.py editor.py
+msgid "Packing the ZIP"
+msgstr "ZIP 묶는 중"
+
+#: build.py
+msgid "curves: {n} sound or track is not in this game version; left out"
+msgid_plural "curves: {n} sounds or tracks are not in this game version; left out"
+msgstr[0] "곡선: 사운드 또는 트랙 {n}개가 이 게임 버전에 없어 제외됨"
+
+#: build.py
+msgid "sound {id}"
+msgstr "사운드 {id}"
+
+#: build.py
+msgid "gain: {n} sound with Make-Up Gain on the original is not in this game version; left out"
+msgid_plural "gain: {n} sounds with Make-Up Gain on the original are not in this game version; left out"
+msgstr[0] "게인: 원본에 Make-Up Gain을 준 사운드 {n}개가 이 게임 버전에 없어 제외됨"
+
+#: build.py
+msgid "filters: {n} sound with a filter is not in this game version; left out"
+msgid_plural "filters: {n} sounds with a filter are not in this game version; left out"
+msgstr[0] "필터: 필터를 준 사운드 {n}개가 이 게임 버전에 없어 제외됨"
+
+#: build.py
+msgid "Since the last game update, the game uses some IDs that the added audio also uses ({ids}). Remove that audio and add it again."
+msgstr "지난 게임 업데이트 이후, 추가한 오디오가 쓰는 ID 일부({ids})를 게임도 쓰고 있습니다. 그 오디오를 제거한 뒤 다시 추가하세요."
+
+#: build.py
+msgid "soundtrack: {n} piece of music the project sets is not in this game version; left out"
+msgid_plural "soundtrack: {n} pieces of music the project sets are not in this game version; left out"
+msgstr[0] "사운드트랙: 프로젝트가 설정한 곡 {n}개가 이 게임 버전에 없어 제외됨"
+
+#: build.py
+msgid "{n} playlist in a new order"
+msgid_plural "{n} playlists in a new order"
+msgstr[0] "재생 목록 {n}개의 순서 변경"
+
+#: build.py
+msgid "{n} piece led elsewhere"
+msgid_plural "{n} pieces led elsewhere"
+msgstr[0] "곡 {n}개를 다른 곳으로 연결"
+
+#: build.py
+msgid "soundtrack: {changes}"
+msgstr "사운드트랙: {changes}"
+
+#: build.py
+msgid "text: {lines} in {n} table"
+msgid_plural "text: {lines} in {n} tables"
+msgstr[0] "텍스트: 테이블 {n}개의 {lines}"
+
+#: build.py
+msgid "Project problems:"
+msgstr "프로젝트 문제:"
+
+#: build.py
+msgid "patching the banks that hold or play {n} sound"
+msgid_plural "patching the banks that hold or play {n} sounds"
+msgstr[0] "사운드 {n}개를 담거나 재생하는 뱅크 패치 중"
+
+#: build.py
+msgid "patching the project's banks that hold or play {n} sound"
+msgid_plural "patching the project's banks that hold or play {n} sounds"
+msgstr[0] "사운드 {n}개를 담거나 재생하는 프로젝트의 뱅크 패치 중"
+
+#: build.py
+msgid "settings: {n} object the mod set is not in this game version; left out"
+msgid_plural "settings: {n} objects the mod set are not in this game version; left out"
+msgstr[0] "설정: 모드가 설정한 오브젝트 {n}개가 이 게임 버전에 없어 제외됨"
+
+#: build.py
+msgid "cue points of {n} segment without new audio left out"
+msgid_plural "cue points of {n} segments without new audio left out"
+msgstr[0] "새 오디오가 없는 세그먼트 {n}개의 큐 포인트 제외됨"
+
+#: build.py editor.py
+msgid "The patch failed verification:"
+msgstr "패치 검증에 실패했습니다:"
+
+#: build.py
+msgid "added audio in {n} bank"
+msgid_plural "added audio in {n} banks"
+msgstr[0] "뱅크 {n}개에 오디오 추가"
+
+#: build.py
+msgid "make-up gain on {n} object"
+msgid_plural "make-up gain on {n} objects"
+msgstr[0] "오브젝트 {n}개에 Make-Up Gain"
+
+#: build.py
+msgid "{n} silenced sound taken out of the mix"
+msgid_plural "{n} silenced sounds taken out of the mix"
+msgstr[0] "무음 처리한 사운드 {n}개를 믹스에서 제거"
+
+#: build.py
+msgid "a mod's settings on {n} object"
+msgid_plural "a mod's settings on {n} objects"
+msgstr[0] "오브젝트 {n}개에 모드의 설정"
+
+#: build.py
+msgid "volume curves changed on {n} music track"
+msgid_plural "volume curves changed on {n} music tracks"
+msgstr[0] "음악 트랙 {n}개의 볼륨 곡선 변경"
+
+#: build.py
+msgid "filters on {n} object"
+msgid_plural "filters on {n} objects"
+msgstr[0] "오브젝트 {n}개에 필터"
+
+#: build.py
+msgid "radio filter off on {n} bus"
+msgid_plural "radio filter off on {n} buses"
+msgstr[0] "버스 {n}개의 무전 필터 끔"
+
+#: build.py
+msgid "{n} file besides audio (text, models, textures...) carried as it was"
+msgid_plural "{n} files besides audio (text, models, textures...) carried as they were"
+msgstr[0] "오디오 외 파일 {n}개(텍스트, 모델, 텍스처...)를 그대로 포함"
+
+#: build.py
+msgid "{folder} is inside the game folder, and Audiodiver never writes there. Choose another folder for the builds."
+msgstr "{folder}은(는) 게임 폴더 안에 있으며, Audiodiver는 그곳에 쓰지 않습니다. 빌드용으로 다른 폴더를 선택하세요."
+
+#: build.py
+msgid "encoding {file}"
+msgstr "{file} 인코딩 중"
+
+#: build.py editor.py
+msgid "Encoding {name}"
+msgstr "{name} 인코딩 중"
+
+#: build.py editor.py
+msgid "{names} and {last} replace the same sound"
+msgstr "{names}와(과) {last}이(가) 같은 사운드를 교체합니다"
+
+#: build.py
+msgid "Added audio: {problem}"
+msgstr "추가한 오디오: {problem}"
+
+#: build.py
+msgid "levels on {n} track"
+msgid_plural "levels on {n} tracks"
+msgstr[0] "트랙 {n}개의 레벨"
+
+#: build.py
+msgid "text: the game changed {n} line since the project changed it (ID {ids}); the project's is used"
+msgid_plural "text: the game changed {n} lines since the project changed them (IDs {ids}); the project's are used"
+msgstr[0] "텍스트: 프로젝트가 바꾼 뒤 게임이 줄 {n}개를 바꿨습니다(ID {ids}). 프로젝트의 텍스트를 사용합니다"
+
+#: build.py
+msgid "text: {n} line is not in table {table} any more and is left out (ID {ids})"
+msgid_plural "text: {n} lines are not in table {table} any more and are left out (IDs {ids})"
+msgstr[0] "텍스트: 줄 {n}개가 테이블 {table}에 더 이상 없어 제외됩니다(ID {ids})"
+
+#: build.py
+msgid "The voice {voice} has new audio in more than one language ({languages}). A mod can carry one language of a voice: with two, the game plays every line of that voice silent. Keep the new audio in one language, or make a mod for each."
+msgstr "음성 {voice}에 여러 언어({languages})로 새 오디오가 있습니다. 모드에는 한 음성당 한 언어만 담을 수 있으며, 두 언어가 있으면 게임에서 그 음성의 모든 대사가 무음으로 재생됩니다. 새 오디오를 한 언어로만 두거나, 언어마다 모드를 만드세요."
+
+#: build.py
+msgid "Music segment {segment}: the Entry cue point ({entry} s) is at or after the Exit ({exit} s), so the game would play the music before it until the Entry. Move the cue points on the Audio tab, or reset them."
+msgstr "음악 세그먼트 {segment}: Entry 큐 포인트({entry}초)가 Exit({exit}초)와 같거나 그 뒤에 있어, 게임이 Entry까지 그 앞의 음악을 재생합니다. 오디오 탭에서 큐 포인트를 옮기거나 초기화하세요."
+
+#: build.py
+msgid "{n} replacement"
+msgid_plural "{n} replacements"
+msgstr[0] "교체 {n}개"
+
+#: build.py
+msgid "patch files in {folder}"
+msgstr "{folder}의 패치 파일"
+
+#: build.py
+msgid "Icon: {why}"
+msgstr "아이콘: {why}"
+
+#: build.py editor.py
+msgid "{name}: can't read the audio in {file}"
+msgstr "{name}: {file}의 오디오를 읽을 수 없습니다"
+
+#: build.py
+msgid "{name}: sound {id} isn't in this version of the game"
+msgstr "{name}: 사운드 {id}은(는) 이 게임 버전에 없습니다"
+
+#: build.py
+msgid "text: table {table} is not in this game version; the {n} line changed in it is left out"
+msgid_plural "text: table {table} is not in this game version; the {n} lines changed in it are left out"
+msgstr[0] "텍스트: 테이블 {table}이(가) 이 게임 버전에 없어, 그 테이블에서 바꾼 줄 {n}개가 제외됩니다"
+
+#: build.py editor.py
+msgid "Can't write the ZIP into {folder}: {why}"
+msgstr "{folder}에 ZIP을 쓸 수 없습니다: {why}"
+
+#: build.py
+msgid "Can't save the patch files into {folder}: {why}"
+msgstr "{folder}에 패치 파일을 저장할 수 없습니다: {why}"
+
+#: catalog.py
+msgid "Transitions"
+msgstr "트랜지션"
+
+#: catalog.py
+msgid "Stingers"
+msgstr "스팅어"
+
+#: catalog.py
+msgid "Unused"
+msgstr "미사용"
+
+#: catalog.py
+msgid "Old Tutorial"
+msgstr "이전 튜토리얼"
+
+#: catalog.py
+msgid "Combat"
+msgstr "전투"
+
+#: catalog.py
+msgid "Event Layers"
+msgstr "이벤트 레이어"
+
+#: catalog.py
+msgid "Other"
+msgstr "기타"
+
+#: catalog.py
+msgid "Event-Driven"
+msgstr "이벤트 기반"
+
+#: catalog.py
+msgid "Filler (Do Not Touch)"
+msgstr "채움용 (건드리지 마세요)"
+
+#: catalog.py
+msgid "Do not touch. Replacing it makes the music stutter."
+msgstr "건드리지 마세요. 교체하면 음악이 끊깁니다."
+
+#: catalog.py
+msgid "Playlist {id}"
+msgstr "재생 목록 {id}"
+
+#: catalog.py
+msgid "Segment {id}"
+msgstr "세그먼트 {id}"
+
+#: catalog.py
+msgid "Bridge {id}"
+msgstr "브리지 {id}"
+
+#: catalog.py
+msgid "Stinger {id}"
+msgstr "스팅어 {id}"
+
+#: catalog.py
+msgid "variant {id}"
+msgstr "변형 {id}"
+
+#: catalog.py
+msgid "{group}: {value}"
+msgstr "{group}: {value}"
+
+#: catalog.py musiclist.py
+msgid "Also called '{name}'."
+msgstr "‘{name}’(이)라고도 합니다."
+
+#: catalog.py
+msgid "Segment {n}"
+msgstr "세그먼트 {n}"
+
+#: combine.py
+msgid "Volume"
+msgstr "볼륨"
+
+#: combine.py
+msgid "Pitch"
+msgstr "피치"
+
+#: combine.py
+msgid "Low-pass filter"
+msgstr "로우패스 필터"
+
+#: combine.py
+msgid "High-pass filter"
+msgstr "하이패스 필터"
+
+#: combine.py
+msgid "Initial Delay"
+msgstr "초기 지연"
+
+#: combine.py
+msgid "Combined from these mods:"
+msgstr "다음 모드를 합쳤습니다:"
+
+#: combine.py
+msgid "Setting {id}"
+msgstr "설정 {id}"
+
+#: combine.py
+msgid "Option {n}"
+msgstr "옵션 {n}"
+
+#: combine.py
+msgid "Choice {n}"
+msgstr "선택지 {n}"
+
+#: editor.py
+msgid "Naming the sounds and the music in the new language"
+msgstr "새 언어로 사운드와 음악 이름을 붙이는 중"
+
+#: editor.py
+msgid "The game updated while Audiodiver was open. Audiodiver is reading it again: try again when that is done."
+msgstr "Audiodiver가 열려 있는 동안 게임이 업데이트되었습니다. Audiodiver가 게임을 다시 읽고 있으니, 끝나면 다시 시도하세요."
+
+#: editor.py
+msgid "A game file can't be read. In Steam, verify the integrity of the game files, then try again."
+msgstr "게임 파일을 읽을 수 없습니다. Steam에서 게임 파일 무결성을 검사한 뒤 다시 시도하세요."
+
+#: editor.py
+msgid "Nothing changed, because the project file couldn't be saved. {why}."
+msgstr "프로젝트 파일을 저장할 수 없어 아무것도 바뀌지 않았습니다. {why}."
+
+#: editor.py
+msgid "Choose a folder to save into"
+msgstr "저장할 폴더를 선택하세요"
+
+#: editor.py
+msgid "Mapping the music"
+msgstr "음악 매핑 중"
+
+#: editor.py
+msgid "The mods are being read or combined already"
+msgstr "이미 모드를 읽거나 합치는 중입니다"
+
+#: editor.py
+msgid "Wait until the running build, repatch or combine is done"
+msgstr "실행 중인 빌드, Repatch 또는 합치기가 끝날 때까지 기다리세요"
+
+#: editor.py
+msgid "{files} needs converting, which Audiodiver Utils can't do. Give a 16-bit WAV at 48 kHz or a .wem, or use the full Audiodiver."
+msgid_plural "{files} need converting, which Audiodiver Utils can't do. Give 16-bit WAVs at 48 kHz or .wem files, or use the full Audiodiver."
+msgstr[0] "{files}은(는) 변환이 필요하지만 Audiodiver Utils에서는 변환할 수 없습니다. 48 kHz 16비트 WAV나 .wem 파일을 넣거나, 정식 Audiodiver를 사용하세요."
+
+#: editor.py
+msgid "The game updated. Reading the game audio again (about a minute)"
+msgstr "게임이 업데이트되었습니다. 게임 오디오를 다시 읽는 중(약 1분)"
+
+#: editor.py
+msgid "Sorting the sounds"
+msgstr "사운드 정렬 중"
+
+#: editor.py
+msgid "The game is still loading. Try again when it's done."
+msgstr "게임을 아직 불러오는 중입니다. 끝나면 다시 시도하세요."
+
+#: editor.py
+msgid "Wait for the build or export to finish first"
+msgstr "먼저 빌드나 내보내기가 끝날 때까지 기다리세요"
+
+#: editor.py
+msgid "Choose a song to slice"
+msgstr "자를 노래를 선택하세요"
+
+#: editor.py
+msgid "Choose where to save the project (a full path)"
+msgstr "프로젝트를 저장할 위치를 선택하세요(전체 경로)"
+
+#: editor.py
+msgid "Helldivers 1 wasn't found. Choose the game folder in Settings ▸ System."
+msgstr "Helldivers 1을 찾을 수 없습니다. 설정 ▸ 시스템에서 게임 폴더를 선택하세요."
+
+#: editor.py
+msgid "Choose a .audi project file (a full path)"
+msgstr ".audi 프로젝트 파일을 선택하세요(전체 경로)"
+
+#: editor.py
+msgid "No project open"
+msgstr "열린 프로젝트가 없습니다"
+
+#: editor.py
+msgid "Choose the audio files to add"
+msgstr "추가할 오디오 파일을 선택하세요"
+
+#: editor.py
+msgid "That sound already has a separate clip"
+msgstr "그 사운드에는 이미 별도의 클립이 있습니다"
+
+#: editor.py
+msgid "That slot doesn't have a separate clip"
+msgstr "그 슬롯에는 별도의 클립이 없습니다"
+
+#: editor.py
+msgid "A Helldivers 1 mod can't hold this"
+msgstr "Helldivers 1 모드에는 이것을 담을 수 없습니다"
+
+#: editor.py
+msgid "Choose an audio file"
+msgstr "오디오 파일을 선택하세요"
+
+#: editor.py
+msgid "Choose the files and the slots to fill"
+msgstr "파일과 채울 슬롯을 선택하세요"
+
+#: editor.py
+msgid "Choose the slots to silence"
+msgstr "무음으로 만들 슬롯을 선택하세요"
+
+#: editor.py
+msgid "Choose the slots to clear"
+msgstr "비울 슬롯을 선택하세요"
+
+#: editor.py
+msgid "Choose the slots to change"
+msgstr "바꿀 슬롯을 선택하세요"
+
+#: editor.py
+msgid "Choose the slots to match"
+msgstr "맞출 슬롯을 선택하세요"
+
+#: editor.py
+msgid "Nothing to match: no slot here has new audio and an original, both with sound"
+msgstr "맞출 대상이 없습니다. 여기에는 새 오디오와 원본이 모두 소리를 내는 슬롯이 없습니다"
+
+#: editor.py
+msgid "This slot has no new audio to trim"
+msgstr "이 슬롯에는 다듬을 새 오디오가 없습니다"
+
+#: editor.py
+msgid "That folder is inside the game folder, and Audiodiver never writes there. Choose another folder, and import the ZIP in a mod manager."
+msgstr "그 폴더는 게임 폴더 안에 있으며, Audiodiver는 그곳에 쓰지 않습니다. 다른 폴더를 선택하고, 모드 관리자에서 ZIP을 가져오세요."
+
+#: editor.py
+msgid "Choose a folder (a full path)"
+msgstr "폴더를 선택하세요(전체 경로)"
+
+#: editor.py
+msgid "Choose where to save the notes"
+msgstr "메모를 저장할 위치를 선택하세요"
+
+#: editor.py
+msgid "Open a project to export the project notes"
+msgstr "프로젝트 메모를 내보내려면 프로젝트를 여세요"
+
+#: editor.py
+msgid "Choose a notes file"
+msgstr "메모 파일을 선택하세요"
+
+#: editor.py
+msgid "Choose an image"
+msgstr "이미지를 선택하세요"
+
+#: editor.py
+msgid "A cue point is a number of milliseconds from 0"
+msgstr "큐 포인트는 0부터 센 밀리초입니다"
+
+#: editor.py
+msgid "The Entry cue point comes before the Exit"
+msgstr "Entry 큐 포인트는 Exit보다 앞이어야 합니다"
+
+#: editor.py
+msgid "Choose the segments to change"
+msgstr "바꿀 세그먼트를 선택하세요"
+
+#: editor.py
+msgid "Silence has no cue points"
+msgstr "무음에는 큐 포인트가 없습니다"
+
+#: editor.py
+msgid "Wait until the running job is done"
+msgstr "실행 중인 작업이 끝날 때까지 기다리세요"
+
+#: editor.py
+msgid "Choose a folder to move the project to (a full path)"
+msgstr "프로젝트를 옮길 폴더를 선택하세요(전체 경로)"
+
+#: editor.py
+msgid "Name the files to remove"
+msgstr "제거할 파일 이름을 지정하세요"
+
+#: editor.py
+msgid "Choose where to save the pack (a full path)"
+msgstr "팩을 저장할 위치를 선택하세요(전체 경로)"
+
+#: editor.py
+msgid "Choose where to unpack it (a full path)"
+msgstr "압축을 풀 위치를 선택하세요(전체 경로)"
+
+#: editor.py
+msgid "Choose a mod's .patch_0 file"
+msgstr "모드의 .patch_0 파일을 선택하세요"
+
+#: editor.py
+msgid "{n} other change"
+msgid_plural "{n} other changes"
+msgstr[0] "기타 변경 {n}개"
+
+#: editor.py
+msgid "{changes} in {n} banks ({names}): settings such as effects, positioning or how a container picks sounds"
+msgstr "뱅크 {n}개({names})의 {changes}: 효과, 위치 지정, 컨테이너가 사운드를 고르는 방식 등의 설정"
+
+#: editor.py
+msgid "The sound in {file} couldn't be decoded."
+msgstr "{file}의 사운드를 디코딩할 수 없습니다."
+
+#: editor.py
+msgid "None of the {n} sounds in {file} could be decoded."
+msgid_plural "None of the {n} sounds in {file} could be decoded."
+msgstr[0] "{file}의 사운드 {n}개를 하나도 디코딩할 수 없습니다."
+
+#: editor.py
+msgid "The folder {folder} has too long a path for the decoder. Choose a shorter one."
+msgstr "{folder} 폴더의 경로가 디코더에 너무 깁니다. 더 짧은 경로를 선택하세요."
+
+#: editor.py
+msgid "Is the .stream file next to the patch?"
+msgstr ".stream 파일이 패치 옆에 있습니까?"
+
+#: editor.py
+msgid "Choose a line of text to import. The mod has no audio that Audiodiver can bring in."
+msgstr "가져올 텍스트 줄을 선택하세요. 이 모드에는 Audiodiver가 가져올 수 있는 오디오가 없습니다."
+
+#: editor.py
+msgid "No patch is in the chosen options"
+msgstr "선택한 옵션에 패치가 없습니다"
+
+#: editor.py
+msgid "The installed mods are being checked already"
+msgstr "이미 설치된 모드를 확인하는 중입니다"
+
+#: editor.py
+msgid "installed mods"
+msgstr "설치된 모드"
+
+#: editor.py
+msgid "Choose the mods to repatch"
+msgstr "Repatch할 모드를 선택하세요"
+
+#: editor.py
+msgid "{n} mod"
+msgid_plural "{n} mods"
+msgstr[0] "모드 {n}개"
+
+#: editor.py
+msgid "Choose where repatched mods go (a full path)"
+msgstr "Repatch한 모드를 저장할 위치를 선택하세요(전체 경로)"
+
+#: editor.py
+msgid "A build is already running"
+msgstr "이미 빌드가 실행 중입니다"
+
+#: editor.py hd1.py library.py
+msgid "Bank {id}"
+msgstr "뱅크 {id}"
+
+#: editor.py
+msgid "Choose a mod first"
+msgstr "먼저 모드를 선택하세요"
+
+#: editor.py
+msgid "Give a sound new audio first"
+msgstr "먼저 사운드에 새 오디오를 넣으세요"
+
+#: editor.py
+msgid "Choose where the mod goes (a full path)"
+msgstr "모드를 저장할 위치를 선택하세요(전체 경로)"
+
+#: editor.py
+msgid "Choose the mods to combine"
+msgstr "합칠 모드를 선택하세요"
+
+#: editor.py library.py
+msgid "Sound {id}"
+msgstr "사운드 {id}"
+
+#: editor.py
+msgid "Comparing the mods"
+msgstr "모드 비교 중"
+
+#: editor.py
+msgid "Choose where combined mods go (a full path)"
+msgstr "합친 모드를 저장할 위치를 선택하세요(전체 경로)"
+
+#: editor.py
+msgid "Only a playlist has an order to change"
+msgstr "순서를 바꿀 수 있는 것은 재생 목록뿐입니다"
+
+#: editor.py
+msgid "Same song needs another piece of music to follow"
+msgstr "같은 노래 다음에는 다른 곡이 이어져야 합니다"
+
+#: editor.py
+msgid "Choose the pieces of music to set"
+msgstr "설정할 곡을 선택하세요"
+
+#: editor.py
+msgid "Choose the songs"
+msgstr "노래를 선택하세요"
+
+#: editor.py
+msgid "Set this music to another mode first"
+msgstr "먼저 이 음악을 다른 방식으로 설정하세요"
+
+#: editor.py
+msgid "Choose the music to set"
+msgstr "설정할 음악을 선택하세요"
+
+#: editor.py
+msgid "No other music to set"
+msgstr "설정할 다른 음악이 없습니다"
+
+#: editor.py
+msgid "Choose a file to export to"
+msgstr "내보낼 파일을 선택하세요"
+
+#: editor.py
+msgid "Choose a file to import"
+msgstr "가져올 파일을 선택하세요"
+
+#: editor.py
+msgid "Type the words to find"
+msgstr "찾을 단어를 입력하세요"
+
+#: editor.py
+msgid "The export list can't be read. Clear it and add the items again."
+msgstr "내보내기 목록을 읽을 수 없습니다. 목록을 비우고 항목을 다시 추가하세요."
+
+#: editor.py
+msgid "A bank's sounds export one by one, because there are no segments to mix"
+msgstr "뱅크의 사운드는 믹스할 세그먼트가 없으므로 하나씩 내보냅니다"
+
+#: editor.py
+msgid "{title} - Fight ({minutes} min)"
+msgstr "{title} - 교전 ({minutes}분)"
+
+#: editor.py
+msgid "The export list is empty"
+msgstr "내보내기 목록이 비어 있습니다"
+
+#: editor.py
+msgid "WEM files are the Original, slot by slot. Choose another format for the rest."
+msgstr "WEM 파일은 슬롯별 원본입니다. 나머지는 다른 형식을 선택하세요."
+
+#: editor.py
+msgid "Helldivers 1 has no WEM files. Choose another format for it."
+msgstr "Helldivers 1에는 WEM 파일이 없습니다. 다른 형식을 선택하세요."
+
+#: editor.py
+msgid "Getting ready"
+msgstr "준비 중"
+
+#: editor.py
+msgid "the export list"
+msgstr "내보내기 목록"
+
+#: editor.py
+msgid "{path} isn't a full path"
+msgstr "{path}은(는) 전체 경로가 아닙니다"
+
+#: editor.py
+msgid "{name} is a file. Choose a folder."
+msgstr "{name}은(는) 파일입니다. 폴더를 선택하세요."
+
+#: editor.py
+msgid "{name} can't be used as a folder name. Choose another name."
+msgstr "{name}은(는) 폴더 이름으로 쓸 수 없습니다. 다른 이름을 선택하세요."
+
+#: editor.py
+msgid "Reading the game audio from the new folder"
+msgstr "새 폴더에서 게임 오디오를 읽는 중"
+
+#: editor.py
+msgid "Reading the game audio (the first run after a game update takes about a minute)"
+msgstr "게임 오디오를 읽는 중(게임 업데이트 후 첫 실행은 약 1분 걸립니다)"
+
+#: editor.py
+msgid "The game files are still changing. Audiodiver reads them again when Steam is done."
+msgstr "게임 파일이 아직 바뀌는 중입니다. Steam이 끝나면 Audiodiver가 다시 읽습니다."
+
+#: editor.py
+msgid "A new take has no original audio"
+msgstr "새 테이크에는 원본 오디오가 없습니다"
+
+#: editor.py
+msgid "Add new audio to the slot first"
+msgstr "먼저 슬롯에 새 오디오를 넣으세요"
+
+#: editor.py
+msgid "Another sound that plays this clip already has new audio. Remove that audio first."
+msgstr "이 클립을 재생하는 다른 사운드에 이미 새 오디오가 있습니다. 먼저 그 오디오를 제거하세요."
+
+#: editor.py
+msgid "{name} (archive {archive})"
+msgstr "{name} (아카이브 {archive})"
+
+#: editor.py
+msgid "Silence"
+msgstr "무음"
+
+#: editor.py
+msgid "a slot: no audio file named"
+msgstr "슬롯: 지정한 오디오 파일 없음"
+
+#: editor.py
+msgid "Global Notes"
+msgstr "전역 메모"
+
+#: editor.py
+msgid "The project already has a folder to itself"
+msgstr "프로젝트에 이미 전용 폴더가 있습니다"
+
+#: editor.py
+msgid "That folder is inside the game folder, and Audiodiver never writes there"
+msgstr "그 폴더는 게임 폴더 안에 있으며, Audiodiver는 그곳에 쓰지 않습니다"
+
+#: editor.py
+msgid "The project is in that folder already"
+msgstr "프로젝트가 이미 그 폴더에 있습니다"
+
+#: editor.py
+msgid "Choose a folder outside the project's folder"
+msgstr "프로젝트 폴더 밖의 폴더를 선택하세요"
+
+#: editor.py
+msgid "That is a file, not a folder"
+msgstr "폴더가 아니라 파일입니다"
+
+#: editor.py
+msgid "{n} file packed into {pack}"
+msgid_plural "{n} files packed into {pack}"
+msgstr[0] "파일 {n}개를 {pack}에 묶었습니다"
+
+#: editor.py
+msgid "Nothing to build yet. Replace some audio, set a piece in the Soundtrack or change a line of text first."
+msgstr "아직 빌드할 것이 없습니다. 먼저 오디오를 교체하거나, 사운드트랙에서 곡을 설정하거나, 텍스트 줄을 바꾸세요."
+
+#: editor.py
+msgid "Another project was opened during the import. Open this project again and import again."
+msgstr "가져오는 동안 다른 프로젝트가 열렸습니다. 이 프로젝트를 다시 열고 다시 가져오세요."
+
+#: editor.py
+msgid "{changes} in \"{bank}\": settings such as effects, positioning or how a container picks sounds"
+msgstr "\"{bank}\"의 {changes}: 효과, 위치 지정, 컨테이너가 사운드를 고르는 방식 등의 설정"
+
+#: editor.py
+msgid "{names} and {n} more"
+msgid_plural "{names} and {n} more"
+msgstr[0] "{names} 외 {n}개"
+
+#: editor.py
+msgid "reading {file}"
+msgstr "{file} 읽는 중"
+
+#: editor.py
+msgid "Open the mod in Tools ▸ Patch Content to replace that audio inside the mod."
+msgstr "모드 안의 그 오디오를 교체하려면 도구 ▸ 패치 내용에서 모드를 여세요."
+
+#: editor.py
+msgid "{name} holds no audio or text that Audiodiver can bring in"
+msgstr "{name}에는 Audiodiver가 가져올 수 있는 오디오나 텍스트가 없습니다"
+
+#: editor.py
+msgid "The mod has no audio to repatch"
+msgstr "이 모드에는 Repatch할 오디오가 없습니다"
+
+#: editor.py
+msgid "{path} ({mb} MB)"
+msgstr "{path} ({mb} MB)"
+
+#: editor.py hd1.py library.py
+msgid "Other Sounds"
+msgstr "기타 사운드"
+
+#: editor.py
+msgid "Putting the mods together"
+msgstr "모드를 합치는 중"
+
+#: editor.py
+msgid "This piece is set to Silent, so it plays nothing"
+msgstr "이 곡은 무음으로 설정되어 아무것도 재생하지 않습니다"
+
+#: editor.py
+msgid "That line isn't in the game text"
+msgstr "그 줄은 게임 텍스트에 없습니다"
+
+#: editor.py
+msgid "That line isn't a game subtitle"
+msgstr "그 줄은 게임 자막이 아닙니다"
+
+#: editor.py
+msgid "(original)"
+msgstr "(원본)"
+
+#: editor.py
+msgid "(replaced)"
+msgstr "(교체됨)"
+
+#: editor.py
+msgid "There was nothing to export"
+msgstr "내보낼 것이 없었습니다"
+
+#: editor.py
+msgid "{file} isn't a project"
+msgstr "{file}은(는) 프로젝트가 아닙니다"
+
+#: editor.py repatch.py server.py
+msgid "{path} wasn't found"
+msgstr "{path}을(를) 찾을 수 없습니다"
+
+#: editor.py
+msgid "{file} has no icon"
+msgstr "{file}에 아이콘이 없습니다"
+
+#: editor.py
+msgid "{folder} can't be written to. Choose another folder."
+msgstr "{folder}에 쓸 수 없습니다. 다른 폴더를 선택하세요."
+
+#: editor.py
+msgid "Helldivers 1 couldn't be read from {folder}"
+msgstr "{folder}에서 Helldivers 1을 읽을 수 없습니다"
+
+#: editor.py
+msgid "{file} already exists in {folder}"
+msgstr "{file}이(가) {folder}에 이미 있습니다"
+
+#: editor.py
+msgid "{name} is a folder. Choose a .audi project file."
+msgstr "{name}은(는) 폴더입니다. .audi 프로젝트 파일을 선택하세요."
+
+#: editor.py
+msgid "{file} makes a mod for Helldivers 1, which wasn't found. Choose the Helldivers 1 folder in Settings ▸ System."
+msgstr "{file}은(는) Helldivers 1용 모드를 만드는데, Helldivers 1을 찾을 수 없습니다. 설정 ▸ 시스템에서 Helldivers 1 폴더를 선택하세요."
+
+#: editor.py
+msgid "Sound {sound} doesn't play {source}"
+msgstr "사운드 {sound}은(는) {source}을(를) 재생하지 않습니다"
+
+#: editor.py
+msgid "Slot {id} has no new audio"
+msgstr "슬롯 {id}에 새 오디오가 없습니다"
+
+#: editor.py
+msgid "This project makes a mod for Helldivers 1. Add sounds of Helldivers 1."
+msgstr "이 프로젝트는 Helldivers 1용 모드를 만듭니다. Helldivers 1의 사운드를 추가하세요."
+
+#: editor.py
+msgid "Helldivers 1 sounds go into a Helldivers 1 project."
+msgstr "Helldivers 1 사운드는 Helldivers 1 프로젝트에 넣습니다."
+
+#: editor.py
+msgid "{name}: can't read the audio file ({file})"
+msgstr "{name}: 오디오 파일을 읽을 수 없습니다({file})"
+
+#: editor.py
+msgid "{file} is not an audio file Audiodiver can read"
+msgstr "{file}은(는) Audiodiver가 읽을 수 있는 오디오 파일이 아닙니다"
+
+#: editor.py
+msgid "Sound {id} isn't in this version of Helldivers 1"
+msgstr "사운드 {id}은(는) 이 버전의 Helldivers 1에 없습니다"
+
+#: editor.py
+msgid "The audio must play for at least {ms} ms"
+msgstr "오디오는 최소 {ms} ms 동안 재생되어야 합니다"
+
+#: editor.py
+msgid "{folder} is not a folder"
+msgstr "{folder}은(는) 폴더가 아닙니다"
+
+#: editor.py
+msgid "The version is a whole number from 1 to 99999"
+msgstr "버전은 1부터 99999까지의 정수입니다"
+
+#: editor.py
+msgid "{packed}; {n} the project uses wasn't found"
+msgid_plural "{packed}; {n} the project uses weren't found"
+msgstr[0] "{packed}. 프로젝트가 쓰는 파일 {n}개를 찾을 수 없습니다"
+
+#: editor.py
+msgid "unpacked into {folder}"
+msgstr "{folder}에 압축을 풀었습니다"
+
+#: editor.py
+msgid "No job {id}"
+msgstr "작업 {id}이(가) 없습니다"
+
+#: editor.py
+msgid "{file} isn't a patch file. Choose a .patch_0 file. Audiodiver also reads the .stream file next to it."
+msgstr "{file}은(는) 패치 파일이 아닙니다. .patch_0 파일을 선택하세요. Audiodiver는 그 옆의 .stream 파일도 읽습니다."
+
+#: editor.py
+msgid "left out: {what}"
+msgstr "제외됨: {what}"
+
+#: editor.py
+msgid "{n} sound of an older game version, which the game no longer has, left out"
+msgid_plural "{n} sounds of an older game version, which the game no longer has, left out"
+msgstr[0] "게임에 더 이상 없는 이전 게임 버전의 사운드 {n}개 제외됨"
+
+#: editor.py
+msgid "{n} object as an older game version had it; the current one is used"
+msgid_plural "{n} objects as an older game version had them; the current ones are used"
+msgstr[0] "이전 게임 버전 상태의 오브젝트 {n}개. 현재 버전을 사용합니다"
+
+#: editor.py
+msgid "{n} object copied from another bank by the tool that made the mod; each bank's own is used"
+msgid_plural "{n} objects copied from another bank by the tool that made the mod; each bank's own are used"
+msgstr[0] "모드를 만든 도구가 다른 뱅크에서 복사한 오브젝트 {n}개. 각 뱅크의 원래 오브젝트를 사용합니다"
+
+#: editor.py
+msgid "{n} volume curve from the mod"
+msgid_plural "{n} volume curves from the mod"
+msgstr[0] "모드의 볼륨 곡선 {n}개"
+
+#: editor.py
+msgid "radio filter off for {n} voice, from the mod"
+msgid_plural "radio filter off for {n} voices, from the mod"
+msgstr[0] "모드에서 음성 {n}개의 무전 필터 끔"
+
+#: editor.py
+msgid "Decoding {n} of {total}"
+msgstr "{total}개 중 {n}개 디코딩 중"
+
+#: editor.py
+msgid "the mod changes {n} line of text"
+msgid_plural "the mod changes {n} lines of text"
+msgstr[0] "모드가 텍스트 {n}줄을 바꿉니다"
+
+#: editor.py
+msgid "{n} line of text that the game doesn't have, left out"
+msgid_plural "{n} lines of text that the game doesn't have, left out"
+msgstr[0] "게임에 없는 텍스트 {n}줄 제외됨"
+
+#: editor.py
+msgid "project {path}"
+msgstr "프로젝트 {path}"
+
+#: editor.py
+msgid "{n} of {total}, {name}: "
+msgstr "{total}개 중 {n}개, {name}: "
+
+#: editor.py
+msgid "{folder} is inside the game folder, and Audiodiver never writes there"
+msgstr "{folder}은(는) 게임 폴더 안에 있으며, Audiodiver는 그곳에 쓰지 않습니다"
+
+#: editor.py
+msgid "Object {id}"
+msgstr "오브젝트 {id}"
+
+#: editor.py
+msgid "{n} clash"
+msgid_plural "{n} clashes"
+msgstr[0] "충돌 {n}개"
+
+#: editor.py
+msgid "{id} is not a piece of music. Only music has segments to mix and play through."
+msgstr "{id}은(는) 곡이 아닙니다. 믹스하고 이어서 재생할 세그먼트는 음악에만 있습니다."
+
+#: editor.py
+msgid "Segments {ids} aren't in this piece of music"
+msgstr "세그먼트 {ids}이(가) 이 곡에 없습니다"
+
+#: editor.py
+msgid "Items {ids} aren't in this piece of music"
+msgstr "항목 {ids}이(가) 이 곡에 없습니다"
+
+#: editor.py
+msgid "This music has {n} place for songs"
+msgid_plural "This music has {n} places for songs"
+msgstr[0] "이 음악에는 노래를 넣을 자리가 {n}개 있습니다"
+
+#: editor.py
+msgid "This music has {n} segment for a song, so cut it into {n} piece at most"
+msgid_plural "This music has {n} segments for a song, so cut it into {n} pieces at most"
+msgstr[0] "이 음악에는 노래용 세그먼트가 {n}개 있으므로, 최대 {n}개 조각으로 자르세요"
+
+#: editor.py
+msgid "This music has {n} segment for songs, so choose {n} song at most"
+msgid_plural "This music has {n} segments for songs, so choose {n} songs at most"
+msgstr[0] "이 음악에는 노래용 세그먼트가 {n}개 있으므로, 노래는 최대 {n}개까지 선택하세요"
+
+#: editor.py hd1_build.py
+msgid "Can't read {file}: {why}"
+msgstr "{file}을(를) 읽을 수 없습니다: {why}"
+
+#: editor.py
+msgid "still loading: {stage}"
+msgstr "아직 불러오는 중: {stage}"
+
+#: editor.py
+msgid "{item} is not in this game version"
+msgstr "{item}은(는) 이 게임 버전에 없습니다"
+
+#: editor.py
+msgid "No cue {id}"
+msgstr "큐 {id}이(가) 없습니다"
+
+#: editor.py
+msgid "Volume curve"
+msgstr "볼륨 곡선"
+
+#: editor.py
+msgid "From the mod"
+msgstr "모드에서"
+
+#: editor.py
+msgid "Can't make the folder {folder}: {why}"
+msgstr "{folder} 폴더를 만들 수 없습니다: {why}"
+
+#: editor.py
+msgid "{name}: sound {id} isn't in this version of the game (remove it, or replace another sound)"
+msgstr "{name}: 사운드 {id}은(는) 이 게임 버전에 없습니다(제거하거나 다른 사운드를 교체하세요)"
+
+#: editor.py
+msgid "{name}: no audio file named"
+msgstr "{name}: 지정한 오디오 파일 없음"
+
+#: editor.py
+msgid "Sound {id} has no audio in the game files"
+msgstr "사운드 {id}의 오디오가 게임 파일에 없습니다"
+
+#: editor.py
+msgid "The copied audio couldn't be saved: {why}"
+msgstr "복사한 오디오를 저장할 수 없습니다: {why}"
+
+#: editor.py
+msgid "Make-Up Gain goes from {low} to {high} dB"
+msgstr "Make-Up Gain은 {low}~{high} dB입니다"
+
+#: editor.py
+msgid "A fade is from 0 to {ms} ms"
+msgstr "페이드는 0~{ms} ms입니다"
+
+#: editor.py
+msgid "Start, end and delay are from 0 to {ms} ms"
+msgstr "시작, 끝, 지연 시간은 0~{ms} ms입니다"
+
+#: editor.py
+msgid "{file} can't be read, so global notes can't be shown or saved. Fix or move the file, or choose another folder in Settings ▸ System."
+msgstr "{file}을(를) 읽을 수 없어 전역 메모를 표시하거나 저장할 수 없습니다. 파일을 고치거나 옮기거나, 설정 ▸ 시스템에서 다른 폴더를 선택하세요."
+
+#: editor.py
+msgid "The global notes couldn't be saved: {why}"
+msgstr "전역 메모를 저장할 수 없습니다: {why}"
+
+#: editor.py
+msgid "Project Notes: {name}"
+msgstr "프로젝트 메모: {name}"
+
+#: editor.py
+msgid "The notes couldn't be saved: {why}"
+msgstr "메모를 저장할 수 없습니다: {why}"
+
+#: editor.py
+msgid "{file} isn't a notes file or an Audiodiver project"
+msgstr "{file}은(는) 메모 파일이나 Audiodiver 프로젝트가 아닙니다"
+
+#: editor.py
+msgid "Fix the problems on the Build tab first: {problem} (and {n} more)"
+msgid_plural "Fix the problems on the Build tab first: {problem} (and {n} more)"
+msgstr[0] "먼저 빌드 탭의 문제를 해결하세요: {problem} (외 {n}개)"
+
+#: editor.py
+msgid "{file} can't be read as a game patch"
+msgstr "{file}을(를) 게임 패치로 읽을 수 없습니다"
+
+#: editor.py
+msgid "{file} replaces, adds or sets nothing Audiodiver can bring in ({why})"
+msgstr "{file}에는 Audiodiver가 가져올 수 있는 교체, 추가, 설정이 없습니다({why})"
+
+#: editor.py
+msgid "{file} replaces, adds or sets nothing"
+msgstr "{file}에는 교체, 추가, 설정이 없습니다"
+
+#: editor.py
+msgid "{n} string table"
+msgid_plural "{n} string tables"
+msgstr[0] "문자열 테이블 {n}개"
+
+#: editor.py
+msgid "{n} other file, such as models or textures"
+msgid_plural "{n} other files, such as models or textures"
+msgstr[0] "모델, 텍스처 등 기타 파일 {n}개"
+
+#: editor.py
+msgid "=== {name} ({n} of {total})"
+msgstr "=== {name} ({total}개 중 {n}번째)"
+
+#: editor.py
+msgid "Can't decode sound {id}"
+msgstr "사운드 {id}을(를) 디코딩할 수 없습니다"
+
+#: editor.py patchcontent.py
+msgid "The mod has no sound {id}"
+msgstr "모드에 사운드 {id}이(가) 없습니다"
+
+#: editor.py
+msgid "--- {name} ({n} of {total})"
+msgstr "--- {name} ({total}개 중 {n}번째)"
+
+#: editor.py
+msgid "None of the mods has audio or settings that Audiodiver can bring in"
+msgstr "Audiodiver가 가져올 수 있는 오디오나 설정이 있는 모드가 없습니다"
+
+#: editor.py
+msgid "imported take {id}"
+msgstr "가져온 테이크 {id}"
+
+#: editor.py
+msgid "{mod} take {id}"
+msgstr "{mod} 테이크 {id}"
+
+#: editor.py
+msgid "imported {id}"
+msgstr "가져온 {id}"
+
+#: editor.py hd1_build.py
+msgid "Can't write {file}: {why}"
+msgstr "{file}에 쓸 수 없습니다: {why}"
+
+#: editor.py
+msgid "{file} isn't saved as UTF-8, so letters outside English may have turned into ?. In Excel, choose Save As and CSV UTF-8 (Comma delimited), then import it again."
+msgstr "{file}이(가) UTF-8로 저장되지 않아, 영어 외의 글자가 ?로 바뀌었을 수 있습니다. Excel에서 다른 이름으로 저장을 선택해 CSV UTF-8(쉼표로 분리)로 저장한 뒤 다시 가져오세요."
+
+#: editor.py
+msgid "{file} isn't a text export: it needs the columns Language, ID and New text"
+msgstr "{file}은(는) 텍스트 내보내기 파일이 아닙니다. Language, ID, New text 열이 있어야 합니다"
+
+#: editor.py
+msgid "{file} is damaged (it can't be read)"
+msgstr "{file}이(가) 손상되었습니다(읽을 수 없음)"
+
+#: editor.py project.py
+msgid "{file} isn't an Audiodiver project"
+msgstr "{file}은(는) Audiodiver 프로젝트가 아닙니다"
+
+#: editor.py
+msgid "The sounds of {item} are already in the project, under {owners}."
+msgstr "{item}의 사운드는 이미 프로젝트의 {owners} 아래에 있습니다."
+
+#: editor.py
+msgid "{item} added. {n} of {total} banks was already in the project, under {owners}. Those sounds show under both."
+msgid_plural "{item} added. {n} of {total} banks were already in the project, under {owners}. Those sounds show under both."
+msgstr[0] "{item}을(를) 추가했습니다. 뱅크 {total}개 중 {n}개는 이미 프로젝트의 {owners} 아래에 있었습니다. 그 사운드는 양쪽에 모두 표시됩니다."
+
+#: editor.py
+msgid "Wwise loudness analysis: {why} (turn it off under Build options)"
+msgstr "Wwise 라우드니스 분석: {why} (빌드 옵션에서 끄세요)"
+
+#: editor.py
+msgid "That isn't a mod ID (a GUID like 3f2a…-…)"
+msgstr "모드 ID가 아닙니다(3f2a…-… 같은 GUID)"
+
+#: editor.py
+msgid "{item}, clip {id}"
+msgstr "{item}, 클립 {id}"
+
+#: editor.py
+msgid "Clip {id}"
+msgstr "클립 {id}"
+
+#: editor.py
+msgid "The project couldn't move: {why}"
+msgstr "프로젝트를 옮길 수 없습니다: {why}"
+
+#: editor.py
+msgid "The files couldn't be copied: {why}"
+msgstr "파일을 복사할 수 없습니다: {why}"
+
+#: editor.py
+msgid "failed: {why}"
+msgstr "실패: {why}"
+
+#: editor.py
+msgid "The build failed the check after building: {why}"
+msgstr "빌드 후 확인에서 빌드가 실패했습니다: {why}"
+
+#: editor.py
+msgid "Fix the problems on the Build tab first: {problem}"
+msgstr "먼저 빌드 탭의 문제를 해결하세요: {problem}"
+
+#: editor.py
+msgid "stream {id} is not in this game version; skipped"
+msgstr "스트림 {id}이(가) 이 게임 버전에 없어 건너뜀"
+
+#: editor.py
+msgid "{file} only changes audio that this game version no longer has. The game removed it in an update, so there is nothing to bring in."
+msgstr "{file}은(는) 이 게임 버전에 더 이상 없는 오디오만 바꿉니다. 게임 업데이트로 제거되어 가져올 것이 없습니다."
+
+#: editor.py
+msgid "source {id}: can't decode the audio; skipped"
+msgstr "소스 {id}: 오디오를 디코딩할 수 없어 건너뜀"
+
+#: editor.py
+msgid "The files besides audio can't be read: {why}"
+msgstr "오디오 외 파일을 읽을 수 없습니다: {why}"
+
+#: editor.py
+msgid "Writing {file}"
+msgstr "{file} 쓰는 중"
+
+#: editor.py
+msgid "{file}: new audio in {n} bank"
+msgid_plural "{file}: new audio in {n} banks"
+msgstr[0] "{file}: 뱅크 {n}개에 새 오디오"
+
+#: editor.py
+msgid "Reading {name}"
+msgstr "{name} 읽는 중"
+
+#: editor.py
+msgid "{n} line of text that the game doesn't have"
+msgid_plural "{n} lines of text that the game doesn't have"
+msgstr[0] "게임에 없는 텍스트 {n}줄"
+
+#: editor.py
+msgid "The new project is in {folder}. It wasn't opened, because the open project couldn't be saved."
+msgstr "새 프로젝트는 {folder}에 있습니다. 열린 프로젝트를 저장할 수 없어 새 프로젝트를 열지 않았습니다."
+
+#: editor.py
+msgid "kept as it was: {why}"
+msgstr "그대로 유지: {why}"
+
+#: editor.py
+msgid "{n} file besides audio that a later mod replaces"
+msgid_plural "{n} files besides audio that a later mod replaces"
+msgstr[0] "나중 모드가 교체하는 오디오 외 파일 {n}개"
+
+#: editor.py
+msgid "Loudness analysis: {why}"
+msgstr "라우드니스 분석: {why}"
+
+#: editor.py
+msgid "the icon ({why})"
+msgstr "아이콘({why})"
+
+#: editor.py
+msgid "Export"
+msgstr "내보내기"
+
+#: editor.py
+msgid "{file} (turned down {db} dB to avoid clipping)"
+msgstr "{file} (클리핑을 막으려고 {db} dB 낮춤)"
+
+#: editor.py
+msgid "Segment"
+msgstr "세그먼트"
+
+#: editor.py
+msgid "{segment}, {n} of {total}"
+msgstr "{segment}, {total}개 중 {n}번째"
+
+#: editor.py
+msgid "segment"
+msgstr "세그먼트"
+
+#: errors.py
+msgid "{file} wasn't found"
+msgstr "{file}을(를) 찾을 수 없습니다"
+
+#: errors.py
+msgid "{file} can't be opened: access was denied"
+msgstr "{file}을(를) 열 수 없습니다. 액세스가 거부되었습니다"
+
+#: errors.py
+msgid "{file} already exists"
+msgstr "{file}이(가) 이미 있습니다"
+
+#: errors.py
+msgid "{file} isn't a folder"
+msgstr "{file}은(는) 폴더가 아닙니다"
+
+#: errors.py
+msgid "{file} is a folder"
+msgstr "{file}은(는) 폴더입니다"
+
+#: errors.py
+msgid "{file} isn't a valid path"
+msgstr "{file}은(는) 올바른 경로가 아닙니다"
+
+#: errors.py
+msgid "{file} can't be written: the disk is full"
+msgstr "{file}에 쓸 수 없습니다. 디스크가 가득 찼습니다"
+
+#: errors.py
+msgid "{file} can't be written: the disk is read-only"
+msgstr "{file}에 쓸 수 없습니다. 디스크가 읽기 전용입니다"
+
+#: errors.py
+msgid "{file} has a path that is too long"
+msgstr "{file}의 경로가 너무 깁니다"
+
+#: errors.py
+msgid "A file"
+msgstr "파일"
+
+#: errors.py
+msgid "a file"
+msgstr "파일"
+
+#: errors.py
+msgid "A game file can't be read. If Steam is updating the game, wait for it to finish; else verify the integrity of the game files in Steam."
+msgstr "게임 파일을 읽을 수 없습니다. Steam이 게임을 업데이트하는 중이면 끝날 때까지 기다리고, 아니면 Steam에서 게임 파일 무결성을 검사하세요."
+
+#: errors.py
+msgid "{file} gave an error: {error}"
+msgstr "{file}에서 오류가 발생했습니다: {error}"
+
+#: errors.py
+msgid "Something went wrong ({error}): the log has the details"
+msgstr "문제가 발생했습니다({error}). 자세한 내용은 로그에 있습니다"
+
+#: errors.py
+msgid "Something went wrong ({error})"
+msgstr "문제가 발생했습니다({error})"
+
+#: errors.py
+msgid "{tool} couldn't process {file} (the log has the details)"
+msgstr "{tool}이(가) {file}을(를) 처리할 수 없습니다(자세한 내용은 로그에 있습니다)"
+
+#: errors.py
+msgid "{tool} couldn't process {file}"
+msgstr "{tool}이(가) {file}을(를) 처리할 수 없습니다"
+
+#: game.py
+msgid "Helldivers 2 wasn't found in the Steam libraries"
+msgstr "Steam 라이브러리에서 Helldivers 2를 찾을 수 없습니다"
+
+#: game.py
+msgid "{folder} isn't the Helldivers 2 folder. It has no game files (bundles.NN.nxa in a folder called data). Choose the folder Steam installed the game in, usually …\\steamapps\\common\\Helldivers 2."
+msgstr "{folder}은(는) Helldivers 2 폴더가 아닙니다. 게임 파일(data 폴더 안의 bundles.NN.nxa)이 없습니다. Steam이 게임을 설치한 폴더를 선택하세요. 보통 …\\steamapps\\common\\Helldivers 2입니다."
+
+#: game.py
+msgid "{folder} is a file. Choose the folder Steam installed Helldivers 2 in."
+msgstr "{folder}은(는) 파일입니다. Steam이 Helldivers 2를 설치한 폴더를 선택하세요."
+
+#: game.py
+msgid "{folder} isn't there any more"
+msgstr "{folder}이(가) 더 이상 없습니다"
+
+#: game.py
+msgid "{folder} wasn't found"
+msgstr "{folder}을(를) 찾을 수 없습니다"
+
+#: game.py
+msgid "The HD2_DATA environment variable points to {folder}, which has no Helldivers 2 files"
+msgstr "HD2_DATA 환경 변수가 {folder}을(를) 가리키지만, 그곳에 Helldivers 2 파일이 없습니다"
+
+#: hd1.py textsort.py
+msgid "Missions"
+msgstr "임무"
+
+#: hd1.py
+msgid "Menus"
+msgstr "메뉴"
+
+#: hd1.py
+msgid "Admiral"
+msgstr "제독"
+
+#: hd1.py
+msgid "Chief Communications Officer"
+msgstr "통신 책임자"
+
+#: hd1.py
+msgid "Science Officer"
+msgstr "과학 장교"
+
+#: hd1.py
+msgid "Private 1"
+msgstr "이등병 1"
+
+#: hd1.py
+msgid "Private 2"
+msgstr "이등병 2"
+
+#: hd1.py
+msgid "Helldiver"
+msgstr "헬다이버"
+
+#: hd1.py
+msgid "Tutorial"
+msgstr "튜토리얼"
+
+#: hd1.py library.py
+msgid "Music"
+msgstr "음악"
+
+#: hd1.py
+msgid "Voices"
+msgstr "음성"
+
+#: hd1.py
+msgid "Weapons"
+msgstr "무기"
+
+#: hd1.py
+msgid "Stratagems"
+msgstr "스트라타젬"
+
+#: hd1.py
+msgid "Vehicles"
+msgstr "차량"
+
+#: hd1.py
+msgid "Footsteps and Movement"
+msgstr "발소리와 움직임"
+
+#: hd1.py
+msgid "Impacts"
+msgstr "충돌"
+
+#: hd1.py
+msgid "Radio"
+msgstr "무전"
+
+#: hd1.py
+msgid "Ambience"
+msgstr "환경음"
+
+#: hd1.py
+msgid "Interface"
+msgstr "인터페이스"
+
+#: hd1.py
+msgid "General"
+msgstr "일반"
+
+#: hd1.py
+msgid "Assault Rifles"
+msgstr "돌격소총"
+
+#: hd1.py
+msgid "Grenades"
+msgstr "수류탄"
+
+#: hd1.py
+msgid "Machine Guns"
+msgstr "기관총"
+
+#: hd1.py
+msgid "Rocket Launchers"
+msgstr "로켓 발사기"
+
+#: hd1.py
+msgid "Shotguns"
+msgstr "산탄총"
+
+#: hd1.py
+msgid "Submachine Guns"
+msgstr "기관단총"
+
+#: hd1.py
+msgid "Stratagem Beacons"
+msgstr "스트라타젬 신호기"
+
+#: hd1.py
+msgid "Shields"
+msgstr "방어막"
+
+#: hd1.py
+msgid "Turrets"
+msgstr "포탑"
+
+#: hd1.py
+msgid "Hellpods"
+msgstr "헬포드"
+
+#: hd1.py
+msgid "Extraction Shuttle"
+msgstr "탈출 수송선"
+
+#: hd1.py
+msgid "Exosuits"
+msgstr "엑소슈트"
+
+#: hd1.py
+msgid "{folder} has no Helldivers 1 files"
+msgstr "{folder}에 Helldivers 1 파일이 없습니다"
+
+#: hd1.py library.py
+msgid "Not named yet."
+msgstr "아직 이름이 없습니다."
+
+#: hd1.py
+msgid "Loop"
+msgstr "반복"
+
+#: hd1.py
+msgid "Helldivers 1"
+msgstr "Helldivers 1"
+
+#: hd1.py
+msgid "Clips No Event Plays"
+msgstr "이벤트가 재생하지 않는 클립"
+
+#: hd1.py library.py
+msgid "All Archives"
+msgstr "모든 아카이브"
+
+#: hd1.py
+msgid "{n} languages"
+msgstr "{n}개 언어"
+
+#: hd1.py
+msgid "Start"
+msgstr "시작"
+
+#: hd1.py
+msgid "End"
+msgstr "끝"
+
+#: hd1.py library.py
+msgid "Take {n}"
+msgstr "테이크 {n}"
+
+#: hd1.py
+msgid "Event {id}"
+msgstr "이벤트 {id}"
+
+#: hd1_build.py
+msgid "Nothing to build yet. Replace some audio first."
+msgstr "아직 빌드할 것이 없습니다. 먼저 오디오를 교체하세요."
+
+#: hd1_build.py
+msgid "writing the mod"
+msgstr "모드 쓰는 중"
+
+#: hd1_build.py
+msgid "{n} bank with new audio, {mb} MB"
+msgid_plural "{n} banks with new audio, {mb} MB"
+msgstr[0] "새 오디오가 있는 뱅크 {n}개, {mb} MB"
+
+#: hd1_build.py
+msgid "Can't encode the audio: {why}"
+msgstr "오디오를 인코딩할 수 없습니다: {why}"
+
+#: hd1_build.py
+msgid "{name}: the audio file is missing ({file})"
+msgstr "{name}: 오디오 파일이 없습니다({file})"
+
+#: hd1_build.py
+msgid "{n} replaced sound isn't in this version of Helldivers 1"
+msgid_plural "{n} replaced sounds aren't in this version of Helldivers 1"
+msgstr[0] "교체한 사운드 {n}개가 이 버전의 Helldivers 1에 없습니다"
+
+#: hd1_build.py
+msgid "encoding {name}"
+msgstr "{name} 인코딩 중"
+
+#: index.py
+msgid "English"
+msgstr "영어"
+
+#: index.py
+msgid "Portuguese (Brazil)"
+msgstr "포르투갈어(브라질)"
+
+#: index.py
+msgid "Chinese"
+msgstr "중국어"
+
+#: index.py
+msgid "German"
+msgstr "독일어"
+
+#: index.py
+msgid "Spanish (Spain)"
+msgstr "스페인어(스페인)"
+
+#: index.py
+msgid "French"
+msgstr "프랑스어"
+
+#: index.py
+msgid "Italian"
+msgstr "이탈리아어"
+
+#: index.py
+msgid "Japanese"
+msgstr "일본어"
+
+#: index.py
+msgid "Spanish (Latin America)"
+msgstr "스페인어(중남미)"
+
+#: index.py
+msgid "Russian"
+msgstr "러시아어"
+
+#: installed.py
+msgid "Checking {mod}"
+msgstr "{mod} 확인 중"
+
+#: library.py
+msgid "Music by where it plays, from the ship to the credits."
+msgstr "함선에서 제작진 명단까지, 재생되는 곳별로 나눈 음악입니다."
+
+#: library.py
+msgid "Grunts"
+msgstr "끙 소리"
+
+#: library.py
+msgid "Sighs"
+msgstr "한숨"
+
+#: library.py
+msgid "Laughs"
+msgstr "웃음"
+
+#: library.py
+msgid "Screams"
+msgstr "비명"
+
+#: library.py
+msgid "Coughs"
+msgstr "기침"
+
+#: library.py
+msgid "Groans"
+msgstr "신음"
+
+#: library.py
+msgid "Yells"
+msgstr "고함"
+
+#: library.py
+msgid "Sniffs"
+msgstr "코 훌쩍임"
+
+#: library.py
+msgid "Hiccups"
+msgstr "딸꾹질"
+
+#: library.py
+msgid "Burps"
+msgstr "트림"
+
+#: library.py
+msgid "Whistles"
+msgstr "휘파람"
+
+#: library.py
+msgid "Humming"
+msgstr "콧노래"
+
+#: library.py
+msgid "Vocal Sounds"
+msgstr "발성"
+
+#: library.py
+msgid "Streams"
+msgstr "스트림"
+
+#: library.py
+msgid "Streams No Bank Plays"
+msgstr "뱅크가 재생하지 않는 스트림"
+
+#: library.py
+msgid "Audio files in this archive that no sound bank of this game version plays. The game may never play them."
+msgstr "이 게임 버전의 어떤 사운드 뱅크도 재생하지 않는 이 아카이브의 오디오 파일입니다. 게임에서 재생되지 않을 수 있습니다."
+
+#: library.py
+msgid "A single sound. Audiodiver replaces it in every bank that holds or plays it."
+msgstr "사운드 하나입니다. Audiodiver는 이 사운드를 담거나 재생하는 모든 뱅크에서 교체합니다."
+
+#: library.py
+msgid "No container"
+msgstr "컨테이너 없음"
+
+#: library.py
+msgid "Other Audio"
+msgstr "기타 오디오"
+
+#: library.py
+msgid "No Audio in the Game Files"
+msgstr "게임 파일에 오디오 없음"
+
+#: library.py
+msgid "This bank only stores audio. The sounds that play it are in another bank."
+msgstr "이 뱅크는 오디오만 저장합니다. 이 오디오를 재생하는 사운드는 다른 뱅크에 있습니다."
+
+#: library.py
+msgid "Not transcribed. Each line is named after what another Helldiver voice says at the same place, and the words may differ."
+msgstr "받아쓰지 않았습니다. 각 대사는 다른 헬다이버 목소리가 같은 자리에서 하는 말로 이름을 붙였으며, 실제 말은 다를 수 있습니다."
+
+#: library.py
+msgid "Archive {id}"
+msgstr "아카이브 {id}"
+
+#: library.py
+msgid "Other languages appear as tabs once Steam downloads their voice packs."
+msgstr "Steam이 음성 팩을 내려받으면 다른 언어가 탭으로 표시됩니다."
+
+#: library.py
+msgid "Sound"
+msgstr "사운드"
+
+#: library.py
+msgid "Holds {names} and more."
+msgstr "{names} 등이 있습니다."
+
+#: library.py
+msgid "Holds {names}."
+msgstr "{names}이(가) 있습니다."
+
+#: library.py
+msgid "Sequence {n}"
+msgstr "시퀀스 {n}"
+
+#: library.py
+msgid "“{line}”"
+msgstr "“{line}”"
+
+#: library.py
+msgid "{sound} · Layer {n}"
+msgstr "{sound} · 레이어 {n}"
+
+#: library.py
+msgid "{sound} · Layer"
+msgstr "{sound} · 레이어"
+
+#: library.py
+msgid "These are {language} voices. A replacement here only reaches players who use this language."
+msgstr "{language} 음성입니다. 여기서 교체한 오디오는 이 언어를 쓰는 플레이어에게만 적용됩니다."
+
+#: library.py
+msgid "Music: {sections} and {n} More"
+msgid_plural "Music: {sections} and {n} More"
+msgstr[0] "음악: {sections} 외 {n}개"
+
+#: library.py
+msgid "Music: {sections}"
+msgstr "음악: {sections}"
+
+#: library.py
+msgid "Only {language} voices are installed."
+msgstr "{language} 음성만 설치되어 있습니다."
+
+#: library.py
+msgid "Voices installed: {languages}."
+msgstr "설치된 음성: {languages}."
+
+#: library.py
+msgid "Bank {n}"
+msgstr "뱅크 {n}"
+
+#: library.py
+msgid "Sounds {first}–{last}"
+msgstr "사운드 {first}–{last}"
+
+#: musiclist.py
+msgid "{names} and {last}"
+msgstr "{names}와(과) {last}"
+
+#: musiclist.py
+msgid "Started directly by a game event."
+msgstr "게임 이벤트가 직접 시작합니다."
+
+#: musiclist.py
+msgid "One end of this transition isn't in the game data any more, so it may never play."
+msgstr "이 트랜지션의 한쪽 끝이 게임 데이터에 더 이상 없어, 재생되지 않을 수 있습니다."
+
+#: musiclist.py
+msgid "Stinger"
+msgstr "스팅어"
+
+#: musiclist.py
+msgid "Several Levels"
+msgstr "여러 레벨"
+
+#: musiclist.py
+msgid "Starts when the MUSIC state is {state}."
+msgstr "MUSIC 상태가 {state}일 때 시작합니다."
+
+#: musiclist.py
+msgid "Anything"
+msgstr "모두"
+
+#: musiclist.py
+msgid "An Unknown Piece"
+msgstr "알 수 없는 곡"
+
+#: musiclist.py
+msgid "{first}, {second} and {n} More"
+msgid_plural "{first}, {second} and {n} More"
+msgstr[0] "{first}, {second} 외 {n}개"
+
+#: musiclist.py
+msgid "{before} → {after}"
+msgstr "{before} → {after}"
+
+#: musiclist.py
+msgid "Bumper"
+msgstr "범퍼"
+
+#: musiclist.py
+msgid "Any Other Biome"
+msgstr "기타 모든 생물 군계"
+
+#: musiclist.py
+msgid "Starts when the MUSIC state is {state} and {state} is {value}."
+msgstr "MUSIC 상태가 {state}이고 {state}이(가) {value}일 때 시작합니다."
+
+#: musiclist.py
+msgid "The Mission Music"
+msgstr "임무 음악"
+
+#: musiclist.py
+msgid "{first} or {second}"
+msgstr "{first} 또는 {second}"
+
+#: musiclist.py
+msgid "Over {music}"
+msgstr "{music} 위에 겹쳐 재생"
+
+#: musiclist.py
+msgid "Other Biomes"
+msgstr "기타 생물 군계"
+
+#: musiclist.py
+msgid "Biomes the game data leaves unnamed."
+msgstr "게임 데이터에 이름이 없는 생물 군계입니다."
+
+#: musiclist.py
+msgid "{levels}, Also on Arrival"
+msgstr "{levels}, 도착 시에도"
+
+#: musiclist.py
+msgid "{music} ({part})"
+msgstr "{music} ({part})"
+
+#: musiclist.py
+msgid "The Combat Music"
+msgstr "전투 음악"
+
+#: musiclist.py
+msgid "Anything Else"
+msgstr "그 밖의 모든 것"
+
+#: musiclist.py
+msgid "{section} Transitions"
+msgstr "{section} 트랜지션"
+
+#: musiclist.py
+msgid "{section} Stingers"
+msgstr "{section} 스팅어"
+
+#: musiclist.py
+msgid "The same audio also plays for {name} and {n} more."
+msgid_plural "The same audio also plays for {name} and {n} more."
+msgstr[0] "같은 오디오가 {name} 외 {n}개에서도 재생됩니다."
+
+#: musiclist.py
+msgid "The same audio also plays for {name}."
+msgstr "같은 오디오가 {name}에서도 재생됩니다."
+
+#: musiclist.py
+msgid "{section}: {name}"
+msgstr "{section}: {name}"
+
+#: musiclist.py
+msgid "Combat music for {faction}, a faction that Audiodiver can't identify yet."
+msgstr "{faction}의 전투 음악입니다. Audiodiver가 아직 이 세력을 식별할 수 없습니다."
+
+#: musiclist.py
+msgid "{section} Music"
+msgstr "{section} 음악"
+
+#: musiclist.py
+msgid "{faction} {role}"
+msgstr "{faction} {role}"
+
+#: musiclist.py
+msgid "Variant {n}"
+msgstr "변형 {n}"
+
+#: musiclist.py
+msgid "Unidentified Piece {n}"
+msgstr "미확인 곡 {n}"
+
+#: notes.py
+msgid "A note can be up to {n} characters long"
+msgstr "메모는 최대 {n}자까지 쓸 수 있습니다"
+
+#: notes.py
+msgid "No notes."
+msgstr "메모 없음."
+
+#: patch.py
+msgid "{file} is missing"
+msgstr "{file}이(가) 없습니다"
+
+#: patch.py
+msgid "{n} copy of a voice in another language left out (a mod carries one language of a voice)"
+msgid_plural "{n} copies of a voice in other languages left out (a mod carries one language of a voice)"
+msgstr[0] "다른 언어의 음성 사본 {n}개 제외됨(모드에는 한 음성당 한 언어만 담을 수 있음)"
+
+#: patch.py
+msgid "{file} is cut short"
+msgstr "{file}이(가) 중간에 잘렸습니다"
+
+#: patchcontent.py
+msgid "The audio of sound {id} isn't in the mod or the game"
+msgstr "사운드 {id}의 오디오가 모드에도 게임에도 없습니다"
+
+#: patchcontent.py
+msgid "{file} holds no audio"
+msgstr "{file}에 오디오가 없습니다"
+
+#: patchcontent.py
+msgid "{file} can't be read as a game patch: {why}"
+msgstr "{file}을(를) 게임 패치로 읽을 수 없습니다: {why}"
+
+#: project.py
+msgid "The project in {pack} isn't an Audiodiver project"
+msgstr "{pack} 안의 프로젝트는 Audiodiver 프로젝트가 아닙니다"
+
+#: project.py
+msgid "{file} was made by a newer version of Audiodiver. Update Audiodiver to open it"
+msgstr "{file}은(는) 더 새로운 버전의 Audiodiver로 만들었습니다. 열려면 Audiodiver를 업데이트하세요"
+
+#: project.py
+msgid "The project in {pack} was made by a newer version of Audiodiver. Update Audiodiver to open it"
+msgstr "{pack} 안의 프로젝트는 더 새로운 버전의 Audiodiver로 만들었습니다. 열려면 Audiodiver를 업데이트하세요"
+
+#: project.py
+msgid "{file} is damaged (the name)"
+msgstr "{file}이(가) 손상되었습니다(이름)"
+
+#: project.py
+msgid "The project in {pack} is damaged (the name)"
+msgstr "{pack} 안의 프로젝트가 손상되었습니다(이름)"
+
+#: project.py
+msgid "{file} is damaged (the replacements)"
+msgstr "{file}이(가) 손상되었습니다(교체 목록)"
+
+#: project.py
+msgid "The project in {pack} is damaged (the replacements)"
+msgstr "{pack} 안의 프로젝트가 손상되었습니다(교체 목록)"
+
+#: project.py
+msgid "{file} is damaged (a replacement)"
+msgstr "{file}이(가) 손상되었습니다(교체 항목)"
+
+#: project.py
+msgid "The project in {pack} is damaged (a replacement)"
+msgstr "{pack} 안의 프로젝트가 손상되었습니다(교체 항목)"
+
+#: project.py
+msgid "{file} is damaged (a replacement's sound ID)"
+msgstr "{file}이(가) 손상되었습니다(교체 항목의 사운드 ID)"
+
+#: project.py
+msgid "The project in {pack} is damaged (a replacement's sound ID)"
+msgstr "{pack} 안의 프로젝트가 손상되었습니다(교체 항목의 사운드 ID)"
+
+#: project.py
+msgid "{file} is damaged (the icon)"
+msgstr "{file}이(가) 손상되었습니다(아이콘)"
+
+#: project.py
+msgid "The project in {pack} is damaged (the icon)"
+msgstr "{pack} 안의 프로젝트가 손상되었습니다(아이콘)"
+
+#: project.py
+msgid "{file} is damaged (the cue points)"
+msgstr "{file}이(가) 손상되었습니다(큐 포인트)"
+
+#: project.py
+msgid "The project in {pack} is damaged (the cue points)"
+msgstr "{pack} 안의 프로젝트가 손상되었습니다(큐 포인트)"
+
+#: project.py
+msgid "{file} is damaged (the text changes)"
+msgstr "{file}이(가) 손상되었습니다(텍스트 변경)"
+
+#: project.py
+msgid "The project in {pack} is damaged (the text changes)"
+msgstr "{pack} 안의 프로젝트가 손상되었습니다(텍스트 변경)"
+
+#: project.py
+msgid "{file} is damaged (the settings from a mod)"
+msgstr "{file}이(가) 손상되었습니다(모드에서 가져온 설정)"
+
+#: project.py
+msgid "The project in {pack} is damaged (the settings from a mod)"
+msgstr "{pack} 안의 프로젝트가 손상되었습니다(모드에서 가져온 설정)"
+
+#: project.py
+msgid "{file} is damaged (the Make-Up Gain on the original audio)"
+msgstr "{file}이(가) 손상되었습니다(원본 오디오의 Make-Up Gain)"
+
+#: project.py
+msgid "The project in {pack} is damaged (the Make-Up Gain on the original audio)"
+msgstr "{pack} 안의 프로젝트가 손상되었습니다(원본 오디오의 Make-Up Gain)"
+
+#: project.py
+msgid "{file} is damaged (the volume curves)"
+msgstr "{file}이(가) 손상되었습니다(볼륨 곡선)"
+
+#: project.py
+msgid "The project in {pack} is damaged (the volume curves)"
+msgstr "{pack} 안의 프로젝트가 손상되었습니다(볼륨 곡선)"
+
+#: project.py
+msgid "{file} is damaged (the added audio)"
+msgstr "{file}이(가) 손상되었습니다(추가한 오디오)"
+
+#: project.py
+msgid "The project in {pack} is damaged (the added audio)"
+msgstr "{pack} 안의 프로젝트가 손상되었습니다(추가한 오디오)"
+
+#: project.py
+msgid "{file} is damaged (the soundtrack)"
+msgstr "{file}이(가) 손상되었습니다(사운드트랙)"
+
+#: project.py
+msgid "The project in {pack} is damaged (the soundtrack)"
+msgstr "{pack} 안의 프로젝트가 손상되었습니다(사운드트랙)"
+
+#: project.py
+msgid "{file} is damaged (a cue point, a text change, added audio or a setting)"
+msgstr "{file}이(가) 손상되었습니다(큐 포인트, 텍스트 변경, 추가한 오디오 또는 설정)"
+
+#: project.py
+msgid "The project in {pack} is damaged (a cue point, a text change, added audio or a setting)"
+msgstr "{pack} 안의 프로젝트가 손상되었습니다(큐 포인트, 텍스트 변경, 추가한 오디오 또는 설정)"
+
+#: project.py
+msgid "a note"
+msgstr "메모"
+
+#: project.py
+msgid "the tabs"
+msgstr "탭"
+
+#: project.py
+msgid "the label of {name}"
+msgstr "{name}의 레이블"
+
+#: project.py
+msgid "the Make-Up Gain of {name}"
+msgstr "{name}의 Make-Up Gain"
+
+#: project.py
+msgid "Fit timing for {name}"
+msgstr "{name}의 타이밍 맞추기"
+
+#: project.py
+msgid "the fades of {name}"
+msgstr "{name}의 페이드"
+
+#: project.py
+msgid "where the audio of {name} starts and ends"
+msgstr "{name}의 오디오 시작과 끝 위치"
+
+#: project.py
+msgid "the label of sound {id}"
+msgstr "사운드 {id}의 레이블"
+
+#: project.py
+msgid "the Make-Up Gain of sound {id}"
+msgstr "사운드 {id}의 Make-Up Gain"
+
+#: project.py
+msgid "Fit timing for sound {id}"
+msgstr "사운드 {id}의 타이밍 맞추기"
+
+#: project.py
+msgid "the fades of sound {id}"
+msgstr "사운드 {id}의 페이드"
+
+#: project.py
+msgid "where the audio of sound {id} starts and ends"
+msgstr "사운드 {id}의 오디오 시작과 끝 위치"
+
+#: project.py
+msgid "mod ID: damaged in the project file (Make a New ID, on the Project tab)"
+msgstr "모드 ID: 프로젝트 파일에서 손상됨(프로젝트 탭에서 새 ID 만들기)"
+
+#: project.py
+msgid "Loudness analysis"
+msgstr "라우드니스 분석"
+
+#: project.py
+msgid "Banks"
+msgstr "뱅크"
+
+#: project.py
+msgid "Patch files"
+msgstr "패치 파일"
+
+#: project.py
+msgid "the game version of the last build"
+msgstr "마지막 빌드의 게임 버전"
+
+#: project.py
+msgid "what the last build was made from"
+msgstr "마지막 빌드에 쓰인 내용"
+
+#: project.py
+msgid "the description"
+msgstr "설명"
+
+#: project.py
+msgid "the build folder"
+msgstr "빌드 폴더"
+
+#: project.py
+msgid "the radio filters"
+msgstr "무전 필터"
+
+#: project.py
+msgid "icon: image not found ({path})"
+msgstr "아이콘: 이미지를 찾을 수 없음({path})"
+
+#: project.py
+msgid "a cue point"
+msgstr "큐 포인트"
+
+#: project.py
+msgid "the version"
+msgstr "버전"
+
+#: project.py
+msgid "icon: {problem}"
+msgstr "아이콘: {problem}"
+
+#: project.py
+msgid "{name}: same target as {other}"
+msgstr "{name}: {other}와(과) 대상이 같음"
+
+#: project.py
+msgid "{name}: the audio file wasn't found ({path})"
+msgstr "{name}: 오디오 파일을 찾을 수 없음({path})"
+
+#: project.py
+msgid "segment {id}: unknown overrides {keys}"
+msgstr "세그먼트 {id}: 알 수 없는 재정의 {keys}"
+
+#: project.py
+msgid "the imported mods' banks"
+msgstr "가져온 모드의 뱅크"
+
+#: project.py
+msgid "the filters of sound {id}"
+msgstr "사운드 {id}의 필터"
+
+#: projectfiles.py
+msgid "Another project in this folder can't be read, so it isn't known which files it uses"
+msgstr "이 폴더의 다른 프로젝트를 읽을 수 없어, 그 프로젝트가 어떤 파일을 쓰는지 알 수 없습니다"
+
+#: projectfiles.py
+msgid "{file} isn't an Audiodiver pack, or it is damaged"
+msgstr "{file}은(는) Audiodiver 팩이 아니거나 손상되었습니다"
+
+#: projectfiles.py
+msgid "{file} needs {mb} MB, and {folder} has less free space"
+msgstr "{file}에는 {mb} MB가 필요한데, {folder}의 여유 공간이 부족합니다"
+
+#: projectfiles.py
+msgid "{file} has a file that would go outside the folder it unpacks to ({inside})"
+msgstr "{file}에 압축을 푸는 폴더 밖으로 나가는 파일이 있습니다({inside})"
+
+#: projectfiles.py
+msgid "{file} holds no project"
+msgstr "{file}에 프로젝트가 없습니다"
+
+#: projectfiles.py
+msgid "{file} holds more than one project"
+msgstr "{file}에 프로젝트가 둘 이상 있습니다"
+
+#: projectfiles.py
+msgid "The project in {pack} is damaged"
+msgstr "{pack} 안의 프로젝트가 손상되었습니다"
+
+#: projectfiles.py
+msgid "Packing {file}"
+msgstr "{file} 묶는 중"
+
+#: projectfiles.py
+msgid "Unpacking {file}"
+msgstr "{file} 압축 푸는 중"
+
+#: render.py
+msgid "this cue has nothing to play"
+msgstr "이 큐에는 재생할 것이 없습니다"
+
+#: render.py
+msgid "can't write {file}: {why}"
+msgstr "{file}에 쓸 수 없습니다: {why}"
+
+#: render.py
+msgid "can't read the audio in {file}"
+msgstr "{file}의 오디오를 읽을 수 없습니다"
+
+#: render.py
+msgid "this cue runs over {n} minutes when played through, so export the segments separately"
+msgstr "이 큐는 이어서 재생하면 {n}분이 넘으므로, 세그먼트를 따로 내보내세요"
+
+#: repatch.py
+msgid "Choose a .patch_0 file, a mod folder, a ZIP, a .7z or a .rar"
+msgstr ".patch_0 파일, 모드 폴더, ZIP, .7z 또는 .rar을 선택하세요"
+
+#: repatch.py
+msgid "{file} isn't a mod. Choose a .patch_0 file (Audiodiver also reads the .stream file next to it), a mod folder, a ZIP, a .7z or a .rar"
+msgstr "{file}은(는) 모드가 아닙니다. .patch_0 파일(Audiodiver는 그 옆의 .stream 파일도 읽습니다), 모드 폴더, ZIP, .7z 또는 .rar을 선택하세요"
+
+#: repatch.py
+msgid "{file} holds no patch file (.patch_0)"
+msgstr "{file}에 패치 파일(.patch_0)이 없습니다"
+
+#: repatch.py
+msgid "{file} can't be opened as a ZIP"
+msgstr "{file}을(를) ZIP으로 열 수 없습니다"
+
+#: server.py
+msgid "Choose a folder"
+msgstr "폴더를 선택하세요"
+
+#: server.py
+msgid "The core refused the connection because of a wrong token"
+msgstr "토큰이 잘못되어 코어가 연결을 거부했습니다"
+
+#: server.py
+msgid "The core's answer held a number it can't send"
+msgstr "코어의 응답에 보낼 수 없는 숫자가 있습니다"
+
+#: server.py
+msgid "{file} isn't an audio file"
+msgstr "{file}은(는) 오디오 파일이 아닙니다"
+
+#: soundtrack.py
+msgid "every segment of the piece is left out"
+msgstr "곡의 모든 세그먼트가 제외됩니다"
+
+#: textsort.py
+msgid "Helldiver Voices"
+msgstr "헬다이버 음성"
+
+#: textsort.py
+msgid "SEAF and Civilians"
+msgstr "SEAF와 민간인"
+
+#: textsort.py
+msgid "Ship"
+msgstr "함선"
+
+#: textsort.py
+msgid "Command"
+msgstr "지휘부"
+
+#: textsort.py
+msgid "Training"
+msgstr "훈련"
+
+#: textsort.py
+msgid "Cutscenes"
+msgstr "컷신"
+
+#: textsort.py
+msgid "Other Voices"
+msgstr "기타 음성"
+
+#: textsort.py
+msgid "Subtitles Not Matched"
+msgstr "일치하지 않는 자막"
+
+#: textsort.py
+msgid "Arsenal"
+msgstr "무기고"
+
+#: textsort.py
+msgid "Menus and Settings"
+msgstr "메뉴와 설정"
+
+#: textsort.py
+msgid "HUD"
+msgstr "HUD"
+
+#: textsort.py
+msgid "Galactic War"
+msgstr "은하계 전쟁"
+
+#: textsort.py
+msgid "Places and Enemies"
+msgstr "장소와 적"
+
+#: textsort.py
+msgid "Other Text"
+msgstr "기타 텍스트"
+
+#: textsort.py
+msgid "Names"
+msgstr "이름"
+
+#: textsort.py
+msgid "Designations"
+msgstr "명칭"
+
+#: textsort.py
+msgid "Sentences"
+msgstr "문장"
+
+#: textsort.py
+msgid "Filled In by the Game"
+msgstr "게임이 채우는 텍스트"
+
+#: textsort.py
+msgid "Unfinished"
+msgstr "미완성"
+
+#: textsort.py
+msgid "Platoons"
+msgstr "소대"
+
+#: textsort.py
+msgid "Difficulty"
+msgstr "난이도"
+
+#: textsort.py
+msgid "Achievements"
+msgstr "업적"
+
+#: textsort.py
+msgid "Orders"
+msgstr "명령"
+
+#: textsort.py
+msgid "News"
+msgstr "뉴스"
+
+#: textsort.py
+msgid "Elections"
+msgstr "선거"
+
+#: textsort.py
+msgid "Objects and Biomes"
+msgstr "오브젝트와 생물 군계"
+
+#: textsort.py
+msgid "Subtitles"
+msgstr "자막"
+
+#: updates.py
+msgid "GitHub answered {code}"
+msgstr "GitHub 응답: {code}"

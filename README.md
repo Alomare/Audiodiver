@@ -1,15 +1,16 @@
 <p align="center">
-  <img src="assets/logo/banner.jpg" alt="Audiodiver: the yellow skull logo with a sound meter on its brow, over the word AUDIODIVER with a waveform dripping from the letters" width="100%">
+  <img src="assets/logo/banner.jpg" alt="Audiodiver: the yellow skull logo with a sound meter on the brow, over the word AUDIODIVER with a waveform dripping from the letters" width="100%">
 </p>
 
 <p align="center">Helldivers 2 audio and text archive explorer, editor and mod builder.</p>
 
 <p align="center">
   <img alt="Windows 10 and 11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-2f7bf5?style=flat-square">
+  <img alt="Linux (beta)" src="https://img.shields.io/badge/Linux-beta-f5a623?style=flat-square">
   <img alt="Mods for Helldivers 2" src="https://img.shields.io/badge/mods%20for-Helldivers%202-ffe81f?style=flat-square">
   <img alt="License: MPL-2.0" src="https://img.shields.io/badge/license-MPL--2.0-3a3a3a?style=flat-square">
   <!-- the count of LANGUAGES in app/src/i18n.ts, listed under Supported Languages -->
-  <a href="#-supported-languages"><img alt="6 languages" src="https://img.shields.io/badge/languages-6-3a3a3a?style=flat-square"></a>
+  <a href="#-supported-languages"><img alt="7 languages" src="https://img.shields.io/badge/languages-7-3a3a3a?style=flat-square"></a>
   <a href="https://github.com/Alomare/Audiodiver/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/Alomare/Audiodiver?style=flat-square&label=release&color=3a3a3a"></a>
 </p>
 
@@ -129,9 +130,9 @@ command returns.
 
 ### 🌐 Supported Languages
 
-English, Portuguese (Brazil), Simplified Chinese, French, Spanish and Japanese, for the window, the messages, the Wiki and the names in the
+English, Portuguese (Brazil), Simplified Chinese, French, Spanish, Japanese and Korean, for the window, the messages, the Wiki and the names in the
 Library. **Language** in Settings ▸ System picks one. Automatic follows the language Helldivers 2 is set to in Steam,
-then the language of Windows.
+then the language of the system.
 
 <br>
 
@@ -150,8 +151,8 @@ then the language of Windows.
 
 ## How to Use
 
-You need Windows 10 or 11, Helldivers 2 installed through Steam, and a Helldivers 2 mod manager to install the mods
-you build.
+You need Windows 10 or 11 or a 64-bit Linux (beta), Helldivers 2 installed through Steam, and a Helldivers 2 mod
+manager to install the mods you build.
 
 1. Download Audiodiver from [Releases](https://github.com/Alomare/Audiodiver/releases/latest) and run it. The installer
    isn't code-signed yet, so Windows may say it protected your PC: choose **More info**, then **Run anyway**.
@@ -168,11 +169,15 @@ after a game update, and answers to frequent questions.
 |---|---|
 | `Audiodiver_<version>_x64-setup.exe` | The installer. It adds Audiodiver to the Start menu, opens projects and packs from Explorer, and checks for new versions at startup, then installs them when you say so (or without asking, with Updates set to Automatic in Settings ▸ System). |
 | `Audiodiver-<version>-portable.zip` | The portable copy, with settings and caches in the same folder. Unzip it anywhere and start `Audiodiver.exe`. New versions are downloaded by hand. |
+| `Audiodiver_<version>_amd64.AppImage` | Linux (beta): the app in one file, for any 64-bit distribution, SteamOS and Bazzite included. Make it runnable (`chmod +x`) and start it. It checks for new versions and installs them as the Windows installer does. |
+| `Audiodiver_<version>_amd64.deb` | Linux (beta): the package for Debian, Ubuntu and the distributions based on them. |
+| `Audiodiver-Utils-<version>-linux-x86_64.tar.gz` | Audiodiver Utils for Linux: the window (`audiodiver-utils`) and the command line (`./audiodiver repatch <mod>`), as in the Windows ZIP. |
 | `Audiodiver-Utils-<version>-portable.zip` | Audiodiver Utils: Repatch and Combine Mods without projects, as a smaller portable window (`Audiodiver Utils.exe`) and a command line (`audiodiver.cmd repatch <mod>`, `combine`, `check`, `scan`, with `--json` for scripts and mod managers). |
 
 The window needs the Microsoft Edge WebView2 Runtime, which Windows 11 has and nearly every Windows 10 PC has too. If
 yours doesn't, Audiodiver shows a link to [Microsoft's free download](https://developer.microsoft.com/microsoft-edge/webview2/).
-Everything else comes with Audiodiver.
+Everything else comes with Audiodiver. On Linux the window is drawn by WebKitGTK, which the AppImage carries and the
+.deb installs; Audiodiver finds Steam installed from the system, from Flathub or as a Snap.
 
 ## Questions and Feedback
 

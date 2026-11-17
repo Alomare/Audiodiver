@@ -157,19 +157,21 @@ How the game writes the terms the app uses most, from the same string ids in its
 other term, compare those tables the same way before translating it: a translation can pass every check and still use a
 word players never see in the game.
 
-| English | Français | Español (España) | 日本語 | 简体中文 |
-|---|---|---|---|---|
-| Stratagem | Stratagème | Estratagema | 戦略支援 | 战略配备 |
-| Mission Control | Donneur de mission | Control de misión | 管制部 | 任务调度员 |
-| Extraction | Extraction | Extracción | 離脱 | 撤离 |
-| Super Destroyer | Super Destroyer | Superdestructor | スーパーデストロイヤー | 超级驱逐舰 |
-| Hellpod | Hellpod | Cápsula hell | ヘルポッド | 喷射舱 |
-| Terminids | Terminides | Termínidos | ターミニッド | 终结族 |
-| Automatons | Automatons | Autómatas | オートマトン | 机器人 |
-| Cyborgs | Cyborgs | Cíborgs | サイボーグ | 生化人 |
-| Illuminate | Illuministes | Iluminados | イルミネイト | 光能者 |
-| The Void | Le Néant | El Vacío | ヴォイド | 寂域 |
-| Sentry | Sentinelle | Centinela | 砲塔 | 哨戒炮 |
-| Super Earth | Super-Terre | Supertierra | スーパーアース | 超级地球 |
-| Democracy Officer | Officier de la démocratie | Oficial de Democracia | 民主主義担当官 | 民主官 |
-| Ship Master | Capitaine du vaisseau | Capitana de la nave | 艦長 | 舰长 |
+| English | Français | Español (España) | 日本語 | 简体中文 | 한국어 |
+|---|---|---|---|---|---|
+| Stratagem | Stratagème | Estratagema | 戦略支援 | 战略配备 | 스트라타젬 |
+| Mission Control | Donneur de mission | Control de misión | 管制部 | 任务调度员 | 관제소 |
+| Extraction | Extraction | Extracción | 離脱 | 撤离 | 탈출 |
+| Super Destroyer | Super Destroyer | Superdestructor | スーパーデストロイヤー | 超级驱逐舰 | 슈퍼 구축함 |
+| Hellpod | Hellpod | Cápsula hell | ヘルポッド | 喷射舱 | 헬포드 |
+| Terminids | Terminides | Termínidos | ターミニッド | 终结族 | 테르미니드 |
+| Automatons | Automatons | Autómatas | オートマトン | 机器人 | 오토마톤 |
+| Cyborgs | Cyborgs | Cíborgs | サイボーグ | 生化人 | 사이보그 |
+| Illuminate | Illuministes | Iluminados | イルミネイト | 光能者 | 일루미닛 |
+| The Void | Le Néant | El Vacío | ヴォイド | 寂域 | 공허 |
+| Sentry | Sentinelle | Centinela | 砲塔 | 哨戒炮 | 센트리 |
+| Super Earth | Super-Terre | Supertierra | スーパーアース | 超级地球 | 슈퍼지구 |
+| Democracy Officer | Officier de la démocratie | Oficial de Democracia | 民主主義担当官 | 民主官 | 민주주의장교 |
+| Ship Master | Capitaine du vaisseau | Capitana de la nave | 艦長 | 舰长 | 함장 |
+
+In Korean the game also writes Helldiver 헬다이버, Exosuit 엑소슈트, Galactic War 은하계 전쟁, Support Weapon 지원 무기, Booster 부스터, Armor 방어구, Cape 망토 and Emote 감정 표현.
