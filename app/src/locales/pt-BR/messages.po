@@ -1386,17 +1386,17 @@ msgid "A whole number from 1 to 99999."
 msgstr "Um número inteiro de 1 a 99999."
 
 #: src/PatchContentPage.tsx
-msgid "A ZIP or a .patch_0 file"
-msgstr "Um ZIP ou um arquivo .patch_0"
+msgid "A ZIP, .7z, .rar or .patch_0 file"
+msgstr "Um arquivo ZIP, .7z, .rar ou .patch_0"
 
 #: src/ProjectTab.tsx
-msgid "A ZIP or a .patch_0 file, such as a mod made with another tool"
-msgstr "Um ZIP ou um arquivo .patch_0, como um mod feito com outra ferramenta"
+msgid "A ZIP, .7z, .rar or .patch_0 file, such as a mod made with another tool"
+msgstr "Um arquivo ZIP, .7z, .rar ou .patch_0, como um mod feito com outra ferramenta"
 
 #: src/Home.tsx
 #: src/Page.tsx
-msgid "A ZIP or a .patch_0 file, with the audio, the sounds it adds and the text"
-msgstr "Um ZIP ou um arquivo .patch_0, com o áudio, os sons que ele adiciona e o texto"
+msgid "A ZIP, .7z, .rar or .patch_0 file, with the audio, the sounds it adds and the text"
+msgstr "Um arquivo ZIP, .7z, .rar ou .patch_0, com o áudio, os sons que ele adiciona e o texto"
 
 #: src/About.tsx
 msgid "About {APP_NAME}"
@@ -1890,6 +1890,10 @@ msgid "Automatic"
 msgstr "Automático"
 
 #: src/SettingsTab.tsx
+msgid "Automatic takes the language the game is set to in Steam, else the language of the system."
+msgstr "O automático usa o idioma do jogo na Steam ou, sem ele, o idioma do sistema."
+
+#: src/SettingsTab.tsx
 msgid "Automatic takes the language the game is set to in Steam, else the language of Windows."
 msgstr "O automático usa o idioma do jogo na Steam ou, sem ele, o idioma do Windows."
 
@@ -1975,6 +1979,10 @@ msgstr "Músicas de batalha"
 #: src/Soundtrack.tsx
 msgid "Battle Songs: every Intense Battle set to Same as Battle"
 msgstr "Músicas de batalha: toda Batalha intensa definida como Igual à batalha"
+
+#: src/Timeline.tsx
+msgid "Before it, the slot plays silence"
+msgstr "Antes dele, o slot toca silêncio"
 
 #: src/App.tsx
 msgid "Before the oldest change kept"
@@ -2436,6 +2444,10 @@ msgstr "Escolha uma música para cortar nos slots."
 #: src/Soundtrack.tsx
 msgid "Choose a song to cut into up to {pieces, plural, one {# piece} other {# pieces}}, or drop one here."
 msgstr "Escolha uma música para cortar em até {pieces, plural, one {# pedaço} other {# pedaços}}, ou solte uma aqui."
+
+#: src/SliceTool.tsx
+msgid "Choose a song to take a stretch of for this slot."
+msgstr "Escolha uma música da qual tirar um trecho para este slot."
 
 #: src/PatchContentPage.tsx
 msgid "Choose a ZIP or Patch File"
@@ -3086,6 +3098,10 @@ msgstr "Padrão: {gain} dB"
 msgid "Delay"
 msgstr "Atraso"
 
+#: src/Timeline.tsx
+msgid "Delay (ms)"
+msgstr "Atraso (ms)"
+
 #: src/Notes.tsx
 msgid "Delete"
 msgstr "Excluir"
@@ -3200,6 +3216,10 @@ msgid "Drag it to leave out the start of the song"
 msgstr "Arraste para deixar de fora o início da música"
 
 #: src/Timeline.tsx
+msgid "Drag to play the new audio later or earlier"
+msgstr "Arraste para tocar o áudio novo mais tarde ou mais cedo"
+
+#: src/Timeline.tsx
 msgid "Drawn and played at this gain"
 msgstr "Desenhado e reproduzido com este ganho"
 
@@ -3208,8 +3228,8 @@ msgid "Drawn as the line around the waveform"
 msgstr "Desenhado como a linha em volta da forma de onda"
 
 #: src/PatchContentPage.tsx
-msgid "Drop a mod here as a <0>ZIP</0>, a <1>folder</1> or a <2>.patch_0</2> file."
-msgstr "Solte um mod aqui como <0>ZIP</0>, <1>pasta</1> ou arquivo <2>.patch_0</2>."
+msgid "Drop a mod here as a <0>ZIP</0>, <1>.7z</1>, <2>.rar</2>, <3>folder</3> or <4>.patch_0</4> file."
+msgstr "Solte um mod aqui como <0>ZIP</0>, <1>.7z</1>, <2>.rar</2>, <3>pasta</3> ou arquivo <4>.patch_0</4>."
 
 #: src/Soundtrack.tsx
 msgid "Drop a Song or Choose a File"
@@ -3261,12 +3281,12 @@ msgid "Drop images on the icon on the Project tab"
 msgstr "Solte imagens no ícone da aba Projeto"
 
 #: src/CombinePage.tsx
-msgid "Drop mods here as <0>ZIPs</0>, <1>folders</1> or <2>.patch_0</2> files."
-msgstr "Solte mods aqui como <0>ZIPs</0>, <1>pastas</1> ou arquivos <2>.patch_0</2>."
+msgid "Drop mods here as <0>ZIPs</0>, <1>.7z</1>, <2>.rar</2>, <3>folders</3> or <4>.patch_0</4> files."
+msgstr "Solte mods aqui como <0>ZIPs</0>, <1>.7z</1>, <2>.rar</2>, <3>pastas</3> ou arquivos <4>.patch_0</4>."
 
 #: src/RepatchPage.tsx
-msgid "Drop mods here as <0>ZIPs</0>, <1>folders</1> or <2>.patch_0</2> files. Several are repatched one after another."
-msgstr "Solte mods aqui como <0>ZIPs</0>, <1>pastas</1> ou arquivos <2>.patch_0</2>. Vários passam pelo repatch um depois do outro."
+msgid "Drop mods here as <0>ZIPs</0>, <1>.7z</1>, <2>.rar</2>, <3>folders</3> or <4>.patch_0</4> files. Several are repatched one after another."
+msgstr "Solte mods aqui como <0>ZIPs</0>, <1>.7z</1>, <2>.rar</2>, <3>pastas</3> ou arquivos <4>.patch_0</4>. Vários passam pelo repatch um depois do outro."
 
 #: src/App.tsx
 msgid "Drop songs on a place of a playlist, or a song on One Song"
@@ -3418,6 +3438,16 @@ msgstr "codificação de áudio para o jogo"
 msgctxt "Slice tool: the cut where the last piece ends"
 msgid "End"
 msgstr "Fim"
+
+#. Where the new audio stops playing in the file
+#: src/Timeline.tsx
+msgctxt "Trim handle"
+msgid "End"
+msgstr "Fim"
+
+#: src/Timeline.tsx
+msgid "End (ms)"
+msgstr "Fim (ms)"
 
 #: src/Tutorial.tsx
 msgid "End Tutorial"
@@ -4927,8 +4957,8 @@ msgid "Mods"
 msgstr "Mods"
 
 #: src/platform.ts
-msgid "Mods (.zip, .patch_0)"
-msgstr "Mods (.zip, .patch_0)"
+msgid "Mods (.zip, .7z, .rar, .patch_0)"
+msgstr "Mods (.zip, .7z, .rar, .patch_0)"
 
 #. The tabs at the end of the bar (Updates, Wiki and Settings), for screen readers
 #: src/App.tsx
@@ -7171,6 +7201,7 @@ msgid "Replacing this clip makes the music stutter"
 msgstr "Substituir este clipe faz a música engasgar"
 
 #: src/SettingsTab.tsx
+#: src/Timeline.tsx
 msgid "Reset"
 msgstr "Redefinir"
 
@@ -7606,6 +7637,11 @@ msgstr "Mostrar o cabeçalho"
 msgid "Show the log file in Explorer"
 msgstr "Mostrar o arquivo de log no Explorador de Arquivos"
 
+#: src/About.tsx
+#: src/BuildTab.tsx
+msgid "Show the log file in the file manager"
+msgstr "Mostrar o arquivo de log no gerenciador de arquivos"
+
 #: src/SettingsTab.tsx
 msgid "Show the news ticker"
 msgstr "Mostrar o letreiro de notícias"
@@ -7617,6 +7653,10 @@ msgstr "Mostrar as formas de onda"
 #: src/BuildTab.tsx
 msgid "Show the ZIP in Explorer when a build finishes"
 msgstr "Mostrar o ZIP no Explorador de Arquivos quando a geração terminar"
+
+#: src/BuildTab.tsx
+msgid "Show the ZIP in the file manager when a build finishes"
+msgstr "Mostrar o ZIP no gerenciador de arquivos quando a geração terminar"
 
 #: src/keys.ts
 msgid "Show these shortcuts"
@@ -7665,6 +7705,10 @@ msgstr "silêncio"
 #: src/Soundtrack.tsx
 msgid "Silence"
 msgstr "Silêncio"
+
+#: src/Timeline.tsx
+msgid "Silence before the new audio, so it starts later than the original"
+msgstr "Silêncio antes do áudio novo, para ele começar depois do original"
 
 #: src/ItemHead.tsx
 msgid "Silence for the length of the original"
@@ -7904,6 +7948,16 @@ msgstr "Começar"
 msgctxt "Slice tool: the cut where the first piece starts"
 msgid "Start"
 msgstr "Início"
+
+#. Where the new audio starts playing in the file
+#: src/Timeline.tsx
+msgctxt "Trim handle"
+msgid "Start"
+msgstr "Início"
+
+#: src/Timeline.tsx
+msgid "Start (ms)"
+msgstr "Início (ms)"
 
 #: src/Home.tsx
 msgid "Start a mod"
@@ -9008,6 +9062,15 @@ msgstr "Superior direito"
 msgid "transcribing voice lines to match them to subtitles"
 msgstr "transcrição de falas para associá-las às legendas"
 
+#. The lane that sets where the new audio starts and ends
+#: src/Timeline.tsx
+msgid "Trim"
+msgstr "Recorte"
+
+#: src/Timeline.tsx
+msgid "Trim and move the new audio"
+msgstr "Recortar e mover o áudio novo"
+
 #: src/UpdatesTab.tsx
 msgid "Try Again"
 msgstr "Tentar de novo"
@@ -9379,6 +9442,22 @@ msgstr "Onde a música começa cada vez que entra"
 msgid "Where the music starts when a fight begins"
 msgstr "Onde a música começa quando um combate inicia"
 
+#: src/Timeline.tsx
+msgid "Where the new audio ends in the file"
+msgstr "Onde o áudio novo termina no arquivo"
+
+#: src/Timeline.tsx
+msgid "Where the new audio ends in the file. Drag to move it"
+msgstr "Onde o áudio novo termina no arquivo. Arraste para movê-lo"
+
+#: src/Timeline.tsx
+msgid "Where the new audio starts in the file"
+msgstr "Onde o áudio novo começa no arquivo"
+
+#: src/Timeline.tsx
+msgid "Where the new audio starts in the file. Drag to move it"
+msgstr "Onde o áudio novo começa no arquivo. Arraste para movê-lo"
+
 #: src/SliceTool.tsx
 msgid "Where the piece starts and ends in the song"
 msgstr "Onde o pedaço começa e termina na música"
@@ -9524,5 +9603,5 @@ msgid "Your Helldiver, teammates on the radio, and anyone in a vehicle"
 msgstr "O seu Helldiver, companheiros no rádio e qualquer um em um veículo"
 
 #: src/RepatchPage.tsx
-msgid "ZIPs or .patch_0 files"
-msgstr "ZIPs ou arquivos .patch_0"
+msgid "ZIPs, .7z, .rar or .patch_0 files"
+msgstr "Arquivos ZIP, .7z, .rar ou .patch_0"

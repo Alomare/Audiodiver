@@ -2,7 +2,7 @@
 title: Audiodiver 的工作方式
 group: 入门
 summary: Audiodiver 做什么、项目是什么，以及每个选项卡的用途。
-source: 09d7bb1340e0
+source: cc495476e4fc
 ---
 
 Audiodiver 按照**它是什么、在哪里播放**来替换 Helldivers 2 的音频。在资源库中找到一首曲目或一组声音，将其添加到项目中，再为它提供新音频。之后，Audiodiver 会算出游戏所需的音频库、ID 和时序值。
@@ -59,11 +59,20 @@ Audiodiver 每次启动时都会在 GitHub 上检查新版本。[设置 ▸ 系�
 
 更新只替换应用本身。项目、音频文件和设置都会保留。
 
+## Linux {#linux}
+
+Audiodiver 在 Linux 上以 AppImage 或适用于 Debian 和 Ubuntu 的 `.deb` 软件包运行，Audiodiver Utils 则是 `.tar.gz`。AppImage 会像 Windows 安装程序一样自动更新，适合 SteamOS、Bazzite 等不安装软件包的系统。先让 AppImage 可执行（在文件属性中设置，或用 `chmod +x`），再启动它。
+
+- 无论 Steam 是从系统安装、从 Flathub 安装还是以 Snap 安装，Audiodiver 都能在 Steam 库中找到 Helldivers 2 和 Helldivers 1。游戏在其他位置时，可以在**游戏文件夹**中选择。
+- 设置、缓存和日志位于 `~/.local/share/Audiodiver`，新项目和在 Windows 上一样放在“文档”文件夹中。
+- 文件管理器取代资源管理器，废纸篓取代回收站。
+- 用 **Ctrl+V** 粘贴在文件管理器中复制的音频文件只在 Windows 上可用。请改为把文件拖到槽位上。
+
 ## 设置 {#settings}
 
 ### 语言 {#language}
 
-[设置 ▸ 系统](app:settings/system)中的**语言**决定窗口以及 Audiodiver 提示消息用哪种语言。**自动**采用 Helldivers 2 在 Steam 中设置的语言。如果 Audiodiver 没有该语言的翻译，“自动”会采用 Windows 的语言，再不行就用英语。更改后，窗口会以新语言重新加载，并停留在同一选项卡上。语音台词会以该语言显示其字幕的文字，与游戏中的写法一致；游戏没有某句台词的译文时则显示英语。文本选项卡仍可选择要编辑哪种语言的游戏文本。
+[设置 ▸ 系统](app:settings/system)中的**语言**决定窗口以及 Audiodiver 提示消息用哪种语言。**自动**采用 Helldivers 2 在 Steam 中设置的语言。如果 Audiodiver 没有该语言的翻译，“自动”会采用系统的语言（Windows 的语言，或 Linux 的区域设置），再不行就用英语。更改后，窗口会以新语言重新加载，并停留在同一选项卡上。语音台词会以该语言显示其字幕的文字，与游戏中的写法一致；游戏没有某句台词的译文时则显示英语。文本选项卡仍可选择要编辑哪种语言的游戏文本。
 
 ### 游戏文件夹 {#game-folder}
 

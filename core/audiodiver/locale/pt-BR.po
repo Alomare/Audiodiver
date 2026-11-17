@@ -112,6 +112,18 @@ msgstr "Requer o Wwise instalado neste computador"
 msgid "Needs the waapi-client package next to the core"
 msgstr "Requer o módulo waapi-client ao lado do núcleo"
 
+#: archives.py
+msgid "{file} has a password. Unpack it with the password first"
+msgstr "{file} tem senha. Extraia-o primeiro com a senha"
+
+#: archives.py repatch.py
+msgid "{file} can't be opened as a .7z or .rar file"
+msgstr "{file} não pode ser aberto como arquivo .7z ou .rar"
+
+#: archives.py
+msgid "{file} can't be opened: reading .7z and .rar files needs 7-Zip"
+msgstr "Não é possível abrir {file}: ler arquivos .7z e .rar exige o 7-Zip"
+
 #: arsenal.py
 msgid "A mod needs a name"
 msgstr "Um mod precisa de um nome"
@@ -521,6 +533,14 @@ msgid "Naming the sounds and the music in the new language"
 msgstr "Nomeando os sons e as músicas no novo idioma"
 
 #: editor.py
+msgid "The game updated while Audiodiver was open. Audiodiver is reading it again: try again when that is done."
+msgstr "O jogo foi atualizado enquanto o Audiodiver estava aberto. O Audiodiver está lendo o jogo de novo: tente outra vez quando terminar."
+
+#: editor.py
+msgid "A game file can't be read. In Steam, verify the integrity of the game files, then try again."
+msgstr "Não é possível ler um arquivo do jogo. Na Steam, verifique a integridade dos arquivos do jogo e tente outra vez."
+
+#: editor.py
 msgid "Nothing changed, because the project file couldn't be saved. {why}."
 msgstr "Nada mudou, porque não foi possível salvar o arquivo do projeto. {why}."
 
@@ -547,12 +567,8 @@ msgstr[0] "{files} precisa ser convertido, o que o Audiodiver Utils não faz. Fo
 msgstr[1] "{files} precisam ser convertidos, o que o Audiodiver Utils não faz. Forneça WAVs de 16 bits a 48 kHz ou arquivos .wem, ou use o Audiodiver completo."
 
 #: editor.py
-msgid "Reading the game audio from the new folder"
-msgstr "Lendo o áudio do jogo da nova pasta"
-
-#: editor.py
-msgid "Reading the game audio (the first run after a game update takes about a minute)"
-msgstr "Lendo o áudio do jogo (a primeira execução após uma atualização do jogo leva cerca de um minuto)"
+msgid "The game updated. Reading the game audio again (about a minute)"
+msgstr "O jogo foi atualizado. Lendo o áudio do jogo de novo (cerca de um minuto)"
 
 #: editor.py
 msgid "Sorting the sounds"
@@ -629,6 +645,10 @@ msgstr "Escolha os slots para igualar"
 #: editor.py
 msgid "Nothing to match: no slot here has new audio and an original, both with sound"
 msgstr "Nada para igualar: nenhum slot aqui tem áudio novo e um original, ambos com som"
+
+#: editor.py
+msgid "This slot has no new audio to trim"
+msgstr "Este slot não tem áudio novo para recortar"
 
 #: editor.py
 msgid "That folder is inside the game folder, and Audiodiver never writes there. Choose another folder, and import the ZIP in a mod manager."
@@ -873,6 +893,18 @@ msgid "{name} can't be used as a folder name. Choose another name."
 msgstr "{name} não pode ser usado como nome de pasta. Escolha outro nome."
 
 #: editor.py
+msgid "Reading the game audio from the new folder"
+msgstr "Lendo o áudio do jogo da nova pasta"
+
+#: editor.py
+msgid "Reading the game audio (the first run after a game update takes about a minute)"
+msgstr "Lendo o áudio do jogo (a primeira execução após uma atualização do jogo leva cerca de um minuto)"
+
+#: editor.py
+msgid "The game files are still changing. Audiodiver reads them again when Steam is done."
+msgstr "Os arquivos do jogo ainda estão mudando. O Audiodiver os lê de novo quando a Steam terminar."
+
+#: editor.py
 msgid "A new take has no original audio"
 msgstr "Um take novo não tem áudio original"
 
@@ -1057,6 +1089,10 @@ msgid "Sound {id} isn't in this version of Helldivers 1"
 msgstr "O som {id} não está nesta versão de Helldivers 1"
 
 #: editor.py
+msgid "The audio must play for at least {ms} ms"
+msgstr "O áudio precisa tocar por pelo menos {ms} ms"
+
+#: editor.py
 msgid "{folder} is not a folder"
 msgstr "{folder} não é uma pasta"
 
@@ -1235,6 +1271,10 @@ msgstr "O Make-Up Gain vai de {low} a {high} dB"
 #: editor.py
 msgid "A fade is from 0 to {ms} ms"
 msgstr "Um fade vai de 0 a {ms} ms"
+
+#: editor.py
+msgid "Start, end and delay are from 0 to {ms} ms"
+msgstr "Início, fim e atraso vão de 0 a {ms} ms"
 
 #: editor.py
 msgid "{file} can't be read, so global notes can't be shown or saved. Fix or move the file, or choose another folder in Settings ▸ System."
@@ -1505,6 +1545,10 @@ msgstr "Um arquivo"
 #: errors.py
 msgid "a file"
 msgstr "um arquivo"
+
+#: errors.py
+msgid "A game file can't be read. If Steam is updating the game, wait for it to finish; else verify the integrity of the game files in Steam."
+msgstr "Não é possível ler um arquivo do jogo. Se a Steam estiver atualizando o jogo, espere terminar; senão, verifique a integridade dos arquivos do jogo na Steam."
 
 #: errors.py
 msgid "{file} gave an error: {error}"
@@ -2263,6 +2307,10 @@ msgid "the fades of {name}"
 msgstr "os fades de {name}"
 
 #: project.py
+msgid "where the audio of {name} starts and ends"
+msgstr "onde o áudio de {name} começa e termina"
+
+#: project.py
 msgid "the label of sound {id}"
 msgstr "o rótulo do som {id}"
 
@@ -2277,6 +2325,10 @@ msgstr "a opção Ajustar o tempo do som {id}"
 #: project.py
 msgid "the fades of sound {id}"
 msgstr "os fades do som {id}"
+
+#: project.py
+msgid "where the audio of sound {id} starts and ends"
+msgstr "onde o áudio do som {id} começa e termina"
 
 #: project.py
 msgid "mod ID: damaged in the project file (Make a New ID, on the Project tab)"
@@ -2403,16 +2455,12 @@ msgid "this cue runs over {n} minutes when played through, so export the segment
 msgstr "este cue passa de {n} minutos na reprodução contínua, então exporte os segmentos separadamente"
 
 #: repatch.py
-msgid "Choose a .patch_0 file, a mod folder or a ZIP"
-msgstr "Escolha um arquivo .patch_0, uma pasta de mod ou um ZIP"
+msgid "Choose a .patch_0 file, a mod folder, a ZIP, a .7z or a .rar"
+msgstr "Escolha um arquivo .patch_0, uma pasta de mod, um ZIP, um .7z ou um .rar"
 
 #: repatch.py
-msgid "{file} isn't a mod. Choose a .patch_0 file (Audiodiver also reads the .stream file next to it), a mod folder or a ZIP. Unpack .7z and .rar files first"
-msgstr "{file} não é um mod. Escolha um arquivo .patch_0 (o Audiodiver também lê o arquivo .stream ao lado dele), uma pasta de mod ou um ZIP. Extraia os arquivos .7z e .rar primeiro"
-
-#: repatch.py
-msgid "{file} isn't a mod. Choose a .patch_0 file (Audiodiver also reads the .stream file next to it), a mod folder or a ZIP"
-msgstr "{file} não é um mod. Escolha um arquivo .patch_0 (o Audiodiver também lê o arquivo .stream ao lado dele), uma pasta de mod ou um ZIP"
+msgid "{file} isn't a mod. Choose a .patch_0 file (Audiodiver also reads the .stream file next to it), a mod folder, a ZIP, a .7z or a .rar"
+msgstr "{file} não é um mod. Escolha um arquivo .patch_0 (o Audiodiver também lê o arquivo .stream ao lado dele), uma pasta de mod, um ZIP, um .7z ou um .rar"
 
 #: repatch.py
 msgid "{file} holds no patch file (.patch_0)"

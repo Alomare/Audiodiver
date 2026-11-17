@@ -2,7 +2,7 @@
 title: Comment fonctionne Audiodiver
 group: Pour commencer
 summary: Ce que fait Audiodiver, ce qu’est un projet et à quoi sert chaque onglet.
-source: 09d7bb1340e0
+source: cc495476e4fc
 ---
 
 Audiodiver remplace l’audio de Helldivers 2 selon **ce qu’il est et l’endroit où il est joué**. Trouvez un morceau de musique ou un ensemble de sons dans la Bibliothèque, ajoutez-le à un projet et donnez-lui du nouvel audio. Audiodiver détermine ensuite les banques de sons, les ID et les valeurs de minutage dont le jeu a besoin.
@@ -59,11 +59,20 @@ Audiodiver recherche une nouvelle version sur GitHub à chaque démarrage. [Para
 
 Une mise à jour remplace uniquement l’application. Les projets, les fichiers audio et les paramètres sont conservés.
 
+## Linux {#linux}
+
+Audiodiver fonctionne sous Linux en AppImage, en paquet `.deb` pour Debian et Ubuntu, et Audiodiver Utils en `.tar.gz`. L’AppImage se met à jour toute seule comme l’installateur Windows, et convient à SteamOS, Bazzite et aux autres systèmes qui n’installent pas de paquets. Rendez l’AppImage exécutable (dans les propriétés du fichier, ou avec `chmod +x`) et lancez-la.
+
+- Audiodiver trouve Helldivers 2 et Helldivers 1 dans les bibliothèques Steam, que Steam soit installé depuis le système, depuis Flathub ou en Snap. Un jeu situé ailleurs peut être choisi sous **Dossier du jeu**.
+- Les paramètres, les caches et le journal sont dans `~/.local/share/Audiodiver`, et les nouveaux projets vont dans le dossier Documents, comme sous Windows.
+- Le gestionnaire de fichiers prend la place de l’Explorateur, et la corbeille du système celle de la Corbeille de Windows.
+- Coller avec **Ctrl+V** des fichiers audio copiés dans le gestionnaire de fichiers ne fonctionne que sous Windows. Faites plutôt glisser les fichiers sur les emplacements.
+
 ## Paramètres {#settings}
 
 ### Langue {#language}
 
-**Langue** dans [Paramètres ▸ Système](app:settings/system) définit la langue de la fenêtre et des messages qu’Audiodiver affiche. **Automatique** prend la langue réglée pour Helldivers 2 dans Steam. Quand Audiodiver n’a pas de traduction pour cette langue, Automatique prend la langue de Windows, et sinon l’anglais. Après un changement, la fenêtre se recharge dans la nouvelle langue, sur le même onglet. Les répliques affichent les mots de leurs sous-titres dans cette langue, tels que le jeu les écrit, ou en anglais là où le jeu n’a pas de traduction d’une réplique. L’onglet Texte permet toujours de choisir quelle langue du texte du jeu modifier.
+**Langue** dans [Paramètres ▸ Système](app:settings/system) définit la langue de la fenêtre et des messages qu’Audiodiver affiche. **Automatique** prend la langue réglée pour Helldivers 2 dans Steam. Quand Audiodiver n’a pas de traduction pour cette langue, Automatique prend la langue du système (Windows, ou les paramètres régionaux sous Linux), et sinon l’anglais. Après un changement, la fenêtre se recharge dans la nouvelle langue, sur le même onglet. Les répliques affichent les mots de leurs sous-titres dans cette langue, tels que le jeu les écrit, ou en anglais là où le jeu n’a pas de traduction d’une réplique. L’onglet Texte permet toujours de choisir quelle langue du texte du jeu modifier.
 
 ### Dossier du jeu {#game-folder}
 

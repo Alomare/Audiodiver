@@ -2,7 +2,7 @@
 title: Conteúdo do Patch
 group: Geração e compartilhamento
 summary: Como substituir sons dentro de um mod existente, sobre os próprios bancos de sons do mod, também sons que uma atualização tirou do jogo.
-source: 2095c6ad8368
+source: 9a7de63144f8
 ---
 
 O patch de um mod guarda cópias dos bancos de sons que ele altera, como estavam na versão do jogo para a qual o mod foi feito, e o jogo toca essas cópias no lugar dos bancos atuais. **Conteúdo do Patch**, em [Ferramentas](app:tools/content), abre um mod como ele é, lista os sons dos patches e grava o mod de novo com áudio novo para os sons escolhidos. Todo o resto fica como o mod tem.
@@ -17,7 +17,7 @@ Para sons que o jogo ainda tem, um projeto ou o [Repatch](wiki:repatching) é a 
 ## Abrindo um mod {#opening-a-mod}
 
 1. Abra [Ferramentas](app:tools/content) e escolha **Conteúdo do Patch**.
-2. Solte o mod na página como ZIP, pasta ou arquivo `.patch_0`, ou pressione **Escolher um ZIP ou arquivo de patch** ou **Escolher uma pasta**.
+2. Solte o mod na página como ZIP, `.7z` ou `.rar`, pasta ou arquivo `.patch_0`, ou pressione **Escolher um ZIP ou arquivo de patch** ou **Escolher uma pasta**.
 
 A lista começa pelos sons que o jogo atual não tem, marcados com **Fora do jogo**. **Todos os Sons** mostra cada som do mod, e a pesquisa encontra um som pelo ID, pelo nome ou por um banco. Cada linha toca o áudio como o mod o tem e diz quais bancos do mod têm o som.
 

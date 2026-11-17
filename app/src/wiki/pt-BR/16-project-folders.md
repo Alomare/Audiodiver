@@ -2,7 +2,7 @@
 title: Pastas do projeto
 group: Primeiros passos
 summary: Onde um projeto guarda os arquivos, como mover um projeto, e como um pack leva um projeto para outro computador.
-source: e77121941946
+source: baf5e95454e8
 ---
 
 ## A pasta do projeto {#the-project-folder}
@@ -49,7 +49,7 @@ Um arquivo que o projeto usa fica ausente quando é movido, renomeado ou excluí
 
 ## Arquivos sem uso {#unused-files}
 
-**Encontrar arquivos sem uso** lista o que o Audiodiver criou para o projeto e que nada mais usa: fatias de um corte antigo, áudio decodificado de um patch importado, arquivos reunidos que nenhum slot toca. **Remover** os manda para a Lixeira, e o Windows pode restaurá-los. Numa unidade sem Lixeira, como uma unidade de rede, o Audiodiver pergunta antes de excluí-los de vez.
+**Encontrar arquivos sem uso** lista o que o Audiodiver criou para o projeto e que nada mais usa: fatias de um corte antigo, áudio decodificado de um patch importado, arquivos reunidos que nenhum slot toca. **Remover** os manda para a Lixeira (a lixeira no Linux), e o sistema pode restaurá-los. Numa unidade sem Lixeira, como uma unidade de rede, o Audiodiver pergunta antes de excluí-los de vez.
 
 O Audiodiver procura só nas pastas que ele cria, que são `audio\slices`, `audio\imported`, `audio\added` e as antigas `slices` e `imported`. Antes de remover qualquer coisa, o Audiodiver confere a lista de novo e mantém qualquer arquivo usado pelo projeto, pelo histórico de Desfazer ou por outro projeto da pasta.
 

@@ -78,9 +78,9 @@ function TrimLane({ file, fileMs, trim, view, onSet, onSeek }: {
   // a handle: Start keeps the file where it is, so the stretch begins under the pointer (the delay follows it)
   const handle = (id: string, ms: number): Trim => (id === "start" ? { start: ms, end, delay: offset + ms } : { start, end: ms, delay });
   const markers: Marker[] = [
-    { id: "start", ms: start, label: t({ message: "Start", comment: "Where the new audio starts playing in the file" }), draggable: true,
+    { id: "start", ms: start, label: t({ message: "Start", context: "Trim handle", comment: "Where the new audio starts playing in the file" }), draggable: true,
       min: Math.max(0, -offset), max: end - MIN_TRIM, about: t`Where the new audio starts in the file. Drag to move it` },
-    { id: "end", ms: end, label: t({ message: "End", comment: "Where the new audio stops playing in the file" }), draggable: true,
+    { id: "end", ms: end, label: t({ message: "End", context: "Trim handle", comment: "Where the new audio stops playing in the file" }), draggable: true,
       min: start + MIN_TRIM, max: fileMs, about: t`Where the new audio ends in the file. Drag to move it` },
   ];
   return (

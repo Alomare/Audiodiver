@@ -2,7 +2,7 @@
 title: Combinando mods
 group: Geração e compartilhamento
 summary: Como fazer um único mod a partir de vários mods de áudio que mudam os mesmos bancos de sons, escolhendo de quem é a versão de cada som compartilhado que entra.
-source: e6f1f4bcf595
+source: 32b11529b4ec
 ---
 
 Um mod contém cópias completas dos bancos de sons que ele muda. Quando dois mods mudam o mesmo banco, o implantado por último substitui a cópia do outro, então só um deles toca. Os mods de música dividem a maioria dos bancos, e muitos mods de armas e de vozes também. **Combinar Mods**, em [Ferramentas](app:tools/combine), lê vários mods e gera um único mod com o áudio de todos eles, nos bancos de sons atuais.
@@ -15,7 +15,7 @@ Um mod contém cópias completas dos bancos de sons que ele muda. Quando dois mo
 ## Combinar Mods {#combining-mods}
 
 1. Abra [Ferramentas ▸ Combinar Mods](app:tools/combine).
-2. Solte os mods na página. Você pode soltar os ZIPs baixados, as pastas dos mods, ou os arquivos `.patch_0` com os arquivos `.stream` ao lado. **Adicionar ZIPs ou arquivos de patch** e **Adicionar uma pasta** fazem o mesmo, e **Mods instalados** lista os mods da biblioteca de um gerenciador de mods e da pasta do jogo.
+2. Solte os mods na página. Você pode soltar os ZIPs baixados (ou arquivos `.7z` e `.rar`), as pastas dos mods, ou os arquivos `.patch_0` com os arquivos `.stream` ao lado. **Adicionar ZIPs ou arquivos de patch** e **Adicionar uma pasta** fazem o mesmo, e **Mods instalados** lista os mods da biblioteca de um gerenciador de mods e da pasta do jogo.
 3. Escolha as opções de cada mod. Um mod com opções as lista abaixo do nome do mod, começando pelas escolhas que o gerenciador de mods registrou. Uma opção com várias escolhas fica com uma delas.
 4. Coloque os mods em ordem com ↑ e ↓. Veja [Ordem e conflitos](#order-and-conflicts).
 5. Pressione **Verificar conflitos** e escolha um mod para cada conflito encontrado.

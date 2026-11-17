@@ -2,7 +2,7 @@
 title: Repatch
 group: Générer et partager
 summary: Reconstruire un mod audio créé pour une ancienne version du jeu, ou avec un autre outil, pour le jeu actuel.
-source: ba47fe51fb25
+source: db79c91a2fac
 ---
 
 Le patch d’un mod contient des copies complètes des banques de sons qu’il modifie, telles qu’elles étaient dans la version du jeu pour laquelle le mod a été créé. Après une mise à jour du jeu, ces copies sont périmées. Le mod peut devenir silencieux ou jouer les mauvais sons, et, une fois installé, il ramène l’audio plus récent en arrière. Il peut même rendre silencieux des sons qu’il n’a jamais modifiés, car les banques contiennent aussi des réglages que beaucoup d’autres banques partagent. **Repatch**, dans [Outils](app:tools/repatch), reconstruit un tel mod pour le jeu actuel. Il ne demande ni projet ni expérience en modding.
@@ -15,7 +15,7 @@ Le patch d’un mod contient des copies complètes des banques de sons qu’il m
 ## Repatcher un mod {#repatching-a-mod}
 
 1. Ouvrez [Outils ▸ Repatch](app:tools/repatch).
-2. Déposez le mod sur la page. Vous pouvez déposer le ZIP téléchargé, le dossier du mod, ou le fichier `.patch_0` avec le fichier `.stream` à côté. **Choisir des ZIP ou des fichiers patch** et **Choisir un dossier** font la même chose. Un ZIP déposé n’importe où dans Audiodiver s’ouvre aussi sur cette page. Pour repatcher plusieurs mods, voir [Repatcher plusieurs mods](#repatching-several-mods).
+2. Déposez le mod sur la page. Vous pouvez déposer le ZIP téléchargé (ou le `.7z` ou le `.rar`), le dossier du mod, ou le fichier `.patch_0` avec le fichier `.stream` à côté. **Choisir des ZIP ou des fichiers patch** et **Choisir un dossier** font la même chose. Un ZIP, un `.7z` ou un `.rar` déposé n’importe où dans Audiodiver s’ouvre aussi sur cette page. Pour repatcher plusieurs mods, voir [Repatcher plusieurs mods](#repatching-several-mods).
 3. Vérifiez le nom. Audiodiver le prend dans le manifeste s’il y en a un, et sinon dans le nom du fichier ou du dossier, sans les numéros et les dates que Nexus Mods ajoute aux téléchargements.
 4. Cochez **Patcher chaque banque contenant les sons** pour que l’audio du mod soit joué partout où ces sons sont utilisés. Décochée, l’audio ne va que dans les banques que le mod a patchées, comme dans l’original, et la taille reste à peu près la même. [En savoir plus](wiki:build-and-install#every-bank-with-the-sounds).
 5. Appuyez sur **Repatch**.
@@ -28,7 +28,7 @@ Certains mods ont plusieurs fichiers patch dans un même dossier, comme `.patch_
 
 ## Repatcher plusieurs mods {#repatching-several-mods}
 
-Déposez ou choisissez plusieurs mods à la fois, et Audiodiver les repatche l’un après l’autre. Ce peuvent être des ZIP, des fichiers `.patch_0` ou des dossiers de mods. Vous pouvez aussi choisir un dossier qui contient plusieurs mods : chaque ZIP qu’il contient est un mod, de même que chaque sous-dossier avec un manifeste. Un dossier qui contient directement un manifeste ou un fichier patch compte pour un seul mod. **Ajouter des ZIP ou des fichiers patch** et **Ajouter un dossier** complètent la liste, et un mod déjà présent n’est pas ajouté deux fois.
+Déposez ou choisissez plusieurs mods à la fois, et Audiodiver les repatche l’un après l’autre. Ce peuvent être des ZIP, des fichiers `.7z` et `.rar`, des fichiers `.patch_0` ou des dossiers de mods. Vous pouvez aussi choisir un dossier qui contient plusieurs mods : chaque ZIP, `.7z` ou `.rar` qu’il contient est un mod, de même que chaque sous-dossier avec un manifeste. Un dossier qui contient directement un manifeste ou un fichier patch compte pour un seul mod. **Ajouter des ZIP ou des fichiers patch** et **Ajouter un dossier** complètent la liste, et un mod déjà présent n’est pas ajouté deux fois.
 
 Avec deux mods ou plus, la page affiche une liste. Chaque ligne porte le nom du nouveau ZIP, que vous pouvez changer, et **✕** retire le mod de la liste. Un mod marqué **Pas d’audio** n’a rien à repatcher et il est écarté. **Patcher chaque banque contenant les sons** s’applique à tous les mods de la liste, et le bouton Repatch indique combien de mods seront traités.
 

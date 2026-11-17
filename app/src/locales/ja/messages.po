@@ -1386,17 +1386,17 @@ msgid "A whole number from 1 to 99999."
 msgstr "1から99999までの整数です。"
 
 #: src/PatchContentPage.tsx
-msgid "A ZIP or a .patch_0 file"
-msgstr "ZIP または .patch_0 ファイル"
+msgid "A ZIP, .7z, .rar or .patch_0 file"
+msgstr "ZIP、.7z、.rar、または.patch_0ファイル"
 
 #: src/ProjectTab.tsx
-msgid "A ZIP or a .patch_0 file, such as a mod made with another tool"
-msgstr "ZIPまたは.patch_0ファイル（他のツールで作ったMODなど）"
+msgid "A ZIP, .7z, .rar or .patch_0 file, such as a mod made with another tool"
+msgstr "ZIP、.7z、.rar、または.patch_0ファイル（他のツールで作ったMODなど）"
 
 #: src/Home.tsx
 #: src/Page.tsx
-msgid "A ZIP or a .patch_0 file, with the audio, the sounds it adds and the text"
-msgstr "音声、追加するサウンド、テキストを含むZIPまたは.patch_0ファイル"
+msgid "A ZIP, .7z, .rar or .patch_0 file, with the audio, the sounds it adds and the text"
+msgstr "音声、追加するサウンド、テキストを含むZIP、.7z、.rar、または.patch_0ファイル"
 
 #: src/About.tsx
 msgid "About {APP_NAME}"
@@ -1890,6 +1890,10 @@ msgid "Automatic"
 msgstr "自動"
 
 #: src/SettingsTab.tsx
+msgid "Automatic takes the language the game is set to in Steam, else the language of the system."
+msgstr "「自動」では、Steamでゲームに設定されている言語を使います。設定がなければシステムの言語を使います。"
+
+#: src/SettingsTab.tsx
 msgid "Automatic takes the language the game is set to in Steam, else the language of Windows."
 msgstr "「自動」では、Steamでゲームに設定されている言語を使います。設定がなければWindowsの言語を使います。"
 
@@ -1975,6 +1979,10 @@ msgstr "バトル曲"
 #: src/Soundtrack.tsx
 msgid "Battle Songs: every Intense Battle set to Same as Battle"
 msgstr "バトル曲：すべての「激しいバトル」を「バトルと同じ」に設定"
+
+#: src/Timeline.tsx
+msgid "Before it, the slot plays silence"
+msgstr "その前はスロットが無音になります"
 
 #: src/App.tsx
 msgid "Before the oldest change kept"
@@ -2436,6 +2444,10 @@ msgstr "スロットに切り分ける曲を選んでください。"
 #: src/Soundtrack.tsx
 msgid "Choose a song to cut into up to {pieces, plural, one {# piece} other {# pieces}}, or drop one here."
 msgstr "最大{pieces, plural, other {# 個のピース}}に切り分ける曲を選ぶか、ここにドロップしてください。"
+
+#: src/SliceTool.tsx
+msgid "Choose a song to take a stretch of for this slot."
+msgstr "このスロットに使う区間を切り出す曲を選んでください。"
 
 #: src/PatchContentPage.tsx
 msgid "Choose a ZIP or Patch File"
@@ -3086,6 +3098,10 @@ msgstr "デフォルト：{gain} dB"
 msgid "Delay"
 msgstr "遅延"
 
+#: src/Timeline.tsx
+msgid "Delay (ms)"
+msgstr "遅延 (ms)"
+
 #: src/Notes.tsx
 msgid "Delete"
 msgstr "削除"
@@ -3200,6 +3216,10 @@ msgid "Drag it to leave out the start of the song"
 msgstr "ドラッグして曲の始まりを除外"
 
 #: src/Timeline.tsx
+msgid "Drag to play the new audio later or earlier"
+msgstr "ドラッグして新しい音声の再生を遅らせたり早めたりします"
+
+#: src/Timeline.tsx
 msgid "Drawn and played at this gain"
 msgstr "このゲインで表示・再生されます"
 
@@ -3208,8 +3228,8 @@ msgid "Drawn as the line around the waveform"
 msgstr "波形の周りの線で表示されます"
 
 #: src/PatchContentPage.tsx
-msgid "Drop a mod here as a <0>ZIP</0>, a <1>folder</1> or a <2>.patch_0</2> file."
-msgstr "MODを<0>ZIP</0>、<1>フォルダー</1>、または<2>.patch_0</2>ファイルとしてここにドロップしてください。"
+msgid "Drop a mod here as a <0>ZIP</0>, <1>.7z</1>, <2>.rar</2>, <3>folder</3> or <4>.patch_0</4> file."
+msgstr "MODを<0>ZIP</0>、<1>.7z</1>、<2>.rar</2>、<3>フォルダー</3>、または<4>.patch_0</4>ファイルとしてここにドロップしてください。"
 
 #: src/Soundtrack.tsx
 msgid "Drop a Song or Choose a File"
@@ -3261,12 +3281,12 @@ msgid "Drop images on the icon on the Project tab"
 msgstr "画像はプロジェクトタブのアイコンにドロップしてください"
 
 #: src/CombinePage.tsx
-msgid "Drop mods here as <0>ZIPs</0>, <1>folders</1> or <2>.patch_0</2> files."
-msgstr "MODを<0>ZIP</0>、<1>フォルダー</1>、または<2>.patch_0</2>ファイルとしてここにドロップしてください。"
+msgid "Drop mods here as <0>ZIPs</0>, <1>.7z</1>, <2>.rar</2>, <3>folders</3> or <4>.patch_0</4> files."
+msgstr "MODを<0>ZIP</0>、<1>.7z</1>、<2>.rar</2>、<3>フォルダー</3>、または<4>.patch_0</4>ファイルとしてここにドロップしてください。"
 
 #: src/RepatchPage.tsx
-msgid "Drop mods here as <0>ZIPs</0>, <1>folders</1> or <2>.patch_0</2> files. Several are repatched one after another."
-msgstr "<0>ZIP</0>、<1>フォルダー</1>、または<2>.patch_0</2>ファイルのMODをここにドロップします。複数ある場合は1つずつRepatchします。"
+msgid "Drop mods here as <0>ZIPs</0>, <1>.7z</1>, <2>.rar</2>, <3>folders</3> or <4>.patch_0</4> files. Several are repatched one after another."
+msgstr "<0>ZIP</0>、<1>.7z</1>、<2>.rar</2>、<3>フォルダー</3>、または<4>.patch_0</4>ファイルのMODをここにドロップします。複数ある場合は1つずつRepatchします。"
 
 #: src/App.tsx
 msgid "Drop songs on a place of a playlist, or a song on One Song"
@@ -3418,6 +3438,16 @@ msgstr "ゲーム用の音声エンコード"
 msgctxt "Slice tool: the cut where the last piece ends"
 msgid "End"
 msgstr "終端"
+
+#. Where the new audio stops playing in the file
+#: src/Timeline.tsx
+msgctxt "Trim handle"
+msgid "End"
+msgstr "終了"
+
+#: src/Timeline.tsx
+msgid "End (ms)"
+msgstr "終了 (ms)"
 
 #: src/Tutorial.tsx
 msgid "End Tutorial"
@@ -4927,8 +4957,8 @@ msgid "Mods"
 msgstr "MOD"
 
 #: src/platform.ts
-msgid "Mods (.zip, .patch_0)"
-msgstr "MOD（.zip、.patch_0）"
+msgid "Mods (.zip, .7z, .rar, .patch_0)"
+msgstr "MOD（.zip、.7z、.rar、.patch_0）"
 
 #. The tabs at the end of the bar (Updates, Wiki and Settings), for screen readers
 #: src/App.tsx
@@ -7171,6 +7201,7 @@ msgid "Replacing this clip makes the music stutter"
 msgstr "このクリップを置き換えると音楽が途切れます"
 
 #: src/SettingsTab.tsx
+#: src/Timeline.tsx
 msgid "Reset"
 msgstr "リセット"
 
@@ -7606,6 +7637,11 @@ msgstr "ヘッダーを表示"
 msgid "Show the log file in Explorer"
 msgstr "ログファイルをエクスプローラーで表示"
 
+#: src/About.tsx
+#: src/BuildTab.tsx
+msgid "Show the log file in the file manager"
+msgstr "ログファイルをファイルマネージャーで表示"
+
 #: src/SettingsTab.tsx
 msgid "Show the news ticker"
 msgstr "ニュースティッカーを表示"
@@ -7617,6 +7653,10 @@ msgstr "波形を表示"
 #: src/BuildTab.tsx
 msgid "Show the ZIP in Explorer when a build finishes"
 msgstr "ビルドが終わったらZIPをエクスプローラーで表示"
+
+#: src/BuildTab.tsx
+msgid "Show the ZIP in the file manager when a build finishes"
+msgstr "ビルドが終わったらZIPをファイルマネージャーで表示"
 
 #: src/keys.ts
 msgid "Show these shortcuts"
@@ -7665,6 +7705,10 @@ msgstr "無音"
 #: src/Soundtrack.tsx
 msgid "Silence"
 msgstr "無音"
+
+#: src/Timeline.tsx
+msgid "Silence before the new audio, so it starts later than the original"
+msgstr "新しい音声の前に入る無音。オリジナルより遅れて始まります"
 
 #: src/ItemHead.tsx
 msgid "Silence for the length of the original"
@@ -7904,6 +7948,16 @@ msgstr "開始"
 msgctxt "Slice tool: the cut where the first piece starts"
 msgid "Start"
 msgstr "始端"
+
+#. Where the new audio starts playing in the file
+#: src/Timeline.tsx
+msgctxt "Trim handle"
+msgid "Start"
+msgstr "開始"
+
+#: src/Timeline.tsx
+msgid "Start (ms)"
+msgstr "開始 (ms)"
 
 #: src/Home.tsx
 msgid "Start a mod"
@@ -9008,6 +9062,15 @@ msgstr "右上"
 msgid "transcribing voice lines to match them to subtitles"
 msgstr "字幕と照合するためのセリフの書き起こし"
 
+#. The lane that sets where the new audio starts and ends
+#: src/Timeline.tsx
+msgid "Trim"
+msgstr "トリム"
+
+#: src/Timeline.tsx
+msgid "Trim and move the new audio"
+msgstr "新しい音声のトリムと移動"
+
 #: src/UpdatesTab.tsx
 msgid "Try Again"
 msgstr "再試行"
@@ -9379,6 +9442,22 @@ msgstr "音楽が流れるたびに始まる位置"
 msgid "Where the music starts when a fight begins"
 msgstr "戦闘開始時に音楽が始まる位置"
 
+#: src/Timeline.tsx
+msgid "Where the new audio ends in the file"
+msgstr "ファイル内で新しい音声が終わる位置"
+
+#: src/Timeline.tsx
+msgid "Where the new audio ends in the file. Drag to move it"
+msgstr "ファイル内で新しい音声が終わる位置。ドラッグで移動します"
+
+#: src/Timeline.tsx
+msgid "Where the new audio starts in the file"
+msgstr "ファイル内で新しい音声が始まる位置"
+
+#: src/Timeline.tsx
+msgid "Where the new audio starts in the file. Drag to move it"
+msgstr "ファイル内で新しい音声が始まる位置。ドラッグで移動します"
+
 #: src/SliceTool.tsx
 msgid "Where the piece starts and ends in the song"
 msgstr "曲の中でピースが始まる位置と終わる位置"
@@ -9524,5 +9603,5 @@ msgid "Your Helldiver, teammates on the radio, and anyone in a vehicle"
 msgstr "自分のヘルダイバー、無線の味方、および車両内の全員"
 
 #: src/RepatchPage.tsx
-msgid "ZIPs or .patch_0 files"
-msgstr "ZIPまたは.patch_0ファイル"
+msgid "ZIPs, .7z, .rar or .patch_0 files"
+msgstr "ZIP、.7z、.rar、または.patch_0ファイル"

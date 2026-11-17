@@ -2,7 +2,7 @@
 title: Entendendo a tela
 group: Primeiros passos
 summary: O que cada parte da Biblioteca e da aba Áudio mostra, e o que significam as tags e marcas de uma linha.
-source: 95386bc1f331
+source: 4019caa57ba2
 ---
 
 A Biblioteca e a aba Áudio têm o mesmo layout: uma lista à esquerda, o item aberto no meio e o painel de detalhes à direita. A Trilha Sonora tem outro layout, descrito em [Trilha Sonora](wiki:soundtrack). As palavras em **negrito** são explicadas em [O áudio do jogo, explicado](wiki:game-audio).
@@ -69,7 +69,7 @@ Cada linha é um **slot**, um único clipe do jogo que pode ser substituído.
 - A metade esquerda de uma linha é o original. ▶ o toca, e a duração aparece no fim. Na aba Áudio, a metade direita é a substituição. ▶ toca o áudio novo, clicar no nome do arquivo escolhe outro arquivo, e ✕ o remove. Um slot vazio mostra *Soltar áudio ou escolher um arquivo*.
 - A caixa de seleção no início de uma linha coloca o slot na seleção, ou o tira dela, como Ctrl+clique. Shift numa caixa de seleção seleciona um intervalo. A linha de um grupo tem uma caixa de seleção para todos os takes do grupo, e o grupo continua recolhido. Na Biblioteca, **Exportar** pode salvar só os slots selecionados. Na aba Áudio, com vários slots selecionados, o painel direito tem **Escolher um arquivo para todos**, **Escolher arquivos**, **Substituir por silêncio** e o botão que remove o áudio novo.
 - Clique duas vezes numa linha para tocá-la. Clique com o botão direito para todo o resto, incluindo copiar, colar, silêncio e IDs.
-- Copie arquivos de áudio no Explorador de Arquivos, selecione slots e pressione **Ctrl+V**. Um arquivo vai para todos os slots selecionados. Vários arquivos vão na ordem dos nomes de arquivo, e com um único slot selecionado eles preenchem a partir dele. Ctrl+V cola o que foi copiado por último: arquivos do Explorador de Arquivos ou slots copiados no Audiodiver.
+- Copie arquivos de áudio no Explorador de Arquivos, selecione slots e pressione **Ctrl+V**. Um arquivo vai para todos os slots selecionados. Vários arquivos vão na ordem dos nomes de arquivo, e com um único slot selecionado eles preenchem a partir dele. Ctrl+V cola o que foi copiado por último: arquivos do Explorador de Arquivos ou slots copiados no Audiodiver. No Linux, Ctrl+V cola só slots.
 - **Ctrl+C** copia os slots selecionados, na Biblioteca ou na aba Áudio. **Ctrl+V** cola nos slots selecionados na aba Áudio, sem exportar nem importar nada. Um slot com áudio novo passa esse áudio e as configurações. Qualquer outro slot passa o original, e um clipe do Helldivers 2 entra sem alteração.
 
 ### Tags de uma linha {#tags-on-a-row}

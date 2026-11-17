@@ -2,10 +2,10 @@
 title: Importando um mod
 group: Primeiros passos
 summary: Um mod feito com qualquer ferramenta, como um projeto para continuar trabalhando: o áudio, os sons que ele adiciona, as configurações e o texto.
-source: 2b69a2798627
+source: bf3dc1dbec0d
 ---
 
-**Importar mod** em [Início](app:home), ou na aba [Projeto](app:project) enquanto não há projeto aberto, cria um projeto novo a partir de um mod existente. Escolha o ZIP do mod, ou um arquivo `.patch_0`. O painel que abre mostra o mod como um gerenciador de mods o mostra, e lista o que entra antes de gravar qualquer coisa.
+**Importar mod** em [Início](app:home), ou na aba [Projeto](app:project) enquanto não há projeto aberto, cria um projeto novo a partir de um mod existente. Escolha o ZIP, `.7z` ou `.rar` do mod, ou um arquivo `.patch_0`. O painel que abre mostra o mod como um gerenciador de mods o mostra, e lista o que entra antes de gravar qualquer coisa.
 
 ## Opções, nome e pasta {#options-name-and-folder}
 

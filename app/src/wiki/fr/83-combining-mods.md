@@ -2,7 +2,7 @@
 title: Combiner des Mods
 group: Générer et partager
 summary: Faire un seul mod à partir de plusieurs mods audio qui modifient les mêmes banques de sons, en choisissant quelle version de chaque son partagé est retenue.
-source: e6f1f4bcf595
+source: 32b11529b4ec
 ---
 
 Un mod contient des copies complètes des banques de sons qu’il modifie. Quand deux mods modifient la même banque, celui qui est déployé en dernier remplace la copie de l’autre, donc un seul des deux est joué. Les mods de musique partagent la plupart de leurs banques, et beaucoup de mods d’armes et de voix aussi. **Combiner des Mods**, dans [Outils](app:tools/combine), lit plusieurs mods et génère un seul mod avec l’audio de tous, sur les banques de sons actuelles.
@@ -15,7 +15,7 @@ Un mod contient des copies complètes des banques de sons qu’il modifie. Quand
 ## Combiner des Mods {#combining-mods}
 
 1. Ouvrez [Outils ▸ Combiner des Mods](app:tools/combine).
-2. Déposez les mods sur la page. Vous pouvez déposer les ZIP téléchargés, les dossiers des mods, ou les fichiers `.patch_0` avec les fichiers `.stream` à côté. **Ajouter des ZIP ou des fichiers patch** et **Ajouter un dossier** font la même chose, et **Mods installés** liste les mods de la bibliothèque d’un gestionnaire de mods et du dossier du jeu.
+2. Déposez les mods sur la page. Vous pouvez déposer les ZIP téléchargés (ou les fichiers `.7z` et `.rar`), les dossiers des mods, ou les fichiers `.patch_0` avec les fichiers `.stream` à côté. **Ajouter des ZIP ou des fichiers patch** et **Ajouter un dossier** font la même chose, et **Mods installés** liste les mods de la bibliothèque d’un gestionnaire de mods et du dossier du jeu.
 3. Choisissez les options de chaque mod. Un mod avec des options les liste sous le nom du mod, à partir des choix que le gestionnaire de mods a enregistrés. Une option à plusieurs choix en prend un seul.
 4. Mettez les mods dans l’ordre avec ↑ et ↓. Voir [Ordre et conflits](#order-and-conflicts).
 5. Appuyez sur **Rechercher les conflits**, et choisissez un mod pour chaque conflit trouvé.

@@ -1386,17 +1386,17 @@ msgid "A whole number from 1 to 99999."
 msgstr "1 到 99999 之间的整数。"
 
 #: src/PatchContentPage.tsx
-msgid "A ZIP or a .patch_0 file"
-msgstr "ZIP 或 .patch_0 文件"
+msgid "A ZIP, .7z, .rar or .patch_0 file"
+msgstr "ZIP、.7z、.rar 或 .patch_0 文件"
 
 #: src/ProjectTab.tsx
-msgid "A ZIP or a .patch_0 file, such as a mod made with another tool"
-msgstr "ZIP 或 .patch_0 文件，例如用其他工具制作的模组"
+msgid "A ZIP, .7z, .rar or .patch_0 file, such as a mod made with another tool"
+msgstr "ZIP、.7z、.rar 或 .patch_0 文件，例如用其他工具制作的模组"
 
 #: src/Home.tsx
 #: src/Page.tsx
-msgid "A ZIP or a .patch_0 file, with the audio, the sounds it adds and the text"
-msgstr "ZIP 或 .patch_0 文件，包括其中的音频、新增的声音和文本"
+msgid "A ZIP, .7z, .rar or .patch_0 file, with the audio, the sounds it adds and the text"
+msgstr "ZIP、.7z、.rar 或 .patch_0 文件，包括其中的音频、新增的声音和文本"
 
 #: src/About.tsx
 msgid "About {APP_NAME}"
@@ -1890,6 +1890,10 @@ msgid "Automatic"
 msgstr "自动"
 
 #: src/SettingsTab.tsx
+msgid "Automatic takes the language the game is set to in Steam, else the language of the system."
+msgstr "“自动”会采用游戏在 Steam 中设置的语言，否则使用系统的语言。"
+
+#: src/SettingsTab.tsx
 msgid "Automatic takes the language the game is set to in Steam, else the language of Windows."
 msgstr "“自动”会采用游戏在 Steam 中设置的语言，否则使用 Windows 的语言。"
 
@@ -1975,6 +1979,10 @@ msgstr "战斗歌曲"
 #: src/Soundtrack.tsx
 msgid "Battle Songs: every Intense Battle set to Same as Battle"
 msgstr "战斗歌曲：所有激烈战斗设为“与战斗相同”"
+
+#: src/Timeline.tsx
+msgid "Before it, the slot plays silence"
+msgstr "在它之前，槽位播放静音"
 
 #: src/App.tsx
 msgid "Before the oldest change kept"
@@ -2436,6 +2444,10 @@ msgstr "选择要切分到各槽位的歌曲。"
 #: src/Soundtrack.tsx
 msgid "Choose a song to cut into up to {pieces, plural, one {# piece} other {# pieces}}, or drop one here."
 msgstr "选择歌曲，最多切成 {pieces, plural, other {# 段}}，也可以直接拖一首到这里。"
+
+#: src/SliceTool.tsx
+msgid "Choose a song to take a stretch of for this slot."
+msgstr "选择一首歌曲，从中截取一段用于这个槽位。"
 
 #: src/PatchContentPage.tsx
 msgid "Choose a ZIP or Patch File"
@@ -3086,6 +3098,10 @@ msgstr "默认：{gain} dB"
 msgid "Delay"
 msgstr "延迟"
 
+#: src/Timeline.tsx
+msgid "Delay (ms)"
+msgstr "延迟 (ms)"
+
 #: src/Notes.tsx
 msgid "Delete"
 msgstr "删除"
@@ -3200,6 +3216,10 @@ msgid "Drag it to leave out the start of the song"
 msgstr "拖动可略去歌曲的开头"
 
 #: src/Timeline.tsx
+msgid "Drag to play the new audio later or earlier"
+msgstr "拖动可让新音频更晚或更早播放"
+
+#: src/Timeline.tsx
 msgid "Drawn and played at this gain"
 msgstr "按此增益绘制和播放"
 
@@ -3208,8 +3228,8 @@ msgid "Drawn as the line around the waveform"
 msgstr "以波形周围的线表示"
 
 #: src/PatchContentPage.tsx
-msgid "Drop a mod here as a <0>ZIP</0>, a <1>folder</1> or a <2>.patch_0</2> file."
-msgstr "把模组拖到这里：<0>ZIP</0>、<1>文件夹</1>或 <2>.patch_0</2> 文件都行。"
+msgid "Drop a mod here as a <0>ZIP</0>, <1>.7z</1>, <2>.rar</2>, <3>folder</3> or <4>.patch_0</4> file."
+msgstr "把模组拖到这里：<0>ZIP</0>、<1>.7z</1>、<2>.rar</2>、<3>文件夹</3>或 <4>.patch_0</4> 文件都行。"
 
 #: src/Soundtrack.tsx
 msgid "Drop a Song or Choose a File"
@@ -3261,12 +3281,12 @@ msgid "Drop images on the icon on the Project tab"
 msgstr "在项目选项卡中将图片拖到图标上"
 
 #: src/CombinePage.tsx
-msgid "Drop mods here as <0>ZIPs</0>, <1>folders</1> or <2>.patch_0</2> files."
-msgstr "可以直接把 <0>ZIP</0>、<1>文件夹</1>或 <2>.patch_0</2> 文件拖到这里。"
+msgid "Drop mods here as <0>ZIPs</0>, <1>.7z</1>, <2>.rar</2>, <3>folders</3> or <4>.patch_0</4> files."
+msgstr "可以直接把 <0>ZIP</0>、<1>.7z</1>、<2>.rar</2>、<3>文件夹</3>或 <4>.patch_0</4> 文件拖到这里。"
 
 #: src/RepatchPage.tsx
-msgid "Drop mods here as <0>ZIPs</0>, <1>folders</1> or <2>.patch_0</2> files. Several are repatched one after another."
-msgstr "将模组以 <0>ZIP</0>、<1>文件夹</1>或 <2>.patch_0</2> 文件的形式拖放到这里。多个模组会逐个 Repatch。"
+msgid "Drop mods here as <0>ZIPs</0>, <1>.7z</1>, <2>.rar</2>, <3>folders</3> or <4>.patch_0</4> files. Several are repatched one after another."
+msgstr "将模组以 <0>ZIP</0>、<1>.7z</1>、<2>.rar</2>、<3>文件夹</3>或 <4>.patch_0</4> 文件的形式拖放到这里。多个模组会逐个 Repatch。"
 
 #: src/App.tsx
 msgid "Drop songs on a place of a playlist, or a song on One Song"
@@ -3418,6 +3438,16 @@ msgstr "为游戏编码音频"
 msgctxt "Slice tool: the cut where the last piece ends"
 msgid "End"
 msgstr "结束"
+
+#. Where the new audio stops playing in the file
+#: src/Timeline.tsx
+msgctxt "Trim handle"
+msgid "End"
+msgstr "结束"
+
+#: src/Timeline.tsx
+msgid "End (ms)"
+msgstr "结束 (ms)"
 
 #: src/Tutorial.tsx
 msgid "End Tutorial"
@@ -4927,8 +4957,8 @@ msgid "Mods"
 msgstr "模组"
 
 #: src/platform.ts
-msgid "Mods (.zip, .patch_0)"
-msgstr "模组（.zip、.patch_0）"
+msgid "Mods (.zip, .7z, .rar, .patch_0)"
+msgstr "模组（.zip、.7z、.rar、.patch_0）"
 
 #. The tabs at the end of the bar (Updates, Wiki and Settings), for screen readers
 #: src/App.tsx
@@ -7171,6 +7201,7 @@ msgid "Replacing this clip makes the music stutter"
 msgstr "替换此片段会导致音乐卡顿"
 
 #: src/SettingsTab.tsx
+#: src/Timeline.tsx
 msgid "Reset"
 msgstr "重置"
 
@@ -7606,6 +7637,11 @@ msgstr "显示标题区"
 msgid "Show the log file in Explorer"
 msgstr "在资源管理器中显示日志文件"
 
+#: src/About.tsx
+#: src/BuildTab.tsx
+msgid "Show the log file in the file manager"
+msgstr "在文件管理器中显示日志文件"
+
 #: src/SettingsTab.tsx
 msgid "Show the news ticker"
 msgstr "显示新闻滚动条"
@@ -7617,6 +7653,10 @@ msgstr "显示波形"
 #: src/BuildTab.tsx
 msgid "Show the ZIP in Explorer when a build finishes"
 msgstr "构建完成后在资源管理器中显示 ZIP"
+
+#: src/BuildTab.tsx
+msgid "Show the ZIP in the file manager when a build finishes"
+msgstr "构建完成后在文件管理器中显示 ZIP"
 
 #: src/keys.ts
 msgid "Show these shortcuts"
@@ -7665,6 +7705,10 @@ msgstr "静音"
 #: src/Soundtrack.tsx
 msgid "Silence"
 msgstr "静音"
+
+#: src/Timeline.tsx
+msgid "Silence before the new audio, so it starts later than the original"
+msgstr "新音频之前的静音，让它比原版晚开始"
 
 #: src/ItemHead.tsx
 msgid "Silence for the length of the original"
@@ -7904,6 +7948,16 @@ msgstr "开始"
 msgctxt "Slice tool: the cut where the first piece starts"
 msgid "Start"
 msgstr "开始"
+
+#. Where the new audio starts playing in the file
+#: src/Timeline.tsx
+msgctxt "Trim handle"
+msgid "Start"
+msgstr "开始"
+
+#: src/Timeline.tsx
+msgid "Start (ms)"
+msgstr "开始 (ms)"
 
 #: src/Home.tsx
 msgid "Start a mod"
@@ -9008,6 +9062,15 @@ msgstr "右上"
 msgid "transcribing voice lines to match them to subtitles"
 msgstr "转写语音台词以匹配字幕"
 
+#. The lane that sets where the new audio starts and ends
+#: src/Timeline.tsx
+msgid "Trim"
+msgstr "裁剪"
+
+#: src/Timeline.tsx
+msgid "Trim and move the new audio"
+msgstr "裁剪并移动新音频"
+
 #: src/UpdatesTab.tsx
 msgid "Try Again"
 msgstr "重试"
@@ -9379,6 +9442,22 @@ msgstr "每次音乐响起时的起始位置"
 msgid "Where the music starts when a fight begins"
 msgstr "战斗开始时音乐的起始位置"
 
+#: src/Timeline.tsx
+msgid "Where the new audio ends in the file"
+msgstr "新音频在文件中结束的位置"
+
+#: src/Timeline.tsx
+msgid "Where the new audio ends in the file. Drag to move it"
+msgstr "新音频在文件中结束的位置。拖动可移动"
+
+#: src/Timeline.tsx
+msgid "Where the new audio starts in the file"
+msgstr "新音频在文件中开始的位置"
+
+#: src/Timeline.tsx
+msgid "Where the new audio starts in the file. Drag to move it"
+msgstr "新音频在文件中开始的位置。拖动可移动"
+
 #: src/SliceTool.tsx
 msgid "Where the piece starts and ends in the song"
 msgstr "该段在歌曲中的起止位置"
@@ -9524,5 +9603,5 @@ msgid "Your Helldiver, teammates on the radio, and anyone in a vehicle"
 msgstr "你自己的绝地潜兵、无线电中的队友，以及载具中的任何人"
 
 #: src/RepatchPage.tsx
-msgid "ZIPs or .patch_0 files"
-msgstr "ZIP 或 .patch_0 文件"
+msgid "ZIPs, .7z, .rar or .patch_0 files"
+msgstr "ZIP、.7z、.rar 或 .patch_0 文件"

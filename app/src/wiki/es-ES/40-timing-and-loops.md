@@ -1,8 +1,8 @@
 ---
 title: Sincronización, puntos de cue y bucles
 group: Crear un mod
-summary: Cómo pasa el juego de un segmento al siguiente, cómo hacer que la música nueva enlace sin cortes y cómo cortar una canción en un cue.
-source: f2d067e6af1c
+summary: Cómo pasa el juego de un segmento al siguiente, cómo hacer que la música nueva enlace sin cortes, cómo recortar y mover el audio nuevo y cómo cortar una canción en un cue.
+source: ccdd8e82518d
 ---
 
 ## Ajustar los tiempos al audio nuevo {#fitting-the-timing-to-the-new-audio}
@@ -25,6 +25,16 @@ Cuando un fichero suena en varios segmentos, **Aplicar a … segmentos más con 
 > [!TIP]
 > Coloca las colas de reverberación y los golpes finales después de la Salida. Se solapan allí con el segmento siguiente, lo que evita un hueco.
 
+## Recortar y mover el audio nuevo {#trimming-and-moving-new-audio}
+
+El carril **Recorte** bajo **Sustituido** muestra el fichero entero del audio nuevo, en la misma escala de tiempo. La parte que suena está iluminada, y el resto, atenuado. Esto funciona en cualquier slot con audio nuevo: música, sonidos y frases.
+
+- Arrastra **Inicio** y **Fin** para elegir el tramo del fichero que suena.
+- Arrastra el tramo iluminado hacia la derecha para que el audio nuevo empiece más tarde que el original. Antes, el slot reproduce silencio. Arrástralo de vuelta hacia la izquierda para que empiece antes.
+- Escribe valores exactos en **Inicio**, **Fin** y **Retraso** bajo las formas de onda, en milisegundos. **Restablecer** vuelve a reproducir el fichero entero, desde el principio.
+
+El fichero queda tal cual. El proyecto guarda los tres valores, y las generaciones, las previsualizaciones y la forma de onda **Sustituido** los usan. Los fundidos y el Make-Up Gain se aplican al tramo que suena. Al elegir otro fichero para el slot, este empieza sin recortar.
+
 ## Escuchar el resultado {#hearing-the-result}
 
 **Reproducción continua** reproduce la pieza entera como suena en el juego, con los segmentos en orden y cada traspaso en un punto de Salida. Compara **Original** y **Sustituido** para detectar huecos, golpes dobles y saltos de volumen antes de generar.
@@ -37,7 +47,7 @@ Un segmento marcado como **en bucle** se repite hasta que el juego pasa a lo sig
 
 {icon:slice} **Cortar una canción** corta un fichero largo en trozos consecutivos en posiciones de muestra exactas, de modo que los trozos suenen como la canción sin cortar cuando se reproducen uno tras otro. Cada trozo va a un segmento, en orden de reproducción. Las capas de un segmento suenan juntas, así que todos los trozos van a la capa del slot **Desde**.
 
-Un cue con un solo slot, como una transición, recibe un trozo: mueve **Inicio** y **Fin** al tramo de la canción que debe sonar.
+Un cue con un solo slot, como una transición, recibe un trozo: mueve **Inicio** y **Fin** al tramo de la canción que debe sonar. Un sonido también recibe un trozo: selecciona un slot del sonido, y **Cortar una canción** corta un tramo de la canción para ese slot. **Duraciones originales** hace el tramo tan largo como el original.
 
 La ventana muestra la canción y el original en una misma escala de tiempo:
 

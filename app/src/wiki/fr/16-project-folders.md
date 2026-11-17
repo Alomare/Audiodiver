@@ -2,7 +2,7 @@
 title: Dossiers de projet
 group: Pour commencer
 summary: Où un projet stocke ses fichiers, comment en déplacer un, et comment un pack transporte un projet vers un autre ordinateur.
-source: e77121941946
+source: baf5e95454e8
 ---
 
 ## Le dossier du projet {#the-project-folder}
@@ -49,7 +49,7 @@ Un fichier utilisé par le projet devient manquant quand il est déplacé, renom
 
 ## Fichiers inutilisés {#unused-files}
 
-**Trouver les fichiers inutilisés** liste ce qu’Audiodiver a créé pour le projet et que plus rien n’utilise : les découpes d’une ancienne coupe, l’audio décodé d’un patch importé, les fichiers rassemblés qu’aucun emplacement ne joue. **Retirer** les envoie à la Corbeille, et Windows peut les restaurer. Sur un disque sans Corbeille, comme un disque réseau, Audiodiver demande confirmation avant de les supprimer définitivement.
+**Trouver les fichiers inutilisés** liste ce qu’Audiodiver a créé pour le projet et que plus rien n’utilise : les découpes d’une ancienne coupe, l’audio décodé d’un patch importé, les fichiers rassemblés qu’aucun emplacement ne joue. **Retirer** les envoie à la Corbeille (la corbeille sous Linux), et le système peut les restaurer. Sur un disque sans Corbeille, comme un disque réseau, Audiodiver demande confirmation avant de les supprimer définitivement.
 
 Audiodiver ne cherche que dans les dossiers qu’il crée, à savoir `audio\slices`, `audio\imported`, `audio\added` et les anciens `slices` et `imported`. Avant de retirer quoi que ce soit, Audiodiver revérifie la liste et garde tout fichier utilisé par le projet, par l’historique d’annulation ou par un autre projet du dossier.
 

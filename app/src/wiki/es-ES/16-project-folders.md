@@ -2,7 +2,7 @@
 title: Carpetas del proyecto
 group: Primeros pasos
 summary: Dónde guarda los ficheros un proyecto, cómo mover uno y cómo un paquete lleva un proyecto a otro ordenador.
-source: e77121941946
+source: baf5e95454e8
 ---
 
 ## La carpeta del proyecto {#the-project-folder}
@@ -49,7 +49,7 @@ Un fichero que usa el proyecto falta cuando se mueve, se renombra o se elimina f
 
 ## Ficheros sin usar {#unused-files}
 
-**Buscar ficheros sin usar** enumera lo que Audiodiver generó para el proyecto y que ya no usa nada: trozos de un corte anterior, audio decodificado de un parche importado, ficheros reunidos que ningún slot reproduce. **Quitar** los envía a la Papelera de reciclaje, y Windows puede restaurarlos. En una unidad sin Papelera de reciclaje, como una unidad de red, Audiodiver pregunta antes de eliminarlos de forma definitiva.
+**Buscar ficheros sin usar** enumera lo que Audiodiver generó para el proyecto y que ya no usa nada: trozos de un corte anterior, audio decodificado de un parche importado, ficheros reunidos que ningún slot reproduce. **Quitar** los envía a la Papelera de reciclaje (la papelera en Linux), y el sistema puede restaurarlos. En una unidad sin Papelera de reciclaje, como una unidad de red, Audiodiver pregunta antes de eliminarlos de forma definitiva.
 
 Audiodiver busca solo en las carpetas que crea, que son `audio\slices`, `audio\imported`, `audio\added` y las antiguas `slices` e `imported`. Antes de quitar nada, Audiodiver vuelve a comprobar la lista y conserva cualquier fichero que use el proyecto, el historial de Deshacer u otro proyecto de la carpeta.
 

@@ -106,6 +106,18 @@ msgstr "需要在此计算机上安装 Wwise"
 msgid "Needs the waapi-client package next to the core"
 msgstr "需要在核心旁放置 waapi-client 包"
 
+#: archives.py
+msgid "{file} has a password. Unpack it with the password first"
+msgstr "{file} 设有密码。请先用密码解压"
+
+#: archives.py repatch.py
+msgid "{file} can't be opened as a .7z or .rar file"
+msgstr "{file} 无法作为 .7z 或 .rar 文件打开"
+
+#: archives.py
+msgid "{file} can't be opened: reading .7z and .rar files needs 7-Zip"
+msgstr "无法打开 {file}：读取 .7z 和 .rar 文件需要 7-Zip"
+
 #: arsenal.py
 msgid "A mod needs a name"
 msgstr "模组需要一个名称"
@@ -489,6 +501,14 @@ msgid "Naming the sounds and the music in the new language"
 msgstr "正在用新语言命名声音和音乐"
 
 #: editor.py
+msgid "The game updated while Audiodiver was open. Audiodiver is reading it again: try again when that is done."
+msgstr "Audiodiver 打开期间游戏已更新。Audiodiver 正在重新读取游戏，读取完成后请重试。"
+
+#: editor.py
+msgid "A game file can't be read. In Steam, verify the integrity of the game files, then try again."
+msgstr "无法读取某个游戏文件。请在 Steam 中验证游戏文件的完整性，然后重试。"
+
+#: editor.py
 msgid "Nothing changed, because the project file couldn't be saved. {why}."
 msgstr "未做任何更改，因为无法保存项目文件。{why}。"
 
@@ -514,12 +534,8 @@ msgid_plural "{files} need converting, which Audiodiver Utils can't do. Give 16-
 msgstr[0] "{files} 需要转换，而 Audiodiver Utils 无法转换。请提供 48 kHz 的 16 位 WAV 或 .wem 文件，或使用完整版 Audiodiver。"
 
 #: editor.py
-msgid "Reading the game audio from the new folder"
-msgstr "正在从新文件夹读取游戏音频"
-
-#: editor.py
-msgid "Reading the game audio (the first run after a game update takes about a minute)"
-msgstr "正在读取游戏音频（游戏更新后首次运行约需一分钟）"
+msgid "The game updated. Reading the game audio again (about a minute)"
+msgstr "游戏已更新。正在重新读取游戏音频（约一分钟）"
 
 #: editor.py
 msgid "Sorting the sounds"
@@ -596,6 +612,10 @@ msgstr "选择要匹配的槽位"
 #: editor.py
 msgid "Nothing to match: no slot here has new audio and an original, both with sound"
 msgstr "没有可匹配的槽位：这里的槽位要同时有新音频和原版音频，两者都有声音"
+
+#: editor.py
+msgid "This slot has no new audio to trim"
+msgstr "此槽位没有可裁剪的新音频"
 
 #: editor.py
 msgid "That folder is inside the game folder, and Audiodiver never writes there. Choose another folder, and import the ZIP in a mod manager."
@@ -837,6 +857,18 @@ msgid "{name} can't be used as a folder name. Choose another name."
 msgstr "{name} 不能用作文件夹名称。请换一个名称。"
 
 #: editor.py
+msgid "Reading the game audio from the new folder"
+msgstr "正在从新文件夹读取游戏音频"
+
+#: editor.py
+msgid "Reading the game audio (the first run after a game update takes about a minute)"
+msgstr "正在读取游戏音频（游戏更新后首次运行约需一分钟）"
+
+#: editor.py
+msgid "The game files are still changing. Audiodiver reads them again when Steam is done."
+msgstr "游戏文件仍在变化。Steam 完成后，Audiodiver 会重新读取。"
+
+#: editor.py
 msgid "A new take has no original audio"
 msgstr "新变体没有原版音频"
 
@@ -1019,6 +1051,10 @@ msgid "Sound {id} isn't in this version of Helldivers 1"
 msgstr "声音 {id} 不在此版本的 Helldivers 1 中"
 
 #: editor.py
+msgid "The audio must play for at least {ms} ms"
+msgstr "音频至少要播放 {ms} ms"
+
+#: editor.py
 msgid "{folder} is not a folder"
 msgstr "{folder} 不是文件夹"
 
@@ -1185,6 +1221,10 @@ msgstr "Make-Up Gain 的范围为 {low} 到 {high} dB"
 #: editor.py
 msgid "A fade is from 0 to {ms} ms"
 msgstr "淡入淡出范围为 0 到 {ms} 毫秒"
+
+#: editor.py
+msgid "Start, end and delay are from 0 to {ms} ms"
+msgstr "开始、结束和延迟的范围是 0 到 {ms} ms"
 
 #: editor.py
 msgid "{file} can't be read, so global notes can't be shown or saved. Fix or move the file, or choose another folder in Settings ▸ System."
@@ -1448,6 +1488,10 @@ msgstr "一个文件"
 #: errors.py
 msgid "a file"
 msgstr "一个文件"
+
+#: errors.py
+msgid "A game file can't be read. If Steam is updating the game, wait for it to finish; else verify the integrity of the game files in Steam."
+msgstr "无法读取某个游戏文件。如果 Steam 正在更新游戏，请等待更新完成；否则请在 Steam 中验证游戏文件的完整性。"
 
 #: errors.py
 msgid "{file} gave an error: {error}"
@@ -2200,6 +2244,10 @@ msgid "the fades of {name}"
 msgstr "{name} 的淡入淡出"
 
 #: project.py
+msgid "where the audio of {name} starts and ends"
+msgstr "{name} 的音频开始和结束的位置"
+
+#: project.py
 msgid "the label of sound {id}"
 msgstr "声音 {id} 的标签"
 
@@ -2214,6 +2262,10 @@ msgstr "声音 {id} 的“让时序适配新音频”选项"
 #: project.py
 msgid "the fades of sound {id}"
 msgstr "声音 {id} 的淡入淡出"
+
+#: project.py
+msgid "where the audio of sound {id} starts and ends"
+msgstr "声音 {id} 的音频开始和结束的位置"
 
 #: project.py
 msgid "mod ID: damaged in the project file (Make a New ID, on the Project tab)"
@@ -2340,16 +2392,12 @@ msgid "this cue runs over {n} minutes when played through, so export the segment
 msgstr "这段音乐完整播放一遍超过 {n} 分钟，请分段导出"
 
 #: repatch.py
-msgid "Choose a .patch_0 file, a mod folder or a ZIP"
-msgstr "选择 .patch_0 文件、模组文件夹或 ZIP"
+msgid "Choose a .patch_0 file, a mod folder, a ZIP, a .7z or a .rar"
+msgstr "选择 .patch_0 文件、模组文件夹、ZIP、.7z 或 .rar"
 
 #: repatch.py
-msgid "{file} isn't a mod. Choose a .patch_0 file (Audiodiver also reads the .stream file next to it), a mod folder or a ZIP. Unpack .7z and .rar files first"
-msgstr "{file} 不是模组。请选择 .patch_0 文件（Audiodiver 也会读取它旁边的 .stream 文件）、模组文件夹或 ZIP。.7z 和 .rar 文件请先解压"
-
-#: repatch.py
-msgid "{file} isn't a mod. Choose a .patch_0 file (Audiodiver also reads the .stream file next to it), a mod folder or a ZIP"
-msgstr "{file} 不是模组。请选择 .patch_0 文件（Audiodiver 也会读取它旁边的 .stream 文件）、模组文件夹或 ZIP"
+msgid "{file} isn't a mod. Choose a .patch_0 file (Audiodiver also reads the .stream file next to it), a mod folder, a ZIP, a .7z or a .rar"
+msgstr "{file} 不是模组。请选择 .patch_0 文件（Audiodiver 也会读取它旁边的 .stream 文件）、模组文件夹、ZIP、.7z 或 .rar"
 
 #: repatch.py
 msgid "{file} holds no patch file (.patch_0)"

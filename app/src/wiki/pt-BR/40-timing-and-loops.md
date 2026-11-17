@@ -1,8 +1,8 @@
 ---
 title: Tempo, pontos de cue e loops
 group: Criando um mod
-summary: Como o jogo passa de um segmento para o seguinte, como fazer a música nova passar a vez sem emendas e como fatiar uma música num cue.
-source: f2d067e6af1c
+summary: Como o jogo passa de um segmento para o seguinte, como fazer a música nova passar a vez sem emendas, como recortar e mover o áudio novo e como fatiar uma música num cue.
+source: ccdd8e82518d
 ---
 
 ## Ajustar o tempo ao áudio novo {#fitting-the-timing-to-the-new-audio}
@@ -25,6 +25,16 @@ Quando um arquivo toca em vários segmentos, **Aplicar a mais … segmentos com 
 > [!TIP]
 > Coloque as caudas de reverb e as batidas finais depois da Saída. Ali elas se sobrepõem ao segmento seguinte, o que evita um vazio.
 
+## Recortar e mover o áudio novo {#trimming-and-moving-new-audio}
+
+A faixa **Recorte** abaixo de **Substituído** mostra o arquivo inteiro do áudio novo, na mesma escala de tempo. A parte que toca fica clara, e o resto fica apagado. Isso funciona em todo slot com áudio novo: música, sons e falas.
+
+- Arraste **Início** e **Fim** para escolher o trecho do arquivo que toca.
+- Arraste o trecho claro para a direita para o áudio novo começar depois do original. O slot toca silêncio antes dele. Arraste de volta para a esquerda para começar mais cedo.
+- Digite valores exatos em **Início**, **Fim** e **Atraso** abaixo das formas de onda, em milissegundos. **Redefinir** volta a tocar o arquivo inteiro, desde o início.
+
+O arquivo fica como está. O projeto guarda os três valores, e as gerações, as prévias e a forma de onda **Substituído** usam todos eles. Os fades e o Make-Up Gain valem para o trecho que toca. Escolher outro arquivo para o slot o deixa sem recorte.
+
 ## Ouvir o resultado {#hearing-the-result}
 
 **Reprodução contínua** toca a peça inteira como ela toca no jogo, com os segmentos em ordem e cada passagem num ponto de Saída. Compare **Original** e **Substituído** para pegar vazios, batidas duplas e saltos de volume antes de gerar.
@@ -37,7 +47,7 @@ Um segmento marcado com **em loop** se repete até o jogo seguir em frente. Um s
 
 {icon:slice} **Fatiar uma música** corta um arquivo longo em pedaços consecutivos, em posições exatas de amostra, para que os pedaços soem como a música inteira quando tocam um após o outro. Cada pedaço vai para um segmento, na ordem de reprodução. As camadas de um segmento tocam juntas, então todos os pedaços vão para a camada do slot **Primeiro**.
 
-Um cue com um só slot, como uma transição, recebe um pedaço: mova **Início** e **Fim** para o trecho da música que ele deve tocar.
+Um cue com um só slot, como uma transição, recebe um pedaço: mova **Início** e **Fim** para o trecho da música que ele deve tocar. Um som também recebe um pedaço: selecione um slot do som, e **Fatiar uma música** corta um trecho da música para esse slot. **Durações originais** deixa o trecho tão longo quanto o original.
 
 A janela mostra a música e o original na mesma escala de tempo:
 

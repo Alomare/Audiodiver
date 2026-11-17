@@ -2,7 +2,7 @@
 title: Comprendre l’écran
 group: Pour commencer
 summary: Ce que montre chaque partie de la Bibliothèque et de l’onglet Audio, et ce que signifient les étiquettes et les marques d’une ligne.
-source: 95386bc1f331
+source: 4019caa57ba2
 ---
 
 La Bibliothèque et l’onglet Audio partagent une même disposition : une liste à gauche, l’élément ouvert au milieu et le panneau de détails à droite. La Bande-son a une disposition différente, décrite dans [Bande-son](wiki:soundtrack). Les mots en **gras** sont expliqués dans [L’audio du jeu, expliqué](wiki:game-audio).
@@ -69,7 +69,7 @@ Chaque ligne est un **emplacement**, c’est-à-dire un clip du jeu qui peut êt
 - La moitié gauche d’une ligne est l’original. ▶ le joue, et la durée est affichée à la fin. Dans l’onglet Audio, la moitié droite est le remplacement. ▶ joue le nouvel audio, cliquer sur le nom du fichier en choisit un autre, et ✕ le retire. Un emplacement vide affiche *Déposer de l’audio ou choisir un fichier*.
 - La case au début d’une ligne met l’emplacement dans la sélection, ou l’en retire, comme le fait Ctrl+clic. Shift sur une case sélectionne une plage. Une ligne de groupe a une case pour toutes les prises du groupe, et le groupe reste replié. Dans la Bibliothèque, **Exporter** peut enregistrer uniquement les emplacements sélectionnés. Dans l’onglet Audio, avec plusieurs emplacements sélectionnés, le panneau de droite propose **Choisir un seul fichier pour tous**, **Choisir des fichiers**, **Remplacer par du silence** et le bouton qui retire le nouvel audio.
 - Double-cliquez sur une ligne pour la lire. Faites un clic droit dessus pour tout le reste, y compris copier, coller, silence et ID.
-- Copiez des fichiers audio dans l’Explorateur, sélectionnez des emplacements et appuyez sur **Ctrl+V**. Un seul fichier va dans chaque emplacement sélectionné. Plusieurs fichiers vont dans l’ordre des noms de fichiers, et sur un seul emplacement sélectionné ils remplissent les suivants à partir de là. Ctrl+V colle ce qui a été copié en dernier : des fichiers de l’Explorateur ou des emplacements copiés dans Audiodiver.
+- Copiez des fichiers audio dans l’Explorateur, sélectionnez des emplacements et appuyez sur **Ctrl+V**. Un seul fichier va dans chaque emplacement sélectionné. Plusieurs fichiers vont dans l’ordre des noms de fichiers, et sur un seul emplacement sélectionné ils remplissent les suivants à partir de là. Ctrl+V colle ce qui a été copié en dernier : des fichiers de l’Explorateur ou des emplacements copiés dans Audiodiver. Sous Linux, Ctrl+V ne colle que des emplacements.
 - **Ctrl+C** copie les emplacements sélectionnés, dans la Bibliothèque ou dans l’onglet Audio. **Ctrl+V** les colle dans les emplacements sélectionnés de l’onglet Audio, sans rien exporter ni importer. Un emplacement avec du nouvel audio donne cet audio et ses réglages. Tout autre emplacement donne l’original, et un clip de Helldivers 2 entre sans changement.
 
 ### Étiquettes d’une ligne {#tags-on-a-row}

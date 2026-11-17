@@ -2,7 +2,7 @@
 title: Contenido del Parche
 group: Generar y compartir
 summary: Sustituir sonidos de un mod existente, sobre los propios bancos de sonido del mod, también sonidos que una actualización quitó del juego.
-source: 2095c6ad8368
+source: 9a7de63144f8
 ---
 
 El parche de un mod guarda copias de los bancos de sonido que cambia, tal como estaban en la versión del juego para la que se hizo el mod, y el juego reproduce esas copias en lugar de los bancos actuales. **Contenido del Parche**, en [Herramientas](app:tools/content), abre un mod tal como está, muestra los sonidos de sus parches y vuelve a escribir el mod con audio nuevo para los sonidos elegidos. Todo lo demás se queda como lo tiene el mod.
@@ -17,7 +17,7 @@ Para los sonidos que el juego aún tiene, un proyecto o [Repatch](wiki:repatchin
 ## Abrir un mod {#opening-a-mod}
 
 1. Abre [Herramientas](app:tools/content) y elige **Contenido del Parche**.
-2. Suelta el mod en la página como ZIP, carpeta o fichero `.patch_0`, o pulsa **Elegir un ZIP o un fichero de parche** o **Elegir una carpeta**.
+2. Suelta el mod en la página como ZIP, `.7z` o `.rar`, carpeta o fichero `.patch_0`, o pulsa **Elegir un ZIP o un fichero de parche** o **Elegir una carpeta**.
 
 La lista empieza por los sonidos que el juego actual no tiene, marcados con **No está en el juego**. **Todos los Sonidos** muestra cada sonido del mod, y la búsqueda encuentra un sonido por su ID, su nombre o un banco. Cada fila reproduce el audio tal como lo tiene el mod y nombra los bancos del mod que tienen el sonido.
 

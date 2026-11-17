@@ -1,8 +1,8 @@
 ---
 title: Minutage, points de repère et boucles
 group: Créer un mod
-summary: Comment le jeu passe d’un segment au suivant, comment faire en sorte que la nouvelle musique s’enchaîne proprement, et comment découper une chanson dans un cue.
-source: f2d067e6af1c
+summary: Comment le jeu passe d’un segment au suivant, comment faire en sorte que la nouvelle musique s’enchaîne proprement, comment rogner et déplacer le nouvel audio, et comment découper une chanson dans un cue.
+source: ccdd8e82518d
 ---
 
 ## Ajuster le minutage au nouvel audio {#fitting-the-timing-to-the-new-audio}
@@ -25,6 +25,16 @@ Quand un même fichier est joué dans plusieurs segments, **Appliquer à … aut
 > [!TIP]
 > Placez les queues de réverbération et les coups finaux après la Sortie. Ils y chevauchent le segment suivant, ce qui évite un vide.
 
+## Rogner et déplacer le nouvel audio {#trimming-and-moving-new-audio}
+
+La piste **Rognage** sous **Remplacé** montre tout le fichier du nouvel audio, sur la même échelle de temps. La partie jouée est en surbrillance, et le reste est estompé. Cela fonctionne sur tout emplacement avec du nouvel audio : musique, sons et répliques.
+
+- Faites glisser **Début** et **Fin** pour choisir le passage du fichier qui est joué.
+- Faites glisser le passage en surbrillance vers la droite pour que le nouvel audio commence plus tard que l’original. L’emplacement joue du silence avant lui. Ramenez-le vers la gauche pour qu’il commence plus tôt.
+- Saisissez des valeurs exactes dans **Début**, **Fin** et **Délai** sous les formes d’onde, en millisecondes. **Réinitialiser** rejoue tout le fichier, depuis le début.
+
+Le fichier reste tel quel. Le projet garde les trois valeurs, et les générations, les aperçus et la forme d’onde **Remplacé** les utilisent tous. Les fondus et le Make-Up Gain s’appliquent au passage joué. Choisir un autre fichier pour l’emplacement le fait repartir sans rognage.
+
 ## Écouter le résultat {#hearing-the-result}
 
 **Lecture enchaînée** joue tout le morceau comme il est joué dans le jeu, avec les segments dans l’ordre et chaque passage de relais à un point de Sortie. Comparez **Original** et **Remplacé** pour repérer les vides, les doubles coups et les sauts de volume avant de générer.
@@ -37,7 +47,7 @@ Un segment marqué **en boucle** se répète jusqu’à ce que le jeu passe à l
 
 {icon:slice} **Découper une chanson** découpe un long fichier en morceaux consécutifs à des positions d’échantillon exactes, si bien que les morceaux sonnent comme la chanson non découpée quand ils sont joués bout à bout. Chaque morceau va dans un segment, dans l’ordre de lecture. Les couches d’un segment sont jouées ensemble, donc tous les morceaux vont dans la couche de l’emplacement **Début**.
 
-Un cue d’un seul emplacement, comme une transition, reçoit un seul morceau : placez **Début** et **Fin** sur le passage de la chanson qu’il doit jouer.
+Un cue d’un seul emplacement, comme une transition, reçoit un seul morceau : placez **Début** et **Fin** sur le passage de la chanson qu’il doit jouer. Un son reçoit lui aussi un seul morceau : sélectionnez un emplacement du son, et **Découper une chanson** découpe un passage de la chanson pour cet emplacement. **Durées d’origine** donne au passage la durée de l’original.
 
 La fenêtre montre la chanson et l’original sur une même échelle de temps :
 
