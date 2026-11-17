@@ -51,6 +51,7 @@ from .library import BIG_GROUP, CHUNK as GROUP_CHUNK, Library, _part
 
 log = logging.getLogger(__name__)
 FORMAT = 4            # of the kept reading: a new one reads the game again
+SAME_FORMAT = 1       # of the kept list of clips that are the same in every language (Hd1.same_everywhere)
 VERSION = 0xF0000004  # of a bundle
 CHUNK = 0x10000
 SCAN_THREADS = 8      # reading the game's bundles for the first time
@@ -512,6 +513,8 @@ class Hd1:
                     self.where[at] = (bank, row)
                     self.langs[row[0]].append(bank["lang"])
         self.chunks = {}    # a bundle -> what Bundle found in it
+        self._alike = {}    # (clip, language, other language) -> whether the two copies are the same bytes (alike)
+        self._same = None   # same_everywhere, once read
         self.made = (None, [], [])  # the language, the categories named in it, and All Archives
         self.titles = {}    # a named event -> what it is called in a bank
         self.items_ = {}    # an item's id -> its item
@@ -645,6 +648,8 @@ class Hd1:
 
     def _item(self, iid: str, clips: list[int], name: str, about: str, cat: dict, full: str, code: str) -> dict:
         flags = [f for f in FLAGS if any(f in self.langs[c] for c in clips)] or [self.langs[clips[0]][0]]
+        if len(flags) > 1 and self.one_sound(clips):  # music in a bank of voice lines: one sound in every language
+            flags = flags[:1]
         one = len(flags) == 1
         parts = [_part(iid if one else f"{iid}:{f:x}", "" if one else tr(LANGUAGES[FLAGS[f]]),
                        sum(f in self.langs[c] for c in clips)) for f in flags]
@@ -759,6 +764,72 @@ class Hd1:
 
     def has(self, at: int) -> bool:
         return at in self.where
+
+    def alike(self, clip: int, flag: int) -> list[int]:
+        """The other languages whose copy of a clip is the same sound as this language's, byte for byte: music and
+        effects in a bank that also holds voice lines, which each language keeps a copy of (the objective music is in
+        all 9). A mod that replaces the clip in one language replaces it in these too, or their players hear the game's
+        copy. Voice lines differ by language and stay apart."""
+        row = self.where[source(clip, flag)][1]
+        out = []
+        for other in self.langs[clip]:
+            if other == flag:
+                continue
+            o_row = self.where[source(clip, other)][1]
+            if (o_row[2], o_row[4], o_row[5]) != (row[2], row[4], row[5]):  # another size or length: another sound
+                continue
+            key = (clip, flag, other)
+            if key not in self._alike:
+                self._alike[key] = self._bytes(source(clip, flag)) == self._bytes(source(clip, other))
+            if self._alike[key]:
+                out.append(other)
+        return out
+
+    def one_sound(self, clips: list[int]) -> bool:
+        """Whether every language's copy of these clips is the same sound (`same_everywhere`). An item of them is one
+        part, not one per language."""
+        same = self.same_everywhere()
+        return all(len(self.langs[c]) == 1 or c in same for c in clips)
+
+    def same_everywhere(self) -> frozenset[int]:
+        """The clips kept in several languages whose copies are the same in all of them: the same sizes and length,
+        and the same bytes in the bank (the stream's part isn't compared: `alike` compares it all at a build). Read
+        once per game version (about 10 s, each bundle once) and kept in the cache."""
+        if self._same is not None:
+            return self._same
+        key, kept = _fingerprint(self.contents), CACHE_DIR / "hd1_same.json"
+        try:
+            saved = json.loads(kept.read_text(encoding="utf-8"))
+            if saved["key"] == key and saved.get("format") == SAME_FORMAT:
+                self._same = frozenset(saved["clips"])
+                return self._same
+        except (OSError, ValueError, KeyError):
+            pass
+        sizes = {}
+        for c, flags in self.langs.items():
+            if len(flags) > 1:
+                rows = [self.where[source(c, f)][1] for f in flags]
+                if len({(r[2], r[4], r[5]) for r in rows}) == 1:
+                    sizes[c] = flags
+        by_bundle = collections.defaultdict(list)  # read bundle by bundle, each opened once
+        for c, flags in sizes.items():
+            for f in flags:
+                bank, row = self.where[source(c, f)]
+                by_bundle[bank["bundle"]].append((c, bank["at"] + row[1], row[2]))
+        parts = collections.defaultdict(set)
+        for bundle, reads in by_bundle.items():
+            path = self.contents / bundle
+            with Bundle(path, self.chunks.get(path)) as b:
+                self.chunks[path] = b.chunks
+                for c, at, n in sorted(reads, key=lambda x: x[1]):
+                    parts[c].add(hashlib.sha1(b.read(at, n)).digest())
+        self._same = frozenset(c for c in sizes if len(parts[c]) == 1)
+        try:
+            kept.parent.mkdir(parents=True, exist_ok=True)
+            kept.write_text(json.dumps({"key": key, "format": SAME_FORMAT, "clips": sorted(self._same)}), encoding="utf-8")
+        except OSError:
+            pass
+        return self._same
 
 
 def _shell(iid: str, name: str, about: str, category: str, preview: str, count: int) -> dict:

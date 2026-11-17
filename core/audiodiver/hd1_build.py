@@ -171,13 +171,23 @@ def build(p: Project, game: hd1.Hd1, log=print, step=None) -> Path:
     if gone:
         raise Hd1BuildError(ntr("{n} replaced sound isn't in this version of Helldivers 1",
                                 "{n} replaced sounds aren't in this version of Helldivers 1", len(gone)).format(n=len(gone)))
-    wanted = {(r.target & hd1.LOW, r.target >> 64) for r in reps}
+    # each replaced clip in its language, and in every language whose copy is the same sound (hd1.alike), unless the
+    # project replaces that copy itself
+    own = {(r.target & hd1.LOW, r.target >> 64) for r in reps}
+    by_target = {}
+    for r in reps:
+        clip, flag = r.target & hd1.LOW, r.target >> 64
+        by_target[(clip, flag)] = r
+        for other in game.alike(clip, flag):
+            if (clip, other) not in own:
+                by_target.setdefault((clip, other), r)
+    wanted = set(by_target)
     rows_at: dict[tuple[int, int], list] = {}  # (clip, language): [(bank, its row of the clip)], read once for them all
     for bank in game.banks:
         for row in bank["rows"]:
             if (row[0], bank["lang"]) in wanted:
                 rows_at.setdefault((row[0], bank["lang"]), []).append((bank, row))
-    places = [(bank, row, r) for r in reps for bank, row in rows_at.get((r.target & hd1.LOW, r.target >> 64), [])]
+    places = [(bank, row, r) for key, r in by_target.items() for bank, row in rows_at.get(key, [])]
     out_dir = p.build_dir()
     zip_path = out_dir / f"{arsenal.slug(p.name)}-{p.version}.zip"
     rows: dict[int, list[dict]] = {}

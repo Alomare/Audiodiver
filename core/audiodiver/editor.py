@@ -448,7 +448,9 @@ class Session:
             try:
                 if contents:
                     started = time.perf_counter()
-                    self.hd1 = hd1.Hd1.read(contents)
+                    read = hd1.Hd1.read(contents)
+                    read.same_everywhere()  # once per game version, here rather than when the Library first opens
+                    self.hd1 = read
                     log.info("Helldivers 1 from %s: %d clips, read in %.1f s", contents, len(self.hd1.where),
                              time.perf_counter() - started)
             except Exception:

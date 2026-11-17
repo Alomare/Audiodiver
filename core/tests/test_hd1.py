@@ -720,3 +720,39 @@ def test_every_bank_of_the_installed_game_rebuilds_byte_for_byte():
     for b in h.banks:
         raw, stream = hd1_build.bank_files(h, b)
         assert hd1_build.rebuild(raw, stream, {}) == (raw, stream), f"{b['name']:016x} {b['lang']:#x}"
+
+
+@pytest.fixture
+def alike_game(request, monkeypatch):
+    """The game with French copies the same bytes as the English ones: music kept in a bank of voice lines."""
+    real = bank
+    monkeypatch.setitem(globals(), "bank", lambda tone, stream_at=0: real(1000, stream_at))
+    return request.getfixturevalue("game")
+
+
+def test_a_clip_that_is_one_sound_in_every_language_gets_the_new_audio_in_each(alike_game, tmp_path, monkeypatch):
+    """The objective music of Helldivers 1 is in the bank of the mission voice lines, the same bytes in all 9
+    languages: replaced in English only, a player in another language heard the game's copy (a user's HD2 soundtrack
+    on HD1, 2026-11-16). It is one part in the Library now, and a build puts the new audio in every alike copy."""
+    import json
+    import zipfile
+    from audiodiver import hd1_build
+    from audiodiver.project import Replacement
+    s, _ = recipe_game(tmp_path, alike_game, monkeypatch)
+    h = s.hd1
+    assert h.alike(CLIPS["one"], 0) == [0x100] and h.alike(CLIPS["one"], 0x100) == [0]
+    assert CLIPS["one"] in h.same_everywhere()
+    assert len(item_of(h, "Mission Complete Easy 2")["parts"]) == 1
+    p = s.project
+    audio = p.replacements[0].audio
+    p.replacements[:] = [Replacement(target=hd1.source(CLIPS["one"], 0), audio=audio)]
+    zip_path = hd1_build.build(p, h, log=lambda *_: None)
+    assert hd1_build.verify(zip_path, h) == []
+    with zipfile.ZipFile(zip_path) as z:
+        [r] = json.loads(z.read("obsidian.json"))["resources"]
+        assert sorted((x["clip"], x.get("lang", 0)) for x in r["clips"]) == [(f"#{CLIPS['one']:016x}", 0), (f"#{CLIPS['one']:016x}", 0x100)]
+
+
+def test_copies_that_differ_by_language_stay_apart(game):
+    h = hd1.Hd1.read(game)
+    assert h.alike(CLIPS["one"], 0) == [] and not h.same_everywhere()
