@@ -3703,7 +3703,8 @@ class Session:
                 try:
                     data = wem.with_codebook_hash(encode_cached(Path(src) if src else silence_wav(), log=job.say))
                 except (subprocess.CalledProcessError, OSError, ValueError):
-                    raise EditorError(tr("{name}: can't read the audio in {file}").format(name=sid, file=Path(src).name)) from None
+                    raise EditorError(tr("{name}: can't read the audio in {file}").format(
+                        name=sid, file=Path(src).name if src else tr("silence"))) from None
                 reps[sid] = Replacement(sid, data, mute=not src)
             streams_of = streams_for(c, reps, self.ix)
             try:

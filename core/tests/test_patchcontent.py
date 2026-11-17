@@ -166,7 +166,7 @@ mod, work = Path(sys.argv[1]), Path(sys.argv[2])
 editor.SETTINGS_FILE = Path(sys.argv[3])
 wem.FFMPEG = wem.FFPROBE = str(work / "no-ffmpeg.exe")
 cached = build._encoded
-build._encoded = lambda data, quality: work / "wem" / cached(data, quality).name
+build._encoded = lambda data, quality, *more: work / "wem" / cached(data, quality, *more).name
 s = editor.Session()
 s.wait_ready()
 anthem, out = sys.argv[4], {"ffmpeg": wem.has_ffmpeg()}
