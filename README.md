@@ -2,12 +2,12 @@
   <img src="assets/logo/banner.jpg" alt="Audiodiver: the yellow skull logo with a sound meter on the brow, over the word AUDIODIVER with a waveform dripping from the letters" width="100%">
 </p>
 
-<p align="center">Helldivers 2 audio and text archive explorer, editor and mod builder.</p>
+<p align="center">Helldivers 2 audio and text archive explorer, editor and mod builder, with Helldivers 1 audio too.</p>
 
 <p align="center">
   <img alt="Windows 10 and 11" src="https://img.shields.io/badge/Windows-10%20%7C%2011-2f7bf5?style=flat-square">
   <img alt="Linux (beta)" src="https://img.shields.io/badge/Linux-beta-f5a623?style=flat-square">
-  <img alt="Mods for Helldivers 2" src="https://img.shields.io/badge/mods%20for-Helldivers%202-ffe81f?style=flat-square">
+  <img alt="Mods for Helldivers 2 and Helldivers 1" src="https://img.shields.io/badge/mods%20for-Helldivers%202%20%7C%201-ffe81f?style=flat-square">
   <img alt="License: MPL-2.0" src="https://img.shields.io/badge/license-MPL--2.0-3a3a3a?style=flat-square">
   <!-- the count of LANGUAGES in app/src/i18n.ts, listed under Supported Languages -->
   <a href="#-supported-languages"><img alt="7 languages" src="https://img.shields.io/badge/languages-7-3a3a3a?style=flat-square"></a>
@@ -27,7 +27,7 @@
 <br>
 
 <p align="center">
-  <img src="assets/readme/home.png" alt="Audiodiver's Home tab for Helldivers 2 over a screenshot of a Helldiver kneeling in a desert sandstorm: New Project, Open Project and Import Mod, the loaded project with Go to Project and Close, then Repatch and Combine Mods, the switch between Helldivers 1 and Helldivers 2 in the top right, and Discord, Ko-fi and GitHub in the corner" width="100%">
+  <img src="assets/readme/home.png" alt="Audiodiver's Home tab for Helldivers 2 over a screenshot of a Helldiver kneeling in a desert sandstorm: New Project, Open Project and Import Mod, the loaded project with Go to Project and Close, then Repatch and Combine Mods, the switch between Helldivers 1 and Helldivers 2 in the top right, Discord, Ko-fi and GitHub in the corner, and the war news ticker along the bottom" width="100%">
 </p>
 
 <p align="center">
@@ -49,21 +49,21 @@
 
 ### 📁 Project
 
-The mod's name, description, icon and ID, with a preview as a mod manager shows them. The project folder has **Collect Files**, a clean-up to the Recycle Bin, and packs (`.audipack`) for another computer.
+The mod's name, description, icon and ID, with a preview as a mod manager shows them. The project folder has **Collect Files**, a clean-up to the Recycle Bin (the trash on Linux), and packs (`.audipack`) for another computer.
 
 <img src="assets/readme/project.png" alt="The Project tab: the name, description, icon and mod ID, beside a preview of the mod in a mod manager with Import Patches and Close Project above it" width="100%">
 
 ### 📚 Library
 
-Every sound in Helldivers 2, sorted. Music goes by when it plays, from the ship to extraction, and weapons by loadout slot, then stratagems, enemies and planets. Search takes a name, a label or an ID.
+Every sound in Helldivers 2, sorted. Music goes by when it plays, from the ship to extraction, and weapons by loadout slot, then stratagems, enemies and planets. Search takes a name, a label or an ID. The switch on Home turns the Library, and the projects, to Helldivers 1.
 
-<img src="assets/readme/library.png" alt="The Library's Index on Helldivers 2, with On the Ship, Bridge and War Map open: two parts, each segment with a row for each track under the segment name, a note on the transitions and stingers that play next to them, and the details panel with the Global Note" width="100%">
+<img src="assets/readme/library.png" alt="The Library's Index on Helldivers 2, with a tab for Helldivers 1 beside it, and On the Ship, Bridge and War Map open: two parts, each segment with a row for each track under the segment name, a note on the transitions and stingers that play next to them, and the details panel with the Global Note" width="100%">
 
 ### 🎚️ Audio
 
-The music and sounds of a project, one slot per clip. An audio file dropped on a slot, a sound or a whole piece replaces the original, and one song can be cut across a whole piece. Slots take silence and Make-Up Gain too, and sounds can get new takes and layers. Under the slots, the original and the new audio are drawn on one time scale, with a zoom in time and level.
+The music and sounds of a project, one slot per clip. An audio file dropped on a slot, a sound or a whole piece replaces the original, and **Slice a song** cuts one song across a whole piece, or a stretch of it for a sound. Slots take silence and Make-Up Gain too, and sounds can get new takes and layers. Under the slots, the original and the new audio are drawn on one time scale, with a zoom in time and level. On the new audio's waveform, **Start** and **End** trim it, the square at the top of each line fades it in or out, and dragging the stretch between them starts it later.
 
-<img src="assets/readme/audio.png" alt="Loadout Selection on the Audio tab: slots with new audio, the selected one ticked, the original and new waveforms of that slot on one time scale with the zoom sliders beside them, and the slot settings on the right down to the Project Note and the Global Note" width="100%">
+<img src="assets/readme/audio.png" alt="Loadout Selection on the Audio tab: slots with new audio, the selected one ticked, the original and new waveforms of that slot on one time scale with the zoom sliders beside them, the new audio's Start and End lines bent into a fade in and a fade out, the Start, End, Delay and fade fields in ms under them, and the slot settings on the right down to the Project Note and the Global Note" width="100%">
 
 ### 🎼 Soundtrack
 
@@ -103,7 +103,7 @@ New versions, looked for at every start. Audiodiver asks before installing one, 
 
 ### 🧰 Audiodiver Utils
 
-The two tools of the Tools tab on their own, for players who only need to fix or merge mods: a 27 MB portable window, and a command line.
+The two tools of the Tools tab on their own, for players who only need to fix or merge mods: a portable window of about 30 MB and a command line, for Windows and Linux. Both read mods as ZIP, .7z or .rar files, as mod managers download them, or as patch files.
 
 #### Repatch
 
@@ -115,7 +115,7 @@ Several mods that change the same sound banks, built as one with the options cho
 
 #### Command Line
 
-`audiodiver.cmd` runs the same tools from a command line, so scripts and mod managers can call them:
+`audiodiver.cmd` (on Linux, `./audiodiver`) runs the same tools from a command line, so scripts and mod managers can call them:
 
 ```
 audiodiver.cmd check --json                        installed mods that need a repatch
@@ -138,21 +138,22 @@ then the language of the system.
 
 ## How It Works
 
-- Audiodiver finds Helldivers 2 through Steam and reads the game archives.
+- Audiodiver finds Helldivers 2 and Helldivers 1 through Steam and reads the game archives.
 - On first startup, the core indexes every sound bank, stream and object, with names
   from the modding community's research. It indexes again after each game update.
 - A build takes the current sound banks, puts the new audio and timing in, and reads the result back to check it
   before packing the ZIP. That's why rebuilding after an update is usually all a mod needs.
-- wav2wem encodes new audio to Wwise Vorbis, vgmstream plays the original audio, and FFmpeg reads everything else.
-  All three come with Audiodiver.
+- wav2wem encodes new audio to Wwise Vorbis (on Linux with oggenc), vgmstream plays the original audio, FFmpeg
+  reads everything else, and 7-Zip opens mods packed as .7z or .rar. All of them come with Audiodiver.
 - A Python core reads, patches and builds, and the window is Tauri 2 with React. They talk over a local connection
   protected by a token.
-- More than 200 tests, among them byte-for-byte builds of three complete music mods.
+- More than 400 tests, among them byte-for-byte builds of three complete music mods.
 
 ## How to Use
 
 You need Windows 10 or 11 or a 64-bit Linux (beta), Helldivers 2 installed through Steam, and a Helldivers 2 mod
-manager to install the mods you build.
+manager to install the mods you build. Helldivers 1 mods install with
+[a mod manager for Helldivers 1](https://www.nexusmods.com/helldivers/mods/16), version 1.1.0 or later.
 
 1. Download Audiodiver from [Releases](https://github.com/Alomare/Audiodiver/releases/latest) and run it. The installer
    isn't code-signed yet, so Windows may say it protected your PC: choose **More info**, then **Run anyway**.
@@ -223,7 +224,7 @@ Audiodiver is 100% free, no caveats. If you'd like to support it, buy me a [Ko-f
 ### With Code
 
 You need Windows with Helldivers 2 from Steam, Python 3.12+, Node.js 20+ and Rust, and ffmpeg, vgmstream-cli and
-wav2wem on your PATH.
+wav2wem on your PATH (7-Zip too, for the tests of .7z and .rar mods).
 
 ```sh
 pip install -e "core[test]"     # the core
@@ -266,7 +267,8 @@ About ▸ Credits too.
 | Music notes | geoffreyhdt1 | Illuminate Void and Automaton clip names, when clips play, warnings and minimum lengths. |
 | [Whisper](https://github.com/openai/whisper) | OpenAI | Hearing the voice lines, to match each one to a subtitle. |
 | [Audio Spectrogram Transformer](https://huggingface.co/MIT/ast-finetuned-audioset-10-10-0.4593) | MIT | Telling grunts, breaths and laughs from words. |
-| [FFmpeg](https://ffmpeg.org), [vgmstream](https://github.com/vgmstream/vgmstream), [wav2wem](https://github.com/pas2k/wav2wem) | | Reading, playing and encoding audio. They come with Audiodiver as separate programs. |
+| [FFmpeg](https://ffmpeg.org), [vgmstream](https://github.com/vgmstream/vgmstream), [wav2wem](https://github.com/pas2k/wav2wem), [oggenc](https://github.com/xiph/vorbis-tools) with [aoTuV](https://github.com/AO-Yumi/vorbis_aotuv) | | Reading, playing and encoding audio. They come with Audiodiver as separate programs (oggenc only on Linux). |
+| [7-Zip](https://www.7-zip.org) | Igor Pavlov | Opening mods packed as .7z or .rar. It comes with Audiodiver as a separate program. |
 | Archivo, Noto Serif and Roboto Mono | | The typefaces, under the [SIL Open Font License](https://openfontlicense.org). |
 | [Divershub](https://divershub.app) | | The ticker of war news along the bottom of Home. |
 
@@ -276,8 +278,9 @@ Audiodiver is free software under the [Mozilla Public License 2.0](LICENSE). Any
 has to keep the files open under the same license. The license doesn't cover the mods you build with it.
 
 `core/audiodiver/_vendor/slim.py` comes from hd2-audio-modder, under the MIT License
-(`core/audiodiver/_vendor/LICENSE-hd2-audio-modder`). FFmpeg, vgmstream and wav2wem keep their licenses (wav2wem is
-under GPL-2.0), and their sources are at the links above.
+(`core/audiodiver/_vendor/LICENSE-hd2-audio-modder`). FFmpeg, vgmstream, wav2wem, oggenc and 7-Zip keep
+their licenses (wav2wem and oggenc are under GPL-2.0, 7-Zip under the GNU LGPL with the unRAR restriction), and their
+sources are at the links above.
 
 <sub>Audiodiver is a fan-made tool, not affiliated with or endorsed by Arrowhead Game Studios or Sony Interactive
 Entertainment. HELLDIVERS is a trademark of Sony Interactive Entertainment LLC.</sub>
