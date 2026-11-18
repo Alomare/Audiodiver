@@ -1,5 +1,6 @@
 """The editor session and its HTTP API. Unit tests need nothing; `game` tests read the installed game."""
 import json
+import uuid
 import threading
 import urllib.error
 import urllib.parse
@@ -10,6 +11,7 @@ from http.server import ThreadingHTTPServer
 import pytest
 
 from audiodiver.editor import EditorError, Session
+from audiodiver.project import Project
 from audiodiver.server import make_handler
 
 
@@ -324,6 +326,35 @@ def test_package_settings_save_undo_and_flag_a_name_arsenal_rejects(tmp_path):
         'Mod managers can\'t use É in a name (letters, digits, spaces and - _ ( ) are fine)']
     with pytest.raises(EditorError):
         s.settings(icon="cover.png")  # an image goes through set_icon, which checks it
+
+
+def test_an_obsidian_mod_id_and_authors_save_undo_and_reset(tmp_path):
+    """A Helldivers 1 mod's id and authors, as Obsidian reads them: the id made from the guid until one is given, given
+    back by clearing it or by a new id; the authors trimmed, without blanks or repeats."""
+    s = Session(load=False)
+    st = s.new_project(tmp_path / "m.audi", "My Mod")
+    default = st["mod_id_default"]
+    assert st["mod_id"] == default == "audiodiver.hd1-" + st["guid"].replace("-", "")[:16] and st["authors"] == []
+    st = s.settings(mod_id=" alomare.hd2-ost ", authors=[" Alomare ", "", "Alomare", "A  Friend"])
+    assert st["mod_id"] == "alomare.hd2-ost" and st["authors"] == ["Alomare", "A Friend"]
+    saved = json.loads((tmp_path / "m.audi").read_text())
+    assert saved["mod_id"] == "alomare.hd2-ost" and saved["authors"] == ["Alomare", "A Friend"]
+    assert Project.load(tmp_path / "m.audi").mod_id == "alomare.hd2-ost"
+    assert s.undo()["mod_id"] == default and s.redo()["mod_id"] == "alomare.hd2-ost"
+    assert s.settings(mod_id="")["mod_id"] == default and "mod_id" not in json.loads((tmp_path / "m.audi").read_text())
+    s.settings(mod_id="alomare.hd2-ost")
+    st = s.settings(guid="new")
+    assert st["mod_id"] == st["mod_id_default"] != default, "a new id makes it a mod of its own in Obsidian too"
+    assert s.settings(mod_id=st["mod_id_default"]).get("mod_id") == st["mod_id_default"]
+    assert "mod_id" not in json.loads((tmp_path / "m.audi").read_text()), "the default typed in stays the default"
+
+
+def test_a_damaged_mod_id_or_authors_list_is_put_right_on_opening(tmp_path):
+    path = tmp_path / "d.audi"
+    path.write_text(json.dumps({"audiodiver": 1, "name": "D", "guid": str(uuid.uuid4()), "replacements": [],
+                                "segment_overrides": {}, "mod_id": "Not Valid", "authors": ["A", 3, " A "]}))
+    p = Project.load(path)
+    assert p.mod_id == "" and p.authors == ["A"] and set(p.repairs) == {"the mod ID", "the authors"}
 
 
 def test_an_image_becomes_the_icon_and_is_fitted_to_540(tmp_path):

@@ -146,6 +146,8 @@ def test_an_edit_that_fails_half_way_changes_nothing(tmp_path):
 @pytest.mark.parametrize("fields, words", [
     ({"version": 0}, "whole number from 1"), ({"version": "2.7"}, "whole number"), ({"version": 10 ** 9}, "99999"),
     ({"name": None}, "text"), ({"loudness_analysis": "no"}, "on or off"), ({"guid": "nope"}, "isn't a mod ID"),
+    ({"mod_id": "My Mod"}, "lowercase letters"), ({"mod_id": "a" * 65}, "up to 64"), ({"mod_id": ".x"}, "lowercase"),
+    ({"authors": "Me"}, "list of names"), ({"authors": [1]}, "list of names"),
 ])
 def test_settings_say_what_they_take(tmp_path, fields, words):
     s = Session(load=False)

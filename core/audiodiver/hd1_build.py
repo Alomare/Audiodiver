@@ -212,9 +212,14 @@ def _prune(p: Project, used: set[str]):
         shutil.rmtree(d, ignore_errors=True)
 
 
-def mod_id(p: Project) -> str:
-    """The mod's id for the mod manager, from the project's guid: a renamed project still updates the mod installed."""
+def default_mod_id(p: Project) -> str:
+    """The id a mod gets when none is given, from the project's guid: a renamed project still updates the mod installed."""
     return f"audiodiver.hd1-{p.guid.replace('-', '').lower()[:16]}"
+
+
+def mod_id(p: Project) -> str:
+    """The mod's id for the mod manager: the one the project gives (such as the id of a mod made before), or the default."""
+    return p.mod_id or default_mod_id(p)
 
 
 def clip_head(game: hd1.Hd1, bank: dict, row) -> bytes:
@@ -295,7 +300,7 @@ def build(p: Project, game: hd1.Hd1, log=print, step=None) -> Path:
         # min_obsidian: an older mod manager from 1.1.0 on refuses the mod and says to update (1.0.4 ignores it)
         manifest = {"obsidian": 1, "min_obsidian": MIN_MANAGER, "id": mod_id(p), "version": f"1.0.{p.version}", "name": {"en": p.name},
                     "description": {"en": p.description or "New audio for Helldivers 1, made with Audiodiver."},  # English, as mod names
-                    "authors": [], "scope": "client", "resources": resources, "loader_api": 1}
+                    "authors": list(p.authors), "scope": "client", "resources": resources, "loader_api": 1}
         (work / MANIFEST).write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         try:
             out_dir.mkdir(parents=True, exist_ok=True)

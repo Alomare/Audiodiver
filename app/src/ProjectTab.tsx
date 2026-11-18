@@ -145,6 +145,7 @@ function ProjectPage() {
   useEffect(() => { actions.refresh(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [name, setName] = useDraft(p.name);
   const [description, setDescription] = useDraft(p.description);
+  const [authors, setAuthors] = useDraft(p.authors.join(", "));
   const [icon, setIcon] = useState<Icon>(p.icon);
   const savedIcon = JSON.stringify(p.icon);
   const latest = useRef(icon);
@@ -201,7 +202,23 @@ function ProjectPage() {
             <textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)}
               onBlur={() => { if (description.trim() !== p.description) save({ description }); }} />
           </label>
+          {p.game === "hd1" && (
+            <label className="field">
+              <span className="field-label"><Trans>Authors</Trans> <Help tip={t`Optional. Names separated by commas, shown with the mod in Obsidian.`} page="helldivers-1#obsidian" /></span>
+              <input value={authors} maxLength={600} spellCheck={false} onChange={(e) => setAuthors(e.target.value)}
+                onBlur={() => {
+                  const list = authors.split(",").map((a) => a.trim()).filter(Boolean);
+                  if (list.join(", ") !== p.authors.join(", ")) save({ authors: list }); else setAuthors(p.authors.join(", "));
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") e.currentTarget.blur();
+                  else if (e.key === "Escape") { setAuthors(p.authors.join(", ")); requestAnimationFrame(() => e.currentTarget?.blur()); }
+                }} />
+            </label>
+          )}
         </section>
+
+        {p.game === "hd1" && <ObsidianId />}
 
         {/* a Helldivers 1 mod has no icon, its id comes from the project, it has no radio voices and its tabs are set */}
         {p.game === "hd2" && <>
@@ -239,6 +256,51 @@ function ProjectPage() {
           description={description.trim()} />}
       </aside>
     </div>
+  );
+}
+
+const OBSIDIAN_ID = /^[a-z0-9][a-z0-9._-]{0,63}$/;
+
+/** A Helldivers 1 mod's id for Obsidian: copied, changed to the id of a mod made before (the "id" in the
+    obsidian.json), or made new. */
+function ObsidianId() {
+  const { project, actions, quick } = useEditor();
+  const p = project!;
+  const [draft, setDraft] = useState<string | null>(null); // the id being typed; null while the id shows
+  const typed = draft?.trim() ?? "";
+  const problem = typed && !OBSIDIAN_ID.test(typed) ? t`Up to 64 lowercase letters, digits, dots, dashes and underscores, such as name.mymod` : null;
+  const save = async () => {
+    if (!typed || typed === p.mod_id) setDraft(null);
+    else if (!problem && await actions.setObsidianId(typed)) setDraft(null);
+  };
+  return (
+    <section className="set-sec">
+      <h2><Trans>Mod ID</Trans> <Help tip={t`Obsidian recognises the mod by this ID. While it stays the same, a new build updates the installed mod.`} page="helldivers-1#obsidian" /></h2>
+      {draft === null ? (
+        <div className="pkg-id">
+          <code>{p.mod_id}</code>
+          <button className="btn quiet" onClick={() => copyText(p.mod_id, quick, "", t`Copied the mod ID`)}><Trans>Copy</Trans></button>
+          <button className="btn quiet" onClick={() => setDraft(p.mod_id)}
+            data-tip={t`Use the ID of a mod made before, the "id" in the obsidian.json of that mod`} data-tip-more={t`Obsidian then treats a build as an update to that mod`}><Trans comment="Button: type another mod ID">Change</Trans></button>
+          <button className="btn quiet" onClick={() => actions.newModId()}
+            data-tip={t`Use this when a copied project becomes a different mod`} data-tip-more={t`The next build installs as a separate mod`}><Trans>Make a New ID</Trans></button>
+        </div>
+      ) : (
+        <div className="field">
+          <div className="pkg-id">
+            <input value={draft} autoFocus spellCheck={false} aria-label={t`Mod ID`} aria-invalid={!!problem}
+              onChange={(e) => setDraft(e.target.value)} onFocus={(e) => e.currentTarget.select()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") save();
+                else if (e.key === "Escape") setDraft(null);
+              }} />
+            <button className="btn" onClick={save} disabled={!!problem}><Trans>Save</Trans></button>
+            <button className="btn quiet" onClick={() => setDraft(null)}><Trans>Cancel</Trans></button>
+          </div>
+          {problem && <small className="bad">{problem}</small>}
+        </div>
+      )}
+    </section>
   );
 }
 

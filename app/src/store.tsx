@@ -1123,6 +1123,13 @@ function useEditorState() {
       if (ok) editNotice("info", t`Mod ID changed. Mod managers treat the next build as an update to the mod with this ID.`);
       return ok;
     },
+    /** A Helldivers 1 mod's id for Obsidian, such as the id of a mod made before; "" goes back to the one made from
+        the guid. True when the core took it. */
+    async setObsidianId(modId: string) {
+      const ok = edited(await run<ProjectState>("settings", { mod_id: modId }));
+      if (ok) editNotice("info", t`Mod ID changed. Obsidian treats the next build as an update to the mod with this ID.`);
+      return ok;
+    },
     /** The project as it is on disk now (a file deleted meanwhile becomes a problem); quiet when it can't be asked. */
     async refresh() {
       if (!project) return;

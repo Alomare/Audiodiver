@@ -178,6 +178,9 @@ export type ProjectState = {
   revision: number;      // the core's count of changes to what is open: a no-op edit leaves it
   unsaved: boolean;      // edits wait for the next save (autosave on a timer, Settings ▸ System)
   description: string;   // the text a mod manager shows with the mod
+  mod_id: string;        // a Helldivers 1 mod's id for Obsidian (core hd1_build.mod_id)
+  mod_id_default: string; // the one made from the guid, which an empty mod_id goes back to
+  authors: string[];     // who made a Helldivers 1 mod, as Obsidian shows them
   icon: Icon;
   icon_frame: IconFrame; // the icon's full frame, defaults included
   loudness_analysis: boolean;

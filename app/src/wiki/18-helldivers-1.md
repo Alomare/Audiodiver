@@ -19,6 +19,12 @@ A slot can have new audio or silence. New audio can have **Make-Up Gain**, **Fad
 
 The Soundtrack, Text and Tools tabs, **Import Mod**, **Filters**, new takes and layers, and Make-Up Gain on the original audio are only for Helldivers 2.
 
+## Obsidian
+
+The [Project](app:project) tab sets what Obsidian shows with the mod: the name, the description and the authors, with commas between names.
+
+Obsidian recognises a mod by the **Mod ID**. While the ID stays the same, a new build updates the installed mod. To make the builds update a mod you made before, press **Change** and paste the `id` from the `obsidian.json` of that mod. An ID has lowercase letters, digits, dots, dashes and underscores, such as `name.mymod`. When you copy a project to make a different mod, press **Make a New ID**, and the copy installs as a separate mod.
+
 ## Audio from Helldivers 2
 
 The Library shows Helldivers 2 as well. Select slots there and press **Ctrl+C**, then select slots in the [Audio](app:editor) tab and press **Ctrl+V**. The original audio goes in as new audio, and a build fits it to the slot like any other file. Copying works the other way too, from Helldivers 1 into a Helldivers 2 project.

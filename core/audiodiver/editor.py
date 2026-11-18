@@ -19,12 +19,12 @@ import zlib
 from pathlib import Path, PurePosixPath
 from types import SimpleNamespace
 
-from . import i18n, wem
+from . import hd1_build, i18n, wem
 from .errors import os_error, plain  # noqa: F401 (server.py takes them from here too)
 from .i18n import N_, ntr, tr  # noqa: F401 (ntr: for the messages with a count)
 from .index import AudioIndex, CACHE_DIR
 from .radio import FAMILIES
-from .project import FADE_MS, GAIN_DB, TABS, Addition, Project, ProjectFormatError, Replacement, TextEdit, tab_list, write_whole
+from .project import FADE_MS, GAIN_DB, OBSIDIAN_ID, TABS, Addition, Project, ProjectFormatError, Replacement, TextEdit, author_list, tab_list, write_whole
 
 log = logging.getLogger("audiodiver")
 LOG_FILE = CACHE_DIR / "logs" / "core.log"
@@ -1499,6 +1499,7 @@ class Session:
                 "path": str(p.path), "folder": str(p.path.parent), "name": p.name, "guid": p.guid,
                 **self._folder_facts(p),
                 "revision": self.revision, "version": p.version, "description": p.description, "icon": p.icon, "icon_frame": frame,
+                "mod_id": hd1_build.mod_id(p), "mod_id_default": hd1_build.default_mod_id(p), "authors": p.authors,
                 "loudness_analysis": p.loudness_analysis, "every_bank": p.every_bank,
                 "project_banks_only": p.project_banks_only, "patch_files": p.patch_files, "zip_mod": p.zip_mod,
                 "build_folder": str(p.build_dir()), "build_folder_default": str(p.default_build_dir()),
@@ -2031,7 +2032,7 @@ class Session:
         from . import akd
         bad = set(fields) - {"name", "version", "description", "icon", "build_folder", "guid", "loudness_analysis",
                              "every_bank", "project_banks_only", "patch_files", "zip_mod", "tabs", "radio_off",
-                             "radio_quieter"}
+                             "radio_quieter", "mod_id", "authors"}
         if bad:
             raise EditorError(f"Unknown setting {sorted(bad)[0]}")
         checked = {}
@@ -2048,6 +2049,13 @@ class Session:
                     v = str(uuid.UUID(str(v)))
                 except ValueError:
                     raise EditorError(tr("That isn't a mod ID (a GUID like 3f2a…-…)")) from None
+            elif k == "mod_id":  # "": the id made from the guid again
+                if not isinstance(v, str) or (v := v.strip()) and not OBSIDIAN_ID.fullmatch(v):
+                    raise EditorError(tr("A mod ID has up to 64 lowercase letters, digits, dots, dashes and underscores, such as name.mymod"))
+            elif k == "authors":
+                if not isinstance(v, list) or not all(isinstance(a, str) for a in v):
+                    raise EditorError("The authors are a list of names")
+                v = author_list(v)
             elif k == "loudness_analysis":
                 if not isinstance(v, bool):
                     raise EditorError("Loudness analysis is on or off")
@@ -2082,6 +2090,12 @@ class Session:
                     p.build_folder = self._build_folder(p, v)
                 elif k == "guid":  # "new": a mod of its own from now on (a copied project, a fork)
                     p.guid = str(uuid.uuid4()) if v == "new" else v
+                    if v == "new":
+                        p.mod_id = ""  # a Helldivers 1 mod's id given by hand would keep it the same mod
+                elif k == "mod_id":
+                    p.mod_id = "" if v == hd1_build.default_mod_id(p) else v
+                elif k == "authors":
+                    p.authors = v
                 elif k == "loudness_analysis":
                     p.loudness_analysis = v
                 elif k == "every_bank":
@@ -2696,7 +2710,6 @@ class Session:
                     job.total = total
                 job.step(doing, done)
             if self._hd1p(snapshot):
-                from . import hd1_build
                 if not self.hd1:
                     raise EditorError(tr("Helldivers 1 wasn't found. Choose the game folder in Settings ▸ System."))
                 try:

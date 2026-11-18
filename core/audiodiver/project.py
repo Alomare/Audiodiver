@@ -43,6 +43,10 @@ name, guid, description and icon are what HD2 Arsenal shows and keys the mod by 
 without one, in a frame (arsenal.icon_frame; keys left out take the defaults). Icons were once made from text, and
 older projects store that text (and an image as a plain path): loading keeps only the image and the frame.
 
+"mod_id" and "authors" are for a Helldivers 1 mod, what Obsidian reads from its obsidian.json: the id (lowercase
+letters, digits and . _ -; left out for the one made from the guid, hd1_build.mod_id) and the authors' names (left
+out while there are none).
+
 build_folder is where builds go, relative to the project file (absolute on another drive); "" is the build folder
 next to it. "patch_files": true makes each build save the patch files in a folder named like its ZIP, for packing
 the mod another way, and "zip_mod": false makes it leave out the ZIP (each left out while as by default; a build
@@ -128,6 +132,7 @@ project takes Settings' choice; a file without the key shows what Settings says:
 import json
 import math
 import os
+import re
 import time
 import uuid
 from dataclasses import dataclass, field, asdict
@@ -146,6 +151,8 @@ FADE_MS = (0.0, 600_000.0)  # a fade baked into new audio
 TRIM_MS = (0.0, 3_600_000.0)  # where new audio starts and ends in its file, and its delay
 TABS = ("editor", "soundtrack", "text")  # the window's tabs a project can hide, in the tab bar's order
 GAMES = ("hd2", "hd1")  # the games a project can make a mod for
+OBSIDIAN_ID = re.compile(r"[a-z0-9][a-z0-9._-]{0,63}")  # a mod id as Obsidian takes it (its manifest.rs valid_id)
+MAX_AUTHORS, AUTHOR_LEN = 20, 64
 
 
 def tab_list(v) -> list[str] | None:
@@ -281,6 +288,16 @@ class Addition:
         return {"take": [self.sound, self.source], "layer": [self.container], "own": [self.source]}[self.kind]
 
 
+def author_list(names) -> list[str]:
+    """Authors' names as a mod keeps them: trimmed, the blank and repeated ones left out, cut to fit."""
+    out = []
+    for n in names:
+        n = " ".join(n.split())[:AUTHOR_LEN]
+        if n and n not in out:
+            out.append(n)
+    return out[:MAX_AUTHORS]
+
+
 @dataclass
 class Project:
     name: str
@@ -314,6 +331,8 @@ class Project:
     soundtrack: dict[int, Piece] = field(default_factory=dict)  # how pieces of music play, by playlist (soundtrack.py)
     tabs: list[str] | None = None  # the hideable tabs it shows (TABS); None: as Settings says
     game: str = "hd2"  # the game it makes a mod for (GAMES)
+    mod_id: str = ""  # a Helldivers 1 mod's id for Obsidian; "": made from the guid (hd1_build.mod_id)
+    authors: list[str] = field(default_factory=list)  # who made a Helldivers 1 mod, for Obsidian
     repairs: list[str] = field(default_factory=list, repr=False, compare=False)  # damaged values opening put right (not saved)
 
     def added(self) -> dict[int, Addition]:
@@ -517,6 +536,14 @@ class Project:
                     out[k] = x
             return out
 
+        mod_id = kind(d, "mod_id", str, "", tr("the mod ID"))
+        if mod_id and not OBSIDIAN_ID.fullmatch(mod_id):
+            repairs.append(tr("the mod ID"))
+            mod_id = ""
+        authors = [a for a in kind(d, "authors", list, [], tr("the authors")) if isinstance(a, str)]
+        if (kept := author_list(authors)) != authors:
+            repairs.append(tr("the authors"))
+        authors = kept
         try:
             p = cls(name=d["name"], guid=str(d.get("guid") or ""),
                        version=int(number(d.get("version", 1), 1, 1, 99999, tr("the version"), whole=True)),
@@ -547,7 +574,8 @@ class Project:
                        radio_quieter=kind(d, "radio_quieter", bool, False, tr("the radio filters")),
                        curves_off={int(t) for t in curves_off}, curves={int(t): c for t, c in curves.items()},
                        notes=notes, soundtrack={k: v for k, v in pieces.items() if not v.plain()}, tabs=tabs,
-                       game=d.get("game") if d.get("game") in GAMES else "hd2")
+                       game=d.get("game") if d.get("game") in GAMES else "hd2",
+                       mod_id=mod_id, authors=authors)
             p.repairs = list(dict.fromkeys(repairs))  # not saved: what opening it put right (project_state says it)
             return p
         except (TypeError, ValueError, OverflowError):
@@ -591,6 +619,8 @@ class Project:
             **({"soundtrack": {str(k): v.to_json() for k, v in self.soundtrack.items()}} if self.soundtrack else {}),
             **({"tabs": list(self.tabs)} if self.tabs is not None else {}),
             **({"game": self.game} if self.game != "hd2" else {}),
+            **({"mod_id": self.mod_id} if self.mod_id else {}),
+            **({"authors": list(self.authors)} if self.authors else {}),
         }
 
     def save(self, path=None):

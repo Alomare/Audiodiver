@@ -463,6 +463,14 @@ def test_a_helldivers_1_project_builds_a_mod_for_the_mod_manager(game, tmp_path,
         rows = {x[0]: x for x in hd1_build.rows_of(built)}
         assert built[rows[CLIPS["one"]][1]:][:len(data)] == data and len(rows) == len(hd1_build.rows_of(raw))
     assert s.project_state()["version"] == 2
+    s.settings(mod_id="alomare.calm-admiral", authors=["Alomare"], description="Calm music.")
+    job = s.build()
+    while (j := s.job(job["id"]))["state"] == "running":
+        __import__("time").sleep(0.1)
+    assert j["state"] == "done", j.get("error")
+    with zipfile.ZipFile(j["result"]["zip"]) as z:
+        m = json.loads(z.read("obsidian.json"))
+        assert (m["id"], m["authors"], m["description"]) == ("alomare.calm-admiral", ["Alomare"], {"en": "Calm music."})
 
 
 def recipe_game(tmp_path, game, monkeypatch):
