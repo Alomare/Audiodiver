@@ -169,18 +169,22 @@ def _encode_all(p: Project, jobs: dict, step) -> dict:
     cores to spare (each encoder runs on one), taking what the cache already holds. Returns {key: cache name}."""
     cache = _clip_cache(p)
     cache.mkdir(parents=True, exist_ok=True)
+    locks, locks_guard = {}, threading.Lock()
 
     def make(key):
         r, head, streamed = jobs[key]
         src = _readable(_source_file(p, r))
         name = _clip_name(src, head, streamed, r.gain_db)
         clip, stream = cache / f"{name}.clip", cache / f"{name}.stream"
-        if not (clip.exists() and stream.exists()):
-            data, rest = new_clip(src, head, streamed, r.gain_db)
-            for path, b in ((stream, rest), (clip, data)):  # the clip last: with it there, both are whole
-                tmp = path.with_name(path.name + f".{threading.get_ident()}.partial")
-                tmp.write_bytes(b)
-                tmp.replace(path)
+        with locks_guard:
+            lock = locks.setdefault(name, threading.Lock())
+        with lock:  # jobs sharing an audio file share a name: one encodes it, the others wait and take it from the cache
+            if not (clip.exists() and stream.exists()):
+                data, rest = new_clip(src, head, streamed, r.gain_db)
+                for path, b in ((stream, rest), (clip, data)):  # the clip last: with it there, both are whole
+                    tmp = path.with_name(path.name + f".{threading.get_ident()}.partial")
+                    tmp.write_bytes(b)
+                    tmp.replace(path)
         return key, name
 
     names = {}
