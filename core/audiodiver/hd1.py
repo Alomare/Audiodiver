@@ -50,7 +50,7 @@ from .index import CACHE_DIR, LANGUAGES
 from .library import BIG_GROUP, CHUNK as GROUP_CHUNK, Library, _part
 
 log = logging.getLogger(__name__)
-FORMAT = 4            # of the kept reading: a new one reads the game again
+FORMAT = 5            # of the kept reading: a new one reads the game again
 SAME_FORMAT = 1       # of the kept list of clips that are the same in every language (Hd1.same_everywhere)
 VERSION = 0xF0000004  # of a bundle
 CHUNK = 0x10000
@@ -95,7 +95,7 @@ MUSIC = {
     **{f"{stem}_{enemy}": (section, title) for enemy, section in ENEMIES.items()
        for stem, title in (("music_action", "Battle"), ("music_boss", "Boss"), ("encounter_start", "Encounter"))},
     "music_mission_start": (MISSIONS, "Mission Start"), "music_threat": (MISSIONS, "Threat"), "music_objective_found": (MISSIONS, "Objective Found"),
-    "objective_found": (MISSIONS, "Objective Found, Long"), "music_objective_complete": (MISSIONS, "Objective Complete"),
+    "music_objective_complete": (MISSIONS, "Objective Complete"),
     "music_objective_fail": (MISSIONS, "Objective Failed"), "music_action_plus": (MISSIONS, "Extraction"), "music_mission_end_success": (MISSIONS, "Mission Success"),
     "music_mission_end_failed": (MISSIONS, "Mission Failed"), "music_intro": (MENUS, "Intro"), "music_theme": (MENUS, "Main Theme"), "music_bridge": (MENUS, "Ship Bridge"),
     "music_ship": (MENUS, "Ship"), "music_jingle": (MENUS, "Jingle"), "music_credits": (MENUS, "Credits"),
@@ -133,7 +133,7 @@ PLACES = {
     "chr_vo_ifv": ("cyborgs", "@enc_cyborg_ifv"), "chr_vo_initiate": ("cyborgs", "@enc_cyborg_initiate"), "chr_vo_soldier": ("cyborgs", "@enc_cyborg_soldier"),
     "chr_fs_initiate": ("cyborgs", "@enc_cyborg_initiate"), "boss": ("cyborgs", "@enc_cyborg_boss"), "hit_berserker": ("cyborgs", "@enc_cyborg_berserker"),
     "hit_initiate": ("cyborgs", "@enc_cyborg_initiate"), "hit_soldier": ("cyborgs", "@enc_cyborg_soldier"), "wep_cyborg": ("cyborgs", N_("General")),
-    "wep_hulk": ("cyborgs", "@enc_cyborg_hulk"), "wep_soldier": ("cyborgs", "@enc_cyborg_soldier_cannon"),
+    "wep_hulk": ("cyborgs", "@enc_cyborg_hulk"), "wep_ifv": ("cyborgs", "@enc_cyborg_ifv"), "wep_soldier": ("cyborgs", "@enc_cyborg_soldier_cannon"),
     "chr_illuminate": ("illuminate", N_("General")), "chr_illuminate_apprentice": ("illuminate", "@enc_illuminate_apprentice"), "chr_illuminate_boss": ("illuminate", "@enc_illuminate_boss"),
     "chr_illuminate_hunter": ("illuminate", "@enc_illuminate_sniper"), "chr_illuminate_illusionist": ("illuminate", "@enc_illuminate_psyker"),
     "chr_illuminate_observer": ("illuminate", "@enc_illuminate_observer"), "chr_illuminate_tripod": ("illuminate", "@enc_illuminate_warrior"),
@@ -144,11 +144,23 @@ PLACES = {
 KEPT = ("bullet", "shrapnel", "hit", "bf", "footstep", "cloth", "foley", "enter", "equip")  # first words a label keeps: the place doesn't say them
 VOICES = {"admiral": N_("Admiral"), "engineer": N_("Chief Communications Officer"), "scientist": N_("Science Officer"), "soldier1": N_("Private 1"),
           "soldier2": N_("Private 2"), "helldiver": N_("Helldiver"), "tutorial": N_("Tutorial")}
-WORDS = {"ar": "AR", "bf": "BF", "ifv": "IFV", "rpg": "RPG", "sg": "SG", "smg": "SMG", "ui": "UI", "fs": "Footstep", "med": "Medium", "galcamp": "Galactic Campaign",
+WORDS = {"ar": "AR", "bf": "BF", "ifv": "IFV", "lmg": "LMG", "rpg": "RPG", "sg": "SG", "smg": "SMG", "ui": "UI", "fs": "Footstep", "med": "Medium", "galcamp": "Galactic Campaign",
          "missionc": "Mission Complete", "missiond": "Mission Failed", "planetc": "Planet Complete", "noplanet": "No Planet", "attackevent": "Attack Event",
          "defendevent": "Defense Event", "wardeclared": "War Declared", "diffunlocked": "Difficulty Unlocked", "ammoempty": "Ammo Empty", "ammolow": "Ammo Low",
          "cannotgetout": "Cannot Get Out", "helpme": "Help Me", "jumpfail": "Jump Fail", "reloadme": "Reload Me", "emptyclick": "Empty Click", "magins": "Magazine In",
          "magrel": "Magazine Release", "noammo": "No Ammo", "lowammo": "Low Ammo", "explose": "Explosion"}
+
+# Events without a name go into the Index under UNNAMED, in a category by the bus they play on; on an enemy's or an
+# effect's bus, the enemy whose bank holds them. A unit or level that plays one (data/hd1_owners.json) says better.
+UNNAMED = N_("Not Named Yet")
+BUS_PLACES = {murmur64_hash(bus.encode()) >> 32: cid for bus, cid in {
+    "music": "music", "music_event": "music", "stinger": "music", "vo": "voices", "vo_pain": "voices", "combat_player": "weapons",
+    "wep_casing": "weapons", "wep_rattle": "weapons", "reflections": "weapons", "misc_weapons": "stratagems",
+    "combat_player_extra": "impacts", "combat_effects": "impacts", "combat_enemy": "other", "ambient_base": "ambience",
+    "ambient_top": "ambience"}.items()}
+FOES = ("bugs", "cyborgs", "illuminate")
+BY_FOE = {murmur64_hash(b"combat_enemy") >> 32, murmur64_hash(b"combat_effects") >> 32}
+OWNER_PLACES = {"characters/bug": "bugs", "characters/cyborg": "cyborgs", "characters/illuminate": "illuminate", "equipment/wep": "weapons"}
 
 _MAKING = threading.Lock()  # one build of the Library's Helldivers 1 categories at a time (HD1._make)
 
@@ -331,6 +343,24 @@ def event_clips(m: bytes) -> tuple[dict, dict, dict]:
     return out, tiers, ends
 
 
+def clip_buses(m: bytes) -> dict[int, int]:
+    """{a clip: the bus it plays on, by its name's hash (top 32 bits)}, from the master: section 1 is the buses (a count,
+    then rows of 20 bytes that start with the hash), and a clip's record names its bus by index at +64."""
+    at, sounds, events = struct.unpack_from("<I", m, 4)[0], *struct.unpack_from("<2I", m, 12)
+    if not at:
+        return {}
+    buses = [struct.unpack_from("<I", m, at + 4 + 20 * i)[0] for i in range(struct.unpack_from("<I", m, at)[0])]
+    count = struct.unpack_from("<I", m, sounds)[0]
+    out = {}
+    for off in struct.unpack_from(f"<{count}I", m, sounds + 4):
+        rec = sounds + off
+        if struct.unpack_from("<I", m, rec)[0] == 0 and rec + 68 <= events:
+            bus = struct.unpack_from("<I", m, rec + 64)[0]
+            if bus < len(buses):
+                out.setdefault(struct.unpack_from("<Q", m, rec + 16)[0], buses[bus])
+    return out
+
+
 def _seeks(path: Path) -> bool:
     """Whether the drive under path is a spinning disk (Windows says reading it has a seek penalty): there, bundles read
     side by side make the head jump between them, slower than one after another. False when it can't tell."""
@@ -417,8 +447,11 @@ def scan(contents: Path) -> dict:
         raise ValueError("no timpani_master in the game")
     clips = {r[0] for b in banks for r in b["rows"]}
     events, tiers, ends = event_clips(master)
+    on = clip_buses(master)
+    buses = {e: collections.Counter(on[c] for c in got if c in on).most_common(1) for e, got in events.items()}
     return {"banks": banks, "texts": {str(f): {str(k): v for k, v in lines.items()} for f, lines in texts.items()},
             "events": {str(e): [c for c in got if c in clips] for e, got in events.items()},
+            "buses": {str(e): b[0][0] for e, b in buses.items() if b},
             "tiers": {str(e): [[c for c in got if c in clips] for got in themes] for e, themes in tiers.items()},
             "ends": {str(e): {str(c): mark for c, mark in marks.items()} for e, marks in ends.items()}}
 
@@ -465,6 +498,20 @@ def _names() -> dict[int, str]:
     return {murmur64_hash(n.encode()) >> 32: n for n in names}
 
 
+def _owners() -> dict[int, str]:
+    """{an event without a name: the path of a unit or level that plays it} (tools/import_hd1_owners.py)."""
+    try:
+        kept = json.loads(resources.files("audiodiver").joinpath("data", "hd1_owners.json").read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return {}
+    return {int(e, 16): path for e, path in kept.items()}
+
+
+def owner_label(path: str) -> str:
+    """A unit's or level's path as a name: "characters/cyborg_hulk/cyborg_hulk_01" is "Cyborg Hulk 01"."""
+    return " ".join(WORDS.get(w, w.capitalize()) for w in path.rsplit("/", 1)[-1].split("_") if w)
+
+
 def label(name: str, drop: int) -> str:
     """An event's name as the Library shows it, without the first words the place in the Index says: "fs_rock_run" is
     "Rock Run"; a number goes apart from the word it ends, as in "Easy 2"."""
@@ -505,6 +552,7 @@ class Hd1:
         self.events = {int(e): clips for e, clips in read["events"].items() if clips}
         self.tiers = {int(e): themes for e, themes in read.get("tiers", {}).items() if all(themes)}  # battle music -> the clips of each theme
         self.ends = {int(e): {int(c): mark for c, mark in marks.items()} for e, marks in read.get("ends", {}).items()}  # an event -> what starts or ends a loop
+        self.buses = {int(e): bus for e, bus in read.get("buses", {}).items()}  # an event -> the bus most of its clips play on
         self.where, self.langs = {}, collections.defaultdict(list)  # source -> (bank, row); clip -> language flags
         for bank in self.banks:
             for row in bank["rows"]:
@@ -592,10 +640,27 @@ class Hd1:
             bank = self._bank_of(self.events[event])
             by_bank[bank][cid] += 1
             named[bank].append(short)
+        owners = _owners()
+        for event in sorted(e for e in self.events if e not in names):
+            bank, owner = self._bank_of(self.events[event]), owners.get(event, "")
+            cid = next((c for p, c in OWNER_PLACES.items() if owner.startswith(p)), None)
+            if cid is None and self.buses.get(event) in BY_FOE:
+                cid = next((c for c, _ in by_bank[bank].most_common() if c in FOES), None)
+            cid = cid or BUS_PLACES.get(self.buses.get(event), "other")
+            about = tr("Played by {owner}").format(owner=owner_label(owner)) if owner else ""
+            name = tr("Event {id}").format(id=f"{event:08x}")
+            for iid, clips, tier in self._themes(event):
+                sections[cid].setdefault(UNNAMED, []).append(self._item(iid, clips, name + tier, about, made[cid], name + tier, f"{event:08x}"))
         orders = {"voices": [*VOICES], "music": [*ENEMIES.values(), MISSIONS, MENUS]}
-        for cid, cat in made.items():
+
+        def place(sec: str):
             order = orders.get(cid)
-            for sec, items in sorted(sections[cid].items(), key=lambda s: order.index(s[0]) if order else self._name(s[0], language).strip("'\"").casefold()):
+            if sec == UNNAMED:
+                return (1, 0, "")
+            return (0, order.index(sec), "") if order else (0, 0, self._name(sec, language).strip("'\"").casefold())
+
+        for cid, cat in made.items():
+            for sec, items in sorted(sections[cid].items(), key=lambda s: place(s[0])):
                 cat["sections"].append({"id": f"{cat['id']}/{sec.lstrip('@') or 'all'}", "name": self._name(sec, language) or cat["name"],
                                         "about": "", "unused": False, "items": items})
         rows = [self._bank_row(bank, by_bank[bank], named[bank], made) for bank in sorted({b["name"] for b in self.banks})]

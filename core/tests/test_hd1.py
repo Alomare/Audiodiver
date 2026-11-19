@@ -214,9 +214,12 @@ def test_a_section_goes_by_the_game_text_in_the_language_in_use(game):
     assert h._name("admiral", "en") == "Admiral" and h._name("", "en") == ""
 
 
-def test_the_unnamed_stay_out_of_the_index_and_in_their_bank(game):
+def test_the_unnamed_go_into_the_index_and_stay_in_their_bank(game):
     h = hd1.Hd1.read(game)
-    assert [c["id"] for c in h.categories("en")] == ["hd1/voices"]
+    cats = h.categories("en")
+    assert [c["id"] for c in cats] == ["hd1/voices", "hd1/other"]  # no bus known: Other Sounds
+    assert [(s["name"], [(i["name"], i["en"], i["about"]) for i in s["items"]]) for s in cats[1]["sections"]] == \
+        [("Not Named Yet", [(f"Event {ALONE:08x}", f"{ALONE:08x}", "")])]
     rows = h.archives("en")
     assert [(r["id"], r["item"], r["names"], r["game"], r["sounds"], r["banks"], r["language"]) for r in rows] == \
         [(f"{BANK_NAME:016x}", f"hd1:bank:{BANK_NAME:016x}", ["Mission Complete Easy 2"], "hd1", 3, 2, "2 languages")]  # by its few events
@@ -226,6 +229,26 @@ def test_the_unnamed_stay_out_of_the_index_and_in_their_bank(game):
     view = h.view(it["parts"][1]["cue"])
     assert [g["name"] for g in view["segments_detail"]] == ["Admiral Mission Complete Easy 2", "Clips No Event Plays"]
     assert view["slots"] == [str(hd1.source(c, 0x100)) for c in CLIPS.values()]
+
+
+def test_an_unnamed_event_goes_by_its_bus_and_better_by_the_unit_that_plays_it(game, monkeypatch):
+    h = hd1.Hd1.read(game)
+    h.buses[ALONE] = murmur64_hash(b"ambient_base") >> 32
+    h.made = (None, [], [])
+    assert [c["id"] for c in h.categories("en")] == ["hd1/voices", "hd1/ambience"]
+    monkeypatch.setattr(hd1, "_owners", lambda: {ALONE: "characters/cyborg_hulk/cyborg_hulk_01"})
+    h.made = (None, [], [])
+    cats = h.categories("en")
+    assert [c["id"] for c in cats] == ["hd1/voices", "hd1/cyborgs"]
+    assert cats[1]["sections"][0]["items"][0]["about"] == "Played by Cyborg Hulk 01"
+
+
+def test_a_clip_plays_on_the_bus_its_record_names():
+    m = master()
+    bus = murmur64_hash(b"music") >> 32
+    m = m[:4] + struct.pack("<I", len(m)) + m[8:] + struct.pack("<II16x", 1, bus)  # section 1: one bus
+    assert hd1.clip_buses(m) == {CLIPS["one"]: bus, CLIPS["two"]: bus}
+    assert hd1.clip_buses(master()) == {}  # a master without buses
 
 
 @pytest.mark.parametrize("flag,tone", [(0, 1000), (0x100, 2000)])
