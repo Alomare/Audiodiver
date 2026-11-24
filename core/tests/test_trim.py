@@ -73,3 +73,83 @@ def test_trim_set_checks_the_values_is_one_undo_step_and_a_new_file_starts_untri
     assert s.project.replacements[0].start_ms == 200
     s._edit("assign", lambda p: s._set(p, 1234, str(b)))  # another file: none
     assert (s.project.replacements[0].start_ms, s.project.replacements[0].delay_ms) == (0.0, 0.0)
+
+
+def test_blocks_play_their_stretches_at_their_times_and_overlaps_add_up(tmp_path):
+    """The Waveform Editor's blocks (audio.edited): each a stretch of the file at a time of its own, with a gain and
+    fades; silence where none plays; overlapping blocks added up."""
+    from audiodiver.project import Block
+    src = ramp(tmp_path / "r.wav")
+    v = samples(audio.edited(src, [Block(0, 100, 0), Block(500, 600, 200)]))
+    assert len(v) == round(0.3 * 48000)  # the last block ends at 300 ms
+    assert v[4800 - 1] == (4800 - 1) // 2 and not v[4800:9600].any()  # the first block, then silence
+    assert v[9600] == 24000 // 2  # the second block plays the file from 500 ms
+    both = samples(audio.edited(src, [Block(100, 200, 0), Block(100, 200, 0)]))  # the same stretch twice: twice as loud
+    assert both[100] == 2 * ((4800 + 100) // 2)
+    quiet = samples(audio.edited(src, [Block(100, 200, 0, gain_db=-6.0206)]))
+    assert abs(int(quiet[100]) - (4800 + 100) // 4) <= 1
+    faded_in = samples(audio.edited(src, [Block(500, 1000, 0, fade_in_ms=100)]))
+    assert faded_in[0] == 0 and faded_in[4800 + 10] > 0.9 * ((24000 + 4810) // 2)
+    r = Replacement(1, "r.wav", blocks=[Block(0, 100, 900), Block(0, 500, 0)])
+    assert r.shaped and heard_ms(r, 1000.0) == 1000.0
+
+
+def test_the_project_file_keeps_blocks_and_repairs_bad_ones(tmp_path):
+    from audiodiver.project import Block
+    p = Project(name="P", path=tmp_path / "p.audi",
+                replacements=[Replacement(5, "a.wav", blocks=[Block(0, 100, 50, gain_db=-3), Block(200, 300)])])
+    d = p.to_json()
+    assert d["replacements"][0]["blocks"] == [{"start_ms": 0, "end_ms": 100, "at_ms": 50, "gain_db": -3},
+                                              {"start_ms": 200, "end_ms": 300}]
+    assert "blocks" not in Project(name="P", replacements=[Replacement(5, "a.wav")]).to_json()["replacements"][0]
+    q = Project.from_json(json.loads(json.dumps(d)), tmp_path / "p.audi")
+    assert q.replacements[0].blocks == p.replacements[0].blocks and not q.repairs
+    d["replacements"][0]["blocks"].append({"start_ms": 50, "end_ms": 10})  # plays nothing: dropped
+    d["replacements"][0]["blocks"][0]["gain_db"] = 99
+    q = Project.from_json(d, tmp_path / "p.audi")
+    assert len(q.replacements[0].blocks) == 2 and q.replacements[0].blocks[0].gain_db == 24 and q.repairs
+
+
+def test_edit_set_keeps_a_plain_trim_as_one_and_splits_as_blocks(tmp_path):
+    s = Session(load=False)
+    s.new_project(tmp_path / "m.audi", "M")
+    a = ramp(tmp_path / "a.wav")
+    s._edit("assign", lambda p: s._set(p, 1234, str(a)))
+    got = s.edit_set(1234, [{"start_ms": 100, "end_ms": 600, "at_ms": 30, "fade_in_ms": 20}])["assignments"]["1234"]
+    assert (got["start_ms"], got["end_ms"], got["delay_ms"], got["fade_in_ms"], got["blocks"]) == (100, 600, 30, 20, [])
+    two = [{"start_ms": 0, "end_ms": 400, "at_ms": 0, "fade_out_ms": 50}, {"start_ms": 600, "end_ms": 1000, "at_ms": 350}]
+    got = s.edit_set(1234, two)["assignments"]["1234"]
+    assert len(got["blocks"]) == 2 and got["start_ms"] == 0 and got["duration_ms"] == 750
+    assert len(samples(s.project_audio(1234))) == round(0.75 * 48000)
+    assert s.fades_set([1234], fade_out_ms=80)["assignments"]["1234"]["blocks"][1]["fade_out_ms"] == 80
+    assert s.undo()["assignments"]["1234"]["blocks"][1]["fade_out_ms"] == 0
+    whole = s.edit_set(1234, [{"start_ms": 0, "end_ms": 1000, "at_ms": 0}])["assignments"]["1234"]
+    assert whole["blocks"] == [] and not s.project.replacements[0].shaped  # the file as it is
+    for bad in ([{"start_ms": 0, "end_ms": 5}], [{"start_ms": 0, "end_ms": 500, "gain_db": 99}], "x"):
+        with pytest.raises(EditorError):
+            s.edit_set(1234, bad)
+    with pytest.raises(EditorError, match="no new audio"):
+        s.edit_set(99, [])
+    s.edit_set(1234, two)
+    s._edit("assign", lambda p: s._set(p, 1234, str(ramp(tmp_path / "b.wav"))))  # another file: none
+    assert s.project.replacements[0].blocks == []
+
+
+def test_several_files_make_one_clip_and_the_project_lists_them_all(tmp_path):
+    """Blocks with an audio of their own: an empty slot takes the first block's file, the others stay named on their
+    blocks, and packs, moves and the missing-file check count them (projectfiles.uses)."""
+    from audiodiver import projectfiles as pf
+    s = Session(load=False)
+    s.new_project(tmp_path / "m.audi", "M")
+    (tmp_path / "in").mkdir()
+    a, b = ramp(tmp_path / "in" / "a.wav"), ramp(tmp_path / "in" / "b.wav", 0.5)
+    got = s.edit_set(77, [{"start_ms": 0, "end_ms": 1000, "at_ms": 0, "audio": str(a)},
+                          {"start_ms": 0, "end_ms": 500, "at_ms": 900, "audio": str(b), "fade_in_ms": 100}])["assignments"]["77"]
+    assert got["audio"] == "in/a.wav" and [x["audio"] for x in got["blocks"]] == ["", "in/b.wav"]
+    assert got["duration_ms"] == 1400 and len(samples(s.project_audio(77))) == round(1.4 * 48000)
+    assert s.project.files_of(s.project.replacements[0]) == ["in/a.wav", "in/b.wav"]
+    assert pf.uses(s.project.to_json(), tmp_path) == {tmp_path / "in" / "a.wav", tmp_path / "in" / "b.wav"}
+    moved = pf.rebase(s.project.to_json(), tmp_path, tmp_path / "sub")
+    assert moved["replacements"][0]["blocks"][1]["audio"] == "../in/b.wav"
+    b.unlink()
+    assert any(k == "missing_file" and "b.wav" in t for k, t in s.project.problem_list())

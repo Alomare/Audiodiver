@@ -6,6 +6,7 @@ import { settings, TIP_DELAY } from "./settings";
 
       data-tip="Build the mod"     the text; an empty value shows nothing
       data-tip-cmd="build"         a command whose key is shown next to the text, whatever it is bound to now
+      data-tip-key="S"             a fixed key shown the same way (a dialog's own keys, which aren't commands)
       data-tip-side="right"        where it goes when there is room: bottom (default), top, right or left
       data-tip-clip                only when the element's own text is cut off (a name that didn't fit)
       data-tip-more="…"            a second, fainter line: what a click does besides (a "?" opening the Wiki)
@@ -27,7 +28,7 @@ function read(anchor: HTMLElement, x: number): Tip | null {
   if (anchor.dataset.tipClip !== undefined && anchor.scrollWidth <= anchor.clientWidth) return null;
   const cmd = anchor.dataset.tipCmd as CommandId | undefined;
   const side = anchor.dataset.tipSide as Side | undefined;
-  return { anchor, text, keys: cmd ? keyLabel(cmd) : "", more: anchor.dataset.tipMore ?? "", side: side ?? "bottom", x };
+  return { anchor, text, keys: cmd ? keyLabel(cmd) : anchor.dataset.tipKey ?? "", more: anchor.dataset.tipMore ?? "", side: side ?? "bottom", x };
 }
 
 export function TooltipLayer() {

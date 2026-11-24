@@ -3,6 +3,7 @@ undone, plus background jobs (game loading, builds, patch imports). The HTTP ser
 this, so everything here is testable without a browser.
 """
 import collections
+from dataclasses import asdict, replace
 import copy
 import csv
 import logging
@@ -1426,7 +1427,7 @@ class Session:
             dest = None if own else pf.move_dest(p.path)
             c.update(where=(str(p.path), stamp), where_at=now, own_folder=own, folder_projects=len(pf.others(p.path)),
                      move_to=str(dest / f"{dest.name}.audi") if dest else None)
-        rels = frozenset([*(r.audio for r in p.replacements if not r.silence), p.icon.get("image") or ""])
+        rels = frozenset([*(f for r in p.replacements for f in p.files_of(r)), p.icon.get("image") or ""])
         if c.get("uses") != (str(p.path), rels) or now - c["uses_at"] > self.FACTS_SECONDS:
             used = {pf.norm(folder / rel) for rel in rels if isinstance(rel, str) and rel.strip()}
             c.update(uses=(str(p.path), rels), uses_at=now,
@@ -1467,8 +1468,11 @@ class Session:
             assignments[str(sid)] = {
                 "target": str(r.target), "audio": r.audio, "label": r.label, "gain_db": r.gain_db,
                 "fit_timing": r.fit_timing, "silence": r.silence, "exists": exists,
-                "fade_in_ms": r.fade_in_ms, "fade_out_ms": r.fade_out_ms,
+                # with the Waveform Editor's blocks, the fades are the first block's in and the last one's out
+                "fade_in_ms": min(r.blocks, key=lambda b: b.at_ms).fade_in_ms if r.blocks else r.fade_in_ms,
+                "fade_out_ms": max(r.blocks, key=lambda b: b.at_ms + b.length_ms).fade_out_ms if r.blocks else r.fade_out_ms,
                 "start_ms": r.start_ms, "end_ms": r.end_ms, "delay_ms": r.delay_ms,
+                "blocks": [asdict(b) for b in r.blocks],
                 "name": tr("Silence") if r.silence else Path(r.audio).name, "cues": [str(c) for c in cues],
                 # what plays (its stretch after its delay), and the file's own length
                 "duration_ms": heard_ms(r, file_ms), "file_ms": file_ms}
@@ -1696,6 +1700,7 @@ class Session:
                 r.silence, r.fit_timing = False, True
             if r.audio != rel:  # where another file started and ended means nothing for this one
                 r.start_ms = r.end_ms = r.delay_ms = 0.0
+                r.blocks = []
             r.audio, r.label = rel, label if label is not None else Path(audio).stem
         else:
             p.replacements.append(Replacement(target=sid, audio=rel, label=label or Path(audio).stem))
@@ -1764,6 +1769,7 @@ class Session:
                     src.audio, src.label, src.gain_db, src.fit_timing, src.silence
                 dst.fade_in_ms, dst.fade_out_ms = src.fade_in_ms, src.fade_out_ms
                 dst.start_ms, dst.end_ms, dst.delay_ms = src.start_ms, src.end_ms, src.delay_ms
+                dst.blocks = [replace(b) for b in src.blocks]
         return self._edit("paste", apply)
 
     def _kept_original(self, sid: int) -> Path:
@@ -1821,6 +1827,7 @@ class Session:
                     r = Replacement(target=sid, audio="")
                     p.replacements.append(r)
                 r.audio, r.label, r.silence, r.gain_db, r.fit_timing = "", "", True, 0.0, not keep_timing
+                r.blocks = []
         return self._edit(label, apply)
 
     def skip(self, sources):
@@ -1982,7 +1989,14 @@ class Session:
         def apply(p):
             for sid in sids:
                 r = self._replacement(p, sid)
-                if r and not r.silence:
+                if r and not r.silence and r.blocks:  # the Waveform Editor's: the first block fades in, the last out
+                    if fade_in_ms is not None:
+                        b = min(r.blocks, key=lambda b: b.at_ms)
+                        b.fade_in_ms = min(float(fade_in_ms), b.length_ms - b.fade_out_ms)
+                    if fade_out_ms is not None:
+                        b = max(r.blocks, key=lambda b: b.at_ms + b.length_ms)
+                        b.fade_out_ms = min(float(fade_out_ms), b.length_ms - b.fade_in_ms)
+                elif r and not r.silence:
                     r.fade_in_ms = r.fade_in_ms if fade_in_ms is None else float(fade_in_ms)
                     r.fade_out_ms = r.fade_out_ms if fade_out_ms is None else float(fade_out_ms)
         return self._edit("fades", apply)
@@ -2009,8 +2023,99 @@ class Session:
 
         def apply(p):
             r = self._replacement(p, sid)
-            r.start_ms, r.end_ms, r.delay_ms = float(start_ms), end, float(delay_ms)
+            r.start_ms, r.end_ms, r.delay_ms, r.blocks = float(start_ms), end, float(delay_ms), []
         return self._edit("trim", apply)
+
+    def edit_set(self, source, blocks, original=False, label=None):
+        """The Waveform Editor's work on a slot, as one undo step: the blocks its new audio plays as (each a stretch
+        of a file at a time of its own, with fades and a gain). A block plays the slot's file, or the file its `audio`
+        names (a full path, or a path as the project stores it): several files can make one clip. original: the
+        slot's file is its original audio, which becomes the new audio first (as a copy kept in the project, as Copy
+        does). A slot without new audio takes the file of its first block. One block of the slot's file that only
+        trims, moves and fades is kept as the stretch, delay and fades (the details panel's fades and older versions
+        read those); no blocks, or one that is the whole file, is the file as it is."""
+        from .audio import duration_ms
+        from .project import BLOCK_GAIN_DB, MAX_BLOCKS, TRIM_MS, Block
+        p = self._need_project()
+        sid = self._source(source)
+        if not isinstance(blocks, list) or len(blocks) > MAX_BLOCKS:
+            raise EditorError(tr("The Waveform Editor sends up to {n} blocks").format(n=MAX_BLOCKS))
+        if not all(isinstance(b, dict) for b in blocks):
+            raise EditorError("Each block is an object")
+        r = self._replacement(p, sid)
+        main = None  # the slot's own file, as stored, and where it is
+        if original:
+            self.require_game()  # the original comes from the game files
+            path = self._kept_original(sid)
+            main = (self._relative(p, path), path)
+        elif r and not r.silence and r.audio:
+            main = (r.audio, p.audio_path(r))
+        lengths = {}
+
+        def file_of(b) -> str:
+            """The block's file as the project stores it ("" for the slot's own), checked."""
+            a = b.get("audio")
+            if a in (None, "") or (main and a == main[0]):
+                if not main:
+                    raise EditorError(tr("This slot has no new audio to edit"))
+                return ""
+            if not isinstance(a, str):
+                raise EditorError("A block's audio is a path")
+            rel = self._relative(p, a) if Path(a).is_absolute() else a
+            if not Path(a).is_absolute() and not p.file(rel).is_file():
+                raise EditorError(tr("{path} wasn't found").format(path=p.file(rel)))
+            return "" if main and rel == main[0] else rel
+
+        def length(rel) -> float:
+            if rel not in lengths:
+                f = main[1] if rel == "" else p.file(rel)
+                if (lengths.setdefault(rel, duration_ms(f))) is None:
+                    raise EditorError(tr("{path} wasn't found").format(path=f))
+            return lengths[rel]
+
+        def num(b, k, lo, hi, default=0.0):
+            v = b.get(k, default)
+            if isinstance(v, bool) or not isinstance(v, (int, float)) or not lo <= v <= hi:
+                raise EditorError(tr("A block of the Waveform Editor is out of range ({what})").format(what=k))
+            return float(v)
+        made = []
+        for b in blocks:
+            rel = file_of(b)
+            start, end = num(b, "start_ms", *TRIM_MS), min(num(b, "end_ms", *TRIM_MS), length(rel))
+            if end - start < MIN_TRIM_MS:
+                raise EditorError(tr("The audio must play for at least {ms} ms").format(ms=MIN_TRIM_MS))
+            f_in = min(num(b, "fade_in_ms", *FADE_MS), end - start)
+            made.append(Block(start, end, num(b, "at_ms", *TRIM_MS), f_in,
+                              min(num(b, "fade_out_ms", *FADE_MS), end - start - f_in), num(b, "gain_db", *BLOCK_GAIN_DB), rel))
+        if not main:  # a slot without new audio: the first block's file is the slot's
+            if not made:
+                raise EditorError(tr("This slot has no new audio to edit"))
+            first = made[0].audio
+            main = (first, p.file(first))
+            lengths[""] = lengths[first]
+            for b in made:
+                b.audio = "" if b.audio == first else b.audio
+        length_main = length("")
+        plain = len(made) == 1 and not made[0].audio and not made[0].gain_db
+        whole = plain and made[0].start_ms <= 0.5 and made[0].end_ms >= length_main - 0.5 and not (
+            made[0].at_ms or made[0].fade_in_ms or made[0].fade_out_ms)
+        name = None if label is None else str(label)
+
+        def apply(proj):
+            if original or not self._replacement(proj, sid) or self._replacement(proj, sid).silence:
+                self._set(proj, sid, str(main[1]), name)
+            r = self._replacement(proj, sid)
+            r.start_ms = r.end_ms = r.delay_ms = r.fade_in_ms = r.fade_out_ms = 0.0
+            r.blocks = []
+            if not made or whole:
+                return
+            if plain:
+                b = made[0]
+                r.start_ms, r.end_ms, r.delay_ms = b.start_ms, 0.0 if b.end_ms >= length_main - 0.5 else b.end_ms, b.at_ms
+                r.fade_in_ms, r.fade_out_ms = b.fade_in_ms, b.fade_out_ms
+            else:
+                r.blocks = made
+        return self._edit("edit", apply)
 
     @staticmethod
     def _icon(p: Project, v) -> dict:
@@ -2627,6 +2732,8 @@ class Session:
                 d = pf.rebase(proj.to_json(), folder, folder, plan)
                 for r, now in zip(proj.replacements, d["replacements"]):
                     r.audio = now["audio"]
+                    for b, was in zip(r.blocks, now.get("blocks") or []):
+                        b.audio = was.get("audio", "")
                 proj.icon = d["icon"]
             return {**self._edit("collect", apply), "collected": len(plan)}
 
@@ -5396,7 +5503,7 @@ def build_inputs(p: Project) -> str:
     d = p.to_json()
     for k in ("version", "built_for", "built_from", "build_folder", "notes", "tabs"):
         d.pop(k, None)
-    files = {r.audio for r in p.replacements if not r.silence and r.audio} | {p.icon.get("image") or ""}
+    files = {f for r in p.replacements for f in p.files_of(r) if f} | {p.icon.get("image") or ""}
     stats = {}
     for rel in sorted(f for f in files if isinstance(f, str) and f):
         try:

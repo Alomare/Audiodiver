@@ -24,16 +24,22 @@ When one file plays in several segments, **Apply to … more segments with this 
 > [!TIP]
 > Place reverb tails and final hits after the Exit. They overlap the next segment there, which avoids a gap.
 
-## Trimming and moving new audio
+## The Waveform Editor
 
-The **Replaced** waveform shows the whole file of the new audio, on the same time scale as the original. The part that plays is bright, and the rest is dim. This works on every slot with new audio: music, sounds and voice lines.
+**Edit** under **Original** or **Replaced** in the waveforms opens the Waveform Editor for the selected slot. It trims, splits, moves and fades audio, so simple edits need no other program. This works on every slot: music, sounds and voice lines.
 
-- Drag the **Start** and **End** lines to choose the stretch of the file that plays.
-- Drag the **Start** or **End** label at the top of a line to fade the audio in or out. The line bends from where the audio is silent to where it reaches full level.
-- Drag the bright stretch to the right to make the new audio start later than the original. The slot plays silence before it. Drag it back to the left to start sooner.
-- Type exact values in **Start**, **End**, **Delay**, **Fade In** and **Fade Out** under the waveforms, in milliseconds. **Reset** plays the whole file again, from the start, without fades.
+The audio sits on a time line as **blocks**. Each block is a stretch of a file, placed at a chosen time, with a fade in, a fade out and a gain. The original runs along the top for comparison, and a dashed line marks where the original ends.
 
-The file stays as it is. The project keeps these values, and builds and previews use them. Make-Up Gain applies to the stretch that plays. Choosing another file for the slot starts it untrimmed.
+- Drag the body of a block to move it. Drag the left or right edge to trim it. With a block selected, drag the small squares at the top corners to fade it in or out.
+- Click the time line to place the cursor. **Split** (S) cuts the block under the cursor in two, and each part gets separate fades. **Duplicate** places a copy right after the block, and **Remove** takes it away.
+- Blocks can overlap and play together. Overlapping blocks are drawn see-through, each in another colour, so both stay visible.
+- **Magnet** (M) snaps the cursor, edges and blocks to each other, to the start and to where the original ends.
+- **Add Audio** puts audio files on the time line as new blocks, one after the other from the cursor. Dropping files on the editor does the same. One slot can be made from several files this way, and a slot without new audio can start from files or from the original.
+- Under the time line, type exact values for the selected block in milliseconds. **Normalize** sets the gain so the loudest moment of the block reaches −1 dB.
+- **Play** (Space) plays from the cursor, and **Loop** (L) plays the selected block over and over. The play button beside **Original** plays the original for comparison.
+- Ctrl+Z and Ctrl+Y undo and redo inside the editor. **Reset** goes back to the whole file as it is.
+
+Nothing changes until **Apply**. The files stay as they are: the project keeps the blocks, and builds and previews play what the editor shows. Editing the original gives the slot the edited original as new audio, the way copying a slot does. Make-Up Gain applies on top of the result, and choosing another file for the slot starts it unedited.
 
 ## Hearing the result
 

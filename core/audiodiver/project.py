@@ -235,6 +235,28 @@ OVERRIDE_KEYS = {"entry_marker", "exit_marker"}
 LEGACY_SILENCE = "silence (skipped).wav"  # what Skip wrote into the project folder before silence was built in
 
 
+BLOCK_GAIN_DB = (-60.0, 24.0)  # a block's own gain in the Waveform Editor
+MAX_BLOCKS = 256
+
+
+@dataclass
+class Block:
+    """A stretch of a replacement's file placed on the slot's time line, as the Waveform Editor makes them: from start_ms
+    to end_ms of the file, playing at at_ms, with fades inside it (a straight line in level) and a gain of its own.
+    Blocks that overlap play together, added up."""
+    start_ms: float
+    end_ms: float
+    at_ms: float = 0.0
+    fade_in_ms: float = 0.0
+    fade_out_ms: float = 0.0
+    gain_db: float = 0.0
+    audio: str = ""  # another file it plays, stored as Replacement.audio is; "" for the replacement's own
+
+    @property
+    def length_ms(self) -> float:
+        return self.end_ms - self.start_ms
+
+
 @dataclass
 class Replacement:
     target: int
@@ -250,17 +272,29 @@ class Replacement:
     start_ms: float = 0.0
     end_ms: float = 0.0
     delay_ms: float = 0.0
+    # the Waveform Editor's blocks: when there are any, they say what plays, in place of the stretch, delay and fades
+    blocks: list[Block] = field(default_factory=list)
 
     @property
     def shaped(self) -> bool:
         """Whether its audio plays other than the file as it is."""
-        return not self.silence and bool(self.fade_in_ms or self.fade_out_ms or self.start_ms or self.end_ms or self.delay_ms)
+        return not self.silence and bool(self.blocks or self.fade_in_ms or self.fade_out_ms or self.start_ms
+                                         or self.end_ms or self.delay_ms)
+
+    def edit(self, file_ms: float) -> list[Block]:
+        """What plays as blocks: the blocks, or the stretch, delay and fades as the one block they make."""
+        if self.blocks:
+            return self.blocks
+        end = min(self.end_ms or file_ms, file_ms)
+        return [Block(min(self.start_ms, end), end, self.delay_ms, self.fade_in_ms, self.fade_out_ms)]
 
 
 def heard_ms(r: Replacement, file_ms: float | None) -> float | None:
     """How long a replacement plays, from its file's length: its stretch of the file, after its delay."""
     if file_ms is None or r.silence:
         return file_ms
+    if r.blocks:
+        return max(b.at_ms + b.length_ms for b in r.blocks)
     end = min(r.end_ms or file_ms, file_ms)
     return r.delay_ms + max(0.0, end - min(r.start_ms, end))
 
@@ -375,7 +409,16 @@ class Project:
         if not r.shaped:
             return path
         from .audio import faded
+        if r.blocks:
+            from .audio import edited
+            return edited(path, r.blocks, self.file)
         return faded(path, r.fade_in_ms, r.fade_out_ms, r.start_ms, r.end_ms, r.delay_ms)
+
+    def files_of(self, r: Replacement) -> list[str]:
+        """Every file a replacement plays, as stored: its own and those of its blocks."""
+        if r.silence:
+            return []
+        return list(dict.fromkeys([r.audio, *(b.audio for b in r.blocks if b.audio)]))
 
     def icon_path(self) -> Path | None:
         """The image the icon is made from, or None when the mod takes Audiodiver's default icon."""
@@ -401,9 +444,10 @@ class Project:
             if r.target in seen:
                 out.append(("duplicate", tr("{name}: same target as {other}").format(name=name, other=seen[r.target])))
             seen[r.target] = name
-            if not r.silence and not exists(self.audio_path(r)):
-                out.append(("missing_file", tr("{name}: the audio file wasn't found ({path})").format(
-                    name=name, path=os.path.normpath(self.audio_path(r)))))
+            for rel in self.files_of(r):
+                if not exists(self.file(rel)):
+                    out.append(("missing_file", tr("{name}: the audio file wasn't found ({path})").format(
+                        name=name, path=os.path.normpath(self.file(rel)))))
         for seg, o in self.segment_overrides.items():
             if set(o) - OVERRIDE_KEYS:
                 out.append(("overrides", tr("segment {id}: unknown overrides {keys}").format(
@@ -465,6 +509,32 @@ class Project:
             raise ProjectFormatError("not a project")
         need(isinstance(d.get("name"), str), "name")
         need(isinstance(d.get("replacements", []), list), "replacements")
+        def blocks_of(v, what) -> list[Block]:
+            """The Waveform Editor's blocks, each number brought into range; one that plays nothing is dropped."""
+            if v is None:
+                return []
+            if not isinstance(v, list):
+                repairs.append(what)
+                return []
+            out = []
+            for b in v[:MAX_BLOCKS]:
+                if not isinstance(b, dict):
+                    repairs.append(what)
+                    continue
+                start = number(b.get("start_ms", 0.0), 0.0, *TRIM_MS, what)
+                end = number(b.get("end_ms", 0.0), 0.0, *TRIM_MS, what)
+                if end <= start:
+                    repairs.append(what)
+                    continue
+                out.append(Block(start, end, number(b.get("at_ms", 0.0), 0.0, *TRIM_MS, what),
+                                 number(b.get("fade_in_ms", 0.0), 0.0, *FADE_MS, what),
+                                 number(b.get("fade_out_ms", 0.0), 0.0, *FADE_MS, what),
+                                 number(b.get("gain_db", 0.0), 0.0, *BLOCK_GAIN_DB, what),
+                                 b["audio"] if isinstance(b.get("audio"), str) else ""))
+            if len(v) > MAX_BLOCKS:
+                repairs.append(what)
+            return out
+
         reps = []
         for r in d.get("replacements", []):
             need(isinstance(r, dict) and "target" in r, "replacement")
@@ -493,7 +563,8 @@ class Project:
                                     fade_out_ms=number(r.get("fade_out_ms", 0.0), 0.0, *FADE_MS, fade_of.format(name=of, id=target)),
                                     start_ms=number(r.get("start_ms", 0.0), 0.0, *TRIM_MS, trim_of.format(name=of, id=target)),
                                     end_ms=number(r.get("end_ms", 0.0), 0.0, *TRIM_MS, trim_of.format(name=of, id=target)),
-                                    delay_ms=number(r.get("delay_ms", 0.0), 0.0, *TRIM_MS, trim_of.format(name=of, id=target))))
+                                    delay_ms=number(r.get("delay_ms", 0.0), 0.0, *TRIM_MS, trim_of.format(name=of, id=target)),
+                                    blocks=[] if silence else blocks_of(r.get("blocks"), trim_of.format(name=of, id=target))))
         icon = d.get("icon") or {}
         if isinstance(icon, str):  # an image path, before the icon had a frame
             icon = {"image": icon}
@@ -592,6 +663,10 @@ class Project:
             for k in ("fade_in_ms", "fade_out_ms", "start_ms", "end_ms", "delay_ms"):
                 if not out[k]:
                     del out[k]
+            if not r.blocks:
+                del out["blocks"]
+            else:  # each block without what is at its default
+                out["blocks"] = [{k: v for k, v in b.items() if v or k in ("start_ms", "end_ms")} for b in out["blocks"]]
             return out
         return {
             "audiodiver": FORMAT, "name": self.name, "guid": self.guid, "version": self.version,

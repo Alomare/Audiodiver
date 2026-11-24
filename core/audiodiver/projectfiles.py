@@ -92,6 +92,8 @@ def uses(d: dict, base: Path) -> set[Path]:
     folder base: its new audio and the icon's image."""
     reps = d.get("replacements") if isinstance(d.get("replacements"), list) else []
     rels = [r.get("audio") for r in reps if isinstance(r, dict) and not r.get("silence")]
+    rels += [b.get("audio") for r in reps if isinstance(r, dict) and not r.get("silence")  # the Waveform Editor's other files
+             for b in (r.get("blocks") if isinstance(r.get("blocks"), list) else []) if isinstance(b, dict)]
     icon = d.get("icon")
     rels.append(icon.get("image") if isinstance(icon, dict) else icon)  # an image path, before icons had a frame
     return {norm(Path(base) / rel) for rel in rels if isinstance(rel, str) and rel.strip()}
@@ -115,6 +117,9 @@ def rebase(d: dict, old: Path, new: Path, moved: dict | None = None, whole=False
     for r in out.get("replacements", []):
         if not r.get("silence"):
             r["audio"] = again(r.get("audio"))
+            for b in r.get("blocks") or []:
+                if isinstance(b, dict) and b.get("audio"):
+                    b["audio"] = again(b["audio"])
     if isinstance(out.get("icon"), dict) and out["icon"].get("image"):
         out["icon"]["image"] = again(out["icon"]["image"])
     if out.get("build_folder"):  # "" stays: the build folder next to the project file

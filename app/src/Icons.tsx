@@ -249,3 +249,32 @@ export const BuildIcon = () => (
 export const ToolsIcon = () => (
   <Icon><path d="M20.06 6.91A4.2 4.2 0 0 1 14.19 11.79L6.19 19.79A1.4 1.4 0 0 1 4.21 17.81L12.21 9.81A4.2 4.2 0 0 1 17.09 3.94L15.53 5.5 18.5 8.47Z" /></Icon>
 );
+
+/** A waveform with a pen over it: the Waveform Editor. */
+export const EditWaveIcon = () => (
+  <Icon size={1.1}><path d="M3 12h1.5M6 9v6M9 6.5v11M12 9.5v5" /><path d="m14.2 19.8.6-3.2 5.6-5.6a1.8 1.8 0 0 1 2.6 2.6l-5.6 5.6z" /></Icon>
+);
+/** A blade through a block: split at the cursor. */
+export const SplitIcon = () => (
+  <Icon size={1.1}><rect x="3" y="7" width="7" height="10" rx=".5" /><rect x="14" y="7" width="7" height="10" rx=".5" /><path d="M12 3v18" strokeDasharray="2 2.2" /></Icon>
+);
+/** A horseshoe magnet: blocks and the cursor snap to edges. */
+export const MagnetIcon = () => (
+  <Icon size={1.1}><path d="M6 4v8a6 6 0 0 0 12 0V4" /><path d="M6 4h3.5v8a2.5 2.5 0 0 0 5 0V4H18" /><path d="M6 7.5h3.5M14.5 7.5H18" /></Icon>
+);
+/** A filled triangle: play. */
+export const PlayIcon = () => <Icon size={1}><path d="M7.5 5.5v13l11-6.5z" fill="currentColor" /></Icon>;
+/** A filled square: stop, back to the cursor. */
+export const StopIcon = () => <Icon size={1}><rect x="6.5" y="6.5" width="11" height="11" fill="currentColor" /></Icon>;
+/** Two arrows round a loop: play over and over. */
+export const LoopIcon = () => (
+  <Icon size={1.1}><path d="M4 11V9.5A3.5 3.5 0 0 1 7.5 6H19" /><path d="m16 3 3 3-3 3" /><path d="M20 13v1.5a3.5 3.5 0 0 1-3.5 3.5H5" /><path d="m8 21-3-3 3-3" /></Icon>
+);
+/** Two blocks, one over the other: duplicate. */
+export const DuplicateIcon = () => (
+  <Icon size={1.1}><rect x="3" y="9" width="12" height="7" rx=".5" /><path d="M9 9V5.5h12v7h-6" /></Icon>
+);
+/** A level that reaches the line at the top: normalize. */
+export const NormalizeIcon = () => (
+  <Icon size={1.1}><path d="M3 4.5h18" strokeDasharray="2 2" /><path d="M5 20v-6M9 20V8M13 20v-9M17 20V5.5M21 20v-7" /></Icon>
+);

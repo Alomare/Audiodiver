@@ -27,6 +27,7 @@ import { ScaleTipLayer, TooltipLayer } from "./Tooltip";
 import { UpdatePrompt, UpdatesTab } from "./UpdatesTab";
 import { updates, useUpdates } from "./updates";
 import { Wiki } from "./Wiki";
+import { waveDrop } from "./WaveEditor";
 import { call, fmtTime, gameState, iconUrl, intlLocale, type Job } from "./api";
 import { APP_NAME, UTILS } from "./edition";
 import { APP_LABEL, APP_VERSION, versionLabel } from "./content";
@@ -202,6 +203,8 @@ function Shell() {
     if (!audio.length) return quick(images.length ? t`Drop images on the icon on the Project tab` : t`No audio files in the drop`, "info");
     // the Soundtrack's places: a place of a playlist, a free segment, or One song
     if (target?.kind === "place" || target?.kind === "segment" || target?.kind === "song") return soundtrackDrop(target, audio);
+    // the Waveform Editor: files as new blocks
+    if (target?.kind === "wave-editor") return waveDrop(audio);
     // the Audio tab's: a slot, a group of takes, a cue, a piece of music
     if (target?.kind === "slot") { scopes.editor.setSelected([target.source]); return actions.assign(target.source, audio); }
     if (target?.kind === "sources") return actions.fillSources(target.sources, audio, target.what);

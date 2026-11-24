@@ -87,6 +87,10 @@ export type Cue = Entry & {
   tags?: Tag[]; bank_name?: string; language?: string; lang?: string; // a voice bank's language: its name, its code
 };
 export const isMusic = (cue: { kind: string }) => cue.kind !== "sounds" && cue.kind !== "sound";
+/** A stretch of a slot's file placed on the slot's time line (the Waveform Editor; core project.Block), in ms: from
+    start_ms to end_ms of the file, playing at at_ms, with fades inside it and a gain of its own. Overlaps add up. */
+export type Block = { start_ms: number; end_ms: number; at_ms: number; fade_in_ms: number; fade_out_ms: number; gain_db: number;
+  audio?: string }; // audio: another file the block plays (as the project stores it, or a full path just added); none: the slot's own
 export type Assignment = {
   target: string; audio: string; label: string; gain_db: number; fit_timing: boolean; exists: boolean;
   name: string; cues: string[];
@@ -95,6 +99,7 @@ export type Assignment = {
   duration_ms: number | null; // how long it plays: its stretch of the file, after its delay
   file_ms?: number | null; // the file's length
   start_ms?: number; end_ms?: number; delay_ms?: number; // the stretch of the file that plays (end 0: to its end), and the silence before it
+  blocks?: Block[]; // the Waveform Editor's: what plays, in place of the stretch, delay and fades (none: those)
   file_segments: number; // the music segments that play the file, in this slot and others (0 for silence)
 };
 /** A Sound with a clip of its own (Isolate Audio) in place of one of the game's clips: where it is (the Library's

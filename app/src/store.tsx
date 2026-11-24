@@ -1,6 +1,6 @@
 import { createContext, use, useCallback, useContext, useEffect, useMemo, useRef, useState, type Context, type ReactNode } from "react";
 import { t, plural } from "@lingui/core/macro";
-import { andList, call, fmtNumber, gameState, type ArchiveRow, type Assignment, type Cue, type Index, type Job, type MusicItem, type Piece, type Place as Found, type ProjectState, type Slot, type Status } from "./api";
+import { andList, call, fmtNumber, gameState, type ArchiveRow, type Assignment, type Block, type Cue, type Index, type Job, type MusicItem, type Piece, type Place as Found, type ProjectState, type Slot, type Status } from "./api";
 import { confirm } from "./Confirm";
 import { importAsk } from "./importAsk";
 import { liveGain } from "./gain";
@@ -1093,6 +1093,12 @@ function useEditorState() {
     async setTrim(source: string, trim: { start_ms: number; end_ms: number; delay_ms: number }) {
       if (needProject()) return edited(await run<ProjectState>("trim_set", { source, ...trim }));
       return false;
+    },
+    /** The Waveform Editor's blocks for a slot (none: the file as it is). `original`: they are of the slot's original
+        audio, which becomes the new audio. True when the project took them. */
+    async setEdit(source: string, blocks: Block[], original = false, label?: string) {
+      if (!needProject()) return false;
+      return edited(await run<ProjectState>("edit_set", { source, blocks, original, ...(label ? { label } : {}) }));
     },
     /** Whether the clips of slots keep their volume curves: the line over the waveform. */
     async keepCurve(sources: string[], keep: boolean) {

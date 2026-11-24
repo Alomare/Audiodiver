@@ -85,6 +85,60 @@ def faded(src: Path, fade_in_ms: float, fade_out_ms: float, start_ms: float = 0.
     return out
 
 
+def edited(src: Path, blocks, resolve=None) -> Path:
+    """src as the Waveform Editor's blocks make it, a 48 kHz WAV kept with the caches: each block's stretch of the
+    file placed at its time, with its gain and its fades (a straight line in level, as `faded`), and blocks that
+    overlap added up. Silence fills the time no block covers. Past full scale is clipped, as the preview's limiter
+    would not be there in game. Builds and previews both use it. A block with an `audio` of its own plays that file,
+    found by `resolve` (Project.file), in the channels of src; the others play src."""
+    import numpy as np
+    from dataclasses import asdict, is_dataclass
+    src = Path(src)
+    shape = [asdict(b) if is_dataclass(b) else dict(b) for b in blocks]
+    files = {"": src, **{b["audio"]: Path(resolve(b["audio"]) if resolve else b["audio"]) for b in shape if b.get("audio")}}
+    stats = [[str(f.resolve()), f.stat().st_size, f.stat().st_mtime_ns] for f in files.values()]
+    key = hashlib.sha1(json.dumps([stats, "blocks", shape]).encode())
+    out = CACHE_DIR / "edits" / f"{key.hexdigest()[:20]}.wav"
+    with cache_lock(out):
+        if out.exists():
+            return out
+        out.parent.mkdir(parents=True, exist_ok=True)
+        tmp = out.with_name(f"{out.stem}.partial.wav")
+        pcms, params = {}, None
+        for k, f in files.items():  # each file as 48 kHz PCM, in the channels of the first (src)
+            wem.prepare_wav(str(f), str(tmp))
+            with wave.open(str(tmp)) as w:
+                got, frames = w.getparams(), w.readframes(w.getnframes())
+            x = np.frombuffer(frames, "<i2").astype(np.float32).reshape(-1, got.nchannels)
+            params = params or got
+            if x.shape[1] != params.nchannels:  # mono into stereo on both sides, stereo into mono as the average
+                x = (np.repeat(x[:, :1], params.nchannels, axis=1) if x.shape[1] == 1
+                     else x.mean(axis=1, keepdims=True).repeat(params.nchannels, axis=1))
+            pcms[k] = x
+        frame = lambda ms: round(ms * wem.RATE / 1000)  # noqa: E731
+        placed = []
+        for b in shape:
+            pcm = pcms[b.get("audio") or ""]
+            first = min(len(pcm), frame(b["start_ms"]))
+            piece = pcm[first:max(first + 1, min(len(pcm), frame(b["end_ms"])))].copy()
+            piece *= 10 ** (b.get("gain_db", 0.0) / 20)
+            n = min(len(piece), frame(b.get("fade_in_ms", 0.0)))
+            piece[:n] *= np.linspace(0, 1, n, endpoint=False)[:, None]
+            n = min(len(piece), frame(b.get("fade_out_ms", 0.0)))
+            if n:
+                piece[-n:] *= np.linspace(1, 0, n)[:, None]
+            placed.append((frame(b.get("at_ms", 0.0)), piece))
+        total = max((at + len(x) for at, x in placed), default=1)
+        mix = np.zeros((total, params.nchannels), np.float32)
+        for at, piece in placed:
+            mix[at:at + len(piece)] += piece
+        with wave.open(str(tmp), "wb") as w:
+            w.setparams(params)
+            w.writeframes(np.clip(mix.round(), -32768, 32767).astype("<i2").tobytes())
+        tmp.replace(out)
+    return out
+
+
 def peaks(path: Path, buckets: int = 1200, full: int = 255) -> dict:
     """{duration_ms, full, peaks: [0..full] * buckets}: the loudest sample in each slice of the file (cached).
     full 255 draws a waveform; a zoomed-in one asks for 32767, so a quiet sound keeps its shape when drawn taller."""

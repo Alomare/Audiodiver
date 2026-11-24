@@ -678,6 +678,12 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .tl-label.game b { color: var(--steel); }
 .tl-label.mine b { color: var(--accent-fg); }
 .tl-curve { color: var(--text); }
+/* the Waveform Editor's way in, at the end of a lane's label: a small icon that lights up on hover */
+.tl-edit { align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; height: calc(22px * var(--fs)); padding: 0 7px 0 4px;
+  font-size: calc(12px * var(--fs)); font-weight: 600;
+  margin-top: 3px; color: var(--muted); border: 1px solid var(--line); background: var(--bg); border-radius: 2px; transition: color var(--t1), border-color var(--t1); }
+.tl-edit:hover { color: var(--text); border-color: var(--second-fg); }
+.tl-label.mine .tl-edit:hover { color: var(--accent-fg); border-color: var(--accent-fg); }
 /* the Library's facts about the slot, over its waveform */
 .tl-facts { flex: none; display: flex; flex-direction: column; gap: 3px; font-size: calc(13px * var(--fs)); color: var(--muted); }
 .tl-facts-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; min-width: 0; }
@@ -703,12 +709,6 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .tl-note { margin: 0 0 0 calc(64px * var(--fs) + 10px); font-size: calc(12px * var(--fs)); color: var(--muted); }
 .tl-note b { color: var(--text); font-weight: 500; }
 /* the new audio's lane: its whole file under Replaced; the stretch that plays drags, its ends and fades are markers */
-.trim-wrap { position: relative; display: grid; grid-template-rows: minmax(0, 1fr); min-width: 0; overflow: hidden; }
-.trim-wrap > .wave { grid-area: 1 / 1; }
-.trim-body { position: absolute; top: 0; bottom: 0; z-index: 1; min-width: 4px; cursor: grab; border-radius: 2px; }
-.trim-body:hover { background: color-mix(in srgb, var(--accent-fg) 10%, transparent); }
-.trim-body:active { cursor: grabbing; }
-.trim-wrap .marker { z-index: 2; }
 /* a line bent into a fade: drawn slanted from its foot to its flag; the flag drags the fade, the slant the marker */
 .marker.bent { border-left-color: transparent !important; }
 .marker.bent::before { top: 50%; } /* the foot only: above it is the fade, not the line */
@@ -720,12 +720,6 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .marker-grip { position: absolute; top: 0; width: var(--grip); height: var(--grip); margin-left: calc(var(--grip) / -2); z-index: 3;
   background: var(--text); border: 1px solid var(--bg); box-sizing: border-box; cursor: ew-resize; }
 .marker-grip:hover, .marker.dragging .marker-grip { background: var(--accent-fg); }
-.tl-trim { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin-left: calc(64px * var(--fs) + 10px); font-size: calc(12px * var(--fs)); color: var(--muted); }
-.tl-trim-help { position: absolute; right: calc(100% + 10px); top: 50%; transform: translateY(-50%); display: flex; }
-.trim-field { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
-.trim-field input { width: calc(64px * var(--fs)); padding: 2px 6px; font: inherit; font-variant-numeric: tabular-nums; color: var(--text); }
-.trim-field .unit { margin-left: -1px; }
-.tl-trim .link-inline { margin-left: 0; }
 .link-inline { margin-left: 10px; color: var(--second-fg); font-size: calc(12px * var(--fs)); text-decoration: underline; }
 .modal-back { position: fixed; inset: 0; background: rgb(0 0 0 / .6); display: grid; place-items: center; z-index: 40; }
 .modal { width: min(1100px, 94vw); max-height: 90vh; display: flex; flex-direction: column; gap: 10px; background: var(--raised); border: 1px solid var(--line); padding: 16px 18px; box-shadow: 0 24px 60px var(--shadow); }
@@ -2358,3 +2352,50 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .st-cell.sel { background: var(--sel-bg); box-shadow: inset 0 0 0 1px var(--second-fg); }
 .st-cname { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
 .st-cell.mine .st-cname { color: var(--text); }
+
+/* ---------- the Waveform Editor (WaveEditor.tsx): the slot's audio as blocks on one time line. A head with what
+   is edited, a toolbar (play, edit, magnet, history), the lanes with the zoom at their right, the selected block in
+   numbers, and the foot with Apply and the length of the result against the original's */
+.modal.wave-ed { width: min(1320px, 96vw); max-height: 94vh; overflow: auto; gap: 12px; }
+.wave-ed-head { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.wave-ed-head h2 { margin: 0; font-size: calc(19px * var(--fs)); white-space: nowrap; }
+.wave-ed-what { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: calc(14px * var(--fs)); }
+.wave-ed-src { flex: none; padding: 1px 8px; font-size: calc(12px * var(--fs)); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; border: 1px solid currentColor; }
+.wave-ed-src.game { color: var(--steel); }
+.wave-ed-src.mine { color: var(--accent-fg); max-width: 32ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-transform: none; letter-spacing: 0; font-weight: 600; }
+.wave-ed-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.wave-ed-tools .btn { gap: 7px; }
+.wave-ed-tools .btn.on { border-color: var(--second-fg); color: var(--second-fg); background: color-mix(in srgb, var(--second-fg) 12%, var(--raised)); }
+.wave-ed-tools .play-btn { min-width: calc(92px * var(--fs)); justify-content: center; }
+.wave-ed-tools .play-btn.on { border-color: var(--accent-fg); color: var(--accent-fg); background: var(--raised); }
+.wave-ed-sep { width: 1px; height: 22px; margin: 0 6px; background: var(--line); }
+.wave-ed-body { flex: none; }
+.wave-ed-lanes { grid-area: 1 / 1; min-width: 0; display: grid; grid-template-columns: calc(96px * var(--fs)) minmax(0, 1fr); background: var(--bg); border: 1px solid var(--line-soft); }
+.wave-ed-labels { display: grid; border-right: 1px solid var(--line-soft); font-size: calc(13px * var(--fs)); font-weight: 700; }
+.wave-ed-labels > span { display: flex; align-items: center; gap: 4px; padding: 0 8px; }
+.wave-ed-labels .game { color: var(--steel); border-top: 1px solid var(--line-soft); }
+.wave-ed-labels .mine { color: var(--accent-fg); border-top: 1px solid var(--line-soft); }
+.wave-ed-labels .icon-btn.small { width: 24px; height: 24px; font-size: 15px; flex: none; }
+.wave-ed-canvas { position: relative; overflow: hidden; touch-action: none; user-select: none; }
+.wave-ed-canvas canvas { display: block; }
+.wave-ed-state { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; color: var(--muted); font-size: calc(13px * var(--fs)); }
+/* a slot without new audio: the edit lane offers files, or the original to start from */
+.wave-ed-empty { top: calc(88px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; pointer-events: none; }
+.wave-ed-empty > * { pointer-events: auto; }
+.wave-ed-empty p { margin: 0; }
+.wave-ed-empty .btn { gap: 7px; }
+.wave-ed-file { display: block; max-width: 22ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 400;
+  font-size: calc(12px * var(--fs)); color: var(--muted); }
+.wave-ed-fields { flex: none; min-height: calc(40px * var(--fs)); display: flex; align-items: center; border-top: 1px solid var(--line-soft); padding-top: 10px; }
+.wave-ed-fields > p { margin: 0; font-size: calc(13px * var(--fs)); }
+.wave-ed-block { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; font-size: calc(13px * var(--fs)); color: var(--muted); }
+.wave-ed-n { color: var(--text); min-width: calc(64px * var(--fs)); }
+.wave-ed-field { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.wave-ed-field input { width: calc(76px * var(--fs)); padding: 3px 6px; font: inherit; font-variant-numeric: tabular-nums; color: var(--text); }
+.wave-ed-field .unit { margin-left: -2px; }
+.wave-ed-block .btn { gap: 7px; padding-top: 3px; padding-bottom: 3px; }
+.wave-ed-len b { color: var(--text); font-variant-numeric: tabular-nums; }
+.wave-ed-sum { font-size: calc(13px * var(--fs)); color: var(--muted); font-variant-numeric: tabular-nums; }
+.wave-ed-sum b { color: var(--accent-fg); }
+.wave-ed-sum .longer { color: var(--text); }
+.wave-ed-sum .shorter { color: var(--text); }
