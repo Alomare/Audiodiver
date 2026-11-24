@@ -100,8 +100,12 @@ function open(l: Load) {
   if (l.start) audio.addEventListener("loadedmetadata", begin, { once: true }); else begin();
 }
 
+// the url the element was loaded from: the same key with another url (the slot's audio edited, its revision in the
+// url) loads again, so the new length applies; reusing the element kept the old one and cut playback short
+let loadedUrl = "";
 function start(key: string, url: string, startSec: number, label: string, at: PlayedAt | null) {
   endMix();
+  loadedUrl = url;
   load = { n: ++loads, url, start: startSec, tries: 0 };
   set({ key, label, at, loading: true, playing: false, time: startSec, duration: 0, error: null });
   level();
@@ -204,16 +208,17 @@ export const player = {
       label says what plays, for the now-playing bar, and `at` where it can be found. */
   play(key: string, url: string, keepPosition = false, label = "", at: PlayedAt | null = null) {
     stopAt = null;
-    if (state.key === key && audio.getAttribute("src") && !state.error) {
+    if (state.key === key && loadedUrl === url && audio.getAttribute("src") && !state.error) {
       if (audio.paused) audio.play().catch(() => {}); else audio.pause();
       return;
     }
-    start(key, url, keepPosition ? audio.currentTime : 0, label, at);
+    // the same key with new audio (edited meanwhile) carries on from where it was, as a pause would have
+    start(key, url, keepPosition || (state.key === key && !state.error && !audio.ended) ? audio.currentTime : 0, label, at);
   },
   /** Plays url from startSec, stopping at endSec if given (auditioning a spot or a slice). */
   playFrom(key: string, url: string, startSec: number, endSec?: number, label?: string, at: PlayedAt | null = null) {
     stopAt = endSec ?? null;
-    if (state.key === key && audio.getAttribute("src") && !state.error && audio.readyState > 0) {
+    if (state.key === key && loadedUrl === url && audio.getAttribute("src") && !state.error && audio.readyState > 0) {
       if (label) set({ label });
       audio.currentTime = Math.max(0, startSec);
       audio.play().catch(() => {});
