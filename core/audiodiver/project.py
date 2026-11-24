@@ -348,8 +348,11 @@ class Project:
         return {i for a in self.additions for i in a.ids()}
 
     def file(self, rel) -> Path:
-        """A path the project stores (relative to the project file, or absolute) as a full path."""
-        return (self.path.parent if self.path else Path.cwd()) / rel
+        """A path the project stores (relative to the project file, or absolute) as a full path, without the dots: on
+        Windows a path is measured as written, so "<project folder>/../../Music/a.wav" could pass 260 characters and
+        not open (Python without long paths, vgmstream, wav2wem) where the same file's real path is short. The project
+        folder is resolved already, so taking out ".." here lands where the file system would."""
+        return Path(os.path.normpath((self.path.parent if self.path else Path.cwd()) / rel))
 
     def default_build_dir(self) -> Path:
         return self.file("build")

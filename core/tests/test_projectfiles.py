@@ -53,6 +53,16 @@ def test_a_new_project_gets_a_folder_of_its_own(tmp_path):
     assert Session(load=False).projects_folder() == str(tmp_path)  # the next one is offered the same place
 
 
+def test_a_stored_path_comes_back_without_dots(tmp_path):
+    """A deep project folder with a long name and a file kept elsewhere: Windows measures "<folder>/../../a.wav" as
+    written, which passed 260 characters and showed the file as missing (a player's report), so the dots go."""
+    folder = tmp_path / ("Squad Weapon SFX Replacer For Bolt Pistol " * 4).strip()
+    p = Project(name="x", path=folder / "x.audi")
+    got = p.file("../../Music/Muzzle Blast SFX/382080030.wav")
+    assert ".." not in got.parts and got == tmp_path.parent / "Music" / "Muzzle Blast SFX" / "382080030.wav"
+    assert p.file("audio/a.wav") == folder / "audio" / "a.wav"
+
+
 def test_a_project_beside_another_is_not_in_its_own_folder(tmp_path):
     a = _session(tmp_path / "a.audi")
     assert a.project_state()["own_folder"]  # named differently, but alone in it
