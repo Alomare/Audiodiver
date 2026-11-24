@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { call, projectIconUrl } from "./api";
+import { call, gameState, projectIconUrl } from "./api";
 import { DISCORD_URL, HOME_ART, HOME_ART_HD1, KOFI_URL, REPO_URL, TICKER_URL } from "./content";
 import { CloseIcon, DiscordIcon, FolderIcon, GithubIcon, ImportIcon, KofiIcon, MergeIcon, NextIcon, PrevIcon, ProjectIcon, ToolsIcon } from "./Icons";
 import { nav, useNav, type Mode } from "./nav";
@@ -19,15 +19,18 @@ export function Home() {
   const { homeTicker } = useSettings();
   const { mode } = useNav();
   const name = project?.name;
-  const art = mode === "hd1" ? HOME_ART_HD1 : HOME_ART;
+  // until the game of the mode is read, Home has the title and the game switch alone: no pictures, nothing to open
+  const ready = gameState(status, mode).state === "ready";
+  const art = !ready ? [] : mode === "hd1" ? HOME_ART_HD1 : HOME_ART;
   return (
     <section className={`home${art.length ? " with-art" : ""}${homeTicker ? "" : " no-ticker"}`} aria-label={t`Home`}>
       <div className="home-scroll">
-        {status?.hd1 && <GameSwitch />}
+        <GamePick />
         <div className="home-inner view-in">
           <header className="home-hero">
             <h1><Trans comment="The title on Home; <0/> is a line break">A new anthem<br />for Super Earth</Trans></h1>
           </header>
+          {ready && <>
 
           {/* a menu, as the game's own: the yellow item is the way in; the Tools tab's two pages after a gap.
               Open Project holds the last project opened, after its words. It stays the same with a project open: a
@@ -59,11 +62,12 @@ export function Home() {
               data-tip={t`Make one mod out of several audio mods`}
               data-tip-more={t`For mods that change the same sound banks, where only the one deployed last plays`}><MenuInner icon={<MergeIcon />}><Trans>Combine Mods</Trans></MenuInner></button>
           </nav>}
+          </>}
 
         </div>
       </div>
       {art.length ? <HomeArt key={mode} art={art} set={mode}><Community /></HomeArt>
-        : <><div className="home-art" aria-hidden><Meters /><Veil /></div><div className="home-corner"><Community /></div></>}
+        : <>{ready && <div className="home-art" aria-hidden><Meters /><Veil /></div>}<div className="home-corner"><Community /></div></>}
       {homeTicker && <Ticker />}
     </section>
   );
@@ -81,24 +85,58 @@ function LevelMeter() {
   return <span className="menu-meter" aria-hidden>{LEVELS.map((h, i) => <i key={i} style={{ height: `${h}%`, ["--n" as any]: i }} />)}</span>;
 }
 
-/** Which game the window makes mods for, once Helldivers 1 is found, in the top-right corner: a track whose thumb
-    slides to the game in use. Each has its own tabs and pictures, and a project is for one of them (nav.ts Mode). A project of
-    the other game closes first. */
-function GameSwitch() {
-  const { project, actions } = useEditor();
+const GAMES = [["hd1", "Helldivers 1"], ["hd2", "Helldivers 2"]] as const;
+
+/** Which game the window makes mods for, in the top-right corner: a track whose thumb slides to the game in use. Both
+    games are read at start-up, each on its own, and the window doesn't wait: a game being read is a button that
+    can't be pressed yet, with a meter that plays, and one that wasn't found is struck through. The thumb comes once
+    the game in use is read (the first one read, at the start). Under the track, a line says what is going on, with
+    a way to choose a folder for a game that wasn't found. Each game has its own tabs and pictures, and a project is
+    for one of them (nav.ts Mode); a project of the other game closes first. */
+function GamePick() {
+  const { project, actions, status } = useEditor();
   const { mode } = useNav();
+  const states = { hd1: gameState(status, "hd1"), hd2: gameState(status, "hd2") };
+  const at = states[mode].state === "ready" ? mode : "none";
   const pick = async (m: Mode) => {
-    if (m === mode) return;
+    if (m === mode || states[m].state !== "ready") return;
     if (project && project.game !== m) await actions.closeProject();
     nav.setMode(m);
   };
+  const [why, setWhy] = useState<string | null>(null); // why the folder just chosen can't be used
+  const choose = (m: Mode) => (m === "hd1" ? actions.setHd1Folder() : actions.setGameFolder()).then((w) => setWhy(w));
+  const scanning = GAMES.filter(([id]) => states[id].state === "scanning").map(([, n]) => n);
+  const missing = GAMES.filter(([id]) => states[id].state === "missing");
+  const line = scanning.length === 2 ? t`Scanning Helldivers 1 and Helldivers 2`
+    : scanning.length ? t`Scanning ${scanning[0]}`
+    : missing.length === 2 ? t`No game found`
+    : missing.length ? t`${missing[0][1]} not found` : "";
   return (
-    <div className="game-switch" data-at={mode} role="radiogroup" aria-label={t`Game`}>
-      {([["hd1", "Helldivers 1"], ["hd2", "Helldivers 2"]] as const).map(([id, name]) => (
-        <button key={id} role="radio" aria-checked={mode === id} onClick={() => pick(id)}
-          data-tip={id === "hd1" ? t`Make mods for Helldivers 1` : t`Make mods for Helldivers 2`}
-          data-tip-more={project && project.game !== id ? t`Closes the project open now` : undefined}>{name}</button>
-      ))}
+    <div className="game-pick">
+      <div className="game-switch" data-at={at} role="radiogroup" aria-label={t`Game`}>
+        {GAMES.map(([id, name]) => {
+          const st = states[id].state;
+          return (
+            <button key={id} role="radio" aria-checked={at === id} aria-disabled={st !== "ready"} data-state={st} onClick={() => pick(id)}
+              data-tip={st === "scanning" ? t`Scanning ${name}` : st === "missing" ? t`${name} wasn't found`
+                : id === "hd1" ? t`Make mods for Helldivers 1` : t`Make mods for Helldivers 2`}
+              data-tip-more={st === "scanning" ? states[id].detail || undefined : st === "missing" ? states[id].detail || undefined
+                : project && project.game !== id ? t`Closes the project open now` : undefined}>
+              {st === "scanning" && <span className="game-scan" aria-hidden><i /><i /><i /></span>}{name}</button>
+          );
+        })}
+      </div>
+      {line && (
+        <p className="game-status" role="status" data-state={scanning.length ? "scanning" : "missing"}>
+          <span>{line}</span>
+          {!scanning.length && missing.map(([id, name]) => (
+            <button key={id} className="link-text" onClick={() => choose(id)}
+              data-tip={id === "hd1" ? t`Choose the Helldivers 1 install folder` : t`Choose the Helldivers 2 install folder`}>
+              {missing.length === 2 ? t`Choose ${name} Folder` : t`Choose Folder`}</button>
+          ))}
+        </p>
+      )}
+      {why && !scanning.length && <p className="game-status game-why" data-state="missing">{why}</p>}
     </div>
   );
 }

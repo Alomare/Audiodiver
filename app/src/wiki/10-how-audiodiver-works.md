@@ -14,7 +14,7 @@ A project is a folder named after the project, with a `.audi` file in it. The fi
 
 Changes are saved automatically, as they are made or every few minutes ([Autosave](wiki:how-audiodiver-works#autosave)). {key:save} saves at any time, and {key:undo} undoes the last change.
 
-Audiodiver never writes to the game folder. It reads the game audio from the Steam library, or from another folder chosen under **Game** in [Settings](app:settings/system). A build produces a ZIP that a mod manager imports and installs.
+Audiodiver never writes to the game folder. It reads the game audio from the Steam library, or from another folder chosen under **Game** in [Settings](app:settings/system). Home opens straight away while Audiodiver reads Helldivers 1 and Helldivers 2, and the tabs that need a game appear once that game is read. A build produces a ZIP that a mod manager imports and installs.
 
 ## The tabs
 

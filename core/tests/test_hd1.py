@@ -733,8 +733,23 @@ def test_a_helldivers_1_project_without_the_game_is_refused_once_loading_is_done
     s.hd1 = None
     with pytest.raises(EditorError, match="Settings"):
         s.open_project(path)
-    s.stage = "Mapping the music"  # still loading: the game may come yet
-    assert s.open_project(path)["game"] == "hd1"
+
+
+def test_helldivers_1_works_while_helldivers_2_is_read_or_missing(game, tmp_path, monkeypatch):
+    """Each game is read on its own: a Helldivers 1 project, the Library and the status go on without Helldivers 2."""
+    from audiodiver.editor import EditorError
+    s, _ = hd1_session(game, tmp_path, monkeypatch)
+    path = str(s.project.path)
+    s.save_project()
+    for stage in ("Mapping the music", "failed"):
+        s.project, s.stage, s.lib = None, stage, None
+        st = s.status()["games"]
+        assert st["hd1"]["state"] == "ready" and st["hd2"]["state"] == ("missing" if stage == "failed" else "scanning")
+        assert s.index()["categories"] and all(c["id"].startswith("hd1") for c in s.index()["categories"])
+        assert s.archives() and s.open_project(path)["game"] == "hd1"
+        s.require_game()  # the open project's game
+        with pytest.raises(EditorError):
+            s.require_game("hd2")
 
 
 def test_a_helldivers_1_project_waits_for_the_read_after_start_up(game, tmp_path, monkeypatch):

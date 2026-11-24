@@ -1,6 +1,6 @@
 import { createContext, use, useCallback, useContext, useEffect, useMemo, useRef, useState, type Context, type ReactNode } from "react";
 import { t, plural } from "@lingui/core/macro";
-import { andList, call, fmtNumber, type ArchiveRow, type Assignment, type Cue, type Index, type Job, type MusicItem, type Piece, type Place as Found, type ProjectState, type Slot, type Status } from "./api";
+import { andList, call, fmtNumber, gameState, type ArchiveRow, type Assignment, type Cue, type Index, type Job, type MusicItem, type Piece, type Place as Found, type ProjectState, type Slot, type Status } from "./api";
 import { confirm } from "./Confirm";
 import { importAsk } from "./importAsk";
 import { liveGain } from "./gain";
@@ -31,7 +31,6 @@ export type Notice = {
 export type Toast = { id: number; text: string; icon: ToastIcon; leaving?: boolean };
 export type ToastIcon = "done" | "add" | "save" | "copy" | "undo" | "info";
 const TOAST_MS = 1800;
-const HD1_NOTICE_MS = 1200; // Helldivers 1 read for longer than this after the window opened: a notice says so
 /** Two answers about a job that show the same: its card counts whole seconds, so a tick within the same second with
     no other change draws nothing. */
 const sameJob = (a: Job | undefined, b: Job) => !!a && a.state === b.state && a.done === b.done && a.total === b.total
@@ -436,6 +435,7 @@ function useEditorState() {
   const [boot, setBoot] = useState(0);        // counts the times the game data is read
   const [gameRev, setGameRev] = useState(0);  // bumps when it has been read again (what is open is fetched again)
   const firstBoot = useRef(true);
+  const firstPick = useRef(false); // the first game read was picked as the one the window makes mods for
   const toldLanguage = useRef(false);
   // the global notes: once the core answers (they don't wait for the game), and again whenever the window comes back
   // to the front, since a synced folder can bring another computer's changes
@@ -447,6 +447,8 @@ function useEditorState() {
   }, []);
   useEffect(() => {
     let stop = false;
+    let read = ""; // the games' states the Library was last fetched for
+    let settled = false; // the start-up's opening of a project is done (or had nothing to open)
     (async () => {
       while (!stop) {
         try {
@@ -463,11 +465,32 @@ function useEditorState() {
           if (!notesRead.current) { notesRead.current = true; notes.loadGlobal(); }
           // Automatic follows the game's language once the core has found the game (or failed to)
           if (s.stage !== "starting" && s.languages) followAuto(s.languages.game, s.languages.system);
-          if (s.stage === "ready") {
+          // each game is read on its own and the window doesn't wait: the Library is fetched again each time one
+          // is ready, the first ready is the game the window makes mods for, and the project opens once
+          // Helldivers 2 is settled (a Helldivers 1 project waits for that game in the core)
+          const hd2 = gameState(s, "hd2").state, hd1 = gameState(s, "hd1").state;
+          const now = `${hd2}|${hd1}`;
+          if (now !== read && (hd2 === "ready" || hd1 === "ready")) {
             const [ix, all] = await Promise.all([call<Index>("index"), call<ArchiveRow[]>("archives")]);
             if (stop) return;
-            setIndex(ix); setArchives(all);
-            if (!firstBoot.current) { setArchiveItems({}); pending.current.clear(); applyProject(s.project); setGameRev((r) => r + 1); return; }
+            read = now;
+            setIndex(ix); setArchives(all); setArchiveItems({}); pending.current.clear();
+            if (!UTILS && !firstPick.current) {
+              firstPick.current = true;
+              const mode = tabs.get().mode, other = mode === "hd1" ? "hd2" : "hd1";
+              if ((mode === "hd1" ? hd1 : hd2) !== "ready" && (other === "hd1" ? hd1 : hd2) === "ready") tabs.setMode(other);
+            }
+          }
+          if (settled) {
+            if (hd2 === "scanning" || hd1 === "scanning") { await new Promise((r) => setTimeout(r, 400)); continue; }
+            return;
+          }
+          if (s.stage === "ready" || (s.stage === "failed" && hd1 !== "scanning")) {
+            if (!firstBoot.current) {
+              settled = true;
+              if (s.stage === "ready") { applyProject(s.project); setGameRev((r) => r + 1); }
+              continue;
+            }
             firstBoot.current = false;
             for (const j of s.jobs ?? []) resume.current(j); // a build or export still running: the window reloaded
             // a project or pack opened in Explorer (a double-click): it wins over the last one
@@ -509,41 +532,15 @@ function useEditorState() {
             }
             started.current = true; // files opened in Explorer meanwhile open now, in turn
             for (const path of waiting.current.splice(0)) await openFile.current(path);
-            return;
+            settled = true;
+            continue;
           }
-          if (s.stage === "failed") return;
         } catch (e: any) { setConnectError(e.message ?? String(e)); }
         await new Promise((r) => setTimeout(r, 700));
       }
     })();
     return () => { stop = true; };
   }, [quick, notify, boot, applyProject, remember]);
-
-  // --- Helldivers 1 is read after the window opens (core _load_game): the Library gains it when it's done. A read that
-  // takes a while (the first after an update of either) says so in a notice, which goes when it's over
-  const hd1Loading = status?.stage === "ready" && !!status.hd1_loading;
-  useEffect(() => {
-    if (!hd1Loading) return;
-    let stop = false, shown: number | null = null;
-    const slow = setTimeout(() => { if (!stop) shown = notify("info", t`Reading Helldivers 1. It joins the Library when it's done.`, undefined, true); }, HD1_NOTICE_MS);
-    (async () => {
-      while (!stop) {
-        await new Promise((r) => setTimeout(r, 400));
-        try {
-          const s = await call<Status>("status");
-          if (stop || s.hd1_loading) continue;
-          const [ix, all] = s.hd1 ? await Promise.all([call<Index>("index"), call<ArchiveRow[]>("archives")]) : [null, null];
-          if (stop) return;
-          if (ix && all) { setIndex(ix); setArchives(all); }
-          if (shown !== null) { dismiss(shown); if (s.hd1) quick(t`Helldivers 1 is ready`, "done"); }
-          shown = null;
-          setStatus(s);
-          return;
-        } catch { /* the core is busy: the next try */ }
-      }
-    })();
-    return () => { stop = true; clearTimeout(slow); if (shown !== null) dismiss(shown); };
-  }, [hd1Loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // --- coming back to the window (from Explorer, say) looks at the project's files again: one deleted or renamed
   // meanwhile is a problem on the Build tab at once, not at the next edit

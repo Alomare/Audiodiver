@@ -183,11 +183,12 @@ class Session:
         self.lib = None  # library.Library: the Index and All Archives
         self.hd1 = None  # hd1.Hd1: Helldivers 1 in the Library, when it is installed
         self.hd1_where = {"path": None, "how": None}
-        # Helldivers 1 is read after the game is ready (_load_game), so the window doesn't wait for it: meanwhile
-        # hd1_loading says so, and what needs it waits for _hd1_done (_await_hd1)
-        self.hd1_loading = False
+        # Helldivers 1 is read beside Helldivers 2, each in a thread of its own, and the window opens on Home before
+        # either is done: meanwhile hd1_loading says so, and what needs it waits for _hd1_done (_await_hd1)
+        self.hd1_loading = load
         self._hd1_done = threading.Event()
-        self._hd1_done.set()
+        if not load:
+            self._hd1_done.set()
         self._hd1_lock = threading.Lock()
         self.texts = None  # strings.Texts: the game's text, read when first asked for
         self._cue_sets = {}  # part cue id -> its sounds, for the parts of what projects list
@@ -227,6 +228,7 @@ class Session:
         self.names_language = None  # the language the Index and the cue views are named in (the catalog, the library)
         if load:
             threading.Thread(target=self._load_game, daemon=True).start()
+            threading.Thread(target=self._read_hd1, daemon=True).start()
 
     RENAMING = N_("Naming the sounds and the music in the new language")
 
@@ -294,8 +296,6 @@ class Session:
             clean_temp()
             folder, how = locate(chosen or load_settings().get("game_data"))
             again = bool(self.game_where.get("path"))  # another folder was chosen: this isn't the start-up read
-            self.hd1_loading = True  # before "ready", so the window never sees ready with Helldivers 1 neither read nor coming
-            self._hd1_done.clear()
             self.game_where = {"path": str(folder), "how": how}
             self.game_language = steam_language(folder)
             # the stages are translated as status() sends them: the window may set the language after this
@@ -325,8 +325,11 @@ class Session:
                 self._game_checked = time.time()
             log.exception("loading the game failed")
         self._update_failed = updated and self.stage == "failed"
+
+    def _read_hd1(self):
+        """Helldivers 1 at start-up, beside Helldivers 2: the Library gains it when this is done."""
         try:
-            self._load_hd1()  # the window is open by now: the Library gains Helldivers 1 when this is done
+            self._load_hd1()
         finally:
             self.hd1_loading = False
             self._hd1_done.set()
@@ -397,7 +400,14 @@ class Session:
     UPDATED = N_("The game updated while Audiodiver was open. Audiodiver is reading it again: try again when that is done.")
     UNREADABLE = N_("A game file can't be read. In Steam, verify the integrity of the game files, then try again.")
 
-    def require_game(self):
+    def require_game(self, game=None):
+        """Refuses while the game something needs isn't read: `game` ("hd1", "hd2"), else the open project's, else
+        Helldivers 2. Each game is read on its own, so a Helldivers 1 project works without Helldivers 2."""
+        if (game or (self.project.game if self.project else "hd2")) == "hd1":
+            if self.hd1:
+                return
+            raise EditorError(tr("Helldivers 1 is still being read. Try again in a moment.") if self.hd1_loading else
+                              tr("Helldivers 1 wasn't found. Choose the game folder in Settings ▸ System."))
         if self._game_updated():
             raise EditorError(tr(self.UPDATED))
         if self.stage != "ready":
@@ -418,6 +428,13 @@ class Session:
                 "game_folder": {**self.game_where, "chosen": load_settings().get("game_data")},
                 "hd1_folder": {**self.hd1_where, "chosen": load_settings().get("hd1_contents")}, "hd1": bool(self.hd1),
                 "hd1_loading": self.hd1_loading,
+                # each game on its own (the window opens on Home before either is read): "scanning", "ready" or
+                # "missing", and what is being done or what went wrong
+                "games": {"hd2": {"state": "ready" if stage == "ready" else "missing" if stage == "failed" else "scanning",
+                                  "detail": self.load_error if stage == "failed" else "" if stage == "ready"
+                                  else "" if stage == "starting" else stage},
+                          "hd1": {"state": "ready" if self.hd1 else "scanning" if self.hd1_loading else "missing",
+                                  "detail": ""}},
                 # for Automatic in Settings ▸ System ▸ Language: the game's language in Steam, then Windows'
                 "languages": {"game": self.game_language, "system": i18n.system_language(),
                               "core": i18n.language()},
@@ -460,7 +477,7 @@ class Session:
         """Reads Helldivers 1 from another folder (None: find it through Steam again) and saves that choice. The folder
         is checked first, so a wrong one changes nothing. Helldivers 2 stays as it is."""
         from . import hd1
-        self.require_game()
+        self._await_hd1()  # the start-up read first: it would put back what it found
         if any(j.state == "running" for j in self.jobs.values()):
             raise EditorError(tr("Wait for the build or export to finish first"))
         chosen = None
@@ -477,16 +494,22 @@ class Session:
 
     def index(self):
         """The Library's Index: the music and the sound sets the community has named, by category (library.py), then
-        Helldivers 1 (hd1.py)."""
-        self.require_game()
-        got = self.lib.index()
+        Helldivers 1 (hd1.py). Either game alone while the other is still being read or wasn't found."""
+        got = self._library_of_hd2(lambda: self.lib.index(), {"categories": []})
         return {**got, "categories": [*got["categories"], *self.hd1.categories(i18n.language())]} if self.hd1 else got
+
+    def _library_of_hd2(self, read, empty):
+        """What the Library has of Helldivers 2, or `empty` while only Helldivers 1 is read (which stays as it was)."""
+        if self.hd1 and (self.stage != "ready" or not self.lib):
+            return empty
+        self.require_game("hd2")
+        return read()
 
     def archives(self):
         """The Library's All Archives: every archive with audio in it, named and tagged where the Index knows it, then
         the banks of Helldivers 1."""
-        self.require_game()
-        return [*self.lib.archives, *self.hd1.archives(i18n.language())] if self.hd1 else self.lib.archives
+        got = self._library_of_hd2(lambda: self.lib.archives, [])
+        return [*got, *self.hd1.archives(i18n.language())] if self.hd1 else got
 
     def item(self, item_id):
         """An Index item or an archive ("archive:<name>") as something to open: its parts are cues to ask `cue`
@@ -844,8 +867,11 @@ class Session:
                                else tr("{file} isn't an Audiodiver project")).format(file=path.name)) from None
         if p.game == "hd1":
             self._await_hd1()
-        if p.game == "hd1" and not self.hd1 and self.stage == "ready":  # still loading: Helldivers 1 may come yet
+        if p.game == "hd1" and not self.hd1:
             raise EditorError(tr("{file} makes a mod for Helldivers 1, which wasn't found. Choose the Helldivers 1 folder in "
+                                 "Settings ▸ System.").format(file=path.name))
+        if p.game != "hd1" and self.stage == "failed":
+            raise EditorError(tr("{file} makes a mod for Helldivers 2, which wasn't found. Choose the game folder in "
                                  "Settings ▸ System.").format(file=path.name))
         with self.lock:
             self.flush()

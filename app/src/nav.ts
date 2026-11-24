@@ -38,6 +38,8 @@ const LIBRARY_KEY = "audiodiver.libraryTab";
 const GAME_KEY = "audiodiver.libraryGame";
 const MODE_KEY = "audiodiver.mode";
 const HD2_ONLY: Tab[] = ["soundtrack", "text", "tools"];
+/** The tabs that need the game the window makes mods for: out of the bar until that game is read. */
+const NEED_GAME: Tab[] = ["project", "library", "editor", "soundtrack", "text", "build", "tools"];
 const WIKI_KEY = "audiodiver.wikiPage";
 
 function lastLibraryTab(): LibraryTab {
@@ -73,14 +75,16 @@ const MODE = lastMode();
 let current: Nav = { tab: START, settings: "system", library: lastLibraryTab(), game: MODE === "hd1" ? "hd1" : lastLibraryGame(), mode: MODE, tools: "repatch", wiki: lastWikiPage(), anchor: "", from: START, origin: {}, ...reopened() };
 let off: readonly Tab[] = []; // the hideable tabs that are off now (App.tsx keeps it up to date)
 let open = false;             // a project is open: Build shows only then (the store keeps it up to date)
-let hidden = new Set<Tab>(["build", ...(MODE === "hd1" ? HD2_ONLY : [])]);
+let gameReady = UTILS;        // the game of the mode is read (App.tsx keeps it up to date); Utils needs none to start
+let hidden = new Set<Tab>(UTILS ? ["build", ...(MODE === "hd1" ? HD2_ONLY : [])] : NEED_GAME);
 const listeners = new Set<() => void>();
 /** While the Wiki is in a window of its own (wikiWindow.ts): takes what the other window shows; true when it did. */
 let elsewhere: ((place: Tab | "about", sub?: string) => boolean) | null = null;
 /** The tabs out of the bar now; the one that shows, if hidden, moves to the Project tab. */
 function hide() {
-  hidden = new Set<Tab>([...(open ? off : [...off, "build" as Tab]), ...(current.mode === "hd1" ? HD2_ONLY : [])]);
-  if (hidden.has(current.tab)) nav.go(current.tab === "tools" ? "home" : "project");
+  hidden = new Set<Tab>([...(open ? off : [...off, "build" as Tab]), ...(current.mode === "hd1" ? HD2_ONLY : []),
+    ...(gameReady ? [] : NEED_GAME)]);
+  if (hidden.has(current.tab)) nav.go(current.tab === "tools" || hidden.has("project") ? "home" : "project");
 }
 
 /** An archive to open, from All Archives: of Helldivers 2, or a bank of Helldivers 1. */
@@ -146,6 +150,13 @@ export const nav = {
   /** The hideable tabs that show now (the open project's choice, else Settings'). A hidden tab that shows moves
       to the Project tab. */
   setShown(shown: readonly Hideable[]) { off = HIDEABLE.filter((t) => !shown.includes(t)); hide(); },
+  /** Whether the game the window makes mods for is read: the tabs that need it stay out of the bar until then. */
+  setGameReady(ready: boolean) {
+    if (ready === gameReady) return;
+    gameReady = ready;
+    hide();
+    listeners.forEach((f) => f());
+  },
   /** Whether a project is open, which Build needs. */
   setProject(isOpen: boolean) { open = isOpen; hide(); },
   /** Whether a tab is in the tab bar now. */

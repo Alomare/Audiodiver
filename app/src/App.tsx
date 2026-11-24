@@ -27,7 +27,7 @@ import { ScaleTipLayer, TooltipLayer } from "./Tooltip";
 import { UpdatePrompt, UpdatesTab } from "./UpdatesTab";
 import { updates, useUpdates } from "./updates";
 import { Wiki } from "./Wiki";
-import { call, fmtTime, iconUrl, intlLocale, type Job } from "./api";
+import { call, fmtTime, gameState, iconUrl, intlLocale, type Job } from "./api";
 import { APP_NAME, UTILS } from "./edition";
 import { APP_LABEL, APP_VERSION, versionLabel } from "./content";
 import { JOB_NAMES } from "./jobs";
@@ -44,7 +44,9 @@ import { rangeVars } from "./range";
 
 export function App() {
   const { status, connectError } = useEditor();
-  if (!status || status.stage !== "ready") return <Startup error={connectError ?? status?.error ?? null} stage={status?.stage} />;
+  // the window opens on Home once the core answers, while the games are read (Home says how that goes);
+  // Audiodiver Utils works on Helldivers 2 alone, so it still waits for that game
+  if (!status || (UTILS && status.stage !== "ready")) return <Startup error={connectError ?? status?.error ?? null} stage={status?.stage} />;
   return <Shell />;
 }
 
@@ -107,10 +109,16 @@ const STILL_RUNNING: Record<string, string> = {
 function Shell() {
   const { actions, quick, notify, itemIndex, jobs, scopes, project, status } = useEditor();
   const { tab, library: libraryTab } = useNav();
-  // Helldivers 1 mode needs that game: once it is gone (moved, uninstalled), the window makes Helldivers 2 mods
+  // the tabs that need a game wait for the one the window makes mods for; a game that isn't there (moved,
+  // uninstalled) gives way to the other one once that is read
+  const { mode } = useNav();
+  const hd1 = gameState(status, "hd1").state, hd2 = gameState(status, "hd2").state;
   useEffect(() => {
-    if (!UTILS && status?.stage === "ready" && !status.hd1 && !status.hd1_loading && nav.get().mode === "hd1") nav.setMode("hd2");
-  }, [status?.stage, status?.hd1, status?.hd1_loading]);
+    if (UTILS) return;
+    const mine = mode === "hd1" ? hd1 : hd2, other = mode === "hd1" ? hd2 : hd1;
+    if (mine === "missing" && other === "ready") nav.setMode(mode === "hd1" ? "hd2" : "hd1");
+    nav.setGameReady(mine === "ready");
+  }, [mode, hd1, hd2]);
   // the tabs that can be hidden: the open project's choice, else Settings' (a hidden tab that shows moves away)
   const shown = useShownTabs();
   useEffect(() => { if (!UTILS) nav.setShown(shown); }, [shown]);

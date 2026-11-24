@@ -221,6 +221,16 @@ export type ProjectState = {
   history?: string[]; future?: string[]; // the History list: the edits done, oldest first, and those undone, the next to redo first
   history_at?: number[]; future_at?: number[]; opened_at?: number; // when each was made, and when the project opened (ms)
 };
+/** A game being read ("scanning", with the step in `detail`), read ("ready"), or not found ("missing", with why). */
+export type GameState = { state: "scanning" | "ready" | "missing"; detail: string };
+/** The game state of a status, also from a core older than `games` (Helldivers 2 by the stage). */
+export function gameState(s: Status | null | undefined, game: "hd1" | "hd2"): GameState {
+  if (!s) return { state: "scanning", detail: "" };
+  if (s.games) return s.games[game];
+  if (game === "hd1") return { state: s.hd1 ? "ready" : s.hd1_loading ? "scanning" : "missing", detail: "" };
+  return { state: s.stage === "ready" ? "ready" : s.stage === "failed" ? "missing" : "scanning", detail: s.error ?? "" };
+}
+
 export type Status = {
   version: string; stage: string; error: string | null; log: string;
   game: { data: string; banks: number; music_banks: number } | null; project: ProjectState | null;
@@ -231,6 +241,8 @@ export type Status = {
   hd1_folder: { path: string | null; how: "chosen" | "env" | "steam" | null; chosen: string | null };
   hd1?: boolean;                   // Helldivers 1 was found and read: Home offers its mode
   hd1_loading?: boolean;           // Helldivers 1 is being read, after the window opened: the Library gains it then
+  // each game on its own: the window opens on Home before either is read (Home's game switch shows these)
+  games?: Record<"hd1" | "hd2", GameState>;
   // the game's language in Steam ("brazilian") and Windows' ("pt-BR"), for Automatic (i18n.ts); the core's own
   languages?: { game: string | null; system: string | null; core: string };
 };

@@ -1379,8 +1379,28 @@ kbd.none { color: var(--faint); font-weight: 400; }
 @keyframes menu-level { from { transform: scaleY(.35); } to { transform: scaleY(1.15); } }
 /* which game, in the top-right corner, the page's margin from both edges: not a button but a dark track whose slanted
    thumb slides to the game in use. */
-.game-switch { position: absolute; top: var(--home-m); right: var(--home-m); z-index: 1; display: grid; grid-template-columns: 1fr 1fr;
-  width: calc(340px * var(--fs)); height: calc(40px * var(--fs)); overflow: hidden; animation: view-in var(--t2) var(--ease) both; background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); }
+.game-pick { position: absolute; top: var(--home-m); right: var(--home-m); z-index: 1; display: flex; flex-direction: column; align-items: flex-end;
+  gap: calc(8px * var(--sp)); animation: view-in var(--t2) var(--ease) both; }
+.game-switch { position: relative; display: grid; grid-template-columns: 1fr 1fr;
+  width: calc(340px * var(--fs)); height: calc(40px * var(--fs)); overflow: hidden; background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); }
+/* no thumb until the game in use is read */
+.game-switch[data-at="none"]::before { opacity: 0; transition: none; }
+.game-switch button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.game-switch button[aria-disabled="true"] { cursor: default; }
+.game-switch button[aria-disabled="true"]:hover { color: var(--muted); }
+.game-switch button[data-state="missing"] { color: var(--faint, var(--muted)); text-decoration: line-through; text-decoration-thickness: 1px; opacity: .6; }
+/* a game being read: three bars that rise and fall, as the level meter on New Project */
+.game-scan { display: inline-flex; align-items: flex-end; gap: 2px; height: calc(11px * var(--fs)); }
+.game-scan i { width: 3px; height: 100%; background: var(--accent-fg); transform-origin: bottom; animation: menu-level .7s var(--ease) infinite alternate; }
+.game-scan i:nth-child(2) { animation-delay: -.25s; }
+.game-scan i:nth-child(3) { animation-delay: -.5s; }
+/* under the track, what is going on: the game being read, or the one not found with a way to choose its folder */
+.game-status { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: baseline; gap: 4px 12px; margin: 0;
+  max-width: calc(340px * var(--fs)); text-align: right; font-size: calc(12.5px * var(--fs)); color: var(--muted); }
+.game-status > span { white-space: nowrap; }
+.game-status[data-state="scanning"] > span { animation: pulse 1.6s var(--ease) infinite; }
+.game-status .link-text { flex: none; font-size: inherit; }
+.game-why { color: var(--bad-fg, var(--muted)); }
 .game-switch::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 54%; background: var(--accent); transform: translateX(-7.4%) skewX(-16deg);
   transition: transform var(--t3) var(--ease); }
 .game-switch[data-at="hd2"]::before { transform: translateX(92.6%) skewX(-16deg); }
