@@ -276,3 +276,7 @@ export const NormalizeIcon = () => (
 );
 /** A pencil: edit (the Waveform Editor, beside a waveform's name). Drawn bold, as it shows small. */
 export const PencilIcon = () => <Icon size={1} stroke={2.4}><path d="M15.5 4.5l4 4L8 20H4v-4z" /><path d="M13 7l4 4" /></Icon>;
+/** Two arrows chasing each other round a circle: something is being read (Home's game switch spins it). */
+export const LoadingIcon = () => (
+  <Icon size={1}><path d="M19 12a7 7 0 0 1-11.9 5" /><path d="M5 12a7 7 0 0 1 11.9-5" /><path d="M17.5 3.5v3.8h-3.8" /><path d="M6.5 20.5v-3.8h3.8" /></Icon>
+);

@@ -3,7 +3,7 @@ import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { call, gameState, projectIconUrl } from "./api";
 import { DISCORD_URL, HOME_ART, HOME_ART_HD1, KOFI_URL, REPO_URL, TICKER_URL } from "./content";
-import { CloseIcon, DiscordIcon, FolderIcon, GithubIcon, ImportIcon, KofiIcon, MergeIcon, NextIcon, PrevIcon, ProjectIcon, ToolsIcon } from "./Icons";
+import { CloseIcon, DiscordIcon, LoadingIcon, FolderIcon, GithubIcon, ImportIcon, KofiIcon, MergeIcon, NextIcon, PrevIcon, ProjectIcon, ToolsIcon } from "./Icons";
 import { nav, useNav, type Mode } from "./nav";
 import { DitheredShade } from "./HomeVeil";
 import { LINUX, openUrl } from "./platform";
@@ -122,7 +122,7 @@ function GamePick() {
                 : id === "hd1" ? t`Make mods for Helldivers 1` : t`Make mods for Helldivers 2`}
               data-tip-more={st === "scanning" ? states[id].detail || undefined : st === "missing" ? states[id].detail || undefined
                 : project && project.game !== id ? t`Closes the project open now` : undefined}>
-              {st === "scanning" && <span className="game-scan" aria-hidden><i /><i /><i /></span>}{name}</button>
+              {st === "scanning" && <span className="game-scan" aria-hidden><LoadingIcon /></span>}{name}</button>
           );
         })}
       </div>

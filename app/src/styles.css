@@ -1396,11 +1396,9 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .game-switch button[aria-disabled="true"]:hover { color: color-mix(in srgb, var(--faint) 55%, var(--bg)); }
 .game-switch button[data-state="scanning"] { cursor: progress; }
 .game-switch button[data-state="missing"] { text-decoration: line-through; text-decoration-thickness: 1px; }
-/* a game being read: three bars that rise and fall, as the level meter on New Project */
-.game-scan { display: inline-flex; align-items: flex-end; gap: 2px; height: calc(11px * var(--fs)); }
-.game-scan i { width: 3px; height: 100%; background: var(--accent-fg); transform-origin: bottom; animation: menu-level .7s var(--ease) infinite alternate; }
-.game-scan i:nth-child(2) { animation-delay: -.25s; }
-.game-scan i:nth-child(3) { animation-delay: -.5s; }
+/* a game being read: grey arrows going round */
+.game-scan { display: inline-grid; place-items: center; color: var(--muted); font-size: calc(14px * var(--fs)); }
+.game-scan .icon { display: block; animation: upd-spin 1.1s linear infinite; }
 /* under the track, what is going on: the game being read, or the one not found with a way to choose its folder */
 .game-status { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: baseline; gap: 4px 12px; margin: 0;
   max-width: calc(340px * var(--fs)); text-align: right; font-size: calc(12.5px * var(--fs)); color: var(--muted); }
