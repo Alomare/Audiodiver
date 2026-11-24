@@ -666,6 +666,7 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .tl-body { flex: 1 1 0; min-height: 0; }
 .tl-rows { grid-area: 1 / 1; min-height: 0; display: flex; flex-direction: column; gap: calc(6px * var(--sp)); }
 .timeline .zoom-foot { padding-left: calc(64px * var(--fs) + 10px); } /* under the waveforms, past the labels */
+.timeline:not(.one) .zoom-foot { padding-left: calc(94px * var(--fs) + 4px); }
 /* under zoomed-in waveforms: the whole audio, the stretch in view as a handle */
 .wave-scroll { flex: 1 1 0; position: relative; height: 9px; background: var(--bg); border: 1px solid var(--line-soft); border-radius: 2px; cursor: pointer; }
 .wave-thumb { position: absolute; top: 1px; bottom: 1px; min-width: 10px; background: var(--muted); opacity: .55; border-radius: 1px; cursor: grab; }
@@ -677,13 +678,23 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .tl-label b { font-size: calc(14px * var(--fs)); font-weight: 700; }
 .tl-label.game b { color: var(--steel); }
 .tl-label.mine b { color: var(--accent-fg); }
+/* a waveform with the length of the audio in the bottom right corner, over the drawing */
+.tl-wave { position: relative; display: grid; grid-template-rows: minmax(0, 1fr); min-width: 0; min-height: 0; }
+.tl-length { position: absolute; right: 6px; bottom: 4px; z-index: 1; padding: 0 4px; pointer-events: none;
+  font-size: calc(11.5px * var(--fs)); font-variant-numeric: tabular-nums; color: var(--muted);
+  background: color-mix(in srgb, var(--bg) 82%, transparent); }
 .tl-curve { color: var(--text); }
 /* the Waveform Editor's way in, at the end of a lane's label: a small icon that lights up on hover */
-.tl-edit { align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; height: calc(22px * var(--fs)); padding: 0 7px 0 4px;
-  font-size: calc(12px * var(--fs)); font-weight: 600;
-  margin-top: 3px; color: var(--muted); border: 1px solid var(--line); background: var(--bg); border-radius: 2px; transition: color var(--t1), border-color var(--t1); }
-.tl-edit:hover { color: var(--text); border-color: var(--second-fg); }
-.tl-label.mine .tl-edit:hover { color: var(--accent-fg); border-color: var(--accent-fg); }
+/* the Waveform Editor's way in: a small square in the primary colour, attached to the left edge of each waveform, so
+   the two line up. In the Audio tab a row is the label, the square's column and the waveform */
+.timeline:not(.one) .tl-row { grid-template-columns: calc(78px * var(--fs)) calc(16px * var(--fs) + 4px) 1fr; column-gap: 0; }
+.timeline:not(.one) .tl-label { margin-right: 10px; }
+.tl-edit-at { align-self: center; display: flex; }
+.tl-edit { flex: none; display: inline-grid; place-items: center; width: calc(16px * var(--fs)); height: calc(16px * var(--fs));
+  padding: 0; color: var(--accent-ink); background: var(--accent); border-radius: 2px 0 0 2px; font-size: calc(11px * var(--fs));
+  transition: background-color var(--t1); }
+.tl-edit:hover { background: var(--accent-hover); }
+.tl-edit .icon { width: 1em; height: 1em; display: block; }
 /* the Library's facts about the slot, over its waveform */
 .tl-facts { flex: none; display: flex; flex-direction: column; gap: 3px; font-size: calc(13px * var(--fs)); color: var(--muted); }
 .tl-facts-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; min-width: 0; }
@@ -1380,9 +1391,11 @@ kbd.none { color: var(--faint); font-weight: 400; }
 /* no thumb until the game in use is read */
 .game-switch[data-at="none"]::before { opacity: 0; transition: none; }
 .game-switch button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-.game-switch button[aria-disabled="true"] { cursor: default; }
-.game-switch button[aria-disabled="true"]:hover { color: var(--muted); }
-.game-switch button[data-state="missing"] { color: var(--faint, var(--muted)); text-decoration: line-through; text-decoration-thickness: 1px; opacity: .6; }
+/* a game being read or not found can't be picked: dark, with no hover */
+.game-switch button[aria-disabled="true"] { cursor: not-allowed; color: color-mix(in srgb, var(--faint) 55%, var(--bg)); }
+.game-switch button[aria-disabled="true"]:hover { color: color-mix(in srgb, var(--faint) 55%, var(--bg)); }
+.game-switch button[data-state="scanning"] { cursor: progress; }
+.game-switch button[data-state="missing"] { text-decoration: line-through; text-decoration-thickness: 1px; }
 /* a game being read: three bars that rise and fall, as the level meter on New Project */
 .game-scan { display: inline-flex; align-items: flex-end; gap: 2px; height: calc(11px * var(--fs)); }
 .game-scan i { width: 3px; height: 100%; background: var(--accent-fg); transform-origin: bottom; animation: menu-level .7s var(--ease) infinite alternate; }

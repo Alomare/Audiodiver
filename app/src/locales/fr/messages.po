@@ -53,6 +53,22 @@ msgstr "{0, plural, one {Non ajouté : # chemin n’est pas un mod} other {Non
 msgid "{0, plural, one {Repatch # Mod} other {Repatch # Mods}}"
 msgstr "{0, plural, one {Repatcher # mod} other {Repatcher # mods}}"
 
+#. placeholder {0}: shown.length
+#: src/WaveEditor.tsx
+msgid "{0} blocks"
+msgstr ""
+
+#. placeholder {0}: nameOf(path)
+#. placeholder {1}: String(e?.message ?? e)
+#: src/WaveEditor.tsx
+msgid "{0} can't be read: {1}"
+msgstr ""
+
+#. placeholder {0}: missing[0][1]
+#: src/Home.tsx
+msgid "{0} not found"
+msgstr ""
+
 #. The suggested file name for a project's exported notes, without the extension
 #. placeholder {0}: project.name
 #: src/SettingsTab.tsx
@@ -593,13 +609,16 @@ msgid "{name} at {time}"
 msgstr "{name} à {time}"
 
 #: src/Inspector.tsx
-#: src/Timeline.tsx
 msgid "{name} in ms"
 msgstr "{name} en ms"
 
 #: src/store.tsx
 msgid "{name} moved. Some files stayed in the old folder because they were in use. The project no longer uses them."
 msgstr "{name} a été déplacé. Certains fichiers sont restés dans l’ancien dossier, car ils étaient utilisés. Le projet ne les utilise plus."
+
+#: src/Home.tsx
+msgid "{name} wasn't found"
+msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "{name}, {length}, {loop, plural, one {# time} other {# times}}"
@@ -991,6 +1010,10 @@ msgstr "{what} · original"
 msgid "{what} · replaced"
 msgstr "{what} · remplacé"
 
+#: src/WaveEditor.tsx
+msgid "{what} (edited original)"
+msgstr ""
+
 #: src/RepatchPage.tsx
 msgid "{what}; {skipped, plural, one {# sound couldn't be read} other {# sounds couldn't be read}}"
 msgstr "{what} ; {skipped, plural, one {# son n’a pas pu être lu} other {# sons n’ont pas pu être lus}}"
@@ -1090,6 +1113,10 @@ msgstr "0 dB sur chaque emplacement sélectionné"
 #: src/Soundtrack.tsx
 msgid "0 dB on every track of the piece"
 msgstr "0 dB sur chaque piste du morceau"
+
+#: src/WaveEditor.tsx
+msgid "1 block"
+msgstr ""
 
 #: src/CueView.tsx
 msgid "1 take"
@@ -1453,6 +1480,18 @@ msgstr "Ajouter une autre touche pour cette commande"
 msgid "Add at least two mods"
 msgstr "Ajoutez au moins deux mods"
 
+#: src/WaveEditor.tsx
+msgid "Add Audio"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Add audio files as new blocks"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Add audio files to build the new audio from, or start from the original."
+msgstr ""
+
 #: src/Library.tsx
 msgid "Add from Library"
 msgstr "Ajouter depuis la Bibliothèque"
@@ -1747,6 +1786,10 @@ msgstr "S’applique à ce projet. Chaque génération enregistre les fichiers .
 msgid "Applies to this project. The game's audio includes this data, but it makes no audible difference. It needs Wwise installed and makes builds slower."
 msgstr "S’applique à ce projet. L’audio du jeu contient ces données, mais elles ne changent rien à l’écoute. Wwise doit être installé, et la génération est plus lente."
 
+#: src/WaveEditor.tsx
+msgid "Apply"
+msgstr ""
+
 #: src/RepatchPage.tsx
 msgid "Apply each mod's audio and settings to the current sound banks and build a new ZIP for each"
 msgstr "Appliquer l’audio et les réglages de chaque mod aux banques de sons actuelles et générer un nouveau ZIP pour chacun"
@@ -1880,6 +1923,10 @@ msgstr "Audiodiver place les découpes, l’audio importé et les générations 
 msgid "Audiodiver restarts when the update is installed."
 msgstr "Audiodiver redémarre une fois la mise à jour installée."
 
+#: src/ProjectTab.tsx
+msgid "Authors"
+msgstr ""
+
 #. An empty cue point box: the point is worked out
 #: src/Inspector.tsx
 msgid "auto"
@@ -1953,6 +2000,10 @@ msgstr "Revenir au niveau d’origine"
 msgid "Back to the tutorial step"
 msgstr "Revenir à l'étape du tutoriel"
 
+#: src/WaveEditor.tsx
+msgid "Back to the whole file, as it is"
+msgstr ""
+
 #: src/SettingsTab.tsx
 msgid "Back to Yellow"
 msgstr "Revenir au jaune"
@@ -1981,10 +2032,6 @@ msgstr "Chansons de combat"
 msgid "Battle Songs: every Intense Battle set to Same as Battle"
 msgstr "Chansons de combat : chaque Combat intense réglé sur Identique à Combat"
 
-#: src/Timeline.tsx
-msgid "Before it, the slot plays silence"
-msgstr "Avant lui, l’emplacement joue du silence"
-
 #: src/App.tsx
 msgid "Before the oldest change kept"
 msgstr "Avant la plus ancienne modification conservée"
@@ -1996,6 +2043,10 @@ msgstr "Bêta {n}"
 #: src/ProjectTab.tsx
 msgid "Black"
 msgstr "Noir"
+
+#: src/WaveEditor.tsx
+msgid "Block {n}"
+msgstr ""
 
 #. Put in a note, in bold, when Bold is clicked with no words selected
 #: src/Notes.tsx
@@ -2169,6 +2220,7 @@ msgstr "Impossible de joindre GitHub"
 #: src/SettingsTab.tsx
 #: src/SliceTool.tsx
 #: src/TextTools.tsx
+#: src/WaveEditor.tsx
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -2212,6 +2264,7 @@ msgstr "modification"
 #. Button that chooses another destination folder
 #. Button: choose another destination folder for builds
 #. Button: opens Settings to change the update mode
+#. Button: type another mod ID
 #. Button: type another mod ID
 #: src/BuildTab.tsx
 #: src/CombinePage.tsx
@@ -2370,6 +2423,10 @@ msgstr "Chinois (traditionnel)"
 msgid "Choose"
 msgstr "Choisir"
 
+#: src/Home.tsx
+msgid "Choose {name} Folder"
+msgstr ""
+
 #: src/BuildTab.tsx
 msgid "Choose a destination folder for builds"
 msgstr "Choisir un dossier de destination pour les générations"
@@ -2507,6 +2564,10 @@ msgstr "Choisir un Fichier"
 msgid "Choose Files"
 msgstr "Choisir des fichiers"
 
+#: src/Home.tsx
+msgid "Choose Folder"
+msgstr ""
+
 #: src/App.tsx
 msgid "Choose Game Folder"
 msgstr "Choisir dossier du jeu"
@@ -2531,10 +2592,12 @@ msgstr "Choisissez une musique à gauche."
 msgid "Choose One File for All"
 msgstr "Choisir un seul fichier pour tous"
 
+#: src/Home.tsx
 #: src/store.tsx
 msgid "Choose the Helldivers 1 install folder"
 msgstr "Choisir le dossier d’installation de Helldivers 1"
 
+#: src/Home.tsx
 #: src/store.tsx
 msgid "Choose the Helldivers 2 install folder"
 msgstr "Choisir le dossier d’installation de Helldivers 2"
@@ -2624,6 +2687,10 @@ msgstr "Cliquez sur **Séquence 6**, la partie la plus forte du tir, pour voir l
 msgid "Click ▶"
 msgstr "Cliquer sur ▶"
 
+#: src/WaveEditor.tsx
+msgid "Click a block to set it up. Drag the body to move it, an edge to trim it, and the squares at the top to fade it."
+msgstr ""
+
 #: src/Wiki.tsx
 msgid "Click for the Wiki section"
 msgstr "Cliquez pour la section du Wiki"
@@ -2654,6 +2721,7 @@ msgstr "Clips qu’aucun son de cette banque ne joue"
 #: src/ImportMod.tsx
 #: src/SliceTool.tsx
 #: src/TextTools.tsx
+#: src/WaveEditor.tsx
 #: src/Wiki.tsx
 msgid "Close"
 msgstr "Fermer"
@@ -3103,12 +3171,6 @@ msgstr "Par défaut : {gain} dB"
 msgid "Delay"
 msgstr "Délai"
 
-#. Silence before the new audio, so it starts later
-#: src/Timeline.tsx
-msgctxt "Trim field"
-msgid "Delay"
-msgstr "Délai"
-
 #: src/Notes.tsx
 msgid "Delete"
 msgstr "Supprimer"
@@ -3164,6 +3226,14 @@ msgstr "Détails"
 msgid "Difference"
 msgstr "Différence"
 
+#: src/WaveEditor.tsx
+msgid "Discard"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Discard the Changes?"
+msgstr ""
+
 #: src/SettingsTab.tsx
 msgid "Disk space"
 msgstr "Espace disque"
@@ -3210,10 +3280,6 @@ msgstr "Faites glisser une coupe pour la déplacer, et maintenez Shift pour qu�
 msgid "Drag a song in a playlist"
 msgstr "Faire glisser une chanson dans une playlist"
 
-#: src/Timeline.tsx
-msgid "Drag Exit to move where the next segment starts."
-msgstr "Faites glisser Sortie pour déplacer le début du segment suivant."
-
 #: src/SliceTool.tsx
 msgid "Drag it to leave out the end of the song"
 msgstr "Faites-la glisser pour écarter la fin de la chanson"
@@ -3221,18 +3287,6 @@ msgstr "Faites-la glisser pour écarter la fin de la chanson"
 #: src/SliceTool.tsx
 msgid "Drag it to leave out the start of the song"
 msgstr "Faites-la glisser pour écarter le début de la chanson"
-
-#: src/Timeline.tsx
-msgid "Drag to fade the new audio in"
-msgstr "Faites glisser pour ajouter un fondu d’entrée au nouvel audio"
-
-#: src/Timeline.tsx
-msgid "Drag to fade the new audio out"
-msgstr "Faites glisser pour ajouter un fondu de sortie au nouvel audio"
-
-#: src/Timeline.tsx
-msgid "Drag to play the new audio later or earlier"
-msgstr "Faites glisser pour jouer le nouvel audio plus tard ou plus tôt"
 
 #: src/Timeline.tsx
 msgid "Drawn and played at this gain"
@@ -3310,6 +3364,14 @@ msgstr "Déposez des chansons sur une position d’une playlist, ou une chanson 
 #: src/App.tsx
 msgid "Dropping files needs the desktop app"
 msgstr "Déposer des fichiers nécessite l’application de bureau"
+
+#: src/WaveEditor.tsx
+msgid "Duplicate"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Duplicate the block"
+msgstr ""
 
 #: src/TextTab.tsx
 msgid "Dutch"
@@ -3424,6 +3486,14 @@ msgstr "Aigle 1"
 msgid "Edit the note"
 msgstr "Modifier la note"
 
+#: src/Timeline.tsx
+msgid "Edit the original in the Waveform Editor"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Editing the original: the result becomes the new audio"
+msgstr ""
+
 #. Heading over the places elsewhere in the game that match the slot search
 #: src/Tools.tsx
 msgid "Elsewhere"
@@ -3462,8 +3532,7 @@ msgctxt "Slice tool: the cut where the last piece ends"
 msgid "End"
 msgstr "Fin"
 
-#. Where the new audio stops playing in the file
-#: src/Timeline.tsx
+#: src/WaveEditor.tsx
 msgctxt "Trim handle"
 msgid "End"
 msgstr "Fin"
@@ -3679,12 +3748,12 @@ msgid "Exports of the original are for reference and mod work. Don't upload them
 msgstr "Les exports de l’original servent de référence et pour créer des mods. Ne les mettez pas en ligne."
 
 #: src/Inspector.tsx
-#: src/Timeline.tsx
+#: src/WaveEditor.tsx
 msgid "Fade In"
 msgstr "Fondu d’entrée"
 
 #: src/Inspector.tsx
-#: src/Timeline.tsx
+#: src/WaveEditor.tsx
 msgid "Fade Out"
 msgstr "Fondu de sortie"
 
@@ -3947,6 +4016,10 @@ msgstr "De la Bibliothèque à un mod généré : le tir d’une arme remplac�
 msgid "Full Names"
 msgstr "Noms complets"
 
+#: src/WaveEditor.tsx
+msgid "Gain"
+msgstr ""
+
 #: src/Home.tsx
 #: src/Library.tsx
 msgid "Game"
@@ -4088,10 +4161,6 @@ msgstr "Helldivers"
 msgid "Helldivers 1 art"
 msgstr "Images de Helldivers 1"
 
-#: src/store.tsx
-msgid "Helldivers 1 is ready"
-msgstr "Helldivers 1 est prêt"
-
 #. Helldivers 2 Modding is the name of the Discord server
 #: src/About.tsx
 #: src/Home.tsx
@@ -4165,6 +4234,14 @@ msgstr "comment chaque morceau est joué"
 msgid "How it plays"
 msgstr "Mode de lecture"
 
+#: src/WaveEditor.tsx
+msgid "How long the block takes to fall to silence before it ends"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "How long the block takes to rise from silence"
+msgstr ""
+
 #: src/Soundtrack.tsx
 msgid "How long the fight lasts"
 msgstr "Combien de temps dure le combat"
@@ -4172,14 +4249,6 @@ msgstr "Combien de temps dure le combat"
 #: src/Soundtrack.tsx
 msgid "How long the music plays"
 msgstr "Combien de temps la musique joue"
-
-#: src/Timeline.tsx
-msgid "How long the new audio takes to fall to silence before it ends"
-msgstr "Le temps que met le nouvel audio à descendre jusqu’au silence avant sa fin"
-
-#: src/Timeline.tsx
-msgid "How long the new audio takes to rise from silence"
-msgstr "Le temps que met le nouvel audio à monter depuis le silence"
 
 #: src/SliceTool.tsx
 msgid "How long the original is"
@@ -4192,6 +4261,10 @@ msgstr "Durée du morceau"
 #: src/SliceTool.tsx
 msgid "How much longer (+) or shorter (−) the piece is than the original"
 msgstr "De combien le morceau est plus long (+) ou plus court (−) que l’original"
+
+#: src/WaveEditor.tsx
+msgid "How much louder or quieter the block plays"
+msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "How the game picks the next segment"
@@ -4514,6 +4587,10 @@ msgstr "Garder"
 msgid "Keep added audio to the project's banks"
 msgstr "Limiter l’audio ajouté aux banques du projet"
 
+#: src/WaveEditor.tsx
+msgid "Keep Editing"
+msgstr ""
+
 #: src/Tutorial.tsx
 msgid "Keep Going"
 msgstr "Continuer"
@@ -4542,6 +4619,10 @@ msgstr "Garder partagé"
 #: src/CueView.tsx
 msgid "Keep Sharing on All"
 msgstr "Garder partagé partout"
+
+#: src/WaveEditor.tsx
+msgid "Keep these changes in the project"
+msgstr ""
 
 #: src/Inspector.tsx
 msgid "Keep volume curve"
@@ -4660,6 +4741,15 @@ msgstr "Écarté : {stale, plural, one {# son} other {# sons}} d’une ancienn
 #: src/ImportMod.tsx
 msgid "Left out: {what}"
 msgstr "Écarté : {what}"
+
+#: src/WaveEditor.tsx
+msgid "Length"
+msgstr ""
+
+#. placeholder {0}: fmtTime(ms)
+#: src/Timeline.tsx
+msgid "Length {0}"
+msgstr ""
 
 #: src/CombinePage.tsx
 msgid "Length {length}"
@@ -4790,6 +4880,10 @@ msgstr "Fichier journal"
 msgid "Looking"
 msgstr "Recherche"
 
+#: src/WaveEditor.tsx
+msgid "Loop"
+msgstr ""
+
 #. Tag on a music segment that repeats until the game moves on
 #: src/CueView.tsx
 msgid "loops"
@@ -4818,6 +4912,10 @@ msgstr "Passe-bas"
 #: src/Inspector.tsx
 msgid "Low-Pass dulls the sound and High-Pass thins it. They add to what the game sets. The game applies them, so previews here play without them"
 msgstr "Le passe-bas assourdit le son et le passe-haut l’amincit. Ils s’ajoutent aux réglages du jeu. C’est le jeu qui les applique, donc les aperçus ici sont joués sans eux"
+
+#: src/WaveEditor.tsx
+msgid "Magnet"
+msgstr ""
 
 #. The bar of main tabs, for screen readers
 #: src/App.tsx
@@ -4971,6 +5069,10 @@ msgstr "ID du mod"
 #: src/store.tsx
 msgid "Mod ID changed. Mod managers treat the next build as an update to the mod with this ID."
 msgstr "ID du mod modifié. Les gestionnaires de mods traitent la prochaine génération comme une mise à jour du mod portant cet ID."
+
+#: src/store.tsx
+msgid "Mod ID changed. Obsidian treats the next build as an update to the mod with this ID."
+msgstr ""
 
 #: src/api.ts
 msgid "Mod managers can't use {bad} in a name, because it becomes a folder name. Use letters, digits, spaces and - _ ( )."
@@ -5222,6 +5324,7 @@ msgstr "projets nouveaux et récents"
 #: src/Inspector.tsx
 #: src/PatchContentPage.tsx
 #: src/SliceTool.tsx
+#: src/WaveEditor.tsx
 msgid "New audio"
 msgstr "Nouvel audio"
 
@@ -5404,6 +5507,10 @@ msgstr "Aucun fichier n’a été retiré"
 msgid "No folder chosen yet"
 msgstr "Aucun dossier choisi pour l’instant"
 
+#: src/Home.tsx
+msgid "No game found"
+msgstr ""
+
 #: src/SettingsTab.tsx
 msgid "No global notes yet"
 msgstr "Aucune note globale pour l’instant"
@@ -5551,6 +5658,10 @@ msgstr "Aucun de ceux-ci n’est encore remplacé."
 #: src/SettingsTab.tsx
 msgid "Normal"
 msgstr "Normal"
+
+#: src/WaveEditor.tsx
+msgid "Normalize"
+msgstr ""
 
 #: src/ProjectTab.tsx
 msgid "Not an Audiodiver project, or damaged"
@@ -5756,6 +5867,14 @@ msgstr "Nombre de sons"
 #: src/CueView.tsx
 msgid "Numbered in bank order. Play it to hear what it is"
 msgstr "Numéroté dans l’ordre de la banque. Lisez-le pour entendre ce que c’est"
+
+#: src/ProjectTab.tsx
+msgid "Obsidian recognises the mod by this ID. While it stays the same, a new build updates the installed mod."
+msgstr ""
+
+#: src/ProjectTab.tsx
+msgid "Obsidian then treats a build as an update to that mod"
+msgstr ""
 
 #: src/CombinePage.tsx
 msgid "Of two mods with the same file besides audio, the one lower in the list goes in."
@@ -6046,6 +6165,10 @@ msgid "Opens the Wiki in a separate window"
 msgstr "Ouvre le Wiki dans une fenêtre séparée"
 
 #: src/ProjectTab.tsx
+msgid "Optional. Names separated by commas, shown with the mod in Obsidian."
+msgstr ""
+
+#: src/ProjectTab.tsx
 msgid "Optional. Shown with the mod in the mod manager."
 msgstr "Facultatif. Affiché avec le mod dans le gestionnaire de mods."
 
@@ -6081,6 +6204,7 @@ msgstr "original"
 #: src/store.tsx
 #: src/TextTab.tsx
 #: src/Timeline.tsx
+#: src/WaveEditor.tsx
 msgid "Original"
 msgstr "Original"
 
@@ -6088,6 +6212,11 @@ msgstr "Original"
 msgctxt "Filter of the project list"
 msgid "Original"
 msgstr "Original"
+
+#. placeholder {0}: fmtTime(refMs)
+#: src/WaveEditor.tsx
+msgid "Original {0}"
+msgstr ""
 
 #. What the keys do: play the original or the new audio of the slot
 #: src/Inspector.tsx
@@ -6270,6 +6399,7 @@ msgstr "Patchs"
 
 #: src/App.tsx
 #: src/Soundtrack.tsx
+#: src/WaveEditor.tsx
 msgid "Pause"
 msgstr "Pause"
 
@@ -6340,6 +6470,7 @@ msgstr "Positions, ordre et options"
 #: src/App.tsx
 #: src/Library.tsx
 #: src/Soundtrack.tsx
+#: src/WaveEditor.tsx
 msgid "Play"
 msgstr "Lire"
 
@@ -6398,6 +6529,10 @@ msgstr "Rejouer"
 msgid "Play First Take"
 msgstr "Lire première prise"
 
+#: src/WaveEditor.tsx
+msgid "Play from the cursor"
+msgstr ""
+
 #: src/CueView.tsx
 msgid "Play New Audio"
 msgstr "Lire nouvel audio"
@@ -6438,9 +6573,17 @@ msgstr "Lire le nouvel audio de l'emplacement sélectionné"
 msgid "play the new audio, or the original if there is none"
 msgstr "lire le nouvel audio, ou l'original s'il n'y en a pas"
 
+#: src/WaveEditor.tsx
+msgid "Play the original"
+msgstr ""
+
 #: src/SliceTool.tsx
 msgid "Play the original {slot}"
 msgstr "Lire l’original de {slot}"
+
+#: src/WaveEditor.tsx
+msgid "Play the original from the cursor"
+msgstr ""
 
 #: src/keys.ts
 msgid "Play the original of the selected slot"
@@ -6575,6 +6718,10 @@ msgstr "Ne joue que dans cette condition"
 msgid "Plays the original next to new music"
 msgstr "Joue l’original à côté de la nouvelle musique"
 
+#: src/WaveEditor.tsx
+msgid "Plays the selected block over and over, or the whole result"
+msgstr ""
+
 #: src/Soundtrack.tsx
 msgid "Plays these one after another"
 msgstr "Les joue l’un après l’autre"
@@ -6597,6 +6744,7 @@ msgstr "Portugais (Brésil)"
 
 #: src/SettingsTab.tsx
 #: src/Soundtrack.tsx
+#: src/WaveEditor.tsx
 msgid "Position"
 msgstr "Position"
 
@@ -6786,9 +6934,9 @@ msgstr "lecture des archives du jeu, et façon dont HD2 stocke les banques de so
 msgid "Reading Helldivers 1"
 msgstr "Chargement de Helldivers 1"
 
-#: src/store.tsx
-msgid "Reading Helldivers 1. It joins the Library when it's done."
-msgstr "Chargement de Helldivers 1. Il rejoint la Bibliothèque une fois terminé."
+#: src/WaveEditor.tsx
+msgid "Reading the audio…"
+msgstr ""
 
 #: src/CueView.tsx
 msgid "Reading the bank…"
@@ -6851,6 +6999,7 @@ msgstr "Enregistrements d’un même son. Le jeu en joue un à chaque fois"
 
 #: src/App.tsx
 #: src/keys.ts
+#: src/WaveEditor.tsx
 msgid "Redo"
 msgstr "Rétablir"
 
@@ -6901,6 +7050,7 @@ msgstr "retirer"
 #: src/RepatchPage.tsx
 #: src/Soundtrack.tsx
 #: src/store.tsx
+#: src/WaveEditor.tsx
 msgid "Remove"
 msgstr "Retirer"
 
@@ -6942,6 +7092,10 @@ msgstr "Retirer les {count} du projet"
 #: src/IndexTree.tsx
 msgid "Remove all {count} from the project"
 msgstr "Retirer les {count} du projet"
+
+#: src/WaveEditor.tsx
+msgid "Remove every block"
+msgstr ""
 
 #: src/TextTab.tsx
 msgid "Remove every colour, size and style"
@@ -6991,6 +7145,10 @@ msgstr "Retirer les {count} présents dans le projet"
 #: src/Soundtrack.tsx
 msgid "Remove the audio"
 msgstr "Retirer l’audio"
+
+#: src/WaveEditor.tsx
+msgid "Remove the block"
+msgstr ""
 
 #: src/CueView.tsx
 #: src/PatchContentPage.tsx
@@ -7119,6 +7277,10 @@ msgstr "se répète"
 msgid "Repeats until the game moves on"
 msgstr "Se répète jusqu’à ce que le jeu passe à la suite"
 
+#: src/WaveEditor.tsx
+msgid "Replace"
+msgstr ""
+
 #: src/CueView.tsx
 msgid "Replace audio there"
 msgstr "Y remplacer l’audio"
@@ -7134,6 +7296,10 @@ msgstr "Remplacer des sons d’un mod existant, aussi des sons qu’une mise à 
 #: src/App.tsx
 msgid "replace the audio of what the project lists"
 msgstr "remplacer l’audio de ce que liste le projet"
+
+#: src/WaveEditor.tsx
+msgid "Replace the New Audio?"
+msgstr ""
 
 #: src/keys.ts
 msgid "Replace the selected slots with silence"
@@ -7204,6 +7370,7 @@ msgstr "remplacé"
 
 #: src/music.ts
 #: src/Timeline.tsx
+#: src/WaveEditor.tsx
 msgid "Replaced"
 msgstr "Remplacé"
 
@@ -7242,7 +7409,7 @@ msgid "Replacing this clip makes the music stutter"
 msgstr "Remplacer ce clip rend la musique saccadée"
 
 #: src/SettingsTab.tsx
-#: src/Timeline.tsx
+#: src/WaveEditor.tsx
 msgid "Reset"
 msgstr "Réinitialiser"
 
@@ -7310,6 +7477,11 @@ msgstr "Redimensionner les formes d'onde"
 msgid "Restore Original"
 msgstr "Restaurer original"
 
+#. placeholder {0}: fmtTime(resultMs)
+#: src/WaveEditor.tsx
+msgid "Result <0>{0}</0>"
+msgstr ""
+
 #: src/IndexTree.tsx
 msgid "Review"
 msgstr "Passer en revue"
@@ -7365,6 +7537,19 @@ msgstr "Enregistré dans {projectFolder}"
 #: src/TextTab.tsx
 msgid "Saving…"
 msgstr "Enregistrement…"
+
+#. placeholder {0}: scanning[0]
+#: src/Home.tsx
+msgid "Scanning {0}"
+msgstr ""
+
+#: src/Home.tsx
+msgid "Scanning {name}"
+msgstr ""
+
+#: src/Home.tsx
+msgid "Scanning Helldivers 1 and Helldivers 2"
+msgstr ""
 
 #: src/keys.ts
 msgid "Search"
@@ -7536,6 +7721,10 @@ msgstr "Régler beaucoup de musique à la fois"
 #: src/Soundtrack.tsx
 msgid "Sets other {name} music to {mode} too"
 msgstr "Règle aussi les autres musiques {name} sur {mode}"
+
+#: src/WaveEditor.tsx
+msgid "Sets the gain so the loudest moment of the block reaches −1 dB"
+msgstr ""
 
 #: src/App.tsx
 #: src/SettingsTab.tsx
@@ -7733,9 +7922,7 @@ msgid "Shuffled"
 msgstr "Aléatoire"
 
 #. Edit in Undo, Redo and History: slots replaced with silence
-#. In place of the length of the new audio: the slot plays silence
 #: src/store.tsx
-#: src/Timeline.tsx
 msgid "silence"
 msgstr "silence"
 
@@ -7746,10 +7933,6 @@ msgstr "silence"
 #: src/Soundtrack.tsx
 msgid "Silence"
 msgstr "Silence"
-
-#: src/Timeline.tsx
-msgid "Silence before the new audio, so it starts later than the original"
-msgstr "Silence avant le nouvel audio, pour qu’il commence plus tard que l’original"
 
 #: src/ItemHead.tsx
 msgid "Silence for the length of the original"
@@ -7971,6 +8154,14 @@ msgstr "Espagnol (Amérique latine)"
 msgid "Spanish (Spain)"
 msgstr "Espagnol (Espagne)"
 
+#: src/WaveEditor.tsx
+msgid "Split"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Split the block at the cursor"
+msgstr ""
+
 #: src/platform.ts
 msgid "Spreadsheet (CSV)"
 msgstr "Tableur (CSV)"
@@ -7990,8 +8181,7 @@ msgctxt "Slice tool: the cut where the first piece starts"
 msgid "Start"
 msgstr "Début"
 
-#. Where the new audio starts playing in the file
-#: src/Timeline.tsx
+#: src/WaveEditor.tsx
 msgctxt "Trim handle"
 msgid "Start"
 msgstr "Début"
@@ -7999,6 +8189,10 @@ msgstr "Début"
 #: src/Home.tsx
 msgid "Start a mod"
 msgstr "Commencer un mod"
+
+#: src/WaveEditor.tsx
+msgid "Start from the Original"
+msgstr ""
 
 #: src/Tutorial.tsx
 msgid "Start Tutorial"
@@ -8038,6 +8232,7 @@ msgid "Step {stepNumber} of {stepCount}"
 msgstr "Étape {stepNumber} sur {stepCount}"
 
 #: src/App.tsx
+#: src/WaveEditor.tsx
 msgid "Stop"
 msgstr "Arrêter"
 
@@ -8048,6 +8243,10 @@ msgstr "Arrêter la lecture, ou tout désélectionner"
 #: src/Tutorial.tsx
 msgid "Stop Tutorial"
 msgstr "Arrêter le tutoriel"
+
+#: src/WaveEditor.tsx
+msgid "Stop, and put the cursor at the start"
+msgstr ""
 
 #: src/App.tsx
 msgid "Stopping…"
@@ -8252,6 +8451,10 @@ msgstr "L’Amiral"
 msgid "The audio before Entry and after Exit. When this is off, the pieces sit end to end without overlap."
 msgstr "L’audio avant l’Entrée et après la Sortie. Sans cette option, les morceaux se suivent bout à bout sans chevauchement."
 
+#: src/WaveEditor.tsx
+msgid "The audio can't be read: {error}"
+msgstr ""
+
 #: src/store.tsx
 msgid "The audio files stay on disk, and {undo} brings everything back."
 msgstr "Les fichiers audio restent sur le disque, et {undo} ramène tout."
@@ -8276,6 +8479,10 @@ msgstr "La musique Combat est jouée ici, au niveau de Combat"
 msgid "The battle music plays on here, from where it is"
 msgstr "La musique de combat continue ici, là où elle en est"
 
+#: src/WaveEditor.tsx
+msgid "The changes made in the Waveform Editor are lost."
+msgstr ""
+
 #: src/App.tsx
 msgid "The changes made since the project opened, to go back or forward to"
 msgstr "Les modifications faites depuis l’ouverture du projet, pour revenir en arrière ou avancer"
@@ -8292,9 +8499,17 @@ msgstr "La couleur appliquée par « Couleur »"
 msgid "The combined mod"
 msgstr "Le mod combiné"
 
+#: src/WaveEditor.tsx
+msgid "The copy goes right after it"
+msgstr ""
+
 #: src/PatchContentPage.tsx
 msgid "The current game doesn't have this sound. The banks in the mod bring it back."
 msgstr "Le jeu actuel n’a pas ce son. Les banques du mod le font revenir."
+
+#: src/WaveEditor.tsx
+msgid "The cursor, block edges and blocks snap to each other, to the start and to where the original ends"
+msgstr ""
 
 #: src/SettingsTab.tsx
 msgid "The default."
@@ -8319,6 +8534,11 @@ msgstr "Le panneau de détails et le silence"
 #: src/tutorials.ts
 msgid "The echo"
 msgstr "L’écho"
+
+#. placeholder {0}: a.name
+#: src/WaveEditor.tsx
+msgid "The edited original becomes the new audio of this slot, in place of {0}."
+msgstr ""
 
 #: src/store.tsx
 msgid "The file {file} stays on disk."
@@ -8766,6 +8986,10 @@ msgstr "Les enregistrements qui disent ce sous-titre. Ouvrez-en un dans la Bibli
 msgid "the reference for Wwise sound bank structures"
 msgstr "la référence des structures de banques de sons Wwise"
 
+#: src/Timeline.tsx
+msgid "The result becomes the new audio of the slot"
+msgstr ""
+
 #: src/content.ts
 msgid "the screenshots of Helldivers 2 behind Home"
 msgstr "les captures d'écran de Helldivers 2 derrière l'Accueil"
@@ -8952,6 +9176,10 @@ msgstr "Ces sons sont déjà dans le projet"
 msgid "These voices play through a radio effect, new audio included. Turn it off to hear a voice clean, in every language."
 msgstr "Ces voix passent par un effet radio, nouvel audio compris. Désactivez-le pour entendre une voix nette, dans toutes les langues."
 
+#: src/WaveEditor.tsx
+msgid "They go one after the other from the cursor. Dropping files on the editor does the same"
+msgstr ""
+
 #: src/ExportDialog.tsx
 msgid "Things collected from anywhere, to export together"
 msgstr "Des éléments rassemblés de partout, à exporter ensemble"
@@ -9099,9 +9327,13 @@ msgstr "En haut à droite"
 msgid "transcribing voice lines to match them to subtitles"
 msgstr "transcription des répliques pour les associer aux sous-titres"
 
+#: src/WaveEditor.tsx
+msgid "Trim, split, move and fade audio"
+msgstr ""
+
 #: src/Timeline.tsx
-msgid "Trim, move and fade the new audio"
-msgstr "Rogner, déplacer et ajouter des fondus au nouvel audio"
+msgid "Trim, split, move and fade in the Waveform Editor"
+msgstr ""
 
 #: src/UpdatesTab.tsx
 msgid "Try Again"
@@ -9163,6 +9395,7 @@ msgstr "annuler"
 #: src/App.tsx
 #: src/keys.ts
 #: src/store.tsx
+#: src/WaveEditor.tsx
 msgid "Undo"
 msgstr "Annuler"
 
@@ -9235,6 +9468,10 @@ msgstr "Modifications non enregistrées"
 msgid "Unused files"
 msgstr "Fichiers inutilisés"
 
+#: src/ProjectTab.tsx
+msgid "Up to 64 lowercase letters, digits, dots, dashes and underscores, such as name.mymod"
+msgstr ""
+
 #: src/RepatchPage.tsx
 #: src/UpdatesTab.tsx
 msgid "Up to date"
@@ -9274,6 +9511,10 @@ msgstr "Mises à jour : nouvelles versions et notes de version"
 msgid "Updating to {label}. Audiodiver restarts when the update is installed."
 msgstr "Mise à jour vers {label}. Audiodiver redémarre une fois la mise à jour installée."
 
+#: src/WaveEditor.tsx
+msgid "Use as New Audio"
+msgstr ""
+
 #: src/SettingsTab.tsx
 msgid "Use Default Folder"
 msgstr "Utiliser dossier par défaut"
@@ -9286,6 +9527,10 @@ msgstr "Utiliser icône par défaut"
 msgid "Use Silence"
 msgstr "Utiliser le silence"
 
+#: src/WaveEditor.tsx
+msgid "Use the edited original as the new audio of the slot"
+msgstr ""
+
 #: src/ImportMod.tsx
 msgid "Use the icon of the mod"
 msgstr "Utiliser l’icône du mod"
@@ -9293,6 +9538,10 @@ msgstr "Utiliser l’icône du mod"
 #: src/ProjectTab.tsx
 msgid "Use the ID of a mod made before, such as the Guid in the manifest.json of the mod"
 msgstr "Utiliser l’ID d’un mod créé auparavant, comme le Guid du manifest.json du mod"
+
+#: src/ProjectTab.tsx
+msgid "Use the ID of a mod made before, the \"id\" in the obsidian.json of that mod"
+msgstr ""
 
 #: src/CombinePage.tsx
 msgid "Use this mod for every conflict in this item"
@@ -9381,6 +9630,15 @@ msgid "WAV (24-bit)"
 msgstr "WAV (24 bits)"
 
 #: src/Timeline.tsx
+#: src/WaveEditor.tsx
+msgid "Waveform Editor"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Waveform Editor tools"
+msgstr ""
+
+#: src/Timeline.tsx
 #: src/Tools.tsx
 msgid "Waveforms"
 msgstr "Formes d'onde"
@@ -9448,6 +9706,10 @@ msgstr "Quand les modifications sont écrites dans le fichier du projet. {saveKe
 msgid "When on, the last project opens on the Audio tab. When off, Audiodiver starts on Home."
 msgstr "Si activé, le dernier projet s’ouvre sur l’onglet Audio. Sinon, Audiodiver démarre sur l’Accueil."
 
+#: src/WaveEditor.tsx
+msgid "When the block plays, from the start of the slot"
+msgstr ""
+
 #: src/TextTab.tsx
 msgid "When the words after it appear, in seconds from the start of the voice line"
 msgstr "Quand les mots qui suivent apparaissent, en secondes depuis le début de la réplique"
@@ -9474,6 +9736,14 @@ msgstr "Quand deux mods modifient la même banque de sons, seul le dernier dépl
 msgid "Where both have audio for a slot, the mod's is used."
 msgstr "Là où les deux ont de l’audio pour un emplacement, celui du mod est utilisé."
 
+#: src/WaveEditor.tsx
+msgid "Where the block ends in the file"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Where the block starts in the file"
+msgstr ""
+
 #: src/Soundtrack.tsx
 msgid "Where the music starts each time it comes on"
 msgstr "Où la musique commence chaque fois qu’elle démarre"
@@ -9481,22 +9751,6 @@ msgstr "Où la musique commence chaque fois qu’elle démarre"
 #: src/Soundtrack.tsx
 msgid "Where the music starts when a fight begins"
 msgstr "Où la musique commence quand un combat débute"
-
-#: src/Timeline.tsx
-msgid "Where the new audio ends in the file"
-msgstr "Où le nouvel audio se termine dans le fichier"
-
-#: src/Timeline.tsx
-msgid "Where the new audio ends in the file. Drag the line to move it"
-msgstr "L’endroit du fichier où le nouvel audio se termine. Faites glisser la ligne pour le déplacer"
-
-#: src/Timeline.tsx
-msgid "Where the new audio starts in the file"
-msgstr "Où le nouvel audio commence dans le fichier"
-
-#: src/Timeline.tsx
-msgid "Where the new audio starts in the file. Drag the line to move it"
-msgstr "L’endroit du fichier où le nouvel audio commence. Faites glisser la ligne pour le déplacer"
 
 #: src/SliceTool.tsx
 msgid "Where the piece starts and ends in the song"

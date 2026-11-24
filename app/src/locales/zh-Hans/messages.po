@@ -53,6 +53,22 @@ msgstr "{0, plural, other {未添加：# 个路径不是模组}}"
 msgid "{0, plural, one {Repatch # Mod} other {Repatch # Mods}}"
 msgstr "{0, plural, other {Repatch # 个模组}}"
 
+#. placeholder {0}: shown.length
+#: src/WaveEditor.tsx
+msgid "{0} blocks"
+msgstr ""
+
+#. placeholder {0}: nameOf(path)
+#. placeholder {1}: String(e?.message ?? e)
+#: src/WaveEditor.tsx
+msgid "{0} can't be read: {1}"
+msgstr ""
+
+#. placeholder {0}: missing[0][1]
+#: src/Home.tsx
+msgid "{0} not found"
+msgstr ""
+
 #. The suggested file name for a project's exported notes, without the extension
 #. placeholder {0}: project.name
 #: src/SettingsTab.tsx
@@ -593,13 +609,16 @@ msgid "{name} at {time}"
 msgstr "{name}，位于 {time}"
 
 #: src/Inspector.tsx
-#: src/Timeline.tsx
 msgid "{name} in ms"
 msgstr "{name}（毫秒）"
 
 #: src/store.tsx
 msgid "{name} moved. Some files stayed in the old folder because they were in use. The project no longer uses them."
 msgstr "{name} 已移动。有些文件因正在使用而留在了旧文件夹中。项目已不再使用它们。"
+
+#: src/Home.tsx
+msgid "{name} wasn't found"
+msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "{name}, {length}, {loop, plural, one {# time} other {# times}}"
@@ -991,6 +1010,10 @@ msgstr "{what} · 原版"
 msgid "{what} · replaced"
 msgstr "{what} · 已替换"
 
+#: src/WaveEditor.tsx
+msgid "{what} (edited original)"
+msgstr ""
+
 #: src/RepatchPage.tsx
 msgid "{what}; {skipped, plural, one {# sound couldn't be read} other {# sounds couldn't be read}}"
 msgstr "{what}；{skipped, plural, other {# 个声音无法读取}}"
@@ -1090,6 +1113,10 @@ msgstr "所有选中的槽位设为 0 dB"
 #: src/Soundtrack.tsx
 msgid "0 dB on every track of the piece"
 msgstr "曲目的每条音轨都设为 0 dB"
+
+#: src/WaveEditor.tsx
+msgid "1 block"
+msgstr ""
 
 #: src/CueView.tsx
 msgid "1 take"
@@ -1453,6 +1480,18 @@ msgstr "为此再添加一个按键"
 msgid "Add at least two mods"
 msgstr "请至少添加两个模组"
 
+#: src/WaveEditor.tsx
+msgid "Add Audio"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Add audio files as new blocks"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Add audio files to build the new audio from, or start from the original."
+msgstr ""
+
 #: src/Library.tsx
 msgid "Add from Library"
 msgstr "从资源库添加"
@@ -1747,6 +1786,10 @@ msgstr "适用于此项目。每次构建都会把模组的 .patch_0 文件保�
 msgid "Applies to this project. The game's audio includes this data, but it makes no audible difference. It needs Wwise installed and makes builds slower."
 msgstr "适用于此项目。游戏音频本身就有这项数据，听不出区别。需要安装 Wwise，构建也会变慢。"
 
+#: src/WaveEditor.tsx
+msgid "Apply"
+msgstr ""
+
 #: src/RepatchPage.tsx
 msgid "Apply each mod's audio and settings to the current sound banks and build a new ZIP for each"
 msgstr "将每个模组的音频和设置应用到当前的音频库，并为每个模组构建新的 ZIP"
@@ -1880,6 +1923,10 @@ msgstr "Audiodiver 会将切片、导入的音频和构建结果放在项目文�
 msgid "Audiodiver restarts when the update is installed."
 msgstr "更新安装完成后 Audiodiver 会重新启动。"
 
+#: src/ProjectTab.tsx
+msgid "Authors"
+msgstr ""
+
 #. An empty cue point box: the point is worked out
 #: src/Inspector.tsx
 msgid "auto"
@@ -1953,6 +2000,10 @@ msgstr "恢复原始音量"
 msgid "Back to the tutorial step"
 msgstr "返回教程步骤"
 
+#: src/WaveEditor.tsx
+msgid "Back to the whole file, as it is"
+msgstr ""
+
 #: src/SettingsTab.tsx
 msgid "Back to Yellow"
 msgstr "恢复为黄色"
@@ -1981,10 +2032,6 @@ msgstr "战斗歌曲"
 msgid "Battle Songs: every Intense Battle set to Same as Battle"
 msgstr "战斗歌曲：所有激烈战斗设为“与战斗相同”"
 
-#: src/Timeline.tsx
-msgid "Before it, the slot plays silence"
-msgstr "在它之前，槽位播放静音"
-
 #: src/App.tsx
 msgid "Before the oldest change kept"
 msgstr "最早保留的更改之前"
@@ -1996,6 +2043,10 @@ msgstr "Beta {n}"
 #: src/ProjectTab.tsx
 msgid "Black"
 msgstr "黑色"
+
+#: src/WaveEditor.tsx
+msgid "Block {n}"
+msgstr ""
 
 #. Put in a note, in bold, when Bold is clicked with no words selected
 #: src/Notes.tsx
@@ -2169,6 +2220,7 @@ msgstr "无法连接到 GitHub"
 #: src/SettingsTab.tsx
 #: src/SliceTool.tsx
 #: src/TextTools.tsx
+#: src/WaveEditor.tsx
 msgid "Cancel"
 msgstr "取消"
 
@@ -2212,6 +2264,7 @@ msgstr "更改"
 #. Button that chooses another destination folder
 #. Button: choose another destination folder for builds
 #. Button: opens Settings to change the update mode
+#. Button: type another mod ID
 #. Button: type another mod ID
 #: src/BuildTab.tsx
 #: src/CombinePage.tsx
@@ -2370,6 +2423,10 @@ msgstr "繁体中文"
 msgid "Choose"
 msgstr "选择"
 
+#: src/Home.tsx
+msgid "Choose {name} Folder"
+msgstr ""
+
 #: src/BuildTab.tsx
 msgid "Choose a destination folder for builds"
 msgstr "选择构建的目标文件夹"
@@ -2507,6 +2564,10 @@ msgstr "选择文件"
 msgid "Choose Files"
 msgstr "选择多个文件"
 
+#: src/Home.tsx
+msgid "Choose Folder"
+msgstr ""
+
 #: src/App.tsx
 msgid "Choose Game Folder"
 msgstr "选择游戏文件夹"
@@ -2531,10 +2592,12 @@ msgstr "请在左侧选择音乐。"
 msgid "Choose One File for All"
 msgstr "为全部选择同一个文件"
 
+#: src/Home.tsx
 #: src/store.tsx
 msgid "Choose the Helldivers 1 install folder"
 msgstr "选择 Helldivers 1 的安装文件夹"
 
+#: src/Home.tsx
 #: src/store.tsx
 msgid "Choose the Helldivers 2 install folder"
 msgstr "选择 Helldivers 2 安装文件夹"
@@ -2624,6 +2687,10 @@ msgstr "点击 **序列 6**（枪声里最响的部分），就能看到各个�
 msgid "Click ▶"
 msgstr "点击 ▶"
 
+#: src/WaveEditor.tsx
+msgid "Click a block to set it up. Drag the body to move it, an edge to trim it, and the squares at the top to fade it."
+msgstr ""
+
 #: src/Wiki.tsx
 msgid "Click for the Wiki section"
 msgstr "点击查看 Wiki 章节"
@@ -2654,6 +2721,7 @@ msgstr "此音频库中没有任何声音播放的片段"
 #: src/ImportMod.tsx
 #: src/SliceTool.tsx
 #: src/TextTools.tsx
+#: src/WaveEditor.tsx
 #: src/Wiki.tsx
 msgid "Close"
 msgstr "关闭"
@@ -3103,12 +3171,6 @@ msgstr "默认：{gain} dB"
 msgid "Delay"
 msgstr "延迟"
 
-#. Silence before the new audio, so it starts later
-#: src/Timeline.tsx
-msgctxt "Trim field"
-msgid "Delay"
-msgstr "延迟"
-
 #: src/Notes.tsx
 msgid "Delete"
 msgstr "删除"
@@ -3164,6 +3226,14 @@ msgstr "详情"
 msgid "Difference"
 msgstr "差值"
 
+#: src/WaveEditor.tsx
+msgid "Discard"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Discard the Changes?"
+msgstr ""
+
 #: src/SettingsTab.tsx
 msgid "Disk space"
 msgstr "磁盘空间"
@@ -3210,10 +3280,6 @@ msgstr "拖动切点即可移动，按住 Shift 则不吸附到原版长度。�
 msgid "Drag a song in a playlist"
 msgstr "拖动播放列表中的歌曲"
 
-#: src/Timeline.tsx
-msgid "Drag Exit to move where the next segment starts."
-msgstr "拖动出点可移动下一个段落的开始位置。"
-
 #: src/SliceTool.tsx
 msgid "Drag it to leave out the end of the song"
 msgstr "拖动可略去歌曲的结尾"
@@ -3221,18 +3287,6 @@ msgstr "拖动可略去歌曲的结尾"
 #: src/SliceTool.tsx
 msgid "Drag it to leave out the start of the song"
 msgstr "拖动可略去歌曲的开头"
-
-#: src/Timeline.tsx
-msgid "Drag to fade the new audio in"
-msgstr "拖动为新音频添加淡入"
-
-#: src/Timeline.tsx
-msgid "Drag to fade the new audio out"
-msgstr "拖动为新音频添加淡出"
-
-#: src/Timeline.tsx
-msgid "Drag to play the new audio later or earlier"
-msgstr "拖动可让新音频更晚或更早播放"
 
 #: src/Timeline.tsx
 msgid "Drawn and played at this gain"
@@ -3310,6 +3364,14 @@ msgstr "将歌曲拖到播放列表中的某个位置，或将一首歌曲拖到
 #: src/App.tsx
 msgid "Dropping files needs the desktop app"
 msgstr "拖放文件需要使用桌面应用"
+
+#: src/WaveEditor.tsx
+msgid "Duplicate"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Duplicate the block"
+msgstr ""
 
 #: src/TextTab.tsx
 msgid "Dutch"
@@ -3424,6 +3486,14 @@ msgstr "“飞鹰”1号"
 msgid "Edit the note"
 msgstr "编辑备注"
 
+#: src/Timeline.tsx
+msgid "Edit the original in the Waveform Editor"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Editing the original: the result becomes the new audio"
+msgstr ""
+
 #. Heading over the places elsewhere in the game that match the slot search
 #: src/Tools.tsx
 msgid "Elsewhere"
@@ -3462,8 +3532,7 @@ msgctxt "Slice tool: the cut where the last piece ends"
 msgid "End"
 msgstr "结束"
 
-#. Where the new audio stops playing in the file
-#: src/Timeline.tsx
+#: src/WaveEditor.tsx
 msgctxt "Trim handle"
 msgid "End"
 msgstr "结束"
@@ -3679,12 +3748,12 @@ msgid "Exports of the original are for reference and mod work. Don't upload them
 msgstr "导出的原版只供参考和做模组用。请勿上传。"
 
 #: src/Inspector.tsx
-#: src/Timeline.tsx
+#: src/WaveEditor.tsx
 msgid "Fade In"
 msgstr "淡入"
 
 #: src/Inspector.tsx
-#: src/Timeline.tsx
+#: src/WaveEditor.tsx
 msgid "Fade Out"
 msgstr "淡出"
 
@@ -3947,6 +4016,10 @@ msgstr "从资源库到构建好的模组：用教程自带的新音频替换一
 msgid "Full Names"
 msgstr "完整名称"
 
+#: src/WaveEditor.tsx
+msgid "Gain"
+msgstr ""
+
 #: src/Home.tsx
 #: src/Library.tsx
 msgid "Game"
@@ -4088,10 +4161,6 @@ msgstr "绝地潜兵"
 msgid "Helldivers 1 art"
 msgstr "Helldivers 1 图片"
 
-#: src/store.tsx
-msgid "Helldivers 1 is ready"
-msgstr "Helldivers 1 已就绪"
-
 #. Helldivers 2 Modding is the name of the Discord server
 #: src/About.tsx
 #: src/Home.tsx
@@ -4165,6 +4234,14 @@ msgstr "每首曲目的播放方式"
 msgid "How it plays"
 msgstr "播放方式"
 
+#: src/WaveEditor.tsx
+msgid "How long the block takes to fall to silence before it ends"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "How long the block takes to rise from silence"
+msgstr ""
+
 #: src/Soundtrack.tsx
 msgid "How long the fight lasts"
 msgstr "战斗持续多久"
@@ -4172,14 +4249,6 @@ msgstr "战斗持续多久"
 #: src/Soundtrack.tsx
 msgid "How long the music plays"
 msgstr "音乐播放多久"
-
-#: src/Timeline.tsx
-msgid "How long the new audio takes to fall to silence before it ends"
-msgstr "新音频在结束前降到静音所需的时间"
-
-#: src/Timeline.tsx
-msgid "How long the new audio takes to rise from silence"
-msgstr "新音频从静音升起所需的时间"
 
 #: src/SliceTool.tsx
 msgid "How long the original is"
@@ -4192,6 +4261,10 @@ msgstr "该段的时长"
 #: src/SliceTool.tsx
 msgid "How much longer (+) or shorter (−) the piece is than the original"
 msgstr "该段比原版长（+）或短（−）多少"
+
+#: src/WaveEditor.tsx
+msgid "How much louder or quieter the block plays"
+msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "How the game picks the next segment"
@@ -4514,6 +4587,10 @@ msgstr "保留"
 msgid "Keep added audio to the project's banks"
 msgstr "添加的音频只放入项目的音频库"
 
+#: src/WaveEditor.tsx
+msgid "Keep Editing"
+msgstr ""
+
 #: src/Tutorial.tsx
 msgid "Keep Going"
 msgstr "继续"
@@ -4542,6 +4619,10 @@ msgstr "保持共享"
 #: src/CueView.tsx
 msgid "Keep Sharing on All"
 msgstr "全部保持共享"
+
+#: src/WaveEditor.tsx
+msgid "Keep these changes in the project"
+msgstr ""
 
 #: src/Inspector.tsx
 msgid "Keep volume curve"
@@ -4660,6 +4741,15 @@ msgstr "已略去：来自旧游戏版本的 {stale, plural, other {# 个声音}
 #: src/ImportMod.tsx
 msgid "Left out: {what}"
 msgstr "已略去：{what}"
+
+#: src/WaveEditor.tsx
+msgid "Length"
+msgstr ""
+
+#. placeholder {0}: fmtTime(ms)
+#: src/Timeline.tsx
+msgid "Length {0}"
+msgstr ""
 
 #: src/CombinePage.tsx
 msgid "Length {length}"
@@ -4790,6 +4880,10 @@ msgstr "日志文件"
 msgid "Looking"
 msgstr "正在查找"
 
+#: src/WaveEditor.tsx
+msgid "Loop"
+msgstr ""
+
 #. Tag on a music segment that repeats until the game moves on
 #: src/CueView.tsx
 msgid "loops"
@@ -4818,6 +4912,10 @@ msgstr "低通"
 #: src/Inspector.tsx
 msgid "Low-Pass dulls the sound and High-Pass thins it. They add to what the game sets. The game applies them, so previews here play without them"
 msgstr "低通让声音变闷，高通让声音变薄。它们与游戏的设置相加。它们由游戏应用，因此这里的预览不含其效果"
+
+#: src/WaveEditor.tsx
+msgid "Magnet"
+msgstr ""
 
 #. The bar of main tabs, for screen readers
 #: src/App.tsx
@@ -4971,6 +5069,10 @@ msgstr "模组 ID"
 #: src/store.tsx
 msgid "Mod ID changed. Mod managers treat the next build as an update to the mod with this ID."
 msgstr "模组 ID 已更改。模组管理器会把下次构建视为对该 ID 模组的更新。"
+
+#: src/store.tsx
+msgid "Mod ID changed. Obsidian treats the next build as an update to the mod with this ID."
+msgstr ""
 
 #: src/api.ts
 msgid "Mod managers can't use {bad} in a name, because it becomes a folder name. Use letters, digits, spaces and - _ ( )."
@@ -5222,6 +5324,7 @@ msgstr "新建和最近的项目"
 #: src/Inspector.tsx
 #: src/PatchContentPage.tsx
 #: src/SliceTool.tsx
+#: src/WaveEditor.tsx
 msgid "New audio"
 msgstr "新音频"
 
@@ -5404,6 +5507,10 @@ msgstr "未移除任何文件"
 msgid "No folder chosen yet"
 msgstr "尚未选择文件夹"
 
+#: src/Home.tsx
+msgid "No game found"
+msgstr ""
+
 #: src/SettingsTab.tsx
 msgid "No global notes yet"
 msgstr "暂无全局备注"
@@ -5551,6 +5658,10 @@ msgstr "这些都尚未替换。"
 #: src/SettingsTab.tsx
 msgid "Normal"
 msgstr "正常"
+
+#: src/WaveEditor.tsx
+msgid "Normalize"
+msgstr ""
 
 #: src/ProjectTab.tsx
 msgid "Not an Audiodiver project, or damaged"
@@ -5756,6 +5867,14 @@ msgstr "声音数量"
 #: src/CueView.tsx
 msgid "Numbered in bank order. Play it to hear what it is"
 msgstr "按音频库中的顺序编号。播放即可听出是什么"
+
+#: src/ProjectTab.tsx
+msgid "Obsidian recognises the mod by this ID. While it stays the same, a new build updates the installed mod."
+msgstr ""
+
+#: src/ProjectTab.tsx
+msgid "Obsidian then treats a build as an update to that mod"
+msgstr ""
 
 #: src/CombinePage.tsx
 msgid "Of two mods with the same file besides audio, the one lower in the list goes in."
@@ -6046,6 +6165,10 @@ msgid "Opens the Wiki in a separate window"
 msgstr "在单独的窗口中打开 Wiki"
 
 #: src/ProjectTab.tsx
+msgid "Optional. Names separated by commas, shown with the mod in Obsidian."
+msgstr ""
+
+#: src/ProjectTab.tsx
 msgid "Optional. Shown with the mod in the mod manager."
 msgstr "可选。在模组管理器中与模组一同显示。"
 
@@ -6081,6 +6204,7 @@ msgstr "原版"
 #: src/store.tsx
 #: src/TextTab.tsx
 #: src/Timeline.tsx
+#: src/WaveEditor.tsx
 msgid "Original"
 msgstr "原版"
 
@@ -6088,6 +6212,11 @@ msgstr "原版"
 msgctxt "Filter of the project list"
 msgid "Original"
 msgstr "原版"
+
+#. placeholder {0}: fmtTime(refMs)
+#: src/WaveEditor.tsx
+msgid "Original {0}"
+msgstr ""
 
 #. What the keys do: play the original or the new audio of the slot
 #: src/Inspector.tsx
@@ -6270,6 +6399,7 @@ msgstr "补丁"
 
 #: src/App.tsx
 #: src/Soundtrack.tsx
+#: src/WaveEditor.tsx
 msgid "Pause"
 msgstr "暂停"
 
@@ -6340,6 +6470,7 @@ msgstr "位置、顺序和选项"
 #: src/App.tsx
 #: src/Library.tsx
 #: src/Soundtrack.tsx
+#: src/WaveEditor.tsx
 msgid "Play"
 msgstr "播放"
 
@@ -6398,6 +6529,10 @@ msgstr "再次播放"
 msgid "Play First Take"
 msgstr "播放第一个变体"
 
+#: src/WaveEditor.tsx
+msgid "Play from the cursor"
+msgstr ""
+
 #: src/CueView.tsx
 msgid "Play New Audio"
 msgstr "播放新音频"
@@ -6438,9 +6573,17 @@ msgstr "播放所选槽位的新音频"
 msgid "play the new audio, or the original if there is none"
 msgstr "播放新音频；没有新音频时播放原版"
 
+#: src/WaveEditor.tsx
+msgid "Play the original"
+msgstr ""
+
 #: src/SliceTool.tsx
 msgid "Play the original {slot}"
 msgstr "播放原版 {slot}"
+
+#: src/WaveEditor.tsx
+msgid "Play the original from the cursor"
+msgstr ""
 
 #: src/keys.ts
 msgid "Play the original of the selected slot"
@@ -6575,6 +6718,10 @@ msgstr "仅在此条件下播放"
 msgid "Plays the original next to new music"
 msgstr "原版紧挨着新音乐播放"
 
+#: src/WaveEditor.tsx
+msgid "Plays the selected block over and over, or the whole result"
+msgstr ""
+
 #: src/Soundtrack.tsx
 msgid "Plays these one after another"
 msgstr "依次播放这些"
@@ -6597,6 +6744,7 @@ msgstr "葡萄牙语（巴西）"
 
 #: src/SettingsTab.tsx
 #: src/Soundtrack.tsx
+#: src/WaveEditor.tsx
 msgid "Position"
 msgstr "位置"
 
@@ -6786,9 +6934,9 @@ msgstr "读取游戏归档，以及 HD2 存储音频库的方式"
 msgid "Reading Helldivers 1"
 msgstr "正在读取 Helldivers 1"
 
-#: src/store.tsx
-msgid "Reading Helldivers 1. It joins the Library when it's done."
-msgstr "正在读取 Helldivers 1。读取完成后会出现在资源库中。"
+#: src/WaveEditor.tsx
+msgid "Reading the audio…"
+msgstr ""
 
 #: src/CueView.tsx
 msgid "Reading the bank…"
@@ -6851,6 +6999,7 @@ msgstr "同一声音的多段录音。游戏每次播放其中之一"
 
 #: src/App.tsx
 #: src/keys.ts
+#: src/WaveEditor.tsx
 msgid "Redo"
 msgstr "重做"
 
@@ -6901,6 +7050,7 @@ msgstr "移除"
 #: src/RepatchPage.tsx
 #: src/Soundtrack.tsx
 #: src/store.tsx
+#: src/WaveEditor.tsx
 msgid "Remove"
 msgstr "移除"
 
@@ -6942,6 +7092,10 @@ msgstr "从项目中移除全部 {count} 项"
 #: src/IndexTree.tsx
 msgid "Remove all {count} from the project"
 msgstr "从项目中移除全部 {count} 项"
+
+#: src/WaveEditor.tsx
+msgid "Remove every block"
+msgstr ""
 
 #: src/TextTab.tsx
 msgid "Remove every colour, size and style"
@@ -6991,6 +7145,10 @@ msgstr "移除项目中的 {count} 项"
 #: src/Soundtrack.tsx
 msgid "Remove the audio"
 msgstr "移除音频"
+
+#: src/WaveEditor.tsx
+msgid "Remove the block"
+msgstr ""
 
 #: src/CueView.tsx
 #: src/PatchContentPage.tsx
@@ -7119,6 +7277,10 @@ msgstr "重复"
 msgid "Repeats until the game moves on"
 msgstr "重复播放，直到游戏进入下一段"
 
+#: src/WaveEditor.tsx
+msgid "Replace"
+msgstr ""
+
 #: src/CueView.tsx
 msgid "Replace audio there"
 msgstr "在那里替换音频"
@@ -7134,6 +7296,10 @@ msgstr "替换已有模组中的声音，包括更新从游戏中移除的声音
 #: src/App.tsx
 msgid "replace the audio of what the project lists"
 msgstr "替换项目所列内容的音频"
+
+#: src/WaveEditor.tsx
+msgid "Replace the New Audio?"
+msgstr ""
 
 #: src/keys.ts
 msgid "Replace the selected slots with silence"
@@ -7204,6 +7370,7 @@ msgstr "已替换"
 
 #: src/music.ts
 #: src/Timeline.tsx
+#: src/WaveEditor.tsx
 msgid "Replaced"
 msgstr "已替换"
 
@@ -7242,7 +7409,7 @@ msgid "Replacing this clip makes the music stutter"
 msgstr "替换此片段会导致音乐卡顿"
 
 #: src/SettingsTab.tsx
-#: src/Timeline.tsx
+#: src/WaveEditor.tsx
 msgid "Reset"
 msgstr "重置"
 
@@ -7310,6 +7477,11 @@ msgstr "调整波形大小"
 msgid "Restore Original"
 msgstr "恢复原版"
 
+#. placeholder {0}: fmtTime(resultMs)
+#: src/WaveEditor.tsx
+msgid "Result <0>{0}</0>"
+msgstr ""
+
 #: src/IndexTree.tsx
 msgid "Review"
 msgstr "查看"
@@ -7365,6 +7537,19 @@ msgstr "保存在 {projectFolder}"
 #: src/TextTab.tsx
 msgid "Saving…"
 msgstr "正在保存…"
+
+#. placeholder {0}: scanning[0]
+#: src/Home.tsx
+msgid "Scanning {0}"
+msgstr ""
+
+#: src/Home.tsx
+msgid "Scanning {name}"
+msgstr ""
+
+#: src/Home.tsx
+msgid "Scanning Helldivers 1 and Helldivers 2"
+msgstr ""
 
 #: src/keys.ts
 msgid "Search"
@@ -7536,6 +7721,10 @@ msgstr "一次设置多段音乐"
 #: src/Soundtrack.tsx
 msgid "Sets other {name} music to {mode} too"
 msgstr "同时将其他 {name} 音乐设为“{mode}”"
+
+#: src/WaveEditor.tsx
+msgid "Sets the gain so the loudest moment of the block reaches −1 dB"
+msgstr ""
 
 #: src/App.tsx
 #: src/SettingsTab.tsx
@@ -7733,9 +7922,7 @@ msgid "Shuffled"
 msgstr "已随机播放"
 
 #. Edit in Undo, Redo and History: slots replaced with silence
-#. In place of the length of the new audio: the slot plays silence
 #: src/store.tsx
-#: src/Timeline.tsx
 msgid "silence"
 msgstr "静音"
 
@@ -7746,10 +7933,6 @@ msgstr "静音"
 #: src/Soundtrack.tsx
 msgid "Silence"
 msgstr "静音"
-
-#: src/Timeline.tsx
-msgid "Silence before the new audio, so it starts later than the original"
-msgstr "新音频之前的静音，让它比原版晚开始"
 
 #: src/ItemHead.tsx
 msgid "Silence for the length of the original"
@@ -7971,6 +8154,14 @@ msgstr "西班牙语（拉丁美洲）"
 msgid "Spanish (Spain)"
 msgstr "西班牙语（西班牙）"
 
+#: src/WaveEditor.tsx
+msgid "Split"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Split the block at the cursor"
+msgstr ""
+
 #: src/platform.ts
 msgid "Spreadsheet (CSV)"
 msgstr "电子表格（CSV）"
@@ -7990,8 +8181,7 @@ msgctxt "Slice tool: the cut where the first piece starts"
 msgid "Start"
 msgstr "开始"
 
-#. Where the new audio starts playing in the file
-#: src/Timeline.tsx
+#: src/WaveEditor.tsx
 msgctxt "Trim handle"
 msgid "Start"
 msgstr "开始"
@@ -7999,6 +8189,10 @@ msgstr "开始"
 #: src/Home.tsx
 msgid "Start a mod"
 msgstr "开始制作模组"
+
+#: src/WaveEditor.tsx
+msgid "Start from the Original"
+msgstr ""
 
 #: src/Tutorial.tsx
 msgid "Start Tutorial"
@@ -8038,6 +8232,7 @@ msgid "Step {stepNumber} of {stepCount}"
 msgstr "第 {stepNumber} 步，共 {stepCount} 步"
 
 #: src/App.tsx
+#: src/WaveEditor.tsx
 msgid "Stop"
 msgstr "停止"
 
@@ -8048,6 +8243,10 @@ msgstr "停止播放，或清除选择"
 #: src/Tutorial.tsx
 msgid "Stop Tutorial"
 msgstr "停止教程"
+
+#: src/WaveEditor.tsx
+msgid "Stop, and put the cursor at the start"
+msgstr ""
 
 #: src/App.tsx
 msgid "Stopping…"
@@ -8252,6 +8451,10 @@ msgstr "舰队将军"
 msgid "The audio before Entry and after Exit. When this is off, the pieces sit end to end without overlap."
 msgstr "入点之前和出点之后的音频。关闭时，各曲目首尾相接，互不重叠。"
 
+#: src/WaveEditor.tsx
+msgid "The audio can't be read: {error}"
+msgstr ""
+
 #: src/store.tsx
 msgid "The audio files stay on disk, and {undo} brings everything back."
 msgstr "音频文件仍保留在磁盘上，{undo}可恢复所有内容。"
@@ -8276,6 +8479,10 @@ msgstr "此处播放战斗音乐，音量与战斗相同"
 msgid "The battle music plays on here, from where it is"
 msgstr "战斗音乐在此处从当前位置继续播放"
 
+#: src/WaveEditor.tsx
+msgid "The changes made in the Waveform Editor are lost."
+msgstr ""
+
 #: src/App.tsx
 msgid "The changes made since the project opened, to go back or forward to"
 msgstr "自项目打开以来所做的更改，可回退或前进到其中任意一步"
@@ -8292,9 +8499,17 @@ msgstr "“着色”应用的颜色"
 msgid "The combined mod"
 msgstr "合并后的模组"
 
+#: src/WaveEditor.tsx
+msgid "The copy goes right after it"
+msgstr ""
+
 #: src/PatchContentPage.tsx
 msgid "The current game doesn't have this sound. The banks in the mod bring it back."
 msgstr "当前游戏没有这个声音。模组中的音频库会把它带回来。"
+
+#: src/WaveEditor.tsx
+msgid "The cursor, block edges and blocks snap to each other, to the start and to where the original ends"
+msgstr ""
 
 #: src/SettingsTab.tsx
 msgid "The default."
@@ -8319,6 +8534,11 @@ msgstr "详情面板与静音"
 #: src/tutorials.ts
 msgid "The echo"
 msgstr "回声"
+
+#. placeholder {0}: a.name
+#: src/WaveEditor.tsx
+msgid "The edited original becomes the new audio of this slot, in place of {0}."
+msgstr ""
 
 #: src/store.tsx
 msgid "The file {file} stays on disk."
@@ -8766,6 +8986,10 @@ msgstr "念出这条字幕的录音。在资源库中打开即可试听或替换
 msgid "the reference for Wwise sound bank structures"
 msgstr "Wwise 音频库结构参考"
 
+#: src/Timeline.tsx
+msgid "The result becomes the new audio of the slot"
+msgstr ""
+
 #: src/content.ts
 msgid "the screenshots of Helldivers 2 behind Home"
 msgstr "主页背景中的 Helldivers 2 截图"
@@ -8952,6 +9176,10 @@ msgstr "这些声音已在项目中"
 msgid "These voices play through a radio effect, new audio included. Turn it off to hear a voice clean, in every language."
 msgstr "这些语音会经过无线电效果，新音频也一样。关闭它即可听到干净的语音，所有语言都有效。"
 
+#: src/WaveEditor.tsx
+msgid "They go one after the other from the cursor. Dropping files on the editor does the same"
+msgstr ""
+
 #: src/ExportDialog.tsx
 msgid "Things collected from anywhere, to export together"
 msgstr "从各处收集的内容，可一并导出"
@@ -9099,9 +9327,13 @@ msgstr "右上"
 msgid "transcribing voice lines to match them to subtitles"
 msgstr "转写语音台词以匹配字幕"
 
+#: src/WaveEditor.tsx
+msgid "Trim, split, move and fade audio"
+msgstr ""
+
 #: src/Timeline.tsx
-msgid "Trim, move and fade the new audio"
-msgstr "裁剪、移动新音频并添加淡入淡出"
+msgid "Trim, split, move and fade in the Waveform Editor"
+msgstr ""
 
 #: src/UpdatesTab.tsx
 msgid "Try Again"
@@ -9163,6 +9395,7 @@ msgstr "撤销"
 #: src/App.tsx
 #: src/keys.ts
 #: src/store.tsx
+#: src/WaveEditor.tsx
 msgid "Undo"
 msgstr "撤销"
 
@@ -9235,6 +9468,10 @@ msgstr "未保存的更改"
 msgid "Unused files"
 msgstr "未使用的文件"
 
+#: src/ProjectTab.tsx
+msgid "Up to 64 lowercase letters, digits, dots, dashes and underscores, such as name.mymod"
+msgstr ""
+
 #: src/RepatchPage.tsx
 #: src/UpdatesTab.tsx
 msgid "Up to date"
@@ -9274,6 +9511,10 @@ msgstr "更新：新版本和更新日志"
 msgid "Updating to {label}. Audiodiver restarts when the update is installed."
 msgstr "正在更新到 {label}。更新安装完成后 Audiodiver 会重新启动。"
 
+#: src/WaveEditor.tsx
+msgid "Use as New Audio"
+msgstr ""
+
 #: src/SettingsTab.tsx
 msgid "Use Default Folder"
 msgstr "使用默认文件夹"
@@ -9286,6 +9527,10 @@ msgstr "使用默认图标"
 msgid "Use Silence"
 msgstr "使用静音"
 
+#: src/WaveEditor.tsx
+msgid "Use the edited original as the new audio of the slot"
+msgstr ""
+
 #: src/ImportMod.tsx
 msgid "Use the icon of the mod"
 msgstr "使用模组的图标"
@@ -9293,6 +9538,10 @@ msgstr "使用模组的图标"
 #: src/ProjectTab.tsx
 msgid "Use the ID of a mod made before, such as the Guid in the manifest.json of the mod"
 msgstr "沿用之前某个模组的 ID，例如该模组 manifest.json 里的 Guid"
+
+#: src/ProjectTab.tsx
+msgid "Use the ID of a mod made before, the \"id\" in the obsidian.json of that mod"
+msgstr ""
 
 #: src/CombinePage.tsx
 msgid "Use this mod for every conflict in this item"
@@ -9381,6 +9630,15 @@ msgid "WAV (24-bit)"
 msgstr "WAV（24 位）"
 
 #: src/Timeline.tsx
+#: src/WaveEditor.tsx
+msgid "Waveform Editor"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Waveform Editor tools"
+msgstr ""
+
+#: src/Timeline.tsx
 #: src/Tools.tsx
 msgid "Waveforms"
 msgstr "波形"
@@ -9448,6 +9706,10 @@ msgstr "何时将更改写入项目文件。随时可按 {saveKey} 保存。"
 msgid "When on, the last project opens on the Audio tab. When off, Audiodiver starts on Home."
 msgstr "开启时，上次的项目会在音频选项卡中打开。关闭时，Audiodiver 从主页启动。"
 
+#: src/WaveEditor.tsx
+msgid "When the block plays, from the start of the slot"
+msgstr ""
+
 #: src/TextTab.tsx
 msgid "When the words after it appear, in seconds from the start of the voice line"
 msgstr "其后文字出现的时间，以距语音台词开始的秒数计"
@@ -9474,6 +9736,14 @@ msgstr "两个模组更改同一个音频库时，只有后部署的那个会播
 msgid "Where both have audio for a slot, the mod's is used."
 msgstr "如果两者在同一槽位都有音频，则使用模组的音频。"
 
+#: src/WaveEditor.tsx
+msgid "Where the block ends in the file"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Where the block starts in the file"
+msgstr ""
+
 #: src/Soundtrack.tsx
 msgid "Where the music starts each time it comes on"
 msgstr "每次音乐响起时的起始位置"
@@ -9481,22 +9751,6 @@ msgstr "每次音乐响起时的起始位置"
 #: src/Soundtrack.tsx
 msgid "Where the music starts when a fight begins"
 msgstr "战斗开始时音乐的起始位置"
-
-#: src/Timeline.tsx
-msgid "Where the new audio ends in the file"
-msgstr "新音频在文件中结束的位置"
-
-#: src/Timeline.tsx
-msgid "Where the new audio ends in the file. Drag the line to move it"
-msgstr "新音频在文件中结束的位置。拖动这条线来移动它"
-
-#: src/Timeline.tsx
-msgid "Where the new audio starts in the file"
-msgstr "新音频在文件中开始的位置"
-
-#: src/Timeline.tsx
-msgid "Where the new audio starts in the file. Drag the line to move it"
-msgstr "新音频在文件中开始的位置。拖动这条线来移动它"
 
 #: src/SliceTool.tsx
 msgid "Where the piece starts and ends in the song"

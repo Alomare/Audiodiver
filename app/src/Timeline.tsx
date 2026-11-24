@@ -11,7 +11,7 @@ import { ResizeEdge, useStoredHeight } from "./Resize";
 import { useEditor } from "./store";
 import { finePeaks, usePeaks, useWaveZoom, useWheelZoom, WaveScroll, Waveform, WaveZoom, type Marker } from "./Waveform";
 import { WaveEditor } from "./WaveEditor";
-import { EditWaveIcon } from "./Icons";
+import { PencilIcon } from "./Icons";
 
 /** The selected slot as two waveforms on one time scale: the original above, the replacement below, with the
     segment's entry and exit cue points. The replacement's can be dragged; the original's show where the game's sit.
@@ -59,8 +59,13 @@ function EditButton({ onClick, original }: { onClick: () => void; original: bool
   return (
     <button className="tl-edit" onClick={onClick}
       data-tip={original ? t`Edit the original in the Waveform Editor` : t`Trim, split, move and fade in the Waveform Editor`}
-      data-tip-more={original ? t`The result becomes the new audio of the slot` : undefined}><EditWaveIcon />{t({ message: "Edit", comment: "Opens the Waveform Editor, under a waveform's name" })}</button>
+      aria-label={t`Waveform Editor`} data-tip-more={original ? t`The result becomes the new audio of the slot` : undefined}><PencilIcon /></button>
   );
+}
+
+/** How long a waveform's audio is, in the bottom right corner of the waveform. */
+function Length({ ms }: { ms: number }) {
+  return <span className="tl-length" aria-label={t`Length ${fmtTime(ms)}`}>{fmtTime(ms)}</span>;
 }
 
 /** The Make-Up Gain a waveform is drawn at, under its label. */
@@ -159,18 +164,22 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
       <div className="tl-body zoom-grid">
         <div className="tl-rows" ref={waves}>
           <div className="tl-row">
-            <div className="tl-label game"><b>{t`Original`}</b><span>{fmtTime(game?.duration_ms)}</span>{gameDb !== 0 && <Db db={gameDb} />}{gameCurve && <CurveLabel />}
-              {!readOnly && project && !none && game && <EditButton original onClick={() => setEditing("original")} />}</div>
+            <div className="tl-label game"><b>{t`Original`}</b>{gameDb !== 0 && <Db db={gameDb} />}{gameCurve && <CurveLabel />}</div>
+            {!readOnly && <span className="tl-edit-at">{project && !none && game && <EditButton original onClick={() => setEditing("original")} />}</span>}
+            <div className="tl-wave">
             <Waveform peaks={game} {...view} tone="game" markers={gameMarkers} playheadMs={head(kGame, false, game?.duration_ms)} gainDb={gameDb} curve={gameCurve}
               activeFrom={hasCues ? seg.entry_ms ?? 0 : undefined} activeTo={hasCues ? seg.exit_ms ?? undefined : undefined}
               onSeek={none ? undefined : (ms) => seek("vanilla", ms)}
               label={row.slot.added ? t`A new take has no original` : row.slot.absent ? t`Not in the installed game files` : t`Loading the original…`}
               error={gameWave.error} onRetry={gameWave.retry} />
+            {game && <Length ms={game.duration_ms} />}
+            </div>
           </div>
           {!readOnly && (
             <div className="tl-row">
-              <div className="tl-label mine"><b>{t`Replaced`}</b><span>{a?.silence ? t({ message: "silence", comment: "In place of the length of the new audio: the slot plays silence" }) : a ? fmtTime(heardMs) : ""}</span>{mineDb !== 0 && <Db db={mineDb} />}{audible(a) && mineCurve && <CurveLabel />}
-                {(!a || (audible(a) && a.exists)) && <EditButton original={false} onClick={() => setEditing("mine")} />}</div>
+              <div className="tl-label mine"><b>{t`Replaced`}</b>{mineDb !== 0 && <Db db={mineDb} />}{audible(a) && mineCurve && <CurveLabel />}</div>
+              <span className="tl-edit-at">{(!a || (audible(a) && a.exists)) && <EditButton original={false} onClick={() => setEditing("mine")} />}</span>
+              <div className="tl-wave">
               {a?.silence ? (
                 <div className="wave placeholder">{a.fit_timing ? t`Silence: plays nothing, and the game moves straight on`
                   : t`Silence: plays nothing for the length of the original, so the timing doesn't change`}</div>
@@ -182,15 +191,17 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
               ) : (
                 <div className="wave placeholder">{a ? t`File missing` : t`Not replaced`}</div>
               )}
+              {a?.exists && !a.silence && heardMs != null && <Length ms={heardMs} />}
+              </div>
             </div>
           )}
         </div>
         <WaveZoom zoom={zoom} foot={zoom.x > 1 ? <WaveScroll zoom={zoom} /> : null} />
       </div>
       {editing && <WaveEditor source={source} what={what} original={editing === "original"} onClose={() => setEditing(null)} />}
-      {audible(a) && hasCues && (
+      {audible(a) && hasCues && (!fit || tail > 30 || overridden) && (
         <p className="tl-note">
-          {fit ? t`Drag Exit to move where the next segment starts.` : t`Fit timing is off, so the original cue points apply until one is moved.`}
+          {!fit && t`Fit timing is off, so the original cue points apply until one is moved.`}
           {tail > 30 && <> <Trans>The last <b>{last}</b> rings out over the next segment.</Trans></>}
           {overridden && <button className="link-inline" onClick={() => actions.segmentOverride(seg.segment, null, null)}>{t`Reset Cue Points`}</button>}
         </p>

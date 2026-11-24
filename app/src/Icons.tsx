@@ -250,10 +250,6 @@ export const ToolsIcon = () => (
   <Icon><path d="M20.06 6.91A4.2 4.2 0 0 1 14.19 11.79L6.19 19.79A1.4 1.4 0 0 1 4.21 17.81L12.21 9.81A4.2 4.2 0 0 1 17.09 3.94L15.53 5.5 18.5 8.47Z" /></Icon>
 );
 
-/** A waveform with a pen over it: the Waveform Editor. */
-export const EditWaveIcon = () => (
-  <Icon size={1.1}><path d="M3 12h1.5M6 9v6M9 6.5v11M12 9.5v5" /><path d="m14.2 19.8.6-3.2 5.6-5.6a1.8 1.8 0 0 1 2.6 2.6l-5.6 5.6z" /></Icon>
-);
 /** A blade through a block: split at the cursor. */
 export const SplitIcon = () => (
   <Icon size={1.1}><rect x="3" y="7" width="7" height="10" rx=".5" /><rect x="14" y="7" width="7" height="10" rx=".5" /><path d="M12 3v18" strokeDasharray="2 2.2" /></Icon>
@@ -278,3 +274,5 @@ export const DuplicateIcon = () => (
 export const NormalizeIcon = () => (
   <Icon size={1.1}><path d="M3 4.5h18" strokeDasharray="2 2" /><path d="M5 20v-6M9 20V8M13 20v-9M17 20V5.5M21 20v-7" /></Icon>
 );
+/** A pencil: edit (the Waveform Editor, beside a waveform's name). Drawn bold, as it shows small. */
+export const PencilIcon = () => <Icon size={1} stroke={2.4}><path d="M15.5 4.5l4 4L8 20H4v-4z" /><path d="M13 7l4 4" /></Icon>;
