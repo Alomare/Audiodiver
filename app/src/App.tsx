@@ -56,31 +56,36 @@ function Startup({ error, stage }: { error: string | null; stage?: string }) {
   const [picked, setPicked] = useState<string | null>(null); // why the folder just chosen can't be used
   const where = status?.game_folder;
   const choose = async (path?: string | null) => setPicked(await actions.setGameFolder(path));
+  const doing = stage && stage !== "starting" ? stage : t`Starting…`;
+  // the logo and the name rise in once; under them, an equalizer of the logo's bars while the core starts (and, in
+  // Audiodiver Utils, reads the game), or what went wrong with a way out; the version at the foot
   return (
     <main className="startup">
-      <div className="startup-card">
+      <div className="startup-hero">
         <Logo detail />
         <h1>{APP_NAME}</h1>
-        {stage === "failed" ? (
-          <>
-            <p className="warn-box">{picked ?? error}</p>
-            {/* a folder that was just refused says where to look itself */}
-            {!picked && <p className="muted"><Trans>Choose the Helldivers 2 install folder,
-              usually <code>…\steamapps\common\Helldivers 2</code>. Audiodiver only reads from it.</Trans></p>}
-            <div className="row-btns">
-              <button className="btn primary" onClick={() => choose()}><Trans>Choose Game Folder</Trans></button>
-              {where?.chosen && <button className="btn quiet" onClick={() => choose(null)} data-tip={t`Forget the chosen folder`}><Trans>Find It Through Steam Again</Trans></button>}
-            </div>
-          </>
-        ) : error && !stage ? (
-          <p className="warn-box">{error}</p>
-        ) : (
-          <>
-            <p className="loading">{stage && stage !== "starting" ? stage : t`Starting…`}</p>
-            {where?.path && <p className="startup-where" data-tip={where.path} data-tip-clip>{where.path}</p>}
-          </>
-        )}
       </div>
+      {stage === "failed" ? (
+        <div className="startup-problem">
+          <p className="warn-box">{picked ?? error}</p>
+          {/* a folder that was just refused says where to look itself */}
+          {!picked && <p className="muted"><Trans>Choose the Helldivers 2 install folder,
+            usually <code>…\steamapps\common\Helldivers 2</code>. Audiodiver only reads from it.</Trans></p>}
+          <div className="row-btns">
+            <button className="btn primary" onClick={() => choose()}><Trans>Choose Game Folder</Trans></button>
+            {where?.chosen && <button className="btn quiet" onClick={() => choose(null)} data-tip={t`Forget the chosen folder`}><Trans>Find It Through Steam Again</Trans></button>}
+          </div>
+        </div>
+      ) : error && !stage ? (
+        <div className="startup-problem"><p className="warn-box">{error}</p></div>
+      ) : (
+        <div className="startup-progress" role="status" aria-live="polite">
+          <span className="startup-bars" aria-hidden="true"><i /><i /><i /><i /><i /></span>
+          <p className="startup-stage" key={doing}>{doing}</p>
+          {where?.path && <p className="startup-where" data-tip={where.path} data-tip-clip>{where.path}</p>}
+        </div>
+      )}
+      <span className="startup-version">{APP_LABEL}</span>
       <TooltipLayer />
     </main>
   );

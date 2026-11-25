@@ -1,6 +1,6 @@
 import { createContext, use, useCallback, useContext, useEffect, useMemo, useRef, useState, type Context, type ReactNode } from "react";
 import { t, plural } from "@lingui/core/macro";
-import { andList, call, fmtNumber, gameState, type ArchiveRow, type Assignment, type Block, type Cue, type Index, type Job, type MusicItem, type Piece, type Place as Found, type ProjectState, type Slot, type Status } from "./api";
+import { andList, call, CoreStarting, fmtNumber, gameState, type ArchiveRow, type Assignment, type Block, type Cue, type Index, type Job, type MusicItem, type Piece, type Place as Found, type ProjectState, type Slot, type Status } from "./api";
 import { confirm } from "./Confirm";
 import { importAsk } from "./importAsk";
 import { liveGain } from "./gain";
@@ -530,7 +530,7 @@ function useEditorState() {
             settled = true;
             continue;
           }
-        } catch (e: any) { setConnectError(e.message ?? String(e)); }
+        } catch (e: any) { setConnectError(e instanceof CoreStarting ? null : e.message ?? String(e)); } // still starting: loading, not a problem
         await new Promise((r) => setTimeout(r, 700));
       }
     })();

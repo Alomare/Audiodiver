@@ -277,6 +277,9 @@ export function connect() {
 }
 
 export class ApiError extends Error {}
+/** The core hasn't answered yet since the window opened: it is still starting, which the startup screen shows as
+    loading, not as a problem. */
+export class CoreStarting extends ApiError {}
 
 export async function call<T = any>(method: string, args: Record<string, unknown> = {}): Promise<T> {
   const { base, token } = await connect();
@@ -289,7 +292,8 @@ export async function call<T = any>(method: string, args: Record<string, unknown
     });
   } catch {
     // before it ever answered, the core may still be starting (the window keeps asking); after, it stopped
-    throw new ApiError(answered ? t`Lost contact with the Audiodiver core. Restart the app.` : t`Waiting for the Audiodiver core to start…`);
+    if (!answered) throw new CoreStarting(t`Waiting for the Audiodiver core to start…`);
+    throw new ApiError(t`Lost contact with the Audiodiver core. Restart the app.`);
   }
   answered = true;
   const status = res.status;

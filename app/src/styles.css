@@ -535,22 +535,42 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .empty-card { background: var(--panel); padding: 24px 28px; max-width: 560px; }
 .empty-card h1, .empty-card h2 { font-size: calc(20px * var(--fs)); margin-bottom: 8px; }
 .empty-card p { color: var(--muted); }
-.startup { height: 100%; display: grid; place-items: center; }
-.startup-card { background: var(--panel); padding: 32px 40px; width: min(520px, 90vw); }
-.startup-card .logo { width: 56px; height: 56px; margin-bottom: 12px; }
+/* the window before the core answers: the logo and the name on a soft pool of the panel's colour, an equalizer of
+   the logo's bars and what it is on, or what went wrong with a way out; the version at the foot. One moment of motion:
+   the logo and name rise in, the equalizer joins once a start takes longer than a blink */
+.startup { position: relative; height: 100%; overflow: hidden; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 30px; padding: 24px;
+  background: radial-gradient(ellipse 70% 55% at 50% 44%, color-mix(in srgb, var(--panel) 85%, var(--bg)), var(--bg) 72%); }
+.startup-hero { display: flex; flex-direction: column; align-items: center; gap: 16px; animation: startup-in 760ms cubic-bezier(.16, 1, .3, 1) both; }
+.startup-hero .logo { width: 92px; height: 92px; }
+.startup-hero h1 { margin: 0; font-family: var(--title); font-stretch: 125%; font-weight: 800; font-size: calc(32px * var(--fs));
+  line-height: 1; letter-spacing: -0.01em; }
+.startup-progress { display: flex; flex-direction: column; align-items: center; gap: 12px; min-height: 72px;
+  animation: fade-in 420ms ease-out 380ms both; }
+.startup-bars { display: flex; align-items: center; gap: 4px; height: 22px; }
+.startup-bars i { width: 4px; height: 100%; border-radius: 1px; background: var(--accent-fg); transform: scaleY(.3);
+  animation: startup-eq 1.15s ease-in-out infinite; }
+.startup-bars i:nth-child(1) { animation-delay: -.95s; } .startup-bars i:nth-child(2) { animation-delay: -.35s; }
+.startup-bars i:nth-child(3) { animation-delay: -.7s; } .startup-bars i:nth-child(4) { animation-delay: -.15s; }
+.startup-bars i:nth-child(5) { animation-delay: -.55s; }
+@keyframes startup-eq { 0%, 100% { transform: scaleY(.3); } 50% { transform: scaleY(1); } }
+@keyframes startup-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.startup-stage { margin: 0; color: var(--muted); font-size: calc(13px * var(--fs)); animation: fade-in 260ms ease-out both; }
+.startup-where { max-width: min(520px, 80vw); margin: 0; color: var(--faint); font-size: calc(12px * var(--fs)); overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; }
+.startup-problem { width: min(520px, 90vw); display: flex; flex-direction: column; gap: 10px; animation: startup-in 520ms cubic-bezier(.16, 1, .3, 1) 120ms both; }
+.startup-problem > * { margin: 0; }
+.startup-problem code { font: inherit; white-space: nowrap; }
+.startup-version { position: absolute; left: 0; right: 0; bottom: 18px; text-align: center; color: var(--faint);
+  font-size: calc(12px * var(--fs)); font-variant-numeric: tabular-nums; }
+:root[data-motion="off"] .startup-bars i:nth-child(odd) { transform: scaleY(.55); }
+:root[data-motion="off"] .startup-bars i:nth-child(even) { transform: scaleY(.9); }
 /* Settings ▸ System ▸ About: the logo next to the name and the version */
 .about-brand { display: flex; align-items: center; gap: 14px; }
 .about-brand .logo { width: 44px; height: 44px; }
 .about-brand div { display: flex; flex-direction: column; }
 .about-brand b { font-family: var(--title); font-stretch: 125%; font-size: calc(18px * var(--fs)); line-height: 1.2; }
 .about-brand span { color: var(--muted); font-size: calc(14px * var(--fs)); }
-.startup-card h1 { font-size: calc(24px * var(--fs)); margin-bottom: 8px; }
-.startup-card .row-btns { margin-top: 14px; }
-.startup-card code { font: inherit; white-space: nowrap; }
-.startup-where { margin: 10px 0 0; color: var(--faint); font-size: calc(12px * var(--fs)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.loading { color: var(--muted); }
-.loading::after { content: ""; display: block; height: 3px; margin-top: 16px; background: linear-gradient(90deg, transparent, var(--accent), transparent); background-size: 40% 100%; background-repeat: no-repeat; animation: sweep 1.4s linear infinite; }
-@keyframes sweep { from { background-position: -40% 0; } to { background-position: 140% 0; } }
 
 /* ---------- status bar and notices */
 .statusbar { display: flex; align-items: center; gap: 16px; min-height: calc(28px + 8px * var(--sp)); padding: calc(3px * var(--sp)) 14px calc(3px * var(--sp)) 8px; font-size: calc(13px * var(--fs)); color: var(--faint); background: var(--panel); border-top: 1px solid var(--line); white-space: nowrap; overflow: hidden; }
@@ -1103,7 +1123,6 @@ button.ctag:hover { background: color-mix(in oklch, var(--c) 24%, transparent); 
   transition: none !important; animation: none !important; scroll-behavior: auto !important;
 }
 /* progress that moves to show it's working keeps a still look instead */
-:root[data-motion="off"] .loading::after { background: var(--accent); opacity: .35; }
 :root[data-motion="off"] .job-bar.unknown div { width: 100%; margin: 0; opacity: .35; }
 
 @keyframes fade-in { from { opacity: 0; } }
