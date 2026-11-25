@@ -15,7 +15,7 @@ import { Help } from "./WikiLinks";
 const fileName = (path: string) => path.split(/[\\/]/).pop()!;
 /** Problems that the Project tab fixes (the kinds of the core's Project.problem_list): the name, the icon, the mod
     ID. A missing_file is a file the project uses that is gone. */
-const ON_PROJECT_TAB = new Set<ProblemKind>(["name", "icon", "icon_missing", "mod_id"]);
+const ON_PROJECT_TAB = new Set<ProblemKind>(["name", "icon", "icon_missing", "option_image", "mod_id"]);
 
 /** Why a typed version can't be used, or null. */
 function versionProblem(v: string): string | null {
@@ -81,12 +81,12 @@ function BuildPage() {
 
 // ---------------------------------------------------------------- building
 
-/** Options for players that change the same banks (core options_plan): the build goes ahead, and the later option
-    wins there in game whatever players pick. The Project tab combines them. */
+/** Groups for players that change the same banks (core options_plan): the build goes ahead, and the later group
+    wins there in game whatever players pick. The Project tab says the same. */
 function SharedOptions() {
   const { project, revision } = useEditor();
   const [shared, setShared] = useState<OptionsPlan["shared"]>([]);
-  const live = !!project && project.game === "hd2" && project.options.length > 1;
+  const live = !!project && project.game === "hd2" && project.groups.length > 1;
   useEffect(() => {
     if (!live) { setShared([]); return; }
     let on = true;
@@ -94,10 +94,10 @@ function SharedOptions() {
     return () => { on = false; };
   }, [revision, live]);
   if (!shared.length || !project) return null;
-  const name = (id: string) => project.options.find((o) => o.id === id)?.name ?? id;
+  const name = (id: string) => project.groups.find((g) => g.id === id)?.name ?? id;
   const pairs = shared.map((s) => `${name(s.a)} / ${name(s.b)}`).join(", ");
   return (
-    <p className="info-box"><Trans>Options that change the same banks: {pairs}. Players can't pick them apart in Helldivers 2 mod managers.</Trans>{" "}
+    <p className="info-box"><Trans>Groups that change the same banks: {pairs}. In Helldivers 2 mod managers the later one wins there, whatever players pick.</Trans>{" "}
       <button className="link-inline" onClick={() => nav.go("project")}>{t`Project Tab`}</button></p>
   );
 }

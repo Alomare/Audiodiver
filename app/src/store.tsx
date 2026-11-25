@@ -1137,26 +1137,37 @@ function useEditorState() {
         : t`Make-Up Gain set on ${plural(matched, { one: "# slot", other: "# slots" })}`);
     },
     async settings(fields: Record<string, unknown>) { edited(await run<ProjectState>("settings", fields)); },
-    /** Mod Options (core options.py): every edit of the options is one undo step. `kind` of a new option: blank,
-        volume (Louder, Quieter) or original (per item, Replaced or Original). Returns the ids added. */
-    async optionAdd(kind: "blank" | "volume" | "original", items: string[] = []) {
-      const st = await run<ProjectState & { added: string[] }>("option_add", { kind, items });
-      return edited(st) ? st!.added : [];
+    /** Options for Players (core options.py): groups of options, each edit one undo step. `image`: a file path, or
+        "" for none; with `pick`, the file dialog asks for one. */
+    async groupAdd() {
+      const st = await run<ProjectState & { added: string }>("group_add");
+      return edited(st) ? st!.added : null;
     },
-    async optionSet(option: string, fields: { name?: string; description?: string }) { edited(await run<ProjectState>("option_set", { option, ...fields })); },
-    async optionRemove(option: string) { edited(await run<ProjectState>("option_remove", { option })); },
-    async optionMove(option: string, to: number) { edited(await run<ProjectState>("option_move", { option, to })); },
-    async choiceAdd(option: string) { edited(await run<ProjectState>("choice_add", { option })); },
-    async choiceSet(option: string, choice: string, fields: { name?: string; description?: string; rules?: { gain_db: number; original: boolean; items: string[] }[] }) {
-      edited(await run<ProjectState>("choice_set", { option, choice, ...fields }));
+    async groupSet(group: string, fields: { name?: string; description?: string; image?: string }) { edited(await run<ProjectState>("group_set", { group, ...fields })); },
+    async groupRemove(group: string) { edited(await run<ProjectState>("group_remove", { group })); },
+    async groupMove(group: string, to: number) { edited(await run<ProjectState>("group_move", { group, to })); },
+    async optionAdd(group: string) {
+      const st = await run<ProjectState & { added: string }>("option_add", { group });
+      return edited(st) ? st!.added : null;
     },
-    async choiceRemove(option: string, choice: string) { edited(await run<ProjectState>("choice_remove", { option, choice })); },
-    async choiceMove(option: string, choice: string, to: number) { edited(await run<ProjectState>("choice_move", { option, choice, to })); },
-    async optionsCombine(a: string, b: string) { edited(await run<ProjectState>("options_combine", { a, b })); },
-    /** The Audio tab's Editing switch: a choice, or Main (no arguments). */
-    async optionEditing(option?: string, choice?: string) { edited(await run<ProjectState>("option_editing", option ? { option, choice } : {})); },
-    /** In the choice being edited: slots back to Main, or to the original. */
-    async choiceSlots(sources: string[], to: "main" | "original") { edited(await run<ProjectState>("choice_slots", { sources, to })); },
+    async optionSet(group: string, option: string, fields: { name?: string; description?: string; image?: string; gain_db?: number }) {
+      edited(await run<ProjectState>("option_set", { group, option, ...fields }));
+    },
+    async optionRemove(group: string, option: string) { edited(await run<ProjectState>("option_remove", { group, option })); },
+    async optionMove(group: string, option: string, to: number) { edited(await run<ProjectState>("option_move", { group, option, to })); },
+    /** An image for a group (option undefined) or an option, chosen in the file dialog. */
+    async optionImage(group: string, option?: string) {
+      const path = await platform.pickImage(project?.folder);
+      if (!path) return;
+      if (option) await actions.optionSet(group, option, { image: path });
+      else await actions.groupSet(group, { image: path });
+    },
+    /** The Audio tab's picker of a group: an option, or the group off (no option). */
+    async optionPick(group: string, option?: string) { edited(await run<ProjectState>("option_pick", option ? { group, option } : { group })); },
+    /** Where changes to slots no group has go: a picked group, or "" for the base mod. */
+    async optionTarget(target: string) { edited(await run<ProjectState>("option_target", { target })); },
+    /** Slots out of the option picked in their group: they play as the base mod has them. */
+    async optionSlotsOff(sources: string[]) { edited(await run<ProjectState>("option_slots_off", { sources })); },
     /** A new mod id: a mod manager then sees the next build as another mod. Undo puts the old id back. */
     async newModId() {
       if (edited(await run<ProjectState>("settings", { guid: "new" }))) editNotice("info", t`New mod ID created. Mod managers install the next build as a separate mod.`);

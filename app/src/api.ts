@@ -77,7 +77,7 @@ export type Segment = {
 export type GroupKind = "sound" | "layer" | "run" | "wordless" | "other" | "absent" | "streams";
 /** What a project problem is (core Project.problem_list and editor.project_state): the Project tab fixes the name,
     the icon and the mod ID; missing_file is an audio file the project uses that is gone. */
-export type ProblemKind = "name" | "icon" | "icon_missing" | "mod_id" | "missing_file" | "duplicate" | "overrides"
+export type ProblemKind = "name" | "icon" | "icon_missing" | "option_image" | "mod_id" | "missing_file" | "duplicate" | "overrides"
   | "unresolved" | "same_sound" | "unreadable" | "no_file" | "loudness";
 /** What opens in the middle: a music cue (kind playlist, segment, bridge or stinger), a bank's sounds ("sounds",
     id "bank:<id>" or "streams:<archive>") or one sound on its own ("sound", id "sfx:<source>"). */
@@ -227,23 +227,20 @@ export type ProjectState = {
   undo_label: string | null; redo_label: string | null; // what Undo / Redo would change ("fill", "move")
   history?: string[]; future?: string[]; // the History list: the edits done, oldest first, and those undone, the next to redo first
   history_at?: number[]; future_at?: number[]; opened_at?: number; // when each was made, and when the project opened (ms)
-  options: ModOption[]; // choices players make in the mod manager (core options.py)
-  editing: Editing | null; // the Audio tab's Editing switch: the choice its edits go into, or Main (null)
-  choice_slots: Record<string, ChoiceSlot>; // the slots that choice changes, by source
-  option_items: { id: string; name: string }[]; // the project's items by name, for options on some of them
+  groups: OptionGroup[]; // options players pick in the mod manager (core options.py)
+  picks: Record<string, string>; // the Audio tab's pickers: {group id: option id} of the groups it plays and edits
+  target: string | null; // where changes to slots no group has go: a group id, "" for the base mod, null: not chosen
+  option_slots: Record<string, OptionSlot>; // every slot a group has, by source
 };
-/** A rule of a choice: a gain added to the slots' Make-Up Gain, or the original back, on Library items (`names`
-    says them) or, with none, every slot the mod changes. */
-export type ChoiceRule = { gain_db: number; original: boolean; items: string[]; names: string[] };
-export type OptionChoice = { id: string; name: string; description: string; slots: number; originals: number; cues: number; rules: ChoiceRule[] };
-/** An option for players: its choices, the first being the mod as it is (Main). */
-export type ModOption = { id: string; name: string; description: string; choices: OptionChoice[] };
-export type Editing = { option: string; choice: string; option_name: string; choice_name: string; index: number };
-/** A slot the picked choice changes: to the original, or some keys of it; Main's new audio there (null: none). */
-export type ChoiceSlot = { original: boolean; keys: string[]; main: { name: string; gain_db: number; fit_timing: boolean } | null;
-  main_gain: number; main_filters: [number, number] };
-/** What each choice costs ("<option>/<choice>": banks and MB, about) and the options that change the same banks. */
-export type OptionsPlan = { choices: Record<string, { banks: number; mb: number }>; shared: { a: string; b: string; banks: number }[] };
+/** An option of a group: what it changes (slots, cue points) and the gain it adds to the base mod. */
+export type ModOption = { id: string; name: string; description: string; image: string; gain_db: number; slots: number; cues: number };
+/** A group for players: ticked in the mod manager, one of its options picked; unticked, none of it installs. */
+export type OptionGroup = { id: string; name: string; description: string; image: string; options: ModOption[] };
+/** A slot a group has: its group, the picked option when that changes it, whether the group is picked, and the
+    base mod's new audio there (null: none). */
+export type OptionSlot = { group: string; option: string | null; on: boolean; base: { name: string; gain_db: number } | null };
+/** What each option costs ("<group>/<option>": banks and MB, about) and the groups that change the same banks. */
+export type OptionsPlan = { options: Record<string, { banks: number; mb: number }>; shared: { a: string; b: string; banks: number }[] };
 /** A game being read ("scanning", with the step in `detail`), read ("ready"), or not found ("missing", with why). */
 export type GameState = { state: "scanning" | "ready" | "missing"; detail: string };
 /** The game state of a status, also from a core older than `games` (Helldivers 2 by the stage). */
@@ -337,6 +334,12 @@ export function fileUrl(path: string) {
 export function iconUrl(bust: string, preview?: Icon) {
   const icon = preview ? `&icon=${encodeURIComponent(JSON.stringify(preview))}` : "";
   return `${audioBase}/project/icon?token=${encodeURIComponent(audioToken)}&v=${bust}${icon}`;
+}
+
+/** A group's (option undefined) or option's image, as the build packages it; `bust` changes when the image does. */
+export function optionImageUrl(group: string, option: string | undefined, bust: string) {
+  return `${audioBase}/project/option-image?token=${encodeURIComponent(audioToken)}&group=${encodeURIComponent(group)}${
+    option ? `&option=${encodeURIComponent(option)}` : ""}&v=${encodeURIComponent(bust)}`;
 }
 
 /** The icon of a project that isn't open (Home's recent project); `bust` changes when the project file does. */

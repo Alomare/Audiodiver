@@ -48,7 +48,7 @@
 
 ### 📁 Project
 
-The mod's name, description, icon and ID, with a preview as a mod manager shows them. **Options for Players** adds choices that players pick in the mod manager: Louder or Quieter, part of the mod back to the original, or other audio in some slots. A build ships only what each choice changes. The project folder has **Collect Files**, a clean-up to the Recycle Bin (the trash on Linux), and packs (`.audipack`) for another computer.
+The mod's name, description, icon and ID, with a preview as a mod manager shows them. **Options for Players** adds groups that players tick in the mod manager, each with options to pick from, such as one of five sounds for a weapon or a louder and a quieter mod. Pickers over the Audio tab choose what plays and where changes go, and a build ships only what each option changes. The project folder has **Collect Files**, a clean-up to the Recycle Bin (the trash on Linux), and packs (`.audipack`) for another computer.
 
 <img src="assets/readme/project.png" alt="The Project tab: the name, description, icon and mod ID, beside a preview of the mod in a mod manager with Import Patches and Close Project above it" width="100%">
 

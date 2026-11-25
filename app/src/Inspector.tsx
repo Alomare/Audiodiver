@@ -8,6 +8,7 @@ import { ClearIcon, FillIcon, FillPieceIcon, FolderIcon, ResetIcon, SilenceIcon 
 import { keyLabel, useKeymap, type CommandId } from "./keys";
 import { sameSoundWarning, where } from "./music";
 import { nav } from "./nav";
+import { OptionNote } from "./ModOptions";
 import { NoteSection } from "./Notes";
 import { noteKeys } from "./noteStore";
 import { fullPath, pickAudio, reveal } from "./platform";
@@ -57,7 +58,7 @@ export function Inspector() {
       <ClipNotes slot={slot} a={a} />
 
       <Settle key={a?.silence ? "silence" : a ? "file" : "none"} still={shown.current !== slot.source}>
-        <ChoiceNote source={slot.source} />
+        <OptionNote source={slot.source} />
         <Replacement slot={slot} a={a} music={isMusic(cue)} what={seg.name} />
         {!hd1 && usable && choosesReach(slot) && <Reach slot={slot} a={a} />}
         {a && !a.silence && <Gain sources={[slot.source]} value={a.gain_db} match={slot.added ? undefined : "one"} base={slot.added ? undefined : slot.game_gain ?? 0} />}
@@ -140,21 +141,6 @@ function hint(ids: CommandId[], what: string) {
 
 /** What replaces the slot. The file itself is chosen, replaced and removed on the slot's row (and its right-click
     menu); here is what it is, and for silence what it does to the timing. */
-/** With the Audio tab's Editing switch on a choice that changes this slot: what Main has here, and the way back to it. */
-function ChoiceNote({ source }: { source: string }) {
-  const { project, actions } = useEditor();
-  const c = project?.choice_slots[source], e = project?.editing;
-  if (!c || !e) return null;
-  const main = c.main ? (c.main.gain_db ? `${c.main.name}, ${fmtDecimal(c.main.gain_db, 1, true)} dB` : c.main.name) : t`the original`;
-  return (
-    <p className="opt-note">
-      {c.original ? <Trans><b>{e.choice_name}</b> plays the original here. In Main: {main}.</Trans>
-        : <Trans>Changed in <b>{e.choice_name}</b>. In Main: {main}.</Trans>}
-      {" "}<button className="link-inline" onClick={() => void actions.choiceSlots([source], "main")}>{t`Back to Main`}</button>
-    </p>
-  );
-}
-
 function Replacement({ slot, a, music, what }: { slot: Slot; a?: Assignment; music: boolean; what: string }) {
   const { project, actions } = useEditor();
   if (a?.silence) {

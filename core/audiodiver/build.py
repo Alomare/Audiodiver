@@ -397,11 +397,11 @@ def _digests(path: Path) -> dict[tuple[int, int], str]:
     return out
 
 
-def choice_patch(main: Path, made: Path, out: Path, ix: AudioIndex) -> int:
-    """A choice's patch (out, a folder) from its whole build (made, a patch file) and Main's (main): only the assets
-    that differ from Main's, as the game overrides per asset (a bank, a stream) and the choice deploys after Main.
-    Where Main changes an asset and the choice gives it back as the game has it, the game's copy goes in, so the
-    choice wins over Main there too. Returns how many assets it holds (0: no patch written)."""
+def option_patch(main: Path, made: Path, out: Path, ix: AudioIndex) -> int:
+    """An option's patch (out, a folder) from its whole build (made, a patch file) and the base mod's (main): only
+    the assets that differ from the base mod's, as the game overrides per asset (a bank, a stream) and the option
+    deploys after the base mod. Where the base mod changes an asset and the option gives it back as the game has it,
+    the game's copy goes in, so the option wins there too. Returns how many assets it holds (0: no patch written)."""
     from .game import WWISE_BANK, WWISE_DEP, WWISE_STREAM
     m, c = _digests(main), _digests(made)
     differ = {k for k, h in c.items() if m.get(k) != h}
@@ -431,35 +431,43 @@ def choice_patch(main: Path, made: Path, out: Path, ix: AudioIndex) -> int:
 
 def build_options(project: Project, ix: AudioIndex, main_dir: Path, scratch: Path, choices, log=print, step=None,
                   listed=None, carried=None) -> list[dict]:
-    """Each option's choices built as patches of what differs from Main (main_dir holds Main's patch), as
-    arsenal.package takes them. choices: [(Option, [(Choice, the project resolved with it picked)])], the
-    non-default choices of each option. A choice that changes nothing deploys nothing."""
+    """Each group's options built as patches of what differs from the base mod (main_dir holds its patch), as
+    arsenal.package takes them. choices: [(Group, [(Option, the project resolved with it picked)])]. An option that
+    changes nothing deploys nothing. Images are fitted to 540x540 PNGs (`image`: their bytes)."""
     out, total = [], sum(len(made) for _, made in choices)
     done = 0
-    for o, made in choices:
-        subs = [{"name": o.choices[0].name, "description": o.choices[0].description, "folder": None, "path": o.choices[0].id}]
-        for c, resolved in made:
+
+    def image(x, what):
+        if not x.image:
+            return None
+        try:
+            return arsenal.icon_png(project.file(x.image))
+        except (ValueError, OSError) as e:
+            raise BuildError(tr("{name}: the image can't be used ({why})").format(name=what, why=e)) from None
+    for g, made in choices:
+        subs = []
+        for o, resolved in made:
             if step:
-                step(tr("Building {option}: {choice}").format(option=o.name, choice=c.name), done, total)
+                step(tr("Building {group}: {option}").format(group=g.name, option=o.name), done, total)
             done += 1
-            whole = scratch / f"whole-{o.id}-{c.id}"
+            whole = scratch / f"whole-{g.id}-{o.id}"
             whole.mkdir()
             try:
                 make_patch(resolved, ix, whole, log=lambda *_: None, listed=listed, carried=carried)
             except BuildError as e:
-                raise BuildError(f"{o.name} ▸ {c.name}: {e}") from None
-            part = scratch / f"choice-{o.id}-{c.id}"
-            n = choice_patch(main_dir / PATCH, whole / PATCH, part, ix)
+                raise BuildError(f"{g.name} ▸ {o.name}: {e}") from None
+            part = scratch / f"option-{g.id}-{o.id}"
+            n = option_patch(main_dir / PATCH, whole / PATCH, part, ix)
             shutil.rmtree(whole, ignore_errors=True)
             if n:
                 size = sum(f.stat().st_size for f in part.iterdir())
-                log(ntr("option {option} ▸ {choice}: {n} asset, {mb} MB", "option {option} ▸ {choice}: {n} assets, {mb} MB", n)
-                    .format(option=o.name, choice=c.name, n=n, mb=f"{size / 1e6:.1f}"))
+                log(ntr("{group} ▸ {option}: {n} asset, {mb} MB", "{group} ▸ {option}: {n} assets, {mb} MB", n)
+                    .format(group=g.name, option=o.name, n=n, mb=f"{size / 1e6:.1f}"))
             else:
-                log(tr("option {option} ▸ {choice}: the same as {main}, so it deploys nothing").format(
-                    option=o.name, choice=c.name, main=o.choices[0].name))
-            subs.append({"name": c.name, "description": c.description, "folder": part if n else None, "path": c.id})
-        out.append({"name": o.name, "description": o.description, "choices": subs, "path": o.id})
+                log(tr("{group} ▸ {option}: the same as the base mod, so it deploys nothing").format(group=g.name, option=o.name))
+            subs.append({"name": o.name, "description": o.description, "folder": part if n else None, "path": o.id,
+                         "image": image(o, f"{g.name} ▸ {o.name}")})
+        out.append({"name": g.name, "description": g.description, "choices": subs, "path": g.id, "image": image(g, g.name)})
     return out
 
 
@@ -507,7 +515,7 @@ def build(project: Project, ix: AudioIndex, out_dir=None, version=None, log=prin
             folder = made.with_suffix("")  # named like the ZIP
             try:
                 arsenal.save_patch_files(patch_dir, folder)
-                for o in extra:  # each choice that deploys something in <option>/<choice> beside Main's
+                for o in extra:  # each option that deploys something in <group>/<option> beside the base mod
                     for c in o["choices"]:
                         if c["folder"]:
                             arsenal.save_patch_files(c["folder"], folder / o["path"] / c["path"])

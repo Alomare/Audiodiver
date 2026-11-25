@@ -9,7 +9,6 @@ import { ClearIcon, CollapseAllIcon, ExportIcon, FillIcon, IdIcon, LinkIcon, Onl
 import { Mark } from "./IndexTree";
 import { ItemActions, ItemHead, PartHead, partsFold, PartTabs } from "./ItemHead";
 import { keyHint, keyLabel, useCommands, useKeymap } from "./keys";
-import { EditingBand, EditingSwitch } from "./ModOptions";
 import { useListWindow, type WindowLine } from "./listWindow";
 import { coverage, COVERAGE, heldBy, isMusicItem, listedBanks, listName, statusOf, where } from "./music";
 import { nav as tabs, useNav } from "./nav";
@@ -615,10 +614,9 @@ function CueBody({ cue }: { cue: Cue }) {
         run: () => actions.silence(silenceable, true, sel.length > 1 ? plural(usableCount, { one: "# slot", other: "# slots" }) : rowName(r)) },
       { label: many ? plural(count, { one: "Remove New Audio (# Slot)", other: "Remove New Audio (# Slots)" }) : t`Remove New Audio`,
         keys: keyLabel("remove"), disabled: !withAudio.length, run: () => actions.unassign(withAudio) },
-      // with the Editing switch on a choice: these slots as Main has them, or as the game has them, in that choice
-      ...(project?.editing ? [
-        { label: t`Back to Main`, disabled: !ordered.some((x) => project.choice_slots[x]), run: () => actions.choiceSlots(ordered, "main") } as MenuEntry,
-        { label: t`Original in This Choice`, disabled: ordered.every((x) => project.choice_slots[x]?.original), run: () => actions.choiceSlots(ordered, "original") } as MenuEntry,
+      // slots the picked option of their group changes: back to how they play without the group
+      ...(ordered.some((x) => project?.option_slots[x]?.option) ? [
+        { label: t`Remove from Option`, run: () => actions.optionSlotsOff(ordered) } as MenuEntry,
       ] : []),
       ...(reach.length ? ["-" as const] : []),
       ...(reachShared ? [{ label: many ? plural(reachShared, { one: "Isolate Audio (# Slot)", other: "Isolate Audio (# Slots)" }) : t`Isolate Audio`,
@@ -685,10 +683,13 @@ function CueBody({ cue }: { cue: Cue }) {
     },
   });
   const selSet = useMemo(() => new Set(selected), [selected]);
-  // with the Editing switch on a choice: the slots it changes carry its name (or that it plays the original there)
-  const inChoice = (s: string) => {
-    const c = readOnly ? undefined : project?.choice_slots[s];
-    return c && project?.editing ? (c.original ? t`Original in ${project.editing.choice_name}` : project.editing.choice_name) : undefined;
+  // the slots a group for players has carry its name, and the option's when the option picked changes them
+  const inChoice = (s: string): OptionTag | undefined => {
+    const c = readOnly ? undefined : project?.option_slots[s];
+    const g = c && project?.groups.find((x) => x.id === c.group);
+    if (!c || !g) return undefined;
+    const o = g.options.find((x) => x.id === c.option);
+    return { text: o ? `${g.name}: ${o.name}` : g.name, on: !!o };
   };
   const slot = (r: Row) => (
     <SlotRow key={r.slot.source} row={r} a={readOnly ? undefined : assigned[r.slot.source]} selected={selSet.has(r.slot.source)}
@@ -843,7 +844,6 @@ function CueBody({ cue }: { cue: Cue }) {
               onClick={() => actions.unassign(all.map((r) => r.slot.source).filter((s) => assigned[s]))} />;
           })()}
         </div>
-        {!readOnly && <EditingSwitch />}
         <SlotSearch value={filter} onChange={setFilter} sounds={grouped} />
         {bank && (
           <button className={`icon-btn${ids ? " on" : ""}`} aria-pressed={ids} aria-label={t`Container IDs`}
@@ -862,7 +862,6 @@ function CueBody({ cue }: { cue: Cue }) {
         <PanelToggles panels={panels} set={setPanels} waves={selected.length === 1} />
         <Help tip={t`What each button on this bar does`} page="reading-the-screen#the-toolbar" />
       </div>
-      {!readOnly && <EditingBand />}
       {item && part && item.parts.length > 1 && !folding && <PartTabs item={item} part={part} />}
 
       <div className={`slots view-in${windowed ? " windowed" : ""}`} key={folding ? item!.id : cue.id} ref={listRef} role="listbox" aria-multiselectable
@@ -1123,10 +1122,13 @@ function useFlash(value: string) {
 
 /** One slot. Memoised: it draws again only when something it shows changes (its audio, its selection, playback),
     not whenever the list does. */
+/** A slot's group for players, on the row: "Group: Option" where the option picked changes it. */
+type OptionTag = { text: string; on: boolean };
+
 const SlotRow = memo(function SlotRow({ row, a, standIns, gain, selected, now, itemId, cueId, on, choice }: {
   row: Row; a?: Assignment; standIns?: StandIn[]; selected: boolean; now: boolean; itemId: string | null; cueId: string;
   gain?: number; // Make-Up Gain on the original audio (it applies while the slot has no new audio)
-  choice?: string; // the choice the Editing switch picks, where it changes this slot (Mod Options)
+  choice?: OptionTag; // the group for players that has this slot (Mod Options)
   on: RowHandlers;
 }) {
   const { revision, readOnly } = useLite();
@@ -1173,7 +1175,7 @@ const SlotRow = memo(function SlotRow({ row, a, standIns, gain, selected, now, i
             {slot.absent && <span className="tag" data-tip={NO_AUDIO_TIP}>{t`no audio`}</span>}
             {slot.locked && <LockedTag />}
             {seg.added !== "layer" && <AddedTag slot={slot} />}
-            {choice && <span className="tag opt-tag" data-tip={t`Changed in this choice`}>{choice}</span>}
+            {choice && <span className={`tag opt-tag${choice.on ? "" : " off"}`} data-tip={choice.on ? t`Changed in this option` : t`Part of this group, which is off here`} data-tip-more={choice.on ? t`Remove from Option, in the right-click menu, takes the change away` : t`Pick an option of the group over the slots to change it`}>{choice.text}</span>}
             {a && !slot.was && choosesReach(slot) && <EveryTag />}
             {!a && standIns && <StandInTag standIns={standIns} cueId={cueId} />}
             {!a && !!gain && <GainTag db={gain} />}
@@ -1205,7 +1207,7 @@ const SlotRow = memo(function SlotRow({ row, a, standIns, gain, selected, now, i
             {slot.absent && <span className="tag" data-tip={NO_AUDIO_TIP}>{t`no audio`}</span>}
             {slot.locked && <LockedTag />}
             <AddedTag slot={slot} />
-            {choice && <span className="tag opt-tag" data-tip={t`Changed in this choice`} data-tip-more={t`Back to Main, in the right-click menu, takes the change away`}>{choice}</span>}
+            {choice && <span className={`tag opt-tag${choice.on ? "" : " off"}`} data-tip={choice.on ? t`Changed in this option` : t`Part of this group, which is off here`} data-tip-more={choice.on ? t`Remove from Option, in the right-click menu, takes the change away` : t`Pick an option of the group over the slots to change it`}>{choice.text}</span>}
             {a && !slot.was && choosesReach(slot) && <EveryTag />}
             {!a && standIns && <StandInTag standIns={standIns} cueId={cueId} />}
             {!a && !!gain && <GainTag db={gain} />}

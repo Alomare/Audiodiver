@@ -9,12 +9,12 @@ Manifest rules (BSL CLAUDE.md, hd2-lua-mod skill 6.16):
   - Name is plain ASCII without \\ / : * ? " < > | or edge spaces (managers use it as a folder name), and no
     version: Arsenal keeps the Name from the first import.
   - Guid stays fixed for the life of a mod, so a re-import updates it instead of adding a copy.
-  - IconPath is a 540x540 PNG, reused as every option's Image.
+  - IconPath is a 540x540 PNG, reused as the Image of every option without one of its own.
 
 An option is {name, description, folder} or {name, description, choices: [{name, description, folder}]},
 where folder is a local directory of archive files (None for a choice that deploys nothing). Choices become
-Arsenal SubOptions (exactly one is deployed). `path` on an option or a choice names its folder in the ZIP (else
-made from the name).
+SubOptions: a player ticks the option and picks one of them, or leaves it unticked and gets none. `path` on an
+option or a choice names its folder in the ZIP (else made from the name); `image` (PNG bytes) is its own image.
 """
 import io
 import json
@@ -193,12 +193,20 @@ def package(out_zip, *, name, guid, icon, options, description=''):
 
     files = {'icon.png': icon_bytes}
     manifest_options = []
+
+    def image(x, at):
+        """The image an option shows: its own (`image`, PNG bytes) at `at`, else the mod's icon."""
+        if not x.get('image'):
+            return 'icon.png'
+        files[at] = x['image']
+        return at
     for opt in options:
         top = opt.get('path') or slug(opt['name'])
-        entry = {'Name': opt['name'], 'Description': opt['description'], 'Include': [top], 'Image': 'icon.png'}
+        entry = {'Name': opt['name'], 'Description': opt['description'], 'Include': [top],
+                 'Image': image(opt, f'{top}/image.png')}
         if 'choices' in opt:
-            # the option's own folder holds nothing: its choices do. A choice without a folder (the default, Main, or
-            # one that changes nothing) is "Include": [] (HD2MM needs the key)
+            # the option's own folder holds nothing: its choices do. A choice without a folder (one that changes
+            # nothing) is "Include": [] (HD2MM needs the key)
             entry['Include'] = []
             subs = []
             for choice in opt['choices']:
@@ -209,7 +217,7 @@ def package(out_zip, *, name, guid, icon, options, description=''):
                         files[f'{path}/{fname}'] = data
                     include = [path]
                 subs.append({'Name': choice['name'], 'Description': choice['description'], 'Include': include,
-                             'Image': 'icon.png'})
+                             'Image': image(choice, f'{path}/image.png')})
             entry['SubOptions'] = subs
         else:
             for fname, data in archive_files(opt['folder']).items():

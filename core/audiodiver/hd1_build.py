@@ -36,6 +36,7 @@ from typing import Callable
 from . import arsenal, hd1, wem
 from .audio import silence_wav
 from .i18n import ntr, tr
+from .options import OFF
 from .project import Project
 
 PAD = 4                  # a clip starts on a multiple of this, from the bank's start
@@ -284,47 +285,47 @@ def _clips(p: Project, game: hd1.Hd1, step, kept, used: set) -> dict[tuple[int, 
 
 @dataclass
 class OptionBuild:
-    """The project's options for a build: the options, and resolve(picks), the project a set of picks plays
-    ({option id: choice id}; the editor's, which knows the Library items a rule names)."""
-    options: list
+    """The project's groups for players for a build: the groups, and resolve(picks), the project a set of picks
+    plays ({group id: option id}; a group left out is off)."""
+    groups: list
     resolve: Callable[[dict], Project]
 
 
 def _option_clips(game: hd1.Hd1, main: dict, choices: OptionBuild, step, kept, used: set):
-    """The clips of the mod with the options: [(when, {place: row})]. A clip no option changes stays Main's, without
-    `when`. A clip one option changes goes in once for each choice of that option that has new audio there (Main's
-    under the first choice), with `when` naming that choice. A clip several options change goes in for every set of
-    their choices (options.combos), each built, with `when` naming them all: Obsidian keeps one picker per option."""
+    """The clips of the mod with the groups: [(when, {place: row})]. A clip no group changes stays the base mod's,
+    without `when`. A clip one group changes goes in once for each of its options with audio there, and once for the
+    group off (OFF: the base mod's clip, if any), with `when` naming that pick. A clip several groups change goes in
+    for every set of their picks (options.combos), each built, with `when` naming them all: Obsidian keeps one picker
+    per group."""
     from . import options as opts
-    first = {o.id: o.choices[0].id for o in choices.options}
-    built = {frozenset(): main}  # {the picks off the default: their clips}
+    built = {frozenset(): main}  # {the picks: their clips}
 
     def clips_of(picks: dict) -> dict:
-        key = frozenset((i, c) for i, c in picks.items() if c != first[i])
+        key = frozenset(picks.items())
         if key not in built:
             built[key] = _clips(choices.resolve(dict(key)), game, step, kept, used)
         return built[key]
-    touched: dict[tuple, set] = {}  # place: the options that change it
-    for o in choices.options:
-        for c in o.choices[1:]:
-            got = clips_of({o.id: c.id})
+    touched: dict[tuple, set] = {}  # place: the groups that change it
+    for g in choices.groups:
+        for o in g.options:
+            got = clips_of({g.id: o.id})
             for place in set(got) | set(main):
                 if got.get(place) != main.get(place):
-                    touched.setdefault(place, set()).add(o.id)
+                    touched.setdefault(place, set()).add(g.id)
     out = [((), {k: v for k, v in main.items() if k not in touched})]
-    by_options: dict[tuple, set] = {}
+    by_groups: dict[tuple, set] = {}
     for place, ids in touched.items():
-        by_options.setdefault(tuple(sorted(ids)), set()).add(place)
-    for ids, places in sorted(by_options.items()):
-        picks = opts.combos(choices.options, ids)
+        by_groups.setdefault(tuple(sorted(ids)), set()).add(place)
+    for ids, places in sorted(by_groups.items()):
+        picks = opts.combos(choices.groups, ids)
         if len(picks) > opts.MAX_COMBOS:
-            raise Hd1BuildError(tr("The options {names} change the same sounds in {n} ways, more than a mod can hold. "
+            raise Hd1BuildError(tr("The groups {names} change the same sounds in {n} ways, more than a mod can hold. "
                                    "Narrow them to fewer sounds.").format(names=", ".join(ids), n=len(picks)))
         for pick in picks:
             got = clips_of(pick)
             rows = {k: got[k] for k in places if k in got}
             if rows:  # none: the game's clips there, as no resource puts anything in
-                out.append((tuple(sorted(pick.items())), rows))
+                out.append((tuple(sorted((i, pick.get(i, OFF)) for i in ids)), rows))
     return out
 
 
@@ -332,7 +333,8 @@ def build(p: Project, game: hd1.Hd1, log=print, step=None, choices=None) -> Path
     """Builds the project as a Helldivers 1 mod: <build folder>/<name>-<version>.zip, holding obsidian.json and the
     new clips, one resource per bank. Rows with the same bytes share a file. Returns the ZIP's path. choices: the
     options' choices resolved (OptionBuild), which go in as Obsidian options, each clip a choice changes in a
-    resource with `when`."""
+    resource with `when`. Each group is an Obsidian option whose choices are the group's options and Off (OFF), the
+    first option picked at first."""
     step = step or (lambda *_a, **_k: None)
     if not [r for r in p.replacements if game.has(r.target)] and not choices:
         raise Hd1BuildError(tr("Nothing to build yet. Replace some audio first."))
@@ -371,10 +373,11 @@ def build(p: Project, game: hd1.Hd1, log=print, step=None, choices=None) -> Path
                     "description": {"en": p.description or "New audio for Helldivers 1, made with Audiodiver."},  # English, as mod names
                     "authors": list(p.authors), "scope": "client", "resources": resources, "loader_api": 1}
         if choices:
-            manifest["options"] = [{"id": o.id, "type": "choice", "default": o.choices[0].id, "label": {"en": o.name},
-                                    **({"description": {"en": o.description}} if o.description else {}),
-                                    "choices": [{"id": c.id, "label": {"en": c.name}} for c in o.choices]}
-                                   for o in choices.options]
+            manifest["options"] = [{"id": g.id, "type": "choice", "default": g.options[0].id, "label": {"en": g.name},
+                                    **({"description": {"en": g.description}} if g.description else {}),
+                                    "choices": [*({"id": o.id, "label": {"en": o.name}} for o in g.options),
+                                                {"id": OFF, "label": {"en": "Off"}}]}  # English, as mod names
+                                   for g in choices.groups]
         (work / MANIFEST).write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         try:
             out_dir.mkdir(parents=True, exist_ok=True)

@@ -389,7 +389,7 @@ class Project:
     game: str = "hd2"  # the game it makes a mod for (GAMES)
     mod_id: str = ""  # a Helldivers 1 mod's id for Obsidian; "": made from the guid (hd1_build.mod_id)
     authors: list[str] = field(default_factory=list)  # who made a Helldivers 1 mod, for Obsidian
-    options: list = field(default_factory=list)  # choices players make in the mod manager (options.Option)
+    groups: list = field(default_factory=list)  # options players pick in the mod manager (options.Group)
     repairs: list[str] = field(default_factory=list, repr=False, compare=False)  # damaged values opening put right (not saved)
     view: bool = field(default=False, repr=False, compare=False)  # a resolved copy (options.resolve): never saved
 
@@ -473,13 +473,16 @@ class Project:
                     out.append(("missing_file", tr("{name}: the audio file wasn't found ({path})").format(
                         name=name, path=os.path.normpath(self.file(rel)))))
         from .options import files_of
-        for o in self.options:
-            for c in o.choices[1:]:
-                choice_files = files_of([type(o)(o.id, o.name, choices=[c])])
-                for rel in choice_files:
+        for g in self.groups:
+            for o in g.options:
+                for rel in files_of([type(g)(g.id, g.name, options=[o])]):
                     if not exists(self.file(rel)):
                         out.append(("missing_file", tr("{name}: the audio file wasn't found ({path})").format(
-                            name=f"{o.name} ▸ {c.name}", path=os.path.normpath(self.file(rel)))))
+                            name=f"{g.name} ▸ {o.name}", path=os.path.normpath(self.file(rel)))))
+                for what, rel in ((g.name, g.image), (f"{g.name} ▸ {o.name}", o.image)):
+                    if rel and not exists(self.file(rel)):
+                        out.append(("option_image", tr("{name}: image not found ({path})").format(
+                            name=what, path=os.path.normpath(self.file(rel)))))
         for seg, o in self.segment_overrides.items():
             if set(o) - OVERRIDE_KEYS:
                 out.append(("overrides", tr("segment {id}: unknown overrides {keys}").format(
@@ -660,8 +663,8 @@ class Project:
         if (kept := author_list(authors)) != authors:
             repairs.append(tr("the authors"))
         authors = kept
-        from .options import from_json as options_from_json
-        options = options_from_json(d.get("options"), repairs)
+        from .options import from_json as groups_from_json
+        groups = groups_from_json(d.get("groups"), repairs)
         try:
             p = cls(name=d["name"], guid=str(d.get("guid") or ""),
                        version=int(number(d.get("version", 1), 1, 1, 99999, tr("the version"), whole=True)),
@@ -693,14 +696,14 @@ class Project:
                        curves_off={int(t) for t in curves_off}, curves={int(t): c for t, c in curves.items()},
                        notes=notes, soundtrack={k: v for k, v in pieces.items() if not v.plain()}, tabs=tabs,
                        game=d.get("game") if d.get("game") in GAMES else "hd2",
-                       mod_id=mod_id, authors=authors, options=options)
+                       mod_id=mod_id, authors=authors, groups=groups)
             p.repairs = list(dict.fromkeys(repairs))  # not saved: what opening it put right (project_state says it)
             return p
         except (TypeError, ValueError, OverflowError):
             raise ProjectFormatError("values") from None
 
     def to_json(self) -> dict:
-        from .options import to_json as options_to_json
+        from .options import to_json as groups_to_json
 
         def rep(r):
             out = {**asdict(r), "target": str(r.target)}
@@ -745,11 +748,11 @@ class Project:
             **({"game": self.game} if self.game != "hd2" else {}),
             **({"mod_id": self.mod_id} if self.mod_id else {}),
             **({"authors": list(self.authors)} if self.authors else {}),
-            **({"options": options_to_json(self.options)} if self.options else {}),
+            **({"groups": groups_to_json(self.groups)} if self.groups else {}),
         }
 
     def save(self, path=None):
-        if self.view:  # a resolved copy holds a choice's audio as if it were Main's: saved, it would replace Main
+        if self.view:  # a resolved copy holds options' audio as if it were the base mod's: saved, it would replace it
             raise RuntimeError("a resolved view of a project is never saved")
         self.path = Path(path or self.path)
         write_whole(self.path, json.dumps(self.to_json(), indent=2) + "\n")

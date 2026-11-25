@@ -87,26 +87,41 @@ def folder_name(stem: str) -> str:
 
 
 # --- what a project uses
-def _patches(d: dict) -> list[dict]:
-    """The slots the options' choices give other audio (options.py), each a dict holding `audio` and `blocks` as a
-    replacement does."""
+def _options(d: dict) -> list[tuple[dict, list[dict]]]:
+    """The groups for players (options.py), each with its options, as dicts."""
     out = []
-    for o in d.get("options") if isinstance(d.get("options"), list) else []:
-        for c in (o.get("choices") if isinstance(o, dict) and isinstance(o.get("choices"), list) else []):
-            slots = c.get("slots") if isinstance(c, dict) and isinstance(c.get("slots"), dict) else {}
+    for g in d.get("groups") if isinstance(d.get("groups"), list) else []:
+        if isinstance(g, dict):
+            out.append((g, [o for o in (g.get("options") if isinstance(g.get("options"), list) else []) if isinstance(o, dict)]))
+    return out
+
+
+def _patches(d: dict) -> list[dict]:
+    """The slots the options give other audio (options.py), each a dict holding `audio` and `blocks` as a replacement
+    does."""
+    out = []
+    for _, opts in _options(d):
+        for o in opts:
+            slots = o.get("slots") if isinstance(o.get("slots"), dict) else {}
             out += [p for p in slots.values() if isinstance(p, dict)]
     return out
 
 
+def _with_images(d: dict) -> list[dict]:
+    """The groups and options that show an image."""
+    return [x for g, opts in _options(d) for x in (g, *opts) if isinstance(x.get("image"), str) and x["image"]]
+
+
 def uses(d: dict, base: Path) -> set[Path]:
     """The files a project uses (d: its to_json() dict, or a project file as read), the project file being in the
-    folder base: its new audio (Main's and the options' choices') and the icon's image."""
+    folder base: its new audio (the base mod's and the options'), the icon's image and the options' images."""
     reps = (d.get("replacements") if isinstance(d.get("replacements"), list) else []) + _patches(d)
     rels = [r.get("audio") for r in reps if isinstance(r, dict) and not r.get("silence")]
     rels += [b.get("audio") for r in reps if isinstance(r, dict) and not r.get("silence")  # the Waveform Editor's other files
              for b in (r.get("blocks") if isinstance(r.get("blocks"), list) else []) if isinstance(b, dict)]
     icon = d.get("icon")
     rels.append(icon.get("image") if isinstance(icon, dict) else icon)  # an image path, before icons had a frame
+    rels += [x["image"] for x in _with_images(d)]
     return {norm(Path(base) / rel) for rel in rels if isinstance(rel, str) and rel.strip()}
 
 
@@ -135,6 +150,8 @@ def rebase(d: dict, old: Path, new: Path, moved: dict | None = None, whole=False
                     b["audio"] = again(b["audio"])
     if isinstance(out.get("icon"), dict) and out["icon"].get("image"):
         out["icon"]["image"] = again(out["icon"]["image"])
+    for x in _with_images(out):
+        x["image"] = again(x["image"])
     if out.get("build_folder"):  # "" stays: the build folder next to the project file
         out["build_folder"] = again(out["build_folder"])
     return out

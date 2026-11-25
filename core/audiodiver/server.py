@@ -10,6 +10,7 @@ Prints one line, `AUDIODIVER_SERVER {"port": ..., "token": ...}`, once it listen
     GET  /audio/file?path=…   a local audio file of a type projects take (the slice tool's song, a play-through)
     GET  /project/icon        the open project's icon as the build packages it (PNG); ?icon=<JSON> previews an
                               icon that isn't saved yet (its frame, as the settings method takes it)
+    GET  /project/option-image?group=…&option=…  a group's or option's image as the build packages it (PNG)
     GET  /projects/icon?path=…  the icon of a project file that isn't open (Home's recent project)
     GET  /mods/icon?path=…  the image a mod's manifest names as the mod's icon (Import Mod), as it is
 
@@ -95,19 +96,19 @@ def methods(s: Session) -> dict:
         "fades_set": lambda sources, fade_in_ms=None, fade_out_ms=None: s.fades_set(sources, fade_in_ms, fade_out_ms),
         "trim_set": lambda source, start_ms=0, end_ms=0, delay_ms=0: s.trim_set(source, start_ms, end_ms, delay_ms),
         "edit_set": lambda source, blocks, original=False, label=None: s.edit_set(source, blocks, original, label),
-        # Mod Options (options.py): choices players make in the mod manager
-        "option_add": lambda kind="blank", items=None: s.option_add(kind, items),
-        "option_set": lambda option, name=None, description=None: s.option_set(option, name, description),
-        "option_remove": lambda option: s.option_remove(option),
-        "option_move": lambda option, to: s.option_move(option, to),
-        "choice_add": lambda option, name=None: s.choice_add(option, name),
-        "choice_set": lambda option, choice, name=None, description=None, rules=None:
-            s.choice_set(option, choice, name, description, rules),
-        "choice_remove": lambda option, choice: s.choice_remove(option, choice),
-        "choice_move": lambda option, choice, to: s.choice_move(option, choice, to),
-        "options_combine": lambda a, b: s.options_combine(a, b),
-        "option_editing": lambda option=None, choice=None: s.option_editing(option, choice),
-        "choice_slots": lambda sources, to="main": s.choice_slots(sources, to),
+        # Options for Players (options.py): groups of options players pick from in the mod manager
+        "group_add": lambda name=None: s.group_add(name),
+        "group_set": lambda group, name=None, description=None, image=None: s.group_set(group, name, description, image),
+        "group_remove": lambda group: s.group_remove(group),
+        "group_move": lambda group, to: s.group_move(group, to),
+        "option_add": lambda group, name=None: s.option_add(group, name),
+        "option_set": lambda group, option, name=None, description=None, image=None, gain_db=None:
+            s.option_set(group, option, name, description, image, gain_db),
+        "option_remove": lambda group, option: s.option_remove(group, option),
+        "option_move": lambda group, option, to: s.option_move(group, option, to),
+        "option_pick": lambda group, option=None: s.option_pick(group, option),
+        "option_target": lambda target: s.option_target(target),
+        "option_slots_off": lambda sources: s.option_slots_off(sources),
         "options_plan": lambda: s.options_plan(),
         "original_file": lambda source: s.original_file(source),
         "edit_export": lambda tracks, path, fmt="wav24", rate=48000, channels=0, normalize=False:
@@ -371,6 +372,8 @@ def make_handler(session: Session, token: str):
                     except ValueError:
                         raise EditorError("Bad icon preview") from None
                     return self._bytes(session.icon(preview), "image/png")
+                if parts == ["project", "option-image"]:  # a group's or option's image as the build packages it
+                    return self._bytes(session.option_image(q.get("group", [""])[0], q.get("option", [None])[0]), "image/png")
                 if parts == ["projects", "icon"]:
                     return self._bytes(project_icon(q.get("path", [""])[0]), "image/png")
                 if parts == ["mods", "icon"]:
