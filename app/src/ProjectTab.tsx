@@ -4,6 +4,7 @@ import { Trans } from "@lingui/react/macro";
 import { call, fmtBytes, fmtWhen, iconUrl, nameProblem, type Icon, type IconFrame } from "./api";
 import { confirm } from "./Confirm";
 import { FolderIcon } from "./Icons";
+import { ModOptions } from "./ModOptions";
 import { NoProjectCard, Page, useDraft } from "./Page";
 import { copyText, fullPath, pickFolder, reveal } from "./platform";
 import { TabChecks } from "./SettingsTab";
@@ -217,6 +218,8 @@ function ProjectPage() {
             </label>
           )}
         </section>
+
+        <ModOptions />
 
         {p.game === "hd1" && <ObsidianId />}
 

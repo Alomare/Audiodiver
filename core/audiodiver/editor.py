@@ -205,6 +205,10 @@ class Session:
         self.stage, self.load_error = "starting", None
         self.game_where = {"path": None, "how": None}  # the data folder in use (or tried) and how it was found
         self.project: Project | None = None
+        # the Editing switch of the Audio tab (Mod Options): (option id, choice id) while the tab edits a choice, else
+        # None (Main); _view is the project with that choice picked, made again after every change (_shown)
+        self.editing: tuple[str, str] | None = None
+        self._view: Project | None = None
         self.undo_stack, self.redo_stack = [], []  # (label, the project before or after it, when it was made in ms)
         self.opened_at = _now_ms()  # when the project open now was opened (the History list)
         # {mod id: the version its last build moved it on to}: undo and redo never take a project below it, so the
@@ -847,6 +851,7 @@ class Session:
         with self.lock:
             self.flush()  # the project open until now keeps what waits
             self.project = Project(name=name, path=path, library=[], tabs=tabs, game=game)  # blank: nothing to edit yet
+            self.editing, self._view = None, None
             self.project.save()
             self.undo_stack, self.redo_stack, self.opened_at = [], [], _now_ms()
             self.revision += 1
@@ -884,6 +889,7 @@ class Session:
         with self.lock:
             self.flush()
             self.project, self.undo_stack, self.redo_stack, self.opened_at = p, [], [], _now_ms()
+            self.editing, self._view = None, None
             self.revision += 1
         return self.project_state()
 
@@ -949,18 +955,45 @@ class Session:
         with self.lock:
             self.flush()
             self.project, self.undo_stack, self.redo_stack, self.opened_at = None, [], [], _now_ms()
+            self.editing, self._view = None, None
             self.revision += 1
 
     def _need_project(self):
+        """The open project: Main, with its options. Saving, building and every setting of the project go by this;
+        what the Audio tab shows and edits while a choice is picked is _shown."""
         if not self.project:
             raise EditorError(tr("No project open"))
         return self.project
 
+    def _shown(self) -> Project:
+        """The project as the Audio tab shows it: Main, or with the Editing switch on a choice, Main with that choice
+        picked (options.resolve; a view, never saved)."""
+        p = self._need_project()
+        if self.editing:
+            o = next((x for x in p.options if x.id == self.editing[0]), None)
+            if o is None or o.choice(self.editing[1]) is None or o.choices[0].id == self.editing[1]:
+                self.editing, self._view = None, None  # an undo took the choice away: back to Main
+        if not self.editing:
+            return p
+        if self._view is None:
+            self._view = self._resolve({self.editing[0]: self.editing[1]})
+        return self._view
+
+    def _resolve(self, picks: dict, p: Project | None = None) -> Project:
+        """The project a set of picks ({option id: choice id}) plays (options.resolve)."""
+        from . import options
+        return options.resolve(p or self._need_project(), picks, self._items_slots, self._target)
+
+    def _items_slots(self, items) -> set[int]:
+        """The sounds of Library items, for an option's rule that names them."""
+        parts, _ = self._listed(items)
+        return set().union(*parts.values()) if parts else set()
+
     def _sources(self):
         """{source id: replacement} for the open project's targets that resolve in this game version (or are clips
-        it adds)."""
+        it adds), as the Audio tab shows them (with the choice the Editing switch picks)."""
         out, added = {}, self._added()
-        for r in self.project.replacements:
+        for r in self._shown().replacements:
             try:
                 out[r.target if r.target in added or not self.ix or self._hd1p() else self.ix.resolve(r.target)] = r
             except KeyError:
@@ -1446,8 +1479,9 @@ class Session:
         from .audio import SILENCE_MS, duration_ms
         from .project import heard_ms
         from .build import zip_name
-        p = self._need_project()
-        self._adopt(p)
+        real = self._need_project()
+        self._adopt(real)
+        p = self._shown()  # the slots as the Audio tab shows them: Main, or with the choice the Editing switch picks
         assignments, unresolved, added = {}, [], p.added()
         stats = {}  # each audio file's stat (None: not there), taken once: this runs after every edit
 
@@ -1556,6 +1590,7 @@ class Session:
                 # changes when the settings do: the Audio tab fetches what is open again, for its Imported Settings
                 "settings_key": f"{zlib.crc32(repr(sorted(p.settings.items())).encode()):08x}" if p.settings else "",
                 "soundtrack": {str(k): v.to_json() for k, v in p.soundtrack.items()}, "tabs": p.tabs,
+                **self._options_state(real),
                 "problems": [text for _, text in problems], "problem_kinds": [kind for kind, _ in problems],
                 "can_undo": bool(self.undo_stack), "can_redo": bool(self.redo_stack),
                 "unsaved": self.unsaved_since is not None,
@@ -1568,19 +1603,43 @@ class Session:
                 "future_at": [e[2] for e in reversed(self.redo_stack)], "opened_at": self.opened_at}
 
     # --- edits (each one is undoable and autosaves)
+    # what changes slots (the Audio tab, the waveforms): with the Editing switch on a choice, these go into the choice
+    CHOICE_EDITS = {"assign", "fill", "paste", "move", "silence", "skip", "unassign", "update", "match", "curve", "gain",
+                    "filters", "fades", "trim", "edit", "segment"}
+    # what changes the sounds themselves: Main's alone, refused while a choice is picked
+    MAIN_ONLY = {"add take", "add layer", "own clip", "shared clip", "own clips", "shared clips"}
+
     def _edit(self, label, fn):
+        """One undoable edit: fn(project) changes it. With the Editing switch on a choice, a change to slots
+        (CHOICE_EDITS) is made on the project with that choice picked, and what then differs from Main is kept as the
+        choice's (options.capture); anything else changes Main, as always."""
+        from . import options
         with self.lock:
             p = self._need_project()
             self._adopt(p)  # before the edit, so undoing it doesn't take the list away again
             before = p.to_json()
             try:
-                fn(p)
-                self._tidy(p)
-                self._tidy_cues(p)
-                self._cover(p)
+                self._shown()  # an editing switch an undo left without its choice goes back to Main here
+                if self.editing and label in self.MAIN_ONLY:
+                    raise EditorError(tr("Switch the Audio tab back to Main to add takes or layers, or to isolate audio: "
+                                         "a choice changes the audio of slots, not what the sounds are made of"))
+                if self.editing and label in self.CHOICE_EDITS:
+                    view = self._shown()
+                    fn(view)
+                    self._tidy_cues(view)
+                    self._cover(view)
+                    p.library = view.library  # a slot only the choice replaces gets its item listed too
+                    options.capture(p, *self.editing, view, self._items_slots, self._target)
+                else:
+                    fn(p)
+                    self._tidy(p)
+                    self._tidy_cues(p)
+                    self._cover(p)
             except BaseException:
                 self.project = Project.from_json(before, p.path)  # an edit that fails half-way changes nothing
+                self._view = None
                 raise
+            self._view = None
             if p.to_json() != before:
                 try:
                     self._store(p)
@@ -1595,6 +1654,7 @@ class Session:
 
     def _restore(self, d):
         self.revision += 1
+        self._view = None
         self.project = Project.from_json(d, self.project.path)
         floor = self.version_floor.get(self.project.guid, 0)  # a build moved it on: undo doesn't take that back
         self.project.version = max(self.project.version, floor)
@@ -1634,7 +1694,7 @@ class Session:
             try:
                 self._restore(cur)
             except OSError as e:
-                self.project = Project.from_json(before, self.project.path)
+                self.project, self._view = Project.from_json(before, self.project.path), None
                 raise EditorError(_unsaved(e, self.project.path)) from None
             del src[-n:]
             dst.extend(moved)
@@ -1647,7 +1707,7 @@ class Session:
         try:
             self._restore(d)
         except OSError as e:
-            self.project = Project.from_json(now, self.project.path)
+            self.project, self._view = Project.from_json(now, self.project.path), None
             raise EditorError(_unsaved(e, self.project.path)) from None
         src.pop()
         dst.append((label, now, at))
@@ -1758,7 +1818,7 @@ class Session:
             raise EditorError("Copy needs pairs of slots, from and to")
         names = names if isinstance(names, dict) else {}
         pairs = [(self._source(a, either=True), self._source(b), str(a)) for a, b in pairs]
-        kept = {a: self._kept_original(a) for a, b, _ in pairs if a != b and (original or not self._replacement(self.project, a))}
+        kept = {a: self._kept_original(a) for a, b, _ in pairs if a != b and (original or not self._replacement(self._shown(), a))}
 
         def apply(p):
             for a, b, shown in pairs:
@@ -2025,7 +2085,7 @@ class Session:
                 raise EditorError(tr("Start, end and delay are from 0 to {ms} ms").format(ms=int(TRIM_MS[1])))
         self._need_project()
         sid = self._source(source)
-        r = self._replacement(self.project, sid)
+        r = self._replacement(self._shown(), sid)
         if not r or r.silence:
             raise EditorError(tr("This slot has no new audio to trim"))
         length = duration_ms(self.project.audio_path(r))
@@ -2286,7 +2346,7 @@ class Session:
         read those); no blocks, or one that is the whole file, is the file as it is."""
         p = self._need_project()
         sid = self._source(source)
-        made, main, length_main = self._edit_blocks(p, sid, blocks, original)
+        made, main, length_main = self._edit_blocks(self._shown(), sid, blocks, original)
         if not main:
             raise EditorError(tr("This slot has no new audio to edit"))
         plain = len(made) == 1 and not made[0].audio and not made[0].gain_db and not made[0].curve
@@ -2776,7 +2836,7 @@ class Session:
                 if isinstance(e, OSError):
                     raise EditorError(tr("The project couldn't move: {why}").format(why=os_error(e))) from None
                 raise
-            self.project = moved
+            self.project, self._view = moved, None
             self.undo_stack = [(label, pf.rebase(d, old, dest, plan), at) for label, d, at in self.undo_stack]
             self.redo_stack = [(label, pf.rebase(d, old, dest, plan), at) for label, d, at in self.redo_stack]
             self.revision += 1
@@ -2852,7 +2912,7 @@ class Session:
                 if isinstance(e, OSError):
                     raise EditorError(tr("The project couldn't move: {why}").format(why=os_error(e))) from None
                 raise
-            self.project = moved
+            self.project, self._view = moved, None
             self.undo_stack = [(label, pf.rebase(d, old, dest, whole=True), at) for label, d, at in self.undo_stack]
             self.redo_stack = [(label, pf.rebase(d, old, dest, whole=True), at) for label, d, at in self.redo_stack]
             self.revision += 1
@@ -3020,6 +3080,304 @@ class Session:
             raise EditorError(tr("No job {id}").format(id=job_id))
         return self.jobs[job_id].to_json()
 
+    # --- Mod Options (options.py): choices players make in the mod manager
+    def _item_name(self, iid) -> str:
+        try:
+            return self._lookup(iid)["full"]
+        except (KeyError, TypeError, AttributeError):
+            return str(iid)
+
+    def _options_state(self, real: Project) -> dict:
+        """What project_state says of the options: each with its choices and what they change, the Editing switch,
+        and the slots the choice it picks changes ({source: {original, keys, main}}, main: Main's new audio there)."""
+        def rule(r):
+            return {"gain_db": r.gain_db, "original": r.original, "items": list(r.items),
+                    "names": [self._item_name(i) for i in r.items]}
+        out = [{"id": o.id, "name": o.name, "description": o.description,
+                "choices": [{"id": c.id, "name": c.name, "description": c.description, "slots": len(c.slots),
+                             "originals": sum(1 for x in c.slots.values() if x is None), "cues": len(c.cues),
+                             "rules": [rule(r) for r in c.rules]} for c in o.choices]} for o in real.options]
+        editing, choice_slots = None, {}
+        if self.editing:
+            o = next(x for x in real.options if x.id == self.editing[0])
+            c = o.choice(self.editing[1])
+            editing = {"option": o.id, "choice": c.id, "option_name": o.name, "choice_name": c.name,
+                       "index": o.choices.index(c)}
+            main = {self._target(r.target): r for r in real.replacements}
+            for t, patch in c.slots.items():
+                sid, m = self._target(t), main.get(self._target(t))
+                choice_slots[str(sid)] = {
+                    "original": patch is None, "keys": sorted(patch) if patch else [],
+                    "main": None if not m else {"name": tr("Silence") if m.silence else Path(m.audio).name,
+                                                "gain_db": m.gain_db, "fit_timing": m.fit_timing},
+                    "main_gain": real.gains.get(t, 0.0), "main_filters": real.filters.get(t, [0, 0])}
+        # the project's items by name, for the options that act on some of them
+        items = [{"id": i, "name": self._item_name(i)} for i in real.library or []] if real.options or real.library else []
+        return {"options": out, "editing": editing, "choice_slots": choice_slots, "option_items": items}
+
+    def _option_edit(self, fn):
+        """An edit of the options themselves (always Main's): fn(project, options module)."""
+        from . import options
+        try:
+            return self._edit("options", lambda p: fn(p, options))
+        except options.OptionError as e:
+            raise EditorError(str(e)) from None
+
+    def _option(self, p: Project, oid):
+        o = next((x for x in p.options if x.id == oid), None)
+        if o is None:
+            raise EditorError(tr("That option isn't in the project any more"))
+        return o
+
+    def _choice(self, p: Project, oid, cid):
+        o = self._option(p, oid)
+        c = o.choice(cid)
+        if c is None:
+            raise EditorError(tr("That choice isn't in the project any more"))
+        return o, c
+
+    @staticmethod
+    def _option_text(v, what: str, limit: int, empty_ok=False) -> str:
+        from .options import NAME_MAX
+        if not isinstance(v, str) or (not empty_ok and not v.strip()):
+            raise EditorError(tr("{what} needs a name").format(what=what))
+        v = v.strip() if limit == NAME_MAX else v
+        if len(v) > limit or any(ord(ch) < 32 for ch in v if limit == NAME_MAX):
+            raise EditorError(tr("Keep it to {n} characters on one line").format(n=limit))
+        return v
+
+    def option_add(self, kind="blank", items=None):
+        """Adds options for players. kind "blank": Default and one more choice to fill. "volume": Default, Louder
+        (+3 dB) and Quieter (−3 dB), on `items` (Library items of the project) or, without, every slot the mod
+        changes. "original": for each of `items`, Replaced (the default) and Original, so players can turn that part
+        of the mod off. The answer's `added` are the new options' ids."""
+        items = [str(i) for i in items or [] if isinstance(i, (str, int))]
+        if kind not in ("blank", "volume", "original"):
+            raise EditorError(f"Unknown kind of option {kind!r}")
+        if kind == "original" and not items:
+            raise EditorError(tr("Choose the items players can turn back to the original"))
+        made = []
+
+        def apply(p, opts):
+            names = [self._item_name(i) for i in items]
+            if kind == "blank":
+                new = [opts.new_option(p.options, tr("Option {n}").format(n=len(p.options) + 1),
+                                       [(tr("Default"), []), (tr("Choice 2"), [])])]
+            elif kind == "volume":
+                name = tr("Volume") if not items else tr("Volume of {items}").format(items=", ".join(names))
+                new = [opts.new_option(p.options, name, [(tr("Default"), []), (tr("Louder"), [opts.Rule(3.0, False, items)]),
+                                                         (tr("Quieter"), [opts.Rule(-3.0, False, items)])])]
+            else:
+                new = []
+                for iid, name in zip(items, names):
+                    new.append(opts.new_option(p.options + new, name, [(tr("Replaced"), []), (tr("Original"), [opts.Rule(0.0, True, [iid])])]))
+            if len(p.options) + len(new) > opts.MAX_OPTIONS:
+                raise EditorError(tr("A mod can have up to {n} options").format(n=opts.MAX_OPTIONS))
+            p.options.extend(new)
+            made.extend(o.id for o in new)
+        return {**self._option_edit(apply), "added": made}
+
+    def option_set(self, option, name=None, description=None):
+        """Renames an option or changes its description (what players read under it)."""
+        from .options import DESCRIPTION_MAX, NAME_MAX
+
+        def apply(p, _opts):
+            o = self._option(p, option)
+            if name is not None:
+                o.name = self._option_text(name, tr("An option"), NAME_MAX)
+            if description is not None:
+                o.description = self._option_text(description, "", DESCRIPTION_MAX, empty_ok=True)
+        return self._option_edit(apply)
+
+    def option_remove(self, option):
+        def apply(p, _opts):
+            p.options.remove(self._option(p, option))
+        return self._option_edit(apply)
+
+    def option_move(self, option, to):
+        """Moves an option to place `to` (from 0). Later options deploy later and win where two change one bank."""
+        if isinstance(to, bool) or not isinstance(to, int):
+            raise EditorError("A place is a whole number")
+
+        def apply(p, _opts):
+            o = self._option(p, option)
+            p.options.remove(o)
+            p.options.insert(max(0, min(len(p.options), to)), o)
+        return self._option_edit(apply)
+
+    def choice_add(self, option, name=None):
+        """A new choice at the end of an option, empty (as Main) until the Audio tab or a rule fills it. The answer's
+        `added` is its id."""
+        from .options import MAX_CHOICES, NAME_MAX, Choice, slug
+        made = []
+
+        def apply(p, _opts):
+            o = self._option(p, option)
+            if len(o.choices) >= MAX_CHOICES:
+                raise EditorError(tr("An option can have up to {n} choices").format(n=MAX_CHOICES))
+            text = self._option_text(name, tr("A choice"), NAME_MAX) if name is not None else tr("Choice {n}").format(n=len(o.choices) + 1)
+            c = Choice(slug(text, {x.id for x in o.choices}, "choice"), text)
+            o.choices.append(c)
+            made.append(c.id)
+        return {**self._option_edit(apply), "added": made[0] if made else None}
+
+    def choice_set(self, option, choice, name=None, description=None, rules=None):
+        """Renames a choice, changes its description, or sets its rules ([{gain_db, original, items}]: a gain added
+        to the Make-Up Gain of the slots, or the original back, on Library items or, without, every slot the mod
+        changes). The first choice is Main and takes no rules."""
+        from .options import DESCRIPTION_MAX, NAME_MAX, Rule
+        if rules is not None:
+            if not isinstance(rules, list) or not all(isinstance(r, dict) for r in rules):
+                raise EditorError("Rules are a list")
+            made = []
+            for r in rules:
+                db = r.get("gain_db", 0)
+                if isinstance(db, bool) or not isinstance(db, (int, float)) or not -12 <= db <= 12:
+                    raise EditorError(tr("A choice's gain is from −12 to +12 dB"))
+                items = r.get("items") or []
+                if not isinstance(items, list):
+                    raise EditorError("A rule's items are a list")
+                rule = Rule(float(db), r.get("original") is True, [str(i) for i in items])
+                if rule.gain_db or rule.original:
+                    made.append(rule)
+            rules = made
+
+        def apply(p, _opts):
+            o, c = self._choice(p, option, choice)
+            if name is not None:
+                c.name = self._option_text(name, tr("A choice"), NAME_MAX)
+            if description is not None:
+                c.description = self._option_text(description, "", DESCRIPTION_MAX, empty_ok=True)
+            if rules is not None:
+                if c is o.choices[0]:
+                    raise EditorError(tr("The first choice is the mod as it is, and changes nothing"))
+                c.rules = rules
+        return self._option_edit(apply)
+
+    def choice_remove(self, option, choice):
+        """Removes a choice (not the first: that is Main). The Editing switch on it goes back to Main."""
+        def apply(p, _opts):
+            o, c = self._choice(p, option, choice)
+            if c is o.choices[0]:
+                raise EditorError(tr("The first choice is the mod as it is: remove the option instead"))
+            o.choices.remove(c)
+        return self._option_edit(apply)
+
+    def choice_move(self, option, choice, to):
+        """Moves a choice to place `to` among the choices after the first (the first stays Main)."""
+        if isinstance(to, bool) or not isinstance(to, int):
+            raise EditorError("A place is a whole number")
+
+        def apply(p, _opts):
+            o, c = self._choice(p, option, choice)
+            if c is o.choices[0]:
+                raise EditorError(tr("The first choice is the mod as it is and stays first"))
+            o.choices.remove(c)
+            o.choices.insert(max(1, min(len(o.choices), to)), c)
+        return self._option_edit(apply)
+
+    def options_combine(self, a, b):
+        """Two options as one, a choice for every pair of their choices (options.combine), for options that change
+        the same banks: Helldivers 2 mod managers can't let players pick them apart."""
+        def apply(p, opts):
+            self._option(p, a), self._option(p, b)
+            if a == b:
+                raise EditorError("An option can't be combined with itself")
+            opts.combine(p.options, a, b)
+            if self.editing and self.editing[0] in (a, b):
+                self.editing = None
+        return self._option_edit(apply)
+
+    def option_editing(self, option=None, choice=None):
+        """The Editing switch of the Audio tab: what its edits go into from now on, a choice (option and choice
+        ids) or Main (none, or an option's first choice)."""
+        with self.lock:
+            p = self._need_project()
+            if option is None or choice is None:
+                self.editing = None
+            else:
+                o, c = self._choice(p, option, choice)
+                self.editing = None if c is o.choices[0] else (o.id, c.id)
+            self._view = None
+            self.revision += 1
+            return self.project_state()
+
+    def choice_slots(self, sources, to="main"):
+        """In the choice the Editing switch picks: slots back to Main ("main": the choice leaves them alone) or to the
+        original ("original": no new audio, no gain or filter, whatever Main has)."""
+        if to not in ("main", "original"):
+            raise EditorError("Slots go back to Main or to the original")
+        if not isinstance(sources, list):
+            raise EditorError(tr("Choose the slots to change"))
+        sids = {self._source(s) for s in sources}
+
+        def apply(p, _opts):
+            if not self.editing:
+                raise EditorError(tr("Pick a choice in the Editing switch first"))
+            _, c = self._choice(p, *self.editing)
+            for t in [t for t in set(c.slots) | {r.target for r in p.replacements} | sids if self._target(t) in sids]:
+                if to == "main":
+                    c.slots.pop(t, None)
+                else:
+                    c.slots[t] = None
+        return self._option_edit(apply)
+
+    def _choice_reach(self, p: Project, c, listed: set) -> tuple[set[int], set[int]]:
+        """(banks, streams) a choice changes, near enough to show what it costs before a build: the banks of each slot
+        it patches or a rule reaches (as build.reach keeps a sound to the project's banks), and the streams of the slots
+        it gives other audio."""
+        sids = {self._target(t) for t in c.slots}
+        for r in c.rules:
+            sids |= self._items_slots(r.items) if r.items else {self._target(x.target) for x in p.replacements} | {
+                self._target(t) for t in p.gains}
+        banks, streams = set(), set()
+        for sid in sids:
+            every = self.ix.banks_for(sid)
+            banks |= (every & listed) or every
+            patch = c.slots.get(sid)
+            if (patch is None or "audio" in (patch or {}) or (patch or {}).get("new_audio") is False) and \
+                    (fid := self.ix.stream_file(sid)) is not None:
+                streams.add(fid)
+        return banks, streams
+
+    def options_plan(self):
+        """What each choice costs and which options change the same banks, before a build: {choices: {"<option>/
+        <choice>": {banks, mb}}, shared: [{a, b, banks}]}. Sizes are the game's banks and streams the choice
+        replaces (about what its part of the ZIP holds)."""
+        from .game import WWISE_BANK, WWISE_STREAM
+        self.require_game()
+        p = self._need_project()
+        if self._hd1p(p):
+            return {"choices": {}, "shared": []}
+        listed = self._listed_banks(p) if not p.every_bank else set()
+
+        def size(fid, tid, archives):
+            at = self.ix.game.contents(archives[0]).get((fid, tid)) if archives else None
+            return (at[1] + at[3]) if at else 0
+        out, reach = {}, {}
+        for o in p.options:
+            mine = set()
+            for c in o.choices[1:]:
+                banks, streams = self._choice_reach(p, c, listed)
+                mine |= banks
+                mb = (sum(size(b, WWISE_BANK, self.ix.banks.get(b, {}).get("archives")) for b in banks)
+                      + sum(size(s, WWISE_STREAM, self.ix.streams.get(s)) for s in streams)) / 1e6
+                out[f"{o.id}/{c.id}"] = {"banks": len(banks), "mb": round(mb, 1)}
+            reach[o.id] = mine
+        shared = [{"a": a.id, "b": b.id, "banks": len(reach[a.id] & reach[b.id])}
+                  for i, a in enumerate(p.options) for b in p.options[i + 1:] if reach[a.id] & reach[b.id]]
+        return {"choices": out, "shared": shared}
+
+    def _option_build(self, snapshot: Project):
+        """The choices a build makes beside Main: for Helldivers 2, [(Option, [(Choice, the project with it
+        picked)])] of the choices after each first; for Helldivers 1, hd1_build.OptionBuild."""
+        live = [o for o in snapshot.options if len(o.choices) > 1]
+        if not live:
+            return None
+        if self._hd1p(snapshot):
+            return hd1_build.OptionBuild(live, lambda picks: self._resolve(picks, snapshot))
+        return [(o, [(c, self._resolve({o.id: c.id}, snapshot)) for c in o.choices[1:]]) for o in live]
+
     def build(self, bump=True):
         from .build import BuildError, build
         self.require_game()
@@ -3040,7 +3398,7 @@ class Session:
                     raise EditorError(tr("Helldivers 1 wasn't found. Choose the game folder in Settings ▸ System."))
                 try:
                     self.hd1.categories(i18n.language())
-                    zip_path = hd1_build.build(snapshot, self.hd1, log=job.say, step=progress)
+                    zip_path = hd1_build.build(snapshot, self.hd1, log=job.say, step=progress, choices=self._option_build(snapshot))
                 except hd1_build.Hd1BuildError as e:
                     raise EditorError(str(e)) from None
                 if wrong := hd1_build.verify(zip_path, self.hd1):
@@ -3048,7 +3406,8 @@ class Session:
                 built_for = ""
             else:
                 try:
-                    zip_path = build(snapshot, self.ix, log=job.say, step=progress, listed=self._listed_banks(snapshot))
+                    zip_path = build(snapshot, self.ix, log=job.say, step=progress, listed=self._listed_banks(snapshot),
+                                     choices=self._option_build(snapshot))
                 except BuildError as e:
                     raise EditorError(str(e)) from None
                 built_for = self.ix.game.version
@@ -4816,7 +5175,8 @@ class Session:
     @staticmethod
     def _has_work(p: Project) -> bool:
         """Whether a build would change anything."""
-        return bool(p.replacements or p.gains or p.filters or p.texts or p.soundtrack or p.curves_off or p.curves or p.radio_off)
+        return bool(p.replacements or p.gains or p.filters or p.texts or p.soundtrack or p.curves_off or p.curves or p.radio_off
+                    or any(not c.empty() for o in p.options for c in o.choices))
 
     def _segment_slots(self, pid):
         """{segment id: [(slot, variant)]} of a playlist: the slots that can take audio, layer by layer. A slot's

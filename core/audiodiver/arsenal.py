@@ -12,8 +12,9 @@ Manifest rules (BSL CLAUDE.md, hd2-lua-mod skill 6.16):
   - IconPath is a 540x540 PNG, reused as every option's Image.
 
 An option is {name, description, folder} or {name, description, choices: [{name, description, folder}]},
-where folder is a local directory of archive files. Choices become Arsenal SubOptions (exactly one is
-deployed).
+where folder is a local directory of archive files (None for a choice that deploys nothing). Choices become
+Arsenal SubOptions (exactly one is deployed). `path` on an option or a choice names its folder in the ZIP (else
+made from the name).
 """
 import io
 import json
@@ -193,15 +194,21 @@ def package(out_zip, *, name, guid, icon, options, description=''):
     files = {'icon.png': icon_bytes}
     manifest_options = []
     for opt in options:
-        top = slug(opt['name'])
+        top = opt.get('path') or slug(opt['name'])
         entry = {'Name': opt['name'], 'Description': opt['description'], 'Include': [top], 'Image': 'icon.png'}
         if 'choices' in opt:
+            # the option's own folder holds nothing: its choices do. A choice without a folder (the default, Main, or
+            # one that changes nothing) is "Include": [] (HD2MM needs the key)
+            entry['Include'] = []
             subs = []
             for choice in opt['choices']:
-                path = f"{top}/{slug(choice['name'])}"
-                for fname, data in archive_files(choice['folder']).items():
-                    files[f'{path}/{fname}'] = data
-                subs.append({'Name': choice['name'], 'Description': choice['description'], 'Include': [path],
+                path = f"{top}/{choice.get('path') or slug(choice['name'])}"
+                include = []
+                if choice.get('folder'):
+                    for fname, data in archive_files(choice['folder']).items():
+                        files[f'{path}/{fname}'] = data
+                    include = [path]
+                subs.append({'Name': choice['name'], 'Description': choice['description'], 'Include': include,
                              'Image': 'icon.png'})
             entry['SubOptions'] = subs
         else:

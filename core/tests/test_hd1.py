@@ -558,6 +558,39 @@ def test_the_mod_manager_deploys_new_clips_beside_each_bank_and_names_them_in_th
     assert sorted(banks) == [0] and hd1_build.rows_of(banks[0][0])[0][0] == new
 
 
+def test_options_go_in_as_obsidian_options_with_the_clips_they_change_under_when(game, tmp_path, monkeypatch):
+    """A Volume option (Louder, Quieter) changes the one clip: it goes in once per choice, each resource naming its
+    choice in `when`, Main's under the default; a choice that puts the original back has no resource there."""
+    import json
+    import zipfile
+    from audiodiver import hd1_build
+    s, slot = hd1_session(game, tmp_path, monkeypatch)
+    loud = tmp_path / "proj" / "loud.wav"  # the same on both sides: folded to the original's mono, it keeps its level
+    with wave.open(str(loud), "wb") as w:
+        w.setnchannels(2); w.setsampwidth(2); w.setframerate(44100)
+        w.writeframes(struct.pack("<hh", 3000, 3000) * 8820)
+    s.assign(slot, str(loud))
+    oid = s.option_add("volume")["added"][0]
+    off = s.choice_add(oid, "Off")["added"]
+    s.option_editing(oid, off)
+    s.choice_slots([s.project.replacements[0].target], "original")
+    s.option_editing()
+    job = s.build()
+    while (j := s.job(job["id"]))["state"] == "running":
+        __import__("time").sleep(0.1)
+    assert j["state"] == "done", j.get("error")
+    zip_path = j["result"]["zip"]
+    assert hd1_build.verify(zip_path, s.hd1) == []
+    with zipfile.ZipFile(zip_path) as z:
+        m = json.loads(z.read("obsidian.json"))
+    [o] = m["options"]
+    assert (o["id"], o["type"], o["default"]) == (oid, "choice", "default")
+    assert [c["label"]["en"] for c in o["choices"]] == ["Default", "Louder", "Quieter", "Off"]
+    whens = [r.get("when") for r in m["resources"]]
+    assert whens == [{oid: "default"}, {oid: "louder"}, {oid: "quieter"}], "Off: the game's clip, so no resource"
+    assert len({r["clips"][0]["data"] for r in m["resources"]}) == 3, "each choice its own encoding"
+
+
 def spoil(zip_path, change):
     """The mod with its manifest and files changed: change(manifest, files)."""
     import json

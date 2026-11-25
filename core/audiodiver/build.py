@@ -1,5 +1,6 @@
 """Builds a project into a verified patch and an HD2 Arsenal ZIP."""
 import hashlib
+import shutil
 import struct
 import subprocess
 import tempfile
@@ -386,8 +387,84 @@ def make_patch(project: Project, ix: AudioIndex, patch_dir: Path, log=print, ste
     return edits
 
 
+def _digests(path: Path) -> dict[tuple[int, int], str]:
+    """{(type, file id): a digest of its bytes} of every bank, stream, dep and string table in a written patch."""
+    from .game import WWISE_BANK, WWISE_DEP, WWISE_STREAM
+    out = {}
+    for tid in (WWISE_BANK, WWISE_STREAM, WWISE_DEP, strings.STRINGS):
+        for fid, data in patch._files(str(path), tid):
+            out[(tid, fid)] = hashlib.sha1(data).hexdigest()
+    return out
+
+
+def choice_patch(main: Path, made: Path, out: Path, ix: AudioIndex) -> int:
+    """A choice's patch (out, a folder) from its whole build (made, a patch file) and Main's (main): only the assets
+    that differ from Main's, as the game overrides per asset (a bank, a stream) and the choice deploys after Main.
+    Where Main changes an asset and the choice gives it back as the game has it, the game's copy goes in, so the
+    choice wins over Main there too. Returns how many assets it holds (0: no patch written)."""
+    from .game import WWISE_BANK, WWISE_DEP, WWISE_STREAM
+    m, c = _digests(main), _digests(made)
+    differ = {k for k, h in c.items() if m.get(k) != h}
+    back = {k for k in m if k not in c and k[0] in (WWISE_BANK, WWISE_STREAM)}  # Main's, the choice as the game has it
+    banks = sorted({fid for t, fid in differ | back if t == WWISE_BANK})
+    if not banks and not any(t == WWISE_STREAM for t, _ in differ | back) and not any(t == strings.STRINGS for t, _ in differ):
+        return 0
+    streams = {fid: data for fid, data in patch._files(str(made), WWISE_STREAM) if (WWISE_STREAM, fid) in differ}
+    for _, fid in sorted(k for k in back if k[0] == WWISE_STREAM):
+        streams[fid] = ix.game.resource(ix.streams[fid][0], fid, WWISE_STREAM)[1]
+    tables = {fid: data for fid, data in patch._files(str(made), strings.STRINGS) if (strings.STRINGS, fid) in differ}
+    made_deps = dict(patch._files(str(made), WWISE_DEP))
+    deps = {}
+    out.mkdir(parents=True, exist_ok=True)
+    with patch.PatchWriter(str(out / PATCH), streams, banks, [b for b in banks if b in made_deps or ix.has_dep(b)], tables) as w:
+        for bid in banks:
+            if (WWISE_BANK, bid) in back:
+                raw, dep = ix.bank_files(bid)
+            else:
+                raw, dep = next(patch._files(str(made), WWISE_BANK, bid))[1], made_deps.get(bid)
+            w.bank(bid, raw)
+            if dep:
+                deps[bid] = dep
+        w.finish(deps)
+    return len(banks) + len(streams) + len(tables)
+
+
+def build_options(project: Project, ix: AudioIndex, main_dir: Path, scratch: Path, choices, log=print, step=None,
+                  listed=None, carried=None) -> list[dict]:
+    """Each option's choices built as patches of what differs from Main (main_dir holds Main's patch), as
+    arsenal.package takes them. choices: [(Option, [(Choice, the project resolved with it picked)])], the
+    non-default choices of each option. A choice that changes nothing deploys nothing."""
+    out, total = [], sum(len(made) for _, made in choices)
+    done = 0
+    for o, made in choices:
+        subs = [{"name": o.choices[0].name, "description": o.choices[0].description, "folder": None, "path": o.choices[0].id}]
+        for c, resolved in made:
+            if step:
+                step(tr("Building {option}: {choice}").format(option=o.name, choice=c.name), done, total)
+            done += 1
+            whole = scratch / f"whole-{o.id}-{c.id}"
+            whole.mkdir()
+            try:
+                make_patch(resolved, ix, whole, log=lambda *_: None, listed=listed, carried=carried)
+            except BuildError as e:
+                raise BuildError(f"{o.name} ▸ {c.name}: {e}") from None
+            part = scratch / f"choice-{o.id}-{c.id}"
+            n = choice_patch(main_dir / PATCH, whole / PATCH, part, ix)
+            shutil.rmtree(whole, ignore_errors=True)
+            if n:
+                size = sum(f.stat().st_size for f in part.iterdir())
+                log(ntr("option {option} ▸ {choice}: {n} asset, {mb} MB", "option {option} ▸ {choice}: {n} assets, {mb} MB", n)
+                    .format(option=o.name, choice=c.name, n=n, mb=f"{size / 1e6:.1f}"))
+            else:
+                log(tr("option {option} ▸ {choice}: the same as {main}, so it deploys nothing").format(
+                    option=o.name, choice=c.name, main=o.choices[0].name))
+            subs.append({"name": c.name, "description": c.description, "folder": part if n else None, "path": c.id})
+        out.append({"name": o.name, "description": o.description, "choices": subs, "path": o.id})
+    return out
+
+
 def build(project: Project, ix: AudioIndex, out_dir=None, version=None, log=print, step=None, listed=None,
-          carried=None) -> Path:
+          carried=None, choices=None) -> Path:
     """Writes <out_dir>/<name>-<version>.zip, the project's patch files in a folder <out_dir>/<name>-<version>
     (project.patch_files), or both, and returns the ZIP's path, or the folder's when there is no ZIP (project.zip_mod
     off); out_dir defaults to the project's build folder. step(doing, done, total), when given, follows the build
@@ -409,6 +486,7 @@ def build(project: Project, ix: AudioIndex, out_dir=None, version=None, log=prin
         patch_dir = Path(scratch) / "patch"
         patch_dir.mkdir()
         make_patch(project, ix, patch_dir, log, step, after=1, listed=listed, carried=carried)
+        extra = build_options(project, ix, patch_dir, Path(scratch), choices, log, step, listed, carried) if choices else []
         if project.zip_mod:
             icon_path = Path(scratch) / "icon.png"
             icon_path.write_bytes(icon)
@@ -419,7 +497,7 @@ def build(project: Project, ix: AudioIndex, out_dir=None, version=None, log=prin
                 out_dir.mkdir(parents=True, exist_ok=True)
                 made = arsenal.package(made, name=project.name, guid=project.guid, icon=icon_path,
                                        description=project.description,
-                                       options=[{"name": project.name, "description": "", "folder": patch_dir}])
+                                       options=[{"name": project.name, "description": "", "folder": patch_dir}, *extra])
             except OSError as e:
                 raise BuildError(tr("Can't write the ZIP into {folder}: {why}").format(folder=out_dir, why=os_error(e))) \
                     from None
@@ -429,6 +507,10 @@ def build(project: Project, ix: AudioIndex, out_dir=None, version=None, log=prin
             folder = made.with_suffix("")  # named like the ZIP
             try:
                 arsenal.save_patch_files(patch_dir, folder)
+                for o in extra:  # each choice that deploys something in <option>/<choice> beside Main's
+                    for c in o["choices"]:
+                        if c["folder"]:
+                            arsenal.save_patch_files(c["folder"], folder / o["path"] / c["path"])
             except OSError as e:
                 raise BuildError(tr("Can't save the patch files into {folder}: {why}").format(folder=folder,
                                                                                             why=os_error(e))) from None

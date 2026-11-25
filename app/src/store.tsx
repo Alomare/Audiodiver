@@ -1137,6 +1137,26 @@ function useEditorState() {
         : t`Make-Up Gain set on ${plural(matched, { one: "# slot", other: "# slots" })}`);
     },
     async settings(fields: Record<string, unknown>) { edited(await run<ProjectState>("settings", fields)); },
+    /** Mod Options (core options.py): every edit of the options is one undo step. `kind` of a new option: blank,
+        volume (Louder, Quieter) or original (per item, Replaced or Original). Returns the ids added. */
+    async optionAdd(kind: "blank" | "volume" | "original", items: string[] = []) {
+      const st = await run<ProjectState & { added: string[] }>("option_add", { kind, items });
+      return edited(st) ? st!.added : [];
+    },
+    async optionSet(option: string, fields: { name?: string; description?: string }) { edited(await run<ProjectState>("option_set", { option, ...fields })); },
+    async optionRemove(option: string) { edited(await run<ProjectState>("option_remove", { option })); },
+    async optionMove(option: string, to: number) { edited(await run<ProjectState>("option_move", { option, to })); },
+    async choiceAdd(option: string) { edited(await run<ProjectState>("choice_add", { option })); },
+    async choiceSet(option: string, choice: string, fields: { name?: string; description?: string; rules?: { gain_db: number; original: boolean; items: string[] }[] }) {
+      edited(await run<ProjectState>("choice_set", { option, choice, ...fields }));
+    },
+    async choiceRemove(option: string, choice: string) { edited(await run<ProjectState>("choice_remove", { option, choice })); },
+    async choiceMove(option: string, choice: string, to: number) { edited(await run<ProjectState>("choice_move", { option, choice, to })); },
+    async optionsCombine(a: string, b: string) { edited(await run<ProjectState>("options_combine", { a, b })); },
+    /** The Audio tab's Editing switch: a choice, or Main (no arguments). */
+    async optionEditing(option?: string, choice?: string) { edited(await run<ProjectState>("option_editing", option ? { option, choice } : {})); },
+    /** In the choice being edited: slots back to Main, or to the original. */
+    async choiceSlots(sources: string[], to: "main" | "original") { edited(await run<ProjectState>("choice_slots", { sources, to })); },
     /** A new mod id: a mod manager then sees the next build as another mod. Undo puts the old id back. */
     async newModId() {
       if (edited(await run<ProjectState>("settings", { guid: "new" }))) editNotice("info", t`New mod ID created. Mod managers install the next build as a separate mod.`);

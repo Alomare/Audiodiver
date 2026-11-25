@@ -29,7 +29,9 @@ import tempfile
 import threading
 import zipfile
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Callable
 
 from . import arsenal, hd1, wem
 from .audio import silence_wav
@@ -230,13 +232,10 @@ def clip_head(game: hd1.Hd1, bank: dict, row) -> bytes:
         return b.read(bank["at"] + row[1], hd1.HEAD)
 
 
-def build(p: Project, game: hd1.Hd1, log=print, step=None) -> Path:
-    """Builds the project as a Helldivers 1 mod: <build folder>/<name>-<version>.zip, holding obsidian.json and the
-    new clips, one resource per bank. Rows with the same bytes share a file. Returns the ZIP's path."""
-    step = step or (lambda *_a, **_k: None)
+def _clips(p: Project, game: hd1.Hd1, step, kept, used: set) -> dict[tuple[int, int, str], dict]:
+    """The clips a project puts in: {(bank name, language, clip): its row in a resource}, the files written with
+    kept(data, kind). used gets the cache names of the encodings taken."""
     reps = [r for r in p.replacements if game.has(r.target)]
-    if not reps:
-        raise Hd1BuildError(tr("Nothing to build yet. Replace some audio first."))
     gone = [r for r in p.replacements if not game.has(r.target)]
     if gone:
         raise Hd1BuildError(ntr("{n} replaced sound isn't in this version of Helldivers 1",
@@ -258,9 +257,87 @@ def build(p: Project, game: hd1.Hd1, log=print, step=None) -> Path:
             if (row[0], bank["lang"]) in wanted:
                 rows_at.setdefault((row[0], bank["lang"]), []).append((bank, row))
     places = [(bank, row, r) for key, r in by_target.items() for bank, row in rows_at.get(key, [])]
+    # a file comes out the same wherever the original has the same format: one encoding per (replacement, format)
+    jobs: dict[tuple, tuple] = {}
+    keys = []
+    for bank, row, r in places:
+        head = clip_head(game, bank, row)
+        streamed = row[4] > 0
+        key = (id(r), struct.unpack_from("<HHI", head, 48), struct.unpack_from("<I", head, 4)[0] if streamed else 0)
+        keys.append(key)
+        jobs.setdefault(key, (r, head, streamed))
+    names = _encode_all(p, jobs, step)
+    used |= set(names.values())
+    files, out = {}, {}  # an encoding's (bank file, stream file) in the mod
+    for (bank, row, r), key in zip(places, keys):
+        name = names[key]
+        if name not in files:
+            stream = (_clip_cache(p) / f"{name}.stream").read_bytes()
+            files[name] = (kept((_clip_cache(p) / f"{name}.clip").read_bytes(), "clip"), kept(stream, "stream") if stream else None)
+        data, stream = files[name]
+        entry = {"clip": f"#{row[0]:016x}", **({"lang": bank["lang"]} if bank["lang"] else {}), "data": data}
+        if stream:
+            entry["stream"] = stream
+        out[(bank["name"], bank["lang"], entry["clip"])] = entry
+    return out
+
+
+@dataclass
+class OptionBuild:
+    """The project's options for a build: the options, and resolve(picks), the project a set of picks plays
+    ({option id: choice id}; the editor's, which knows the Library items a rule names)."""
+    options: list
+    resolve: Callable[[dict], Project]
+
+
+def _option_clips(game: hd1.Hd1, main: dict, choices: OptionBuild, step, kept, used: set):
+    """The clips of the mod with the options: [(when, {place: row})]. A clip no option changes stays Main's, without
+    `when`. A clip one option changes goes in once for each choice of that option that has new audio there (Main's
+    under the first choice), with `when` naming that choice. A clip several options change goes in for every set of
+    their choices (options.combos), each built, with `when` naming them all: Obsidian keeps one picker per option."""
+    from . import options as opts
+    first = {o.id: o.choices[0].id for o in choices.options}
+    built = {frozenset(): main}  # {the picks off the default: their clips}
+
+    def clips_of(picks: dict) -> dict:
+        key = frozenset((i, c) for i, c in picks.items() if c != first[i])
+        if key not in built:
+            built[key] = _clips(choices.resolve(dict(key)), game, step, kept, used)
+        return built[key]
+    touched: dict[tuple, set] = {}  # place: the options that change it
+    for o in choices.options:
+        for c in o.choices[1:]:
+            got = clips_of({o.id: c.id})
+            for place in set(got) | set(main):
+                if got.get(place) != main.get(place):
+                    touched.setdefault(place, set()).add(o.id)
+    out = [((), {k: v for k, v in main.items() if k not in touched})]
+    by_options: dict[tuple, set] = {}
+    for place, ids in touched.items():
+        by_options.setdefault(tuple(sorted(ids)), set()).add(place)
+    for ids, places in sorted(by_options.items()):
+        picks = opts.combos(choices.options, ids)
+        if len(picks) > opts.MAX_COMBOS:
+            raise Hd1BuildError(tr("The options {names} change the same sounds in {n} ways, more than a mod can hold. "
+                                   "Narrow them to fewer sounds.").format(names=", ".join(ids), n=len(picks)))
+        for pick in picks:
+            got = clips_of(pick)
+            rows = {k: got[k] for k in places if k in got}
+            if rows:  # none: the game's clips there, as no resource puts anything in
+                out.append((tuple(sorted(pick.items())), rows))
+    return out
+
+
+def build(p: Project, game: hd1.Hd1, log=print, step=None, choices=None) -> Path:
+    """Builds the project as a Helldivers 1 mod: <build folder>/<name>-<version>.zip, holding obsidian.json and the
+    new clips, one resource per bank. Rows with the same bytes share a file. Returns the ZIP's path. choices: the
+    options' choices resolved (OptionBuild), which go in as Obsidian options, each clip a choice changes in a
+    resource with `when`."""
+    step = step or (lambda *_a, **_k: None)
+    if not [r for r in p.replacements if game.has(r.target)] and not choices:
+        raise Hd1BuildError(tr("Nothing to build yet. Replace some audio first."))
     out_dir = p.build_dir()
     zip_path = out_dir / f"{arsenal.slug(p.name)}-{p.version}.zip"
-    rows: dict[int, list[dict]] = {}
     with tempfile.TemporaryDirectory(prefix="audiodiver-hd1-") as tmp:
         work = Path(tmp)
         res = work / "res"
@@ -272,35 +349,32 @@ def build(p: Project, game: hd1.Hd1, log=print, step=None) -> Path:
             if not (work / name).exists():
                 (work / name).write_bytes(data)
             return name
-        # a file comes out the same wherever the original has the same format: one encoding per (replacement, format)
-        jobs: dict[tuple, tuple] = {}
-        keys = []
-        for bank, row, r in places:
-            head = clip_head(game, bank, row)
-            streamed = row[4] > 0
-            key = (id(r), struct.unpack_from("<HHI", head, 48), struct.unpack_from("<I", head, 4)[0] if streamed else 0)
-            keys.append(key)
-            jobs.setdefault(key, (r, head, streamed))
-        names = _encode_all(p, jobs, step)
-        files = {}  # an encoding's (bank file, stream file) in the mod
-        for (bank, row, r), key in zip(places, keys):
-            name = names[key]
-            if name not in files:
-                stream = (_clip_cache(p) / f"{name}.stream").read_bytes()
-                files[name] = (kept((_clip_cache(p) / f"{name}.clip").read_bytes(), "clip"), kept(stream, "stream") if stream else None)
-            data, stream = files[name]
-            entry = {"clip": f"#{row[0]:016x}", **({"lang": bank["lang"]} if bank["lang"] else {}), "data": data}
-            if stream:
-                entry["stream"] = stream
-            rows.setdefault(bank["name"], []).append(entry)
-        _prune(p, set(names.values()))
-        step(tr("writing the mod"), len(jobs), len(jobs))
-        resources = [{"type": "timpani_bank", "name": f"#{name:016x}",
-                      "clips": sorted(rows[name], key=lambda x: (x["clip"], x.get("lang", 0)))} for name in sorted(rows)]
+        used: set[str] = set()
+        main = _clips(p, game, step, kept, used)
+        groups = _option_clips(game, main, choices, step, kept, used) if choices else [((), main)]
+        if not any(rows for _, rows in groups):
+            raise Hd1BuildError(tr("Nothing to build yet. Replace some audio first."))
+        _prune(p, used)
+        step(tr("writing the mod"), 1, 1)
+        resources = []
+        for when, rows in groups:
+            by_bank: dict[int, list] = {}
+            for (bank, _lang, _clip), entry in rows.items():
+                by_bank.setdefault(bank, []).append(entry)
+            for name in sorted(by_bank):
+                resources.append({"type": "timpani_bank", "name": f"#{name:016x}",
+                                  "clips": sorted(by_bank[name], key=lambda x: (x["clip"], x.get("lang", 0))),
+                                  **({"when": dict(when)} if when else {})})
+        rows = {r["name"] for r in resources}
         # min_obsidian: an older mod manager from 1.1.0 on refuses the mod and says to update (1.0.4 ignores it)
         manifest = {"obsidian": 1, "min_obsidian": MIN_MANAGER, "id": mod_id(p), "version": f"1.0.{p.version}", "name": {"en": p.name},
                     "description": {"en": p.description or "New audio for Helldivers 1, made with Audiodiver."},  # English, as mod names
                     "authors": list(p.authors), "scope": "client", "resources": resources, "loader_api": 1}
+        if choices:
+            manifest["options"] = [{"id": o.id, "type": "choice", "default": o.choices[0].id, "label": {"en": o.name},
+                                    **({"description": {"en": o.description}} if o.description else {}),
+                                    "choices": [{"id": c.id, "label": {"en": c.name}} for c in o.choices]}
+                                   for o in choices.options]
         (work / MANIFEST).write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
         try:
             out_dir.mkdir(parents=True, exist_ok=True)
@@ -332,8 +406,12 @@ def verify(zip_path: Path, game: hd1.Hd1) -> list[str]:
         if not m["resources"]:
             wrong.append("the mod holds nothing")
         for r in m["resources"]:
-            if set(r) != {"type", "name", "clips"} or r["type"] != "timpani_bank" or not ID.fullmatch(r["name"]):
-                wrong.append(f"{r.get('name')}: a resource holds only a type, a name and clips")
+            if set(r) - {"when"} != {"type", "name", "clips"} or r["type"] != "timpani_bank" or not ID.fullmatch(r["name"]):
+                wrong.append(f"{r.get('name')}: a resource holds only a type, a name, clips and when")
+                continue
+            if "when" in r and not all(any(o["id"] == k and v in [c["id"] for c in o["choices"]] for o in m.get("options", []))
+                                       for k, v in r["when"].items()):
+                wrong.append(f"{r.get('name')}: when names an option or choice the mod doesn't have")
                 continue
             bank_id = int(r["name"][1:], 16)
             listed = set()

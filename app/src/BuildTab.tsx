@@ -1,7 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { plural, t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { fmtDecimal, fmtWhen, type Job, type ProblemKind } from "./api";
+import { call, fmtDecimal, fmtWhen, type Job, type OptionsPlan, type ProblemKind } from "./api";
 import { EVERY_BANK_PAGE, OWN_BANKS_PAGE } from "./content";
 import { JOB_NAMES } from "./jobs";
 import { nav } from "./nav";
@@ -81,6 +81,27 @@ function BuildPage() {
 
 // ---------------------------------------------------------------- building
 
+/** Options for players that change the same banks (core options_plan): the build goes ahead, and the later option
+    wins there in game whatever players pick. The Project tab combines them. */
+function SharedOptions() {
+  const { project, revision } = useEditor();
+  const [shared, setShared] = useState<OptionsPlan["shared"]>([]);
+  const live = !!project && project.game === "hd2" && project.options.length > 1;
+  useEffect(() => {
+    if (!live) { setShared([]); return; }
+    let on = true;
+    call<OptionsPlan>("options_plan").then((x) => { if (on) setShared(x.shared); }, () => {});
+    return () => { on = false; };
+  }, [revision, live]);
+  if (!shared.length || !project) return null;
+  const name = (id: string) => project.options.find((o) => o.id === id)?.name ?? id;
+  const pairs = shared.map((s) => `${name(s.a)} / ${name(s.b)}`).join(", ");
+  return (
+    <p className="info-box"><Trans>Options that change the same banks: {pairs}. Players can't pick them apart in Helldivers 2 mod managers.</Trans>{" "}
+      <button className="link-inline" onClick={() => nav.go("project")}>{t`Project Tab`}</button></p>
+  );
+}
+
 /** Next to the preview: what stops a build, the button, and where the ZIP goes (a folder chosen for it, or the
     build folder next to the project file). */
 function BuildBox() {
@@ -119,6 +140,7 @@ function BuildBox() {
           the <button className="link-text" onClick={() => nav.go("library")}>Library</button>, then replace them on
           the <button className="link-text" onClick={() => nav.go("editor")}>Audio</button> tab.</Trans></p>
       )}
+      <SharedOptions />
       {nothing && !empty && !p.problems.length && (
         <p className="info-box"><Trans>Turn on <b>Export zipped mod</b> or <b>Export raw patch files</b> under Build options. With both off, a build has nothing to make.</Trans></p>
       )}

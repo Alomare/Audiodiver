@@ -95,6 +95,20 @@ def methods(s: Session) -> dict:
         "fades_set": lambda sources, fade_in_ms=None, fade_out_ms=None: s.fades_set(sources, fade_in_ms, fade_out_ms),
         "trim_set": lambda source, start_ms=0, end_ms=0, delay_ms=0: s.trim_set(source, start_ms, end_ms, delay_ms),
         "edit_set": lambda source, blocks, original=False, label=None: s.edit_set(source, blocks, original, label),
+        # Mod Options (options.py): choices players make in the mod manager
+        "option_add": lambda kind="blank", items=None: s.option_add(kind, items),
+        "option_set": lambda option, name=None, description=None: s.option_set(option, name, description),
+        "option_remove": lambda option: s.option_remove(option),
+        "option_move": lambda option, to: s.option_move(option, to),
+        "choice_add": lambda option, name=None: s.choice_add(option, name),
+        "choice_set": lambda option, choice, name=None, description=None, rules=None:
+            s.choice_set(option, choice, name, description, rules),
+        "choice_remove": lambda option, choice: s.choice_remove(option, choice),
+        "choice_move": lambda option, choice, to: s.choice_move(option, choice, to),
+        "options_combine": lambda a, b: s.options_combine(a, b),
+        "option_editing": lambda option=None, choice=None: s.option_editing(option, choice),
+        "choice_slots": lambda sources, to="main": s.choice_slots(sources, to),
+        "options_plan": lambda: s.options_plan(),
         "original_file": lambda source: s.original_file(source),
         "edit_export": lambda tracks, path, fmt="wav24", rate=48000, channels=0, normalize=False:
             s.edit_export(tracks, path, fmt, rate, channels, normalize),

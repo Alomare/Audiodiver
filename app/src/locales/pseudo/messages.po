@@ -12,9 +12,23 @@ msgstr ""
 msgid "(empty)"
 msgstr ""
 
+#. placeholder {0}: s.banks
+#. placeholder {1}: name(s.a)
+#. placeholder {2}: name(s.b)
+#. placeholder {3}: name(s.a)
+#. placeholder {4}: name(s.b)
+#: src/ModOptions.tsx
+msgid "{0, plural, one {{1} and {2} change the same bank, so in Helldivers 2 mod managers the later one wins there whatever players pick.} other {{3} and {4} change # of the same banks, so in Helldivers 2 mod managers the later one wins there whatever players pick.}}"
+msgstr ""
+
 #. placeholder {0}: scan.banks
 #: src/PatchContentPage.tsx
 msgid "{0, plural, one {# bank} other {# banks}}"
+msgstr ""
+
+#. placeholder {0}: c.originals
+#: src/ModOptions.tsx
+msgid "{0, plural, one {# slot back to the original} other {# slots back to the original}}"
 msgstr ""
 
 #. placeholder {0}: scan.sounds.length
@@ -38,6 +52,11 @@ msgstr ""
 msgid "{0, plural, one {Copy Original Audio (# Slot)} other {Copy Original Audio (# Slots)}}"
 msgstr ""
 
+#. placeholder {0}: c.cues
+#: src/ModOptions.tsx
+msgid "{0, plural, one {cue points of # segment} other {cue points of # segments}}"
+msgstr ""
+
 #. placeholder {0}: r.count
 #: src/SettingsTab.tsx
 msgid "{0, plural, one {Exported # note.} other {Exported # notes.}}"
@@ -58,6 +77,11 @@ msgstr ""
 msgid "{0, plural, one {Repatch # Mod} other {Repatch # Mods}}"
 msgstr ""
 
+#. placeholder {0}: cost.banks
+#: src/ModOptions.tsx
+msgid "{0, plural, one {The game's bank it changes, and the streams of the slots it gives other audio} other {The # game banks it changes, and the streams of the slots it gives other audio}}"
+msgstr ""
+
 #. placeholder {0}: x.name
 #: src/WaveEditor.tsx
 msgid "{0} (edited original)"
@@ -72,6 +96,11 @@ msgstr ""
 #. placeholder {1}: String(e?.message ?? e)
 #: src/WaveEditor.tsx
 msgid "{0} can't be read: {1}"
+msgstr ""
+
+#. placeholder {0}: fmtDecimal(r.gain_db, 1, true)
+#: src/ModOptions.tsx
+msgid "{0} dB on {where}"
 msgstr ""
 
 #. placeholder {0}: missing[0][1]
@@ -161,6 +190,10 @@ msgstr ""
 #. Markdown. {buildIcon} shows the icon of the Build tab. **Build** is the tab name and must read as the translation of the tab name does.
 #: src/tutorials.ts
 msgid "{buildIcon} **Build** makes the mod: a ZIP to install with a mod manager. Open it."
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "{changed, plural, one {# slot changed.} other {# slots changed.}}"
 msgstr ""
 
 #: src/CombinePage.tsx
@@ -698,6 +731,10 @@ msgstr ""
 msgid "{own, plural, one {# plays only in one sound. Choose to set them all.} other {# play only in one sound each. Choose to set them all.}}"
 msgstr ""
 
+#: src/ModOptions.tsx
+msgid "{own, plural, one {# slot with other audio or settings} other {# slots with other audio or settings}}"
+msgstr ""
+
 #: src/ItemHead.tsx
 msgid "{parts, plural, one {Stinger} other {Stingers}}"
 msgstr ""
@@ -1132,6 +1169,11 @@ msgstr ""
 msgid "+{also} more"
 msgstr ""
 
+#. placeholder {0}: e.choice_name
+#: src/Inspector.tsx
+msgid "<0>{0}</0> plays the original here. In Main: {main}."
+msgstr ""
+
 #: src/Inspector.tsx
 msgid "0 dB on every selected slot"
 msgstr ""
@@ -1469,6 +1511,10 @@ msgstr ""
 msgid "About {APP_NAME}"
 msgstr ""
 
+#: src/ModOptions.tsx
+msgid "About what this choice adds to the mod"
+msgstr ""
+
 #: src/IndexTree.tsx
 msgid "Add {count} Not in Project"
 msgstr ""
@@ -1527,6 +1573,10 @@ msgstr ""
 msgid "Add audio files to build the new audio from, or start from the original."
 msgstr ""
 
+#: src/ModOptions.tsx
+msgid "Add Choice"
+msgstr ""
+
 #: src/Library.tsx
 msgid "Add from Library"
 msgstr ""
@@ -1557,6 +1607,10 @@ msgstr ""
 
 #: src/CueView.tsx
 msgid "Add new audio to {name}"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Add Option"
 msgstr ""
 
 #: src/Notes.tsx
@@ -1922,6 +1976,10 @@ msgstr ""
 msgid "Audio of {name}"
 msgstr ""
 
+#: src/ModOptions.tsx
+msgid "Audio, gain, fades and the Waveform Editor then change this choice, not the mod as it is"
+msgstr ""
+
 #: src/Inspector.tsx
 msgid "Audiodiver also removes it from the mix."
 msgstr ""
@@ -2032,6 +2090,16 @@ msgstr ""
 msgid "Back to Default"
 msgstr ""
 
+#: src/CueView.tsx
+#: src/Inspector.tsx
+#: src/ModOptions.tsx
+msgid "Back to Main"
+msgstr ""
+
+#: src/CueView.tsx
+msgid "Back to Main, in the right-click menu, takes the change away"
+msgstr ""
+
 #: src/SettingsTab.tsx
 msgid "Back to no key"
 msgstr ""
@@ -2090,6 +2158,10 @@ msgstr ""
 
 #: src/ProjectTab.tsx
 msgid "Black"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Blank Option"
 msgstr ""
 
 #: src/WaveEditor.tsx
@@ -2363,6 +2435,15 @@ msgctxt "Filter of the Text tab: the lines the project changes"
 msgid "Changed ({count})"
 msgstr ""
 
+#. placeholder {0}: e.choice_name
+#: src/Inspector.tsx
+msgid "Changed in <0>{0}</0>. In Main: {main}."
+msgstr ""
+
+#: src/CueView.tsx
+msgid "Changed in this choice"
+msgstr ""
+
 #. Lines a panel of the Text tab works on: the ones the project changes
 #: src/TextTab.tsx
 msgid "Changed lines"
@@ -2477,6 +2558,14 @@ msgstr ""
 
 #: src/TextTab.tsx
 msgid "Chinese (Traditional)"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Choice name"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Choices players make in the mod manager, such as how loud the mod plays or which music it brings."
 msgstr ""
 
 #: src/ExportDialog.tsx
@@ -2892,6 +2981,10 @@ msgstr ""
 msgid "Combine failed: {why}"
 msgstr ""
 
+#: src/ModOptions.tsx
+msgid "Combine into One Option"
+msgstr ""
+
 #: src/Home.tsx
 #: src/ToolsTab.tsx
 msgid "Combine Mods"
@@ -3292,6 +3385,11 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
+#. placeholder {0}: o.name
+#: src/ModOptions.tsx
+msgid "Description of {0}"
+msgstr ""
+
 #: src/BuildTab.tsx
 #: src/CombinePage.tsx
 #: src/ExportDialog.tsx
@@ -3584,6 +3682,10 @@ msgstr ""
 msgid "Edit every slot of this segment together"
 msgstr ""
 
+#: src/ModOptions.tsx
+msgid "Edit in Audio Tab"
+msgstr ""
+
 #: src/Timeline.tsx
 msgid "Edit Segment"
 msgstr ""
@@ -3602,6 +3704,17 @@ msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "Edit the song"
+msgstr ""
+
+#. The Audio tab's switch: what the changes go into, Main or a choice
+#: src/ModOptions.tsx
+msgid "Editing"
+msgstr ""
+
+#. placeholder {0}: e.choice_name
+#. placeholder {1}: e.option_name
+#: src/ModOptions.tsx
+msgid "Editing <0>{0}</0> of {1}. Changes go into this choice; other slots play as in Main."
 msgstr ""
 
 #: src/WaveEditor.tsx
@@ -3726,6 +3839,10 @@ msgstr ""
 
 #: src/CueView.tsx
 msgid "Every sequence is collapsed"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "every slot"
 msgstr ""
 
 #. Tag on a slot whose new audio plays in every sound that plays the clip
@@ -4170,8 +4287,14 @@ msgstr ""
 msgid "Full Names"
 msgstr ""
 
+#: src/ModOptions.tsx
 #: src/WaveEditor.tsx
 msgid "Gain"
+msgstr ""
+
+#. placeholder {0}: c.name
+#: src/ModOptions.tsx
+msgid "Gain of {0} (dB)"
 msgstr ""
 
 #: src/Home.tsx
@@ -4932,6 +5055,10 @@ msgstr ""
 msgid "Length <0/> {minutes, plural, one {minute} other {minutes}}"
 msgstr ""
 
+#: src/ModOptions.tsx
+msgid "Let players choose in the mod manager: a louder or quieter mod, part of it back to the original, or other audio in some slots."
+msgstr ""
+
 #. Edit in Undo, Redo and History: the volume of a piece of music changed
 #: src/store.tsx
 msgid "level"
@@ -5107,7 +5234,10 @@ msgid "Magnet: on"
 msgstr ""
 
 #. The bar of main tabs, for screen readers
+#. The mod as it is, without any choice of the options
+#. The mod as it is, without any choice of the options
 #: src/App.tsx
+#: src/ModOptions.tsx
 msgid "Main"
 msgstr ""
 
@@ -5146,6 +5276,10 @@ msgstr ""
 #: src/store.tsx
 #: src/Timeline.tsx
 msgid "Make-Up Gain"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Make-Up Gain added to every slot the mod changes, from −12 to +12 dB"
 msgstr ""
 
 #: src/Inspector.tsx
@@ -5340,6 +5474,18 @@ msgstr ""
 msgid "Move"
 msgstr ""
 
+#. placeholder {0}: c.name
+#. placeholder {0}: o.name
+#: src/ModOptions.tsx
+msgid "Move {0} down"
+msgstr ""
+
+#. placeholder {0}: c.name
+#. placeholder {0}: o.name
+#: src/ModOptions.tsx
+msgid "Move {0} up"
+msgstr ""
+
 #: src/CombinePage.tsx
 msgid "Move {name} down"
 msgstr ""
@@ -5349,6 +5495,7 @@ msgid "Move {name} up"
 msgstr ""
 
 #: src/CombinePage.tsx
+#: src/ModOptions.tsx
 #: src/Soundtrack.tsx
 msgid "Move down"
 msgstr ""
@@ -5398,6 +5545,7 @@ msgid "Move to a New Folder"
 msgstr ""
 
 #: src/CombinePage.tsx
+#: src/ModOptions.tsx
 #: src/Soundtrack.tsx
 msgid "Move up"
 msgstr ""
@@ -6175,6 +6323,10 @@ msgstr ""
 msgid "One of the openings starts each fight"
 msgstr ""
 
+#: src/ModOptions.tsx
+msgid "One option with a choice for every pair of their choices"
+msgstr ""
+
 #: src/PlayThrough.tsx
 msgid "One round of the playlist, top to bottom. Play order shows how the game plays it"
 msgstr ""
@@ -6385,6 +6537,10 @@ msgstr ""
 msgid "Opens the Wiki in a separate window"
 msgstr ""
 
+#: src/ModOptions.tsx
+msgid "Option name"
+msgstr ""
+
 #: src/ProjectTab.tsx
 msgid "Optional. Names separated by commas, shown with the mod in Obsidian."
 msgstr ""
@@ -6396,6 +6552,18 @@ msgstr ""
 #: src/CombinePage.tsx
 #: src/RepatchPage.tsx
 msgid "Options"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Options for Players"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Options lower in the list deploy later, and win where two change one bank"
+msgstr ""
+
+#: src/BuildTab.tsx
+msgid "Options that change the same banks: {pairs}. Players can't pick them apart in Helldivers 2 mod managers."
 msgstr ""
 
 #. Between segments or groups of the play order: one of them plays, picked at random
@@ -6444,8 +6612,26 @@ msgstr ""
 msgid "original / new audio"
 msgstr ""
 
+#. placeholder {0}: project.editing.choice_name
+#: src/CueView.tsx
+msgid "Original in {0}"
+msgstr ""
+
+#: src/CueView.tsx
+msgid "Original in This Choice"
+msgstr ""
+
 #: src/SliceTool.tsx
 msgid "Original Lengths"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Original on {where}"
+msgstr ""
+
+#. placeholder {0}: i.name
+#: src/ModOptions.tsx
+msgid "Original or Replaced: {0}"
 msgstr ""
 
 #: src/SliceTool.tsx
@@ -6666,6 +6852,10 @@ msgstr ""
 msgid "Pelican-1"
 msgstr ""
 
+#: src/ModOptions.tsx
+msgid "Pick this choice in the Audio tab's Editing switch"
+msgstr ""
+
 #. The nth piece of the song cut into the segments (One Song)
 #: src/Soundtrack.tsx
 msgid "piece {n}"
@@ -6883,6 +7073,10 @@ msgstr ""
 #: src/keys.ts
 #: src/WaveEditor.tsx
 msgid "Playback"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Players pick one choice of each option in the mod manager. The first choice is the mod as it is."
 msgstr ""
 
 #: src/content.ts
@@ -7298,12 +7492,24 @@ msgstr ""
 msgid "remove"
 msgstr ""
 
+#: src/ModOptions.tsx
 #: src/ProjectTab.tsx
 #: src/RepatchPage.tsx
 #: src/Soundtrack.tsx
 #: src/store.tsx
 #: src/WaveEditor.tsx
 msgid "Remove"
+msgstr ""
+
+#. placeholder {0}: c.name
+#. placeholder {0}: o.name
+#: src/ModOptions.tsx
+msgid "Remove {0}"
+msgstr ""
+
+#. placeholder {0}: o.name
+#: src/ModOptions.tsx
+msgid "Remove {0}?"
 msgstr ""
 
 #: src/IndexTree.tsx
@@ -7394,6 +7600,10 @@ msgstr ""
 msgid "Remove the audio"
 msgstr ""
 
+#: src/ModOptions.tsx
+msgid "Remove the choice"
+msgstr ""
+
 #: src/CueView.tsx
 #: src/PatchContentPage.tsx
 msgid "Remove the new audio"
@@ -7414,6 +7624,10 @@ msgstr ""
 #: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Remove the old mod in the mod manager before importing this one."
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Remove the option"
 msgstr ""
 
 #: src/CueView.tsx
@@ -8795,6 +9009,10 @@ msgstr ""
 msgid "The changes made since the project opened, to go back or forward to"
 msgstr ""
 
+#: src/ModOptions.tsx
+msgid "The choices and what they change go with it. Undo brings them back."
+msgstr ""
+
 #: src/CueView.tsx
 msgid "The clip ID in the game files. Right-click the row for the other IDs"
 msgstr ""
@@ -9043,6 +9261,14 @@ msgstr ""
 msgid "The middle lists the sounds of the Liberator. One shot is several sounds that play at once. Each sound has one or more **takes**, recordings the game picks from at random."
 msgstr ""
 
+#: src/ModOptions.tsx
+msgid "The mod as it is, or a choice players can pick in the mod manager (Project tab ▸ Options for Players)"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "The mod as it is, what players get unless they pick another choice"
+msgstr ""
+
 #: src/RepatchPage.tsx
 msgid "The mod holds no audio"
 msgstr ""
@@ -9185,6 +9411,7 @@ msgstr ""
 #. What a play button plays
 #. What a play button plays
 #: src/CueView.tsx
+#: src/Inspector.tsx
 msgid "the original"
 msgstr ""
 
@@ -9308,6 +9535,10 @@ msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "The result is saved as a new file, then cut into the pieces again"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "The same as the first choice until it changes something"
 msgstr ""
 
 #: src/content.ts
@@ -9953,6 +10184,10 @@ msgstr ""
 msgid "Volume Curves: on"
 msgstr ""
 
+#: src/ModOptions.tsx
+msgid "Volume Levels"
+msgstr ""
+
 #: src/BuildTab.tsx
 msgid "Volume, delays and similar settings, with the values the imported mod used. A slot's Make-Up Gain is applied on top."
 msgstr ""
@@ -10038,8 +10273,16 @@ msgstr ""
 msgid "What it leaves out"
 msgstr ""
 
+#: src/ModOptions.tsx
+msgid "What players read about it (optional)"
+msgstr ""
+
 #: src/Inspector.tsx
 msgid "What the Audio tab shows"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "What the changes here go into"
 msgstr ""
 
 #: src/Soundtrack.tsx

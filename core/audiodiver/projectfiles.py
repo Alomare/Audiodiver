@@ -87,10 +87,21 @@ def folder_name(stem: str) -> str:
 
 
 # --- what a project uses
+def _patches(d: dict) -> list[dict]:
+    """The slots the options' choices give other audio (options.py), each a dict holding `audio` and `blocks` as a
+    replacement does."""
+    out = []
+    for o in d.get("options") if isinstance(d.get("options"), list) else []:
+        for c in (o.get("choices") if isinstance(o, dict) and isinstance(o.get("choices"), list) else []):
+            slots = c.get("slots") if isinstance(c, dict) and isinstance(c.get("slots"), dict) else {}
+            out += [p for p in slots.values() if isinstance(p, dict)]
+    return out
+
+
 def uses(d: dict, base: Path) -> set[Path]:
     """The files a project uses (d: its to_json() dict, or a project file as read), the project file being in the
-    folder base: its new audio and the icon's image."""
-    reps = d.get("replacements") if isinstance(d.get("replacements"), list) else []
+    folder base: its new audio (Main's and the options' choices') and the icon's image."""
+    reps = (d.get("replacements") if isinstance(d.get("replacements"), list) else []) + _patches(d)
     rels = [r.get("audio") for r in reps if isinstance(r, dict) and not r.get("silence")]
     rels += [b.get("audio") for r in reps if isinstance(r, dict) and not r.get("silence")  # the Waveform Editor's other files
              for b in (r.get("blocks") if isinstance(r.get("blocks"), list) else []) if isinstance(b, dict)]
@@ -114,9 +125,11 @@ def rebase(d: dict, old: Path, new: Path, moved: dict | None = None, whole=False
         return stored(moved.get(key(f), f), new)
 
     out = json.loads(json.dumps(d))
-    for r in out.get("replacements", []):
+    reps = out.get("replacements", [])
+    for r in reps + [p for p in _patches(out) if "audio" in p or "blocks" in p]:
         if not r.get("silence"):
-            r["audio"] = again(r.get("audio"))
+            if "audio" in r:
+                r["audio"] = again(r.get("audio"))
             for b in r.get("blocks") or []:
                 if isinstance(b, dict) and b.get("audio"):
                     b["audio"] = again(b["audio"])

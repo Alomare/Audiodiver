@@ -12,10 +12,24 @@ msgstr ""
 msgid "(empty)"
 msgstr "（空）"
 
+#. placeholder {0}: s.banks
+#. placeholder {1}: name(s.a)
+#. placeholder {2}: name(s.b)
+#. placeholder {3}: name(s.a)
+#. placeholder {4}: name(s.b)
+#: src/ModOptions.tsx
+msgid "{0, plural, one {{1} and {2} change the same bank, so in Helldivers 2 mod managers the later one wins there whatever players pick.} other {{3} and {4} change # of the same banks, so in Helldivers 2 mod managers the later one wins there whatever players pick.}}"
+msgstr ""
+
 #. placeholder {0}: scan.banks
 #: src/PatchContentPage.tsx
 msgid "{0, plural, one {# bank} other {# banks}}"
 msgstr "{0, plural, other {# 个音频库}}"
+
+#. placeholder {0}: c.originals
+#: src/ModOptions.tsx
+msgid "{0, plural, one {# slot back to the original} other {# slots back to the original}}"
+msgstr ""
 
 #. placeholder {0}: scan.sounds.length
 #: src/PatchContentPage.tsx
@@ -38,6 +52,11 @@ msgstr "{0, plural, other {复制音频（# 个槽位）}}"
 msgid "{0, plural, one {Copy Original Audio (# Slot)} other {Copy Original Audio (# Slots)}}"
 msgstr ""
 
+#. placeholder {0}: c.cues
+#: src/ModOptions.tsx
+msgid "{0, plural, one {cue points of # segment} other {cue points of # segments}}"
+msgstr ""
+
 #. placeholder {0}: r.count
 #: src/SettingsTab.tsx
 msgid "{0, plural, one {Exported # note.} other {Exported # notes.}}"
@@ -58,6 +77,11 @@ msgstr "{0, plural, other {未添加：# 个路径不是模组}}"
 msgid "{0, plural, one {Repatch # Mod} other {Repatch # Mods}}"
 msgstr "{0, plural, other {Repatch # 个模组}}"
 
+#. placeholder {0}: cost.banks
+#: src/ModOptions.tsx
+msgid "{0, plural, one {The game's bank it changes, and the streams of the slots it gives other audio} other {The # game banks it changes, and the streams of the slots it gives other audio}}"
+msgstr ""
+
 #. placeholder {0}: x.name
 #: src/WaveEditor.tsx
 msgid "{0} (edited original)"
@@ -72,6 +96,11 @@ msgstr ""
 #. placeholder {1}: String(e?.message ?? e)
 #: src/WaveEditor.tsx
 msgid "{0} can't be read: {1}"
+msgstr ""
+
+#. placeholder {0}: fmtDecimal(r.gain_db, 1, true)
+#: src/ModOptions.tsx
+msgid "{0} dB on {where}"
 msgstr ""
 
 #. placeholder {0}: missing[0][1]
@@ -162,6 +191,10 @@ msgstr "{banks, plural, other {更改 # 个音频库。播放该片段的其他�
 #: src/tutorials.ts
 msgid "{buildIcon} **Build** makes the mod: a ZIP to install with a mod manager. Open it."
 msgstr "{buildIcon} **构建**会生成模组，也就是用模组管理器安装的 ZIP。打开它。"
+
+#: src/ModOptions.tsx
+msgid "{changed, plural, one {# slot changed.} other {# slots changed.}}"
+msgstr ""
 
 #: src/CombinePage.tsx
 msgid "{conflicts, plural, one {# conflict} other {# conflicts}}"
@@ -698,6 +731,10 @@ msgstr "{over, plural, other {多出 # 首歌曲}}。这段音乐有 {total, plu
 msgid "{own, plural, one {# plays only in one sound. Choose to set them all.} other {# play only in one sound each. Choose to set them all.}}"
 msgstr "{own, plural, other {其中 # 个只在一个声音中播放。选择一项即可全部设置。}}"
 
+#: src/ModOptions.tsx
+msgid "{own, plural, one {# slot with other audio or settings} other {# slots with other audio or settings}}"
+msgstr ""
+
 #: src/ItemHead.tsx
 msgid "{parts, plural, one {Stinger} other {Stingers}}"
 msgstr "{parts, plural, other {插入乐段}}"
@@ -1132,6 +1169,11 @@ msgstr "在搜索框中按 ↑ ↓，然后按 Enter"
 msgid "+{also} more"
 msgstr "+{also} 处"
 
+#. placeholder {0}: e.choice_name
+#: src/Inspector.tsx
+msgid "<0>{0}</0> plays the original here. In Main: {main}."
+msgstr ""
+
 #: src/Inspector.tsx
 msgid "0 dB on every selected slot"
 msgstr "所有选中的槽位设为 0 dB"
@@ -1469,6 +1511,10 @@ msgstr "ZIP、.7z、.rar 或 .patch_0 文件，包括其中的音频、新增的
 msgid "About {APP_NAME}"
 msgstr "关于 {APP_NAME}"
 
+#: src/ModOptions.tsx
+msgid "About what this choice adds to the mod"
+msgstr ""
+
 #: src/IndexTree.tsx
 msgid "Add {count} Not in Project"
 msgstr "添加不在项目中的 {count} 项"
@@ -1527,6 +1573,10 @@ msgstr ""
 msgid "Add audio files to build the new audio from, or start from the original."
 msgstr ""
 
+#: src/ModOptions.tsx
+msgid "Add Choice"
+msgstr ""
+
 #: src/Library.tsx
 msgid "Add from Library"
 msgstr "从资源库添加"
@@ -1558,6 +1608,10 @@ msgstr "添加新音频"
 #: src/CueView.tsx
 msgid "Add new audio to {name}"
 msgstr "为 {name} 添加新音频"
+
+#: src/ModOptions.tsx
+msgid "Add Option"
+msgstr ""
 
 #: src/Notes.tsx
 msgid "Add Project Note"
@@ -1922,6 +1976,10 @@ msgstr "项目中的音频"
 msgid "Audio of {name}"
 msgstr "{name} 的音频"
 
+#: src/ModOptions.tsx
+msgid "Audio, gain, fades and the Waveform Editor then change this choice, not the mod as it is"
+msgstr ""
+
 #: src/Inspector.tsx
 msgid "Audiodiver also removes it from the mix."
 msgstr "Audiodiver 也会把它从混音里移除。"
@@ -2032,6 +2090,16 @@ msgstr "恢复为蓝色"
 msgid "Back to Default"
 msgstr "恢复默认"
 
+#: src/CueView.tsx
+#: src/Inspector.tsx
+#: src/ModOptions.tsx
+msgid "Back to Main"
+msgstr ""
+
+#: src/CueView.tsx
+msgid "Back to Main, in the right-click menu, takes the change away"
+msgstr ""
+
 #: src/SettingsTab.tsx
 msgid "Back to no key"
 msgstr "恢复为未绑定"
@@ -2091,6 +2159,10 @@ msgstr "Beta {n}"
 #: src/ProjectTab.tsx
 msgid "Black"
 msgstr "黑色"
+
+#: src/ModOptions.tsx
+msgid "Blank Option"
+msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Block {n}"
@@ -2363,6 +2435,15 @@ msgctxt "Filter of the Text tab: the lines the project changes"
 msgid "Changed ({count})"
 msgstr "已更改（{count}）"
 
+#. placeholder {0}: e.choice_name
+#: src/Inspector.tsx
+msgid "Changed in <0>{0}</0>. In Main: {main}."
+msgstr ""
+
+#: src/CueView.tsx
+msgid "Changed in this choice"
+msgstr ""
+
 #. Lines a panel of the Text tab works on: the ones the project changes
 #: src/TextTab.tsx
 msgid "Changed lines"
@@ -2478,6 +2559,14 @@ msgstr "简体中文"
 #: src/TextTab.tsx
 msgid "Chinese (Traditional)"
 msgstr "繁体中文"
+
+#: src/ModOptions.tsx
+msgid "Choice name"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Choices players make in the mod manager, such as how loud the mod plays or which music it brings."
+msgstr ""
 
 #: src/ExportDialog.tsx
 #: src/ImportMod.tsx
@@ -2892,6 +2981,10 @@ msgstr "合并已取消"
 msgid "Combine failed: {why}"
 msgstr "合并失败：{why}"
 
+#: src/ModOptions.tsx
+msgid "Combine into One Option"
+msgstr ""
+
 #: src/Home.tsx
 #: src/ToolsTab.tsx
 msgid "Combine Mods"
@@ -3292,6 +3385,11 @@ msgstr "已部署"
 msgid "Description"
 msgstr "描述"
 
+#. placeholder {0}: o.name
+#: src/ModOptions.tsx
+msgid "Description of {0}"
+msgstr ""
+
 #: src/BuildTab.tsx
 #: src/CombinePage.tsx
 #: src/ExportDialog.tsx
@@ -3584,6 +3682,10 @@ msgstr "“飞鹰”1号"
 msgid "Edit every slot of this segment together"
 msgstr ""
 
+#: src/ModOptions.tsx
+msgid "Edit in Audio Tab"
+msgstr ""
+
 #: src/Timeline.tsx
 msgid "Edit Segment"
 msgstr ""
@@ -3602,6 +3704,17 @@ msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "Edit the song"
+msgstr ""
+
+#. The Audio tab's switch: what the changes go into, Main or a choice
+#: src/ModOptions.tsx
+msgid "Editing"
+msgstr ""
+
+#. placeholder {0}: e.choice_name
+#. placeholder {1}: e.option_name
+#: src/ModOptions.tsx
+msgid "Editing <0>{0}</0> of {1}. Changes go into this choice; other slots play as in Main."
 msgstr ""
 
 #: src/WaveEditor.tsx
@@ -3727,6 +3840,10 @@ msgstr "所有部分均已折叠"
 #: src/CueView.tsx
 msgid "Every sequence is collapsed"
 msgstr "所有序列均已折叠"
+
+#: src/ModOptions.tsx
+msgid "every slot"
+msgstr ""
 
 #. Tag on a slot whose new audio plays in every sound that plays the clip
 #: src/CueView.tsx
@@ -4170,8 +4287,14 @@ msgstr "从资源库到构建好的模组：用教程自带的新音频替换一
 msgid "Full Names"
 msgstr "完整名称"
 
+#: src/ModOptions.tsx
 #: src/WaveEditor.tsx
 msgid "Gain"
+msgstr ""
+
+#. placeholder {0}: c.name
+#: src/ModOptions.tsx
+msgid "Gain of {0} (dB)"
 msgstr ""
 
 #: src/Home.tsx
@@ -4932,6 +5055,10 @@ msgstr "时长 {length}"
 msgid "Length <0/> {minutes, plural, one {minute} other {minutes}}"
 msgstr "时长 <0/> {minutes, plural, other {分钟}}"
 
+#: src/ModOptions.tsx
+msgid "Let players choose in the mod manager: a louder or quieter mod, part of it back to the original, or other audio in some slots."
+msgstr ""
+
 #. Edit in Undo, Redo and History: the volume of a piece of music changed
 #: src/store.tsx
 msgid "level"
@@ -5107,7 +5234,10 @@ msgid "Magnet: on"
 msgstr ""
 
 #. The bar of main tabs, for screen readers
+#. The mod as it is, without any choice of the options
+#. The mod as it is, without any choice of the options
 #: src/App.tsx
+#: src/ModOptions.tsx
 msgid "Main"
 msgstr "主导航"
 
@@ -5147,6 +5277,10 @@ msgstr "将多个音频模组合并为一个模组，基于当前游戏构建。
 #: src/Timeline.tsx
 msgid "Make-Up Gain"
 msgstr "Make-Up Gain"
+
+#: src/ModOptions.tsx
+msgid "Make-Up Gain added to every slot the mod changes, from −12 to +12 dB"
+msgstr ""
 
 #: src/Inspector.tsx
 msgid "Make-Up Gain in dB"
@@ -5340,6 +5474,18 @@ msgstr "移动"
 msgid "Move"
 msgstr "移动"
 
+#. placeholder {0}: c.name
+#. placeholder {0}: o.name
+#: src/ModOptions.tsx
+msgid "Move {0} down"
+msgstr ""
+
+#. placeholder {0}: c.name
+#. placeholder {0}: o.name
+#: src/ModOptions.tsx
+msgid "Move {0} up"
+msgstr ""
+
 #: src/CombinePage.tsx
 msgid "Move {name} down"
 msgstr "下移 {name}"
@@ -5349,6 +5495,7 @@ msgid "Move {name} up"
 msgstr "上移 {name}"
 
 #: src/CombinePage.tsx
+#: src/ModOptions.tsx
 #: src/Soundtrack.tsx
 msgid "Move down"
 msgstr "下移"
@@ -5398,6 +5545,7 @@ msgid "Move to a New Folder"
 msgstr "移到新文件夹"
 
 #: src/CombinePage.tsx
+#: src/ModOptions.tsx
 #: src/Soundtrack.tsx
 msgid "Move up"
 msgstr "上移"
@@ -6175,6 +6323,10 @@ msgstr "每次音乐响起时播放其中一个开场"
 msgid "One of the openings starts each fight"
 msgstr "每场战斗由其中一个开场开始"
 
+#: src/ModOptions.tsx
+msgid "One option with a choice for every pair of their choices"
+msgstr ""
+
 #: src/PlayThrough.tsx
 msgid "One round of the playlist, top to bottom. Play order shows how the game plays it"
 msgstr "从上到下播放一轮播放列表。“播放顺序”显示游戏的播放方式"
@@ -6385,6 +6537,10 @@ msgstr "打开 ko-fi.com/alomare"
 msgid "Opens the Wiki in a separate window"
 msgstr "在单独的窗口中打开 Wiki"
 
+#: src/ModOptions.tsx
+msgid "Option name"
+msgstr ""
+
 #: src/ProjectTab.tsx
 msgid "Optional. Names separated by commas, shown with the mod in Obsidian."
 msgstr ""
@@ -6397,6 +6553,18 @@ msgstr "可选。在模组管理器中与模组一同显示。"
 #: src/RepatchPage.tsx
 msgid "Options"
 msgstr "选项"
+
+#: src/ModOptions.tsx
+msgid "Options for Players"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Options lower in the list deploy later, and win where two change one bank"
+msgstr ""
+
+#: src/BuildTab.tsx
+msgid "Options that change the same banks: {pairs}. Players can't pick them apart in Helldivers 2 mod managers."
+msgstr ""
 
 #. Between segments or groups of the play order: one of them plays, picked at random
 #: src/Soundtrack.tsx
@@ -6444,9 +6612,27 @@ msgstr ""
 msgid "original / new audio"
 msgstr "原版 / 新音频"
 
+#. placeholder {0}: project.editing.choice_name
+#: src/CueView.tsx
+msgid "Original in {0}"
+msgstr ""
+
+#: src/CueView.tsx
+msgid "Original in This Choice"
+msgstr ""
+
 #: src/SliceTool.tsx
 msgid "Original Lengths"
 msgstr "原版长度"
+
+#: src/ModOptions.tsx
+msgid "Original on {where}"
+msgstr ""
+
+#. placeholder {0}: i.name
+#: src/ModOptions.tsx
+msgid "Original or Replaced: {0}"
+msgstr ""
 
 #: src/SliceTool.tsx
 msgid "Original Proportions"
@@ -6666,6 +6852,10 @@ msgstr "暂停原版 {slot}"
 msgid "Pelican-1"
 msgstr "鹈鹕1号"
 
+#: src/ModOptions.tsx
+msgid "Pick this choice in the Audio tab's Editing switch"
+msgstr ""
+
 #. The nth piece of the song cut into the segments (One Song)
 #: src/Soundtrack.tsx
 msgid "piece {n}"
@@ -6884,6 +7074,10 @@ msgstr "播放并选择该槽位"
 #: src/WaveEditor.tsx
 msgid "Playback"
 msgstr "播放"
+
+#: src/ModOptions.tsx
+msgid "Players pick one choice of each option in the mod manager. The first choice is the mod as it is."
+msgstr ""
 
 #: src/content.ts
 msgid "playing game audio"
@@ -7298,6 +7492,7 @@ msgstr "GitHub 上的发布版本"
 msgid "remove"
 msgstr "移除"
 
+#: src/ModOptions.tsx
 #: src/ProjectTab.tsx
 #: src/RepatchPage.tsx
 #: src/Soundtrack.tsx
@@ -7305,6 +7500,17 @@ msgstr "移除"
 #: src/WaveEditor.tsx
 msgid "Remove"
 msgstr "移除"
+
+#. placeholder {0}: c.name
+#. placeholder {0}: o.name
+#: src/ModOptions.tsx
+msgid "Remove {0}"
+msgstr ""
+
+#. placeholder {0}: o.name
+#: src/ModOptions.tsx
+msgid "Remove {0}?"
+msgstr ""
 
 #: src/IndexTree.tsx
 msgid "Remove {count} in Project"
@@ -7394,6 +7600,10 @@ msgstr "移除项目中的 {count} 项"
 msgid "Remove the audio"
 msgstr "移除音频"
 
+#: src/ModOptions.tsx
+msgid "Remove the choice"
+msgstr ""
+
 #: src/CueView.tsx
 #: src/PatchContentPage.tsx
 msgid "Remove the new audio"
@@ -7415,6 +7625,10 @@ msgstr "移除 {label} 的新音频"
 #: src/RepatchPage.tsx
 msgid "Remove the old mod in the mod manager before importing this one."
 msgstr "导入此模组前，请先在模组管理器中移除旧模组。"
+
+#: src/ModOptions.tsx
+msgid "Remove the option"
+msgstr ""
 
 #: src/CueView.tsx
 msgid "Remove the silence"
@@ -8795,6 +9009,10 @@ msgstr ""
 msgid "The changes made since the project opened, to go back or forward to"
 msgstr "自项目打开以来所做的更改，可回退或前进到其中任意一步"
 
+#: src/ModOptions.tsx
+msgid "The choices and what they change go with it. Undo brings them back."
+msgstr ""
+
 #: src/CueView.tsx
 msgid "The clip ID in the game files. Right-click the row for the other IDs"
 msgstr "游戏文件中的片段 ID。右键单击该行可查看其他 ID"
@@ -9043,6 +9261,14 @@ msgstr "清单是模组中向模组管理器提供名称、图标、选项和 ID
 msgid "The middle lists the sounds of the Liberator. One shot is several sounds that play at once. Each sound has one or more **takes**, recordings the game picks from at random."
 msgstr "中间列出了“解放者”的声音。一次射击由同时播放的多个声音组成。每个声音有一个或多个**变体**，即游戏随机从中选取的录音。"
 
+#: src/ModOptions.tsx
+msgid "The mod as it is, or a choice players can pick in the mod manager (Project tab ▸ Options for Players)"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "The mod as it is, what players get unless they pick another choice"
+msgstr ""
+
 #: src/RepatchPage.tsx
 msgid "The mod holds no audio"
 msgstr "该模组不含音频"
@@ -9185,6 +9411,7 @@ msgstr "两个模组改到同一个声音时，顺序就有影响：列表中靠
 #. What a play button plays
 #. What a play button plays
 #: src/CueView.tsx
+#: src/Inspector.tsx
 msgid "the original"
 msgstr "原版"
 
@@ -9308,6 +9535,10 @@ msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "The result is saved as a new file, then cut into the pieces again"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "The same as the first choice until it changes something"
 msgstr ""
 
 #: src/content.ts
@@ -9953,6 +10184,10 @@ msgstr ""
 msgid "Volume Curves: on"
 msgstr ""
 
+#: src/ModOptions.tsx
+msgid "Volume Levels"
+msgstr ""
+
 #: src/BuildTab.tsx
 msgid "Volume, delays and similar settings, with the values the imported mod used. A slot's Make-Up Gain is applied on top."
 msgstr "音量、延迟等设置，沿用导入模组所用的值。槽位的 Make-Up Gain 会在此基础上叠加。"
@@ -10038,9 +10273,17 @@ msgstr "作用"
 msgid "What it leaves out"
 msgstr "不包含的内容"
 
+#: src/ModOptions.tsx
+msgid "What players read about it (optional)"
+msgstr ""
+
 #: src/Inspector.tsx
 msgid "What the Audio tab shows"
 msgstr "音频选项卡显示的内容"
+
+#: src/ModOptions.tsx
+msgid "What the changes here go into"
+msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "What the openings are, and how to change them"
