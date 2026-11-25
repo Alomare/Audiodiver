@@ -20,3 +20,7 @@ The pictures here (`home-1.webp` to `home-3.webp`) are screenshots of Helldivers
 are in `internal/art/`. The pictures in `hd1/` are official art and trailer stills of Helldivers 1 (originals in `internal/art/hd1/`),
 credited to Arrowhead in About by `ART_CREDIT_HD1`.
 The games in them belong to Arrowhead Game Studios and aren't covered by Audiodiver's licence.
+
+`emblems/` is not Home art: the skull of each game's logo, shown before each name on Home's game switch
+(`Home.tsx`). The Helldivers 1 skull keeps the silver of that logo; the Helldivers 2 skull is cut from the original
+white logo (before the recent "corrupted" one) and filled with the logo's yellow, #f4d031. 64 px tall, lossless WebP.

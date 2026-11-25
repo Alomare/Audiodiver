@@ -7,6 +7,8 @@ import { CloseIcon, DiscordIcon, LoadingIcon, FolderIcon, GithubIcon, ImportIcon
 import { nav, useNav, type Mode } from "./nav";
 import { DitheredShade } from "./HomeVeil";
 import { LINUX, openUrl } from "./platform";
+import emblemHd1 from "./art/emblems/hd1.webp";
+import emblemHd2 from "./art/emblems/hd2.webp";
 import { useSettings } from "./settings";
 import { useEditor } from "./store";
 import { DEFAULT_SIZE, motionOn, useTheme, useThemeValue } from "./theme";
@@ -86,6 +88,8 @@ function LevelMeter() {
 }
 
 const GAMES = [["hd1", "Helldivers 1"], ["hd2", "Helldivers 2"]] as const;
+/** The skull of each game's logo, before its name on the switch. */
+const EMBLEM: Record<Mode, string> = { hd1: emblemHd1, hd2: emblemHd2 };
 
 /** Which game the window makes mods for, above the menu and as wide: a track whose thumb slides to the game in use. Both
     games are read at start-up, each on its own, and the window doesn't wait: a game being read is a button that
@@ -122,7 +126,8 @@ function GamePick() {
                 : id === "hd1" ? t`Make mods for Helldivers 1` : t`Make mods for Helldivers 2`}
               data-tip-more={st === "scanning" ? states[id].detail || undefined : st === "missing" ? states[id].detail || undefined
                 : project && project.game !== id ? t`Closes the project open now` : undefined}>
-              {st === "scanning" && <span className="game-scan" aria-hidden><LoadingIcon /></span>}{name}</button>
+              {st === "scanning" ? <span className="game-scan" aria-hidden><LoadingIcon /></span>
+                : <img className={`game-emblem ${id}`} src={EMBLEM[id]} alt="" draggable={false} />}{name}</button>
           );
         })}
       </div>

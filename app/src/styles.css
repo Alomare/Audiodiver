@@ -1398,6 +1398,11 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .game-switch button[aria-disabled="true"] { cursor: not-allowed; color: color-mix(in srgb, var(--faint) 55%, var(--bg)); }
 .game-switch button[aria-disabled="true"]:hover { color: color-mix(in srgb, var(--faint) 55%, var(--bg)); }
 .game-switch button[data-state="scanning"] { cursor: progress; }
+/* each game's skull before its name: in the logo's own colours (silver, yellow), dark on the selected one so it
+   stands out on the primary colour, and faded while the game can't be picked */
+.game-emblem { flex: none; height: calc(15px * var(--fs)); width: auto; margin-top: -1.7px; /* the ink centred on the capitals */ transition: filter var(--t2), opacity var(--t2); }
+.game-switch button[aria-checked="true"] .game-emblem { filter: brightness(0); opacity: .85; }
+.game-switch button[aria-disabled="true"] .game-emblem { filter: grayscale(1); opacity: .35; }
 .game-switch button[data-state="missing"] { text-decoration: line-through; text-decoration-thickness: 1px; }
 /* a game being read: grey arrows going round */
 .game-scan { display: inline-grid; place-items: center; color: var(--muted); font-size: calc(14px * var(--fs)); }
