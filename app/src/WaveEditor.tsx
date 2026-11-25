@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { audioUrl, fileUrl, fmtDecimal, fmtTime, type Block } from "./api";
+import { audioUrl, fileUrl, fmtDecimal, fmtExact, fmtTime, type Block } from "./api";
 import { confirm } from "./Confirm";
 import { useDialog } from "./dialog";
 import { CloseIcon, DuplicateIcon, LoopIcon, MagnetIcon, NormalizeIcon, PauseIcon, PlayIcon, PlusIcon, RedoIcon, RemoveIcon, ResetIcon,
@@ -414,9 +414,10 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
       }
       // the fades: a shade over the part that fades, under a line from silence to full
       const fi = xOf(b.at_ms + b.fade_in_ms), fo = xOf(endOf(b) - b.fade_out_ms);
-      g.fillStyle = "rgb(0 0 0 / .35)";
+      g.fillStyle = v("--bg"); g.globalAlpha = 0.55; // the faded part, shaded with the page's own colour (any theme)
       if (b.fade_in_ms > 0) { g.beginPath(); g.moveTo(x0, top); g.lineTo(fi, top); g.lineTo(x0, top + h); g.closePath(); g.fill(); }
       if (b.fade_out_ms > 0) { g.beginPath(); g.moveTo(x1, top); g.lineTo(fo, top); g.lineTo(x1, top + h); g.closePath(); g.fill(); }
+      g.globalAlpha = 1;
       g.strokeStyle = colour; g.lineWidth = 1.25;
       g.beginPath(); g.moveTo(x0, top + h); g.lineTo(fi, top); g.lineTo(fo, top); g.lineTo(x1, top + h); g.stroke();
       // the frame, and the fade grips at the top corners
@@ -424,7 +425,12 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
       g.lineWidth = on ? 2 : 1; g.strokeStyle = on ? v("--text") : colour;
       g.strokeRect(x0 + (on ? 1 : 0.5), top + (on ? 1 : 0.5), x1 - x0 - (on ? 2 : 1), h - (on ? 2 : 1));
       g.lineWidth = 1;
-      if (on) for (const gx of [fi, fo]) { g.fillStyle = v("--text"); g.fillRect(gx - GRIP_PX / 2, top - 1, GRIP_PX, GRIP_PX); }
+      // the fade grips, on the top edge: filled in the block's colour on the selected block, outlined on the others
+      for (const gx of [fi, fo]) {
+        const gs = on ? GRIP_PX + 3 : GRIP_PX + 1, gy = top - gs / 2 + 1;
+        g.fillStyle = on ? colour : v("--bg"); g.fillRect(gx - gs / 2, gy, gs, gs);
+        g.lineWidth = 1.5; g.strokeStyle = on ? v("--text") : colour; g.strokeRect(gx - gs / 2, gy, gs, gs); g.lineWidth = 1;
+      }
     }
     // where the original ends: what the new audio is usually fitted to
     if (refMs) {
@@ -448,7 +454,7 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
     const order = shown.map((_, i) => i).sort((p, q) => (p === sel ? -1 : q === sel ? 1 : q - p)); // the one on top first
     for (const i of order) {
       const b = shown[i], x0 = xOf(b.at_ms), x1 = xOf(endOf(b)), top = editTop + 6;
-      if (i === sel && y < top + GRIP_PX + 3) {
+      if (y < top + GRIP_PX + 3) {
         if (Math.abs(x - xOf(b.at_ms + b.fade_in_ms)) <= GRIP_PX) return { kind: "fadeIn", i };
         if (Math.abs(x - xOf(endOf(b) - b.fade_out_ms)) <= GRIP_PX) return { kind: "fadeOut", i };
       }
@@ -460,10 +466,10 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
     return { kind: "cursor", i: -1 };
   };
   /** The nearest spot the magnet pulls to within reach of each candidate, or the candidates as they are. */
-  const snap = (candidates: number[], skip: number | null) => {
+  const snap = (candidates: number[], skip: number | null, withCursor = true) => {
     if (!magnet) return 0;
     const reach = (SNAP_PX / width) * view.span;
-    const spots = [0, cursor, ...(refMs ? [refMs] : []), ...blocks.flatMap((b, j) => (j === skip ? [] : [b.at_ms, endOf(b)]))];
+    const spots = [0, ...(withCursor ? [cursor] : []), ...(refMs ? [refMs] : []), ...blocks.flatMap((b, j) => (j === skip ? [] : [b.at_ms, endOf(b)]))];
     let best = 0, dist = reach;
     for (const c of candidates) for (const s of spots) if (Math.abs(s - c) < dist) { dist = Math.abs(s - c); best = s - c; }
     return best;
@@ -506,7 +512,7 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
     drag.current = { kind: hit.kind, i: hit.i, x0: x, from: hit.i >= 0 ? blocks[hit.i] : blocks[0], moved: false };
     if (hit.kind === "cursor") {
       const ms = Math.max(0, msOf(x));
-      setCursor(Math.max(0, ms + snap([ms], null)));
+      setCursor(Math.max(0, ms + snap([ms], null, false)));
       if (y >= editTop) setSel(null);
     }
   };
@@ -515,7 +521,7 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
     if (!d) { setHover(hitAt(x, y)?.kind ?? null); return; }
     if (!d.moved && Math.abs(x - d.x0) < 3) return;
     d.moved = true;
-    if (d.kind === "cursor") { const ms = Math.max(0, msOf(x)); setCursor(Math.max(0, ms + snap([ms], null))); return; }
+    if (d.kind === "cursor") { const ms = Math.max(0, msOf(x)); setCursor(Math.max(0, ms + snap([ms], null, false))); return; }
     setLive(reshape(d, x - d.x0));
   };
   const onUp = (e: React.PointerEvent) => {
@@ -525,7 +531,7 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
     const { x } = local(e);
     if (d.kind === "cursor") return;
     if (d.moved || Math.abs(x - d.x0) >= 3) commit(reshape(d, x - d.x0));
-    else { const ms = Math.max(0, msOf(x)); setCursor(Math.max(0, ms + snap([ms], null))); setLive(null); } // a click on a block: the cursor goes there
+    else { const ms = Math.max(0, msOf(x)); setCursor(Math.max(0, ms + snap([ms], null, false))); setLive(null); } // a click on a block: the cursor goes there
   };
   useEffect(() => {
     const el = wrap.current;
@@ -578,28 +584,36 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
         </header>
 
         <div className="wave-ed-tools" role="toolbar" aria-label={t`Waveform Editor tools`}>
-          <button className={`btn play-btn${playing === "edit" ? " on" : ""}`} onClick={() => toggle()} disabled={!file}
+          <div className="wave-ed-group" role="group" aria-label={t`Playback`}>
+          <button className={`btn play-btn${playing === "edit" ? " on" : ""}`} onClick={() => toggle()} disabled={!ready || !shown.length}
             data-tip={playing === "edit" ? t`Pause` : t`Play from the cursor`} data-tip-key="Space">
             {playing === "edit" ? <PauseIcon /> : <PlayIcon />}{playing === "edit" ? t`Pause` : t`Play`}</button>
           <button className="icon-btn" onClick={() => { stop(); setCursor(0); }} aria-label={t`Stop`} data-tip={t`Stop, and put the cursor at the start`}><StopIcon /></button>
-          <button className={`icon-btn${loop ? " on" : ""}`} aria-pressed={loop} onClick={() => setLoop(!loop)} aria-label={t`Loop`}
-            data-tip={t`Loop`} data-tip-more={t`Plays the selected block over and over, or the whole result`} data-tip-key="L"><LoopIcon /></button>
-          <span className="wave-ed-sep" />
+          <button className="icon-btn wave-ed-toggle" aria-pressed={loop} onClick={() => setLoop(!loop)} aria-label={t`Loop`}
+            data-tip={loop ? t`Loop: on` : t`Loop: off`} data-tip-more={t`Plays the selected block over and over, or the whole result`} data-tip-key="L"><LoopIcon /></button>
+          <span className="wave-ed-time" data-tip={t`Where the cursor is`}>{fmtExact(cursor)}</span>
+          </div>
+          <div className="wave-ed-group" role="group" aria-label={t`Blocks`}>
           <button className="btn" onClick={() => void addFiles()} disabled={!ctx || adding}
             data-tip={t`Add audio files as new blocks`} data-tip-more={t`They go one after the other from the cursor. Dropping files on the editor does the same`}>
             <PlusIcon /><Trans>Add Audio</Trans></button>
           <button className="btn" onClick={() => splitAt(cursor)} disabled={!shown.length} data-tip={t`Split the block at the cursor`} data-tip-key="S"><SplitIcon /><Trans>Split</Trans></button>
           <button className="icon-btn" onClick={duplicate} disabled={b == null} aria-label={t`Duplicate`} data-tip={t`Duplicate the block`} data-tip-more={t`The copy goes right after it`} data-tip-key="Ctrl+D"><DuplicateIcon /></button>
-          <button className="icon-btn" onClick={remove} disabled={b == null || blocks.length < 2} aria-label={t`Remove`} data-tip={t`Remove the block`} data-tip-key="Delete"><RemoveIcon /></button>
-          <span className="wave-ed-sep" />
-          <button className={`btn${magnet ? " on" : ""}`} aria-pressed={magnet} onClick={() => setMagnet(!magnet)} data-tip={t`Magnet`}
-            data-tip-more={t`The cursor, block edges and blocks snap to each other, to the start and to where the original ends`} data-tip-key="M"><MagnetIcon /><Trans>Magnet</Trans></button>
+          <button className="icon-btn" onClick={remove} disabled={b == null || (hasOwn && blocks.length < 2)} aria-label={t`Remove`} data-tip={t`Remove the block`} data-tip-key="Delete"><RemoveIcon /></button>
+          </div>
+          <div className="wave-ed-group" role="group" aria-label={t`Magnet`}>
+          <button className="btn wave-ed-toggle" aria-pressed={magnet} onClick={() => setMagnet(!magnet)} data-tip={magnet ? t`Magnet: on` : t`Magnet: off`}
+            data-tip-more={t`The cursor, block edges and blocks snap to edges: of blocks, the start and where the original ends`} data-tip-key="M"><MagnetIcon /><Trans>Magnet</Trans></button>
+          </div>
           <span className="spacer" />
+          <div className="wave-ed-group" role="group" aria-label={t`History`}>
           <button className="icon-btn" onClick={undo} disabled={hist.at === 0} aria-label={t`Undo`} data-tip={t`Undo`} data-tip-key="Ctrl+Z"><UndoIcon /></button>
           <button className="icon-btn" onClick={redo} disabled={hist.at >= hist.list.length - 1} aria-label={t`Redo`} data-tip={t`Redo`} data-tip-key="Ctrl+Y"><RedoIcon /></button>
           <button className="btn quiet" onClick={reset} disabled={!ready} data-tip={hasOwn ? t`Back to the whole file, as it is` : t`Remove every block`}><ResetIcon /><Trans>Reset</Trans></button>
+          </div>
         </div>
 
+        <div className="wave-ed-main">
         <div className="wave-ed-body zoom-grid">
           <div className="wave-ed-lanes">
             <div className="wave-ed-labels" style={{ gridTemplateRows: `${LANES.ruler}px ${LANES.original}px ${LANES.edit}px` }}>
@@ -628,10 +642,10 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
           </div>
           <WaveZoom zoom={zoom} foot={zoom.x > 1 ? <WaveScroll zoom={zoom} /> : null} />
         </div>
-
-        <div className="wave-ed-fields">
+        <aside className="wave-ed-side" aria-label={t`Selected block`}>
           {b ? <BlockFields b={b} n={sel! + 1} fileMs={msOfFile(b)} file={b.audio ? nameOf(b.audio) : ownName} onSet={(x) => set(sel!, x)} onNormalize={normalize} />
-            : <p className="muted"><Trans>Click a block to set it up. Drag the body to move it, an edge to trim it, and the squares at the top to fade it.</Trans></p>}
+            : <p className="wave-ed-hint"><Trans>Click a block to set it up. Drag the body to move it, an edge to trim it, and the squares on the top edge to fade it.</Trans></p>}
+        </aside>
         </div>
 
         <footer className="modal-foot">
@@ -651,34 +665,44 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
     </div>, document.body);
 }
 
-/** The selected block in numbers, in ms (Gain in dB): what the canvas does by dragging, to type exactly. */
+/** The selected block in numbers, in ms (Gain in dB): what the canvas does by dragging, to type exactly. A column of
+    label, value and unit, in groups: where it plays, the stretch of the file, the fades, the level. */
 function BlockFields({ b, n, fileMs, file, onSet, onNormalize }: {
   b: Block; n: number; fileMs: number; file: string; onSet: (b: Partial<Block>) => void; onNormalize: () => void;
 }) {
   const len = lengthOf(b);
-  const field = (key: Exclude<keyof Block, "audio">, name: string, tip: string, lo: number, hi: number, unit = "ms", step = 1, put?: (v: number) => Partial<Block>) => (
-    <label className="wave-ed-field" data-tip={tip}>{name}
+  const field = (key: Exclude<keyof Block, "audio">, name: string, tip: string, lo: number, hi: number, unit = "ms", step = 1) => (
+    <label className="wave-ed-field" data-tip={tip} data-tip-side="left">
+      <span className="wave-ed-label">{name}</span>
       <input type="number" min={lo} max={hi} step={step} key={`${key}:${b[key]}`} defaultValue={round1(b[key])} aria-label={`${name} (${unit})`}
         onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
         onBlur={(e) => {
           const v = Number(e.target.value);
           if (!Number.isFinite(v) || round1(v) === round1(b[key])) { e.target.value = String(round1(b[key])); return; }
-          const x = Math.max(lo, Math.min(hi, v));
-          onSet(put ? put(x) : { [key]: x });
+          onSet({ [key]: Math.max(lo, Math.min(hi, v)) });
         }} /><span className="unit">{unit}</span>
     </label>
   );
   return (
     <div className="wave-ed-block">
-      <b className="wave-ed-n" data-tip={file}>{t`Block ${n}`}<span className="wave-ed-file">{file}</span></b>
-      {field("start_ms", t({ message: "Start", context: "Trim handle" }), t`Where the block starts in the file`, 0, b.end_ms - MIN_BLOCK)}
-      {field("end_ms", t({ message: "End", context: "Trim handle" }), t`Where the block ends in the file`, b.start_ms + MIN_BLOCK, fileMs)}
-      {field("at_ms", t`Position`, t`When the block plays, from the start of the slot`, 0, 3_600_000)}
-      {field("fade_in_ms", t`Fade In`, t`How long the block takes to rise from silence`, 0, len - b.fade_out_ms)}
-      {field("fade_out_ms", t`Fade Out`, t`How long the block takes to fall to silence before it ends`, 0, len - b.fade_in_ms)}
-      {field("gain_db", t`Gain`, t`How much louder or quieter the block plays`, -60, 24, "dB", 0.5)}
-      <button className="btn quiet" onClick={onNormalize} data-tip={t`Normalize`} data-tip-more={t`Sets the gain so the loudest moment of the block reaches −1 dB`}><NormalizeIcon /><Trans>Normalize</Trans></button>
-      <span className="wave-ed-len">{t`Length`} <b>{fmtTime(len)}</b></span>
+      <div className="wave-ed-block-head"><b>{t`Block ${n}`}</b><span className="wave-ed-file" data-tip={file} data-tip-clip>{file}</span></div>
+      <div className="wave-ed-set">
+        {field("at_ms", t`Position`, t`When the block plays, from the start of the slot`, 0, 3_600_000)}
+        <div className="wave-ed-field wave-ed-ro"><span className="wave-ed-label">{t`Length`}</span><b>{fmtDecimal(len, 1)}</b><span className="unit">ms</span></div>
+      </div>
+      <div className="wave-ed-set">
+        {field("start_ms", t({ message: "Start", context: "Trim handle" }), t`Where the block starts in the file`, 0, b.end_ms - MIN_BLOCK)}
+        {field("end_ms", t({ message: "End", context: "Trim handle" }), t`Where the block ends in the file`, b.start_ms + MIN_BLOCK, fileMs)}
+      </div>
+      <div className="wave-ed-set">
+        {field("fade_in_ms", t`Fade In`, t`How long the block takes to rise from silence`, 0, len - b.fade_out_ms)}
+        {field("fade_out_ms", t`Fade Out`, t`How long the block takes to fall to silence before it ends`, 0, len - b.fade_in_ms)}
+      </div>
+      <div className="wave-ed-set">
+        {field("gain_db", t`Gain`, t`How much louder or quieter the block plays`, -60, 24, "dB", 0.5)}
+        <button className="btn quiet wave-ed-norm" onClick={onNormalize} data-tip={t`Normalize`} data-tip-side="left"
+          data-tip-more={t`Sets the gain so the loudest moment of the block reaches −1 dB`}><NormalizeIcon /><Trans>Normalize</Trans></button>
+      </div>
     </div>
   );
 }

@@ -4,7 +4,7 @@ group: Getting started
 summary: Replacing the audio of Helldivers 1: the switch on Home, what a project can change, and why a mod can be large.
 ---
 
-The **Helldivers 1** and **Helldivers 2** buttons on [Home](app:home) choose the game Audiodiver makes mods for. Audiodiver looks for both games when it starts, and the window opens before they are read. A button shows small moving bars while the game is read, and is struck through when the game wasn't found. The line under the buttons says which, with **Choose Folder** for a game installed somewhere Steam doesn't list. The first game that is read is chosen, and the tabs and buttons for that game appear then.
+The **Helldivers 1** and **Helldivers 2** buttons on [Home](app:home) choose the game Audiodiver makes mods for. Audiodiver looks for both games when it starts, and the window opens before they are read. A button is darker, with arrows going round, while the game is read, and is struck through when the game wasn't found. The line under the buttons says which, with **Choose Folder** for a game installed somewhere Steam doesn't list. The game used last is chosen again, or the other one when it isn't found, and the tabs and buttons for that game appear once it is read.
 
 Each project belongs to one game, and opening a project switches to that game. Choosing the other game closes the project that is open.
 

@@ -25,11 +25,11 @@ export function Home() {
   return (
     <section className={`home${art.length ? " with-art" : ""}${homeTicker ? "" : " no-ticker"}`} aria-label={t`Home`}>
       <div className="home-scroll">
-        <GamePick />
         <div className="home-inner view-in">
           <header className="home-hero">
             <h1><Trans comment="The title on Home; <0/> is a line break">A new anthem<br />for Super Earth</Trans></h1>
           </header>
+          <GamePick />
           {ready && <>
 
           {/* a menu, as the game's own: the yellow item is the way in; the Tools tab's two pages after a gap.
@@ -87,10 +87,10 @@ function LevelMeter() {
 
 const GAMES = [["hd1", "Helldivers 1"], ["hd2", "Helldivers 2"]] as const;
 
-/** Which game the window makes mods for, in the top-right corner: a track whose thumb slides to the game in use. Both
+/** Which game the window makes mods for, above the menu and as wide: a track whose thumb slides to the game in use. Both
     games are read at start-up, each on its own, and the window doesn't wait: a game being read is a button that
-    can't be pressed yet, with a meter that plays, and one that wasn't found is struck through. The thumb comes once
-    the game in use is read (the first one read, at the start). Under the track, a line says what is going on, with
+    can't be pressed yet, darker, with grey arrows going round, and one that wasn't found is struck through. The thumb
+    comes once the game in use is read (the one used last; the other when that one isn't found). Under the track, a line says what is going on, with
     a way to choose a folder for a game that wasn't found. Each game has its own tabs and pictures, and a project is
     for one of them (nav.ts Mode); a project of the other game closes first. */
 function GamePick() {

@@ -2048,6 +2048,10 @@ msgstr "Black"
 msgid "Block {n}"
 msgstr "Block {n}"
 
+#: src/WaveEditor.tsx
+msgid "Blocks"
+msgstr "Blocks"
+
 #. Put in a note, in bold, when Bold is clicked with no words selected
 #: src/Notes.tsx
 msgid "bold"
@@ -2688,8 +2692,8 @@ msgid "Click ▶"
 msgstr "Click ▶"
 
 #: src/WaveEditor.tsx
-msgid "Click a block to set it up. Drag the body to move it, an edge to trim it, and the squares at the top to fade it."
-msgstr "Click a block to set it up. Drag the body to move it, an edge to trim it, and the squares at the top to fade it."
+msgid "Click a block to set it up. Drag the body to move it, an edge to trim it, and the squares on the top edge to fade it."
+msgstr "Click a block to set it up. Drag the body to move it, an edge to trim it, and the squares on the top edge to fade it."
 
 #: src/Wiki.tsx
 msgid "Click for the Wiki section"
@@ -4203,6 +4207,7 @@ msgid "High, because the system asks for more contrast."
 msgstr "High, because the system asks for more contrast."
 
 #: src/App.tsx
+#: src/WaveEditor.tsx
 msgid "History"
 msgstr "History"
 
@@ -4884,6 +4889,14 @@ msgstr "Looking"
 msgid "Loop"
 msgstr "Loop"
 
+#: src/WaveEditor.tsx
+msgid "Loop: off"
+msgstr "Loop: off"
+
+#: src/WaveEditor.tsx
+msgid "Loop: on"
+msgstr "Loop: on"
+
 #. Tag on a music segment that repeats until the game moves on
 #: src/CueView.tsx
 msgid "loops"
@@ -4916,6 +4929,14 @@ msgstr "Low-Pass dulls the sound and High-Pass thins it. They add to what the ga
 #: src/WaveEditor.tsx
 msgid "Magnet"
 msgstr "Magnet"
+
+#: src/WaveEditor.tsx
+msgid "Magnet: off"
+msgstr "Magnet: off"
+
+#: src/WaveEditor.tsx
+msgid "Magnet: on"
+msgstr "Magnet: on"
 
 #. The bar of main tabs, for screen readers
 #: src/App.tsx
@@ -6646,6 +6667,7 @@ msgid "play, and select the slot"
 msgstr "play, and select the slot"
 
 #: src/keys.ts
+#: src/WaveEditor.tsx
 msgid "Playback"
 msgstr "Playback"
 
@@ -7690,6 +7712,10 @@ msgctxt "Which slots or sounds to export"
 msgid "Selected"
 msgstr "Selected"
 
+#: src/WaveEditor.tsx
+msgid "Selected block"
+msgstr "Selected block"
+
 #: src/TextTab.tsx
 msgid "Selected lines"
 msgstr "Selected lines"
@@ -8508,8 +8534,8 @@ msgid "The current game doesn't have this sound. The banks in the mod bring it b
 msgstr "The current game doesn't have this sound. The banks in the mod bring it back."
 
 #: src/WaveEditor.tsx
-msgid "The cursor, block edges and blocks snap to each other, to the start and to where the original ends"
-msgstr "The cursor, block edges and blocks snap to each other, to the start and to where the original ends"
+msgid "The cursor, block edges and blocks snap to edges: of blocks, the start and where the original ends"
+msgstr "The cursor, block edges and blocks snap to edges: of blocks, the start and where the original ends"
 
 #: src/SettingsTab.tsx
 msgid "The default."
@@ -9743,6 +9769,10 @@ msgstr "Where the block ends in the file"
 #: src/WaveEditor.tsx
 msgid "Where the block starts in the file"
 msgstr "Where the block starts in the file"
+
+#: src/WaveEditor.tsx
+msgid "Where the cursor is"
+msgstr "Where the cursor is"
 
 #: src/Soundtrack.tsx
 msgid "Where the music starts each time it comes on"

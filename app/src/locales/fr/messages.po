@@ -2048,6 +2048,10 @@ msgstr "Noir"
 msgid "Block {n}"
 msgstr ""
 
+#: src/WaveEditor.tsx
+msgid "Blocks"
+msgstr ""
+
 #. Put in a note, in bold, when Bold is clicked with no words selected
 #: src/Notes.tsx
 msgid "bold"
@@ -2688,7 +2692,7 @@ msgid "Click ▶"
 msgstr "Cliquer sur ▶"
 
 #: src/WaveEditor.tsx
-msgid "Click a block to set it up. Drag the body to move it, an edge to trim it, and the squares at the top to fade it."
+msgid "Click a block to set it up. Drag the body to move it, an edge to trim it, and the squares on the top edge to fade it."
 msgstr ""
 
 #: src/Wiki.tsx
@@ -4203,6 +4207,7 @@ msgid "High, because the system asks for more contrast."
 msgstr "Élevé, car le système demande plus de contraste."
 
 #: src/App.tsx
+#: src/WaveEditor.tsx
 msgid "History"
 msgstr "Historique"
 
@@ -4884,6 +4889,14 @@ msgstr "Recherche"
 msgid "Loop"
 msgstr ""
 
+#: src/WaveEditor.tsx
+msgid "Loop: off"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Loop: on"
+msgstr ""
+
 #. Tag on a music segment that repeats until the game moves on
 #: src/CueView.tsx
 msgid "loops"
@@ -4915,6 +4928,14 @@ msgstr "Le passe-bas assourdit le son et le passe-haut l’amincit. Ils s’ajou
 
 #: src/WaveEditor.tsx
 msgid "Magnet"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Magnet: off"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Magnet: on"
 msgstr ""
 
 #. The bar of main tabs, for screen readers
@@ -6646,6 +6667,7 @@ msgid "play, and select the slot"
 msgstr "lire, et sélectionner l'emplacement"
 
 #: src/keys.ts
+#: src/WaveEditor.tsx
 msgid "Playback"
 msgstr "Lecture"
 
@@ -7690,6 +7712,10 @@ msgctxt "Which slots or sounds to export"
 msgid "Selected"
 msgstr "Sélectionnés"
 
+#: src/WaveEditor.tsx
+msgid "Selected block"
+msgstr ""
+
 #: src/TextTab.tsx
 msgid "Selected lines"
 msgstr "Lignes sélectionnées"
@@ -8508,7 +8534,7 @@ msgid "The current game doesn't have this sound. The banks in the mod bring it b
 msgstr "Le jeu actuel n’a pas ce son. Les banques du mod le font revenir."
 
 #: src/WaveEditor.tsx
-msgid "The cursor, block edges and blocks snap to each other, to the start and to where the original ends"
+msgid "The cursor, block edges and blocks snap to edges: of blocks, the start and where the original ends"
 msgstr ""
 
 #: src/SettingsTab.tsx
@@ -9742,6 +9768,10 @@ msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Where the block starts in the file"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Where the cursor is"
 msgstr ""
 
 #: src/Soundtrack.tsx

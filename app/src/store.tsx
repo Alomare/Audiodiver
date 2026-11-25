@@ -435,7 +435,6 @@ function useEditorState() {
   const [boot, setBoot] = useState(0);        // counts the times the game data is read
   const [gameRev, setGameRev] = useState(0);  // bumps when it has been read again (what is open is fetched again)
   const firstBoot = useRef(true);
-  const firstPick = useRef(false); // the first game read was picked as the one the window makes mods for
   const toldLanguage = useRef(false);
   // the global notes: once the core answers (they don't wait for the game), and again whenever the window comes back
   // to the front, since a synced folder can bring another computer's changes
@@ -466,7 +465,8 @@ function useEditorState() {
           // Automatic follows the game's language once the core has found the game (or failed to)
           if (s.stage !== "starting" && s.languages) followAuto(s.languages.game, s.languages.system);
           // each game is read on its own and the window doesn't wait: the Library is fetched again each time one
-          // is ready, the first ready is the game the window makes mods for, and the project opens once
+          // is ready (the game used last stays the one the window makes mods for; App.tsx turns to the other only
+          // when that one isn't found), and the project opens once
           // Helldivers 2 is settled (a Helldivers 1 project waits for that game in the core)
           const hd2 = gameState(s, "hd2").state, hd1 = gameState(s, "hd1").state;
           const now = `${hd2}|${hd1}`;
@@ -475,11 +475,6 @@ function useEditorState() {
             if (stop) return;
             read = now;
             setIndex(ix); setArchives(all); setArchiveItems({}); pending.current.clear();
-            if (!UTILS && !firstPick.current) {
-              firstPick.current = true;
-              const mode = tabs.get().mode, other = mode === "hd1" ? "hd2" : "hd1";
-              if ((mode === "hd1" ? hd1 : hd2) !== "ready" && (other === "hd1" ? hd1 : hd2) === "ready") tabs.setMode(other);
-            }
           }
           if (settled) {
             if (hd2 === "scanning" || hd1 === "scanning") { await new Promise((r) => setTimeout(r, 400)); continue; }

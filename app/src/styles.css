@@ -666,7 +666,7 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .tl-body { flex: 1 1 0; min-height: 0; }
 .tl-rows { grid-area: 1 / 1; min-height: 0; display: flex; flex-direction: column; gap: calc(6px * var(--sp)); }
 .timeline .zoom-foot { padding-left: calc(64px * var(--fs) + 10px); } /* under the waveforms, past the labels */
-.timeline:not(.one) .zoom-foot { padding-left: calc(94px * var(--fs) + 4px); }
+.timeline:not(.one) .zoom-foot { padding-left: calc(98px * var(--fs) + 4px); }
 /* under zoomed-in waveforms: the whole audio, the stretch in view as a handle */
 .wave-scroll { flex: 1 1 0; position: relative; height: 9px; background: var(--bg); border: 1px solid var(--line-soft); border-radius: 2px; cursor: pointer; }
 .wave-thumb { position: absolute; top: 1px; bottom: 1px; min-width: 10px; background: var(--muted); opacity: .55; border-radius: 1px; cursor: grab; }
@@ -687,11 +687,11 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 /* the Waveform Editor's way in, at the end of a lane's label: a small icon that lights up on hover */
 /* the Waveform Editor's way in: a small square in the primary colour, attached to the left edge of each waveform, so
    the two line up. In the Audio tab a row is the label, the square's column and the waveform */
-.timeline:not(.one) .tl-row { grid-template-columns: calc(78px * var(--fs)) calc(16px * var(--fs) + 4px) 1fr; column-gap: 0; }
+.timeline:not(.one) .tl-row { grid-template-columns: calc(78px * var(--fs)) calc(20px * var(--fs) + 4px) 1fr; column-gap: 0; }
 .timeline:not(.one) .tl-label { margin-right: 10px; }
 .tl-edit-at { align-self: center; display: flex; }
-.tl-edit { flex: none; display: inline-grid; place-items: center; width: calc(16px * var(--fs)); height: calc(16px * var(--fs));
-  padding: 0; color: var(--accent-ink); background: var(--accent); border-radius: 2px 0 0 2px; font-size: calc(11px * var(--fs));
+.tl-edit { flex: none; display: inline-grid; place-items: center; width: calc(20px * var(--fs)); height: calc(20px * var(--fs));
+  padding: 0; color: var(--accent-ink); background: var(--accent); border-radius: 2px 0 0 2px; font-size: calc(13px * var(--fs));
   transition: background-color var(--t1); }
 .tl-edit:hover { background: var(--accent-hover); }
 .tl-edit .icon { width: 1em; height: 1em; display: block; }
@@ -733,6 +733,7 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .marker-grip:hover, .marker.dragging .marker-grip { background: var(--accent-fg); }
 .link-inline { margin-left: 10px; color: var(--second-fg); font-size: calc(12px * var(--fs)); text-decoration: underline; }
 .modal-back { position: fixed; inset: 0; background: rgb(0 0 0 / .6); display: grid; place-items: center; z-index: 40; }
+.modal-back.front { z-index: 60; } /* a question over any dialog (Confirm.tsx) */
 .modal { width: min(1100px, 94vw); max-height: 90vh; display: flex; flex-direction: column; gap: 10px; background: var(--raised); border: 1px solid var(--line); padding: 16px 18px; box-shadow: 0 24px 60px var(--shadow); }
 .modal-foot { display: flex; align-items: center; gap: 10px; border-top: 1px solid var(--line-soft); padding-top: 10px; }
 
@@ -1384,10 +1385,12 @@ kbd.none { color: var(--faint); font-weight: 400; }
 @keyframes menu-level { from { transform: scaleY(.35); } to { transform: scaleY(1.15); } }
 /* which game, in the top-right corner, the page's margin from both edges: not a button but a dark track whose slanted
    thumb slides to the game in use. */
-.game-pick { position: absolute; top: var(--home-m); right: var(--home-m); z-index: 1; display: flex; flex-direction: column; align-items: flex-end;
-  gap: calc(8px * var(--sp)); animation: view-in var(--t2) var(--ease) both; }
+/* under the title, above the menu and as wide, with room above and below */
+.game-pick { position: relative; z-index: 1; display: flex; flex-direction: column; gap: calc(8px * var(--sp));
+  max-width: calc(480px * var(--fs)); margin: calc(40px * var(--sp)) 0 0; }
+.game-pick + .home-menu { margin-top: calc(36px * var(--sp)); }
 .game-switch { position: relative; display: grid; grid-template-columns: 1fr 1fr;
-  width: calc(340px * var(--fs)); height: calc(40px * var(--fs)); overflow: hidden; background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); }
+  width: 100%; height: calc(44px * var(--fs)); overflow: hidden; background: var(--bg); box-shadow: inset 0 0 0 1px var(--line); }
 /* no thumb until the game in use is read */
 .game-switch[data-at="none"]::before { opacity: 0; transition: none; }
 .game-switch button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
@@ -1400,8 +1403,8 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .game-scan { display: inline-grid; place-items: center; color: var(--muted); font-size: calc(14px * var(--fs)); }
 .game-scan .icon { display: block; animation: upd-spin 1.1s linear infinite; }
 /* under the track, what is going on: the game being read, or the one not found with a way to choose its folder */
-.game-status { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: baseline; gap: 4px 12px; margin: 0;
-  max-width: calc(340px * var(--fs)); text-align: right; font-size: calc(12.5px * var(--fs)); color: var(--muted); }
+.game-status { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 0;
+  font-size: calc(12.5px * var(--fs)); color: var(--muted); }
 .game-status > span { white-space: nowrap; }
 .game-status[data-state="scanning"] > span { animation: pulse 1.6s var(--ease) infinite; }
 .game-status .link-text { flex: none; font-size: inherit; }
@@ -2374,13 +2377,26 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .wave-ed-src { flex: none; padding: 1px 8px; font-size: calc(12px * var(--fs)); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; border: 1px solid currentColor; }
 .wave-ed-src.game { color: var(--steel); }
 .wave-ed-src.mine { color: var(--accent-fg); max-width: 32ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-transform: none; letter-spacing: 0; font-weight: 600; }
-.wave-ed-tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.wave-ed-tools .btn { gap: 7px; }
-.wave-ed-tools .btn.on { border-color: var(--second-fg); color: var(--second-fg); background: color-mix(in srgb, var(--second-fg) 12%, var(--raised)); }
-.wave-ed-tools .play-btn { min-width: calc(92px * var(--fs)); justify-content: center; }
-.wave-ed-tools .play-btn.on { border-color: var(--accent-fg); color: var(--accent-fg); background: var(--raised); }
-.wave-ed-sep { width: 1px; height: 22px; margin: 0 6px; background: var(--line); }
-.wave-ed-body { flex: none; }
+/* the toolbar: groups (playback, blocks, magnet, history) apart by a gap and a rule, each control the same height */
+.wave-ed-tools { display: flex; align-items: center; gap: 8px 0; flex-wrap: wrap; }
+.wave-ed-group { display: flex; align-items: center; gap: 4px; padding: 0 12px; border-left: 1px solid var(--line-soft); }
+.wave-ed-group:first-child { padding-left: 0; border-left: 0; }
+.wave-ed-tools .spacer + .wave-ed-group { border-left: 0; padding-right: 0; }
+.wave-ed-tools .btn { gap: 7px; height: calc(32px * var(--fs)); }
+.wave-ed-tools .icon-btn { width: calc(32px * var(--fs)); height: calc(32px * var(--fs)); }
+.wave-ed-tools .play-btn { min-width: calc(96px * var(--fs)); justify-content: center; }
+.wave-ed-tools .play-btn.on { border-color: var(--accent-fg); color: var(--accent-fg); }
+/* a toggle (Loop, Magnet): off, a plain button; on, filled in the secondary colour with a frame, plain in any theme */
+.wave-ed-toggle { border: 1px solid transparent; }
+.wave-ed-toggle.btn { border-color: var(--line); }
+.wave-ed-toggle[aria-pressed="true"] { color: var(--second-fg); border-color: var(--second-fg);
+  background: color-mix(in srgb, var(--second-fg) 18%, var(--raised)); }
+.wave-ed-toggle[aria-pressed="true"]:hover:not(:disabled) { color: var(--second-fg); background: color-mix(in srgb, var(--second-fg) 26%, var(--raised)); }
+.wave-ed-time { min-width: calc(76px * var(--fs)); margin-left: 6px; font-size: calc(13px * var(--fs)); font-variant-numeric: tabular-nums;
+  color: var(--second-fg); }
+/* the lanes with the zoom, and the selected block's values in a column to their right */
+.wave-ed-main { display: grid; grid-template-columns: minmax(0, 1fr) calc(244px * var(--fs)); gap: 14px; align-items: start; }
+.wave-ed-body { min-width: 0; }
 .wave-ed-lanes { grid-area: 1 / 1; min-width: 0; display: grid; grid-template-columns: calc(96px * var(--fs)) minmax(0, 1fr); background: var(--bg); border: 1px solid var(--line-soft); }
 .wave-ed-labels { display: grid; border-right: 1px solid var(--line-soft); font-size: calc(13px * var(--fs)); font-weight: 700; }
 .wave-ed-labels > span { display: flex; align-items: center; gap: 4px; padding: 0 8px; }
@@ -2395,17 +2411,21 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .wave-ed-empty > * { pointer-events: auto; }
 .wave-ed-empty p { margin: 0; }
 .wave-ed-empty .btn { gap: 7px; }
-.wave-ed-file { display: block; max-width: 22ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 400;
-  font-size: calc(12px * var(--fs)); color: var(--muted); }
-.wave-ed-fields { flex: none; min-height: calc(40px * var(--fs)); display: flex; align-items: center; border-top: 1px solid var(--line-soft); padding-top: 10px; }
-.wave-ed-fields > p { margin: 0; font-size: calc(13px * var(--fs)); }
-.wave-ed-block { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; font-size: calc(13px * var(--fs)); color: var(--muted); }
-.wave-ed-n { color: var(--text); min-width: calc(64px * var(--fs)); }
-.wave-ed-field { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-.wave-ed-field input { width: calc(76px * var(--fs)); padding: 3px 6px; font: inherit; font-variant-numeric: tabular-nums; color: var(--text); }
-.wave-ed-field .unit { margin-left: -2px; }
-.wave-ed-block .btn { gap: 7px; padding-top: 3px; padding-bottom: 3px; }
-.wave-ed-len b { color: var(--text); font-variant-numeric: tabular-nums; }
+.wave-ed-side { max-height: calc(286px * var(--fs)); overflow: auto; border-left: 1px solid var(--line-soft); padding-left: 14px; }
+.wave-ed-hint { margin: 0; font-size: calc(13px * var(--fs)); color: var(--muted); }
+.wave-ed-block { display: flex; flex-direction: column; gap: 6px; font-size: calc(13px * var(--fs)); color: var(--muted); }
+.wave-ed-block-head { display: flex; flex-direction: column; min-width: 0; }
+.wave-ed-block-head b { color: var(--text); font-size: calc(14px * var(--fs)); }
+.wave-ed-file { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: calc(12px * var(--fs)); color: var(--muted); }
+/* a set of values: label, value and unit on one grid, so the fields line up down the column */
+.wave-ed-set { display: grid; grid-template-columns: 1fr calc(84px * var(--fs)) calc(22px * var(--fs)); gap: 4px 6px; align-items: center;
+  padding-top: 6px; border-top: 1px solid var(--line-soft); }
+.wave-ed-field { display: contents; }
+.wave-ed-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wave-ed-field input { width: 100%; padding: 2px 6px; font: inherit; text-align: right; font-variant-numeric: tabular-nums; color: var(--text); }
+.wave-ed-ro b { padding: 3px 7px; text-align: right; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
+.wave-ed-field .unit, .wave-ed-ro .unit { font-size: calc(12px * var(--fs)); }
+.wave-ed-norm { grid-column: 1 / -1; justify-self: start; gap: 7px; padding-top: 3px; padding-bottom: 3px; }
 .wave-ed-sum { font-size: calc(13px * var(--fs)); color: var(--muted); font-variant-numeric: tabular-nums; }
 .wave-ed-sum b { color: var(--accent-fg); }
 .wave-ed-sum .longer { color: var(--text); }

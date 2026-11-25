@@ -31,7 +31,7 @@ function ConfirmBox({ a }: { a: Ask }) {
   const answer = (x: Answer) => { if (asking === a) set(null); a.resolve(x); };
   const box = useDialog(() => answer(null));
   return (
-    <div className="modal-back" onPointerDown={(e) => { if (e.target === e.currentTarget) answer(null); }}>
+    <div className="modal-back front" onPointerDown={(e) => { if (e.target === e.currentTarget) answer(null); }}>
       <div className="modal narrow confirm" role="alertdialog" aria-modal="true" aria-label={a.title} ref={box} tabIndex={-1}
         onKeyDown={(e) => { if (e.key === "Enter" && e.target === e.currentTarget) { e.preventDefault(); answer("ok"); } }}>
         <h2>{a.title}</h2>
