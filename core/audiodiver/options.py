@@ -34,12 +34,12 @@ MAX_OPTIONS = 16
 MAX_COMBOS = 64  # a Helldivers 1 clip several groups change: at most this many sets of their picks
 GAIN_RANGE = (-12.0, 12.0)  # an option's gain on the base mod
 REP_KEYS = ("audio", "label", "gain_db", "fit_timing", "silence", "fade_in_ms", "fade_out_ms", "start_ms", "end_ms",
-            "delay_ms", "blocks")
+            "delay_ms", "blocks", "layers")
 EXTRA_KEYS = ("original_gain_db", "lowpass", "highpass", "keep_curve")
 EXTRA_DEFAULTS = {"original_gain_db": 0.0, "lowpass": 0, "highpass": 0, "keep_curve": True}
 PATCH_KEYS = (*REP_KEYS, *EXTRA_KEYS, "new_audio")
 UNCHANGED = object()  # what diff_slot gives for a slot left as it was
-BASE = ""  # where new slots go: the base mod (Session.option_target)
+BASE = ""  # where new slots go: the base mod
 OFF = "off"  # a group off, in Obsidian (a choice of its own there): no option may take this id
 
 
@@ -110,6 +110,9 @@ def clean_patch(v, repairs: list, what: str):
             ok = isinstance(x, bool)
         elif k == "new_audio":
             ok = x is False
+        elif k == "layers":
+            from .project import layer_names
+            ok, x = isinstance(x, list), layer_names(x)
         elif k == "blocks":
             # the blocks, checked as a project file's: through a one-slot project
             try:
@@ -227,7 +230,7 @@ def images_of(groups: list[Group]) -> list[str]:
 def _rep_json(r) -> dict:
     return {"audio": r.audio, "label": r.label, "gain_db": r.gain_db, "fit_timing": r.fit_timing, "silence": r.silence,
             "fade_in_ms": r.fade_in_ms, "fade_out_ms": r.fade_out_ms, "start_ms": r.start_ms, "end_ms": r.end_ms,
-            "delay_ms": r.delay_ms, "blocks": [asdict(b) for b in r.blocks]}
+            "delay_ms": r.delay_ms, "blocks": [asdict(b) for b in r.blocks], "layers": list(r.layers)}
 
 
 def records(p) -> dict[int, dict]:
@@ -402,8 +405,7 @@ def capture(real, picks: dict, target, before, after, key=None) -> set[str]:
         """The option a change goes into: None for the base mod."""
         if g is None:
             if target is None:
-                raise OptionError(tr("Choose where changes to {name} go, in the bar over the slots: a group or the "
-                                     "base mod").format(name=name))
+                raise OptionError(tr("Choose where changes to {name} go").format(name=name))
             if target == BASE:
                 return None
             g = next((x for x in real.groups if x.id == target), None)
@@ -411,8 +413,8 @@ def capture(real, picks: dict, target, before, after, key=None) -> set[str]:
                 raise OptionError(tr("Pick an option of the group the changes go to first"))
             grown.add(g.id)
         elif g.id not in on:
-            raise OptionError(tr("{name} belongs to the group {group}, which is off: pick an option of that group to change "
-                                 "it").format(name=name, group=g.name))
+            raise OptionError(tr("{name} belongs to the group {group}. Edit an option of {group} to change it")
+                              .format(name=name, group=g.name))
         return on[g.id]
     # every change placed first, then written: a change that can't go anywhere leaves real as it was
     slots, cues = [], []

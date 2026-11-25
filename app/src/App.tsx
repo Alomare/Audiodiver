@@ -8,7 +8,7 @@ import { combineInbox } from "./CombinePage";
 import { contentInbox } from "./PatchContentPage";
 import { repatchInbox } from "./RepatchPage";
 import { CueView } from "./CueView";
-import { OptionPickers } from "./ModOptions";
+import { EditingLabel } from "./ModOptions";
 import { Home } from "./Home";
 import { ImportModHost } from "./ImportMod";
 import { TUTORIALS_PAGE, TutorialLayer, TutorialPrompt } from "./Tutorial";
@@ -379,7 +379,7 @@ function Shell() {
                 {lib ? <Splitter fraction width={widths[split]} onResize={(f) => setWidths((v) => ({ ...v, [split]: f }))} initial={WIDTHS[split]}
                     panel="left" cssVar="--split" label={t`Resize the list`} />
                   : <Splitter width={widths.left} onResize={(w) => setWidths((v) => ({ ...v, left: w }))} initial={WIDTHS.left} panel="left" label={t`Resize the list`} />}
-                <main className="center">{!lib && <OptionPickers />}<CueView /></main>
+                <main className="center">{!lib && <EditingLabel />}<CueView /></main>
                 <Splitter width={widths[right]} onResize={(w) => setWidths((v) => ({ ...v, [right]: w }))} initial={WIDTHS[right]} panel="right" label={t`Resize the details panel`} />
                 {lib ? <LibraryDetails /> : <Inspector />}
               </div>

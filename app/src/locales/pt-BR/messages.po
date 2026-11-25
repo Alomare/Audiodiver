@@ -1389,10 +1389,6 @@ msgstr "Um pack é um arquivo .audipack com o projeto e todos os arquivos associ
 msgid "A pack is still running."
 msgstr "Um empacotamento ainda está em andamento."
 
-#: src/ModOptions.tsx
-msgid "A picked group, or the mod without groups"
-msgstr ""
-
 #: src/Soundtrack.tsx
 msgid "A random order, and no song plays twice before the others have played"
 msgstr "Uma ordem aleatória, e nenhuma música toca duas vezes antes de as outras tocarem"
@@ -2075,6 +2071,10 @@ msgstr "Voltar para {keys}"
 msgid "Back to Archivo"
 msgstr "Voltar para Archivo"
 
+#: src/ModOptions.tsx
+msgid "Back to Base Mod"
+msgstr ""
+
 #: src/SettingsTab.tsx
 msgid "Back to Blue"
 msgstr "Voltar ao azul"
@@ -2091,6 +2091,10 @@ msgstr "Voltar para nenhuma tecla"
 #: src/SettingsTab.tsx
 msgid "Back to Normal"
 msgstr "Voltar ao normal"
+
+#: src/ModOptions.tsx
+msgid "Back to the base mod"
+msgstr ""
 
 #: src/Inspector.tsx
 msgid "Back to the original level"
@@ -2440,6 +2444,14 @@ msgstr "As alterações também são salvas antes de uma geração e quando o pr
 msgid "Changes go into <0>{project}</0>."
 msgstr "As alterações vão para <0>{project}</0>."
 
+#: src/ModOptions.tsx
+msgid "Changes in the Audio tab go into the base mod"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Changes in the Audio tab go into this option"
+msgstr ""
+
 #: src/RepatchPage.tsx
 msgid "Changes of other kinds in the sound banks, like effects or how a container picks sounds. Each repatch lists them."
 msgstr "Alterações de outros tipos nos bancos de sons, como efeitos ou como um contêiner escolhe os sons. Cada repatch as lista."
@@ -2447,10 +2459,6 @@ msgstr "Alterações de outros tipos nos bancos de sons, como efeitos ou como um
 #: src/CombinePage.tsx
 msgid "Changes of other kinds in the sound banks, like effects. The result lists them for each mod."
 msgstr "Alterações de outros tipos nos bancos de sons, como efeitos. O resultado as lista para cada mod."
-
-#: src/ModOptions.tsx
-msgid "Changes to the slots of the group go into the option picked. Off: the mod without the group."
-msgstr ""
 
 #: src/TextTab.tsx
 msgid "Changing text"
@@ -2764,10 +2772,6 @@ msgstr "Escolher para onde mover o projeto"
 #: src/RepatchPage.tsx
 msgid "Choose ZIPs or Patch Files"
 msgstr "Escolher ZIPs ou arquivos de patch"
-
-#: src/ModOptions.tsx
-msgid "Choose…"
-msgstr ""
 
 #: src/SettingsTab.tsx
 msgid "Chosen here."
@@ -3664,12 +3668,12 @@ msgstr "Cada vez que a música entra, uma das aberturas toca primeiro, depois as
 msgid "Eagle-1"
 msgstr "Águia 1"
 
-#: src/Timeline.tsx
-msgid "Edit every slot of this segment together"
+#: src/ModOptions.tsx
+msgid "Edit"
 msgstr ""
 
-#: src/ModOptions.tsx
-msgid "Edit in Audio Tab"
+#: src/Timeline.tsx
+msgid "Edit every slot of this segment together"
 msgstr ""
 
 #: src/Timeline.tsx
@@ -3690,6 +3694,14 @@ msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "Edit the song"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Editing"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Editing <0>{group}</0>, <1>{option}</1>"
 msgstr ""
 
 #: src/WaveEditor.tsx
@@ -4960,6 +4972,7 @@ msgid "layer"
 msgstr "camada"
 
 #. placeholder {0}: l + 1
+#. placeholder {0}: layer + 1
 #: src/WaveEditor.tsx
 msgid "Layer {0}"
 msgstr ""
@@ -5573,6 +5586,11 @@ msgstr "Nome nos arquivos do jogo"
 msgid "Name of {file}"
 msgstr "Nome de {file}"
 
+#. placeholder {0}: layer + 1
+#: src/WaveEditor.tsx
+msgid "Name of Layer {0}"
+msgstr ""
+
 #: src/CombinePage.tsx
 #: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
@@ -5696,10 +5714,6 @@ msgstr "Novo projeto"
 #: src/Soundtrack.tsx
 msgid "New Project"
 msgstr "Novo projeto"
-
-#: src/ModOptions.tsx
-msgid "New Slots Go To"
-msgstr ""
 
 #: src/CueView.tsx
 msgid "new take"
@@ -6220,9 +6234,7 @@ msgstr ""
 msgid "Of two mods with the same file besides audio, the one lower in the list goes in."
 msgstr "De dois mods com o mesmo arquivo além do áudio, entra o que está mais abaixo na lista."
 
-#. A group for players unticked: none of the options of the group
 #. The radio filter of a voice is off
-#: src/ModOptions.tsx
 #: src/ProjectTab.tsx
 #: src/settings.ts
 #: src/SettingsTab.tsx
@@ -6695,7 +6707,7 @@ msgid "Part {number}"
 msgstr "Parte {number}"
 
 #: src/CueView.tsx
-msgid "Part of this group, which is off here"
+msgid "Part of this group, not being edited"
 msgstr ""
 
 #: src/RepatchPage.tsx
@@ -6803,22 +6815,6 @@ msgstr "Pausar o original de {slot}"
 #: src/ProjectTab.tsx
 msgid "Pelican-1"
 msgstr "Pelicano 1"
-
-#: src/ModOptions.tsx
-msgid "Pick an option of a group to hear it and change the slots of the group"
-msgstr ""
-
-#: src/CueView.tsx
-msgid "Pick an option of the group over the slots to change it"
-msgstr ""
-
-#: src/ModOptions.tsx
-msgid "Pick this option in the Audio tab"
-msgstr ""
-
-#: src/ModOptions.tsx
-msgid "Picked"
-msgstr ""
 
 #. The nth piece of the song cut into the segments (One Song)
 #: src/Soundtrack.tsx
@@ -7519,10 +7515,6 @@ msgstr "Remover todas as cores, tamanhos e estilos"
 #: src/CueView.tsx
 #: src/ModOptions.tsx
 msgid "Remove from Option"
-msgstr ""
-
-#: src/CueView.tsx
-msgid "Remove from Option, in the right-click menu, takes the change away"
 msgstr ""
 
 #: src/IndexTree.tsx
@@ -8967,11 +8959,6 @@ msgstr "A aba Áudio"
 msgid "The banks in the mod stay as the game version it was made for had them. For sounds the game still has, a project or <0>Repatch</0> builds on the current banks."
 msgstr "Os bancos do mod ficam como a versão do jogo para a qual ele foi feito os tinha. Para sons que o jogo ainda tem, um projeto ou o <0>Repatch</0> gera sobre os bancos atuais."
 
-#. The mod without the groups for players
-#: src/ModOptions.tsx
-msgid "The Base Mod"
-msgstr ""
-
 #: src/Soundtrack.tsx
 msgid "The Battle music plays here, at the Battle level"
 msgstr "A música de Batalha toca aqui, no nível de Batalha"
@@ -10209,11 +10196,6 @@ msgstr "Formas de onda"
 msgid "WEM (unchanged from the game)"
 msgstr "WEM (igual ao do jogo)"
 
-#. placeholder {0}: g.name
-#: src/ModOptions.tsx
-msgid "What {0} plays here"
-msgstr ""
-
 #: src/ImportMod.tsx
 msgid "What comes in"
 msgstr "O que entra"
@@ -10306,10 +10288,6 @@ msgstr "Quando dois mods alteram o mesmo banco de sons, só o implantado depois 
 #: src/ImportMod.tsx
 msgid "Where both have audio for a slot, the mod's is used."
 msgstr "Onde os dois têm áudio para um slot, usa-se o do mod."
-
-#: src/ModOptions.tsx
-msgid "Where changes to slots go when no group has them yet"
-msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Where the block ends in the file"

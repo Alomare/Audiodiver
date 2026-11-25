@@ -1175,7 +1175,7 @@ const SlotRow = memo(function SlotRow({ row, a, standIns, gain, selected, now, i
             {slot.absent && <span className="tag" data-tip={NO_AUDIO_TIP}>{t`no audio`}</span>}
             {slot.locked && <LockedTag />}
             {seg.added !== "layer" && <AddedTag slot={slot} />}
-            {choice && <span className={`tag opt-tag${choice.on ? "" : " off"}`} data-tip={choice.on ? t`Changed in this option` : t`Part of this group, which is off here`} data-tip-more={choice.on ? t`Remove from Option, in the right-click menu, takes the change away` : t`Pick an option of the group over the slots to change it`}>{choice.text}</span>}
+            {choice && <span className={`tag opt-tag${choice.on ? "" : " off"}`} data-tip={choice.on ? t`Changed in this option` : t`Part of this group, not being edited`}>{choice.text}</span>}
             {a && !slot.was && choosesReach(slot) && <EveryTag />}
             {!a && standIns && <StandInTag standIns={standIns} cueId={cueId} />}
             {!a && !!gain && <GainTag db={gain} />}
@@ -1207,7 +1207,7 @@ const SlotRow = memo(function SlotRow({ row, a, standIns, gain, selected, now, i
             {slot.absent && <span className="tag" data-tip={NO_AUDIO_TIP}>{t`no audio`}</span>}
             {slot.locked && <LockedTag />}
             <AddedTag slot={slot} />
-            {choice && <span className={`tag opt-tag${choice.on ? "" : " off"}`} data-tip={choice.on ? t`Changed in this option` : t`Part of this group, which is off here`} data-tip-more={choice.on ? t`Remove from Option, in the right-click menu, takes the change away` : t`Pick an option of the group over the slots to change it`}>{choice.text}</span>}
+            {choice && <span className={`tag opt-tag${choice.on ? "" : " off"}`} data-tip={choice.on ? t`Changed in this option` : t`Part of this group, not being edited`}>{choice.text}</span>}
             {a && !slot.was && choosesReach(slot) && <EveryTag />}
             {!a && standIns && <StandInTag standIns={standIns} cueId={cueId} />}
             {!a && !!gain && <GainTag db={gain} />}

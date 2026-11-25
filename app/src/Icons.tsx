@@ -34,7 +34,7 @@ export const GuideIcon = () => (
   </Icon>
 );
 
-export const UndoIcon = () => <Icon><path d="M9 6 4 11l5 5" /><path d="M4 11h10.5a4.75 4.75 0 0 1 0 9.5H10" /></Icon>;
+export const UndoIcon = () => <Icon><path d="M9 4.75 4 9.75l5 5" /><path d="M4 9.75h10.5a4.75 4.75 0 0 1 0 9.5H10" /></Icon>;
 
 // The quick notes' icons (App.tsx, QuickNote): what just happened, at a glance.
 export const CheckIcon = () => <Icon size={1.1} stroke={2.2}><path d="m5 12.5 4.5 4.5L19 7.5" /></Icon>;
@@ -59,7 +59,7 @@ export const FolderIcon = () => <Icon size={1}><path d="M3.5 6.5h6l2 2h9v10h-17z
 export const ZoomInIcon = () => <Icon size={1}><circle cx="10.5" cy="10.5" r="6" /><path d="m15 15 5 5M8 10.5h5M10.5 8v5" /></Icon>;
 export const ZoomOutIcon = () => <Icon size={1}><circle cx="10.5" cy="10.5" r="6" /><path d="m15 15 5 5M8 10.5h5" /></Icon>;
 export const FitIcon = () => <Icon size={1}><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></Icon>;
-export const RedoIcon = () => <Icon><path d="m15 6 5 5-5 5" /><path d="M20 11H9.5a4.75 4.75 0 0 0 0 9.5H14" /></Icon>;
+export const RedoIcon = () => <Icon><path d="m15 4.75 5 5-5 5" /><path d="M20 9.75H9.5a4.75 4.75 0 0 0 0 9.5H14" /></Icon>;
 /** A clock with an arrow turning back: the list of changes to go back or forward to (History, by Undo and Redo).
     It spans what the arrows of Undo and Redo span (4.75 to 19.25 across, 5.75 to 20.25 down), so the three line up. */
 export const HistoryIcon = () => (

@@ -4,7 +4,6 @@ import { Trans } from "@lingui/react/macro";
 import { call, fmtDecimal, optionImageUrl, type ModOption, type OptionGroup, type OptionsPlan } from "./api";
 import { confirm } from "./Confirm";
 import { PlusIcon } from "./Icons";
-import { nav } from "./nav";
 import { useDraft } from "./Page";
 import { useEditor } from "./store";
 import { Help } from "./WikiLinks";
@@ -38,6 +37,8 @@ export function ModOptions() {
       ))}
       <div className="row-btns">
         <button className="btn" onClick={() => void actions.groupAdd()} disabled={p.groups.length >= 16}><PlusIcon /><Trans>Add Group</Trans></button>
+        {live && <button className="btn quiet" onClick={() => void actions.optionPick()} disabled={!Object.keys(p.picks).length}
+          data-tip={t`Changes in the Audio tab go into the base mod`}><Trans>Back to Base Mod</Trans></button>}
       </div>
     </section>
   );
@@ -120,7 +121,7 @@ function OptionRow({ g, o, k, cost }: { g: OptionGroup; o: ModOption; k: number;
     if (!Number.isFinite(v) || v === o.gain_db) { setGain(o.gain_db ? String(o.gain_db) : ""); return; }
     void actions.optionSet(g.id, o.id, { gain_db: Math.max(-12, Math.min(12, v)) });
   };
-  const edit = async () => { await actions.optionPick(g.id, o.id); nav.go("editor"); };
+  const edit = () => void (picked ? actions.optionPick() : actions.optionPick(g.id, o.id));
   const what = changes(o, cost);
   const remove = async () => {
     const last = g.options.length === 1;
@@ -137,8 +138,9 @@ function OptionRow({ g, o, k, cost }: { g: OptionGroup; o: ModOption; k: number;
       <Field className="opt-field opt-about" value={o.description} max={500} label={t`Description of ${o.name}`} placeholder={t`Description (Optional)`}
         save={(description) => void actions.optionSet(g.id, o.id, { description })} />
       {what && <span className="opt-what">{what}</span>}
-      <button className="btn quiet small-btn opt-edit" onClick={() => void edit()} aria-pressed={picked} data-tip={t`Pick this option in the Audio tab`}>
-        {picked ? t`Picked` : t`Edit in Audio Tab`}</button>
+      <button className="btn quiet small-btn opt-edit" onClick={edit} aria-pressed={picked}
+        data-tip={picked ? t`Back to the base mod` : t`Changes in the Audio tab go into this option`}>
+        {picked ? t`Editing` : t`Edit`}</button>
       <label className="opt-gain" data-tip={t`Added to every slot the mod changes outside the groups, from −12 to +12 dB`}>
         <span><Trans>Gain</Trans></span>
         <input type="number" step={0.5} min={-12} max={12} value={gain} placeholder="0" onChange={(e) => setGain(e.target.value)} onBlur={saveGain}
@@ -153,40 +155,18 @@ function OptionRow({ g, o, k, cost }: { g: OptionGroup; o: ModOption; k: number;
   );
 }
 
-/** Over the Audio tab: a picker for each group, the option it plays and edits or Off, and where changes to slots no
-    group has go. Shown once the project has a group. */
-export function OptionPickers() {
+/** Over the Audio tab while an option is being edited: which one, and the way back to the base mod. */
+export function EditingLabel() {
   const { project, actions } = useEditor();
-  if (!project?.groups.length) return null;
-  const picked = project.groups.filter((g) => project.picks[g.id]);
-  const target = project.target;
+  const [gid, oid] = Object.entries(project?.picks ?? {})[0] ?? [];
+  const g = project?.groups.find((x) => x.id === gid);
+  const o = g?.options.find((x) => x.id === oid);
+  if (!g || !o) return null;
+  const group = g.name, option = o.name;
   return (
-    <div className={`opt-bar${picked.length ? " on" : ""}`} role="group" aria-label={t`Options for Players`}>
-      {project.groups.map((g) => {
-        const pick = project.picks[g.id] ?? "";
-        return (
-          <label key={g.id} className={`opt-pick${pick ? " on" : ""}`} data-tip={t`What ${g.name} plays here`}
-            data-tip-more={t`Changes to the slots of the group go into the option picked. Off: the mod without the group.`}>
-            <span className="opt-pick-name">{g.name}</span>
-            <select value={pick} onChange={(e) => void actions.optionPick(g.id, e.target.value || undefined)}>
-              <option value="">{t({ message: "Off", comment: "A group for players unticked: none of the options of the group" })}</option>
-              {g.options.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
-            </select>
-          </label>
-        );
-      })}
-      {picked.length > 0 && (
-        <label className={`opt-pick opt-target${target === null ? " ask" : ""}`}
-          data-tip={t`Where changes to slots go when no group has them yet`} data-tip-more={t`A picked group, or the mod without groups`}>
-          <span className="opt-pick-name"><Trans>New Slots Go To</Trans></span>
-          <select value={target ?? "?"} onChange={(e) => void actions.optionTarget(e.target.value)}>
-            {target === null && <option value="?" disabled>{t`Choose…`}</option>}
-            <option value="">{t({ message: "The Base Mod", comment: "The mod without the groups for players" })}</option>
-            {picked.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
-          </select>
-        </label>
-      )}
-      <Help tip={t`Pick an option of a group to hear it and change the slots of the group`} page="mod-options#in-the-audio-tab" />
+    <div className="opt-editing" role="status">
+      <span><Trans>Editing <b>{group}</b>, <b>{option}</b></Trans></span>
+      <button className="link-inline" onClick={() => void actions.optionPick()}>{t`Back to Base Mod`}</button>
     </div>
   );
 }

@@ -30,7 +30,7 @@ import { Help } from "./WikiLinks";
     Blocks sit on layers: lanes under their track that only keep blocks apart to see and reach them; a block plays
     the same on any. Layers are added, reordered by their grip, resized by their bottom edge and deleted (one with
     blocks asks first). Each lane, the originals' too, has a box: Play plays the lanes ticked, and Export writes them
-    to a file; Apply keeps every layer. The lanes playing pulse in their colour.
+    to a file; Apply keeps every layer. The lanes playing have a tint of their colour.
 
     In a music segment (`cues`), the segment's Entry and Exit cue points stand on the time line, dragged by their flags
     on the ruler, and Play in Context plays the segment between the one before it and the one after, handed over as
@@ -61,7 +61,6 @@ const LAYER = { h: 120, many: 84, min: 48, max: 320, pad: 6 }; // a layer's heig
 const MAX_LAYERS = 32;  // the core's MAX_LAYERS
 const BUCKET = 64;      // frames per level in the summary of a file
 const DOUBLE_MS = 400;  // a second click this soon after the first is a double click, which plays instead of picking
-const PULSE_S = 1.4;    // one breath of the lanes playing
 const CONTEXT_MS = 3000; // how much of the segments around a segment Play in Context plays
 const CUE_GAP = 50;     // ms Entry stays before Exit
 // the cue points' names, on the flags (as on the waveforms, Timeline.tsx)
@@ -318,7 +317,6 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
   const entryAt = cueLive?.entry ?? cueOver.entry ?? autoEntry;
   const exitAt = cueLive?.exit ?? cueOver.exit ?? autoExit;
   const cuesChanged = !!cues && (cueOver.entry !== cues.entry || cueOver.exit !== cues.exit);
-  const changed = !!start.current && (tracks.some((_, i) => trackChanged(i)) || cuesChanged);
 
   // --- the lanes: for each track, its original (a slot's) and its layers; a track has as many layers as asked for,
   // and at least one past the last a block is on (an Undo can bring one back); heights and boxes go by layer
@@ -328,6 +326,13 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
   const baseH = many ? LAYER.many : LAYER.h;
   const hOf = (track: number, layer: number) => heights[lk(track, layer)] ?? baseH;
   const [plays, setPlays] = useState<Record<string, boolean>>({});
+  // the layers' names ("" or none: "Layer n"), saved with Apply for a slot's track
+  const namesAt = (src: (i: number) => string[] | undefined) => Object.fromEntries(tracks.flatMap((_, i) => (src(i) ?? []).map((n, l) => [lk(i, l), n] as const).filter(([, n]) => n)));
+  const [names, setNames] = useState<Record<string, string>>(() => namesAt((i) => assign(i)?.layers));
+  const namesStart = useRef(names);
+  const namesOf = (i: number) => { const out = range(0, layersOf(i)).map((l) => (names[lk(i, l)] ?? "").trim()); while (out.length && !out[out.length - 1]) out.pop(); return out; };
+  const namesChanged = (i: number) => JSON.stringify(namesOf(i)) !== JSON.stringify(range(0, MAX_LAYERS).map((l) => (namesStart.current[lk(i, l)] ?? "").trim()).filter((_, l, a) => a.slice(l).some(Boolean)));
+  const changed = !!start.current && (tracks.some((_, i) => trackChanged(i) || (!!tracks[i].source && namesChanged(i))) || cuesChanged);
   const playsOf = (track: number, layer: number) => plays[lk(track, layer)] ?? true;
   const [refPlays, setRefPlays] = useState<Record<number, boolean>>({});
   const [active, setActive] = useState<{ track: number; layer: number }>({ track: 0, layer: 0 });
@@ -552,6 +557,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
     setAsks((x) => ({ ...x, [track]: n0 - 1 }));
     setHeights((h) => rekey(h, track, now));
     setPlays((p) => rekey(p, track, now));
+    setNames((p) => rekey(p, track, now));
     setActive((x) => (x.track !== track ? x : { track, layer: Math.max(0, x.layer > i ? x.layer - 1 : x.layer === i ? i - 1 : x.layer) }));
   };
   /** Moves a layer to another place in its track: its blocks go along, as do its height, its box and the layer worked on. */
@@ -563,6 +569,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
     if (blocks.some((b) => b.track === track && now(layerOf(b)) !== layerOf(b))) commit(blocks.map((b) => (b.track === track ? { ...b, layer: now(layerOf(b)) } : b)));
     setHeights((h) => rekey(h, track, now));
     setPlays((p) => rekey(p, track, now));
+    setNames((p) => rekey(p, track, now));
     setActive((x) => (x.track === track ? { track, layer: now(x.layer) } : x));
   };
   const [reorder, setReorder] = useState<{ track: number; from: number; to: number; dy: number } | null>(null);
@@ -631,7 +638,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
 
   // --- Apply: each track that changed (a slot's blocks, a file saved anew for onFile), and the cue points
   const [saving, setSaving] = useState(false);
-  const applies = tracks.map((_, i) => (trackChanged(i) || editOriginal(i)) && blocks.some((b) => b.track === i));
+  const applies = tracks.map((x, i) => (trackChanged(i) || editOriginal(i) || (!!x.source && namesChanged(i))) && blocks.some((b) => b.track === i));
   const apply = async () => {
     if (saving || !blocks.length || !(applies.some(Boolean) || cuesChanged)) return;
     const replaced = tracks.flatMap((_, i) => { const a = assign(i); return applies[i] && editOriginal(i) && a && !a.silence ? [a.name] : []; });
@@ -649,7 +656,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
           const got = await call<{ path: string }>("edit_render", { file: full(x.file), blocks: list });
           await onFile?.(got.path);
         } catch (e: any) { notify("bad", String(e?.message ?? e)); ok = false; }
-      } else ok = await actions.setEdit(x.source!, list, editOriginal(i), editOriginal(i) ? t`${x.name} (edited original)` : undefined);
+      } else ok = await actions.setEdit(x.source!, list, editOriginal(i), editOriginal(i) ? t`${x.name} (edited original)` : undefined, namesOf(i));
     }
     if (ok && cues && cuesChanged) await actions.segmentOverride(cues.segment, cueOver.entry, cueOver.exit);
     setSaving(false);
@@ -730,10 +737,8 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
       g.globalAlpha = 1;
     };
     g.fillStyle = v("--bg"); g.fillRect(0, RULER, width, height - RULER);
-    // the lanes playing breathe in their colour (still, with the animations off); the layer worked on a shade lighter
-    const still = document.documentElement.dataset.motion === "off";
-    const breath = playing === "edit" ? (still ? 0.6 : 0.5 + 0.5 * Math.sin((performance.now() / 1000) * ((2 * Math.PI) / PULSE_S))) : 0;
-    const glow = (top: number, h: number, colour: string) => { g.fillStyle = colour; g.globalAlpha = 0.05 + 0.09 * breath; g.fillRect(0, top, width, h); g.globalAlpha = 1; };
+    // the lanes playing have a see-through tint of their colour; the layer worked on a shade lighter
+    const glow = (top: number, h: number, colour: string) => { g.fillStyle = colour; g.globalAlpha = 0.1; g.fillRect(0, top, width, h); g.globalAlpha = 1; };
     lanes.forEach((l, k) => {
       const playingHere = playing === "edit" && sounding.has(l.kind === "ref" ? `ref:${l.track}` : lk(l.track, l.layer));
       if (l.kind === "ref") {
@@ -1150,7 +1155,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
                 data-tip={curving ? t`Volume Curves: on` : t`Volume Curves: off`} data-tip-key="V"
                 data-tip-more={t`Shows a line over each block, from full at the top to silence at the foot. Click the line to add a point, drag a point to shape the volume, double-click a point to remove it`}><CurveIcon /></button>
             </div>
-            <div className="wave-ed-group" role="group" aria-label={t`History`}>
+            <div className="wave-ed-group wave-ed-hist" role="group" aria-label={t`History`}>
               {tool(<UndoIcon />, t`Undo`, undo, hist.at === 0, "Ctrl+Z")}
               {tool(<RedoIcon />, t`Redo`, redo, hist.at >= hist.list.length - 1, "Ctrl+Y")}
               {tool(<ResetIcon />, t`Reset`, reset, !ready, undefined, t`Back to the whole file, as it is, on one layer`)}
@@ -1192,7 +1197,10 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
                       data-tip={n > 1 ? t`Drag to reorder the layers` : undefined}><GripIcon /></span>
                     <input type="checkbox" className="wave-ed-check" checked={playsOf(i, layer)} aria-label={t`Play Layer ${layer + 1}`} data-tip={checkTip} data-tip-more={checkMore}
                       onChange={(e) => setPlays((p) => ({ ...p, [lk(i, layer)]: e.target.checked }))} />
-                    <LayerName n={layer + 1} />
+                    {tracks[i].source ? <input className="wave-ed-layer-name" value={names[lk(i, layer)] ?? ""} placeholder={t`Layer ${layer + 1}`} maxLength={40}
+                      spellCheck={false} aria-label={t`Name of Layer ${layer + 1}`} data-tip={names[lk(i, layer)] || undefined} data-tip-clip onChange={(e) => { const v = e.target.value; setNames((p) => ({ ...p, [lk(i, layer)]: v })); }}
+                      onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") e.currentTarget.blur(); }} />
+                      : <LayerName n={layer + 1} />}
                     <button className="icon-btn small" onClick={() => void deleteLayer(i, layer)} disabled={n < 2} aria-label={t`Delete Layer ${layer + 1}`}
                       data-tip={t`Delete the layer`} data-tip-more={t`With the blocks on it`}><TrashIcon /></button>
                     <span className="wave-ed-layer-size" role="separator" aria-orientation="horizontal" aria-label={t`Resize Layer ${layer + 1}`}
@@ -1252,7 +1260,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
       {exporting && <ExportPanel what={[
         ...tracks.flatMap((x, i) => (refPlays[i] && refOf(i) ? [many ? t`${x.name}, original` : t`Original`] : [])),
         ...tracks.flatMap((x, i) => range(0, layersOf(i)).filter((l) => playsOf(i, l) && blocks.some((b) => b.track === i && layerOf(b) === l))
-          .map((l) => (many ? t`${x.name}, layer ${l + 1}` : t`Layer ${l + 1}`)))]}
+          .map((l) => { const nm = names[lk(i, l)]?.trim(); return many ? (nm ? `${x.name}, ${nm}` : t`${x.name}, layer ${l + 1}`) : nm || t`Layer ${l + 1}`; }))]}
         onExport={doExport} onClose={() => setExporting(false)} />}
     </div>, document.body);
 }

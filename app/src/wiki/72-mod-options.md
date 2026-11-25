@@ -19,21 +19,21 @@ Groups are made on the [Project](app:project) tab, under **Options for Players**
 
 Under each option, a line says what it changes and about how much it adds to the mod.
 
-## In the Audio tab
+## Editing an option
 
-Once the project has a group, a bar over the [Audio](app:editor) tab has a picker for each group: **Off**, or one of the group's options. **Edit in Audio Tab** on an option picks it there too.
+**Edit** on an option makes the [Audio](app:editor) tab edit that option. The option is highlighted on the Project tab, and a label over the Audio tab says **Editing** with the group and option. **Back to Base Mod**, on either tab, goes back to editing the mod itself. One option is edited at a time.
 
-What the pickers pick is what plays in the Audio tab, so any combination can be heard together. Changes to slots go where the slots belong:
+While an option is edited, the Audio tab plays the mod with that option picked. Changes to slots go into the option:
 
-- A slot a group already has goes into the option picked in that group. The row carries the group's name and the option's.
-- A slot no group has yet goes where **New Slots Go To** says: one of the groups picked, or **The Base Mod**. With one group picked, it goes there. With several, choose first.
-- A slot whose group is **Off** can't change until an option of that group is picked.
+- A slot of the group goes into the option. The row carries the group's name and the option's.
+- A slot no group has yet joins the group.
+- A slot of another group can't change. The row carries that group's name, dashed.
 
 Everything done to slots counts: dropping files, Copy and Paste, Silence, the gain, filters and fades in the details, cue points and the [Waveform Editor](wiki:timing-and-loops#the-waveform-editor). The details panel says which option changes a slot and what plays without the group.
 
 **Remove from Option**, in the right-click menu of a slot, takes the change away: the slot then plays as without the group. A slot no option of the group changes any more is the base mod's again.
 
-New takes, layers and Isolate Audio change what the sounds are made of, so they belong to the base mod. Turn every group **Off** to use them.
+New takes, layers and Isolate Audio change what the sounds are made of, so they belong to the base mod. Go back to the base mod to use them.
 
 ## Gain
 

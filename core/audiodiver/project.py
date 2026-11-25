@@ -238,6 +238,18 @@ LEGACY_SILENCE = "silence (skipped).wav"  # what Skip wrote into the project fol
 BLOCK_GAIN_DB = (-60.0, 24.0)  # a block's own gain in the Waveform Editor
 MAX_BLOCKS = 256
 MAX_LAYERS = 32  # the Waveform Editor's layers: lanes to keep blocks apart in, which all play together
+LAYER_NAME_MAX = 40
+
+
+def layer_names(v) -> list[str]:
+    """Layer names as a project keeps them: text on one line, at most LAYER_NAME_MAX characters each, MAX_LAYERS of
+    them, without the unnamed ones at the end. Anything else is dropped."""
+    if not isinstance(v, list):
+        return []
+    out = [" ".join(x.split())[:LAYER_NAME_MAX] if isinstance(x, str) else "" for x in v[:MAX_LAYERS]]
+    while out and not out[-1]:
+        out.pop()
+    return out
 MAX_CURVE = 256  # points on a block's volume curve
 
 
@@ -296,6 +308,8 @@ class Replacement:
     delay_ms: float = 0.0
     # the Waveform Editor's blocks: when there are any, they say what plays, in place of the stretch, delay and fades
     blocks: list[Block] = field(default_factory=list)
+    # the names of the Waveform Editor's layers, from the top ("" for the default "Layer n"); only what is named
+    layers: list[str] = field(default_factory=list)
 
     @property
     def shaped(self) -> bool:
@@ -609,7 +623,8 @@ class Project:
                                     start_ms=number(r.get("start_ms", 0.0), 0.0, *TRIM_MS, trim_of.format(name=of, id=target)),
                                     end_ms=number(r.get("end_ms", 0.0), 0.0, *TRIM_MS, trim_of.format(name=of, id=target)),
                                     delay_ms=number(r.get("delay_ms", 0.0), 0.0, *TRIM_MS, trim_of.format(name=of, id=target)),
-                                    blocks=[] if silence else blocks_of(r.get("blocks"), trim_of.format(name=of, id=target))))
+                                    blocks=[] if silence else blocks_of(r.get("blocks"), trim_of.format(name=of, id=target)),
+                                    layers=layer_names(r.get("layers"))))
         icon = d.get("icon") or {}
         if isinstance(icon, str):  # an image path, before the icon had a frame
             icon = {"image": icon}
@@ -712,6 +727,8 @@ class Project:
             for k in ("fade_in_ms", "fade_out_ms", "start_ms", "end_ms", "delay_ms"):
                 if not out[k]:
                     del out[k]
+            if not r.layers:
+                del out["layers"]
             if not r.blocks:
                 del out["blocks"]
             else:  # each block without what is at its default

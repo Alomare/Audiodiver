@@ -1389,10 +1389,6 @@ msgstr "A pack is one .audipack file with the project and all associated files, 
 msgid "A pack is still running."
 msgstr "A pack is still running."
 
-#: src/ModOptions.tsx
-msgid "A picked group, or the mod without groups"
-msgstr "A picked group, or the mod without groups"
-
 #: src/Soundtrack.tsx
 msgid "A random order, and no song plays twice before the others have played"
 msgstr "A random order, and no song plays twice before the others have played"
@@ -2075,6 +2071,10 @@ msgstr "Back to {keys}"
 msgid "Back to Archivo"
 msgstr "Back to Archivo"
 
+#: src/ModOptions.tsx
+msgid "Back to Base Mod"
+msgstr "Back to Base Mod"
+
 #: src/SettingsTab.tsx
 msgid "Back to Blue"
 msgstr "Back to Blue"
@@ -2091,6 +2091,10 @@ msgstr "Back to no key"
 #: src/SettingsTab.tsx
 msgid "Back to Normal"
 msgstr "Back to Normal"
+
+#: src/ModOptions.tsx
+msgid "Back to the base mod"
+msgstr "Back to the base mod"
 
 #: src/Inspector.tsx
 msgid "Back to the original level"
@@ -2440,6 +2444,14 @@ msgstr "Changes are also saved before a build and when the project or Audiodiver
 msgid "Changes go into <0>{project}</0>."
 msgstr "Changes go into <0>{project}</0>."
 
+#: src/ModOptions.tsx
+msgid "Changes in the Audio tab go into the base mod"
+msgstr "Changes in the Audio tab go into the base mod"
+
+#: src/ModOptions.tsx
+msgid "Changes in the Audio tab go into this option"
+msgstr "Changes in the Audio tab go into this option"
+
 #: src/RepatchPage.tsx
 msgid "Changes of other kinds in the sound banks, like effects or how a container picks sounds. Each repatch lists them."
 msgstr "Changes of other kinds in the sound banks, like effects or how a container picks sounds. Each repatch lists them."
@@ -2447,10 +2459,6 @@ msgstr "Changes of other kinds in the sound banks, like effects or how a contain
 #: src/CombinePage.tsx
 msgid "Changes of other kinds in the sound banks, like effects. The result lists them for each mod."
 msgstr "Changes of other kinds in the sound banks, like effects. The result lists them for each mod."
-
-#: src/ModOptions.tsx
-msgid "Changes to the slots of the group go into the option picked. Off: the mod without the group."
-msgstr "Changes to the slots of the group go into the option picked. Off: the mod without the group."
 
 #: src/TextTab.tsx
 msgid "Changing text"
@@ -2764,10 +2772,6 @@ msgstr "Choose where to move the project"
 #: src/RepatchPage.tsx
 msgid "Choose ZIPs or Patch Files"
 msgstr "Choose ZIPs or Patch Files"
-
-#: src/ModOptions.tsx
-msgid "Choose…"
-msgstr "Choose…"
 
 #: src/SettingsTab.tsx
 msgid "Chosen here."
@@ -3664,13 +3668,13 @@ msgstr "Each time the music comes on, one of the openings plays first, then the 
 msgid "Eagle-1"
 msgstr "Eagle-1"
 
+#: src/ModOptions.tsx
+msgid "Edit"
+msgstr "Edit"
+
 #: src/Timeline.tsx
 msgid "Edit every slot of this segment together"
 msgstr "Edit every slot of this segment together"
-
-#: src/ModOptions.tsx
-msgid "Edit in Audio Tab"
-msgstr "Edit in Audio Tab"
 
 #: src/Timeline.tsx
 msgid "Edit Segment"
@@ -3691,6 +3695,14 @@ msgstr "Edit the original in the Waveform Editor"
 #: src/Soundtrack.tsx
 msgid "Edit the song"
 msgstr "Edit the song"
+
+#: src/ModOptions.tsx
+msgid "Editing"
+msgstr "Editing"
+
+#: src/ModOptions.tsx
+msgid "Editing <0>{group}</0>, <1>{option}</1>"
+msgstr "Editing <0>{group}</0>, <1>{option}</1>"
 
 #: src/WaveEditor.tsx
 msgid "Editing the original: the result becomes the new audio"
@@ -4960,6 +4972,7 @@ msgid "layer"
 msgstr "layer"
 
 #. placeholder {0}: l + 1
+#. placeholder {0}: layer + 1
 #: src/WaveEditor.tsx
 msgid "Layer {0}"
 msgstr "Layer {0}"
@@ -5573,6 +5586,11 @@ msgstr "Name in the game files"
 msgid "Name of {file}"
 msgstr "Name of {file}"
 
+#. placeholder {0}: layer + 1
+#: src/WaveEditor.tsx
+msgid "Name of Layer {0}"
+msgstr "Name of Layer {0}"
+
 #: src/CombinePage.tsx
 #: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
@@ -5696,10 +5714,6 @@ msgstr "New project"
 #: src/Soundtrack.tsx
 msgid "New Project"
 msgstr "New Project"
-
-#: src/ModOptions.tsx
-msgid "New Slots Go To"
-msgstr "New Slots Go To"
 
 #: src/CueView.tsx
 msgid "new take"
@@ -6220,9 +6234,7 @@ msgstr "Obsidian then treats a build as an update to that mod"
 msgid "Of two mods with the same file besides audio, the one lower in the list goes in."
 msgstr "Of two mods with the same file besides audio, the one lower in the list goes in."
 
-#. A group for players unticked: none of the options of the group
 #. The radio filter of a voice is off
-#: src/ModOptions.tsx
 #: src/ProjectTab.tsx
 #: src/settings.ts
 #: src/SettingsTab.tsx
@@ -6695,8 +6707,8 @@ msgid "Part {number}"
 msgstr "Part {number}"
 
 #: src/CueView.tsx
-msgid "Part of this group, which is off here"
-msgstr "Part of this group, which is off here"
+msgid "Part of this group, not being edited"
+msgstr "Part of this group, not being edited"
 
 #: src/RepatchPage.tsx
 msgid "Partly"
@@ -6803,22 +6815,6 @@ msgstr "Pause the original {slot}"
 #: src/ProjectTab.tsx
 msgid "Pelican-1"
 msgstr "Pelican-1"
-
-#: src/ModOptions.tsx
-msgid "Pick an option of a group to hear it and change the slots of the group"
-msgstr "Pick an option of a group to hear it and change the slots of the group"
-
-#: src/CueView.tsx
-msgid "Pick an option of the group over the slots to change it"
-msgstr "Pick an option of the group over the slots to change it"
-
-#: src/ModOptions.tsx
-msgid "Pick this option in the Audio tab"
-msgstr "Pick this option in the Audio tab"
-
-#: src/ModOptions.tsx
-msgid "Picked"
-msgstr "Picked"
 
 #. The nth piece of the song cut into the segments (One Song)
 #: src/Soundtrack.tsx
@@ -7520,10 +7516,6 @@ msgstr "Remove every colour, size and style"
 #: src/ModOptions.tsx
 msgid "Remove from Option"
 msgstr "Remove from Option"
-
-#: src/CueView.tsx
-msgid "Remove from Option, in the right-click menu, takes the change away"
-msgstr "Remove from Option, in the right-click menu, takes the change away"
 
 #: src/IndexTree.tsx
 #: src/Library.tsx
@@ -8967,11 +8959,6 @@ msgstr "The Audio tab"
 msgid "The banks in the mod stay as the game version it was made for had them. For sounds the game still has, a project or <0>Repatch</0> builds on the current banks."
 msgstr "The banks in the mod stay as the game version it was made for had them. For sounds the game still has, a project or <0>Repatch</0> builds on the current banks."
 
-#. The mod without the groups for players
-#: src/ModOptions.tsx
-msgid "The Base Mod"
-msgstr "The Base Mod"
-
 #: src/Soundtrack.tsx
 msgid "The Battle music plays here, at the Battle level"
 msgstr "The Battle music plays here, at the Battle level"
@@ -10209,11 +10196,6 @@ msgstr "Waveforms"
 msgid "WEM (unchanged from the game)"
 msgstr "WEM (unchanged from the game)"
 
-#. placeholder {0}: g.name
-#: src/ModOptions.tsx
-msgid "What {0} plays here"
-msgstr "What {0} plays here"
-
 #: src/ImportMod.tsx
 msgid "What comes in"
 msgstr "What comes in"
@@ -10306,10 +10288,6 @@ msgstr "When two mods change the same sound bank, only the one deployed later pl
 #: src/ImportMod.tsx
 msgid "Where both have audio for a slot, the mod's is used."
 msgstr "Where both have audio for a slot, the mod's is used."
-
-#: src/ModOptions.tsx
-msgid "Where changes to slots go when no group has them yet"
-msgstr "Where changes to slots go when no group has them yet"
 
 #: src/WaveEditor.tsx
 msgid "Where the block ends in the file"

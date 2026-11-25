@@ -38,14 +38,14 @@ The audio sits on a time line as **blocks**. Each block is a stretch of a file, 
 - **Volume Curves** (V) shows a line over each block: full level at the top of the block, silence at the foot. Click the line to add a point, and drag a point to shape the volume over time. A double click on a point, or Alt and a click, removes it. While a point is dragged, the level shows beside it in dB. The points stay with the audio when a block is trimmed or split, and **Flatten Curve** beside the time line takes them all away.
 - **Add Audio** puts audio files on the time line as new blocks, one after the other from the cursor. Dropping files on the editor does the same, and **Ctrl+V** pastes slots copied with Ctrl+C in the list (their new audio as it plays, or the original) or audio files copied in Explorer. One slot can be made from several files this way, and a slot without new audio can start from files or from the original.
 - Beside the time line, type exact values for the selected block in milliseconds.
-- **Play** (Space) plays from the cursor, and **Loop** (L) plays the selected blocks over and over. A double click on the time line plays from there. The lanes playing pulse in their colour.
+- **Play** (Space) plays from the cursor, and **Loop** (L) plays the selected blocks over and over. A double click on the time line plays from there. The lanes playing are tinted in their colour.
 - Ctrl+Z and Ctrl+Y undo and redo inside the editor. **Reset** goes back to the whole file as it is.
 
 ### Layers
 
 Blocks sit on **layers**, one under the other. Layers keep blocks apart so each one is easy to see and reach. Every layer plays, all together, and a block sounds the same on any layer.
 
-- **New Layer**, under the time line, adds a layer. New audio from Add Audio, a drop or Ctrl+V goes onto the layer last clicked, shown in yellow.
+- **New Layer**, under the time line, adds a layer. Click a layer's name to rename it; Apply keeps the names with the slot. New audio from Add Audio, a drop or Ctrl+V goes onto the layer last clicked, shown in yellow.
 - Drag a block up or down to move it to another layer.
 - Drag the dots before a layer's name to reorder the layers, and drag the bottom edge of a layer's name to make it taller or shorter. A double click on that edge sets it back.
 - The bin deletes a layer. A layer with blocks on it asks first, and Undo brings the blocks back.

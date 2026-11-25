@@ -211,13 +211,11 @@ class Session:
         self.stage, self.load_error = "starting", None
         self.game_where = {"path": None, "how": None}  # the data folder in use (or tried) and how it was found
         self.project: Project | None = None
-        # the Audio tab's pickers of the groups for players (options.py): {group id: option id} of the groups it
-        # plays and edits; target: where changes to slots no group has go (a group id, options.BASE for the base mod,
-        # None while several groups are picked and the person hasn't said); _view is the project with the picks,
-        # made again after every change (_shown)
+        # what the Audio tab edits (options.py): one option of one group ({group id: option id}), or the base mod
+        # ({}); target: where changes to slots no group has go, that group or options.BASE; _view is the project with
+        # the pick, made again after every change (_shown)
         self.picks: dict[str, str] = {}
         self.target: str | None = ""
-        self._target_chosen = False
         self._view: Project | None = None
         self.undo_stack, self.redo_stack = [], []  # (label, the project before or after it, when it was made in ms)
         self.opened_at = _now_ms()  # when the project open now was opened (the History list)
@@ -1516,7 +1514,7 @@ class Session:
                 "fade_in_ms": min(r.blocks, key=lambda b: b.at_ms).fade_in_ms if r.blocks else r.fade_in_ms,
                 "fade_out_ms": max(r.blocks, key=lambda b: b.at_ms + b.length_ms).fade_out_ms if r.blocks else r.fade_out_ms,
                 "start_ms": r.start_ms, "end_ms": r.end_ms, "delay_ms": r.delay_ms,
-                "blocks": [asdict(b) for b in r.blocks],
+                "blocks": [asdict(b) for b in r.blocks], "layers": list(r.layers),
                 "name": tr("Silence") if r.silence else Path(r.audio).name, "cues": [str(c) for c in cues],
                 # what plays (its stretch after its delay), and the file's own length
                 "duration_ms": heard_ms(r, file_ms), "file_ms": file_ms}
@@ -1624,9 +1622,7 @@ class Session:
             try:
                 self._shown()  # picks an undo left without their group go here
                 if self.picks and label in self.MAIN_ONLY:
-                    raise EditorError(tr("Turn every group off in the bar over the slots to add takes or layers, or to "
-                                         "isolate audio: options change the audio of slots, not what the sounds are "
-                                         "made of"))
+                    raise EditorError(tr("Go back to the base mod to add takes or layers, or to isolate audio"))
                 if self.picks and label in self.CHOICE_EDITS:
                     view = self._shown()
                     was = options.copy(view)
@@ -2360,16 +2356,19 @@ class Session:
                 "entry_ms": round(start + plan.entry_ms, 1), "exit_ms": round(start + plan.exit_ms, 1),
                 "before": k > 0, "after": k < len(order) - 1}
 
-    def edit_set(self, source, blocks, original=False, label=None):
+    def edit_set(self, source, blocks, original=False, label=None, layers=None):
         """The Waveform Editor's work on a slot, as one undo step: the blocks its new audio plays as (each a stretch
         of a file at a time of its own, with fades and a gain). A block plays the slot's file, or the file its `audio`
         names (a full path, or a path as the project stores it): several files can make one clip. original: the
         slot's file is its original audio, which becomes the new audio first (as a copy kept in the project, as Copy
         does). A slot without new audio takes the file of its first block. One block of the slot's file that only
         trims, moves and fades is kept as the stretch, delay and fades (the details panel's fades and older versions
-        read those); no blocks, or one that is the whole file, is the file as it is."""
+        read those); no blocks, or one that is the whole file, is the file as it is. layers: the layers' names, from
+        the top ("" for the default); None keeps them."""
+        from .project import layer_names
         p = self._need_project()
         sid = self._source(source)
+        names = None if layers is None else layer_names(layers)
         made, main, length_main = self._edit_blocks(self._shown(), sid, blocks, original)
         if not main:
             raise EditorError(tr("This slot has no new audio to edit"))
@@ -2384,6 +2383,8 @@ class Session:
             r = self._replacement(proj, sid)
             r.start_ms = r.end_ms = r.delay_ms = r.fade_in_ms = r.fade_out_ms = 0.0
             r.blocks = []
+            if names is not None:
+                r.layers = names
             if not made or whole:
                 return
             if plain:
@@ -3136,18 +3137,14 @@ class Session:
     def _picks_off(self):
         """The Audio tab back on the base mod: every group off."""
         from .options import BASE
-        self.picks, self.target, self._target_chosen, self._view = {}, BASE, False, None
+        self.picks, self.target, self._view = {}, BASE, None
 
     def _retarget(self, p: Project):
-        """Keeps the picks to groups and options the project has (an undo can take them away), and where new slots go:
-        the base mod with no group picked, the group picked with one, and not chosen with several (the Audio tab
-        asks), unless the person chose a place that is still there."""
+        """Keeps the pick to a group and option the project has (an undo can take them away); new slots go to the
+        group picked, or the base mod."""
         from .options import BASE
         self.picks = {g.id: self.picks[g.id] for g in p.groups if g.option(self.picks.get(g.id)) is not None}
-        if self._target_chosen and (self.target == BASE or self.target in self.picks):
-            return
-        self._target_chosen = False
-        self.target = BASE if not self.picks else next(iter(self.picks)) if len(self.picks) == 1 else None
+        self.target = next(iter(self.picks), BASE)
 
     def _option_edit(self, fn):
         """An edit of the groups and options themselves: fn(project, options module)."""
@@ -3302,29 +3299,17 @@ class Session:
             g.options.insert(max(0, min(len(g.options), to)), o)
         return self._option_edit(apply)
 
-    def option_pick(self, group, option=None):
-        """The Audio tab's picker of a group: the option it plays and edits, or none (the group off)."""
+    def option_pick(self, group=None, option=None):
+        """What the Audio tab edits: one option of one group, or the base mod (none)."""
         with self.lock:
             p = self._need_project()
-            g = self._group(p, group)
-            if option is None:
-                self.picks.pop(g.id, None)
+            if group is None or option is None:
+                self.picks = {}
             else:
-                self.picks[g.id] = self._option(p, group, option)[1].id
+                g, o = self._option(p, group, option)
+                self.picks = {g.id: o.id}
             self._retarget(p)
             self._view = None
-            self.revision += 1
-            return self.project_state()
-
-    def option_target(self, target):
-        """Where the Audio tab's changes to slots no group has go: a picked group's id, or "" for the base mod."""
-        from .options import BASE
-        with self.lock:
-            p = self._need_project()
-            self._retarget(p)
-            if target != BASE and target not in self.picks:
-                raise EditorError(tr("Pick an option of that group first"))
-            self.target, self._target_chosen = target, True
             self.revision += 1
             return self.project_state()
 

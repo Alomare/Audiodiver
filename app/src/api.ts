@@ -102,6 +102,7 @@ export type Assignment = {
   file_ms?: number | null; // the file's length
   start_ms?: number; end_ms?: number; delay_ms?: number; // the stretch of the file that plays (end 0: to its end), and the silence before it
   blocks?: Block[]; // the Waveform Editor's: what plays, in place of the stretch, delay and fades (none: those)
+  layers?: string[]; // the names of the Waveform Editor's layers, from the top ("" for the default)
   file_segments: number; // the music segments that play the file, in this slot and others (0 for silence)
 };
 /** A Sound with a clip of its own (Isolate Audio) in place of one of the game's clips: where it is (the Library's

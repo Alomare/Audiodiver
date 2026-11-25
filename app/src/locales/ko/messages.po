@@ -1389,10 +1389,6 @@ msgstr "팩은 프로젝트와 관련 파일을 모두 담은 .audipack 파일 �
 msgid "A pack is still running."
 msgstr "팩 만들기가 아직 실행 중입니다."
 
-#: src/ModOptions.tsx
-msgid "A picked group, or the mod without groups"
-msgstr ""
-
 #: src/Soundtrack.tsx
 msgid "A random order, and no song plays twice before the others have played"
 msgstr "무작위 순서로, 다른 노래가 모두 재생되기 전에는 같은 노래가 두 번 재생되지 않습니다"
@@ -2075,6 +2071,10 @@ msgstr "{keys}(으)로 되돌리기"
 msgid "Back to Archivo"
 msgstr "Archivo로 되돌리기"
 
+#: src/ModOptions.tsx
+msgid "Back to Base Mod"
+msgstr ""
+
 #: src/SettingsTab.tsx
 msgid "Back to Blue"
 msgstr "파랑으로 되돌리기"
@@ -2091,6 +2091,10 @@ msgstr "키 없음으로 되돌리기"
 #: src/SettingsTab.tsx
 msgid "Back to Normal"
 msgstr "보통으로 되돌리기"
+
+#: src/ModOptions.tsx
+msgid "Back to the base mod"
+msgstr ""
 
 #: src/Inspector.tsx
 msgid "Back to the original level"
@@ -2440,6 +2444,14 @@ msgstr "빌드하기 전과 프로젝트나 Audiodiver를 닫을 때도 변경 �
 msgid "Changes go into <0>{project}</0>."
 msgstr "변경 사항은 <0>{project}</0>에 저장됩니다."
 
+#: src/ModOptions.tsx
+msgid "Changes in the Audio tab go into the base mod"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Changes in the Audio tab go into this option"
+msgstr ""
+
 #: src/RepatchPage.tsx
 msgid "Changes of other kinds in the sound banks, like effects or how a container picks sounds. Each repatch lists them."
 msgstr "효과나 컨테이너가 사운드를 고르는 방식 등 사운드 뱅크 안의 다른 종류의 변경 사항입니다. Repatch할 때마다 목록으로 표시됩니다."
@@ -2447,10 +2459,6 @@ msgstr "효과나 컨테이너가 사운드를 고르는 방식 등 사운드 �
 #: src/CombinePage.tsx
 msgid "Changes of other kinds in the sound banks, like effects. The result lists them for each mod."
 msgstr "효과 등 사운드 뱅크 안의 다른 종류의 변경 사항입니다. 결과에 모드별로 나열됩니다."
-
-#: src/ModOptions.tsx
-msgid "Changes to the slots of the group go into the option picked. Off: the mod without the group."
-msgstr ""
 
 #: src/TextTab.tsx
 msgid "Changing text"
@@ -2764,10 +2772,6 @@ msgstr "프로젝트를 옮길 위치 선택"
 #: src/RepatchPage.tsx
 msgid "Choose ZIPs or Patch Files"
 msgstr "ZIP 또는 패치 파일 선택"
-
-#: src/ModOptions.tsx
-msgid "Choose…"
-msgstr ""
 
 #: src/SettingsTab.tsx
 msgid "Chosen here."
@@ -3664,12 +3668,12 @@ msgstr "음악이 나올 때마다 오프닝 중 하나가 먼저 재생된 다�
 msgid "Eagle-1"
 msgstr "이글-1"
 
-#: src/Timeline.tsx
-msgid "Edit every slot of this segment together"
+#: src/ModOptions.tsx
+msgid "Edit"
 msgstr ""
 
-#: src/ModOptions.tsx
-msgid "Edit in Audio Tab"
+#: src/Timeline.tsx
+msgid "Edit every slot of this segment together"
 msgstr ""
 
 #: src/Timeline.tsx
@@ -3690,6 +3694,14 @@ msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "Edit the song"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Editing"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Editing <0>{group}</0>, <1>{option}</1>"
 msgstr ""
 
 #: src/WaveEditor.tsx
@@ -4960,6 +4972,7 @@ msgid "layer"
 msgstr "레이어"
 
 #. placeholder {0}: l + 1
+#. placeholder {0}: layer + 1
 #: src/WaveEditor.tsx
 msgid "Layer {0}"
 msgstr ""
@@ -5573,6 +5586,11 @@ msgstr "게임 파일 속 이름"
 msgid "Name of {file}"
 msgstr "{file}의 이름"
 
+#. placeholder {0}: layer + 1
+#: src/WaveEditor.tsx
+msgid "Name of Layer {0}"
+msgstr ""
+
 #: src/CombinePage.tsx
 #: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
@@ -5696,10 +5714,6 @@ msgstr "새 프로젝트"
 #: src/Soundtrack.tsx
 msgid "New Project"
 msgstr "새 프로젝트"
-
-#: src/ModOptions.tsx
-msgid "New Slots Go To"
-msgstr ""
 
 #: src/CueView.tsx
 msgid "new take"
@@ -6220,9 +6234,7 @@ msgstr ""
 msgid "Of two mods with the same file besides audio, the one lower in the list goes in."
 msgstr "오디오 외에 같은 파일이 있는 두 모드 중에서는 목록에서 아래에 있는 모드의 파일이 들어갑니다."
 
-#. A group for players unticked: none of the options of the group
 #. The radio filter of a voice is off
-#: src/ModOptions.tsx
 #: src/ProjectTab.tsx
 #: src/settings.ts
 #: src/SettingsTab.tsx
@@ -6695,7 +6707,7 @@ msgid "Part {number}"
 msgstr "파트 {number}"
 
 #: src/CueView.tsx
-msgid "Part of this group, which is off here"
+msgid "Part of this group, not being edited"
 msgstr ""
 
 #: src/RepatchPage.tsx
@@ -6803,22 +6815,6 @@ msgstr "원본 {slot} 일시 정지"
 #: src/ProjectTab.tsx
 msgid "Pelican-1"
 msgstr "펠리컨-1"
-
-#: src/ModOptions.tsx
-msgid "Pick an option of a group to hear it and change the slots of the group"
-msgstr ""
-
-#: src/CueView.tsx
-msgid "Pick an option of the group over the slots to change it"
-msgstr ""
-
-#: src/ModOptions.tsx
-msgid "Pick this option in the Audio tab"
-msgstr ""
-
-#: src/ModOptions.tsx
-msgid "Picked"
-msgstr ""
 
 #. The nth piece of the song cut into the segments (One Song)
 #: src/Soundtrack.tsx
@@ -7519,10 +7515,6 @@ msgstr "모든 색상, 크기, 스타일 제거"
 #: src/CueView.tsx
 #: src/ModOptions.tsx
 msgid "Remove from Option"
-msgstr ""
-
-#: src/CueView.tsx
-msgid "Remove from Option, in the right-click menu, takes the change away"
 msgstr ""
 
 #: src/IndexTree.tsx
@@ -8967,11 +8959,6 @@ msgstr "오디오 탭"
 msgid "The banks in the mod stay as the game version it was made for had them. For sounds the game still has, a project or <0>Repatch</0> builds on the current banks."
 msgstr "모드에 든 뱅크는 모드가 만들어진 게임 버전 그대로입니다. 게임에 아직 있는 사운드는 프로젝트나 <0>Repatch</0>가 현재 뱅크를 바탕으로 빌드합니다."
 
-#. The mod without the groups for players
-#: src/ModOptions.tsx
-msgid "The Base Mod"
-msgstr ""
-
 #: src/Soundtrack.tsx
 msgid "The Battle music plays here, at the Battle level"
 msgstr "전투 음악이 전투 레벨로 여기서 재생됩니다"
@@ -10209,11 +10196,6 @@ msgstr "파형"
 msgid "WEM (unchanged from the game)"
 msgstr "WEM (게임 파일 그대로)"
 
-#. placeholder {0}: g.name
-#: src/ModOptions.tsx
-msgid "What {0} plays here"
-msgstr ""
-
 #: src/ImportMod.tsx
 msgid "What comes in"
 msgstr "가져올 내용"
@@ -10306,10 +10288,6 @@ msgstr "두 모드가 같은 사운드 뱅크를 바꾸면 나중에 배포한 �
 #: src/ImportMod.tsx
 msgid "Where both have audio for a slot, the mod's is used."
 msgstr "둘 다 같은 슬롯에 오디오가 있으면 모드의 오디오를 씁니다."
-
-#: src/ModOptions.tsx
-msgid "Where changes to slots go when no group has them yet"
-msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Where the block ends in the file"

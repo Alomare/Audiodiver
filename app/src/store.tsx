@@ -1092,9 +1092,9 @@ function useEditorState() {
     },
     /** The Waveform Editor's blocks for a slot (none: the file as it is). `original`: they are of the slot's original
         audio, which becomes the new audio. True when the project took them. */
-    async setEdit(source: string, blocks: Block[], original = false, label?: string) {
+    async setEdit(source: string, blocks: Block[], original = false, label?: string, layers?: string[]) {
       if (!needProject()) return false;
-      return edited(await run<ProjectState>("edit_set", { source, blocks, original, ...(label ? { label } : {}) }));
+      return edited(await run<ProjectState>("edit_set", { source, blocks, original, ...(label ? { label } : {}), ...(layers ? { layers } : {}) }));
     },
     /** What Ctrl+V pastes into the Waveform Editor, as pasteSlots decides: audio files copied in Explorer (each whole),
         or the slots copied in the app: the new audio of one, as the blocks it plays (each naming its file), or the
@@ -1162,10 +1162,8 @@ function useEditorState() {
       if (option) await actions.optionSet(group, option, { image: path });
       else await actions.groupSet(group, { image: path });
     },
-    /** The Audio tab's picker of a group: an option, or the group off (no option). */
-    async optionPick(group: string, option?: string) { edited(await run<ProjectState>("option_pick", option ? { group, option } : { group })); },
-    /** Where changes to slots no group has go: a picked group, or "" for the base mod. */
-    async optionTarget(target: string) { edited(await run<ProjectState>("option_target", { target })); },
+    /** What the Audio tab edits: an option of a group, or the base mod (no arguments). */
+    async optionPick(group?: string, option?: string) { edited(await run<ProjectState>("option_pick", group && option ? { group, option } : {})); },
     /** Slots out of the option picked in their group: they play as the base mod has them. */
     async optionSlotsOff(sources: string[]) { edited(await run<ProjectState>("option_slots_off", { sources })); },
     /** A new mod id: a mod manager then sees the next build as another mod. Undo puts the old id back. */

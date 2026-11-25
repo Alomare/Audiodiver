@@ -2412,17 +2412,17 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .wave-ed-src { flex: none; padding: 1px 8px; font-size: calc(12px * var(--fs)); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; border: 1px solid currentColor; }
 .wave-ed-src.game { color: var(--steel); }
 .wave-ed-src.mine { color: var(--accent-fg); max-width: 32ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-transform: none; letter-spacing: 0; font-weight: 600; }
-/* over the waveforms: the toolbar at the left, a dark box holding its groups (playback, blocks, magnet, history)
-   tight together, each apart by a rule; the cursor's time at the right, over the end of the waveforms (past it, the
-   level zoom's column) */
+/* over the waveforms: the toolbar at the left, each of its groups (playback, blocks, modes, history) a dark box of
+   its own, apart by a gap; the cursor's time at the right, over the end of the waveforms (past it, the level zoom's
+   column). */
 .wave-ed-left { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
 .wave-ed-over { display: flex; align-items: center; gap: 12px; padding-right: calc(24px * var(--fs) + 8px); }
-.wave-ed-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 2px 0; padding: 2px; min-width: 0;
+.wave-ed-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 8px; min-width: 0; }
+.wave-ed-group { display: flex; align-items: center; gap: 1px; padding: 2px; border-radius: 2px;
   background: color-mix(in srgb, var(--bg) 72%, var(--raised)); border: 1px solid var(--line-soft); }
-.wave-ed-group { display: flex; align-items: center; gap: 1px; padding: 0 4px; border-left: 1px solid var(--line); }
-.wave-ed-group:first-child { padding-left: 0; border-left: 0; }
-.wave-ed-group:last-child { padding-right: 0; }
-.wave-ed-tools .icon-btn { width: calc(32px * var(--fs)); height: calc(32px * var(--fs)); }
+.wave-ed-tools .icon-btn { width: calc(32px * var(--fs)); height: calc(32px * var(--fs)); display: grid; place-items: center; }
+.wave-ed-tools .icon-btn .icon { display: block; }
+.wave-ed-hist .icon-btn .icon { width: 1.25em; height: 1.25em; } /* Reset is drawn smaller elsewhere: here as large as Undo and Redo */
 .wave-ed-tools .wave-ed-play { color: var(--accent-fg); }
 .wave-ed-tools .wave-ed-play:hover:not(:disabled) { color: var(--accent-fg); }
 .wave-ed-tools .wave-ed-play.on { background: color-mix(in srgb, var(--accent-fg) 18%, var(--raised)); }
@@ -2470,6 +2470,11 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .wave-ed-layer.moving .wave-ed-grip { cursor: grabbing; }
 /* a layer's name, or only its number where the name doesn't fit (LayerName measures the whole name, kept hidden) */
 .wave-ed-layer-name { flex: 1; min-width: 0; position: relative; }
+input.wave-ed-layer-name { font: inherit; font-size: calc(13px * var(--fs)); color: inherit; background: transparent; border: 1px solid transparent;
+  border-radius: 2px; height: calc(24px * var(--fs)); padding: 0 5px; width: 100%; }
+input.wave-ed-layer-name::placeholder { color: var(--muted); opacity: 1; }
+input.wave-ed-layer-name:hover { border-color: var(--line); }
+input.wave-ed-layer-name:focus { border-color: var(--second-fg); background: var(--bg); outline: none; }
 .wave-ed-name-full { display: block; overflow: hidden; white-space: nowrap; }
 .wave-ed-layer-name:has(.wave-ed-name-short) .wave-ed-name-full { visibility: hidden; }
 .wave-ed-name-short { position: absolute; left: 0; top: 50%; transform: translateY(-50%); }
@@ -2477,11 +2482,9 @@ kbd.none { color: var(--faint); font-weight: 400; }
 /* each lane's box: ticked, it plays with Play and goes into Export */
 .wave-ed-check { flex: none; width: calc(14px * var(--fs)); height: calc(14px * var(--fs)); margin: 0 4px 0 0; accent-color: var(--second-fg); cursor: pointer; }
 .wave-ed-labels > label { cursor: pointer; }
-/* the lanes playing breathe in their colour, as their waveforms do on the canvas */
-.wave-ed-layer.playing { animation: wave-ed-breath 1.4s ease-in-out infinite; --breath: var(--accent-fg); }
-.wave-ed-labels .game.playing { animation: wave-ed-breath 1.4s ease-in-out infinite; --breath: var(--steel); }
-@keyframes wave-ed-breath { 0%, 100% { background-color: color-mix(in srgb, var(--breath) 5%, var(--bg)); } 50% { background-color: color-mix(in srgb, var(--breath) 16%, var(--bg)); } }
-:root[data-motion="off"] .wave-ed-layer.playing, :root[data-motion="off"] .wave-ed-labels .game.playing { background-color: color-mix(in srgb, var(--breath) 11%, var(--bg)); }
+/* the lanes playing: a see-through tint of their colour, as their waveforms have on the canvas */
+.wave-ed-layer.playing { background-color: color-mix(in srgb, var(--accent-fg) 10%, var(--bg)); }
+.wave-ed-labels .game.playing { background-color: color-mix(in srgb, var(--steel) 10%, var(--bg)); }
 .wave-ed-layer-size { position: absolute; left: 0; right: 0; bottom: -4px; height: 8px; z-index: 1; cursor: ns-resize; touch-action: none; }
 .wave-ed-layer-size:hover { background: linear-gradient(transparent 3px, var(--second-fg) 3px, var(--second-fg) 5px, transparent 5px); }
 .wave-ed-new-layer { flex: none; gap: 6px; padding-top: 2px; padding-bottom: 2px; font-size: calc(13px * var(--fs)); }
@@ -2551,12 +2554,15 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .opt-choice > .opt-edit { grid-area: edit; justify-self: start; min-height: var(--opt-field-h); }
 .opt-choice > .opt-gain { grid-area: gain; }
 .opt-choice > .opt-tools { grid-area: tools; }
-.opt-choice.editing { box-shadow: inset 3px 0 0 var(--second-fg); padding-left: 9px; margin-left: -12px; }
+.opt-choice.editing { background: color-mix(in srgb, var(--second-fg) 14%, transparent); box-shadow: inset 3px 0 0 var(--second-fg);
+  padding-left: 12px; padding-right: 6px; margin: 0 -6px 0 -12px; border-top-color: transparent; }
+.opt-choice.editing + .opt-choice { border-top-color: transparent; }
 .opt-what { font-size: calc(12px * var(--fs)); color: var(--muted); font-variant-numeric: tabular-nums; padding-left: 9px; }
 .opt-gain { display: flex; align-items: center; gap: 6px; min-height: var(--opt-field-h); font-size: calc(13px * var(--fs)); color: var(--muted); }
 .opt-gain input { width: calc(60px * var(--fs)); height: var(--opt-field-h); text-align: right; font: inherit; font-variant-numeric: tabular-nums; color: var(--text); padding: 0 6px; }
 .opt-gain .unit { font-size: calc(12px * var(--fs)); }
-.opt-edit[aria-pressed="true"] { color: var(--second-fg); border-color: var(--second-dim); }
+.opt-edit { min-width: calc(76px * var(--fs)); justify-content: center; }
+.opt-edit[aria-pressed="true"] { color: var(--bg); background: var(--second-fg); border-color: var(--second-fg); font-weight: 600; }
 .opt-add { align-self: flex-start; gap: 6px; margin: calc(6px * var(--sp)) 0 0 calc(var(--opt-img) + var(--opt-gap)); }
 .opts > .row-btns { margin-top: calc(14px * var(--sp)); }
 .opts-shared { border-left-color: var(--second-fg); background: color-mix(in srgb, var(--second-fg) 8%, transparent); max-width: 960px; margin: calc(10px * var(--sp)) 0 0; }
@@ -2571,18 +2577,12 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .opt-img-x { position: absolute; top: -7px; right: -7px; width: 18px; height: 18px; font-size: 11px; display: none; place-items: center;
   background: var(--raised); border: 1px solid var(--line); border-radius: 50%; }
 .opt-img:hover .opt-img-x, .opt-img-x:focus-visible { display: grid; }
-/* over the Audio tab: a picker for each group, and where new slots go */
-.opt-bar { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 14px; padding: calc(6px * var(--sp)) 12px; flex: none;
-  border-bottom: 1px solid var(--line); background: var(--panel); }
-.opt-bar.on { background: color-mix(in srgb, var(--second-fg) 9%, var(--panel)); border-bottom-color: var(--second-dim); }
-.opt-pick { display: inline-flex; align-items: center; gap: 7px; font-size: calc(13px * var(--fs)); color: var(--muted); }
-.opt-pick-name { max-width: 20ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.opt-pick select { min-height: calc(26px * var(--fs)); padding-top: 2px; padding-bottom: 2px; }
-.opt-pick.on .opt-pick-name { color: var(--second-fg); font-weight: 600; }
-.opt-pick.on select { border-color: var(--second-fg); }
-.opt-target { margin-left: auto; }
-.opt-target.ask select { border-color: var(--accent); color: var(--text); }
-.opt-target.ask .opt-pick-name { color: var(--text); font-weight: 600; }
+/* over the Audio tab while an option is being edited */
+.opt-editing { display: flex; align-items: center; gap: 12px; flex: none; padding: calc(4px * var(--sp)) 12px;
+  font-size: calc(13px * var(--fs)); color: var(--text); background: color-mix(in srgb, var(--second-fg) 12%, var(--panel));
+  border-bottom: 1px solid var(--second-dim); }
+.opt-editing b { color: var(--second-fg); font-weight: 600; }
+.opt-editing .link-inline { margin-left: 0; font-size: inherit; }
 .tag.opt-tag { color: var(--second-fg); border-color: var(--second-dim); }
 .tag.opt-tag.off { color: var(--muted); border-style: dashed; border-color: var(--line); }
 .opt-note { margin: 0 0 calc(8px * var(--sp)); padding: 6px 10px; font-size: calc(13px * var(--fs)); border-left: 2px solid var(--second-fg);

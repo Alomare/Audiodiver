@@ -1389,10 +1389,6 @@ msgstr "项目包是一个 .audipack 文件，包含项目及所有相关文件�
 msgid "A pack is still running."
 msgstr "打包仍在进行中。"
 
-#: src/ModOptions.tsx
-msgid "A picked group, or the mod without groups"
-msgstr ""
-
 #: src/Soundtrack.tsx
 msgid "A random order, and no song plays twice before the others have played"
 msgstr "随机顺序，在其他歌曲都播放过之前不会重复播放同一首"
@@ -2075,6 +2071,10 @@ msgstr "恢复为 {keys}"
 msgid "Back to Archivo"
 msgstr "恢复为 Archivo"
 
+#: src/ModOptions.tsx
+msgid "Back to Base Mod"
+msgstr ""
+
 #: src/SettingsTab.tsx
 msgid "Back to Blue"
 msgstr "恢复为蓝色"
@@ -2091,6 +2091,10 @@ msgstr "恢复为未绑定"
 #: src/SettingsTab.tsx
 msgid "Back to Normal"
 msgstr "恢复正常"
+
+#: src/ModOptions.tsx
+msgid "Back to the base mod"
+msgstr ""
 
 #: src/Inspector.tsx
 msgid "Back to the original level"
@@ -2440,6 +2444,14 @@ msgstr "构建前以及关闭项目或 Audiodiver 时，也会保存更改。"
 msgid "Changes go into <0>{project}</0>."
 msgstr "更改将写入 <0>{project}</0>。"
 
+#: src/ModOptions.tsx
+msgid "Changes in the Audio tab go into the base mod"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Changes in the Audio tab go into this option"
+msgstr ""
+
 #: src/RepatchPage.tsx
 msgid "Changes of other kinds in the sound banks, like effects or how a container picks sounds. Each repatch lists them."
 msgstr "音频库中其他类型的更改，例如效果或容器选取声音的方式。每次 Repatch 都会列出这些更改。"
@@ -2447,10 +2459,6 @@ msgstr "音频库中其他类型的更改，例如效果或容器选取声音的
 #: src/CombinePage.tsx
 msgid "Changes of other kinds in the sound banks, like effects. The result lists them for each mod."
 msgstr "音频库中其他类型的更改，例如效果。结果会按模组列出这些更改。"
-
-#: src/ModOptions.tsx
-msgid "Changes to the slots of the group go into the option picked. Off: the mod without the group."
-msgstr ""
 
 #: src/TextTab.tsx
 msgid "Changing text"
@@ -2764,10 +2772,6 @@ msgstr "选择项目要移动到的位置"
 #: src/RepatchPage.tsx
 msgid "Choose ZIPs or Patch Files"
 msgstr "选择 ZIP 或补丁文件"
-
-#: src/ModOptions.tsx
-msgid "Choose…"
-msgstr ""
 
 #: src/SettingsTab.tsx
 msgid "Chosen here."
@@ -3664,12 +3668,12 @@ msgstr "每次音乐响起时，先播放其中一个开场，然后播放各首
 msgid "Eagle-1"
 msgstr "“飞鹰”1号"
 
-#: src/Timeline.tsx
-msgid "Edit every slot of this segment together"
+#: src/ModOptions.tsx
+msgid "Edit"
 msgstr ""
 
-#: src/ModOptions.tsx
-msgid "Edit in Audio Tab"
+#: src/Timeline.tsx
+msgid "Edit every slot of this segment together"
 msgstr ""
 
 #: src/Timeline.tsx
@@ -3690,6 +3694,14 @@ msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "Edit the song"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Editing"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Editing <0>{group}</0>, <1>{option}</1>"
 msgstr ""
 
 #: src/WaveEditor.tsx
@@ -4960,6 +4972,7 @@ msgid "layer"
 msgstr "层"
 
 #. placeholder {0}: l + 1
+#. placeholder {0}: layer + 1
 #: src/WaveEditor.tsx
 msgid "Layer {0}"
 msgstr ""
@@ -5573,6 +5586,11 @@ msgstr "游戏文件中的名称"
 msgid "Name of {file}"
 msgstr "{file} 的名称"
 
+#. placeholder {0}: layer + 1
+#: src/WaveEditor.tsx
+msgid "Name of Layer {0}"
+msgstr ""
+
 #: src/CombinePage.tsx
 #: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
@@ -5696,10 +5714,6 @@ msgstr "新建项目"
 #: src/Soundtrack.tsx
 msgid "New Project"
 msgstr "新建项目"
-
-#: src/ModOptions.tsx
-msgid "New Slots Go To"
-msgstr ""
 
 #: src/CueView.tsx
 msgid "new take"
@@ -6220,9 +6234,7 @@ msgstr ""
 msgid "Of two mods with the same file besides audio, the one lower in the list goes in."
 msgstr "如果两个模组含有相同的非音频文件，则采用列表中靠下的那个。"
 
-#. A group for players unticked: none of the options of the group
 #. The radio filter of a voice is off
-#: src/ModOptions.tsx
 #: src/ProjectTab.tsx
 #: src/settings.ts
 #: src/SettingsTab.tsx
@@ -6695,7 +6707,7 @@ msgid "Part {number}"
 msgstr "第 {number} 部分"
 
 #: src/CueView.tsx
-msgid "Part of this group, which is off here"
+msgid "Part of this group, not being edited"
 msgstr ""
 
 #: src/RepatchPage.tsx
@@ -6803,22 +6815,6 @@ msgstr "暂停原版 {slot}"
 #: src/ProjectTab.tsx
 msgid "Pelican-1"
 msgstr "鹈鹕1号"
-
-#: src/ModOptions.tsx
-msgid "Pick an option of a group to hear it and change the slots of the group"
-msgstr ""
-
-#: src/CueView.tsx
-msgid "Pick an option of the group over the slots to change it"
-msgstr ""
-
-#: src/ModOptions.tsx
-msgid "Pick this option in the Audio tab"
-msgstr ""
-
-#: src/ModOptions.tsx
-msgid "Picked"
-msgstr ""
 
 #. The nth piece of the song cut into the segments (One Song)
 #: src/Soundtrack.tsx
@@ -7519,10 +7515,6 @@ msgstr "移除所有颜色、大小和样式"
 #: src/CueView.tsx
 #: src/ModOptions.tsx
 msgid "Remove from Option"
-msgstr ""
-
-#: src/CueView.tsx
-msgid "Remove from Option, in the right-click menu, takes the change away"
 msgstr ""
 
 #: src/IndexTree.tsx
@@ -8967,11 +8959,6 @@ msgstr "音频选项卡"
 msgid "The banks in the mod stay as the game version it was made for had them. For sounds the game still has, a project or <0>Repatch</0> builds on the current banks."
 msgstr "模组中的音频库保持制作时那个游戏版本的样子。对于游戏中仍有的声音，项目或 <0>Repatch</0> 会基于当前的音频库构建。"
 
-#. The mod without the groups for players
-#: src/ModOptions.tsx
-msgid "The Base Mod"
-msgstr ""
-
 #: src/Soundtrack.tsx
 msgid "The Battle music plays here, at the Battle level"
 msgstr "此处播放战斗音乐，音量与战斗相同"
@@ -10209,11 +10196,6 @@ msgstr "波形"
 msgid "WEM (unchanged from the game)"
 msgstr "WEM（与游戏中一致）"
 
-#. placeholder {0}: g.name
-#: src/ModOptions.tsx
-msgid "What {0} plays here"
-msgstr ""
-
 #: src/ImportMod.tsx
 msgid "What comes in"
 msgstr "导入内容"
@@ -10306,10 +10288,6 @@ msgstr "两个模组更改同一个音频库时，只有后部署的那个会播
 #: src/ImportMod.tsx
 msgid "Where both have audio for a slot, the mod's is used."
 msgstr "如果两者在同一槽位都有音频，则使用模组的音频。"
-
-#: src/ModOptions.tsx
-msgid "Where changes to slots go when no group has them yet"
-msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Where the block ends in the file"

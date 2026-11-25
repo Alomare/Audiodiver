@@ -95,7 +95,7 @@ def methods(s: Session) -> dict:
         "filters_set": lambda sources, lowpass=None, highpass=None: s.filters_set(sources, lowpass, highpass),
         "fades_set": lambda sources, fade_in_ms=None, fade_out_ms=None: s.fades_set(sources, fade_in_ms, fade_out_ms),
         "trim_set": lambda source, start_ms=0, end_ms=0, delay_ms=0: s.trim_set(source, start_ms, end_ms, delay_ms),
-        "edit_set": lambda source, blocks, original=False, label=None: s.edit_set(source, blocks, original, label),
+        "edit_set": lambda source, blocks, original=False, label=None, layers=None: s.edit_set(source, blocks, original, label, layers),
         # Options for Players (options.py): groups of options players pick from in the mod manager
         "group_add": lambda name=None: s.group_add(name),
         "group_set": lambda group, name=None, description=None, image=None: s.group_set(group, name, description, image),
@@ -106,8 +106,7 @@ def methods(s: Session) -> dict:
             s.option_set(group, option, name, description, image, gain_db),
         "option_remove": lambda group, option: s.option_remove(group, option),
         "option_move": lambda group, option, to: s.option_move(group, option, to),
-        "option_pick": lambda group, option=None: s.option_pick(group, option),
-        "option_target": lambda target: s.option_target(target),
+        "option_pick": lambda group=None, option=None: s.option_pick(group, option),
         "option_slots_off": lambda sources: s.option_slots_off(sources),
         "options_plan": lambda: s.options_plan(),
         "original_file": lambda source: s.original_file(source),

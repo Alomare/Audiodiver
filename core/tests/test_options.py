@@ -127,34 +127,20 @@ def test_the_pickers_send_edits_to_the_picked_option_and_the_base_mod_keeps_its_
     saved = json.loads((tmp_path / "m.audi").read_text())
     assert [r["target"] for r in saved["replacements"]] == ["1234"] and saved["replacements"][0]["gain_db"] == 0
     assert saved["groups"][0]["options"][0]["slots"]["1234"] == {"gain_db": 4.0}
-    with pytest.raises(EditorError, match="off"):
+    with pytest.raises(EditorError, match="base mod"):
         s._edit("add take", lambda p: None)
     st = s.option_slots_off([1234])  # back to the base mod's there
     assert st["assignments"]["1234"]["gain_db"] == 0 and set(st["option_slots"]) == {"5678"}
-    st = s.option_pick(gid)  # the group off: the base mod
+    st = s.option_pick()  # back to the base mod
     assert "5678" not in st["assignments"] and st["picks"] == {} and st["target"] == ""
     assert st["option_slots"]["5678"] == {"group": gid, "option": None, "on": False, "base": None}
-    s.option_pick(gid, "option_1")
-    s.group_add("Volume")
-    s.option_pick(s.project.groups[1].id, "option_1")
-    s.option_pick(gid)
+    vol = s.group_add("Volume")["added"]
+    st = s.option_pick(vol, "option_1")  # one pick at a time: Liberator Fire is off now
+    assert st["picks"] == {vol: "option_1"} and st["target"] == vol
     with pytest.raises(EditorError, match="Liberator Fire"):  # the group's slot, with the group off
         s._edit("gain", lambda p: p.gains.__setitem__(5678, 2.0))
-
-
-def test_with_two_groups_picked_the_person_says_where_new_slots_go(tmp_path):
-    s, a, b = _session(tmp_path)
-    one = s.group_add("One")["added"]
-    two = s.group_add("Two")["added"]
-    s.option_pick(one, "option_1")
-    st = s.option_pick(two, "option_1")
-    assert st["target"] is None
-    with pytest.raises(EditorError, match="Choose where"):
-        s._edit("assign", lambda p: s._set(p, 5678, str(b)))
-    st = s.option_target("")  # the base mod
-    s._edit("assign", lambda p: s._set(p, 5678, str(b)))
-    assert [r.target for r in s.project.replacements] == [1234, 5678]
-    assert s.option_pick(one)["target"] == "", "a place the person chose stays while it is there"
+    s._edit("assign", lambda p: s._set(p, 4321, str(b)))  # a new slot: into the group picked
+    assert s.project_state()["option_slots"]["4321"]["group"] == vol
 
 
 def test_an_undo_that_takes_the_group_away_turns_its_picker_off(tmp_path):
