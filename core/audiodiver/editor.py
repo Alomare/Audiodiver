@@ -2040,20 +2040,23 @@ class Session:
             r.start_ms, r.end_ms, r.delay_ms, r.blocks = float(start_ms), end, float(delay_ms), []
         return self._edit("trim", apply)
 
-    def _edit_blocks(self, p: Project, sid: int, blocks, original=False):
+    def _edit_blocks(self, p: Project, sid, blocks, original=False, own=None):
         """The Waveform Editor's blocks for a slot, checked: (blocks, the slot's own file as (stored, path), its
         length in ms). A block's `audio` comes back as the project stores it, "" for the slot's own file. With
         `original` the slot's file is its original audio, kept in the project as Copy keeps it. A slot without new
-        audio takes the file of its first block; with no blocks either, the file is None."""
+        audio takes the file of its first block; with no blocks either, the file is None. own: the file a file
+        target edits (a song of the Soundtrack), as (stored, path), in place of a slot's; sid is then None."""
         from .audio import duration_ms
         from .project import BLOCK_GAIN_DB, MAX_BLOCKS, MAX_LAYERS, TRIM_MS, Block
         if not isinstance(blocks, list) or len(blocks) > MAX_BLOCKS:
             raise EditorError(tr("The Waveform Editor sends up to {n} blocks").format(n=MAX_BLOCKS))
         if not all(isinstance(b, dict) for b in blocks):
             raise EditorError("Each block is an object")
-        r = self._replacement(p, sid)
-        main = None  # the slot's own file, as stored, and where it is
-        if original:
+        r = self._replacement(p, sid) if sid is not None else None
+        main = own  # the slot's own file, as stored, and where it is
+        if own:
+            pass
+        elif original:
             self.require_game()  # the original comes from the game files
             path = self._kept_original(sid)
             main = (self._relative(p, path), path)
@@ -2112,34 +2115,82 @@ class Session:
                 b.audio = "" if b.audio == first else b.audio
         return made, main, length("")
 
-    def edit_export(self, source, blocks, path, fmt="wav24", rate=48000, channels=0, normalize=False, original=False,
-                    with_original=False):
-        """The Waveform Editor's blocks (the layers ticked to play) as one audio file at `path`, mixed as a build
-        would: fmt one of EDIT_EXPORTS, at `rate` Hz, in `channels` (0: those of the slot's file), turned up or down
-        so the loudest moment reaches -1 dB when `normalize`. with_original: the original audio plays along from the
-        start. The project doesn't change. Returns the path written (its extension set by the format)."""
+    def _edit_track(self, p: Project, t):
+        """One track of the Waveform Editor as a WAV mixed as a build would (audio.edited), or None when it plays
+        nothing: t = {"source": a slot, or "file": a file the editor edits (a full path, or as the project stores
+        it), "blocks", "original": the slot's file is its original, "with_original": the original plays along}."""
         from .audio import duration_ms, edited
         from .project import Block
-        p = self._need_project()
-        sid = self._source(source)
-        if fmt not in EDIT_EXPORTS or rate not in (44100, 48000) or channels not in (0, 1, 2):
-            raise EditorError("Unknown export settings")
-        out = Path(str(path))
-        if not out.is_absolute() or not out.parent.is_dir():
-            raise EditorError(tr("{folder} is not a folder").format(folder=out.parent))
-        made, main, _ = self._edit_blocks(p, sid, blocks, original)
-        if with_original:
-            ref = Path(self.vanilla_wav(sid))
-            made.append(Block(0.0, duration_ms(ref) or 0.0, audio=str(ref)))
-            main = main or (str(ref), ref)
-        if not main or not made:
-            raise EditorError(tr("Nothing to export. Tick a layer with audio, or the original"))
-        wav = edited(main[1], made, p.file)
-        ext, codec = EDIT_EXPORTS[fmt]
-        out = out.with_suffix("." + ext)
+        if not isinstance(t, dict):
+            raise EditorError("A track is an object")
+        blocks = t.get("blocks") or []
+        if t.get("file"):
+            f = Path(str(t["file"]))
+            f = f if f.is_absolute() else p.file(str(t["file"]))
+            if not f.is_file():
+                raise EditorError(tr("{path} wasn't found").format(path=f))
+            made, main, _ = self._edit_blocks(p, None, blocks, own=(self._relative(p, f), f))
+        else:
+            sid = self._source(t.get("source"))
+            made, main, _ = self._edit_blocks(p, sid, blocks, t.get("original") is True)
+            if t.get("with_original") is True:
+                ref = Path(self.vanilla_wav(sid))
+                made.append(Block(0.0, duration_ms(ref) or 0.0, audio=str(ref)))
+                main = main or (str(ref), ref)
+        return edited(main[1], made, p.file) if main and made else None
+
+    @staticmethod
+    def _mixed(wavs: list) -> Path:
+        """Several 48 kHz 16-bit WAVs added up into one (the channels of the widest; mono goes to both sides),
+        clipped at full scale as the build's mix would be, kept with the caches."""
+        import hashlib
+        import json
+        import wave
+        import numpy as np
+        if len(wavs) == 1:
+            return Path(wavs[0])
+        key = hashlib.sha1(json.dumps([[str(w), Path(w).stat().st_mtime_ns] for w in wavs]).encode()).hexdigest()[:20]
+        out = CACHE_DIR / "edits" / f"mix-{key}.wav"
+        if out.exists():
+            return out
+        pcm = []
+        for w in wavs:
+            with wave.open(str(w)) as f:
+                pcm.append(np.frombuffer(f.readframes(f.getnframes()), "<i2").astype(np.float32).reshape(-1, f.getnchannels()))
+        ch = max(x.shape[1] for x in pcm)
+        mix = np.zeros((max(len(x) for x in pcm), ch), np.float32)
+        for x in pcm:
+            mix[:len(x)] += x if x.shape[1] == ch else np.repeat(x, ch, axis=1)
+        tmp = out.with_name(out.stem + ".partial.wav")
+        out.parent.mkdir(parents=True, exist_ok=True)
+        with wave.open(str(tmp), "wb") as f:
+            f.setnchannels(ch); f.setsampwidth(2); f.setframerate(48000)
+            f.writeframes(np.clip(mix.round(), -32768, 32767).astype("<i2").tobytes())
+        tmp.replace(out)
+        return out
+
+    def edit_export(self, tracks, path, fmt="wav24", rate=48000, channels=0, normalize=False):
+        """The Waveform Editor's tracks (the lanes ticked: _edit_track) mixed into one audio file at `path`: fmt one
+        of EDIT_EXPORTS, at `rate` Hz, in `channels` (0: those of the mix), turned up or down so the loudest moment
+        reaches -1 dB when `normalize`. The project doesn't change. Returns the path written (its extension set by
+        the format)."""
         import wave
         import numpy as np
         from . import wem
+        p = self._need_project()
+        if fmt not in EDIT_EXPORTS or rate not in (44100, 48000) or channels not in (0, 1, 2):
+            raise EditorError("Unknown export settings")
+        if not isinstance(tracks, list):
+            raise EditorError("The tracks are a list")
+        out = Path(str(path))
+        if not out.is_absolute() or not out.parent.is_dir():
+            raise EditorError(tr("{folder} is not a folder").format(folder=out.parent))
+        wavs = [w for w in (self._edit_track(p, t) for t in tracks) if w]
+        if not wavs:
+            raise EditorError(tr("Nothing to export. Tick a layer with audio, or the original"))
+        wav = self._mixed(wavs)
+        ext, codec = EDIT_EXPORTS[fmt]
+        out = out.with_suffix("." + ext)
         with wave.open(str(wav)) as w:
             have = w.getnchannels()
             peak = float(np.abs(np.frombuffer(w.readframes(w.getnframes()), "<i2").astype(np.int32)).max(initial=0)) / 32768
@@ -2156,6 +2207,68 @@ class Session:
         except OSError as e:
             raise EditorError(tr("{file} couldn't be written: {why}").format(file=out.name, why=os_error(e))) from None
         return {"path": str(out)}
+
+    def edit_render(self, file, blocks):
+        """A file as the Waveform Editor's blocks make it (a song of the Soundtrack, before it is cut or put in a
+        place), saved as a new file in the project: audio/edited/<name> (edited).wav, numbered when that is taken.
+        The file it came from stays as it is. Returns the new file's full path."""
+        import shutil
+        p = self._need_project()
+        wav = self._edit_track(p, {"file": file, "blocks": blocks})
+        if not wav:
+            raise EditorError(tr("Nothing to save. Add audio to the time line first"))
+        folder = p.path.parent / "audio" / "edited"
+        stem = Path(str(file)).stem
+        stem = stem[:-len(" (edited)")] if stem.endswith(" (edited)") else stem.split(" (edited ")[0]
+        out, n = folder / f"{stem} (edited).wav", 2
+        while out.exists():
+            out, n = folder / f"{stem} (edited {n}).wav", n + 1
+        try:
+            folder.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(wav, out)
+        except OSError as e:
+            raise EditorError(tr("{file} couldn't be written: {why}").format(file=out.name, why=os_error(e))) from None
+        return {"path": str(out)}
+
+    def edit_context(self, cue_id, segment, tracks, entry_marker=None, exit_marker=None):
+        """A segment as the Waveform Editor has it, in its place in the music: the segment before it in play order,
+        this one and the one after, mixed as the game hands over (render.Renderer), with the editor's tracks in
+        place of those slots' audio and its cue points (None: the automatic ones). Nothing in the project changes.
+        Returns the preview's path and length and where this segment starts, enters and exits in it (ms)."""
+        from . import render
+        p = self._need_project()
+        r = self._renderer(cue_id, "mine")
+        try:
+            seg = int(segment)
+        except (TypeError, ValueError, OverflowError):
+            raise EditorError("A segment is a number") from None
+        if seg not in r.segments:
+            raise EditorError(tr("Segments {ids} aren't in this piece of music").format(ids=[seg]))
+        if not isinstance(tracks, list):
+            raise EditorError("The tracks are a list")
+        for t in tracks:
+            wav = self._edit_track(p, t)
+            if wav and isinstance(t, dict) and t.get("source"):
+                sid = self._source(t["source"])
+                old = self._replacement(p, sid)
+                r.mine[sid] = render.Mine(wav, old.gain_db if old else 0.0, old.fit_timing if old else True)
+        cues = {k: float(v) for k, v in (("entry_marker", entry_marker), ("exit_marker", exit_marker))
+                if isinstance(v, (int, float)) and not isinstance(v, bool)}
+        r.overrides = {**r.overrides, seg: cues} if cues else {k: v for k, v in r.overrides.items() if k != seg}
+        try:
+            full = r.order(1)
+            i = full.index(seg) if seg in full else -1
+            order = full[max(0, i - 1):i + 2] if i >= 0 else [seg]
+            layout = r.layout(None, 1, order)
+            out = CACHE_DIR / "render" / f"context-{cue_id}.wav"
+            render.write(out, r.stream(None, 1, layout), "preview")
+        except (render.RenderError, subprocess.CalledProcessError) as e:
+            raise EditorError(str(e)) from None
+        k = order.index(seg)
+        plan, start = layout[0][k][0], layout[1][k]
+        return {"path": str(out), "duration_ms": round(layout[2], 1), "start_ms": round(start, 1),
+                "entry_ms": round(start + plan.entry_ms, 1), "exit_ms": round(start + plan.exit_ms, 1),
+                "before": k > 0, "after": k < len(order) - 1}
 
     def edit_set(self, source, blocks, original=False, label=None):
         """The Waveform Editor's work on a slot, as one undo step: the blocks its new audio plays as (each a stretch

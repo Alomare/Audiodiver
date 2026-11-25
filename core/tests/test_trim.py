@@ -168,7 +168,8 @@ def test_edit_export_writes_the_blocks_as_one_file_and_changes_nothing(tmp_path)
     s._edit("assign", lambda p: s._set(p, 1234, str(a)))
     before = (tmp_path / "m.audi").read_text()
     blocks = [{"start_ms": 0, "end_ms": 400, "at_ms": 0}, {"start_ms": 0, "end_ms": 400, "at_ms": 300, "layer": 1}]
-    got = s.edit_export(1234, blocks, str(tmp_path / "out.mp3"), "wav16", 44100, 2, True)
+    one = lambda b: [{"source": 1234, "blocks": b}]  # noqa: E731
+    got = s.edit_export(one(blocks), str(tmp_path / "out.mp3"), "wav16", 44100, 2, True)
     out = tmp_path / "out.wav"
     assert got["path"] == str(out)  # the extension follows the format
     with wave.open(str(out)) as w:
@@ -177,12 +178,37 @@ def test_edit_export_writes_the_blocks_as_one_file_and_changes_nothing(tmp_path)
         v = np.frombuffer(w.readframes(w.getnframes()), "<i2")
     assert abs(np.abs(v.astype(int)).max() / 32768 - 10 ** (-1 / 20)) < 0.01  # normalized to -1 dB
     assert (tmp_path / "m.audi").read_text() == before and not s.project.replacements[0].blocks
-    assert Path(s.edit_export(1234, blocks[:1], str(tmp_path / "x"), "flac")["path"]).suffix == ".flac"
+    assert Path(s.edit_export(one(blocks[:1]), str(tmp_path / "x"), "flac")["path"]).suffix == ".flac"
     for bad in [("ogg", 22050, 0), ("aiff", 48000, 0), ("wav24", 48000, 6)]:
         with pytest.raises(EditorError):
-            s.edit_export(1234, blocks, str(tmp_path / "y.wav"), *bad)
+            s.edit_export(one(blocks), str(tmp_path / "y.wav"), *bad)
     with pytest.raises(EditorError, match="Nothing to export"):
-        s.edit_export(99, [], str(tmp_path / "z.wav"))
+        s.edit_export([{"source": 99, "blocks": []}], str(tmp_path / "z.wav"))
+    # several tracks (the Segment view's slots) add up into one file, as long as the longest
+    b = ramp(tmp_path / "b.wav", 1.5)
+    s._edit("assign", lambda p: s._set(p, 77, str(b)))
+    s.edit_export([{"source": 1234, "blocks": blocks[:1]}, {"source": 77, "blocks": [{"start_ms": 0, "end_ms": 1500}]}],
+                  str(tmp_path / "both.wav"), "wav16")
+    with wave.open(str(tmp_path / "both.wav")) as w:
+        assert abs(w.getnframes() - 72000) < 10
+        both = np.frombuffer(w.readframes(w.getnframes()), "<i2").astype(int)
+    assert both[4800] == 2 * (4800 // 2)  # 100 ms in: both ramps at the same sample, added
+
+
+def test_edit_render_saves_a_file_target_as_a_new_file(tmp_path):
+    """A song edited in the Waveform Editor (a file, not a slot) becomes a new file in audio/edited, numbered when the
+    name is taken; the file it came from stays as it was, and the project doesn't change."""
+    s = Session(load=False)
+    s.new_project(tmp_path / "m.audi", "M")
+    song = ramp(tmp_path / "Song.wav")
+    before = song.read_bytes()
+    got = Path(s.edit_render(str(song), [{"start_ms": 200, "end_ms": 700, "at_ms": 0, "fade_out_ms": 100}])["path"])
+    assert got == tmp_path / "audio" / "edited" / "Song (edited).wav" and len(samples(got)) == 24000
+    again = Path(s.edit_render(str(got), [{"start_ms": 0, "end_ms": 300}])["path"])
+    assert again.name == "Song (edited 2).wav" and len(samples(again)) == 14400
+    assert song.read_bytes() == before and not s.project.replacements
+    with pytest.raises(EditorError, match="Nothing to save"):
+        s.edit_render(str(song), [])
 
 
 def test_layers_place_blocks_in_the_editor_and_play_the_same(tmp_path):

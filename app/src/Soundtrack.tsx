@@ -1,11 +1,11 @@
 import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { ph, plural, t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { call, fileUrl, fmtNumber, fmtTime, type Assignment, type Cue, type MusicItem, type Piece, type PlaylistMap, type PlayNode } from "./api";
+import { call, fileUrl, fmtNumber, fmtTime, type Assignment, type Block, type Cue, type MusicItem, type Piece, type PlaylistMap, type PlayNode } from "./api";
 import { confirm } from "./Confirm";
 import { useContextMenu, type MenuEntry } from "./ContextMenu";
 import { audible, cuesTag, Linked, moreTag, PlayButton, playSlot, SILENCE_TIP } from "./CueView";
-import { AudioIcon, CollapseAllIcon, ExportIcon, InOrderIcon, NextEachIcon, PauseIcon, RandomIcon, RepeatIcon, ShuffleIcon, SkipIcon, ThroughIcon } from "./Icons";
+import { AudioIcon, CollapseAllIcon, ExportIcon, InOrderIcon, NextEachIcon, PauseIcon, PencilIcon, RandomIcon, RepeatIcon, ShuffleIcon, SkipIcon, ThroughIcon } from "./Icons";
 import { ResetLevel } from "./Inspector";
 import { rangeVars } from "./range";
 import { keyLabel, useCommands, useKeymap } from "./keys";
@@ -20,6 +20,7 @@ import { useStable } from "./stable";
 import { useEditor, useShownTabs } from "./store";
 import { motionMs, scrollBehavior } from "./theme";
 import { Timeline } from "./Timeline";
+import { WaveEditor } from "./WaveEditor";
 import { PanelToggles, ToolButton, usePanels } from "./Tools";
 import { ExportListChip, ExportPanel } from "./ExportDialog";
 import { Help } from "./Wiki";
@@ -440,6 +441,7 @@ function PieceView({ item, part, setPart, sections, open }: {
     },
     onChoose: () => setSlicing({}),
     onRecut: () => setSlicing({ file: project && piece.song ? fullPath(project.folder, piece.song) : undefined }),
+    onEdited: (file: string) => setSlicing({ file }), // the song edited in the Waveform Editor, a new file, to cut
   });
   // a drop on One song or on a place (App.tsx hands it over)
   const latest = useRef({ put, fillFree, cueId });
@@ -578,7 +580,7 @@ function PieceView({ item, part, setPart, sections, open }: {
         <div className="st-body" ref={body}>
           {run && <Transcript run={run} now={now} fight={fight} />}
           {piece.mode === "song" && <SongBody map={map} cue={cue} piece={piece} firsts={firsts} lengths={lengths} marks={marks} onPick={setSel} at={at}
-            fight={fight} onChoose={pass.onChoose} onRecut={pass.onRecut} rest={free.rest} onFill={pass.onFill} onClear={pass.onClear} />}
+            fight={fight} onChoose={pass.onChoose} onRecut={pass.onRecut} onEdited={pass.onEdited} rest={free.rest} onFill={pass.onFill} onClear={pass.onClear} />}
           {piece.mode === "tracks" && <PlaylistBody map={map} piece={piece} places={places} cueId={cueId} lengths={lengths} marks={marks} onPick={setSel} at={at}
             current={pass.current} put={pass.put} onSet={pass.onSet} fight={fight} />}
           {free.openings.length > 0 && <Openings map={map} cue={cue} lines={free.openings} from={map.song.length + 1} lengths={lengths} marks={marks}
@@ -992,11 +994,13 @@ const Openings = memo(function Openings({ map, cue, lines, from, fight, onFill, 
 /** One song: the song, the pieces in the segments they went into, the ways to cut it again or choose another, and
     below the pieces the segments the song doesn't reach, which take files that play after it. A song dropped here
     opens the slice tool with it. */
-const SongBody = memo(function SongBody({ map, cue, piece, firsts, fight, onChoose, onRecut, rest, onFill, onClear, ...pick }: Pickable & {
+const SongBody = memo(function SongBody({ map, cue, piece, firsts, fight, onChoose, onRecut, onEdited, rest, onFill, onClear, ...pick }: Pickable & {
   map: PlaylistMap; cue: Cue; piece: Piece; firsts: Map<string, string>; fight: boolean; onChoose: () => void; onRecut: () => void;
+  onEdited: (file: string) => void;
   rest: { seg: string; source: string | null }[]; onFill: (seg: string, files: string[]) => void; onClear: (seg: string) => void;
 }) {
   const { project } = useEditor();
+  const [editing, setEditing] = useState(false); // the song in the Waveform Editor: Apply saves it anew, to cut
   const added = new Set(piece.added ?? []);
   const segs = (piece.segments ?? []).filter((s) => !added.has(s));
   const opens = !!openings(map);
@@ -1015,8 +1019,12 @@ const SongBody = memo(function SongBody({ map, cue, piece, firsts, fight, onChoo
       <div className="st-row-btns">
         {piece.song && <span className="st-songname" data-tip={piece.song}>{fileName(piece.song)}</span>}
         {piece.song && <button className="btn small-btn" onClick={onRecut}><Trans>Change Cuts</Trans></button>}
+        {piece.song && <button className="btn small-btn st-edit-song" onClick={() => setEditing(true)} data-tip={t`Trim, fade or arrange the song before it is cut`}
+          data-tip-more={t`The result is saved as a new file, then cut into the pieces again`}><PencilIcon /><Trans>Edit Song</Trans></button>}
         <button className="btn quiet small-btn" onClick={onChoose}><Trans>Choose Another Song</Trans></button>
       </div>
+      {editing && piece.song && <WaveEditor tracks={[{ file: piece.song, name: fileName(piece.song) }]} what={fileName(piece.song)}
+        applyLabel={t`Save and Cut`} onFile={onEdited} onClose={() => setEditing(false)} />}
       <p className="st-note">{fight
         ? opens ? t`Each fight starts on one of the openings, then plays the song from piece 1.` : t`Each fight plays the song from piece 1.`
         : opens ? t`Each time the music comes on, one of the openings plays first, then the song from piece 1.`
@@ -1041,6 +1049,14 @@ const SongBody = memo(function SongBody({ map, cue, piece, firsts, fight, onChoo
 });
 
 type Place = { seg: string; source: string | null; a?: Assignment };
+
+/** How a song in a place plays now, as the Waveform Editor's blocks of its file (none: the file whole). */
+function placeBlocks(a: Assignment): Block[] | undefined {
+  if (a.blocks?.length) return a.blocks;
+  if (!(a.start_ms || a.end_ms || a.delay_ms || a.fade_in_ms || a.fade_out_ms)) return undefined;
+  const end = a.end_ms || a.file_ms || 0;
+  return end > (a.start_ms ?? 0) ? [{ start_ms: a.start_ms ?? 0, end_ms: end, at_ms: a.delay_ms ?? 0, fade_in_ms: a.fade_in_ms, fade_out_ms: a.fade_out_ms, gain_db: 0 }] : undefined;
+}
 type PlaceSet = ({ keep: number } | { file: string } | null)[];
 
 /** A song on the way to another place: the lines that take a song (tops and bottoms in the list) with the song cells
@@ -1184,6 +1200,8 @@ const PlaylistBody = memo(function PlaylistBody({ map, piece, places, cueId, cur
     pick.onPick(places[able[to]].source!);
   });
   useCommands({ moveUp: () => moveSelected(-1), moveDown: () => moveSelected(1) }, 1);
+  const [editing, setEditing] = useState<number | null>(null); // a place's song in the Waveform Editor: Apply saves it anew there
+  const edited = editing != null ? places[editing]?.a : undefined;
   const used = places.filter((x) => x.a).length, total = places.length;
   const choose = async (k: number) => { const f = await pickAudio(true); if (f?.length) put(k, f); };
   const add = async () => {
@@ -1244,6 +1262,8 @@ const PlaylistBody = memo(function PlaylistBody({ map, piece, places, cueId, cur
             {x.source && x.a ? (
               <NewAudio source={x.source} a={x.a} name={x.a.name} at={pick.at(x.source)} onPick={() => pick.onPick(x.source!)}>
                 <span className="st-tools">
+                  <button className="x" aria-label={t`Edit the song`} data-tip={t`Edit the song`} data-tip-more={t`Trim, fade or arrange it in the Waveform Editor. The result is saved as a new file in this place`}
+                    onClick={(e) => { e.stopPropagation(); setEditing(k); }}><PencilIcon /></button>
                   <button className="x" aria-label={t`Move up`} data-tip={t`Move up`} disabled={k === 0} onClick={(e) => { e.stopPropagation(); move(k, -1); }}>↑</button>
                   <button className="x" aria-label={t`Move down`} data-tip={t`Move down`} disabled={k === places.length - 1} onClick={(e) => { e.stopPropagation(); move(k, 1); }}>↓</button>
                   <button className="x" aria-label={t`Remove the song`} data-tip={t`Remove the song`} onClick={(e) => { e.stopPropagation(); remove(k); }}>✕</button>
@@ -1255,6 +1275,9 @@ const PlaylistBody = memo(function PlaylistBody({ map, piece, places, cueId, cur
           </SegLine>
         ))}
       </div>
+      {editing != null && edited && <WaveEditor tracks={[{ file: edited.audio, name: edited.name, blocks: placeBlocks(edited) }]} what={edited.name}
+        applyLabel={t`Save and Use`} onClose={() => setEditing(null)}
+        onFile={(file) => { const next = current(); next[editing] = { file }; return actions.playlistSet(cueId, next, t`Song edited`); }} />}
     </div>
   );
 });

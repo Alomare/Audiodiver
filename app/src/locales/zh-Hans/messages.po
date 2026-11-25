@@ -53,6 +53,11 @@ msgstr "{0, plural, other {未添加：# 个路径不是模组}}"
 msgid "{0, plural, one {Repatch # Mod} other {Repatch # Mods}}"
 msgstr "{0, plural, other {Repatch # 个模组}}"
 
+#. placeholder {0}: x.name
+#: src/WaveEditor.tsx
+msgid "{0} (edited original)"
+msgstr ""
+
 #. placeholder {0}: shown.length
 #: src/WaveEditor.tsx
 msgid "{0} blocks"
@@ -74,6 +79,22 @@ msgstr ""
 #: src/SettingsTab.tsx
 msgid "{0} notes"
 msgstr "{0} 备注"
+
+#. placeholder {0}: tracks.length
+#: src/WaveEditor.tsx
+msgid "{0} slots"
+msgstr ""
+
+#. placeholder {0}: x.name
+#. placeholder {1}: l + 1
+#: src/WaveEditor.tsx
+msgid "{0}, layer {1}"
+msgstr ""
+
+#. placeholder {0}: x.name
+#: src/WaveEditor.tsx
+msgid "{0}, original"
+msgstr ""
 
 #. Tooltip of words that open a Wiki page. about is the subject of the page.
 #: src/Wiki.tsx
@@ -1014,10 +1035,6 @@ msgstr "{what} · 原版"
 msgid "{what} · replaced"
 msgstr "{what} · 已替换"
 
-#: src/WaveEditor.tsx
-msgid "{what} (edited original)"
-msgstr ""
-
 #: src/RepatchPage.tsx
 msgid "{what}; {skipped, plural, one {# sound couldn't be read} other {# sounds couldn't be read}}"
 msgstr "{what}；{skipped, plural, other {# 个声音无法读取}}"
@@ -1226,6 +1243,11 @@ msgstr "保留原版的层仍会与新音频叠加播放"
 
 #: src/WaveEditor.tsx
 msgid "A layer to keep blocks apart on"
+msgstr ""
+
+#. placeholder {0}: tracks[on.track].name
+#: src/WaveEditor.tsx
+msgid "A layer under {0}, to keep blocks apart on"
 msgstr ""
 
 #: src/ProjectTab.tsx
@@ -2322,6 +2344,7 @@ msgid "Change words in many lines at once"
 msgstr "一次更改多行中的词语"
 
 #: src/TextTab.tsx
+#: src/WaveEditor.tsx
 msgid "Changed"
 msgstr "已更改"
 
@@ -3213,7 +3236,7 @@ msgstr "删除"
 msgid "Delete Global Note"
 msgstr "删除全局备注"
 
-#. placeholder {0}: i + 1
+#. placeholder {0}: layer + 1
 #: src/WaveEditor.tsx
 msgid "Delete Layer {0}"
 msgstr ""
@@ -3338,6 +3361,10 @@ msgstr "拖动可略去歌曲的开头"
 
 #: src/WaveEditor.tsx
 msgid "Drag the cursor, or along the ruler, to move it"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Drag their flags on the ruler. Let go near the automatic spot to go back to it"
 msgstr ""
 
 #: src/WaveEditor.tsx
@@ -3538,12 +3565,28 @@ msgstr "每次音乐响起时，先播放其中一个开场，然后播放各首
 msgid "Eagle-1"
 msgstr "“飞鹰”1号"
 
+#: src/Timeline.tsx
+msgid "Edit every slot of this segment together"
+msgstr ""
+
+#: src/Timeline.tsx
+msgid "Edit Segment"
+msgstr ""
+
+#: src/Soundtrack.tsx
+msgid "Edit Song"
+msgstr ""
+
 #: src/Notes.tsx
 msgid "Edit the note"
 msgstr "编辑备注"
 
 #: src/Timeline.tsx
 msgid "Edit the original in the Waveform Editor"
+msgstr ""
+
+#: src/Soundtrack.tsx
+msgid "Edit the song"
 msgstr ""
 
 #: src/WaveEditor.tsx
@@ -3610,7 +3653,9 @@ msgid "English (US)"
 msgstr "英语（美国）"
 
 #. A music segment's Entry cue point (Wwise term): where the segment counts as started
+#. A music segment's Entry cue point (Wwise term): where the segment counts as started
 #: src/Timeline.tsx
+#: src/WaveEditor.tsx
 msgid "Entry"
 msgstr "入点"
 
@@ -3709,7 +3754,9 @@ msgid "Everything in the project"
 msgstr "项目中的所有内容"
 
 #. A music segment's Exit cue point (Wwise term): where the next segment starts
+#. A music segment's Exit cue point (Wwise term): where the next segment starts
 #: src/Timeline.tsx
+#: src/WaveEditor.tsx
 msgid "Exit"
 msgstr "出点"
 
@@ -4783,7 +4830,7 @@ msgstr "上次构建：<0>{zip}</0>，{mb} MB，{when}"
 msgid "layer"
 msgstr "层"
 
-#. placeholder {0}: i + 1
+#. placeholder {0}: l + 1
 #: src/WaveEditor.tsx
 msgid "Layer {0}"
 msgstr ""
@@ -5170,6 +5217,10 @@ msgstr "混合"
 
 #: src/WaveEditor.tsx
 msgid "Mixes into one file:"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Mixing the segments…"
 msgstr ""
 
 #: src/CombinePage.tsx
@@ -6669,7 +6720,11 @@ msgstr "播放第一个变体"
 msgid "Play from the cursor"
 msgstr ""
 
-#. placeholder {0}: i + 1
+#: src/WaveEditor.tsx
+msgid "Play in Context"
+msgstr ""
+
+#. placeholder {0}: layer + 1
 #: src/WaveEditor.tsx
 msgid "Play Layer {0}"
 msgstr ""
@@ -6721,6 +6776,11 @@ msgstr ""
 #: src/SliceTool.tsx
 msgid "Play the original {slot}"
 msgstr "播放原版 {slot}"
+
+#. placeholder {0}: x.name
+#: src/WaveEditor.tsx
+msgid "Play the original of {0}"
+msgstr ""
 
 #: src/keys.ts
 msgid "Play the original of the selected slot"
@@ -6850,6 +6910,10 @@ msgstr "随机选取其中一个播放"
 #: src/CueView.tsx
 msgid "Plays only under this condition"
 msgstr "仅在此条件下播放"
+
+#: src/WaveEditor.tsx
+msgid "Plays the end of the segment before, this segment as edited here and the start of the one after, handed over at the cue points as in game"
+msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Plays the lanes ticked. A double click on the waveforms plays from there"
@@ -7338,10 +7402,6 @@ msgstr "已从 {n, plural, other {# 个槽位}}里移除新音频。"
 msgid "Removed the silence from {n, plural, one {# slot} other {# slots}}."
 msgstr "已移除 {n, plural, other {# 个槽位}}的静音。"
 
-#: src/WaveEditor.tsx
-msgid "Removes every block"
-msgstr ""
-
 #: src/ImportMod.tsx
 msgid "Removes the new audio, added sounds, cue points and list first. The audio files stay, and Undo brings them back."
 msgstr "这里会先清掉新音频、新加的声音、提示点和列表。音频文件留着，撤销能找回来。"
@@ -7595,7 +7655,7 @@ msgstr "已恢复默认。该按键原先归 {commands} 使用。"
 msgid "Reset zoom"
 msgstr "重置缩放"
 
-#. placeholder {0}: i + 1
+#. placeholder {0}: layer + 1
 #: src/WaveEditor.tsx
 msgid "Resize Layer {0}"
 msgstr ""
@@ -7668,6 +7728,14 @@ msgstr ""
 msgid "Save"
 msgstr "保存"
 
+#: src/Soundtrack.tsx
+msgid "Save and Cut"
+msgstr ""
+
+#: src/Soundtrack.tsx
+msgid "Save and Use"
+msgstr ""
+
 #: src/CueView.tsx
 msgid "Save as WAV, FLAC, MP3 or WEM"
 msgstr "保存为 WAV、FLAC、MP3 或 WEM"
@@ -7679,6 +7747,10 @@ msgstr "将文本行保存为 CSV 或 JSON 文件"
 #: src/keys.ts
 msgid "Save the project"
 msgstr "保存项目"
+
+#: src/WaveEditor.tsx
+msgid "Save the result as a new file and use it"
+msgstr ""
 
 #: src/App.tsx
 msgid "Saved"
@@ -8205,6 +8277,11 @@ msgstr "正在切分"
 msgid "Slot"
 msgstr "槽位"
 
+#. placeholder {0}: k + 1
+#: src/Timeline.tsx
+msgid "Slot {0}"
+msgstr ""
+
 #: src/CueView.tsx
 #: src/ExportDialog.tsx
 #: src/keys.ts
@@ -8245,6 +8322,10 @@ msgstr "歌曲"
 #: src/SliceTool.tsx
 msgid "Song"
 msgstr "歌曲"
+
+#: src/Soundtrack.tsx
+msgid "Song edited"
+msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "Songs"
@@ -8343,6 +8424,10 @@ msgstr "开始"
 #: src/Home.tsx
 msgid "Start a mod"
 msgstr "开始制作模组"
+
+#: src/WaveEditor.tsx
+msgid "Start from the original"
+msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Start from the Original"
@@ -8592,6 +8677,10 @@ msgstr "游戏为此声音设置的 {gain} dB 保持不变"
 msgid "The {n} blocks on it are removed with it. Undo brings them back."
 msgstr ""
 
+#: src/Timeline.tsx
+msgid "The {n} slots line up in the Waveform Editor, each under the original"
+msgstr ""
+
 #. Markdown. **Index** is the button above the Library list, and the bold word must read as the translation of the button does.
 #: src/tutorials.ts
 msgid "The **Index** sorts the sounds of the game by where you hear them: weapons, stratagems, enemies and more. The search box finds anything by name."
@@ -8670,7 +8759,7 @@ msgid "The current game doesn't have this sound. The banks in the mod bring it b
 msgstr "当前游戏没有这个声音。模组中的音频库会把它带回来。"
 
 #: src/WaveEditor.tsx
-msgid "The cursor, block edges and blocks snap to edges: of blocks, the start and where the original ends"
+msgid "The cursor, block edges, blocks and cue points snap to edges: of blocks, the start and where the original ends"
 msgstr ""
 
 #: src/SettingsTab.tsx
@@ -8697,9 +8786,13 @@ msgstr "详情面板与静音"
 msgid "The echo"
 msgstr "回声"
 
-#. placeholder {0}: a.name
+#. placeholder {0}: replaced[0]
 #: src/WaveEditor.tsx
 msgid "The edited original becomes the new audio of this slot, in place of {0}."
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "The edited originals become the new audio of their slots, in place of what is there."
 msgstr ""
 
 #: src/store.tsx
@@ -9050,6 +9143,10 @@ msgstr "原版 {label}"
 msgid "the original {name}"
 msgstr "原版 {name}"
 
+#: src/WaveEditor.tsx
+msgid "The original becomes the new audio of this layer, to edit"
+msgstr ""
+
 #: src/Soundtrack.tsx
 msgid "The original order and audio"
 msgstr "原版的顺序和音频"
@@ -9152,6 +9249,10 @@ msgstr "Wwise 音频库结构参考"
 msgid "The result becomes the new audio of the slot"
 msgstr ""
 
+#: src/Soundtrack.tsx
+msgid "The result is saved as a new file, then cut into the pieces again"
+msgstr ""
+
 #: src/content.ts
 msgid "the screenshots of Helldivers 2 behind Home"
 msgstr "主页背景中的 Helldivers 2 截图"
@@ -9163,6 +9264,10 @@ msgstr "段落从这里算作开始。它之前的音频会和上一段落的结
 #: src/Timeline.tsx
 msgid "The segment counts as started here. Audio before it plays under the end of the segment before. Drag to move it"
 msgstr "段落从这里视为开始。其前的音频会在上一个段落的结尾之下播放。拖动可移动它"
+
+#: src/WaveEditor.tsx
+msgid "The segment's cue points"
+msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "The segments in their original order. Untick one to leave it out"
@@ -9496,6 +9601,14 @@ msgstr "右上"
 #: src/content.ts
 msgid "transcribing voice lines to match them to subtitles"
 msgstr "转写语音台词以匹配字幕"
+
+#: src/Soundtrack.tsx
+msgid "Trim, fade or arrange it in the Waveform Editor. The result is saved as a new file in this place"
+msgstr ""
+
+#: src/Soundtrack.tsx
+msgid "Trim, fade or arrange the song before it is cut"
+msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Trim, split, move and fade audio"

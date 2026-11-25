@@ -711,12 +711,15 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
    the two line up. In the Audio tab a row is the label, the square's column and the waveform */
 .timeline:not(.one) .tl-row { grid-template-columns: calc(78px * var(--fs)) calc(20px * var(--fs) + 4px) 1fr; column-gap: 0; }
 .timeline:not(.one) .tl-label { margin-right: 10px; }
-.tl-edit-at { align-self: center; display: flex; }
+.tl-edit-at { align-self: center; display: flex; flex-direction: column; gap: 4px; }
 .tl-edit { flex: none; display: inline-grid; place-items: center; width: calc(20px * var(--fs)); height: calc(20px * var(--fs));
   padding: 0; color: var(--accent-ink); background: var(--accent); border-radius: 2px 0 0 2px; font-size: calc(13px * var(--fs));
   transition: background-color var(--t1); }
 .tl-edit:hover { background: var(--accent-hover); }
 .tl-edit .icon { width: 1em; height: 1em; display: block; }
+/* under the pencil, quieter: every layer of the segment at once */
+.tl-edit.tl-edit-seg { color: var(--accent-fg); background: var(--raised); }
+.tl-edit.tl-edit-seg:hover { background: var(--hover); }
 /* the Library's facts about the slot, over its waveform */
 .tl-facts { flex: none; display: flex; flex-direction: column; gap: 3px; font-size: calc(13px * var(--fs)); color: var(--muted); }
 .tl-facts-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; min-width: 0; }
@@ -2295,6 +2298,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .st-row-btns { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
 .st-row-btns .check { align-items: center; }
 .st-row-btns .check input { margin-top: 0; }
+.st-edit-song { gap: 6px; }
 .cue-bar > .st-length { display: inline-flex; align-items: center; gap: 6px; margin-left: 8px; color: var(--muted);
   font-size: calc(13px * var(--fs)); white-space: nowrap; }
 .st-length select { width: auto; }
@@ -2422,6 +2426,13 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .wave-ed-toggle[aria-pressed="true"] { color: var(--second-fg); border-color: var(--second-fg);
   background: color-mix(in srgb, var(--second-fg) 18%, var(--raised)); }
 .wave-ed-toggle[aria-pressed="true"]:hover:not(:disabled) { color: var(--second-fg); background: color-mix(in srgb, var(--second-fg) 26%, var(--raised)); }
+/* Play in Context: on while it plays, a small spinner while the core mixes the segments */
+.wave-ed-tools .wave-ed-context.on { color: var(--second-fg); background: color-mix(in srgb, var(--second-fg) 18%, var(--raised)); }
+.wave-ed-spin { width: 14px; height: 14px; border: 2px solid var(--line); border-top-color: var(--second-fg); border-radius: 50%; animation: upd-spin .8s linear infinite; }
+/* the segment's cue points, over the waveforms beside the cursor's time; a dot once changed here */
+.wave-ed-cues { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); font-size: calc(12px * var(--fs)); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.wave-ed-cues b { color: var(--text); font-weight: 600; }
+.wave-ed-dot { width: 6px; height: 6px; margin-left: 4px; border-radius: 50%; background: var(--accent-fg); }
 .wave-ed-time { font-size: calc(14px * var(--fs)); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--second-fg); }
 /* the lanes with the zoom, and the selected block's values in a column to their right */
 .wave-ed-main { display: grid; grid-template-columns: minmax(0, 1fr) calc(244px * var(--fs)); gap: 14px; align-items: start; }
@@ -2432,7 +2443,13 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .wave-ed-labels { display: flex; flex-direction: column; border-right: 1px solid var(--line-soft); font-size: calc(13px * var(--fs)); font-weight: 700; }
 .wave-ed-labels > span, .wave-ed-labels > label { flex: none; display: flex; align-items: center; gap: 4px; padding: 0 8px; }
 .wave-ed-labels .game { color: var(--steel); border-top: 1px solid var(--line-soft); padding: 0 4px 0 2px; gap: 2px; }
-.wave-ed-labels .game .wave-ed-grip { cursor: inherit; } /* an empty grip's room: its box lines up with the layers' */
+.wave-ed-labels .game .wave-ed-grip { cursor: inherit; }
+/* a segment's slot: its name over "Original", on its original's lane; a stronger rule above each slot */
+.wave-ed-labels .game.many { border-top: 2px solid var(--line); }
+.wave-ed-labels .game.many:first-of-type { border-top-width: 1px; border-top-color: var(--line-soft); }
+.wave-ed-track { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.2; }
+.wave-ed-track b { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wave-ed-track small { color: var(--steel); font-weight: 600; font-size: calc(11px * var(--fs)); } /* an empty grip's room: its box lines up with the layers' */
 .wave-ed-labels .icon-btn.small { width: 24px; height: 24px; font-size: 15px; flex: none; }
 /* a layer's label: the grip that reorders it, its name, Delete, and its bottom edge that resizes it; the layer worked
    on (where new audio goes) in the primary colour */

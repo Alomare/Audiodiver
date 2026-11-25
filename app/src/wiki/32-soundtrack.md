@@ -41,11 +41,11 @@ Undo takes back a whole template. A template that finds nothing to change says s
 
 The list goes on past the last piece with the segments the song doesn't reach. A file on one of them plays after the song, and stays there if you cut the song again, unless a new piece lands on that segment.
 
-**Change Cuts** opens the slice tool again with the same song and the same cuts. **Choose Another Song** starts with a new one.
+**Change Cuts** opens the slice tool again with the same song and the same cuts. **Choose Another Song** starts with a new one. **Edit Song** opens the song in the [Waveform Editor](wiki:timing-and-loops#the-waveform-editor) to trim, fade or arrange it before it is cut: **Save and Cut** saves the result as a new file in the project's `audio\edited` folder and opens the slice tool with it. The song you chose stays as it is.
 
 ## Playlist
 
-A playlist has a line for each place a song can go, in play order. Click a place, or drop a song on it, to put a song there. Several files chosen or dropped on a place fill it and the places after it, in file-name order. **Add Songs** fills the empty places. Drag a song to another place to move it, and the songs between move one place along. ↑ and ↓ on the line, or {key:moveUp} and {key:moveDown}, move a song one place, and ✕ takes it out of the playlist. The file stays on disk.
+A playlist has a line for each place a song can go, in play order. Click a place, or drop a song on it, to put a song there. Several files chosen or dropped on a place fill it and the places after it, in file-name order. **Add Songs** fills the empty places. Drag a song to another place to move it, and the songs between move one place along. ↑ and ↓ on the line, or {key:moveUp} and {key:moveDown}, move a song one place, and ✕ takes it out of the playlist. The file stays on disk. The pencil opens the song in the [Waveform Editor](wiki:timing-and-loops#the-waveform-editor): **Save and Use** saves the result as a new file in `audio\edited` and puts it in that place.
 
 Empty places don't play. **Shuffle** plays the songs in a random order, and no song plays twice before the others have played. **Continue in the next fight** starts each fight on the song after the one the last fight stopped on. Without it, each fight starts again from the first song. For music outside combat the option is **Continue next time**.
 
@@ -88,4 +88,4 @@ Segments in a group are joined by what the group means: → for in order, *or* f
 
 ## Layers
 
-Music that plays several layers at once, like the Extraction music, shows them as a grid: a row for each segment, and a column for each layer at low and at high intensity. Click a cell to see the waveforms. Replace layers in the [Audio](app:editor) tab.
+Music that plays several layers at once, like the Extraction music, shows them as a grid: a row for each segment, and a column for each layer at low and at high intensity. Click a cell to see the waveforms. Replace layers in the [Audio](app:editor) tab, or edit every layer of a segment together with the stacked button under the pencil in the waveforms (**Edit Segment**).

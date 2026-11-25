@@ -53,6 +53,11 @@ msgstr ""
 msgid "{0, plural, one {Repatch # Mod} other {Repatch # Mods}}"
 msgstr ""
 
+#. placeholder {0}: x.name
+#: src/WaveEditor.tsx
+msgid "{0} (edited original)"
+msgstr ""
+
 #. placeholder {0}: shown.length
 #: src/WaveEditor.tsx
 msgid "{0} blocks"
@@ -73,6 +78,22 @@ msgstr ""
 #. placeholder {0}: project.name
 #: src/SettingsTab.tsx
 msgid "{0} notes"
+msgstr ""
+
+#. placeholder {0}: tracks.length
+#: src/WaveEditor.tsx
+msgid "{0} slots"
+msgstr ""
+
+#. placeholder {0}: x.name
+#. placeholder {1}: l + 1
+#: src/WaveEditor.tsx
+msgid "{0}, layer {1}"
+msgstr ""
+
+#. placeholder {0}: x.name
+#: src/WaveEditor.tsx
+msgid "{0}, original"
 msgstr ""
 
 #. Tooltip of words that open a Wiki page. about is the subject of the page.
@@ -1014,10 +1035,6 @@ msgstr ""
 msgid "{what} · replaced"
 msgstr ""
 
-#: src/WaveEditor.tsx
-msgid "{what} (edited original)"
-msgstr ""
-
 #: src/RepatchPage.tsx
 msgid "{what}; {skipped, plural, one {# sound couldn't be read} other {# sounds couldn't be read}}"
 msgstr ""
@@ -1226,6 +1243,11 @@ msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "A layer to keep blocks apart on"
+msgstr ""
+
+#. placeholder {0}: tracks[on.track].name
+#: src/WaveEditor.tsx
+msgid "A layer under {0}, to keep blocks apart on"
 msgstr ""
 
 #: src/ProjectTab.tsx
@@ -2322,6 +2344,7 @@ msgid "Change words in many lines at once"
 msgstr ""
 
 #: src/TextTab.tsx
+#: src/WaveEditor.tsx
 msgid "Changed"
 msgstr ""
 
@@ -3213,7 +3236,7 @@ msgstr ""
 msgid "Delete Global Note"
 msgstr ""
 
-#. placeholder {0}: i + 1
+#. placeholder {0}: layer + 1
 #: src/WaveEditor.tsx
 msgid "Delete Layer {0}"
 msgstr ""
@@ -3338,6 +3361,10 @@ msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Drag the cursor, or along the ruler, to move it"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Drag their flags on the ruler. Let go near the automatic spot to go back to it"
 msgstr ""
 
 #: src/WaveEditor.tsx
@@ -3538,12 +3565,28 @@ msgstr ""
 msgid "Eagle-1"
 msgstr ""
 
+#: src/Timeline.tsx
+msgid "Edit every slot of this segment together"
+msgstr ""
+
+#: src/Timeline.tsx
+msgid "Edit Segment"
+msgstr ""
+
+#: src/Soundtrack.tsx
+msgid "Edit Song"
+msgstr ""
+
 #: src/Notes.tsx
 msgid "Edit the note"
 msgstr ""
 
 #: src/Timeline.tsx
 msgid "Edit the original in the Waveform Editor"
+msgstr ""
+
+#: src/Soundtrack.tsx
+msgid "Edit the song"
 msgstr ""
 
 #: src/WaveEditor.tsx
@@ -3610,7 +3653,9 @@ msgid "English (US)"
 msgstr ""
 
 #. A music segment's Entry cue point (Wwise term): where the segment counts as started
+#. A music segment's Entry cue point (Wwise term): where the segment counts as started
 #: src/Timeline.tsx
+#: src/WaveEditor.tsx
 msgid "Entry"
 msgstr ""
 
@@ -3709,7 +3754,9 @@ msgid "Everything in the project"
 msgstr ""
 
 #. A music segment's Exit cue point (Wwise term): where the next segment starts
+#. A music segment's Exit cue point (Wwise term): where the next segment starts
 #: src/Timeline.tsx
+#: src/WaveEditor.tsx
 msgid "Exit"
 msgstr ""
 
@@ -4783,7 +4830,7 @@ msgstr ""
 msgid "layer"
 msgstr ""
 
-#. placeholder {0}: i + 1
+#. placeholder {0}: l + 1
 #: src/WaveEditor.tsx
 msgid "Layer {0}"
 msgstr ""
@@ -5170,6 +5217,10 @@ msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Mixes into one file:"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Mixing the segments…"
 msgstr ""
 
 #: src/CombinePage.tsx
@@ -6669,7 +6720,11 @@ msgstr ""
 msgid "Play from the cursor"
 msgstr ""
 
-#. placeholder {0}: i + 1
+#: src/WaveEditor.tsx
+msgid "Play in Context"
+msgstr ""
+
+#. placeholder {0}: layer + 1
 #: src/WaveEditor.tsx
 msgid "Play Layer {0}"
 msgstr ""
@@ -6720,6 +6775,11 @@ msgstr ""
 
 #: src/SliceTool.tsx
 msgid "Play the original {slot}"
+msgstr ""
+
+#. placeholder {0}: x.name
+#: src/WaveEditor.tsx
+msgid "Play the original of {0}"
 msgstr ""
 
 #: src/keys.ts
@@ -6849,6 +6909,10 @@ msgstr ""
 
 #: src/CueView.tsx
 msgid "Plays only under this condition"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Plays the end of the segment before, this segment as edited here and the start of the one after, handed over at the cue points as in game"
 msgstr ""
 
 #: src/WaveEditor.tsx
@@ -7338,10 +7402,6 @@ msgstr ""
 msgid "Removed the silence from {n, plural, one {# slot} other {# slots}}."
 msgstr ""
 
-#: src/WaveEditor.tsx
-msgid "Removes every block"
-msgstr ""
-
 #: src/ImportMod.tsx
 msgid "Removes the new audio, added sounds, cue points and list first. The audio files stay, and Undo brings them back."
 msgstr ""
@@ -7595,7 +7655,7 @@ msgstr ""
 msgid "Reset zoom"
 msgstr ""
 
-#. placeholder {0}: i + 1
+#. placeholder {0}: layer + 1
 #: src/WaveEditor.tsx
 msgid "Resize Layer {0}"
 msgstr ""
@@ -7668,6 +7728,14 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
+#: src/Soundtrack.tsx
+msgid "Save and Cut"
+msgstr ""
+
+#: src/Soundtrack.tsx
+msgid "Save and Use"
+msgstr ""
+
 #: src/CueView.tsx
 msgid "Save as WAV, FLAC, MP3 or WEM"
 msgstr ""
@@ -7678,6 +7746,10 @@ msgstr ""
 
 #: src/keys.ts
 msgid "Save the project"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Save the result as a new file and use it"
 msgstr ""
 
 #: src/App.tsx
@@ -8205,6 +8277,11 @@ msgstr ""
 msgid "Slot"
 msgstr ""
 
+#. placeholder {0}: k + 1
+#: src/Timeline.tsx
+msgid "Slot {0}"
+msgstr ""
+
 #: src/CueView.tsx
 #: src/ExportDialog.tsx
 #: src/keys.ts
@@ -8244,6 +8321,10 @@ msgstr ""
 
 #: src/SliceTool.tsx
 msgid "Song"
+msgstr ""
+
+#: src/Soundtrack.tsx
+msgid "Song edited"
 msgstr ""
 
 #: src/Soundtrack.tsx
@@ -8342,6 +8423,10 @@ msgstr ""
 
 #: src/Home.tsx
 msgid "Start a mod"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Start from the original"
 msgstr ""
 
 #: src/WaveEditor.tsx
@@ -8592,6 +8677,10 @@ msgstr ""
 msgid "The {n} blocks on it are removed with it. Undo brings them back."
 msgstr ""
 
+#: src/Timeline.tsx
+msgid "The {n} slots line up in the Waveform Editor, each under the original"
+msgstr ""
+
 #. Markdown. **Index** is the button above the Library list, and the bold word must read as the translation of the button does.
 #: src/tutorials.ts
 msgid "The **Index** sorts the sounds of the game by where you hear them: weapons, stratagems, enemies and more. The search box finds anything by name."
@@ -8670,7 +8759,7 @@ msgid "The current game doesn't have this sound. The banks in the mod bring it b
 msgstr ""
 
 #: src/WaveEditor.tsx
-msgid "The cursor, block edges and blocks snap to edges: of blocks, the start and where the original ends"
+msgid "The cursor, block edges, blocks and cue points snap to edges: of blocks, the start and where the original ends"
 msgstr ""
 
 #: src/SettingsTab.tsx
@@ -8697,9 +8786,13 @@ msgstr ""
 msgid "The echo"
 msgstr ""
 
-#. placeholder {0}: a.name
+#. placeholder {0}: replaced[0]
 #: src/WaveEditor.tsx
 msgid "The edited original becomes the new audio of this slot, in place of {0}."
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "The edited originals become the new audio of their slots, in place of what is there."
 msgstr ""
 
 #: src/store.tsx
@@ -9050,6 +9143,10 @@ msgstr ""
 msgid "the original {name}"
 msgstr ""
 
+#: src/WaveEditor.tsx
+msgid "The original becomes the new audio of this layer, to edit"
+msgstr ""
+
 #: src/Soundtrack.tsx
 msgid "The original order and audio"
 msgstr ""
@@ -9152,6 +9249,10 @@ msgstr ""
 msgid "The result becomes the new audio of the slot"
 msgstr ""
 
+#: src/Soundtrack.tsx
+msgid "The result is saved as a new file, then cut into the pieces again"
+msgstr ""
+
 #: src/content.ts
 msgid "the screenshots of Helldivers 2 behind Home"
 msgstr ""
@@ -9162,6 +9263,10 @@ msgstr ""
 
 #: src/Timeline.tsx
 msgid "The segment counts as started here. Audio before it plays under the end of the segment before. Drag to move it"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "The segment's cue points"
 msgstr ""
 
 #: src/Soundtrack.tsx
@@ -9495,6 +9600,14 @@ msgstr ""
 
 #: src/content.ts
 msgid "transcribing voice lines to match them to subtitles"
+msgstr ""
+
+#: src/Soundtrack.tsx
+msgid "Trim, fade or arrange it in the Waveform Editor. The result is saved as a new file in this place"
+msgstr ""
+
+#: src/Soundtrack.tsx
+msgid "Trim, fade or arrange the song before it is cut"
 msgstr ""
 
 #: src/WaveEditor.tsx

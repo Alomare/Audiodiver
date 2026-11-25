@@ -282,6 +282,8 @@ export const AddAudioIcon = () => <Icon size={1.05} stroke={2}><path d="M3.5 12h
 export const GripIcon = () => (
   <Icon size={1}><g fill="currentColor" stroke="none">{[8, 12, 16].flatMap((y) => [9, 15].map((x) => <circle key={`${x}-${y}`} cx={x} cy={y} r={1.5} />))}</g></Icon>
 );
+/** Waveforms stacked: every layer of a segment at once (the Waveform Editor's Edit Segment). Drawn bold, as it shows small. */
+export const StackIcon = () => <Icon size={1} stroke={2.2}><path d="M3.5 6.5h17M3.5 12h17M3.5 17.5h17" /><path d="M7 4.5v4M11 3.5v6M15 5v3M9 10v4M13 9.5v5M17 10.5v3M6 15.5v4M10 16v3M14 15v5" strokeWidth={1.6} /></Icon>;
 /** A bin: delete (a layer of the Waveform Editor). */
 export const TrashIcon = () => <Icon size={1}><path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 12.5h9l1-12.5M10.5 10.5v6M13.5 10.5v6" /></Icon>;
 /** Two arrows chasing each other round a circle: something is being read (Home's game switch spins it). */

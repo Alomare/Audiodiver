@@ -53,6 +53,11 @@ msgstr "{0, plural, other {추가 안 됨: 경로 #개가 모드가 아닙니다
 msgid "{0, plural, one {Repatch # Mod} other {Repatch # Mods}}"
 msgstr "{0, plural, other {모드 #개 Repatch}}"
 
+#. placeholder {0}: x.name
+#: src/WaveEditor.tsx
+msgid "{0} (edited original)"
+msgstr ""
+
 #. placeholder {0}: shown.length
 #: src/WaveEditor.tsx
 msgid "{0} blocks"
@@ -74,6 +79,22 @@ msgstr ""
 #: src/SettingsTab.tsx
 msgid "{0} notes"
 msgstr "{0} 메모"
+
+#. placeholder {0}: tracks.length
+#: src/WaveEditor.tsx
+msgid "{0} slots"
+msgstr ""
+
+#. placeholder {0}: x.name
+#. placeholder {1}: l + 1
+#: src/WaveEditor.tsx
+msgid "{0}, layer {1}"
+msgstr ""
+
+#. placeholder {0}: x.name
+#: src/WaveEditor.tsx
+msgid "{0}, original"
+msgstr ""
 
 #. Tooltip of words that open a Wiki page. about is the subject of the page.
 #: src/Wiki.tsx
@@ -1014,10 +1035,6 @@ msgstr "{what} · 원본"
 msgid "{what} · replaced"
 msgstr "{what} · 교체됨"
 
-#: src/WaveEditor.tsx
-msgid "{what} (edited original)"
-msgstr ""
-
 #: src/RepatchPage.tsx
 msgid "{what}; {skipped, plural, one {# sound couldn't be read} other {# sounds couldn't be read}}"
 msgstr "{what}; {skipped, plural, other {사운드 #개를 읽지 못함}}"
@@ -1226,6 +1243,11 @@ msgstr "원본으로 남긴 레이어는 새 오디오 아래에서 계속 재�
 
 #: src/WaveEditor.tsx
 msgid "A layer to keep blocks apart on"
+msgstr ""
+
+#. placeholder {0}: tracks[on.track].name
+#: src/WaveEditor.tsx
+msgid "A layer under {0}, to keep blocks apart on"
 msgstr ""
 
 #: src/ProjectTab.tsx
@@ -2322,6 +2344,7 @@ msgid "Change words in many lines at once"
 msgstr "여러 줄의 단어를 한 번에 바꾸기"
 
 #: src/TextTab.tsx
+#: src/WaveEditor.tsx
 msgid "Changed"
 msgstr "변경됨"
 
@@ -3213,7 +3236,7 @@ msgstr "삭제"
 msgid "Delete Global Note"
 msgstr "전역 메모 삭제"
 
-#. placeholder {0}: i + 1
+#. placeholder {0}: layer + 1
 #: src/WaveEditor.tsx
 msgid "Delete Layer {0}"
 msgstr ""
@@ -3338,6 +3361,10 @@ msgstr "끌어서 노래의 앞부분을 제외합니다"
 
 #: src/WaveEditor.tsx
 msgid "Drag the cursor, or along the ruler, to move it"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Drag their flags on the ruler. Let go near the automatic spot to go back to it"
 msgstr ""
 
 #: src/WaveEditor.tsx
@@ -3538,12 +3565,28 @@ msgstr "음악이 나올 때마다 오프닝 중 하나가 먼저 재생된 다�
 msgid "Eagle-1"
 msgstr "이글-1"
 
+#: src/Timeline.tsx
+msgid "Edit every slot of this segment together"
+msgstr ""
+
+#: src/Timeline.tsx
+msgid "Edit Segment"
+msgstr ""
+
+#: src/Soundtrack.tsx
+msgid "Edit Song"
+msgstr ""
+
 #: src/Notes.tsx
 msgid "Edit the note"
 msgstr "메모 편집"
 
 #: src/Timeline.tsx
 msgid "Edit the original in the Waveform Editor"
+msgstr ""
+
+#: src/Soundtrack.tsx
+msgid "Edit the song"
 msgstr ""
 
 #: src/WaveEditor.tsx
@@ -3610,7 +3653,9 @@ msgid "English (US)"
 msgstr "영어(미국)"
 
 #. A music segment's Entry cue point (Wwise term): where the segment counts as started
+#. A music segment's Entry cue point (Wwise term): where the segment counts as started
 #: src/Timeline.tsx
+#: src/WaveEditor.tsx
 msgid "Entry"
 msgstr "Entry"
 
@@ -3709,7 +3754,9 @@ msgid "Everything in the project"
 msgstr "프로젝트의 모든 항목"
 
 #. A music segment's Exit cue point (Wwise term): where the next segment starts
+#. A music segment's Exit cue point (Wwise term): where the next segment starts
 #: src/Timeline.tsx
+#: src/WaveEditor.tsx
 msgid "Exit"
 msgstr "Exit"
 
@@ -4783,7 +4830,7 @@ msgstr "마지막 빌드: <0>{zip}</0>, {mb} MB, {when}"
 msgid "layer"
 msgstr "레이어"
 
-#. placeholder {0}: i + 1
+#. placeholder {0}: l + 1
 #: src/WaveEditor.tsx
 msgid "Layer {0}"
 msgstr ""
@@ -5170,6 +5217,10 @@ msgstr "혼합"
 
 #: src/WaveEditor.tsx
 msgid "Mixes into one file:"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Mixing the segments…"
 msgstr ""
 
 #: src/CombinePage.tsx
@@ -6669,7 +6720,11 @@ msgstr "첫 테이크 재생"
 msgid "Play from the cursor"
 msgstr ""
 
-#. placeholder {0}: i + 1
+#: src/WaveEditor.tsx
+msgid "Play in Context"
+msgstr ""
+
+#. placeholder {0}: layer + 1
 #: src/WaveEditor.tsx
 msgid "Play Layer {0}"
 msgstr ""
@@ -6721,6 +6776,11 @@ msgstr ""
 #: src/SliceTool.tsx
 msgid "Play the original {slot}"
 msgstr "원본 {slot} 재생"
+
+#. placeholder {0}: x.name
+#: src/WaveEditor.tsx
+msgid "Play the original of {0}"
+msgstr ""
 
 #: src/keys.ts
 msgid "Play the original of the selected slot"
@@ -6850,6 +6910,10 @@ msgstr "이 중 하나를 무작위로 골라 재생합니다"
 #: src/CueView.tsx
 msgid "Plays only under this condition"
 msgstr "이 조건에서만 재생됩니다"
+
+#: src/WaveEditor.tsx
+msgid "Plays the end of the segment before, this segment as edited here and the start of the one after, handed over at the cue points as in game"
+msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Plays the lanes ticked. A double click on the waveforms plays from there"
@@ -7338,10 +7402,6 @@ msgstr "{n, plural, other {슬롯 #개}}에서 새 오디오를 제거했습니�
 msgid "Removed the silence from {n, plural, one {# slot} other {# slots}}."
 msgstr "{n, plural, other {슬롯 #개}}에서 무음을 제거했습니다."
 
-#: src/WaveEditor.tsx
-msgid "Removes every block"
-msgstr ""
-
 #: src/ImportMod.tsx
 msgid "Removes the new audio, added sounds, cue points and list first. The audio files stay, and Undo brings them back."
 msgstr "먼저 새 오디오, 추가한 사운드, 큐 포인트, 목록을 제거합니다. 오디오 파일은 남아 있으며 실행 취소로 되돌릴 수 있습니다."
@@ -7595,7 +7655,7 @@ msgstr "기본값으로 초기화했습니다. 이 과정에서 {commands}의 �
 msgid "Reset zoom"
 msgstr "확대 초기화"
 
-#. placeholder {0}: i + 1
+#. placeholder {0}: layer + 1
 #: src/WaveEditor.tsx
 msgid "Resize Layer {0}"
 msgstr ""
@@ -7668,6 +7728,14 @@ msgstr ""
 msgid "Save"
 msgstr "저장"
 
+#: src/Soundtrack.tsx
+msgid "Save and Cut"
+msgstr ""
+
+#: src/Soundtrack.tsx
+msgid "Save and Use"
+msgstr ""
+
 #: src/CueView.tsx
 msgid "Save as WAV, FLAC, MP3 or WEM"
 msgstr "WAV, FLAC, MP3 또는 WEM으로 저장"
@@ -7679,6 +7747,10 @@ msgstr "줄을 CSV 또는 JSON 파일로 저장"
 #: src/keys.ts
 msgid "Save the project"
 msgstr "프로젝트 저장"
+
+#: src/WaveEditor.tsx
+msgid "Save the result as a new file and use it"
+msgstr ""
 
 #: src/App.tsx
 msgid "Saved"
@@ -8205,6 +8277,11 @@ msgstr "자르는 중"
 msgid "Slot"
 msgstr "슬롯"
 
+#. placeholder {0}: k + 1
+#: src/Timeline.tsx
+msgid "Slot {0}"
+msgstr ""
+
 #: src/CueView.tsx
 #: src/ExportDialog.tsx
 #: src/keys.ts
@@ -8245,6 +8322,10 @@ msgstr "노래"
 #: src/SliceTool.tsx
 msgid "Song"
 msgstr "노래"
+
+#: src/Soundtrack.tsx
+msgid "Song edited"
+msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "Songs"
@@ -8343,6 +8424,10 @@ msgstr "시작"
 #: src/Home.tsx
 msgid "Start a mod"
 msgstr "모드 시작하기"
+
+#: src/WaveEditor.tsx
+msgid "Start from the original"
+msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Start from the Original"
@@ -8592,6 +8677,10 @@ msgstr "게임이 이 사운드에 주는 {gain} dB는 유지됩니다"
 msgid "The {n} blocks on it are removed with it. Undo brings them back."
 msgstr ""
 
+#: src/Timeline.tsx
+msgid "The {n} slots line up in the Waveform Editor, each under the original"
+msgstr ""
+
 #. Markdown. **Index** is the button above the Library list, and the bold word must read as the translation of the button does.
 #: src/tutorials.ts
 msgid "The **Index** sorts the sounds of the game by where you hear them: weapons, stratagems, enemies and more. The search box finds anything by name."
@@ -8670,7 +8759,7 @@ msgid "The current game doesn't have this sound. The banks in the mod bring it b
 msgstr "현재 게임에는 이 사운드가 없습니다. 모드에 든 뱅크가 이 사운드를 되살립니다."
 
 #: src/WaveEditor.tsx
-msgid "The cursor, block edges and blocks snap to edges: of blocks, the start and where the original ends"
+msgid "The cursor, block edges, blocks and cue points snap to edges: of blocks, the start and where the original ends"
 msgstr ""
 
 #: src/SettingsTab.tsx
@@ -8697,9 +8786,13 @@ msgstr "세부 정보 패널과 무음"
 msgid "The echo"
 msgstr "에코"
 
-#. placeholder {0}: a.name
+#. placeholder {0}: replaced[0]
 #: src/WaveEditor.tsx
 msgid "The edited original becomes the new audio of this slot, in place of {0}."
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "The edited originals become the new audio of their slots, in place of what is there."
 msgstr ""
 
 #: src/store.tsx
@@ -9050,6 +9143,10 @@ msgstr "원본 {label}"
 msgid "the original {name}"
 msgstr "원본 {name}"
 
+#: src/WaveEditor.tsx
+msgid "The original becomes the new audio of this layer, to edit"
+msgstr ""
+
 #: src/Soundtrack.tsx
 msgid "The original order and audio"
 msgstr "원본 순서와 오디오"
@@ -9152,6 +9249,10 @@ msgstr "Wwise 사운드 뱅크 구조 참고 자료"
 msgid "The result becomes the new audio of the slot"
 msgstr ""
 
+#: src/Soundtrack.tsx
+msgid "The result is saved as a new file, then cut into the pieces again"
+msgstr ""
+
 #: src/content.ts
 msgid "the screenshots of Helldivers 2 behind Home"
 msgstr "홈 배경의 Helldivers 2 스크린샷"
@@ -9163,6 +9264,10 @@ msgstr "세그먼트가 여기서 시작된 것으로 칩니다. 이전의 오�
 #: src/Timeline.tsx
 msgid "The segment counts as started here. Audio before it plays under the end of the segment before. Drag to move it"
 msgstr "세그먼트가 여기서 시작된 것으로 칩니다. 이전의 오디오는 앞 세그먼트의 끝부분 아래에서 재생됩니다. 끌어서 옮기세요"
+
+#: src/WaveEditor.tsx
+msgid "The segment's cue points"
+msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "The segments in their original order. Untick one to leave it out"
@@ -9496,6 +9601,14 @@ msgstr "오른쪽 위"
 #: src/content.ts
 msgid "transcribing voice lines to match them to subtitles"
 msgstr "대사를 받아써서 자막과 연결하기"
+
+#: src/Soundtrack.tsx
+msgid "Trim, fade or arrange it in the Waveform Editor. The result is saved as a new file in this place"
+msgstr ""
+
+#: src/Soundtrack.tsx
+msgid "Trim, fade or arrange the song before it is cut"
+msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Trim, split, move and fade audio"

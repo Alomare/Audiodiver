@@ -26,7 +26,7 @@ When one file plays in several segments, **Apply to … more segments with this 
 
 ## The Waveform Editor
 
-The pencil beside **Original** or **Replaced** in the waveforms opens the Waveform Editor for the selected slot. It trims, splits, moves and fades audio, so simple edits need no other program. This works on every slot: music, sounds and voice lines.
+The pencil beside **Original** or **Replaced** in the waveforms opens the Waveform Editor for the selected slot. In the [Soundtrack](app:soundtrack), **Edit Song** and the pencil on a song in a playlist open a song the same way. It trims, splits, moves and fades audio, so simple edits need no other program. This works on every slot: music, sounds and voice lines.
 
 The audio sits on a time line as **blocks**. Each block is a stretch of a file, placed at a chosen time, with a fade in, a fade out and a gain. The original runs along the top for comparison, and a dashed line marks where the original ends. The tools sit in a bar above the time line, and pointing at one shows what it does and the key for it. The time of the cursor shows at the right, over the waveforms.
 
@@ -51,6 +51,14 @@ Blocks sit on **layers**, one under the other. Layers keep blocks apart so each 
 - The box before each lane, the original's too, chooses what **Play** plays and what **Export** writes. Tick the original to hear it along with the new audio, or untick every layer to hear it alone. **Apply** keeps every layer, ticked or not.
 
 Blocks on one layer can also overlap, and they play together. Overlapping blocks are drawn see-through, each in another colour, so both stay visible. A click picks the shortest block under it, and another click on the same spot picks the next one, so a block under a longer one can always be selected.
+
+### Music: cue points, context and whole segments
+
+On a slot of a music segment, the segment's **Entry** and **Exit** stand on the time line as lines with flags on the ruler, and their times show over the waveforms. Drag a flag to move the cue point. It snaps to block edges with the magnet on, and let go near the automatic spot it goes back to it. The original's lane shows where the game has them. **Apply** sets the cue points with the blocks.
+
+**Play in Context** (C) plays the end of the segment before, this segment as you have it in the editor and the start of the segment after, handed over at the cue points as the game plays them. Nothing has to be applied first.
+
+**Edit Segment**, the stacked button under the pencil in the waveforms, opens every slot of the segment together: each slot with the original above the layers of new audio, all on one time line, so the parts line up. A slot without new audio can start from the original with the + beside the name of the slot. **Apply** sets every slot that changed.
 
 **Export**, beside Apply, mixes the lanes ticked into one audio file: WAV, FLAC, MP3 or Ogg Vorbis, at 48 or 44.1 kHz, in the channels of the audio, stereo or mono, and brought to −1 dB at the loudest moment if you choose. The project doesn't change.
 
