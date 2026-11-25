@@ -26,6 +26,11 @@ msgstr ""
 msgid "{0, plural, one {# bank} other {# banks}}"
 msgstr ""
 
+#. placeholder {0}: o.cues
+#: src/ModOptions.tsx
+msgid "{0, plural, one {# segment} other {# segments}}"
+msgstr ""
+
 #. placeholder {0}: o.slots
 #: src/ModOptions.tsx
 msgid "{0, plural, one {# slot} other {# slots}}"
@@ -52,11 +57,6 @@ msgstr ""
 msgid "{0, plural, one {Copy Original Audio (# Slot)} other {Copy Original Audio (# Slots)}}"
 msgstr ""
 
-#. placeholder {0}: o.cues
-#: src/ModOptions.tsx
-msgid "{0, plural, one {cue points of # segment} other {cue points of # segments}}"
-msgstr ""
-
 #. placeholder {0}: r.count
 #: src/SettingsTab.tsx
 msgid "{0, plural, one {Exported # note.} other {Exported # notes.}}"
@@ -77,11 +77,6 @@ msgstr ""
 msgid "{0, plural, one {Repatch # Mod} other {Repatch # Mods}}"
 msgstr ""
 
-#. placeholder {0}: cost.banks
-#: src/ModOptions.tsx
-msgid "{0, plural, one {The game's bank it changes, and the streams of the slots it gives other audio} other {The # game banks it changes, and the streams of the slots it gives other audio}}"
-msgstr ""
-
 #. placeholder {0}: x.name
 #: src/WaveEditor.tsx
 msgid "{0} (edited original)"
@@ -98,9 +93,9 @@ msgstr ""
 msgid "{0} can't be read: {1}"
 msgstr ""
 
-#. placeholder {0}: fmtDecimal(o.gain_db, 1, true)
+#. placeholder {0}: g.name
 #: src/ModOptions.tsx
-msgid "{0} dB on the rest of the mod"
+msgid "{0} goes with it."
 msgstr ""
 
 #. placeholder {0}: missing[0][1]
@@ -1161,6 +1156,18 @@ msgstr ""
 msgid "+{also} more"
 msgstr ""
 
+#: src/ModOptions.tsx
+msgid "<0>{group}: {option}</0>. Without the group: {base}."
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "<0>{group}</0>: Off"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "<0>{group}</0>: unchanged in {pickedName}"
+msgstr ""
+
 #: src/Inspector.tsx
 msgid "0 dB on every selected slot"
 msgstr ""
@@ -1502,10 +1509,6 @@ msgstr ""
 msgid "About {APP_NAME}"
 msgstr ""
 
-#: src/ModOptions.tsx
-msgid "About what this option adds to the mod"
-msgstr ""
-
 #: src/IndexTree.tsx
 msgid "Add {count} Not in Project"
 msgstr ""
@@ -1671,6 +1674,10 @@ msgstr ""
 
 #: src/exportList.ts
 msgid "Added {items} to the export list, as {total} entries (one per part)"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Added to every slot the mod changes outside the groups, from −12 to +12 dB"
 msgstr ""
 
 #: src/exportList.ts
@@ -2408,10 +2415,6 @@ msgctxt "Filter of the Text tab: the lines the project changes"
 msgid "Changed ({count})"
 msgstr ""
 
-#: src/ModOptions.tsx
-msgid "Changed in <0>{group}: {option}</0>. Without the group: {base}."
-msgstr ""
-
 #: src/CueView.tsx
 msgid "Changed in this option"
 msgstr ""
@@ -2437,21 +2440,12 @@ msgstr ""
 msgid "Changes go into <0>{project}</0>."
 msgstr ""
 
-#: src/ModOptions.tsx
-msgid "Changes nothing yet"
-msgstr ""
-
 #: src/RepatchPage.tsx
 msgid "Changes of other kinds in the sound banks, like effects or how a container picks sounds. Each repatch lists them."
 msgstr ""
 
 #: src/CombinePage.tsx
 msgid "Changes of other kinds in the sound banks, like effects. The result lists them for each mod."
-msgstr ""
-
-#. placeholder {0}: g.name
-#: src/ModOptions.tsx
-msgid "Changes to the slots of {0} then go into this option"
 msgstr ""
 
 #: src/ModOptions.tsx
@@ -2639,9 +2633,6 @@ msgid "Choose a ZIP or Patch File"
 msgstr ""
 
 #: src/ModOptions.tsx
-msgid "Choose an image"
-msgstr ""
-
 #: src/ProjectTab.tsx
 msgid "Choose an Image"
 msgstr ""
@@ -2676,9 +2667,6 @@ msgid "Choose another folder for builds. Only the ZIP is written there."
 msgstr ""
 
 #: src/ModOptions.tsx
-msgid "Choose another image"
-msgstr ""
-
 #: src/ProjectTab.tsx
 msgid "Choose Another Image"
 msgstr ""
@@ -3376,6 +3364,10 @@ msgstr ""
 
 #: src/ProjectTab.tsx
 msgid "Description"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Description (Optional)"
 msgstr ""
 
 #. placeholder {0}: g.name
@@ -4210,10 +4202,6 @@ msgstr ""
 msgid "For mods that change the same sound banks, where only the one deployed last plays"
 msgstr ""
 
-#: src/ModOptions.tsx
-msgid "For options such as Louder and Quieter"
-msgstr ""
-
 #: src/App.tsx
 msgid "Forget the chosen folder"
 msgstr ""
@@ -4395,7 +4383,7 @@ msgid "Group name"
 msgstr ""
 
 #: src/ModOptions.tsx
-msgid "Groups players tick in the mod manager, each with options to pick from. An unticked group installs nothing."
+msgid "Groups players turn on in the mod manager, each with options to pick one of"
 msgstr ""
 
 #: src/BuildTab.tsx
@@ -4831,11 +4819,6 @@ msgstr ""
 msgid "It ends with the segment playing at that time, and Play Again goes on from there"
 msgstr ""
 
-#. placeholder {0}: g.name
-#: src/ModOptions.tsx
-msgid "It is the last option of {0}, so the group goes too. Undo brings them back."
-msgstr ""
-
 #: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "It keeps the old mod ID, so importing it in a mod manager updates the old mod."
@@ -5055,10 +5038,6 @@ msgstr ""
 msgid "Length <0/> {minutes, plural, one {minute} other {minutes}}"
 msgstr ""
 
-#: src/ModOptions.tsx
-msgid "Let players choose parts of the mod in the mod manager, such as one of several sounds for a weapon."
-msgstr ""
-
 #. Edit in Undo, Redo and History: the volume of a piece of music changed
 #: src/store.tsx
 msgid "level"
@@ -5273,10 +5252,6 @@ msgstr ""
 #: src/store.tsx
 #: src/Timeline.tsx
 msgid "Make-Up Gain"
-msgstr ""
-
-#: src/ModOptions.tsx
-msgid "Make-Up Gain added to every slot the mod changes outside the groups, from −12 to +12 dB"
 msgstr ""
 
 #: src/Inspector.tsx
@@ -6719,14 +6694,6 @@ msgstr ""
 msgid "Part {number}"
 msgstr ""
 
-#: src/ModOptions.tsx
-msgid "Part of <0>{group}</0>, which is off here. Pick an option of the group over the slots to change this slot."
-msgstr ""
-
-#: src/ModOptions.tsx
-msgid "Part of <0>{group}</0>; the option picked leaves it as without the group."
-msgstr ""
-
 #: src/CueView.tsx
 msgid "Part of this group, which is off here"
 msgstr ""
@@ -7070,10 +7037,6 @@ msgstr ""
 #: src/keys.ts
 #: src/WaveEditor.tsx
 msgid "Playback"
-msgstr ""
-
-#: src/ModOptions.tsx
-msgid "Players tick a group and pick one option of the group. Left unticked, the slots of the group play as without the group."
 msgstr ""
 
 #: src/content.ts
@@ -9115,10 +9078,6 @@ msgstr ""
 msgid "the first of {name}"
 msgstr ""
 
-#: src/ModOptions.tsx
-msgid "The first option is the one mod managers pick at first"
-msgstr ""
-
 #: src/Inspector.tsx
 msgid "The game changes the level of this clip as it plays, and new audio follows the same curve. Turn this off to play it at an even level"
 msgstr ""
@@ -9409,7 +9368,7 @@ msgid "the options"
 msgstr ""
 
 #: src/ModOptions.tsx
-msgid "The options and what they change go with it. Undo brings them back."
+msgid "The options go with it."
 msgstr ""
 
 #: src/ImportMod.tsx
@@ -10276,7 +10235,7 @@ msgid "What each template does. Undo takes back a whole template"
 msgstr ""
 
 #: src/ModOptions.tsx
-msgid "What it changes goes with it. Undo brings it back."
+msgid "What it changes goes with it."
 msgstr ""
 
 #: src/CombinePage.tsx
@@ -10288,14 +10247,6 @@ msgstr ""
 #: src/CombinePage.tsx
 #: src/RepatchPage.tsx
 msgid "What it leaves out"
-msgstr ""
-
-#: src/ModOptions.tsx
-msgid "What players read about it (optional)"
-msgstr ""
-
-#: src/ModOptions.tsx
-msgid "What players see in the mod manager. Cropped to a centred square."
 msgstr ""
 
 #: src/Inspector.tsx

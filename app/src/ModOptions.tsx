@@ -28,10 +28,7 @@ export function ModOptions() {
 
   return (
     <section className="set-sec opts" aria-label={t`Options for Players`}>
-      <h2><Trans>Options for Players</Trans> <Help tip={t`Groups players tick in the mod manager, each with options to pick from. An unticked group installs nothing.`} page="mod-options" /></h2>
-      <p className="set-note">{live
-        ? <Trans>Players tick a group and pick one option of the group. Left unticked, the slots of the group play as without the group.</Trans>
-        : <Trans>Let players choose parts of the mod in the mod manager, such as one of several sounds for a weapon.</Trans>}</p>
+      <h2><Trans>Options for Players</Trans> <Help tip={t`Groups players turn on in the mod manager, each with options to pick one of`} page="mod-options" /></h2>
       {p.groups.map((g, i) => <GroupBlock key={g.id} g={g} at={i} count={p.groups.length} plan={plan} />)}
       {plan?.shared.map((s) => (
         <p key={`${s.a}:${s.b}`} className="warn-box opts-shared">{plural(s.banks, {
@@ -54,7 +51,7 @@ function ImageBox({ group, option, image, label }: { group: string; option?: str
   return (
     <span className={`opt-img${option ? " small" : ""}`}>
       <button className="opt-img-pick" onClick={() => void actions.optionImage(group, option)} aria-label={image ? t`Choose another image for ${label}` : t`Choose an image for ${label}`}
-        data-tip={image ? t`Choose another image` : t`Choose an image`} data-tip-more={t`What players see in the mod manager. Cropped to a centred square.`}>
+        data-tip={image ? t`Choose Another Image` : t`Choose an Image`}>
         {image && !broken ? <img src={optionImageUrl(group, option, image)} alt="" draggable={false} /> : <PlusIcon />}
       </button>
       {image && <button className="x opt-img-x" onClick={() => void clear()} aria-label={t`Remove the image of ${label}`} data-tip={t`Remove the image`}>✕</button>}
@@ -79,7 +76,7 @@ function GroupBlock({ g, at, count, plan }: { g: OptionGroup; at: number; count:
   const { actions } = useEditor();
   const remove = async () => {
     const used = g.options.some((o) => o.slots || o.cues || o.gain_db);
-    if (used && !(await confirm({ title: t`Remove ${g.name}?`, text: t`The options and what they change go with it. Undo brings them back.`, ok: t`Remove` }))) return;
+    if (used && !(await confirm({ title: t`Remove ${g.name}?`, text: t`The options go with it.`, ok: t`Remove` }))) return;
     void actions.groupRemove(g.id);
   };
   return (
@@ -87,8 +84,8 @@ function GroupBlock({ g, at, count, plan }: { g: OptionGroup; at: number; count:
       <div className="opt-head">
         <ImageBox group={g.id} image={g.image} label={g.name} />
         <div className="opt-texts">
-          <Field className="opt-name" value={g.name} max={60} required label={t`Group name`} save={(name) => void actions.groupSet(g.id, { name })} />
-          <Field className="opt-about" value={g.description} max={500} label={t`Description of ${g.name}`} placeholder={t`What players read about it (optional)`}
+          <Field className="opt-field opt-name" value={g.name} max={60} required label={t`Group name`} save={(name) => void actions.groupSet(g.id, { name })} />
+          <Field className="opt-field opt-about" value={g.description} max={500} label={t`Description of ${g.name}`} placeholder={t`Description (Optional)`}
             save={(description) => void actions.groupSet(g.id, { description })} />
         </div>
         <span className="opt-tools">
@@ -105,13 +102,13 @@ function GroupBlock({ g, at, count, plan }: { g: OptionGroup; at: number; count:
   );
 }
 
-/** What an option changes, in one line. */
-function changes(o: ModOption): string {
+/** What an option changes and about what it adds, in one line ("" for nothing). */
+function changes(o: ModOption, cost?: { banks: number; mb: number }): string {
   const out: string[] = [];
   if (o.slots) out.push(plural(o.slots, { one: "# slot", other: "# slots" }));
-  if (o.cues) out.push(plural(o.cues, { one: "cue points of # segment", other: "cue points of # segments" }));
-  if (o.gain_db) out.push(t`${fmtDecimal(o.gain_db, 1, true)} dB on the rest of the mod`);
-  return out.length ? out.join("; ") : t`Changes nothing yet`;
+  if (o.cues) out.push(plural(o.cues, { one: "# segment", other: "# segments" }));
+  if (cost && cost.banks > 0) out.push(`+${fmtDecimal(cost.mb, 1)} MB`);
+  return out.join(" · ");
 }
 
 function OptionRow({ g, o, k, cost }: { g: OptionGroup; o: ModOption; k: number; cost?: { banks: number; mb: number } }) {
@@ -124,36 +121,31 @@ function OptionRow({ g, o, k, cost }: { g: OptionGroup; o: ModOption; k: number;
     void actions.optionSet(g.id, o.id, { gain_db: Math.max(-12, Math.min(12, v)) });
   };
   const edit = async () => { await actions.optionPick(g.id, o.id); nav.go("editor"); };
+  const what = changes(o, cost);
   const remove = async () => {
     const last = g.options.length === 1;
     if ((o.slots || o.cues || last) && !(await confirm({
       title: t`Remove ${o.name}?`, ok: t`Remove`,
-      text: last ? t`It is the last option of ${g.name}, so the group goes too. Undo brings them back.` : t`What it changes goes with it. Undo brings it back.`,
+      text: last ? t`${g.name} goes with it.` : t`What it changes goes with it.`,
     }))) return;
     void actions.optionRemove(g.id, o.id);
   };
   return (
     <li className={`opt-choice${picked ? " editing" : ""}`}>
       <ImageBox group={g.id} option={o.id} image={o.image} label={o.name} />
-      <div className="opt-texts">
-        <Field className="opt-choice-name" value={o.name} max={60} required label={t`Option name`} save={(name) => void actions.optionSet(g.id, o.id, { name })} />
-        <Field className="opt-about" value={o.description} max={500} label={t`Description of ${o.name}`} placeholder={t`What players read about it (optional)`}
-          save={(description) => void actions.optionSet(g.id, o.id, { description })} />
-        <span className="opt-what">{changes(o)}{cost && cost.banks > 0 && <span className="opt-cost" data-tip={t`About what this option adds to the mod`}
-          data-tip-more={plural(cost.banks, { one: "The game's bank it changes, and the streams of the slots it gives other audio", other: "The # game banks it changes, and the streams of the slots it gives other audio" })}>{" · "}+{fmtDecimal(cost.mb, 1)} MB</span>}</span>
-      </div>
-      <label className="opt-gain" data-tip={t`Make-Up Gain added to every slot the mod changes outside the groups, from −12 to +12 dB`}
-        data-tip-more={t`For options such as Louder and Quieter`}>
+      <Field className="opt-field opt-choice-name" value={o.name} max={60} required label={t`Option name`} save={(name) => void actions.optionSet(g.id, o.id, { name })} />
+      <Field className="opt-field opt-about" value={o.description} max={500} label={t`Description of ${o.name}`} placeholder={t`Description (Optional)`}
+        save={(description) => void actions.optionSet(g.id, o.id, { description })} />
+      {what && <span className="opt-what">{what}</span>}
+      <button className="btn quiet small-btn opt-edit" onClick={() => void edit()} aria-pressed={picked} data-tip={t`Pick this option in the Audio tab`}>
+        {picked ? t`Picked` : t`Edit in Audio Tab`}</button>
+      <label className="opt-gain" data-tip={t`Added to every slot the mod changes outside the groups, from −12 to +12 dB`}>
         <span><Trans>Gain</Trans></span>
         <input type="number" step={0.5} min={-12} max={12} value={gain} placeholder="0" onChange={(e) => setGain(e.target.value)} onBlur={saveGain}
           onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }} aria-label={t`Gain of ${o.name} (dB)`} /><span className="unit">dB</span>
       </label>
       <span className="opt-tools">
-        <button className="btn quiet small-btn" onClick={() => void edit()} aria-pressed={picked}
-          data-tip={t`Pick this option in the Audio tab`} data-tip-more={t`Changes to the slots of ${g.name} then go into this option`}>
-          {picked ? t`Picked` : t`Edit in Audio Tab`}</button>
-        <button className="x" disabled={k === 0} onClick={() => void actions.optionMove(g.id, o.id, k - 1)} aria-label={t`Move ${o.name} up`}
-          data-tip={t`Move up`} data-tip-more={t`The first option is the one mod managers pick at first`}>↑</button>
+        <button className="x" disabled={k === 0} onClick={() => void actions.optionMove(g.id, o.id, k - 1)} aria-label={t`Move ${o.name} up`} data-tip={t`Move up`}>↑</button>
         <button className="x" disabled={k === g.options.length - 1} onClick={() => void actions.optionMove(g.id, o.id, k + 1)} aria-label={t`Move ${o.name} down`} data-tip={t`Move down`}>↓</button>
         <button className="x" onClick={() => void remove()} aria-label={t`Remove ${o.name}`} data-tip={t`Remove the option`}>✕</button>
       </span>
@@ -208,12 +200,12 @@ export function OptionNote({ source }: { source: string }) {
   if (!g) return null;
   const o = g.options.find((x) => x.id === s.option);
   const base = s.base ? (s.base.gain_db ? `${s.base.name}, ${fmtDecimal(s.base.gain_db, 1, true)} dB` : s.base.name) : t`the original`;
-  const group = g.name, option = o?.name ?? "";
+  const group = g.name, option = o?.name ?? "", pickedName = g.options.find((x) => x.id === project.picks[g.id])?.name ?? "";
   return (
     <p className="opt-note">
-      {!s.on ? <Trans>Part of <b>{group}</b>, which is off here. Pick an option of the group over the slots to change this slot.</Trans>
-        : o ? <Trans>Changed in <b>{group}: {option}</b>. Without the group: {base}.</Trans>
-          : <Trans>Part of <b>{group}</b>; the option picked leaves it as without the group.</Trans>}
+      {!s.on ? <Trans><b>{group}</b>: Off</Trans>
+        : o ? <Trans><b>{group}: {option}</b>. Without the group: {base}.</Trans>
+          : <Trans><b>{group}</b>: unchanged in {pickedName}</Trans>}
       {o && <>{" "}<button className="link-inline" onClick={() => void actions.optionSlotsOff([source])}>{t`Remove from Option`}</button></>}
     </p>
   );

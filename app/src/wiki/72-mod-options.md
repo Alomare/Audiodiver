@@ -13,7 +13,7 @@ Everything outside the groups is the **base mod**, which is always installed.
 Groups are made on the [Project](app:project) tab, under **Options for Players**:
 
 - **Add Group** adds a group with one option. **Add Option** adds another.
-- Click a name to change it, and write what players read under it.
+- Click a name to change it. Each group and option has a description too.
 - The square beside a name chooses the image players see in the mod manager. It is cropped to a centred square, like the icon.
 - The arrows move groups and options, and ✕ removes them. The first option of a group is the one a mod manager picks at first.
 

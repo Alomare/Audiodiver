@@ -2521,36 +2521,50 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .wave-ed .modal-foot .btn { gap: 7px; }
 
 /* Options for Players (ModOptions.tsx): everything about groups is in the second hue, never the accent, which marks
-   new audio. A group is its image and name over its options; each option a row with its own image. */
-.opt { display: flex; flex-direction: column; gap: calc(6px * var(--sp)); padding-left: 12px; border-left: 2px solid var(--second-dim); max-width: 960px; }
-.opt + .opt { margin-top: calc(10px * var(--sp)); }
-.opt-head { display: flex; align-items: center; gap: 10px; }
-.opt-texts { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
-.opt-name { min-width: 0; font: inherit; font-size: calc(16px * var(--fs)); font-weight: 600; color: var(--text); background: transparent;
-  border: 1px solid transparent; padding: 2px 6px; margin-left: -7px; }
-.opt-name:hover, .opt-name:focus { border-color: var(--line); background: var(--panel); }
-.opt-about { font: inherit; font-size: calc(13px * var(--fs)); color: var(--muted); background: transparent; border: 1px solid transparent; padding: 2px 6px; margin-left: -7px; max-width: 72ch; }
-.opt-about:hover, .opt-about:focus { border-color: var(--line); background: var(--panel); color: var(--text); }
-.opt-tools { display: flex; align-items: center; gap: 2px; flex: none; }
-.opt-choices { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
-.opt-choice { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 4px 12px;
-  padding: calc(6px * var(--sp)) 0; border-top: 1px solid var(--line-soft); }
-.opt-choice .opt-texts .opt-about { margin-left: 0; }
-.opt-choice-name { font: inherit; font-size: calc(14px * var(--fs)); color: var(--text); background: var(--panel); border: 1px solid var(--line); padding: 3px 7px; min-width: 0; max-width: 36ch; }
-.opt-choice.editing { box-shadow: inset 3px 0 0 var(--second-fg); padding-left: 8px; }
-.opt-what { font-size: calc(12px * var(--fs)); color: var(--muted); min-width: 0; padding-left: 1px; }
-.opt-cost { color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.opt-gain { display: flex; align-items: center; gap: 5px; font-size: calc(13px * var(--fs)); color: var(--muted); }
-.opt-gain input { width: calc(64px * var(--fs)); text-align: right; font: inherit; font-variant-numeric: tabular-nums; color: var(--text); padding: 2px 6px; }
+   new audio. A group: image, name and description; under it the options, indented to the edge of the name. Every
+   name and description field has one width; an option row is name with Edit and the arrows, then description with Gain. */
+.opts { --opt-img: calc(56px * var(--fs)); --opt-img-sm: calc(40px * var(--fs)); --opt-gap: 12px; --opt-field-h: var(--ctl-sm);
+  --opt-field-w: calc(260px * var(--fs)); }
+.opt { display: flex; flex-direction: column; gap: calc(4px * var(--sp)); padding: calc(4px * var(--sp)) 0 calc(4px * var(--sp)) 14px;
+  border-left: 2px solid var(--second-dim); max-width: 960px; }
+.opt + .opt { margin-top: calc(14px * var(--sp)); }
+.opt-head { display: grid; grid-template-columns: var(--opt-img) minmax(0, var(--opt-field-w)) minmax(max-content, 1fr); align-items: start; gap: var(--opt-gap);
+  padding-bottom: calc(8px * var(--sp)); }
+.opt-texts { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.opt-field { font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 2px;
+  height: var(--opt-field-h); padding: 0 8px; min-width: 0; width: 100%; }
+.opt-field:hover { border-color: var(--steel-dim); }
+.opt-field:focus { border-color: var(--second-fg); outline: none; }
+.opt-field::placeholder { color: var(--muted); opacity: .7; }
+.opt-name { font-size: calc(15px * var(--fs)); font-weight: 600; }
+.opt-choice-name { font-size: calc(14px * var(--fs)); font-weight: 500; }
+.opt-about { font-size: calc(13px * var(--fs)); }
+.opt-tools { display: flex; align-items: center; justify-content: flex-end; gap: 2px; flex: none; min-height: var(--opt-field-h); }
+.opt-choices { list-style: none; margin: 0 0 0 calc(var(--opt-img) + var(--opt-gap)); padding: 0; display: flex; flex-direction: column; }
+.opt-choice { display: grid; grid-template-columns: var(--opt-img-sm) minmax(0, var(--opt-field-w)) auto minmax(max-content, 1fr);
+  grid-template-areas: "img name edit tools" "img desc gain ." "img what . ."; align-items: center; gap: 4px var(--opt-gap);
+  padding: calc(8px * var(--sp)) 0; border-top: 1px solid var(--line-soft); }
+.opt-choice > .opt-img { grid-area: img; align-self: start; }
+.opt-choice > .opt-choice-name { grid-area: name; }
+.opt-choice > .opt-about { grid-area: desc; }
+.opt-choice > .opt-what { grid-area: what; }
+.opt-choice > .opt-edit { grid-area: edit; justify-self: start; min-height: var(--opt-field-h); }
+.opt-choice > .opt-gain { grid-area: gain; }
+.opt-choice > .opt-tools { grid-area: tools; }
+.opt-choice.editing { box-shadow: inset 3px 0 0 var(--second-fg); padding-left: 9px; margin-left: -12px; }
+.opt-what { font-size: calc(12px * var(--fs)); color: var(--muted); font-variant-numeric: tabular-nums; padding-left: 9px; }
+.opt-gain { display: flex; align-items: center; gap: 6px; min-height: var(--opt-field-h); font-size: calc(13px * var(--fs)); color: var(--muted); }
+.opt-gain input { width: calc(60px * var(--fs)); height: var(--opt-field-h); text-align: right; font: inherit; font-variant-numeric: tabular-nums; color: var(--text); padding: 0 6px; }
 .opt-gain .unit { font-size: calc(12px * var(--fs)); }
-.opt-choice .opt-tools .btn[aria-pressed="true"] { color: var(--second-fg); }
-.opt-add { align-self: flex-start; gap: 6px; }
-.opts-shared { border-left-color: var(--second-fg); background: color-mix(in srgb, var(--second-fg) 8%, transparent); max-width: 960px; margin: 0; }
-/* the image players see: a square, the choice of one a dashed box with a plus */
-.opt-img { position: relative; flex: none; display: inline-flex; }
-.opt-img-pick { width: calc(56px * var(--fs)); height: calc(56px * var(--fs)); padding: 0; display: grid; place-items: center; overflow: hidden;
+.opt-edit[aria-pressed="true"] { color: var(--second-fg); border-color: var(--second-dim); }
+.opt-add { align-self: flex-start; gap: 6px; margin: calc(6px * var(--sp)) 0 0 calc(var(--opt-img) + var(--opt-gap)); }
+.opts > .row-btns { margin-top: calc(14px * var(--sp)); }
+.opts-shared { border-left-color: var(--second-fg); background: color-mix(in srgb, var(--second-fg) 8%, transparent); max-width: 960px; margin: calc(10px * var(--sp)) 0 0; }
+/* the image players see: a square; the empty one a dashed box with a plus */
+.opt-img { position: relative; display: block; width: var(--opt-img); height: var(--opt-img); }
+.opt-img.small { width: var(--opt-img-sm); height: var(--opt-img-sm); }
+.opt-img-pick { width: 100%; height: 100%; padding: 0; display: grid; place-items: center; overflow: hidden; border-radius: 2px;
   color: var(--muted); background: var(--panel); border: 1px dashed var(--line); cursor: pointer; }
-.opt-img.small .opt-img-pick { width: calc(40px * var(--fs)); height: calc(40px * var(--fs)); }
 .opt-img-pick:hover { border-color: var(--second-fg); color: var(--second-fg); }
 .opt-img-pick:has(img) { border-style: solid; }
 .opt-img-pick img { width: 100%; height: 100%; object-fit: cover; display: block; }
