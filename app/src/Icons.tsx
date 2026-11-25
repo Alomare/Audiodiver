@@ -276,6 +276,14 @@ export const NormalizeIcon = () => (
 );
 /** A pencil: edit (the Waveform Editor, beside a waveform's name). Drawn bold, as it shows small. */
 export const PencilIcon = () => <Icon size={1} stroke={2.4}><path d="M15.5 4.5l4 4L8 20H4v-4z" /><path d="M13 7l4 4" /></Icon>;
+/** Audio in: a waveform with a + (the Waveform Editor's Add Audio). */
+export const AddAudioIcon = () => <Icon size={1.05} stroke={2}><path d="M3.5 12h1M7 8v8M10.5 5v14M14 9v6" /><path d="M19 13v7M15.5 16.5h7" /></Icon>;
+/** Six dots to take hold of: drag to reorder (the Waveform Editor's layers). */
+export const GripIcon = () => (
+  <Icon size={1}><g fill="currentColor" stroke="none">{[8, 12, 16].flatMap((y) => [9, 15].map((x) => <circle key={`${x}-${y}`} cx={x} cy={y} r={1.5} />))}</g></Icon>
+);
+/** A bin: delete (a layer of the Waveform Editor). */
+export const TrashIcon = () => <Icon size={1}><path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 12.5h9l1-12.5M10.5 10.5v6M13.5 10.5v6" /></Icon>;
 /** Two arrows chasing each other round a circle: something is being read (Home's game switch spins it). */
 export const LoadingIcon = () => (
   <Icon size={1}><path d="M19 12a7 7 0 0 1-11.9 5" /><path d="M5 12a7 7 0 0 1 11.9-5" /><path d="M17.5 3.5v3.8h-3.8" /><path d="M6.5 20.5v-3.8h3.8" /></Icon>

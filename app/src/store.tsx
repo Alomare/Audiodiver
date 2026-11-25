@@ -1095,6 +1095,31 @@ function useEditorState() {
       if (!needProject()) return false;
       return edited(await run<ProjectState>("edit_set", { source, blocks, original, ...(label ? { label } : {}) }));
     },
+    /** What Ctrl+V pastes into the Waveform Editor, as pasteSlots decides: audio files copied in Explorer (each whole),
+        or the slots copied in the app: the new audio of one, as the blocks it plays (each naming its file), or the
+        original (kept in the project as a file, as Copy does). Silence pastes nothing. */
+    async clipForEditor(): Promise<{ audio: string; blocks?: Block[] }[]> {
+      if (!project) return [];
+      const os = await platform.clipboardAudio();
+      if (os.audio.length && (!clip.length || os.seq !== clipAt.current)) return os.audio.map((audio) => ({ audio }));
+      const out: { audio: string; blocks?: Block[] }[] = [];
+      for (const s of clip) {
+        const a = project.assignments[s];
+        if (a && !clipFrom.current.original) {
+          if (a.silence || !a.audio) continue;
+          const own = (b: Block): Block => ({ ...b, audio: b.audio || a.audio });
+          out.push({ audio: a.audio, blocks: a.blocks?.length ? a.blocks.map(own)
+            : a.start_ms || a.end_ms || a.delay_ms || a.fade_in_ms || a.fade_out_ms
+              ? [{ start_ms: a.start_ms ?? 0, end_ms: a.end_ms || (a.file_ms ?? 0), at_ms: a.delay_ms ?? 0, fade_in_ms: a.fade_in_ms, fade_out_ms: a.fade_out_ms, gain_db: 0, audio: a.audio }]
+              : undefined });
+          continue;
+        }
+        const path = await run<string>("original_file", { source: s });
+        if (path) out.push({ audio: path });
+      }
+      if (!out.length) quick(clip.length ? t`Nothing to paste. The copied slots play silence` : t`Nothing to paste. Copy audio files or slots first`, "info");
+      return out;
+    },
     /** Whether the clips of slots keep their volume curves: the line over the waveform. */
     async keepCurve(sources: string[], keep: boolean) {
       if (needProject()) edited(await run<ProjectState>("keep_curve", { sources, keep }));

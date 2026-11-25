@@ -153,3 +153,29 @@ def test_several_files_make_one_clip_and_the_project_lists_them_all(tmp_path):
     assert moved["replacements"][0]["blocks"][1]["audio"] == "../in/b.wav"
     b.unlink()
     assert any(k == "missing_file" and "b.wav" in t for k, t in s.project.problem_list())
+
+
+def test_layers_place_blocks_in_the_editor_and_play_the_same(tmp_path):
+    """A block's layer (the Waveform Editor's lane) is kept, left out of the file when it is the first, repaired when
+    out of range, and doesn't change the audio: moving a block to another layer makes the same file."""
+    from audiodiver.project import Block
+    s = Session(load=False)
+    s.new_project(tmp_path / "m.audi", "M")
+    a = ramp(tmp_path / "a.wav")
+    s._edit("assign", lambda p: s._set(p, 1234, str(a)))
+    two = [{"start_ms": 0, "end_ms": 400, "at_ms": 0}, {"start_ms": 0, "end_ms": 400, "at_ms": 200, "layer": 2}]
+    got = s.edit_set(1234, two)["assignments"]["1234"]
+    assert [x["layer"] for x in got["blocks"]] == [0, 2]
+    heard = s.project_audio(1234)
+    saved = json.loads((tmp_path / "m.audi").read_text())["replacements"][0]["blocks"]
+    assert "layer" not in saved[0] and saved[1]["layer"] == 2
+    two[1]["layer"] = 0
+    s.edit_set(1234, two)
+    assert s.project_audio(1234) == heard  # the same audio, from the same cached render
+    for bad in (-1, 32, 1.5, True):
+        with pytest.raises(EditorError):
+            s.edit_set(1234, [{"start_ms": 0, "end_ms": 400, "layer": bad}, two[1]])
+    d = Project(name="P", replacements=[Replacement(5, "a.wav", blocks=[Block(0, 100, layer=3)])]).to_json()
+    d["replacements"][0]["blocks"].append({"start_ms": 0, "end_ms": 100, "layer": 99})
+    q = Project.from_json(d, tmp_path / "p.audi")
+    assert [b.layer for b in q.replacements[0].blocks] == [3, 31] and q.repairs

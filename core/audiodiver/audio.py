@@ -94,7 +94,8 @@ def edited(src: Path, blocks, resolve=None) -> Path:
     import numpy as np
     from dataclasses import asdict, is_dataclass
     src = Path(src)
-    shape = [asdict(b) if is_dataclass(b) else dict(b) for b in blocks]
+    # the layer only places a block in the editor: moving one between layers makes the same audio
+    shape = [{k: v for k, v in (asdict(b) if is_dataclass(b) else dict(b)).items() if k != "layer"} for b in blocks]
     files = {"": src, **{b["audio"]: Path(resolve(b["audio"]) if resolve else b["audio"]) for b in shape if b.get("audio")}}
     stats = [[str(f.resolve()), f.stat().st_size, f.stat().st_mtime_ns] for f in files.values()]
     key = hashlib.sha1(json.dumps([stats, "blocks", shape]).encode())

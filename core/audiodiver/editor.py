@@ -1772,6 +1772,13 @@ class Session:
                 dst.blocks = [replace(b) for b in src.blocks]
         return self._edit("paste", apply)
 
+    def original_file(self, source) -> str:
+        """The original audio of a slot (of either game) as a file kept in the project, as Copy keeps it: the full
+        path, for the Waveform Editor to paste a copied slot's original in as a block."""
+        self._need_project()
+        self.require_game()
+        return str(self._kept_original(self._source(source, either=True)))
+
     def _kept_original(self, sid: int) -> Path:
         """The original audio of a slot as a file in the project (audio/copied), which the cache can't take away. A clip
         of Helldivers 2 stays the .wem the game has, which a build puts in unchanged (a Helldivers 1 build decodes it);
@@ -2035,7 +2042,7 @@ class Session:
         trims, moves and fades is kept as the stretch, delay and fades (the details panel's fades and older versions
         read those); no blocks, or one that is the whole file, is the file as it is."""
         from .audio import duration_ms
-        from .project import BLOCK_GAIN_DB, MAX_BLOCKS, TRIM_MS, Block
+        from .project import BLOCK_GAIN_DB, MAX_BLOCKS, MAX_LAYERS, TRIM_MS, Block
         p = self._need_project()
         sid = self._source(source)
         if not isinstance(blocks, list) or len(blocks) > MAX_BLOCKS:
@@ -2078,6 +2085,11 @@ class Session:
             if isinstance(v, bool) or not isinstance(v, (int, float)) or not lo <= v <= hi:
                 raise EditorError(tr("A block of the Waveform Editor is out of range ({what})").format(what=k))
             return float(v)
+        def layer(b) -> int:
+            v = num(b, "layer", 0, MAX_LAYERS - 1)
+            if v != int(v):
+                raise EditorError(tr("A block of the Waveform Editor is out of range ({what})").format(what="layer"))
+            return int(v)
         made = []
         for b in blocks:
             rel = file_of(b)
@@ -2086,7 +2098,8 @@ class Session:
                 raise EditorError(tr("The audio must play for at least {ms} ms").format(ms=MIN_TRIM_MS))
             f_in = min(num(b, "fade_in_ms", *FADE_MS), end - start)
             made.append(Block(start, end, num(b, "at_ms", *TRIM_MS), f_in,
-                              min(num(b, "fade_out_ms", *FADE_MS), end - start - f_in), num(b, "gain_db", *BLOCK_GAIN_DB), rel))
+                              min(num(b, "fade_out_ms", *FADE_MS), end - start - f_in), num(b, "gain_db", *BLOCK_GAIN_DB), rel,
+                              layer(b)))
         if not main:  # a slot without new audio: the first block's file is the slot's
             if not made:
                 raise EditorError(tr("This slot has no new audio to edit"))

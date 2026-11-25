@@ -95,6 +95,7 @@ def methods(s: Session) -> dict:
         "fades_set": lambda sources, fade_in_ms=None, fade_out_ms=None: s.fades_set(sources, fade_in_ms, fade_out_ms),
         "trim_set": lambda source, start_ms=0, end_ms=0, delay_ms=0: s.trim_set(source, start_ms, end_ms, delay_ms),
         "edit_set": lambda source, blocks, original=False, label=None: s.edit_set(source, blocks, original, label),
+        "original_file": lambda source: s.original_file(source),
         "keep_curve": lambda sources, keep: s.keep_curve(sources, keep),
         "match_loudness": lambda sources: s.match_loudness(sources),
         "settings": lambda **f: s.settings(**f),

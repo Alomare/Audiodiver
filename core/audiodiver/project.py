@@ -237,13 +237,14 @@ LEGACY_SILENCE = "silence (skipped).wav"  # what Skip wrote into the project fol
 
 BLOCK_GAIN_DB = (-60.0, 24.0)  # a block's own gain in the Waveform Editor
 MAX_BLOCKS = 256
+MAX_LAYERS = 32  # the Waveform Editor's layers: lanes to keep blocks apart in, which all play together
 
 
 @dataclass
 class Block:
     """A stretch of a replacement's file placed on the slot's time line, as the Waveform Editor makes them: from start_ms
     to end_ms of the file, playing at at_ms, with fades inside it (a straight line in level) and a gain of its own.
-    Blocks that overlap play together, added up."""
+    Blocks that overlap play together, added up, whatever layer (the editor's lane) they are on."""
     start_ms: float
     end_ms: float
     at_ms: float = 0.0
@@ -251,6 +252,7 @@ class Block:
     fade_out_ms: float = 0.0
     gain_db: float = 0.0
     audio: str = ""  # another file it plays, stored as Replacement.audio is; "" for the replacement's own
+    layer: int = 0   # the lane the Waveform Editor shows it in, from the top; it doesn't change how it plays
 
     @property
     def length_ms(self) -> float:
@@ -530,7 +532,8 @@ class Project:
                                  number(b.get("fade_in_ms", 0.0), 0.0, *FADE_MS, what),
                                  number(b.get("fade_out_ms", 0.0), 0.0, *FADE_MS, what),
                                  number(b.get("gain_db", 0.0), 0.0, *BLOCK_GAIN_DB, what),
-                                 b["audio"] if isinstance(b.get("audio"), str) else ""))
+                                 b["audio"] if isinstance(b.get("audio"), str) else "",
+                                 number(b.get("layer", 0), 0, 0, MAX_LAYERS - 1, what, whole=True)))
             if len(v) > MAX_BLOCKS:
                 repairs.append(what)
             return out

@@ -5,8 +5,8 @@ import { Trans } from "@lingui/react/macro";
 import { audioUrl, fileUrl, fmtDecimal, fmtExact, fmtTime, type Block } from "./api";
 import { confirm } from "./Confirm";
 import { useDialog } from "./dialog";
-import { CloseIcon, DuplicateIcon, LoopIcon, MagnetIcon, NormalizeIcon, PauseIcon, PlayIcon, PlusIcon, RedoIcon, RemoveIcon, ResetIcon,
-  SplitIcon, StopIcon, UndoIcon } from "./Icons";
+import { AddAudioIcon, CloseIcon, DuplicateIcon, GripIcon, LoopIcon, MagnetIcon, NormalizeIcon, PauseIcon, PlayIcon, PlusIcon, RedoIcon, RemoveIcon,
+  ResetIcon, SplitIcon, StopIcon, TrashIcon, UndoIcon } from "./Icons";
 import { fullPath, pickAudio } from "./platform";
 import { player, usePlayer } from "./player";
 import { useEditor } from "./store";
@@ -15,10 +15,15 @@ import { Help } from "./Wiki";
 
 /** The Waveform Editor: the audio of one slot as blocks on a time line, so that basic editing needs no other program.
     Each block is a stretch of one file placed at a time of its own, with a fade in, a fade out and a gain. Blocks
-    are trimmed at their edges, moved by their body, split at the cursor, duplicated and removed, and their fades are
-    dragged from the grips at their top corners. Blocks that overlap play together and are drawn see-through, each in
-    a colour of its own, so both show; there are no layers. The magnet snaps the cursor, edges and blocks to each
-    other, to the start, and to where the original ends.
+    are trimmed at their edges, moved by their body (also to another layer), split at the cursor, duplicated and
+    removed, and their fades are dragged from the grips at their top corners. The magnet snaps the cursor, edges and
+    blocks to each other, to the start, and to where the original ends.
+
+    Blocks sit on layers: lanes, one under the other, that only keep blocks apart to see and reach them; every layer
+    plays, all together, and a block plays the same on any. Layers are added, reordered by their grip, resized by
+    their bottom edge and deleted (one with blocks asks first). Blocks that overlap on one layer are drawn
+    see-through, each in a colour of its own; a click picks the shortest block under it, and another click on the same
+    spot the next one under it, so a block under a longer one is never out of reach.
 
     It edits the new audio of a slot, or the original (the result then becomes the new audio, as a copy does). The
     original's waveform runs along the top for reference, and plays on its own for comparison. Nothing changes in
@@ -31,23 +36,31 @@ const SNAP_PX = 8;      // the magnet's reach
 const EDGE_PX = 6;      // how near an edge a press trims instead of moving
 const GRIP_PX = 7;      // a fade grip's half size
 const NUDGE = 10;       // ms an arrow key moves a block (Shift: ×10)
-const LANES = { ruler: 24, original: 64, edit: 150 };
+const LANES = { ruler: 24, original: 64 };
+const LAYER = { h: 120, min: 48, max: 320, pad: 6 }; // a layer's height, as it starts and as far as it resizes; a block's inset
+const MAX_LAYERS = 32;  // the core's MAX_LAYERS
 const BUCKET = 64;      // frames per level in the summary of a file
+const DOUBLE_MS = 400;  // a second click this soon after the first is a double click, which plays instead of picking
 
 type Drag = {
   kind: "move" | "trimL" | "trimR" | "fadeIn" | "fadeOut" | "cursor";
   i: number; x0: number; from: Block; moved: boolean;
+  again: boolean; under: number[]; // pressed on the block already selected; the blocks under the press, shortest first
 };
 type Decoded = { buf: AudioBuffer; levels: Float32Array };
-type Hit = { kind: Drag["kind"]; i: number } | null;
+type Hit = { kind: Drag["kind"]; i: number; under: number[] };
+/** Audio to put in as blocks: a file (whole), or the blocks a copied slot plays (each naming its file). */
+type Incoming = { audio: string; blocks?: Block[] };
 
 const lengthOf = (b: Block) => b.end_ms - b.start_ms;
 const lastIndex = <T,>(xs: T[], f: (x: T) => boolean) => { for (let i = xs.length - 1; i >= 0; i--) if (f(xs[i])) return i; return -1; };
 const endOf = (b: Block) => b.at_ms + lengthOf(b);
+const layerOf = (b: Block) => b.layer ?? 0;
 const round1 = (v: number) => Math.round(v * 10) / 10;
+const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 const clean = (b: Block): Block => ({ start_ms: round1(b.start_ms), end_ms: round1(b.end_ms), at_ms: round1(Math.max(0, b.at_ms)),
   fade_in_ms: round1(Math.max(0, b.fade_in_ms)), fade_out_ms: round1(Math.max(0, b.fade_out_ms)), gain_db: round1(b.gain_db),
-  ...(b.audio ? { audio: b.audio } : {}) });
+  ...(b.audio ? { audio: b.audio } : {}), ...(b.layer ? { layer: Math.round(b.layer) } : {}) });
 const nameOf = (path: string) => path.split(/[\\/]/).pop() ?? path;
 const FULL = /^([a-z]:[\\/]|[\\/])/i; // a full path (a file just added), not one the project stores
 
@@ -55,6 +68,18 @@ const FULL = /^([a-z]:[\\/]|[\\/])/i; // a full path (a file just added), not on
 let dropInto: ((paths: string[]) => void) | null = null;
 export function waveDrop(paths: string[]) { dropInto?.(paths); }
 function onWaveDrop(f: (paths: string[]) => void) { dropInto = f; return () => { if (dropInto === f) dropInto = null; }; }
+
+/** Follows a press to its release, anywhere on the page: `move` and `up` get how far it went down (px). */
+function follow(e: React.PointerEvent, move: (dy: number) => void, up: (dy: number) => void) {
+  e.preventDefault(); e.stopPropagation();
+  const y0 = e.clientY;
+  const mv = (ev: PointerEvent) => move(ev.clientY - y0);
+  const done = (ev: PointerEvent) => {
+    window.removeEventListener("pointermove", mv); window.removeEventListener("pointerup", done); window.removeEventListener("pointercancel", done);
+    up(ev.clientY - y0);
+  };
+  window.addEventListener("pointermove", mv); window.addEventListener("pointerup", done); window.addEventListener("pointercancel", done);
+}
 
 /** The loudest sample of every BUCKET frames, over all channels: enough to draw a file at any zoom but the deepest. */
 function summarize(buf: AudioBuffer): Float32Array {
@@ -96,12 +121,13 @@ function envelope(b: Block, intoMs: number) {
   return k;
 }
 
-/** Blocks that overlap another: each gets a colour of its own (by its place among them), the rest the primary colour. */
+/** Blocks that overlap another on the same layer: each gets a colour of its own (by its place among them), the rest
+    the primary colour. */
 function colours(blocks: Block[]): (number | null)[] {
   const out: (number | null)[] = blocks.map(() => null);
   let n = 0;
   blocks.forEach((b, i) => {
-    if (blocks.some((o, j) => j !== i && o.at_ms < endOf(b) && b.at_ms < endOf(o))) out[i] = n++;
+    if (blocks.some((o, j) => j !== i && layerOf(o) === layerOf(b) && o.at_ms < endOf(b) && b.at_ms < endOf(o))) out[i] = n++;
   });
   return out;
 }
@@ -190,6 +216,26 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
   const undo = () => { setLive(null); setHist((h) => ({ ...h, at: Math.max(0, h.at - 1) })); };
   const redo = () => { setLive(null); setHist((h) => ({ ...h, at: Math.min(h.list.length - 1, h.at + 1) })); };
 
+  // --- the layers: as many as asked for, and at least one past the last a block is on (an Undo can bring one back);
+  // their heights are only how they show, and the layer worked on takes new audio
+  const [asks, setAsks] = useState(1);
+  const layers = clamp(Math.max(asks, ...shown.map((b) => layerOf(b) + 1)), 1, MAX_LAYERS);
+  const [heights, setHeights] = useState<number[]>([]);
+  const hOf = (i: number) => heights[i] ?? LAYER.h;
+  const [active, setActive] = useState(0);
+  const on = Math.min(active, layers - 1);
+  const editTop = LANES.ruler + LANES.original;
+  const lanes = useMemo(() => {
+    const out: { top: number; h: number }[] = [];
+    let top = editTop;
+    for (let i = 0; i < layers; i++) { const h = heights[i] ?? LAYER.h; out.push({ top, h }); top += h; }
+    return out;
+  }, [layers, heights, editTop]);
+  const height = editTop + lanes.reduce((s, l) => s + l.h, 0);
+  /** The layer at a height on the canvas, or -1 above the layers. */
+  const laneAt = (y: number) => { if (y < editTop) return -1; const i = lanes.findIndex((l) => y < l.top + l.h); return i < 0 ? layers - 1 : i; };
+  const blockBox = (b: Block) => { const l = lanes[Math.min(layerOf(b), layers - 1)]; return { top: l.top + LAYER.pad, h: l.h - LAYER.pad * 2 }; };
+
   const resultMs = Math.max(0, ...shown.map(endOf));
   // the time line: everything there is, and room after it to move a block into; it only grows while the editor is open
   const [total, setTotal] = useState(1000);
@@ -223,9 +269,12 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
     player.stop(); // the app's player and the editor never play over each other
     void ctx.resume();
     const list: Block[] = what === "edit" ? (live ?? blocks) : [{ start_ms: 0, end_ms: refMs, at_ms: 0, fade_in_ms: 0, fade_out_ms: 0, gain_db: 0 }];
-    // a loop plays the selected block over and over, else the whole result
+    if (!list.length) return;
+    // a loop plays the selected block over and over, else the whole result; from past the end, it plays from the start
     const one = loop && what === "edit" && sel != null ? list[sel] : null;
-    const from = one ? one.at_ms : Math.max(0, fromMs), to = one ? endOf(one) : Math.max(...list.map(endOf));
+    const to = one ? endOf(one) : Math.max(...list.map(endOf));
+    let from = one ? one.at_ms : Math.max(0, fromMs);
+    if (from >= to - 1) from = 0;
     if (from >= to) return;
     const t0 = ctx.currentTime + 0.04, nodes: AudioScheduledSourceNode[] = [];
     for (const b of list) {
@@ -271,8 +320,8 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
   // --- editing
   const set = (i: number, b: Partial<Block>) => commit(blocks.map((x, j) => (j === i ? { ...x, ...b } : x)));
   const splitAt = (ms: number) => {
-    const i = sel != null && blocks[sel].at_ms + MIN_BLOCK < ms && ms < endOf(blocks[sel]) - MIN_BLOCK ? sel
-      : lastIndex(blocks, (b) => b.at_ms + MIN_BLOCK < ms && ms < endOf(b) - MIN_BLOCK);
+    const inside = (b: Block) => b.at_ms + MIN_BLOCK < ms && ms < endOf(b) - MIN_BLOCK;
+    const i = sel != null && inside(blocks[sel]) ? sel : (() => { const j = lastIndex(blocks, (b) => layerOf(b) === on && inside(b)); return j >= 0 ? j : lastIndex(blocks, inside); })();
     if (i < 0) return;
     const b = blocks[i], cut = b.start_ms + (ms - b.at_ms);
     const left = { ...b, end_ms: cut, fade_out_ms: 0, fade_in_ms: Math.min(b.fade_in_ms, cut - b.start_ms) };
@@ -300,31 +349,97 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
   const reset = () => {
     commit(hasOwn ? [{ start_ms: 0, end_ms: fileMs, at_ms: 0, fade_in_ms: 0, fade_out_ms: 0, gain_db: 0 }] : []);
     setSel(hasOwn ? 0 : null);
+    setAsks(1); setActive(0);
   };
-  /** Audio files as new blocks, one after the other from the cursor (each whole, at its own length). */
+
+  // --- layers
+  const addLayer = () => { if (layers >= MAX_LAYERS) return; setAsks(layers + 1); setActive(layers); };
+  const deleteLayer = async (i: number) => {
+    if (layers < 2) return;
+    const n = blocks.filter((b) => layerOf(b) === i).length;
+    if (n && !(await confirm({ title: t`Delete Layer ${i + 1}?`,
+      text: n === 1 ? t`The block on it is removed with it. Undo brings both back.` : t`The ${n} blocks on it are removed with it. Undo brings them back.`,
+      ok: t`Delete` }))) return;
+    if (blocks.some((b) => layerOf(b) >= i)) {
+      commit(blocks.filter((b) => layerOf(b) !== i).map((b) => (layerOf(b) > i ? { ...b, layer: layerOf(b) - 1 } : b)));
+      setSel(null);
+    }
+    setAsks(layers - 1);
+    setHeights((h) => h.filter((_, j) => j !== i));
+    setActive((x) => (x > i ? x - 1 : x === i ? Math.max(0, i - 1) : x));
+  };
+  /** Moves a layer to another place among them: its blocks go along, as do the selection and the layer worked on. */
+  const moveLayer = (from: number, to: number) => {
+    if (from === to) return;
+    const order = Array.from({ length: layers }, (_, i) => i);
+    order.splice(to, 0, ...order.splice(from, 1));
+    const now = (i: number) => order.indexOf(i);
+    if (blocks.some((b) => now(layerOf(b)) !== layerOf(b))) commit(blocks.map((b) => ({ ...b, layer: now(layerOf(b)) })));
+    setHeights((h) => order.map((i) => h[i] ?? LAYER.h));
+    setActive((x) => now(x));
+  };
+  const [reorder, setReorder] = useState<{ from: number; to: number; dy: number } | null>(null);
+  const startReorder = (e: React.PointerEvent, from: number) => {
+    if (e.button !== 0 || layers < 2) return;
+    setActive(from);
+    const centre = (i: number) => lanes[i].top + lanes[i].h / 2;
+    const target = (dy: number) => lanes.filter((_, j) => j !== from && centre(j) < centre(from) + dy).length;
+    setReorder({ from, to: from, dy: 0 });
+    follow(e, (dy) => setReorder({ from, to: target(dy), dy }), (dy) => { setReorder(null); moveLayer(from, target(dy)); });
+  };
+  const startResize = (e: React.PointerEvent, i: number) => {
+    if (e.button !== 0) return;
+    const h0 = hOf(i);
+    const to = (dy: number) => setHeights((h) => { const n = [...h]; for (let j = 0; j < layers; j++) n[j] ??= LAYER.h; n[i] = clamp(Math.round(h0 + dy), LAYER.min, LAYER.max); return n; });
+    follow(e, to, to);
+  };
+
+  /** Puts audio in as blocks on the layer worked on, from the cursor: files whole, one after the other; a copied
+      slot's blocks as they play there, each layer of them on a layer from this one down. */
   const [adding, setAdding] = useState(false);
-  const addFiles = useCallback(async (paths?: string[]) => {
-    if (!ctx) return;
-    paths ??= (await pickAudio(true)) ?? [];
-    if (!paths.length) return;
+  const insert = useCallback(async (items: Incoming[]) => {
+    if (!ctx || !items.length) return;
     setAdding(true);
     const got: Block[] = [];
+    const known: Record<string, Decoded> = {};
+    const load = async (path: string) => {
+      const f = known[path] ?? files[path] ?? await decode(urlOf(path), ctx);
+      known[path] = f;
+      asked.current.add(path);
+      return f;
+    };
     let at = cursor;
-    for (const path of paths) {
+    for (const item of items) {
       try {
-        const f = files[path] ?? await decode(urlOf(path), ctx);
-        asked.current.add(path);
-        setFiles((x) => ({ ...x, [path]: f }));
-        const ms = f.buf.duration * 1000;
-        got.push({ start_ms: 0, end_ms: round1(ms), at_ms: round1(at), fade_in_ms: 0, fade_out_ms: 0, gain_db: 0, audio: path });
-        at += ms;
-      } catch (e: any) { setError(t`${nameOf(path)} can't be read: ${String(e?.message ?? e)}`); }
+        if (item.blocks?.length) {
+          const first = Math.min(...item.blocks.map((b) => b.at_ms)), top = Math.min(...item.blocks.map(layerOf));
+          let end = at;
+          for (const b of item.blocks) {
+            const ms = (await load(b.audio || item.audio)).buf.duration * 1000;
+            const stop_ = b.end_ms > b.start_ms && b.end_ms <= ms ? b.end_ms : ms;
+            const nb = { ...b, audio: b.audio || item.audio, end_ms: round1(stop_), at_ms: round1(at + b.at_ms - first), layer: clamp(on + layerOf(b) - top, 0, MAX_LAYERS - 1) };
+            got.push(nb); end = Math.max(end, endOf(nb));
+          }
+          at = end;
+        } else {
+          const ms = (await load(item.audio)).buf.duration * 1000;
+          got.push({ start_ms: 0, end_ms: round1(ms), at_ms: round1(at), fade_in_ms: 0, fade_out_ms: 0, gain_db: 0, audio: item.audio, layer: on });
+          at += ms;
+        }
+      } catch (e: any) { setError(t`${nameOf(item.audio)} can't be read: ${String(e?.message ?? e)}`); }
     }
+    setFiles((x) => ({ ...x, ...known }));
     setAdding(false);
     if (got.length) { commit([...blocks, ...got]); setSel(blocks.length); }
-  }, [ctx, cursor, files, urlOf, blocks, commit]);
+  }, [ctx, cursor, files, urlOf, blocks, commit, on]);
+  const addFiles = async (paths?: string[]) => {
+    paths ??= (await pickAudio(true)) ?? [];
+    await insert(paths.map((audio) => ({ audio })));
+  };
+  /** Ctrl+V: what was copied last, slots in the list or files in Explorer (store clipForEditor). */
+  const paste = async () => { if (ctx && !adding) await insert(await actions.clipForEditor()); };
   // audio dropped on the editor (App.tsx hands it over) comes in as added files
-  useEffect(() => onWaveDrop((paths) => void addFiles(paths)), [addFiles]);
+  useEffect(() => onWaveDrop((paths) => void insert(paths.map((audio) => ({ audio })))), [insert]);
   const [saving, setSaving] = useState(false);
   const apply = async () => {
     if (saving || !blocks.length) return;
@@ -342,7 +457,7 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
   };
   const box = useDialog(() => void close());
 
-  // --- the canvas: the ruler, the original, the blocks, the cursor and the playhead
+  // --- the canvas: the ruler, the original, the layers with their blocks, the cursor and the playhead
   const canvas = useRef<HTMLCanvasElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(800);
@@ -353,11 +468,9 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
-  const height = LANES.ruler + LANES.original + LANES.edit;
   const view = { from: zoom.from, span: zoom.span };
   const xOf = (ms: number) => ((ms - view.from) / view.span) * width;
   const msOf = (x: number) => view.from + (x / width) * view.span;
-  const editTop = LANES.ruler + LANES.original;
   const colourOf = useMemo(() => colours(shown), [shown]);
 
   useEffect(() => {
@@ -394,21 +507,25 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
       }
       g.globalAlpha = 1;
     };
-    g.fillStyle = v("--bg"); g.fillRect(0, LANES.ruler, width, LANES.original + LANES.edit);
+    g.fillStyle = v("--bg"); g.fillRect(0, LANES.ruler, width, height - LANES.ruler);
     if (reference) lane(LANES.ruler, LANES.original, reference, 0, refMs, 0, v("--steel-dim"), 1);
-    g.strokeStyle = v("--line-soft"); g.beginPath(); g.moveTo(0, editTop + 0.5); g.lineTo(width, editTop + 0.5); g.stroke();
+    // the layers: the one worked on a shade lighter, each apart by a line
+    lanes.forEach((l, i) => {
+      if (i === on && layers > 1) { g.fillStyle = v("--panel"); g.globalAlpha = 0.45; g.fillRect(0, l.top, width, l.h); g.globalAlpha = 1; }
+      g.strokeStyle = v("--line-soft"); g.beginPath(); g.moveTo(0, l.top + 0.5); g.lineTo(width, l.top + 0.5); g.stroke();
+    });
     // the blocks: the selected one last, on top; each names its file when there are several
     const named = new Set(shown.map((b) => b.audio ?? "")).size > 1;
     const order = shown.map((_, i) => i).sort((x, y) => (x === sel ? 1 : y === sel ? -1 : 0));
     for (const i of order) {
       const b = shown[i], ci = colourOf[i], colour = ci == null ? v("--accent-fg") : palette[ci % palette.length];
-      const x0 = xOf(b.at_ms), x1 = xOf(endOf(b)), top = editTop + 6, h = LANES.edit - 12;
+      const x0 = xOf(b.at_ms), x1 = xOf(endOf(b)), { top, h } = blockBox(b);
       if (x1 < 0 || x0 > width) continue;
       const see = ci != null; // overlapping: see-through, so both show
       g.globalAlpha = see ? 0.16 : 0.1; g.fillStyle = colour; g.fillRect(x0, top, x1 - x0, h); g.globalAlpha = 1;
       const bf = fileOf(b);
       if (bf) lane(top, h, bf, b.start_ms, b.end_ms, b.at_ms, colour, see ? 0.55 : 0.9, b);
-      if (named && x1 - x0 > 40) { // which file, at the foot of the block
+      if (named && x1 - x0 > 40 && h > 30) { // which file, at the foot of the block
         g.save(); g.beginPath(); g.rect(x0, top, x1 - x0, h); g.clip();
         g.fillStyle = colour; g.fillText(b.audio ? nameOf(b.audio) : ownName, Math.max(x0, 0) + 6, top + h - 6); g.restore();
       }
@@ -421,15 +538,15 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
       g.strokeStyle = colour; g.lineWidth = 1.25;
       g.beginPath(); g.moveTo(x0, top + h); g.lineTo(fi, top); g.lineTo(fo, top); g.lineTo(x1, top + h); g.stroke();
       // the frame, and the fade grips at the top corners
-      const on = i === sel;
-      g.lineWidth = on ? 2 : 1; g.strokeStyle = on ? v("--text") : colour;
-      g.strokeRect(x0 + (on ? 1 : 0.5), top + (on ? 1 : 0.5), x1 - x0 - (on ? 2 : 1), h - (on ? 2 : 1));
+      const picked = i === sel;
+      g.lineWidth = picked ? 2 : 1; g.strokeStyle = picked ? v("--text") : colour;
+      g.strokeRect(x0 + (picked ? 1 : 0.5), top + (picked ? 1 : 0.5), x1 - x0 - (picked ? 2 : 1), h - (picked ? 2 : 1));
       g.lineWidth = 1;
       // the fade grips, on the top edge: filled in the block's colour on the selected block, outlined on the others
       for (const gx of [fi, fo]) {
-        const gs = on ? GRIP_PX + 3 : GRIP_PX + 1, gy = top - gs / 2 + 1;
-        g.fillStyle = on ? colour : v("--bg"); g.fillRect(gx - gs / 2, gy, gs, gs);
-        g.lineWidth = 1.5; g.strokeStyle = on ? v("--text") : colour; g.strokeRect(gx - gs / 2, gy, gs, gs); g.lineWidth = 1;
+        const gs = picked ? GRIP_PX + 3 : GRIP_PX + 1, gy = top - gs / 2 + 1;
+        g.fillStyle = picked ? colour : v("--bg"); g.fillRect(gx - gs / 2, gy, gs, gs);
+        g.lineWidth = 1.5; g.strokeStyle = picked ? v("--text") : colour; g.strokeRect(gx - gs / 2, gy, gs, gs); g.lineWidth = 1;
       }
     }
     // where the original ends: what the new audio is usually fitted to
@@ -450,20 +567,26 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
 
   // --- the pointer: what a press at a spot takes, and the magnet
   const hitAt = (x: number, y: number): Hit => {
-    if (y < editTop) return { kind: "cursor", i: -1 };
-    const order = shown.map((_, i) => i).sort((p, q) => (p === sel ? -1 : q === sel ? 1 : q - p)); // the one on top first
-    for (const i of order) {
-      const b = shown[i], x0 = xOf(b.at_ms), x1 = xOf(endOf(b)), top = editTop + 6;
-      if (y < top + GRIP_PX + 3) {
-        if (Math.abs(x - xOf(b.at_ms + b.fade_in_ms)) <= GRIP_PX) return { kind: "fadeIn", i };
-        if (Math.abs(x - xOf(endOf(b) - b.fade_out_ms)) <= GRIP_PX) return { kind: "fadeOut", i };
+    const li = laneAt(y);
+    if (li < 0) return { kind: "cursor", i: -1, under: [] };
+    const here = shown.map((_, i) => i).filter((i) => layerOf(shown[i]) === li);
+    const first = here.sort((p, q) => (p === sel ? -1 : q === sel ? 1 : lengthOf(shown[p]) - lengthOf(shown[q]))); // the selected, then the shortest
+    for (const i of first) { // a fade grip, on the top edge
+      const b = shown[i], { top } = blockBox(b);
+      if (y < top + GRIP_PX + 3 && y > top - GRIP_PX - 2) {
+        if (Math.abs(x - xOf(b.at_ms + b.fade_in_ms)) <= GRIP_PX) return { kind: "fadeIn", i, under: [] };
+        if (Math.abs(x - xOf(endOf(b) - b.fade_out_ms)) <= GRIP_PX) return { kind: "fadeOut", i, under: [] };
       }
-      if (x < x0 - EDGE_PX || x > x1 + EDGE_PX) continue;
-      if (Math.abs(x - x0) <= EDGE_PX) return { kind: "trimL", i };
-      if (Math.abs(x - x1) <= EDGE_PX) return { kind: "trimR", i };
-      if (x >= x0 && x <= x1) return { kind: "move", i };
     }
-    return { kind: "cursor", i: -1 };
+    for (const i of first) { // an edge
+      const b = shown[i], x0 = xOf(b.at_ms), x1 = xOf(endOf(b));
+      if (Math.abs(x - x0) <= EDGE_PX && x <= x1) return { kind: "trimL", i, under: [] };
+      if (Math.abs(x - x1) <= EDGE_PX && x >= x0) return { kind: "trimR", i, under: [] };
+    }
+    // the body: of the blocks under the spot, the selected one, else the shortest (a longer one shows elsewhere)
+    const under = first.filter((i) => x >= xOf(shown[i].at_ms) && x <= xOf(endOf(shown[i]))).sort((p, q) => lengthOf(shown[p]) - lengthOf(shown[q]));
+    if (under.length) return { kind: "move", i: sel != null && under.includes(sel) ? sel : under[0], under };
+    return { kind: "cursor", i: -1, under: [] };
   };
   /** The nearest spot the magnet pulls to within reach of each candidate, or the candidates as they are. */
   const snap = (candidates: number[], skip: number | null, withCursor = true) => {
@@ -475,15 +598,17 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
     return best;
   };
   const drag = useRef<Drag | null>(null);
+  const lastUp = useRef(0);
   const local = (e: { clientX: number; clientY: number }) => {
     const r = wrap.current!.getBoundingClientRect();
     return { x: e.clientX - r.left, y: e.clientY - r.top };
   };
-  const reshape = (d: Drag, dx: number): Block[] => {
+  const reshape = (d: Drag, dx: number, y: number): Block[] => {
     const b = d.from, dms = (dx / width) * view.span, next = { ...b };
     if (d.kind === "move") {
       const at = Math.max(0, b.at_ms + dms);
       next.at_ms = Math.max(0, at + snap([at, at + lengthOf(b)], d.i));
+      next.layer = clamp(y < editTop ? 0 : laneAt(y), 0, layers - 1); // up or down: onto another layer
     } else if (d.kind === "trimL") {
       // the file stays put: the block starts later in the file and later on the line by the same amount
       let at = b.at_ms + dms;
@@ -503,35 +628,47 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
     return blocks.map((x, j) => (j === d.i ? next : x));
   };
   const [hover, setHover] = useState<Drag["kind"] | null>(null);
+  const cursorTo = (x: number) => { const ms = Math.max(0, msOf(x)); setCursor(Math.max(0, ms + snap([ms], null, false))); };
   const onDown = (e: React.PointerEvent) => {
     if (e.button !== 0 || !ready || (e.target as HTMLElement).closest("button")) return; // the empty start's buttons
     e.preventDefault();
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    const { x, y } = local(e), hit = hitAt(x, y)!;
+    const { x, y } = local(e), hit = hitAt(x, y), li = laneAt(y);
+    if (li >= 0) setActive(li);
     if (hit.i >= 0) setSel(hit.i);
-    drag.current = { kind: hit.kind, i: hit.i, x0: x, from: hit.i >= 0 ? blocks[hit.i] : blocks[0], moved: false };
+    drag.current = { kind: hit.kind, i: hit.i, x0: x, from: hit.i >= 0 ? blocks[hit.i] : blocks[0], moved: false, again: hit.i >= 0 && hit.i === sel, under: hit.under };
     if (hit.kind === "cursor") {
-      const ms = Math.max(0, msOf(x));
-      setCursor(Math.max(0, ms + snap([ms], null, false)));
-      if (y >= editTop) setSel(null);
+      cursorTo(x);
+      if (li >= 0) setSel(null);
     }
   };
   const onMove = (e: React.PointerEvent) => {
     const { x, y } = local(e), d = drag.current;
-    if (!d) { setHover(hitAt(x, y)?.kind ?? null); return; }
-    if (!d.moved && Math.abs(x - d.x0) < 3) return;
+    if (!d) { setHover(hitAt(x, y).kind); return; }
+    if (!d.moved && Math.abs(x - d.x0) < 3 && (d.kind !== "move" || laneAt(y) === layerOf(d.from))) return;
     d.moved = true;
-    if (d.kind === "cursor") { const ms = Math.max(0, msOf(x)); setCursor(Math.max(0, ms + snap([ms], null, false))); return; }
-    setLive(reshape(d, x - d.x0));
+    if (d.kind === "cursor") { cursorTo(x); return; }
+    setLive(reshape(d, x - d.x0, y));
   };
   const onUp = (e: React.PointerEvent) => {
     const d = drag.current;
     drag.current = null;
     if (!d) return;
-    const { x } = local(e);
+    const { x, y } = local(e), now = performance.now(), quick = now - lastUp.current < DOUBLE_MS;
+    lastUp.current = now;
     if (d.kind === "cursor") return;
-    if (d.moved || Math.abs(x - d.x0) >= 3) commit(reshape(d, x - d.x0));
-    else { const ms = Math.max(0, msOf(x)); setCursor(Math.max(0, ms + snap([ms], null, false))); setLive(null); } // a click on a block: the cursor goes there
+    if (d.moved) { commit(reshape(d, x - d.x0, y)); return; }
+    // a click on a block: the cursor goes there; on the selected block, where others lie under it too, the next of them
+    cursorTo(x); setLive(null);
+    if (d.kind === "move" && d.again && !quick && d.under.length > 1) setSel(d.under[(d.under.indexOf(d.i) + 1) % d.under.length]);
+  };
+  /** A double click: the cursor goes there and it plays from there (the original, on the original's lane). */
+  const onDouble = (e: React.MouseEvent) => {
+    if (!ready || (e.target as HTMLElement).closest("button")) return;
+    const { x, y } = local(e), ms = Math.max(0, msOf(x));
+    const at = Math.max(0, ms + snap([ms], null, false));
+    setCursor(at);
+    startPlay(y >= LANES.ruler && y < editTop && reference ? "original" : "edit", at);
   };
   useEffect(() => {
     const el = wrap.current;
@@ -551,7 +688,9 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
     else if (mod && k === "z") { did(); if (e.shiftKey) redo(); else undo(); }
     else if (mod && k === "y") { did(); redo(); }
     else if (mod && k === "d") { did(); duplicate(); }
+    else if (mod && k === "v") { did(); void paste(); }
     else if (!mod && k === "s") { did(); splitAt(cursor); }
+    else if (!mod && k === "n") { did(); normalize(); }
     else if (!mod && k === "m") { did(); setMagnet((m) => !m); }
     else if (!mod && k === "l") { did(); setLoop((l) => !l); }
     else if (k === "delete" || k === "backspace") { did(); remove(); }
@@ -570,6 +709,9 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
   const cursorCls = { move: "grab", trimL: "ew-resize", trimR: "ew-resize", fadeIn: "col-resize", fadeOut: "col-resize", cursor: "text" } as const;
   const diff = refMs ? resultMs - refMs : 0;
   const source_ = editOriginal ? t`Original` : a && !a.silence ? a.name : t`New audio`;
+  const tool = (icon: React.ReactNode, label: string, onClick: () => void, disabled: boolean, key?: string, more?: string) => (
+    <button className="icon-btn" onClick={onClick} disabled={disabled} aria-label={label} data-tip={label} data-tip-key={key} data-tip-more={more}>{icon}</button>
+  );
   // on the body: the waveform panel it opens from would hold a fixed box inside itself
   return createPortal(
     <div className="modal-back" onPointerDown={(e) => { if (e.target === e.currentTarget) void close(); }}>
@@ -585,52 +727,70 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
 
         <div className="wave-ed-tools" role="toolbar" aria-label={t`Waveform Editor tools`}>
           <div className="wave-ed-group" role="group" aria-label={t`Playback`}>
-          <button className={`btn play-btn${playing === "edit" ? " on" : ""}`} onClick={() => toggle()} disabled={!ready || !shown.length}
-            data-tip={playing === "edit" ? t`Pause` : t`Play from the cursor`} data-tip-key="Space">
-            {playing === "edit" ? <PauseIcon /> : <PlayIcon />}{playing === "edit" ? t`Pause` : t`Play`}</button>
-          <button className="icon-btn" onClick={() => { stop(); setCursor(0); }} aria-label={t`Stop`} data-tip={t`Stop, and put the cursor at the start`}><StopIcon /></button>
-          <button className="icon-btn wave-ed-toggle" aria-pressed={loop} onClick={() => setLoop(!loop)} aria-label={t`Loop`}
-            data-tip={loop ? t`Loop: on` : t`Loop: off`} data-tip-more={t`Plays the selected block over and over, or the whole result`} data-tip-key="L"><LoopIcon /></button>
-          <span className="wave-ed-time" data-tip={t`Where the cursor is`}>{fmtExact(cursor)}</span>
+            <button className={`icon-btn wave-ed-play${playing === "edit" ? " on" : ""}`} onClick={() => toggle()} disabled={!ready || !shown.length}
+              aria-label={playing === "edit" ? t`Pause` : t`Play`} data-tip={playing === "edit" ? t`Pause` : t`Play from the cursor`}
+              data-tip-more={t`A double click on the waveforms plays from there`} data-tip-key="Space">
+              {playing === "edit" ? <PauseIcon /> : <PlayIcon />}</button>
+            {tool(<StopIcon />, t`Stop`, () => { stop(); setCursor(0); }, false, undefined, t`Puts the cursor back at the start`)}
+            <button className="icon-btn wave-ed-toggle" aria-pressed={loop} onClick={() => setLoop(!loop)} aria-label={t`Loop`}
+              data-tip={loop ? t`Loop: on` : t`Loop: off`} data-tip-more={t`Plays the selected block over and over, or the whole result`} data-tip-key="L"><LoopIcon /></button>
+            <span className="wave-ed-time" data-tip={t`Where the cursor is`}>{fmtExact(cursor)}</span>
           </div>
           <div className="wave-ed-group" role="group" aria-label={t`Blocks`}>
-          <button className="btn" onClick={() => void addFiles()} disabled={!ctx || adding}
-            data-tip={t`Add audio files as new blocks`} data-tip-more={t`They go one after the other from the cursor. Dropping files on the editor does the same`}>
-            <PlusIcon /><Trans>Add Audio</Trans></button>
-          <button className="btn" onClick={() => splitAt(cursor)} disabled={!shown.length} data-tip={t`Split the block at the cursor`} data-tip-key="S"><SplitIcon /><Trans>Split</Trans></button>
-          <button className="icon-btn" onClick={duplicate} disabled={b == null} aria-label={t`Duplicate`} data-tip={t`Duplicate the block`} data-tip-more={t`The copy goes right after it`} data-tip-key="Ctrl+D"><DuplicateIcon /></button>
-          <button className="icon-btn" onClick={remove} disabled={b == null || (hasOwn && blocks.length < 2)} aria-label={t`Remove`} data-tip={t`Remove the block`} data-tip-key="Delete"><RemoveIcon /></button>
+            {tool(<AddAudioIcon />, t`Add Audio`, () => void addFiles(), !ctx || adding, undefined,
+              t`Adds audio files as new blocks on the selected layer, one after the other from the cursor. Dropping files on the editor does the same, and Ctrl+V pastes slots copied in the list or files copied in Explorer`)}
+            {tool(<SplitIcon />, t`Split the block at the cursor`, () => splitAt(cursor), !shown.length, "S")}
+            {tool(<NormalizeIcon />, t`Normalize`, normalize, b == null, "N", t`Sets the gain so the loudest moment of the block reaches −1 dB`)}
+            {tool(<DuplicateIcon />, t`Duplicate the block`, duplicate, b == null, "Ctrl+D", t`The copy goes right after it`)}
+            {tool(<RemoveIcon />, t`Remove the block`, remove, b == null || (hasOwn && blocks.length < 2), "Delete")}
           </div>
           <div className="wave-ed-group" role="group" aria-label={t`Magnet`}>
-          <button className="btn wave-ed-toggle" aria-pressed={magnet} onClick={() => setMagnet(!magnet)} data-tip={magnet ? t`Magnet: on` : t`Magnet: off`}
-            data-tip-more={t`The cursor, block edges and blocks snap to edges: of blocks, the start and where the original ends`} data-tip-key="M"><MagnetIcon /><Trans>Magnet</Trans></button>
+            <button className="icon-btn wave-ed-toggle" aria-pressed={magnet} onClick={() => setMagnet(!magnet)} aria-label={t`Magnet`} data-tip={magnet ? t`Magnet: on` : t`Magnet: off`}
+              data-tip-more={t`The cursor, block edges and blocks snap to edges: of blocks, the start and where the original ends`} data-tip-key="M"><MagnetIcon /></button>
           </div>
           <span className="spacer" />
           <div className="wave-ed-group" role="group" aria-label={t`History`}>
-          <button className="icon-btn" onClick={undo} disabled={hist.at === 0} aria-label={t`Undo`} data-tip={t`Undo`} data-tip-key="Ctrl+Z"><UndoIcon /></button>
-          <button className="icon-btn" onClick={redo} disabled={hist.at >= hist.list.length - 1} aria-label={t`Redo`} data-tip={t`Redo`} data-tip-key="Ctrl+Y"><RedoIcon /></button>
-          <button className="btn quiet" onClick={reset} disabled={!ready} data-tip={hasOwn ? t`Back to the whole file, as it is` : t`Remove every block`}><ResetIcon /><Trans>Reset</Trans></button>
+            {tool(<UndoIcon />, t`Undo`, undo, hist.at === 0, "Ctrl+Z")}
+            {tool(<RedoIcon />, t`Redo`, redo, hist.at >= hist.list.length - 1, "Ctrl+Y")}
+            {tool(<ResetIcon />, t`Reset`, reset, !ready, undefined, hasOwn ? t`Back to the whole file, as it is, on one layer` : t`Removes every block`)}
           </div>
         </div>
 
         <div className="wave-ed-main">
         <div className="wave-ed-body zoom-grid">
           <div className="wave-ed-lanes">
-            <div className="wave-ed-labels" style={{ gridTemplateRows: `${LANES.ruler}px ${LANES.original}px ${LANES.edit}px` }}>
-              <span />
-              <span className="game">
+            <div className="wave-ed-labels">
+              <span style={{ height: LANES.ruler }} />
+              <span className="game" style={{ height: LANES.original }}>
                 <button className={`icon-btn small${playing === "original" ? " on" : ""}`} onClick={() => toggle("original")} disabled={!reference}
                   aria-label={t`Play the original`} data-tip={playing === "original" ? t`Stop` : t`Play the original from the cursor`}>
                   {playing === "original" ? <PauseIcon /> : <PlayIcon />}</button>
                 {t`Original`}</span>
-              <span className="mine">{t`Replaced`}</span>
+              {lanes.map((l, i) => {
+                // while a layer is dragged it follows the pointer, and the one whose place it takes shows a line there
+                const moving = reorder?.from === i;
+                const mark = reorder && !moving && i === reorder.to ? (reorder.to > reorder.from ? " drop-after" : " drop-before") : "";
+                return (
+                  <div key={i} className={`wave-ed-layer${i === on ? " on" : ""}${moving ? " moving" : ""}${mark}`}
+                    style={{ height: l.h, ...(moving ? { transform: `translateY(${reorder!.dy}px)` } : {}) }} onPointerDown={() => setActive(i)}>
+                    <span className="wave-ed-grip" onPointerDown={(e) => startReorder(e, i)} aria-hidden={layers < 2}
+                      data-tip={layers > 1 ? t`Drag to reorder the layers` : undefined}><GripIcon /></span>
+                    <span className="wave-ed-layer-name">{t`Layer ${i + 1}`}</span>
+                    <button className="icon-btn small" onClick={() => void deleteLayer(i)} disabled={layers < 2} aria-label={t`Delete Layer ${i + 1}`}
+                      data-tip={t`Delete the layer`} data-tip-more={t`With the blocks on it`}><TrashIcon /></button>
+                    <span className="wave-ed-layer-size" role="separator" aria-orientation="horizontal" aria-label={t`Resize Layer ${i + 1}`}
+                      onPointerDown={(e) => startResize(e, i)} onDoubleClick={() => setHeights((h) => { const n = [...h]; n[i] = LAYER.h; return n; })}
+                      data-tip={t`Drag to resize the layer`} data-tip-more={t`A double click sets it back`} />
+                  </div>
+                );
+              })}
             </div>
             <div className="wave-ed-canvas" ref={wrap} data-drop={JSON.stringify({ kind: "wave-editor" })} style={{ height, cursor: drag.current ? (drag.current.kind === "move" ? "grabbing" : cursorCls[drag.current.kind]) : hover ? cursorCls[hover] : "text" }}
-              onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerLeave={() => setHover(null)}>
+              onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onDoubleClick={onDouble} onPointerLeave={() => setHover(null)}>
               <canvas ref={canvas} style={{ width, height }} />
               {!ready ? <p className="wave-ed-state">{error ? t`The audio can't be read: ${error}` : t`Reading the audio…`}</p>
                 : !shown.length && (
-                  <div className="wave-ed-state wave-ed-empty">
+                  <div className="wave-ed-state wave-ed-empty" style={{ top: editTop }}>
                     <p><Trans>Add audio files to build the new audio from, or start from the original.</Trans></p>
                     <div className="row-btns">
                       <button className="btn primary" onClick={() => void addFiles()}><PlusIcon /><Trans>Add Audio</Trans></button>
@@ -640,11 +800,16 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
                 )}
             </div>
           </div>
-          <WaveZoom zoom={zoom} foot={zoom.x > 1 ? <WaveScroll zoom={zoom} /> : null} />
+          {/* under the waveforms, at the left: New Layer, then the scroll bar and the time zoom */}
+          <WaveZoom zoom={zoom} foot={<>
+            <button className="btn quiet wave-ed-new-layer" onClick={addLayer} disabled={layers >= MAX_LAYERS} data-tip={t`A layer to keep blocks apart on`}
+              data-tip-more={t`Every layer plays, all together. Drag a block up or down to move it to another layer`}><PlusIcon /><Trans>New Layer</Trans></button>
+            {zoom.x > 1 && <WaveScroll zoom={zoom} />}
+          </>} />
         </div>
         <aside className="wave-ed-side" aria-label={t`Selected block`}>
-          {b ? <BlockFields b={b} n={sel! + 1} fileMs={msOfFile(b)} file={b.audio ? nameOf(b.audio) : ownName} onSet={(x) => set(sel!, x)} onNormalize={normalize} />
-            : <p className="wave-ed-hint"><Trans>Click a block to set it up. Drag the body to move it, an edge to trim it, and the squares on the top edge to fade it.</Trans></p>}
+          {b ? <BlockFields b={b} n={sel! + 1} fileMs={msOfFile(b)} file={b.audio ? nameOf(b.audio) : ownName} onSet={(x) => set(sel!, x)} />
+            : <p className="wave-ed-hint"><Trans>Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Where blocks overlap, click again for the one under it. A double click plays from there.</Trans></p>}
         </aside>
         </div>
 
@@ -667,11 +832,11 @@ export function WaveEditor({ source, what, original, onClose }: { source: string
 
 /** The selected block in numbers, in ms (Gain in dB): what the canvas does by dragging, to type exactly. A column of
     label, value and unit, in groups: where it plays, the stretch of the file, the fades, the level. */
-function BlockFields({ b, n, fileMs, file, onSet, onNormalize }: {
-  b: Block; n: number; fileMs: number; file: string; onSet: (b: Partial<Block>) => void; onNormalize: () => void;
+function BlockFields({ b, n, fileMs, file, onSet }: {
+  b: Block; n: number; fileMs: number; file: string; onSet: (b: Partial<Block>) => void;
 }) {
   const len = lengthOf(b);
-  const field = (key: Exclude<keyof Block, "audio">, name: string, tip: string, lo: number, hi: number, unit = "ms", step = 1) => (
+  const field = (key: Exclude<keyof Block, "audio" | "layer">, name: string, tip: string, lo: number, hi: number, unit = "ms", step = 1) => (
     <label className="wave-ed-field" data-tip={tip} data-tip-side="left">
       <span className="wave-ed-label">{name}</span>
       <input type="number" min={lo} max={hi} step={step} key={`${key}:${b[key]}`} defaultValue={round1(b[key])} aria-label={`${name} (${unit})`}
@@ -700,8 +865,6 @@ function BlockFields({ b, n, fileMs, file, onSet, onNormalize }: {
       </div>
       <div className="wave-ed-set">
         {field("gain_db", t`Gain`, t`How much louder or quieter the block plays`, -60, 24, "dB", 0.5)}
-        <button className="btn quiet wave-ed-norm" onClick={onNormalize} data-tip={t`Normalize`} data-tip-side="left"
-          data-tip-more={t`Sets the gain so the loudest moment of the block reaches −1 dB`}><NormalizeIcon /><Trans>Normalize</Trans></button>
       </div>
     </div>
   );

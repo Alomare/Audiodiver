@@ -58,7 +58,7 @@ msgstr "{0, plural, other {Repatch # 个模组}}"
 msgid "{0} blocks"
 msgstr ""
 
-#. placeholder {0}: nameOf(path)
+#. placeholder {0}: nameOf(item.audio)
 #. placeholder {1}: String(e?.message ?? e)
 #: src/WaveEditor.tsx
 msgid "{0} can't be read: {1}"
@@ -1167,6 +1167,14 @@ msgstr "冲突检查仍在进行中。"
 msgid "A document to read, with each note under the name of what it is on."
 msgstr "便于阅读的文档，每条备注都列在对应对象的名称下面。"
 
+#: src/WaveEditor.tsx
+msgid "A double click on the waveforms plays from there"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "A double click sets it back"
+msgstr ""
+
 #: src/ExportDialog.tsx
 msgid "A fight"
 msgstr "一场战斗"
@@ -1215,6 +1223,10 @@ msgstr "项目添加的层。只要上面那个声音一播放，它就会跟着
 #: src/CueView.tsx
 msgid "A layer left original still plays under the new audio"
 msgstr "保留原版的层仍会与新音频叠加播放"
+
+#: src/WaveEditor.tsx
+msgid "A layer to keep blocks apart on"
+msgstr ""
 
 #: src/ProjectTab.tsx
 msgid "A mod can be just this, with no new audio."
@@ -1485,10 +1497,6 @@ msgid "Add Audio"
 msgstr ""
 
 #: src/WaveEditor.tsx
-msgid "Add audio files as new blocks"
-msgstr ""
-
-#: src/WaveEditor.tsx
 msgid "Add audio files to build the new audio from, or start from the original."
 msgstr ""
 
@@ -1604,6 +1612,10 @@ msgstr "已添加到导出列表，共 {total} 个条目（每个部分一个）
 #: src/TextTools.tsx
 msgid "Adds a column with these lines in another language"
 msgstr "添加一列，显示这些行的另一种语言"
+
+#: src/WaveEditor.tsx
+msgid "Adds audio files as new blocks on the selected layer, one after the other from the cursor. Dropping files on the editor does the same, and Ctrl+V pastes slots copied in the list or files copied in Explorer"
+msgstr ""
 
 #: src/SettingsTab.tsx
 msgid "After the pointer rests for a second."
@@ -2001,7 +2013,7 @@ msgid "Back to the tutorial step"
 msgstr "返回教程步骤"
 
 #: src/WaveEditor.tsx
-msgid "Back to the whole file, as it is"
+msgid "Back to the whole file, as it is, on one layer"
 msgstr ""
 
 #: src/SettingsTab.tsx
@@ -2692,7 +2704,7 @@ msgid "Click ▶"
 msgstr "点击 ▶"
 
 #: src/WaveEditor.tsx
-msgid "Click a block to set it up. Drag the body to move it, an edge to trim it, and the squares on the top edge to fade it."
+msgid "Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Where blocks overlap, click again for the one under it. A double click plays from there."
 msgstr ""
 
 #: src/Wiki.tsx
@@ -3176,12 +3188,23 @@ msgid "Delay"
 msgstr "延迟"
 
 #: src/Notes.tsx
+#: src/WaveEditor.tsx
 msgid "Delete"
 msgstr "删除"
 
 #: src/Notes.tsx
 msgid "Delete Global Note"
 msgstr "删除全局备注"
+
+#. placeholder {0}: i + 1
+#: src/WaveEditor.tsx
+msgid "Delete Layer {0}"
+msgstr ""
+
+#. placeholder {0}: i + 1
+#: src/WaveEditor.tsx
+msgid "Delete Layer {0}?"
+msgstr ""
 
 #: src/Notes.tsx
 msgid "Delete Project Note"
@@ -3190,6 +3213,10 @@ msgstr "删除项目备注"
 #: src/Notes.tsx
 msgid "Delete the global note?"
 msgstr "删除此全局备注？"
+
+#: src/WaveEditor.tsx
+msgid "Delete the layer"
+msgstr ""
 
 #: src/Notes.tsx
 msgid "Delete the project note?"
@@ -3292,6 +3319,14 @@ msgstr "拖动可略去歌曲的结尾"
 msgid "Drag it to leave out the start of the song"
 msgstr "拖动可略去歌曲的开头"
 
+#: src/WaveEditor.tsx
+msgid "Drag to reorder the layers"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Drag to resize the layer"
+msgstr ""
+
 #: src/Timeline.tsx
 msgid "Drawn and played at this gain"
 msgstr "按此增益绘制和播放"
@@ -3368,10 +3403,6 @@ msgstr "将歌曲拖到播放列表中的某个位置，或将一首歌曲拖到
 #: src/App.tsx
 msgid "Dropping files needs the desktop app"
 msgstr "拖放文件需要使用桌面应用"
-
-#: src/WaveEditor.tsx
-msgid "Duplicate"
-msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Duplicate the block"
@@ -3591,6 +3622,10 @@ msgstr "每次更改都会立即写入项目文件。"
 #: src/App.tsx
 msgid "Every change is saved to the project file as it is made"
 msgstr "每次更改都会立即保存到项目文件"
+
+#: src/WaveEditor.tsx
+msgid "Every layer plays, all together. Drag a block up or down to move it to another layer"
+msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "every other {name}"
@@ -4691,6 +4726,11 @@ msgstr "上次构建：<0>{zip}</0>，{mb} MB，{when}"
 msgid "layer"
 msgstr "层"
 
+#. placeholder {0}: i + 1
+#: src/WaveEditor.tsx
+msgid "Layer {0}"
+msgstr ""
+
 #: src/Soundtrack.tsx
 msgid "Layer {n}"
 msgstr "层 {n}"
@@ -5367,6 +5407,7 @@ msgid "new layer"
 msgstr "新层"
 
 #: src/CueView.tsx
+#: src/WaveEditor.tsx
 msgid "New Layer"
 msgstr "新建层"
 
@@ -5853,6 +5894,10 @@ msgstr "尚无可导出的内容。"
 #: src/store.tsx
 msgid "Nothing to paste. Copy audio files or slots first"
 msgstr "没有可粘贴的内容。请先复制音频文件或槽位"
+
+#: src/store.tsx
+msgid "Nothing to paste. The copied slots play silence"
+msgstr ""
 
 #: src/App.tsx
 #: src/store.tsx
@@ -6911,6 +6956,10 @@ msgstr "将歌曲放到该位置及其后的位置"
 msgid "Puts new audio into the sounds chosen, in every bank and stream of the mod that has them."
 msgstr "把新音频放入所选的声音，模组中凡是包含这些声音的音频库和流都会写入。"
 
+#: src/WaveEditor.tsx
+msgid "Puts the cursor back at the start"
+msgstr ""
+
 #: src/About.tsx
 msgid "Questions, feedback and help"
 msgstr "问题、反馈与帮助"
@@ -7072,7 +7121,6 @@ msgstr "移除"
 #: src/RepatchPage.tsx
 #: src/Soundtrack.tsx
 #: src/store.tsx
-#: src/WaveEditor.tsx
 msgid "Remove"
 msgstr "移除"
 
@@ -7114,10 +7162,6 @@ msgstr "从项目中移除全部 {count} 项"
 #: src/IndexTree.tsx
 msgid "Remove all {count} from the project"
 msgstr "从项目中移除全部 {count} 项"
-
-#: src/WaveEditor.tsx
-msgid "Remove every block"
-msgstr ""
 
 #: src/TextTab.tsx
 msgid "Remove every colour, size and style"
@@ -7221,6 +7265,10 @@ msgstr "已从 {n, plural, other {# 个槽位}}里移除新音频。"
 #: src/store.tsx
 msgid "Removed the silence from {n, plural, one {# slot} other {# slots}}."
 msgstr "已移除 {n, plural, other {# 个槽位}}的静音。"
+
+#: src/WaveEditor.tsx
+msgid "Removes every block"
+msgstr ""
 
 #: src/ImportMod.tsx
 msgid "Removes the new audio, added sounds, cue points and list first. The audio files stay, and Undo brings them back."
@@ -7392,7 +7440,6 @@ msgstr "已替换"
 
 #: src/music.ts
 #: src/Timeline.tsx
-#: src/WaveEditor.tsx
 msgid "Replaced"
 msgstr "已替换"
 
@@ -7471,6 +7518,11 @@ msgstr "已恢复默认。该按键原先归 {commands} 使用。"
 #: src/Waveform.tsx
 msgid "Reset zoom"
 msgstr "重置缩放"
+
+#. placeholder {0}: i + 1
+#: src/WaveEditor.tsx
+msgid "Resize Layer {0}"
+msgstr ""
 
 #: src/App.tsx
 msgid "Resize the details panel"
@@ -8181,10 +8233,6 @@ msgid "Spanish (Spain)"
 msgstr "西班牙语（西班牙）"
 
 #: src/WaveEditor.tsx
-msgid "Split"
-msgstr ""
-
-#: src/WaveEditor.tsx
 msgid "Split the block at the cursor"
 msgstr ""
 
@@ -8269,10 +8317,6 @@ msgstr "停止播放，或清除选择"
 #: src/Tutorial.tsx
 msgid "Stop Tutorial"
 msgstr "停止教程"
-
-#: src/WaveEditor.tsx
-msgid "Stop, and put the cursor at the start"
-msgstr ""
 
 #: src/App.tsx
 msgid "Stopping…"
@@ -8460,6 +8504,10 @@ msgstr "{name} 的 {count} 个部分"
 msgid "The {gain} dB the game gives this sound stays"
 msgstr "游戏为此声音设置的 {gain} dB 保持不变"
 
+#: src/WaveEditor.tsx
+msgid "The {n} blocks on it are removed with it. Undo brings them back."
+msgstr ""
+
 #. Markdown. **Index** is the button above the Library list, and the bold word must read as the translation of the button does.
 #: src/tutorials.ts
 msgid "The **Index** sorts the sounds of the game by where you hear them: weapons, stratagems, enemies and more. The search box finds anything by name."
@@ -8504,6 +8552,10 @@ msgstr "此处播放战斗音乐，音量与战斗相同"
 #: src/Soundtrack.tsx
 msgid "The battle music plays on here, from where it is"
 msgstr "战斗音乐在此处从当前位置继续播放"
+
+#: src/WaveEditor.tsx
+msgid "The block on it is removed with it. Undo brings both back."
+msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "The changes made in the Waveform Editor are lost."
@@ -9202,10 +9254,6 @@ msgstr "这些声音已在项目中"
 msgid "These voices play through a radio effect, new audio included. Turn it off to hear a voice clean, in every language."
 msgstr "这些语音会经过无线电效果，新音频也一样。关闭它即可听到干净的语音，所有语言都有效。"
 
-#: src/WaveEditor.tsx
-msgid "They go one after the other from the cursor. Dropping files on the editor does the same"
-msgstr ""
-
 #: src/ExportDialog.tsx
 msgid "Things collected from anywhere, to export together"
 msgstr "从各处收集的内容，可一并导出"
@@ -9834,6 +9882,10 @@ msgstr "Wiki：指南"
 #: src/SettingsTab.tsx
 msgid "With Each Change"
 msgstr "每次更改时"
+
+#: src/WaveEditor.tsx
+msgid "With the blocks on it"
+msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "With the level"

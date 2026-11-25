@@ -26,18 +26,28 @@ When one file plays in several segments, **Apply to … more segments with this 
 
 ## The Waveform Editor
 
-**Edit** under **Original** or **Replaced** in the waveforms opens the Waveform Editor for the selected slot. It trims, splits, moves and fades audio, so simple edits need no other program. This works on every slot: music, sounds and voice lines.
+The pencil beside **Original** or **Replaced** in the waveforms opens the Waveform Editor for the selected slot. It trims, splits, moves and fades audio, so simple edits need no other program. This works on every slot: music, sounds and voice lines.
 
-The audio sits on a time line as **blocks**. Each block is a stretch of a file, placed at a chosen time, with a fade in, a fade out and a gain. The original runs along the top for comparison, and a dashed line marks where the original ends.
+The audio sits on a time line as **blocks**. Each block is a stretch of a file, placed at a chosen time, with a fade in, a fade out and a gain. The original runs along the top for comparison, and a dashed line marks where the original ends. The tools sit in a bar above the time line, and pointing at one shows what it does and the key for it.
 
-- Drag the body of a block to move it. Drag the left or right edge to trim it. With a block selected, drag the small squares at the top corners to fade it in or out.
-- Click the time line to place the cursor. **Split** (S) cuts the block under the cursor in two, and each part gets separate fades. **Duplicate** places a copy right after the block, and **Remove** takes it away.
-- Blocks can overlap and play together. Overlapping blocks are drawn see-through, each in another colour, so both stay visible.
+- Drag the body of a block to move it. Drag the left or right edge to trim it. Drag the small squares on the top edge to fade it in or out.
+- Click the time line to place the cursor. **Split** (S) cuts the block under the cursor in two, and each part gets separate fades. **Normalize** (N) sets the gain so the loudest moment of the block reaches −1 dB. **Duplicate** (Ctrl+D) places a copy right after the block, and **Remove** (Delete) takes it away.
 - **Magnet** (M) snaps the cursor, edges and blocks to each other, to the start and to where the original ends.
-- **Add Audio** puts audio files on the time line as new blocks, one after the other from the cursor. Dropping files on the editor does the same. One slot can be made from several files this way, and a slot without new audio can start from files or from the original.
-- Under the time line, type exact values for the selected block in milliseconds. **Normalize** sets the gain so the loudest moment of the block reaches −1 dB.
-- **Play** (Space) plays from the cursor, and **Loop** (L) plays the selected block over and over. The play button beside **Original** plays the original for comparison.
+- **Add Audio** puts audio files on the time line as new blocks, one after the other from the cursor. Dropping files on the editor does the same, and **Ctrl+V** pastes slots copied with Ctrl+C in the list (their new audio as it plays, or the original) or audio files copied in Explorer. One slot can be made from several files this way, and a slot without new audio can start from files or from the original.
+- Beside the time line, type exact values for the selected block in milliseconds.
+- **Play** (Space) plays from the cursor, and **Loop** (L) plays the selected block over and over. A double click on the time line plays from there, and on the original it plays the original. The play button beside **Original** plays the original for comparison.
 - Ctrl+Z and Ctrl+Y undo and redo inside the editor. **Reset** goes back to the whole file as it is.
+
+### Layers
+
+Blocks sit on **layers**, one under the other. Layers keep blocks apart so each one is easy to see and reach. Every layer plays, all together, and a block sounds the same on any layer.
+
+- **New Layer**, under the time line, adds a layer. New audio from Add Audio, a drop or Ctrl+V goes onto the layer last clicked, shown in yellow.
+- Drag a block up or down to move it to another layer.
+- Drag the dots before a layer's name to reorder the layers, and drag the bottom edge of a layer's name to make it taller or shorter. A double click on that edge sets it back.
+- The bin deletes a layer. A layer with blocks on it asks first, and Undo brings the blocks back.
+
+Blocks on one layer can also overlap, and they play together. Overlapping blocks are drawn see-through, each in another colour, so both stay visible. A click picks the shortest block under it, and another click on the same spot picks the next one, so a block under a longer one can always be selected.
 
 Nothing changes until **Apply**. The files stay as they are: the project keeps the blocks, and builds and previews play what the editor shows. Editing the original gives the slot the edited original as new audio, the way copying a slot does. Make-Up Gain applies on top of the result, and choosing another file for the slot starts it unedited.
 

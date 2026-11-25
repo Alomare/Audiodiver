@@ -117,7 +117,9 @@ code { background: var(--raised); padding: 0 4px; }
 /* a secondary button: no fill, but outlined like every button, so it never reads as loose text */
 .btn.quiet { background: transparent; border-color: var(--line); color: var(--muted); }
 .btn.quiet:hover:not(:disabled) { color: var(--text); background: var(--raised); }
-.btn.primary, .btn.build { background: var(--accent); color: var(--accent-ink); border: 0; font-weight: 700; padding: calc(7px * var(--sp)) calc(13px + 5px * var(--sp)); border-radius: 0; }
+/* a primary button keeps the 1px frame of the others (filled in its own colour) and their padding, so the two stand
+   equally tall side by side at any spacing */
+.btn.primary, .btn.build { background: var(--accent); color: var(--accent-ink); border: 1px solid transparent; font-weight: 700; padding: calc(6px * var(--sp)) calc(13px + 5px * var(--sp)); border-radius: 0; }
 .btn.primary:hover:not(:disabled), .btn.build:hover:not(:disabled) { background: var(--accent-hover); }
 .btn.build { font-size: calc(16px * var(--fs)); padding: 7px 22px; }
 .btn.big { padding: 10px 22px; font-size: calc(16px * var(--fs)); }
@@ -321,7 +323,7 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color])
 .cue-notes.warn { color: var(--red); }
 .cue-bar { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: calc(7px * var(--sp)) 20px; border-bottom: 1px solid var(--line); background: var(--panel); }
 .cue-bar .btn { padding: calc(4px * var(--sp)) 11px; }
-.cue-bar .btn.primary { padding: calc(5px * var(--sp)) 15px; }
+.cue-bar .btn.primary { padding: calc(4px * var(--sp)) 15px; }
 /* the tools: icons with their name and what they do in the tooltip, after the play-through buttons */
 .tools { display: flex; align-items: center; gap: 4px; }
 .tools:not(:empty) { padding-left: 10px; margin-left: 2px; border-left: 1px solid var(--line-soft); }
@@ -2387,13 +2389,12 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .wave-ed-group { display: flex; align-items: center; gap: 4px; padding: 0 12px; border-left: 1px solid var(--line-soft); }
 .wave-ed-group:first-child { padding-left: 0; border-left: 0; }
 .wave-ed-tools .spacer + .wave-ed-group { border-left: 0; padding-right: 0; }
-.wave-ed-tools .btn { gap: 7px; height: calc(32px * var(--fs)); }
 .wave-ed-tools .icon-btn { width: calc(32px * var(--fs)); height: calc(32px * var(--fs)); }
-.wave-ed-tools .play-btn { min-width: calc(96px * var(--fs)); justify-content: center; }
-.wave-ed-tools .play-btn.on { border-color: var(--accent-fg); color: var(--accent-fg); }
+.wave-ed-tools .wave-ed-play { color: var(--accent-fg); }
+.wave-ed-tools .wave-ed-play:hover:not(:disabled) { color: var(--accent-fg); }
+.wave-ed-tools .wave-ed-play.on { background: color-mix(in srgb, var(--accent-fg) 18%, var(--raised)); }
 /* a toggle (Loop, Magnet): off, a plain button; on, filled in the secondary colour with a frame, plain in any theme */
 .wave-ed-toggle { border: 1px solid transparent; }
-.wave-ed-toggle.btn { border-color: var(--line); }
 .wave-ed-toggle[aria-pressed="true"] { color: var(--second-fg); border-color: var(--second-fg);
   background: color-mix(in srgb, var(--second-fg) 18%, var(--raised)); }
 .wave-ed-toggle[aria-pressed="true"]:hover:not(:disabled) { color: var(--second-fg); background: color-mix(in srgb, var(--second-fg) 26%, var(--raised)); }
@@ -2402,17 +2403,35 @@ kbd.none { color: var(--faint); font-weight: 400; }
 /* the lanes with the zoom, and the selected block's values in a column to their right */
 .wave-ed-main { display: grid; grid-template-columns: minmax(0, 1fr) calc(244px * var(--fs)); gap: 14px; align-items: start; }
 .wave-ed-body { min-width: 0; }
-.wave-ed-lanes { grid-area: 1 / 1; min-width: 0; display: grid; grid-template-columns: calc(96px * var(--fs)) minmax(0, 1fr); background: var(--bg); border: 1px solid var(--line-soft); }
-.wave-ed-labels { display: grid; border-right: 1px solid var(--line-soft); font-size: calc(13px * var(--fs)); font-weight: 700; }
-.wave-ed-labels > span { display: flex; align-items: center; gap: 4px; padding: 0 8px; }
+/* the lanes scroll up and down once the layers outgrow the room; the wheel over them zooms, as on every waveform */
+.wave-ed-lanes { grid-area: 1 / 1; min-width: 0; max-height: 58vh; overflow-y: auto; overscroll-behavior: contain; display: grid;
+  grid-template-columns: calc(112px * var(--fs)) minmax(0, 1fr); align-items: start; background: var(--bg); border: 1px solid var(--line-soft); }
+.wave-ed-labels { display: flex; flex-direction: column; border-right: 1px solid var(--line-soft); font-size: calc(13px * var(--fs)); font-weight: 700; }
+.wave-ed-labels > span { flex: none; display: flex; align-items: center; gap: 4px; padding: 0 8px; }
 .wave-ed-labels .game { color: var(--steel); border-top: 1px solid var(--line-soft); }
-.wave-ed-labels .mine { color: var(--accent-fg); border-top: 1px solid var(--line-soft); }
 .wave-ed-labels .icon-btn.small { width: 24px; height: 24px; font-size: 15px; flex: none; }
+/* a layer's label: the grip that reorders it, its name, Delete, and its bottom edge that resizes it; the layer worked
+   on (where new audio goes) in the primary colour */
+.wave-ed-layer { flex: none; position: relative; display: flex; align-items: center; gap: 2px; padding: 0 4px 0 2px; color: var(--muted);
+  border-top: 1px solid var(--line-soft); background: var(--bg); }
+.wave-ed-layer.on { color: var(--accent-fg); background: color-mix(in srgb, var(--panel) 45%, var(--bg)); }
+.wave-ed-layer.moving { z-index: 2; background: var(--raised); box-shadow: 0 4px 14px rgb(0 0 0 / .35); }
+.wave-ed-layer.drop-before { box-shadow: inset 0 2px 0 var(--second-fg); }
+.wave-ed-layer.drop-after { box-shadow: inset 0 -2px 0 var(--second-fg); }
+.wave-ed-grip { flex: none; display: grid; place-items: center; width: 18px; height: 24px; font-size: 15px; color: var(--faint); cursor: grab; touch-action: none; }
+.wave-ed-grip:hover { color: var(--text); }
+.wave-ed-grip[aria-hidden="true"] { visibility: hidden; }
+.wave-ed-layer.moving .wave-ed-grip { cursor: grabbing; }
+.wave-ed-layer-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wave-ed-layer .icon-btn.small { width: 24px; height: 24px; font-size: 15px; flex: none; }
+.wave-ed-layer-size { position: absolute; left: 0; right: 0; bottom: -4px; height: 8px; z-index: 1; cursor: ns-resize; touch-action: none; }
+.wave-ed-layer-size:hover { background: linear-gradient(transparent 3px, var(--second-fg) 3px, var(--second-fg) 5px, transparent 5px); }
+.wave-ed-new-layer { flex: none; gap: 6px; padding-top: 2px; padding-bottom: 2px; font-size: calc(13px * var(--fs)); }
 .wave-ed-canvas { position: relative; overflow: hidden; touch-action: none; user-select: none; }
 .wave-ed-canvas canvas { display: block; }
 .wave-ed-state { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; color: var(--muted); font-size: calc(13px * var(--fs)); }
 /* a slot without new audio: the edit lane offers files, or the original to start from */
-.wave-ed-empty { top: calc(88px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; pointer-events: none; }
+.wave-ed-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; pointer-events: none; }
 .wave-ed-empty > * { pointer-events: auto; }
 .wave-ed-empty p { margin: 0; }
 .wave-ed-empty .btn { gap: 7px; }
@@ -2430,7 +2449,6 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .wave-ed-field input { width: 100%; padding: 2px 6px; font: inherit; text-align: right; font-variant-numeric: tabular-nums; color: var(--text); }
 .wave-ed-ro b { padding: 3px 7px; text-align: right; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
 .wave-ed-field .unit, .wave-ed-ro .unit { font-size: calc(12px * var(--fs)); }
-.wave-ed-norm { grid-column: 1 / -1; justify-self: start; gap: 7px; padding-top: 3px; padding-bottom: 3px; }
 .wave-ed-sum { font-size: calc(13px * var(--fs)); color: var(--muted); font-variant-numeric: tabular-nums; }
 .wave-ed-sum b { color: var(--accent-fg); }
 .wave-ed-sum .longer { color: var(--text); }
