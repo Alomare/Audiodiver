@@ -33,6 +33,13 @@ MIN_TRIM_MS = 10  # the shortest stretch of a file new audio can play (trim_set)
 SETTINGS_FILE = CACHE_DIR / "settings.json"  # the core's own settings: where the game is
 AUDIO_TYPES = {".wav", ".flac", ".mp3", ".ogg", ".opus", ".m4a", ".aac", ".aif", ".aiff", ".wma", ".wem"}
 UNDO_LIMIT = 200
+EDIT_EXPORTS = {  # the Waveform Editor's export formats: extension, ffmpeg output arguments
+    "wav24": ("wav", ["-c:a", "pcm_s24le"]),
+    "wav16": ("wav", ["-c:a", "pcm_s16le"]),
+    "flac": ("flac", ["-c:a", "flac", "-sample_fmt", "s32", "-bits_per_raw_sample", "24"]),
+    "mp3": ("mp3", ["-c:a", "libmp3lame", "-b:a", "320k"]),
+    "ogg": ("ogg", ["-c:a", "libvorbis", "-q:a", "8"]),
+}
 OTHER_BANKS_NAMED = 3  # the banks a line about a mod's other changes names, before "and 16 more"
 AUTOSAVE_MAX = 30  # minutes: the longest wait Settings offers between saves
 
@@ -2033,18 +2040,13 @@ class Session:
             r.start_ms, r.end_ms, r.delay_ms, r.blocks = float(start_ms), end, float(delay_ms), []
         return self._edit("trim", apply)
 
-    def edit_set(self, source, blocks, original=False, label=None):
-        """The Waveform Editor's work on a slot, as one undo step: the blocks its new audio plays as (each a stretch
-        of a file at a time of its own, with fades and a gain). A block plays the slot's file, or the file its `audio`
-        names (a full path, or a path as the project stores it): several files can make one clip. original: the
-        slot's file is its original audio, which becomes the new audio first (as a copy kept in the project, as Copy
-        does). A slot without new audio takes the file of its first block. One block of the slot's file that only
-        trims, moves and fades is kept as the stretch, delay and fades (the details panel's fades and older versions
-        read those); no blocks, or one that is the whole file, is the file as it is."""
+    def _edit_blocks(self, p: Project, sid: int, blocks, original=False):
+        """The Waveform Editor's blocks for a slot, checked: (blocks, the slot's own file as (stored, path), its
+        length in ms). A block's `audio` comes back as the project stores it, "" for the slot's own file. With
+        `original` the slot's file is its original audio, kept in the project as Copy keeps it. A slot without new
+        audio takes the file of its first block; with no blocks either, the file is None."""
         from .audio import duration_ms
         from .project import BLOCK_GAIN_DB, MAX_BLOCKS, MAX_LAYERS, TRIM_MS, Block
-        p = self._need_project()
-        sid = self._source(source)
         if not isinstance(blocks, list) or len(blocks) > MAX_BLOCKS:
             raise EditorError(tr("The Waveform Editor sends up to {n} blocks").format(n=MAX_BLOCKS))
         if not all(isinstance(b, dict) for b in blocks):
@@ -2102,13 +2104,72 @@ class Session:
                               layer(b)))
         if not main:  # a slot without new audio: the first block's file is the slot's
             if not made:
-                raise EditorError(tr("This slot has no new audio to edit"))
+                return made, None, 0.0
             first = made[0].audio
             main = (first, p.file(first))
             lengths[""] = lengths[first]
             for b in made:
                 b.audio = "" if b.audio == first else b.audio
-        length_main = length("")
+        return made, main, length("")
+
+    def edit_export(self, source, blocks, path, fmt="wav24", rate=48000, channels=0, normalize=False, original=False,
+                    with_original=False):
+        """The Waveform Editor's blocks (the layers ticked to play) as one audio file at `path`, mixed as a build
+        would: fmt one of EDIT_EXPORTS, at `rate` Hz, in `channels` (0: those of the slot's file), turned up or down
+        so the loudest moment reaches -1 dB when `normalize`. with_original: the original audio plays along from the
+        start. The project doesn't change. Returns the path written (its extension set by the format)."""
+        from .audio import duration_ms, edited
+        from .project import Block
+        p = self._need_project()
+        sid = self._source(source)
+        if fmt not in EDIT_EXPORTS or rate not in (44100, 48000) or channels not in (0, 1, 2):
+            raise EditorError("Unknown export settings")
+        out = Path(str(path))
+        if not out.is_absolute() or not out.parent.is_dir():
+            raise EditorError(tr("{folder} is not a folder").format(folder=out.parent))
+        made, main, _ = self._edit_blocks(p, sid, blocks, original)
+        if with_original:
+            ref = Path(self.vanilla_wav(sid))
+            made.append(Block(0.0, duration_ms(ref) or 0.0, audio=str(ref)))
+            main = main or (str(ref), ref)
+        if not main or not made:
+            raise EditorError(tr("Nothing to export. Tick a layer with audio, or the original"))
+        wav = edited(main[1], made, p.file)
+        ext, codec = EDIT_EXPORTS[fmt]
+        out = out.with_suffix("." + ext)
+        import wave
+        import numpy as np
+        from . import wem
+        with wave.open(str(wav)) as w:
+            have = w.getnchannels()
+            peak = float(np.abs(np.frombuffer(w.readframes(w.getnframes()), "<i2").astype(np.int32)).max(initial=0)) / 32768
+        chain = [f"volume={10 ** (-1 / 20) / peak:.6f}"] if normalize and peak > 0 else []
+        if channels and channels != have:  # mono to both sides at full level, stereo to mono as the average (as edited)
+            chain.append("pan=stereo|c0=c0|c1=c0" if channels == 2 else "pan=mono|c0=0.5*c0+0.5*c1")
+        try:
+            subprocess.run([wem.FFMPEG, "-v", "error", "-y", "-i", str(wav), *(["-af", ",".join(chain)] if chain else []),
+                            "-ar", str(rate), *codec, str(out)], capture_output=True, check=True)
+        except subprocess.CalledProcessError as e:
+            out.unlink(missing_ok=True)
+            raise EditorError(tr("{file} couldn't be written: {why}").format(
+                file=out.name, why=e.stderr.decode(errors="replace").strip()[-300:])) from None
+        except OSError as e:
+            raise EditorError(tr("{file} couldn't be written: {why}").format(file=out.name, why=os_error(e))) from None
+        return {"path": str(out)}
+
+    def edit_set(self, source, blocks, original=False, label=None):
+        """The Waveform Editor's work on a slot, as one undo step: the blocks its new audio plays as (each a stretch
+        of a file at a time of its own, with fades and a gain). A block plays the slot's file, or the file its `audio`
+        names (a full path, or a path as the project stores it): several files can make one clip. original: the
+        slot's file is its original audio, which becomes the new audio first (as a copy kept in the project, as Copy
+        does). A slot without new audio takes the file of its first block. One block of the slot's file that only
+        trims, moves and fades is kept as the stretch, delay and fades (the details panel's fades and older versions
+        read those); no blocks, or one that is the whole file, is the file as it is."""
+        p = self._need_project()
+        sid = self._source(source)
+        made, main, length_main = self._edit_blocks(p, sid, blocks, original)
+        if not main:
+            raise EditorError(tr("This slot has no new audio to edit"))
         plain = len(made) == 1 and not made[0].audio and not made[0].gain_db
         whole = plain and made[0].start_ms <= 0.5 and made[0].end_ms >= length_main - 0.5 and not (
             made[0].at_ms or made[0].fade_in_ms or made[0].fade_out_ms)

@@ -598,6 +598,10 @@ msgstr "{n, plural, other {移除 # 个未使用的文件？}}"
 msgid "{n, plural, one {Restored # line} other {Restored # lines}}"
 msgstr "{n, plural, other {已恢复 # 行}}"
 
+#: src/WaveEditor.tsx
+msgid "{n} blocks"
+msgstr ""
+
 #: src/IndexTree.tsx
 #: src/Library.tsx
 msgid "{name} (sample)"
@@ -1166,10 +1170,6 @@ msgstr "冲突检查仍在进行中。"
 #: src/SettingsTab.tsx
 msgid "A document to read, with each note under the name of what it is on."
 msgstr "便于阅读的文档，每条备注都列在对应对象的名称下面。"
-
-#: src/WaveEditor.tsx
-msgid "A double click on the waveforms plays from there"
-msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "A double click sets it back"
@@ -1806,6 +1806,10 @@ msgstr ""
 msgid "Apply each mod's audio and settings to the current sound banks and build a new ZIP for each"
 msgstr "将每个模组的音频和设置应用到当前的音频库，并为每个模组构建新的 ZIP"
 
+#: src/WaveEditor.tsx
+msgid "Apply keeps every layer, ticked or not"
+msgstr ""
+
 #: src/RepatchPage.tsx
 msgid "Apply the mod's audio and settings to the current sound banks and build a new ZIP"
 msgstr "将模组的音频和设置应用到当前的音频库，并构建新的 ZIP"
@@ -1839,6 +1843,10 @@ msgstr "美术与字体"
 msgid "As opened"
 msgstr "打开时的状态"
 
+#: src/WaveEditor.tsx
+msgid "As the audio"
+msgstr ""
+
 #: src/ExportDialog.tsx
 msgid "As the mod plays it"
 msgstr "按模组的播放效果"
@@ -1869,6 +1877,7 @@ msgstr "已是原始音量"
 msgid "Attach it to a bug report"
 msgstr "反馈问题时可以附在错误报告里"
 
+#. File type in the file picker: audio files
 #. File type in the file picker: audio files
 #. Main tab: replaces the audio of what the project lists
 #: src/App.tsx
@@ -2112,6 +2121,10 @@ msgstr "将导出的备注文件或项目中的备注导入全局备注"
 msgid "Bring Wiki Back"
 msgstr "把 Wiki 放回来"
 
+#: src/WaveEditor.tsx
+msgid "Brings each selected block up or down until the loudest moment of it reaches −1 dB"
+msgstr ""
+
 #. The name of the Build tab, as the title of a tutorial step
 #. Title of the Build tab
 #: src/BuildTab.tsx
@@ -2354,6 +2367,10 @@ msgstr "音频库中其他类型的更改，例如效果。结果会按模组列
 #: src/TextTab.tsx
 msgid "Changing text"
 msgstr "更改文本"
+
+#: src/WaveEditor.tsx
+msgid "Channels"
+msgstr ""
 
 #: src/jobs.ts
 msgctxt "Name of a background job"
@@ -2704,7 +2721,7 @@ msgid "Click ▶"
 msgstr "点击 ▶"
 
 #: src/WaveEditor.tsx
-msgid "Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Where blocks overlap, click again for the one under it. A double click plays from there."
+msgid "Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Drag from an empty spot to select several blocks, and hold Shift or Ctrl to add to them. Where blocks overlap, click again for the one under it. A double click plays from there."
 msgstr ""
 
 #: src/Wiki.tsx
@@ -3320,6 +3337,10 @@ msgid "Drag it to leave out the start of the song"
 msgstr "拖动可略去歌曲的开头"
 
 #: src/WaveEditor.tsx
+msgid "Drag the cursor, or along the ruler, to move it"
+msgstr ""
+
+#: src/WaveEditor.tsx
 msgid "Drag to reorder the layers"
 msgstr ""
 
@@ -3405,7 +3426,7 @@ msgid "Dropping files needs the desktop app"
 msgstr "拖放文件需要使用桌面应用"
 
 #: src/WaveEditor.tsx
-msgid "Duplicate the block"
+msgid "Duplicate"
 msgstr ""
 
 #: src/TextTab.tsx
@@ -3716,6 +3737,7 @@ msgstr "探索已设为“静音”"
 #: src/Soundtrack.tsx
 #: src/TextTab.tsx
 #: src/TextTools.tsx
+#: src/WaveEditor.tsx
 msgid "Export"
 msgstr "导出"
 
@@ -3727,6 +3749,11 @@ msgstr "导出"
 #: src/ProjectTab.tsx
 msgid "Export as Pack"
 msgstr "导出为项目包"
+
+#: src/platform.ts
+#: src/WaveEditor.tsx
+msgid "Export Audio"
+msgstr ""
 
 #: src/store.tsx
 msgid "Export cancelled"
@@ -3758,6 +3785,10 @@ msgstr "导出备注"
 msgid "Export raw patch files"
 msgstr "导出原始补丁文件"
 
+#: src/WaveEditor.tsx
+msgid "Export the lanes ticked as one audio file"
+msgstr ""
+
 #: src/platform.ts
 msgid "Export the project as a pack"
 msgstr "将项目导出为项目包"
@@ -3766,9 +3797,18 @@ msgstr "将项目导出为项目包"
 msgid "Export zipped mod"
 msgstr "导出 ZIP 模组"
 
+#: src/WaveEditor.tsx
+msgid "Export…"
+msgstr ""
+
 #: src/store.tsx
 msgid "Exported {files, plural, one {# file} other {# files}} of {title}."
 msgstr "已导出 {title} 的 {files, plural, other {# 个文件}}。"
+
+#. placeholder {0}: nameOf(got.path)
+#: src/WaveEditor.tsx
+msgid "Exported **{0}**"
+msgstr ""
 
 #: src/platform.ts
 msgid "Exported lines (CSV, JSON)"
@@ -3781,6 +3821,10 @@ msgstr "正在导出"
 #: src/App.tsx
 msgid "Exporting {title}"
 msgstr "正在导出 {title}"
+
+#: src/WaveEditor.tsx
+msgid "Exporting…"
+msgstr ""
 
 #: src/ExportDialog.tsx
 msgid "Exports of the original are for reference and mod work. Don't upload them."
@@ -4008,6 +4052,7 @@ msgstr "清除已选文件夹"
 #: src/ExportDialog.tsx
 #: src/SettingsTab.tsx
 #: src/TextTools.tsx
+#: src/WaveEditor.tsx
 msgid "Format"
 msgstr "格式"
 
@@ -4275,6 +4320,14 @@ msgid "How it plays"
 msgstr "播放方式"
 
 #: src/WaveEditor.tsx
+msgid "How long each block takes to fall to silence before it ends"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "How long each block takes to rise from silence"
+msgstr ""
+
+#: src/WaveEditor.tsx
 msgid "How long the block takes to fall to silence before it ends"
 msgstr ""
 
@@ -4301,6 +4354,10 @@ msgstr "该段的时长"
 #: src/SliceTool.tsx
 msgid "How much longer (+) or shorter (−) the piece is than the original"
 msgstr "该段比原版长（+）或短（−）多少"
+
+#: src/WaveEditor.tsx
+msgid "How much louder or quieter each block plays"
+msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "How much louder or quieter the block plays"
@@ -4732,6 +4789,7 @@ msgid "Layer {0}"
 msgstr ""
 
 #: src/Soundtrack.tsx
+#: src/WaveEditor.tsx
 msgid "Layer {n}"
 msgstr "层 {n}"
 
@@ -5110,6 +5168,10 @@ msgctxt "modes"
 msgid "Mixed"
 msgstr "混合"
 
+#: src/WaveEditor.tsx
+msgid "Mixes into one file:"
+msgstr ""
+
 #: src/CombinePage.tsx
 msgid "Mod {number}"
 msgstr "模组 {number}"
@@ -5159,6 +5221,10 @@ msgstr "模组"
 #: src/platform.ts
 msgid "Mods (.zip, .7z, .rar, .patch_0)"
 msgstr "模组（.zip、.7z、.rar、.patch_0）"
+
+#: src/WaveEditor.tsx
+msgid "Mono"
+msgstr ""
 
 #. The tabs at the end of the bar (Updates, Wiki and Settings), for screen readers
 #: src/App.tsx
@@ -5723,6 +5789,10 @@ msgstr "正常"
 
 #: src/WaveEditor.tsx
 msgid "Normalize"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Normalize to −1 dB"
 msgstr ""
 
 #: src/ProjectTab.tsx
@@ -6599,6 +6669,11 @@ msgstr "播放第一个变体"
 msgid "Play from the cursor"
 msgstr ""
 
+#. placeholder {0}: i + 1
+#: src/WaveEditor.tsx
+msgid "Play Layer {0}"
+msgstr ""
+
 #: src/CueView.tsx
 msgid "Play New Audio"
 msgstr "播放新音频"
@@ -6646,10 +6721,6 @@ msgstr ""
 #: src/SliceTool.tsx
 msgid "Play the original {slot}"
 msgstr "播放原版 {slot}"
-
-#: src/WaveEditor.tsx
-msgid "Play the original from the cursor"
-msgstr ""
 
 #: src/keys.ts
 msgid "Play the original of the selected slot"
@@ -6780,13 +6851,17 @@ msgstr "随机选取其中一个播放"
 msgid "Plays only under this condition"
 msgstr "仅在此条件下播放"
 
+#: src/WaveEditor.tsx
+msgid "Plays the lanes ticked. A double click on the waveforms plays from there"
+msgstr ""
+
 #: src/IndexTree.tsx
 #: src/ItemHead.tsx
 msgid "Plays the original next to new music"
 msgstr "原版紧挨着新音乐播放"
 
 #: src/WaveEditor.tsx
-msgid "Plays the selected block over and over, or the whole result"
+msgid "Plays the selected blocks over and over, or the whole result"
 msgstr ""
 
 #: src/Soundtrack.tsx
@@ -7121,6 +7196,7 @@ msgstr "移除"
 #: src/RepatchPage.tsx
 #: src/Soundtrack.tsx
 #: src/store.tsx
+#: src/WaveEditor.tsx
 msgid "Remove"
 msgstr "移除"
 
@@ -7212,10 +7288,6 @@ msgstr "移除项目中的 {count} 项"
 msgid "Remove the audio"
 msgstr "移除音频"
 
-#: src/WaveEditor.tsx
-msgid "Remove the block"
-msgstr ""
-
 #: src/CueView.tsx
 #: src/PatchContentPage.tsx
 msgid "Remove the new audio"
@@ -7273,6 +7345,10 @@ msgstr ""
 #: src/ImportMod.tsx
 msgid "Removes the new audio, added sounds, cue points and list first. The audio files stay, and Undo brings them back."
 msgstr "这里会先清掉新音频、新加的声音、提示点和列表。音频文件留着，撤销能找回来。"
+
+#: src/WaveEditor.tsx
+msgid "Removes the selected blocks"
+msgstr ""
 
 #: src/Home.tsx
 #: src/RepatchPage.tsx
@@ -7582,6 +7658,10 @@ msgstr "俄语"
 msgid "Same as Battle"
 msgstr "与战斗相同"
 
+#: src/WaveEditor.tsx
+msgid "Sample rate"
+msgstr ""
+
 #. Field label: when Autosave saves the project (With Each Change or On a Timer)
 #: src/ProjectTab.tsx
 #: src/SettingsTab.tsx
@@ -7765,7 +7845,7 @@ msgid "Selected"
 msgstr "所选"
 
 #: src/WaveEditor.tsx
-msgid "Selected block"
+msgid "Selected blocks"
 msgstr ""
 
 #: src/TextTab.tsx
@@ -7799,10 +7879,6 @@ msgstr "一次设置多段音乐"
 #: src/Soundtrack.tsx
 msgid "Sets other {name} music to {mode} too"
 msgstr "同时将其他 {name} 音乐设为“{mode}”"
-
-#: src/WaveEditor.tsx
-msgid "Sets the gain so the loudest moment of the block reaches −1 dB"
-msgstr ""
 
 #: src/App.tsx
 #: src/SettingsTab.tsx
@@ -8233,7 +8309,11 @@ msgid "Spanish (Spain)"
 msgstr "西班牙语（西班牙）"
 
 #: src/WaveEditor.tsx
-msgid "Split the block at the cursor"
+msgid "Split at the cursor"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Splits the selected blocks there, or the block under the cursor"
 msgstr ""
 
 #: src/platform.ts
@@ -8304,6 +8384,10 @@ msgstr "分轨 {n}"
 #: src/Tutorial.tsx
 msgid "Step {stepNumber} of {stepCount}"
 msgstr "第 {stepNumber} 步，共 {stepCount} 步"
+
+#: src/WaveEditor.tsx
+msgid "Stereo"
+msgstr ""
 
 #: src/App.tsx
 #: src/WaveEditor.tsx
@@ -8578,7 +8662,7 @@ msgid "The combined mod"
 msgstr "合并后的模组"
 
 #: src/WaveEditor.tsx
-msgid "The copy goes right after it"
+msgid "The copies go right after the selected blocks"
 msgstr ""
 
 #: src/PatchContentPage.tsx
@@ -9310,6 +9394,14 @@ msgstr "此声音保留原版"
 msgid "This version"
 msgstr "此版本"
 
+#: src/WaveEditor.tsx
+msgid "Tick a lane to play it"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Tick a lane with audio to export it"
+msgstr ""
+
 #: src/ExportDialog.tsx
 msgid "Tick slots in the list to export only those"
 msgstr "勾选列表中的槽位，即可只导出这些槽位"
@@ -9318,6 +9410,10 @@ msgstr "勾选列表中的槽位，即可只导出这些槽位"
 #: src/tutorials.ts
 msgid "Tick the box of **Sequence 6** to select every take."
 msgstr "勾选 **序列 6** 的复选框，选择所有变体。"
+
+#: src/WaveEditor.tsx
+msgid "Ticked lanes play with Play and go into Export"
+msgstr ""
 
 #: src/Waveform.tsx
 msgid "Time zoom"
@@ -9624,6 +9720,10 @@ msgstr "此条目中的所有冲突都采用此模组"
 #: src/ProjectTab.tsx
 msgid "Use this when a copied project becomes a different mod"
 msgstr "当复制的项目要成为另一个模组时使用此项"
+
+#: src/WaveEditor.tsx
+msgid "Values set here apply to each of them"
+msgstr ""
 
 #: src/Inspector.tsx
 msgid "Variant"

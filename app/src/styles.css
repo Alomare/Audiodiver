@@ -2384,11 +2384,16 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .wave-ed-src { flex: none; padding: 1px 8px; font-size: calc(12px * var(--fs)); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; border: 1px solid currentColor; }
 .wave-ed-src.game { color: var(--steel); }
 .wave-ed-src.mine { color: var(--accent-fg); max-width: 32ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-transform: none; letter-spacing: 0; font-weight: 600; }
-/* the toolbar: groups (playback, blocks, magnet, history) apart by a gap and a rule, each control the same height */
-.wave-ed-tools { display: flex; align-items: center; gap: 8px 0; flex-wrap: wrap; }
-.wave-ed-group { display: flex; align-items: center; gap: 4px; padding: 0 12px; border-left: 1px solid var(--line-soft); }
+/* over the waveforms: the toolbar at the left, a dark box holding its groups (playback, blocks, magnet, history)
+   tight together, each apart by a rule; the cursor's time at the right, over the end of the waveforms (past it, the
+   level zoom's column) */
+.wave-ed-left { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.wave-ed-over { display: flex; align-items: center; gap: 12px; padding-right: calc(24px * var(--fs) + 8px); }
+.wave-ed-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 2px 0; padding: 2px; min-width: 0;
+  background: color-mix(in srgb, var(--bg) 72%, var(--raised)); border: 1px solid var(--line-soft); }
+.wave-ed-group { display: flex; align-items: center; gap: 1px; padding: 0 4px; border-left: 1px solid var(--line); }
 .wave-ed-group:first-child { padding-left: 0; border-left: 0; }
-.wave-ed-tools .spacer + .wave-ed-group { border-left: 0; padding-right: 0; }
+.wave-ed-group:last-child { padding-right: 0; }
 .wave-ed-tools .icon-btn { width: calc(32px * var(--fs)); height: calc(32px * var(--fs)); }
 .wave-ed-tools .wave-ed-play { color: var(--accent-fg); }
 .wave-ed-tools .wave-ed-play:hover:not(:disabled) { color: var(--accent-fg); }
@@ -2398,17 +2403,17 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .wave-ed-toggle[aria-pressed="true"] { color: var(--second-fg); border-color: var(--second-fg);
   background: color-mix(in srgb, var(--second-fg) 18%, var(--raised)); }
 .wave-ed-toggle[aria-pressed="true"]:hover:not(:disabled) { color: var(--second-fg); background: color-mix(in srgb, var(--second-fg) 26%, var(--raised)); }
-.wave-ed-time { min-width: calc(76px * var(--fs)); margin-left: 6px; font-size: calc(13px * var(--fs)); font-variant-numeric: tabular-nums;
-  color: var(--second-fg); }
+.wave-ed-time { font-size: calc(14px * var(--fs)); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--second-fg); }
 /* the lanes with the zoom, and the selected block's values in a column to their right */
 .wave-ed-main { display: grid; grid-template-columns: minmax(0, 1fr) calc(244px * var(--fs)); gap: 14px; align-items: start; }
 .wave-ed-body { min-width: 0; }
 /* the lanes scroll up and down once the layers outgrow the room; the wheel over them zooms, as on every waveform */
 .wave-ed-lanes { grid-area: 1 / 1; min-width: 0; max-height: 58vh; overflow-y: auto; overscroll-behavior: contain; display: grid;
-  grid-template-columns: calc(112px * var(--fs)) minmax(0, 1fr); align-items: start; background: var(--bg); border: 1px solid var(--line-soft); }
+  grid-template-columns: calc(132px * var(--fs)) minmax(0, 1fr); align-items: start; background: var(--bg); border: 1px solid var(--line-soft); }
 .wave-ed-labels { display: flex; flex-direction: column; border-right: 1px solid var(--line-soft); font-size: calc(13px * var(--fs)); font-weight: 700; }
-.wave-ed-labels > span { flex: none; display: flex; align-items: center; gap: 4px; padding: 0 8px; }
-.wave-ed-labels .game { color: var(--steel); border-top: 1px solid var(--line-soft); }
+.wave-ed-labels > span, .wave-ed-labels > label { flex: none; display: flex; align-items: center; gap: 4px; padding: 0 8px; }
+.wave-ed-labels .game { color: var(--steel); border-top: 1px solid var(--line-soft); padding: 0 4px 0 2px; gap: 2px; }
+.wave-ed-labels .game .wave-ed-grip { cursor: inherit; } /* an empty grip's room: its box lines up with the layers' */
 .wave-ed-labels .icon-btn.small { width: 24px; height: 24px; font-size: 15px; flex: none; }
 /* a layer's label: the grip that reorders it, its name, Delete, and its bottom edge that resizes it; the layer worked
    on (where new audio goes) in the primary colour */
@@ -2422,8 +2427,20 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .wave-ed-grip:hover { color: var(--text); }
 .wave-ed-grip[aria-hidden="true"] { visibility: hidden; }
 .wave-ed-layer.moving .wave-ed-grip { cursor: grabbing; }
-.wave-ed-layer-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* a layer's name, or only its number where the name doesn't fit (LayerName measures the whole name, kept hidden) */
+.wave-ed-layer-name { flex: 1; min-width: 0; position: relative; }
+.wave-ed-name-full { display: block; overflow: hidden; white-space: nowrap; }
+.wave-ed-layer-name:has(.wave-ed-name-short) .wave-ed-name-full { visibility: hidden; }
+.wave-ed-name-short { position: absolute; left: 0; top: 50%; transform: translateY(-50%); }
 .wave-ed-layer .icon-btn.small { width: 24px; height: 24px; font-size: 15px; flex: none; }
+/* each lane's box: ticked, it plays with Play and goes into Export */
+.wave-ed-check { flex: none; width: calc(14px * var(--fs)); height: calc(14px * var(--fs)); margin: 0 4px 0 0; accent-color: var(--second-fg); cursor: pointer; }
+.wave-ed-labels > label { cursor: pointer; }
+/* the lanes playing breathe in their colour, as their waveforms do on the canvas */
+.wave-ed-layer.playing { animation: wave-ed-breath 1.4s ease-in-out infinite; --breath: var(--accent-fg); }
+.wave-ed-labels .game.playing { animation: wave-ed-breath 1.4s ease-in-out infinite; --breath: var(--steel); }
+@keyframes wave-ed-breath { 0%, 100% { background-color: color-mix(in srgb, var(--breath) 5%, var(--bg)); } 50% { background-color: color-mix(in srgb, var(--breath) 16%, var(--bg)); } }
+:root[data-motion="off"] .wave-ed-layer.playing, :root[data-motion="off"] .wave-ed-labels .game.playing { background-color: color-mix(in srgb, var(--breath) 11%, var(--bg)); }
 .wave-ed-layer-size { position: absolute; left: 0; right: 0; bottom: -4px; height: 8px; z-index: 1; cursor: ns-resize; touch-action: none; }
 .wave-ed-layer-size:hover { background: linear-gradient(transparent 3px, var(--second-fg) 3px, var(--second-fg) 5px, transparent 5px); }
 .wave-ed-new-layer { flex: none; gap: 6px; padding-top: 2px; padding-bottom: 2px; font-size: calc(13px * var(--fs)); }
@@ -2435,7 +2452,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .wave-ed-empty > * { pointer-events: auto; }
 .wave-ed-empty p { margin: 0; }
 .wave-ed-empty .btn { gap: 7px; }
-.wave-ed-side { max-height: calc(286px * var(--fs)); overflow: auto; border-left: 1px solid var(--line-soft); padding-left: 14px; }
+.wave-ed-side { max-height: 64vh; overflow: auto; border-left: 1px solid var(--line-soft); padding-left: 14px; }
 .wave-ed-hint { margin: 0; font-size: calc(13px * var(--fs)); color: var(--muted); }
 .wave-ed-block { display: flex; flex-direction: column; gap: 6px; font-size: calc(13px * var(--fs)); color: var(--muted); }
 .wave-ed-block-head { display: flex; flex-direction: column; min-width: 0; }
@@ -2449,7 +2466,14 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .wave-ed-field input { width: 100%; padding: 2px 6px; font: inherit; text-align: right; font-variant-numeric: tabular-nums; color: var(--text); }
 .wave-ed-ro b { padding: 3px 7px; text-align: right; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
 .wave-ed-field .unit, .wave-ed-ro .unit { font-size: calc(12px * var(--fs)); }
+/* Export's settings, over the editor */
+.modal.wave-ex { width: min(460px, 94vw); gap: 14px; }
+.wave-ex h2 { margin: 0; font-size: calc(18px * var(--fs)); }
+.wave-ex-what { margin: 0; color: var(--muted); font-size: calc(13px * var(--fs)); }
+.wave-ex-what b { color: var(--text); }
+.wave-ex .modal-foot .btn.primary { gap: 7px; }
 .wave-ed-sum { font-size: calc(13px * var(--fs)); color: var(--muted); font-variant-numeric: tabular-nums; }
 .wave-ed-sum b { color: var(--accent-fg); }
 .wave-ed-sum .longer { color: var(--text); }
 .wave-ed-sum .shorter { color: var(--text); }
+.wave-ed .modal-foot .btn { gap: 7px; }

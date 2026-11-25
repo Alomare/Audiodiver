@@ -96,6 +96,8 @@ def methods(s: Session) -> dict:
         "trim_set": lambda source, start_ms=0, end_ms=0, delay_ms=0: s.trim_set(source, start_ms, end_ms, delay_ms),
         "edit_set": lambda source, blocks, original=False, label=None: s.edit_set(source, blocks, original, label),
         "original_file": lambda source: s.original_file(source),
+        "edit_export": lambda source, blocks, path, fmt="wav24", rate=48000, channels=0, normalize=False, original=False,
+            with_original=False: s.edit_export(source, blocks, path, fmt, rate, channels, normalize, original, with_original),
         "keep_curve": lambda sources, keep: s.keep_curve(sources, keep),
         "match_loudness": lambda sources: s.match_loudness(sources),
         "settings": lambda **f: s.settings(**f),

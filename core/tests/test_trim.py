@@ -1,6 +1,7 @@
 """Where new audio starts and ends in its file, and the silence before it (Replacement.start_ms, end_ms, delay_ms):
 baked into what plays, as the fades are, so previews, waveforms and both games' builds hear the same."""
 import json
+from pathlib import Path
 import struct
 import wave
 
@@ -153,6 +154,35 @@ def test_several_files_make_one_clip_and_the_project_lists_them_all(tmp_path):
     assert moved["replacements"][0]["blocks"][1]["audio"] == "../in/b.wav"
     b.unlink()
     assert any(k == "missing_file" and "b.wav" in t for k, t in s.project.problem_list())
+
+
+def test_edit_export_writes_the_blocks_as_one_file_and_changes_nothing(tmp_path):
+    """The Waveform Editor's Export: the blocks it sends (the layers ticked) mixed into one file, in the format, rate
+    and channels asked for, normalized to -1 dB when asked; the project stays as it was."""
+    from audiodiver import wem
+    if not wem.has_ffmpeg():
+        pytest.skip("needs ffmpeg")
+    s = Session(load=False)
+    s.new_project(tmp_path / "m.audi", "M")
+    a = ramp(tmp_path / "a.wav")
+    s._edit("assign", lambda p: s._set(p, 1234, str(a)))
+    before = (tmp_path / "m.audi").read_text()
+    blocks = [{"start_ms": 0, "end_ms": 400, "at_ms": 0}, {"start_ms": 0, "end_ms": 400, "at_ms": 300, "layer": 1}]
+    got = s.edit_export(1234, blocks, str(tmp_path / "out.mp3"), "wav16", 44100, 2, True)
+    out = tmp_path / "out.wav"
+    assert got["path"] == str(out)  # the extension follows the format
+    with wave.open(str(out)) as w:
+        assert (w.getframerate(), w.getnchannels(), w.getsampwidth()) == (44100, 2, 2)
+        assert abs(w.getnframes() - round(0.7 * 44100)) < 50
+        v = np.frombuffer(w.readframes(w.getnframes()), "<i2")
+    assert abs(np.abs(v.astype(int)).max() / 32768 - 10 ** (-1 / 20)) < 0.01  # normalized to -1 dB
+    assert (tmp_path / "m.audi").read_text() == before and not s.project.replacements[0].blocks
+    assert Path(s.edit_export(1234, blocks[:1], str(tmp_path / "x"), "flac")["path"]).suffix == ".flac"
+    for bad in [("ogg", 22050, 0), ("aiff", 48000, 0), ("wav24", 48000, 6)]:
+        with pytest.raises(EditorError):
+            s.edit_export(1234, blocks, str(tmp_path / "y.wav"), *bad)
+    with pytest.raises(EditorError, match="Nothing to export"):
+        s.edit_export(99, [], str(tmp_path / "z.wav"))
 
 
 def test_layers_place_blocks_in_the_editor_and_play_the_same(tmp_path):

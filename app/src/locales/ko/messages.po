@@ -598,6 +598,10 @@ msgstr "{n, plural, other {사용하지 않는 파일 #개를 제거할까요?}}
 msgid "{n, plural, one {Restored # line} other {Restored # lines}}"
 msgstr "{n, plural, other {#줄을 복원했습니다}}"
 
+#: src/WaveEditor.tsx
+msgid "{n} blocks"
+msgstr ""
+
 #: src/IndexTree.tsx
 #: src/Library.tsx
 msgid "{name} (sample)"
@@ -1166,10 +1170,6 @@ msgstr "충돌 확인이 아직 실행 중입니다."
 #: src/SettingsTab.tsx
 msgid "A document to read, with each note under the name of what it is on."
 msgstr "각 메모를 대상의 이름 아래에 정리한 읽기용 문서입니다."
-
-#: src/WaveEditor.tsx
-msgid "A double click on the waveforms plays from there"
-msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "A double click sets it back"
@@ -1806,6 +1806,10 @@ msgstr ""
 msgid "Apply each mod's audio and settings to the current sound banks and build a new ZIP for each"
 msgstr "각 모드의 오디오와 설정을 현재 사운드 뱅크에 적용하고 모드마다 새 ZIP 빌드"
 
+#: src/WaveEditor.tsx
+msgid "Apply keeps every layer, ticked or not"
+msgstr ""
+
 #: src/RepatchPage.tsx
 msgid "Apply the mod's audio and settings to the current sound banks and build a new ZIP"
 msgstr "모드의 오디오와 설정을 현재 사운드 뱅크에 적용하고 새 ZIP 빌드"
@@ -1839,6 +1843,10 @@ msgstr "그림과 글꼴"
 msgid "As opened"
 msgstr "처음 열었을 때"
 
+#: src/WaveEditor.tsx
+msgid "As the audio"
+msgstr ""
+
 #: src/ExportDialog.tsx
 msgid "As the mod plays it"
 msgstr "모드에서 재생되는 그대로"
@@ -1869,6 +1877,7 @@ msgstr "원본 레벨"
 msgid "Attach it to a bug report"
 msgstr "버그를 신고할 때 첨부하세요"
 
+#. File type in the file picker: audio files
 #. File type in the file picker: audio files
 #. Main tab: replaces the audio of what the project lists
 #: src/App.tsx
@@ -2112,6 +2121,10 @@ msgstr "내보낸 메모 파일이나 프로젝트의 메모를 전역 메모로
 msgid "Bring Wiki Back"
 msgstr "위키 다시 붙이기"
 
+#: src/WaveEditor.tsx
+msgid "Brings each selected block up or down until the loudest moment of it reaches −1 dB"
+msgstr ""
+
 #. The name of the Build tab, as the title of a tutorial step
 #. Title of the Build tab
 #: src/BuildTab.tsx
@@ -2354,6 +2367,10 @@ msgstr "효과 등 사운드 뱅크 안의 다른 종류의 변경 사항입니�
 #: src/TextTab.tsx
 msgid "Changing text"
 msgstr "텍스트 변경"
+
+#: src/WaveEditor.tsx
+msgid "Channels"
+msgstr ""
 
 #: src/jobs.ts
 msgctxt "Name of a background job"
@@ -2704,7 +2721,7 @@ msgid "Click ▶"
 msgstr "▶ 클릭"
 
 #: src/WaveEditor.tsx
-msgid "Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Where blocks overlap, click again for the one under it. A double click plays from there."
+msgid "Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Drag from an empty spot to select several blocks, and hold Shift or Ctrl to add to them. Where blocks overlap, click again for the one under it. A double click plays from there."
 msgstr ""
 
 #: src/Wiki.tsx
@@ -3320,6 +3337,10 @@ msgid "Drag it to leave out the start of the song"
 msgstr "끌어서 노래의 앞부분을 제외합니다"
 
 #: src/WaveEditor.tsx
+msgid "Drag the cursor, or along the ruler, to move it"
+msgstr ""
+
+#: src/WaveEditor.tsx
 msgid "Drag to reorder the layers"
 msgstr ""
 
@@ -3405,7 +3426,7 @@ msgid "Dropping files needs the desktop app"
 msgstr "파일을 끌어다 놓으려면 데스크톱 앱이 필요합니다"
 
 #: src/WaveEditor.tsx
-msgid "Duplicate the block"
+msgid "Duplicate"
 msgstr ""
 
 #: src/TextTab.tsx
@@ -3716,6 +3737,7 @@ msgstr "탐색을 무음으로 설정함"
 #: src/Soundtrack.tsx
 #: src/TextTab.tsx
 #: src/TextTools.tsx
+#: src/WaveEditor.tsx
 msgid "Export"
 msgstr "내보내기"
 
@@ -3727,6 +3749,11 @@ msgstr "내보내기"
 #: src/ProjectTab.tsx
 msgid "Export as Pack"
 msgstr "팩으로 내보내기"
+
+#: src/platform.ts
+#: src/WaveEditor.tsx
+msgid "Export Audio"
+msgstr ""
 
 #: src/store.tsx
 msgid "Export cancelled"
@@ -3758,6 +3785,10 @@ msgstr "메모 내보내기"
 msgid "Export raw patch files"
 msgstr "패치 파일 그대로 내보내기"
 
+#: src/WaveEditor.tsx
+msgid "Export the lanes ticked as one audio file"
+msgstr ""
+
 #: src/platform.ts
 msgid "Export the project as a pack"
 msgstr "프로젝트를 팩으로 내보내기"
@@ -3766,9 +3797,18 @@ msgstr "프로젝트를 팩으로 내보내기"
 msgid "Export zipped mod"
 msgstr "ZIP 모드로 내보내기"
 
+#: src/WaveEditor.tsx
+msgid "Export…"
+msgstr ""
+
 #: src/store.tsx
 msgid "Exported {files, plural, one {# file} other {# files}} of {title}."
 msgstr "{title}의 {files, plural, other {파일 #개}}를 내보냈습니다."
+
+#. placeholder {0}: nameOf(got.path)
+#: src/WaveEditor.tsx
+msgid "Exported **{0}**"
+msgstr ""
 
 #: src/platform.ts
 msgid "Exported lines (CSV, JSON)"
@@ -3781,6 +3821,10 @@ msgstr "내보내는 중"
 #: src/App.tsx
 msgid "Exporting {title}"
 msgstr "{title} 내보내는 중"
+
+#: src/WaveEditor.tsx
+msgid "Exporting…"
+msgstr ""
 
 #: src/ExportDialog.tsx
 msgid "Exports of the original are for reference and mod work. Don't upload them."
@@ -4008,6 +4052,7 @@ msgstr "선택한 폴더 설정 지우기"
 #: src/ExportDialog.tsx
 #: src/SettingsTab.tsx
 #: src/TextTools.tsx
+#: src/WaveEditor.tsx
 msgid "Format"
 msgstr "형식"
 
@@ -4275,6 +4320,14 @@ msgid "How it plays"
 msgstr "재생 방식"
 
 #: src/WaveEditor.tsx
+msgid "How long each block takes to fall to silence before it ends"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "How long each block takes to rise from silence"
+msgstr ""
+
+#: src/WaveEditor.tsx
 msgid "How long the block takes to fall to silence before it ends"
 msgstr ""
 
@@ -4301,6 +4354,10 @@ msgstr "조각 길이"
 #: src/SliceTool.tsx
 msgid "How much longer (+) or shorter (−) the piece is than the original"
 msgstr "조각이 원본보다 얼마나 긴지(+) 또는 짧은지(−)"
+
+#: src/WaveEditor.tsx
+msgid "How much louder or quieter each block plays"
+msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "How much louder or quieter the block plays"
@@ -4732,6 +4789,7 @@ msgid "Layer {0}"
 msgstr ""
 
 #: src/Soundtrack.tsx
+#: src/WaveEditor.tsx
 msgid "Layer {n}"
 msgstr "레이어 {n}"
 
@@ -5110,6 +5168,10 @@ msgctxt "modes"
 msgid "Mixed"
 msgstr "혼합"
 
+#: src/WaveEditor.tsx
+msgid "Mixes into one file:"
+msgstr ""
+
 #: src/CombinePage.tsx
 msgid "Mod {number}"
 msgstr "모드 {number}"
@@ -5159,6 +5221,10 @@ msgstr "모드"
 #: src/platform.ts
 msgid "Mods (.zip, .7z, .rar, .patch_0)"
 msgstr "모드 (.zip, .7z, .rar, .patch_0)"
+
+#: src/WaveEditor.tsx
+msgid "Mono"
+msgstr ""
 
 #. The tabs at the end of the bar (Updates, Wiki and Settings), for screen readers
 #: src/App.tsx
@@ -5723,6 +5789,10 @@ msgstr "보통"
 
 #: src/WaveEditor.tsx
 msgid "Normalize"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Normalize to −1 dB"
 msgstr ""
 
 #: src/ProjectTab.tsx
@@ -6599,6 +6669,11 @@ msgstr "첫 테이크 재생"
 msgid "Play from the cursor"
 msgstr ""
 
+#. placeholder {0}: i + 1
+#: src/WaveEditor.tsx
+msgid "Play Layer {0}"
+msgstr ""
+
 #: src/CueView.tsx
 msgid "Play New Audio"
 msgstr "새 오디오 재생"
@@ -6646,10 +6721,6 @@ msgstr ""
 #: src/SliceTool.tsx
 msgid "Play the original {slot}"
 msgstr "원본 {slot} 재생"
-
-#: src/WaveEditor.tsx
-msgid "Play the original from the cursor"
-msgstr ""
 
 #: src/keys.ts
 msgid "Play the original of the selected slot"
@@ -6780,13 +6851,17 @@ msgstr "이 중 하나를 무작위로 골라 재생합니다"
 msgid "Plays only under this condition"
 msgstr "이 조건에서만 재생됩니다"
 
+#: src/WaveEditor.tsx
+msgid "Plays the lanes ticked. A double click on the waveforms plays from there"
+msgstr ""
+
 #: src/IndexTree.tsx
 #: src/ItemHead.tsx
 msgid "Plays the original next to new music"
 msgstr "새 음악과 함께 원본을 재생합니다"
 
 #: src/WaveEditor.tsx
-msgid "Plays the selected block over and over, or the whole result"
+msgid "Plays the selected blocks over and over, or the whole result"
 msgstr ""
 
 #: src/Soundtrack.tsx
@@ -7121,6 +7196,7 @@ msgstr "제거"
 #: src/RepatchPage.tsx
 #: src/Soundtrack.tsx
 #: src/store.tsx
+#: src/WaveEditor.tsx
 msgid "Remove"
 msgstr "제거"
 
@@ -7212,10 +7288,6 @@ msgstr "프로젝트에 있는 {count}개 제거"
 msgid "Remove the audio"
 msgstr "오디오 제거"
 
-#: src/WaveEditor.tsx
-msgid "Remove the block"
-msgstr ""
-
 #: src/CueView.tsx
 #: src/PatchContentPage.tsx
 msgid "Remove the new audio"
@@ -7273,6 +7345,10 @@ msgstr ""
 #: src/ImportMod.tsx
 msgid "Removes the new audio, added sounds, cue points and list first. The audio files stay, and Undo brings them back."
 msgstr "먼저 새 오디오, 추가한 사운드, 큐 포인트, 목록을 제거합니다. 오디오 파일은 남아 있으며 실행 취소로 되돌릴 수 있습니다."
+
+#: src/WaveEditor.tsx
+msgid "Removes the selected blocks"
+msgstr ""
 
 #: src/Home.tsx
 #: src/RepatchPage.tsx
@@ -7582,6 +7658,10 @@ msgstr "러시아어"
 msgid "Same as Battle"
 msgstr "전투와 동일"
 
+#: src/WaveEditor.tsx
+msgid "Sample rate"
+msgstr ""
+
 #. Field label: when Autosave saves the project (With Each Change or On a Timer)
 #: src/ProjectTab.tsx
 #: src/SettingsTab.tsx
@@ -7765,7 +7845,7 @@ msgid "Selected"
 msgstr "선택됨"
 
 #: src/WaveEditor.tsx
-msgid "Selected block"
+msgid "Selected blocks"
 msgstr ""
 
 #: src/TextTab.tsx
@@ -7799,10 +7879,6 @@ msgstr "여러 음악을 한 번에 설정"
 #: src/Soundtrack.tsx
 msgid "Sets other {name} music to {mode} too"
 msgstr "다른 {name} 음악도 ‘{mode}’ 방식으로 설정합니다"
-
-#: src/WaveEditor.tsx
-msgid "Sets the gain so the loudest moment of the block reaches −1 dB"
-msgstr ""
 
 #: src/App.tsx
 #: src/SettingsTab.tsx
@@ -8233,7 +8309,11 @@ msgid "Spanish (Spain)"
 msgstr "스페인어(스페인)"
 
 #: src/WaveEditor.tsx
-msgid "Split the block at the cursor"
+msgid "Split at the cursor"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Splits the selected blocks there, or the block under the cursor"
 msgstr ""
 
 #: src/platform.ts
@@ -8304,6 +8384,10 @@ msgstr "스템 {n}"
 #: src/Tutorial.tsx
 msgid "Step {stepNumber} of {stepCount}"
 msgstr "{stepCount}단계 중 {stepNumber}단계"
+
+#: src/WaveEditor.tsx
+msgid "Stereo"
+msgstr ""
 
 #: src/App.tsx
 #: src/WaveEditor.tsx
@@ -8578,7 +8662,7 @@ msgid "The combined mod"
 msgstr "합친 모드"
 
 #: src/WaveEditor.tsx
-msgid "The copy goes right after it"
+msgid "The copies go right after the selected blocks"
 msgstr ""
 
 #: src/PatchContentPage.tsx
@@ -9310,6 +9394,14 @@ msgstr "이 사운드는 원본을 유지합니다"
 msgid "This version"
 msgstr "이 버전"
 
+#: src/WaveEditor.tsx
+msgid "Tick a lane to play it"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Tick a lane with audio to export it"
+msgstr ""
+
 #: src/ExportDialog.tsx
 msgid "Tick slots in the list to export only those"
 msgstr "목록에서 슬롯을 체크하면 그 슬롯만 내보냅니다"
@@ -9318,6 +9410,10 @@ msgstr "목록에서 슬롯을 체크하면 그 슬롯만 내보냅니다"
 #: src/tutorials.ts
 msgid "Tick the box of **Sequence 6** to select every take."
 msgstr "**시퀀스 6**의 상자를 체크해 모든 테이크를 선택하세요."
+
+#: src/WaveEditor.tsx
+msgid "Ticked lanes play with Play and go into Export"
+msgstr ""
 
 #: src/Waveform.tsx
 msgid "Time zoom"
@@ -9624,6 +9720,10 @@ msgstr "이 항목의 모든 충돌에 이 모드 사용"
 #: src/ProjectTab.tsx
 msgid "Use this when a copied project becomes a different mod"
 msgstr "복사한 프로젝트를 다른 모드로 만들 때 사용하세요"
+
+#: src/WaveEditor.tsx
+msgid "Values set here apply to each of them"
+msgstr ""
 
 #: src/Inspector.tsx
 msgid "Variant"
