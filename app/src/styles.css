@@ -688,7 +688,7 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .tl-body { flex: 1 1 0; min-height: 0; }
 .tl-rows { grid-area: 1 / 1; min-height: 0; display: flex; flex-direction: column; gap: calc(6px * var(--sp)); }
 .timeline .zoom-foot { padding-left: calc(64px * var(--fs) + 10px); } /* under the waveforms, past the labels */
-.timeline:not(.one) .zoom-foot { padding-left: calc(98px * var(--fs) + 4px); }
+.timeline:not(.one) .zoom-foot { padding-left: calc(112px * var(--fs) + 8px); }
 /* under zoomed-in waveforms: the whole audio, the stretch in view as a handle */
 .wave-scroll { flex: 1 1 0; position: relative; height: 9px; background: var(--bg); border: 1px solid var(--line-soft); border-radius: 2px; cursor: pointer; }
 .wave-thumb { position: absolute; top: 1px; bottom: 1px; min-width: 10px; background: var(--muted); opacity: .55; border-radius: 1px; cursor: grab; }
@@ -709,14 +709,19 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 /* the Waveform Editor's way in, at the end of a lane's label: a small icon that lights up on hover */
 /* the Waveform Editor's way in: a small square in the primary colour, attached to the left edge of each waveform, so
    the two line up. In the Audio tab a row is the label, the square's column and the waveform */
-.timeline:not(.one) .tl-row { grid-template-columns: calc(78px * var(--fs)) calc(20px * var(--fs) + 4px) 1fr; column-gap: 0; }
+.timeline:not(.one) .tl-row { grid-template-columns: calc(60px * var(--fs)) calc(52px * var(--fs) + 8px) 1fr; column-gap: 0; }
 .timeline:not(.one) .tl-label { margin-right: 10px; }
-.tl-edit-at { align-self: center; display: flex; flex-direction: column; gap: 4px; }
-.tl-edit { flex: none; display: inline-grid; place-items: center; width: calc(20px * var(--fs)); height: calc(20px * var(--fs));
-  padding: 0; color: var(--accent-ink); background: var(--accent); border-radius: 2px 0 0 2px; font-size: calc(13px * var(--fs));
+/* beside a waveform's name: Copy, then the pencil (and under it Edit Segment) */
+.tl-edit-at { align-self: center; display: flex; align-items: flex-start; gap: 4px; }
+.tl-edit-col { display: flex; flex-direction: column; gap: 4px; }
+.tl-edit-gap { flex: none; width: calc(26px * var(--fs)); }
+.tl-edit { flex: none; display: inline-grid; place-items: center; width: calc(26px * var(--fs)); height: calc(26px * var(--fs));
+  padding: 0; color: var(--accent-ink); background: var(--accent); border-radius: 2px 0 0 2px; font-size: calc(17px * var(--fs));
   transition: background-color var(--t1); }
 .tl-edit:hover { background: var(--accent-hover); }
 .tl-edit .icon { width: 1em; height: 1em; display: block; }
+.tl-edit.tl-copy { color: var(--bg); background: var(--text); border-radius: 2px; }
+.tl-edit.tl-copy:hover { background: color-mix(in srgb, var(--text) 82%, var(--bg)); }
 /* under the pencil, quieter: every layer of the segment at once */
 .tl-edit.tl-edit-seg { color: var(--accent-fg); background: var(--raised); }
 .tl-edit.tl-edit-seg:hover { background: var(--hover); }
@@ -2502,6 +2507,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .wave-ed-field input { width: 100%; padding: 2px 6px; font: inherit; text-align: right; font-variant-numeric: tabular-nums; color: var(--text); }
 .wave-ed-ro b { padding: 3px 7px; text-align: right; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
 .wave-ed-field .unit, .wave-ed-ro .unit { font-size: calc(12px * var(--fs)); }
+.wave-ed-flatten { grid-column: 1 / -1; justify-self: end; }
 /* Export's settings, over the editor */
 .modal.wave-ex { width: min(460px, 94vw); gap: 14px; }
 .wave-ex h2 { margin: 0; font-size: calc(18px * var(--fs)); }

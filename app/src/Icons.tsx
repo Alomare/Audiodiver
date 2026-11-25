@@ -271,6 +271,10 @@ export const DuplicateIcon = () => (
   <Icon size={1.1}><rect x="3" y="9" width="12" height="7" rx=".5" /><path d="M9 9V5.5h12v7h-6" /></Icon>
 );
 /** A level that reaches the line at the top: normalize. */
+/** A line through three points, dipping in the middle: a volume curve (the Waveform Editor). */
+export const CurveIcon = () => (
+  <Icon size={1.1}><path d="M3 7l6.5 9 5-4.5L21 7" /><circle cx="9.5" cy="16" r="1.8" fill="currentColor" /><circle cx="14.5" cy="11.5" r="1.8" fill="currentColor" /></Icon>
+);
 export const NormalizeIcon = () => (
   <Icon size={1.1}><path d="M3 4.5h18" strokeDasharray="2 2" /><path d="M5 20v-6M9 20V8M13 20v-9M17 20V5.5M21 20v-7" /></Icon>
 );

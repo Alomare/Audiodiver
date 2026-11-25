@@ -238,13 +238,32 @@ LEGACY_SILENCE = "silence (skipped).wav"  # what Skip wrote into the project fol
 BLOCK_GAIN_DB = (-60.0, 24.0)  # a block's own gain in the Waveform Editor
 MAX_BLOCKS = 256
 MAX_LAYERS = 32  # the Waveform Editor's layers: lanes to keep blocks apart in, which all play together
+MAX_CURVE = 256  # points on a block's volume curve
+
+
+def curve_points(v):
+    """A block's volume curve brought into shape: [[ms in the file, level 0..1], ...] in time order, at most MAX_CURVE
+    points, each number rounded and kept in range. None when v isn't a list of [ms, level] pairs."""
+    if v is None:
+        return []
+    if not isinstance(v, list) or len(v) > MAX_CURVE:
+        return None
+    out = []
+    for p in v:
+        if (not isinstance(p, (list, tuple)) or len(p) != 2
+                or not all(isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(x) for x in p)):
+            return None
+        out.append([round(min(max(float(p[0]), 0.0), TRIM_MS[1]), 1), round(min(max(float(p[1]), 0.0), 1.0), 4)])
+    return sorted(out)
 
 
 @dataclass
 class Block:
     """A stretch of a replacement's file placed on the slot's time line, as the Waveform Editor makes them: from start_ms
     to end_ms of the file, playing at at_ms, with fades inside it (a straight line in level) and a gain of its own.
-    Blocks that overlap play together, added up, whatever layer (the editor's lane) they are on."""
+    Blocks that overlap play together, added up, whatever layer (the editor's lane) they are on. A volume curve
+    (`curve`, points at times of the file with a level from silence 0 to full 1, a straight line between them and level
+    before the first and after the last) scales the block on top of its gain and fades."""
     start_ms: float
     end_ms: float
     at_ms: float = 0.0
@@ -253,6 +272,7 @@ class Block:
     gain_db: float = 0.0
     audio: str = ""  # another file it plays, stored as Replacement.audio is; "" for the replacement's own
     layer: int = 0   # the lane the Waveform Editor shows it in, from the top; it doesn't change how it plays
+    curve: list = field(default_factory=list)  # the volume curve, [[ms in the file, level], ...]; empty: full all along
 
     @property
     def length_ms(self) -> float:
@@ -511,6 +531,14 @@ class Project:
             raise ProjectFormatError("not a project")
         need(isinstance(d.get("name"), str), "name")
         need(isinstance(d.get("replacements", []), list), "replacements")
+        def curve_of(v, what) -> list:
+            """A block's volume curve; one out of shape is dropped (the block plays at full level)."""
+            got = curve_points(v)
+            if got is None:
+                repairs.append(what)
+                return []
+            return got
+
         def blocks_of(v, what) -> list[Block]:
             """The Waveform Editor's blocks, each number brought into range; one that plays nothing is dropped."""
             if v is None:
@@ -533,7 +561,8 @@ class Project:
                                  number(b.get("fade_out_ms", 0.0), 0.0, *FADE_MS, what),
                                  number(b.get("gain_db", 0.0), 0.0, *BLOCK_GAIN_DB, what),
                                  b["audio"] if isinstance(b.get("audio"), str) else "",
-                                 number(b.get("layer", 0), 0, 0, MAX_LAYERS - 1, what, whole=True)))
+                                 number(b.get("layer", 0), 0, 0, MAX_LAYERS - 1, what, whole=True),
+                                 curve_of(b.get("curve"), what)))
             if len(v) > MAX_BLOCKS:
                 repairs.append(what)
             return out

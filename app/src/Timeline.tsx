@@ -11,7 +11,7 @@ import { ResizeEdge, useStoredHeight } from "./Resize";
 import { useEditor } from "./store";
 import { finePeaks, usePeaks, useWaveZoom, useWheelZoom, WaveScroll, Waveform, WaveZoom, type Marker } from "./Waveform";
 import { WaveEditor, type EditCues, type EditTrack } from "./WaveEditor";
-import { PencilIcon, StackIcon } from "./Icons";
+import { CopyIcon, PencilIcon, StackIcon } from "./Icons";
 
 /** The selected slot as two waveforms on one time scale: the original above, the replacement below, with the
     segment's entry and exit cue points. The replacement's can be dragged; the original's show where the game's sit.
@@ -60,6 +60,16 @@ function EditButton({ onClick, original }: { onClick: () => void; original: bool
     <button className="tl-edit" onClick={onClick}
       data-tip={original ? t`Edit the original in the Waveform Editor` : t`Trim, split, move and fade in the Waveform Editor`}
       aria-label={t`Waveform Editor`} data-tip-more={original ? t`The result becomes the new audio of the slot` : undefined}><PencilIcon /></button>
+  );
+}
+
+/** Left of the pencil: copies that waveform's audio, to paste into slots or the Waveform Editor. Without one, an
+    empty spot of its size keeps the pencils of both lanes in line. */
+function CopyButton({ onClick, original }: { onClick?: () => void; original: boolean }) {
+  if (!onClick) return <span className="tl-edit-gap" aria-hidden="true" />;
+  return (
+    <button className="tl-edit tl-copy" onClick={onClick} aria-label={original ? t`Copy Original Audio` : t`Copy New Audio`}
+      data-tip={original ? t`Copy the original audio` : t`Copy the new audio`} data-tip-more={t`Paste it into other slots, or into the Waveform Editor`}><CopyIcon /></button>
   );
 }
 
@@ -177,8 +187,10 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
       <div className="tl-body zoom-grid">
         <div className="tl-rows" ref={waves}>
           <div className="tl-row">
-            <div className="tl-label game"><b>{t`Original`}</b>{gameDb !== 0 && <Db db={gameDb} />}{gameCurve && <CurveLabel />}</div>
-            {!readOnly && <span className="tl-edit-at">{project && !none && game && <EditButton original onClick={() => setEditing("original")} />}</span>}
+            <div className="tl-label game"><b>{readOnly ? t`Original` : t({ message: "Old", comment: "The original audio's waveform, above the new audio's" })}</b>{gameDb !== 0 && <Db db={gameDb} />}{gameCurve && <CurveLabel />}</div>
+            {!readOnly && <span className="tl-edit-at">
+              <CopyButton original onClick={!none && game ? () => actions.copySlots([source], { [source]: what }, true, false) : undefined} />
+              <span className="tl-edit-col">{project && !none && game && <EditButton original onClick={() => setEditing("original")} />}</span></span>}
             <div className="tl-wave">
             <Waveform peaks={game} {...view} tone="game" markers={gameMarkers} playheadMs={head(kGame, false, game?.duration_ms)} gainDb={gameDb} curve={gameCurve}
               activeFrom={hasCues ? seg.entry_ms ?? 0 : undefined} activeTo={hasCues ? seg.exit_ms ?? undefined : undefined}
@@ -190,9 +202,11 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
           </div>
           {!readOnly && (
             <div className="tl-row">
-              <div className="tl-label mine"><b>{t`Replaced`}</b>{mineDb !== 0 && <Db db={mineDb} />}{audible(a) && mineCurve && <CurveLabel />}</div>
-              <span className="tl-edit-at">{(!a || (audible(a) && a.exists)) && <EditButton original={false} onClick={() => setEditing("mine")} />}
-                {project && segTracks.length > 1 && <SegmentButton n={segTracks.length} onClick={() => setEditing("segment")} />}</span>
+              <div className="tl-label mine"><b>{t({ message: "New", comment: "The new audio's waveform, under the original's" })}</b>{mineDb !== 0 && <Db db={mineDb} />}{audible(a) && mineCurve && <CurveLabel />}</div>
+              <span className="tl-edit-at">
+                <CopyButton original={false} onClick={a && (a.silence || a.exists) ? () => actions.copySlots([source], { [source]: what }) : undefined} />
+                <span className="tl-edit-col">{(!a || (audible(a) && a.exists)) && <EditButton original={false} onClick={() => setEditing("mine")} />}
+                {project && segTracks.length > 1 && <SegmentButton n={segTracks.length} onClick={() => setEditing("segment")} />}</span></span>
               <div className="tl-wave">
               {a?.silence ? (
                 <div className="wave placeholder">{a.fit_timing ? t`Silence: plays nothing, and the game moves straight on`

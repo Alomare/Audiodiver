@@ -91,7 +91,8 @@ export const isMusic = (cue: { kind: string }) => cue.kind !== "sounds" && cue.k
     start_ms to end_ms of the file, playing at at_ms, with fades inside it and a gain of its own. Overlaps add up. */
 export type Block = { start_ms: number; end_ms: number; at_ms: number; fade_in_ms: number; fade_out_ms: number; gain_db: number;
   audio?: string; // another file the block plays (as the project stores it, or a full path just added); none: the slot's own
-  layer?: number }; // the Waveform Editor's lane it shows in, from the top (none: the first); it plays the same on any
+  layer?: number; // the Waveform Editor's lane it shows in, from the top (none: the first); it plays the same on any
+  curve?: number[][] }; // the volume curve: [ms in the file, level 0..1] in time order, a line between; none: full all along
 export type Assignment = {
   target: string; audio: string; label: string; gain_db: number; fit_timing: boolean; exists: boolean;
   name: string; cues: string[];

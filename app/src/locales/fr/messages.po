@@ -33,6 +33,11 @@ msgstr "{0, plural, one {# son} other {# sons}} dans {1, plural, one {# banque} 
 msgid "{0, plural, one {Copy Audio (# Slot)} other {Copy Audio (# Slots)}}"
 msgstr "{0, plural, one {Copier audio (# emplacement)} other {Copier audio (# emplacements)}}"
 
+#. placeholder {0}: originals.length
+#: src/CueView.tsx
+msgid "{0, plural, one {Copy Original Audio (# Slot)} other {Copy Original Audio (# Slots)}}"
+msgstr ""
+
 #. placeholder {0}: r.count
 #: src/SettingsTab.tsx
 msgid "{0, plural, one {Exported # note.} other {Exported # notes.}}"
@@ -268,8 +273,8 @@ msgid "{count, plural, one {Copy New Audio (# Slot)} other {Copy New Audio (# Sl
 msgstr "{count, plural, one {Copier nouvel audio (# emplacement)} other {Copier nouvel audio (# emplacements)}}"
 
 #: src/CueView.tsx
-msgid "{count, plural, one {Copy Original (# Slot)} other {Copy Original (# Slots)}}"
-msgstr "{count, plural, one {Copier original (# emplacement)} other {Copier original (# emplacements)}}"
+msgid "{count, plural, one {Copy Original Audio (# Slot)} other {Copy Original Audio (# Slots)}}"
+msgstr ""
 
 #: src/SettingsTab.tsx
 msgid "{count, plural, one {Every # minute} other {Every # minutes}}"
@@ -2744,7 +2749,7 @@ msgid "Click ▶"
 msgstr "Cliquer sur ▶"
 
 #: src/WaveEditor.tsx
-msgid "Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Drag from an empty spot to select several blocks, and hold Shift or Ctrl to add to them. Where blocks overlap, click again for the one under it. A double click plays from there."
+msgid "Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Drag from an empty spot to select several blocks, and hold Shift or Ctrl to add to them. Where blocks overlap, click again for the one under it. A double click plays from there. With Volume Curves on (V), click the line over a block to shape the volume."
 msgstr ""
 
 #: src/Wiki.tsx
@@ -3033,12 +3038,14 @@ msgid "Copy ID"
 msgstr "Copier ID"
 
 #: src/CueView.tsx
+#: src/Timeline.tsx
 msgid "Copy New Audio"
 msgstr "Copier nouvel audio"
 
 #: src/CueView.tsx
-msgid "Copy Original"
-msgstr "Copier original"
+#: src/Timeline.tsx
+msgid "Copy Original Audio"
+msgstr ""
 
 #: src/CueView.tsx
 msgid "Copy Sound ID"
@@ -3059,6 +3066,14 @@ msgstr "Copier l’audio des emplacements sélectionnés"
 #: src/TextTab.tsx
 msgid "Copy the line ID"
 msgstr "Copier l’ID de la ligne"
+
+#: src/Timeline.tsx
+msgid "Copy the new audio"
+msgstr ""
+
+#: src/Timeline.tsx
+msgid "Copy the original audio"
+msgstr ""
 
 #: src/CueView.tsx
 #: src/Inspector.tsx
@@ -4056,6 +4071,14 @@ msgstr "Corrigez d’abord les problèmes"
 #: src/ExportDialog.tsx
 msgid "FLAC (lossless, smaller)"
 msgstr "FLAC (sans perte, plus petit)"
+
+#: src/WaveEditor.tsx
+msgid "Flatten Curve"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Flatten Curves"
+msgstr ""
 
 #: src/ImportMod.tsx
 #: src/ProjectTab.tsx
@@ -5264,6 +5287,10 @@ msgstr "Les gestionnaires de mods traitent alors une génération comme une mise
 msgid "Mode"
 msgstr "Mode"
 
+#: src/WaveEditor.tsx
+msgid "Modes"
+msgstr ""
+
 #: src/CombinePage.tsx
 #: src/RepatchPage.tsx
 msgid "Mods"
@@ -5486,6 +5513,8 @@ msgid "Never played, or do not touch"
 msgstr "Jamais joué, ou à ne pas toucher"
 
 #. Badge on a version newer than the installed one
+#. The new audio's waveform, under the original's
+#: src/Timeline.tsx
 #: src/UpdatesTab.tsx
 msgid "New"
 msgstr "Nouvelle"
@@ -6086,6 +6115,11 @@ msgstr "Désactivées. Les boutons « ? » affichent toujours leur texte."
 msgid "official art and trailer stills behind Home for Helldivers 1"
 msgstr "illustrations officielles et images des bandes-annonces derrière l'Accueil pour Helldivers 1"
 
+#. The original audio's waveform, above the new audio's
+#: src/Timeline.tsx
+msgid "Old"
+msgstr ""
+
 #: src/RepatchPage.tsx
 msgid "Older game version"
 msgstr "Ancienne version du jeu"
@@ -6556,6 +6590,10 @@ msgstr "Coller"
 #: src/keys.ts
 msgid "Paste into the selection"
 msgstr "Coller dans la sélection"
+
+#: src/Timeline.tsx
+msgid "Paste it into other slots, or into the Waveform Editor"
+msgstr ""
 
 #: src/store.tsx
 msgid "Pasted {copied, plural, one {# file} other {# files}} into {slots, plural, one {# slot} other {# slots}}"
@@ -7074,6 +7112,10 @@ msgstr "Les projets sont des dossiers qui contiennent le mod et tous les fichier
 msgid "Prompt on Startup"
 msgstr "Demander au démarrage"
 
+#: src/WaveEditor.tsx
+msgid "pts"
+msgstr ""
+
 #. Edit in Undo, Redo and History: a song put back into the original music
 #: src/store.tsx
 msgid "put back"
@@ -7575,7 +7617,6 @@ msgid "replaced"
 msgstr "remplacé"
 
 #: src/music.ts
-#: src/Timeline.tsx
 msgid "Replaced"
 msgstr "Remplacé"
 
@@ -7981,6 +8022,10 @@ msgstr "Plusieurs sous-titres ont ces mots, et les fichiers du jeu n’indiquent
 msgid "Several subtitles have these words, so this match is likely but not certain. Open it in the Library"
 msgstr "Plusieurs sous-titres ont ces mots, cette correspondance est donc probable mais pas certaine. Ouvrez-le dans la Bibliothèque"
 
+#: src/WaveEditor.tsx
+msgid "Shape it with the Volume Curves tool (V)"
+msgstr ""
+
 #: src/Inspector.tsx
 msgid "Shared with <0>{also}</0>"
 msgstr "Partagé avec <0>{also}</0>"
@@ -8129,6 +8174,10 @@ msgstr "{n} affichés sur {total}. Faites une recherche pour réduire la liste."
 #: src/Notes.tsx
 msgid "Shown in every project and in the Library, from the notes file in the folder set in Settings ▸ System. A note on a slot shows wherever the clip plays. Markdown formats headings, lists, bold and links."
 msgstr "Affichée dans tous les projets et dans la Bibliothèque, à partir du fichier de notes du dossier défini dans Paramètres ▸ Système. Une note sur un emplacement s’affiche partout où le clip est joué. Le Markdown met en forme les titres, les listes, le gras et les liens."
+
+#: src/WaveEditor.tsx
+msgid "Shows a line over each block, from full at the top to silence at the foot. Click the line to add a point, drag a point to shape the volume, double-click a point to remove it"
+msgstr ""
 
 #: src/TextTab.tsx
 msgid "Shows what changes first"
@@ -8568,6 +8617,14 @@ msgstr "Reprend l’audio et les réglages de son de chaque mod avec les options
 #: src/RepatchPage.tsx
 msgid "Takes the audio that the mod replaces and adds, with sound settings such as volume and delays."
 msgstr "Reprend l’audio que le mod remplace et ajoute, avec les réglages de son comme le volume et les délais."
+
+#: src/WaveEditor.tsx
+msgid "Takes the points off every selected block"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Takes the points off: the block plays at full level all along"
+msgstr ""
 
 #: src/Waveform.tsx
 msgid "Taller, to see quiet audio. It plays as loud as before. Ctrl+wheel on the waveforms zooms too"
@@ -9879,6 +9936,22 @@ msgstr "courbe de volume"
 #: src/Timeline.tsx
 msgid "Volume curve"
 msgstr "Courbe de volume"
+
+#: src/WaveEditor.tsx
+msgid "Volume Curve"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Volume Curves"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Volume Curves: off"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Volume Curves: on"
+msgstr ""
 
 #: src/BuildTab.tsx
 msgid "Volume, delays and similar settings, with the values the imported mod used. A slot's Make-Up Gain is applied on top."

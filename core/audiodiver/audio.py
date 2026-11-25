@@ -87,7 +87,7 @@ def faded(src: Path, fade_in_ms: float, fade_out_ms: float, start_ms: float = 0.
 
 def edited(src: Path, blocks, resolve=None) -> Path:
     """src as the Waveform Editor's blocks make it, a 48 kHz WAV kept with the caches: each block's stretch of the
-    file placed at its time, with its gain and its fades (a straight line in level, as `faded`), and blocks that
+    file placed at its time, with its gain, its volume curve and its fades (a straight line in level, as `faded`), and blocks that
     overlap added up. Silence fills the time no block covers. Past full scale is clipped, as the preview's limiter
     would not be there in game. Builds and previews both use it. A block with an `audio` of its own plays that file,
     found by `resolve` (Project.file), in the channels of src; the others play src."""
@@ -95,7 +95,9 @@ def edited(src: Path, blocks, resolve=None) -> Path:
     from dataclasses import asdict, is_dataclass
     src = Path(src)
     # the layer only places a block in the editor: moving one between layers makes the same audio
-    shape = [{k: v for k, v in (asdict(b) if is_dataclass(b) else dict(b)).items() if k != "layer"} for b in blocks]
+    # (and a block without a volume curve keys as before there were curves)
+    shape = [{k: v for k, v in (asdict(b) if is_dataclass(b) else dict(b)).items() if k != "layer" and (k != "curve" or v)}
+             for b in blocks]
     files = {"": src, **{b["audio"]: Path(resolve(b["audio"]) if resolve else b["audio"]) for b in shape if b.get("audio")}}
     stats = [[str(f.resolve()), f.stat().st_size, f.stat().st_mtime_ns] for f in files.values()]
     key = hashlib.sha1(json.dumps([stats, "blocks", shape]).encode())
@@ -123,6 +125,9 @@ def edited(src: Path, blocks, resolve=None) -> Path:
             first = min(len(pcm), frame(b["start_ms"]))
             piece = pcm[first:max(first + 1, min(len(pcm), frame(b["end_ms"])))].copy()
             piece *= 10 ** (b.get("gain_db", 0.0) / 20)
+            if b.get("curve"):  # the volume curve, at the time of the file each frame is from
+                xs, ys = zip(*b["curve"])
+                piece *= np.interp(b["start_ms"] + np.arange(len(piece)) * (1000 / wem.RATE), xs, ys).astype(np.float32)[:, None]
             n = min(len(piece), frame(b.get("fade_in_ms", 0.0)))
             piece[:n] *= np.linspace(0, 1, n, endpoint=False)[:, None]
             n = min(len(piece), frame(b.get("fade_out_ms", 0.0)))

@@ -1776,7 +1776,7 @@ class Session:
                     src.audio, src.label, src.gain_db, src.fit_timing, src.silence
                 dst.fade_in_ms, dst.fade_out_ms = src.fade_in_ms, src.fade_out_ms
                 dst.start_ms, dst.end_ms, dst.delay_ms = src.start_ms, src.end_ms, src.delay_ms
-                dst.blocks = [replace(b) for b in src.blocks]
+                dst.blocks = [replace(b, curve=[list(p) for p in b.curve]) for b in src.blocks]
         return self._edit("paste", apply)
 
     def original_file(self, source) -> str:
@@ -2047,7 +2047,7 @@ class Session:
         audio takes the file of its first block; with no blocks either, the file is None. own: the file a file
         target edits (a song of the Soundtrack), as (stored, path), in place of a slot's; sid is then None."""
         from .audio import duration_ms
-        from .project import BLOCK_GAIN_DB, MAX_BLOCKS, MAX_LAYERS, TRIM_MS, Block
+        from .project import BLOCK_GAIN_DB, MAX_BLOCKS, MAX_CURVE, MAX_LAYERS, TRIM_MS, Block, curve_points
         if not isinstance(blocks, list) or len(blocks) > MAX_BLOCKS:
             raise EditorError(tr("The Waveform Editor sends up to {n} blocks").format(n=MAX_BLOCKS))
         if not all(isinstance(b, dict) for b in blocks):
@@ -2095,6 +2095,12 @@ class Session:
             if v != int(v):
                 raise EditorError(tr("A block of the Waveform Editor is out of range ({what})").format(what="layer"))
             return int(v)
+
+        def curve(b) -> list:
+            got = curve_points(b.get("curve"))
+            if got is None:
+                raise EditorError(tr("A volume curve has up to {n} points, each a time and a level").format(n=MAX_CURVE))
+            return got
         made = []
         for b in blocks:
             rel = file_of(b)
@@ -2104,7 +2110,7 @@ class Session:
             f_in = min(num(b, "fade_in_ms", *FADE_MS), end - start)
             made.append(Block(start, end, num(b, "at_ms", *TRIM_MS), f_in,
                               min(num(b, "fade_out_ms", *FADE_MS), end - start - f_in), num(b, "gain_db", *BLOCK_GAIN_DB), rel,
-                              layer(b)))
+                              layer(b), curve(b)))
         if not main:  # a slot without new audio: the first block's file is the slot's
             if not made:
                 return made, None, 0.0
@@ -2283,7 +2289,7 @@ class Session:
         made, main, length_main = self._edit_blocks(p, sid, blocks, original)
         if not main:
             raise EditorError(tr("This slot has no new audio to edit"))
-        plain = len(made) == 1 and not made[0].audio and not made[0].gain_db
+        plain = len(made) == 1 and not made[0].audio and not made[0].gain_db and not made[0].curve
         whole = plain and made[0].start_ms <= 0.5 and made[0].end_ms >= length_main - 0.5 and not (
             made[0].at_ms or made[0].fade_in_ms or made[0].fade_out_ms)
         name = None if label is None else str(label)

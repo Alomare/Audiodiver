@@ -272,13 +272,14 @@ function CueBody({ cue }: { cue: Cue }) {
     return m;
   }, [all]); // eslint-disable-line react-hooks/exhaustive-deps
   const at = (source: string): PlayedAt => ({ scope, itemId: shownItemId, cueId: cue.id, source });
-  /** Paste targets: the selection, or (one slot selected, several copied) the slots from it on. */
-  const pasteTargets = useCallback(() => {
-    if (selected.length === 1 && clip.length > 1) {
-      const i = rows.findIndex((r) => r.slot.source === selected[0]);
+  /** Paste targets: the selection (`sel`: the slots a menu acts on, before the selection follows the right-click), or
+      (one slot selected, several copied) the slots from it on. */
+  const pasteTargets = useCallback((sel: string[] = selected) => {
+    if (sel.length === 1 && clip.length > 1) {
+      const i = rows.findIndex((r) => r.slot.source === sel[0]);
       return rows.slice(Math.max(0, i)).filter(usable).slice(0, clip.length).map((r) => r.slot.source);
     }
-    return picks(selected).map((r) => r.slot.source);
+    return picks(sel).map((r) => r.slot.source);
   }, [rows, all, selected, clip]); // eslint-disable-line react-hooks/exhaustive-deps
   /** Copies slots, to paste in the Audio tab: new audio where a slot has it, else the original. The Library has the
       originals alone. */
@@ -287,7 +288,7 @@ function CueBody({ cue }: { cue: Cue }) {
     actions.copySlots(got.map((r) => r.slot.source), Object.fromEntries(got.map((r) => [r.slot.source, rowName(r)])), readOnly);
   };
   /** Where audio files copied in Explorer go: the selected slots that take audio, in play order. */
-  const pasteSelection = useCallback(() => picks(selected).filter(usable).map((r) => r.slot.source),
+  const pasteSelection = useCallback((sel: string[] = selected) => picks(sel).filter(usable).map((r) => r.slot.source),
     [all, selected]); // eslint-disable-line react-hooks/exhaustive-deps
   /** Moves the selected slot's audio to the next usable slot up or down, swapping with what is there. One move at
       a time: a key held down or pressed fast moves on from where the last move put the audio. */
@@ -577,6 +578,7 @@ function CueBody({ cue }: { cue: Cue }) {
     const chosen = picks(sel); // folded takes too
     const ordered = chosen.map((x) => x.slot.source);
     const withAudio = ordered.filter((x) => assigned[x]);
+    const originals = chosen.filter((x) => !x.slot.absent && (!x.slot.added || x.slot.was)); // the slots with an original to copy
     const silenceable = chosen.filter(usable).map((x) => x.slot.source);
     // the counts in the labels: the slots acted on, those that take audio, and the slots copied
     const count = sel.length, usableCount = silenceable.length, copied = clip.length;
@@ -597,11 +599,14 @@ function CueBody({ cue }: { cue: Cue }) {
           run: async () => { const f = await pickAudio(true); if (f) actions.fillSources(silenceable, f, plural(usableCount, { one: "# slot", other: "# slots" })); } },
       ] : [{ label: a ? t`Replace with Another File` : t`Choose a File`, keys: keyLabel("chooseFile"), disabled: !project || !usable(r), run: () => choose(s) }]),
       { label: withAudio.length ? (many ? plural(count, { one: "Copy New Audio (# Slot)", other: "Copy New Audio (# Slots)" }) : t`Copy New Audio`)
-        : many ? plural(count, { one: "Copy Original (# Slot)", other: "Copy Original (# Slots)" }) : t`Copy Original`,
+        : many ? plural(count, { one: "Copy Original Audio (# Slot)", other: "Copy Original Audio (# Slots)" }) : t`Copy Original Audio`,
         keys: keyLabel("copy"), disabled: !withAudio.length && r.slot.absent, run: () => copyRows(chosen) },
+      // with new audio on some: their originals instead (the slots without new audio give theirs anyway)
+      ...(withAudio.length ? [{ label: many ? plural(originals.length, { one: "Copy Original Audio (# Slot)", other: "Copy Original Audio (# Slots)" }) : t`Copy Original Audio`,
+        disabled: !originals.length, run: () => actions.copySlots(originals.map((x) => x.slot.source), Object.fromEntries(originals.map((x) => [x.slot.source, rowName(x)])), true, false) } as MenuEntry] : []),
       { label: clip.length > 1 && sel.length === 1 ? plural(copied, { one: "Paste # Slot from Here", other: "Paste # Slots from Here" })
         : many ? plural(count, { one: "Paste (# Slot)", other: "Paste (# Slots)" }) : t`Paste`, keys: keyLabel("paste"),
-        disabled: !project, run: () => actions.pasteSlots(pasteTargets().length ? pasteTargets() : [s], pasteSelection().length ? pasteSelection() : [s]) },
+        disabled: !project, run: () => actions.pasteSlots(pasteTargets(sel).length ? pasteTargets(sel) : [s], pasteSelection(sel).length ? pasteSelection(sel) : [s]) },
       { label: t`Move New Audio Up`, keys: keyLabel("moveUp"), disabled: sel.length > 1 || !project || !a, run: () => moveAudio(-1) },
       { label: t`Move New Audio Down`, keys: keyLabel("moveDown"), disabled: sel.length > 1 || !project || !a, run: () => moveAudio(1) },
       { label: many ? plural(count, { one: "Replace with Silence (# Slot)", other: "Replace with Silence (# Slots)" }) : t`Replace with Silence`,

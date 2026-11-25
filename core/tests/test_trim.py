@@ -235,3 +235,33 @@ def test_layers_place_blocks_in_the_editor_and_play_the_same(tmp_path):
     d["replacements"][0]["blocks"].append({"start_ms": 0, "end_ms": 100, "layer": 99})
     q = Project.from_json(d, tmp_path / "p.audi")
     assert [b.layer for b in q.replacements[0].blocks] == [3, 31] and q.repairs
+
+
+def test_a_volume_curve_shapes_the_block_at_the_times_of_its_file(tmp_path):
+    """A block's volume curve: points at times of the file with a level, a straight line between them and the edge
+    levels held beyond; kept in the project, left out without points, and checked (a bad one is refused or dropped)."""
+    from audiodiver.project import Block
+    s = Session(load=False)
+    s.new_project(tmp_path / "m.audi", "M")
+    a = ramp(tmp_path / "a.wav")
+    s._edit("assign", lambda p: s._set(p, 1234, str(a)))
+    # the stretch from 200 ms of the file, played at 0: the curve goes by the file's time, from full at 200 to silence at 600
+    got = s.edit_set(1234, [{"start_ms": 200, "end_ms": 800, "curve": [[600, 0], [200, 1]]}])["assignments"]["1234"]
+    assert got["blocks"][0]["curve"] == [[200, 1], [600, 0]]
+    v = samples(s.project_audio(1234))
+    assert v[0] == 4800  # full: 200 ms into the ramp
+    assert abs(v[9600] - 0.5 * ((9600 + 9600) // 2)) < 3  # 400 ms of the file: half way down
+    assert not v[19200:].any()  # past the last point: its level, silence
+    saved = json.loads((tmp_path / "m.audi").read_text())["replacements"][0]["blocks"][0]
+    assert saved["curve"] == [[200, 1], [600, 0]]
+    s.edit_set(1234, [{"start_ms": 200, "end_ms": 800, "gain_db": 1}])
+    assert "curve" not in json.loads((tmp_path / "m.audi").read_text())["replacements"][0]["blocks"][0]
+    for bad in ([[0]], [[0, "x"]], "no", [[0, 1]] * 257, [[0, True]]):
+        with pytest.raises(EditorError):
+            s.edit_set(1234, [{"start_ms": 0, "end_ms": 400, "curve": bad}])
+    d = Project(name="P", replacements=[Replacement(5, "a.wav", blocks=[Block(0, 100, curve=[[0, 2], [50, -1]])])]).to_json()
+    q = Project.from_json(d, tmp_path / "p.audi")
+    assert q.replacements[0].blocks[0].curve == [[0, 1], [50, 0]]  # levels kept between silence and full
+    d["replacements"][0]["blocks"][0]["curve"] = [["a", 1]]
+    q = Project.from_json(d, tmp_path / "p.audi")
+    assert q.replacements[0].blocks[0].curve == [] and q.repairs

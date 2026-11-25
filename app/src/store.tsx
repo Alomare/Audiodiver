@@ -978,15 +978,16 @@ function useEditorState() {
       const slots = sources.length, what = named ?? plural(slots, { one: "# slot", other: "# slots" });
       if (edited(await run<ProjectState>("silence", { sources, keep_timing: keepTiming }))) quick(t`**${what}** replaced with silence`);
     },
-    /** Remembers these slots for pasting. One with new audio gives that; one without, or any with `original` (a copy
-        from the Library, which shows the originals), gives the original audio. `names`: what to call the originals. */
-    copySlots(sources: string[], names: Record<string, string> = {}, original = false) {
+    /** Remembers these slots for pasting. One with new audio gives that; one without, or any with `original` (Copy
+        Original Audio, or a copy from the Library, which shows the originals), gives the original audio. `names`: what
+        to call the originals. `library`: copied in the Library, so the note says where it pastes. */
+    copySlots(sources: string[], names: Record<string, string> = {}, original = false, library = original) {
       if (!sources.length) { quick(t`Nothing to copy. These slots have no audio`, "info"); return; }
       setClip(sources);
       clipFrom.current = { original: original || !sources.some((s) => project?.assignments[s]), names };
       platform.clipboardAudio().then((c) => { clipAt.current = c.seq; });
       const paste = keyLabel("paste"), slots = sources.length;
-      quick(paste ? (original ? t`Copied ${plural(slots, { one: "# slot", other: "# slots" })} · ${paste} pastes in the Audio tab`
+      quick(paste ? (library ? t`Copied ${plural(slots, { one: "# slot", other: "# slots" })} · ${paste} pastes in the Audio tab`
         : t`Copied ${plural(slots, { one: "# slot", other: "# slots" })} · ${paste} pastes`)
         : t`Copied ${plural(slots, { one: "# slot", other: "# slots" })}`, "copy");
     },

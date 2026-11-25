@@ -69,7 +69,7 @@ Each row is one **slot**, a single game clip that can be replaced.
 - The tick at the start of a row puts the slot in the selection, or takes it out, as Ctrl+click does. Shift on a tick selects a range. A group line has a tick for all the takes in the group, and the group stays folded. In the Library, **Export** can save only the selected slots. In the Audio tab, with several slots selected, the right panel has **Choose One File for All**, **Choose Files**, **Replace with Silence** and the button that removes the new audio.
 - Double-click a row to play it. Right-click it for everything else, including copy, paste, silence and IDs.
 - Copy audio files in Explorer, select slots and press **Ctrl+V**. One file goes into every selected slot. Several files go in file-name order, and on a single selected slot they fill on from there. Ctrl+V pastes whatever was copied last: files from Explorer or slots copied in Audiodiver. On Linux, Ctrl+V pastes slots only.
-- **Ctrl+C** copies the selected slots, in the Library or in the Audio tab. **Ctrl+V** pastes them into the slots selected in the Audio tab, with nothing to export or import. A slot with new audio gives that audio and the settings. Any other slot gives the original, and a Helldivers 2 clip goes in unchanged.
+- **Ctrl+C** copies the selected slots, in the Library or in the Audio tab. **Ctrl+V** pastes them into the slots selected in the Audio tab, with nothing to export or import. A slot with new audio gives that audio and the settings. Any other slot gives the original, and a Helldivers 2 clip goes in unchanged. **Copy Original Audio** in the right-click menu copies the original even where a slot has new audio, and so does the white copy button beside **Old** in the waveforms.
 
 ### Tags on a row
 

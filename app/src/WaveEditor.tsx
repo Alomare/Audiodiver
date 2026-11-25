@@ -5,7 +5,7 @@ import { Trans } from "@lingui/react/macro";
 import { audioUrl, call, fileUrl, fmtDecimal, fmtExact, fmtTime, type Block } from "./api";
 import { confirm } from "./Confirm";
 import { useDialog } from "./dialog";
-import { AddAudioIcon, CloseIcon, DuplicateIcon, ExportIcon, GripIcon, LoopIcon, MagnetIcon, NormalizeIcon, PauseIcon, PlayIcon, PlusIcon, RedoIcon,
+import { AddAudioIcon, CloseIcon, CurveIcon, DuplicateIcon, ExportIcon, GripIcon, LoopIcon, MagnetIcon, NormalizeIcon, PauseIcon, PlayIcon, PlusIcon, RedoIcon,
   RemoveIcon, ResetIcon, SplitIcon, StopIcon, ThroughIcon, TrashIcon, UndoIcon } from "./Icons";
 import { fullPath, pickAudio, pickAudioToSave } from "./platform";
 import { player, usePlayer } from "./player";
@@ -16,7 +16,10 @@ import { Help } from "./Wiki";
 /** The Waveform Editor: audio as blocks on a time line, so that basic editing needs no other program. Each block is
     a stretch of one file placed at a time of its own, with a fade in, a fade out and a gain. Blocks are trimmed at
     their edges, moved by their body (also to another layer), split at the cursor, duplicated and removed, and their
-    fades are dragged from the grips at their top corners. The magnet snaps the cursor, edges, blocks and cue points
+    fades are dragged from the grips at their top corners. With Volume Curves on, a line over each block (full at the
+    top, silence at the foot) takes points: a press on the line puts one there, a point drags in time and level, and a
+    double click (or Alt and a click) removes it; the points sit at times of the file, so a trim or a split keeps them
+    on the same audio. The magnet snaps the cursor, edges, blocks and cue points
     to each other, to the start, and to where the original ends.
 
     What it edits are tracks (`tracks`): the new audio of a slot (or its original, which then becomes the new audio,
@@ -48,6 +51,9 @@ const EDGE_PX = 6;      // how near an edge a press trims instead of moving
 const GRIP_PX = 7;      // a fade grip's half size
 const CURSOR_PX = 5;    // how near the cursor a press takes hold of it
 const FLAG_PX = 7;      // how near a cue point's flag a press on the ruler takes it
+const POINT_PX = 6;     // how near a volume curve's point a press takes it
+const LINE_PX = 6;      // how near a volume curve's line a press puts a point on it
+const MAX_CURVE = 256;  // the core's MAX_CURVE: points on a block's volume curve
 const NUDGE = 10;       // ms an arrow key moves a block (Shift: ×10)
 const RULER = 24;
 const REF_H = { one: 64, many: 56 }; // an original's lane, alone and in a segment
@@ -70,14 +76,15 @@ export type EditTrack = { source?: string; file?: string; name: string; full?: s
 export type EditCues = { cue: string; segment: string; fit: boolean; gameEntry: number; gameExit: number; entry: number | null; exit: number | null };
 
 type EBlock = Block & { track: number };
-type Kind = "move" | "trimL" | "trimR" | "fadeIn" | "fadeOut" | "cursor" | "box" | "entry" | "exit";
+type Kind = "move" | "trimL" | "trimR" | "fadeIn" | "fadeOut" | "cursor" | "box" | "entry" | "exit" | "point" | "line";
 type Drag = {
   kind: Kind; i: number; x0: number; y0: number; from: EBlock[]; moved: boolean;
   again: boolean; under: number[]; // pressed on the one block selected; the blocks under the press, shortest first
   group: number[]; base: number[]; add: boolean; // the blocks a move takes; what a box adds to; Shift or Ctrl held
+  pt: number; made: boolean; // the volume curve's point dragged; whether the press put it there
 };
 type Decoded = { buf: AudioBuffer; levels: Float32Array };
-type Hit = { kind: Kind; i: number; under: number[] };
+type Hit = { kind: Kind; i: number; under: number[]; pt?: number };
 type Lane = { kind: "ref" | "layer"; track: number; layer: number; top: number; h: number };
 /** Audio to put in as blocks: a file (whole), or the blocks a copied slot plays (each naming its file). */
 type Incoming = { audio: string; blocks?: Block[] };
@@ -94,7 +101,23 @@ const range = (from: number, n: number) => Array.from({ length: n }, (_, i) => f
 const lk = (track: number, layer: number) => `${track}:${layer}`; // a layer's key, for its height and its box
 const clean = (b: EBlock): EBlock => ({ start_ms: round1(b.start_ms), end_ms: round1(b.end_ms), at_ms: round1(Math.max(0, b.at_ms)),
   fade_in_ms: round1(Math.max(0, b.fade_in_ms)), fade_out_ms: round1(Math.max(0, b.fade_out_ms)), gain_db: round1(b.gain_db),
-  ...(b.audio ? { audio: b.audio } : {}), ...(b.layer ? { layer: Math.round(b.layer) } : {}), track: b.track });
+  ...(b.audio ? { audio: b.audio } : {}), ...(b.layer ? { layer: Math.round(b.layer) } : {}),
+  ...(b.curve?.length ? { curve: b.curve.map(([ms, lv]) => [round1(Math.max(0, ms)), Math.round(clamp(lv, 0, 1) * 1e4) / 1e4]).sort((p, q) => p[0] - q[0]) } : {}),
+  track: b.track });
+/** A block's volume curve at a time of its file: a straight line between its points, the first and last levels held
+    before and after them; full (1) without points. */
+function curveAt(b: Block, fileMs: number) {
+  const c = b.curve;
+  if (!c?.length) return 1;
+  if (fileMs <= c[0][0]) return c[0][1];
+  for (let k = 1; k < c.length; k++) {
+    const [x1, y1] = c[k];
+    if (fileMs <= x1) { const [x0, y0] = c[k - 1]; return x1 > x0 ? y0 + ((fileMs - x0) / (x1 - x0)) * (y1 - y0) : y1; }
+  }
+  return c[c.length - 1][1];
+}
+/** A level as decibels, for the point being dragged. */
+const dbText = (lv: number) => (lv <= 0.00001 ? "−∞ dB" : `${fmtDecimal(20 * Math.log10(lv), 1, true)} dB`);
 /** A block as the core takes it: without the track it belongs to. */
 const strip = ({ track: _, ...b }: EBlock): Block => b;
 /** A block with its fades kept inside it, after its length or a fade changed. */
@@ -154,10 +177,10 @@ function levelAt(f: Decoded, fromMs: number, toMs: number): number {
   return m;
 }
 
-/** The level a block plays at, a moment into it: its gain, and its fades as straight lines in level. */
+/** The level a block plays at, a moment into it: its gain, its volume curve, and its fades as straight lines in level. */
 function envelope(b: Block, intoMs: number) {
   const len = lengthOf(b);
-  let k = 10 ** (b.gain_db / 20);
+  let k = 10 ** (b.gain_db / 20) * curveAt(b, b.start_ms + intoMs);
   if (b.fade_in_ms > 0 && intoMs < b.fade_in_ms) k *= Math.max(0, intoMs / b.fade_in_ms);
   if (b.fade_out_ms > 0 && intoMs > len - b.fade_out_ms) k *= Math.max(0, (len - intoMs) / b.fade_out_ms);
   return k;
@@ -339,6 +362,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
   const [magnet, setMagnet] = useState(() => { try { return localStorage.getItem("audiodiver.waveMagnet") !== "0"; } catch { return true; } });
   useEffect(() => { try { localStorage.setItem("audiodiver.waveMagnet", magnet ? "1" : "0"); } catch { /* storage off */ } }, [magnet]);
   const [loop, setLoop] = useState(false);
+  const [curving, setCurving] = useState(false); // volume curves: their lines and points take the presses on a block
 
   // --- playback: each block of the lanes ticked a buffer source with its gain and fades, from the cursor; or Play in
   // Context, one file the core mixed, shifted so the playhead shows where it is in this segment
@@ -375,14 +399,20 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
       src.buffer = f.buf;
       src.connect(g).connect(master);
       const when = t0 + Math.max(0, b.at_ms - from) / 1000;
-      const k = 10 ** (b.gain_db / 20), outAt = len - b.fade_out_ms;
-      g.gain.setValueAtTime(envelope(b, into), when);
-      if (b.fade_in_ms > into) g.gain.linearRampToValueAtTime(envelope(b, b.fade_in_ms), when + (b.fade_in_ms - into) / 1000);
-      if (b.fade_out_ms > 0) {
-        if (outAt > into) g.gain.setValueAtTime(b.fade_in_ms >= outAt ? envelope(b, outAt) : k, when + (outAt - into) / 1000);
-        g.gain.linearRampToValueAtTime(0, when + (len - into) / 1000);
+      const k = 10 ** (b.gain_db / 20), outAt = len - b.fade_out_ms, dur = (Math.min(len, to - b.at_ms) - into) / 1000;
+      if (b.curve?.length) { // a volume curve: the whole level, sampled every 10 ms (the gain draws lines between)
+        const n = clamp(Math.ceil(dur * 100), 2, 60000), vals = new Float32Array(n);
+        for (let s = 0; s < n; s++) vals[s] = envelope(b, into + (s / (n - 1)) * dur * 1000);
+        g.gain.setValueCurveAtTime(vals, when, Math.max(0.001, dur));
+      } else {
+        g.gain.setValueAtTime(envelope(b, into), when);
+        if (b.fade_in_ms > into) g.gain.linearRampToValueAtTime(envelope(b, b.fade_in_ms), when + (b.fade_in_ms - into) / 1000);
+        if (b.fade_out_ms > 0) {
+          if (outAt > into) g.gain.setValueAtTime(b.fade_in_ms >= outAt ? envelope(b, outAt) : k, when + (outAt - into) / 1000);
+          g.gain.linearRampToValueAtTime(0, when + (len - into) / 1000);
+        }
       }
-      src.start(when, (b.start_ms + into) / 1000, (Math.min(len, to - b.at_ms) - into) / 1000);
+      src.start(when, (b.start_ms + into) / 1000, dur);
       nodes.push(src);
     }
     const timer = window.setTimeout(() => {
@@ -749,6 +779,29 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
       g.globalAlpha = 1;
       g.strokeStyle = colour; g.lineWidth = 1.25;
       g.beginPath(); g.moveTo(x0, top + h); g.lineTo(fi, top); g.lineTo(fo, top); g.lineTo(x1, top + h); g.stroke();
+      // the volume curve: a line from full at the top to silence at the foot; its points show while curves are on
+      if (curving || b.curve?.length) {
+        const yOf = (lv: number) => top + (1 - lv) * h, xAt = (ms: number) => xOf(b.at_ms + ms - b.start_ms);
+        const pts = (b.curve ?? []).map((p, k) => [p[0], p[1], k]).filter((p) => p[0] >= b.start_ms && p[0] <= b.end_ms);
+        g.save(); g.beginPath(); g.rect(x0 - 1, top - 1, x1 - x0 + 2, h + 2); g.clip();
+        g.strokeStyle = v("--text"); g.lineWidth = 1.5; g.globalAlpha = curving ? 0.95 : 0.6;
+        g.beginPath(); g.moveTo(x0, yOf(curveAt(b, b.start_ms)));
+        for (const p of pts) g.lineTo(xAt(p[0]), yOf(p[1]));
+        g.lineTo(x1, yOf(curveAt(b, b.end_ms))); g.stroke(); g.globalAlpha = 1;
+        g.restore();
+        if (curving) {
+          const d = drag.current, held = d && d.kind === "point" && d.i === i ? d.pt : -1;
+          for (const p of pts) {
+            const px = xAt(p[0]), py = yOf(p[1]);
+            g.beginPath(); g.arc(px, py, p[2] === held ? 4.5 : 3.5, 0, Math.PI * 2);
+            g.fillStyle = p[2] === held ? v("--text") : v("--bg"); g.fill(); g.lineWidth = 1.5; g.strokeStyle = v("--text"); g.stroke(); g.lineWidth = 1;
+            if (p[2] === held) { // the level it is at, beside it
+              const label = dbText(p[1]), tw = g.measureText(label).width + 8, lx = clamp(px + 8, 0, width - tw), ly = clamp(py - 22, RULER, height - 18);
+              g.fillStyle = v("--text"); g.fillRect(lx, ly, tw, 16); g.fillStyle = v("--bg"); g.fillText(label, lx + 4, ly + 12);
+            }
+          }
+        }
+      }
       // the frame, and the fade grips on the top edge: filled in the block's colour on a selected block, outlined on the others
       const isOn = picked.has(i);
       g.lineWidth = isOn ? 2 : 1; g.strokeStyle = isOn ? v("--text") : colour;
@@ -817,6 +870,13 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
     if (!lane || lane.kind === "ref") return { kind: nearCursor(x) ? "cursor" : "box", i: -1, under: [] };
     const here = shown.map((_, i) => i).filter((i) => shown[i].track === lane.track && layerOf(shown[i]) === lane.layer);
     const first = here.sort((p, q) => (picked.has(p) !== picked.has(q) ? (picked.has(p) ? -1 : 1) : lengthOf(shown[p]) - lengthOf(shown[q]))); // selected, then shortest
+    if (curving) for (const i of first) { // a volume curve's point
+      const b = shown[i], { top, h } = blockBox(b), c = b.curve ?? [];
+      for (let k = 0; k < c.length; k++) {
+        if (c[k][0] < b.start_ms || c[k][0] > b.end_ms) continue;
+        if (Math.hypot(x - xOf(b.at_ms + c[k][0] - b.start_ms), y - (top + (1 - c[k][1]) * h)) <= POINT_PX) return { kind: "point", i, under: [], pt: k };
+      }
+    }
     for (const i of first) { // a fade grip, on the top edge
       const b = shown[i], { top } = blockBox(b);
       if (y < top + GRIP_PX + 3 && y > top - GRIP_PX - 2) {
@@ -828,6 +888,11 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
       const b = shown[i], x0 = xOf(b.at_ms), x1 = xOf(endOf(b));
       if (Math.abs(x - x0) <= EDGE_PX && x <= x1) return { kind: "trimL", i, under: [] };
       if (Math.abs(x - x1) <= EDGE_PX && x >= x0) return { kind: "trimR", i, under: [] };
+    }
+    if (curving) for (const i of first) { // a volume curve's line: a press puts a point there
+      const b = shown[i], { top, h } = blockBox(b);
+      if (x < xOf(b.at_ms) || x > xOf(endOf(b))) continue;
+      if (Math.abs(y - (top + (1 - curveAt(b, b.start_ms + msOf(x) - b.at_ms)) * h)) <= LINE_PX) return { kind: "line", i, under: [] };
     }
     // the body: of the blocks under the spot, a selected one, else the shortest (a longer one shows elsewhere)
     const under = first.filter((i) => x >= xOf(shown[i].at_ms) && x <= xOf(endOf(shown[i]))).sort((p, q) => lengthOf(shown[p]) - lengthOf(shown[q]));
@@ -852,6 +917,12 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
   };
   const reshape = (d: Drag, dx: number, y: number): EBlock[] => {
     const b = d.from[d.i], dms = (dx / width) * view.span;
+    if (d.kind === "point") { // a volume curve's point: in time between its neighbours (and inside the block), in level by height
+      const c = (b.curve ?? []).map((p) => [...p]), k = d.pt, { top, h } = blockBox(b);
+      const lo = Math.max(b.start_ms, k > 0 ? c[k - 1][0] : -Infinity), hi = Math.min(b.end_ms, k < c.length - 1 ? c[k + 1][0] : Infinity);
+      c[k] = [clamp(b.start_ms + msOf(d.x0 + dx) - b.at_ms, lo, hi), clamp(1 - (y - top) / h, 0, 1)];
+      return d.from.map((x, j) => (j === d.i ? { ...b, curve: c } : x));
+    }
     if (d.kind === "move") { // the blocks taken move together, in time, and from layer to layer within their tracks
       const group = d.group.map((j) => d.from[j]);
       const minAt = Math.min(...group.map((x) => x.at_ms)), maxEnd = Math.max(...group.map(endOf));
@@ -904,8 +975,25 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     const { x, y } = local(e), hit = hitAt(x, y), lane = lanes[laneAt(y)], add = e.shiftKey || e.ctrlKey || e.metaKey;
     if (y >= RULER && lane) setActive({ track: lane.track, layer: lane.kind === "layer" ? lane.layer : 0 });
-    const base: Drag = { kind: hit.kind, i: hit.i, x0: x, y0: y, from: blocks, moved: false, again: false, under: hit.under, group: [], base: [], add };
+    const base: Drag = { kind: hit.kind, i: hit.i, x0: x, y0: y, from: blocks, moved: false, again: false, under: hit.under, group: [], base: [], add, pt: -1, made: false };
     if (hit.kind === "entry" || hit.kind === "exit") { drag.current = base; return; }
+    if (hit.kind === "point" || hit.kind === "line") { // a volume curve: a point taken (Alt: removed), or put on the line and taken
+      const b = blocks[hit.i];
+      let curve = (b.curve ?? []).map((p) => [...p]), pt = hit.pt ?? -1;
+      if (hit.kind === "point" && e.altKey) { commit(blocks.map((x2, j) => (j === hit.i ? { ...x2, curve: curve.filter((_, k) => k !== pt) } : x2))); return; }
+      if (hit.kind === "line") {
+        if (curve.length >= MAX_CURVE) return;
+        const ms = round1(b.start_ms + msOf(x) - b.at_ms), lv = curveAt(b, ms);
+        if (!curve.length) curve = [[b.start_ms, 1], [b.end_ms, 1]]; // the first point: the ends stay at full
+        pt = curve.filter((p) => p[0] <= ms).length;
+        curve.splice(pt, 0, [ms, lv]);
+      }
+      const from = blocks.map((x2, j) => (j === hit.i ? { ...x2, curve } : x2));
+      if (!picked.has(hit.i) || sel.length > 1) setSel([hit.i]);
+      if (hit.kind === "line") setLive(from);
+      drag.current = { ...base, kind: "point", from, pt, made: hit.kind === "line", group: [hit.i] };
+      return;
+    }
     if (hit.i >= 0) {
       if (add && hit.kind === "move") { // Shift or Ctrl: in or out of the selection, nothing dragged
         setSel(picked.has(hit.i) ? sel.filter((j) => j !== hit.i) : [...sel, hit.i]);
@@ -923,7 +1011,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
   const onMove = (e: React.PointerEvent) => {
     const { x, y } = local(e), d = drag.current;
     if (!d) { setHover(hitAt(x, y).kind); return; }
-    if (!d.moved && Math.abs(x - d.x0) < 3 && (d.kind === "box" ? Math.abs(y - d.y0) < 3 : d.kind !== "move" || laneAt(y) === laneAt(d.y0))) return;
+    if (!d.moved && Math.abs(x - d.x0) < 3 && (d.kind === "box" || d.kind === "point" ? Math.abs(y - d.y0) < 3 : d.kind !== "move" || laneAt(y) === laneAt(d.y0))) return;
     d.moved = true;
     if (d.kind === "cursor") { cursorTo(x); return; }
     if (d.kind === "entry" || d.kind === "exit") { setCueLive({ [d.kind]: cueTo(d.kind, x) }); return; }
@@ -951,6 +1039,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
       return;
     }
     if (d.kind === "box") { if (!d.moved) { cursorTo(x); if (!d.add) setSel([]); } return; } // a click on an empty spot: the cursor goes there
+    if (d.kind === "point") { if (d.moved) commit(reshape(d, x - d.x0, y)); else if (d.made) commit(d.from); else setLive(null); return; }
     if (d.moved) { commit(reshape(d, x - d.x0, y)); return; }
     // a click on a block: the cursor goes there, the block alone is selected; on the one block selected, where others
     // lie under it too, the next of them
@@ -958,10 +1047,12 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
     if (d.kind === "move" && d.again && !quick2 && d.under.length > 1) setSel([d.under[(d.under.indexOf(d.i) + 1) % d.under.length]]);
     else if (sel.length > 1) setSel([d.i]);
   };
-  /** A double click: the cursor goes there and the lanes ticked play from there. */
+  /** A double click: the cursor goes there and the lanes ticked play from there; on a volume curve's point, the point goes. */
   const onDouble = (e: React.MouseEvent) => {
     if (!ready || (e.target as HTMLElement).closest("button")) return;
     const { x, y } = local(e);
+    const pt = curving && y >= RULER ? hitAt(x, y) : null;
+    if (pt?.kind === "point") { commit(blocks.map((b, j) => (j === pt.i ? { ...b, curve: (b.curve ?? []).filter((_, k) => k !== pt.pt) } : b))); return; }
     if (y < RULER && cues && (hitAt(x, y).kind === "entry" || hitAt(x, y).kind === "exit")) return;
     const ms = Math.max(0, msOf(x)), at = Math.max(0, ms + snap([ms], null, false));
     setCursor(at);
@@ -991,6 +1082,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
     else if (!mod && k === "n") { did(); normalize(); }
     else if (!mod && k === "m") { did(); setMagnet((m) => !m); }
     else if (!mod && k === "l") { did(); setLoop((l) => !l); }
+    else if (!mod && k === "v") { did(); setCurving((c) => !c); }
     else if (!mod && k === "c" && cues) { did(); void playContext(); }
     else if (k === "delete" || k === "backspace") { did(); remove(); }
     else if (k === "home") { did(); setCursor(0); }
@@ -999,7 +1091,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
     else if (k === "enter" && mod) { did(); void apply(); }
   };
 
-  const cursorCls = { move: "grab", trimL: "ew-resize", trimR: "ew-resize", fadeIn: "col-resize", fadeOut: "col-resize", cursor: "ew-resize", box: "crosshair", entry: "ew-resize", exit: "ew-resize" } as const;
+  const cursorCls = { move: "grab", trimL: "ew-resize", trimR: "ew-resize", fadeIn: "col-resize", fadeOut: "col-resize", cursor: "ew-resize", box: "crosshair", entry: "ew-resize", exit: "ew-resize", point: "grab", line: "copy" } as const;
   const single = tracks.length === 1 ? 0 : null;
   const head_ = single != null && !isFile(0) ? (editOriginal(0) ? t`Original` : assign(0) && !assign(0)!.silence ? assign(0)!.name : t`New audio`)
     : single != null ? nameOf(tracks[0].file!) : t`${tracks.length} slots`;
@@ -1051,9 +1143,12 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
               {tool(<DuplicateIcon />, t`Duplicate`, duplicate, !sel.length, "Ctrl+D", t`The copies go right after the selected blocks`)}
               {tool(<RemoveIcon />, t`Remove`, remove, !removable, "Delete", t`Removes the selected blocks`)}
             </div>
-            <div className="wave-ed-group" role="group" aria-label={t`Magnet`}>
+            <div className="wave-ed-group" role="group" aria-label={t`Modes`}>
               <button className="icon-btn wave-ed-toggle" aria-pressed={magnet} onClick={() => setMagnet(!magnet)} aria-label={t`Magnet`} data-tip={magnet ? t`Magnet: on` : t`Magnet: off`}
                 data-tip-more={t`The cursor, block edges, blocks and cue points snap to edges: of blocks, the start and where the original ends`} data-tip-key="M"><MagnetIcon /></button>
+              <button className="icon-btn wave-ed-toggle wave-ed-curves" aria-pressed={curving} onClick={() => setCurving(!curving)} aria-label={t`Volume Curves`}
+                data-tip={curving ? t`Volume Curves: on` : t`Volume Curves: off`} data-tip-key="V"
+                data-tip-more={t`Shows a line over each block, from full at the top to silence at the foot. Click the line to add a point, drag a point to shape the volume, double-click a point to remove it`}><CurveIcon /></button>
             </div>
             <div className="wave-ed-group" role="group" aria-label={t`History`}>
               {tool(<UndoIcon />, t`Undo`, undo, hist.at === 0, "Ctrl+Z")}
@@ -1107,7 +1202,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
                 );
               })}
             </div>
-            <div className="wave-ed-canvas" ref={wrap} data-span={Math.round(zoom.span)} data-drop={JSON.stringify({ kind: "wave-editor" })} style={{ height, cursor: drag.current ? (drag.current.kind === "move" ? "grabbing" : cursorCls[drag.current.kind]) : hover ? cursorCls[hover] : "default" }}
+            <div className="wave-ed-canvas" ref={wrap} data-span={Math.round(zoom.span)} data-drop={JSON.stringify({ kind: "wave-editor" })} style={{ height, cursor: drag.current ? (drag.current.kind === "move" || drag.current.kind === "point" ? "grabbing" : cursorCls[drag.current.kind]) : hover ? cursorCls[hover] : "default" }}
               onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onDoubleClick={onDouble} onPointerLeave={() => setHover(null)}>
               <canvas ref={canvas} style={{ width, height }} />
               {!ready ? <p className="wave-ed-state">{error ? t`The audio can't be read: ${error}` : t`Reading the audio…`}</p>
@@ -1134,7 +1229,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
         <aside className="wave-ed-side" aria-label={t`Selected blocks`}>
           {one != null ? <BlockFields b={blocks[one]} n={one + 1} fileMs={msOfFile(blocks[one])} file={(many ? `${tracks[blocks[one].track].name} · ` : "") + (blocks[one].audio ? nameOf(blocks[one].audio!) : ownName(blocks[one].track))} onSet={(x) => set(one, x)} />
             : selList.length > 1 ? <ManyFields list={selList} onSet={setMany} />
-            : <p className="wave-ed-hint"><Trans>Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Drag from an empty spot to select several blocks, and hold Shift or Ctrl to add to them. Where blocks overlap, click again for the one under it. A double click plays from there.</Trans></p>}
+            : <p className="wave-ed-hint"><Trans>Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Drag from an empty spot to select several blocks, and hold Shift or Ctrl to add to them. Where blocks overlap, click again for the one under it. A double click plays from there. With Volume Curves on (V), click the line over a block to shape the volume.</Trans></p>}
         </aside>
         </div>
 
@@ -1270,8 +1365,21 @@ function BlockFields({ b, n, fileMs, file, onSet }: {
       </div>
       <div className="wave-ed-set">
         <Field name={t`Gain`} tip={t`How much louder or quieter the block plays`} value={b.gain_db} lo={-60} hi={24} unit="dB" step={0.5} onSet={(v) => onSet({ gain_db: v })} />
+        <CurveRow points={b.curve?.length ?? 0} onFlatten={() => onSet({ curve: [] })} />
       </div>
     </div>
+  );
+}
+
+/** How many points the volume curve has, and Flatten, which takes them all away (full level all along). */
+function CurveRow({ points, onFlatten, many }: { points: number; onFlatten: () => void; many?: boolean }) {
+  return (
+    <>
+      <div className="wave-ed-field wave-ed-ro" data-tip={t`Shape it with the Volume Curves tool (V)`} data-tip-side="left">
+        <span className="wave-ed-label">{t`Volume Curve`}</span><b>{points ? points : "—"}</b><span className="unit">{points ? t`pts` : ""}</span></div>
+      {points > 0 && <button className="btn quiet wave-ed-flatten" onClick={onFlatten}
+        data-tip={many ? t`Takes the points off every selected block` : t`Takes the points off: the block plays at full level all along`}>{many ? t`Flatten Curves` : t`Flatten Curve`}</button>}
+    </>
   );
 }
 
@@ -1290,6 +1398,7 @@ function ManyFields({ list, onSet }: { list: Block[]; onSet: (b: Partial<Block>)
       </div>
       <div className="wave-ed-set">
         <Field name={t`Gain`} tip={t`How much louder or quieter each block plays`} value={same("gain_db")} lo={-60} hi={24} unit="dB" step={0.5} onSet={(v) => onSet({ gain_db: v })} />
+        {list.some((b) => b.curve?.length) && <CurveRow many points={list.reduce((s, b) => s + (b.curve?.length ?? 0), 0)} onFlatten={() => onSet({ curve: [] })} />}
       </div>
     </div>
   );
