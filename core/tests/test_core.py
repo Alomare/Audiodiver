@@ -504,8 +504,42 @@ def test_files_of_another_kind_beside_the_bundles_are_passed_over(tmp_path, monk
     for name in ("0123456789abcdef", "0123456789abcdef.stream", "0123456789abcdef.gpu_resources"):
         (tmp_path / name).write_bytes(stray)
     g = game.Game(tmp_path)
-    assert slim.bundle_offsets == {"bundles.nxa": {0: 0}, "bundles.00.nxa": offsets}
+    # each bundle's chunks are read when first asked for (game.slim_init); a file that isn't a bundle has none
+    assert slim.bundle_offsets["bundles.nxa"] == {0: 0} and slim.bundle_offsets["bundles.00.nxa"] == offsets
+    for name in ("0123456789abcdef", "0123456789abcdef.stream", "0123456789abcdef.gpu_resources"):
+        with pytest.raises(KeyError):
+            slim.bundle_offsets[name]
     assert g.packages == [] and g.loose == {}
+
+
+def test_stream_ids_in_one_go_are_the_ids_one_by_one():
+    """The index hashes every sound's stream id at start in batches (numpy): the same ids as stream_id, for every
+    length of name, with and without a language."""
+    import random
+    from audiodiver.game import stream_id, stream_ids
+    rnd = random.Random(7)
+    pairs = [(rnd.getrandbits(rnd.choice((8, 32, 64))), rnd.choice(("", "us", "bp", "pt-br"))) for _ in range(3000)]
+    pairs += [(0, ""), (7, "us"), (2 ** 64 - 1, "")]
+    assert stream_ids(pairs) == [stream_id(s, lang) for s, lang in pairs]
+    assert stream_ids([]) == []
+
+
+@pytest.mark.game
+def test_the_bundle_map_read_on_demand_is_slims():
+    """game.slim_init leaves each package's entries and each bundle's chunks to be read when first needed; what it
+    gives then is what slim's own reader gives."""
+    from audiodiver import game
+    from audiodiver._vendor import slim
+    from audiodiver.editor import load_settings
+    folder = str(game.locate(load_settings().get("game_data"))[0])
+    slim.slim_init(folder)
+    want_p, want_b = slim.package_contents, slim.bundle_offsets
+    game.slim_init(folder)
+    got_p, got_b = slim.package_contents, slim.bundle_offsets
+    assert set(got_p) == set(want_p)
+    rows = lambda p: [(e.original_archive_offset, e.start_offset, e.bundle_index) for e in p.entries]  # noqa: E731
+    assert all(got_p[n].size == p.size and rows(got_p[n]) == rows(p) for n, p in want_p.items())
+    assert all(got_b[n] == starts for n, starts in want_b.items())
 
 
 # --- project file

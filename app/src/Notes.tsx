@@ -5,7 +5,7 @@ import { LinkIcon } from "./Icons";
 import { Markdown, parse } from "./Markdown";
 import { notes, useGlobalNote, useGlobalNotes, useNote } from "./noteStore";
 import { useEditor } from "./store";
-import { Help } from "./Wiki";
+import { Help } from "./WikiLinks";
 
 type Tool = { id: string; label: string; tip: string; keys?: string; draw: React.ReactNode };
 const TOOLS: Tool[] = [

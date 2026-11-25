@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { fmtBytes, fmtWhen } from "./api";
-import { APP_LABEL, APP_VERSION, fmtDate, RELEASES, REPO_URL, versionLabel } from "./content";
+import { APP_LABEL, APP_VERSION, fmtDate, releases as changelogReleases, REPO_URL, versionLabel } from "./content";
 import { Fold } from "./Fold";
 import { CheckIcon, CollapseAllIcon, ExternalIcon, UpdatesIcon } from "./Icons";
 import { Logo } from "./Logo";
@@ -140,7 +140,7 @@ function entriesOf(releases: RemoteRelease[]): Entry[] {
     return c > 0 ? "new" : c === 0 ? "installed" : "older";
   };
   const by = new Map<string, Entry>();
-  for (const r of RELEASES) by.set(r.version, { version: r.version, date: r.date, tokens: r.tokens, when: when(r.version) });
+  for (const r of changelogReleases()) by.set(r.version, { version: r.version, date: r.date, tokens: r.tokens, when: when(r.version) });
   for (const r of releases) {
     const had = by.get(r.version);
     by.set(r.version, { version: r.version, date: r.date || had?.date || "", url: r.url, when: when(r.version),

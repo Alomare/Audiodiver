@@ -13,7 +13,7 @@ import { noteKeys } from "./noteStore";
 import { fullPath, pickAudio, reveal } from "./platform";
 import { useEditor, useShownTabs } from "./store";
 import { showLines } from "./TextTab";
-import { Help, WikiLink } from "./Wiki";
+import { Help, WikiLink } from "./WikiLinks";
 import { rangeVars } from "./range";
 
 /** The Audio tab's right panel: the selected slot's settings. Each control has one home: the slot's row plays the

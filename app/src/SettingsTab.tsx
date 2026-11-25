@@ -16,7 +16,7 @@ import { AUTOSAVE_DEFAULT, AUTOSAVE_MAX, DEFAULT_SETTINGS, NOTICE_CORNERS, reset
 import { useEditor } from "./store";
 import { notes, useGlobalNotes, type GlobalNotes } from "./noteStore";
 import { useDialog } from "./dialog";
-import { Help } from "./Wiki";
+import { Help } from "./WikiLinks";
 import { autoLanguage, chooseLanguage, chosenLanguage, languageName, LANGUAGES, PSEUDO, type Choice } from "./i18n";
 import { accentFor, BAR_SIDES, barIsVertical, BLUE_HUE, contrastOn, DEFAULT_SIZE, DEFAULT_THEME, DEFAULT_WARMTH, DENSITIES, FONTS, modeOf, motionOn, nightTint,
   RESET_THEME, secondFor, SPEEDS, systemReducesMotion, systemWantsContrast, TEXT_SIZES, theme, useTheme, WARMTH, YELLOW_HUE, type FontId } from "./theme";

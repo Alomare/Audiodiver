@@ -12,7 +12,7 @@ import { RESET_LAYOUT } from "./settings";
 import { useEditor } from "./store";
 import { TextPreview } from "./TextPreview";
 import { readTextFile, TextExport, TextImport, TextReplace, type ImportRead, type Scope } from "./TextTools";
-import { Help, WikiLink } from "./Wiki";
+import { Help, WikiLink } from "./WikiLinks";
 
 /** The Text tab: the game's text in every language (subtitles, menus, names, everything), sorted into categories
     (core textsort.py), to find a line and change it: words, colours, sizes. The project keeps the lines it changes; a

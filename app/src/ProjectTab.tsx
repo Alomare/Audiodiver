@@ -11,7 +11,7 @@ import { TabChecks } from "./SettingsTab";
 import { useEditor, useShownTabs } from "./store";
 import { motionMs } from "./theme";
 import { nav } from "./nav";
-import { Help, WikiLink } from "./Wiki";
+import { Help, WikiLink } from "./WikiLinks";
 import { rangeVars } from "./range";
 
 const FRAME_KEYS: (keyof IconFrame)[] = ["border", "border_color", "radius"];

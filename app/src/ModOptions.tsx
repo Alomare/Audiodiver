@@ -8,7 +8,7 @@ import { PlusIcon } from "./Icons";
 import { nav } from "./nav";
 import { useDraft } from "./Page";
 import { useEditor } from "./store";
-import { Help } from "./Wiki";
+import { Help } from "./WikiLinks";
 
 /** Options for Players, on the Project tab (core options.py): choices a player makes in the mod manager. Each option
     has choices, and the first is the mod as it is (Main). The others change some slots, set in the Audio tab with the

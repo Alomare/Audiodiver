@@ -369,10 +369,14 @@ class MusicList:
         return Place(named(name)) if name else None
 
     def _switch_section(self, sid):
-        """The faction section a music switch belongs to (from the conditions that reach it)."""
-        values = {f.get(self.groups["faction"]) for ctx in self.cm.switches[sid]["contexts"]
-                  for f in [{self.cat.name(g): self.cat.name(v) for g, v in ctx}]} - {None}
-        return next((s for s in self.sections if s.get("faction") in values), None)
+        """The faction section a music switch belongs to (from the conditions that reach it). Kept by switch: the list
+        asks about a few hundred switches several thousand times, each with all of its contexts."""
+        known = self.__dict__.setdefault("_switch_sections", {})
+        if sid not in known:
+            values = {f.get(self.groups["faction"]) for ctx in self.cm.switches[sid]["contexts"]
+                      for f in [{self.cat.name(g): self.cat.name(v) for g, v in ctx}]} - {None}
+            known[sid] = next((s for s in self.sections if s.get("faction") in values), None)
+        return known[sid]
 
     def _home(self, places: list[Place], owner_section=None) -> str:
         """The section a bridge or stinger is listed in: its faction when it touches one, else where it leads."""

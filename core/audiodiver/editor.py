@@ -62,11 +62,17 @@ def save_settings(**changes):
 
 def clean_temp(age_s: float = 3600):
     """Removes the temp folders of builds, repatches and combines that a core closed mid-job left behind (closing the
-    window ends the core at once: a Dune build left 297 MB). A folder untouched for an hour is no live job's."""
+    window ends the core at once: a Dune build left 297 MB). A folder untouched for an hour is no live job's. The temp
+    folder can hold hundreds of thousands of entries (listing one with 186,000 took 0.4 s), so the names are compared
+    as they are listed, and the core runs this beside the game read, not before it."""
     import tempfile
-    for d in Path(tempfile.gettempdir()).glob("audiodiver-*"):
+    try:
+        found = [Path(e.path) for e in os.scandir(tempfile.gettempdir()) if e.name.startswith("audiodiver-") and e.is_dir()]
+    except OSError:
+        return
+    for d in found:
         try:
-            if d.is_dir() and time.time() - max(f.stat().st_mtime for f in [d, *d.rglob("*")]) > age_s:
+            if time.time() - max(f.stat().st_mtime for f in [d, *d.rglob("*")]) > age_s:
                 shutil.rmtree(d, ignore_errors=True)
         except OSError:
             pass
@@ -305,7 +311,7 @@ class Session:
                 pass  # no renderer (Audiodiver Utils has no numpy), so no spool files either
             else:
                 clean_spool()
-            clean_temp()
+            threading.Thread(target=clean_temp, daemon=True, name="clean temp").start()  # beside the read, not before it
             folder, how = locate(chosen or load_settings().get("game_data"))
             again = bool(self.game_where.get("path"))  # another folder was chosen: this isn't the start-up read
             self.game_where = {"path": str(folder), "how": how}

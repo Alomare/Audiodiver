@@ -23,7 +23,7 @@ import { Timeline } from "./Timeline";
 import { WaveEditor } from "./WaveEditor";
 import { PanelToggles, ToolButton, usePanels } from "./Tools";
 import { ExportListChip, ExportPanel } from "./ExportDialog";
-import { Help } from "./Wiki";
+import { Help } from "./WikiLinks";
 
 type Mode = Piece["mode"];
 const MODES: { mode: Mode; name: string; tip: string }[] = [

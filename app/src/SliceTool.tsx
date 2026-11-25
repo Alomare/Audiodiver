@@ -9,7 +9,7 @@ import { player, usePlayer, usePlayerLook } from "./player";
 import { useEditor } from "./store";
 import { useTheme } from "./theme";
 import { loadPeaks, wheelZoom, WaveZoom, ZOOM_Y_MAX, type Peaks, type WaveZoomState } from "./Waveform";
-import { Help } from "./Wiki";
+import { Help } from "./WikiLinks";
 
 /** The slice tool: cuts one song into consecutive pieces and fills a cue's slots with them in play order, one piece
     per segment. The cuts are exact to the sample, so pieces played back to back sound like the uncut song.

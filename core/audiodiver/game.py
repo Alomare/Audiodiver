@@ -49,6 +49,42 @@ def stream_id(source_id: int, language: str = "") -> int:
     return murmur64_hash(f"content/audio/{language + '/' if language else ''}{source_id}".encode())
 
 
+def stream_ids(pairs) -> list[int]:
+    """stream_id of many (source id, language) pairs at once, as the index needs for every sound at start: with
+    numpy, all of one length in one pass (about ten times faster than one by one); without it (Audiodiver Utils),
+    one by one."""
+    names = [f"content/audio/{lang + '/' if lang else ''}{sid}".encode() for sid, lang in pairs]
+    try:
+        import numpy as np
+    except ImportError:
+        return [murmur64_hash(n) for n in names]
+    out = [0] * len(names)
+    by_len: dict[int, list[int]] = {}
+    for i, n in enumerate(names):
+        by_len.setdefault(len(n), []).append(i)
+    m, r = np.uint64(0xC6A4A7935BD1E995), np.uint64(47)
+    with np.errstate(over="ignore"):
+        for length, idx in by_len.items():
+            raw = np.frombuffer(b"".join(names[i] for i in idx), dtype=np.uint8).reshape(len(idx), length)
+            h = np.full(len(idx), np.uint64(0) ^ (np.uint64(0xC6A4A7935BD1E995) * np.uint64(length)), dtype=np.uint64)
+            off = length // 8 * 8
+            if off:
+                blocks = np.ascontiguousarray(raw[:, :off]).view("<u8")
+                for j in range(blocks.shape[1]):
+                    k = blocks[:, j] * m
+                    k = (k ^ (k >> r)) * m
+                    h = (h ^ k) * m
+            if length & 7:
+                tail = np.zeros((len(idx), 8), dtype=np.uint8)
+                tail[:, :length - off] = raw[:, off:]
+                h = (h ^ tail.view("<u8")[:, 0]) * m
+            h = (h ^ (h >> r)) * m
+            h ^= h >> r
+            for i, v in zip(idx, h.tolist()):
+                out[i] = v
+    return out
+
+
 # --- the archives inside the bundles, and the cache of the ones read whole (the index reads each package once, a
 # preview of a streamed sound its archive's stream data), trimmed between jobs so an idle core gives the memory
 # back. A bank or a table is read from only the chunks that hold it (bundle_part): reading whole packages, a Dune
@@ -350,12 +386,78 @@ def find_data_folder(chosen=None) -> Path:
     return locate(chosen)[0]
 
 
+class _Package(slim.Package):
+    """slim's Package, whose entries are read from the bundle map the first time they are asked for: the map lists
+    about 870,000 of them over some 10,000 packages, and a session reads a few hundred packages."""
+
+    def __init__(self, name: str, size: int, data: bytes):
+        self.name, self.size, self._data, self._parts, self._entries = name, size, data, [], None
+
+    @property
+    def entries(self) -> list:
+        if self._entries is None:
+            out = []
+            for at, count in self._parts:  # each record: original offset, offset in the bundle, 3 bytes, bundle number
+                for original, start, bundle in struct.iter_unpack("<QI3xB", self._data[at:at + 16 * count]):
+                    e = slim.BundleEntry()
+                    e.original_archive_offset, e.start_offset, e.bundle_index = original, start, bundle
+                    out.append(e)
+            self._entries = out
+        return self._entries
+
+
+class _ChunkStarts(dict):
+    """slim.bundle_offsets ({bundle file: {offset in the bundle uncompressed: its chunk}}), each bundle's read the
+    first time it is asked for. A file that isn't a DSAR bundle has none (KeyError, as in slim)."""
+
+    def __init__(self, folder: str):
+        super().__init__()
+        self.folder = folder
+
+    def __missing__(self, name):
+        try:
+            with open(os.path.join(self.folder, name), "rb") as f:
+                head = f.read(12)
+                if len(head) < 12 or int.from_bytes(head[:4], "little") != slim.DSAR_FILE:
+                    raise KeyError(name)
+                n = int.from_bytes(head[8:12], "little")
+                f.seek(0x20)
+                starts = {o: j for j, (o,) in enumerate(struct.iter_unpack("<Q24x", f.read(0x20 * n)))}
+        except OSError:
+            raise KeyError(name) from None
+        self[name] = starts
+        return starts
+
+
+def slim_init(folder: str):
+    """slim.slim_init without reading every bundle's chunk table and every package's entries at start (they are read
+    when first needed): opening the game took about a second, most of it there. The same structures as slim's, so
+    slim's readers work on them; slim's own reader if this one can't read the map."""
+    slim.game_data_folder = folder
+    if not slim.is_slim_version():
+        return
+    try:
+        data = slim.decompress_dsar(os.path.join(folder, "bundles.nxa"))
+        contents = {}
+        for n in range(int.from_bytes(data[0x10:0x14], "little")):
+            size, name_at, count, items_at = struct.unpack_from("<QIII", data, 0x18 + n * 0x18)
+            name = data[name_at:data.index(b"\0", name_at)].decode()
+            p = contents.get(name)
+            if p is None:  # a name listed twice keeps the first size, its entries in order (as slim does)
+                p = contents[name] = _Package(name, size, data)
+            p._parts.append((items_at, count))
+    except (OSError, ValueError, struct.error, UnicodeDecodeError):
+        slim.slim_init(folder)
+        return
+    slim.package_contents, slim.bundle_offsets = contents, _ChunkStarts(folder)
+
+
 class Game:
     """One installed game version. `fingerprint` changes whenever an update touches the data files."""
 
     def __init__(self, data_folder=None):
         self.data = Path(data_folder) if data_folder else find_data_folder()
-        slim.slim_init(str(self.data))
+        slim_init(str(self.data))
         self.loose = self._loose()  # {name: path} of the archives outside the bundles (the voice packs)
         self.packages = sorted(set(slim.package_contents) | set(self.loose))
         # whole packages and streams as the index and previews read them, by size: lru_cache kept 8 whole packages

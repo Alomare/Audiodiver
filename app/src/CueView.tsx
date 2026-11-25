@@ -21,7 +21,7 @@ import { settings, useSettings } from "./settings";
 import { SliceTool } from "./SliceTool";
 import { openInSoundtrack } from "./Soundtrack";
 import { useStable } from "./stable";
-import { Help, WikiLink } from "./Wiki";
+import { Help, WikiLink } from "./WikiLinks";
 import { useEditor, useLite, useShownTabs } from "./store";
 import { CatTag } from "./Tags";
 import { DEFAULT_SIZE, DENSITIES, scrollBehavior, useThemeValue } from "./theme";

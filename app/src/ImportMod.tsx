@@ -10,7 +10,7 @@ import { pickFolder, pickMod } from "./platform";
 import { settings } from "./settings";
 import { useEditor } from "./store";
 import { plainText } from "./TextTab";
-import { Help } from "./Wiki";
+import { Help } from "./WikiLinks";
 
 /** A mod as the core found it (Session.mod_scan): what its manifest says, its options and the choice they start
     with, and where new projects go. */

@@ -7,7 +7,7 @@ import { nav } from "./nav";
 import { pickAudio, pickFolder, pickMod, reveal } from "./platform";
 import { player, usePlayerLook } from "./player";
 import { useEditor } from "./store";
-import { Help } from "./Wiki";
+import { Help } from "./WikiLinks";
 
 /** A sound of the mod (Session.content_scan): its source ID, the name the Library gives it (none for a sound the game
     no longer has), the mod's banks that have it, and whether the current game has it. */

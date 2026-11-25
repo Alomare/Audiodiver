@@ -6,7 +6,7 @@ import { useDialog } from "./dialog";
 import { pickTextFile, pickTextToSave } from "./platform";
 import { useEditor } from "./store";
 import { TextPreview } from "./TextPreview";
-import { Help } from "./Wiki";
+import { Help } from "./WikiLinks";
 
 /** The Text tab's panels that work on many lines: Export to a file, Import it back, and Find and Replace. Import and
     Replace show what they would change before anything is, and apply as one undo step (core: editor.py text_*). */

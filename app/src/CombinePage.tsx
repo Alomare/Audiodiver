@@ -9,7 +9,7 @@ import { nav } from "./nav";
 import { pickFolder, pickMods, reveal } from "./platform";
 import { player, usePlayerLook } from "./player";
 import { useEditor } from "./store";
-import { Help } from "./Wiki";
+import { Help } from "./WikiLinks";
 
 /** What the core found in a mod (Session.combine_scan): its options as a mod manager shows them, and the default
     choice. `picks` holds the ids of the Options that are on; for an Option with SubOptions, the chosen one's id. */

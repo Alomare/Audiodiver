@@ -14,7 +14,7 @@ import { AudioIcon, CheckIcon, CollapseAllIcon, NoteIcon, PlusIcon, RemoveIcon, 
 import { CatMark } from "./Tags";
 import { motionMs, scrollBehavior } from "./theme";
 import { FOLD_LIBRARY, isArchive, useNav, type LibraryGame } from "./nav";
-import { Help } from "./Wiki";
+import { Help } from "./WikiLinks";
 
 type Filter = "all" | "mine" | "game";
 /** A top-level group of the tree: an Index category, or the archives a project lists. `flat`: it has one section,

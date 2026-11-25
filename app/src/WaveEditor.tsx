@@ -11,7 +11,7 @@ import { fullPath, pickAudio, pickAudioToSave } from "./platform";
 import { player, usePlayer } from "./player";
 import { useEditor } from "./store";
 import { useWaveZoom, WaveScroll, WaveZoom, wheelZoom, type WaveZoomState } from "./Waveform";
-import { Help } from "./Wiki";
+import { Help } from "./WikiLinks";
 
 /** The Waveform Editor: audio as blocks on a time line, so that basic editing needs no other program. Each block is
     a stretch of one file placed at a time of its own, with a fade in, a fade out and a gain. Blocks are trimmed at

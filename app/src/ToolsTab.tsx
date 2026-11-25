@@ -5,7 +5,7 @@ import { nav, useNav, type ToolsTab as ToolsSub } from "./nav";
 import { Page, tabArrows } from "./Page";
 import { PatchContentPage } from "./PatchContentPage";
 import { RepatchPage } from "./RepatchPage";
-import { Help } from "./Wiki";
+import { Help } from "./WikiLinks";
 
 const SUBS: [ToolsSub, string, string][] = [
   ["repatch", t`Repatch`, t`Rebuild an existing audio mod for the current game version`],

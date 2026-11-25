@@ -1,11 +1,10 @@
-// What the app shows that is written, not coded: the Wiki's pages (src/wiki/*.md), the changelog (CHANGELOG.md) and
-// the Home tab's background art (src/art/*). All of it is bundled at build time.
+// What the app shows that is written, not coded: the changelog (CHANGELOG.md) and the Home tab's background art
+// (src/art/*). All of it is bundled at build time. The Wiki's pages are in wikiPages.ts, which loads with the Wiki.
 import type { Token, Tokens } from "marked";
-import { i18n } from "@lingui/core";
 import { t } from "@lingui/core/macro";
 import changelog from "../CHANGELOG.md?raw";
 import { andList, intlLocale } from "./api";
-import { parse, type Doc } from "./Markdown";
+import { parse } from "./Markdown";
 
 export const APP_VERSION = __APP_VERSION__;
 /** A version as people read it: "1.0.0-beta.1" is "Beta 1"; a release keeps its number ("v1.2.0"). */
@@ -93,61 +92,19 @@ export const CREDITS: { group: string; items: Credit[] }[] = [
   ] },
 ];
 
-// ---- the Wiki. A page is one Markdown file, listed in file-name order ("20-preparing-audio.md" before "30-…"). It starts
-// with a few lines about itself:
-//
-//     ---
-//     title: Preparing the audio
-//     group: Making a mod          pages with the same group are listed together, groups in order of first use
-//     summary: One or two sentences shown under the title and in search.
-//     ---
-export type WikiPage = Doc & { id: string; title: string; group: string; summary: string };
-
-const sources = import.meta.glob("./wiki/*.md", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
-const pictures = import.meta.glob("./wiki/*.{png,jpg,jpeg,webp,gif}", { query: "?url", import: "default", eager: true }) as Record<string, string>;
-// A translated page has the English page's file name in a folder named for the language (wiki/pt-BR/20-….md). Only
-// the window's language loads (this module waits for it); a page not translated yet shows in English.
-const translations = import.meta.glob("./wiki/*/*.md", { query: "?raw", import: "default" }) as Record<string, () => Promise<string>>;
-const translated: Record<string, string> = Object.fromEntries(await Promise.all(Object.entries(translations)
-  .filter(([path]) => path.split("/")[2] === i18n.locale)
-  .map(async ([path, load]) => [`./wiki/${path.split("/")[3]}`, await load()] as const)));
-
-function page(path: string, source: string): WikiPage {
-  const name = path.split("/").pop()!.replace(/\.md$/, "");
-  const head = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/.exec(source);
-  const about: Record<string, string> = {};
-  for (const line of head?.[1].split(/\r?\n/) ?? []) {
-    const at = line.indexOf(":");
-    if (at > 0) about[line.slice(0, at).trim()] = line.slice(at + 1).trim();
-  }
-  // its Markdown is read when the page is first shown or searched, not as the app starts (all of them took 230 ms
-  // of a slow PC's start)
-  let doc: Doc | null = null;
-  const body = () => (doc ??= parse(head ? source.slice(head[0].length) : source));
-  return {
-    get tokens() { return body().tokens; }, get headings() { return body().headings; }, get text() { return body().text; },
-    id: name.replace(/^\d+-/, ""), title: about.title || name, group: about.group || "Guides", summary: about.summary || "",
-  };
-}
-
-export const WIKI: WikiPage[] = Object.keys(sources).sort().map((path) => page(path, translated[path] ?? sources[path]));
-/** The pages by group, groups in the order their first page comes. */
-export const WIKI_GROUPS: { name: string; pages: WikiPage[] }[] = [];
-for (const p of WIKI) {
-  let g = WIKI_GROUPS.find((x) => x.name === p.group);
-  if (!g) WIKI_GROUPS.push((g = { name: p.group, pages: [] }));
-  g.pages.push(p);
-}
-/** The URL of a picture a page shows with ![alt](name.png). */
-export const wikiPicture = (name: string) => pictures[`./wiki/${name.replace(/^\.\//, "")}`];
-
 // ---- the changelog: "## 0.2.0 - 2026-10-05" starts a release, newest first
 export type Release = { version: string; date: string; tokens: Token[] };
 
-export const RELEASES: Release[] = [];
-for (const t of parse(changelog).tokens) {
-  if (t.type === "heading" && (t as Tokens.Heading).depth === 2) {
-    const m = /^\[?v?([^\]\s]+)\]?(?:\s+[-–—]\s+(.+))?$/.exec((t as Tokens.Heading).text.trim());
-    RELEASES.push({ version: m?.[1] ?? (t as Tokens.Heading).text, date: m?.[2] ?? "", tokens: [] });
-  } else if (RELEASES.length) RELEASES[RELEASES.length - 1].tokens.push(t);
+let released: Release[] | null = null;
+/** The changelog's releases, read the first time the Updates tab asks (not as the app starts). */
+export function releases(): Release[] {
+  if (released) return released;
+  const out: Release[] = [];
+  for (const t of parse(changelog).tokens) {
+    if (t.type === "heading" && (t as Tokens.Heading).depth === 2) {
+      const m = /^\[?v?([^\]\s]+)\]?(?:\s+[-–—]\s+(.+))?$/.exec((t as Tokens.Heading).text.trim());
+      out.push({ version: m?.[1] ?? (t as Tokens.Heading).text, date: m?.[2] ?? "", tokens: [] });
+    } else if (out.length) out[out.length - 1].tokens.push(t);
+  }
+  return (released = out);
 }

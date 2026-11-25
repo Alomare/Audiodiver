@@ -13,7 +13,7 @@ import { pickAudio } from "./platform";
 import { useEditor } from "./store";
 import { CatMark, CatTag } from "./Tags";
 import { ToolButton } from "./Tools";
-import { Help } from "./Wiki";
+import { Help } from "./WikiLinks";
 
 const WAY = {
   in: t({ message: "Into", comment: "A transition into this music" }),

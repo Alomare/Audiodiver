@@ -1,4 +1,4 @@
-import { startTransition, useEffect, useRef, useState } from "react";
+import { lazy, startTransition, Suspense, useEffect, useRef, useState } from "react";
 import { t, plural } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { AboutButton, AboutDialog } from "./About";
@@ -26,7 +26,6 @@ import { ToolsTab } from "./ToolsTab";
 import { ScaleTipLayer, TooltipLayer } from "./Tooltip";
 import { UpdatePrompt, UpdatesTab } from "./UpdatesTab";
 import { updates, useUpdates } from "./updates";
-import { Wiki } from "./Wiki";
 import { waveDrop } from "./WaveEditor";
 import { call, fmtTime, gameState, iconUrl, intlLocale, type Job } from "./api";
 import { APP_NAME, UTILS } from "./edition";
@@ -42,6 +41,9 @@ import { RESET_LAYOUT, useSettings } from "./settings";
 import { barIsVertical, useThemeValue, type BarSide } from "./theme";
 import { actOn, EDIT_NAMES, Scope, useEditor, useShownTabs, type ScopeName, type ToastIcon } from "./store";
 import { rangeVars } from "./range";
+
+// the Wiki and its pages (some 600 kB of script) load the first time the Wiki opens, not with the app
+const Wiki = lazy(() => import("./Wiki").then((m) => ({ default: m.Wiki })));
 
 export function App() {
   const { status, connectError } = useEditor();
@@ -391,7 +393,7 @@ function Shell() {
         {tab === "tools" && <ToolsTab />}
         {tab === "updates" && <UpdatesTab />}
         {tab === "settings" && <SettingsTab />}
-        {tab === "wiki" && <Wiki />}
+        {tab === "wiki" && <Suspense fallback={null}><Wiki /></Suspense>}
       </div>
       <StatusBar />
       <Notices />

@@ -6,7 +6,7 @@ import { EVERY_BANK_PAGE } from "./content";
 import { nav } from "./nav";
 import { pickFolder, pickMods, reveal } from "./platform";
 import { useEditor } from "./store";
-import { Help } from "./Wiki";
+import { Help } from "./WikiLinks";
 
 /** What the core found in a mod (Session.repatch_scan). */
 type Scan = {

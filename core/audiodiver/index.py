@@ -24,7 +24,7 @@ from functools import cached_property
 from pathlib import Path
 
 from . import bank as wbank
-from .game import Game, WWISE_BANK, WWISE_STREAM, WWISE_DEP, murmur64_hash, stream_id
+from .game import Game, WWISE_BANK, WWISE_STREAM, WWISE_DEP, murmur64_hash, stream_id, stream_ids
 from . import host
 from .i18n import N_
 
@@ -123,18 +123,17 @@ class AudioIndex:
                 self.users.setdefault(s, set()).add(bid)
             if b.get("lang"):
                 spoken.append(b)
-        for b in spoken:
-            for sid in b["refs"]:
-                fid = stream_id(sid, b["lang"])
-                if fid in self.streams:
-                    self.language[sid] = b["lang"]
-                    self.stream_of[sid], self.by_stream[fid] = fid, sid
-        for sid in set(self.holders) | set(self.users):
-            if sid not in self.stream_of:
-                fid = stream_id(sid)
-                self.by_stream[fid] = sid
-                if fid in self.streams:
-                    self.stream_of[sid] = fid
+        # every sound's stream id, hashed in two batches (stream_ids): one by one, this was most of the index's start
+        pairs = [(sid, b["lang"]) for b in spoken for sid in b["refs"]]
+        for (sid, lang), fid in zip(pairs, stream_ids(pairs)):
+            if fid in self.streams:
+                self.language[sid] = lang
+                self.stream_of[sid], self.by_stream[fid] = fid, sid
+        rest = [sid for sid in set(self.holders) | set(self.users) if sid not in self.stream_of]
+        for sid, fid in zip(rest, stream_ids([(sid, "") for sid in rest])):
+            self.by_stream[fid] = sid
+            if fid in self.streams:
+                self.stream_of[sid] = fid
         # streams no bank plays: each is a sound of its own, known by its file id
         self.orphans = {fid for fid in self.streams if fid not in self.by_stream}
         self.by_archive = {}  # archive -> [bank ids]

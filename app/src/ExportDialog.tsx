@@ -8,7 +8,7 @@ import { addedNote, exportList, useExportList, type ExportEntry, type NewEntry, 
 import { FolderIcon } from "./Icons";
 import { pickFolder } from "./platform";
 import { useEditor } from "./store";
-import { Help } from "./Wiki";
+import { Help } from "./WikiLinks";
 
 export type SwitchGroup = { group: string; name: string; values: { value: string; name: string }[] };
 export type ExportOptions = {

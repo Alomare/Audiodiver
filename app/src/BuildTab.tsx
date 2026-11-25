@@ -10,7 +10,7 @@ import { LINUX, pickFolder, reveal } from "./platform";
 import { IconPreview } from "./ProjectTab";
 import { settings, useSettings } from "./settings";
 import { useEditor } from "./store";
-import { Help } from "./Wiki";
+import { Help } from "./WikiLinks";
 
 const fileName = (path: string) => path.split(/[\\/]/).pop()!;
 /** Problems that the Project tab fixes (the kinds of the core's Project.problem_list): the name, the icon, the mod
