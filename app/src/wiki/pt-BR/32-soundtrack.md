@@ -2,7 +2,7 @@
 title: Trilha Sonora
 group: Criando um mod
 summary: Como cada peça musical toca, na ordem original, como uma única música, como playlist, em silêncio ou como a música de batalha.
-source: 567d14475a70
+source: b8968eb37100
 ---
 
 O jogo não toca uma peça musical de cima para baixo. A playlist de uma peça mistura grupos que tocam em ordem, grupos que tocam o segmento seguinte a cada vez e grupos que escolhem ao acaso. A maioria das músicas de combate começa cada combate numa abertura curta, e um combate novo continua de onde o anterior parou. Uma música cortada nos slots na ordem da lista toca fora de ordem no jogo.
@@ -42,11 +42,11 @@ Desfazer reverte um modelo inteiro. Um modelo que não encontra nada para mudar 
 
 A lista continua depois do último pedaço com os segmentos que a música não alcança. Um arquivo em um deles toca depois da música e continua lá se você cortar a música de novo, a menos que um novo pedaço caia nesse segmento.
 
-**Alterar cortes** abre a ferramenta de fatiar de novo com a mesma música e os mesmos cortes. **Escolher outra música** começa com uma nova.
+**Alterar cortes** abre de novo a ferramenta de corte com a mesma música e os mesmos cortes. **Escolher outra música** começa com uma nova. **Editar música** abre a música no [Waveform Suite](wiki:timing-and-loops#the-waveform-suite) para cortar, aplicar fades ou organizar antes de ela ser dividida: **Salvar e cortar** salva o resultado como um novo arquivo na pasta `audio\edited` do projeto e abre a ferramenta de corte com ele. A música escolhida continua como está.
 
 ## Playlist {#playlist}
 
-Uma playlist tem uma linha para cada lugar onde uma música pode entrar, na ordem de reprodução. Clique num lugar, ou solte uma música nele, para colocar uma música ali. Vários arquivos escolhidos ou soltos num lugar preenchem esse lugar e os seguintes, na ordem dos nomes de arquivo. **Adicionar músicas** preenche os lugares vazios. Arraste uma música para outro lugar para movê-la, e as músicas entre os dois avançam um lugar. ↑ e ↓ na linha, ou {key:moveUp} e {key:moveDown}, movem uma música um lugar, e ✕ a tira da playlist. O arquivo continua no disco.
+Uma playlist tem uma linha para cada lugar onde uma música pode entrar, em ordem de reprodução. Clique em um lugar, ou solte uma música nele, para colocar uma música ali. Vários arquivos escolhidos ou soltos em um lugar preenchem esse lugar e os seguintes, em ordem de nome de arquivo. **Adicionar músicas** preenche os lugares vazios. Arraste uma música para outro lugar para movê-la, e as músicas entre eles andam um lugar. ↑ e ↓ na linha, ou {key:moveUp} e {key:moveDown}, movem uma música um lugar, e ✕ a tira da playlist. O arquivo continua no disco. O lápis abre a música no [Waveform Suite](wiki:timing-and-loops#the-waveform-suite): **Salvar e usar** salva o resultado como um novo arquivo em `audio\edited` e o coloca naquele lugar.
 
 Lugares vazios não tocam. **Ordem aleatória** toca as músicas numa ordem aleatória, e nenhuma música toca duas vezes antes que as outras tenham tocado. **Continuar no próximo combate** começa cada combate na música seguinte àquela em que o último combate parou. Sem isso, cada combate recomeça da primeira música. Para músicas fora de combate, a opção é **Continuar na próxima vez**.
 
@@ -89,4 +89,4 @@ A marca **repete** indica um grupo que toca de novo até a música mudar, e **3 
 
 ## Camadas {#layers}
 
-As músicas que tocam várias camadas ao mesmo tempo, como a música de Extração, as mostram numa grade: uma linha para cada segmento e uma coluna para cada camada em baixa e em alta intensidade. Clique numa célula para ver as formas de onda. Substitua as camadas na aba [Áudio](app:editor).
+Músicas que tocam várias camadas ao mesmo tempo, como a da Extração, aparecem em grade: uma linha para cada segmento e uma coluna para cada camada, em intensidade baixa e alta. Clique em uma célula para ver as formas de onda. Substitua camadas na aba [Áudio](app:editor), ou edite todas as camadas de um segmento juntas com o botão empilhado abaixo do lápis nas formas de onda (**Editar segmento**).

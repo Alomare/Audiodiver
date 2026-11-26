@@ -5713,14 +5713,18 @@ msgid "Never played, or do not touch"
 msgstr "Never played, or do not touch"
 
 #. Badge on a version newer than the installed one
-#. The new audio's waveform, under the original's
-#: src/Timeline.tsx
 #: src/UpdatesTab.tsx
 msgid "New"
 msgstr "New"
 
 #: src/SliceTool.tsx
 msgctxt "Column of the slice tool: how long the new piece is"
+msgid "New"
+msgstr "New"
+
+#. The new audio's waveform, under the original's
+#: src/Timeline.tsx
+msgctxt "waveform"
 msgid "New"
 msgstr "New"
 

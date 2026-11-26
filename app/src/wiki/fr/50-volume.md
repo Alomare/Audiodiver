@@ -2,7 +2,7 @@
 title: Make-Up Gain et le mixage
 group: Créer un mod
 summary: Régler le volume d’un emplacement, comment fonctionne le mixage HDR du jeu, et pourquoi certains écrans sonnent plus faible dans le jeu que dans Audiodiver.
-source: 5f03f242e197
+source: b91110b5d4cd
 ---
 
 ## Make-Up Gain par emplacement {#make-up-gain-per-slot}
@@ -71,7 +71,7 @@ C’est le jeu qui les applique, donc les aperçus et les formes d’onde d’Au
 
 ## Fondus {#fades}
 
-Le **fondu d’entrée** et le **fondu de sortie** sont en millisecondes, sous les formes d’onde et dans les détails d’un slot avec du nouvel audio. Sur la forme d’onde **Remplacé**, l’étiquette en haut de la ligne **Début** ou **Fin** fait glisser un fondu (voir [Rogner et déplacer le nouvel audio](wiki:timing-and-loops#trimming-and-moving-new-audio)). Les fondus sont intégrés à l’audio lui-même, donc la forme d’onde et l’aperçu les montrent, et la durée ne change pas. Un `.wem` qui passerait sans changement est encodé à nouveau quand il a un fondu.
+**Fondu d’entrée** et **Fondu de sortie** sont en millisecondes, dans les détails d’un emplacement avec du nouvel audio. [Waveform Suite](wiki:timing-and-loops#the-waveform-suite) applique des fondus à chaque bloc séparément, et un fondu tiré là-bas apparaît sur la ligne de temps pendant qu’on le règle. Avec plusieurs blocs, le panneau de détails règle le fondu d’entrée du premier bloc et le fondu de sortie du dernier. Les fondus vont dans l’audio lui-même, si bien que la forme d’onde et l’aperçu les montrent, et la durée ne change pas. Un `.wem` qui entrerait tel quel est réencodé quand il a un fondu.
 
 ## Filtre radio {#radio-filter}
 

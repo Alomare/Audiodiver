@@ -2,7 +2,7 @@
 title: Audiodiver의 작동 방식
 group: 시작하기
 summary: Audiodiver가 하는 일, 프로젝트란 무엇인지, 각 탭의 용도를 설명합니다.
-source: cc495476e4fc
+source: 41b735498457
 ---
 
 Audiodiver는 Helldivers 2의 오디오를 **무엇이고 어디서 재생되는지**를 기준으로 교체합니다. 라이브러리에서 곡이나 사운드 세트을 찾아 프로젝트에 추가하고 새 오디오를 넣습니다. 그러면 게임에 필요한 사운드 뱅크, ID, 타이밍 값은 Audiodiver가 알아서 계산합니다.
@@ -15,7 +15,7 @@ Audiodiver는 Helldivers 2의 오디오를 **무엇이고 어디서 재생되는
 
 변경 사항은 변경할 때마다 또는 몇 분마다 자동으로 저장됩니다([자동 저장](wiki:how-audiodiver-works#autosave)). {key:save}로 언제든 저장할 수 있고, {key:undo}로 마지막 변경을 취소합니다.
 
-Audiodiver는 게임 폴더에 아무것도 쓰지 않습니다. 게임 오디오는 Steam 라이브러리에서, 또는 [설정](app:settings/system)의 **게임**에서 고른 다른 폴더에서 읽습니다. 빌드하면 모드 관리자가 가져와 설치하는 ZIP이 만들어집니다.
+Audiodiver는 게임 폴더에 아무것도 쓰지 않습니다. 게임 오디오는 Steam 라이브러리나, [설정](app:settings/system)의 **게임**에서 고른 다른 폴더에서 읽습니다. Audiodiver가 Helldivers 1과 Helldivers 2를 읽는 동안에도 홈은 바로 열리며, 게임이 필요한 탭은 그 게임을 다 읽으면 나타납니다. 빌드하면 모드 관리자가 가져와 설치하는 ZIP이 만들어집니다.
 
 ## 탭 {#the-tabs}
 

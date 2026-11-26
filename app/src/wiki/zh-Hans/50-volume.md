@@ -2,7 +2,7 @@
 title: Make-Up Gain 与混音
 group: 制作模组
 summary: 如何设置槽位的响度，游戏的 HDR 混音如何工作，以及为什么有些界面在游戏中听起来比在 Audiodiver 中更轻。
-source: 5f03f242e197
+source: b91110b5d4cd
 ---
 
 ## 每个槽位的 Make-Up Gain {#make-up-gain-per-slot}
@@ -71,7 +71,7 @@ Audiodiver 设置的是 Make-Up Gain，它只改变响度。详情中的数值�
 
 ## 淡入淡出 {#fades}
 
-**淡入**和**淡出**以毫秒为单位，在波形下方和有新音频的槽位详情中设置。在**已替换**波形上，拖动**开始**或**结束**线顶端的标签即可添加淡入淡出（见[裁剪和移动新音频](wiki:timing-and-loops#trimming-and-moving-new-audio)）。淡入淡出会写入音频本身，因此波形和预览都会显示，长度不变。原本可直接放入的 `.wem` 在设置淡入淡出后会重新编码。
+**淡入** 和 **淡出** 以毫秒为单位，位于有新音频的槽位的详细信息中。[Waveform Suite](wiki:timing-and-loops#the-waveform-suite) 对每个块分别淡入淡出，在那里拖动的淡入淡出会在设置时显示在时间线上。有多个块时，详细信息面板设置第一个块的淡入和最后一个块的淡出。淡入淡出会写入音频本身，因此波形和预览会显示它们，长度不变。本会原样放入的 `.wem` 在有淡入淡出时会重新编码。
 
 ## 无线电滤镜 {#radio-filter}
 

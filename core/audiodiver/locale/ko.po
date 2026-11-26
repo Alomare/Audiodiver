@@ -384,6 +384,23 @@ msgid "text: table {table} is not in this game version; the {n} line changed in 
 msgid_plural "text: table {table} is not in this game version; the {n} lines changed in it are left out"
 msgstr[0] "텍스트: 테이블 {table}이(가) 이 게임 버전에 없어, 그 테이블에서 바꾼 줄 {n}개가 제외됩니다"
 
+#: build.py
+msgid "{name}: the image can't be used ({why})"
+msgstr "{name}: 이미지를 쓸 수 없습니다({why})"
+
+#: build.py
+msgid "Building {group}: {option}"
+msgstr "{group}: {option} 빌드 중"
+
+#: build.py
+msgid "{group} ▸ {option}: {n} asset, {mb} MB"
+msgid_plural "{group} ▸ {option}: {n} assets, {mb} MB"
+msgstr[0] "{group} ▸ {option}: 에셋 {n}개, {mb} MB"
+
+#: build.py
+msgid "{group} ▸ {option}: the same as the base mod, so it deploys nothing"
+msgstr "{group} ▸ {option}: 기본 모드와 같아서 배포할 것이 없습니다"
+
 #: build.py editor.py
 msgid "Can't write the ZIP into {folder}: {why}"
 msgstr "{folder}에 ZIP을 쓸 수 없습니다: {why}"
@@ -492,7 +509,7 @@ msgstr "다음 모드를 합쳤습니다:"
 msgid "Setting {id}"
 msgstr "설정 {id}"
 
-#: combine.py
+#: combine.py editor.py
 msgid "Option {n}"
 msgstr "옵션 {n}"
 
@@ -622,6 +639,18 @@ msgid "This slot has no new audio to trim"
 msgstr "이 슬롯에는 다듬을 새 오디오가 없습니다"
 
 #: editor.py
+msgid "Nothing to export. Tick a layer with audio, or the original"
+msgstr "내보낼 것이 없습니다. 오디오가 있는 레이어나 원본을 체크하세요"
+
+#: editor.py
+msgid "Nothing to save. Add audio to the time line first"
+msgstr "저장할 것이 없습니다. 먼저 타임라인에 오디오를 추가하세요"
+
+#: editor.py
+msgid "This slot has no new audio to edit"
+msgstr "이 슬롯에는 편집할 새 오디오가 없습니다"
+
+#: editor.py
 msgid "That folder is inside the game folder, and Audiodiver never writes there. Choose another folder, and import the ZIP in a mod manager."
 msgstr "그 폴더는 게임 폴더 안에 있으며, Audiodiver는 그곳에 쓰지 않습니다. 다른 폴더를 선택하고, 모드 관리자에서 ZIP을 가져오세요."
 
@@ -680,6 +709,26 @@ msgstr "팩을 저장할 위치를 선택하세요(전체 경로)"
 #: editor.py
 msgid "Choose where to unpack it (a full path)"
 msgstr "압축을 풀 위치를 선택하세요(전체 경로)"
+
+#: editor.py
+msgid "That group isn't in the project any more"
+msgstr "그 그룹은 더 이상 프로젝트에 없습니다"
+
+#: editor.py
+msgid "That option isn't in the project any more"
+msgstr "그 옵션은 더 이상 프로젝트에 없습니다"
+
+#: editor.py
+msgid "An option's gain is from −12 to +12 dB"
+msgstr "옵션의 게인은 −12~+12 dB입니다"
+
+#: editor.py
+msgid "Choose the changes to undo"
+msgstr "취소할 변경 사항을 고르세요"
+
+#: editor.py
+msgid "No image"
+msgstr "이미지 없음"
 
 #: editor.py
 msgid "Choose a mod's .patch_0 file"
@@ -873,6 +922,10 @@ msgid "The game files are still changing. Audiodiver reads them again when Steam
 msgstr "게임 파일이 아직 바뀌는 중입니다. Steam이 끝나면 Audiodiver가 다시 읽습니다."
 
 #: editor.py
+msgid "Helldivers 1 is still being read. Try again in a moment."
+msgstr "Helldivers 1을 아직 읽는 중입니다. 잠시 후 다시 시도하세요."
+
+#: editor.py
 msgid "A new take has no original audio"
 msgstr "새 테이크에는 원본 오디오가 없습니다"
 
@@ -924,6 +977,18 @@ msgstr "폴더가 아니라 파일입니다"
 msgid "{n} file packed into {pack}"
 msgid_plural "{n} files packed into {pack}"
 msgstr[0] "파일 {n}개를 {pack}에 묶었습니다"
+
+#: editor.py
+msgid "A group"
+msgstr "그룹"
+
+#: editor.py
+msgid "Option 1"
+msgstr "옵션 1"
+
+#: editor.py
+msgid "An option"
+msgstr "옵션"
 
 #: editor.py
 msgid "Nothing to build yet. Replace some audio, set a piece in the Soundtrack or change a line of text first."
@@ -1027,6 +1092,10 @@ msgid "{file} makes a mod for Helldivers 1, which wasn't found. Choose the Helld
 msgstr "{file}은(는) Helldivers 1용 모드를 만드는데, Helldivers 1을 찾을 수 없습니다. 설정 ▸ 시스템에서 Helldivers 1 폴더를 선택하세요."
 
 #: editor.py
+msgid "{file} makes a mod for Helldivers 2, which wasn't found. Choose the game folder in Settings ▸ System."
+msgstr "{file}은(는) Helldivers 2용 모드를 만드는데, Helldivers 2를 찾지 못했습니다. 설정 ▸ 시스템에서 게임 폴더를 고르세요."
+
+#: editor.py
 msgid "Sound {sound} doesn't play {source}"
 msgstr "사운드 {sound}은(는) {source}을(를) 재생하지 않습니다"
 
@@ -1047,6 +1116,14 @@ msgid "{name}: can't read the audio file ({file})"
 msgstr "{name}: 오디오 파일을 읽을 수 없습니다({file})"
 
 #: editor.py
+msgid "Go back to the base mod to add takes or layers, or to isolate audio"
+msgstr "테이크나 레이어를 추가하거나 오디오를 분리하려면 기본 모드로 돌아가세요"
+
+#: editor.py
+msgid "This slot's bank already has sounds of the group {other}. Two groups can't change one bank in Helldivers 2 mod managers: change it in {other} instead, or in the base mod. (It would have gone into {name}.)"
+msgstr "이 슬롯의 뱅크에는 이미 그룹 {other}의 사운드가 있습니다. Helldivers 2 모드 관리자에서는 두 그룹이 한 뱅크를 바꿀 수 없습니다. {other} 또는 기본 모드에서 바꾸세요. ({name}에 들어갈 뻔했습니다.)"
+
+#: editor.py
 msgid "{file} is not an audio file Audiodiver can read"
 msgstr "{file}은(는) Audiodiver가 읽을 수 있는 오디오 파일이 아닙니다"
 
@@ -1059,8 +1136,16 @@ msgid "The audio must play for at least {ms} ms"
 msgstr "오디오는 최소 {ms} ms 동안 재생되어야 합니다"
 
 #: editor.py
+msgid "The Waveform Suite sends up to {n} blocks"
+msgstr "Waveform Suite는 블록을 최대 {n}개까지 보냅니다"
+
+#: editor.py
 msgid "{folder} is not a folder"
 msgstr "{folder}은(는) 폴더가 아닙니다"
+
+#: editor.py
+msgid "Segments {ids} aren't in this piece of music"
+msgstr "세그먼트 {ids}이(가) 이 곡에 없습니다"
 
 #: editor.py
 msgid "The version is a whole number from 1 to 99999"
@@ -1078,6 +1163,18 @@ msgstr "{folder}에 압축을 풀었습니다"
 #: editor.py
 msgid "No job {id}"
 msgstr "작업 {id}이(가) 없습니다"
+
+#: editor.py
+msgid "{what} needs a name"
+msgstr "{what}에는 이름이 필요합니다"
+
+#: editor.py
+msgid "Keep it to {n} characters on one line"
+msgstr "한 줄에 {n}자 이내로 쓰세요"
+
+#: editor.py
+msgid "Group {n}"
+msgstr "그룹 {n}"
 
 #: editor.py
 msgid "{file} isn't a patch file. Choose a .patch_0 file. Audiodiver also reads the .stream file next to it."
@@ -1150,10 +1247,6 @@ msgstr[0] "충돌 {n}개"
 #: editor.py
 msgid "{id} is not a piece of music. Only music has segments to mix and play through."
 msgstr "{id}은(는) 곡이 아닙니다. 믹스하고 이어서 재생할 세그먼트는 음악에만 있습니다."
-
-#: editor.py
-msgid "Segments {ids} aren't in this piece of music"
-msgstr "세그먼트 {ids}이(가) 이 곡에 없습니다"
 
 #: editor.py
 msgid "Items {ids} aren't in this piece of music"
@@ -1231,6 +1324,18 @@ msgid "Start, end and delay are from 0 to {ms} ms"
 msgstr "시작, 끝, 지연 시간은 0~{ms} ms입니다"
 
 #: editor.py
+msgid "A block of the Waveform Suite is out of range ({what})"
+msgstr "Waveform Suite의 블록이 범위를 벗어났습니다({what})"
+
+#: editor.py
+msgid "A volume curve has up to {n} points, each a time and a level"
+msgstr "볼륨 곡선의 점은 최대 {n}개이며, 각각 시간과 레벨을 가집니다"
+
+#: editor.py
+msgid "{file} couldn't be written: {why}"
+msgstr "{file}을(를) 쓰지 못했습니다: {why}"
+
+#: editor.py
 msgid "{file} can't be read, so global notes can't be shown or saved. Fix or move the file, or choose another folder in Settings ▸ System."
 msgstr "{file}을(를) 읽을 수 없어 전역 메모를 표시하거나 저장할 수 없습니다. 파일을 고치거나 옮기거나, 설정 ▸ 시스템에서 다른 폴더를 선택하세요."
 
@@ -1249,6 +1354,22 @@ msgstr "메모를 저장할 수 없습니다: {why}"
 #: editor.py
 msgid "{file} isn't a notes file or an Audiodiver project"
 msgstr "{file}은(는) 메모 파일이나 Audiodiver 프로젝트가 아닙니다"
+
+#: editor.py
+msgid "{file} is too large to use as an image"
+msgstr "{file}은(는) 이미지로 쓰기에 너무 큽니다"
+
+#: editor.py
+msgid "A mod can have up to {n} groups"
+msgstr "모드에는 그룹을 최대 {n}개까지 만들 수 있습니다"
+
+#: editor.py
+msgid "A group can have up to {n} options"
+msgstr "그룹에는 옵션을 최대 {n}개까지 만들 수 있습니다"
+
+#: editor.py
+msgid "Stem {n}"
+msgstr "스템 {n}"
 
 #: editor.py
 msgid "Fix the problems on the Build tab first: {problem} (and {n} more)"
@@ -1347,6 +1468,10 @@ msgid "That isn't a mod ID (a GUID like 3f2a…-…)"
 msgstr "모드 ID가 아닙니다(3f2a…-… 같은 GUID)"
 
 #: editor.py
+msgid "A mod ID has up to 64 lowercase letters, digits, dots, dashes and underscores, such as name.mymod"
+msgstr "모드 ID는 소문자, 숫자, 마침표, 하이픈, 밑줄로 최대 64자입니다(예: name.mymod)"
+
+#: editor.py
 msgid "{item}, clip {id}"
 msgstr "{item}, 클립 {id}"
 
@@ -1422,10 +1547,6 @@ msgid_plural "{n} files besides audio that a later mod replaces"
 msgstr[0] "나중 모드가 교체하는 오디오 외 파일 {n}개"
 
 #: editor.py
-msgid "Loudness analysis: {why}"
-msgstr "라우드니스 분석: {why}"
-
-#: editor.py
 msgid "the icon ({why})"
 msgstr "아이콘({why})"
 
@@ -1444,6 +1565,10 @@ msgstr "세그먼트"
 #: editor.py
 msgid "{segment}, {n} of {total}"
 msgstr "{segment}, {total}개 중 {n}번째"
+
+#: editor.py
+msgid "Loudness analysis: {why}"
+msgstr "라우드니스 분석: {why}"
 
 #: editor.py
 msgid "segment"
@@ -1540,6 +1665,10 @@ msgstr "{folder}을(를) 찾을 수 없습니다"
 #: game.py
 msgid "The HD2_DATA environment variable points to {folder}, which has no Helldivers 2 files"
 msgstr "HD2_DATA 환경 변수가 {folder}을(를) 가리키지만, 그곳에 Helldivers 2 파일이 없습니다"
+
+#: hd1.py
+msgid "Not Named Yet"
+msgstr "아직 이름 없음"
 
 #: hd1.py textsort.py
 msgid "Missions"
@@ -1694,6 +1823,14 @@ msgid "All Archives"
 msgstr "모든 아카이브"
 
 #: hd1.py
+msgid "Event {id}"
+msgstr "이벤트 {id}"
+
+#: hd1.py
+msgid "Played by {owner}"
+msgstr "{owner}이(가) 재생"
+
+#: hd1.py
 msgid "{n} languages"
 msgstr "{n}개 언어"
 
@@ -1708,10 +1845,6 @@ msgstr "끝"
 #: hd1.py library.py
 msgid "Take {n}"
 msgstr "테이크 {n}"
-
-#: hd1.py
-msgid "Event {id}"
-msgstr "이벤트 {id}"
 
 #: hd1_build.py
 msgid "Nothing to build yet. Replace some audio first."
@@ -1742,6 +1875,10 @@ msgstr[0] "교체한 사운드 {n}개가 이 버전의 Helldivers 1에 없습니
 #: hd1_build.py
 msgid "encoding {name}"
 msgstr "{name} 인코딩 중"
+
+#: hd1_build.py
+msgid "The groups {names} change the same sounds in {n} ways, more than a mod can hold. Narrow them to fewer sounds."
+msgstr "그룹 {names}이(가) 같은 사운드를 {n}가지로 바꿔 한 모드에 담을 수 없습니다. 대상 사운드를 줄이세요."
 
 #: index.py
 msgid "English"
@@ -2082,6 +2219,34 @@ msgstr "메모는 최대 {n}자까지 쓸 수 있습니다"
 msgid "No notes."
 msgstr "메모 없음."
 
+#: options.py
+msgid "the options for players"
+msgstr "플레이어용 옵션"
+
+#: options.py
+msgid "the group {name}"
+msgstr "그룹 {name}"
+
+#: options.py
+msgid "Pick an option of the group the changes go to first"
+msgstr "먼저 변경 사항이 들어갈 그룹의 옵션을 고르세요"
+
+#: options.py
+msgid "slot {id}"
+msgstr "슬롯 {id}"
+
+#: options.py
+msgid "Choose where changes to {name} go"
+msgstr "{name}의 변경 사항이 들어갈 곳을 고르세요"
+
+#: options.py
+msgid "{name} belongs to the group {group}. Edit an option of {group} to change it"
+msgstr "{name}은(는) 그룹 {group}에 속합니다. 바꾸려면 {group}의 옵션을 편집하세요"
+
+#: options.py
+msgid "the cue points of segment {id}"
+msgstr "세그먼트 {id}의 큐 포인트"
+
 #: patch.py
 msgid "{file} is missing"
 msgstr "{file}이(가) 없습니다"
@@ -2224,12 +2389,20 @@ msgid "The project in {pack} is damaged (a cue point, a text change, added audio
 msgstr "{pack} 안의 프로젝트가 손상되었습니다(큐 포인트, 텍스트 변경, 추가한 오디오 또는 설정)"
 
 #: project.py
+msgid "the mod ID"
+msgstr "모드 ID"
+
+#: project.py
 msgid "a note"
 msgstr "메모"
 
 #: project.py
 msgid "the tabs"
 msgstr "탭"
+
+#: project.py
+msgid "the authors"
+msgstr "제작자"
 
 #: project.py
 msgid "the label of {name}"
@@ -2332,16 +2505,20 @@ msgid "{name}: same target as {other}"
 msgstr "{name}: {other}와(과) 대상이 같음"
 
 #: project.py
-msgid "{name}: the audio file wasn't found ({path})"
-msgstr "{name}: 오디오 파일을 찾을 수 없음({path})"
-
-#: project.py
 msgid "segment {id}: unknown overrides {keys}"
 msgstr "세그먼트 {id}: 알 수 없는 재정의 {keys}"
 
 #: project.py
 msgid "the imported mods' banks"
 msgstr "가져온 모드의 뱅크"
+
+#: project.py
+msgid "{name}: the audio file wasn't found ({path})"
+msgstr "{name}: 오디오 파일을 찾을 수 없음({path})"
+
+#: project.py
+msgid "{name}: image not found ({path})"
+msgstr "{name}: 이미지를 찾을 수 없음({path})"
 
 #: project.py
 msgid "the filters of sound {id}"

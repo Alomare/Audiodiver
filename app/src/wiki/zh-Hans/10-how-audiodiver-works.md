@@ -2,7 +2,7 @@
 title: Audiodiver 的工作方式
 group: 入门
 summary: Audiodiver 做什么、项目是什么，以及每个选项卡的用途。
-source: cc495476e4fc
+source: 41b735498457
 ---
 
 Audiodiver 按照**它是什么、在哪里播放**来替换 Helldivers 2 的音频。在资源库中找到一首曲目或一组声音，将其添加到项目中，再为它提供新音频。之后，Audiodiver 会算出游戏所需的音频库、ID 和时序值。
@@ -15,7 +15,7 @@ Audiodiver 按照**它是什么、在哪里播放**来替换 Helldivers 2 的音
 
 更改会自动保存：要么每次改动就存一次，要么每隔几分钟存一次（[自动保存](wiki:how-audiodiver-works#autosave)）。{key:save} 可随时保存，{key:undo} 可撤销上一次更改。
 
-Audiodiver 从不写入游戏文件夹。它从 Steam 库读取游戏音频，或者从[设置](app:settings/system)**游戏**下选定的另一个文件夹读取。构建会生成一个 ZIP，由模组管理器导入并安装。
+Audiodiver 从不写入游戏文件夹。它从 Steam 库中读取游戏音频，或从[设置](app:settings/system)中 **游戏** 处选择的其他文件夹读取。Audiodiver 读取 Helldivers 1 和 Helldivers 2 时，主页会立即打开，需要游戏的标签页会在该游戏读取完成后出现。构建会生成一个 ZIP，由模组管理器导入并安装。
 
 ## 各个选项卡 {#the-tabs}
 

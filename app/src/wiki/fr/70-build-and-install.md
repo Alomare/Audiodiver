@@ -2,7 +2,7 @@
 title: Génération et installation
 group: Générer et partager
 summary: Ce que produit une génération, comment l’installer avec un gestionnaire de mods, et comment les mises à jour parviennent au mod installé.
-source: 1511bf82abe2
+source: d021a368c53c
 ---
 
 ## Générer {#building}
@@ -31,7 +31,7 @@ N’utilisez que des lettres, des chiffres et des espaces dans le nom, et laisse
 
 ### Icône {#icon}
 
-L’icône est l’icône Audiodiver par défaut jusqu’à ce que vous choisissiez une image. Une image est recadrée en carré autour du centre et redimensionnée à 540 × 540, la taille que les gestionnaires de mods utilisent. Vous pouvez aussi déposer une image sur l’aperçu. **Contour**, **Couleur du contour** et **Coins** encadrent l’icône, par défaut ou choisie.
+L’icône est l’icône par défaut d’Audiodiver tant que vous ne choisissez pas d’image. Une image est recadrée en carré autour du centre et redimensionnée en 540 × 540, la taille qu’utilisent les gestionnaires de mods. Vous pouvez aussi déposer une image sur l’aperçu. **Couleur de l’icône** règle la couleur du logo de l’icône par défaut. **Épaisseur de la bordure**, **Arrondi des coins de la bordure** et **Couleur du contour** encadrent l’icône, par défaut ou choisie.
 
 ### ID du mod {#mod-id}
 

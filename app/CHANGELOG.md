@@ -3,6 +3,49 @@
 The Updates tab shows this file. Each release starts with a second-level heading, `<version> - <date>`,
 newest first.
 
+## 2.0.0 - 2026-11-26
+
+### Highlights
+
+#### Options for Players
+
+A mod can now give players choices in the mod manager. On the Project tab, **Options for Players** adds groups such as Liberator Fire or Volume. Each group has options to pick one of, for example one of five sounds for a weapon, or a louder and a quieter mod. Players tick a group and pick an option, or leave the group unticked to keep those sounds as they were. Each group and option has a name, a description, an image and a code such as A2.
+
+**Select** on an option makes the Audio tab edit that option, and the menu over the Audio tab switches between the base mod and any option. **Changes** lists what an option changes from the rest of the mod, with an undo for each. A build ships only what each option changes, for Helldivers 2 mod managers and for Obsidian.
+
+Audiodiver 1.x can't open a project with Options for Players, since it would lose the groups. Other projects still open in 1.x.
+
+#### Waveform Suite
+
+The pencil beside each waveform opens the Waveform Suite, an audio editor inside Audiodiver. Audio sits on a time line as blocks on layers: trim, split, move, duplicate and normalize them, fade them in and out, and draw volume curves over them. One slot can be built from several files, from the original, or from slots copied in the list. On music, a segment's cue points stand on the time line to drag, **Play in Context** plays the segment between the ones around it, and **Edit Segment** opens every slot of a segment together. **Export** mixes the result into a WAV, FLAC, MP3 or Ogg file. In the Soundtrack, **Edit Song** opens a song before it is cut. The trim handles and fields of 1.8.0 moved into it.
+
+#### Faster start, both games side by side
+
+Audiodiver opens on Home at once while it reads Helldivers 1 and Helldivers 2 side by side, and reads the game about three times faster. The game switch shows each game as being read, not found or ready, with a way to choose the folder of a game that wasn't found. Helldivers 1 mods work without Helldivers 2 installed.
+
+### Additions
+
+- Added the authors and the mod ID to the Project tab of a Helldivers 1 mod, so Obsidian shows them and a build can update a mod made before.
+- Added **Icon colour** for the logo on the default icon.
+- Added **Copy Original Audio** to the slot menu, and a copy button beside the **Old** and **New** waveforms.
+- Added 39 more Helldivers 1 sound names. Sounds still without a name show at the end of each category under Not Named Yet.
+
+### Changes
+
+- The waveforms under the slots are named **Old** and **New**.
+- The screen shown while Audiodiver starts has the logo, the name and the version, and no longer shows the wait as a problem.
+- Home puts the game switch above New Project, with each game's skull, and opens on the game used last.
+- Import Patches and Close Project sit beside the Project title, and the icon settings read Icon colour, Border size, Border corner radius and Border colour.
+- About ▸ Credits lists 7-Zip and oggenc with aoTuV, which come with Audiodiver.
+
+### Bug Fixes
+
+- Fixed new text showing as short codes instead of words.
+- Fixed Helldivers 1 builds failing with "Access is denied" when one audio file filled several slots in a project that was just moved or renamed.
+- Fixed audio files kept outside the project folder showing as missing when the project sits in a deep folder with a long name.
+- Fixed a slot played again after a change of trim or fades cutting off early until Stop was pressed.
+- Fixed Paste from the menu of a slot not yet selected pasting into the old selection.
+
 ## 1.8.0 - 2026-11-17
 
 ### Highlights

@@ -2,7 +2,7 @@
 title: Banda Sonora
 group: Crear un mod
 summary: Cómo se reproduce cada pieza de música: en el orden original, como una sola canción, como lista de reproducción, en silencio o como la música de batalla.
-source: 567d14475a70
+source: b8968eb37100
 ---
 
 El juego no reproduce una pieza de música de arriba abajo. La lista de reproducción de una pieza combina grupos que suenan en orden, grupos que reproducen cada vez el siguiente segmento y grupos que eligen al azar. La mayor parte de la música de combate empieza cada combate con una intro corta, y un combate nuevo continúa desde donde se detuvo el último. Una canción cortada en los slots en el orden de la lista suena desordenada en el juego.
@@ -42,11 +42,11 @@ Deshacer revierte una plantilla entera. Una plantilla que no encuentra nada que 
 
 La lista sigue después del último trozo con los segmentos a los que no llega la canción. Un fichero en uno de ellos suena después de la canción y se queda ahí si vuelves a cortar la canción, salvo que un trozo nuevo caiga en ese segmento.
 
-**Cambiar cortes** vuelve a abrir la herramienta de corte con la misma canción y los mismos cortes. **Elegir otra canción** empieza con una nueva.
+**Cambiar cortes** vuelve a abrir la herramienta de corte con la misma canción y los mismos cortes. **Elegir otra canción** empieza con una nueva. **Editar canción** abre la canción en [Waveform Suite](wiki:timing-and-loops#the-waveform-suite) para recortarla, aplicar fundidos u ordenarla antes de cortarla: **Guardar y cortar** guarda el resultado como un fichero nuevo en la carpeta `audio\edited` del proyecto y abre con él la herramienta de corte. La canción que elegiste se queda como está.
 
 ## Lista de reproducción {#playlist}
 
-Una lista de reproducción tiene una línea para cada lugar en el que puede ir una canción, en orden de reproducción. Haz clic en un lugar, o suelta una canción en él, para poner una canción allí. Varios ficheros elegidos o soltados en un lugar lo rellenan, y también los lugares siguientes, en orden de nombre de fichero. **Añadir canciones** rellena los lugares vacíos. Arrastra una canción a otro lugar para moverla, y las canciones intermedias se desplazan un lugar. ↑ y ↓ en la línea, o {key:moveUp} y {key:moveDown}, mueven una canción un lugar, y ✕ la saca de la lista de reproducción. El fichero se queda en el disco.
+Una lista de reproducción tiene una línea por cada lugar donde puede ir una canción, en orden de reproducción. Haz clic en un lugar, o suelta una canción en él, para poner una canción ahí. Varios ficheros elegidos o soltados en un lugar lo llenan a él y a los siguientes, por orden de nombre de fichero. **Añadir canciones** llena los lugares vacíos. Arrastra una canción a otro lugar para moverla, y las canciones intermedias se desplazan un lugar. ↑ y ↓ en la línea, o {key:moveUp} y {key:moveDown}, mueven una canción un lugar, y ✕ la quita de la lista. El fichero se queda en el disco. El lápiz abre la canción en [Waveform Suite](wiki:timing-and-loops#the-waveform-suite): **Guardar y usar** guarda el resultado como un fichero nuevo en `audio\edited` y lo pone en ese lugar.
 
 Los lugares vacíos no suenan. **Aleatorio** reproduce las canciones en orden aleatorio, y ninguna canción suena dos veces antes de que hayan sonado las demás. **Continuar en el siguiente combate** empieza cada combate con la canción siguiente a aquella en la que se detuvo el último combate. Sin esta opción, cada combate vuelve a empezar desde la primera canción. Para la música fuera del combate, la opción es **Continuar la próxima vez**.
 
@@ -89,4 +89,4 @@ Los segmentos de un grupo se unen según lo que significa el grupo: → para en 
 
 ## Capas {#layers}
 
-La música que reproduce varias capas a la vez, como la música de Extracción, las muestra en una cuadrícula: una fila por cada segmento y una columna por cada capa en intensidad baja y alta. Haz clic en una celda para ver las formas de onda. Sustituye las capas en la pestaña [Audio](app:editor).
+La música que suena con varias capas a la vez, como la de la Extracción, las muestra en una cuadrícula: una fila por segmento y una columna por capa, a intensidad baja y alta. Haz clic en una celda para ver las formas de onda. Sustituye capas en la pestaña [Audio](app:editor), o edita todas las capas de un segmento a la vez con el botón apilado bajo el lápiz en las formas de onda (**Editar segmento**).

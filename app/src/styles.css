@@ -2437,7 +2437,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .wave-ed-cues { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); font-size: calc(12px * var(--fs)); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .wave-ed-cues b { color: var(--text); font-weight: 600; }
 .wave-ed-dot { width: 6px; height: 6px; margin-left: 4px; border-radius: 50%; background: var(--accent-fg); }
-.wave-ed-time { font-size: calc(14px * var(--fs)); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--second-fg); }
+.wave-ed-time { font-size: calc(14px * var(--fs)); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--second-fg); white-space: nowrap; }
 /* the lanes with the zoom, and the selected block's values in a column to their right */
 .wave-ed-main { display: grid; grid-template-columns: minmax(0, 1fr) calc(244px * var(--fs)); gap: 14px; align-items: start; }
 .wave-ed-body { min-width: 0; }

@@ -48,9 +48,15 @@
 
 ### 📁 Project
 
-The mod's name, description, icon and ID, with a preview as a mod manager shows them. **Options for Players** adds groups that players tick in the mod manager, each with options to pick from, such as one of five sounds for a weapon or a louder and a quieter mod. **Select** on an option, or the menu over the Audio tab, makes the Audio tab edit it, **Changes** lists what it changes with an undo for each, and a build ships only what each option changes. The project folder has **Collect Files**, a clean-up to the Recycle Bin (the trash on Linux), and packs (`.audipack`) for another computer.
+The mod's name, description, icon and ID, with a preview as a mod manager shows them. The default icon takes any colour, with a border and rounded corners. The project folder has **Collect Files**, a clean-up to the Recycle Bin (the trash on Linux), and packs (`.audipack`) for another computer.
 
-<img src="assets/readme/project.png" alt="The Project tab: the name, description, icon and mod ID, beside a preview of the mod in a mod manager with Import Patches and Close Project above it" width="100%">
+<img src="assets/readme/project.png" alt="The Project tab: Import Patches and Close Project beside the title, the name and description, Options for Players, the icon settings and the mod ID, beside a preview of the mod in a mod manager" width="100%">
+
+### 🎛️ Options for Players
+
+Groups that players tick in the mod manager, each with options to pick one of: one of five sounds for a weapon, the original or the new music, or a louder and a quieter mod. Each group and option has a name, a description and an image, and a code such as A2. **Select** on an option, or the menu over the Audio tab, makes the Audio tab edit that option, and **Changes** lists what it changes from the rest of the mod, with an undo for each. A build ships only what each option changes, for Helldivers 2 mod managers and for Obsidian.
+
+<img src="assets/readme/options.png" alt="Options for Players on the Project tab: a Volume group with an image of bars, then the options Normal, Louder at +3 dB and Quieter at −3 dB, each with an image, a code from A1 to A3 and a Select button; Louder is selected and highlighted" width="100%">
 
 ### 📚 Library
 
@@ -60,9 +66,15 @@ Every sound in Helldivers 2, sorted. Music goes by when it plays, from the ship 
 
 ### 🎚️ Audio
 
-The music and sounds of a project, one slot per clip. An audio file dropped on a slot, a sound or a whole piece replaces the original, and **Slice a song** cuts one song across a whole piece, or a stretch of it for a sound. Slots take silence and Make-Up Gain too, and sounds can get new takes and layers. Under the slots, the original and the new audio are drawn on one time scale, with a zoom in time and level. The pencil beside them opens the **Waveform Suite**: trim, split, move and fade audio as blocks on layers, draw volume curves, put several files in one slot, drag a music segment's cue points and hear it between the segments around it, then export the result or apply it to the slot.
+The music and sounds of a project, one slot per clip. An audio file dropped on a slot, a sound or a whole piece replaces the original, and **Slice a song** cuts one song across a whole piece, or a stretch of it for a sound. Slots take silence and Make-Up Gain too, and sounds can get new takes and layers. Under the slots, the original and the new audio are drawn on one time scale as **Old** and **New**, with a zoom in time and level, a button to copy each and a pencil that opens the Waveform Suite.
 
-<img src="assets/readme/audio.png" alt="Loadout Selection on the Audio tab: slots with new audio, the selected one ticked, the original and new waveforms of that slot on one time scale with the zoom sliders beside them, the new audio's Start and End lines bent into a fade in and a fade out, the Start, End, Delay and fade fields in ms under them, and the slot settings on the right down to the Project Note and the Global Note" width="100%">
+<img src="assets/readme/audio.png" alt="Loadout Selection on the Audio tab: slots with new audio, the selected one ticked, the Old and New waveforms of that slot on one time scale with copy and pencil buttons and the zoom sliders, and the slot settings on the right with Make-Up Gain, filters, fades and the cue points" width="100%">
+
+### 🌊 Waveform Suite
+
+An audio editor inside Audiodiver. Trim, split, move and fade audio as blocks on layers, draw volume curves, build one slot from several files or from the original, drag a music segment's cue points and hear it between the segments around it, or open every slot of a segment together. Export the result as WAV, FLAC, MP3 or Ogg, or apply it to the slot.
+
+<img src="assets/readme/suite.png" alt="The Waveform Suite over the Audio tab: the toolbar, the original's waveform above a block of new audio on Layer 1 with a fade in and a fade out, the Entry and Exit cue points on the ruler, and the selected block's position, trim, fades and gain on the right, with Apply, Export and Cancel at the bottom" width="100%">
 
 ### 🎼 Soundtrack
 

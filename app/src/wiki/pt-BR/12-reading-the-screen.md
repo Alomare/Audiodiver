@@ -2,7 +2,7 @@
 title: Entendendo a tela
 group: Primeiros passos
 summary: O que cada parte da Biblioteca e da aba Áudio mostra, e o que significam as tags e marcas de uma linha.
-source: 4019caa57ba2
+source: d6d0716d6982
 ---
 
 A Biblioteca e a aba Áudio têm o mesmo layout: uma lista à esquerda, o item aberto no meio e o painel de detalhes à direita. A Trilha Sonora tem outro layout, descrito em [Trilha Sonora](wiki:soundtrack). As palavras em **negrito** são explicadas em [O áudio do jogo, explicado](wiki:game-audio).
@@ -70,7 +70,7 @@ Cada linha é um **slot**, um único clipe do jogo que pode ser substituído.
 - A caixa de seleção no início de uma linha coloca o slot na seleção, ou o tira dela, como Ctrl+clique. Shift numa caixa de seleção seleciona um intervalo. A linha de um grupo tem uma caixa de seleção para todos os takes do grupo, e o grupo continua recolhido. Na Biblioteca, **Exportar** pode salvar só os slots selecionados. Na aba Áudio, com vários slots selecionados, o painel direito tem **Escolher um arquivo para todos**, **Escolher arquivos**, **Substituir por silêncio** e o botão que remove o áudio novo.
 - Clique duas vezes numa linha para tocá-la. Clique com o botão direito para todo o resto, incluindo copiar, colar, silêncio e IDs.
 - Copie arquivos de áudio no Explorador de Arquivos, selecione slots e pressione **Ctrl+V**. Um arquivo vai para todos os slots selecionados. Vários arquivos vão na ordem dos nomes de arquivo, e com um único slot selecionado eles preenchem a partir dele. Ctrl+V cola o que foi copiado por último: arquivos do Explorador de Arquivos ou slots copiados no Audiodiver. No Linux, Ctrl+V cola só slots.
-- **Ctrl+C** copia os slots selecionados, na Biblioteca ou na aba Áudio. **Ctrl+V** cola nos slots selecionados na aba Áudio, sem exportar nem importar nada. Um slot com áudio novo passa esse áudio e as configurações. Qualquer outro slot passa o original, e um clipe do Helldivers 2 entra sem alteração.
+- **Ctrl+C** copia os slots selecionados, na Biblioteca ou na aba Áudio. **Ctrl+V** cola nos slots selecionados na aba Áudio, sem nada para exportar ou importar. Um slot com áudio novo passa esse áudio e os ajustes. Qualquer outro slot passa o original, e um clipe do Helldivers 2 entra sem alteração. **Copiar áudio original** no menu de contexto copia o original mesmo onde um slot tem áudio novo, e o botão branco de copiar ao lado de **Antigo** nas formas de onda faz o mesmo.
 
 ### Tags de uma linha {#tags-on-a-row}
 
@@ -105,7 +105,7 @@ Passe o mouse sobre uma tag para ler a nota. As notas de um clipe selecionado ap
 
 ## Abaixo dos slots {#under-the-slots}
 
-As **formas de onda** do slot selecionado aparecem aqui. O original fica em cima e, na aba Áudio, a substituição fica embaixo, nas mesmas escalas de tempo e de nível, com os pontos de **Entrada** e **Saída** marcados. As duas são desenhadas com o seu [Make-Up Gain](wiki:volume#make-up-gain-per-slot), e o vermelho marca o áudio que passa da escala máxima. Clique numa forma de onda para tocar a partir daquele ponto, e arraste a borda de cima do painel para redimensioná-lo. {icon:waves} no fim da barra de ferramentas as oculta. Na Biblioteca, a linha acima das formas de onda descreve o slot. Ela mostra o ID (clique para copiá-lo), a duração, quando o slot toca e onde mais o jogo o toca. Uma linha em volta de uma forma de onda é a [curva de volume](wiki:volume#volume-curves) do clipe.
+As **formas de onda** do slot selecionado aparecem aqui. O original fica em cima (**Antigo**), e na aba Áudio o áudio novo fica embaixo (**Novo**), nas mesmas escalas de tempo e nível, com os pontos **Entrada** e **Saída** marcados. Ao lado de cada uma, o botão branco copia aquele áudio e o lápis abre o [Waveform Suite](wiki:timing-and-loops#the-waveform-suite). As duas são desenhadas com o [Make-Up Gain](wiki:volume#make-up-gain-per-slot) delas, e o vermelho marca áudio que passa do limite. Clique em uma forma de onda para tocar a partir daquele ponto, e arraste a borda superior do painel para redimensioná-lo. {icon:waves} no fim da barra de ferramentas as esconde. Na Biblioteca, a linha acima das formas de onda descreve o slot. Ela mostra o ID (clique para copiar), a duração, quando o slot toca e onde mais o jogo o toca. Uma linha em volta de uma forma de onda é a [curva de volume](wiki:volume#volume-curves) do clipe.
 
 Dois controles deslizantes dão zoom nas duas formas de onda. O que sobe pelo lado direito as desenha mais altas, para mostrar áudio baixo, e o que fica abaixo delas, à direita, dá zoom no tempo, para posicionar a Entrada e a Saída com precisão. Sobre as formas de onda, a roda do mouse dá zoom no tempo, Ctrl+roda as desenha mais altas, e Shift+roda rola. Com zoom no tempo, a faixa abaixo das formas de onda também rola. {icon:reset}, no canto entre os controles deslizantes, mostra de novo o áudio inteiro em escala máxima. Enquanto um controle deslizante se move, um número de 0 a 100 sobre o botão mostra em que ponto ele está. O zoom fica como foi definido quando outro slot é selecionado, e a ferramenta de fatiar tem os mesmos controles deslizantes.
 

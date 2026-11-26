@@ -9,7 +9,7 @@ Wiki page names a button as the button reads, so a term keeps one translation ac
   plural syntax (`{count, plural, one {...} other {...}}`, with `#` for the number), Markdown (`**bold**`), and the
   Wiki's `{icon:...}` and `{key:...}`. Plural forms follow the language: Polish and Russian use one, few, many and
   other; Japanese, Korean and Chinese use other only.
-- Don't translate: Audiodiver, Audiodiver Utils, Helldivers 2, Wwise, Steam, GitHub, Nexus Mods, Discord, Ko-fi,
+- Don't translate: Audiodiver, Audiodiver Utils, Waveform Suite (the editor's name), Helldivers 2, Wwise, Steam, GitHub, Nexus Mods, Discord, Ko-fi,
   FFmpeg, vgmstream, wav2wem, font names, people's names, key names (Ctrl, Shift), units (s, ms, dB, Hz, KB, MB, GB,
   px) and file extensions.
 - Names from the game (weapons, stratagems, enemies, planets, Super Earth) are written as the game writes them in

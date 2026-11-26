@@ -384,6 +384,23 @@ msgid "text: table {table} is not in this game version; the {n} line changed in 
 msgid_plural "text: table {table} is not in this game version; the {n} lines changed in it are left out"
 msgstr[0] "テキスト：テーブル {table} はこのゲームバージョンにないため、そこで変更された {n} 行は除外しました"
 
+#: build.py
+msgid "{name}: the image can't be used ({why})"
+msgstr "{name}：画像を使えません（{why}）"
+
+#: build.py
+msgid "Building {group}: {option}"
+msgstr "{group}：{option} をビルド中"
+
+#: build.py
+msgid "{group} ▸ {option}: {n} asset, {mb} MB"
+msgid_plural "{group} ▸ {option}: {n} assets, {mb} MB"
+msgstr[0] "{group} ▸ {option}：{n} 個のアセット、{mb} MB"
+
+#: build.py
+msgid "{group} ▸ {option}: the same as the base mod, so it deploys nothing"
+msgstr "{group} ▸ {option}：ベースMODと同じなので何もデプロイしません"
+
 #: build.py editor.py
 msgid "Can't write the ZIP into {folder}: {why}"
 msgstr "ZIPを{folder}に書き込めません：{why}"
@@ -492,7 +509,7 @@ msgstr "統合元のMOD："
 msgid "Setting {id}"
 msgstr "設定 {id}"
 
-#: combine.py
+#: combine.py editor.py
 msgid "Option {n}"
 msgstr "オプション {n}"
 
@@ -622,6 +639,18 @@ msgid "This slot has no new audio to trim"
 msgstr "このスロットにはトリムする新しい音声がありません"
 
 #: editor.py
+msgid "Nothing to export. Tick a layer with audio, or the original"
+msgstr "エクスポートするものがありません。音声のあるレイヤーかオリジナルにチェックを入れてください"
+
+#: editor.py
+msgid "Nothing to save. Add audio to the time line first"
+msgstr "保存するものがありません。先にタイムラインに音声を追加してください"
+
+#: editor.py
+msgid "This slot has no new audio to edit"
+msgstr "このスロットには編集する新しい音声がありません"
+
+#: editor.py
 msgid "That folder is inside the game folder, and Audiodiver never writes there. Choose another folder, and import the ZIP in a mod manager."
 msgstr "そのフォルダーはゲームフォルダー内にあり、Audiodiverはそこに書き込みません。別のフォルダーを選択し、ZIPをMODマネージャーでインポートしてください。"
 
@@ -680,6 +709,26 @@ msgstr "パックの保存先を選択してください（フルパス）"
 #: editor.py
 msgid "Choose where to unpack it (a full path)"
 msgstr "展開先を選択してください（フルパス）"
+
+#: editor.py
+msgid "That group isn't in the project any more"
+msgstr "そのグループはもうプロジェクトにありません"
+
+#: editor.py
+msgid "That option isn't in the project any more"
+msgstr "そのオプションはもうプロジェクトにありません"
+
+#: editor.py
+msgid "An option's gain is from −12 to +12 dB"
+msgstr "オプションのゲインは −12〜+12 dB です"
+
+#: editor.py
+msgid "Choose the changes to undo"
+msgstr "元に戻す変更を選んでください"
+
+#: editor.py
+msgid "No image"
+msgstr "画像なし"
 
 #: editor.py
 msgid "Choose a mod's .patch_0 file"
@@ -873,6 +922,10 @@ msgid "The game files are still changing. Audiodiver reads them again when Steam
 msgstr "ゲームファイルはまだ変更中です。Steamの処理が終わるとAudiodiverが読み込み直します。"
 
 #: editor.py
+msgid "Helldivers 1 is still being read. Try again in a moment."
+msgstr "Helldivers 1 をまだ読み込み中です。少し待ってからもう一度お試しください。"
+
+#: editor.py
 msgid "A new take has no original audio"
 msgstr "新しいテイクにはオリジナルの音声がありません"
 
@@ -924,6 +977,18 @@ msgstr "それはフォルダーではなくファイルです"
 msgid "{n} file packed into {pack}"
 msgid_plural "{n} files packed into {pack}"
 msgstr[0] "{n} 件のファイルを{pack}にパックしました"
+
+#: editor.py
+msgid "A group"
+msgstr "グループ"
+
+#: editor.py
+msgid "Option 1"
+msgstr "オプション 1"
+
+#: editor.py
+msgid "An option"
+msgstr "オプション"
 
 #: editor.py
 msgid "Nothing to build yet. Replace some audio, set a piece in the Soundtrack or change a line of text first."
@@ -1027,6 +1092,10 @@ msgid "{file} makes a mod for Helldivers 1, which wasn't found. Choose the Helld
 msgstr "{file} は Helldivers 1 用のMODですが、Helldivers 1 が見つかりません。設定 ▸ システムでゲームのフォルダーを選んでください。"
 
 #: editor.py
+msgid "{file} makes a mod for Helldivers 2, which wasn't found. Choose the game folder in Settings ▸ System."
+msgstr "{file} は Helldivers 2 用の MOD を作りますが、Helldivers 2 が見つかりませんでした。設定 ▸ システムでゲームフォルダーを選んでください。"
+
+#: editor.py
 msgid "Sound {sound} doesn't play {source}"
 msgstr "サウンド {sound} は {source} を再生しません"
 
@@ -1047,6 +1116,14 @@ msgid "{name}: can't read the audio file ({file})"
 msgstr "{name}：音声ファイルを読み取れません（{file}）"
 
 #: editor.py
+msgid "Go back to the base mod to add takes or layers, or to isolate audio"
+msgstr "テイクやレイヤーの追加、音声の分離はベースMODに戻って行ってください"
+
+#: editor.py
+msgid "This slot's bank already has sounds of the group {other}. Two groups can't change one bank in Helldivers 2 mod managers: change it in {other} instead, or in the base mod. (It would have gone into {name}.)"
+msgstr "このスロットのバンクにはすでにグループ {other} のサウンドがあります。Helldivers 2 のMODマネージャーでは 2 つのグループが 1 つのバンクを変更できません。{other} かベースMODで変更してください。（{name} に入るところでした。）"
+
+#: editor.py
 msgid "{file} is not an audio file Audiodiver can read"
 msgstr "{file}はAudiodiverが読み取れる音声ファイルではありません"
 
@@ -1059,8 +1136,16 @@ msgid "The audio must play for at least {ms} ms"
 msgstr "音声は{ms} ms以上再生される必要があります"
 
 #: editor.py
+msgid "The Waveform Suite sends up to {n} blocks"
+msgstr "Waveform Suite が送れるブロックは {n} 個までです"
+
+#: editor.py
 msgid "{folder} is not a folder"
 msgstr "{folder}はフォルダーではありません"
+
+#: editor.py
+msgid "Segments {ids} aren't in this piece of music"
+msgstr "セグメント {ids} はこの曲にありません"
 
 #: editor.py
 msgid "The version is a whole number from 1 to 99999"
@@ -1078,6 +1163,18 @@ msgstr "{folder}に展開しました"
 #: editor.py
 msgid "No job {id}"
 msgstr "ジョブ {id} はありません"
+
+#: editor.py
+msgid "{what} needs a name"
+msgstr "{what} には名前が必要です"
+
+#: editor.py
+msgid "Keep it to {n} characters on one line"
+msgstr "1 行、{n} 文字以内にしてください"
+
+#: editor.py
+msgid "Group {n}"
+msgstr "グループ {n}"
 
 #: editor.py
 msgid "{file} isn't a patch file. Choose a .patch_0 file. Audiodiver also reads the .stream file next to it."
@@ -1150,10 +1247,6 @@ msgstr[0] "競合 {n} 件"
 #: editor.py
 msgid "{id} is not a piece of music. Only music has segments to mix and play through."
 msgstr "{id}は曲ではありません。ミックスや通し再生ができるセグメントを持つのは音楽だけです。"
-
-#: editor.py
-msgid "Segments {ids} aren't in this piece of music"
-msgstr "セグメント {ids} はこの曲にありません"
 
 #: editor.py
 msgid "Items {ids} aren't in this piece of music"
@@ -1231,6 +1324,18 @@ msgid "Start, end and delay are from 0 to {ms} ms"
 msgstr "開始、終了、遅延は0～{ms} msの範囲です"
 
 #: editor.py
+msgid "A block of the Waveform Suite is out of range ({what})"
+msgstr "Waveform Suite のブロックが範囲外です（{what}）"
+
+#: editor.py
+msgid "A volume curve has up to {n} points, each a time and a level"
+msgstr "音量カーブの点は {n} 個まで、それぞれ時間とレベルを持ちます"
+
+#: editor.py
+msgid "{file} couldn't be written: {why}"
+msgstr "{file} を書き込めませんでした：{why}"
+
+#: editor.py
 msgid "{file} can't be read, so global notes can't be shown or saved. Fix or move the file, or choose another folder in Settings ▸ System."
 msgstr "{file}を読み取れないため、グローバルメモを表示も保存もできません。ファイルを修正または移動するか、設定 ▸ システムで別のフォルダーを選択してください。"
 
@@ -1249,6 +1354,22 @@ msgstr "メモを保存できませんでした：{why}"
 #: editor.py
 msgid "{file} isn't a notes file or an Audiodiver project"
 msgstr "{file}はメモファイルでもAudiodiverのプロジェクトでもありません"
+
+#: editor.py
+msgid "{file} is too large to use as an image"
+msgstr "{file} は画像として使うには大きすぎます"
+
+#: editor.py
+msgid "A mod can have up to {n} groups"
+msgstr "MOD に作れるグループは {n} 個までです"
+
+#: editor.py
+msgid "A group can have up to {n} options"
+msgstr "グループに作れるオプションは {n} 個までです"
+
+#: editor.py
+msgid "Stem {n}"
+msgstr "ステム {n}"
 
 #: editor.py
 msgid "Fix the problems on the Build tab first: {problem} (and {n} more)"
@@ -1347,6 +1468,10 @@ msgid "That isn't a mod ID (a GUID like 3f2a…-…)"
 msgstr "MOD IDではありません（3f2a…-… のようなGUIDです）"
 
 #: editor.py
+msgid "A mod ID has up to 64 lowercase letters, digits, dots, dashes and underscores, such as name.mymod"
+msgstr "MOD ID は小文字、数字、ドット、ハイフン、アンダースコアで 64 文字までです（例：name.mymod）"
+
+#: editor.py
 msgid "{item}, clip {id}"
 msgstr "{item}、クリップ {id}"
 
@@ -1422,10 +1547,6 @@ msgid_plural "{n} files besides audio that a later mod replaces"
 msgstr[0] "後のMODが置き換える、音声以外のファイル {n} 個"
 
 #: editor.py
-msgid "Loudness analysis: {why}"
-msgstr "ラウドネス解析：{why}"
-
-#: editor.py
 msgid "the icon ({why})"
 msgstr "アイコン（{why}）"
 
@@ -1444,6 +1565,10 @@ msgstr "セグメント"
 #: editor.py
 msgid "{segment}, {n} of {total}"
 msgstr "{segment}、{n}/{total}"
+
+#: editor.py
+msgid "Loudness analysis: {why}"
+msgstr "ラウドネス解析：{why}"
 
 #: editor.py
 msgid "segment"
@@ -1540,6 +1665,10 @@ msgstr "{folder}が見つかりません"
 #: game.py
 msgid "The HD2_DATA environment variable points to {folder}, which has no Helldivers 2 files"
 msgstr "HD2_DATA環境変数が指す{folder}には、Helldivers 2のファイルがありません"
+
+#: hd1.py
+msgid "Not Named Yet"
+msgstr "未命名"
 
 #: hd1.py textsort.py
 msgid "Missions"
@@ -1694,6 +1823,14 @@ msgid "All Archives"
 msgstr "すべてのアーカイブ"
 
 #: hd1.py
+msgid "Event {id}"
+msgstr "イベント {id}"
+
+#: hd1.py
+msgid "Played by {owner}"
+msgstr "{owner} が再生"
+
+#: hd1.py
 msgid "{n} languages"
 msgstr "{n} 言語"
 
@@ -1708,10 +1845,6 @@ msgstr "終了"
 #: hd1.py library.py
 msgid "Take {n}"
 msgstr "テイク {n}"
-
-#: hd1.py
-msgid "Event {id}"
-msgstr "イベント {id}"
 
 #: hd1_build.py
 msgid "Nothing to build yet. Replace some audio first."
@@ -1742,6 +1875,10 @@ msgstr[0] "置き換えたサウンド {n} 個がこのバージョンの Helldi
 #: hd1_build.py
 msgid "encoding {name}"
 msgstr "{name} をエンコード中"
+
+#: hd1_build.py
+msgid "The groups {names} change the same sounds in {n} ways, more than a mod can hold. Narrow them to fewer sounds."
+msgstr "グループ {names} は同じサウンドを {n} 通りに変更しており、1 つの MOD に収まりません。対象のサウンドを減らしてください。"
 
 #: index.py
 msgid "English"
@@ -2082,6 +2219,34 @@ msgstr "メモは{n}文字までです"
 msgid "No notes."
 msgstr "メモはありません。"
 
+#: options.py
+msgid "the options for players"
+msgstr "プレイヤー向けオプション"
+
+#: options.py
+msgid "the group {name}"
+msgstr "グループ {name}"
+
+#: options.py
+msgid "Pick an option of the group the changes go to first"
+msgstr "先に、変更を入れるグループのオプションを選んでください"
+
+#: options.py
+msgid "slot {id}"
+msgstr "スロット {id}"
+
+#: options.py
+msgid "Choose where changes to {name} go"
+msgstr "{name} の変更の入れ先を選んでください"
+
+#: options.py
+msgid "{name} belongs to the group {group}. Edit an option of {group} to change it"
+msgstr "{name} はグループ {group} に属しています。変更するには {group} のオプションを編集してください"
+
+#: options.py
+msgid "the cue points of segment {id}"
+msgstr "セグメント {id} のキューポイント"
+
 #: patch.py
 msgid "{file} is missing"
 msgstr "{file}がありません"
@@ -2224,12 +2389,20 @@ msgid "The project in {pack} is damaged (a cue point, a text change, added audio
 msgstr "{pack}内のプロジェクトは破損しています（キューポイント、テキストの変更、追加した音声、または設定）"
 
 #: project.py
+msgid "the mod ID"
+msgstr "MOD ID"
+
+#: project.py
 msgid "a note"
 msgstr "メモ"
 
 #: project.py
 msgid "the tabs"
 msgstr "タブ"
+
+#: project.py
+msgid "the authors"
+msgstr "作者"
 
 #: project.py
 msgid "the label of {name}"
@@ -2332,16 +2505,20 @@ msgid "{name}: same target as {other}"
 msgstr "{name}：{other}と同じ対象"
 
 #: project.py
-msgid "{name}: the audio file wasn't found ({path})"
-msgstr "{name}：音声ファイルが見つかりません（{path}）"
-
-#: project.py
 msgid "segment {id}: unknown overrides {keys}"
 msgstr "セグメント {id}：不明な上書き {keys}"
 
 #: project.py
 msgid "the imported mods' banks"
 msgstr "インポートしたMODのバンク"
+
+#: project.py
+msgid "{name}: the audio file wasn't found ({path})"
+msgstr "{name}：音声ファイルが見つかりません（{path}）"
+
+#: project.py
+msgid "{name}: image not found ({path})"
+msgstr "{name}：画像が見つかりません（{path}）"
 
 #: project.py
 msgid "the filters of sound {id}"

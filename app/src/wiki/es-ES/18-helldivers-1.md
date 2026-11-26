@@ -2,10 +2,12 @@
 title: Mods de Helldivers 1
 group: Primeros pasos
 summary: Sustituir el audio de Helldivers 1: la elección del juego en Inicio, qué puede cambiar un proyecto y por qué un mod puede ocupar mucho.
-source: e6cda1560050
+source: 011a93bc722a
 ---
 
-Con Helldivers 1 instalado, los botones **Helldivers 2** y **Helldivers 1** de [Inicio](app:home) eligen el juego para el que Audiodiver crea mods. Cada proyecto pertenece a un solo juego, y abrir un proyecto cambia a ese juego. Elegir el otro juego cierra el proyecto abierto.
+Los botones **Helldivers 1** y **Helldivers 2** de [Inicio](app:home) eligen el juego para el que Audiodiver crea mods. Audiodiver busca los dos juegos al arrancar, y la ventana se abre antes de que se hayan leído. Un botón se ve más oscuro, con flechas girando, mientras se lee el juego, y aparece tachado cuando no se ha encontrado. La línea bajo los botones indica cuál, con **Elegir carpeta** para un juego instalado en un lugar que Steam no lista. Se vuelve a elegir el último juego usado, o el otro si no se encuentra, y las pestañas y botones de ese juego aparecen en cuanto se ha leído.
+
+Cada proyecto pertenece a un juego, y abrir un proyecto cambia a ese juego. Elegir el otro juego cierra el proyecto abierto.
 
 ## Empezar un proyecto {#starting-a-project}
 
@@ -19,6 +21,12 @@ Con Helldivers 1 instalado, los botones **Helldivers 2** y **Helldivers 1** de [
 Un slot puede tener audio nuevo o silencio. El audio nuevo puede tener **Make-Up Gain**, **Fundidos** e **Igualar sonoridad original**, y la generación los integra en el propio audio. El audio nuevo toma el formato, la frecuencia de muestreo y los canales del original, así que un archivo estéreo en un slot mono suena en mono.
 
 Las pestañas Banda Sonora, Texto y Herramientas, **Importar mod**, los **Filtros**, las nuevas tomas y capas, y el Make-Up Gain sobre el audio original son solo para Helldivers 2.
+
+## Obsidian {#obsidian}
+
+La pestaña [Proyecto](app:project) define lo que Obsidian muestra con el mod: el nombre, la descripción y los autores, con comas entre los nombres.
+
+Obsidian reconoce un mod por el **ID del mod**. Mientras el ID no cambie, una nueva generación actualiza el mod instalado. Para que las generaciones actualicen un mod que hiciste antes, pulsa **Cambiar** y pega el `id` del `obsidian.json` de ese mod. Un ID tiene letras minúsculas, dígitos, puntos, guiones y guiones bajos, como `name.mymod`. Cuando copies un proyecto para hacer un mod distinto, pulsa **Crear un ID nuevo**, y la copia se instala como un mod aparte.
 
 ## Audio de Helldivers 2 {#audio-from-helldivers-2}
 

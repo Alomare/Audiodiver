@@ -416,6 +416,24 @@ msgid_plural "text: table {table} is not in this game version; the {n} lines cha
 msgstr[0] "texto: la tabla {table} no está en esta versión del juego; se omite {n} línea cambiada en ella"
 msgstr[1] "texto: la tabla {table} no está en esta versión del juego; se omiten {n} líneas cambiadas en ella"
 
+#: build.py
+msgid "{name}: the image can't be used ({why})"
+msgstr "{name}: no se puede usar la imagen ({why})"
+
+#: build.py
+msgid "Building {group}: {option}"
+msgstr "Generando {group}: {option}"
+
+#: build.py
+msgid "{group} ▸ {option}: {n} asset, {mb} MB"
+msgid_plural "{group} ▸ {option}: {n} assets, {mb} MB"
+msgstr[0] "{group} ▸ {option}: {n} recurso, {mb} MB"
+msgstr[1] "{group} ▸ {option}: {n} recursos, {mb} MB"
+
+#: build.py
+msgid "{group} ▸ {option}: the same as the base mod, so it deploys nothing"
+msgstr "{group} ▸ {option}: igual que el mod base, así que no instala nada"
+
 #: build.py editor.py
 msgid "Can't write the ZIP into {folder}: {why}"
 msgstr "No se puede escribir el ZIP en {folder}: {why}"
@@ -524,7 +542,7 @@ msgstr "Combinado a partir de estos mods:"
 msgid "Setting {id}"
 msgstr "Ajuste {id}"
 
-#: combine.py
+#: combine.py editor.py
 msgid "Option {n}"
 msgstr "Opción {n}"
 
@@ -655,6 +673,18 @@ msgid "This slot has no new audio to trim"
 msgstr "Este slot no tiene audio nuevo que recortar"
 
 #: editor.py
+msgid "Nothing to export. Tick a layer with audio, or the original"
+msgstr "Nada que exportar. Marca una capa con audio, o el original"
+
+#: editor.py
+msgid "Nothing to save. Add audio to the time line first"
+msgstr "Nada que guardar. Añade audio a la línea de tiempo primero"
+
+#: editor.py
+msgid "This slot has no new audio to edit"
+msgstr "Este slot no tiene audio nuevo que editar"
+
+#: editor.py
 msgid "That folder is inside the game folder, and Audiodiver never writes there. Choose another folder, and import the ZIP in a mod manager."
 msgstr "Esa carpeta está dentro de la carpeta del juego, y Audiodiver nunca escribe ahí. Elige otra carpeta e importa el ZIP en un gestor de mods."
 
@@ -713,6 +743,26 @@ msgstr "Elige dónde guardar el paquete (una ruta completa)"
 #: editor.py
 msgid "Choose where to unpack it (a full path)"
 msgstr "Elige dónde desempaquetarlo (una ruta completa)"
+
+#: editor.py
+msgid "That group isn't in the project any more"
+msgstr "Ese grupo ya no está en el proyecto"
+
+#: editor.py
+msgid "That option isn't in the project any more"
+msgstr "Esa opción ya no está en el proyecto"
+
+#: editor.py
+msgid "An option's gain is from −12 to +12 dB"
+msgstr "La ganancia de una opción va de −12 a +12 dB"
+
+#: editor.py
+msgid "Choose the changes to undo"
+msgstr "Elige los cambios que deshacer"
+
+#: editor.py
+msgid "No image"
+msgstr "Sin imagen"
 
 #: editor.py
 msgid "Choose a mod's .patch_0 file"
@@ -909,6 +959,10 @@ msgid "The game files are still changing. Audiodiver reads them again when Steam
 msgstr "Los ficheros del juego aún están cambiando. Audiodiver los vuelve a leer cuando Steam termina."
 
 #: editor.py
+msgid "Helldivers 1 is still being read. Try again in a moment."
+msgstr "Helldivers 1 todavía se está leyendo. Inténtalo de nuevo en un momento."
+
+#: editor.py
 msgid "A new take has no original audio"
 msgstr "Una toma nueva no tiene audio original"
 
@@ -961,6 +1015,18 @@ msgid "{n} file packed into {pack}"
 msgid_plural "{n} files packed into {pack}"
 msgstr[0] "{n} fichero empaquetado en {pack}"
 msgstr[1] "{n} ficheros empaquetados en {pack}"
+
+#: editor.py
+msgid "A group"
+msgstr "Un grupo"
+
+#: editor.py
+msgid "Option 1"
+msgstr "Opción 1"
+
+#: editor.py
+msgid "An option"
+msgstr "Una opción"
 
 #: editor.py
 msgid "Nothing to build yet. Replace some audio, set a piece in the Soundtrack or change a line of text first."
@@ -1065,6 +1131,10 @@ msgid "{file} makes a mod for Helldivers 1, which wasn't found. Choose the Helld
 msgstr "{file} crea un mod para Helldivers 1, que no se ha encontrado. Elige la carpeta del juego en Ajustes ▸ Sistema."
 
 #: editor.py
+msgid "{file} makes a mod for Helldivers 2, which wasn't found. Choose the game folder in Settings ▸ System."
+msgstr "{file} crea un mod para Helldivers 2, que no se ha encontrado. Elige la carpeta del juego en Ajustes ▸ Sistema."
+
+#: editor.py
 msgid "Sound {sound} doesn't play {source}"
 msgstr "El sonido {sound} no reproduce {source}"
 
@@ -1085,6 +1155,14 @@ msgid "{name}: can't read the audio file ({file})"
 msgstr "{name}: no se puede leer el fichero de audio ({file})"
 
 #: editor.py
+msgid "Go back to the base mod to add takes or layers, or to isolate audio"
+msgstr "Vuelve al mod base para añadir tomas o capas, o para aislar audio"
+
+#: editor.py
+msgid "This slot's bank already has sounds of the group {other}. Two groups can't change one bank in Helldivers 2 mod managers: change it in {other} instead, or in the base mod. (It would have gone into {name}.)"
+msgstr "El banco de este slot ya tiene sonidos del grupo {other}. Dos grupos no pueden cambiar un mismo banco en los gestores de mods de Helldivers 2: cámbialo en {other} o en el mod base. (Habría ido a {name}.)"
+
+#: editor.py
 msgid "{file} is not an audio file Audiodiver can read"
 msgstr "{file} no es un fichero de audio que Audiodiver pueda leer"
 
@@ -1097,8 +1175,16 @@ msgid "The audio must play for at least {ms} ms"
 msgstr "El audio debe sonar al menos {ms} ms"
 
 #: editor.py
+msgid "The Waveform Suite sends up to {n} blocks"
+msgstr "Waveform Suite envía hasta {n} bloques"
+
+#: editor.py
 msgid "{folder} is not a folder"
 msgstr "{folder} no es una carpeta"
+
+#: editor.py
+msgid "Segments {ids} aren't in this piece of music"
+msgstr "Los segmentos {ids} no están en esta pieza de música"
 
 #: editor.py
 msgid "The version is a whole number from 1 to 99999"
@@ -1117,6 +1203,18 @@ msgstr "desempaquetado en {folder}"
 #: editor.py
 msgid "No job {id}"
 msgstr "No existe la tarea {id}"
+
+#: editor.py
+msgid "{what} needs a name"
+msgstr "{what} necesita un nombre"
+
+#: editor.py
+msgid "Keep it to {n} characters on one line"
+msgstr "Usa {n} caracteres como máximo, en una línea"
+
+#: editor.py
+msgid "Group {n}"
+msgstr "Grupo {n}"
 
 #: editor.py
 msgid "{file} isn't a patch file. Choose a .patch_0 file. Audiodiver also reads the .stream file next to it."
@@ -1199,10 +1297,6 @@ msgid "{id} is not a piece of music. Only music has segments to mix and play thr
 msgstr "{id} no es una pieza de música. Solo la música tiene segmentos que mezclar y reproducir de forma continua."
 
 #: editor.py
-msgid "Segments {ids} aren't in this piece of music"
-msgstr "Los segmentos {ids} no están en esta pieza de música"
-
-#: editor.py
 msgid "Items {ids} aren't in this piece of music"
 msgstr "Los elementos {ids} no están en esta pieza de música"
 
@@ -1281,6 +1375,18 @@ msgid "Start, end and delay are from 0 to {ms} ms"
 msgstr "Inicio, fin y retraso van de 0 a {ms} ms"
 
 #: editor.py
+msgid "A block of the Waveform Suite is out of range ({what})"
+msgstr "Un bloque de Waveform Suite está fuera de rango ({what})"
+
+#: editor.py
+msgid "A volume curve has up to {n} points, each a time and a level"
+msgstr "Una curva de volumen tiene hasta {n} puntos, cada uno con un tiempo y un nivel"
+
+#: editor.py
+msgid "{file} couldn't be written: {why}"
+msgstr "No se ha podido escribir {file}: {why}"
+
+#: editor.py
 msgid "{file} can't be read, so global notes can't be shown or saved. Fix or move the file, or choose another folder in Settings ▸ System."
 msgstr "No se puede leer {file}, así que las notas globales no se pueden mostrar ni guardar. Arregla o mueve el fichero, o elige otra carpeta en Ajustes ▸ Sistema."
 
@@ -1299,6 +1405,22 @@ msgstr "No se han podido guardar las notas: {why}"
 #: editor.py
 msgid "{file} isn't a notes file or an Audiodiver project"
 msgstr "{file} no es un fichero de notas ni un proyecto de Audiodiver"
+
+#: editor.py
+msgid "{file} is too large to use as an image"
+msgstr "{file} es demasiado grande para usarse como imagen"
+
+#: editor.py
+msgid "A mod can have up to {n} groups"
+msgstr "Un mod puede tener hasta {n} grupos"
+
+#: editor.py
+msgid "A group can have up to {n} options"
+msgstr "Un grupo puede tener hasta {n} opciones"
+
+#: editor.py
+msgid "Stem {n}"
+msgstr "Stem {n}"
 
 #: editor.py
 msgid "Fix the problems on the Build tab first: {problem} (and {n} more)"
@@ -1401,6 +1523,10 @@ msgid "That isn't a mod ID (a GUID like 3f2a…-…)"
 msgstr "Eso no es un ID de mod (un GUID como 3f2a…-…)"
 
 #: editor.py
+msgid "A mod ID has up to 64 lowercase letters, digits, dots, dashes and underscores, such as name.mymod"
+msgstr "Un ID de mod tiene hasta 64 letras minúsculas, dígitos, puntos, guiones y guiones bajos, como nombre.mimod"
+
+#: editor.py
 msgid "{item}, clip {id}"
 msgstr "{item}, clip {id}"
 
@@ -1479,10 +1605,6 @@ msgstr[0] "{n} fichero aparte del audio que sustituye un mod posterior"
 msgstr[1] "{n} ficheros aparte del audio que sustituye un mod posterior"
 
 #: editor.py
-msgid "Loudness analysis: {why}"
-msgstr "Análisis de sonoridad: {why}"
-
-#: editor.py
 msgid "the icon ({why})"
 msgstr "el icono ({why})"
 
@@ -1501,6 +1623,10 @@ msgstr "Segmento"
 #: editor.py
 msgid "{segment}, {n} of {total}"
 msgstr "{segment}, {n} de {total}"
+
+#: editor.py
+msgid "Loudness analysis: {why}"
+msgstr "Análisis de sonoridad: {why}"
 
 #: editor.py
 msgid "segment"
@@ -1597,6 +1723,10 @@ msgstr "No se ha encontrado {folder}"
 #: game.py
 msgid "The HD2_DATA environment variable points to {folder}, which has no Helldivers 2 files"
 msgstr "La variable de entorno HD2_DATA apunta a {folder}, que no tiene ficheros de Helldivers 2"
+
+#: hd1.py
+msgid "Not Named Yet"
+msgstr "Aún sin nombre"
 
 #: hd1.py textsort.py
 msgid "Missions"
@@ -1751,6 +1881,14 @@ msgid "All Archives"
 msgstr "Todos los Archivos"
 
 #: hd1.py
+msgid "Event {id}"
+msgstr "Evento {id}"
+
+#: hd1.py
+msgid "Played by {owner}"
+msgstr "Lo reproduce {owner}"
+
+#: hd1.py
 msgid "{n} languages"
 msgstr "{n} idiomas"
 
@@ -1765,10 +1903,6 @@ msgstr "Final"
 #: hd1.py library.py
 msgid "Take {n}"
 msgstr "Toma {n}"
-
-#: hd1.py
-msgid "Event {id}"
-msgstr "Evento {id}"
 
 #: hd1_build.py
 msgid "Nothing to build yet. Replace some audio first."
@@ -1801,6 +1935,10 @@ msgstr[1] "{n} sonidos sustituidos no están en esta versión de Helldivers 1"
 #: hd1_build.py
 msgid "encoding {name}"
 msgstr "codificando {name}"
+
+#: hd1_build.py
+msgid "The groups {names} change the same sounds in {n} ways, more than a mod can hold. Narrow them to fewer sounds."
+msgstr "Los grupos {names} cambian los mismos sonidos de {n} formas, más de las que caben en un mod. Redúcelos a menos sonidos."
 
 #: index.py
 msgid "English"
@@ -2144,6 +2282,34 @@ msgstr "Una nota puede tener hasta {n} caracteres"
 msgid "No notes."
 msgstr "No hay notas."
 
+#: options.py
+msgid "the options for players"
+msgstr "las opciones para jugadores"
+
+#: options.py
+msgid "the group {name}"
+msgstr "el grupo {name}"
+
+#: options.py
+msgid "Pick an option of the group the changes go to first"
+msgstr "Elige primero una opción del grupo al que van los cambios"
+
+#: options.py
+msgid "slot {id}"
+msgstr "slot {id}"
+
+#: options.py
+msgid "Choose where changes to {name} go"
+msgstr "Elige adónde van los cambios en {name}"
+
+#: options.py
+msgid "{name} belongs to the group {group}. Edit an option of {group} to change it"
+msgstr "{name} pertenece al grupo {group}. Edita una opción de {group} para cambiarlo"
+
+#: options.py
+msgid "the cue points of segment {id}"
+msgstr "los puntos de referencia del segmento {id}"
+
 #: patch.py
 msgid "{file} is missing"
 msgstr "Falta {file}"
@@ -2287,12 +2453,20 @@ msgid "The project in {pack} is damaged (a cue point, a text change, added audio
 msgstr "El proyecto de {pack} está dañado (un punto de cue, un cambio de texto, audio añadido o un ajuste)"
 
 #: project.py
+msgid "the mod ID"
+msgstr "el ID del mod"
+
+#: project.py
 msgid "a note"
 msgstr "una nota"
 
 #: project.py
 msgid "the tabs"
 msgstr "las pestañas"
+
+#: project.py
+msgid "the authors"
+msgstr "los autores"
 
 #: project.py
 msgid "the label of {name}"
@@ -2395,16 +2569,20 @@ msgid "{name}: same target as {other}"
 msgstr "{name}: mismo destino que {other}"
 
 #: project.py
-msgid "{name}: the audio file wasn't found ({path})"
-msgstr "{name}: no se ha encontrado el fichero de audio ({path})"
-
-#: project.py
 msgid "segment {id}: unknown overrides {keys}"
 msgstr "segmento {id}: anulaciones desconocidas {keys}"
 
 #: project.py
 msgid "the imported mods' banks"
 msgstr "los bancos de los mods importados"
+
+#: project.py
+msgid "{name}: the audio file wasn't found ({path})"
+msgstr "{name}: no se ha encontrado el fichero de audio ({path})"
+
+#: project.py
+msgid "{name}: image not found ({path})"
+msgstr "{name}: no se encuentra la imagen ({path})"
 
 #: project.py
 msgid "the filters of sound {id}"

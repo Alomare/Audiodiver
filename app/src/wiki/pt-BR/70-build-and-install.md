@@ -2,7 +2,7 @@
 title: Gerando e instalando
 group: Geração e compartilhamento
 summary: O que uma geração cria, como instalá-la com um gerenciador de mods e como as atualizações chegam ao mod instalado.
-source: 1511bf82abe2
+source: d021a368c53c
 ---
 
 ## Gerar {#building}
@@ -31,7 +31,7 @@ Use só letras, números e espaços no nome, e deixe a versão de fora. O gerenc
 
 ### Ícone {#icon}
 
-O ícone é o ícone padrão do Audiodiver até você escolher uma imagem. Uma imagem é recortada num quadrado em volta do centro e redimensionada para 540 × 540, o tamanho que os gerenciadores de mods usam. Você também pode soltar uma imagem na prévia. **Borda**, **Cor da borda** e **Cantos** emolduram o ícone, padrão ou escolhido.
+O ícone é o ícone padrão do Audiodiver até você escolher uma imagem. Uma imagem é cortada em um quadrado em volta do centro e redimensionada para 540 × 540, o tamanho que os gerenciadores de mods usam. Você também pode soltar uma imagem na prévia. **Cor do ícone** define a cor do logotipo no ícone padrão. **Espessura da borda**, **Raio dos cantos da borda** e **Cor da borda** emolduram o ícone, padrão ou escolhido.
 
 ### ID do mod {#mod-id}
 

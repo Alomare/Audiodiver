@@ -2,7 +2,7 @@
 title: Tempo, pontos de cue e loops
 group: Criando um mod
 summary: Como o jogo passa de um segmento para o seguinte, como fazer a música nova passar a vez sem emendas, como recortar e mover o áudio novo e como fatiar uma música num cue.
-source: 87b1cca62b82
+source: 699f0b527e5c
 ---
 
 ## Ajustar o tempo ao áudio novo {#fitting-the-timing-to-the-new-audio}
@@ -25,16 +25,46 @@ Quando um arquivo toca em vários segmentos, **Aplicar a mais … segmentos com 
 > [!TIP]
 > Coloque as caudas de reverb e as batidas finais depois da Saída. Ali elas se sobrepõem ao segmento seguinte, o que evita um vazio.
 
-## Recortar e mover o áudio novo {#trimming-and-moving-new-audio}
+## Waveform Suite {#the-waveform-suite}
 
-A forma de onda **Substituído** mostra o arquivo inteiro do áudio novo, na mesma escala de tempo do original. A parte que toca fica clara, e o resto fica apagado. Isso funciona em todo slot com áudio novo: música, sons e falas.
+O lápis ao lado de **Antigo** (o original) ou **Novo** (o áudio novo) nas formas de onda abre o Waveform Suite para o slot selecionado. O botão branco antes dele copia aquele áudio, para colar em outros slots ou no Waveform Suite. Na [Trilha Sonora](app:soundtrack), **Editar música** e o lápis de uma música em uma playlist abrem uma música do mesmo jeito. Ele corta, divide, move e aplica fades no áudio, então edições simples não precisam de outro programa. Isso funciona em todos os slots: música, sons e falas.
 
-- Arraste as linhas de **Início** e **Fim** para escolher o trecho do arquivo que toca.
-- Arraste o rótulo **Início** ou **Fim** no alto de uma linha para aplicar fade in ou fade out no áudio. A linha se inclina de onde o áudio está em silêncio até onde ele chega ao nível máximo.
-- Arraste o trecho claro para a direita para o áudio novo começar depois do original. O slot toca silêncio antes dele. Arraste de volta para a esquerda para começar mais cedo.
-- Digite valores exatos em **Início**, **Fim**, **Atraso**, **Fade In** e **Fade Out** abaixo das formas de onda, em milissegundos. **Redefinir** volta a tocar o arquivo inteiro, desde o início e sem fades.
+O áudio fica em uma linha do tempo como **blocos**. Cada bloco é um trecho de um arquivo, colocado em um momento escolhido, com fade in, fade out, ganho e curva de volume. O original corre no topo para comparação, e uma linha tracejada marca onde ele termina. As ferramentas ficam em uma barra acima da linha do tempo, e apontar para uma mostra o que ela faz e a tecla dela. O tempo do cursor aparece à direita, acima das formas de onda.
 
-O arquivo fica como está. O projeto guarda esses valores, e as gerações e as prévias os usam. O Make-Up Gain vale para o trecho que toca. Escolher outro arquivo para o slot o deixa sem recorte.
+- Arraste o corpo de um bloco para movê-lo. Arraste a borda esquerda ou direita para cortá-lo. Arraste os quadradinhos da borda superior para aplicar fade in ou fade out.
+- Clique na linha do tempo para posicionar o cursor. Para movê-lo, arraste o próprio cursor, ou arraste ao longo da régua no topo.
+- Arraste a partir de um espaço vazio para desenhar uma caixa: todo bloco que ela toca é selecionado, em qualquer camada. Shift ou Ctrl com um clique adiciona um bloco à seleção ou o tira dela, e Ctrl+A seleciona todos os blocos. Blocos selecionados se movem, se dividem, se duplicam, se normalizam e saem juntos, e os valores ao lado da linha do tempo definem os fades e o ganho de todos eles.
+- **Dividir** (S) corta os blocos selecionados no cursor, ou o bloco sob o cursor, e cada parte ganha fades próprios. **Normalizar** (N) ajusta o ganho para que o momento mais alto de cada bloco chegue a −1 dB. **Duplicar** (Ctrl+D) coloca cópias logo depois dos blocos, e **Remover** (Delete) os tira.
+- **Ímã** (M) encaixa o cursor, as bordas e os blocos uns nos outros, no início e onde o original termina.
+- **Curvas de volume** (V) mostra uma linha sobre cada bloco: nível cheio no topo do bloco, silêncio embaixo. Clique na linha para adicionar um ponto, e arraste um ponto para moldar o volume ao longo do tempo. Um clique duplo em um ponto, ou Alt e um clique, o remove. Enquanto um ponto é arrastado, o nível aparece ao lado em dB. Os pontos ficam com o áudio quando um bloco é cortado ou dividido, e **Achatar curva** ao lado da linha do tempo tira todos eles.
+- **Adicionar áudio** coloca arquivos de áudio na linha do tempo como novos blocos, um depois do outro a partir do cursor. Soltar arquivos no editor faz o mesmo, e **Ctrl+V** cola slots copiados com Ctrl+C na lista (o áudio novo deles como toca, ou o original) ou arquivos de áudio copiados no Explorador. Assim um slot pode ser feito de vários arquivos, e um slot sem áudio novo pode começar de arquivos ou do original.
+- Ao lado da linha do tempo, digite valores exatos para o bloco selecionado, em milissegundos.
+- **Reproduzir** (Espaço) toca a partir do cursor, e **Loop** (L) toca os blocos selecionados repetidamente. Um clique duplo na linha do tempo toca a partir dali. As pistas tocando ficam tingidas com a cor delas.
+- Ctrl+Z e Ctrl+Y desfazem e refazem dentro do editor. **Redefinir** volta ao arquivo inteiro, como está.
+
+### Camadas {#layers}
+
+Os blocos ficam em **camadas**, uma embaixo da outra. As camadas mantêm os blocos separados para que cada um seja fácil de ver e alcançar. Todas as camadas tocam juntas, e um bloco soa igual em qualquer camada.
+
+- **Nova camada**, abaixo da linha do tempo, adiciona uma camada. Clique no nome de uma camada para renomeá-la; Aplicar guarda os nomes com o slot. Áudio novo vindo de Adicionar áudio, de arquivos soltos ou de Ctrl+V vai para a última camada clicada, mostrada em amarelo.
+- Arraste um bloco para cima ou para baixo para movê-lo para outra camada.
+- Arraste os pontinhos antes do nome de uma camada para reordenar as camadas, e arraste a borda inferior do nome de uma camada para deixá-la mais alta ou mais baixa. Um clique duplo nessa borda a restaura.
+- A lixeira exclui uma camada. Uma camada com blocos pergunta antes, e Desfazer traz os blocos de volta.
+- A caixa antes de cada pista, inclusive a do original, escolhe o que **Reproduzir** toca e o que **Exportar** grava. Marque o original para ouvi-lo junto com o áudio novo, ou desmarque todas as camadas para ouvi-lo sozinho. **Aplicar** mantém todas as camadas, marcadas ou não.
+
+Blocos na mesma camada também podem se sobrepor, e tocam juntos. Blocos sobrepostos são desenhados semitransparentes, cada um de outra cor, para que os dois continuem visíveis. Um clique pega o bloco mais curto embaixo do ponteiro, e outro clique no mesmo lugar pega o próximo, então um bloco embaixo de outro mais longo sempre pode ser selecionado.
+
+### Música: pontos de marcação, contexto e segmentos inteiros {#music-cue-points-context-and-whole-segments}
+
+Em um slot de um segmento de música, a **Entrada** e a **Saída** do segmento ficam na linha do tempo como linhas com bandeiras na régua, e os tempos delas aparecem acima das formas de onda. Arraste uma bandeira para mover o ponto de marcação. Ele se encaixa nas bordas dos blocos com o ímã ligado, e solto perto do ponto automático volta para ele. A pista do original mostra onde o jogo os coloca. **Aplicar** define os pontos de marcação junto com os blocos.
+
+**Tocar no contexto** (C) toca o fim do segmento anterior, este segmento como está no editor e o início do segmento seguinte, passando de um para o outro nos pontos de marcação como o jogo faz. Nada precisa ser aplicado antes.
+
+**Editar segmento**, o botão empilhado abaixo do lápis nas formas de onda, abre todos os slots do segmento juntos: cada slot com o original acima das camadas de áudio novo, tudo em uma mesma linha do tempo, para que as partes se alinhem. Um slot sem áudio novo pode começar do original com o + ao lado do nome do slot. **Aplicar** define cada slot que mudou.
+
+**Exportar**, ao lado de Aplicar, mixa as pistas marcadas em um único arquivo de áudio: WAV, FLAC, MP3 ou Ogg Vorbis, a 48 ou 44,1 kHz, nos canais do áudio, em estéreo ou mono, e levado a −1 dB no momento mais alto se você quiser. O projeto não muda.
+
+Nada muda até **Aplicar**. Os arquivos ficam como estão: o projeto guarda os blocos, e as gerações e prévias tocam o que o editor mostra. Editar o original dá ao slot o original editado como áudio novo, como faz copiar um slot. O Make-Up Gain se aplica sobre o resultado, e escolher outro arquivo para o slot o faz começar sem edição.
 
 ## Ouvir o resultado {#hearing-the-result}
 

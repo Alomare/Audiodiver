@@ -2,7 +2,7 @@
 title: Cómo funciona Audiodiver
 group: Primeros pasos
 summary: Qué hace Audiodiver, qué es un proyecto y para qué sirve cada pestaña.
-source: cc495476e4fc
+source: 41b735498457
 ---
 
 Audiodiver sustituye el audio de Helldivers 2 según **qué es y dónde suena**. Busca una pieza de música o un conjunto de sonidos en la Biblioteca, añádela a un proyecto y dale audio nuevo. Audiodiver calcula entonces los bancos de sonido, los ID y los valores de tiempo que necesita el juego.
@@ -15,7 +15,7 @@ Un proyecto es una carpeta con el nombre del proyecto que contiene un fichero `.
 
 Los cambios se guardan automáticamente, al hacerlos o cada pocos minutos ([Guardado automático](wiki:how-audiodiver-works#autosave)). {key:save} guarda en cualquier momento y {key:undo} deshace el último cambio.
 
-Audiodiver nunca escribe en la carpeta del juego. Lee el audio del juego de la biblioteca de Steam, o de otra carpeta elegida en **Juego**, dentro de [Ajustes](app:settings/system). Una generación produce un ZIP que un gestor de mods importa e instala.
+Audiodiver nunca escribe en la carpeta del juego. Lee el audio del juego desde la biblioteca de Steam, o desde otra carpeta elegida en **Juego** en [Ajustes](app:settings/system). Inicio se abre enseguida mientras Audiodiver lee Helldivers 1 y Helldivers 2, y las pestañas que necesitan un juego aparecen en cuanto ese juego se ha leído. Una generación produce un ZIP que un gestor de mods importa e instala.
 
 ## Las pestañas {#the-tabs}
 

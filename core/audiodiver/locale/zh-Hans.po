@@ -384,6 +384,23 @@ msgid "text: table {table} is not in this game version; the {n} line changed in 
 msgid_plural "text: table {table} is not in this game version; the {n} lines changed in it are left out"
 msgstr[0] "文本：表 {table} 不在当前游戏版本中，其中更改的 {n} 行已略去"
 
+#: build.py
+msgid "{name}: the image can't be used ({why})"
+msgstr "{name}：无法使用该图片（{why}）"
+
+#: build.py
+msgid "Building {group}: {option}"
+msgstr "正在构建 {group}：{option}"
+
+#: build.py
+msgid "{group} ▸ {option}: {n} asset, {mb} MB"
+msgid_plural "{group} ▸ {option}: {n} assets, {mb} MB"
+msgstr[0] "{group} ▸ {option}：{n} 个资源，{mb} MB"
+
+#: build.py
+msgid "{group} ▸ {option}: the same as the base mod, so it deploys nothing"
+msgstr "{group} ▸ {option}：与基础模组相同，因此不部署任何内容"
+
 #: build.py editor.py
 msgid "Can't write the ZIP into {folder}: {why}"
 msgstr "无法将 ZIP 写入 {folder}：{why}"
@@ -492,7 +509,7 @@ msgstr "由以下模组合并而成："
 msgid "Setting {id}"
 msgstr "设置 {id}"
 
-#: combine.py
+#: combine.py editor.py
 msgid "Option {n}"
 msgstr "选项 {n}"
 
@@ -622,6 +639,18 @@ msgid "This slot has no new audio to trim"
 msgstr "此槽位没有可裁剪的新音频"
 
 #: editor.py
+msgid "Nothing to export. Tick a layer with audio, or the original"
+msgstr "没有可导出的内容。请勾选有音频的层或原版"
+
+#: editor.py
+msgid "Nothing to save. Add audio to the time line first"
+msgstr "没有可保存的内容。请先在时间线上添加音频"
+
+#: editor.py
+msgid "This slot has no new audio to edit"
+msgstr "此槽位没有可编辑的新音频"
+
+#: editor.py
 msgid "That folder is inside the game folder, and Audiodiver never writes there. Choose another folder, and import the ZIP in a mod manager."
 msgstr "该文件夹位于游戏文件夹内，Audiodiver 从不向其中写入。请选择其他文件夹，并在模组管理器中导入 ZIP。"
 
@@ -680,6 +709,26 @@ msgstr "选择项目包的保存位置（完整路径）"
 #: editor.py
 msgid "Choose where to unpack it (a full path)"
 msgstr "选择解包位置（完整路径）"
+
+#: editor.py
+msgid "That group isn't in the project any more"
+msgstr "该组已不在项目中"
+
+#: editor.py
+msgid "That option isn't in the project any more"
+msgstr "该选项已不在项目中"
+
+#: editor.py
+msgid "An option's gain is from −12 to +12 dB"
+msgstr "选项的增益范围为 −12 到 +12 dB"
+
+#: editor.py
+msgid "Choose the changes to undo"
+msgstr "请选择要撤销的更改"
+
+#: editor.py
+msgid "No image"
+msgstr "无图片"
 
 #: editor.py
 msgid "Choose a mod's .patch_0 file"
@@ -873,6 +922,10 @@ msgid "The game files are still changing. Audiodiver reads them again when Steam
 msgstr "游戏文件仍在变化。Steam 完成后，Audiodiver 会重新读取。"
 
 #: editor.py
+msgid "Helldivers 1 is still being read. Try again in a moment."
+msgstr "仍在读取 Helldivers 1。请稍后再试。"
+
+#: editor.py
 msgid "A new take has no original audio"
 msgstr "新变体没有原版音频"
 
@@ -924,6 +977,18 @@ msgstr "那是文件，不是文件夹"
 msgid "{n} file packed into {pack}"
 msgid_plural "{n} files packed into {pack}"
 msgstr[0] "已将 {n} 个文件打包到 {pack}"
+
+#: editor.py
+msgid "A group"
+msgstr "组"
+
+#: editor.py
+msgid "Option 1"
+msgstr "选项 1"
+
+#: editor.py
+msgid "An option"
+msgstr "选项"
 
 #: editor.py
 msgid "Nothing to build yet. Replace some audio, set a piece in the Soundtrack or change a line of text first."
@@ -1027,6 +1092,10 @@ msgid "{file} makes a mod for Helldivers 1, which wasn't found. Choose the Helld
 msgstr "{file} 是为 Helldivers 1 制作的模组，但未找到该游戏。请在 设置 ▸ 系统 中选择它的游戏文件夹。"
 
 #: editor.py
+msgid "{file} makes a mod for Helldivers 2, which wasn't found. Choose the game folder in Settings ▸ System."
+msgstr "{file} 用于制作 Helldivers 2 模组，但未找到 Helldivers 2。请在设置 ▸ 系统中选择游戏文件夹。"
+
+#: editor.py
 msgid "Sound {sound} doesn't play {source}"
 msgstr "声音 {sound} 不播放 {source}"
 
@@ -1047,6 +1116,14 @@ msgid "{name}: can't read the audio file ({file})"
 msgstr "{name}：无法读取音频文件（{file}）"
 
 #: editor.py
+msgid "Go back to the base mod to add takes or layers, or to isolate audio"
+msgstr "请返回基础模组来添加变体或层，或分离音频"
+
+#: editor.py
+msgid "This slot's bank already has sounds of the group {other}. Two groups can't change one bank in Helldivers 2 mod managers: change it in {other} instead, or in the base mod. (It would have gone into {name}.)"
+msgstr "此槽位的音频库中已有组 {other} 的声音。在 Helldivers 2 模组管理器中，两个组不能修改同一个音频库：请改在 {other} 或基础模组中修改。（它原本会进入 {name}。）"
+
+#: editor.py
 msgid "{file} is not an audio file Audiodiver can read"
 msgstr "{file} 不是 Audiodiver 能读取的音频文件"
 
@@ -1059,8 +1136,16 @@ msgid "The audio must play for at least {ms} ms"
 msgstr "音频至少要播放 {ms} ms"
 
 #: editor.py
+msgid "The Waveform Suite sends up to {n} blocks"
+msgstr "Waveform Suite 最多发送 {n} 个块"
+
+#: editor.py
 msgid "{folder} is not a folder"
 msgstr "{folder} 不是文件夹"
+
+#: editor.py
+msgid "Segments {ids} aren't in this piece of music"
+msgstr "段落 {ids} 不在这首曲目中"
 
 #: editor.py
 msgid "The version is a whole number from 1 to 99999"
@@ -1078,6 +1163,18 @@ msgstr "已解包到 {folder}"
 #: editor.py
 msgid "No job {id}"
 msgstr "没有任务 {id}"
+
+#: editor.py
+msgid "{what} needs a name"
+msgstr "{what} 需要名称"
+
+#: editor.py
+msgid "Keep it to {n} characters on one line"
+msgstr "请控制在一行、{n} 个字符以内"
+
+#: editor.py
+msgid "Group {n}"
+msgstr "组 {n}"
 
 #: editor.py
 msgid "{file} isn't a patch file. Choose a .patch_0 file. Audiodiver also reads the .stream file next to it."
@@ -1150,10 +1247,6 @@ msgstr[0] "{n} 处冲突"
 #: editor.py
 msgid "{id} is not a piece of music. Only music has segments to mix and play through."
 msgstr "{id} 不是曲目。只有音乐才有可混合和连续播放的段落。"
-
-#: editor.py
-msgid "Segments {ids} aren't in this piece of music"
-msgstr "段落 {ids} 不在这首曲目中"
 
 #: editor.py
 msgid "Items {ids} aren't in this piece of music"
@@ -1231,6 +1324,18 @@ msgid "Start, end and delay are from 0 to {ms} ms"
 msgstr "开始、结束和延迟的范围是 0 到 {ms} ms"
 
 #: editor.py
+msgid "A block of the Waveform Suite is out of range ({what})"
+msgstr "Waveform Suite 的一个块超出范围（{what}）"
+
+#: editor.py
+msgid "A volume curve has up to {n} points, each a time and a level"
+msgstr "音量曲线最多有 {n} 个点，每个点包含时间和电平"
+
+#: editor.py
+msgid "{file} couldn't be written: {why}"
+msgstr "无法写入 {file}：{why}"
+
+#: editor.py
 msgid "{file} can't be read, so global notes can't be shown or saved. Fix or move the file, or choose another folder in Settings ▸ System."
 msgstr "无法读取 {file}，因此无法显示或保存全局备注。请修复或移动该文件，或在“设置 ▸ 系统”中选择其他文件夹。"
 
@@ -1249,6 +1354,22 @@ msgstr "无法保存备注：{why}"
 #: editor.py
 msgid "{file} isn't a notes file or an Audiodiver project"
 msgstr "{file} 不是备注文件，也不是 Audiodiver 项目"
+
+#: editor.py
+msgid "{file} is too large to use as an image"
+msgstr "{file} 太大，无法用作图片"
+
+#: editor.py
+msgid "A mod can have up to {n} groups"
+msgstr "一个模组最多可有 {n} 个组"
+
+#: editor.py
+msgid "A group can have up to {n} options"
+msgstr "一个组最多可有 {n} 个选项"
+
+#: editor.py
+msgid "Stem {n}"
+msgstr "分轨 {n}"
 
 #: editor.py
 msgid "Fix the problems on the Build tab first: {problem} (and {n} more)"
@@ -1347,6 +1468,10 @@ msgid "That isn't a mod ID (a GUID like 3f2a…-…)"
 msgstr "这不是模组 ID（应为类似 3f2a…-… 的 GUID）"
 
 #: editor.py
+msgid "A mod ID has up to 64 lowercase letters, digits, dots, dashes and underscores, such as name.mymod"
+msgstr "模组 ID 最多 64 个小写字母、数字、点、连字符和下划线，例如 name.mymod"
+
+#: editor.py
 msgid "{item}, clip {id}"
 msgstr "{item}，片段 {id}"
 
@@ -1422,10 +1547,6 @@ msgid_plural "{n} files besides audio that a later mod replaces"
 msgstr[0] "{n} 个音频以外的文件被后续模组替换"
 
 #: editor.py
-msgid "Loudness analysis: {why}"
-msgstr "响度分析：{why}"
-
-#: editor.py
 msgid "the icon ({why})"
 msgstr "图标（{why}）"
 
@@ -1444,6 +1565,10 @@ msgstr "段落"
 #: editor.py
 msgid "{segment}, {n} of {total}"
 msgstr "{segment}，{n}/{total}"
+
+#: editor.py
+msgid "Loudness analysis: {why}"
+msgstr "响度分析：{why}"
 
 #: editor.py
 msgid "segment"
@@ -1540,6 +1665,10 @@ msgstr "未找到 {folder}"
 #: game.py
 msgid "The HD2_DATA environment variable points to {folder}, which has no Helldivers 2 files"
 msgstr "HD2_DATA 环境变量指向的 {folder} 中没有 Helldivers 2 文件"
+
+#: hd1.py
+msgid "Not Named Yet"
+msgstr "尚未命名"
 
 #: hd1.py textsort.py
 msgid "Missions"
@@ -1694,6 +1823,14 @@ msgid "All Archives"
 msgstr "所有归档"
 
 #: hd1.py
+msgid "Event {id}"
+msgstr "事件 {id}"
+
+#: hd1.py
+msgid "Played by {owner}"
+msgstr "由 {owner} 播放"
+
+#: hd1.py
 msgid "{n} languages"
 msgstr "{n} 种语言"
 
@@ -1708,10 +1845,6 @@ msgstr "结尾"
 #: hd1.py library.py
 msgid "Take {n}"
 msgstr "变体 {n}"
-
-#: hd1.py
-msgid "Event {id}"
-msgstr "事件 {id}"
 
 #: hd1_build.py
 msgid "Nothing to build yet. Replace some audio first."
@@ -1742,6 +1875,10 @@ msgstr[0] "{n} 个被替换的声音不在此版本的 Helldivers 1 中"
 #: hd1_build.py
 msgid "encoding {name}"
 msgstr "正在编码 {name}"
+
+#: hd1_build.py
+msgid "The groups {names} change the same sounds in {n} ways, more than a mod can hold. Narrow them to fewer sounds."
+msgstr "组 {names} 以 {n} 种方式修改相同的声音，超出了一个模组的容量。请减少涉及的声音。"
 
 #: index.py
 msgid "English"
@@ -2082,6 +2219,34 @@ msgstr "备注最多 {n} 个字符"
 msgid "No notes."
 msgstr "没有备注。"
 
+#: options.py
+msgid "the options for players"
+msgstr "玩家选项"
+
+#: options.py
+msgid "the group {name}"
+msgstr "组 {name}"
+
+#: options.py
+msgid "Pick an option of the group the changes go to first"
+msgstr "请先选择更改要进入的组中的一个选项"
+
+#: options.py
+msgid "slot {id}"
+msgstr "槽位 {id}"
+
+#: options.py
+msgid "Choose where changes to {name} go"
+msgstr "请选择 {name} 的更改要进入的位置"
+
+#: options.py
+msgid "{name} belongs to the group {group}. Edit an option of {group} to change it"
+msgstr "{name} 属于组 {group}。要更改它，请编辑 {group} 的一个选项"
+
+#: options.py
+msgid "the cue points of segment {id}"
+msgstr "段落 {id} 的提示点"
+
 #: patch.py
 msgid "{file} is missing"
 msgstr "{file} 缺失"
@@ -2224,12 +2389,20 @@ msgid "The project in {pack} is damaged (a cue point, a text change, added audio
 msgstr "{pack} 中的项目已损坏（提示点、文本更改、添加的音频或设置）"
 
 #: project.py
+msgid "the mod ID"
+msgstr "模组 ID"
+
+#: project.py
 msgid "a note"
 msgstr "一条备注"
 
 #: project.py
 msgid "the tabs"
 msgstr "选项卡"
+
+#: project.py
+msgid "the authors"
+msgstr "作者"
 
 #: project.py
 msgid "the label of {name}"
@@ -2332,16 +2505,20 @@ msgid "{name}: same target as {other}"
 msgstr "{name}：与 {other} 的目标相同"
 
 #: project.py
-msgid "{name}: the audio file wasn't found ({path})"
-msgstr "{name}：未找到音频文件（{path}）"
-
-#: project.py
 msgid "segment {id}: unknown overrides {keys}"
 msgstr "段落 {id}：未知的覆盖项 {keys}"
 
 #: project.py
 msgid "the imported mods' banks"
 msgstr "导入模组的音频库"
+
+#: project.py
+msgid "{name}: the audio file wasn't found ({path})"
+msgstr "{name}：未找到音频文件（{path}）"
+
+#: project.py
+msgid "{name}: image not found ({path})"
+msgstr "{name}：未找到图片（{path}）"
 
 #: project.py
 msgid "the filters of sound {id}"

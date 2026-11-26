@@ -2,7 +2,7 @@
 title: Make-Up Gain y la mezcla
 group: Crear un mod
 summary: Cómo ajustar la sonoridad de un slot, cómo funciona la mezcla HDR del juego y por qué algunas pantallas suenan más bajas en el juego que en Audiodiver.
-source: 5f03f242e197
+source: b91110b5d4cd
 ---
 
 ## Make-Up Gain por slot {#make-up-gain-per-slot}
@@ -71,7 +71,7 @@ Los aplica el juego, así que las vistas previas y las formas de onda de Audiodi
 
 ## Fundidos {#fades}
 
-El **fundido de entrada** y el **fundido de salida** van en milisegundos, bajo las formas de onda y en los detalles de un slot con audio nuevo. En la forma de onda **Sustituido**, la etiqueta de lo alto de la línea de **Inicio** o **Fin** arrastra un fundido (consulta [Recortar y mover el audio nuevo](wiki:timing-and-loops#trimming-and-moving-new-audio)). Los fundidos se integran en el propio audio, así que la forma de onda y la vista previa los muestran, y la duración no cambia. Un `.wem` que entraría sin cambios se codifica de nuevo cuando tiene un fundido.
+**Fundido de entrada** y **Fundido de salida** van en milisegundos, en los detalles de un slot con audio nuevo. [Waveform Suite](wiki:timing-and-loops#the-waveform-suite) aplica fundidos a cada bloque por separado, y un fundido arrastrado allí se ve en la línea de tiempo mientras se ajusta. Con varios bloques, el panel de detalles fija el fundido de entrada del primer bloque y el de salida del último. Los fundidos van dentro del propio audio, así que la forma de onda y la previsualización los muestran, y la duración no cambia. Un `.wem` que entraría sin cambios se vuelve a codificar cuando tiene un fundido.
 
 ## Filtro de radio {#radio-filter}
 

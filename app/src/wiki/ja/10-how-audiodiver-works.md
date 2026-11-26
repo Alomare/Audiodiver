@@ -2,7 +2,7 @@
 title: Audiodiverの仕組み
 group: はじめに
 summary: Audiodiverでできること、プロジェクトとは何か、各タブの役割を説明します。
-source: cc495476e4fc
+source: 41b735498457
 ---
 
 Audiodiverは、Helldivers 2の音声を「何であるか」と「どこで再生されるか」で置き換えます。ライブラリで音楽やサウンドのセットを見つけ、プロジェクトに追加して、新しい音声を割り当ててください。ゲームに必要なサウンドバンク、ID、タイミングの値はAudiodiverが算出します。
@@ -15,7 +15,7 @@ Audiodiverは、Helldivers 2の音声を「何であるか」と「どこで再�
 
 変更は、行うたびに、または数分おきに自動で保存されます（[自動保存](wiki:how-audiodiver-works#autosave)）。{key:save}でいつでも保存でき、{key:undo}で直前の変更を元に戻せます。
 
-Audiodiverがゲームフォルダーに書き込むことはありません。ゲームの音声は、Steamライブラリから、または[設定 ▸ システム](app:settings/system)の**ゲーム**で選んだ別のフォルダーから読み込みます。ビルドするとZIPが作られ、MODマネージャーでインポートしてインストールします。
+Audiodiver はゲームフォルダーに書き込むことはありません。ゲームの音声は Steam ライブラリ、または[設定](app:settings/system)の **ゲーム** で選んだ別のフォルダーから読み込みます。Audiodiver が Helldivers 1 と Helldivers 2 を読み込んでいる間もホームはすぐに開き、ゲームが必要なタブはそのゲームの読み込みが終わると表示されます。ビルドすると、MODマネージャーが読み込んでインストールする ZIP ができます。
 
 ## タブ {#the-tabs}
 

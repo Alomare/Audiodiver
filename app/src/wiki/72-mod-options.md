@@ -17,7 +17,7 @@ Groups are made on the [Project](app:project) tab, under **Options for Players**
 - The square beside a name chooses the image players see in the mod manager. It is cropped to a centred square, like the icon.
 - The arrows move groups and options, and the trash can removes them. The first option of a group is the one a mod manager picks at first.
 
-Each group has a letter and each option a number, together a code such as **A3**, shown in the corner of the image. Codes follow the order: the first group is **A**, and **A3** is the third option of that group. Moving or removing a group or an option changes the codes after it.
+Each group has a letter and each option a number, together a code such as **A3**: the letter shows on the group's image, and the code beside each option's image. Codes follow the order: the first group is **A**, and **A3** is the third option of that group. Moving or removing a group or an option changes the codes after it.
 
 Under each option, a line says what it changes and about how much it adds to the mod. **Changes** lists every slot the option changes, with the setting as the base mod has it and as the option has it. The undo button on a row takes that change out of the option, after a question. Click a slot's name to show it in the Audio tab.
 

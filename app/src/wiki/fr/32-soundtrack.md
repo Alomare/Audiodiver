@@ -2,7 +2,7 @@
 title: Bande-son
 group: Créer un mod
 summary: Comment chaque morceau de musique est joué : dans l’ordre d’origine, comme une seule chanson, comme une playlist, en silence, ou comme la musique de combat.
-source: 567d14475a70
+source: b8968eb37100
 ---
 
 Le jeu ne joue pas un morceau de musique de haut en bas. La playlist d’un morceau mélange des groupes joués dans l’ordre, des groupes qui jouent le segment suivant à chaque fois, et des groupes qui choisissent au hasard. La plupart des musiques de combat démarrent chaque combat sur une courte ouverture, et un nouveau combat reprend là où le précédent s’est arrêté. Une chanson découpée dans les emplacements dans l’ordre de la liste est jouée dans le désordre dans le jeu.
@@ -42,11 +42,11 @@ Annuler reprend un modèle entier. Un modèle qui ne trouve rien à modifier l�
 
 La liste continue après le dernier morceau avec les segments que la chanson n’atteint pas. Un fichier placé sur l’un d’eux est joué après la chanson et y reste si vous recoupez la chanson, sauf si un nouveau morceau tombe sur ce segment.
 
-**Modifier coupes** ouvre de nouveau l’outil de découpe avec la même chanson et les mêmes coupes. **Choisir une autre chanson** repart avec une nouvelle.
+**Modifier coupes** rouvre l’outil de découpe avec la même chanson et les mêmes coupes. **Choisir une autre chanson** recommence avec une nouvelle. **Modifier la chanson** ouvre la chanson dans [Waveform Suite](wiki:timing-and-loops#the-waveform-suite) pour la rogner, y ajouter des fondus ou l’arranger avant qu’elle soit découpée : **Enregistrer et découper** enregistre le résultat dans un nouveau fichier du dossier `audio\edited` du projet et ouvre l’outil de découpe avec. La chanson choisie reste telle quelle.
 
 ## Playlist {#playlist}
 
-Une playlist a une ligne pour chaque endroit où une chanson peut aller, dans l’ordre de lecture. Cliquez sur un endroit, ou déposez-y une chanson, pour y placer une chanson. Plusieurs fichiers choisis ou déposés sur un endroit le remplissent ainsi que les endroits suivants, dans l’ordre des noms de fichiers. **Ajouter des chansons** remplit les endroits vides. Faites glisser une chanson vers un autre endroit pour la déplacer, et les chansons entre les deux avancent d’un endroit. ↑ et ↓ sur la ligne, ou {key:moveUp} et {key:moveDown}, déplacent une chanson d’un endroit, et ✕ la retire de la playlist. Le fichier reste sur le disque.
+Une playlist a une ligne pour chaque place où peut aller une chanson, dans l’ordre de lecture. Cliquez sur une place, ou déposez-y une chanson, pour y mettre une chanson. Plusieurs fichiers choisis ou déposés sur une place la remplissent, ainsi que les places suivantes, dans l’ordre des noms de fichiers. **Ajouter des chansons** remplit les places vides. Faites glisser une chanson vers une autre place pour la déplacer, et les chansons entre les deux avancent d’une place. ↑ et ↓ sur la ligne, ou {key:moveUp} et {key:moveDown}, déplacent une chanson d’une place, et ✕ la retire de la playlist. Le fichier reste sur le disque. Le crayon ouvre la chanson dans [Waveform Suite](wiki:timing-and-loops#the-waveform-suite) : **Enregistrer et utiliser** enregistre le résultat dans un nouveau fichier de `audio\edited` et le met à cette place.
 
 Les endroits vides ne sont pas joués. **Lecture aléatoire** joue les chansons dans un ordre aléatoire, et aucune chanson n’est jouée deux fois avant que les autres l’aient été. **Continuer au combat suivant** démarre chaque combat sur la chanson qui suit celle où le dernier combat s’est arrêté. Sans cette option, chaque combat repart de la première chanson. Pour la musique hors combat, l’option est **Continuer la fois suivante**.
 
@@ -89,4 +89,4 @@ Les segments d’un groupe sont reliés par ce que le groupe signifie : → po
 
 ## Couches {#layers}
 
-Une musique qui joue plusieurs couches à la fois, comme la musique d’extraction, les montre sous forme de grille : une ligne par segment, et une colonne par couche à basse et à haute intensité. Cliquez sur une cellule pour voir les formes d’onde. Remplacez les couches dans l’onglet [Audio](app:editor).
+La musique qui joue plusieurs couches à la fois, comme celle de l’Extraction, les affiche en grille : une ligne par segment et une colonne par couche, à intensité faible et forte. Cliquez sur une case pour voir les formes d’onde. Remplacez les couches dans l’onglet [Audio](app:editor), ou modifiez ensemble toutes les couches d’un segment avec le bouton empilé sous le crayon dans les formes d’onde (**Modifier le segment**).

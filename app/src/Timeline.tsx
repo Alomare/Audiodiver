@@ -202,7 +202,7 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
           </div>
           {!readOnly && (
             <div className="tl-row">
-              <div className="tl-label mine"><b>{t({ message: "New", comment: "The new audio's waveform, under the original's" })}</b>{mineDb !== 0 && <Db db={mineDb} />}{audible(a) && mineCurve && <CurveLabel />}</div>
+              <div className="tl-label mine"><b>{t({ message: "New", context: "waveform", comment: "The new audio's waveform, under the original's" })}</b>{mineDb !== 0 && <Db db={mineDb} />}{audible(a) && mineCurve && <CurveLabel />}</div>
               <span className="tl-edit-at">
                 <CopyButton original={false} onClick={a && (a.silence || a.exists) ? () => actions.copySlots([source], { [source]: what }) : undefined} />
                 <span className="tl-edit-col">{(!a || (audible(a) && a.exists)) && <EditButton original={false} onClick={() => setEditing("mine")} />}

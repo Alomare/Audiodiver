@@ -2,7 +2,7 @@
 title: Make-Up Gain e a mixagem
 group: Criando um mod
 summary: Como definir o volume de um slot, como funciona a mixagem HDR do jogo e por que algumas telas soam mais baixas no jogo do que no Audiodiver.
-source: 5f03f242e197
+source: b91110b5d4cd
 ---
 
 ## Make-Up Gain por slot {#make-up-gain-per-slot}
@@ -71,7 +71,7 @@ Quem os aplica é o jogo, então as prévias e as formas de onda do Audiodiver t
 
 ## Fades {#fades}
 
-**Fade In** e **Fade Out** ficam em milissegundos, abaixo das formas de onda e nos detalhes de um slot com áudio novo. Na forma de onda **Substituído**, o rótulo no alto da linha de **Início** ou **Fim** arrasta um fade (veja [Recortar e mover o áudio novo](wiki:timing-and-loops#trimming-and-moving-new-audio)). Os fades entram no próprio áudio, então a forma de onda e a prévia os mostram, e a duração não muda. Um `.wem` que entraria sem alteração é codificado de novo quando tem um fade.
+**Fade In** e **Fade Out** são em milissegundos, nos detalhes de um slot com áudio novo. O [Waveform Suite](wiki:timing-and-loops#the-waveform-suite) aplica fades em cada bloco separadamente, e um fade arrastado ali aparece na linha do tempo enquanto é ajustado. Com vários blocos, o painel de detalhes define o fade in do primeiro bloco e o fade out do último. Os fades vão para o próprio áudio, então a forma de onda e a prévia os mostram, e a duração não muda. Um `.wem` que entraria sem alteração é codificado de novo quando tem um fade.
 
 ## Filtro de rádio {#radio-filter}
 
