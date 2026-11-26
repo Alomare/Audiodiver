@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { t } from "@lingui/core/macro";
 import { audioUrl, type Cue, type Curve } from "./api";
 import { audible, rowName, rowsOf } from "./CueView";
@@ -8,8 +8,8 @@ import { player, usePlayer, type PlayedAt } from "./player";
 import { SlotFacts } from "./Inspector";
 import { ResizeEdge, useStoredHeight } from "./Resize";
 import { useEditor } from "./store";
-import { usePeaks, Waveform, type Marker } from "./Waveform";
-import { WaveEditor, type EditCues } from "./WaveEditor";
+import { finePeaks, usePeaks, useWaveZoom, useWheelZoom, WaveScroll, Waveform, WaveZoom, type Marker } from "./Waveform";
+import { curveLines, WaveEditor, type EditCues } from "./WaveEditor";
 import { CopyIcon, PencilIcon } from "./Icons";
 
 /** The selected slot as two waveforms on one time scale: the original above, the replacement below, with the
@@ -25,6 +25,7 @@ import { CopyIcon, PencilIcon } from "./Icons";
     and its selected slot. */
 const HEIGHT = 210;
 const HEIGHT_ONE = 190; // the Library's: the game's waveform under the slot's facts
+const MIN_SPAN = 20;    // ms: the closest the time zoom goes
 // the cue points' names, on the flags
 const ENTRY = t({ message: "Entry", comment: "A music segment's Entry cue point (Wwise term): where the segment counts as started" });
 const EXIT = t({ message: "Exit", comment: "A music segment's Exit cue point (Wwise term): where the next segment starts" });
@@ -90,11 +91,20 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
   const mineWave = usePeaks("project", audible(a) && a!.exists ? source : null, String(revision));
   const [editing, setEditing] = useState<"original" | "mine" | null>(null);
   useEffect(() => setEditing(null), [source]);
-  // both on one time scale, the longer one across the full width (zooming in is in the Waveform Suite)
+  // both on one time scale, the longer one across the full width; one zoom for both, from the controls at the right,
+  // and once zoomed in, finer peaks take over as they come
   const span = Math.max(gameWave.peaks?.duration_ms ?? 0, mineWave.peaks?.duration_ms ?? 0, 1);
-  const game = gameWave.peaks, mine = mineWave.peaks;
+  const zoom = useWaveZoom(span, MIN_SPAN, source);
+  const fineGame = finePeaks(zoom, gameWave.peaks?.duration_ms), fineMine = finePeaks(zoom, mineWave.peaks?.duration_ms);
+  const gameFine = usePeaks("vanilla", fineGame && !none ? source : null, "", fineGame);
+  const mineFine = usePeaks("project", fineMine && audible(a) && a!.exists ? source : null, String(revision), fineMine);
+  const game = gameFine.peaks ?? gameWave.peaks, mine = mineFine.peaks ?? mineWave.peaks;
+  const waves = useRef<HTMLDivElement>(null);
+  useWheelZoom(waves, zoom, !!source);
   const heardMs = a?.duration_ms ?? mine?.duration_ms; // how long the new audio plays
   const curve = useMemo(() => (row?.slot.curve ? curveLine(row.slot.curve) : undefined), [row?.slot.curve]);
+  // the Waveform Suite's volume curves, over the new audio they shape
+  const lines = useMemo(() => (audible(a) ? curveLines(a!.blocks) : undefined), [a]);
   if (!row || !source) return null;
 
   const { seg } = row;
@@ -102,7 +112,7 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
   // what plays in the slot follows the curve, unless the project drops it; the original lane always shows the game's
   const dropped = !readOnly && !!project?.curves_off.includes(source);
   const gameCurve = a || !dropped ? curve : undefined, mineCurve = dropped ? undefined : curve;
-  const view = { spanMs: span, fromMs: 0, zoomY: 1 };
+  const view = { spanMs: zoom.span, fromMs: zoom.from, zoomY: zoom.y };
   const kGame = `vanilla:${source}`, kMine = `project:${source}`;
   // the play-through that plays in this tab, and how far it is
   const playing = through && p.key === through.key ? through : null;
@@ -148,8 +158,8 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
     <section className={`timeline${readOnly ? " one" : ""}`} aria-label={t`Waveforms`} style={{ height: h ?? (readOnly ? HEIGHT_ONE : HEIGHT) }}>
       <ResizeEdge edge="top" label={t`Resize the waveforms`} min={readOnly ? 120 : 140} max={room} onResize={(v) => setH(v)} onReset={() => setH(readOnly ? HEIGHT_ONE : HEIGHT)} />
       {readOnly && <SlotFacts row={row} />}
-      <div className="tl-body">
-        <div className="tl-rows">
+      <div className="tl-body zoom-grid">
+        <div className="tl-rows" ref={waves}>
           <div className="tl-row">
             <div className="tl-label game"><b>{readOnly ? t`Original` : t({ message: "Old", comment: "The original audio's waveform, above the new audio's" })}</b></div>
             {!readOnly && <span className="tl-edit-at">
@@ -174,7 +184,7 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
                 <div className="wave placeholder">{a.fit_timing ? t`Silence: plays nothing, and the game moves straight on`
                   : t`Silence: plays nothing for the length of the original, so the timing doesn't change`}</div>
               ) : a?.exists ? (
-                <Waveform peaks={mine} {...view} tone="mine" markers={myMarkers} playheadMs={head(kMine, true, mine?.duration_ms)} gainDb={mineDb} curve={mineCurve}
+                <Waveform peaks={mine} {...view} tone="mine" markers={myMarkers} playheadMs={head(kMine, true, mine?.duration_ms)} gainDb={mineDb} curve={mineCurve} lines={lines}
                   activeFrom={hasCues ? entry : undefined} activeTo={hasCues ? exit : undefined}
                   onSeek={(ms) => seek("project", ms)}
                   onMarkerCommit={commit} label={t`Reading the new audio…`} error={mineWave.error} onRetry={mineWave.retry} />
@@ -185,6 +195,7 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
             </div>
           )}
         </div>
+        <WaveZoom zoom={zoom} foot={zoom.x > 1 ? <WaveScroll zoom={zoom} /> : null} />
       </div>
       {editing && <WaveEditor what={what} cues={editCues} onClose={() => setEditing(null)}
         tracks={[{ source, name: what, original: editing === "original" }]} />}

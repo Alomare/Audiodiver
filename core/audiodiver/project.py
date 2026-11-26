@@ -241,6 +241,8 @@ LEGACY_SILENCE = "silence (skipped).wav"  # what Skip wrote into the project fol
 
 
 BLOCK_GAIN_DB = (-60.0, 24.0)  # a block's own gain in the Waveform Suite
+TEMPO = (0.5, 2.0)    # a block's speed in the Waveform Suite: 2 plays it twice as fast, in half the time
+PITCH = (-12.0, 12.0)  # a block's pitch shift in semitones
 MAX_BLOCKS = 256
 MAX_LAYERS = 32  # the Waveform Suite's layers: lanes to keep blocks apart in, which all play together
 LAYER_NAME_MAX = 40
@@ -280,7 +282,9 @@ class Block:
     to end_ms of the file, playing at at_ms, with fades inside it (a straight line in level) and a gain of its own.
     Blocks that overlap play together, added up, whatever layer (the editor's lane) they are on. A volume curve
     (`curve`, points at times of the file with a level from silence 0 to full 1, a straight line between them and level
-    before the first and after the last) scales the block on top of its gain and fades."""
+    before the first and after the last) scales the block on top of its gain and fades. `tempo` plays the stretch
+    faster or slower (it lasts (end_ms - start_ms) / tempo on the time line; fades are in time line ms) and `pitch`
+    shifts it by semitones; a pitch of 12 * log2(tempo) is the stretch played faster or slower, as a tape would."""
     start_ms: float
     end_ms: float
     at_ms: float = 0.0
@@ -290,10 +294,13 @@ class Block:
     audio: str = ""  # another file it plays, stored as Replacement.audio is; "" for the replacement's own
     layer: int = 0   # the lane the Waveform Suite shows it in, from the top; it doesn't change how it plays
     curve: list = field(default_factory=list)  # the volume curve, [[ms in the file, level], ...]; empty: full all along
+    tempo: float = 1.0
+    pitch: float = 0.0
 
     @property
     def length_ms(self) -> float:
-        return self.end_ms - self.start_ms
+        """How long it plays on the time line."""
+        return (self.end_ms - self.start_ms) / self.tempo
 
 
 @dataclass
@@ -594,7 +601,8 @@ class Project:
                                  number(b.get("gain_db", 0.0), 0.0, *BLOCK_GAIN_DB, what),
                                  b["audio"] if isinstance(b.get("audio"), str) else "",
                                  number(b.get("layer", 0), 0, 0, MAX_LAYERS - 1, what, whole=True),
-                                 curve_of(b.get("curve"), what)))
+                                 curve_of(b.get("curve"), what), number(b.get("tempo", 1.0), 1.0, *TEMPO, what),
+                                 number(b.get("pitch", 0.0), 0.0, *PITCH, what)))
             if len(v) > MAX_BLOCKS:
                 repairs.append(what)
             return out
@@ -737,7 +745,8 @@ class Project:
             if not r.blocks:
                 del out["blocks"]
             else:  # each block without what is at its default
-                out["blocks"] = [{k: v for k, v in b.items() if v or k in ("start_ms", "end_ms")} for b in out["blocks"]]
+                out["blocks"] = [{k: v for k, v in b.items() if (v or k in ("start_ms", "end_ms")) and not (k == "tempo" and v == 1.0)}
+                                 for b in out["blocks"]]
             return out
         return {
             "audiodiver": GROUPS_FORMAT if self.groups else 1, "name": self.name, "guid": self.guid, "version": self.version,

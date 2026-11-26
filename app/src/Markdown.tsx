@@ -14,7 +14,7 @@ import { Fragment, type ReactNode } from "react";
 import { t } from "@lingui/core/macro";
 import { AudioIcon, BuildIcon, ClearIcon, CollapseAllIcon, DetachIcon, ExportIcon, ExternalIcon, FillIcon, FillPieceIcon, GearIcon, GuideIcon, HeaderIcon,
   HomeIcon, IdIcon, InfoIcon, LibraryIcon, LinkIcon, NoteIcon, OnlyThisIcon, OrderIcon, PlayTogetherIcon, PlusIcon, ProjectIcon, ResetIcon, SearchIcon, SkipAllIcon, SkipIcon,
-  SliceIcon, SoundtrackIcon, TextIcon, ThroughIcon, ToolsIcon, TransitionIcon, UpdatesIcon, WavesIcon } from "./Icons";
+  SliceIcon, SoundtrackIcon, TextIcon, ThroughIcon, ToolsIcon, TransitionIcon, UpdatesIcon, WavesIcon, FitLayerIcon, FitSelIcon } from "./Icons";
 import { COMMANDS, keyLabel, useKeymap, type CommandId } from "./keys";
 import { about, nav, type Tab } from "./nav";
 import { openUrl } from "./platform";
@@ -74,7 +74,7 @@ const ICONS: Record<string, () => ReactNode> = {
   wiki: GuideIcon, settings: GearIcon, info: InfoIcon, note: NoteIcon, project: ProjectIcon, tools: ToolsIcon,
   fill: FillIcon, fillpiece: FillPieceIcon, slice: SliceIcon, export: ExportIcon, skip: SkipIcon, skipall: SkipAllIcon, clear: ClearIcon,
   search: SearchIcon, through: ThroughIcon, transition: TransitionIcon, order: OrderIcon, id: IdIcon, reset: ResetIcon, add: PlusIcon,
-  header: () => <HeaderIcon on />, waves: () => <WavesIcon on />,
+  header: () => <HeaderIcon on />, waves: () => <WavesIcon on />, fitsel: FitSelIcon, fitlayer: FitLayerIcon,
 };
 
 /** A word joiner: the line can break on either side of an icon (an svg) even next to a letter or a bracket, but never

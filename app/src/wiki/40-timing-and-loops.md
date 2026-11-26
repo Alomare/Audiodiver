@@ -34,12 +34,15 @@ The audio sits on a time line as **blocks**. Each block is a stretch of a file, 
 - Click the time line to place the cursor. To move it, drag the cursor itself, or drag along the ruler at the top.
 - Drag from an empty spot to draw a box: every block it touches is selected, on any layer. Shift or Ctrl with a click adds a block to the selection or takes it out, and Ctrl+A selects every block. Selected blocks move, split, duplicate, normalize and go together, and the values beside the time line set the fades and gain of all of them.
 - **Split** (S) cuts the selected blocks at the cursor, or the block under the cursor, and each part gets separate fades. **Normalize** (N) sets the gain so the loudest moment of each block reaches âˆ’1 dB. **Duplicate** (Ctrl+D) places copies right after the blocks, and **Remove** (Delete) takes them away.
+- **Snap Left** and **Snap Right** move the selected blocks until they touch the block before or after them on their layer. **Place at the Start** moves them to the start, and **Place at the End** moves them to end where the original ends (with no original, after the other blocks). **Close Gaps** moves the blocks of the layer back against each other, from the first, and with blocks selected it works on their layers.
 - **Magnet** (M) snaps the cursor, edges and blocks to each other, to the start and to where the original ends.
 - **Volume Curves** (V) shows a line over each block: full level at the top of the block, silence at the foot. Click the line to add a point, and drag a point to shape the volume over time. A double click on a point, or Alt and a click, removes it. While a point is dragged, the level shows beside it in dB. The points stay with the audio when a block is trimmed or split, and **Flatten Curve** beside the time line takes them all away.
 - **Add Audio** puts audio files on the time line as new blocks, one after the other from the cursor. Dropping files on the editor does the same, and **Ctrl+V** pastes slots copied with Ctrl+C in the list (their new audio as it plays, or the original) or audio files copied in Explorer. One slot can be made from several files this way, and a slot without new audio can start from files or from the original.
 - Beside the time line, type exact values for the selected block in milliseconds.
+- **Tempo** plays a block faster or slower, from 50% to 200%, and **Pitch** makes it higher or lower, up to 12 semitones either way. With the link between them on, one moves the other, as a tape played faster would. With it off, each changes alone: the tempo keeps the pitch, and the pitch keeps the tempo.
 - **Play** (Space) plays from the cursor, and **Loop** (L) plays the selected blocks over and over. A double click on the time line plays from there. The lanes playing are tinted in their colour.
 - Ctrl+Z and Ctrl+Y undo and redo inside the editor. **Reset** goes back to the whole file as it is.
+- Zoom with the wheel, Ctrl+wheel and the sliders, as in the waveforms under the slots. Beside the time zoom, {icon:fitsel} shows the selected blocks across the whole width, and {icon:fitlayer} shows the layer from the start to the end of the last block on it. The editor keeps the zoom of each slot for the next time it opens.
 
 ### Layers
 
@@ -65,7 +68,7 @@ Nothing changes until **Apply**. The files stay as they are: the project keeps t
 
 ## Hearing the result
 
-**Play through** plays the whole piece as it plays in game, with the segments in order and each hand-over at an Exit point. Compare **Original** and **Replaced** to catch gaps, double hits and jumps in volume before you build.
+**Play through** plays the whole piece as it plays in game, with the segments in order and each hand-over at an Exit point. Where the game picks segments at random, each play through picks them anew. Compare **Original** and **Replaced** to catch gaps, double hits and jumps in volume before you build.
 
 ## Loops
 
@@ -73,7 +76,7 @@ A segment marked **loops** repeats until the game moves on. A segment marked **Ã
 
 ## Slicing one long song
 
-{icon:slice} **Slice a song** cuts one long file into consecutive pieces at exact sample positions, so the pieces sound like the uncut song when they play back to back. Each piece goes to one segment, in play order. The layers of a segment play together, so all of the pieces go into the layer of the **From** slot.
+{icon:slice} **Slice a song** cuts one long file into consecutive pieces at exact sample positions, so the pieces sound like the uncut song when they play back to back. Each piece goes to one segment, in play order. The layers of a segment play together, so all of the pieces go into the layer of the **From** slot. In music whose layers change with the intensity, like the Extraction music, each piece goes into that layer at low and at high intensity, and the other layers without new audio get silence, so the song plays alone.
 
 A cue with one slot, such as a transition, takes one piece: move **Start** and **End** to the stretch of the song it should play. A sound takes one piece too: select one slot of the sound, and **Slice a song** cuts a stretch of the song for that slot. **Original Lengths** makes the stretch as long as the original.
 

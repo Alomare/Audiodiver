@@ -258,6 +258,34 @@ export const SplitIcon = () => (
 export const MagnetIcon = () => (
   <Icon size={1.1}><path d="M6 4v8a6 6 0 0 0 12 0V4" /><path d="M6 4h3.5v8a2.5 2.5 0 0 0 5 0V4H18" /><path d="M6 7.5h3.5M14.5 7.5H18" /></Icon>
 );
+/** A block moved against the one before it: snap left (the Waveform Suite's placing). */
+export const SnapLeftIcon = () => (
+  <Icon size={1.1}><rect x="2.5" y="8" width="6" height="8" rx=".5" /><rect x="15.5" y="8" width="6" height="8" rx=".5" /><path d="M14 12h-3.5M12.2 10.2 10.4 12l1.8 1.8" /></Icon>
+);
+/** A block moved against the one after it: snap right. */
+export const SnapRightIcon = () => (
+  <Icon size={1.1}><rect x="2.5" y="8" width="6" height="8" rx=".5" /><rect x="15.5" y="8" width="6" height="8" rx=".5" /><path d="M10 12h3.5M11.8 10.2l1.8 1.8-1.8 1.8" /></Icon>
+);
+/** A block against a wall on the left: place at the start. */
+export const ToStartIcon = () => (
+  <Icon size={1.1}><path d="M3.5 4.5v15" /><rect x="5.5" y="8" width="7" height="8" rx=".5" /><path d="M20.5 12H15M16.8 10.2 15 12l1.8 1.8" /></Icon>
+);
+/** A block against a wall on the right: place at the end. */
+export const ToEndIcon = () => (
+  <Icon size={1.1}><path d="M20.5 4.5v15" /><rect x="11.5" y="8" width="7" height="8" rx=".5" /><path d="M3.5 12H9M7.2 10.2 9 12l-1.8 1.8" /></Icon>
+);
+/** Two blocks pushed together under arrows: close the gaps. */
+export const CloseGapsIcon = () => (
+  <Icon size={1.1}><rect x="4.5" y="10" width="7.5" height="8" rx=".5" /><rect x="12" y="10" width="7.5" height="8" rx=".5" /><path d="M2.5 5.5h6M6.7 3.7l1.8 1.8-1.8 1.8M21.5 5.5h-6M17.3 3.7l-1.8 1.8 1.8 1.8" /></Icon>
+);
+/** A block in a frame's corners: zoom to the selection. */
+export const FitSelIcon = () => (
+  <Icon size={1}><path d="M3.5 8V4.5H7M17 4.5h3.5V8M20.5 16v3.5H17M7 19.5H3.5V16" /><rect x="7.5" y="9" width="9" height="6" rx=".5" /></Icon>
+);
+/** A long block between two walls: zoom to the layer. */
+export const FitLayerIcon = () => (
+  <Icon size={1}><path d="M3 5v14M21 5v14" /><rect x="5.5" y="9" width="13" height="6" rx=".5" /></Icon>
+);
 /** A filled triangle: play. */
 export const PlayIcon = () => <Icon size={1}><path d="M7.5 5.5v13l11-6.5z" fill="currentColor" /></Icon>;
 /** A filled square: stop, back to the cursor. */

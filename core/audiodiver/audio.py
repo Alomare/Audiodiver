@@ -85,20 +85,66 @@ def faded(src: Path, fade_in_ms: float, fade_out_ms: float, start_ms: float = 0.
     return out
 
 
+def stretched(src, tempo: float, pitch: float) -> Path:
+    """src at another tempo (2: twice as fast) and pitch (semitones), a 48 kHz WAV kept with the caches: its moment at
+    ms plays at ms / tempo. A pitch of 12 * log2(tempo) only resamples, as a tape played faster; any other changes
+    the tempo with ffmpeg's atempo after that."""
+    src = Path(src)
+    st = src.stat()
+    key = hashlib.sha1(json.dumps([str(src.resolve()), st.st_size, st.st_mtime_ns, "stretch", round(tempo, 4), round(pitch, 2)]).encode())
+    out = CACHE_DIR / "edits" / f"{key.hexdigest()[:20]}.stretch.wav"
+    with cache_lock(out):
+        if out.exists():
+            return out
+        if not wem.has_ffmpeg():
+            raise ValueError(tr("Tempo and pitch need ffmpeg, which isn't installed"))
+        out.parent.mkdir(parents=True, exist_ok=True)
+        tmp = out.with_name(f"{out.stem}.partial.wav")
+        _, n = wem.prepare_wav(str(src), str(tmp))
+        k = 2 ** (pitch / 12)  # the resampling: pitch and tempo both by k
+        # silence after the end, as atempo holds back its last few ms, then cut to the exact length
+        chain = ["apad=pad_dur=0.5", f"asetrate={wem.RATE * k:.3f}", f"aresample={wem.RATE}"]
+        rest = tempo / k  # then the tempo alone, by atempo's steps (each between 0.5 and 2)
+        if abs(rest - 1) > 1e-4:
+            while rest < 0.5:
+                chain.append("atempo=0.5"); rest /= 0.5
+            while rest > 2:
+                chain.append("atempo=2"); rest /= 2
+            chain.append(f"atempo={rest:.6f}")
+        chain.append(f"atrim=end_sample={max(1, round(n / tempo))}")
+        done = out.with_name(f"{out.stem}.partial2.wav")
+        subprocess.run([wem.FFMPEG, "-v", "error", "-y", "-i", str(tmp), "-af", ",".join(chain), "-ar", str(wem.RATE),
+                        "-c:a", "pcm_s16le", str(done)], check=True, capture_output=True)
+        tmp.unlink(missing_ok=True)
+        done.replace(out)
+    return out
+
+
+def _bent(b) -> bool:
+    """Whether a block (as a dict) plays at another tempo or pitch."""
+    return b.get("tempo", 1.0) != 1.0 or bool(b.get("pitch", 0.0))
+
+
 def edited(src: Path, blocks, resolve=None) -> Path:
     """src as the Waveform Suite's blocks make it, a 48 kHz WAV kept with the caches: each block's stretch of the
     file placed at its time, with its gain, its volume curve and its fades (a straight line in level, as `faded`), and blocks that
     overlap added up. Silence fills the time no block covers. Past full scale is clipped, as the preview's limiter
     would not be there in game. Builds and previews both use it. A block with an `audio` of its own plays that file,
-    found by `resolve` (Project.file), in the channels of src; the others play src."""
+    found by `resolve` (Project.file), in the channels of src; the others play src. A block with a tempo or a pitch
+    plays its file as `stretched` makes it."""
     import numpy as np
     from dataclasses import asdict, is_dataclass
     src = Path(src)
     # the layer only places a block in the editor: moving one between layers makes the same audio
-    # (and a block without a volume curve keys as before there were curves)
-    shape = [{k: v for k, v in (asdict(b) if is_dataclass(b) else dict(b)).items() if k != "layer" and (k != "curve" or v)}
-             for b in blocks]
+    # (and a block without a volume curve, a tempo or a pitch keys as before there were any)
+    shape = [{k: v for k, v in (asdict(b) if is_dataclass(b) else dict(b)).items()
+              if k != "layer" and (k not in ("curve", "pitch") or v) and not (k == "tempo" and v == 1.0)} for b in blocks]
     files = {"": src, **{b["audio"]: Path(resolve(b["audio"]) if resolve else b["audio"]) for b in shape if b.get("audio")}}
+    # each file at each tempo and pitch a block plays it at, under the key "file|tempo|pitch"
+    for b in shape:
+        if _bent(b):
+            files.setdefault(f"{b.get('audio', '')}|{b.get('tempo', 1.0)}|{b.get('pitch', 0.0)}",
+                             stretched(files[b.get("audio") or ""], b.get("tempo", 1.0), b.get("pitch", 0.0)))
     stats = [[str(f.resolve()), f.stat().st_size, f.stat().st_mtime_ns] for f in files.values()]
     key = hashlib.sha1(json.dumps([stats, "blocks", shape]).encode())
     out = CACHE_DIR / "edits" / f"{key.hexdigest()[:20]}.wav"
@@ -121,13 +167,14 @@ def edited(src: Path, blocks, resolve=None) -> Path:
         frame = lambda ms: round(ms * wem.RATE / 1000)  # noqa: E731
         placed = []
         for b in shape:
-            pcm = pcms[b.get("audio") or ""]
-            first = min(len(pcm), frame(b["start_ms"]))
-            piece = pcm[first:max(first + 1, min(len(pcm), frame(b["end_ms"])))].copy()
+            tempo = b.get("tempo", 1.0)
+            pcm = pcms[f"{b.get('audio', '')}|{tempo}|{b.get('pitch', 0.0)}" if _bent(b) else b.get("audio") or ""]
+            first = min(len(pcm), frame(b["start_ms"] / tempo))  # a stretched file's moment ms is at ms / tempo
+            piece = pcm[first:max(first + 1, min(len(pcm), frame(b["end_ms"] / tempo)))].copy()
             piece *= 10 ** (b.get("gain_db", 0.0) / 20)
             if b.get("curve"):  # the volume curve, at the time of the file each frame is from
                 xs, ys = zip(*b["curve"])
-                piece *= np.interp(b["start_ms"] + np.arange(len(piece)) * (1000 / wem.RATE), xs, ys).astype(np.float32)[:, None]
+                piece *= np.interp(b["start_ms"] + np.arange(len(piece)) * (1000 * tempo / wem.RATE), xs, ys).astype(np.float32)[:, None]
             n = min(len(piece), frame(b.get("fade_in_ms", 0.0)))
             piece[:n] *= np.linspace(0, 1, n, endpoint=False)[:, None]
             n = min(len(piece), frame(b.get("fade_out_ms", 0.0)))

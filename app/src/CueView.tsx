@@ -1076,15 +1076,17 @@ function copyId(id: string, quick: (text: string, icon?: "copy" | "info") => voi
   copyText(id, quick);
 }
 
-/** A slot's id at the end of its line (`shownId`): click to copy it; the right-click menu has its other ids. */
+/** A slot's id at the end of its line (`shownId`), as a small "ID" square so the name and tags keep the room: the
+    tooltip shows the id, a click copies it; the right-click menu has its other ids. */
 function SlotId({ slot }: { slot: Slot }) {
   const { quick } = useLite();
   const { id, what } = shownId(slot);
   return (
-    <button className="slot-id" data-tip={what === "stream" ? t`Copy the stream ID` : t`Copy the source ID`}
-      data-tip-more={what === "stream" ? t`The ID other audio tools list this clip by. Right-click the row for the other IDs`
-        : t`The clip ID in the game files. Right-click the row for the other IDs`}
-      onClick={(e) => { e.stopPropagation(); copyId(id, quick); }} onDoubleClick={(e) => e.stopPropagation()}>{id}</button>
+    <button className="slot-id" aria-label={what === "stream" ? t`Copy the stream ID ${id}` : t`Copy the source ID ${id}`}
+      data-tip={what === "stream" ? t`Stream ID ${id}` : t`Source ID ${id}`}
+      data-tip-more={what === "stream" ? t`Click to copy it. The ID other audio tools list this clip by. Right-click the row for the other IDs`
+        : t`Click to copy it. The clip ID in the game files. Right-click the row for the other IDs`}
+      onClick={(e) => { e.stopPropagation(); copyId(id, quick); }} onDoubleClick={(e) => e.stopPropagation()}>{t({ message: "ID", comment: "Short tag at the end of a slot's line; the tooltip shows the ID" })}</button>
   );
 }
 

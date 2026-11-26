@@ -10,6 +10,7 @@ cue-point overrides (the same rules as patch.patch_bank). What it does not model
 ducking and the per-object volumes of the vanilla tracks, so levels are a guide, not a measurement.
 """
 import itertools
+import random
 import subprocess
 import time
 import uuid
@@ -196,8 +197,8 @@ class Renderer:
                 out[st["switch_group"]] += [v for v in vals if v not in out[st["switch_group"]]]
         return out
 
-    def _subtrack(self, st, variants, take: int) -> int | None:
-        """Which subtrack of a stem plays (None: all of them)."""
+    def _subtrack(self, st, variants, take: int, rng: random.Random | None = None) -> int | None:
+        """Which subtrack of a stem plays (None: all of them). With rng, a random track picks one at random."""
         used = sorted({c["subtrack"] for c in st["clips"]})
         if not used or st["type"] == "normal":
             return None
@@ -206,16 +207,18 @@ class Renderer:
             if want in st["switch_values"] and st["switch_values"].index(want) in used:
                 return st["switch_values"].index(want)
             return used[0]
+        if rng and st["type"] == "random" and len(used) > 1:
+            return rng.choice(used)
         return used[take % len(used)]  # random and sequence tracks: one take per play
 
     # --- one segment
-    def plan(self, segment: int, variants=None, take=0) -> SegmentPlan:
+    def plan(self, segment: int, variants=None, take=0, rng: random.Random | None = None) -> SegmentPlan:
         s = self.segments[segment]
         plan = SegmentPlan(segment, s["duration_ms"], s["entry_ms"] or 0.0,
                            s["duration_ms"] if s["exit_ms"] is None else s["exit_ms"])
         retimed = []
         for st in s["stems"]:
-            sub = self._subtrack(st, variants, take)
+            sub = self._subtrack(st, variants, take, rng)
             kept = [self.originals[s] for s in (sl["source"] for sl in st["slots"])
                     if s not in self.mine and self.originals.get(s)]
             gains = [self.mine[sl["source"]].gain_db for sl in st["slots"]
@@ -266,9 +269,10 @@ class Renderer:
         return out
 
     # --- the whole cue
-    def order(self, loops=1) -> list[int]:
+    def order(self, loops=1, rng: random.Random | None = None) -> list[int]:
         """Segment ids in the order the playlist plays them. Loops the game repeats forever play `loops` times;
-        random groups play in their listed order."""
+        random groups play in their listed order, or with rng as the game would: a continuous one in a shuffled
+        order each pass, a step one a child at random each pass, never the one it picked just before."""
         tree = self.cue.get("playlist")
         if not tree:
             return [s["segment"] for s in self.cue["segments"]]
@@ -284,14 +288,20 @@ class Renderer:
             kids = n["children"]
             if not kids:
                 return
+            shuffled = rng is not None and n["rs"] in RANDOM and len(kids) > 1
             if n["rs"] in CONTINUOUS:
                 for _ in range(times):
-                    for k in kids:
+                    for k in (rng.sample(kids, len(kids)) if shuffled else kids):
                         play(k)
             else:  # a step group plays one child per pass; a pass of an endless one here is a full round
                 for _ in range(times * (len(kids) if not n["loop"] else 1)):
-                    i = steps.get(id(n), 0)
-                    steps[id(n)] = i + 1
+                    if shuffled:
+                        last = steps.get(id(n))
+                        i = rng.choice([j for j in range(len(kids)) if j != last])
+                        steps[id(n)] = i
+                    else:
+                        i = steps.get(id(n), 0)
+                        steps[id(n)] = i + 1
                     play(kids[i % len(kids)])
                     if len(out) > 5000:
                         return
@@ -303,17 +313,17 @@ class Renderer:
         tree = self.cue.get("playlist")
         return bool(tree and walk(tree))
 
-    def layout(self, variants=None, loops=1, order=None) -> tuple[list, list[float], float, list[dict]]:
+    def layout(self, variants=None, loops=1, order=None, rng: random.Random | None = None) -> tuple[list, list[float], float, list[dict]]:
         """How the cue plays through (or the segments of `order`, one fight's: soundtrack.fight): (plans with their
         take, each one's start ms, total ms, marks). The marks say
         where each segment's Entry and Exit fall (ms), and where each of its clips plays: `at_ms` in the
         play-through, from `offset_ms` of its source, for `length_ms`. That is what lets a slot's waveform show
         where the play-through is in it."""
         takes, plans = {}, []
-        for seg in self.order(loops) if order is None else order:
+        for seg in self.order(loops, rng) if order is None else order:
             take = takes.get(seg, 0)
             takes[seg] = take + 1
-            plans.append((self.plan(seg, variants, take), take))
+            plans.append((self.plan(seg, variants, take, rng), take))
         if not plans:
             raise RenderError(tr("this cue has nothing to play"))
         cursor, starts, end = None, [], 0.0   # cursor: where the next segment's Entry point lands

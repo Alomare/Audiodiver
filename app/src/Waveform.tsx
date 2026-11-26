@@ -1,6 +1,6 @@
 import { ph, t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 import { call, fmtTime, intlLocale } from "./api";
 import { ResetIcon } from "./Icons";
 import { rangeVars } from "./range";
@@ -82,10 +82,11 @@ type Props = {
   onRetry?: () => void;
   gainDb?: number;               // drawn this much louder or quieter (Make-Up Gain); past full scale in red
   curve?: number[][];            // [ms, level]: the level the game gives the clip as it plays, 1 as mixed, as a line each side
+  lines?: number[][][];          // more of those, each only from its first point to its last: the Waveform Suite's volume curves
   fades?: Fades;                 // drawn into the shape (a marker's bent line shows each ramp)
 };
 
-export function Waveform({ peaks, spanMs, fromMs = 0, zoomY = 1, tone, height: fixed, markers = [], playheadMs, activeFrom, activeTo, bands, onSeek, onMarkerMove, onMarkerCommit, label, error, onRetry, gainDb = 0, curve, fades }: Props) {
+export function Waveform({ peaks, spanMs, fromMs = 0, zoomY = 1, tone, height: fixed, markers = [], playheadMs, activeFrom, activeTo, bands, onSeek, onMarkerMove, onMarkerCommit, label, error, onRetry, gainDb = 0, curve, lines, fades }: Props) {
   // where key nudges put each marker, until the project's answer puts it there too
   const nudged = useRef<Record<string, number>>({});
   for (const m of markers) if (nudged.current[m.id] === m.ms) delete nudged.current[m.id];
@@ -148,21 +149,24 @@ export function Waveform({ peaks, spanMs, fromMs = 0, zoomY = 1, tone, height: f
       g.fillRect(px, mid - h / 2, 1, h);
     }
     g.globalAlpha = 1;
-    if (curve?.length) {
-      const y = (level: number) => (Math.min(1, level * zoomY) * (height - 6)) / 2, last = curve[curve.length - 1][1];
-      g.strokeStyle = css.getPropertyValue("--text").trim();
-      g.lineWidth = 1.25;
-      g.globalAlpha = 0.85;
+    // the curves as faint lines, mirrored about the middle: the game's from 0 to the end, each of `lines` over its own stretch
+    const y = (level: number) => (Math.min(1, level * zoomY) * (height - 6)) / 2;
+    const stroke = (pts: number[][], from?: number, to?: number) => {
       for (const side of [-1, 1]) {
         g.beginPath();
-        g.moveTo(x(0), mid + side * y(curve[0][1]));
-        for (const [ms, level] of curve) g.lineTo(x(ms), mid + side * y(level));
-        g.lineTo(x(dur), mid + side * y(last));
+        g.moveTo(x(from ?? pts[0][0]), mid + side * y(pts[0][1]));
+        for (const [ms, level] of pts) g.lineTo(x(ms), mid + side * y(level));
+        if (to != null) g.lineTo(x(to), mid + side * y(pts[pts.length - 1][1]));
         g.stroke();
       }
-      g.globalAlpha = 1;
-    }
-  }, [peaks, width, height, spanMs, fromMs, zoomY, tone, activeFrom, activeTo, bands?.join(","), look, gainDb, curve,
+    };
+    g.strokeStyle = css.getPropertyValue("--text").trim();
+    g.lineWidth = 1.25;
+    g.globalAlpha = 0.26;
+    if (curve?.length) stroke(curve, 0, dur);
+    for (const l of lines ?? []) if (l.length > 1) stroke(l);
+    g.globalAlpha = 1;
+  }, [peaks, width, height, spanMs, fromMs, zoomY, tone, activeFrom, activeTo, bands?.join(","), look, gainDb, curve, lines,
     fades?.from, fades?.to, fades?.in, fades?.out]);
 
   const startDrag = (e: React.PointerEvent, m: Marker) => {
@@ -280,6 +284,7 @@ export type WaveZoomState = {
   zoomX: (x: number, atMs?: number) => void; // about a moment (the pointer), else the middle of the view
   zoomY: (y: number) => void;
   scroll: (fromMs: number) => void;
+  fit: (fromMs: number, toMs: number) => void; // that stretch across the whole width
   reset: () => void;
 };
 
@@ -301,11 +306,37 @@ export function useWaveZoom(total: number, minSpan: number, slot: string | null 
     }),
     zoomY: (ny) => setZ((s) => ({ ...s, y: Math.max(1, Math.min(ZOOM_Y_MAX, ny)) })),
     scroll: (f) => setZ((s) => ({ ...s, from: Math.max(0, Math.min(t - span, f)) })),
+    fit: (a, b) => setZ((s) => {
+      const x1 = Math.max(1, Math.min(maxX, t / Math.max(minSpan, b - a)));
+      return { ...s, x: x1, from: Math.max(0, Math.min(t - t / x1, a)) };
+    }),
     reset: () => setZ({ x: 1, y: 1, from: 0 }),
   };
 }
 
-/** What a turn of the wheel does to a zoom (the Waveform Suite's and the slice tool's lanes): `box` is the waveform's.
+/** The wheel on waveforms (the panel under the slots): what wheelZoom does, on the first waveform inside `el`. */
+export function useWheelZoom(el: RefObject<HTMLElement | null>, zoom: WaveZoomState, on: boolean) {
+  const now = useRef(zoom);
+  now.current = zoom;
+  useEffect(() => {
+    const box = el.current;
+    if (!box || !on) return;
+    const wheel = (e: WheelEvent) => {
+      const z = now.current, wave = box.querySelector(".wave")?.getBoundingClientRect();
+      if (!wave?.width) return;
+      e.preventDefault();
+      wheelZoom(e, z, wave);
+    };
+    box.addEventListener("wheel", wheel, { passive: false });
+    return () => box.removeEventListener("wheel", wheel);
+  }, [el, on]);
+}
+
+/** The finer peaks a waveform needs once zoomed in (on time or on the level): about one slice per half millisecond. */
+export const finePeaks = (zoom: WaveZoomState, durationMs: number | undefined) =>
+  zoom.zoomed && durationMs ? { buckets: Math.round(Math.max(1200, Math.min(120_000, durationMs * 2))) } : undefined;
+
+/** What a turn of the wheel does to a zoom (the waveform panel's, the Waveform Suite's and the slice tool's lanes): `box` is the waveform's.
     It zooms in on time about the moment under the pointer, with Ctrl it zooms the level, and with Shift (or sideways,
     on a touchpad) it scrolls. */
 export function wheelZoom(e: WheelEvent, z: WaveZoomState, box: DOMRect) {
@@ -317,8 +348,9 @@ export function wheelZoom(e: WheelEvent, z: WaveZoomState, box: DOMRect) {
 
 /** The zoom of waveforms, as a mirrored L around them: the level zoom up the right side, the time zoom at the right
     end of the foot (after `foot`, the scroll strip when there is one), and the button back to the whole audio at full
-    scale in the corner where the two meet. It goes in a .zoom-grid, after the waveforms. */
-export function WaveZoom({ zoom, foot }: { zoom: WaveZoomState; foot?: ReactNode }) {
+    scale in the corner where the two meet. It goes in a .zoom-grid, after the waveforms. `fits`: buttons right
+    before the time zoom (the Waveform Suite's zoom to the selection and to a layer). */
+export function WaveZoom({ zoom, foot, fits }: { zoom: WaveZoomState; foot?: ReactNode; fits?: ReactNode }) {
   const y = toSlider(zoom.y, ZOOM_Y_MAX), x = toSlider(zoom.x, zoom.maxX);
   // the zoom in words for a screen reader, to one decimal in the language's way: "2.5 times as tall"
   const tall = zoom.y.toLocaleString(intlLocale(), { maximumFractionDigits: 1 });
@@ -333,6 +365,7 @@ export function WaveZoom({ zoom, foot }: { zoom: WaveZoomState; foot?: ReactNode
       </div>
       <div className="zoom-foot">
         {foot}
+        {fits && <span className="zoom-fits">{fits}</span>}
         <input type="range" className="r-zoom zoom-time" style={rangeVars(x, 0, 100)} min={0} max={100} step={0.1} value={x} disabled={zoom.maxX <= 1} data-scale-tip
           onChange={(e) => zoom.zoomX(fromSlider(Number(e.target.value), zoom.maxX))} aria-label={t`Time zoom`}
           aria-valuetext={t`${wide} times as wide`} data-tip={t`Time zoom`} data-tip-side="top"

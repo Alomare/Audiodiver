@@ -26,8 +26,10 @@ msgstr "{0, plural, other {{3} 和 {4} 修改了 # 个相同的音频库，因�
 msgid "{0, plural, one {# bank} other {# banks}}"
 msgstr "{0, plural, other {# 个音频库}}"
 
+#. placeholder {0}: leaves(n).length
 #. placeholder {0}: o.cues
 #: src/ModOptions.tsx
+#: src/Soundtrack.tsx
 msgid "{0, plural, one {# segment} other {# segments}}"
 msgstr "{0, plural, other {# 个段落}}"
 
@@ -2493,6 +2495,10 @@ msgstr "音频库中其他类型的更改，例如效果或容器选取声音的
 msgid "Changes of other kinds in the sound banks, like effects. The result lists them for each mod."
 msgstr "音频库中其他类型的更改，例如效果。结果会按模组列出这些更改。"
 
+#: src/WaveEditor.tsx
+msgid "Changing one changes the other, as a tape played faster"
+msgstr ""
+
 #: src/TextTab.tsx
 msgid "Changing text"
 msgstr "更改文本"
@@ -2875,9 +2881,25 @@ msgstr "点击此处在 Wiki 中查看。"
 msgid "Click on a key bind to change it. Press Esc to cancel.<0/>Key functions are exclusive. If you assign a key to a function, all other functions that use that key will be emptied."
 msgstr "点击按键绑定即可更改。按 Esc 取消。<0/>每个按键只能对应一个功能。为某个功能分配按键后，其他用到这个按键的功能，其按键都会被清空。"
 
+#: src/CueView.tsx
+msgid "Click to copy it. The clip ID in the game files. Right-click the row for the other IDs"
+msgstr ""
+
+#: src/CueView.tsx
+msgid "Click to copy it. The ID other audio tools list this clip by. Right-click the row for the other IDs"
+msgstr ""
+
+#: src/Soundtrack.tsx
+msgid "Click to fold it away"
+msgstr ""
+
 #: src/ItemHead.tsx
 msgid "Click to keep it shown"
 msgstr "点击可保持显示"
+
+#: src/Soundtrack.tsx
+msgid "Click to open it"
+msgstr ""
 
 #: src/Inspector.tsx
 msgid "Clip Sharing Mode"
@@ -2906,6 +2928,10 @@ msgstr "关闭对话框或菜单"
 #: src/App.tsx
 msgid "Close Anyway"
 msgstr "仍然关闭"
+
+#: src/WaveEditor.tsx
+msgid "Close Gaps"
+msgstr ""
 
 #: src/ProjectTab.tsx
 msgid "Close Project"
@@ -3187,15 +3213,21 @@ msgstr "复制新音频"
 msgid "Copy the original audio"
 msgstr "复制原版音频"
 
-#: src/CueView.tsx
 #: src/Inspector.tsx
 msgid "Copy the source ID"
 msgstr "复制源 ID"
 
 #: src/CueView.tsx
+msgid "Copy the source ID {id}"
+msgstr ""
+
 #: src/Inspector.tsx
 msgid "Copy the stream ID"
 msgstr "复制流 ID"
+
+#: src/CueView.tsx
+msgid "Copy the stream ID {id}"
+msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "Copy To"
@@ -3589,6 +3621,10 @@ msgstr "荷兰语"
 #: src/BuildTab.tsx
 msgid "Each build then gets a new ZIP name, and the earlier ZIPs stay. With it off, the next build replaces the last ZIP."
 msgstr "这样每次构建都会得到新的 ZIP 名称，之前的 ZIP 会保留。关闭时，下次构建会替换上一个 ZIP。"
+
+#: src/WaveEditor.tsx
+msgid "Each changes alone: the tempo keeps the pitch, the pitch keeps the tempo"
+msgstr ""
 
 #: src/ExportDialog.tsx
 msgid "Each export is a new fight, with the segments picked as the game picks them in a mission"
@@ -4281,6 +4317,10 @@ msgstr "起始"
 msgid "From the Library to a built mod: a weapon's shot replaced with new audio that the tutorial brings along."
 msgstr "从资源库到构建好的模组：用教程自带的新音频替换一把武器的枪声。"
 
+#: src/WaveEditor.tsx
+msgid "From the start to the end of the selected blocks' layers, or of the layer worked on"
+msgstr ""
+
 #: src/ExportDialog.tsx
 msgid "Full Names"
 msgstr "完整名称"
@@ -4527,6 +4567,14 @@ msgstr "更改文本的原理"
 msgid "how each piece of music plays"
 msgstr "每首曲目的播放方式"
 
+#: src/WaveEditor.tsx
+msgid "How fast each block plays"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "How fast the block plays: 200% in half the time"
+msgstr ""
+
 #: src/Soundtrack.tsx
 msgid "How it plays"
 msgstr "播放方式"
@@ -4563,6 +4611,14 @@ msgstr "原版的时长"
 msgid "How long the piece is"
 msgstr "该段的时长"
 
+#: src/WaveEditor.tsx
+msgid "How much higher or lower each block plays"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "How much higher or lower the block plays, in semitones"
+msgstr ""
+
 #: src/SliceTool.tsx
 msgid "How much longer (+) or shorter (−) the piece is than the original"
 msgstr "该段比原版长（+）或短（−）多少"
@@ -4596,6 +4652,11 @@ msgstr "图标颜色"
 #: src/SettingsTab.tsx
 msgid "Icons only. Names show in tooltips."
 msgstr "仅显示图标。名称显示在工具提示中。"
+
+#. Short tag at the end of a slot's line; the tooltip shows the ID
+#: src/CueView.tsx
+msgid "ID"
+msgstr ""
 
 #: src/PatchContentPage.tsx
 msgid "ID {id}"
@@ -5150,6 +5211,10 @@ msgstr "显示的行"
 msgid "Link"
 msgstr "链接"
 
+#: src/WaveEditor.tsx
+msgid "Link Tempo and Pitch"
+msgstr ""
+
 #: src/CueView.tsx
 msgid "Linked to other places. New audio here plays there too"
 msgstr "与其他位置关联。此处的新音频也会在那里播放"
@@ -5579,6 +5644,30 @@ msgstr "已移动、重命名或删除"
 #: src/CueView.tsx
 msgid "moves on"
 msgstr "直接继续"
+
+#: src/WaveEditor.tsx
+msgid "Moves the blocks of the layer back against each other, from the first. With blocks selected, on their layers"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Moves the selected blocks back until they touch the block before them on their layer, or the start"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Moves the selected blocks on until they touch the block after them on their layer"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Moves the selected blocks to after the other blocks"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Moves the selected blocks to end where the original ends"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Moves the selected blocks to the start"
+msgstr ""
 
 #: src/ExportDialog.tsx
 msgid "MP3 VBR (best quality, smaller)"
@@ -6882,6 +6971,22 @@ msgstr "分段"
 #: src/SliceTool.tsx
 msgid "Pieces are saved in the project's <0>{folder}</0> folder."
 msgstr "分段保存在项目的 <0>{folder}</0> 文件夹中。"
+
+#: src/WaveEditor.tsx
+msgid "Pitch"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Place"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Place at the End"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Place at the Start"
+msgstr ""
 
 #: src/SliceTool.tsx
 msgid "Place the cuts"
@@ -8607,6 +8712,14 @@ msgstr "慢"
 msgid "Slower"
 msgstr "更慢"
 
+#: src/WaveEditor.tsx
+msgid "Snap Left"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Snap Right"
+msgstr ""
+
 #: src/App.tsx
 msgid "Some jobs are still running."
 msgstr "有些任务仍在运行。"
@@ -8682,6 +8795,10 @@ msgstr "配乐"
 msgid "Source Code"
 msgstr "源代码"
 
+#: src/CueView.tsx
+msgid "Source ID {id}"
+msgstr ""
+
 #: src/ExportDialog.tsx
 msgid "Source IDs"
 msgstr "源 ID"
@@ -8714,6 +8831,11 @@ msgstr "电子表格（CSV）"
 #: src/ProjectTab.tsx
 msgid "Square"
 msgstr "方形"
+
+#. Unit: semitones
+#: src/WaveEditor.tsx
+msgid "st"
+msgstr ""
 
 #. The menu on Home with New Project, Open Project and Import Mod
 #: src/Home.tsx
@@ -8800,6 +8922,10 @@ msgstr "停止教程"
 #: src/App.tsx
 msgid "Stopping…"
 msgstr "正在停止…"
+
+#: src/CueView.tsx
+msgid "Stream ID {id}"
+msgstr ""
 
 #: src/Inspector.tsx
 msgid "subtitle"
@@ -8898,6 +9024,18 @@ msgstr "区分哼声、呼吸声、笑声与话语"
 #: src/Soundtrack.tsx
 msgid "Templates"
 msgstr "模板"
+
+#: src/WaveEditor.tsx
+msgid "Tempo"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Tempo and Pitch: apart"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Tempo and Pitch: linked"
+msgstr ""
 
 #: src/ProjectTab.tsx
 msgid "Terminid orange"
@@ -9051,10 +9189,6 @@ msgstr "在 Waveform Suite 中所做的更改将丢失。"
 #: src/App.tsx
 msgid "The changes made since the project opened, to go back or forward to"
 msgstr "自项目打开以来所做的更改，可回退或前进到其中任意一步"
-
-#: src/CueView.tsx
-msgid "The clip ID in the game files. Right-click the row for the other IDs"
-msgstr "游戏文件中的片段 ID。右键单击该行可查看其他 ID"
 
 #: src/TextTab.tsx
 msgid "The colour that Colour applies"
@@ -9219,10 +9353,6 @@ msgstr "绝地潜兵的发力声，按类型和嗓音分类"
 msgid "the icon"
 msgstr "图标"
 
-#: src/CueView.tsx
-msgid "The ID other audio tools list this clip by. Right-click the row for the other IDs"
-msgstr "其他音频工具用来列出此片段的 ID。右键单击该行可查看其他 ID"
-
 #: src/ProjectTab.tsx
 msgid "The image can't be read. Choose another, or use the default icon."
 msgstr "无法读取该图片。请选择其他图片，或使用默认图标。"
@@ -9349,8 +9479,8 @@ msgid "The music with the original audio, segment by segment"
 msgstr "逐段播放原版音频的音乐"
 
 #: src/PlayThrough.tsx
-msgid "The music with the original audio, segment by segment. The game shuffles some of these segments"
-msgstr "逐段播放原版音频的音乐。游戏会打乱其中部分段落的顺序"
+msgid "The music with the original audio, segment by segment. Segments the game picks at random come in a new order each time"
+msgstr ""
 
 #: src/content.ts
 msgid "the name lists behind bank path names"
@@ -9595,6 +9725,10 @@ msgstr "包含这些槽位的段落，整体混合。"
 #: src/Soundtrack.tsx
 msgid "The segments that played, in order"
 msgstr "已播放的段落，按顺序排列"
+
+#: src/WaveEditor.tsx
+msgid "The selected blocks across the whole width"
+msgstr ""
 
 #: src/Inspector.tsx
 msgid "The shortest new audio is {length} ms long."
@@ -10540,3 +10674,11 @@ msgstr "你自己的绝地潜兵、无线电中的队友，以及载具中的任
 #: src/RepatchPage.tsx
 msgid "ZIPs, .7z, .rar or .patch_0 files"
 msgstr "ZIP、.7z、.rar 或 .patch_0 文件"
+
+#: src/WaveEditor.tsx
+msgid "Zoom to the Layer"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Zoom to the Selection"
+msgstr ""

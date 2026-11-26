@@ -26,8 +26,10 @@ msgstr "{0, plural, other {{3}와(과) {4}이(가) 같은 뱅크 #개를 변경�
 msgid "{0, plural, one {# bank} other {# banks}}"
 msgstr "{0, plural, other {뱅크 #개}}"
 
+#. placeholder {0}: leaves(n).length
 #. placeholder {0}: o.cues
 #: src/ModOptions.tsx
+#: src/Soundtrack.tsx
 msgid "{0, plural, one {# segment} other {# segments}}"
 msgstr "{0, plural, other {세그먼트 #개}}"
 
@@ -2493,6 +2495,10 @@ msgstr "효과나 컨테이너가 사운드를 고르는 방식 등 사운드 �
 msgid "Changes of other kinds in the sound banks, like effects. The result lists them for each mod."
 msgstr "효과 등 사운드 뱅크 안의 다른 종류의 변경 사항입니다. 결과에 모드별로 나열됩니다."
 
+#: src/WaveEditor.tsx
+msgid "Changing one changes the other, as a tape played faster"
+msgstr ""
+
 #: src/TextTab.tsx
 msgid "Changing text"
 msgstr "텍스트 변경"
@@ -2875,9 +2881,25 @@ msgstr "여기를 클릭하면 위키에서 볼 수 있습니다."
 msgid "Click on a key bind to change it. Press Esc to cancel.<0/>Key functions are exclusive. If you assign a key to a function, all other functions that use that key will be emptied."
 msgstr "키 지정을 클릭하면 변경할 수 있습니다. Esc를 누르면 취소됩니다.<0/>키는 기능 하나에만 지정됩니다. 키를 기능에 지정하면 그 키를 쓰던 다른 기능은 모두 비워집니다."
 
+#: src/CueView.tsx
+msgid "Click to copy it. The clip ID in the game files. Right-click the row for the other IDs"
+msgstr ""
+
+#: src/CueView.tsx
+msgid "Click to copy it. The ID other audio tools list this clip by. Right-click the row for the other IDs"
+msgstr ""
+
+#: src/Soundtrack.tsx
+msgid "Click to fold it away"
+msgstr ""
+
 #: src/ItemHead.tsx
 msgid "Click to keep it shown"
 msgstr "클릭하면 계속 표시됩니다"
+
+#: src/Soundtrack.tsx
+msgid "Click to open it"
+msgstr ""
 
 #: src/Inspector.tsx
 msgid "Clip Sharing Mode"
@@ -2906,6 +2928,10 @@ msgstr "대화 상자나 메뉴 닫기"
 #: src/App.tsx
 msgid "Close Anyway"
 msgstr "그래도 닫기"
+
+#: src/WaveEditor.tsx
+msgid "Close Gaps"
+msgstr ""
 
 #: src/ProjectTab.tsx
 msgid "Close Project"
@@ -3187,15 +3213,21 @@ msgstr "새 오디오 복사"
 msgid "Copy the original audio"
 msgstr "원본 오디오 복사"
 
-#: src/CueView.tsx
 #: src/Inspector.tsx
 msgid "Copy the source ID"
 msgstr "소스 ID 복사"
 
 #: src/CueView.tsx
+msgid "Copy the source ID {id}"
+msgstr ""
+
 #: src/Inspector.tsx
 msgid "Copy the stream ID"
 msgstr "스트림 ID 복사"
+
+#: src/CueView.tsx
+msgid "Copy the stream ID {id}"
+msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "Copy To"
@@ -3589,6 +3621,10 @@ msgstr "네덜란드어"
 #: src/BuildTab.tsx
 msgid "Each build then gets a new ZIP name, and the earlier ZIPs stay. With it off, the next build replaces the last ZIP."
 msgstr "그러면 빌드할 때마다 ZIP 이름이 새로 정해지고 이전 ZIP은 남습니다. 끄면 다음 빌드가 마지막 ZIP을 대체합니다."
+
+#: src/WaveEditor.tsx
+msgid "Each changes alone: the tempo keeps the pitch, the pitch keeps the tempo"
+msgstr ""
 
 #: src/ExportDialog.tsx
 msgid "Each export is a new fight, with the segments picked as the game picks them in a mission"
@@ -4281,6 +4317,10 @@ msgstr "첫 슬롯"
 msgid "From the Library to a built mod: a weapon's shot replaced with new audio that the tutorial brings along."
 msgstr "라이브러리에서 빌드한 모드까지: 튜토리얼이 준비한 새 오디오로 무기의 총소리를 교체합니다."
 
+#: src/WaveEditor.tsx
+msgid "From the start to the end of the selected blocks' layers, or of the layer worked on"
+msgstr ""
+
 #: src/ExportDialog.tsx
 msgid "Full Names"
 msgstr "전체 이름"
@@ -4527,6 +4567,14 @@ msgstr "텍스트 변경 방식"
 msgid "how each piece of music plays"
 msgstr "각 곡이 재생되는 방식"
 
+#: src/WaveEditor.tsx
+msgid "How fast each block plays"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "How fast the block plays: 200% in half the time"
+msgstr ""
+
 #: src/Soundtrack.tsx
 msgid "How it plays"
 msgstr "재생 방식"
@@ -4563,6 +4611,14 @@ msgstr "원본 길이"
 msgid "How long the piece is"
 msgstr "조각 길이"
 
+#: src/WaveEditor.tsx
+msgid "How much higher or lower each block plays"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "How much higher or lower the block plays, in semitones"
+msgstr ""
+
 #: src/SliceTool.tsx
 msgid "How much longer (+) or shorter (−) the piece is than the original"
 msgstr "조각이 원본보다 얼마나 긴지(+) 또는 짧은지(−)"
@@ -4596,6 +4652,11 @@ msgstr "아이콘 색상"
 #: src/SettingsTab.tsx
 msgid "Icons only. Names show in tooltips."
 msgstr "아이콘만 표시합니다. 이름은 툴팁에 나타납니다."
+
+#. Short tag at the end of a slot's line; the tooltip shows the ID
+#: src/CueView.tsx
+msgid "ID"
+msgstr ""
 
 #: src/PatchContentPage.tsx
 msgid "ID {id}"
@@ -5150,6 +5211,10 @@ msgstr "표시된 줄"
 msgid "Link"
 msgstr "링크"
 
+#: src/WaveEditor.tsx
+msgid "Link Tempo and Pitch"
+msgstr ""
+
 #: src/CueView.tsx
 msgid "Linked to other places. New audio here plays there too"
 msgstr "다른 곳과 연결되어 있습니다. 여기의 새 오디오는 그곳에서도 재생됩니다"
@@ -5579,6 +5644,30 @@ msgstr "이동, 이름 변경 또는 삭제됨"
 #: src/CueView.tsx
 msgid "moves on"
 msgstr "바로 넘어감"
+
+#: src/WaveEditor.tsx
+msgid "Moves the blocks of the layer back against each other, from the first. With blocks selected, on their layers"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Moves the selected blocks back until they touch the block before them on their layer, or the start"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Moves the selected blocks on until they touch the block after them on their layer"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Moves the selected blocks to after the other blocks"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Moves the selected blocks to end where the original ends"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Moves the selected blocks to the start"
+msgstr ""
 
 #: src/ExportDialog.tsx
 msgid "MP3 VBR (best quality, smaller)"
@@ -6882,6 +6971,22 @@ msgstr "조각"
 #: src/SliceTool.tsx
 msgid "Pieces are saved in the project's <0>{folder}</0> folder."
 msgstr "조각은 프로젝트의 <0>{folder}</0> 폴더에 저장됩니다."
+
+#: src/WaveEditor.tsx
+msgid "Pitch"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Place"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Place at the End"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Place at the Start"
+msgstr ""
 
 #: src/SliceTool.tsx
 msgid "Place the cuts"
@@ -8607,6 +8712,14 @@ msgstr "느리게"
 msgid "Slower"
 msgstr "더 느리게"
 
+#: src/WaveEditor.tsx
+msgid "Snap Left"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Snap Right"
+msgstr ""
+
 #: src/App.tsx
 msgid "Some jobs are still running."
 msgstr "아직 실행 중인 작업이 있습니다."
@@ -8682,6 +8795,10 @@ msgstr "사운드트랙"
 msgid "Source Code"
 msgstr "소스 코드"
 
+#: src/CueView.tsx
+msgid "Source ID {id}"
+msgstr ""
+
 #: src/ExportDialog.tsx
 msgid "Source IDs"
 msgstr "소스 ID"
@@ -8714,6 +8831,11 @@ msgstr "스프레드시트 (CSV)"
 #: src/ProjectTab.tsx
 msgid "Square"
 msgstr "사각형"
+
+#. Unit: semitones
+#: src/WaveEditor.tsx
+msgid "st"
+msgstr ""
 
 #. The menu on Home with New Project, Open Project and Import Mod
 #: src/Home.tsx
@@ -8800,6 +8922,10 @@ msgstr "튜토리얼 중지"
 #: src/App.tsx
 msgid "Stopping…"
 msgstr "중지 중…"
+
+#: src/CueView.tsx
+msgid "Stream ID {id}"
+msgstr ""
 
 #: src/Inspector.tsx
 msgid "subtitle"
@@ -8898,6 +9024,18 @@ msgstr "끙 소리, 숨소리, 웃음소리를 말과 구분하기"
 #: src/Soundtrack.tsx
 msgid "Templates"
 msgstr "템플릿"
+
+#: src/WaveEditor.tsx
+msgid "Tempo"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Tempo and Pitch: apart"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Tempo and Pitch: linked"
+msgstr ""
 
 #: src/ProjectTab.tsx
 msgid "Terminid orange"
@@ -9051,10 +9189,6 @@ msgstr "Waveform Suite에서 한 변경 사항이 사라집니다."
 #: src/App.tsx
 msgid "The changes made since the project opened, to go back or forward to"
 msgstr "앞뒤로 이동할 수 있는, 프로젝트를 연 이후의 변경 사항"
-
-#: src/CueView.tsx
-msgid "The clip ID in the game files. Right-click the row for the other IDs"
-msgstr "게임 파일 속 클립 ID입니다. 다른 ID를 보려면 행을 마우스 오른쪽 버튼으로 클릭하세요"
 
 #: src/TextTab.tsx
 msgid "The colour that Colour applies"
@@ -9219,10 +9353,6 @@ msgstr "헬다이버 기합 소리의 종류별·목소리별 분류"
 msgid "the icon"
 msgstr "아이콘"
 
-#: src/CueView.tsx
-msgid "The ID other audio tools list this clip by. Right-click the row for the other IDs"
-msgstr "다른 오디오 도구가 이 클립을 나열할 때 쓰는 ID입니다. 다른 ID를 보려면 행을 마우스 오른쪽 버튼으로 클릭하세요"
-
 #: src/ProjectTab.tsx
 msgid "The image can't be read. Choose another, or use the default icon."
 msgstr "이미지를 읽을 수 없습니다. 다른 이미지를 선택하거나 기본 아이콘을 사용하세요."
@@ -9349,8 +9479,8 @@ msgid "The music with the original audio, segment by segment"
 msgstr "원본 오디오로 된 음악을 세그먼트별로 재생"
 
 #: src/PlayThrough.tsx
-msgid "The music with the original audio, segment by segment. The game shuffles some of these segments"
-msgstr "원본 오디오로 된 음악을 세그먼트별로 재생합니다. 게임은 이 세그먼트 중 일부를 섞어서 재생합니다"
+msgid "The music with the original audio, segment by segment. Segments the game picks at random come in a new order each time"
+msgstr ""
 
 #: src/content.ts
 msgid "the name lists behind bank path names"
@@ -9595,6 +9725,10 @@ msgstr "이 슬롯이 들어 있는 세그먼트를 통째로 믹스한 것입�
 #: src/Soundtrack.tsx
 msgid "The segments that played, in order"
 msgstr "재생된 세그먼트를 순서대로"
+
+#: src/WaveEditor.tsx
+msgid "The selected blocks across the whole width"
+msgstr ""
 
 #: src/Inspector.tsx
 msgid "The shortest new audio is {length} ms long."
@@ -10540,3 +10674,11 @@ msgstr "자신의 헬다이버, 무전으로 들리는 분대원, 탈것에 탄 
 #: src/RepatchPage.tsx
 msgid "ZIPs, .7z, .rar or .patch_0 files"
 msgstr "ZIP, .7z, .rar 또는 .patch_0 파일"
+
+#: src/WaveEditor.tsx
+msgid "Zoom to the Layer"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Zoom to the Selection"
+msgstr ""

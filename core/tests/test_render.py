@@ -141,6 +141,23 @@ def test_playlist_order():
     assert not r.has_random()
 
 
+def test_random_groups_pick_at_random_with_a_generator():
+    """Listed order without one (exports); with one (Play through), a random step group picks anew each pass and
+    never the child it picked just before, and a random continuous group plays every child in a shuffled order."""
+    import random
+    leaf = lambda s: {"segment": s, "loop": 1}
+    segs = [segment(i, []) for i in (1, 2, 3, 4)]
+    step = {"rs": 3, "loop": 0, "children": [leaf(1), leaf(2), leaf(3), leaf(4)]}
+    r = Renderer({"segments": segs, "playlist": {"rs": 0, "loop": 1, "children": [{**step, "loop": 40}]}}, None)
+    assert r.has_random() and r.order(1)[:4] == [1, 2, 3, 4]
+    got = r.order(1, random.Random(7))
+    assert len(got) == 40 and all(a != b for a, b in zip(got, got[1:])) and got[:4] != [1, 2, 3, 4]
+    cont = {"rs": 2, "loop": 30, "children": [leaf(1), leaf(2), leaf(3), leaf(4)]}
+    rounds = Renderer({"segments": segs, "playlist": cont}, None).order(1, random.Random(3))
+    rounds = [rounds[i:i + 4] for i in range(0, len(rounds), 4)]
+    assert all(sorted(x) == [1, 2, 3, 4] for x in rounds) and len({tuple(x) for x in rounds}) > 1
+
+
 def test_switch_variants():
     st = stem(1, type="switch")
     st.update(switch_group=7, switch_values=[70, 71], slots=[{"source": 1}, {"source": 2}])

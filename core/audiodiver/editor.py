@@ -824,8 +824,42 @@ class Session:
         except OSError as e:
             raise EditorError(os_error(e)) from None
         if sources:
-            return self.fill_sources(sources, [str(p) for p in pieces])
+            return self._slice_into(cue_id, sources, [str(p) for p in pieces])
         return self.fill(cue_id, [str(p) for p in pieces], start_source=start_source)
+
+    def _slice_into(self, cue_id, sources, files):
+        """The slice tool's pieces into `sources`, in order, as one undo step (fill_sources). In a segment laid out by
+        layer (Catalog._layered: the Extraction music), a piece goes into its layer at every level, so the song
+        plays at low and high intensity alike, and the other layers that have no new audio yet get silence (their
+        timing kept), so it plays alone."""
+        from .audio import natural
+        self.require_game()
+        if not isinstance(sources, list):
+            raise EditorError(tr("Choose the files and the slots to fill"))
+        files = sorted((str(f) for f in files), key=natural)
+        targets = list(dict.fromkeys(self._source(s) for s in sources))
+        layers = {}  # source -> (its layer's other sources, the other layers' sources)
+        try:
+            detail = self.catalog.cue(int(cue_id))["segments_detail"]
+        except (KeyError, ValueError, EditorError):
+            detail = []
+        for seg in detail:
+            slots = [sl for st in seg["stems"] for sl in st["slots"] if "layer" in sl and not sl["locked"] and not sl.get("absent")]
+            for sl in slots:
+                layers[int(sl["source"])] = ([int(o["source"]) for o in slots if o["layer"] == sl["layer"] and o is not sl],
+                                             [int(o["source"]) for o in slots if o["layer"] != sl["layer"]])
+
+        def apply(p):
+            for sid, f in zip(targets, files):
+                self._set(p, sid, f)
+                same, others = layers.get(sid, ((), ()))
+                for o in same:
+                    self._set(p, o, f)
+                    self._replacement(p, o).fit_timing = self._replacement(p, sid).fit_timing
+                for o in others:
+                    if not self._replacement(p, o):
+                        p.replacements.append(Replacement(target=o, audio="", silence=True, fit_timing=False))
+        return self._edit("fill", apply)
 
     # --- project lifecycle
     @staticmethod
@@ -2137,7 +2171,7 @@ class Session:
         audio takes the file of its first block; with no blocks either, the file is None. own: the file a file
         target edits (a song of the Soundtrack), as (stored, path), in place of a slot's; sid is then None."""
         from .audio import duration_ms
-        from .project import BLOCK_GAIN_DB, MAX_BLOCKS, MAX_CURVE, MAX_LAYERS, TRIM_MS, Block, curve_points
+        from .project import BLOCK_GAIN_DB, MAX_BLOCKS, MAX_CURVE, MAX_LAYERS, PITCH, TEMPO, TRIM_MS, Block, curve_points
         if not isinstance(blocks, list) or len(blocks) > MAX_BLOCKS:
             raise EditorError(tr("The Waveform Suite sends up to {n} blocks").format(n=MAX_BLOCKS))
         if not all(isinstance(b, dict) for b in blocks):
@@ -2197,10 +2231,16 @@ class Session:
             start, end = num(b, "start_ms", *TRIM_MS), min(num(b, "end_ms", *TRIM_MS), length(rel))
             if end - start < MIN_TRIM_MS:
                 raise EditorError(tr("The audio must play for at least {ms} ms").format(ms=MIN_TRIM_MS))
-            f_in = min(num(b, "fade_in_ms", *FADE_MS), end - start)
+            tempo, pitch = num(b, "tempo", *TEMPO, 1.0), num(b, "pitch", *PITCH)
+            span = (end - start) / tempo  # how long it plays on the time line
+            f_in = min(num(b, "fade_in_ms", *FADE_MS), span)
             made.append(Block(start, end, num(b, "at_ms", *TRIM_MS), f_in,
-                              min(num(b, "fade_out_ms", *FADE_MS), end - start - f_in), num(b, "gain_db", *BLOCK_GAIN_DB), rel,
-                              layer(b), curve(b)))
+                              min(num(b, "fade_out_ms", *FADE_MS), span - f_in), num(b, "gain_db", *BLOCK_GAIN_DB), rel,
+                              layer(b), curve(b), tempo, pitch))
+        if any(b.tempo != 1.0 or b.pitch for b in made):
+            from . import wem
+            if not wem.has_ffmpeg():
+                raise EditorError(tr("Tempo and pitch need ffmpeg, which isn't installed"))
         if not main:  # a slot without new audio: the first block's file is the slot's
             if not made:
                 return made, None, 0.0
@@ -2304,6 +2344,29 @@ class Session:
             raise EditorError(tr("{file} couldn't be written: {why}").format(file=out.name, why=os_error(e))) from None
         return {"path": str(out)}
 
+    def edit_stretch(self, tempo, pitch, file=None, source=None):
+        """A file (a full path, or as the project stores it) or a slot's original at another tempo and pitch
+        (audio.stretched), so the Waveform Suite plays a block as a build makes it. Returns its path."""
+        from .audio import stretched
+        from .project import PITCH, TEMPO
+        for k, v, (lo, hi) in (("tempo", tempo, TEMPO), ("pitch", pitch, PITCH)):
+            if isinstance(v, bool) or not isinstance(v, (int, float)) or not lo <= v <= hi:
+                raise EditorError(tr("A block of the Waveform Suite is out of range ({what})").format(what=k))
+        if file:
+            f = Path(str(file))
+            f = f if f.is_absolute() else self._need_project().file(str(file))
+        else:
+            f = Path(self.vanilla_wav(self._source(source)))
+        if not f.is_file():
+            raise EditorError(tr("{path} wasn't found").format(path=f))
+        try:
+            return {"path": str(stretched(f, float(tempo), float(pitch)))}
+        except ValueError as e:
+            raise EditorError(str(e)) from None
+        except subprocess.CalledProcessError as e:
+            raise EditorError(tr("{file} couldn't be read: {why}").format(
+                file=f.name, why=(e.stderr or b"").decode(errors="replace").strip()[-300:])) from None
+
     def edit_render(self, file, blocks):
         """A file as the Waveform Suite's blocks make it (a song of the Soundtrack, before it is cut or put in a
         place), saved as a new file in the project: audio/edited/<name> (edited).wav, numbered when that is taken.
@@ -2382,7 +2445,8 @@ class Session:
         made, main, length_main = self._edit_blocks(self._shown(), sid, blocks, original)
         if not main:
             raise EditorError(tr("This slot has no new audio to edit"))
-        plain = len(made) == 1 and not made[0].audio and not made[0].gain_db and not made[0].curve
+        plain = (len(made) == 1 and not made[0].audio and not made[0].gain_db and not made[0].curve
+                 and made[0].tempo == 1.0 and not made[0].pitch)
         whole = plain and made[0].start_ms <= 0.5 and made[0].end_ms >= length_main - 0.5 and not (
             made[0].at_ms or made[0].fade_in_ms or made[0].fade_out_ms)
         name = None if label is None else str(label)
@@ -5178,7 +5242,9 @@ class Session:
             order = None
             if fight is not None:
                 order, state = self._fight(r, side, fight)
-            layout = r.layout(v, loops, order)
+            # random groups and random tracks pick anew each time, as in game (a fight picks its own)
+            import random
+            layout = r.layout(v, loops, order, random.Random() if order is None else None)
             out = CACHE_DIR / "render" / f"{cue_id}-{side}.wav"
             render.write(out, r.stream(v, int(loops), layout), "preview")
         except (render.RenderError, subprocess.CalledProcessError) as e:

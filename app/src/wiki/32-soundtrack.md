@@ -84,8 +84,8 @@ The play order shows the piece as groups of segments, each on a card with a head
 
 Segments in a group are joined by what the group means: → for in order, *or* for one at random. Groups under each other are joined by *then*, *next time* or *or* in the same way. A short choice of segments sits on one line in a dashed frame, and a group with only one thing in it shows that thing alone, as it plays the same.
 
-**Repeats** marks a group that plays again until the music changes, and **3 times** one that plays three times, then moves on. **Fights start here** marks where the music starts when a fight begins ([Openings](wiki:soundtrack#openings)), and **Starts here** where other music starts each time it comes on. The ▶ on a segment plays what the project plays there.
+**Repeats** marks a group that plays again until the music changes, and **3 times** one that plays three times, then moves on. **Fights start here** marks where the music starts when a fight begins ([Openings](wiki:soundtrack#openings)), and **Starts here** where other music starts each time it comes on. The ▶ on a segment plays what the project plays there. Click the name of a group to fold it away to how many segments it holds, and again to open it.
 
 ## Layers
 
-Music that plays several layers at once, like the Extraction music, shows them as a grid: a row for each segment, and a column for each layer at low and at high intensity. Click a cell to see the waveforms. Replace layers in the [Audio](app:editor) tab.
+Music that plays several layers at once, like the Extraction music, shows them as a grid: a row for each segment, and a column for each layer at low and at high intensity. Click a cell to see the waveforms. Replace layers in the [Audio](app:editor) tab, where each slot is named for the layer it plays in (**Percussion**, **Melody**, or **Layer 1** and **Layer 2** where the clips don't say which) and tagged with the intensity it plays at.

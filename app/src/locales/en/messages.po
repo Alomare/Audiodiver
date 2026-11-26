@@ -26,8 +26,10 @@ msgstr "{0, plural, one {{1} and {2} change the same bank, so in Helldivers 2 mo
 msgid "{0, plural, one {# bank} other {# banks}}"
 msgstr "{0, plural, one {# bank} other {# banks}}"
 
+#. placeholder {0}: leaves(n).length
 #. placeholder {0}: o.cues
 #: src/ModOptions.tsx
+#: src/Soundtrack.tsx
 msgid "{0, plural, one {# segment} other {# segments}}"
 msgstr "{0, plural, one {# segment} other {# segments}}"
 
@@ -2493,6 +2495,10 @@ msgstr "Changes of other kinds in the sound banks, like effects or how a contain
 msgid "Changes of other kinds in the sound banks, like effects. The result lists them for each mod."
 msgstr "Changes of other kinds in the sound banks, like effects. The result lists them for each mod."
 
+#: src/WaveEditor.tsx
+msgid "Changing one changes the other, as a tape played faster"
+msgstr "Changing one changes the other, as a tape played faster"
+
 #: src/TextTab.tsx
 msgid "Changing text"
 msgstr "Changing text"
@@ -2875,9 +2881,25 @@ msgstr "Click here to see them in the Wiki."
 msgid "Click on a key bind to change it. Press Esc to cancel.<0/>Key functions are exclusive. If you assign a key to a function, all other functions that use that key will be emptied."
 msgstr "Click on a key bind to change it. Press Esc to cancel.<0/>Key functions are exclusive. If you assign a key to a function, all other functions that use that key will be emptied."
 
+#: src/CueView.tsx
+msgid "Click to copy it. The clip ID in the game files. Right-click the row for the other IDs"
+msgstr "Click to copy it. The clip ID in the game files. Right-click the row for the other IDs"
+
+#: src/CueView.tsx
+msgid "Click to copy it. The ID other audio tools list this clip by. Right-click the row for the other IDs"
+msgstr "Click to copy it. The ID other audio tools list this clip by. Right-click the row for the other IDs"
+
+#: src/Soundtrack.tsx
+msgid "Click to fold it away"
+msgstr "Click to fold it away"
+
 #: src/ItemHead.tsx
 msgid "Click to keep it shown"
 msgstr "Click to keep it shown"
+
+#: src/Soundtrack.tsx
+msgid "Click to open it"
+msgstr "Click to open it"
 
 #: src/Inspector.tsx
 msgid "Clip Sharing Mode"
@@ -2906,6 +2928,10 @@ msgstr "close a dialog or a menu"
 #: src/App.tsx
 msgid "Close Anyway"
 msgstr "Close Anyway"
+
+#: src/WaveEditor.tsx
+msgid "Close Gaps"
+msgstr "Close Gaps"
 
 #: src/ProjectTab.tsx
 msgid "Close Project"
@@ -3187,15 +3213,21 @@ msgstr "Copy the new audio"
 msgid "Copy the original audio"
 msgstr "Copy the original audio"
 
-#: src/CueView.tsx
 #: src/Inspector.tsx
 msgid "Copy the source ID"
 msgstr "Copy the source ID"
 
 #: src/CueView.tsx
+msgid "Copy the source ID {id}"
+msgstr "Copy the source ID {id}"
+
 #: src/Inspector.tsx
 msgid "Copy the stream ID"
 msgstr "Copy the stream ID"
+
+#: src/CueView.tsx
+msgid "Copy the stream ID {id}"
+msgstr "Copy the stream ID {id}"
 
 #: src/Soundtrack.tsx
 msgid "Copy To"
@@ -3589,6 +3621,10 @@ msgstr "Dutch"
 #: src/BuildTab.tsx
 msgid "Each build then gets a new ZIP name, and the earlier ZIPs stay. With it off, the next build replaces the last ZIP."
 msgstr "Each build then gets a new ZIP name, and the earlier ZIPs stay. With it off, the next build replaces the last ZIP."
+
+#: src/WaveEditor.tsx
+msgid "Each changes alone: the tempo keeps the pitch, the pitch keeps the tempo"
+msgstr "Each changes alone: the tempo keeps the pitch, the pitch keeps the tempo"
 
 #: src/ExportDialog.tsx
 msgid "Each export is a new fight, with the segments picked as the game picks them in a mission"
@@ -4281,6 +4317,10 @@ msgstr "From"
 msgid "From the Library to a built mod: a weapon's shot replaced with new audio that the tutorial brings along."
 msgstr "From the Library to a built mod: a weapon's shot replaced with new audio that the tutorial brings along."
 
+#: src/WaveEditor.tsx
+msgid "From the start to the end of the selected blocks' layers, or of the layer worked on"
+msgstr "From the start to the end of the selected blocks' layers, or of the layer worked on"
+
 #: src/ExportDialog.tsx
 msgid "Full Names"
 msgstr "Full Names"
@@ -4527,6 +4567,14 @@ msgstr "How changing text works"
 msgid "how each piece of music plays"
 msgstr "how each piece of music plays"
 
+#: src/WaveEditor.tsx
+msgid "How fast each block plays"
+msgstr "How fast each block plays"
+
+#: src/WaveEditor.tsx
+msgid "How fast the block plays: 200% in half the time"
+msgstr "How fast the block plays: 200% in half the time"
+
 #: src/Soundtrack.tsx
 msgid "How it plays"
 msgstr "How it plays"
@@ -4563,6 +4611,14 @@ msgstr "How long the original is"
 msgid "How long the piece is"
 msgstr "How long the piece is"
 
+#: src/WaveEditor.tsx
+msgid "How much higher or lower each block plays"
+msgstr "How much higher or lower each block plays"
+
+#: src/WaveEditor.tsx
+msgid "How much higher or lower the block plays, in semitones"
+msgstr "How much higher or lower the block plays, in semitones"
+
 #: src/SliceTool.tsx
 msgid "How much longer (+) or shorter (−) the piece is than the original"
 msgstr "How much longer (+) or shorter (−) the piece is than the original"
@@ -4596,6 +4652,11 @@ msgstr "Icon colour"
 #: src/SettingsTab.tsx
 msgid "Icons only. Names show in tooltips."
 msgstr "Icons only. Names show in tooltips."
+
+#. Short tag at the end of a slot's line; the tooltip shows the ID
+#: src/CueView.tsx
+msgid "ID"
+msgstr "ID"
 
 #: src/PatchContentPage.tsx
 msgid "ID {id}"
@@ -5150,6 +5211,10 @@ msgstr "Lines shown"
 msgid "Link"
 msgstr "Link"
 
+#: src/WaveEditor.tsx
+msgid "Link Tempo and Pitch"
+msgstr "Link Tempo and Pitch"
+
 #: src/CueView.tsx
 msgid "Linked to other places. New audio here plays there too"
 msgstr "Linked to other places. New audio here plays there too"
@@ -5579,6 +5644,30 @@ msgstr "Moved, renamed or deleted"
 #: src/CueView.tsx
 msgid "moves on"
 msgstr "moves on"
+
+#: src/WaveEditor.tsx
+msgid "Moves the blocks of the layer back against each other, from the first. With blocks selected, on their layers"
+msgstr "Moves the blocks of the layer back against each other, from the first. With blocks selected, on their layers"
+
+#: src/WaveEditor.tsx
+msgid "Moves the selected blocks back until they touch the block before them on their layer, or the start"
+msgstr "Moves the selected blocks back until they touch the block before them on their layer, or the start"
+
+#: src/WaveEditor.tsx
+msgid "Moves the selected blocks on until they touch the block after them on their layer"
+msgstr "Moves the selected blocks on until they touch the block after them on their layer"
+
+#: src/WaveEditor.tsx
+msgid "Moves the selected blocks to after the other blocks"
+msgstr "Moves the selected blocks to after the other blocks"
+
+#: src/WaveEditor.tsx
+msgid "Moves the selected blocks to end where the original ends"
+msgstr "Moves the selected blocks to end where the original ends"
+
+#: src/WaveEditor.tsx
+msgid "Moves the selected blocks to the start"
+msgstr "Moves the selected blocks to the start"
 
 #: src/ExportDialog.tsx
 msgid "MP3 VBR (best quality, smaller)"
@@ -6882,6 +6971,22 @@ msgstr "Pieces"
 #: src/SliceTool.tsx
 msgid "Pieces are saved in the project's <0>{folder}</0> folder."
 msgstr "Pieces are saved in the project's <0>{folder}</0> folder."
+
+#: src/WaveEditor.tsx
+msgid "Pitch"
+msgstr "Pitch"
+
+#: src/WaveEditor.tsx
+msgid "Place"
+msgstr "Place"
+
+#: src/WaveEditor.tsx
+msgid "Place at the End"
+msgstr "Place at the End"
+
+#: src/WaveEditor.tsx
+msgid "Place at the Start"
+msgstr "Place at the Start"
 
 #: src/SliceTool.tsx
 msgid "Place the cuts"
@@ -8607,6 +8712,14 @@ msgstr "Slow"
 msgid "Slower"
 msgstr "Slower"
 
+#: src/WaveEditor.tsx
+msgid "Snap Left"
+msgstr "Snap Left"
+
+#: src/WaveEditor.tsx
+msgid "Snap Right"
+msgstr "Snap Right"
+
 #: src/App.tsx
 msgid "Some jobs are still running."
 msgstr "Some jobs are still running."
@@ -8682,6 +8795,10 @@ msgstr "Soundtrack"
 msgid "Source Code"
 msgstr "Source Code"
 
+#: src/CueView.tsx
+msgid "Source ID {id}"
+msgstr "Source ID {id}"
+
 #: src/ExportDialog.tsx
 msgid "Source IDs"
 msgstr "Source IDs"
@@ -8714,6 +8831,11 @@ msgstr "Spreadsheet (CSV)"
 #: src/ProjectTab.tsx
 msgid "Square"
 msgstr "Square"
+
+#. Unit: semitones
+#: src/WaveEditor.tsx
+msgid "st"
+msgstr "st"
 
 #. The menu on Home with New Project, Open Project and Import Mod
 #: src/Home.tsx
@@ -8800,6 +8922,10 @@ msgstr "Stop Tutorial"
 #: src/App.tsx
 msgid "Stopping…"
 msgstr "Stopping…"
+
+#: src/CueView.tsx
+msgid "Stream ID {id}"
+msgstr "Stream ID {id}"
 
 #: src/Inspector.tsx
 msgid "subtitle"
@@ -8898,6 +9024,18 @@ msgstr "telling grunts, breaths and laughs from words"
 #: src/Soundtrack.tsx
 msgid "Templates"
 msgstr "Templates"
+
+#: src/WaveEditor.tsx
+msgid "Tempo"
+msgstr "Tempo"
+
+#: src/WaveEditor.tsx
+msgid "Tempo and Pitch: apart"
+msgstr "Tempo and Pitch: apart"
+
+#: src/WaveEditor.tsx
+msgid "Tempo and Pitch: linked"
+msgstr "Tempo and Pitch: linked"
 
 #: src/ProjectTab.tsx
 msgid "Terminid orange"
@@ -9051,10 +9189,6 @@ msgstr "The changes made in the Waveform Suite are lost."
 #: src/App.tsx
 msgid "The changes made since the project opened, to go back or forward to"
 msgstr "The changes made since the project opened, to go back or forward to"
-
-#: src/CueView.tsx
-msgid "The clip ID in the game files. Right-click the row for the other IDs"
-msgstr "The clip ID in the game files. Right-click the row for the other IDs"
 
 #: src/TextTab.tsx
 msgid "The colour that Colour applies"
@@ -9219,10 +9353,6 @@ msgstr "the Helldivers' exertions by kind and voice"
 msgid "the icon"
 msgstr "the icon"
 
-#: src/CueView.tsx
-msgid "The ID other audio tools list this clip by. Right-click the row for the other IDs"
-msgstr "The ID other audio tools list this clip by. Right-click the row for the other IDs"
-
 #: src/ProjectTab.tsx
 msgid "The image can't be read. Choose another, or use the default icon."
 msgstr "The image can't be read. Choose another, or use the default icon."
@@ -9349,8 +9479,8 @@ msgid "The music with the original audio, segment by segment"
 msgstr "The music with the original audio, segment by segment"
 
 #: src/PlayThrough.tsx
-msgid "The music with the original audio, segment by segment. The game shuffles some of these segments"
-msgstr "The music with the original audio, segment by segment. The game shuffles some of these segments"
+msgid "The music with the original audio, segment by segment. Segments the game picks at random come in a new order each time"
+msgstr "The music with the original audio, segment by segment. Segments the game picks at random come in a new order each time"
 
 #: src/content.ts
 msgid "the name lists behind bank path names"
@@ -9595,6 +9725,10 @@ msgstr "The segments that hold these slots, mixed whole."
 #: src/Soundtrack.tsx
 msgid "The segments that played, in order"
 msgstr "The segments that played, in order"
+
+#: src/WaveEditor.tsx
+msgid "The selected blocks across the whole width"
+msgstr "The selected blocks across the whole width"
 
 #: src/Inspector.tsx
 msgid "The shortest new audio is {length} ms long."
@@ -10540,3 +10674,11 @@ msgstr "Your Helldiver, teammates on the radio, and anyone in a vehicle"
 #: src/RepatchPage.tsx
 msgid "ZIPs, .7z, .rar or .patch_0 files"
 msgstr "ZIPs, .7z, .rar or .patch_0 files"
+
+#: src/WaveEditor.tsx
+msgid "Zoom to the Layer"
+msgstr "Zoom to the Layer"
+
+#: src/WaveEditor.tsx
+msgid "Zoom to the Selection"
+msgstr "Zoom to the Selection"

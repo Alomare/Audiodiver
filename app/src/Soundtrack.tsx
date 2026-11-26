@@ -1,4 +1,4 @@
-import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { ph, plural, t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { call, fileUrl, fmtNumber, fmtTime, type Assignment, type Block, type Cue, type MusicItem, type Piece, type PlaylistMap, type PlayNode } from "./api";
@@ -741,6 +741,8 @@ function readable(n: PlayNode, entry: string): PlayNode {
     it means: "→" for in order, "or" for one at random. Segments flow on a line; a short choice of segments (`pick`)
     and a run of segments in order (`run`) take a line or less of their own, without a header.
 
+    A group's header folds it away to its name and how many segments it holds, and opens it again.
+
     Drawn once for the piece and its audio (a battle's music has over a thousand elements); a click reaches only the
     segments it changes (`marks`). onToggle keeps one identity too. */
 function PlayOrder({ map, tree, firsts, leftOut, onToggle, marks, onPick, at, fight }: Pickable & {
@@ -749,6 +751,9 @@ function PlayOrder({ map, tree, firsts, leftOut, onToggle, marks, onPick, at, fi
   const { project } = useEditor();
   const assignments = project?.assignments;
   const shown = useMemo(() => readable(tree, map.entry), [tree, map.entry]);
+  const [folded, setFolded] = useState<Set<string>>(() => new Set()); // the groups folded away, by item
+  useEffect(() => setFolded(new Set()), [tree]);
+  const fold = useCallback((item: string) => setFolded((f) => { const n = new Set(f); if (n.has(item)) n.delete(item); else n.add(item); return n; }), []);
   return useMemo(() => {
     const away = new Set(leftOut ?? []);
     const segments = (n: PlayNode) => !!n.children?.length && n.children.every((c) => c.segment !== undefined);
@@ -793,25 +798,27 @@ function PlayOrder({ map, tree, firsts, leftOut, onToggle, marks, onPick, at, fi
     };
     const node = (n: PlayNode, depth: number): React.ReactNode => {
       if (n.segment !== undefined) return seg(n);
-      const k = KIND[n.rs ?? 0], start = n.item === map.entry, loop = n.loop;
+      const k = KIND[n.rs ?? 0], start = n.item === map.entry, loop = n.loop, shut = folded.has(n.item);
       if (isRun(n)) {
         return <div key={n.item} className="po-run" data-tip={k.name} data-tip-more={k.tip}><k.Icon />{joined(n.children!, k, depth)}</div>;
       }
       return (
-        <section key={n.item} className={`po-group k${n.rs ?? 0} d${Math.min(depth, 3)}${start ? " start" : ""}`}>
+        <section key={n.item} className={`po-group k${n.rs ?? 0} d${Math.min(depth, 3)}${start ? " start" : ""}${shut ? " shut" : ""}`}>
           <header className="po-head">
-            <span className="po-kind" data-tip={k.tip}><k.Icon />{k.name}</span>
+            <button className="po-kind" aria-expanded={!shut} onClick={() => fold(n.item)} data-tip={k.tip}
+              data-tip-more={shut ? t`Click to open it` : t`Click to fold it away`}><span className="caret" aria-hidden>▸</span><k.Icon />{k.name}</button>
+            {shut && <span className="po-pill">{plural(leaves(n).length, { one: "# segment", other: "# segments" })}</span>}
             {loop !== 1 && <span className="po-pill" data-tip={loop ? plural(loop, { one: "Plays # time, then moves on", other: "Plays # times, then moves on" }) : t`Plays again and again until the music changes`}>
               <RepeatIcon />{loop ? plural(loop, { one: "# time", other: "# times" }) : t({ message: "repeats", comment: "A part of the play order that plays again and again until the music changes" })}</span>}
             {start && <span className="po-pill start" data-tip={fight ? t`Where the music starts when a fight begins` : t`Where the music starts each time it comes on`}>
               {fight ? t`Fights start here` : t`Starts here`}</span>}
           </header>
-          <div className="po-kids">{joined(n.children ?? [], k, depth)}</div>
+          {!shut && <div className="po-kids">{joined(n.children ?? [], k, depth)}</div>}
         </section>
       );
     };
     return <div className="po">{node(shown, 0)}</div>;
-  }, [shown, map, firsts, leftOut, assignments, marks, onPick, onToggle, at, fight]);
+  }, [shown, map, firsts, leftOut, assignments, marks, onPick, onToggle, at, fight, folded, fold]);
 }
 
 /** A segment of the play order: ▶ plays what the project plays there, a click selects it, and with onToggle

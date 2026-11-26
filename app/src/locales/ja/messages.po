@@ -26,8 +26,10 @@ msgstr "{0, plural, other {{3} と {4} は同じバンクを # 個変更しま�
 msgid "{0, plural, one {# bank} other {# banks}}"
 msgstr "{0, plural, other {#個のサウンドバンク}}"
 
+#. placeholder {0}: leaves(n).length
 #. placeholder {0}: o.cues
 #: src/ModOptions.tsx
+#: src/Soundtrack.tsx
 msgid "{0, plural, one {# segment} other {# segments}}"
 msgstr "{0, plural, other {# セグメント}}"
 
@@ -2493,6 +2495,10 @@ msgstr "エフェクトやコンテナのサウンドの選び方など、サウ
 msgid "Changes of other kinds in the sound banks, like effects. The result lists them for each mod."
 msgstr "エフェクトなど、サウンドバンク内のその他の種類の変更です。結果にはMODごとに一覧が表示されます。"
 
+#: src/WaveEditor.tsx
+msgid "Changing one changes the other, as a tape played faster"
+msgstr ""
+
 #: src/TextTab.tsx
 msgid "Changing text"
 msgstr "テキストの変更"
@@ -2875,9 +2881,25 @@ msgstr "ここをクリックするとWikiで確認できます。"
 msgid "Click on a key bind to change it. Press Esc to cancel.<0/>Key functions are exclusive. If you assign a key to a function, all other functions that use that key will be emptied."
 msgstr "キー割り当てをクリックすると変更できます。Escでキャンセルします。<0/>1つのキーは1つの機能にしか割り当てられません。キーを機能に割り当てると、そのキーを使っていた他の機能からは外れます。"
 
+#: src/CueView.tsx
+msgid "Click to copy it. The clip ID in the game files. Right-click the row for the other IDs"
+msgstr ""
+
+#: src/CueView.tsx
+msgid "Click to copy it. The ID other audio tools list this clip by. Right-click the row for the other IDs"
+msgstr ""
+
+#: src/Soundtrack.tsx
+msgid "Click to fold it away"
+msgstr ""
+
 #: src/ItemHead.tsx
 msgid "Click to keep it shown"
 msgstr "クリックすると表示したままにします"
+
+#: src/Soundtrack.tsx
+msgid "Click to open it"
+msgstr ""
 
 #: src/Inspector.tsx
 msgid "Clip Sharing Mode"
@@ -2906,6 +2928,10 @@ msgstr "ダイアログやメニューを閉じる"
 #: src/App.tsx
 msgid "Close Anyway"
 msgstr "このまま閉じる"
+
+#: src/WaveEditor.tsx
+msgid "Close Gaps"
+msgstr ""
 
 #: src/ProjectTab.tsx
 msgid "Close Project"
@@ -3187,15 +3213,21 @@ msgstr "新しい音声をコピー"
 msgid "Copy the original audio"
 msgstr "オリジナル音声をコピー"
 
-#: src/CueView.tsx
 #: src/Inspector.tsx
 msgid "Copy the source ID"
 msgstr "ソースIDをコピー"
 
 #: src/CueView.tsx
+msgid "Copy the source ID {id}"
+msgstr ""
+
 #: src/Inspector.tsx
 msgid "Copy the stream ID"
 msgstr "ストリームIDをコピー"
+
+#: src/CueView.tsx
+msgid "Copy the stream ID {id}"
+msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "Copy To"
@@ -3589,6 +3621,10 @@ msgstr "オランダ語"
 #: src/BuildTab.tsx
 msgid "Each build then gets a new ZIP name, and the earlier ZIPs stay. With it off, the next build replaces the last ZIP."
 msgstr "オンにすると、ビルドごとにZIPの名前が新しくなり、以前のZIPは残ります。オフにすると、次のビルドで前回のZIPが置き換えられます。"
+
+#: src/WaveEditor.tsx
+msgid "Each changes alone: the tempo keeps the pitch, the pitch keeps the tempo"
+msgstr ""
 
 #: src/ExportDialog.tsx
 msgid "Each export is a new fight, with the segments picked as the game picks them in a mission"
@@ -4281,6 +4317,10 @@ msgstr "開始"
 msgid "From the Library to a built mod: a weapon's shot replaced with new audio that the tutorial brings along."
 msgstr "ライブラリからビルド済みのMODまで：武器のショットを、チュートリアルが用意した新しい音声に置き換えます。"
 
+#: src/WaveEditor.tsx
+msgid "From the start to the end of the selected blocks' layers, or of the layer worked on"
+msgstr ""
+
 #: src/ExportDialog.tsx
 msgid "Full Names"
 msgstr "完全な名前"
@@ -4527,6 +4567,14 @@ msgstr "テキスト変更の仕組み"
 msgid "how each piece of music plays"
 msgstr "各曲の再生方法"
 
+#: src/WaveEditor.tsx
+msgid "How fast each block plays"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "How fast the block plays: 200% in half the time"
+msgstr ""
+
 #: src/Soundtrack.tsx
 msgid "How it plays"
 msgstr "再生のしかた"
@@ -4563,6 +4611,14 @@ msgstr "オリジナルの長さ"
 msgid "How long the piece is"
 msgstr "ピースの長さ"
 
+#: src/WaveEditor.tsx
+msgid "How much higher or lower each block plays"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "How much higher or lower the block plays, in semitones"
+msgstr ""
+
 #: src/SliceTool.tsx
 msgid "How much longer (+) or shorter (−) the piece is than the original"
 msgstr "ピースがオリジナルよりどれだけ長い（+）か短い（−）か"
@@ -4596,6 +4652,11 @@ msgstr "アイコンの色"
 #: src/SettingsTab.tsx
 msgid "Icons only. Names show in tooltips."
 msgstr "アイコンのみ。名前はツールチップに表示されます。"
+
+#. Short tag at the end of a slot's line; the tooltip shows the ID
+#: src/CueView.tsx
+msgid "ID"
+msgstr ""
 
 #: src/PatchContentPage.tsx
 msgid "ID {id}"
@@ -5150,6 +5211,10 @@ msgstr "表示中の行"
 msgid "Link"
 msgstr "リンク"
 
+#: src/WaveEditor.tsx
+msgid "Link Tempo and Pitch"
+msgstr ""
+
 #: src/CueView.tsx
 msgid "Linked to other places. New audio here plays there too"
 msgstr "他の場所とリンクしています。ここの新しい音声はそこでも再生されます"
@@ -5579,6 +5644,30 @@ msgstr "移動、名前変更、または削除されています"
 #: src/CueView.tsx
 msgid "moves on"
 msgstr "すぐ次へ"
+
+#: src/WaveEditor.tsx
+msgid "Moves the blocks of the layer back against each other, from the first. With blocks selected, on their layers"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Moves the selected blocks back until they touch the block before them on their layer, or the start"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Moves the selected blocks on until they touch the block after them on their layer"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Moves the selected blocks to after the other blocks"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Moves the selected blocks to end where the original ends"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Moves the selected blocks to the start"
+msgstr ""
 
 #: src/ExportDialog.tsx
 msgid "MP3 VBR (best quality, smaller)"
@@ -6882,6 +6971,22 @@ msgstr "ピース"
 #: src/SliceTool.tsx
 msgid "Pieces are saved in the project's <0>{folder}</0> folder."
 msgstr "ピースはプロジェクトの<0>{folder}</0>フォルダーに保存されます。"
+
+#: src/WaveEditor.tsx
+msgid "Pitch"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Place"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Place at the End"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Place at the Start"
+msgstr ""
 
 #: src/SliceTool.tsx
 msgid "Place the cuts"
@@ -8607,6 +8712,14 @@ msgstr "長い"
 msgid "Slower"
 msgstr "遅く"
 
+#: src/WaveEditor.tsx
+msgid "Snap Left"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Snap Right"
+msgstr ""
+
 #: src/App.tsx
 msgid "Some jobs are still running."
 msgstr "まだ実行中のジョブがあります。"
@@ -8682,6 +8795,10 @@ msgstr "サウンドトラック"
 msgid "Source Code"
 msgstr "ソースコード"
 
+#: src/CueView.tsx
+msgid "Source ID {id}"
+msgstr ""
+
 #: src/ExportDialog.tsx
 msgid "Source IDs"
 msgstr "ソースID"
@@ -8714,6 +8831,11 @@ msgstr "表計算 (CSV)"
 #: src/ProjectTab.tsx
 msgid "Square"
 msgstr "四角"
+
+#. Unit: semitones
+#: src/WaveEditor.tsx
+msgid "st"
+msgstr ""
 
 #. The menu on Home with New Project, Open Project and Import Mod
 #: src/Home.tsx
@@ -8800,6 +8922,10 @@ msgstr "チュートリアルを中止"
 #: src/App.tsx
 msgid "Stopping…"
 msgstr "停止中…"
+
+#: src/CueView.tsx
+msgid "Stream ID {id}"
+msgstr ""
 
 #: src/Inspector.tsx
 msgid "subtitle"
@@ -8898,6 +9024,18 @@ msgstr "うなり声、息づかい、笑い声と言葉の判別"
 #: src/Soundtrack.tsx
 msgid "Templates"
 msgstr "テンプレート"
+
+#: src/WaveEditor.tsx
+msgid "Tempo"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Tempo and Pitch: apart"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Tempo and Pitch: linked"
+msgstr ""
 
 #: src/ProjectTab.tsx
 msgid "Terminid orange"
@@ -9051,10 +9189,6 @@ msgstr "Waveform Suite での変更は失われます。"
 #: src/App.tsx
 msgid "The changes made since the project opened, to go back or forward to"
 msgstr "プロジェクトを開いてからの変更。前後の状態に移動できます"
-
-#: src/CueView.tsx
-msgid "The clip ID in the game files. Right-click the row for the other IDs"
-msgstr "ゲームファイル内のクリップIDです。他のIDは行を右クリックしてください"
 
 #: src/TextTab.tsx
 msgid "The colour that Colour applies"
@@ -9219,10 +9353,6 @@ msgstr "ヘルダイバーの掛け声（種類別・声別）"
 msgid "the icon"
 msgstr "アイコン"
 
-#: src/CueView.tsx
-msgid "The ID other audio tools list this clip by. Right-click the row for the other IDs"
-msgstr "他の音声ツールがこのクリップを表すIDです。他のIDは行を右クリックしてください"
-
 #: src/ProjectTab.tsx
 msgid "The image can't be read. Choose another, or use the default icon."
 msgstr "画像を読み取れません。別の画像を選ぶか、デフォルトのアイコンを使ってください。"
@@ -9349,8 +9479,8 @@ msgid "The music with the original audio, segment by segment"
 msgstr "オリジナルの音声の音楽をセグメントごとに再生"
 
 #: src/PlayThrough.tsx
-msgid "The music with the original audio, segment by segment. The game shuffles some of these segments"
-msgstr "オリジナルの音声の音楽をセグメントごとに再生。ゲームはこれらのセグメントの一部をシャッフルします"
+msgid "The music with the original audio, segment by segment. Segments the game picks at random come in a new order each time"
+msgstr ""
 
 #: src/content.ts
 msgid "the name lists behind bank path names"
@@ -9595,6 +9725,10 @@ msgstr "これらのスロットを含むセグメントを、まるごとミッ
 #: src/Soundtrack.tsx
 msgid "The segments that played, in order"
 msgstr "再生されたセグメント（順番どおり）"
+
+#: src/WaveEditor.tsx
+msgid "The selected blocks across the whole width"
+msgstr ""
 
 #: src/Inspector.tsx
 msgid "The shortest new audio is {length} ms long."
@@ -10540,3 +10674,11 @@ msgstr "自分のヘルダイバー、無線の味方、および車両内の全
 #: src/RepatchPage.tsx
 msgid "ZIPs, .7z, .rar or .patch_0 files"
 msgstr "ZIP、.7z、.rar、または.patch_0ファイル"
+
+#: src/WaveEditor.tsx
+msgid "Zoom to the Layer"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Zoom to the Selection"
+msgstr ""

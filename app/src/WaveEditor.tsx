@@ -5,8 +5,9 @@ import { Trans } from "@lingui/react/macro";
 import { audioUrl, call, fileUrl, fmtDecimal, fmtExact, fmtTime, type Block } from "./api";
 import { confirm } from "./Confirm";
 import { useDialog } from "./dialog";
-import { AddAudioIcon, CloseIcon, CurveIcon, DuplicateIcon, ExportIcon, GripIcon, LoopIcon, MagnetIcon, NormalizeIcon, PauseIcon, PlayIcon, PlusIcon, RedoIcon,
-  RemoveIcon, ResetIcon, SplitIcon, StopIcon, ThroughIcon, TrashIcon, UndoIcon } from "./Icons";
+import { AddAudioIcon, CloseGapsIcon, CloseIcon, CurveIcon, DuplicateIcon, ExportIcon, FitLayerIcon, FitSelIcon, GripIcon, LinkIcon, LoopIcon, MagnetIcon, NormalizeIcon,
+  PauseIcon, PlayIcon, PlusIcon, RedoIcon, RemoveIcon, ResetIcon, SnapLeftIcon, SnapRightIcon, SplitIcon, StopIcon, ThroughIcon, ToEndIcon, ToStartIcon, TrashIcon,
+  UndoIcon } from "./Icons";
 import { fullPath, pickAudio, pickAudioToSave } from "./platform";
 import { player, usePlayer } from "./player";
 import { useEditor } from "./store";
@@ -59,6 +60,8 @@ const RULER = 24;
 const REF_H = { one: 64, many: 56 }; // an original's lane, alone and in a segment
 const LAYER = { h: 120, many: 84, min: 48, max: 320, pad: 6 }; // a layer's height (alone, in a segment), its limits; a block's inset
 const MAX_LAYERS = 32;  // the core's MAX_LAYERS
+const TEMPO = [0.5, 2] as const; // the core's TEMPO: a block's speed
+const PITCH = 12;       // the core's PITCH: semitones up or down
 const BUCKET = 64;      // frames per level in the summary of a file
 const DOUBLE_MS = 400;  // a second click this soon after the first is a double click, which plays instead of picking
 const CONTEXT_MS = 3000; // how much of the segments around a segment Play in Context plays
@@ -90,7 +93,11 @@ type Incoming = { audio: string; blocks?: Block[] };
 type ExportPrefs = { fmt: string; rate: number; channels: number; normalize: boolean };
 type Playing = "edit" | "context" | null;
 
-const lengthOf = (b: Block) => b.end_ms - b.start_ms;
+/** How fast a block plays its stretch of the file, and whether its pitch goes with that, as a tape played faster. */
+const speedOf = (b: Block) => b.tempo ?? 1;
+const tapeOf = (b: Block) => Math.abs((b.pitch ?? 0) - 12 * Math.log2(speedOf(b))) < 0.01;
+/** How long a block plays on the time line. */
+const lengthOf = (b: Block) => (b.end_ms - b.start_ms) / speedOf(b);
 const lastIndex = <T,>(xs: T[], f: (x: T) => boolean) => { for (let i = xs.length - 1; i >= 0; i--) if (f(xs[i])) return i; return -1; };
 const endOf = (b: Block) => b.at_ms + lengthOf(b);
 const layerOf = (b: Block) => b.layer ?? 0;
@@ -102,10 +109,12 @@ const clean = (b: EBlock): EBlock => ({ start_ms: round1(b.start_ms), end_ms: ro
   fade_in_ms: round1(Math.max(0, b.fade_in_ms)), fade_out_ms: round1(Math.max(0, b.fade_out_ms)), gain_db: round1(b.gain_db),
   ...(b.audio ? { audio: b.audio } : {}), ...(b.layer ? { layer: Math.round(b.layer) } : {}),
   ...(b.curve?.length ? { curve: b.curve.map(([ms, lv]) => [round1(Math.max(0, ms)), Math.round(clamp(lv, 0, 1) * 1e4) / 1e4]).sort((p, q) => p[0] - q[0]) } : {}),
+  ...(b.tempo != null && Math.abs(b.tempo - 1) >= 1e-4 ? { tempo: Math.round(clamp(b.tempo, TEMPO[0], TEMPO[1]) * 1e4) / 1e4 } : {}),
+  ...(b.pitch ? { pitch: Math.round(clamp(b.pitch, -PITCH, PITCH) * 100) / 100 } : {}),
   track: b.track });
 /** A block's volume curve at a time of its file: a straight line between its points, the first and last levels held
     before and after them; full (1) without points. */
-function curveAt(b: Block, fileMs: number) {
+export function curveAt(b: Block, fileMs: number) {
   const c = b.curve;
   if (!c?.length) return 1;
   if (fileMs <= c[0][0]) return c[0][1];
@@ -114,6 +123,15 @@ function curveAt(b: Block, fileMs: number) {
     if (fileMs <= x1) { const [x0, y0] = c[k - 1]; return x1 > x0 ? y0 + ((fileMs - x0) / (x1 - x0)) * (y1 - y0) : y1; }
   }
   return c[c.length - 1][1];
+}
+/** The volume curves of blocks as lines on their time line, [ms, level], each from where its block starts to where it
+    ends (the waveform panel draws them over the new audio). */
+export function curveLines(blocks: Block[] | undefined): number[][][] {
+  return (blocks ?? []).filter((b) => b.curve?.length).map((b) => {
+    const sp = speedOf(b), at = (ms: number) => b.at_ms + (ms - b.start_ms) / sp;
+    return [[b.at_ms, curveAt(b, b.start_ms)], ...b.curve!.filter((p) => p[0] > b.start_ms && p[0] < b.end_ms).map((p) => [at(p[0]), p[1]]),
+      [at(b.end_ms), curveAt(b, b.end_ms)]];
+  });
 }
 /** A level as decibels, for the point being dragged. */
 const dbText = (lv: number) => (lv <= 0.00001 ? "−∞ dB" : `${fmtDecimal(20 * Math.log10(lv), 1, true)} dB`);
@@ -126,6 +144,18 @@ const FULL = /^([a-z]:[\\/]|[\\/])/i; // a full path (a file just added), not on
 const EXPORT_FORMATS: [string, string, string][] = [ // id (the core's EDIT_EXPORTS), name, extension
   ["wav24", "WAV · 24-bit", "wav"], ["wav16", "WAV · 16-bit", "wav"], ["flac", "FLAC", "flac"], ["mp3", "MP3 · 320 kbps", "mp3"], ["ogg", "Ogg Vorbis", "ogg"]];
 const EXPORT_KEY = "audiodiver.waveExport";
+const ZOOM_KEY = "audiodiver.suiteZoom";
+type KeptZoom = { from: number; span: number; y: number };
+/** The zoom each track (or set of them) was left at, the latest last, up to 200 of them. */
+const zooms: Map<string, KeptZoom> = (() => {
+  try { return new Map(Object.entries(JSON.parse(localStorage.getItem(ZOOM_KEY) ?? "{}") as Record<string, KeptZoom>)); } catch { return new Map(); }
+})();
+function keepZoom(key: string, z: KeptZoom | null) {
+  zooms.delete(key);
+  if (z) zooms.set(key, z);
+  while (zooms.size > 200) zooms.delete(zooms.keys().next().value!);
+  try { localStorage.setItem(ZOOM_KEY, JSON.stringify(Object.fromEntries(zooms))); } catch { /* storage off */ }
+}
 const own = (track: number) => `own:${track}`; // the files map's key of a track's own file
 
 /** Audio dropped on the open editor: App.tsx hands it here (one editor is open at a time). */
@@ -179,7 +209,7 @@ function levelAt(f: Decoded, fromMs: number, toMs: number): number {
 /** The level a block plays at, a moment into it: its gain, its volume curve, and its fades as straight lines in level. */
 function envelope(b: Block, intoMs: number) {
   const len = lengthOf(b);
-  let k = 10 ** (b.gain_db / 20) * curveAt(b, b.start_ms + intoMs);
+  let k = 10 ** (b.gain_db / 20) * curveAt(b, b.start_ms + intoMs * speedOf(b));
   if (b.fade_in_ms > 0 && intoMs < b.fade_in_ms) k *= Math.max(0, intoMs / b.fade_in_ms);
   if (b.fade_out_ms > 0 && intoMs > len - b.fade_out_ms) k *= Math.max(0, (len - intoMs) / b.fade_out_ms);
   return k;
@@ -273,6 +303,11 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
     });
     return () => { live = false; };
   }, [ctx, sources]);
+  // a block at another tempo with its own pitch plays its file as the core stretches it, read once for each
+  // tempo and pitch; until it is read (and for one that is a tape played faster) the player plays the file faster
+  const [bent, setBent] = useState<Record<string, Decoded>>({});
+  const bentAsked = useRef(new Set<string>());
+  const bentKey = (b: Block & { track: number }) => `${b.audio || own(b.track)}|${speedOf(b)}|${b.pitch ?? 0}`;
   const refOf = (i: number) => (editOriginal(i) ? files[own(i)] ?? null : refs[i] ?? null);
   const fileOf = (b: EBlock) => files[b.audio || own(b.track)] ?? null;
   const msOfFile = (b: EBlock) => { const f = fileOf(b); return f ? f.buf.duration * 1000 : b.end_ms; };
@@ -371,18 +406,48 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
   // the time line: everything there is and room after it to move a block into, from the blocks as let go (not while
   // a drag runs); it shrinks again when blocks go, and a zoomed-in view keeps showing as much time as before
   const ownMs = Math.max(0, ...tracks.map((_, i) => (files[own(i)]?.buf.duration ?? 0) * 1000));
-  const total = Math.max(1000, Math.ceil((Math.max(ownMs, refMs, ...blocks.map(endOf), cues ? Math.max(cues.gameExit, cueOver.exit ?? 0) : 0) * 1.12) / 100) * 100);
+  const total = Math.max(1000, Math.ceil((Math.max(blocks.length ? 0 : ownMs, refMs, ...blocks.map(endOf), cues ? Math.max(cues.gameExit, cueOver.exit ?? 0) : 0) * 1.12) / 100) * 100);
   const zoom = useWaveZoom(total, MIN_SPAN);
+  // the zoom this track was left at comes back once its blocks are there, and is kept as it changes
+  const zoomKey = tracks.map((x) => x.source ?? x.file ?? "").join("|");
+  const restored = useRef(false);
+  useEffect(() => {
+    if (restored.current || !hist.list.length) return;
+    restored.current = true;
+    const z = zooms.get(zoomKey);
+    if (z) { zoom.fit(z.from, z.from + z.span); zoom.zoomY(z.y); }
+  }, [hist.list.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (restored.current) keepZoom(zoomKey, zoom.zoomed ? { from: round1(zoom.from), span: round1(zoom.span), y: zoom.y } : null);
+  }, [zoom.from, zoom.span, zoom.y]); // eslint-disable-line react-hooks/exhaustive-deps
   const lastTotal = useRef(total);
   useEffect(() => {
     const was = lastTotal.current;
     lastTotal.current = total;
     if (was !== total && zoom.x > 1) zoom.zoomX(zoom.x * (total / was), zoom.from + zoom.span / 2);
   }, [total]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!ctx) return;
+    for (const b of blocks) {
+      if (tapeOf(b) || !fileOf(b)) continue;
+      const key = bentKey(b);
+      if (bentAsked.current.has(key)) continue;
+      bentAsked.current.add(key);
+      const f = b.audio || own(b.track), i = b.track, x = tracks[i], a = assign(i);
+      const from = !f.startsWith("own:") ? { file: full(f) } : x.file ? { file: full(x.file) }
+        : modes[i] === "original" || !a || a.silence ? { source: x.source } : { file: full(a.audio) };
+      call<{ path: string }>("edit_stretch", { tempo: speedOf(b), pitch: b.pitch ?? 0, ...from })
+        .then((got) => decode(fileUrl(got.path), ctx))
+        .then((d) => setBent((m) => ({ ...m, [key]: d })), (e: any) => { bentAsked.current.delete(key); notify("bad", String(e?.message ?? e)); });
+    }
+  }, [blocks, ctx, files]); // eslint-disable-line react-hooks/exhaustive-deps
   const [cursor, setCursor] = useState(0);
   const [magnet, setMagnet] = useState(() => { try { return localStorage.getItem("audiodiver.waveMagnet") !== "0"; } catch { return true; } });
   useEffect(() => { try { localStorage.setItem("audiodiver.waveMagnet", magnet ? "1" : "0"); } catch { /* storage off */ } }, [magnet]);
   const [loop, setLoop] = useState(false);
+  // tempo and pitch move together (a tape played faster) or each on its own
+  const [link, setLink] = useState(() => { try { return localStorage.getItem("audiodiver.waveLink") !== "0"; } catch { return true; } });
+  useEffect(() => { try { localStorage.setItem("audiodiver.waveLink", link ? "1" : "0"); } catch { /* storage off */ } }, [link]);
   const [curving, setCurving] = useState(false); // volume curves: their lines and points take the presses on a block
 
   // --- playback: each block of the lanes ticked a buffer source with its gain and fades, from the cursor; or Play in
@@ -394,8 +459,8 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
   useEffect(() => { if (master) master.gain.value = vol; }, [master, vol]);
   /** What Play plays: the blocks of the layers ticked, and each original whose box is ticked. */
   const heard = (list: EBlock[]) => {
-    const out: { b: Block; f: Decoded }[] = [];
-    for (const b of list) { const f = fileOf(b); if (f && playsOf(b.track, layerOf(b))) out.push({ b, f }); }
+    const out: { b: Block; f: Decoded; bent?: Decoded }[] = [];
+    for (const b of list) { const f = fileOf(b); if (f && playsOf(b.track, layerOf(b))) out.push({ b, f, bent: tapeOf(b) ? undefined : bent[bentKey(b)] }); }
     tracks.forEach((_, i) => { const r = refOf(i); if (refPlays[i] && r) out.push({ b: whole(r.buf.duration * 1000, i), f: r }); });
     return out;
   };
@@ -408,16 +473,17 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
   }, []);
   useEffect(() => stop, [stop]);
   /** Plays the parts of `list` between from and to (ms), placed on the time line shifted by `shift`. */
-  const schedule = (list: { b: Block; f: Decoded }[], from: number, to: number, shift: number, what: Playing, again?: () => void) => {
+  const schedule = (list: { b: Block; f: Decoded; bent?: Decoded }[], from: number, to: number, shift: number, what: Playing, again?: () => void) => {
     if (!ctx || !master) return;
     player.stop(); // the app's player and the editor never play over each other
     void ctx.resume();
     const t0 = ctx.currentTime + 0.04, nodes: AudioScheduledSourceNode[] = [];
-    for (const { b, f } of list) {
-      const len = lengthOf(b), into = Math.max(0, from - b.at_ms);
+    for (const { b, f, bent: bf } of list) {
+      const len = lengthOf(b), into = Math.max(0, from - b.at_ms), sp = speedOf(b);
       if (endOf(b) <= from || b.at_ms >= to || into >= len) continue;
       const src = ctx.createBufferSource(), g = ctx.createGain();
-      src.buffer = f.buf;
+      src.buffer = bf ? bf.buf : f.buf;
+      if (!bf && sp !== 1) src.playbackRate.value = sp; // a tape played faster, or the stretched file not read yet
       src.connect(g).connect(master);
       const when = t0 + Math.max(0, b.at_ms - from) / 1000;
       const k = 10 ** (b.gain_db / 20), outAt = len - b.fade_out_ms, dur = (Math.min(len, to - b.at_ms) - into) / 1000;
@@ -433,7 +499,9 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
           g.gain.linearRampToValueAtTime(0, when + (len - into) / 1000);
         }
       }
-      src.start(when, (b.start_ms + into) / 1000, dur);
+      // the stretched file holds the moment ms of the file at ms / tempo; the file itself plays `sp` times as fast
+      if (bf) src.start(when, (b.start_ms / sp + into) / 1000, dur);
+      else src.start(when, (b.start_ms + into * sp) / 1000, dur * sp);
       nodes.push(src);
     }
     const timer = window.setTimeout(() => {
@@ -492,7 +560,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
 
   // --- editing: on the selected blocks
   const chosen = () => sel.filter((i) => i < blocks.length);
-  const set = (i: number, b: Partial<Block>) => commit(blocks.map((x, j) => (j === i ? { ...x, ...b } : x)));
+  const set = (i: number, b: Partial<Block>) => commit(blocks.map((x, j) => (j === i ? fitted({ ...x, ...b }) : x)));
   /** A change to every selected block (the values beside the time line with several selected), fades kept inside. */
   const setMany = (b: Partial<Block>) => commit(blocks.map((x, j) => (picked.has(j) ? fitted({ ...x, ...b }) : x)));
   const splitAt = (ms: number) => {
@@ -503,10 +571,10 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
     const next: EBlock[] = [], rights: number[] = [];
     blocks.forEach((b, i) => {
       if (!cut.includes(i)) { next.push(b); return; }
-      const at = b.start_ms + (ms - b.at_ms);
-      next.push({ ...b, end_ms: at, fade_out_ms: 0, fade_in_ms: Math.min(b.fade_in_ms, at - b.start_ms) });
+      const at = b.start_ms + (ms - b.at_ms) * speedOf(b);
+      next.push({ ...b, end_ms: at, fade_out_ms: 0, fade_in_ms: Math.min(b.fade_in_ms, ms - b.at_ms) });
       rights.push(next.length);
-      next.push({ ...b, start_ms: at, at_ms: ms, fade_in_ms: 0, fade_out_ms: Math.min(b.fade_out_ms, b.end_ms - at) });
+      next.push({ ...b, start_ms: at, at_ms: ms, fade_in_ms: 0, fade_out_ms: Math.min(b.fade_out_ms, endOf(b) - ms) });
     });
     commit(next);
     setSel(rights);
@@ -539,6 +607,71 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
     const d = Math.max(by, -Math.min(...list.map((i) => blocks[i].at_ms)));
     if (d) commit(blocks.map((b, j) => (picked.has(j) ? { ...b, at_ms: b.at_ms + d } : b)));
   };
+  // --- placing the selected blocks, together: against the block before or after them on their layers (or the start),
+  // at the start, or ending where the original ends (without one, after the other blocks)
+  const shiftSel = (by: number) => {
+    const list = chosen();
+    if (!list.length) return;
+    const d = Math.max(by, -Math.min(...list.map((i) => blocks[i].at_ms)));
+    if (Math.abs(d) >= 0.05) commit(blocks.map((b, j) => (picked.has(j) ? { ...b, at_ms: b.at_ms + d } : b)));
+  };
+  const endTarget = () => {
+    const list = chosen(), span = Math.max(...list.map((i) => endOf(blocks[i]))) - Math.min(...list.map((i) => blocks[i].at_ms));
+    return refMs > 0 ? refMs : Math.max(0, ...blocks.filter((_, j) => !picked.has(j)).map(endOf)) + span;
+  };
+  const snapSide = (dir: -1 | 1) => {
+    const list = chosen();
+    if (!list.length) return;
+    const lo = Math.min(...list.map((i) => blocks[i].at_ms)), hi = Math.max(...list.map((i) => endOf(blocks[i])));
+    let by = dir < 0 ? -lo : Infinity;
+    for (const i of list) {
+      const b = blocks[i];
+      for (const [j, o] of blocks.entries()) {
+        if (picked.has(j) || o.track !== b.track || layerOf(o) !== layerOf(b)) continue;
+        if (dir < 0 && endOf(o) <= b.at_ms + 0.05) by = Math.max(by, endOf(o) - b.at_ms);
+        if (dir > 0 && o.at_ms >= endOf(b) - 0.05) by = Math.min(by, o.at_ms - endOf(b));
+      }
+    }
+    if (!Number.isFinite(by)) by = Math.max(0, endTarget() - hi); // nothing after them: as far as the end
+    shiftSel(by);
+  };
+  const placeAt = (where: "start" | "end") => {
+    const list = chosen();
+    if (!list.length) return;
+    shiftSel(where === "start" ? -Math.min(...list.map((i) => blocks[i].at_ms)) : endTarget() - Math.max(...list.map((i) => endOf(blocks[i]))));
+  };
+  /** The layers worked on: those of the selected blocks, else the one the cursor's lane is. */
+  const layersOn = () => new Set(chosen().length ? chosen().map((i) => lk(blocks[i].track, layerOf(blocks[i]))) : [lk(on.track, on.layer)]);
+  /** Close Gaps: on each layer worked on, every block after the first moves back against the one before it;
+      blocks that overlap keep overlapping as much. */
+  const closeGaps = () => {
+    const keys = layersOn(), next = blocks.map((b) => ({ ...b }));
+    for (const key of keys) {
+      const idx = next.map((_, j) => j).filter((j) => lk(next[j].track, layerOf(next[j])) === key).sort((p, q) => next[p].at_ms - next[q].at_ms);
+      let reach = -Infinity, shift = 0;
+      for (const j of idx) {
+        let at = next[j].at_ms - shift;
+        if (reach > -Infinity && at > reach) { shift += at - reach; at = reach; }
+        next[j].at_ms = at;
+        reach = Math.max(reach, endOf(next[j]));
+      }
+    }
+    if (next.some((b, j) => Math.abs(b.at_ms - blocks[j].at_ms) >= 0.05)) commit(next);
+  };
+  const gapsIn = (() => { // whether a layer worked on has a gap between its blocks
+    const keys = layersOn();
+    for (const key of keys) {
+      const list = blocks.filter((b) => lk(b.track, layerOf(b)) === key).sort((p, q) => p.at_ms - q.at_ms);
+      let reach = -Infinity;
+      for (const b of list) { if (reach > -Infinity && b.at_ms > reach + 0.05) return true; reach = Math.max(reach, endOf(b)); }
+    }
+    return false;
+  })();
+  /** The zoom to the selected blocks, or from the start to the end of the layers worked on. */
+  const fitTo = (lo: number, hi: number) => { const pad = Math.max(10, (hi - lo) * 0.03); zoom.fit(Math.max(0, lo - pad), hi + pad); };
+  const fitSelected = () => { const list = chosen(); if (list.length) fitTo(Math.min(...list.map((i) => blocks[i].at_ms)), Math.max(...list.map((i) => endOf(blocks[i])))); };
+  const layerEnd = () => { const keys = layersOn(); return Math.max(0, ...blocks.filter((b) => keys.has(lk(b.track, layerOf(b)))).map(endOf)); };
+  const fitLayers = () => { const end = layerEnd(); if (end > 0) fitTo(0, end); };
   const reset = () => {
     commit(tracks.flatMap((_, i) => (hasOwn(i) && files[own(i)] ? [whole(files[own(i)].buf.duration * 1000, i)] : [])));
     setSel(blocks.length ? [0] : []);
@@ -741,12 +874,13 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
       g.fillText(step < 1000 ? `${fmtDecimal(ms / 1000, step < 10 ? 3 : step < 100 ? 2 : 1)} s` : fmtTime(ms), x + 3, RULER - 10);
     }
     const wave = (top: number, h: number, f: Decoded, from: number, to: number, at: number, colour: string, alpha: number, b?: Block) => {
-      const mid = top + h / 2, x0 = Math.max(0, Math.floor(xOf(at))), x1 = Math.min(width, Math.ceil(xOf(at + to - from)));
+      const sp = b ? speedOf(b) : 1; // a block at another tempo: its file goes by sp times as fast
+      const mid = top + h / 2, x0 = Math.max(0, Math.floor(xOf(at))), x1 = Math.min(width, Math.ceil(xOf(at + (to - from) / sp)));
       g.globalAlpha = alpha; g.fillStyle = colour;
       for (let x = x0; x < x1; x++) {
-        const m0 = msOf(x) - at + from, m1 = msOf(x + 1) - at + from;
+        const m0 = from + (msOf(x) - at) * sp, m1 = from + (msOf(x + 1) - at) * sp;
         let lv = levelAt(f, Math.max(from, m0), Math.min(to, m1)) * zoom.y;
-        if (b) lv *= envelope(b, (m0 + m1) / 2 - from);
+        if (b) lv *= envelope(b, ((m0 + m1) / 2 - from) / sp);
         const hh = Math.max(0.5, Math.min(1, lv) * (h / 2 - 3));
         g.fillRect(x, mid - hh, 1, hh * 2);
       }
@@ -802,7 +936,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
       g.beginPath(); g.moveTo(x0, top + h); g.lineTo(fi, top); g.lineTo(fo, top); g.lineTo(x1, top + h); g.stroke();
       // the volume curve: a line from full at the top to silence at the foot; its points show while curves are on
       if (curving || b.curve?.length) {
-        const yOf = (lv: number) => top + (1 - lv) * h, xAt = (ms: number) => xOf(b.at_ms + ms - b.start_ms);
+        const yOf = (lv: number) => top + (1 - lv) * h, xAt = (ms: number) => xOf(b.at_ms + (ms - b.start_ms) / speedOf(b));
         const pts = (b.curve ?? []).map((p, k) => [p[0], p[1], k]).filter((p) => p[0] >= b.start_ms && p[0] <= b.end_ms);
         g.save(); g.beginPath(); g.rect(x0 - 1, top - 1, x1 - x0 + 2, h + 2); g.clip();
         g.strokeStyle = v("--text"); g.lineWidth = 1.5; g.globalAlpha = curving ? 0.95 : 0.6;
@@ -895,7 +1029,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
       const b = shown[i], { top, h } = blockBox(b), c = b.curve ?? [];
       for (let k = 0; k < c.length; k++) {
         if (c[k][0] < b.start_ms || c[k][0] > b.end_ms) continue;
-        if (Math.hypot(x - xOf(b.at_ms + c[k][0] - b.start_ms), y - (top + (1 - c[k][1]) * h)) <= POINT_PX) return { kind: "point", i, under: [], pt: k };
+        if (Math.hypot(x - xOf(b.at_ms + (c[k][0] - b.start_ms) / speedOf(b)), y - (top + (1 - c[k][1]) * h)) <= POINT_PX) return { kind: "point", i, under: [], pt: k };
       }
     }
     for (const i of first) { // a fade grip, on the top edge
@@ -913,7 +1047,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
     if (curving) for (const i of first) { // a volume curve's line: a press puts a point there
       const b = shown[i], { top, h } = blockBox(b);
       if (x < xOf(b.at_ms) || x > xOf(endOf(b))) continue;
-      if (Math.abs(y - (top + (1 - curveAt(b, b.start_ms + msOf(x) - b.at_ms)) * h)) <= LINE_PX) return { kind: "line", i, under: [] };
+      if (Math.abs(y - (top + (1 - curveAt(b, b.start_ms + (msOf(x) - b.at_ms) * speedOf(b))) * h)) <= LINE_PX) return { kind: "line", i, under: [] };
     }
     // the body: of the blocks under the spot, a selected one, else the shortest (a longer one shows elsewhere)
     const under = first.filter((i) => x >= xOf(shown[i].at_ms) && x <= xOf(endOf(shown[i]))).sort((p, q) => lengthOf(shown[p]) - lengthOf(shown[q]));
@@ -941,7 +1075,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
     if (d.kind === "point") { // a volume curve's point: in time between its neighbours (and inside the block), in level by height
       const c = (b.curve ?? []).map((p) => [...p]), k = d.pt, { top, h } = blockBox(b);
       const lo = Math.max(b.start_ms, k > 0 ? c[k - 1][0] : -Infinity), hi = Math.min(b.end_ms, k < c.length - 1 ? c[k + 1][0] : Infinity);
-      c[k] = [clamp(b.start_ms + msOf(d.x0 + dx) - b.at_ms, lo, hi), clamp(1 - (y - top) / h, 0, 1)];
+      c[k] = [clamp(b.start_ms + (msOf(d.x0 + dx) - b.at_ms) * speedOf(b), lo, hi), clamp(1 - (y - top) / h, 0, 1)];
       return d.from.map((x, j) => (j === d.i ? { ...b, curve: c } : x));
     }
     if (d.kind === "move") { // the blocks taken move together, in time, and from layer to layer within their tracks
@@ -961,13 +1095,13 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
       // the file stays put: the block starts later in the file and later on the line by the same amount
       let at = b.at_ms + dms;
       at += snap([at], new Set([d.i]));
-      const by = Math.max(-b.start_ms, -b.at_ms, Math.min(at - b.at_ms, lengthOf(b) - MIN_BLOCK - b.fade_out_ms));
-      Object.assign(next, { start_ms: b.start_ms + by, at_ms: b.at_ms + by, fade_in_ms: Math.max(0, Math.min(b.fade_in_ms, lengthOf(b) - by - b.fade_out_ms)) });
+      const sp = speedOf(b), by = Math.max(-b.start_ms / sp, -b.at_ms, Math.min(at - b.at_ms, lengthOf(b) - MIN_BLOCK - b.fade_out_ms));
+      Object.assign(next, { start_ms: b.start_ms + by * sp, at_ms: b.at_ms + by, fade_in_ms: Math.max(0, Math.min(b.fade_in_ms, lengthOf(b) - by - b.fade_out_ms)) });
     } else if (d.kind === "trimR") {
       let end = endOf(b) + dms;
       end += snap([end], new Set([d.i]));
-      const len = Math.max(MIN_BLOCK + b.fade_in_ms, Math.min(msOfFile(b) - b.start_ms, end - b.at_ms));
-      Object.assign(next, { end_ms: b.start_ms + len, fade_out_ms: Math.max(0, Math.min(b.fade_out_ms, len - b.fade_in_ms)) });
+      const sp = speedOf(b), len = Math.max(MIN_BLOCK + b.fade_in_ms, Math.min((msOfFile(b) - b.start_ms) / sp, end - b.at_ms));
+      Object.assign(next, { end_ms: b.start_ms + len * sp, fade_out_ms: Math.max(0, Math.min(b.fade_out_ms, len - b.fade_in_ms)) });
     } else if (d.kind === "fadeIn") {
       next.fade_in_ms = Math.max(0, Math.min(lengthOf(b) - b.fade_out_ms, b.fade_in_ms + dms));
     } else if (d.kind === "fadeOut") {
@@ -1004,7 +1138,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
       if (hit.kind === "point" && e.altKey) { commit(blocks.map((x2, j) => (j === hit.i ? { ...x2, curve: curve.filter((_, k) => k !== pt) } : x2))); return; }
       if (hit.kind === "line") {
         if (curve.length >= MAX_CURVE) return;
-        const ms = round1(b.start_ms + msOf(x) - b.at_ms), lv = curveAt(b, ms);
+        const ms = round1(b.start_ms + (msOf(x) - b.at_ms) * speedOf(b)), lv = curveAt(b, ms);
         if (!curve.length) curve = [[b.start_ms, 1], [b.end_ms, 1]]; // the first point: the ends stay at full
         pt = curve.filter((p) => p[0] <= ms).length;
         curve.splice(pt, 0, [ms, lv]);
@@ -1164,6 +1298,13 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
               {tool(<DuplicateIcon />, t`Duplicate`, duplicate, !sel.length, "Ctrl+D", t`The copies go right after the selected blocks`)}
               {tool(<RemoveIcon />, t`Remove`, remove, !removable, "Delete", t`Removes the selected blocks`)}
             </div>
+            <div className="wave-ed-group" role="group" aria-label={t`Place`}>
+              {tool(<SnapLeftIcon />, t`Snap Left`, () => snapSide(-1), !sel.length, undefined, t`Moves the selected blocks back until they touch the block before them on their layer, or the start`)}
+              {tool(<SnapRightIcon />, t`Snap Right`, () => snapSide(1), !sel.length, undefined, t`Moves the selected blocks on until they touch the block after them on their layer`)}
+              {tool(<ToStartIcon />, t`Place at the Start`, () => placeAt("start"), !sel.length, undefined, t`Moves the selected blocks to the start`)}
+              {tool(<ToEndIcon />, t`Place at the End`, () => placeAt("end"), !sel.length, undefined, refMs ? t`Moves the selected blocks to end where the original ends` : t`Moves the selected blocks to after the other blocks`)}
+              {tool(<CloseGapsIcon />, t`Close Gaps`, closeGaps, !gapsIn, undefined, t`Moves the blocks of the layer back against each other, from the first. With blocks selected, on their layers`)}
+            </div>
             <div className="wave-ed-group" role="group" aria-label={t`Modes`}>
               <button className="icon-btn wave-ed-toggle" aria-pressed={magnet} onClick={() => setMagnet(!magnet)} aria-label={t`Magnet`} data-tip={magnet ? t`Magnet: on` : t`Magnet: off`}
                 data-tip-more={t`The cursor, block edges, blocks and cue points snap to edges: of blocks, the start and where the original ends`} data-tip-key="M"><MagnetIcon /></button>
@@ -1178,9 +1319,11 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
             </div>
           </div>
           <span className="spacer" />
+          <span className="wave-ed-timing">
           {cues && <span className="wave-ed-cues" data-tip={t`The segment's cue points`} data-tip-more={t`Drag their flags on the ruler. Let go near the automatic spot to go back to it`}>
             {ENTRY} <b>{fmtExact(entryAt)}</b> · {EXIT} <b>{fmtExact(exitAt)}</b>{cuesChanged && <span className="wave-ed-dot" aria-label={t`Changed`} />}</span>}
           <span className="wave-ed-time" data-tip={t`Where the cursor is`} data-tip-more={t`Drag the cursor, or along the ruler, to move it`}>{fmtExact(cursor)}</span>
+          </span>
         </div>
         <div className="wave-ed-body zoom-grid">
           <div className="wave-ed-lanes">
@@ -1242,7 +1385,10 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
             </div>
           </div>
           {/* under the waveforms, at the left: New Layer, then the scroll bar and the time zoom */}
-          <WaveZoom zoom={zoom} foot={<>
+          <WaveZoom zoom={zoom} fits={<>
+            {tool(<FitSelIcon />, t`Zoom to the Selection`, fitSelected, !sel.length || !ready, undefined, t`The selected blocks across the whole width`)}
+            {tool(<FitLayerIcon />, t`Zoom to the Layer`, fitLayers, !ready || layerEnd() <= 0, undefined, t`From the start to the end of the selected blocks' layers, or of the layer worked on`)}
+          </>} foot={<>
             <button className="btn quiet wave-ed-new-layer" onClick={addLayer} disabled={layersOf(on.track) >= MAX_LAYERS}
               data-tip={many ? t`A layer under ${tracks[on.track].name}, to keep blocks apart on` : t`A layer to keep blocks apart on`}
               data-tip-more={t`Every layer plays, all together. Drag a block up or down to move it to another layer`}><PlusIcon /><Trans>New Layer</Trans></button>
@@ -1251,8 +1397,8 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
         </div>
         </div>
         <aside className="wave-ed-side" aria-label={t`Selected blocks`}>
-          {one != null ? <BlockFields b={blocks[one]} n={one + 1} fileMs={msOfFile(blocks[one])} file={(many ? `${tracks[blocks[one].track].name} · ` : "") + (blocks[one].audio ? nameOf(blocks[one].audio!) : ownName(blocks[one].track))} onSet={(x) => set(one, x)} />
-            : selList.length > 1 ? <ManyFields list={selList} onSet={setMany} />
+          {one != null ? <BlockFields b={blocks[one]} n={one + 1} fileMs={msOfFile(blocks[one])} file={(many ? `${tracks[blocks[one].track].name} · ` : "") + (blocks[one].audio ? nameOf(blocks[one].audio!) : ownName(blocks[one].track))} onSet={(x) => set(one, x)} link={link} onLink={setLink} />
+            : selList.length > 1 ? <ManyFields list={selList} onSet={setMany} link={link} onLink={setLink} />
             : <p className="wave-ed-hint"><Trans>Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Drag from an empty spot to select several blocks, and hold Shift or Ctrl to add to them. Where blocks overlap, click again for the one under it. A double click plays from there. With Volume Curves on (V), click the line over a block to shape the volume.</Trans></p>}
         </aside>
         </div>
@@ -1366,10 +1512,30 @@ function Field({ name, tip, value, lo, hi, unit = "ms", step = 1, onSet }: {
   );
 }
 
+/** Tempo (in %) and Pitch (in semitones), and the link between them: linked, one moves the other as a tape played
+    faster would; apart, the tempo changes and the pitch stays, or the other way round. `b` null: several blocks
+    that differ, shown empty. */
+function SpeedFields({ tempo, pitch, link, onLink, onSet, many }: {
+  tempo: number | null; pitch: number | null; link: boolean; onLink: (v: boolean) => void; onSet: (b: Partial<Block>) => void; many?: boolean;
+}) {
+  const st = (v: number) => Math.round(12 * Math.log2(v) * 100) / 100;
+  return (
+    <div className="wave-ed-set wave-ed-speed">
+      <Field name={t`Tempo`} tip={many ? t`How fast each block plays` : t`How fast the block plays: 200% in half the time`} value={tempo == null ? null : tempo * 100} lo={TEMPO[0] * 100} hi={TEMPO[1] * 100} unit="%" step={1}
+        onSet={(v) => onSet(link ? { tempo: v / 100, pitch: st(v / 100) } : { tempo: v / 100 })} />
+      <Field name={t`Pitch`} tip={many ? t`How much higher or lower each block plays` : t`How much higher or lower the block plays, in semitones`} value={pitch} lo={-PITCH} hi={PITCH} unit={t({ message: "st", comment: "Unit: semitones" })} step={0.5}
+        onSet={(v) => onSet(link ? { pitch: v, tempo: clamp(2 ** (v / 12), TEMPO[0], TEMPO[1]) } : { pitch: v })} />
+      <button className={`icon-btn small wave-ed-link${link ? " on" : ""}`} aria-pressed={link} onClick={() => onLink(!link)} aria-label={t`Link Tempo and Pitch`}
+        data-tip={link ? t`Tempo and Pitch: linked` : t`Tempo and Pitch: apart`}
+        data-tip-more={link ? t`Changing one changes the other, as a tape played faster` : t`Each changes alone: the tempo keeps the pitch, the pitch keeps the tempo`}><LinkIcon /></button>
+    </div>
+  );
+}
+
 /** The selected block in numbers, in ms (Gain in dB): what the canvas does by dragging, to type exactly. A column of
-    label, value and unit, in groups: where it plays, the stretch of the file, the fades, the level. */
-function BlockFields({ b, n, fileMs, file, onSet }: {
-  b: Block; n: number; fileMs: number; file: string; onSet: (b: Partial<Block>) => void;
+    label, value and unit, in groups: where it plays, the stretch of the file, the fades, the level, the speed. */
+function BlockFields({ b, n, fileMs, file, onSet, link, onLink }: {
+  b: Block; n: number; fileMs: number; file: string; onSet: (b: Partial<Block>) => void; link: boolean; onLink: (v: boolean) => void;
 }) {
   const len = lengthOf(b);
   return (
@@ -1391,6 +1557,7 @@ function BlockFields({ b, n, fileMs, file, onSet }: {
         <Field name={t`Gain`} tip={t`How much louder or quieter the block plays`} value={b.gain_db} lo={-60} hi={24} unit="dB" step={0.5} onSet={(v) => onSet({ gain_db: v })} />
         <CurveRow points={b.curve?.length ?? 0} onFlatten={() => onSet({ curve: [] })} />
       </div>
+      <SpeedFields tempo={speedOf(b)} pitch={b.pitch ?? 0} link={link} onLink={onLink} onSet={onSet} />
     </div>
   );
 }
@@ -1409,8 +1576,10 @@ function CurveRow({ points, onFlatten, many }: { points: number; onFlatten: () =
 
 /** Several blocks selected: the values they can share, set on all of them at once (a fade longer than a block stops
     at its length). A value they differ in shows empty. */
-function ManyFields({ list, onSet }: { list: Block[]; onSet: (b: Partial<Block>) => void }) {
+function ManyFields({ list, onSet, link, onLink }: { list: Block[]; onSet: (b: Partial<Block>) => void; link: boolean; onLink: (v: boolean) => void }) {
   const same = (k: "fade_in_ms" | "fade_out_ms" | "gain_db") => (list.every((b) => round1(b[k]) === round1(list[0][k])) ? list[0][k] : null);
+  const tempo = list.every((b) => speedOf(b) === speedOf(list[0])) ? speedOf(list[0]) : null;
+  const pitch = list.every((b) => (b.pitch ?? 0) === (list[0].pitch ?? 0)) ? list[0].pitch ?? 0 : null;
   const longest = Math.max(...list.map(lengthOf));
   const n = list.length;
   return (
@@ -1424,6 +1593,7 @@ function ManyFields({ list, onSet }: { list: Block[]; onSet: (b: Partial<Block>)
         <Field name={t`Gain`} tip={t`How much louder or quieter each block plays`} value={same("gain_db")} lo={-60} hi={24} unit="dB" step={0.5} onSet={(v) => onSet({ gain_db: v })} />
         {list.some((b) => b.curve?.length) && <CurveRow many points={list.reduce((s, b) => s + (b.curve?.length ?? 0), 0)} onFlatten={() => onSet({ curve: [] })} />}
       </div>
+      <SpeedFields many tempo={tempo} pitch={pitch} link={link} onLink={onLink} onSet={onSet} />
     </div>
   );
 }

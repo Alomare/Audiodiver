@@ -265,3 +265,30 @@ def test_a_volume_curve_shapes_the_block_at_the_times_of_its_file(tmp_path):
     d["replacements"][0]["blocks"][0]["curve"] = [["a", 1]]
     q = Project.from_json(d, tmp_path / "p.audi")
     assert q.replacements[0].blocks[0].curve == [] and q.repairs
+
+
+@pytest.mark.skipif(not audio.wem.has_ffmpeg(), reason="needs ffmpeg")
+def test_tempo_and_pitch_stretch_a_block_on_the_time_line(tmp_path):
+    """A block at twice the tempo plays its stretch in half the time; linked to the pitch (12 semitones) it only
+    resamples, so sample values keep their order; the project keeps both and leaves them out at their defaults."""
+    s = Session(load=False)
+    s.new_project(tmp_path / "m.audi", "M")
+    a = ramp(tmp_path / "a.wav")
+    s._edit("assign", lambda p: s._set(p, 1234, str(a)))
+    got = s.edit_set(1234, [{"start_ms": 200, "end_ms": 800, "tempo": 2, "pitch": 12, "fade_in_ms": 900}])["assignments"]["1234"]
+    b = got["blocks"][0]
+    assert b["tempo"] == 2 and b["pitch"] == 12 and b["fade_in_ms"] == 300  # fades stay inside the 300 ms it plays
+    v = samples(s.project_audio(1234))
+    assert abs(len(v) - 0.3 * 48000) < 60
+    assert v[len(v) // 4] < v[len(v) // 2] < v[3 * len(v) // 4]  # the ramp, in order: resampled, not stretched
+    alone = s.edit_set(1234, [{"start_ms": 0, "end_ms": 1000, "tempo": 0.5}])["assignments"]["1234"]
+    assert alone["duration_ms"] == pytest.approx(2000, abs=1)  # the pitch stays, the tempo halves: twice as long
+    assert abs(len(samples(s.project_audio(1234))) - 96000) < 200
+    saved = json.loads((tmp_path / "m.audi").read_text())["replacements"][0]["blocks"][0]
+    assert saved["tempo"] == 0.5 and "pitch" not in saved
+    s.edit_set(1234, [{"start_ms": 0, "end_ms": 1000, "gain_db": 1}])
+    assert "tempo" not in json.loads((tmp_path / "m.audi").read_text())["replacements"][0]["blocks"][0]
+    for bad in ({"tempo": 3}, {"tempo": 0}, {"pitch": 13}, {"pitch": True}):
+        with pytest.raises(EditorError):
+            s.edit_set(1234, [{"start_ms": 0, "end_ms": 400, **bad}])
+    assert Path(s.edit_stretch(1.5, -2, file=str(a))["path"]).is_file()

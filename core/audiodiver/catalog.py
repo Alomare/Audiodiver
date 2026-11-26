@@ -231,6 +231,48 @@ class Catalog:
                           en_path[e["id"]], not e["curated"], e["name"].lower())
         return sorted(out, key=rank)
 
+    def _layered(self, s: dict, stems: list, heard: set) -> list:
+        """A segment whose tracks each switch between two sources of one layer (low and high in the Extraction
+        music), laid out by layer: each slot named for its layer ("Percussion" and "Melody" where the clip names
+        say which, else "Layer 1", "Layer 2") with its number in "layer", a layer's slots together, low before high.
+        The clip names alone were mixed up: some called the high audio calm, some named two layers alike."""
+        up = {sid: sid for sid in heard}
+
+        def root(x):
+            while up[x] != x:
+                up[x] = up[up[x]]
+                x = up[x]
+            return x
+        for st in s["stems"]:  # a track's sources are one layer
+            ids = [sl["source"] for sl in st["slots"] if sl["source"] in heard]
+            for a in ids[1:]:
+                up[root(a)] = root(ids[0])
+        order = list(dict.fromkeys(root(sl["source"]) for st in s["stems"] for sl in st["slots"] if sl["source"] in heard))
+        labels = {int(sl["source"]): sl["label"] for st in stems for sl in st["slots"]}
+        perc = re.compile(r"(?<![!\w])Perc", re.I)
+        plain = re.compile(r"!\s*Perc|\b(Calm|Intense) Cue", re.I)
+        kinds = []
+        for r in order:
+            words = [labels.get(sid, "") for sid in heard if root(sid) == r]
+            kinds.append("perc" if any(perc.search(w) for w in words) and not any(plain.search(w) for w in words)
+                         else "plain" if any(plain.search(w) for w in words) and not any(perc.search(w) for w in words) else "")
+        if len(order) == 2 and kinds.count("") == 1 and set(kinds) - {""} in ({"perc"}, {"plain"}):  # one known: the other is the other
+            kinds = [k or ("plain" if "perc" in kinds else "perc") for k in kinds]
+        named = len(set(kinds)) == len(kinds) and "" not in kinds
+        if named:  # Percussion first, in every segment alike
+            order = [r for _, r in sorted(zip(kinds, order), key=lambda x: x[0] != "perc")]
+            kinds = sorted(kinds, key=lambda k: k != "perc")
+        name = {r: (tr("Percussion") if k == "perc" else tr("Melody")) if named else tr("Layer {n}").format(n=i + 1)
+                for i, (r, k) in enumerate(zip(order, kinds))}
+        for st in stems:
+            for sl in st["slots"]:
+                r = root(int(sl["source"]))
+                sl["label"], sl["layer"] = name[r], order.index(r)
+        # low before high (the tracks list their switch values in no one order), by the game's name of the value
+        level = {sl["source"]: str(self.name(sl["variant"])).lower() for st in s["stems"] for sl in st["slots"] if not sl["unused"]}
+        rank = lambda st: {"low": 0, "calm": 0, "medium": 1, "high": 2, "intense": 2}.get(level.get(int(st["slots"][0]["source"]), ""), 1)
+        return sorted(stems, key=lambda st: (st["slots"][0]["layer"], rank(st)))
+
     def cue(self, cue_id: int) -> dict:
         """A cue with its segments, stems and slots, named. KeyError for an id that is no cue, and for a cue with
         nothing to replace in it (silent segments), which `entries` leaves out."""
@@ -242,10 +284,16 @@ class Catalog:
         segments = []
         for n, s in enumerate(cue["segments"]):
             stems = []
+            # a source each track lists but places on its timeline in one track only (the Extraction music: each
+            # track holds a layer's low and high audio and plays one): shown once, where it plays
+            heard = {sl["source"] for st in s["stems"] for sl in st["slots"] if not sl["unused"]}
+            mirrored = any(sl["unused"] and sl["source"] in heard for st in s["stems"] for sl in st["slots"])
             for k, st in enumerate(s["stems"]):
                 out_slots = []
                 for sl in st["slots"]:
                     sid = sl["source"]
+                    if mirrored and sl["unused"] and sid in heard:
+                        continue
                     labels = self.slot_labels(sid)
                     out_slots.append({
                         "source": str(sid), "duration_ms": sl["duration_ms"], "unused": sl["unused"],
@@ -256,9 +304,12 @@ class Catalog:
                         "also_in": [str(c) for c in self.cm.by_source[sid] if c != cue_id],
                         **self.clip_notes(sid),
                     })
-                stems.append({"track": str(st["track"]), "type": st["type"],
-                              "switch_group": self.name(st["switch_group"]) if st["switch_group"] else "",
-                              "slots": out_slots})
+                if out_slots:
+                    stems.append({"track": str(st["track"]), "type": st["type"],
+                                  "switch_group": self.name(st["switch_group"]) if st["switch_group"] else "",
+                                  "slots": out_slots})
+            if mirrored:
+                stems = self._layered(s, stems, heard)
             numbered = False  # a name made up here, "Segment 3": the Library puts the cue's name before it
             if n == 0 and d["slot_first"]:
                 name = named(d["slot_first"])

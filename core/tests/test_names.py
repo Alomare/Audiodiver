@@ -204,3 +204,24 @@ def test_another_language_names_everything_again(xx):
     s.set_language("en")
     s.wait_ready()
     assert next(c for c in s.index()["categories"] if c["id"] == "weapons")["name"] == "Weapons"
+
+
+def test_a_segment_of_mirrored_tracks_is_laid_out_by_layer():
+    """The Extraction music's tracks each list a layer's low and high audio and play one: each source shows once,
+    where it plays, named for its layer (the clip names say which is percussion), low before high."""
+    from types import SimpleNamespace
+    from audiodiver.catalog import Catalog
+    raw = lambda *pairs: [{"source": s, "unused": u, "variant": v} for s, u, v in pairs]  # noqa: E731
+    seg = {"stems": [{"slots": raw((1, True, 0), (2, False, "high")), "switch_values": ["low", "high"]},
+                     {"slots": raw((1, False, "low"), (2, True, 0)), "switch_values": ["high", "low"]},
+                     {"slots": raw((3, False, "high"), (4, True, 0)), "switch_values": ["low", "high"]},
+                     {"slots": raw((3, True, 0), (4, False, "low")), "switch_values": ["low", "high"]}]}
+    shown = lambda sid, label, level: {"source": str(sid), "label": label, "variant": f"level: {level}"}  # noqa: E731
+    stems = [{"slots": [shown(2, "Extraction Cue (!Perc.)", "high")]}, {"slots": [shown(1, "Terminid - Calm Cue 4", "low")]},
+             {"slots": [shown(3, "Extraction Cue (Perc.)", "high")]}, {"slots": [shown(4, "Extraction Cue (Perc.)", "low")]}]
+    got = Catalog._layered(SimpleNamespace(name=lambda v: v), seg, stems, {1, 2, 3, 4})
+    assert [(sl["source"], sl["label"], sl["layer"]) for st in got for sl in st["slots"]] == [
+        ("4", "Percussion", 0), ("3", "Percussion", 0), ("1", "Melody", 1), ("2", "Melody", 1)]
+    stems = [{"slots": [shown(s, "Terminid Combat Music", "high")]} for s in (2, 1, 3, 4)]
+    got = Catalog._layered(SimpleNamespace(name=lambda v: v), seg, stems, {1, 2, 3, 4})
+    assert [sl["label"] for st in got for sl in st["slots"]] == ["Layer 1"] * 2 + ["Layer 2"] * 2

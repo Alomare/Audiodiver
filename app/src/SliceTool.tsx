@@ -211,6 +211,7 @@ export function SliceTool({ onClose, target, file: given, only }: { onClose: () 
     zoomX: (x, atMs) => zoom(x / (total / view.span), atMs),
     zoomY: (y) => setTall(Math.max(1, Math.min(ZOOM_Y_MAX, y))),
     scroll: (from) => setView((v) => clampView({ ...v, from })),
+    fit: (a, b) => setView(clampView({ from: a, span: b - a })),
     reset: () => { fit(); setTall(1); },
   };
   /** Brings a stretch into view, zooming out only when it doesn't fit. */

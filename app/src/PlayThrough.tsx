@@ -99,7 +99,7 @@ export function PlayThrough({ onThrough, onMark }: { onThrough?: (t: Through | n
     const about = busy === side ? t`Preparing…` : side === "mine" ? changed ? t`The music with the new audio, segment by segment, to hear how the segments join`
       : t`Nothing replaced here yet`
       : cue.ordered === false ? t`One round of the playlist, top to bottom. Play order shows how the game plays it`
-      : through?.random ? t`The music with the original audio, segment by segment. The game shuffles some of these segments`
+      : through?.random ? t`The music with the original audio, segment by segment. Segments the game picks at random come in a new order each time`
       : t`The music with the original audio, segment by segment`;
     return (
       <button className={`play ${side === "game" ? "vanilla" : "project"} through-btn${on ? " playing" : ""}`} disabled={busy !== null || (side === "mine" && !changed)}
