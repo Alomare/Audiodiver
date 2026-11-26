@@ -20,7 +20,9 @@ resolved project, and capture() puts each slot it changed where it belongs: the 
 for a slot no group has yet, the group the Audio tab sends new slots to (or the base mod).
 
 Ids are what the mod managers keep a player's pick by: lowercase letters, digits and _ (Obsidian's rule), at most 32
-characters. Names are what players see, at most 60 characters (Arsenal's limit)."""
+characters. Names are what players see, at most 60 characters (Arsenal's limit). The editor shows a code too: the
+group's place as a letter and the option's as a number ("A3": the first group's third option), so codes follow the
+order (code())."""
 import itertools
 import math
 import re
@@ -41,6 +43,7 @@ PATCH_KEYS = (*REP_KEYS, *EXTRA_KEYS, "new_audio")
 UNCHANGED = object()  # what diff_slot gives for a slot left as it was
 BASE = ""  # where new slots go: the base mod
 OFF = "off"  # a group off, in Obsidian (a choice of its own there): no option may take this id
+LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"  # MAX_GROUPS of them at most
 
 
 @dataclass
@@ -67,6 +70,12 @@ class Group:
 
     def option(self, oid) -> Option | None:
         return next((o for o in self.options if o.id == oid), None)
+
+
+def code(groups: list[Group], g: Group, o: Option | None = None) -> str:
+    """A group's code, its place as a letter ("A"), or an option's, with its place in the group ("A3")."""
+    letter = LETTERS[groups.index(g)]
+    return f"{letter}{g.options.index(o) + 1}" if o is not None else letter
 
 
 class OptionError(ValueError):
@@ -423,9 +432,12 @@ def capture(real, picks: dict, target, before, after, key=None) -> set[str]:
         if diff_slot(br.get(t, {}), now) is UNCHANGED:
             continue
         g = has.get(key(t))
-        if g is None:
+        o = where(g, tr("slot {id}").format(id=key(t)))
+        if g is None and o is None:
+            # the base mod's, seen with the picked options' gain on it: kept without it. A slot that goes into an
+            # option leaves the gain's reach (a group's slots have none), so it keeps the level it was given
             now = ungain(now, gain)
-        slots.append((t, where(g, tr("slot {id}").format(id=key(t))), diff_slot(base.get(t, {}), now)))
+        slots.append((t, o, diff_slot(base.get(t, {}), now)))
     for seg in sorted(set(before.segment_overrides) | set(after.segment_overrides)):
         now = after.segment_overrides.get(seg)
         if before.segment_overrides.get(seg) != now:
@@ -450,6 +462,58 @@ def capture(real, picks: dict, target, before, after, key=None) -> set[str]:
         else:
             o.cues[seg] = dict(now or {})
     return grown
+
+
+# --- what an option changes, to list
+SHOWN_KEYS = ("gain_db", "fade_in_ms", "fade_out_ms", "start_ms", "end_ms", "delay_ms", "fit_timing", "blocks", "layers",
+              "original_gain_db", "lowpass", "highpass", "keep_curve")
+REP_DEFAULTS = {"gain_db": 0.0, "fade_in_ms": 0.0, "fade_out_ms": 0.0, "start_ms": 0.0, "end_ms": 0.0, "delay_ms": 0.0,
+                "fit_timing": True, "blocks": [], "layers": []}
+
+
+def _audio_shown(rec: dict):
+    """What a slot plays, to show: None (the original), {"silence": True}, {"blocks": n} (edited in the Waveform
+    Editor) or {"file": its name}."""
+    if "audio" not in rec:
+        return None
+    if rec.get("silence"):
+        return {"silence": True}
+    if rec.get("blocks"):
+        return {"blocks": len(rec["blocks"])}
+    return {"file": re.split(r"[\\/]", rec["audio"])[-1]}
+
+
+def _shown(rec: dict, k: str):
+    v = rec.get(k, EXTRA_DEFAULTS.get(k, REP_DEFAULTS.get(k)))
+    if k == "blocks":
+        return len(v or [])
+    return list(v) if k == "layers" else v
+
+
+def changes(p, g: Group, o: Option, key=None) -> list[dict]:
+    """What an option changes from the base mod, a row each: {"slot": target, "fields": [{key, base, option}]} for a
+    slot ("audio": _audio_shown; a field only where the two differ), {"segment": id, "fields": [...]} for cue points
+    (None: the automatic one). The option's gain is not a row: it is on the option itself."""
+    base = records(p)
+    mine = records(resolve(p, {g.id: o.id}, key))
+    out = []
+    for t in o.slots:
+        b, m = base.get(t, {}), mine.get(t, {})
+        fields = []
+        if (x := _audio_shown(b)) != (y := _audio_shown(m)):
+            fields.append({"key": "audio", "base": x, "option": y})
+        for k in SHOWN_KEYS:
+            if k in REP_KEYS and not ("audio" in b and "audio" in m) and not (k == "gain_db" and "audio" in m):
+                continue  # only one of them plays new audio: what it plays says it (and the new audio's gain)
+            if (x := _shown(b, k)) != (y := _shown(m, k)):
+                fields.append({"key": k, "base": x if "audio" in b or k not in REP_KEYS else None, "option": y})
+        out.append({"slot": t, "fields": fields})
+    for seg, pts in o.cues.items():
+        was = p.segment_overrides.get(seg) or {}
+        out.append({"segment": seg, "fields": [
+            {"key": k, "base": was.get(k), "option": (pts or {}).get(k)}
+            for k in ("entry_marker", "exit_marker") if was.get(k) != (pts or {}).get(k)]})
+    return out
 
 
 # --- builds

@@ -144,7 +144,12 @@ from .notes import tidy as tidy_notes
 from .radio import FAMILIES
 from .soundtrack import Piece
 
-FORMAT = 1
+FORMAT = 2  # the newest project file this version reads
+# A project with Options for Players is written as format 2 (2.0.0): 1.x would open it without the groups and lose
+# them on the next save, so it refuses it instead ("made by a newer version"). Any other project stays format 1, for
+# 1.x to open as before.
+FORMATS = (1, 2)
+GROUPS_FORMAT = 2
 GAIN_DB = (-96.0, 96.0)  # Make-Up Gain, as the details panel's slider offers it
 FILTER_RANGE = (0, 100)  # Low-Pass and High-Pass
 FADE_MS = (0.0, 600_000.0)  # a fade baked into new audio
@@ -235,9 +240,9 @@ OVERRIDE_KEYS = {"entry_marker", "exit_marker"}
 LEGACY_SILENCE = "silence (skipped).wav"  # what Skip wrote into the project folder before silence was built in
 
 
-BLOCK_GAIN_DB = (-60.0, 24.0)  # a block's own gain in the Waveform Editor
+BLOCK_GAIN_DB = (-60.0, 24.0)  # a block's own gain in the Waveform Suite
 MAX_BLOCKS = 256
-MAX_LAYERS = 32  # the Waveform Editor's layers: lanes to keep blocks apart in, which all play together
+MAX_LAYERS = 32  # the Waveform Suite's layers: lanes to keep blocks apart in, which all play together
 LAYER_NAME_MAX = 40
 
 
@@ -271,7 +276,7 @@ def curve_points(v):
 
 @dataclass
 class Block:
-    """A stretch of a replacement's file placed on the slot's time line, as the Waveform Editor makes them: from start_ms
+    """A stretch of a replacement's file placed on the slot's time line, as the Waveform Suite makes them: from start_ms
     to end_ms of the file, playing at at_ms, with fades inside it (a straight line in level) and a gain of its own.
     Blocks that overlap play together, added up, whatever layer (the editor's lane) they are on. A volume curve
     (`curve`, points at times of the file with a level from silence 0 to full 1, a straight line between them and level
@@ -283,7 +288,7 @@ class Block:
     fade_out_ms: float = 0.0
     gain_db: float = 0.0
     audio: str = ""  # another file it plays, stored as Replacement.audio is; "" for the replacement's own
-    layer: int = 0   # the lane the Waveform Editor shows it in, from the top; it doesn't change how it plays
+    layer: int = 0   # the lane the Waveform Suite shows it in, from the top; it doesn't change how it plays
     curve: list = field(default_factory=list)  # the volume curve, [[ms in the file, level], ...]; empty: full all along
 
     @property
@@ -306,9 +311,9 @@ class Replacement:
     start_ms: float = 0.0
     end_ms: float = 0.0
     delay_ms: float = 0.0
-    # the Waveform Editor's blocks: when there are any, they say what plays, in place of the stretch, delay and fades
+    # the Waveform Suite's blocks: when there are any, they say what plays, in place of the stretch, delay and fades
     blocks: list[Block] = field(default_factory=list)
-    # the names of the Waveform Editor's layers, from the top ("" for the default "Layer n"); only what is named
+    # the names of the Waveform Suite's layers, from the top ("" for the default "Layer n"); only what is named
     layers: list[str] = field(default_factory=list)
 
     @property
@@ -517,8 +522,8 @@ class Project:
         path = Path(path)
         d = json.loads(path.read_text(encoding="utf-8-sig"))  # -sig: a file an editor saved with a BOM opens too
         fmt = d.get("audiodiver") if isinstance(d, dict) else None
-        if fmt != FORMAT:
-            if isinstance(fmt, int) and fmt > FORMAT:
+        if fmt not in FORMATS or isinstance(fmt, bool):
+            if isinstance(fmt, int) and not isinstance(fmt, bool) and fmt > FORMAT:
                 raise ProjectFormatError("newer")
             raise ProjectFormatError("not a project")
         return cls.from_json(d, path)
@@ -567,7 +572,7 @@ class Project:
             return got
 
         def blocks_of(v, what) -> list[Block]:
-            """The Waveform Editor's blocks, each number brought into range; one that plays nothing is dropped."""
+            """The Waveform Suite's blocks, each number brought into range; one that plays nothing is dropped."""
             if v is None:
                 return []
             if not isinstance(v, list):
@@ -735,7 +740,7 @@ class Project:
                 out["blocks"] = [{k: v for k, v in b.items() if v or k in ("start_ms", "end_ms")} for b in out["blocks"]]
             return out
         return {
-            "audiodiver": FORMAT, "name": self.name, "guid": self.guid, "version": self.version,
+            "audiodiver": GROUPS_FORMAT if self.groups else 1, "name": self.name, "guid": self.guid, "version": self.version,
             "description": self.description, "icon": dict(self.icon), "build_folder": self.build_folder,
             "loudness_analysis": self.loudness_analysis,
             **({"every_bank": True} if self.every_bank else {}),

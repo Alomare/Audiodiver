@@ -107,7 +107,7 @@ export async function pickTextToSave(suggested: string, form: "csv" | "json"): P
     ? { name: t`Spreadsheet (CSV)`, extensions: ["csv"] } : { name: t`Lines of text (JSON)`, extensions: ["json"] }] });
 }
 
-/** Where an audio file goes (the Waveform Editor's Export): ext, its kind (wav, flac, mp3, ogg). */
+/** Where an audio file goes (the Waveform Suite's Export): ext, its kind (wav, flac, mp3, ogg). */
 export async function pickAudioToSave(suggested: string, ext: string): Promise<string | null> {
   if (!isTauri()) return promptPaths(`Where to save the audio (.${ext})`, false)?.[0] ?? null;
   const { save } = await import("@tauri-apps/plugin-dialog");

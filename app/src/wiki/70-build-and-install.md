@@ -30,7 +30,7 @@ Use only letters, digits and spaces in the name, and leave the version out. The 
 
 ### Icon
 
-The icon is the default Audiodiver icon until you choose an image. An image is cropped to a square around the centre and resized to 540 × 540, the size mod managers use. You can also drop an image on the preview. **Border**, **Border colour** and **Corners** frame the icon, default or chosen.
+The icon is the default Audiodiver icon until you choose an image. An image is cropped to a square around the centre and resized to 540 × 540, the size mod managers use. You can also drop an image on the preview. **Icon colour** sets the colour of the logo on the default icon. **Border size**, **Border corner radius** and **Border colour** frame the icon, default or chosen.
 
 ### Mod ID
 

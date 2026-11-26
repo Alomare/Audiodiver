@@ -109,6 +109,8 @@ def methods(s: Session) -> dict:
         "option_pick": lambda group=None, option=None: s.option_pick(group, option),
         "option_slots_off": lambda sources: s.option_slots_off(sources),
         "options_plan": lambda: s.options_plan(),
+        "option_changes": lambda group, option: s.option_changes(group, option),
+        "option_revert": lambda group, option, slots=(), segments=(): s.option_revert(group, option, slots, segments),
         "original_file": lambda source: s.original_file(source),
         "edit_export": lambda tracks, path, fmt="wav24", rate=48000, channels=0, normalize=False:
             s.edit_export(tracks, path, fmt, rate, channels, normalize),

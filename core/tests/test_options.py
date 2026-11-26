@@ -50,6 +50,26 @@ def test_groups_keep_in_the_project_file_and_damage_is_put_right():
     assert "groups" not in Project(name="P").to_json()
 
 
+def test_a_project_with_groups_is_format_2_so_older_versions_refuse_it(tmp_path):
+    """1.x would open a project with groups and drop them on the next save: such a project is format 2, which 1.x
+    calls newer. One without groups stays format 1, for 1.x to open."""
+    from audiodiver.project import ProjectFormatError
+    p = _project()
+    assert p.to_json()["audiodiver"] == 2
+    plain = Project(name="P", replacements=[Replacement(1, "a.wav")])
+    assert plain.to_json()["audiodiver"] == 1
+    for proj, name in ((p, "g.audi"), (plain, "p.audi")):
+        f = tmp_path / name
+        f.write_text(json.dumps(proj.to_json()), encoding="utf-8")
+        assert Project.load(f).to_json() == proj.to_json()
+    f.write_text(json.dumps({**plain.to_json(), "audiodiver": 3}), encoding="utf-8")
+    with pytest.raises(ProjectFormatError, match="newer"):
+        Project.load(f)
+    f.write_text(json.dumps({**plain.to_json(), "audiodiver": True}), encoding="utf-8")
+    with pytest.raises(ProjectFormatError):
+        Project.load(f)
+
+
 def test_resolve_plays_the_base_mod_with_each_picked_option():
     p = _project()
     before = p.to_json()
@@ -79,7 +99,8 @@ def test_capture_puts_each_slot_where_it_belongs():
     grown = opts.capture(p, picks, "fire", was, view)
     one = p.groups[0].options[0]
     assert one.slots[1] == {"audio": "o.wav", "gain_db": 6.0} and one.slots[9] == {"lowpass": 30} and grown == {"fire"}
-    assert one.slots[2] == {"gain_db": 2.0}, "no group had it: into Liberator Fire, the Volume option's gain taken off"
+    assert one.slots[2] == {"gain_db": 5.0}, "no group had it: into Liberator Fire at the level set, out of Volume's reach"
+    assert next(r for r in opts.resolve(p, picks).replacements if r.target == 2).gain_db == 5.0, "it plays as it was set"
     assert next(r for r in p.replacements if r.target == 2).gain_db == 0.0
     # into the base mod; and a slot of a group that is off can't change
     p = _project()
@@ -191,6 +212,70 @@ def test_files_and_images_of_the_options_count_as_the_project_files(tmp_path):
     img.unlink()
     problems = s.project_state()["problems"]
     assert any("b.wav" in t for t in problems) and any("fire.png" in t for t in problems)
+
+
+def test_codes_follow_the_order_of_groups_and_options(tmp_path):
+    s, _, _ = _session(tmp_path)
+    a = s.group_add("Fire")["added"]
+    b = s.group_add("Volume")["added"]
+    c = s.group_add("Music")["added"]
+    code = lambda st: [(g["letter"], g["name"], [(o["number"], o["id"]) for o in g["options"]]) for g in st["groups"]]  # noqa: E731
+    two = s.option_add(a)["added"]
+    three = s.option_add(a)["added"]
+    st = s.option_move(a, three, 0)
+    assert code(st)[0] == ("A", "Fire", [(1, three), (2, "option_1"), (3, two)]), "a move renumbers"
+    st = s.option_remove(a, "option_1")
+    assert code(st)[0][2] == [(1, three), (2, two)], "a removal closes the gap"
+    assert s.option_add(a)["added"] and [o["name"] for o in s.project_state()["groups"][0]["options"]][2] == "Option 3"
+    st = s.group_move(c, 0)
+    assert [(x[0], x[1]) for x in code(st)] == [("A", "Music"), ("B", "Fire"), ("C", "Volume")]
+    st = s.group_remove(b)
+    assert [(x[0], x[1]) for x in code(st)] == [("A", "Music"), ("B", "Fire")]
+    saved = json.loads((tmp_path / "m.audi").read_text())
+    assert "letter" not in saved["groups"][0] and "number" not in saved["groups"][0]["options"][0], "never stored"
+    g = Project.from_json(saved).groups
+    assert opts.code(g, g[1]) == "B" and opts.code(g, g[1], g[1].options[2]) == "B3"
+
+
+def test_changes_list_what_an_option_does_and_each_can_be_undone(tmp_path):
+    s, a, b = _session(tmp_path)
+    c = _wav(tmp_path / "c.wav")
+    gid = s.group_add("Fire")["added"]
+    s.option_pick(gid, "option_1")
+    s.update(1234, gain_db=4)  # the base mod's slot, louder in the option
+    s._edit("assign", lambda p: s._set(p, 5678, str(b)))  # new audio only the option has
+    s._edit("assign", lambda p: s._set(p, 1111, str(c)))
+    s._edit("filters", lambda p: p.filters.__setitem__(2222, [40, 0]))  # the original, filtered
+    s.option_pick()
+    s.option_set(gid, "option_1", gain_db=2)
+    ch = s.option_changes(gid, "option_1")
+    by = {r["source"]: {f["key"]: (f["base"], f["option"]) for f in r["fields"]} for r in ch["slots"]}
+    assert by["1234"] == {"gain_db": (0.0, 4.0)}
+    assert by["5678"] == {"audio": (None, {"file": "b.wav"})}
+    assert by["2222"] == {"lowpass": (0, 40)}
+    assert ch["gain_db"] == 2 and ch["segments"] == []
+    assert all("name" in r and "label" in r for r in ch["slots"])
+    st = s.option_revert(gid, "option_1", slots=["5678", "1234"])
+    assert set(st["option_slots"]) == {"1111", "2222"}
+    assert st["assignments"]["1234"]["gain_db"] == 0 and "5678" not in st["assignments"]
+    st = s.undo()
+    assert set(st["option_slots"]) == {"1111", "1234", "2222", "5678"}
+    # an option that leaves a base mod slot as the original, and cue points
+    s.option_pick(gid, "option_1")
+    s.unassign([1234])
+    s.option_pick()
+    by = {r["source"]: r["fields"] for r in s.option_changes(gid, "option_1")["slots"]}
+    assert by["1234"] == [{"key": "audio", "base": {"file": "a.wav"}, "option": None}]
+    p = s.project
+    p.groups[0].options[0].cues[77] = {"exit_marker": 900.0}
+    seg = s.option_changes(gid, "option_1")["segments"]
+    assert seg == [{"segment": "77", "fields": [{"key": "exit_marker", "base": None, "option": 900.0}]}]
+    s.option_revert(gid, "option_1", segments=["77"])
+    assert s.option_changes(gid, "option_1")["segments"] == []
+    with pytest.raises(EditorError):
+        s.option_revert(gid, "nope", slots=["1111"])
+    with pytest.raises(EditorError):
+        s.option_revert(gid, "option_1", segments=["x"])
 
 
 # --- builds with groups

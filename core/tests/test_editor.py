@@ -403,11 +403,11 @@ def test_icon_is_served_to_the_ui(server, tmp_path):
 def test_icon_frame_is_checked_and_goes_on_the_default_icon_and_on_an_image(tmp_path):
     s = Session(load=False)
     st = s.new_project(tmp_path / "m.audi", "M")
-    assert st["icon_frame"] == {"border": 0, "border_color": "#ffd400", "radius": 0}
+    assert st["icon_frame"] == {"border": 0, "border_color": "#ffd400", "radius": 0, "color": "#ffe800"}
     st = s.settings(icon={"border_color": "#FF0000", "radius": 600, "title": "no longer a thing"})
     assert st["icon"] == {"border_color": "#ff0000", "radius": 270}
-    assert st["icon_frame"] == {"border": 0, "border_color": "#ff0000", "radius": 270}  # the rest: defaults
-    for bad in ({"border_color": "yellow"}, {"border": "thick"}, {"radius": None}):
+    assert st["icon_frame"] == {"border": 0, "border_color": "#ff0000", "radius": 270, "color": "#ffe800"}  # the rest: defaults
+    for bad in ({"border_color": "yellow"}, {"border": "thick"}, {"radius": None}, {"color": "red"}):
         with pytest.raises(EditorError):
             s.settings(icon=bad)
     img = _pixels(s.icon())  # the default icon as a circle: see-through outside it
@@ -425,6 +425,13 @@ def test_icon_frame_is_checked_and_goes_on_the_default_icon_and_on_an_image(tmp_
     with pytest.raises(EditorError):  # an image only comes in through set_icon, which checks it...
         s.set_icon(tmp_path / "missing.png")
     assert s.settings(icon={"image": "elsewhere.png", "border": 4})["icon"] == {"border": 4}  # ...not settings
+    # the default icon's logo in another colour: the tile stays, the logo and its smooth edges take the colour
+    st = s.settings(icon={"color": "#3FC1E8"})
+    assert st["icon"] == {"color": "#3fc1e8"}
+    img = _pixels(s.icon())
+    logo = img.getpixel((270, 270))[:3]
+    assert img.getpixel((5, 5))[:3] == (26, 26, 26) and (logo == (63, 193, 232) or img.getpixel((270, 200))[:3] == (63, 193, 232)), logo
+    assert (255, 232, 0) not in set(img.convert("RGB").getcolors(1 << 20) and [c for _, c in img.convert("RGB").getcolors(1 << 20)])
 
 
 def test_old_projects_load_their_icon_and_skipped_slots(tmp_path):

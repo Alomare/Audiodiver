@@ -706,8 +706,8 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
   font-size: calc(11.5px * var(--fs)); font-variant-numeric: tabular-nums; color: var(--muted);
   background: color-mix(in srgb, var(--bg) 82%, transparent); }
 .tl-curve { color: var(--text); }
-/* the Waveform Editor's way in, at the end of a lane's label: a small icon that lights up on hover */
-/* the Waveform Editor's way in: a small square in the primary colour, attached to the left edge of each waveform, so
+/* the Waveform Suite's way in, at the end of a lane's label: a small icon that lights up on hover */
+/* the Waveform Suite's way in: a small square in the primary colour, attached to the left edge of each waveform, so
    the two line up. In the Audio tab a row is the label, the square's column and the waveform */
 .timeline:not(.one) .tl-row { grid-template-columns: calc(60px * var(--fs)) calc(52px * var(--fs) + 8px) 1fr; column-gap: 0; }
 .timeline:not(.one) .tl-label { margin-right: 10px; }
@@ -1304,6 +1304,9 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .page-inner.wide { max-width: calc(1180px * var(--fs)); }
 .page-head { margin-bottom: calc(20px * var(--sp)); }
 .page-head h1 { font-size: calc(30px * var(--fs)); line-height: 1.1; }
+/* the page's own buttons, beside the title (the Project tab: Import Patches, Close Project) */
+.page-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 24px; }
+.page-actions { display: flex; gap: 8px; }
 .page-lead { margin: 8px 0 0; max-width: 72ch; color: var(--muted); font-size: calc(16px * var(--fs)); }
 .page-lead b { color: var(--text); }
 .page .empty-card { margin-top: 4px; }
@@ -1500,8 +1503,6 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .recent-tools .x:disabled { visibility: hidden; }
 
 /* the Project tab's Import patches and Close project, over the icon and as wide as it */
-.side-actions { display: flex; gap: 8px; }
-.side-actions .btn { flex: 1 1 0; justify-content: center; white-space: nowrap; }
 /* the tabs that can be hidden (Settings ▸ System, the Project tab) */
 .tab-checks { display: flex; flex-wrap: wrap; gap: 8px 22px; }
 .tab-checks .check { align-items: center; }
@@ -1645,7 +1646,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 /* the icon: where it comes from, then its frame as a label and what it sets */
 .ico-body { display: flex; flex-direction: column; gap: calc(12px * var(--sp)); }
 .ico-body .path { margin: 0; }
-.ico-grid { display: grid; grid-template-columns: calc(108px * var(--fs)) minmax(0, 1fr); gap: calc(14px * var(--sp)) 14px; align-items: start; }
+.ico-grid { display: grid; grid-template-columns: calc(156px * var(--fs)) minmax(0, 1fr); gap: calc(14px * var(--sp)) 14px; align-items: start; }
 .ico-label { padding-top: 6px; color: var(--muted); font-size: calc(14px * var(--fs)); }
 .ico-cell { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .swatches { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; padding: 3px 0; }
@@ -1664,8 +1665,6 @@ kbd.none { color: var(--faint); font-weight: 400; }
 @container (max-width: 760px) {
   .bld { grid-template-columns: minmax(0, 1fr); }
   .bld-side { position: static; order: -1; flex-direction: row; flex-wrap: wrap; align-items: flex-start; max-height: none; overflow: visible; }
-  .side-actions { flex: 1 1 100%; }
-  .side-actions .btn { flex: none; }
   .pkg-preview { flex: 0 0 calc(220px * var(--fs)); }
   .bld-box { flex: 1 1 260px; padding-top: 0; border-top: 0; }
 }
@@ -2402,7 +2401,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .st-cname { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
 .st-cell.mine .st-cname { color: var(--text); }
 
-/* ---------- the Waveform Editor (WaveEditor.tsx): the slot's audio as blocks on one time line. A head with what
+/* ---------- the Waveform Suite (WaveEditor.tsx): the slot's audio as blocks on one time line. A head with what
    is edited, a toolbar (play, edit, magnet, history), the lanes with the zoom at their right, the selected block in
    numbers, and the foot with Apply and the length of the result against the original's */
 .modal.wave-ed { width: min(1320px, 96vw); max-height: 94vh; overflow: auto; gap: 12px; }
@@ -2525,9 +2524,10 @@ input.wave-ed-layer-name:focus { border-color: var(--second-fg); background: var
 
 /* Options for Players (ModOptions.tsx): everything about groups is in the second hue, never the accent, which marks
    new audio. A group: image, name and description; under it the options, indented to the edge of the name. Every
-   name and description field has one width; an option row is name with Edit and the arrows, then description with Gain. */
+   name and description field has one width; an option row is its code, name with Select, Changes and the tools, then
+   description with the gain. */
 .opts { --opt-img: calc(56px * var(--fs)); --opt-img-sm: calc(40px * var(--fs)); --opt-gap: 12px; --opt-field-h: var(--ctl-sm);
-  --opt-field-w: calc(260px * var(--fs)); }
+  --opt-field-w: calc(260px * var(--fs)); --opt-code-w: calc(26px * var(--fs)); }
 .opt { display: flex; flex-direction: column; gap: calc(4px * var(--sp)); padding: calc(4px * var(--sp)) 0 calc(4px * var(--sp)) 14px;
   border-left: 2px solid var(--second-dim); max-width: 960px; }
 .opt + .opt { margin-top: calc(14px * var(--sp)); }
@@ -2543,15 +2543,21 @@ input.wave-ed-layer-name:focus { border-color: var(--second-fg); background: var
 .opt-choice-name { font-size: calc(14px * var(--fs)); font-weight: 500; }
 .opt-about { font-size: calc(13px * var(--fs)); }
 .opt-tools { display: flex; align-items: center; justify-content: flex-end; gap: 2px; flex: none; min-height: var(--opt-field-h); }
-.opt-choices { list-style: none; margin: 0 0 0 calc(var(--opt-img) + var(--opt-gap)); padding: 0; display: flex; flex-direction: column; }
-.opt-choice { display: grid; grid-template-columns: var(--opt-img-sm) minmax(0, var(--opt-field-w)) auto minmax(max-content, 1fr);
+.opt-choices { list-style: none; margin: 0 0 0 calc(var(--opt-img) + var(--opt-gap) - var(--opt-code-w) - 8px); padding: 0; display: flex; flex-direction: column; }
+.opt-choice { display: grid; grid-template-columns: calc(var(--opt-code-w) + 8px + var(--opt-img-sm)) minmax(0, var(--opt-field-w)) auto minmax(max-content, 1fr);
   grid-template-areas: "img name edit tools" "img desc gain ." "img what . ."; align-items: center; gap: 4px var(--opt-gap);
   padding: calc(8px * var(--sp)) 0; border-top: 1px solid var(--line-soft); }
-.opt-choice > .opt-img { grid-area: img; align-self: start; }
+.opt-choice > .opt-pic { grid-area: img; align-self: start; display: flex; align-items: flex-end; gap: 8px; }
+/* an option's code, left of the image and level with the bottom of it: the image stays clean, and the code sits in
+   the indent under the group's image, so the options keep their place */
+.opt-row-code { flex: none; width: var(--opt-code-w); text-align: right; font-size: calc(12px * var(--fs)); font-weight: 700; letter-spacing: .03em;
+  font-variant-numeric: tabular-nums; line-height: 1.2; color: var(--muted); transition: color var(--t2); }
+.opt-choice.editing .opt-row-code { color: var(--second-fg); }
 .opt-choice > .opt-choice-name { grid-area: name; }
 .opt-choice > .opt-about { grid-area: desc; }
 .opt-choice > .opt-what { grid-area: what; }
-.opt-choice > .opt-edit { grid-area: edit; justify-self: start; min-height: var(--opt-field-h); }
+.opt-choice > .opt-acts { grid-area: edit; display: flex; gap: 6px; }
+.opt-acts .btn { min-height: var(--opt-field-h); }
 .opt-choice > .opt-gain { grid-area: gain; }
 .opt-choice > .opt-tools { grid-area: tools; }
 .opt-choice.editing { background: color-mix(in srgb, var(--second-fg) 14%, transparent); box-shadow: inset 3px 0 0 var(--second-fg);
@@ -2561,9 +2567,62 @@ input.wave-ed-layer-name:focus { border-color: var(--second-fg); background: var
 .opt-gain { display: flex; align-items: center; gap: 6px; min-height: var(--opt-field-h); font-size: calc(13px * var(--fs)); color: var(--muted); }
 .opt-gain input { width: calc(60px * var(--fs)); height: var(--opt-field-h); text-align: right; font: inherit; font-variant-numeric: tabular-nums; color: var(--text); padding: 0 6px; }
 .opt-gain .unit { font-size: calc(12px * var(--fs)); }
-.opt-edit { min-width: calc(76px * var(--fs)); justify-content: center; }
-.opt-edit[aria-pressed="true"] { color: var(--bg); background: var(--second-fg); border-color: var(--second-fg); font-weight: 600; }
+/* the row's actions. Select is the option's main action, in the groups' hue: outlined, then filled with a check once
+   selected. Changes is neutral, with how many changes it lists. Moving and removing are small icons that come forward
+   when the pointer is on the row. */
+/* fixed widths: each row is a grid of its own, so the fields line up only if the buttons keep one size */
+.opt-acts .btn { gap: 6px; justify-content: center; }
+.opt-changes-btn { width: calc(112px * var(--fs)); }
+/* .btn.quiet's own colours and hover are stronger than one class: these name it in full */
+.btn.quiet.opt-edit { width: calc(104px * var(--fs)); color: var(--second-fg); border-color: var(--second-dim); }
+.btn.quiet.opt-edit:hover:not(:disabled) { color: var(--second-fg); background: color-mix(in srgb, var(--second-fg) 12%, transparent); border-color: var(--second-fg); }
+.btn.quiet.opt-edit[aria-pressed="true"], .btn.quiet.opt-edit[aria-pressed="true"]:hover:not(:disabled) { color: var(--bg); background: var(--second-fg);
+  border-color: var(--second-fg); font-weight: 600; }
+.opt-count { min-width: 1.6em; padding: 0 5px; border-radius: 2px; font-size: calc(11px * var(--fs)); font-weight: 700; line-height: 1.55;
+  font-variant-numeric: tabular-nums; color: var(--text); background: var(--hover); }
 .opt-add { align-self: flex-start; gap: 6px; margin: calc(6px * var(--sp)) 0 0 calc(var(--opt-img) + var(--opt-gap)); }
+.opt-tools .x { display: inline-grid; place-items: center; opacity: .6; transition: opacity var(--t1), color var(--t1), background-color var(--t1); }
+.opt-tools .x:disabled { opacity: .2; }
+.opt-head:hover .opt-tools .x:not(:disabled), .opt-head:focus-within .opt-tools .x:not(:disabled),
+.opt-choice:hover .opt-tools .x:not(:disabled), .opt-choice:focus-within .opt-tools .x:not(:disabled) { opacity: 1; }
+.opt-tools .x .icon { width: 1.1em; height: 1.1em; }
+.opt-del:hover:not(:disabled) { color: var(--red); }
+/* the code (A, A3) in the image's corner, on a dark see-through band: it follows the order */
+.opt-img-code { position: absolute; left: 0; bottom: 0; padding: 1px 5px; pointer-events: none; border-radius: 0 2px 0 2px;
+  font-size: calc(11px * var(--fs)); font-weight: 700; line-height: 1.35; letter-spacing: .03em; font-variant-numeric: tabular-nums;
+  color: #fff; background: rgb(0 0 0 / .62); transition: background-color var(--t2), color var(--t2); }
+/* a code as a small label (the Audio tab's menu) */
+.opt-code { font-size: calc(12px * var(--fs)); font-weight: 700; letter-spacing: .03em; font-variant-numeric: tabular-nums; color: var(--second-fg); }
+/* the chip form, where a code stands for the option on its own (the Audio tab's bar, the list of changes, the note) */
+.opt-code.on { display: inline-block; min-width: 0; line-height: 1.3; padding: 1px 5px; color: var(--bg); background: var(--second-fg); border-radius: 2px; vertical-align: 1px; }
+/* motion: groups and options come in from above, the selected row's tint and the fields ease */
+.opt, .opt-choice { animation: drop-in var(--t2) var(--ease) both; }
+.opt-choice { transition: background-color var(--t2), box-shadow var(--t2), margin var(--t2) var(--ease), padding var(--t2) var(--ease), border-color var(--t2); }
+.opt-field { transition: border-color var(--t1), background-color var(--t1); }
+.opt-img-pick { transition: border-color var(--t1), color var(--t1), transform var(--t1); }
+.opt-img-pick:active { transform: scale(.97); }
+.opt-img-pick img, .opt-thumb img { animation: fade-in var(--t2) ease-out both; }
+.opt-what { animation: fade-in var(--t2) ease-out both; }
+/* the list of what an option changes */
+.modal.opt-changes { width: min(calc(860px * var(--fs)), 94vw); gap: 12px; }
+.opt-changes-head { display: flex; align-items: center; gap: 10px; }
+.opt-changes-head h2 { flex: 1; margin: 0; font-size: calc(17px * var(--fs)); display: flex; align-items: center; gap: 8px; }
+.opt-changes-scroll { overflow: auto; min-height: 0; border: 1px solid var(--line-soft); }
+.opt-changes-table { width: 100%; border-collapse: collapse; font-size: calc(13px * var(--fs)); }
+.opt-changes-table th { position: sticky; top: 0; z-index: 1; background: var(--panel); text-align: left; font-weight: 600; color: var(--muted);
+  padding: calc(6px * var(--sp)) 10px; border-bottom: 1px solid var(--line); }
+.opt-changes-table th:nth-child(4) { color: var(--second-fg); }
+.opt-changes-table td { padding: calc(4px * var(--sp)) 10px; vertical-align: top; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.opt-changes-table tbody + tbody { border-top: 1px solid var(--line-soft); }
+.opt-changes-table tbody tr:first-child td { padding-top: calc(8px * var(--sp)); }
+.opt-changes-table tbody tr:last-child td { padding-bottom: calc(8px * var(--sp)); }
+.opt-changes-slot { width: 34%; }
+.opt-changes-slot > * { display: block; }
+.opt-changes-slot .link-text { text-align: left; font-weight: 600; }
+.opt-changes-slot .muted { font-size: calc(12px * var(--fs)); }
+.opt-changes-new { color: var(--second-fg); }
+.opt-changes-act { width: 1%; text-align: right; }
+.opt-changes-act .x .icon { width: 1.15em; height: 1.15em; }
 .opts > .row-btns { margin-top: calc(14px * var(--sp)); }
 .opts-shared { border-left-color: var(--second-fg); background: color-mix(in srgb, var(--second-fg) 8%, transparent); max-width: 960px; margin: calc(10px * var(--sp)) 0 0; }
 /* the image players see: a square; the empty one a dashed box with a plus */
@@ -2577,13 +2636,48 @@ input.wave-ed-layer-name:focus { border-color: var(--second-fg); background: var
 .opt-img-x { position: absolute; top: -7px; right: -7px; width: 18px; height: 18px; font-size: 11px; display: none; place-items: center;
   background: var(--raised); border: 1px solid var(--line); border-radius: 50%; }
 .opt-img:hover .opt-img-x, .opt-img-x:focus-visible { display: grid; }
-/* over the Audio tab while an option is being edited */
-.opt-editing { display: flex; align-items: center; gap: 12px; flex: none; padding: calc(4px * var(--sp)) 12px;
-  font-size: calc(13px * var(--fs)); color: var(--text); background: color-mix(in srgb, var(--second-fg) 12%, var(--panel));
-  border-bottom: 1px solid var(--second-dim); }
-.opt-editing b { color: var(--second-fg); font-weight: 600; }
-.opt-editing .link-inline { margin-left: 0; font-size: inherit; }
-.tag.opt-tag { color: var(--second-fg); border-color: var(--second-dim); }
+/* over the Audio tab in a project with groups: what is edited, and a menu to pick it; tinted while an option is */
+.opt-editing { display: flex; align-items: center; gap: 14px; flex: none; padding: calc(7px * var(--sp)) 16px;
+  font-size: calc(13px * var(--fs)); color: var(--text); background: var(--panel); border-bottom: 1px solid var(--line-soft);
+  transition: background-color var(--t2), border-color var(--t2); }
+.opt-editing.on { background: color-mix(in srgb, var(--second-fg) 12%, var(--panel)); border-bottom-color: var(--second-dim); }
+.opt-editing-lead { color: var(--muted); }
+.opt-editing .link-inline { margin-left: 0; font-size: inherit; animation: fade-in var(--t2) ease-out both; }
+.opt-pick { display: inline-flex; align-items: center; gap: 8px; min-height: calc(30px * var(--fs)); padding: 3px 8px 3px 10px; max-width: min(520px, 60vw);
+  color: var(--text); font-weight: 600; background: var(--raised); border: 1px solid var(--line); border-radius: 2px;
+  transition: border-color var(--t1), background-color var(--t1); }
+.opt-pick:hover { border-color: var(--steel-dim); background: var(--hover); }
+.opt-editing.on .opt-pick { border-color: var(--second-dim); }
+.opt-editing.has-img .opt-pick { padding-left: 4px; }
+.opt-pick[aria-expanded="true"] { border-color: var(--second-fg); }
+.opt-pick > .icon { color: var(--muted); transition: transform var(--t2) var(--ease); }
+.opt-pick[aria-expanded="true"] > .icon { transform: rotate(180deg); }
+.opt-pick-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.opt-thumb { display: block; flex: none; width: calc(22px * var(--fs)); height: calc(22px * var(--fs)); overflow: hidden; border-radius: 2px;
+  background: var(--bg); border: 1px solid var(--line-soft); }
+.opt-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.opt-thumb:not(:has(img)) { background: transparent; border: 1px dashed var(--faint); }
+/* the picker's menu: the base mod, then each group's heading with its options indented under it */
+.opt-menu { position: fixed; z-index: 60; min-width: 300px; max-width: 440px; overflow: auto; padding: 6px 0; background: var(--raised);
+  border: 1px solid var(--line); box-shadow: 0 14px 34px var(--shadow); font-size: calc(14px * var(--fs));
+  animation: menu-in var(--t1) var(--ease) both; transform-origin: top left; }
+.opt-menu button { display: flex; align-items: center; gap: 8px; width: 100%; padding: calc(6px * var(--sp)) 14px; text-align: left; color: var(--text);
+  transition: background-color var(--t1), box-shadow var(--t1); }
+.opt-menu button:hover, .opt-menu button:focus-visible { background: var(--hover); outline: none; }
+.opt-menu button[aria-checked="true"] { background: color-mix(in srgb, var(--second-fg) 16%, transparent); box-shadow: inset 3px 0 0 var(--second-fg); }
+.opt-menu button[aria-checked="true"] .opt-code, .opt-menu button[aria-checked="true"] .opt-menu-name { color: var(--second-fg); }
+.opt-menu-base { font-weight: 600; }
+.opt-menu-group { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--line); }
+.opt-menu-head { display: flex; align-items: center; gap: 8px; padding: 4px 14px; color: var(--muted); font-size: calc(12px * var(--fs)); font-weight: 600; }
+.opt-menu-head .opt-thumb { width: calc(18px * var(--fs)); height: calc(18px * var(--fs)); }
+.opt-menu button.opt-menu-option { padding-left: 42px; }
+.opt-menu .opt-code { line-height: 1.3; color: var(--muted); }
+.opt-menu-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tag.opt-tag { color: var(--second-fg); border-color: var(--second-dim); font-weight: 600; font-variant-numeric: tabular-nums; }
+/* on a row with a group's code, the label gives way and the code stays whole */
+.slot-sub:has(> .opt-tag) { display: flex; align-items: center; min-width: 0; }
+.slot-sub:has(> .opt-tag) > .slot-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.slot-sub:has(> .opt-tag) > .tag { flex: none; }
 .tag.opt-tag.off { color: var(--muted); border-style: dashed; border-color: var(--line); }
 .opt-note { margin: 0 0 calc(8px * var(--sp)); padding: 6px 10px; font-size: calc(13px * var(--fs)); border-left: 2px solid var(--second-fg);
   background: color-mix(in srgb, var(--second-fg) 8%, transparent); }

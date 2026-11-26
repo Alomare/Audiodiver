@@ -87,11 +87,11 @@ export type Cue = Entry & {
   tags?: Tag[]; bank_name?: string; language?: string; lang?: string; // a voice bank's language: its name, its code
 };
 export const isMusic = (cue: { kind: string }) => cue.kind !== "sounds" && cue.kind !== "sound";
-/** A stretch of a slot's file placed on the slot's time line (the Waveform Editor; core project.Block), in ms: from
+/** A stretch of a slot's file placed on the slot's time line (the Waveform Suite; core project.Block), in ms: from
     start_ms to end_ms of the file, playing at at_ms, with fades inside it and a gain of its own. Overlaps add up. */
 export type Block = { start_ms: number; end_ms: number; at_ms: number; fade_in_ms: number; fade_out_ms: number; gain_db: number;
   audio?: string; // another file the block plays (as the project stores it, or a full path just added); none: the slot's own
-  layer?: number; // the Waveform Editor's lane it shows in, from the top (none: the first); it plays the same on any
+  layer?: number; // the Waveform Suite's lane it shows in, from the top (none: the first); it plays the same on any
   curve?: number[][] }; // the volume curve: [ms in the file, level 0..1] in time order, a line between; none: full all along
 export type Assignment = {
   target: string; audio: string; label: string; gain_db: number; fit_timing: boolean; exists: boolean;
@@ -101,8 +101,8 @@ export type Assignment = {
   duration_ms: number | null; // how long it plays: its stretch of the file, after its delay
   file_ms?: number | null; // the file's length
   start_ms?: number; end_ms?: number; delay_ms?: number; // the stretch of the file that plays (end 0: to its end), and the silence before it
-  blocks?: Block[]; // the Waveform Editor's: what plays, in place of the stretch, delay and fades (none: those)
-  layers?: string[]; // the names of the Waveform Editor's layers, from the top ("" for the default)
+  blocks?: Block[]; // the Waveform Suite's: what plays, in place of the stretch, delay and fades (none: those)
+  layers?: string[]; // the names of the Waveform Suite's layers, from the top ("" for the default)
   file_segments: number; // the music segments that play the file, in this slot and others (0 for silence)
 };
 /** A Sound with a clip of its own (Isolate Audio) in place of one of the game's clips: where it is (the Library's
@@ -172,7 +172,7 @@ export type Place = { cue: string; source: string | null; item: string | null; a
     subtitle's id is certain or one of several with its words. */
 export type SaidBy = Place & { name: string; subtitle: string; sure: boolean };
 /** The frame around the icon (core arsenal.icon_frame): a border and rounded corners, in pixels of the 540 tile. */
-export type IconFrame = { border: number; border_color: string; radius: number };
+export type IconFrame = { border: number; border_color: string; radius: number; color: string }; // color: the default icon's logo
 /** The icon as the project stores it: the image, if one is chosen (Audiodiver's default icon otherwise), and the frame
     keys it sets (the rest are defaults). */
 export type Icon = Partial<IconFrame> & { image?: string };
@@ -234,9 +234,20 @@ export type ProjectState = {
   option_slots: Record<string, OptionSlot>; // every slot a group has, by source
 };
 /** An option of a group: what it changes (slots, cue points) and the gain it adds to the base mod. */
-export type ModOption = { id: string; name: string; description: string; image: string; gain_db: number; slots: number; cues: number };
-/** A group for players: ticked in the mod manager, one of its options picked; unticked, none of it installs. */
-export type OptionGroup = { id: string; name: string; description: string; image: string; options: ModOption[] };
+export type ModOption = { id: string; number: number; name: string; description: string; image: string; gain_db: number; slots: number; cues: number };
+/** A group for players: ticked in the mod manager, one of its options picked; unticked, none of it installs. Its
+    letter and its options' numbers are codes that never change ("A3"). */
+export type OptionGroup = { id: string; letter: string; name: string; description: string; image: string; options: ModOption[] };
+/** What a slot plays, in a change: null for the original. */
+export type ChangeAudio = null | { file: string } | { silence: true } | { blocks: number };
+/** One setting an option changes: its value in the base mod and in the option. */
+export type ChangeField = { key: string; base: unknown; option: unknown };
+/** What an option changes from the base mod: each slot (where it is, to go there) and each segment's cue points. */
+export type OptionChanges = {
+  slots: { item: string | null; cue: string | null; source: string; name: string; label: string; fields: ChangeField[] }[];
+  segments: { segment: string; fields: ChangeField[] }[];
+  gain_db: number;
+};
 /** A slot a group has: its group, the picked option when that changes it, whether the group is picked, and the
     base mod's new audio there (null: none). */
 export type OptionSlot = { group: string; option: string | null; on: boolean; base: { name: string; gain_db: number } | null };

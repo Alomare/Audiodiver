@@ -1090,13 +1090,13 @@ function useEditorState() {
       if (needProject()) return edited(await run<ProjectState>("trim_set", { source, ...trim }));
       return false;
     },
-    /** The Waveform Editor's blocks for a slot (none: the file as it is). `original`: they are of the slot's original
+    /** The Waveform Suite's blocks for a slot (none: the file as it is). `original`: they are of the slot's original
         audio, which becomes the new audio. True when the project took them. */
     async setEdit(source: string, blocks: Block[], original = false, label?: string, layers?: string[]) {
       if (!needProject()) return false;
       return edited(await run<ProjectState>("edit_set", { source, blocks, original, ...(label ? { label } : {}), ...(layers ? { layers } : {}) }));
     },
-    /** What Ctrl+V pastes into the Waveform Editor, as pasteSlots decides: audio files copied in Explorer (each whole),
+    /** What Ctrl+V pastes into the Waveform Suite, as pasteSlots decides: audio files copied in Explorer (each whole),
         or the slots copied in the app: the new audio of one, as the blocks it plays (each naming its file), or the
         original (kept in the project as a file, as Copy does). Silence pastes nothing. */
     async clipForEditor(): Promise<{ audio: string; blocks?: Block[] }[]> {
@@ -1166,6 +1166,10 @@ function useEditorState() {
     async optionPick(group?: string, option?: string) { edited(await run<ProjectState>("option_pick", group && option ? { group, option } : {})); },
     /** Slots out of the option picked in their group: they play as the base mod has them. */
     async optionSlotsOff(sources: string[]) { edited(await run<ProjectState>("option_slots_off", { sources })); },
+    /** Changes taken out of an option: slots (sources) and segments' cue points go back to the base mod's. */
+    async optionRevert(group: string, option: string, changes: { slots?: string[]; segments?: string[] }) {
+      return edited(await run<ProjectState>("option_revert", { group, option, ...changes }));
+    },
     /** A new mod id: a mod manager then sees the next build as another mod. Undo puts the old id back. */
     async newModId() {
       if (edited(await run<ProjectState>("settings", { guid: "new" }))) editNotice("info", t`New mod ID created. Mod managers install the next build as a separate mod.`);

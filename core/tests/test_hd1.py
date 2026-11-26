@@ -589,6 +589,14 @@ def test_groups_go_in_as_obsidian_options_with_the_clips_they_change_under_when(
     whens = [r.get("when") for r in m["resources"]]
     assert whens == [{gid: "off"}, {gid: "option_1"}, {gid: quiet}], "the base mod's clip with the group off"
     assert len({r["clips"][0]["data"] for r in m["resources"]}) == 3, "each pick its own encoding"
+    # an option's list of changes names a Helldivers 1 slot too, and its undo takes the slot out
+    s.option_pick(gid, quiet)
+    s.update(slot, gain_db=2)
+    s.option_pick()
+    [row] = s.option_changes(gid, quiet)["slots"]
+    assert row["source"] == str(slot) and not row["label"].startswith("Sound") and row["fields"] == [{"key": "gain_db", "base": 0.0, "option": 2.0}]
+    s.option_revert(gid, quiet, slots=[slot])
+    assert s.option_changes(gid, quiet)["slots"] == []
 
 
 def spoil(zip_path, change):

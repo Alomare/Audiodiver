@@ -57,6 +57,11 @@ msgstr "{0, plural, other {오디오 복사 (슬롯 #개)}}"
 msgid "{0, plural, one {Copy Original Audio (# Slot)} other {Copy Original Audio (# Slots)}}"
 msgstr ""
 
+#. placeholder {0}: a.blocks
+#: src/ModOptions.tsx
+msgid "{0, plural, one {Edited, # block} other {Edited, # blocks}}"
+msgstr ""
+
 #. placeholder {0}: r.count
 #: src/SettingsTab.tsx
 msgid "{0, plural, one {Exported # note.} other {Exported # notes.}}"
@@ -118,6 +123,11 @@ msgstr ""
 #. placeholder {1}: l + 1
 #: src/WaveEditor.tsx
 msgid "{0}, layer {1}"
+msgstr ""
+
+#. placeholder {0}: choice.names
+#: src/CueView.tsx
+msgid "{0}, not being edited"
 msgstr ""
 
 #. placeholder {0}: x.name
@@ -460,6 +470,10 @@ msgstr "{full} (아카이브 {archive})"
 #: src/PatchContentPage.tsx
 msgid "{gone, plural, one {# of them is not in the current game.} other {# of them are not in the current game.}}"
 msgstr "{gone, plural, other {그중 #개는 현재 게임에 없습니다.}}"
+
+#: src/ModOptions.tsx
+msgid "{group}: {option}"
+msgstr ""
 
 #: src/RepatchPage.tsx
 msgid "{hi, plural, one {{lo} to # replaced or added sound each} other {{lo} to # replaced or added sounds each}}"
@@ -1038,6 +1052,10 @@ msgstr "{usableCount, plural, other {슬롯 #개에 파일 하나 선택}}"
 #: src/Soundtrack.tsx
 msgid "{used} of {total, plural, one {# place} other {# places}}"
 msgstr "{total, plural, other {자리 #개}} 중 {used}개"
+
+#: src/ModOptions.tsx
+msgid "{v, plural, one {# block} other {# blocks}}"
+msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "{value}, layer {n}"
@@ -1672,10 +1690,6 @@ msgstr "내보내기 목록에 {added}개를 추가했습니다 ({already}개는
 msgid "Added {items} to the export list, as {total} entries (one per part)"
 msgstr "{items}개를 내보내기 목록에 항목 {total}개로 추가했습니다 (파트마다 하나씩)"
 
-#: src/ModOptions.tsx
-msgid "Added to every slot the mod changes outside the groups, from −12 to +12 dB"
-msgstr ""
-
 #: src/exportList.ts
 msgid "Added to the export list"
 msgstr "내보내기 목록에 추가했습니다"
@@ -1957,6 +1971,7 @@ msgstr "버그를 신고할 때 첨부하세요"
 #. Main tab: replaces the audio of what the project lists
 #: src/App.tsx
 #: src/ExportDialog.tsx
+#: src/ModOptions.tsx
 #: src/platform.ts
 #: src/SettingsTab.tsx
 msgid "Audio"
@@ -2020,6 +2035,10 @@ msgid "Audiodiver restarts when the update is installed."
 msgstr "업데이트가 설치되면 Audiodiver가 다시 시작됩니다."
 
 #: src/ProjectTab.tsx
+msgid "Audiodiver yellow"
+msgstr ""
+
+#: src/ProjectTab.tsx
 msgid "Authors"
 msgstr ""
 
@@ -2029,6 +2048,7 @@ msgid "auto"
 msgstr "자동"
 
 #. Update mode
+#: src/ModOptions.tsx
 #: src/settings.ts
 msgid "Automatic"
 msgstr "자동"
@@ -2128,6 +2148,10 @@ msgstr "게임 파일 속 뱅크 이름"
 msgid "Banks"
 msgstr "뱅크"
 
+#: src/ModOptions.tsx
+msgid "Base Mod"
+msgstr ""
+
 #: src/store.tsx
 msgid "Battle Songs"
 msgstr "전투 노래"
@@ -2165,14 +2189,19 @@ msgstr "굵은 글씨"
 msgid "Bold"
 msgstr "굵게"
 
-#. The icon frame: the width of the border
-#: src/ProjectTab.tsx
-msgid "Border"
-msgstr "테두리"
-
 #: src/ProjectTab.tsx
 msgid "Border colour"
 msgstr "테두리 색"
+
+#. The icon frame: how round the corners are
+#: src/ProjectTab.tsx
+msgid "Border corner radius"
+msgstr ""
+
+#. The icon frame: the width of the border
+#: src/ProjectTab.tsx
+msgid "Border size"
+msgstr ""
 
 #. Export Notes: the global notes and the project notes
 #: src/ExportDialog.tsx
@@ -2419,10 +2448,6 @@ msgctxt "Filter of the Text tab: the lines the project changes"
 msgid "Changed ({count})"
 msgstr "변경됨 ({count})"
 
-#: src/CueView.tsx
-msgid "Changed in this option"
-msgstr ""
-
 #. Lines a panel of the Text tab works on: the ones the project changes
 #: src/TextTab.tsx
 msgid "Changed lines"
@@ -2436,6 +2461,10 @@ msgstr "마지막 빌드 이후 변경됨"
 msgid "Changelog"
 msgstr "변경 내역"
 
+#: src/ModOptions.tsx
+msgid "Changes"
+msgstr ""
+
 #: src/SettingsTab.tsx
 msgid "Changes are also saved before a build and when the project or Audiodiver closes."
 msgstr "빌드하기 전과 프로젝트나 Audiodiver를 닫을 때도 변경 사항이 저장됩니다."
@@ -2443,6 +2472,10 @@ msgstr "빌드하기 전과 프로젝트나 Audiodiver를 닫을 때도 변경 �
 #: src/TextTab.tsx
 msgid "Changes go into <0>{project}</0>."
 msgstr "변경 사항은 <0>{project}</0>에 저장됩니다."
+
+#: src/ModOptions.tsx
+msgid "Changes in {group}: {option}"
+msgstr ""
 
 #: src/ModOptions.tsx
 msgid "Changes in the Audio tab go into the base mod"
@@ -2858,6 +2891,7 @@ msgstr "이 뱅크의 어떤 사운드도 재생하지 않는 클립"
 #: src/ExportDialog.tsx
 #: src/Home.tsx
 #: src/ImportMod.tsx
+#: src/ModOptions.tsx
 #: src/SliceTool.tsx
 #: src/TextTools.tsx
 #: src/WaveEditor.tsx
@@ -3181,11 +3215,6 @@ msgstr "코어 {core}"
 msgid "Corner"
 msgstr "모서리"
 
-#. The icon frame: how round the corners are
-#: src/ProjectTab.tsx
-msgid "Corners"
-msgstr "모서리"
-
 #: src/RepatchPage.tsx
 msgid "Couldn't be repatched"
 msgstr "Repatch하지 못함"
@@ -3249,6 +3278,7 @@ msgid "cue points"
 msgstr "큐 포인트"
 
 #: src/Inspector.tsx
+#: src/ModOptions.tsx
 msgid "Cue points"
 msgstr "큐 포인트"
 
@@ -3316,6 +3346,7 @@ msgstr "기본 아이콘"
 msgid "Default: {gain} dB"
 msgstr "기본값: {gain} dB"
 
+#: src/ModOptions.tsx
 #: src/SettingsTab.tsx
 msgid "Delay"
 msgstr "지연 시간"
@@ -3668,10 +3699,6 @@ msgstr "음악이 나올 때마다 오프닝 중 하나가 먼저 재생된 다�
 msgid "Eagle-1"
 msgstr "이글-1"
 
-#: src/ModOptions.tsx
-msgid "Edit"
-msgstr ""
-
 #: src/Timeline.tsx
 msgid "Edit every slot of this segment together"
 msgstr ""
@@ -3689,7 +3716,7 @@ msgid "Edit the note"
 msgstr "메모 편집"
 
 #: src/Timeline.tsx
-msgid "Edit the original in the Waveform Editor"
+msgid "Edit the original in the Waveform Suite"
 msgstr ""
 
 #: src/Soundtrack.tsx
@@ -3698,10 +3725,6 @@ msgstr ""
 
 #: src/ModOptions.tsx
 msgid "Editing"
-msgstr ""
-
-#: src/ModOptions.tsx
-msgid "Editing <0>{group}</0>, <1>{option}</1>"
 msgstr ""
 
 #: src/WaveEditor.tsx
@@ -3741,6 +3764,10 @@ msgstr "게임용 오디오 인코딩"
 msgid "encoding audio for the game on Linux"
 msgstr "Linux에서 게임용 오디오 인코딩"
 
+#: src/ModOptions.tsx
+msgid "End"
+msgstr ""
+
 #: src/SliceTool.tsx
 msgctxt "Slice tool: the cut where the last piece ends"
 msgid "End"
@@ -3769,6 +3796,7 @@ msgstr "영어(미국)"
 
 #. A music segment's Entry cue point (Wwise term): where the segment counts as started
 #. A music segment's Entry cue point (Wwise term): where the segment counts as started
+#: src/ModOptions.tsx
 #: src/Timeline.tsx
 #: src/WaveEditor.tsx
 msgid "Entry"
@@ -3870,6 +3898,7 @@ msgstr "프로젝트의 모든 항목"
 
 #. A music segment's Exit cue point (Wwise term): where the next segment starts
 #. A music segment's Exit cue point (Wwise term): where the next segment starts
+#: src/ModOptions.tsx
 #: src/Timeline.tsx
 #: src/WaveEditor.tsx
 msgid "Exit"
@@ -3993,11 +4022,13 @@ msgid "Exports of the original are for reference and mod work. Don't upload them
 msgstr "원본을 내보낸 파일은 참고와 모드 작업용입니다. 업로드하지 마세요."
 
 #: src/Inspector.tsx
+#: src/ModOptions.tsx
 #: src/WaveEditor.tsx
 msgid "Fade In"
 msgstr "페이드 인"
 
 #: src/Inspector.tsx
+#: src/ModOptions.tsx
 #: src/WaveEditor.tsx
 msgid "Fade Out"
 msgstr "페이드 아웃"
@@ -4152,6 +4183,10 @@ msgstr "모드 관리자 라이브러리와 게임 폴더에서 이전 게임 �
 msgid "Finish"
 msgstr "완료"
 
+#: src/ModOptions.tsx
+msgid "Fit Timing"
+msgstr ""
+
 #: src/Timeline.tsx
 msgid "Fit timing is off, so the original cue points apply until one is moved."
 msgstr "타이밍 맞추기가 꺼져 있으므로, 큐 포인트 하나를 옮기기 전까지는 원본 큐 포인트가 적용됩니다."
@@ -4280,6 +4315,10 @@ msgstr ""
 msgid "Gain of {0} (dB)"
 msgstr ""
 
+#: src/ModOptions.tsx
+msgid "Gain, added to every slot the mod changes outside the groups, from −12 to +12 dB"
+msgstr ""
+
 #: src/Home.tsx
 #: src/Library.tsx
 msgid "Game"
@@ -4391,6 +4430,10 @@ msgid "Goes on from where the last one stopped"
 msgstr "지난번에 멈춘 곳부터 이어집니다"
 
 #: src/ModOptions.tsx
+msgid "Group {code}"
+msgstr ""
+
+#: src/ModOptions.tsx
 msgid "Group name"
 msgstr ""
 
@@ -4467,6 +4510,7 @@ msgid "High"
 msgstr "높음"
 
 #: src/Inspector.tsx
+#: src/ModOptions.tsx
 msgid "High-Pass"
 msgstr "하이패스"
 
@@ -4563,6 +4607,11 @@ msgstr "리버레이터 사격음 바꾸기"
 #: src/ProjectTab.tsx
 msgid "Icon"
 msgstr "아이콘"
+
+#. The colour of the logo on the default icon
+#: src/ProjectTab.tsx
+msgid "Icon colour"
+msgstr ""
 
 #: src/SettingsTab.tsx
 msgid "Icons only. Names show in tooltips."
@@ -4836,6 +4885,10 @@ msgstr "그 시점에 재생 중인 세그먼트로 끝나며, ‘다시 재생�
 msgid "It keeps the old mod ID, so importing it in a mod manager updates the old mod."
 msgstr "이전 모드 ID를 유지하므로, 모드 관리자에서 가져오면 이전 모드가 업데이트됩니다."
 
+#: src/ModOptions.tsx
+msgid "It plays as the base mod has it."
+msgstr ""
+
 #: src/store.tsx
 msgid "it wasn't found"
 msgstr "찾을 수 없습니다"
@@ -4930,6 +4983,10 @@ msgstr "타이밍 유지"
 msgid "Keeps what the patches hold besides audio, like text, models or textures, as it was."
 msgstr "패치에 들어 있는 오디오 외의 텍스트, 모델, 텍스처 등은 그대로 둡니다."
 
+#: src/ModOptions.tsx
+msgid "Kept"
+msgstr ""
+
 #: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Kept as it was"
@@ -4981,6 +5038,10 @@ msgstr ""
 #: src/WaveEditor.tsx
 msgid "Layer {n}"
 msgstr "레이어 {n}"
+
+#: src/ModOptions.tsx
+msgid "Layer Names"
+msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "Layers"
@@ -5206,6 +5267,7 @@ msgid "Louder or quieter, without changing the file or the mix. Added to the {ga
 msgstr "파일이나 믹스를 바꾸지 않고 소리를 키우거나 줄입니다. 게임이 이 사운드에 주는 {gain} dB에 더해집니다."
 
 #: src/Inspector.tsx
+#: src/ModOptions.tsx
 msgid "Low-Pass"
 msgstr "로우패스"
 
@@ -5832,6 +5894,10 @@ msgstr "오디오가 없어 그대로 둡니다."
 msgid "No changed line has “{words}”."
 msgstr "“{words}”에 맞는 변경된 줄이 없습니다."
 
+#: src/ModOptions.tsx
+msgid "No changes"
+msgstr ""
+
 #: src/App.tsx
 msgid "No changes since the project opened."
 msgstr "프로젝트를 연 이후 변경 사항이 없습니다."
@@ -6235,6 +6301,7 @@ msgid "Of two mods with the same file besides audio, the one lower in the list g
 msgstr "오디오 외에 같은 파일이 있는 두 모드 중에서는 목록에서 아래에 있는 모드의 파일이 들어갑니다."
 
 #. The radio filter of a voice is off
+#: src/ModOptions.tsx
 #: src/ProjectTab.tsx
 #: src/settings.ts
 #: src/SettingsTab.tsx
@@ -6271,6 +6338,7 @@ msgid "Older sound banks"
 msgstr "이전 사운드 뱅크"
 
 #. The radio filter of a voice is on
+#: src/ModOptions.tsx
 #: src/ProjectTab.tsx
 #: src/SettingsTab.tsx
 msgid "On"
@@ -6523,6 +6591,12 @@ msgstr "ko-fi.com/alomare 열기"
 msgid "Opens the Wiki in a separate window"
 msgstr "위키를 별도 창으로 엽니다"
 
+#. placeholder {0}: g.letter
+#. placeholder {1}: o.number
+#: src/ModOptions.tsx
+msgid "Option {0}{1}"
+msgstr ""
+
 #: src/ModOptions.tsx
 msgid "Option name"
 msgstr ""
@@ -6565,6 +6639,7 @@ msgstr "원본"
 #. The length of the original audio of the slot
 #: src/ExportDialog.tsx
 #: src/Inspector.tsx
+#: src/ModOptions.tsx
 #: src/music.ts
 #: src/SliceTool.tsx
 #: src/Soundtrack.tsx
@@ -6589,6 +6664,10 @@ msgstr ""
 #: src/Inspector.tsx
 msgid "original / new audio"
 msgstr "원본 / 새 오디오"
+
+#: src/ModOptions.tsx
+msgid "Original Gain"
+msgstr ""
 
 #: src/SliceTool.tsx
 msgid "Original Lengths"
@@ -6706,10 +6785,6 @@ msgstr "파트 {n}"
 msgid "Part {number}"
 msgstr "파트 {number}"
 
-#: src/CueView.tsx
-msgid "Part of this group, not being edited"
-msgstr ""
-
 #: src/RepatchPage.tsx
 msgid "Partly"
 msgstr "일부"
@@ -6742,7 +6817,7 @@ msgid "Paste into the selection"
 msgstr "선택 항목에 붙여넣기"
 
 #: src/Timeline.tsx
-msgid "Paste it into other slots, or into the Waveform Editor"
+msgid "Paste it into other slots, or into the Waveform Suite"
 msgstr ""
 
 #: src/store.tsx
@@ -7370,6 +7445,7 @@ msgstr "노래를 읽는 중…"
 
 #: src/CombinePage.tsx
 #: src/ExportDialog.tsx
+#: src/ModOptions.tsx
 #: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Reading…"
@@ -8077,10 +8153,19 @@ msgstr "보조 색상 색조"
 msgid "Segment"
 msgstr "세그먼트"
 
+#. placeholder {0}: s.segment
+#: src/ModOptions.tsx
+msgid "Segment {0}"
+msgstr ""
+
 #. What the keys do: select the slot above or below
 #: src/Inspector.tsx
 msgid "select"
 msgstr "선택"
+
+#: src/ModOptions.tsx
+msgid "Select"
+msgstr ""
 
 #: src/SliceTool.tsx
 msgid "Select a cut first"
@@ -8136,6 +8221,10 @@ msgstr "{name}의 테이크 선택"
 msgid "Select this line"
 msgstr "이 줄 선택"
 
+#: src/ModOptions.tsx
+msgid "Selected"
+msgstr ""
+
 #: src/ExportDialog.tsx
 msgctxt "Which slots or sounds to export"
 msgid "Selected"
@@ -8176,6 +8265,10 @@ msgstr "여러 음악을 한 번에 설정"
 #: src/Soundtrack.tsx
 msgid "Sets other {name} music to {mode} too"
 msgstr "다른 {name} 음악도 ‘{mode}’ 방식으로 설정합니다"
+
+#: src/ModOptions.tsx
+msgid "Setting"
+msgstr ""
 
 #: src/App.tsx
 #: src/SettingsTab.tsx
@@ -8301,6 +8394,10 @@ msgstr "색인에서 보기"
 msgid "Show in Library"
 msgstr "라이브러리에서 보기"
 
+#: src/ModOptions.tsx
+msgid "Show in the Audio tab"
+msgstr ""
+
 #: src/BuildTab.tsx
 msgid "Show Log File"
 msgstr "로그 파일 보기"
@@ -8388,6 +8485,7 @@ msgstr "무음"
 #: src/CueView.tsx
 #: src/Inspector.tsx
 #: src/Library.tsx
+#: src/ModOptions.tsx
 #: src/PatchContentPage.tsx
 #: src/Soundtrack.tsx
 msgid "Silence"
@@ -8506,11 +8604,14 @@ msgstr "{pieces, plural, other {#조각}}으로 잘라 재생 순서대로 채�
 msgid "Slicing"
 msgstr "자르는 중"
 
+#: src/ModOptions.tsx
 #: src/SliceTool.tsx
 msgid "Slot"
 msgstr "슬롯"
 
 #. placeholder {0}: k + 1
+#. placeholder {0}: s.source
+#: src/ModOptions.tsx
 #: src/Timeline.tsx
 msgid "Slot {0}"
 msgstr ""
@@ -8641,6 +8742,7 @@ msgstr "사각형"
 
 #. The menu on Home with New Project, Open Project and Import Mod
 #: src/Home.tsx
+#: src/ModOptions.tsx
 msgid "Start"
 msgstr "시작"
 
@@ -8919,7 +9021,7 @@ msgid "The {n} blocks on it are removed with it. Undo brings them back."
 msgstr ""
 
 #: src/Timeline.tsx
-msgid "The {n} slots line up in the Waveform Editor, each under the original"
+msgid "The {n} slots line up in the Waveform Suite, each under the original"
 msgstr ""
 
 #. Markdown. **Index** is the button above the Library list, and the bold word must read as the translation of the button does.
@@ -8972,7 +9074,7 @@ msgid "The block on it is removed with it. Undo brings both back."
 msgstr ""
 
 #: src/WaveEditor.tsx
-msgid "The changes made in the Waveform Editor are lost."
+msgid "The changes made in the Waveform Suite are lost."
 msgstr ""
 
 #: src/App.tsx
@@ -9849,7 +9951,7 @@ msgid "transcribing voice lines to match them to subtitles"
 msgstr "대사를 받아써서 자막과 연결하기"
 
 #: src/Soundtrack.tsx
-msgid "Trim, fade or arrange it in the Waveform Editor. The result is saved as a new file in this place"
+msgid "Trim, fade or arrange it in the Waveform Suite. The result is saved as a new file in this place"
 msgstr ""
 
 #: src/Soundtrack.tsx
@@ -9861,7 +9963,7 @@ msgid "Trim, split, move and fade audio"
 msgstr ""
 
 #: src/Timeline.tsx
-msgid "Trim, split, move and fade in the Waveform Editor"
+msgid "Trim, split, move and fade in the Waveform Suite"
 msgstr ""
 
 #: src/UpdatesTab.tsx
@@ -9923,6 +10025,7 @@ msgstr "실행 취소"
 
 #: src/App.tsx
 #: src/keys.ts
+#: src/ModOptions.tsx
 #: src/store.tsx
 #: src/WaveEditor.tsx
 msgid "Undo"
@@ -9935,6 +10038,18 @@ msgstr "실행 취소 ({key})"
 #: src/App.tsx
 msgid "Undo {undoName}"
 msgstr "{undoName} 실행 취소"
+
+#: src/ModOptions.tsx
+msgid "Undo Change"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Undo the change to {what}"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Undo the change to {what}?"
+msgstr ""
 
 #: src/App.tsx
 msgid "Undo the last change"
@@ -10126,6 +10241,7 @@ msgstr "볼륨 곡선"
 msgid "Volume curve"
 msgstr "볼륨 곡선"
 
+#: src/ModOptions.tsx
 #: src/WaveEditor.tsx
 msgid "Volume Curve"
 msgstr ""
@@ -10178,13 +10294,14 @@ msgstr "따뜻함"
 msgid "WAV (24-bit)"
 msgstr "WAV (24비트)"
 
+#: src/ModOptions.tsx
 #: src/Timeline.tsx
 #: src/WaveEditor.tsx
-msgid "Waveform Editor"
+msgid "Waveform Suite"
 msgstr ""
 
 #: src/WaveEditor.tsx
-msgid "Waveform Editor tools"
+msgid "Waveform Suite tools"
 msgstr ""
 
 #: src/Timeline.tsx
@@ -10238,6 +10355,10 @@ msgstr "오디오 탭에 표시되는 내용"
 #: src/Soundtrack.tsx
 msgid "What the openings are, and how to change them"
 msgstr "오프닝이란 무엇이며 어떻게 바꾸는지"
+
+#: src/ModOptions.tsx
+msgid "What this option changes from the base mod"
+msgstr ""
 
 #: src/ExportDialog.tsx
 msgid "What to export"

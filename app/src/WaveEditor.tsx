@@ -13,7 +13,7 @@ import { useEditor } from "./store";
 import { useWaveZoom, WaveScroll, WaveZoom, wheelZoom, type WaveZoomState } from "./Waveform";
 import { Help } from "./WikiLinks";
 
-/** The Waveform Editor: audio as blocks on a time line, so that basic editing needs no other program. Each block is
+/** The Waveform Suite: audio as blocks on a time line, so that basic editing needs no other program. Each block is
     a stretch of one file placed at a time of its own, with a fade in, a fade out and a gain. Blocks are trimmed at
     their edges, moved by their body (also to another layer), split at the cursor, duplicated and removed, and their
     fades are dragged from the grips at their top corners. With Volume Curves on, a line over each block (full at the
@@ -678,7 +678,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
     } catch (e: any) { notify("bad", String(e?.message ?? e)); return false; }
   };
   const close = async () => {
-    if (changed && !(await confirm({ title: t`Discard the Changes?`, text: t`The changes made in the Waveform Editor are lost.`, ok: t`Discard`, cancel: t`Keep Editing` }))) return;
+    if (changed && !(await confirm({ title: t`Discard the Changes?`, text: t`The changes made in the Waveform Suite are lost.`, ok: t`Discard`, cancel: t`Keep Editing` }))) return;
     stop();
     onClose();
   };
@@ -1112,21 +1112,21 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
   // on the body: the waveform panel it opens from would hold a fixed box inside itself
   return createPortal(
     <div className="modal-back" onPointerDown={(e) => { if (e.target === e.currentTarget) void close(); }}>
-      <div className="modal wave-ed" role="dialog" aria-modal="true" aria-label={t`Waveform Editor`} ref={box} tabIndex={-1} onKeyDown={onKey}>
+      <div className="modal wave-ed" role="dialog" aria-modal="true" aria-label={t`Waveform Suite`} ref={box} tabIndex={-1} onKeyDown={onKey}>
         <header className="wave-ed-head">
-          <h2><Trans>Waveform Editor</Trans></h2>
+          <h2><Trans>Waveform Suite</Trans></h2>
           <span className="wave-ed-what" data-tip={what} data-tip-clip>{what}</span>
           <span className={`wave-ed-src ${single != null && editOriginal(0) ? "game" : "mine"}`}
             data-tip={single != null && editOriginal(0) ? t`Editing the original: the result becomes the new audio` : single != null ? assign(0)?.audio ?? tracks[0].file : undefined}>{head_}</span>
           <span className="spacer" />
-          <Help tip={t`Trim, split, move and fade audio`} page="timing-and-loops#the-waveform-editor" />
+          <Help tip={t`Trim, split, move and fade audio`} page="timing-and-loops#the-waveform-suite" />
           <button className="icon-btn" onClick={() => void close()} aria-label={t`Close`} data-tip={t`Close`}><CloseIcon /></button>
         </header>
 
         <div className="wave-ed-main">
         <div className="wave-ed-left">
         <div className="wave-ed-over">
-          <div className="wave-ed-tools" role="toolbar" aria-label={t`Waveform Editor tools`}>
+          <div className="wave-ed-tools" role="toolbar" aria-label={t`Waveform Suite tools`}>
             <div className="wave-ed-group" role="group" aria-label={t`Playback`}>
               <button className={`icon-btn wave-ed-play${playing === "edit" ? " on" : ""}`} onClick={toggle} disabled={!ready || !audible.length}
                 aria-label={playing === "edit" ? t`Pause` : t`Play`} data-tip={playing === "edit" ? t`Pause` : audible.length ? t`Play from the cursor` : t`Tick a lane to play it`}

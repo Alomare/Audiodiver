@@ -33,7 +33,7 @@ MIN_TRIM_MS = 10  # the shortest stretch of a file new audio can play (trim_set)
 SETTINGS_FILE = CACHE_DIR / "settings.json"  # the core's own settings: where the game is
 AUDIO_TYPES = {".wav", ".flac", ".mp3", ".ogg", ".opus", ".m4a", ".aac", ".aif", ".aiff", ".wma", ".wem"}
 UNDO_LIMIT = 200
-EDIT_EXPORTS = {  # the Waveform Editor's export formats: extension, ffmpeg output arguments
+EDIT_EXPORTS = {  # the Waveform Suite's export formats: extension, ffmpeg output arguments
     "wav24": ("wav", ["-c:a", "pcm_s24le"]),
     "wav16": ("wav", ["-c:a", "pcm_s16le"]),
     "flac": ("flac", ["-c:a", "flac", "-sample_fmt", "s32", "-bits_per_raw_sample", "24"]),
@@ -1510,7 +1510,7 @@ class Session:
             assignments[str(sid)] = {
                 "target": str(r.target), "audio": r.audio, "label": r.label, "gain_db": r.gain_db,
                 "fit_timing": r.fit_timing, "silence": r.silence, "exists": exists,
-                # with the Waveform Editor's blocks, the fades are the first block's in and the last one's out
+                # with the Waveform Suite's blocks, the fades are the first block's in and the last one's out
                 "fade_in_ms": min(r.blocks, key=lambda b: b.at_ms).fade_in_ms if r.blocks else r.fade_in_ms,
                 "fade_out_ms": max(r.blocks, key=lambda b: b.at_ms + b.length_ms).fade_out_ms if r.blocks else r.fade_out_ms,
                 "start_ms": r.start_ms, "end_ms": r.end_ms, "delay_ms": r.delay_ms,
@@ -1861,7 +1861,7 @@ class Session:
 
     def original_file(self, source) -> str:
         """The original audio of a slot (of either game) as a file kept in the project, as Copy keeps it: the full
-        path, for the Waveform Editor to paste a copied slot's original in as a block."""
+        path, for the Waveform Suite to paste a copied slot's original in as a block."""
         self._need_project()
         self.require_game()
         return str(self._kept_original(self._source(source, either=True)))
@@ -2083,7 +2083,7 @@ class Session:
         def apply(p):
             for sid in sids:
                 r = self._replacement(p, sid)
-                if r and not r.silence and r.blocks:  # the Waveform Editor's: the first block fades in, the last out
+                if r and not r.silence and r.blocks:  # the Waveform Suite's: the first block fades in, the last out
                     if fade_in_ms is not None:
                         b = min(r.blocks, key=lambda b: b.at_ms)
                         b.fade_in_ms = min(float(fade_in_ms), b.length_ms - b.fade_out_ms)
@@ -2121,7 +2121,7 @@ class Session:
         return self._edit("trim", apply)
 
     def _edit_blocks(self, p: Project, sid, blocks, original=False, own=None):
-        """The Waveform Editor's blocks for a slot, checked: (blocks, the slot's own file as (stored, path), its
+        """The Waveform Suite's blocks for a slot, checked: (blocks, the slot's own file as (stored, path), its
         length in ms). A block's `audio` comes back as the project stores it, "" for the slot's own file. With
         `original` the slot's file is its original audio, kept in the project as Copy keeps it. A slot without new
         audio takes the file of its first block; with no blocks either, the file is None. own: the file a file
@@ -2129,7 +2129,7 @@ class Session:
         from .audio import duration_ms
         from .project import BLOCK_GAIN_DB, MAX_BLOCKS, MAX_CURVE, MAX_LAYERS, TRIM_MS, Block, curve_points
         if not isinstance(blocks, list) or len(blocks) > MAX_BLOCKS:
-            raise EditorError(tr("The Waveform Editor sends up to {n} blocks").format(n=MAX_BLOCKS))
+            raise EditorError(tr("The Waveform Suite sends up to {n} blocks").format(n=MAX_BLOCKS))
         if not all(isinstance(b, dict) for b in blocks):
             raise EditorError("Each block is an object")
         r = self._replacement(p, sid) if sid is not None else None
@@ -2168,12 +2168,12 @@ class Session:
         def num(b, k, lo, hi, default=0.0):
             v = b.get(k, default)
             if isinstance(v, bool) or not isinstance(v, (int, float)) or not lo <= v <= hi:
-                raise EditorError(tr("A block of the Waveform Editor is out of range ({what})").format(what=k))
+                raise EditorError(tr("A block of the Waveform Suite is out of range ({what})").format(what=k))
             return float(v)
         def layer(b) -> int:
             v = num(b, "layer", 0, MAX_LAYERS - 1)
             if v != int(v):
-                raise EditorError(tr("A block of the Waveform Editor is out of range ({what})").format(what="layer"))
+                raise EditorError(tr("A block of the Waveform Suite is out of range ({what})").format(what="layer"))
             return int(v)
 
         def curve(b) -> list:
@@ -2202,7 +2202,7 @@ class Session:
         return made, main, length("")
 
     def _edit_track(self, p: Project, t):
-        """One track of the Waveform Editor as a WAV mixed as a build would (audio.edited), or None when it plays
+        """One track of the Waveform Suite as a WAV mixed as a build would (audio.edited), or None when it plays
         nothing: t = {"source": a slot, or "file": a file the editor edits (a full path, or as the project stores
         it), "blocks", "original": the slot's file is its original, "with_original": the original plays along}."""
         from .audio import duration_ms, edited
@@ -2256,7 +2256,7 @@ class Session:
         return out
 
     def edit_export(self, tracks, path, fmt="wav24", rate=48000, channels=0, normalize=False):
-        """The Waveform Editor's tracks (the lanes ticked: _edit_track) mixed into one audio file at `path`: fmt one
+        """The Waveform Suite's tracks (the lanes ticked: _edit_track) mixed into one audio file at `path`: fmt one
         of EDIT_EXPORTS, at `rate` Hz, in `channels` (0: those of the mix), turned up or down so the loudest moment
         reaches -1 dB when `normalize`. The project doesn't change. Returns the path written (its extension set by
         the format)."""
@@ -2295,7 +2295,7 @@ class Session:
         return {"path": str(out)}
 
     def edit_render(self, file, blocks):
-        """A file as the Waveform Editor's blocks make it (a song of the Soundtrack, before it is cut or put in a
+        """A file as the Waveform Suite's blocks make it (a song of the Soundtrack, before it is cut or put in a
         place), saved as a new file in the project: audio/edited/<name> (edited).wav, numbered when that is taken.
         The file it came from stays as it is. Returns the new file's full path."""
         import shutil
@@ -2317,7 +2317,7 @@ class Session:
         return {"path": str(out)}
 
     def edit_context(self, cue_id, segment, tracks, entry_marker=None, exit_marker=None):
-        """A segment as the Waveform Editor has it, in its place in the music: the segment before it in play order,
+        """A segment as the Waveform Suite has it, in its place in the music: the segment before it in play order,
         this one and the one after, mixed as the game hands over (render.Renderer), with the editor's tracks in
         place of those slots' audio and its cue points (None: the automatic ones). Nothing in the project changes.
         Returns the preview's path and length and where this segment starts, enters and exits in it (ms)."""
@@ -2357,7 +2357,7 @@ class Session:
                 "before": k > 0, "after": k < len(order) - 1}
 
     def edit_set(self, source, blocks, original=False, label=None, layers=None):
-        """The Waveform Editor's work on a slot, as one undo step: the blocks its new audio plays as (each a stretch
+        """The Waveform Suite's work on a slot, as one undo step: the blocks its new audio plays as (each a stretch
         of a file at a time of its own, with fades and a gain). A block plays the slot's file, or the file its `audio`
         names (a full path, or a path as the project stores it): several files can make one clip. original: the
         slot's file is its original audio, which becomes the new audio first (as a copy kept in the project, as Copy
@@ -3116,10 +3116,12 @@ class Session:
         """What project_state says of the options for players: the groups with their options, the Audio tab's picks
         and where new slots go, and every slot a group has ({source: {group, option, on, base}}; option: the
         picked option's id when it changes the slot, on: the group is picked, base: the base mod's new audio there)."""
-        groups = [{"id": g.id, "name": g.name, "description": g.description, "image": g.image,
-                   "options": [{"id": o.id, "name": o.name, "description": o.description, "image": o.image,
-                                "gain_db": o.gain_db, "slots": len(o.slots), "cues": len(o.cues)} for o in g.options]}
-                  for g in real.groups]
+        from .options import LETTERS
+        # codes follow the order: the group's place as a letter, the option's as a number (options.code)
+        groups = [{"id": g.id, "letter": LETTERS[i], "name": g.name, "description": g.description, "image": g.image,
+                   "options": [{"id": o.id, "number": k + 1, "name": o.name, "description": o.description, "image": o.image,
+                                "gain_db": o.gain_db, "slots": len(o.slots), "cues": len(o.cues)} for k, o in enumerate(g.options)]}
+                  for i, g in enumerate(real.groups)]
         base = {self._target(r.target): r for r in real.replacements}
         slots = {}
         for g in real.groups:
@@ -3326,6 +3328,71 @@ class Session:
                 if o is not None:
                     for t in [t for t in o.slots if self._target(t) in sids]:
                         del o.slots[t]
+        return self._option_edit(apply)
+
+    def _slot_place(self, p: Project, sid: int, views: dict) -> dict:
+        """Where a slot is, to name it and go to it: {item, cue, source} of a place the project lists if it has one,
+        with the slot as the Library shows it ("label", _slot_label) and the item's name where that doesn't say it
+        already ("name", else ""). views: the cues read so far, kept for the next slot."""
+        try:  # a Helldivers 1 slot is its clip with the language over bit 64 (hd1.source)
+            places = [*(self.lib.places(sid) if self.lib and not self._hd1p(p) else ()),
+                      *(self.hd1.places(sid & (1 << 64) - 1) if self.hd1 and self._hd1p(p) else ())]
+        except (KeyError, ValueError, AttributeError):
+            places = []
+        places = [x for x in places if x.get("item")]
+        at = next((x for x in places if x["item"] in (p.library or [])), places[0] if places else None)
+        name = ""
+        if at:
+            try:
+                name = self._lookup(at["item"])["full"]
+            except (KeyError, TypeError):
+                name = ""
+        if self._hd1p(p):  # a Helldivers 1 slot goes by its item
+            return {"item": at["item"] if at else None, "cue": at["cue"] if at else None, "source": str(sid), "name": "",
+                    "label": name or tr("Sound {id}").format(id=sid)}
+        label = self._slot_label(sid, views) if self.lib and self.catalog is not None else tr("Sound {id}").format(id=sid)
+        # a segment of several stems: which one, as the Audio tab says it (two stems can have one label)
+        stem = next((i + 1 for v in views.values() for seg in (v or {}).get("segments_detail", []) if len(seg["stems"]) > 1
+                     for i, st in enumerate(seg["stems"]) if any(sl["source"] == str(sid) for sl in st["slots"])), None)
+        if stem:
+            label = f"{label} · {tr('Stem {n}').format(n=stem)}"
+        return {"item": at["item"] if at else None, "cue": at["cue"] if at else None, "source": str(sid),
+                "name": "" if name and name in label else name, "label": label}
+
+    def option_changes(self, group, option):
+        """What an option changes from the base mod (options.changes), each slot with where it is (_slot_place) and
+        each segment with its id: {"slots": [...], "segments": [...], "gain_db"}."""
+        from . import options
+        with self.lock:
+            p = self._need_project()
+            g, o = self._option(p, group, option)
+            slots, segments, views = [], [], {}
+            for row in options.changes(p, g, o, self._target):
+                if "slot" in row:
+                    sid = self._target(row["slot"])
+                    slots.append({**self._slot_place(p, sid, views), "fields": row["fields"]})
+                else:
+                    segments.append({"segment": str(row["segment"]), "fields": row["fields"]})
+            slots.sort(key=lambda s: (s["label"].lower(), s["source"]))
+            return {"slots": slots, "segments": segments, "gain_db": o.gain_db}
+
+    def option_revert(self, group, option, slots=(), segments=()):
+        """Takes changes out of an option: slots (sources) and segments' cue points play as the base mod has them
+        there. A slot no option of the group changes any more is the base mod's again."""
+        if not isinstance(slots, (list, tuple)) or not isinstance(segments, (list, tuple)):
+            raise EditorError(tr("Choose the changes to undo"))
+        sids = {self._source(s) for s in slots}
+        try:
+            segs = {int(x) for x in segments}
+        except (TypeError, ValueError):
+            raise EditorError(tr("Choose the changes to undo")) from None
+
+        def apply(p, _opts):
+            _, o = self._option(p, group, option)
+            for t in [t for t in o.slots if self._target(t) in sids]:
+                del o.slots[t]
+            for seg in segs:
+                o.cues.pop(seg, None)
         return self._option_edit(apply)
 
     def option_image(self, group, option=None) -> bytes:
@@ -6159,7 +6226,7 @@ def projects_info(paths):
     """What the Home tab lists for each recent project: whether the file is still there, the mod's name, the game it
     makes a mod for ("hd1" or "hd2", so Home offers only the selected game's) and when it was last saved."""
     import json
-    from .project import GAMES
+    from .project import FORMATS, GAMES
     out = []
     for path in paths if isinstance(paths, list) else []:
         f = Path(str(path))
@@ -6168,7 +6235,7 @@ def projects_info(paths):
             info["modified"] = f.stat().st_mtime
             info["exists"] = f.is_file()
             d = json.loads(f.read_text(encoding="utf-8"))
-            if isinstance(d, dict) and d.get("audiodiver") == 1:
+            if isinstance(d, dict) and d.get("audiodiver") in FORMATS and not isinstance(d.get("audiodiver"), bool):
                 info["name"] = str(d.get("name") or f.stem)
                 info["game"] = d.get("game") if d.get("game") in GAMES else "hd2"
                 info["readable"] = True

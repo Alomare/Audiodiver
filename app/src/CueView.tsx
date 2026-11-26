@@ -689,7 +689,7 @@ function CueBody({ cue }: { cue: Cue }) {
     const g = c && project?.groups.find((x) => x.id === c.group);
     if (!c || !g) return undefined;
     const o = g.options.find((x) => x.id === c.option);
-    return { text: o ? `${g.name}: ${o.name}` : g.name, on: !!o };
+    return o ? { text: `${g.letter}${o.number}`, names: `${g.name}: ${o.name}`, on: true } : { text: g.letter, names: g.name, on: false };
   };
   const slot = (r: Row) => (
     <SlotRow key={r.slot.source} row={r} a={readOnly ? undefined : assigned[r.slot.source]} selected={selSet.has(r.slot.source)}
@@ -1122,8 +1122,9 @@ function useFlash(value: string) {
 
 /** One slot. Memoised: it draws again only when something it shows changes (its audio, its selection, playback),
     not whenever the list does. */
-/** A slot's group for players, on the row: "Group: Option" where the option picked changes it. */
-type OptionTag = { text: string; on: boolean };
+/** A slot's group for players, on the row by its code: "A3" where the option picked changes it, else the group's
+    letter; `names` in words, for the tooltip. */
+type OptionTag = { text: string; names: string; on: boolean };
 
 const SlotRow = memo(function SlotRow({ row, a, standIns, gain, selected, now, itemId, cueId, on, choice }: {
   row: Row; a?: Assignment; standIns?: StandIn[]; selected: boolean; now: boolean; itemId: string | null; cueId: string;
@@ -1175,7 +1176,7 @@ const SlotRow = memo(function SlotRow({ row, a, standIns, gain, selected, now, i
             {slot.absent && <span className="tag" data-tip={NO_AUDIO_TIP}>{t`no audio`}</span>}
             {slot.locked && <LockedTag />}
             {seg.added !== "layer" && <AddedTag slot={slot} />}
-            {choice && <span className={`tag opt-tag${choice.on ? "" : " off"}`} data-tip={choice.on ? t`Changed in this option` : t`Part of this group, not being edited`}>{choice.text}</span>}
+            {choice && <span className={`tag opt-tag${choice.on ? "" : " off"}`} data-tip={choice.on ? choice.names : t`${choice.names}, not being edited`}>{choice.text}</span>}
             {a && !slot.was && choosesReach(slot) && <EveryTag />}
             {!a && standIns && <StandInTag standIns={standIns} cueId={cueId} />}
             {!a && !!gain && <GainTag db={gain} />}
@@ -1207,7 +1208,7 @@ const SlotRow = memo(function SlotRow({ row, a, standIns, gain, selected, now, i
             {slot.absent && <span className="tag" data-tip={NO_AUDIO_TIP}>{t`no audio`}</span>}
             {slot.locked && <LockedTag />}
             <AddedTag slot={slot} />
-            {choice && <span className={`tag opt-tag${choice.on ? "" : " off"}`} data-tip={choice.on ? t`Changed in this option` : t`Part of this group, not being edited`}>{choice.text}</span>}
+            {choice && <span className={`tag opt-tag${choice.on ? "" : " off"}`} data-tip={choice.on ? choice.names : t`${choice.names}, not being edited`}>{choice.text}</span>}
             {a && !slot.was && choosesReach(slot) && <EveryTag />}
             {!a && standIns && <StandInTag standIns={standIns} cueId={cueId} />}
             {!a && !!gain && <GainTag db={gain} />}

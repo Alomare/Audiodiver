@@ -77,7 +77,7 @@ def test_trim_set_checks_the_values_is_one_undo_step_and_a_new_file_starts_untri
 
 
 def test_blocks_play_their_stretches_at_their_times_and_overlaps_add_up(tmp_path):
-    """The Waveform Editor's blocks (audio.edited): each a stretch of the file at a time of its own, with a gain and
+    """The Waveform Suite's blocks (audio.edited): each a stretch of the file at a time of its own, with a gain and
     fades; silence where none plays; overlapping blocks added up."""
     from audiodiver.project import Block
     src = ramp(tmp_path / "r.wav")
@@ -157,7 +157,7 @@ def test_several_files_make_one_clip_and_the_project_lists_them_all(tmp_path):
 
 
 def test_edit_export_writes_the_blocks_as_one_file_and_changes_nothing(tmp_path):
-    """The Waveform Editor's Export: the blocks it sends (the layers ticked) mixed into one file, in the format, rate
+    """The Waveform Suite's Export: the blocks it sends (the layers ticked) mixed into one file, in the format, rate
     and channels asked for, normalized to -1 dB when asked; the project stays as it was."""
     from audiodiver import wem
     if not wem.has_ffmpeg():
@@ -196,7 +196,7 @@ def test_edit_export_writes_the_blocks_as_one_file_and_changes_nothing(tmp_path)
 
 
 def test_edit_render_saves_a_file_target_as_a_new_file(tmp_path):
-    """A song edited in the Waveform Editor (a file, not a slot) becomes a new file in audio/edited, numbered when the
+    """A song edited in the Waveform Suite (a file, not a slot) becomes a new file in audio/edited, numbered when the
     name is taken; the file it came from stays as it was, and the project doesn't change."""
     s = Session(load=False)
     s.new_project(tmp_path / "m.audi", "M")
@@ -212,7 +212,7 @@ def test_edit_render_saves_a_file_target_as_a_new_file(tmp_path):
 
 
 def test_layers_place_blocks_in_the_editor_and_play_the_same(tmp_path):
-    """A block's layer (the Waveform Editor's lane) is kept, left out of the file when it is the first, repaired when
+    """A block's layer (the Waveform Suite's lane) is kept, left out of the file when it is the first, repaired when
     out of range, and doesn't change the audio: moving a block to another layer makes the same file."""
     from audiodiver.project import Block
     s = Session(load=False)

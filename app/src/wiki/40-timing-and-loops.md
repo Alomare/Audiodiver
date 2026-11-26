@@ -24,9 +24,9 @@ When one file plays in several segments, **Apply to … more segments with this 
 > [!TIP]
 > Place reverb tails and final hits after the Exit. They overlap the next segment there, which avoids a gap.
 
-## The Waveform Editor
+## The Waveform Suite
 
-The pencil beside **Old** (the original) or **New** (the new audio) in the waveforms opens the Waveform Editor for the selected slot. The white button before it copies that audio, to paste into other slots or into the Waveform Editor. In the [Soundtrack](app:soundtrack), **Edit Song** and the pencil on a song in a playlist open a song the same way. It trims, splits, moves and fades audio, so simple edits need no other program. This works on every slot: music, sounds and voice lines.
+The pencil beside **Old** (the original) or **New** (the new audio) in the waveforms opens the Waveform Suite for the selected slot. The white button before it copies that audio, to paste into other slots or into the Waveform Suite. In the [Soundtrack](app:soundtrack), **Edit Song** and the pencil on a song in a playlist open a song the same way. It trims, splits, moves and fades audio, so simple edits need no other program. This works on every slot: music, sounds and voice lines.
 
 The audio sits on a time line as **blocks**. Each block is a stretch of a file, placed at a chosen time, with a fade in, a fade out, a gain and a volume curve. The original runs along the top for comparison, and a dashed line marks where the original ends. The tools sit in a bar above the time line, and pointing at one shows what it does and the key for it. The time of the cursor shows at the right, over the waveforms.
 

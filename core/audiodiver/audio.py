@@ -86,7 +86,7 @@ def faded(src: Path, fade_in_ms: float, fade_out_ms: float, start_ms: float = 0.
 
 
 def edited(src: Path, blocks, resolve=None) -> Path:
-    """src as the Waveform Editor's blocks make it, a 48 kHz WAV kept with the caches: each block's stretch of the
+    """src as the Waveform Suite's blocks make it, a 48 kHz WAV kept with the caches: each block's stretch of the
     file placed at its time, with its gain, its volume curve and its fades (a straight line in level, as `faded`), and blocks that
     overlap added up. Silence fills the time no block covers. Past full scale is clipped, as the preview's limiter
     would not be there in game. Builds and previews both use it. A block with an `audio` of its own plays that file,

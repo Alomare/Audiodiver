@@ -4,13 +4,14 @@ import { Trans } from "@lingui/react/macro";
 import { nav } from "./nav";
 import { useEditor } from "./store";
 
-/** The frame the Project, Build and Settings tabs share: a page that scrolls, with one big title. */
-export function Page({ title, lead, wide, children }: { title: string; lead?: ReactNode; wide?: boolean; children: ReactNode }) {
+/** The frame the Project, Build and Settings tabs share: a page that scrolls, with one big title, and the page's
+    own buttons beside it (`actions`). */
+export function Page({ title, lead, wide, actions, children }: { title: string; lead?: ReactNode; wide?: boolean; actions?: ReactNode; children: ReactNode }) {
   return (
     <section className="page" aria-label={title}>
       <div className={`page-inner view-in${wide ? " wide" : ""}`}>
         <header className="page-head">
-          <h1>{title}</h1>
+          {actions ? <div className="page-title-row"><h1>{title}</h1><div className="page-actions">{actions}</div></div> : <h1>{title}</h1>}
           {lead && <p className="page-lead">{lead}</p>}
         </header>
         {children}

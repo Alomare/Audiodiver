@@ -54,30 +54,30 @@ function CurveLabel() {
   return <span className="tl-curve" data-tip={t`The level the game gives this clip as it plays`} data-tip-more={t`Drawn as the line around the waveform`}><Trans>Volume curve</Trans></span>;
 }
 
-/** The button on a lane's label that opens the Waveform Editor on that audio. */
+/** The button on a lane's label that opens the Waveform Suite on that audio. */
 function EditButton({ onClick, original }: { onClick: () => void; original: boolean }) {
   return (
     <button className="tl-edit" onClick={onClick}
-      data-tip={original ? t`Edit the original in the Waveform Editor` : t`Trim, split, move and fade in the Waveform Editor`}
-      aria-label={t`Waveform Editor`} data-tip-more={original ? t`The result becomes the new audio of the slot` : undefined}><PencilIcon /></button>
+      data-tip={original ? t`Edit the original in the Waveform Suite` : t`Trim, split, move and fade in the Waveform Suite`}
+      aria-label={t`Waveform Suite`} data-tip-more={original ? t`The result becomes the new audio of the slot` : undefined}><PencilIcon /></button>
   );
 }
 
-/** Left of the pencil: copies that waveform's audio, to paste into slots or the Waveform Editor. Without one, an
+/** Left of the pencil: copies that waveform's audio, to paste into slots or the Waveform Suite. Without one, an
     empty spot of its size keeps the pencils of both lanes in line. */
 function CopyButton({ onClick, original }: { onClick?: () => void; original: boolean }) {
   if (!onClick) return <span className="tl-edit-gap" aria-hidden="true" />;
   return (
     <button className="tl-edit tl-copy" onClick={onClick} aria-label={original ? t`Copy Original Audio` : t`Copy New Audio`}
-      data-tip={original ? t`Copy the original audio` : t`Copy the new audio`} data-tip-more={t`Paste it into other slots, or into the Waveform Editor`}><CopyIcon /></button>
+      data-tip={original ? t`Copy the original audio` : t`Copy the new audio`} data-tip-more={t`Paste it into other slots, or into the Waveform Suite`}><CopyIcon /></button>
   );
 }
 
-/** Under the pencil of the new audio: every slot of the segment in the Waveform Editor at once. */
+/** Under the pencil of the new audio: every slot of the segment in the Waveform Suite at once. */
 function SegmentButton({ onClick, n }: { onClick: () => void; n: number }) {
   return (
     <button className="tl-edit tl-edit-seg" onClick={onClick} aria-label={t`Edit Segment`}
-      data-tip={t`Edit every slot of this segment together`} data-tip-more={t`The ${n} slots line up in the Waveform Editor, each under the original`}><StackIcon /></button>
+      data-tip={t`Edit every slot of this segment together`} data-tip-more={t`The ${n} slots line up in the Waveform Suite, each under the original`}><StackIcon /></button>
   );
 }
 
@@ -111,7 +111,7 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
   const gameDb = !a && source && !readOnly ? live ?? project?.gains[source] ?? 0 : 0;
   const none = !!(row?.slot.absent || row?.slot.added); // "No audio", or a new take: no original to draw
   const gameWave = usePeaks("vanilla", none ? null : source);
-  // what plays in the slot: trimming, moving, splitting and fading are in the Waveform Editor (WaveEditor.tsx)
+  // what plays in the slot: trimming, moving, splitting and fading are in the Waveform Suite (WaveEditor.tsx)
   const mineWave = usePeaks("project", audible(a) && a!.exists ? source : null, String(revision));
   const [editing, setEditing] = useState<"original" | "mine" | "segment" | null>(null);
   useEffect(() => setEditing(null), [source]);
@@ -172,7 +172,7 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
     actions.segmentOverride(seg.segment, e, x);
   };
   const overridden = o.entry_marker != null || o.exit_marker != null;
-  // the Waveform Editor: this slot, or every slot of its segment that has audio to replace; in a music segment, with its cue points
+  // the Waveform Suite: this slot, or every slot of its segment that has audio to replace; in a music segment, with its cue points
   const segTracks: EditTrack[] = hasCues ? rows.filter((r) => r.seg.segment === seg.segment && !r.slot.absent && !r.slot.unused && !r.slot.locked)
     .map((r, k) => ({ source: r.slot.source, name: t`Slot ${k + 1}`, full: rowName(r) })) : [];
   const editCues: EditCues | undefined = hasCues && cue ? { cue: cue.id, segment: seg.segment, fit, gameEntry: seg.entry_ms ?? 0,

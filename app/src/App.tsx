@@ -211,7 +211,7 @@ function Shell() {
     if (!audio.length) return quick(images.length ? t`Drop images on the icon on the Project tab` : t`No audio files in the drop`, "info");
     // the Soundtrack's places: a place of a playlist, a free segment, or One song
     if (target?.kind === "place" || target?.kind === "segment" || target?.kind === "song") return soundtrackDrop(target, audio);
-    // the Waveform Editor: files as new blocks
+    // the Waveform Suite: files as new blocks
     if (target?.kind === "wave-editor") return waveDrop(audio);
     // the Audio tab's: a slot, a group of takes, a cue, a piece of music
     if (target?.kind === "slot") { scopes.editor.setSelected([target.source]); return actions.assign(target.source, audio); }

@@ -57,6 +57,11 @@ msgstr "{0, plural, one {Copier audio (# emplacement)} other {Copier audio (# em
 msgid "{0, plural, one {Copy Original Audio (# Slot)} other {Copy Original Audio (# Slots)}}"
 msgstr ""
 
+#. placeholder {0}: a.blocks
+#: src/ModOptions.tsx
+msgid "{0, plural, one {Edited, # block} other {Edited, # blocks}}"
+msgstr ""
+
 #. placeholder {0}: r.count
 #: src/SettingsTab.tsx
 msgid "{0, plural, one {Exported # note.} other {Exported # notes.}}"
@@ -118,6 +123,11 @@ msgstr ""
 #. placeholder {1}: l + 1
 #: src/WaveEditor.tsx
 msgid "{0}, layer {1}"
+msgstr ""
+
+#. placeholder {0}: choice.names
+#: src/CueView.tsx
+msgid "{0}, not being edited"
 msgstr ""
 
 #. placeholder {0}: x.name
@@ -460,6 +470,10 @@ msgstr "{full} (archive {archive})"
 #: src/PatchContentPage.tsx
 msgid "{gone, plural, one {# of them is not in the current game.} other {# of them are not in the current game.}}"
 msgstr "{gone, plural, one {# d’entre eux n’est pas dans le jeu actuel.} other {# d’entre eux ne sont pas dans le jeu actuel.}}"
+
+#: src/ModOptions.tsx
+msgid "{group}: {option}"
+msgstr ""
 
 #: src/RepatchPage.tsx
 msgid "{hi, plural, one {{lo} to # replaced or added sound each} other {{lo} to # replaced or added sounds each}}"
@@ -1038,6 +1052,10 @@ msgstr "{usableCount, plural, one {Choisir un seul fichier pour # emplacement} o
 #: src/Soundtrack.tsx
 msgid "{used} of {total, plural, one {# place} other {# places}}"
 msgstr "{used} sur {total, plural, one {# position} other {# positions}}"
+
+#: src/ModOptions.tsx
+msgid "{v, plural, one {# block} other {# blocks}}"
+msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "{value}, layer {n}"
@@ -1672,10 +1690,6 @@ msgstr "Ajouté à la liste d'export : {added} (déjà dans la liste : {already}
 msgid "Added {items} to the export list, as {total} entries (one per part)"
 msgstr "Ajouté à la liste d'export : {items}, soit {total} entrées (une par partie)"
 
-#: src/ModOptions.tsx
-msgid "Added to every slot the mod changes outside the groups, from −12 to +12 dB"
-msgstr ""
-
 #: src/exportList.ts
 msgid "Added to the export list"
 msgstr "Ajouté à la liste d'export"
@@ -1957,6 +1971,7 @@ msgstr "Joignez-le à un rapport de bug"
 #. Main tab: replaces the audio of what the project lists
 #: src/App.tsx
 #: src/ExportDialog.tsx
+#: src/ModOptions.tsx
 #: src/platform.ts
 #: src/SettingsTab.tsx
 msgid "Audio"
@@ -2020,6 +2035,10 @@ msgid "Audiodiver restarts when the update is installed."
 msgstr "Audiodiver redémarre une fois la mise à jour installée."
 
 #: src/ProjectTab.tsx
+msgid "Audiodiver yellow"
+msgstr ""
+
+#: src/ProjectTab.tsx
 msgid "Authors"
 msgstr ""
 
@@ -2029,6 +2048,7 @@ msgid "auto"
 msgstr "auto"
 
 #. Update mode
+#: src/ModOptions.tsx
 #: src/settings.ts
 msgid "Automatic"
 msgstr "Automatique"
@@ -2128,6 +2148,10 @@ msgstr "Nom de la banque dans les fichiers du jeu"
 msgid "Banks"
 msgstr "Banques"
 
+#: src/ModOptions.tsx
+msgid "Base Mod"
+msgstr ""
+
 #: src/store.tsx
 msgid "Battle Songs"
 msgstr "Chansons de combat"
@@ -2165,14 +2189,19 @@ msgstr "gras"
 msgid "Bold"
 msgstr "Gras"
 
-#. The icon frame: the width of the border
-#: src/ProjectTab.tsx
-msgid "Border"
-msgstr "Contour"
-
 #: src/ProjectTab.tsx
 msgid "Border colour"
 msgstr "Couleur du contour"
+
+#. The icon frame: how round the corners are
+#: src/ProjectTab.tsx
+msgid "Border corner radius"
+msgstr ""
+
+#. The icon frame: the width of the border
+#: src/ProjectTab.tsx
+msgid "Border size"
+msgstr ""
 
 #. Export Notes: the global notes and the project notes
 #: src/ExportDialog.tsx
@@ -2419,10 +2448,6 @@ msgctxt "Filter of the Text tab: the lines the project changes"
 msgid "Changed ({count})"
 msgstr "Modifiées ({count})"
 
-#: src/CueView.tsx
-msgid "Changed in this option"
-msgstr ""
-
 #. Lines a panel of the Text tab works on: the ones the project changes
 #: src/TextTab.tsx
 msgid "Changed lines"
@@ -2436,6 +2461,10 @@ msgstr "modifié depuis la dernière génération"
 msgid "Changelog"
 msgstr "Notes de version"
 
+#: src/ModOptions.tsx
+msgid "Changes"
+msgstr ""
+
 #: src/SettingsTab.tsx
 msgid "Changes are also saved before a build and when the project or Audiodiver closes."
 msgstr "Les modifications sont aussi enregistrées avant une génération et à la fermeture du projet ou d’Audiodiver."
@@ -2443,6 +2472,10 @@ msgstr "Les modifications sont aussi enregistrées avant une génération et à 
 #: src/TextTab.tsx
 msgid "Changes go into <0>{project}</0>."
 msgstr "Les modifications vont dans <0>{project}</0>."
+
+#: src/ModOptions.tsx
+msgid "Changes in {group}: {option}"
+msgstr ""
 
 #: src/ModOptions.tsx
 msgid "Changes in the Audio tab go into the base mod"
@@ -2858,6 +2891,7 @@ msgstr "Clips qu’aucun son de cette banque ne joue"
 #: src/ExportDialog.tsx
 #: src/Home.tsx
 #: src/ImportMod.tsx
+#: src/ModOptions.tsx
 #: src/SliceTool.tsx
 #: src/TextTools.tsx
 #: src/WaveEditor.tsx
@@ -3181,11 +3215,6 @@ msgstr "moteur {core}"
 msgid "Corner"
 msgstr "Coin"
 
-#. The icon frame: how round the corners are
-#: src/ProjectTab.tsx
-msgid "Corners"
-msgstr "Coins"
-
 #: src/RepatchPage.tsx
 msgid "Couldn't be repatched"
 msgstr "Repatch impossible"
@@ -3249,6 +3278,7 @@ msgid "cue points"
 msgstr "points de repère"
 
 #: src/Inspector.tsx
+#: src/ModOptions.tsx
 msgid "Cue points"
 msgstr "Points de repère"
 
@@ -3316,6 +3346,7 @@ msgstr "Icône par défaut"
 msgid "Default: {gain} dB"
 msgstr "Par défaut : {gain} dB"
 
+#: src/ModOptions.tsx
 #: src/SettingsTab.tsx
 msgid "Delay"
 msgstr "Délai"
@@ -3668,10 +3699,6 @@ msgstr "Chaque fois que la musique démarre, l’une des ouvertures est jouée d
 msgid "Eagle-1"
 msgstr "Aigle 1"
 
-#: src/ModOptions.tsx
-msgid "Edit"
-msgstr ""
-
 #: src/Timeline.tsx
 msgid "Edit every slot of this segment together"
 msgstr ""
@@ -3689,7 +3716,7 @@ msgid "Edit the note"
 msgstr "Modifier la note"
 
 #: src/Timeline.tsx
-msgid "Edit the original in the Waveform Editor"
+msgid "Edit the original in the Waveform Suite"
 msgstr ""
 
 #: src/Soundtrack.tsx
@@ -3698,10 +3725,6 @@ msgstr ""
 
 #: src/ModOptions.tsx
 msgid "Editing"
-msgstr ""
-
-#: src/ModOptions.tsx
-msgid "Editing <0>{group}</0>, <1>{option}</1>"
 msgstr ""
 
 #: src/WaveEditor.tsx
@@ -3741,6 +3764,10 @@ msgstr "encodage de l'audio pour le jeu"
 msgid "encoding audio for the game on Linux"
 msgstr "encodage de l'audio pour le jeu sous Linux"
 
+#: src/ModOptions.tsx
+msgid "End"
+msgstr ""
+
 #: src/SliceTool.tsx
 msgctxt "Slice tool: the cut where the last piece ends"
 msgid "End"
@@ -3769,6 +3796,7 @@ msgstr "Anglais (États-Unis)"
 
 #. A music segment's Entry cue point (Wwise term): where the segment counts as started
 #. A music segment's Entry cue point (Wwise term): where the segment counts as started
+#: src/ModOptions.tsx
 #: src/Timeline.tsx
 #: src/WaveEditor.tsx
 msgid "Entry"
@@ -3870,6 +3898,7 @@ msgstr "Tout ce qui est dans le projet"
 
 #. A music segment's Exit cue point (Wwise term): where the next segment starts
 #. A music segment's Exit cue point (Wwise term): where the next segment starts
+#: src/ModOptions.tsx
 #: src/Timeline.tsx
 #: src/WaveEditor.tsx
 msgid "Exit"
@@ -3993,11 +4022,13 @@ msgid "Exports of the original are for reference and mod work. Don't upload them
 msgstr "Les exports de l’original servent de référence et pour créer des mods. Ne les mettez pas en ligne."
 
 #: src/Inspector.tsx
+#: src/ModOptions.tsx
 #: src/WaveEditor.tsx
 msgid "Fade In"
 msgstr "Fondu d’entrée"
 
 #: src/Inspector.tsx
+#: src/ModOptions.tsx
 #: src/WaveEditor.tsx
 msgid "Fade Out"
 msgstr "Fondu de sortie"
@@ -4152,6 +4183,10 @@ msgstr "Trouve les mods avec des banques de sons d’une ancienne version du jeu
 msgid "Finish"
 msgstr "Terminer"
 
+#: src/ModOptions.tsx
+msgid "Fit Timing"
+msgstr ""
+
 #: src/Timeline.tsx
 msgid "Fit timing is off, so the original cue points apply until one is moved."
 msgstr "« Ajuster le minutage » est désactivé, donc les points de repère d'origine s'appliquent tant qu'aucun n'est déplacé."
@@ -4280,6 +4315,10 @@ msgstr ""
 msgid "Gain of {0} (dB)"
 msgstr ""
 
+#: src/ModOptions.tsx
+msgid "Gain, added to every slot the mod changes outside the groups, from −12 to +12 dB"
+msgstr ""
+
 #: src/Home.tsx
 #: src/Library.tsx
 msgid "Game"
@@ -4391,6 +4430,10 @@ msgid "Goes on from where the last one stopped"
 msgstr "Reprend là où le précédent s’est arrêté"
 
 #: src/ModOptions.tsx
+msgid "Group {code}"
+msgstr ""
+
+#: src/ModOptions.tsx
 msgid "Group name"
 msgstr ""
 
@@ -4467,6 +4510,7 @@ msgid "High"
 msgstr "Élevé"
 
 #: src/Inspector.tsx
+#: src/ModOptions.tsx
 msgid "High-Pass"
 msgstr "Passe-haut"
 
@@ -4563,6 +4607,11 @@ msgstr "Comment changer les sons de tir du Libérateur"
 #: src/ProjectTab.tsx
 msgid "Icon"
 msgstr "Icône"
+
+#. The colour of the logo on the default icon
+#: src/ProjectTab.tsx
+msgid "Icon colour"
+msgstr ""
 
 #: src/SettingsTab.tsx
 msgid "Icons only. Names show in tooltips."
@@ -4836,6 +4885,10 @@ msgstr "Il se termine sur le segment en cours à ce moment, et « Rejouer »
 msgid "It keeps the old mod ID, so importing it in a mod manager updates the old mod."
 msgstr "Il garde l’ancien ID du mod, donc l’importer dans un gestionnaire de mods met à jour l’ancien mod."
 
+#: src/ModOptions.tsx
+msgid "It plays as the base mod has it."
+msgstr ""
+
 #: src/store.tsx
 msgid "it wasn't found"
 msgstr "il est introuvable"
@@ -4930,6 +4983,10 @@ msgstr "garde le minutage"
 msgid "Keeps what the patches hold besides audio, like text, models or textures, as it was."
 msgstr "Garde tel quel ce que les patchs contiennent hors audio, comme le texte, les modèles ou les textures."
 
+#: src/ModOptions.tsx
+msgid "Kept"
+msgstr ""
+
 #: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Kept as it was"
@@ -4981,6 +5038,10 @@ msgstr ""
 #: src/WaveEditor.tsx
 msgid "Layer {n}"
 msgstr "Couche {n}"
+
+#: src/ModOptions.tsx
+msgid "Layer Names"
+msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "Layers"
@@ -5206,6 +5267,7 @@ msgid "Louder or quieter, without changing the file or the mix. Added to the {ga
 msgstr "Plus fort ou plus faible, sans modifier le fichier ni le mixage. S’ajoute aux {gain} dB que le jeu donne à ce son."
 
 #: src/Inspector.tsx
+#: src/ModOptions.tsx
 msgid "Low-Pass"
 msgstr "Passe-bas"
 
@@ -5832,6 +5894,10 @@ msgstr "Pas d’audio, conservé tel quel."
 msgid "No changed line has “{words}”."
 msgstr "Aucune ligne modifiée ne contient « {words} »."
 
+#: src/ModOptions.tsx
+msgid "No changes"
+msgstr ""
+
 #: src/App.tsx
 msgid "No changes since the project opened."
 msgstr "Aucune modification depuis l’ouverture du projet."
@@ -6235,6 +6301,7 @@ msgid "Of two mods with the same file besides audio, the one lower in the list g
 msgstr "Entre deux mods qui ont le même fichier hors audio, celui placé plus bas dans la liste est inclus."
 
 #. The radio filter of a voice is off
+#: src/ModOptions.tsx
 #: src/ProjectTab.tsx
 #: src/settings.ts
 #: src/SettingsTab.tsx
@@ -6271,6 +6338,7 @@ msgid "Older sound banks"
 msgstr "Anciennes banques de sons"
 
 #. The radio filter of a voice is on
+#: src/ModOptions.tsx
 #: src/ProjectTab.tsx
 #: src/SettingsTab.tsx
 msgid "On"
@@ -6523,6 +6591,12 @@ msgstr "Ouvre ko-fi.com/alomare"
 msgid "Opens the Wiki in a separate window"
 msgstr "Ouvre le Wiki dans une fenêtre séparée"
 
+#. placeholder {0}: g.letter
+#. placeholder {1}: o.number
+#: src/ModOptions.tsx
+msgid "Option {0}{1}"
+msgstr ""
+
 #: src/ModOptions.tsx
 msgid "Option name"
 msgstr ""
@@ -6565,6 +6639,7 @@ msgstr "original"
 #. The length of the original audio of the slot
 #: src/ExportDialog.tsx
 #: src/Inspector.tsx
+#: src/ModOptions.tsx
 #: src/music.ts
 #: src/SliceTool.tsx
 #: src/Soundtrack.tsx
@@ -6589,6 +6664,10 @@ msgstr ""
 #: src/Inspector.tsx
 msgid "original / new audio"
 msgstr "original / nouvel audio"
+
+#: src/ModOptions.tsx
+msgid "Original Gain"
+msgstr ""
 
 #: src/SliceTool.tsx
 msgid "Original Lengths"
@@ -6706,10 +6785,6 @@ msgstr "Partie {n}"
 msgid "Part {number}"
 msgstr "Partie {number}"
 
-#: src/CueView.tsx
-msgid "Part of this group, not being edited"
-msgstr ""
-
 #: src/RepatchPage.tsx
 msgid "Partly"
 msgstr "En partie"
@@ -6742,7 +6817,7 @@ msgid "Paste into the selection"
 msgstr "Coller dans la sélection"
 
 #: src/Timeline.tsx
-msgid "Paste it into other slots, or into the Waveform Editor"
+msgid "Paste it into other slots, or into the Waveform Suite"
 msgstr ""
 
 #: src/store.tsx
@@ -7370,6 +7445,7 @@ msgstr "Chargement de la chanson…"
 
 #: src/CombinePage.tsx
 #: src/ExportDialog.tsx
+#: src/ModOptions.tsx
 #: src/PatchContentPage.tsx
 #: src/RepatchPage.tsx
 msgid "Reading…"
@@ -8077,10 +8153,19 @@ msgstr "Teinte de la couleur secondaire"
 msgid "Segment"
 msgstr "Segment"
 
+#. placeholder {0}: s.segment
+#: src/ModOptions.tsx
+msgid "Segment {0}"
+msgstr ""
+
 #. What the keys do: select the slot above or below
 #: src/Inspector.tsx
 msgid "select"
 msgstr "sélectionner"
+
+#: src/ModOptions.tsx
+msgid "Select"
+msgstr ""
 
 #: src/SliceTool.tsx
 msgid "Select a cut first"
@@ -8136,6 +8221,10 @@ msgstr "Sélectionner les prises de {name}"
 msgid "Select this line"
 msgstr "Sélectionner cette ligne"
 
+#: src/ModOptions.tsx
+msgid "Selected"
+msgstr ""
+
 #: src/ExportDialog.tsx
 msgctxt "Which slots or sounds to export"
 msgid "Selected"
@@ -8176,6 +8265,10 @@ msgstr "Régler beaucoup de musique à la fois"
 #: src/Soundtrack.tsx
 msgid "Sets other {name} music to {mode} too"
 msgstr "Règle aussi les autres musiques {name} sur {mode}"
+
+#: src/ModOptions.tsx
+msgid "Setting"
+msgstr ""
 
 #: src/App.tsx
 #: src/SettingsTab.tsx
@@ -8301,6 +8394,10 @@ msgstr "Afficher dans l’Index"
 msgid "Show in Library"
 msgstr "Afficher dans la Bibliothèque"
 
+#: src/ModOptions.tsx
+msgid "Show in the Audio tab"
+msgstr ""
+
 #: src/BuildTab.tsx
 msgid "Show Log File"
 msgstr "Afficher fichier journal"
@@ -8388,6 +8485,7 @@ msgstr "silence"
 #: src/CueView.tsx
 #: src/Inspector.tsx
 #: src/Library.tsx
+#: src/ModOptions.tsx
 #: src/PatchContentPage.tsx
 #: src/Soundtrack.tsx
 msgid "Silence"
@@ -8506,11 +8604,14 @@ msgstr "Découpé en {pieces, plural, one {# morceau} other {# morceaux}}, rempl
 msgid "Slicing"
 msgstr "Découpe"
 
+#: src/ModOptions.tsx
 #: src/SliceTool.tsx
 msgid "Slot"
 msgstr "Emplacement"
 
 #. placeholder {0}: k + 1
+#. placeholder {0}: s.source
+#: src/ModOptions.tsx
 #: src/Timeline.tsx
 msgid "Slot {0}"
 msgstr ""
@@ -8641,6 +8742,7 @@ msgstr "Carré"
 
 #. The menu on Home with New Project, Open Project and Import Mod
 #: src/Home.tsx
+#: src/ModOptions.tsx
 msgid "Start"
 msgstr "Démarrer"
 
@@ -8919,7 +9021,7 @@ msgid "The {n} blocks on it are removed with it. Undo brings them back."
 msgstr ""
 
 #: src/Timeline.tsx
-msgid "The {n} slots line up in the Waveform Editor, each under the original"
+msgid "The {n} slots line up in the Waveform Suite, each under the original"
 msgstr ""
 
 #. Markdown. **Index** is the button above the Library list, and the bold word must read as the translation of the button does.
@@ -8972,7 +9074,7 @@ msgid "The block on it is removed with it. Undo brings both back."
 msgstr ""
 
 #: src/WaveEditor.tsx
-msgid "The changes made in the Waveform Editor are lost."
+msgid "The changes made in the Waveform Suite are lost."
 msgstr ""
 
 #: src/App.tsx
@@ -9849,7 +9951,7 @@ msgid "transcribing voice lines to match them to subtitles"
 msgstr "transcription des répliques pour les associer aux sous-titres"
 
 #: src/Soundtrack.tsx
-msgid "Trim, fade or arrange it in the Waveform Editor. The result is saved as a new file in this place"
+msgid "Trim, fade or arrange it in the Waveform Suite. The result is saved as a new file in this place"
 msgstr ""
 
 #: src/Soundtrack.tsx
@@ -9861,7 +9963,7 @@ msgid "Trim, split, move and fade audio"
 msgstr ""
 
 #: src/Timeline.tsx
-msgid "Trim, split, move and fade in the Waveform Editor"
+msgid "Trim, split, move and fade in the Waveform Suite"
 msgstr ""
 
 #: src/UpdatesTab.tsx
@@ -9923,6 +10025,7 @@ msgstr "annuler"
 
 #: src/App.tsx
 #: src/keys.ts
+#: src/ModOptions.tsx
 #: src/store.tsx
 #: src/WaveEditor.tsx
 msgid "Undo"
@@ -9935,6 +10038,18 @@ msgstr "Annuler ({key})"
 #: src/App.tsx
 msgid "Undo {undoName}"
 msgstr "Annuler : {undoName}"
+
+#: src/ModOptions.tsx
+msgid "Undo Change"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Undo the change to {what}"
+msgstr ""
+
+#: src/ModOptions.tsx
+msgid "Undo the change to {what}?"
+msgstr ""
 
 #: src/App.tsx
 msgid "Undo the last change"
@@ -10126,6 +10241,7 @@ msgstr "courbe de volume"
 msgid "Volume curve"
 msgstr "Courbe de volume"
 
+#: src/ModOptions.tsx
 #: src/WaveEditor.tsx
 msgid "Volume Curve"
 msgstr ""
@@ -10178,13 +10294,14 @@ msgstr "Chaleur"
 msgid "WAV (24-bit)"
 msgstr "WAV (24 bits)"
 
+#: src/ModOptions.tsx
 #: src/Timeline.tsx
 #: src/WaveEditor.tsx
-msgid "Waveform Editor"
+msgid "Waveform Suite"
 msgstr ""
 
 #: src/WaveEditor.tsx
-msgid "Waveform Editor tools"
+msgid "Waveform Suite tools"
 msgstr ""
 
 #: src/Timeline.tsx
@@ -10238,6 +10355,10 @@ msgstr "Ce que montre l’onglet Audio"
 #: src/Soundtrack.tsx
 msgid "What the openings are, and how to change them"
 msgstr "Ce que sont les ouvertures, et comment les changer"
+
+#: src/ModOptions.tsx
+msgid "What this option changes from the base mod"
+msgstr ""
 
 #: src/ExportDialog.tsx
 msgid "What to export"

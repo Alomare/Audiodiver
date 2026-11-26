@@ -48,7 +48,7 @@
 
 ### 📁 Project
 
-The mod's name, description, icon and ID, with a preview as a mod manager shows them. **Options for Players** adds groups that players tick in the mod manager, each with options to pick from, such as one of five sounds for a weapon or a louder and a quieter mod. Pickers over the Audio tab choose what plays and where changes go, and a build ships only what each option changes. The project folder has **Collect Files**, a clean-up to the Recycle Bin (the trash on Linux), and packs (`.audipack`) for another computer.
+The mod's name, description, icon and ID, with a preview as a mod manager shows them. **Options for Players** adds groups that players tick in the mod manager, each with options to pick from, such as one of five sounds for a weapon or a louder and a quieter mod. **Select** on an option, or the menu over the Audio tab, makes the Audio tab edit it, **Changes** lists what it changes with an undo for each, and a build ships only what each option changes. The project folder has **Collect Files**, a clean-up to the Recycle Bin (the trash on Linux), and packs (`.audipack`) for another computer.
 
 <img src="assets/readme/project.png" alt="The Project tab: the name, description, icon and mod ID, beside a preview of the mod in a mod manager with Import Patches and Close Project above it" width="100%">
 
@@ -60,7 +60,7 @@ Every sound in Helldivers 2, sorted. Music goes by when it plays, from the ship 
 
 ### 🎚️ Audio
 
-The music and sounds of a project, one slot per clip. An audio file dropped on a slot, a sound or a whole piece replaces the original, and **Slice a song** cuts one song across a whole piece, or a stretch of it for a sound. Slots take silence and Make-Up Gain too, and sounds can get new takes and layers. Under the slots, the original and the new audio are drawn on one time scale, with a zoom in time and level. The pencil beside them opens the **Waveform Editor**: trim, split, move and fade audio as blocks on layers, draw volume curves, put several files in one slot, drag a music segment's cue points and hear it between the segments around it, then export the result or apply it to the slot.
+The music and sounds of a project, one slot per clip. An audio file dropped on a slot, a sound or a whole piece replaces the original, and **Slice a song** cuts one song across a whole piece, or a stretch of it for a sound. Slots take silence and Make-Up Gain too, and sounds can get new takes and layers. Under the slots, the original and the new audio are drawn on one time scale, with a zoom in time and level. The pencil beside them opens the **Waveform Suite**: trim, split, move and fade audio as blocks on layers, draw volume curves, put several files in one slot, drag a music segment's cue points and hear it between the segments around it, then export the result or apply it to the slot.
 
 <img src="assets/readme/audio.png" alt="Loadout Selection on the Audio tab: slots with new audio, the selected one ticked, the original and new waveforms of that slot on one time scale with the zoom sliders beside them, the new audio's Start and End lines bent into a fade in and a fade out, the Start, End, Delay and fade fields in ms under them, and the slot settings on the right down to the Project Note and the Global Note" width="100%">
 

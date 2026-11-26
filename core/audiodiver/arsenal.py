@@ -32,9 +32,11 @@ SUFFIXES = ('', '.stream', '.gpu_resources')
 PNG_MAGIC = b'\x89PNG\r\n\x1a\n'
 ICON_SIZE = 540
 
-# The frame around an icon when the project doesn't set one: no border, square corners. The colour is #rrggbb;
-# border and radius are pixels of the 540 tile.
-FRAME = {'border': 0, 'border_color': '#ffd400', 'radius': 0}
+# The frame around an icon when the project doesn't set one: no border, square corners. The colours are #rrggbb;
+# border and radius are pixels of the 540 tile. `color` is the default icon's logo (an image of the project's own
+# ignores it): the logo's yellow unless set.
+FRAME = {'border': 0, 'border_color': '#ffd400', 'radius': 0, 'color': '#ffe800'}
+TILE = (26, 26, 26)  # the default icon's dark tile, under the logo (data/icon.png)
 FRAME_KEYS = tuple(FRAME)
 BORDER_MAX, RADIUS_MAX = 48, 270
 
@@ -97,10 +99,11 @@ def icon_frame(icon=None) -> dict:
     ValueError naming it."""
     icon = icon or {}
     out = dict(FRAME)
-    if 'border_color' in icon:
-        if not re.fullmatch(r'#[0-9a-fA-F]{6}', str(icon['border_color'])):
-            raise ValueError(f'border_color is a colour like #ffd400, not {icon["border_color"]!r}')
-        out['border_color'] = str(icon['border_color']).lower()
+    for key in ('border_color', 'color'):
+        if key in icon:
+            if not re.fullmatch(r'#[0-9a-fA-F]{6}', str(icon[key])):
+                raise ValueError(f'{key} is a colour like #ffd400, not {icon[key]!r}')
+            out[key] = str(icon[key]).lower()
     for key, top in (('border', BORDER_MAX), ('radius', RADIUS_MAX)):
         if key in icon:
             try:
@@ -155,11 +158,23 @@ def default_icon(frame=None) -> bytes:
     from importlib import resources
     frame = icon_frame(frame)
     data = resources.files('audiodiver').joinpath('data', 'icon.png').read_bytes()
-    if not frame['border'] and not frame['radius']:
+    if not frame['border'] and not frame['radius'] and frame['color'] == FRAME['color']:
         return data  # without Pillow, as Repatch and Combine in Audiodiver Utils make it
     from PIL import Image
     with Image.open(io.BytesIO(data)) as img:
-        return _png(framed(img.convert('RGB'), frame))
+        img = img.convert('RGB')
+        if frame['color'] != FRAME['color']:
+            img = _logo_in(img, frame['color'])
+        return _png(framed(img, frame))
+
+
+def _logo_in(img, color):
+    """The default icon with the logo in another colour: each pixel's share of logo (the red channel runs from the
+    tile's 26 to the logo's 255, smooth edges between) mixes the tile with the colour."""
+    from PIL import Image
+    lo = TILE[0]
+    share = img.getchannel('R').point(lambda v: max(0, min(255, round((v - lo) * 255 / (255 - lo)))))
+    return Image.composite(Image.new('RGB', img.size, _rgb(color)), Image.new('RGB', img.size, TILE), share)
 
 
 def icon_png(image, frame=None) -> bytes:

@@ -117,7 +117,7 @@ def uses(d: dict, base: Path) -> set[Path]:
     folder base: its new audio (the base mod's and the options'), the icon's image and the options' images."""
     reps = (d.get("replacements") if isinstance(d.get("replacements"), list) else []) + _patches(d)
     rels = [r.get("audio") for r in reps if isinstance(r, dict) and not r.get("silence")]
-    rels += [b.get("audio") for r in reps if isinstance(r, dict) and not r.get("silence")  # the Waveform Editor's other files
+    rels += [b.get("audio") for r in reps if isinstance(r, dict) and not r.get("silence")  # the Waveform Suite's other files
              for b in (r.get("blocks") if isinstance(r.get("blocks"), list) else []) if isinstance(b, dict)]
     icon = d.get("icon")
     rels.append(icon.get("image") if isinstance(icon, dict) else icon)  # an image path, before icons had a frame

@@ -3,7 +3,7 @@ import { plural, t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
 import { call, fmtBytes, fmtWhen, iconUrl, nameProblem, type Icon, type IconFrame } from "./api";
 import { confirm } from "./Confirm";
-import { FolderIcon } from "./Icons";
+import { CloseIcon, FolderIcon, ImportIcon } from "./Icons";
 import { ModOptions } from "./ModOptions";
 import { NoProjectCard, Page, useDraft } from "./Page";
 import { copyText, fullPath, pickFolder, reveal } from "./platform";
@@ -14,7 +14,7 @@ import { nav } from "./nav";
 import { Help, WikiLink } from "./WikiLinks";
 import { rangeVars } from "./range";
 
-const FRAME_KEYS: (keyof IconFrame)[] = ["border", "border_color", "radius"];
+const FRAME_KEYS: (keyof IconFrame)[] = ["border", "border_color", "radius", "color"];
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
 /** The radio filter of each voice, on or off, and whether the voices without it are turned down to about the radio's
@@ -62,12 +62,18 @@ function RadioFilters() {
 }
 
 /** The Project tab: what the mod is (its name, description, icon and id), the tabs it shows, and where its files
-    are (its folder, the files nothing uses, and packs), with Import patches and Close project over the icon. Build
+    are (its folder, the files nothing uses, and packs), with Import Patches and Close Project beside the title. Build
     keeps how the ZIP is made. With no project open: New, Open and the recent projects. */
 export function ProjectTab() {
-  const { project } = useEditor();
+  const { project, actions } = useEditor();
+  const buttons = project && <>
+    {project.game === "hd2" && <button className="btn" onClick={() => actions.importPatch()}
+      data-tip={t`Import the audio, added sounds and text of a mod into this project`}
+      data-tip-more={t`A ZIP, .7z, .rar or .patch_0 file, such as a mod made with another tool`}><ImportIcon /><Trans>Import Patches</Trans></button>}
+    <button className="btn" onClick={actions.closeProject} data-tip={t`Close the project`} data-tip-cmd="closeProject"><CloseIcon /><Trans>Close Project</Trans></button>
+  </>;
   return (
-    <Page title={t({ message: "Project", comment: "Title of the Project tab" })} wide
+    <Page title={t({ message: "Project", comment: "Title of the Project tab" })} wide actions={buttons}
       lead={<><Trans>Projects are folders containing the mod and all associated files.</Trans>{" "}
         <Help tip={t`The project file records what the mod replaces and with which files. Audiodiver keeps what it makes for the project beside that file`} page="project-folders" /></>}>
       {project ? <ProjectPage key={project.path} />
@@ -249,12 +255,6 @@ function ProjectPage() {
       </div>
 
       <aside className="bld-side">
-        <div className="side-actions">
-          {p.game === "hd2" && <button className="btn" onClick={() => actions.importPatch()}
-            data-tip={t`Import the audio, added sounds and text of a mod into this project`}
-            data-tip-more={t`A ZIP, .7z, .rar or .patch_0 file, such as a mod made with another tool`}><Trans>Import Patches</Trans></button>}
-          <button className="btn quiet" onClick={actions.closeProject} data-tip={t`Close the project`} data-tip-cmd="closeProject"><Trans>Close Project</Trans></button>
-        </div>
         {p.game === "hd2" && <IconPreview preview={same(icon, p.icon) ? undefined : icon} bust={String(revision)} name={name.trim() || p.name}
           description={description.trim()} />}
       </aside>
@@ -483,6 +483,9 @@ const SWATCHES: [string, string][] = [
   ["#f28c28", t`Terminid orange`], ["#7d5cff", t`Illuminate violet`], ["#3fc1e8", t`Cyan`], ["#2f6db5", t`Democracy blue`],
 ];
 
+/** The logo's colours: its own yellow first (the default icon as it comes), then the border's other swatches. */
+const LOGO_SWATCHES: [string, string][] = [["#ffe800", t`Audiodiver yellow`], ...SWATCHES.slice(1)];
+
 type IconProps = { icon: Icon; frame: IconFrame; setIcon: (i: Icon) => void; saveIcon: (i?: Icon) => void };
 
 /** The icon: an image, or Audiodiver's default icon until one is chosen, with a frame (a border and rounded corners)
@@ -509,22 +512,28 @@ function IconEditor({ icon, frame, setIcon, saveIcon }: IconProps) {
       </div>
 
       <div className="ico-grid ico-frame">
-        <label className="ico-label" htmlFor="ico-border"><Trans comment="The icon frame: the width of the border">Border</Trans></label>
+        {!image && <>
+          <span className="ico-label"><Trans comment="The colour of the logo on the default icon">Icon colour</Trans></span>
+          <div className="ico-cell">
+            <ColorPick label={t`Icon colour`} value={frame.color} swatches={LOGO_SWATCHES} onChange={(c) => set({ color: c })} onTry={(c) => slide({ color: c })} />
+          </div>
+        </>}
+        <label className="ico-label" htmlFor="ico-border"><Trans comment="The icon frame: the width of the border">Border size</Trans></label>
         <div className="ico-cell ico-slide">
           <input id="ico-border" type="range" style={rangeVars(frame.border, 0, 48)} min={0} max={48} step={1} value={frame.border}
             onChange={(e) => slide({ border: Number(e.target.value) })} onPointerUp={() => saveIcon()} onKeyUp={() => saveIcon()} />
           <span className="val">{frame.border ? `${frame.border} px` : t({ message: "None", comment: "The icon border: no border" })}</span>
         </div>
-        <span className="ico-label"><Trans>Border colour</Trans></span>
-        <div className="ico-cell">
-          <ColorPick label={t`Border colour`} value={frame.border_color} onChange={(c) => set({ border_color: c })} onTry={(c) => slide({ border_color: c })} disabled={!frame.border} />
-        </div>
-        <label className="ico-label" htmlFor="ico-radius"><Trans comment="The icon frame: how round the corners are">Corners</Trans></label>
+        <label className="ico-label" htmlFor="ico-radius"><Trans comment="The icon frame: how round the corners are">Border corner radius</Trans></label>
         <div className="ico-cell ico-slide">
           <input id="ico-radius" type="range" style={rangeVars(frame.radius, 0, 270)} min={0} max={270} step={2} value={frame.radius}
             onChange={(e) => slide({ radius: Number(e.target.value) })} onPointerUp={() => saveIcon()} onKeyUp={() => saveIcon()} />
           <span className="val">{frame.radius >= 270 ? t({ message: "Circle", comment: "The icon corners: round all the way" })
             : frame.radius ? `${frame.radius} px` : t({ message: "Square", comment: "The icon corners: not rounded" })}</span>
+        </div>
+        <span className="ico-label"><Trans>Border colour</Trans></span>
+        <div className="ico-cell">
+          <ColorPick label={t`Border colour`} value={frame.border_color} onChange={(c) => set({ border_color: c })} onTry={(c) => slide({ border_color: c })} disabled={!frame.border} />
         </div>
       </div>
     </section>
@@ -532,10 +541,10 @@ function IconEditor({ icon, frame, setIcon, saveIcon }: IconProps) {
 }
 
 /** A colour from the swatches, or any colour from the system's picker (tried while it is open, saved when it closes). */
-function ColorPick({ label, value, onChange, onTry, disabled }: {
-  label: string; value: string; onChange: (c: string) => void; onTry: (c: string) => void; disabled?: boolean;
+function ColorPick({ label, value, onChange, onTry, disabled, swatches = SWATCHES }: {
+  label: string; value: string; onChange: (c: string) => void; onTry: (c: string) => void; disabled?: boolean; swatches?: [string, string][];
 }) {
-  const custom = !SWATCHES.some(([c]) => c === value);
+  const custom = !swatches.some(([c]) => c === value);
   const input = useRef<HTMLInputElement>(null);
   const done = useRef(onChange);
   done.current = onChange;
@@ -547,7 +556,7 @@ function ColorPick({ label, value, onChange, onTry, disabled }: {
   }, []);
   return (
     <div className={`swatches${disabled ? " off" : ""}`} role="radiogroup" aria-label={label} aria-disabled={disabled}>
-      {SWATCHES.map(([c, name]) => (
+      {swatches.map(([c, name]) => (
         <button key={c} role="radio" aria-checked={value === c} aria-label={name} className={`swatch${value === c ? " on" : ""}`}
           style={{ ["--c" as any]: c }} data-tip={name} disabled={disabled} onClick={() => onChange(c)} />
       ))}
