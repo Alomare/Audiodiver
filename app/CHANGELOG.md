@@ -3,40 +3,53 @@
 The Updates tab shows this file. Each release starts with a second-level heading, `<version> - <date>`,
 newest first.
 
+## 2.0.1 - 2026-11-26
+
+### Changes
+
+- Removed **Edit Segment**, the gain and Volume curve tags, the lengths, the zoom sliders and the note line from the waveforms under the slots, leaving **Old**, **New**, the copy buttons and the pencils. To zoom in, open the audio in the **Waveform Suite**.
+- Removed **Reset Cue Points** from under the waveforms. A cue point let go near the automatic spot still goes back onto it.
+- Sped up opening the first piece of music after Audiodiver starts by about a second, by reading the music of the game in the background once the game is read.
+
+### Bug Fixes
+
+- Fixed the icon on the Project and Build tabs loading again each time the tab showed after an edit, which took up to half a second with an image.
+- Fixed the **Waveform Suite** reading the original of a slot more than once, a whole song to fetch and decode each time.
+
 ## 2.0.0 - 2026-11-26
 
 ### Highlights
 
 #### Options for Players
 
-A mod can now give players choices in the mod manager. On the Project tab, **Options for Players** adds groups such as Liberator Fire or Volume. Each group has options to pick one of, for example one of five sounds for a weapon, or a louder and a quieter mod. Players tick a group and pick an option, or leave the group unticked to keep those sounds as they were. Each group and option has a name, a description, an image and a code such as A2.
-
-**Select** on an option makes the Audio tab edit that option, and the menu over the Audio tab switches between the base mod and any option. **Changes** lists what an option changes from the rest of the mod, with an undo for each. A build ships only what each option changes, for Helldivers 2 mod managers and for Obsidian.
-
-Audiodiver 1.x can't open a project with Options for Players, since it would lose the groups. Other projects still open in 1.x.
+Added **Options for Players** to the Project tab: groups of options that players pick from in the mod manager, such as one of five sounds for a weapon, or a louder and a quieter mod. Until now a mod was one fixed set of sounds.
 
 #### Waveform Suite
 
-The pencil beside each waveform opens the Waveform Suite, an audio editor inside Audiodiver. Audio sits on a time line as blocks on layers: trim, split, move, duplicate and normalize them, fade them in and out, and draw volume curves over them. One slot can be built from several files, from the original, or from slots copied in the list. On music, a segment's cue points stand on the time line to drag, **Play in Context** plays the segment between the ones around it, and **Edit Segment** opens every slot of a segment together. **Export** mixes the result into a WAV, FLAC, MP3 or Ogg file. In the Soundtrack, **Edit Song** opens a song before it is cut. The trim handles and fields of 1.8.0 moved into it.
+Added the **Waveform Suite**, an audio editor opened from the pencil beside each waveform, to trim, split, move, fade and layer the audio of a slot. It replaced the trim and fade lines that 1.8.0 put on the waveforms.
 
-#### Faster start, both games side by side
+#### Faster Start
 
-Audiodiver opens on Home at once while it reads Helldivers 1 and Helldivers 2 side by side, and reads the game about three times faster. The game switch shows each game as being read, not found or ready, with a way to choose the folder of a game that wasn't found. Helldivers 1 mods work without Helldivers 2 installed.
+Changed Audiodiver to open on Home at once and read both games side by side, about three times faster, where it used to wait for Helldivers 2. Helldivers 1 mods now work without Helldivers 2 installed.
 
 ### Additions
 
+- Added **Select** to each option, which makes the Audio tab edit that option, and a menu over the Audio tab that switches between the base mod and any option.
+- Added **Changes** to each option, which lists the slots the option changes from the base mod, with an undo for each.
+- Added codes such as A2 to groups and options, shown on slots in the Audio tab in place of the group and option names, so the tag stays short.
 - Added the authors and the mod ID to the Project tab of a Helldivers 1 mod, so Obsidian shows them and a build can update a mod made before.
-- Added **Icon colour** for the logo on the default icon.
+- Added **Icon colour** for the logo on the default icon, which was always yellow.
 - Added **Copy Original Audio** to the slot menu, and a copy button beside the **Old** and **New** waveforms.
-- Added 39 more Helldivers 1 sound names. Sounds still without a name show at the end of each category under Not Named Yet.
+- Added 39 more Helldivers 1 sound names, and moved the sounds still without a name to the end of each category, under Not Named Yet.
+- Added 7-Zip and oggenc with aoTuV to About ▸ Credits, which come with Audiodiver since 1.8.0.
 
 ### Changes
 
-- The waveforms under the slots are named **Old** and **New**.
-- The screen shown while Audiodiver starts has the logo, the name and the version, and no longer shows the wait as a problem.
-- Home puts the game switch above New Project, with each game's skull, and opens on the game used last.
-- Import Patches and Close Project sit beside the Project title, and the icon settings read Icon colour, Border size, Border corner radius and Border colour.
-- About ▸ Credits lists 7-Zip and oggenc with aoTuV, which come with Audiodiver.
+- Changed projects with Options for Players to a new file format, which Audiodiver 1.x refuses to open, since it would drop the groups. Other projects still open in 1.x.
+- Renamed the waveforms under the slots from Original and Replaced to **Old** and **New**.
+- Changed the screen shown while Audiodiver starts to show the logo, the name and the version, and stopped it showing the wait as a problem.
+- Moved the game switch on Home from the top right to above **New Project**, with the skull of each game, and changed Home to open on the game used last.
+- Moved **Import Patches** and **Close Project** beside the Project title, and reordered the icon settings to **Icon colour**, **Border size**, **Border corner radius** and **Border colour**.
 
 ### Bug Fixes
 
@@ -52,11 +65,11 @@ Audiodiver opens on Home at once while it reads Helldivers 1 and Helldivers 2 si
 
 #### Linux
 
-Audiodiver runs on Linux, in beta: an AppImage that updates itself, a .deb package, and Audiodiver Utils as a .tar.gz. It finds the games in native, Flatpak and Snap Steam.
+Added Linux support, in beta: an AppImage that updates itself, a .deb package, and Audiodiver Utils as a .tar.gz. Audiodiver finds the games in native, Flatpak and Snap Steam.
 
-#### Trim, move and fade new audio
+#### Trim, Move and Fade New Audio
 
-The Replaced waveform now sets where new audio starts and ends in the file, how long after the Original it starts, and how long it takes to fade in and out. Drag the **Start** and **End** lines to trim, the square at the top of either line to fade, and the stretch between them to start later. The exact values, in ms, are under the waveform. Builds and previews follow these settings and leave the file as it is.
+Added lines to the Replaced waveform that set where new audio starts and ends in the file, how long it waits after the Original starts, and how long it fades in and out. Builds and previews follow them and leave the file as it is.
 
 #### Korean
 
@@ -64,24 +77,24 @@ Added Korean (한국어) to the app, the Wiki and the game names. Audiodiver pic
 
 ### Additions
 
-- Added .7z and .rar mods to Import Mod, Repatch, Combine and Patch Content, which now read them as mod managers do (GitHub issue #6).
+- Added .7z and .rar mods to Import Mod, Repatch, Combine and Patch Content, which read them as mod managers do (GitHub issue #6).
 - Added **Slice a song** for sounds: with one slot of a sound selected, it cuts a stretch of a song for that slot.
 
 ### Changes
 
-- Helldivers 1 mods build several times faster, and a build after a small change takes seconds. Audio is encoded on every spare processor core and kept between builds, and slots with the same audio share one copy, so mods are smaller.
+- Changed Helldivers 1 builds to encode audio on every spare processor core, keep it between builds, and share one copy between slots with the same audio. Builds are several times faster, a build after a small change takes seconds, and mods are smaller.
 - Replaced "Also save the patch files in a folder" with two Build options, **Export zipped mod** (on) and **Export raw patch files** (off), so a build can make the patch files alone. With both off, **Build** is off and says why.
-- Removed the blur from Home's pictures, which are now only shaded behind the page.
+- Removed the blur from the pictures on Home, leaving only the shade behind the page.
 
 ### Bug Fixes
 
 - Fixed quad and 5.1 audio, such as music copied from Helldivers 2, coming out about 7 dB quieter in stereo slots.
-- Fixed Helldivers 1 objective music, and other sounds the game keeps the same in every language, playing new audio only in the language it was set in. These items now open as one part in the Library.
-- Fixed builds and previews failing with an AssertionError after a game update while Audiodiver was open. Audiodiver now reads the game again by itself.
-- Fixed the Container IDs ticks standing in one column at the left. Each tick now sits right before the line it selects.
+- Fixed Helldivers 1 objective music, and other sounds the game keeps the same in every language, playing new audio only in the language it was set in. These items open as one part in the Library now.
+- Fixed builds and previews failing with an AssertionError after a game update while Audiodiver was open. Audiodiver reads the game again by itself now.
+- Fixed the Container IDs ticks standing in one column at the left, instead of right before the line each one selects.
 - Fixed cue points and the Make-Up Gain, filter and Level sliders jumping back when let go quickly after a drag.
-- Fixed the Library staying on the other game when a project opened, with no + buttons. It now turns to the project's game.
-- Fixed Patch Content showing "Something went wrong (TypeError)" when silence can't be encoded. It now says which audio failed.
+- Fixed the Library staying on the other game when a project opened, with no + buttons. It turns to the game of the project now.
+- Fixed Patch Content showing "Something went wrong (TypeError)" when silence can't be encoded, instead of saying which audio failed.
 
 ## 1.7.2 - 2026-11-08
 
@@ -91,7 +104,7 @@ Added Korean (한국어) to the app, the Wiki and the game names. Audiodiver pic
 
 ### Bug Fixes
 
-- Fixed voice mods going silent in game when settings imported from a mod brought other languages of the voice into the patch. A mod now keeps one language of a voice, and **Build** stops if a voice has new audio in two languages.
+- Fixed voice mods going silent in game when settings imported from a mod brought other languages of the voice into the patch. A mod keeps one language of a voice now, and **Build** stops if a voice has new audio in two languages.
 
 ## 1.7.1 - 2026-11-07
 
@@ -99,20 +112,20 @@ Added Korean (한국어) to the app, the Wiki and the game names. Audiodiver pic
 
 #### Patch Content
 
-Added **Patch Content** to Tools. It opens a mod as it is, lists every sound in the mod's patches with those the game no longer has first, plays the audio as the mod has it, and writes the mod again with new audio or silence for the sounds you choose. It works in Audiodiver Utils too.
+Added **Patch Content** to Tools, which opens a mod as it is and writes it again with new audio or silence for the sounds chosen. It lists the sounds the game no longer has first, and works in Audiodiver Utils too.
 
 #### Play Together
 
-Added **Play Together**, which plays the selected slots at the same time, up to 16 at once and kept from clipping, to hear a gunshot's layers together. It's in the toolbar and the right-click menu, or Shift+Space, and pressing it again starts the slots over.
+Added **Play Together**, which plays the selected slots at the same time, up to 16 and kept from clipping, to hear the layers of a gunshot together. It is in the toolbar and the right-click menu, or Shift+Space.
 
 #### Clip Sharing Mode
 
-Replaced Plays In with **Clip Sharing Mode**: **Keep Sharing** or **Isolate Audio**. When Isolate Audio can't keep the Original somewhere, because other banks play the same sound, the details name those banks.
+Replaced Plays In with **Clip Sharing Mode**, set to **Keep Sharing** or **Isolate Audio**. When Isolate Audio can't keep the Original somewhere, because other banks play the same sound, the details name those banks.
 
 ### Additions
 
 - Added an entry for each exosuit under Vehicles ▸ Exosuits, and one for the sounds they share. Projects that listed the old set keep those sounds under the new entries.
-- Named the Title Screen music and Joining or Leaving a Squad in On the Ship.
+- Added names for the Title Screen music and Joining or Leaving a Squad in On the Ship.
 
 ### Changes
 
@@ -121,16 +134,16 @@ Replaced Plays In with **Clip Sharing Mode**: **Keep Sharing** or **Isolate Audi
 - Changed Import Mod to point to **Patch Content** when a mod only changes audio the game removed in an update.
 - Renamed Bull Machine Pistol to P-44 Mist and Storm Tank to TD-110 Maelstrom, as the game names them.
 - Shortened labels such as **Write Mod**, **Add to Project**, **Copy Sound ID** and **Show ZIP**.
-- 16-bit WAVs at 48 kHz and silence now encode faster, with the same result.
-- Updated the Wiki's Helldivers 1 page: from version 1.4.0 of the mod manager, a deploy takes about as much disk as the new audio.
+- Sped up encoding 16-bit WAVs at 48 kHz and silence, with the same result.
+- Updated the Helldivers 1 page of the Wiki: from version 1.4.0 of the mod manager, a deploy takes about as much disk as the new audio.
 
 ### Bug Fixes
 
 - Fixed Helldivers 2 sounds in the Library not playing or showing waveforms with a Helldivers 1 project open.
 - Fixed the Library sometimes failing to load with both games found.
-- Fixed Radio Filter: Helldivers set to Off now also takes the helmet sound off your own Helldiver's voice on foot.
+- Fixed **Helldivers** set to Off in Radio Filter leaving the helmet sound on the voice of the player's Helldiver on foot.
 - Fixed **Slice a song** on music with a single slot to fill, such as transitions and stingers.
-- Fixed Select All and the toolbar's tick missing the takes of folded sequences.
+- Fixed Select All and the tick in the toolbar missing the takes of folded sequences.
 
 ## 1.6.0 - 2026-11-02
 
@@ -138,41 +151,42 @@ Replaced Plays In with **Clip Sharing Mode**: **Keep Sharing** or **Isolate Audi
 
 #### Helldivers 1 Mods
 
-Added Helldivers 1 mode. A switch at the top right of Home picks the game, and each game has separate tabs and pictures. A Helldivers 1 project takes new audio or silence, with Make-Up Gain, Fades and Match the Original Loudness, and builds a ZIP for a mod manager for Helldivers 1, version 1.1.0 or later. The ZIP holds only the new audio. The mod manager rebuilds the sound banks when it deploys, which can take a few GB of disk. The Library shows both games in either mode, and Ctrl+C copies the audio of one game into a project for the other.
+Added Helldivers 1 mode, picked with a switch on Home: a Helldivers 1 project takes new audio or silence and builds a ZIP for the mod manager for Helldivers 1, version 1.1.0 or later. Until now the Library could only play Helldivers 1 audio.
 
 #### The Text Tab
 
-Reworked the Text tab to show every line before you type anything, in categories: subtitles by the voice that says them, and other lines by what they are for. Added Export Lines to a CSV or JSON file and Import Lines with a preview, Find and Replace with a Whole words only option, a second language beside each line, and Restore the Original on several lines at once. Replacing words leaves timing, colours and the words the game fills in as they are.
+Reworked the Text tab to show every line in categories before anything is typed, and added export and import of lines as CSV or JSON, Find and Replace, and a second language beside each line.
 
 #### Plays In
 
-Replaced Scope with **Plays In**, which is Only This Sound or Every Sound. You'll find it in the details panel even before a slot has new audio, for several selected slots at once, in the right-click menu, and as a toolbar button that sets every sound in view.
+Replaced Scope with **Plays In**, set to Only This Sound or Every Sound, and made it reachable before a slot has new audio, for several slots at once, in the right-click menu and in the toolbar.
 
 #### Home
 
-Redesigned Home. The picture blurs and darkens behind the menu, each menu button has an icon, New Project has a level meter, and Helldivers 1 mode has pictures of that game. Added a GitHub button beside Discord and Ko-fi.
+Redesigned Home: the picture blurs and darkens behind the menu, each menu button has an icon, New Project has a level meter, and Helldivers 1 mode has pictures of that game.
 
 ### Additions
 
 - Added a button beside each Library group or item in the project that opens it in the Audio tab.
+- Added a GitHub button beside Discord and Ko-fi on Home.
 
 ### Changes
 
+- Changed Audiodiver to open as soon as Helldivers 2 is read. Helldivers 1 joins the Library a moment later, with a notice when that takes a while.
 - Changed the Radio Filter section to list each voice with On and Off, so the choice reads the way the game plays it. A mod can be just Radio Filter changes, with no new audio.
-- Audiodiver now opens as soon as Helldivers 2 is read. Helldivers 1 joins the Library a moment later, with a notice when that takes a while.
-- Reading Helldivers 1 for the first time takes about a third as long. On a hard drive, Audiodiver reads one file at a time.
-- Tooltips wait longer before they show: 0.9 s at Normal instead of 0.5 s.
-- Notices take at most half the window and scroll, and "Left out" names up to three banks on one line.
+- Sped up the first read of Helldivers 1 to about a third of the time, and changed it to read one file at a time on a hard drive.
+- Changed tooltips to wait 0.9 s at Normal before they show, instead of 0.5 s.
+- Changed notices to take at most half the window and scroll, and "Left out" to name up to three banks on one line.
 - Removed the "The mod" title from the Repatch page.
 
 ### Bug Fixes
 
-- Fixed Import Mod on a mod that only changes audio the game removed in an update, such as the flag-raise anthem. It now says so instead of "replaces, adds or sets nothing" (GitHub issue #5).
+- Fixed Import Mod saying "replaces, adds or sets nothing" on a mod that only changes audio the game removed in an update, such as the flag-raise anthem, instead of saying so (GitHub issue #5).
 - Fixed the Simplified Chinese names for the Hellpod, the Automatons, the Cyborgs and the Void to match the game (GitHub issue #4), the French and Japanese names for the Void, and the French names for Illuminate music and weapons.
-- Fixed Repatch offering only a file once a mod was read. Choose Another Folder is now beside Choose Another File.
-- Fixed Import Lines calling a CSV that Excel saved in the PC's own encoding "not a text export". It now says to save it as CSV UTF-8, and line breaks inside a cell come back as the game has them.
+- Fixed Repatch offering only a file once a mod was read, by adding Choose Another Folder beside Choose Another File.
+- Fixed Import Lines calling a CSV that Excel saved in the encoding of the PC "not a text export". It says to save it as CSV UTF-8 now, and line breaks inside a cell come back as the game has them.
 - Fixed Find and Replace applying the previous search when Replace was pressed right after typing.
-- Fixed a Helldivers 1 project opening in Helldivers 2 mode when Helldivers 1 wasn't found. It now says so.
+- Fixed a Helldivers 1 project opening in Helldivers 2 mode when Helldivers 1 wasn't found, instead of saying so.
 - Fixed the replaced-sound dots in the Library not lining up between groups and items.
 
 ## 1.5.1 - 2026-10-31
@@ -198,23 +212,23 @@ Redesigned Home. The picture blurs and darkens behind the menu, each menu button
 
 #### Radio Filter
 
-Added switches that turn off the radio filter on Mission Control, the Admiral, Eagle-1, Pelican-1 and Helldivers, one voice at a time and in every language, in the new **Radio Filter** section of the Project tab. Until now, new audio on these voices went through the filter whatever you did. Clean voices come out louder, so **Normalize the loudness** turns them down. A mod can be just this, with no new audio, and Import Mod, Repatch and Combine keep the settings.
+Added **Radio Filter** to the Project tab, which turns off the radio filter on Mission Control, the Admiral, Eagle-1, Pelican-1 and Helldivers, one voice at a time. Until now, new audio on these voices always went through the filter.
 
 #### Filters and Fades
 
-Added **Low-Pass** and **High-Pass** to the details of any slot, with new audio or the original. Added **Fade In** and **Fade Out** for new audio, and the waveform and the preview show them.
+Added **Low-Pass** and **High-Pass** to any slot, with new audio or the original, and **Fade In** and **Fade Out** for new audio, drawn on the waveform and heard in the preview.
 
 #### Volume Curves
 
-Added the game's volume curves to the waveform, so you can see why a song gets quieter as it plays. **Keep the volume curve** plays a slot at an even level, with or without new audio. Import Mod, Repatch and Combine keep a mod's curves on music tracks.
+Added the volume curves of the game to the waveform, which show why a song gets quieter as it plays, and **Keep the volume curve** to play a slot at an even level instead.
 
 #### Every Segment in the Soundtrack
 
-Reworked One Song and Playlist to show every segment of a piece, so you can fill a whole piece of music without leaving the tab. The openings have a list of their own, where they take new audio or a skip. One Song goes on past the last piece, and a file on one of those segments plays after the song.
+Reworked One Song and Playlist to show every segment of a piece, so a whole piece of music can be filled without leaving the tab. The openings got a separate list, where they take new audio or a skip.
 
 #### Helldivers 1
 
-Added Helldivers 1 to the Library, as a separate tab under Index and All Archives. You can play the audio and export it as WAV, FLAC or MP3, with a tab for each voice language. Weapons, stratagems and enemies go by their official names, and voice entries show the line on screen. Replacing Helldivers 1 audio isn't in yet.
+Added Helldivers 1 to the Library, as a tab under Index and All Archives, to play the sounds of that game and export them as WAV, FLAC or MP3. Replacing Helldivers 1 audio wasn't possible yet.
 
 #### Languages
 
@@ -222,13 +236,13 @@ Added French, Spanish and Japanese: the window, the messages, the names in the L
 
 #### Copying Audio
 
-Added Ctrl+C and Ctrl+V for audio. Copy any slot in the Library or the Audio tab and paste it into the Audio tab, with no export or import. A Helldivers 2 original goes in unchanged.
+Added Ctrl+C and Ctrl+V for audio: copy any slot in the Library or the Audio tab and paste it into the Audio tab, where it needed an export and an import before.
 
 ### Additions
 
-- Added exact times to the slice tool: every time shows to the millisecond, and you can type a cut.
+- Added exact times to the slice tool: every time shows to the millisecond, and a cut can be typed.
 - Added a way to move the Wiki into a separate window, to read beside a project.
-- Added selection by container: By Container ID, a click on a container's line selects every slot under it.
+- Added selection by container: By Container ID, a click on the line of a container selects every slot under it.
 - Added a warning to the installed mods check for a mod with an old copy of the Init bank.
 - Added a Helldivers 1 folder to Settings ▸ System.
 - Added a setting to hide the news ticker on Home, in Settings ▸ System.
@@ -236,29 +250,29 @@ Added Ctrl+C and Ctrl+V for audio. Copy any slot in the Library or the Audio tab
 
 ### Changes
 
-- Index and All Archives now keep separate panel widths, and All Archives starts wider to fit the columns.
+- Changed Index and All Archives to keep separate panel widths, and All Archives to start wider to fit the columns.
 
 ### Bug Fixes
 
 - Fixed Make-Up Gain on original audio adding banks that only store the clip, which made those mods bigger.
 - Fixed the "can't be read" warning on an empty global notes file.
 - Fixed a voice line with one take showing the line twice By Container ID.
-- Fixed a long path in the Global Note's error message running out of the details panel.
-- Fixed the Wiki on which copy Combine Mods keeps when two mods have the same texture or string table: the lower mod's.
+- Fixed a long path in the error message of the Global Note running out of the details panel.
+- Fixed the Wiki naming the wrong copy that Combine Mods keeps when two mods have the same texture or string table. It keeps the copy of the lower mod.
 
 ## 1.4.2 - 2026-10-29
 
 ### Changes
 
-- Groups of takes are now called **Sequences** ("Sequence 6" instead of "Sound 6"), as in other Helldivers 2 audio tools.
-- The details panel shows the Make-Up Gain the game gives a take (**Default**), even at 0 dB, and what the take plays at with yours added.
-- The Simplified Chinese translation was proofread throughout and reads more naturally.
-- Flag Raising is no longer in the Soundtrack: the 7.2.2 game update removed the anthem.
-- The highlight on a tutorial step's panel goes away once the pointer moves over it, and comes back with the next step.
+- Renamed groups of takes to **Sequences** ("Sequence 6" instead of "Sound 6"), as in other Helldivers 2 audio tools.
+- Changed the details panel to show the Make-Up Gain the game gives a take (**Default**), even at 0 dB, and what the take plays at with the gain set in the project added.
+- Proofread the Simplified Chinese translation throughout, so it reads more naturally.
+- Removed Flag Raising from the Soundtrack, since the 7.2.2 game update removed the anthem.
+- Changed the highlight on the panel of a tutorial step to go away once the pointer moves over it, and come back with the next step.
 
 ### Bug Fixes
 
-- Voice lines show their names and subtitles again after the 7.2.2 game update.
+- Fixed voice lines losing their names and subtitles after the 7.2.2 game update.
 
 ## 1.4.0 - 2026-10-28
 
@@ -266,52 +280,54 @@ Added Ctrl+C and Ctrl+V for audio. Copy any slot in the Library or the Audio tab
 
 #### Languages
 
-Added app-wide multi-language support, and 2 new languages on top of English: Brazilian Portuguese and Simplified Chinese. The window, the messages and the Wiki are translated, and so are the names in the Library and the Soundtrack, with weapons and other items named as the game names them in each language. Pick one under **Language** in Settings ▸ System, or leave it on Automatic to follow the language of Helldivers 2 in Steam. The Library search still finds the English names. More languages will be added based on demand.
+Added support for languages besides English, starting with Brazilian Portuguese and Simplified Chinese: the window, the messages, the Wiki and the names in the Library and the Soundtrack. **Language** in Settings ▸ System picks one, or follows Steam.
 
 #### Import Mod
 
-Added **Import Mod**, on Home and on the Project tab, to turn the ZIP or patch file of an existing mod into a new project. Before writing anything, it shows what comes in, including each line of text the mod changes so you can keep or leave it out, and lets you set the name, folder, mod ID and icon. **Import Patches** now opens the same panel and takes ZIP files too.
+Added **Import Mod**, on Home and the Project tab, which turns the ZIP or patch file of an existing mod into a new project after showing what comes in. **Import Patches** opens the same panel now and takes ZIP files too.
 
 #### Export
 
-Reworked Export into one panel for the open item and the export list, which shows the files it will write before writing anything. You can export the selected, the replaced or all slots, and in the Audio tab and the Soundtrack choose the audio as the mod plays it, the Original or both. The Soundtrack can also export a whole piece, a fight of 1 to 10 minutes as the game would play it, each segment or each slot.
+Reworked Export into one panel for the open item and the export list, which shows the files before writing anything and chooses the slots and the audio: as the mod plays it, the Original, or both.
 
 #### Interactive Tutorials
 
-Added interactive tutorials to the Wiki. A tutorial darkens the window except where to click and tells you what to do there, one step at a time, in a practice project. The first one walks you through giving the Liberator new firing sounds and building the mod. Audiodiver offers them on the first start.
+Added interactive tutorials to the Wiki, which darken the window except where to click and go one step at a time in a practice project. The first one gives the Liberator new firing sounds.
 
 #### Global Notes
 
-Added global notes: notes on a slot or an item that show in every project and in the Library, saved in a notes file on this computer. The note you had before became the **Project Note**, with the **Global Note** under it in the details panel, and the Library got a details panel to show global notes. The search in the list on the left finds words in global notes too. Under **Global Notes** in Settings ▸ System you can move the notes file to another folder, such as a synced one, export notes as Markdown or JSON, and import notes from a file or a project.
+Added global notes on slots and items, which show in every project and in the Library. The note a slot had before became the **Project Note**, with the **Global Note** under it.
 
 #### History and Notifications
 
-Added **History** next to Undo and Redo. It lists every change since the project opened, with the time it was made, and a click goes back or forward to any of them. Added **Notifications** to the status bar, a list of the notices shown so far that keeps the last 100 across restarts. Clicking a notice that led somewhere, such as one with **Show in Folder**, takes you there again.
+Added **History** beside Undo and Redo, to go back or forward to any change since the project opened, and **Notifications** in the status bar, which keeps the last 100 notices across restarts.
 
 ### Additions
 
+- Added export of a whole piece to the Soundtrack: a fight of 1 to 10 minutes as the game would play it, each segment or each slot.
+- Added **Global Notes** to Settings ▸ System, to move the notes file to another folder, export notes as Markdown or JSON, and import notes from a file or a project.
 - Added **Imported Settings** to the details panel of the Audio tab, listing settings from an imported mod that Audiodiver has no control for, such as Volume or Pitch. Builds keep them.
 - Added a setting for the corner where notices show, in Settings ▸ System.
 - Added ticks to Library slots, to export only some sounds of an item.
 - Added name choices for exported files (full names, short names or source IDs), and WEM export for Original slots.
-- The installer now follows the language of Windows.
+- Added a preview of the icon, name and description as the mod manager shows them to the Build tab.
 
 ### Changes
 
-- Made changes and Undo about 3 times faster in projects with a lot of new audio.
-- Library rows now show just the name and a +, which becomes a red ✕ once the item is in the project. The sound count and length are gone.
+- Sped up changes and Undo about 3 times in projects with a lot of new audio.
+- Changed Library rows to show only the name and a +, which turns into a red ✕ once the item is in the project, and removed the sound count and length.
 - Moved the Export List button from the status bar to the toolbar.
-- Exported names get (original) and (replaced) only when both versions are exported, and slots keep their numbers from the item.
-- Removed the Original, Replaced and Both choice from the Library's export, which could only export the Original anyway.
-- Ticking a folded sound in the Audio tab now selects the takes without unfolding it.
-- The Build tab now previews the icon, name and description as the mod manager shows them.
+- Changed exported names to get (original) and (replaced) only when both versions are exported, and slots to keep their numbers from the item.
+- Removed the Original, Replaced and Both choice from the export of the Library, which could only export the Original anyway.
+- Changed ticking a folded sound in the Audio tab to select the takes without unfolding it.
+- Changed the installer to follow the language of Windows.
 - Removed the outlines from the Wiki entries above the guides.
 
 ### Bug Fixes
 
-- Fixed imported Make-Up Gain showing as 0 dB on slots while still adding to any gain set there. It now comes in on the slots it reaches, and mods that only change gains list the items they change. Where two sounds that share a clip get different gains, those stay on the sounds and show under Imported Settings.
-- Fixed removing an item leaving new audio in slots that another item shares, which still went into builds. Removing now clears everything the project changed in the item, and asks first when new audio would go.
-- Fixed the Library's + sitting 2 pixels off on items.
+- Fixed imported Make-Up Gain showing as 0 dB on slots while still adding to any gain set there. It comes in on the slots it reaches now, and mods that only change gains list the items they change. Where two sounds that share a clip get different gains, those stay on the sounds and show under Imported Settings.
+- Fixed removing an item leaving new audio in slots that another item shares, which still went into builds. Removing clears everything the project changed in the item now, and asks first when new audio would go.
+- Fixed the + of the Library sitting 2 pixels off on items.
 - Fixed clicking what plays in the status bar opening the Audio tab after playing in the Soundtrack.
 - Fixed small buttons being shorter than the fields beside them.
 - Fixed the indent of sounds listed by container ID in the Audio tab.
@@ -323,85 +339,88 @@ Added **History** next to Undo and Redo. It lists every change since the project
 
 #### Waveform Controls
 
-The waveforms zoom in on time, to place cue points closely, and in level, to show quiet audio. One slider runs up the right side and one under the waveforms, and the mouse wheel zooms too. The slice tool has the same controls.
+Added zoom to the waveforms, in time to place cue points closely and in level to show quiet audio, with a slider up the right side, one under the waveforms, and the mouse wheel. The slice tool got the same controls.
 
 #### Make-Up Gain
 
-Make-Up Gain also works on sounds without new audio, so an original sound can play louder or quieter. **Match the Original Loudness** sets the gain that makes new audio as loud as the original. The waveforms are drawn at the gain, with anything past full scale in red, and ▶ plays at it, as the mod does.
+Changed Make-Up Gain to work on sounds without new audio too, so an original sound can play louder or quieter, and added **Match the Original Loudness**, which sets the gain that makes new audio as loud as the original.
 
 #### Play Order
 
-The play order in the Soundtrack shows each group of segments as a card, under a heading that says how the group plays them. Segments that play in order are joined by →, a random pick by "or", and a group that holds a single thing shows that thing alone.
+Reworked the play order in the Soundtrack into a card for each group of segments, under a heading that says how the group plays them: → joins segments that play in order, and "or" a random pick.
 
 #### Exertion Catalogue
 
-The Helldiver Exertions in the Library are named: 27 kinds, such as Drowning, On Fire and Death, for each of the four voices, with when each one plays.
+Named the Helldiver Exertions in the Library: 27 kinds, such as Drowning, On Fire and Death, for each of the four voices, with when each one plays.
 
 #### Container IDs
 
-A toolbar button lists a sound bank by container ID, as the bank's tree, the way Wwise tools show it. The ID is also in the right-click menus and in what the slot search finds.
+Added a toolbar button that lists a sound bank by container ID, as the tree of the bank, the way Wwise tools show it. The ID is also in the right-click menus and in what the slot search finds.
 
 ### Additions
 
-- Autosave on a timer, in Settings ▸ System: every 1 to 30 minutes, or with each change as before. Changes are saved before a build and when the project or Audiodiver closes.
-- A button after Make-Up Gain and after the level of a Soundtrack piece that sets them back to 0 dB.
-- The Make-Up Gain the game gives a sound, in the ? of Make-Up Gain.
-- WEM files as audio for a slot. A WEM in Wwise Vorbis goes into the mod unchanged, and other WEM files are converted like any audio.
-- **Keep added audio to the project's banks**, a build option, off by default. New takes, layers and new audio set to Only This Sound then stay out of the other banks that have a copy of the sound: the mod gets smaller, but the original can play where one of those banks loads first.
-- A number from 0 to 100 over the knob of the zoom, preview volume and colour sliders while they move.
+- Added autosave on a timer, in Settings ▸ System: every 1 to 30 minutes, or with each change as before. Changes are saved before a build and when the project or Audiodiver closes.
+- Added a button after Make-Up Gain and after the level of a Soundtrack piece that sets them back to 0 dB.
+- Added the Make-Up Gain the game gives a sound to the ? of Make-Up Gain.
+- Added WEM files as audio for a slot. A WEM in Wwise Vorbis goes into the mod unchanged, and other WEM files are converted like any audio.
+- Added **Keep added audio to the project's banks**, a build option, off by default. New takes, layers and new audio set to Only This Sound then stay out of the other banks that have a copy of the sound: the mod gets smaller, but the original can play where one of those banks loads first.
+- Added a number from 0 to 100 over the knob of the zoom, preview volume and colour sliders while they move.
 
 ### Changes
 
-- Each kind of slider looks different: Make-Up Gain and levels are faders lit from 0 dB, zoom is a thin line, the preview volume is thin and grey, and settings fill up to a square knob.
-- Open Project on Home holds the last project opened, with the icon and name of that project, in place of the Recent line under it.
-- With a project loaded, Home has Go to Project and Close under Open Project, each with an icon. Close works like Close Project on the Project tab.
-- The Home menu sits further from the edges of the window.
-- Buttons are in Title Case, and none ends in three dots, including the ones that open a dialog or a menu.
-- A music segment with several tracks shows the segment name on a separate line, with a row for each track under it.
-- The list of guides in the Wiki takes a quarter of the width, and the page the rest. Dragging the edge keeps the share when the window changes size.
-- Panel dividers turn light grey under the pointer, in place of the primary colour.
-- The music list and the header of the Soundtrack resize by dragging their edges, as in the other tabs.
-- The Slots link of the Soundtrack sits beside the name of the music.
-- The waveforms button on the toolbar works only while one slot is selected.
-- The + that adds audio to a sound has a blue outline, level with the dot beside it.
-- The messages at the bottom of the window and the tab names that open beside the tab bar have square corners, like the rest of the app.
-- "id" is written "ID" everywhere in the app and the Wiki.
+- Changed the waveforms to draw at the Make-Up Gain, with anything past full scale in red, and ▶ to play at it, as the mod does.
+- Changed each kind of slider to look different: Make-Up Gain and levels are faders lit from 0 dB, zoom is a thin line, the preview volume is thin and grey, and settings fill up to a square knob.
+- Changed Open Project on Home to hold the last project opened, with the icon and name of that project, in place of the Recent line under it.
+- Added Go to Project and Close under Open Project on Home while a project is loaded, each with an icon. Close works like Close Project on the Project tab.
+- Moved the Home menu further from the edges of the window.
+- Changed buttons to Title Case, and removed the three dots at the end of the ones that open a dialog or a menu.
+- Changed a music segment with several tracks to show the segment name on a separate line, with a row for each track under it.
+- Changed the list of guides in the Wiki to take a quarter of the width, and the page the rest. Dragging the edge keeps the share when the window changes size.
+- Changed panel dividers to turn light grey under the pointer, in place of the primary colour.
+- Made the music list and the header of the Soundtrack resize by dragging their edges, as in the other tabs.
+- Moved the Slots link of the Soundtrack beside the name of the music.
+- Changed the waveforms button on the toolbar to work only while one slot is selected.
+- Changed the + that adds audio to a sound to a blue outline, level with the dot beside it.
+- Squared the corners of the messages at the bottom of the window and of the tab names that open beside the tab bar, like the rest of the app.
+- Changed "id" to "ID" everywhere in the app and the Wiki.
 
 ### Bug Fixes
 
-- Make-Up Gain on sounds that already have one in the game (about 1 in 12) replaced that value instead of adding to it, so −1 dB could play 4 dB quieter.
-- The new audio of a slot with Make-Up Gain moved as the gain changed and pushed the length out of line.
-- The selected row of the lists in high contrast was white on white in the light theme.
-- Selecting a segment in the Soundtrack was slow on music with many segments, such as a Battle.
-- The Templates button of the Soundtrack sat in the middle of the Music row instead of at the right.
-- The files in a built ZIP were dated 31 December 1979.
-- New takes or a layer added to a folded sound were selected but stayed hidden, as the sound didn't open.
+- Fixed Make-Up Gain on sounds that already have one in the game (about 1 in 12) replacing that value instead of adding to it, so −1 dB could play 4 dB quieter.
+- Fixed the new audio of a slot with Make-Up Gain moving as the gain changed and pushing the length out of line.
+- Fixed the selected row of the lists in high contrast showing white on white in the light theme.
+- Fixed selecting a segment in the Soundtrack being slow on music with many segments, such as a Battle.
+- Fixed the Templates button of the Soundtrack sitting in the middle of the Music row instead of at the right.
+- Fixed the files in a built ZIP being dated 31 December 1979.
+- Fixed new takes or a layer added to a folded sound staying hidden while selected, as the sound didn't open.
 
 ## 1.2.0 - 2026-10-26
 
 ### Additions
 
-- **Move project…** on the Project tab. It moves the project folder into another folder, and the project still finds every file it uses.
-- **Change…** for the mod ID on the Project tab, so that builds can update a mod made before, such as one packed by hand.
-- The build option **Also save the patch files in a folder**, for packing a mod by hand.
-- Cue points for several selected slots at once, and **Apply to … more segments with this file** under Cue points.
-- The tag **replaced in another sound** on slots that keep the Original while another sound has **Only this sound**.
+- Added **Move project…** to the Project tab, which moves the project folder into another folder, and the project still finds every file it uses.
+- Added **Change…** for the mod ID on the Project tab, so builds can update a mod made before, such as one packed by hand.
+- Added the build option **Also save the patch files in a folder**, for packing a mod by hand.
+- Added cue points for several selected slots at once, and **Apply to … more segments with this file** under Cue points.
+- Added the tag **replaced in another sound** to slots that keep the Original while another sound has **Only this sound**.
 
 ### Changes
 
-- Builds, Repatch and Combine leave out an empty `.patch_0.gpu_resources` or `.patch_0.stream` file. Audio needs no GPU resources.
-- The subtitle of the Project tab reads "Projects are folders containing the mod and all associated files."
+- Changed builds, Repatch and Combine to leave out an empty `.patch_0.gpu_resources` or `.patch_0.stream` file, since audio needs no GPU resources.
+- Changed the subtitle of the Project tab to "Projects are folders containing the mod and all associated files."
 
 ### Bug Fixes
 
-- New audio could turn into a screech when it played over other new audio, such as a voice line over another voice line or over new music. Build the mod again to get this fix.
-- A short piece of music replaced by a long song could crash the game when it started. Build the mod again to get this fix.
-- Repatch, Import and Combine dropped the cue points of the music in a mod.
-- Builds failed with "banks still holding the original audio" when they replaced footsteps, some shared voice lines, or a shared clip that one sound changes with Only this sound.
+- Fixed new audio turning into a screech when it played over other new audio, such as a voice line over another voice line or over new music. Build the mod again to get this fix.
+- Fixed a short piece of music replaced by a long song crashing the game when it started. Build the mod again to get this fix.
+- Fixed Repatch, Import and Combine dropping the cue points of the music in a mod.
+- Fixed builds failing with "banks still holding the original audio" when they replaced footsteps, some shared voice lines, or a shared clip that one sound changes with Only this sound.
 
 ## 1.1.1 - 2026-10-25
 
-Reading the game audio no longer fails on a stray file in the Helldivers 2 data folder. The error said "unpack requires a buffer of … bytes".
+### Bug Fixes
+
+- Fixed reading the game audio failing on a stray file in the Helldivers 2 data folder, with "unpack requires a buffer of … bytes".
 
 ## 1.1.0 - 2026-10-25
 
@@ -409,54 +428,54 @@ Reading the game audio no longer fails on a stray file in the Helldivers 2 data 
 
 #### The Soundtrack Tab
 
-A new tab sets how each piece of music plays in a mission: in the original order, as one song cut across the segments, as a playlist of whole songs, or silent. Whole fights can be heard before building.
+Added the **Soundtrack** tab, which sets how each piece of music plays in a mission: in the original order, as one song cut across the segments, as a playlist of whole songs, or silent. Whole fights can be heard before building.
 
 #### Audiodiver Utils
 
-Repatch and Combine Mods on their own, as a 27 MB portable window and a command line that scripts and mod managers can call.
+Added **Audiodiver Utils**: Repatch and Combine Mods without the editor, as a 27 MB portable window and a command line that scripts and mod managers can call.
 
 ### Additions
 
-- Ctrl+V for audio files copied in Explorer: they paste into the selected slots.
-- A tick on each slot that selects it, and the selected slots take one file or several at once.
-- Search slots, which finds slots by name, label, note, file name or ID in every piece of music and sound set.
-- The stream ID on the slots, the ID other audio tools use.
-- Two buttons at the end of the toolbar that hide or show the header and the waveforms.
-- A way to hide the Audio, Soundtrack and Text tabs, in Settings or for one project.
-- A page of frequently asked questions in the Wiki.
-- Ctrl+F in the Wiki, which finds and marks words on the page. A page opened from the search marks the words searched for.
-- The library of a second mod manager in Installed mods and Combine Mods.
-- An option for Dark or Light to follow the system theme, and Reset to Default for the theme.
-- A Ko-fi button in About, and the source of the news ticker on Home in the credits.
+- Added Ctrl+V for audio files copied in Explorer, which paste into the selected slots.
+- Added a tick on each slot that selects it, and made the selected slots take one file or several at once.
+- Added Search slots, which finds slots by name, label, note, file name or ID in every piece of music and sound set.
+- Added the stream ID to the slots, the ID other audio tools use.
+- Added two buttons at the end of the toolbar that hide or show the header and the waveforms.
+- Added a way to hide the Audio, Soundtrack and Text tabs, in Settings or for one project.
+- Added a page of frequently asked questions to the Wiki.
+- Added Ctrl+F to the Wiki, which finds and marks words on the page. A page opened from the search marks the words searched for.
+- Added the library of a second mod manager to Installed mods and Combine Mods.
+- Added an option for Dark or Light to follow the system theme, and Reset to Default for the theme.
+- Added a Ko-fi button to About, and the source of the news ticker on Home to the credits.
 
 ### Changes
 
-- The Index search also finds music by slot labels, and opens a pasted ID at the slot.
-- Make-Up Gain goes from −96 to +96 dB, dragged or typed, with one slider for several slots.
-- The toolbar above the slots is a row of icons, with Play through as two round buttons at the start.
-- The header above the slots is shorter, with the facts side by side.
-- Build sits apart from the project tabs, and shows only while a project is open.
-- The tabs along a top or bottom bar share one width, with a longer name widening only that tab.
-- Home stays the same with a project open, and lists recent projects under Open project.
-- The Project tab lists recent projects while no project is open, and shows where to start in a new project.
-- Wiki headings stand out by level.
-- Combine Mods shows setting values with units.
-- The app and the Wiki say "mod manager" instead of naming one. Builds work with any manager that imports the usual manifest ZIPs.
-- The Shared with list shows the other places by where they are, with unnamed music folded.
-- Item descriptions are behind the ⓘ after the title.
-- Reset Key Binds asks first.
-- About and the Updates tab show the version once.
-- Tooltips, notes and ? links across the app say what things are for, in plainer wording.
-- The chosen option in a row of choices isn't bold any more, so the row keeps one width.
+- Changed the Index search to also find music by slot labels, and to open a pasted ID at the slot.
+- Changed Make-Up Gain to go from −96 to +96 dB, dragged or typed, with one slider for several slots.
+- Changed the toolbar above the slots to a row of icons, with Play through as two round buttons at the start.
+- Shortened the header above the slots, with the facts side by side.
+- Moved Build apart from the project tabs, shown only while a project is open.
+- Changed the tabs along a top or bottom bar to share one width, with a longer name widening only that tab.
+- Changed Home to stay the same with a project open, and to list recent projects under Open project.
+- Changed the Project tab to list recent projects while no project is open, and to show where to start in a new project.
+- Made Wiki headings stand out by level.
+- Added units to the setting values in Combine Mods.
+- Changed the app and the Wiki to say "mod manager" instead of naming one, since builds work with any manager that imports the usual manifest ZIPs.
+- Changed the Shared with list to show the other places by where they are, with unnamed music folded.
+- Moved item descriptions behind the ⓘ after the title.
+- Changed Reset Key Binds to ask first.
+- Changed About and the Updates tab to show the version once.
+- Rewrote tooltips, notes and ? links across the app to say what things are for, in plainer wording.
+- Stopped the chosen option in a row of choices from turning bold, so the row keeps one width.
 
 ### Bug Fixes
 
-- Six music clips had a label from another sound group, such as Loadout #13 being named "Mission End - Stats Screen".
-- The tip on "Raise the version after each build" wrongly said that a mod manager sees every build as an update.
-- Lines in the Wiki ended on an opening bracket.
-- The ⓘ and the Replaced status sat out of line with the item title.
-- The How Audiodiver works page pointed to the wrong next page.
-- The Library said "never played" where the slot rows say "never heard", and the Text tab marked changed lines as Replaced instead of Changed.
+- Fixed six music clips having a label from another sound group, such as Loadout #13 being named "Mission End - Stats Screen".
+- Fixed the tip on "Raise the version after each build" wrongly saying that a mod manager sees every build as an update.
+- Fixed lines in the Wiki ending on an opening bracket.
+- Fixed the ⓘ and the Replaced status sitting out of line with the item title.
+- Fixed the How Audiodiver works page pointing to the wrong next page.
+- Fixed the Library saying "never played" where the slot rows say "never heard", and the Text tab marking changed lines as Replaced instead of Changed.
 
 ## 1.0.0 - 2026-10-23
 

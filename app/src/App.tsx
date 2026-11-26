@@ -473,7 +473,7 @@ function Rail() {
   const problems = project?.problems.length ?? 0;
   const name = project?.name;
   useEffect(() => { setTitle(name && !UTILS ? `${name} · Audiodiver` : APP_NAME); }, [name]);
-  const iconSig = project ? iconKey([project.path, project.icon]) : ""; // many projects have an "icon.png": the path tells them apart
+  const iconSig = project ? iconKey([project.path, project.icon_sig]) : ""; // many projects have an "icon.png": the path tells them apart
   const [broken, setBroken] = useState(""); // the icon that didn't load: the Project tab's own icon stands in
   const vertical = barIsVertical(th.bar);
   const tabButton = (id: Tab, label: string, tip: string, cmd: CommandId, icon: React.ReactNode, go: () => void,

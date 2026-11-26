@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { t } from "@lingui/core/macro";
-import { Trans } from "@lingui/react/macro";
-import { audioUrl, fmtDecimal, fmtTime, type Cue, type Curve } from "./api";
+import { audioUrl, type Cue, type Curve } from "./api";
 import { audible, rowName, rowsOf } from "./CueView";
 import { useLiveGain } from "./gain";
 import { throughHead, throughSeek, type Through } from "./PlayThrough";
@@ -9,9 +8,9 @@ import { player, usePlayer, type PlayedAt } from "./player";
 import { SlotFacts } from "./Inspector";
 import { ResizeEdge, useStoredHeight } from "./Resize";
 import { useEditor } from "./store";
-import { finePeaks, usePeaks, useWaveZoom, useWheelZoom, WaveScroll, Waveform, WaveZoom, type Marker } from "./Waveform";
-import { WaveEditor, type EditCues, type EditTrack } from "./WaveEditor";
-import { CopyIcon, PencilIcon, StackIcon } from "./Icons";
+import { usePeaks, Waveform, type Marker } from "./Waveform";
+import { WaveEditor, type EditCues } from "./WaveEditor";
+import { CopyIcon, PencilIcon } from "./Icons";
 
 /** The selected slot as two waveforms on one time scale: the original above, the replacement below, with the
     segment's entry and exit cue points. The replacement's can be dragged; the original's show where the game's sit.
@@ -26,7 +25,6 @@ import { CopyIcon, PencilIcon, StackIcon } from "./Icons";
     and its selected slot. */
 const HEIGHT = 210;
 const HEIGHT_ONE = 190; // the Library's: the game's waveform under the slot's facts
-const MIN_SPAN = 20;    // ms: the closest the time zoom goes
 // the cue points' names, on the flags
 const ENTRY = t({ message: "Entry", comment: "A music segment's Entry cue point (Wwise term): where the segment counts as started" });
 const EXIT = t({ message: "Exit", comment: "A music segment's Exit cue point (Wwise term): where the next segment starts" });
@@ -49,11 +47,6 @@ function curveLine(c: Curve): number[][] {
   return times.map((ms) => [ms, Math.max(0, (1 + at(c.volume, ms, 0)) * at(c.fade_in, ms, 1) * at(c.fade_out, ms, 1))]);
 }
 
-/** Says what the line over a waveform is, under its label. */
-function CurveLabel() {
-  return <span className="tl-curve" data-tip={t`The level the game gives this clip as it plays`} data-tip-more={t`Drawn as the line around the waveform`}><Trans>Volume curve</Trans></span>;
-}
-
 /** The button on a lane's label that opens the Waveform Suite on that audio. */
 function EditButton({ onClick, original }: { onClick: () => void; original: boolean }) {
   return (
@@ -71,24 +64,6 @@ function CopyButton({ onClick, original }: { onClick?: () => void; original: boo
     <button className="tl-edit tl-copy" onClick={onClick} aria-label={original ? t`Copy Original Audio` : t`Copy New Audio`}
       data-tip={original ? t`Copy the original audio` : t`Copy the new audio`} data-tip-more={t`Paste it into other slots, or into the Waveform Suite`}><CopyIcon /></button>
   );
-}
-
-/** Under the pencil of the new audio: every slot of the segment in the Waveform Suite at once. */
-function SegmentButton({ onClick, n }: { onClick: () => void; n: number }) {
-  return (
-    <button className="tl-edit tl-edit-seg" onClick={onClick} aria-label={t`Edit Segment`}
-      data-tip={t`Edit every slot of this segment together`} data-tip-more={t`The ${n} slots line up in the Waveform Suite, each under the original`}><StackIcon /></button>
-  );
-}
-
-/** How long a waveform's audio is, in the bottom right corner of the waveform. */
-function Length({ ms }: { ms: number }) {
-  return <span className="tl-length" aria-label={t`Length ${fmtTime(ms)}`}>{fmtTime(ms)}</span>;
-}
-
-/** The Make-Up Gain a waveform is drawn at, under its label. */
-function Db({ db }: { db: number }) {
-  return <span className="gain" data-tip={t`Make-Up Gain`} data-tip-more={t`Drawn and played at this gain`}>{fmtDecimal(db, 2, true)} dB</span>;
 }
 
 export function Timeline({ room, through, at, cue: given, source: picked }: {
@@ -113,18 +88,12 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
   const gameWave = usePeaks("vanilla", none ? null : source);
   // what plays in the slot: trimming, moving, splitting and fading are in the Waveform Suite (WaveEditor.tsx)
   const mineWave = usePeaks("project", audible(a) && a!.exists ? source : null, String(revision));
-  const [editing, setEditing] = useState<"original" | "mine" | "segment" | null>(null);
+  const [editing, setEditing] = useState<"original" | "mine" | null>(null);
   useEffect(() => setEditing(null), [source]);
-  // one zoom for both, from the controls at the right; zoomed in, finer peaks take over once they come
+  // both on one time scale, the longer one across the full width (zooming in is in the Waveform Suite)
   const span = Math.max(gameWave.peaks?.duration_ms ?? 0, mineWave.peaks?.duration_ms ?? 0, 1);
-  const zoom = useWaveZoom(span, MIN_SPAN, source);
-  const fineGame = finePeaks(zoom, gameWave.peaks?.duration_ms), fineMine = finePeaks(zoom, mineWave.peaks?.duration_ms);
-  const gameFine = usePeaks("vanilla", fineGame && !none ? source : null, "", fineGame);
-  const mineFine = usePeaks("project", fineMine && audible(a) && a!.exists ? source : null, String(revision), fineMine);
-  const game = gameFine.peaks ?? gameWave.peaks, mine = mineFine.peaks ?? mineWave.peaks;
+  const game = gameWave.peaks, mine = mineWave.peaks;
   const heardMs = a?.duration_ms ?? mine?.duration_ms; // how long the new audio plays
-  const waves = useRef<HTMLDivElement>(null);
-  useWheelZoom(waves, zoom, !!row);
   const curve = useMemo(() => (row?.slot.curve ? curveLine(row.slot.curve) : undefined), [row?.slot.curve]);
   if (!row || !source) return null;
 
@@ -133,7 +102,7 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
   // what plays in the slot follows the curve, unless the project drops it; the original lane always shows the game's
   const dropped = !readOnly && !!project?.curves_off.includes(source);
   const gameCurve = a || !dropped ? curve : undefined, mineCurve = dropped ? undefined : curve;
-  const view = { spanMs: zoom.span, fromMs: zoom.from, zoomY: zoom.y };
+  const view = { spanMs: span, fromMs: 0, zoomY: 1 };
   const kGame = `vanilla:${source}`, kMine = `project:${source}`;
   // the play-through that plays in this tab, and how far it is
   const playing = through && p.key === through.key ? through : null;
@@ -171,23 +140,18 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
     const x = id === "exit" ? (near(ms, autoExit) ? null : ms) : o.exit_marker ?? null;
     actions.segmentOverride(seg.segment, e, x);
   };
-  const overridden = o.entry_marker != null || o.exit_marker != null;
-  // the Waveform Suite: this slot, or every slot of its segment that has audio to replace; in a music segment, with its cue points
-  const segTracks: EditTrack[] = hasCues ? rows.filter((r) => r.seg.segment === seg.segment && !r.slot.absent && !r.slot.unused && !r.slot.locked)
-    .map((r, k) => ({ source: r.slot.source, name: t`Slot ${k + 1}`, full: rowName(r) })) : [];
+  // the Waveform Suite on this slot; in a music segment, with its cue points
   const editCues: EditCues | undefined = hasCues && cue ? { cue: cue.id, segment: seg.segment, fit, gameEntry: seg.entry_ms ?? 0,
     gameExit: seg.exit_ms ?? seg.duration_ms, entry: o.entry_marker ?? null, exit: o.exit_marker ?? null } : undefined;
-  const tail = heardMs ? heardMs - exit : 0;
-  const last = fmtTime(tail);
 
   return (
     <section className={`timeline${readOnly ? " one" : ""}`} aria-label={t`Waveforms`} style={{ height: h ?? (readOnly ? HEIGHT_ONE : HEIGHT) }}>
       <ResizeEdge edge="top" label={t`Resize the waveforms`} min={readOnly ? 120 : 140} max={room} onResize={(v) => setH(v)} onReset={() => setH(readOnly ? HEIGHT_ONE : HEIGHT)} />
       {readOnly && <SlotFacts row={row} />}
-      <div className="tl-body zoom-grid">
-        <div className="tl-rows" ref={waves}>
+      <div className="tl-body">
+        <div className="tl-rows">
           <div className="tl-row">
-            <div className="tl-label game"><b>{readOnly ? t`Original` : t({ message: "Old", comment: "The original audio's waveform, above the new audio's" })}</b>{gameDb !== 0 && <Db db={gameDb} />}{gameCurve && <CurveLabel />}</div>
+            <div className="tl-label game"><b>{readOnly ? t`Original` : t({ message: "Old", comment: "The original audio's waveform, above the new audio's" })}</b></div>
             {!readOnly && <span className="tl-edit-at">
               <CopyButton original onClick={!none && game ? () => actions.copySlots([source], { [source]: what }, true, false) : undefined} />
               <span className="tl-edit-col">{project && !none && game && <EditButton original onClick={() => setEditing("original")} />}</span></span>}
@@ -197,16 +161,14 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
               onSeek={none ? undefined : (ms) => seek("vanilla", ms)}
               label={row.slot.added ? t`A new take has no original` : row.slot.absent ? t`Not in the installed game files` : t`Loading the original…`}
               error={gameWave.error} onRetry={gameWave.retry} />
-            {game && <Length ms={game.duration_ms} />}
             </div>
           </div>
           {!readOnly && (
             <div className="tl-row">
-              <div className="tl-label mine"><b>{t({ message: "New", context: "waveform", comment: "The new audio's waveform, under the original's" })}</b>{mineDb !== 0 && <Db db={mineDb} />}{audible(a) && mineCurve && <CurveLabel />}</div>
+              <div className="tl-label mine"><b>{t({ message: "New", context: "waveform", comment: "The new audio's waveform, under the original's" })}</b></div>
               <span className="tl-edit-at">
                 <CopyButton original={false} onClick={a && (a.silence || a.exists) ? () => actions.copySlots([source], { [source]: what }) : undefined} />
-                <span className="tl-edit-col">{(!a || (audible(a) && a.exists)) && <EditButton original={false} onClick={() => setEditing("mine")} />}
-                {project && segTracks.length > 1 && <SegmentButton n={segTracks.length} onClick={() => setEditing("segment")} />}</span></span>
+                <span className="tl-edit-col">{(!a || (audible(a) && a.exists)) && <EditButton original={false} onClick={() => setEditing("mine")} />}</span></span>
               <div className="tl-wave">
               {a?.silence ? (
                 <div className="wave placeholder">{a.fit_timing ? t`Silence: plays nothing, and the game moves straight on`
@@ -219,22 +181,13 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
               ) : (
                 <div className="wave placeholder">{a ? t`File missing` : t`Not replaced`}</div>
               )}
-              {a?.exists && !a.silence && heardMs != null && <Length ms={heardMs} />}
               </div>
             </div>
           )}
         </div>
-        <WaveZoom zoom={zoom} foot={zoom.x > 1 ? <WaveScroll zoom={zoom} /> : null} />
       </div>
-      {editing && <WaveEditor what={editing === "segment" ? seg.name || what : what} cues={editCues} onClose={() => setEditing(null)}
-        tracks={editing === "segment" ? segTracks : [{ source, name: what, original: editing === "original" }]} />}
-      {audible(a) && hasCues && (!fit || tail > 30 || overridden) && (
-        <p className="tl-note">
-          {!fit && t`Fit timing is off, so the original cue points apply until one is moved.`}
-          {tail > 30 && <> <Trans>The last <b>{last}</b> rings out over the next segment.</Trans></>}
-          {overridden && <button className="link-inline" onClick={() => actions.segmentOverride(seg.segment, null, null)}>{t`Reset Cue Points`}</button>}
-        </p>
-      )}
+      {editing && <WaveEditor what={what} cues={editCues} onClose={() => setEditing(null)}
+        tracks={[{ source, name: what, original: editing === "original" }]} />}
     </section>
   );
 }

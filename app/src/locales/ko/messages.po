@@ -3509,14 +3509,6 @@ msgstr "드래그해 레이어 순서 변경"
 msgid "Drag to resize the layer"
 msgstr "드래그해 레이어 크기 변경"
 
-#: src/Timeline.tsx
-msgid "Drawn and played at this gain"
-msgstr "이 게인으로 그려지고 재생됩니다"
-
-#: src/Timeline.tsx
-msgid "Drawn as the line around the waveform"
-msgstr "파형을 둘러싼 선으로 표시됩니다"
-
 #: src/PatchContentPage.tsx
 msgid "Drop a mod here as a <0>ZIP</0>, <1>.7z</1>, <2>.rar</2>, <3>folder</3> or <4>.patch_0</4> file."
 msgstr "모드를 <0>ZIP</0>, <1>.7z</1>, <2>.rar</2>, <3>폴더</3> 또는 <4>.patch_0</4> 파일로 여기에 끌어다 놓으세요."
@@ -3698,14 +3690,6 @@ msgstr "음악이 나올 때마다 오프닝 중 하나가 먼저 재생된 다�
 #: src/ProjectTab.tsx
 msgid "Eagle-1"
 msgstr "이글-1"
-
-#: src/Timeline.tsx
-msgid "Edit every slot of this segment together"
-msgstr "이 세그먼트의 모든 슬롯을 함께 편집"
-
-#: src/Timeline.tsx
-msgid "Edit Segment"
-msgstr "세그먼트 편집"
 
 #: src/Soundtrack.tsx
 msgid "Edit Song"
@@ -4186,10 +4170,6 @@ msgstr "완료"
 #: src/ModOptions.tsx
 msgid "Fit Timing"
 msgstr "타이밍 맞춤"
-
-#: src/Timeline.tsx
-msgid "Fit timing is off, so the original cue points apply until one is moved."
-msgstr "타이밍 맞추기가 꺼져 있으므로, 큐 포인트 하나를 옮기기 전까지는 원본 큐 포인트가 적용됩니다."
 
 #: src/Inspector.tsx
 msgid "Fit timing to the new audio"
@@ -5099,11 +5079,6 @@ msgstr "제외됨: {what}"
 msgid "Length"
 msgstr "길이"
 
-#. placeholder {0}: fmtTime(ms)
-#: src/Timeline.tsx
-msgid "Length {0}"
-msgstr "길이 {0}"
-
 #: src/CombinePage.tsx
 msgid "Length {length}"
 msgstr "길이 {length}"
@@ -5325,7 +5300,6 @@ msgstr "여러 오디오 모드를 현재 게임 기준으로 빌드해 모드 �
 #: src/CueView.tsx
 #: src/Inspector.tsx
 #: src/store.tsx
-#: src/Timeline.tsx
 msgid "Make-Up Gain"
 msgstr "Make-Up Gain"
 
@@ -7928,7 +7902,6 @@ msgid "Reset all shortcuts?"
 msgstr "모든 단축키를 초기화할까요?"
 
 #: src/Inspector.tsx
-#: src/Timeline.tsx
 msgid "Reset Cue Points"
 msgstr "큐 포인트 초기화"
 
@@ -8613,10 +8586,8 @@ msgstr "자르는 중"
 msgid "Slot"
 msgstr "슬롯"
 
-#. placeholder {0}: k + 1
 #. placeholder {0}: s.source
 #: src/ModOptions.tsx
-#: src/Timeline.tsx
 msgid "Slot {0}"
 msgstr "슬롯 {0}"
 
@@ -9024,10 +8995,6 @@ msgstr "게임이 이 사운드에 주는 {gain} dB는 유지됩니다"
 msgid "The {n} blocks on it are removed with it. Undo brings them back."
 msgstr "그 위의 블록 {n}개도 함께 삭제됩니다. 실행 취소하면 되돌아옵니다."
 
-#: src/Timeline.tsx
-msgid "The {n} slots line up in the Waveform Suite, each under the original"
-msgstr "슬롯 {n}개가 Waveform Suite에서 각각 원본 아래에 정렬됩니다"
-
 #. Markdown. **Index** is the button above the Library list, and the bold word must read as the translation of the button does.
 #: src/tutorials.ts
 msgid "The **Index** sorts the sounds of the game by where you hear them: weapons, stratagems, enemies and more. The search box finds anything by name."
@@ -9280,10 +9247,6 @@ msgstr "항목 이름, 번호, 그다음 사운드 또는 세그먼트"
 msgid "The language to show and change"
 msgstr "표시하고 바꿀 언어"
 
-#: src/Timeline.tsx
-msgid "The last <0>{last}</0> rings out over the next segment."
-msgstr "마지막 <0>{last}</0> 동안은 다음 세그먼트와 겹쳐 울립니다."
-
 #: src/store.tsx
 msgid "The last project didn't open: {why}"
 msgstr "마지막 프로젝트를 열지 못했습니다: {why}"
@@ -9291,10 +9254,6 @@ msgstr "마지막 프로젝트를 열지 못했습니다: {why}"
 #: src/Soundtrack.tsx
 msgid "The level of the whole piece, on top of each slot's Make-Up Gain"
 msgstr "각 슬롯의 Make-Up Gain에 더해지는 곡 전체의 레벨"
-
-#: src/Timeline.tsx
-msgid "The level the game gives this clip as it plays"
-msgstr "게임이 재생 중에 이 클립에 주는 레벨"
 
 #: src/tutorials.ts
 msgid "The Liberator has two more sets of these sounds, further down the list. The tutorial changes them the same way."
@@ -10239,10 +10198,6 @@ msgstr "볼륨"
 #. Edit in Undo, Redo and History: a slot set to keep or drop the volume curve on the clip
 #: src/store.tsx
 msgid "volume curve"
-msgstr "볼륨 곡선"
-
-#: src/Timeline.tsx
-msgid "Volume curve"
 msgstr "볼륨 곡선"
 
 #: src/ModOptions.tsx

@@ -2,7 +2,7 @@
 title: Bande-son
 group: Créer un mod
 summary: Comment chaque morceau de musique est joué : dans l’ordre d’origine, comme une seule chanson, comme une playlist, en silence, ou comme la musique de combat.
-source: b8968eb37100
+source: e7954b89773c
 ---
 
 Le jeu ne joue pas un morceau de musique de haut en bas. La playlist d’un morceau mélange des groupes joués dans l’ordre, des groupes qui jouent le segment suivant à chaque fois, et des groupes qui choisissent au hasard. La plupart des musiques de combat démarrent chaque combat sur une courte ouverture, et un nouveau combat reprend là où le précédent s’est arrêté. Une chanson découpée dans les emplacements dans l’ordre de la liste est jouée dans le désordre dans le jeu.
@@ -89,4 +89,4 @@ Les segments d’un groupe sont reliés par ce que le groupe signifie : → po
 
 ## Couches {#layers}
 
-La musique qui joue plusieurs couches à la fois, comme celle de l’Extraction, les affiche en grille : une ligne par segment et une colonne par couche, à intensité faible et forte. Cliquez sur une case pour voir les formes d’onde. Remplacez les couches dans l’onglet [Audio](app:editor), ou modifiez ensemble toutes les couches d’un segment avec le bouton empilé sous le crayon dans les formes d’onde (**Modifier le segment**).
+La musique qui joue plusieurs couches à la fois, comme celle de l’Extraction, les affiche en grille : une ligne par segment et une colonne par couche, à intensité faible et forte. Cliquez sur une case pour voir les formes d’onde. Remplacez les couches dans l’onglet [Audio](app:editor).

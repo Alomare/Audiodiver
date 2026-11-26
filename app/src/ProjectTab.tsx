@@ -144,7 +144,7 @@ function RecentProjects() {
 }
 
 function ProjectPage() {
-  const { project, actions, revision, jobs } = useEditor();
+  const { project, actions, jobs } = useEditor();
   const shown = useShownTabs();
   const p = project!;
   const busy = Object.values(jobs).some((j) => j.state === "running"); // the folder's files may be changing
@@ -255,7 +255,7 @@ function ProjectPage() {
       </div>
 
       <aside className="bld-side">
-        {p.game === "hd2" && <IconPreview preview={same(icon, p.icon) ? undefined : icon} bust={String(revision)} name={name.trim() || p.name}
+        {p.game === "hd2" && <IconPreview preview={same(icon, p.icon) ? undefined : icon} name={name.trim() || p.name}
           description={description.trim()} />}
       </aside>
     </div>
@@ -571,7 +571,7 @@ function ColorPick({ label, value, onChange, onTry, disabled, swatches = SWATCHE
 
 /** The icon as a build would package it, redrawn shortly after a change. An image dropped on it becomes the icon.
     The Build tab shows it too, over the Build button. */
-export function IconPreview({ preview, bust, name, description }: { preview?: Icon; bust: string; name: string; description: string }) {
+export function IconPreview({ preview, name, description }: { preview?: Icon; name: string; description: string }) {
   const { project } = useEditor();
   // sliding redraws the icon after a short pause, not on every step
   const key = preview ? JSON.stringify(preview) : "";
@@ -580,13 +580,26 @@ export function IconPreview({ preview, bust, name, description }: { preview?: Ic
     const t = setTimeout(() => setShown(key), 160);
     return () => clearTimeout(t);
   }, [key]);
-  const src = iconUrl(bust, shown ? JSON.parse(shown) : undefined);
+  // asked for again only when the icon looks different (icon_sig), so the tab shows it at once when it comes back
+  const src = iconUrl(project!.icon_sig, shown ? JSON.parse(shown) : undefined);
   const [failed, setFailed] = useState<string | null>(null);
+  // the last icon drawn stays up while the next one loads, so a change never blanks it
+  const [ready, setReady] = useState<string | null>(null);
+  useEffect(() => {
+    if (ready === src) return;
+    let live = true;
+    const img = new Image();
+    img.onload = () => { if (live) setReady(src); };
+    img.onerror = () => { if (live) setFailed(src); };
+    img.src = src;
+    return () => { live = false; };
+  }, [src]); // eslint-disable-line react-hooks/exhaustive-deps
+  const drawn = ready ?? src;
   return (
     <div className="pkg-preview" aria-label={t({ message: "Preview", comment: "The icon, name and description as the mod manager shows them" })}>
       <div className="pkg-icon" data-drop={JSON.stringify({ kind: "icon" })}>
         {failed === src ? <span className="pkg-icon-missing"><Trans>The image can't be read. Choose another, or use the default icon.</Trans></span>
-          : <img src={src} alt={t`Mod icon`} width={540} height={540} onError={() => setFailed(src)} />}
+          : <img src={drawn} alt={t`Mod icon`} width={540} height={540} />}
       </div>
       <div className="pkg-card">
         <b>{name}</b>

@@ -2,7 +2,7 @@
 title: Minutage, points de repère et boucles
 group: Créer un mod
 summary: Comment le jeu passe d’un segment au suivant, comment faire en sorte que la nouvelle musique s’enchaîne proprement, comment rogner et déplacer le nouvel audio, et comment découper une chanson dans un cue.
-source: 699f0b527e5c
+source: 2a8c7f369c63
 ---
 
 ## Ajuster le minutage au nouvel audio {#fitting-the-timing-to-the-new-audio}
@@ -18,7 +18,7 @@ Les formes d’onde sous les emplacements montrent l’original au-dessus du rem
 - L’**Entrée** est le point où le segment compte comme commencé. L’audio avant l’Entrée est une amorce, jouée sous la fin du segment précédent.
 - La **Sortie** est le point où démarre le segment suivant. L’audio après la Sortie se prolonge par-dessus le segment suivant.
 
-Faites glisser la Sortie sur le remplacement pour déplacer le passage de relais. Pour annuler, faites-la glisser de nouveau à la position automatique ou appuyez sur **Réinitialiser les points de repère**. Les détails montrent les mêmes valeurs en millisecondes sous **Points de repère**.
+Faites glisser la Sortie sur le remplacement pour déplacer le passage de relais. Pour annuler, faites-la glisser de nouveau : relâchée près de la position automatique, elle s’y aimante. Les détails montrent les mêmes valeurs en millisecondes sous **Points de repère**.
 
 Quand un même fichier est joué dans plusieurs segments, **Appliquer à … autres segments avec ce fichier** sous **Points de repère** donne à tous les points de repère du segment sélectionné. Pour définir des points de repère sur une sélection, sélectionnez les emplacements et saisissez les valeurs dans les détails. Une zone qui affiche **Mixte** laisse chaque segment tel quel jusqu’à ce que vous saisissiez une valeur.
 
@@ -59,8 +59,6 @@ Les blocs d’une même couche peuvent aussi se chevaucher, et ils jouent ensemb
 Sur un emplacement d’un segment de musique, l’**Entrée** et la **Sortie** du segment se dressent sur la ligne de temps comme des lignes avec des drapeaux sur la règle, et leurs temps s’affichent au-dessus des formes d’onde. Faites glisser un drapeau pour déplacer le point de repère. Il s’aimante aux bords des blocs quand l’aimant est activé, et relâché près de la position automatique il y revient. La piste de l’original montre où le jeu les place. **Appliquer** fixe les points de repère avec les blocs.
 
 **Lire en contexte** (C) lit la fin du segment précédent, ce segment tel que vous l’avez dans l’éditeur et le début du segment suivant, enchaînés aux points de repère comme le jeu les joue. Rien n’a besoin d’être appliqué d’abord.
-
-**Modifier le segment**, le bouton empilé sous le crayon dans les formes d’onde, ouvre tous les emplacements du segment ensemble : chaque emplacement avec l’original au-dessus des couches de nouvel audio, le tout sur une même ligne de temps, pour que les parties s’alignent. Un emplacement sans nouvel audio peut partir de l’original avec le + à côté de son nom. **Appliquer** fixe chaque emplacement qui a changé.
 
 **Exporter**, à côté d’Appliquer, mixe les pistes cochées en un seul fichier audio : WAV, FLAC, MP3 ou Ogg Vorbis, à 48 ou 44,1 kHz, avec les canaux de l’audio, en stéréo ou en mono, et ramené à −1 dB au moment le plus fort si vous le souhaitez. Le projet ne change pas.
 

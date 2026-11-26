@@ -1,6 +1,6 @@
 import { ph, t } from "@lingui/core/macro";
 import { Trans } from "@lingui/react/macro";
-import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { call, fmtTime, intlLocale } from "./api";
 import { ResetIcon } from "./Icons";
 import { rangeVars } from "./range";
@@ -305,36 +305,15 @@ export function useWaveZoom(total: number, minSpan: number, slot: string | null 
   };
 }
 
-/** The wheel on waveforms: it zooms in on time about the moment under the pointer, with Ctrl it zooms the level, and
-    with Shift (or sideways, on a touchpad) it scrolls. */
-export function useWheelZoom(el: RefObject<HTMLElement | null>, zoom: WaveZoomState, on: boolean) {
-  const now = useRef(zoom);
-  now.current = zoom;
-  useEffect(() => {
-    const box = el.current;
-    if (!box || !on) return;
-    const wheel = (e: WheelEvent) => {
-      const z = now.current, wave = box.querySelector(".wave")?.getBoundingClientRect();
-      if (!wave?.width) return;
-      e.preventDefault();
-      wheelZoom(e, z, wave);
-    };
-    box.addEventListener("wheel", wheel, { passive: false });
-    return () => box.removeEventListener("wheel", wheel);
-  }, [el, on]);
-}
-
-/** What a turn of the wheel does to a zoom (useWheelZoom, and the slice tool's lanes): `box` is the waveform's. */
+/** What a turn of the wheel does to a zoom (the Waveform Suite's and the slice tool's lanes): `box` is the waveform's.
+    It zooms in on time about the moment under the pointer, with Ctrl it zooms the level, and with Shift (or sideways,
+    on a touchpad) it scrolls. */
 export function wheelZoom(e: WheelEvent, z: WaveZoomState, box: DOMRect) {
   const sideways = e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY);
   if (e.ctrlKey || e.metaKey) z.zoomY(z.y * Math.exp(-e.deltaY * 0.002));
   else if (sideways) z.scroll(z.from + ((e.deltaX || e.deltaY) / box.width) * z.span);
   else z.zoomX(z.x * Math.exp(-e.deltaY * 0.002), z.from + ((e.clientX - box.left) / box.width) * z.span);
 }
-
-/** The finer peaks a waveform needs once zoomed in (on time or on the level): about one slice per half millisecond. */
-export const finePeaks = (zoom: WaveZoomState, durationMs: number | undefined) =>
-  zoom.zoomed && durationMs ? { buckets: Math.round(Math.max(1200, Math.min(120_000, durationMs * 2))) } : undefined;
 
 /** The zoom of waveforms, as a mirrored L around them: the level zoom up the right side, the time zoom at the right
     end of the foot (after `foot`, the scroll strip when there is one), and the button back to the whole audio at full

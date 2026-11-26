@@ -2,7 +2,7 @@
 title: Tempo, pontos de cue e loops
 group: Criando um mod
 summary: Como o jogo passa de um segmento para o seguinte, como fazer a música nova passar a vez sem emendas, como recortar e mover o áudio novo e como fatiar uma música num cue.
-source: 699f0b527e5c
+source: 2a8c7f369c63
 ---
 
 ## Ajustar o tempo ao áudio novo {#fitting-the-timing-to-the-new-audio}
@@ -18,7 +18,7 @@ As formas de onda abaixo dos slots mostram o original acima da substituição, n
 - **Entrada** é onde o segmento conta como iniciado. O áudio antes da Entrada é uma pré-entrada que toca por baixo do fim do segmento anterior.
 - **Saída** é onde o segmento seguinte começa. O áudio depois da Saída ressoa por cima do segmento seguinte.
 
-Arraste a Saída na substituição para mover a passagem. Para desfazer, arraste-a de volta para a posição automática ou pressione **Redefinir pontos de cue**. Os detalhes mostram os mesmos valores em milissegundos em **Pontos de cue**.
+Arraste a Saída na substituição para mover a passagem. Para desfazer, arraste-a de volta: solte perto da posição automática e ela se encaixa nela. Os detalhes mostram os mesmos valores em milissegundos em **Pontos de cue**.
 
 Quando um arquivo toca em vários segmentos, **Aplicar a mais … segmentos com este arquivo**, em **Pontos de cue**, dá a todos eles os pontos de cue do selecionado. Para definir pontos de cue numa seleção, selecione os slots e digite os valores nos detalhes. Uma caixa que mostra **Misto** deixa cada segmento como está até você digitar um valor.
 
@@ -59,8 +59,6 @@ Blocos na mesma camada também podem se sobrepor, e tocam juntos. Blocos sobrepo
 Em um slot de um segmento de música, a **Entrada** e a **Saída** do segmento ficam na linha do tempo como linhas com bandeiras na régua, e os tempos delas aparecem acima das formas de onda. Arraste uma bandeira para mover o ponto de marcação. Ele se encaixa nas bordas dos blocos com o ímã ligado, e solto perto do ponto automático volta para ele. A pista do original mostra onde o jogo os coloca. **Aplicar** define os pontos de marcação junto com os blocos.
 
 **Tocar no contexto** (C) toca o fim do segmento anterior, este segmento como está no editor e o início do segmento seguinte, passando de um para o outro nos pontos de marcação como o jogo faz. Nada precisa ser aplicado antes.
-
-**Editar segmento**, o botão empilhado abaixo do lápis nas formas de onda, abre todos os slots do segmento juntos: cada slot com o original acima das camadas de áudio novo, tudo em uma mesma linha do tempo, para que as partes se alinhem. Um slot sem áudio novo pode começar do original com o + ao lado do nome do slot. **Aplicar** define cada slot que mudou.
 
 **Exportar**, ao lado de Aplicar, mixa as pistas marcadas em um único arquivo de áudio: WAV, FLAC, MP3 ou Ogg Vorbis, a 48 ou 44,1 kHz, nos canais do áudio, em estéreo ou mono, e levado a −1 dB no momento mais alto se você quiser. O projeto não muda.
 

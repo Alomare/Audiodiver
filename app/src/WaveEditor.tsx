@@ -196,11 +196,24 @@ function colours(blocks: EBlock[]): (number | null)[] {
   return out;
 }
 
-async function decode(url: string, ctx: BaseAudioContext): Promise<Decoded> {
+async function read(url: string, ctx: BaseAudioContext): Promise<Decoded> {
   const res = await fetch(url);
   if (!res.ok) throw new Error(await res.text().catch(() => res.statusText));
   const buf = await ctx.decodeAudioData(await res.arrayBuffer());
   return { buf, levels: summarize(buf) };
+}
+/** Each url read once for each audio context: an original edited is also the reference under it, and a song's
+    original is a large file to fetch and decode. A failed read is tried again next time. */
+const reads = new WeakMap<BaseAudioContext, Map<string, Promise<Decoded>>>();
+function decode(url: string, ctx: BaseAudioContext): Promise<Decoded> {
+  let m = reads.get(ctx);
+  if (!m) reads.set(ctx, m = new Map());
+  let p = m.get(url);
+  if (!p) {
+    m.set(url, p = read(url, ctx));
+    p.catch(() => m!.delete(url));
+  }
+  return p;
 }
 
 /** A block of a whole file, at the start. */
@@ -247,16 +260,19 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
       (e) => { if (key.startsWith("own:")) setError(String(e?.message ?? e)); });
   }, [ctx, urlOf]);
   useEffect(() => { tracks.forEach((_, i) => { if (hasOwn(i)) need(own(i)); }); }); // eslint-disable-line react-hooks/exhaustive-deps
+  // read again only when the slots change: the panel hands over a new list each time it draws (while something
+  // plays, many times a second), and each read fetched and decoded the whole original again, a song's 80 MB
+  const sources = tracks.map((x) => x.source ?? "").join(",");
   useEffect(() => {
     if (!ctx) return;
     let live = true;
-    tracks.forEach((x, i) => {
-      if (!x.source) return;
-      decode(audioUrl("vanilla", x.source), ctx).then((f) => { if (live) setRefs((r) => ({ ...r, [i]: f })); },
+    sources.split(",").forEach((source, i) => {
+      if (!source) return;
+      decode(audioUrl("vanilla", source), ctx).then((f) => { if (live) setRefs((r) => ({ ...r, [i]: f })); },
         () => { if (live) setRefs((r) => ({ ...r, [i]: null })); }); // no original (a new take): no reference
     });
     return () => { live = false; };
-  }, [ctx, tracks]);
+  }, [ctx, sources]);
   const refOf = (i: number) => (editOriginal(i) ? files[own(i)] ?? null : refs[i] ?? null);
   const fileOf = (b: EBlock) => files[b.audio || own(b.track)] ?? null;
   const msOfFile = (b: EBlock) => { const f = fileOf(b); return f ? f.buf.duration * 1000 : b.end_ms; };

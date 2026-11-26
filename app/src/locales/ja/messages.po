@@ -3509,14 +3509,6 @@ msgstr "ドラッグしてレイヤーを並べ替え"
 msgid "Drag to resize the layer"
 msgstr "ドラッグしてレイヤーのサイズを変更"
 
-#: src/Timeline.tsx
-msgid "Drawn and played at this gain"
-msgstr "このゲインで表示・再生されます"
-
-#: src/Timeline.tsx
-msgid "Drawn as the line around the waveform"
-msgstr "波形の周りの線で表示されます"
-
 #: src/PatchContentPage.tsx
 msgid "Drop a mod here as a <0>ZIP</0>, <1>.7z</1>, <2>.rar</2>, <3>folder</3> or <4>.patch_0</4> file."
 msgstr "MODを<0>ZIP</0>、<1>.7z</1>、<2>.rar</2>、<3>フォルダー</3>、または<4>.patch_0</4>ファイルとしてここにドロップしてください。"
@@ -3698,14 +3690,6 @@ msgstr "音楽が流れるたびに、最初にオープニングのいずれか
 #: src/ProjectTab.tsx
 msgid "Eagle-1"
 msgstr "イーグル1"
-
-#: src/Timeline.tsx
-msgid "Edit every slot of this segment together"
-msgstr "このセグメントのすべてのスロットをまとめて編集"
-
-#: src/Timeline.tsx
-msgid "Edit Segment"
-msgstr "セグメントを編集"
 
 #: src/Soundtrack.tsx
 msgid "Edit Song"
@@ -4186,10 +4170,6 @@ msgstr "完了"
 #: src/ModOptions.tsx
 msgid "Fit Timing"
 msgstr "タイミング合わせ"
-
-#: src/Timeline.tsx
-msgid "Fit timing is off, so the original cue points apply until one is moved."
-msgstr "「タイミングを新しい音声に合わせる」がオフのため、いずれかを動かすまではオリジナルのキューポイントが適用されます。"
 
 #: src/Inspector.tsx
 msgid "Fit timing to the new audio"
@@ -5099,11 +5079,6 @@ msgstr "除外：{what}"
 msgid "Length"
 msgstr "長さ"
 
-#. placeholder {0}: fmtTime(ms)
-#: src/Timeline.tsx
-msgid "Length {0}"
-msgstr "長さ {0}"
-
 #: src/CombinePage.tsx
 msgid "Length {length}"
 msgstr "長さ {length}"
@@ -5325,7 +5300,6 @@ msgstr "複数の音声MODから、現在のゲームに合わせて1つのMOD�
 #: src/CueView.tsx
 #: src/Inspector.tsx
 #: src/store.tsx
-#: src/Timeline.tsx
 msgid "Make-Up Gain"
 msgstr "Make-Up Gain"
 
@@ -7928,7 +7902,6 @@ msgid "Reset all shortcuts?"
 msgstr "すべてのショートカットをリセットしますか？"
 
 #: src/Inspector.tsx
-#: src/Timeline.tsx
 msgid "Reset Cue Points"
 msgstr "キューポイントをリセット"
 
@@ -8613,10 +8586,8 @@ msgstr "切り分け中"
 msgid "Slot"
 msgstr "スロット"
 
-#. placeholder {0}: k + 1
 #. placeholder {0}: s.source
 #: src/ModOptions.tsx
-#: src/Timeline.tsx
 msgid "Slot {0}"
 msgstr "スロット {0}"
 
@@ -9024,10 +8995,6 @@ msgstr "ゲームがこのサウンドに設定している{gain} dBはそのま
 msgid "The {n} blocks on it are removed with it. Undo brings them back."
 msgstr "上にある {n} 個のブロックも一緒に削除されます。元に戻すと復元されます。"
 
-#: src/Timeline.tsx
-msgid "The {n} slots line up in the Waveform Suite, each under the original"
-msgstr "{n} 個のスロットが Waveform Suite でそれぞれオリジナルの下に並びます"
-
 #. Markdown. **Index** is the button above the Library list, and the bold word must read as the translation of the button does.
 #: src/tutorials.ts
 msgid "The **Index** sorts the sounds of the game by where you hear them: weapons, stratagems, enemies and more. The search box finds anything by name."
@@ -9280,10 +9247,6 @@ msgstr "項目名、番号、サウンドまたはセグメントの順"
 msgid "The language to show and change"
 msgstr "表示・変更する言語"
 
-#: src/Timeline.tsx
-msgid "The last <0>{last}</0> rings out over the next segment."
-msgstr "最後の<0>{last}</0>は、次のセグメントに重なって鳴ります。"
-
 #: src/store.tsx
 msgid "The last project didn't open: {why}"
 msgstr "前回のプロジェクトを開けませんでした：{why}"
@@ -9291,10 +9254,6 @@ msgstr "前回のプロジェクトを開けませんでした：{why}"
 #: src/Soundtrack.tsx
 msgid "The level of the whole piece, on top of each slot's Make-Up Gain"
 msgstr "各スロットのMake-Up Gainに加えて適用される、曲全体のレベル"
-
-#: src/Timeline.tsx
-msgid "The level the game gives this clip as it plays"
-msgstr "再生中にゲームがこのクリップに与えるレベル"
 
 #: src/tutorials.ts
 msgid "The Liberator has two more sets of these sounds, further down the list. The tutorial changes them the same way."
@@ -10239,10 +10198,6 @@ msgstr "音量"
 #. Edit in Undo, Redo and History: a slot set to keep or drop the volume curve on the clip
 #: src/store.tsx
 msgid "volume curve"
-msgstr "ボリュームカーブ"
-
-#: src/Timeline.tsx
-msgid "Volume curve"
 msgstr "ボリュームカーブ"
 
 #: src/ModOptions.tsx

@@ -191,6 +191,7 @@ export type ProjectState = {
   authors: string[];     // who made a Helldivers 1 mod, as Obsidian shows them
   icon: Icon;
   icon_frame: IconFrame; // the icon's full frame, defaults included
+  icon_sig: string;      // changes when the icon looks different (its settings, or its image file written again)
   loudness_analysis: boolean;
   every_bank: boolean;   // a replaced sound goes into every bank that has it (Patch every bank with the sounds)
   project_banks_only: boolean; // added audio keeps to the project's banks (Keep added audio to the project's banks)

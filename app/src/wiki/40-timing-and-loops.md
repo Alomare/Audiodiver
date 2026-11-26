@@ -17,7 +17,7 @@ The waveforms under the slots show the original above the replacement, on the sa
 - **Entry** is where the segment counts as started. Audio before the Entry is a lead-in that plays under the end of the previous segment.
 - **Exit** is where the next segment starts. Audio after the Exit rings out over the next segment.
 
-Drag the Exit on the replacement to move the hand-over. To undo, drag it back to the automatic position or press **Reset Cue Points**. The details show the same values in milliseconds under **Cue points**.
+Drag the Exit on the replacement to move the hand-over. To undo, drag it back: let go near the automatic position and it snaps onto it. The details show the same values in milliseconds under **Cue points**.
 
 When one file plays in several segments, **Apply to … more segments with this file** under **Cue points** gives all of them the cue points of the selected one. To set cue points on a selection, select the slots and type the values in the details. A box that shows **Mixed** leaves each segment as it is until you type a value.
 
@@ -58,8 +58,6 @@ Blocks on one layer can also overlap, and they play together. Overlapping blocks
 On a slot of a music segment, the segment's **Entry** and **Exit** stand on the time line as lines with flags on the ruler, and their times show over the waveforms. Drag a flag to move the cue point. It snaps to block edges with the magnet on, and let go near the automatic spot it goes back to it. The original's lane shows where the game has them. **Apply** sets the cue points with the blocks.
 
 **Play in Context** (C) plays the end of the segment before, this segment as you have it in the editor and the start of the segment after, handed over at the cue points as the game plays them. Nothing has to be applied first.
-
-**Edit Segment**, the stacked button under the pencil in the waveforms, opens every slot of the segment together: each slot with the original above the layers of new audio, all on one time line, so the parts line up. A slot without new audio can start from the original with the + beside the name of the slot. **Apply** sets every slot that changed.
 
 **Export**, beside Apply, mixes the lanes ticked into one audio file: WAV, FLAC, MP3 or Ogg Vorbis, at 48 or 44.1 kHz, in the channels of the audio, stereo or mono, and brought to −1 dB at the loudest moment if you choose. The project doesn't change.
 

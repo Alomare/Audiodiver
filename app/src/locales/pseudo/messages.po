@@ -3509,14 +3509,6 @@ msgstr ""
 msgid "Drag to resize the layer"
 msgstr ""
 
-#: src/Timeline.tsx
-msgid "Drawn and played at this gain"
-msgstr ""
-
-#: src/Timeline.tsx
-msgid "Drawn as the line around the waveform"
-msgstr ""
-
 #: src/PatchContentPage.tsx
 msgid "Drop a mod here as a <0>ZIP</0>, <1>.7z</1>, <2>.rar</2>, <3>folder</3> or <4>.patch_0</4> file."
 msgstr ""
@@ -3697,14 +3689,6 @@ msgstr ""
 
 #: src/ProjectTab.tsx
 msgid "Eagle-1"
-msgstr ""
-
-#: src/Timeline.tsx
-msgid "Edit every slot of this segment together"
-msgstr ""
-
-#: src/Timeline.tsx
-msgid "Edit Segment"
 msgstr ""
 
 #: src/Soundtrack.tsx
@@ -4185,10 +4169,6 @@ msgstr ""
 
 #: src/ModOptions.tsx
 msgid "Fit Timing"
-msgstr ""
-
-#: src/Timeline.tsx
-msgid "Fit timing is off, so the original cue points apply until one is moved."
 msgstr ""
 
 #: src/Inspector.tsx
@@ -5099,11 +5079,6 @@ msgstr ""
 msgid "Length"
 msgstr ""
 
-#. placeholder {0}: fmtTime(ms)
-#: src/Timeline.tsx
-msgid "Length {0}"
-msgstr ""
-
 #: src/CombinePage.tsx
 msgid "Length {length}"
 msgstr ""
@@ -5325,7 +5300,6 @@ msgstr ""
 #: src/CueView.tsx
 #: src/Inspector.tsx
 #: src/store.tsx
-#: src/Timeline.tsx
 msgid "Make-Up Gain"
 msgstr ""
 
@@ -7928,7 +7902,6 @@ msgid "Reset all shortcuts?"
 msgstr ""
 
 #: src/Inspector.tsx
-#: src/Timeline.tsx
 msgid "Reset Cue Points"
 msgstr ""
 
@@ -8613,10 +8586,8 @@ msgstr ""
 msgid "Slot"
 msgstr ""
 
-#. placeholder {0}: k + 1
 #. placeholder {0}: s.source
 #: src/ModOptions.tsx
-#: src/Timeline.tsx
 msgid "Slot {0}"
 msgstr ""
 
@@ -9024,10 +8995,6 @@ msgstr ""
 msgid "The {n} blocks on it are removed with it. Undo brings them back."
 msgstr ""
 
-#: src/Timeline.tsx
-msgid "The {n} slots line up in the Waveform Suite, each under the original"
-msgstr ""
-
 #. Markdown. **Index** is the button above the Library list, and the bold word must read as the translation of the button does.
 #: src/tutorials.ts
 msgid "The **Index** sorts the sounds of the game by where you hear them: weapons, stratagems, enemies and more. The search box finds anything by name."
@@ -9280,20 +9247,12 @@ msgstr ""
 msgid "The language to show and change"
 msgstr ""
 
-#: src/Timeline.tsx
-msgid "The last <0>{last}</0> rings out over the next segment."
-msgstr ""
-
 #: src/store.tsx
 msgid "The last project didn't open: {why}"
 msgstr ""
 
 #: src/Soundtrack.tsx
 msgid "The level of the whole piece, on top of each slot's Make-Up Gain"
-msgstr ""
-
-#: src/Timeline.tsx
-msgid "The level the game gives this clip as it plays"
 msgstr ""
 
 #: src/tutorials.ts
@@ -10239,10 +10198,6 @@ msgstr ""
 #. Edit in Undo, Redo and History: a slot set to keep or drop the volume curve on the clip
 #: src/store.tsx
 msgid "volume curve"
-msgstr ""
-
-#: src/Timeline.tsx
-msgid "Volume curve"
 msgstr ""
 
 #: src/ModOptions.tsx

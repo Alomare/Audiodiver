@@ -2,7 +2,7 @@
 title: Comprendre l’écran
 group: Pour commencer
 summary: Ce que montre chaque partie de la Bibliothèque et de l’onglet Audio, et ce que signifient les étiquettes et les marques d’une ligne.
-source: d6d0716d6982
+source: 6d54b1bf701b
 ---
 
 La Bibliothèque et l’onglet Audio partagent une même disposition : une liste à gauche, l’élément ouvert au milieu et le panneau de détails à droite. La Bande-son a une disposition différente, décrite dans [Bande-son](wiki:soundtrack). Les mots en **gras** sont expliqués dans [L’audio du jeu, expliqué](wiki:game-audio).
@@ -107,7 +107,7 @@ Survolez une étiquette pour lire la note. Les notes d’un clip sélectionné a
 
 Les **formes d’onde** de l’emplacement sélectionné s’affichent ici. L’original est en haut (**Ancien**), et dans l’onglet Audio le nouvel audio est en dessous (**Nouveau**), aux mêmes échelles de temps et de niveau, avec les points **Entrée** et **Sortie** marqués. À côté de chacune, le bouton blanc copie cet audio et le crayon ouvre [Waveform Suite](wiki:timing-and-loops#the-waveform-suite). Les deux sont dessinées avec leur [Make-Up Gain](wiki:volume#make-up-gain-per-slot), et le rouge marque l’audio qui dépasse le niveau maximal. Cliquez sur une forme d’onde pour lire à partir de ce point, et faites glisser le bord supérieur du panneau pour le redimensionner. {icon:waves} au bout de la barre d’outils les masque. Dans la Bibliothèque, la ligne au-dessus des formes d’onde décrit l’emplacement. Elle indique l’ID (cliquez pour le copier), la durée, quand l’emplacement joue et où le jeu le joue ailleurs. Une ligne autour d’une forme d’onde est la [courbe de volume](wiki:volume#volume-curves) du clip.
 
-Deux curseurs zooment sur les deux formes d’onde. Celui qui longe le côté droit les dessine plus hautes, pour montrer l’audio faible, et celui qui est dessous, à droite, zoome sur le temps, pour placer l’Entrée et la Sortie avec précision. Sur les formes d’onde, la molette de la souris zoome sur le temps, Ctrl+molette les dessine plus hautes, et Shift+molette fait défiler. Quand le zoom temporel est actif, la bande sous les formes d’onde défile aussi. {icon:reset}, dans le coin entre les curseurs, affiche de nouveau tout l’audio à pleine échelle. Pendant qu’un curseur bouge, un nombre de 0 à 100 au-dessus du bouton indique où il en est. Le zoom reste tel quel quand un autre emplacement est sélectionné, et l’outil de découpe a les mêmes curseurs.
+Les formes d’onde montrent tout l’audio. Pour zoomer, ouvrez-le dans la [Waveform Suite](wiki:timing-and-loops#the-waveform-suite).
 
 ## Le panneau de détails {#the-details-panel}
 

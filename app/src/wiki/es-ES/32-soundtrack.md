@@ -2,7 +2,7 @@
 title: Banda Sonora
 group: Crear un mod
 summary: Cómo se reproduce cada pieza de música: en el orden original, como una sola canción, como lista de reproducción, en silencio o como la música de batalla.
-source: b8968eb37100
+source: e7954b89773c
 ---
 
 El juego no reproduce una pieza de música de arriba abajo. La lista de reproducción de una pieza combina grupos que suenan en orden, grupos que reproducen cada vez el siguiente segmento y grupos que eligen al azar. La mayor parte de la música de combate empieza cada combate con una intro corta, y un combate nuevo continúa desde donde se detuvo el último. Una canción cortada en los slots en el orden de la lista suena desordenada en el juego.
@@ -89,4 +89,4 @@ Los segmentos de un grupo se unen según lo que significa el grupo: → para en 
 
 ## Capas {#layers}
 
-La música que suena con varias capas a la vez, como la de la Extracción, las muestra en una cuadrícula: una fila por segmento y una columna por capa, a intensidad baja y alta. Haz clic en una celda para ver las formas de onda. Sustituye capas en la pestaña [Audio](app:editor), o edita todas las capas de un segmento a la vez con el botón apilado bajo el lápiz en las formas de onda (**Editar segmento**).
+La música que suena con varias capas a la vez, como la de la Extracción, las muestra en una cuadrícula: una fila por segmento y una columna por capa, a intensidad baja y alta. Haz clic en una celda para ver las formas de onda. Sustituye capas en la pestaña [Audio](app:editor).

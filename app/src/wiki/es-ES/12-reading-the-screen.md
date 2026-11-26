@@ -2,7 +2,7 @@
 title: Cómo leer la pantalla
 group: Primeros pasos
 summary: Qué muestra cada parte de la Biblioteca y de la pestaña Audio, y qué significan las etiquetas y las marcas de una fila.
-source: d6d0716d6982
+source: 6d54b1bf701b
 ---
 
 La Biblioteca y la pestaña Audio comparten una disposición: una lista a la izquierda, el elemento abierto en el centro y el panel de detalles a la derecha. La Banda Sonora tiene otra disposición, que se describe en [Banda Sonora](wiki:soundtrack). Las palabras en **negrita** se explican en [El audio del juego, explicado](wiki:game-audio).
@@ -107,7 +107,7 @@ Pasa el puntero por una etiqueta para leer la nota. Las notas de un clip selecci
 
 Aquí se muestran las **formas de onda** del slot seleccionado. El original está arriba (**Antiguo**), y en la pestaña Audio el audio nuevo está debajo (**Nuevo**), con las mismas escalas de tiempo y nivel y con los puntos **Entrada** y **Salida** marcados. Junto a cada una, el botón blanco copia ese audio y el lápiz abre [Waveform Suite](wiki:timing-and-loops#the-waveform-suite). Ambas se dibujan con su [Make-Up Gain](wiki:volume#make-up-gain-per-slot), y el rojo marca el audio que pasa del máximo. Haz clic en una forma de onda para reproducir desde ese punto, y arrastra el borde superior del panel para cambiar su tamaño. {icon:waves} al final de la barra de herramientas las oculta. En la Biblioteca, la línea sobre las formas de onda describe el slot. Muestra el ID (haz clic para copiarlo), la duración, cuándo suena el slot y dónde más lo reproduce el juego. Una línea alrededor de una forma de onda es la [curva de volumen](wiki:volume#volume-curves) del clip.
 
-Dos controles deslizantes hacen zoom en las dos formas de onda. El del lado derecho las dibuja más altas, para mostrar audio silencioso, y el de debajo, a la derecha, amplía el tiempo, para colocar Entrada y Salida con precisión. Sobre las formas de onda, la rueda del ratón amplía el tiempo, Ctrl+rueda las dibuja más altas y Shift+rueda desplaza. Con el tiempo ampliado, la franja bajo las formas de onda también se desplaza. {icon:reset}, en la esquina entre los controles, vuelve a mostrar todo el audio a escala completa. Mientras se mueve un control deslizante, un número de 0 a 100 sobre el tirador indica hasta dónde ha llegado. El zoom se queda como está al seleccionar otro slot, y la herramienta de corte tiene los mismos controles.
+Las formas de onda muestran todo el audio. Para ampliarlo, ábrelo en el [Waveform Suite](wiki:timing-and-loops#the-waveform-suite).
 
 ## El panel de detalles {#the-details-panel}
 

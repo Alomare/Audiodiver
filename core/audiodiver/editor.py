@@ -236,6 +236,7 @@ class Session:
         self.build_lock = threading.Lock()  # a build's "already running" check and its start, as one step
         self.notes_lock = threading.Lock()  # a change to the global notes file: read, change, write as one step
         self._facts = {}  # what project_state found out about the project's folder (_folder_facts)
+        self._icons = {}  # the last icons drawn (icon), by project, frame and image file
         # Combine: each patch read (combine.Part) by its digest, and the digest of a patch by where it is and its time
         self._combine_parts, self._combine_ids = collections.OrderedDict(), {}
         self._content = None  # patchcontent.Content: the mod Tools ▸ Patch Content read last (content_scan)
@@ -338,6 +339,7 @@ class Session:
                         self.stage = "ready"
                         break
             log.info("game data from %s (%s), ready in %.1f s", folder, how, time.perf_counter() - started)
+            threading.Thread(target=self._warm, daemon=True, name="warm music").start()
         except Exception as e:
             self.load_error, self.stage = str(e) if isinstance(e, FileNotFoundError) else f"{type(e).__name__}: {e}", "failed"
             if updated:  # Steam may still be writing: status() tries again a little later
@@ -345,6 +347,13 @@ class Session:
                 self._game_checked = time.time()
             log.exception("loading the game failed")
         self._update_failed = updated and self.stage == "failed"
+
+    def _warm(self):
+        """The game's music objects, read once the game is: the first music opened waited 1.2 s for them."""
+        try:
+            self._music()
+        except Exception:  # noqa: BLE001 - the first music opened reads them, and says what went wrong
+            log.exception("reading the music ahead failed")
 
     def _read_hd1(self):
         """Helldivers 1 at start-up, beside Helldivers 2: the Library gains it when this is done."""
@@ -1571,6 +1580,7 @@ class Session:
                 "path": str(p.path), "folder": str(p.path.parent), "name": p.name, "guid": p.guid,
                 **self._folder_facts(p),
                 "revision": self.revision, "version": p.version, "description": p.description, "icon": p.icon, "icon_frame": frame,
+                "icon_sig": self._icon_sig(p),
                 "mod_id": hd1_build.mod_id(p), "mod_id_default": hd1_build.default_mod_id(p), "authors": p.authors,
                 "loudness_analysis": p.loudness_analysis, "every_bank": p.every_bank,
                 "project_banks_only": p.project_banks_only, "patch_files": p.patch_files, "zip_mod": p.zip_mod,
@@ -2710,12 +2720,37 @@ class Session:
     def icon(self, preview=None) -> bytes:
         """The open project's icon as the build would package it (PNG bytes). preview: an icon (as settings takes
         it) to draw instead of the saved one, for trying a border or corners before they are saved."""
+        import json
         from .build import BuildError, icon_bytes
         p = self._need_project()
+        icon = p.icon if preview is None else self._icon(p, preview)
+        # drawn once for each image and frame: fitting a big image takes a few hundred ms, and the Project and Build
+        # tabs ask again each time they show
         try:
-            return icon_bytes(p, None if preview is None else self._icon(p, preview))
+            st = p.file(icon["image"]).stat() if icon.get("image") else None
+        except (OSError, ValueError, TypeError):
+            st = None
+        key =(str(p.path), json.dumps(icon, sort_keys=True), st and (st.st_mtime_ns, st.st_size))
+        if (got := self._icons.get(key)) is not None:
+            return got
+        try:
+            png = icon_bytes(p, icon)
         except BuildError as e:
             raise EditorError(str(e)) from None
+        self._icons = {**dict(list(self._icons.items())[-7:]), key: png}
+        return png
+
+    @staticmethod
+    def _icon_sig(p: Project) -> str:
+        """Changes when the icon would look different: its settings, or its image file written again. The window
+        asks for the icon again only then."""
+        import json
+        try:
+            st = p.file(p.icon["image"]).stat() if p.icon.get("image") else None
+        except (OSError, ValueError, TypeError):
+            st = None
+        what =[json.dumps(p.icon, sort_keys=True), st and [st.st_mtime_ns, st.st_size]]
+        return f"{zlib.crc32(repr(what).encode()):08x}"
 
     @staticmethod
     def _segment_id(segment) -> int:

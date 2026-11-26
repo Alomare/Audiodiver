@@ -3509,14 +3509,6 @@ msgstr "Faites glisser pour réordonner les couches"
 msgid "Drag to resize the layer"
 msgstr "Faites glisser pour redimensionner la couche"
 
-#: src/Timeline.tsx
-msgid "Drawn and played at this gain"
-msgstr "Affiché et joué avec ce gain"
-
-#: src/Timeline.tsx
-msgid "Drawn as the line around the waveform"
-msgstr "Représenté par la ligne autour de la forme d’onde"
-
 #: src/PatchContentPage.tsx
 msgid "Drop a mod here as a <0>ZIP</0>, <1>.7z</1>, <2>.rar</2>, <3>folder</3> or <4>.patch_0</4> file."
 msgstr "Déposez un mod ici sous forme de <0>ZIP</0>, de <1>.7z</1>, de <2>.rar</2>, de <3>dossier</3> ou de fichier <4>.patch_0</4>."
@@ -3698,14 +3690,6 @@ msgstr "Chaque fois que la musique démarre, l’une des ouvertures est jouée d
 #: src/ProjectTab.tsx
 msgid "Eagle-1"
 msgstr "Aigle 1"
-
-#: src/Timeline.tsx
-msgid "Edit every slot of this segment together"
-msgstr "Modifier ensemble tous les emplacements de ce segment"
-
-#: src/Timeline.tsx
-msgid "Edit Segment"
-msgstr "Modifier le segment"
 
 #: src/Soundtrack.tsx
 msgid "Edit Song"
@@ -4186,10 +4170,6 @@ msgstr "Terminer"
 #: src/ModOptions.tsx
 msgid "Fit Timing"
 msgstr "Ajuster le minutage"
-
-#: src/Timeline.tsx
-msgid "Fit timing is off, so the original cue points apply until one is moved."
-msgstr "« Ajuster le minutage » est désactivé, donc les points de repère d'origine s'appliquent tant qu'aucun n'est déplacé."
 
 #: src/Inspector.tsx
 msgid "Fit timing to the new audio"
@@ -5099,11 +5079,6 @@ msgstr "Écarté : {what}"
 msgid "Length"
 msgstr "Durée"
 
-#. placeholder {0}: fmtTime(ms)
-#: src/Timeline.tsx
-msgid "Length {0}"
-msgstr "Durée {0}"
-
 #: src/CombinePage.tsx
 msgid "Length {length}"
 msgstr "Durée {length}"
@@ -5325,7 +5300,6 @@ msgstr "Faire un seul mod à partir de plusieurs mods audio, généré sur le je
 #: src/CueView.tsx
 #: src/Inspector.tsx
 #: src/store.tsx
-#: src/Timeline.tsx
 msgid "Make-Up Gain"
 msgstr "Make-Up Gain"
 
@@ -7928,7 +7902,6 @@ msgid "Reset all shortcuts?"
 msgstr "Réinitialiser tous les raccourcis ?"
 
 #: src/Inspector.tsx
-#: src/Timeline.tsx
 msgid "Reset Cue Points"
 msgstr "Réinitialiser les points de repère"
 
@@ -8613,10 +8586,8 @@ msgstr "Découpe"
 msgid "Slot"
 msgstr "Emplacement"
 
-#. placeholder {0}: k + 1
 #. placeholder {0}: s.source
 #: src/ModOptions.tsx
-#: src/Timeline.tsx
 msgid "Slot {0}"
 msgstr "Emplacement {0}"
 
@@ -9024,10 +8995,6 @@ msgstr "Les {gain} dB que le jeu donne à ce son restent"
 msgid "The {n} blocks on it are removed with it. Undo brings them back."
 msgstr "Les {n} blocs qu’elle contient sont supprimés avec elle. Annuler les rétablit."
 
-#: src/Timeline.tsx
-msgid "The {n} slots line up in the Waveform Suite, each under the original"
-msgstr "Les {n} emplacements s’alignent dans Waveform Suite, chacun sous l’original"
-
 #. Markdown. **Index** is the button above the Library list, and the bold word must read as the translation of the button does.
 #: src/tutorials.ts
 msgid "The **Index** sorts the sounds of the game by where you hear them: weapons, stratagems, enemies and more. The search box finds anything by name."
@@ -9280,10 +9247,6 @@ msgstr "Le nom de l’élément, un numéro, puis le son ou le segment"
 msgid "The language to show and change"
 msgstr "La langue à afficher et à modifier"
 
-#: src/Timeline.tsx
-msgid "The last <0>{last}</0> rings out over the next segment."
-msgstr "Les dernières <0>{last}</0> se prolongent sur le segment suivant."
-
 #: src/store.tsx
 msgid "The last project didn't open: {why}"
 msgstr "Le dernier projet ne s’est pas ouvert : {why}"
@@ -9291,10 +9254,6 @@ msgstr "Le dernier projet ne s’est pas ouvert : {why}"
 #: src/Soundtrack.tsx
 msgid "The level of the whole piece, on top of each slot's Make-Up Gain"
 msgstr "Le niveau du morceau entier, en plus du Make-Up Gain de chaque emplacement"
-
-#: src/Timeline.tsx
-msgid "The level the game gives this clip as it plays"
-msgstr "Le niveau que le jeu donne à ce clip pendant sa lecture"
 
 #: src/tutorials.ts
 msgid "The Liberator has two more sets of these sounds, further down the list. The tutorial changes them the same way."
@@ -10240,10 +10199,6 @@ msgstr "Vol"
 #: src/store.tsx
 msgid "volume curve"
 msgstr "courbe de volume"
-
-#: src/Timeline.tsx
-msgid "Volume curve"
-msgstr "Courbe de volume"
 
 #: src/ModOptions.tsx
 #: src/WaveEditor.tsx

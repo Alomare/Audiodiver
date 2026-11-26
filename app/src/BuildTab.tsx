@@ -36,7 +36,7 @@ export function BuildTab() {
 }
 
 function BuildPage() {
-  const { project, actions, revision } = useEditor();
+  const { project, actions } = useEditor();
   const p = project!;
   // what is on disk now: a file deleted since the last edit is a problem here at once
   useEffect(() => { actions.refresh(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -72,7 +72,7 @@ function BuildPage() {
 
       <aside className="bld-side">
         {/* a Helldivers 1 mod has no icon in the mod manager */}
-        {p.game === "hd2" && <IconPreview bust={String(revision)} name={p.name} description={p.description} />}
+        {p.game === "hd2" && <IconPreview name={p.name} description={p.description} />}
         <BuildBox />
       </aside>
     </div>

@@ -88,4 +88,4 @@ Segments in a group are joined by what the group means: → for in order, *or* f
 
 ## Layers
 
-Music that plays several layers at once, like the Extraction music, shows them as a grid: a row for each segment, and a column for each layer at low and at high intensity. Click a cell to see the waveforms. Replace layers in the [Audio](app:editor) tab, or edit every layer of a segment together with the stacked button under the pencil in the waveforms (**Edit Segment**).
+Music that plays several layers at once, like the Extraction music, shows them as a grid: a row for each segment, and a column for each layer at low and at high intensity. Click a cell to see the waveforms. Replace layers in the [Audio](app:editor) tab.

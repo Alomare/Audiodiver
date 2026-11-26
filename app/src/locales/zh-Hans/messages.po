@@ -3509,14 +3509,6 @@ msgstr "拖动以调整层的顺序"
 msgid "Drag to resize the layer"
 msgstr "拖动以调整层的大小"
 
-#: src/Timeline.tsx
-msgid "Drawn and played at this gain"
-msgstr "按此增益绘制和播放"
-
-#: src/Timeline.tsx
-msgid "Drawn as the line around the waveform"
-msgstr "以波形周围的线表示"
-
 #: src/PatchContentPage.tsx
 msgid "Drop a mod here as a <0>ZIP</0>, <1>.7z</1>, <2>.rar</2>, <3>folder</3> or <4>.patch_0</4> file."
 msgstr "把模组拖到这里：<0>ZIP</0>、<1>.7z</1>、<2>.rar</2>、<3>文件夹</3>或 <4>.patch_0</4> 文件都行。"
@@ -3698,14 +3690,6 @@ msgstr "每次音乐响起时，先播放其中一个开场，然后播放各首
 #: src/ProjectTab.tsx
 msgid "Eagle-1"
 msgstr "“飞鹰”1号"
-
-#: src/Timeline.tsx
-msgid "Edit every slot of this segment together"
-msgstr "一起编辑此段落的所有槽位"
-
-#: src/Timeline.tsx
-msgid "Edit Segment"
-msgstr "编辑段落"
 
 #: src/Soundtrack.tsx
 msgid "Edit Song"
@@ -4186,10 +4170,6 @@ msgstr "完成"
 #: src/ModOptions.tsx
 msgid "Fit Timing"
 msgstr "适配时间"
-
-#: src/Timeline.tsx
-msgid "Fit timing is off, so the original cue points apply until one is moved."
-msgstr "“让时序适配新音频”已关闭，因此在移动任一提示点之前，沿用原版的提示点。"
 
 #: src/Inspector.tsx
 msgid "Fit timing to the new audio"
@@ -5099,11 +5079,6 @@ msgstr "已略去：{what}"
 msgid "Length"
 msgstr "长度"
 
-#. placeholder {0}: fmtTime(ms)
-#: src/Timeline.tsx
-msgid "Length {0}"
-msgstr "长度 {0}"
-
 #: src/CombinePage.tsx
 msgid "Length {length}"
 msgstr "时长 {length}"
@@ -5325,7 +5300,6 @@ msgstr "将多个音频模组合并为一个模组，基于当前游戏构建。
 #: src/CueView.tsx
 #: src/Inspector.tsx
 #: src/store.tsx
-#: src/Timeline.tsx
 msgid "Make-Up Gain"
 msgstr "Make-Up Gain"
 
@@ -7928,7 +7902,6 @@ msgid "Reset all shortcuts?"
 msgstr "重置所有快捷键？"
 
 #: src/Inspector.tsx
-#: src/Timeline.tsx
 msgid "Reset Cue Points"
 msgstr "重置提示点"
 
@@ -8613,10 +8586,8 @@ msgstr "正在切分"
 msgid "Slot"
 msgstr "槽位"
 
-#. placeholder {0}: k + 1
 #. placeholder {0}: s.source
 #: src/ModOptions.tsx
-#: src/Timeline.tsx
 msgid "Slot {0}"
 msgstr "槽位 {0}"
 
@@ -9024,10 +8995,6 @@ msgstr "游戏为此声音设置的 {gain} dB 保持不变"
 msgid "The {n} blocks on it are removed with it. Undo brings them back."
 msgstr "其上的 {n} 个块也会一并删除。撤销可恢复。"
 
-#: src/Timeline.tsx
-msgid "The {n} slots line up in the Waveform Suite, each under the original"
-msgstr "{n} 个槽位会在 Waveform Suite 中排列，各自位于原版下方"
-
 #. Markdown. **Index** is the button above the Library list, and the bold word must read as the translation of the button does.
 #: src/tutorials.ts
 msgid "The **Index** sorts the sounds of the game by where you hear them: weapons, stratagems, enemies and more. The search box finds anything by name."
@@ -9280,10 +9247,6 @@ msgstr "条目名称、一个编号，然后是声音或段落"
 msgid "The language to show and change"
 msgstr "要显示和更改的语言"
 
-#: src/Timeline.tsx
-msgid "The last <0>{last}</0> rings out over the next segment."
-msgstr "最后 <0>{last}</0> 的余音会延续到下一个段落。"
-
 #: src/store.tsx
 msgid "The last project didn't open: {why}"
 msgstr "上次的项目未能打开：{why}"
@@ -9291,10 +9254,6 @@ msgstr "上次的项目未能打开：{why}"
 #: src/Soundtrack.tsx
 msgid "The level of the whole piece, on top of each slot's Make-Up Gain"
 msgstr "整首曲目的音量，叠加在各槽位的 Make-Up Gain 之上"
-
-#: src/Timeline.tsx
-msgid "The level the game gives this clip as it plays"
-msgstr "此片段播放时游戏赋予的电平"
 
 #: src/tutorials.ts
 msgid "The Liberator has two more sets of these sounds, further down the list. The tutorial changes them the same way."
@@ -10239,10 +10198,6 @@ msgstr "音量"
 #. Edit in Undo, Redo and History: a slot set to keep or drop the volume curve on the clip
 #: src/store.tsx
 msgid "volume curve"
-msgstr "音量曲线"
-
-#: src/Timeline.tsx
-msgid "Volume curve"
 msgstr "音量曲线"
 
 #: src/ModOptions.tsx

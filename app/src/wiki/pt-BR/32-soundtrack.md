@@ -2,7 +2,7 @@
 title: Trilha Sonora
 group: Criando um mod
 summary: Como cada peça musical toca, na ordem original, como uma única música, como playlist, em silêncio ou como a música de batalha.
-source: b8968eb37100
+source: e7954b89773c
 ---
 
 O jogo não toca uma peça musical de cima para baixo. A playlist de uma peça mistura grupos que tocam em ordem, grupos que tocam o segmento seguinte a cada vez e grupos que escolhem ao acaso. A maioria das músicas de combate começa cada combate numa abertura curta, e um combate novo continua de onde o anterior parou. Uma música cortada nos slots na ordem da lista toca fora de ordem no jogo.
@@ -89,4 +89,4 @@ A marca **repete** indica um grupo que toca de novo até a música mudar, e **3 
 
 ## Camadas {#layers}
 
-Músicas que tocam várias camadas ao mesmo tempo, como a da Extração, aparecem em grade: uma linha para cada segmento e uma coluna para cada camada, em intensidade baixa e alta. Clique em uma célula para ver as formas de onda. Substitua camadas na aba [Áudio](app:editor), ou edite todas as camadas de um segmento juntas com o botão empilhado abaixo do lápis nas formas de onda (**Editar segmento**).
+Músicas que tocam várias camadas ao mesmo tempo, como a da Extração, aparecem em grade: uma linha para cada segmento e uma coluna para cada camada, em intensidade baixa e alta. Clique em uma célula para ver as formas de onda. Substitua camadas na aba [Áudio](app:editor).

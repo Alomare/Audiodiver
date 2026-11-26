@@ -341,6 +341,8 @@ def make_handler(session: Session, token: str):
                                   {"error": plain(e)})
             finally:
                 IN_FLIGHT.discard(call)
+                if (took := time.time() - call[1]) > SLOW_CALL_LOG:  # a trace of what made the window wait
+                    log.info("api %s took %.1fs (%d other calls running)", name, took, len(IN_FLIGHT))
             try:
                 self._json(200, {"result": result})
             except (ConnectionResetError, BrokenPipeError, ConnectionAbortedError):
@@ -485,6 +487,7 @@ def _exit_with_parent(pid: int, last=None):
 
 IN_FLIGHT = set()   # (api method, started, thread id) of the calls being answered
 SLOW_CALL_SECONDS = 30   # play_through of a long cue is the slowest honest call
+SLOW_CALL_LOG = 1.5      # a call that took longer goes into the log, with how long
 
 
 def watch_slow_calls():

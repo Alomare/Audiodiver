@@ -2,7 +2,7 @@
 title: Sincronización, puntos de cue y bucles
 group: Crear un mod
 summary: Cómo pasa el juego de un segmento al siguiente, cómo hacer que la música nueva enlace sin cortes, cómo recortar y mover el audio nuevo y cómo cortar una canción en un cue.
-source: 699f0b527e5c
+source: 2a8c7f369c63
 ---
 
 ## Ajustar los tiempos al audio nuevo {#fitting-the-timing-to-the-new-audio}
@@ -18,7 +18,7 @@ Las formas de onda bajo los slots muestran el original encima de la sustitución
 - **Entrada** es donde se considera que ha empezado el segmento. El audio anterior a la Entrada es una preentrada que suena bajo el final del segmento anterior.
 - **Salida** es donde empieza el segmento siguiente. El audio posterior a la Salida se prolonga sobre el segmento siguiente.
 
-Arrastra la Salida en la sustitución para mover el traspaso. Para deshacerlo, arrástrala de vuelta a la posición automática o pulsa **Restablecer los puntos de cue**. Los detalles muestran los mismos valores en milisegundos en **Puntos de cue**.
+Arrastra la Salida en la sustitución para mover el traspaso. Para deshacerlo, arrástrala de vuelta: suéltala cerca de la posición automática y se ajusta a ella. Los detalles muestran los mismos valores en milisegundos en **Puntos de cue**.
 
 Cuando un fichero suena en varios segmentos, **Aplicar a … segmentos más con este fichero**, en **Puntos de cue**, da a todos ellos los puntos de cue del seleccionado. Para definir puntos de cue en una selección, selecciona los slots y escribe los valores en los detalles. Un cuadro que muestra **Varios** deja cada segmento como está hasta que escribes un valor.
 
@@ -59,8 +59,6 @@ Los bloques de una misma capa también pueden solaparse, y suenan juntos. Los bl
 En un slot de un segmento de música, la **Entrada** y la **Salida** del segmento aparecen en la línea de tiempo como líneas con banderas en la regla, y sus tiempos se muestran sobre las formas de onda. Arrastra una bandera para mover el punto de referencia. Se ajusta a los bordes de los bloques con el imán activado, y si la sueltas cerca del punto automático vuelve a él. La pista del original muestra dónde los tiene el juego. **Aplicar** fija los puntos de referencia junto con los bloques.
 
 **Reproducir en contexto** (C) reproduce el final del segmento anterior, este segmento tal como lo tienes en el editor y el inicio del segmento siguiente, con los relevos en los puntos de referencia como los reproduce el juego. No hace falta aplicar nada antes.
-
-**Editar segmento**, el botón apilado bajo el lápiz en las formas de onda, abre todos los slots del segmento a la vez: cada slot con el original encima de las capas de audio nuevo, todo en una misma línea de tiempo, para que las partes se alineen. Un slot sin audio nuevo puede empezar desde el original con el + junto al nombre del slot. **Aplicar** fija todos los slots que han cambiado.
 
 **Exportar**, junto a Aplicar, mezcla las pistas marcadas en un fichero de audio: WAV, FLAC, MP3 u Ogg Vorbis, a 48 o 44,1 kHz, con los canales del audio, en estéreo o en mono, y llevado a −1 dB en su momento más fuerte si lo eliges. El proyecto no cambia.
 
