@@ -94,4 +94,12 @@ To slice a song:
 5. Zoom with the wheel or the slider under the lanes, and draw the lanes taller for a quiet song with Ctrl+wheel or the slider at the right. Scroll with Shift+wheel or the strip under the lanes. {icon:reset}, in the corner, shows the whole song again. Click a row of the table to bring that piece into view.
 6. Press **Slice and fill**. Audiodiver saves the pieces in the `audio\slices` folder of the project and fills the slots.
 
+The window has two tabs. **Slicer** cuts the song, as above. **Waveform Suite** edits the song first, with every tool of the [Waveform Suite](#the-waveform-suite): trim it, cut a stretch out, move or fade blocks, or add other audio. Dashed lines on the time line show the cuts, numbered by piece, and they move with the audio they fall on. Back in **Slicer**, the cuts follow the edits:
+
+- Cuts placed by hand stay on the same moment of the music. A cut in a stretch that was removed goes to the nearest edge of what is left, and a piece with no audio left merges into the next one.
+- **Original Proportions**, **Original Lengths** and **Even** place the cuts again over the edited song.
+- A cut at the start or the end of the song stays at the start or the end.
+
+**Edited** beside the name of the song means the slicer cuts the song as edited. **Slice and fill** saves the edited song as a new file in the `audio\edited` folder, then cuts it. The song you chose stays as it is.
+
 Audiodiver keeps the cuts for each song, so you can slice the same song again from where you left off.

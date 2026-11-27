@@ -58,7 +58,7 @@ const MAX_CURVE = 256;  // the core's MAX_CURVE: points on a block's volume curv
 const NUDGE = 10;       // ms an arrow key moves a block (Shift: ×10)
 const RULER = 24;
 const REF_H = { one: 64, many: 56 }; // an original's lane, alone and in a segment
-const LAYER = { h: 120, many: 84, min: 48, max: 320, pad: 6 }; // a layer's height (alone, in a segment), its limits; a block's inset
+const LAYER = { h: 120, many: 84, embed: 240, min: 48, max: 320, pad: 6 }; // a layer's height (alone, in a segment, in the slice tool), its limits; a block's inset
 const MAX_LAYERS = 32;  // the core's MAX_LAYERS
 const TEMPO = [0.5, 2] as const; // the core's TEMPO: a block's speed
 const PITCH = 12;       // the core's PITCH: semitones up or down
@@ -249,8 +249,14 @@ function decode(url: string, ctx: BaseAudioContext): Promise<Decoded> {
 /** A block of a whole file, at the start. */
 const whole = (ms: number, track: number): EBlock => ({ start_ms: 0, end_ms: ms, at_ms: 0, fade_in_ms: 0, fade_out_ms: 0, gain_db: 0, track });
 
-export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: {
+/** The Suite as a tab of another dialog (the slice tool's): no frame, header, Apply or Cancel of its own. It hands
+    its blocks over as they change (`onBlocks`, with whether they differ from how it opened) and draws `marks` of the
+    blocks as they show (a drag too): the slice tool's cuts, following the audio. */
+export type SuiteEmbed = { onBlocks: (blocks: Block[], changed: boolean) => void; marks?: (blocks: Block[]) => number[]; shown?: boolean };
+
+export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose, embed }: {
   tracks: EditTrack[]; what: string; cues?: EditCues; onFile?: (path: string) => void | Promise<unknown>; applyLabel?: string; onClose: () => void;
+  embed?: SuiteEmbed;
 }) {
   const { project, actions, quick, notify } = useEditor();
   const vol = usePlayer().volume;
@@ -374,7 +380,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
   const [asks, setAsks] = useState<Record<number, number>>({});
   const layersOf = (i: number) => clamp(Math.max(asks[i] ?? 1, ...shown.filter((b) => b.track === i).map((b) => layerOf(b) + 1)), 1, MAX_LAYERS);
   const [heights, setHeights] = useState<Record<string, number>>({});
-  const baseH = many ? LAYER.many : LAYER.h;
+  const baseH = many ? LAYER.many : embed ? LAYER.embed : LAYER.h;
   const hOf = (track: number, layer: number) => heights[lk(track, layer)] ?? baseH;
   const [plays, setPlays] = useState<Record<string, boolean>>({});
   // the layers' names ("" or none: "Layer n"), saved with Apply for a slot's track
@@ -384,6 +390,20 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
   const namesOf = (i: number) => { const out = range(0, layersOf(i)).map((l) => (names[lk(i, l)] ?? "").trim()); while (out.length && !out[out.length - 1]) out.pop(); return out; };
   const namesChanged = (i: number) => JSON.stringify(namesOf(i)) !== JSON.stringify(range(0, MAX_LAYERS).map((l) => (namesStart.current[lk(i, l)] ?? "").trim()).filter((_, l, a) => a.slice(l).some(Boolean)));
   const changed = !!start.current && (tracks.some((_, i) => trackChanged(i) || (!!tracks[i].source && namesChanged(i))) || cuesChanged);
+  const reported = useRef("");
+  useEffect(() => {
+    if (!embed || !hist.list.length) return;
+    const key = JSON.stringify(blocks) + changed;
+    if (key === reported.current) return;
+    reported.current = key;
+    embed.onBlocks(blocks.map(strip), changed);
+  });
+  // embedded: the keys go to the Suite while its tab shows (focused as it opens and on a press inside it)
+  const embedBox = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (embed?.shown === false) stop();
+    else if (embed) embedBox.current?.focus({ preventScroll: true });
+  }, [embed?.shown]); // eslint-disable-line react-hooks/exhaustive-deps
   const playsOf = (track: number, layer: number) => plays[lk(track, layer)] ?? true;
   const [refPlays, setRefPlays] = useState<Record<number, boolean>>({});
   const [active, setActive] = useState<{ track: number; layer: number }>({ track: 0, layer: 0 });
@@ -994,6 +1014,24 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
         flags.current[kind] = [Math.min(fx, x - FLAG_PX), Math.max(fx + tw, x + FLAG_PX)];
       }
     }
+    // the slice tool's cuts (embedded): a dashed line each, and at the foot the number of the piece it starts (where
+    // there is room for it; cuts on one spot, their pieces merged, show once)
+    if (embed?.marks) {
+      const cuts = embed.marks(shown.map(strip)).filter((ms, i, a) => i === 0 || ms - a[i - 1] >= 1);
+      let lastLabel = -Infinity;
+      cuts.forEach((ms, i) => {
+        const x = Math.round(xOf(ms)) + 0.5;
+        if (x < -1 || x > width + 1) return;
+        g.strokeStyle = v("--accent-fg"); g.lineWidth = 1; g.setLineDash([5, 4]);
+        g.beginPath(); g.moveTo(x, RULER); g.lineTo(x, height); g.stroke(); g.setLineDash([]);
+        if (i >= cuts.length - 1) return;
+        const label = String(i + 1), w = g.measureText(label).width + 8;
+        if (x < lastLabel) return;
+        g.fillStyle = v("--accent-fg"); g.fillRect(x, height - 16, w, 16);
+        g.fillStyle = v("--bg"); g.fillText(label, x + 4, height - 4);
+        lastLabel = x + w + 2;
+      });
+    }
     // the box being drawn
     if (marquee) {
       const x = Math.min(marquee.x0, marquee.x1), y = Math.min(marquee.y0, marquee.y1), w = Math.abs(marquee.x1 - marquee.x0), hh = Math.abs(marquee.y1 - marquee.y0);
@@ -1243,7 +1281,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
     else if (k === "home") { did(); setCursor(0); }
     else if (k === "end") { did(); setCursor(resultMs); }
     else if (k === "arrowleft" || k === "arrowright") { did(); nudge((k === "arrowleft" ? -1 : 1) * NUDGE * (e.shiftKey ? 10 : 1)); }
-    else if (k === "enter" && mod) { did(); void apply(); }
+    else if (k === "enter" && mod && !embed) { did(); void apply(); }
   };
 
   const cursorCls = { move: "grab", trimL: "ew-resize", trimR: "ew-resize", fadeIn: "col-resize", fadeOut: "col-resize", cursor: "ew-resize", box: "crosshair", entry: "ew-resize", exit: "ew-resize", point: "grab", line: "copy" } as const;
@@ -1260,19 +1298,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
   const applyText = applyLabel ?? (single != null && (editOriginal(0) || !hasOwn(0)) && !isFile(0) ? t`Use as New Audio` : t`Apply`);
   const empty = single != null && !shown.length;
   // on the body: the waveform panel it opens from would hold a fixed box inside itself
-  return createPortal(
-    <div className="modal-back" onPointerDown={(e) => { if (e.target === e.currentTarget) void close(); }}>
-      <div className="modal wave-ed" role="dialog" aria-modal="true" aria-label={t`Waveform Suite`} ref={box} tabIndex={-1} onKeyDown={onKey}>
-        <header className="wave-ed-head">
-          <h2><Trans>Waveform Suite</Trans></h2>
-          <span className="wave-ed-what" data-tip={what} data-tip-clip>{what}</span>
-          <span className={`wave-ed-src ${single != null && editOriginal(0) ? "game" : "mine"}`}
-            data-tip={single != null && editOriginal(0) ? t`Editing the original: the result becomes the new audio` : single != null ? assign(0)?.audio ?? tracks[0].file : undefined}>{head_}</span>
-          <span className="spacer" />
-          <Help tip={t`Trim, split, move and fade audio`} page="timing-and-loops#the-waveform-suite" />
-          <button className="icon-btn" onClick={() => void close()} aria-label={t`Close`} data-tip={t`Close`}><CloseIcon /></button>
-        </header>
-
+  const main = (
         <div className="wave-ed-main">
         <div className="wave-ed-left">
         <div className="wave-ed-over">
@@ -1402,28 +1428,56 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose }: 
             : <p className="wave-ed-hint"><Trans>Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Drag from an empty spot to select several blocks, and hold Shift or Ctrl to add to them. Where blocks overlap, click again for the one under it. A double click plays from there. With Volume Curves on (V), click the line over a block to shape the volume.</Trans></p>}
         </aside>
         </div>
-
+  );
+  const exportBtn = (
+    <button className="btn" onClick={() => { stop(); setExporting(true); }} disabled={!ready || !exportable}
+      data-tip={exportable ? t`Export the lanes ticked as one audio file` : t`Tick a lane with audio to export it`}><ExportIcon /><Trans>Export</Trans></button>
+  );
+  const sum = (
+    <span className="wave-ed-sum">
+      <Trans>Result <b>{fmtTime(resultMs)}</b></Trans>
+      {refMs > 0 && <span className={Math.abs(diff) < 1 ? "" : diff > 0 ? "longer" : "shorter"}>
+        {" · "}<Trans>Original {fmtTime(refMs)}</Trans>{Math.abs(diff) >= 1 && ` (${diff > 0 ? "+" : "−"}${fmtTime(Math.abs(diff))})`}</span>}
+      {" · "}{shown.length === 1 ? t`1 block` : t`${shown.length} blocks`}
+    </span>
+  );
+  const exportPanel = exporting && <ExportPanel what={[
+    ...tracks.flatMap((x, i) => (refPlays[i] && refOf(i) ? [many ? t`${x.name}, original` : t`Original`] : [])),
+    ...tracks.flatMap((x, i) => range(0, layersOf(i)).filter((l) => playsOf(i, l) && blocks.some((b) => b.track === i && layerOf(b) === l))
+      .map((l) => { const nm = names[lk(i, l)]?.trim(); return many ? (nm ? `${x.name}, ${nm}` : t`${x.name}, layer ${l + 1}`) : nm || t`Layer ${l + 1}`; }))]}
+    onExport={doExport} onClose={() => setExporting(false)} />;
+  if (embed) return (
+    <div className="wave-ed wave-ed-embed" ref={embedBox} tabIndex={-1} onKeyDown={onKey} hidden={embed.shown === false}
+      onPointerDown={(e) => { if (!(e.target as Element).closest("input, button, select, textarea, [tabindex]:not([tabindex='-1'])")) embedBox.current?.focus({ preventScroll: true }); }}>
+      {main}
+      <div className="wave-ed-embed-foot">{exportBtn}<span className="spacer" />{sum}</div>
+      {exportPanel && createPortal(exportPanel, document.body)}
+    </div>
+  );
+  return createPortal(
+    <div className="modal-back" onPointerDown={(e) => { if (e.target === e.currentTarget) void close(); }}>
+      <div className="modal wave-ed" role="dialog" aria-modal="true" aria-label={t`Waveform Suite`} ref={box} tabIndex={-1} onKeyDown={onKey}>
+        <header className="wave-ed-head">
+          <h2><Trans>Waveform Suite</Trans></h2>
+          <span className="wave-ed-what" data-tip={what} data-tip-clip>{what}</span>
+          <span className={`wave-ed-src ${single != null && editOriginal(0) ? "game" : "mine"}`}
+            data-tip={single != null && editOriginal(0) ? t`Editing the original: the result becomes the new audio` : single != null ? assign(0)?.audio ?? tracks[0].file : undefined}>{head_}</span>
+          <span className="spacer" />
+          <Help tip={t`Trim, split, move and fade audio`} page="timing-and-loops#the-waveform-suite" />
+          <button className="icon-btn" onClick={() => void close()} aria-label={t`Close`} data-tip={t`Close`}><CloseIcon /></button>
+        </header>
+        {main}
         <footer className="modal-foot">
           <button className="btn primary" onClick={() => void apply()} disabled={!ready || saving || !blocks.length || !(applies.some(Boolean) || cuesChanged)}
             data-tip={tracks.some((_, i) => isFile(i)) ? t`Save the result as a new file and use it` : single != null && editOriginal(0) ? t`Use the edited original as the new audio of the slot` : t`Keep these changes in the project`} data-tip-key="Ctrl+Enter">
             {applyText}</button>
-          <button className="btn" onClick={() => { stop(); setExporting(true); }} disabled={!ready || !exportable}
-            data-tip={exportable ? t`Export the lanes ticked as one audio file` : t`Tick a lane with audio to export it`}><ExportIcon /><Trans>Export</Trans></button>
+          {exportBtn}
           <button className="btn quiet" onClick={() => void close()}><Trans>Cancel</Trans></button>
           <span className="spacer" />
-          <span className="wave-ed-sum">
-            <Trans>Result <b>{fmtTime(resultMs)}</b></Trans>
-            {refMs > 0 && <span className={Math.abs(diff) < 1 ? "" : diff > 0 ? "longer" : "shorter"}>
-              {" · "}<Trans>Original {fmtTime(refMs)}</Trans>{Math.abs(diff) >= 1 && ` (${diff > 0 ? "+" : "−"}${fmtTime(Math.abs(diff))})`}</span>}
-            {" · "}{shown.length === 1 ? t`1 block` : t`${shown.length} blocks`}
-          </span>
+          {sum}
         </footer>
       </div>
-      {exporting && <ExportPanel what={[
-        ...tracks.flatMap((x, i) => (refPlays[i] && refOf(i) ? [many ? t`${x.name}, original` : t`Original`] : [])),
-        ...tracks.flatMap((x, i) => range(0, layersOf(i)).filter((l) => playsOf(i, l) && blocks.some((b) => b.track === i && layerOf(b) === l))
-          .map((l) => { const nm = names[lk(i, l)]?.trim(); return many ? (nm ? `${x.name}, ${nm}` : t`${x.name}, layer ${l + 1}`) : nm || t`Layer ${l + 1}`; }))]}
-        onExport={doExport} onClose={() => setExporting(false)} />}
+      {exportPanel}
     </div>, document.body);
 }
 

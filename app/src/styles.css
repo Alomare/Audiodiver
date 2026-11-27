@@ -2056,6 +2056,12 @@ kbd.none { color: var(--faint); font-weight: 400; }
    and the pieces as a table */
 .modal.slice { width: min(1320px, 96vw); height: min(880px, 94vh); max-height: none; }
 .slice-empty { padding: 30px 0; color: var(--muted); max-width: 60ch; }
+/* the two tabs: the Waveform Suite (WaveEditor embedded) and the slicer */
+.slice-tabs { flex: none; }
+.wave-ed-embed { display: flex; flex-direction: column; gap: 12px; flex: 1; min-height: 0; overflow: auto; outline: none; }
+.wave-ed-embed[hidden] { display: none; }
+.wave-ed-embed-foot { display: flex; align-items: center; gap: 10px; border-top: 1px solid var(--line-soft); padding-top: 10px; margin-top: auto; }
+.slice-edited { flex: none; padding: 1px 8px; font-size: calc(12px * var(--fs)); font-weight: 600; color: var(--green); border: 1px solid currentColor; }
 .slice-bar { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; font-size: calc(14px * var(--fs)); }
 .slice-file { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; max-width: 36ch; }
 .slice-field { display: flex; align-items: center; gap: 6px; color: var(--muted); white-space: nowrap; }

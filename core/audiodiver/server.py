@@ -115,6 +115,7 @@ def methods(s: Session) -> dict:
         "edit_export": lambda tracks, path, fmt="wav24", rate=48000, channels=0, normalize=False:
             s.edit_export(tracks, path, fmt, rate, channels, normalize),
         "edit_render": lambda file, blocks: s.edit_render(file, blocks),
+        "edit_preview": lambda file, blocks: s.edit_preview(file, blocks),
         "edit_stretch": lambda tempo, pitch, file=None, source=None: s.edit_stretch(tempo, pitch, file, source),
         "edit_context": lambda cue, segment, tracks, entry_marker=None, exit_marker=None:
             s.edit_context(cue, segment, tracks, entry_marker, exit_marker),

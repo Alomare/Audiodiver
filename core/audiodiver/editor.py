@@ -2389,6 +2389,15 @@ class Session:
             raise EditorError(tr("{file} couldn't be written: {why}").format(file=out.name, why=os_error(e))) from None
         return {"path": str(out)}
 
+    def edit_preview(self, file, blocks):
+        """A file as the Waveform Suite's blocks make it, kept with the caches only (the slice tool's song while it
+        is edited, before Cut saves it with edit_render). Returns the WAV's full path."""
+        p = self._need_project()
+        wav = self._edit_track(p, {"file": file, "blocks": blocks})
+        if not wav:
+            raise EditorError(tr("Nothing to save. Add audio to the time line first"))
+        return {"path": str(wav)}
+
     def edit_context(self, cue_id, segment, tracks, entry_marker=None, exit_marker=None):
         """A segment as the Waveform Suite has it, in its place in the music: the segment before it in play order,
         this one and the one after, mixed as the game hands over (render.Renderer), with the editor's tracks in

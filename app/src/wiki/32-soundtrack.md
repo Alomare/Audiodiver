@@ -41,7 +41,7 @@ Undo takes back a whole template. A template that finds nothing to change says s
 
 The list goes on past the last piece with the segments the song doesn't reach. A file on one of them plays after the song, and stays there if you cut the song again, unless a new piece lands on that segment.
 
-**Change Cuts** opens the slice tool again with the same song and the same cuts. **Choose Another Song** starts with a new one. **Edit Song** opens the song in the [Waveform Suite](wiki:timing-and-loops#the-waveform-suite) to trim, fade or arrange it before it is cut: **Save and Cut** saves the result as a new file in the project's `audio\edited` folder and opens the slice tool with it. The song you chose stays as it is.
+**Change Cuts** opens the slice tool again with the same song and the same cuts. **Choose Another Song** starts with a new one. **Edit Song** opens the slice tool on the [Waveform Suite](wiki:timing-and-loops#slicing-one-long-song) tab, to trim, fade or arrange the song before it is cut. The cuts follow the edits. **Cut into Pieces** saves the result as a new file in the project's `audio\edited` folder and cuts it. The song you chose stays as it is.
 
 ## Playlist
 

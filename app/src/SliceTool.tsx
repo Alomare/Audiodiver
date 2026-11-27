@@ -10,6 +10,10 @@ import { useEditor } from "./store";
 import { useTheme } from "./theme";
 import { loadPeaks, wheelZoom, WaveZoom, ZOOM_Y_MAX, type Peaks, type WaveZoomState } from "./Waveform";
 import { Help } from "./WikiLinks";
+import type { Block } from "./api";
+import { confirm } from "./Confirm";
+import { retime } from "./retime";
+import { WaveEditor } from "./WaveEditor";
 
 /** The slice tool: cuts one song into consecutive pieces and fills a cue's slots with them in play order, one piece
     per segment. The cuts are exact to the sample, so pieces played back to back sound like the uncut song.
@@ -106,13 +110,31 @@ function diffText(ms: number) {
     the first slot that takes audio), and what saving it does. */
 export type SongTarget = { cue: Cue; segments: string[]; fill: (file: string, boundsMs: number[]) => Promise<boolean> };
 
+/** The two tabs: the Waveform Suite edits the song, the slicer cuts it. */
+export type SliceTab = "suite" | "slice";
+
 /** `file`: the song to start on (one dropped, or the song a piece was cut from), else the picker opens. */
 /** only: one slot gets one stretch of the song (a sound's take, which plays in no order with the others). */
-export function SliceTool({ onClose, target, file: given, only }: { onClose: () => void; target?: SongTarget; file?: string; only?: string }) {
+/** The song chosen (`source`) is edited in the Waveform Suite tab; the slicer then cuts the song as edited, a preview
+    the core mixes from the Suite's blocks (`file`), and its cuts move with the audio they fall on (retime.ts). Cut
+    saves the edited song as a new file in the project and fills the slots from it. */
+export function SliceTool({ onClose, target, file: given, only, tab: firstTab }: { onClose: () => void; target?: SongTarget; file?: string; only?: string; tab?: SliceTab }) {
   const editor = useEditor();
   const { selected, actions, notify } = editor;
   const cue = target?.cue ?? editor.cue;
-  const box = useDialog(onClose);
+  // the Suite tab: the song chosen, the blocks it has now, and the blocks the slicer's song was made from (the
+  // Suite's first blocks while the song is as chosen)
+  const [tab, setTab] = useState<SliceTab>(firstTab === "suite" && given ? "suite" : "slice");
+  const [source, setSource] = useState<string | null>(null);
+  const [suite, setSuite] = useState<{ blocks: Block[]; changed: boolean } | null>(null);
+  const [suiteSeen, setSuiteSeen] = useState(firstTab === "suite" && !!given); // the Suite reads the song only once it is opened
+  const base = useRef<Block[] | null>(null);
+  const [retiming, setRetiming] = useState(false);
+  const close = async () => {
+    if (suite?.changed && !(await confirm({ title: t`Discard the Changes?`, text: t`The changes made in the Waveform Suite are lost.`, ok: t`Discard`, cancel: t`Keep Editing` }))) return;
+    onClose();
+  };
+  const box = useDialog(() => void close());
   const rows = useMemo(() => (cue ? rowsOf(cue.segments_detail).filter((r) => !r.slot.unused && !r.slot.locked && !r.slot.absent) : []), [cue]);
   const fixed = useMemo(() => (only ? rows.filter((r) => r.slot.source === only)
     : target ? target.segments.flatMap((seg) => rows.find((r) => r.seg.segment === seg) ?? []) : null), [only, target, rows]);
@@ -154,10 +176,12 @@ export function SliceTool({ onClose, target, file: given, only }: { onClose: () 
   };
 
   const choose = async () => {
+    if (suite?.changed && !(await confirm({ title: t`Discard the Changes?`, text: t`The changes made in the Waveform Suite are lost.`, ok: t`Discard`, cancel: t`Keep Editing` }))) return;
     const f = (await pickAudio(false))?.[0];
     if (f) load(f); // cancelled: the dialog stays, with its own Choose button
   };
   const load = async (f: string) => {
+    setSource(f); setSuite(null); base.current = null; first.current = null;
     setFile(f); setInfo(null);
     try {
       const i = await call<Info>("slice_info", { audio: f });
@@ -260,6 +284,43 @@ export function SliceTool({ onClose, target, file: given, only }: { onClose: () 
     reveal(at, at);
   };
   useEffect(() => setTyped(null), [sel]);
+
+  // ---- the song as the Suite has it. The Suite's first blocks are the song as chosen; going to the slicer with
+  // other blocks has the core mix them (a preview, kept with the caches), and the cuts move with the audio
+  const first = useRef<Block[] | null>(null);
+  const onBlocks = useCallback((blocks: Block[], changed: boolean) => {
+    if (!first.current && !changed) { first.current = blocks; base.current ??= blocks; }
+    setSuite({ blocks, changed });
+  }, []);
+  const stopSlicer = () => { if (player.state.key?.startsWith(KEY) || player.state.key?.startsWith("vanilla:")) player.stop(); };
+  const toSuite = () => { stopSlicer(); setSuiteSeen(true); setTab("suite"); };
+  const toSlicer = async () => {
+    setTab("slice");
+    if (!suite || !source || !base.current || !first.current || !info) return;
+    const blocks = suite.changed ? suite.blocks : first.current;
+    if (!blocks.length || JSON.stringify(blocks) === JSON.stringify(base.current)) return;
+    setRetiming(true);
+    try {
+      const path = suite.changed ? (await call<{ path: string }>("edit_preview", { file: source, blocks })).path : source;
+      const i = await call<Info>("slice_info", { audio: path });
+      const moved = retime(bounds, base.current, blocks);
+      base.current = blocks;
+      setFile(path); setInfo(i);
+      setView({ from: 0, span: i.duration_ms });
+      setSel(null);
+      // cuts placed by hand stay where their audio went; the other layouts place them again over the stretch
+      const over = { from: moved[0], to: moved[moved.length - 1] };
+      let nb = layout === "custom" ? tidy(moved) : place(layout, targets, over);
+      if (nb.length < 2) { nb = place(known ? "proportions" : "even", targets, { from: 0, to: i.duration_ms }); setLayout(known ? "proportions" : "even"); }
+      setSpan({ from: nb[0], to: nb[nb.length - 1] });
+      setBounds(nb);
+      if (nb.length !== bounds.length && reach[nb.length - 2]) setStop(reach[nb.length - 2].slot.source);
+    } catch (e: any) { notify("bad", String(e?.message ?? e)); }
+    setRetiming(false);
+  };
+  /** The cuts as they fall on the Suite's blocks as they show (also while a block is dragged). */
+  const marks = useCallback((shown: Block[]) => (base.current && info && bounds.length ? retime(bounds, base.current, shown) : []), [bounds, info]);
+  const suiteEmpty = !!suite && !suite.blocks.length;
   const removeCut = (i: number) => {
     if (i <= 0 || i >= n) return; // the start and the end stay
     setBounds((b) => b.filter((_, j) => j !== i));
@@ -299,7 +360,7 @@ export function SliceTool({ onClose, target, file: given, only }: { onClose: () 
   latest.current = { sel, n, bounds, info, total };
   useEffect(() => {
     const k = (e: KeyboardEvent) => {
-      if ((e.target as Element).closest?.("input, select, textarea")) return;
+      if (tab !== "slice" || (e.target as Element).closest?.("input, select, textarea")) return;
       const { sel: s, n: count, bounds: b, info: inf, total: end } = latest.current;
       if (!inf) return;
       if (e.key === " ") {
@@ -324,7 +385,12 @@ export function SliceTool({ onClose, target, file: given, only }: { onClose: () 
   const submit = async () => {
     if (!file || !n || tooShort) return;
     setBusy(true);
-    const ok = target ? await target.fill(file, bounds) : await actions.sliceFill(cue.id, file, bounds, targets.slice(0, n).map((r) => r.slot.source));
+    let song = file;
+    if (source && file !== source && base.current) { // the song as edited: saved in the project first
+      try { song = (await call<{ path: string }>("edit_render", { file: source, blocks: base.current })).path; }
+      catch (e: any) { notify("bad", String(e?.message ?? e)); setBusy(false); return; }
+    }
+    const ok = target ? await target.fill(song, bounds) : await actions.sliceFill(cue.id, song, bounds, targets.slice(0, n).map((r) => r.slot.source));
     setBusy(false);
     if (ok) onClose();
   };
@@ -332,15 +398,29 @@ export function SliceTool({ onClose, target, file: given, only }: { onClose: () 
   const slotName = (r: Row) => `${rowName(r)}${r.slot.variant ? ` (${r.slot.variant})` : ""}`;
 
   return (
-    <div className="modal-back" onPointerDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div className="modal-back" onPointerDown={(e) => { if (e.target === e.currentTarget) void close(); }}>
       <div className="modal slice" role="dialog" aria-modal="true" aria-label={t`Slice a song into this cue`} ref={box} tabIndex={-1}>
         <div className="pop-head">
           <h2><Trans>Slice a song into {ph({ cue: cue.name })}</Trans></h2>
-          <Help tip={t`Drag a cut to move it, and hold Shift to stop it snapping to the original length. Double-click the song to add a cut. Delete removes the selected cut, and ←/→ nudge it (Shift moves 100 ms, Alt moves 1 ms). The wheel zooms in on time, Ctrl+wheel on the level, Shift+wheel scrolls, and Space plays.`} page="timing-and-loops#slicing-one-long-song" />
+          {tab === "slice" ? <Help tip={t`Drag a cut to move it, and hold Shift to stop it snapping to the original length. Double-click the song to add a cut. Delete removes the selected cut, and ←/→ nudge it (Shift moves 100 ms, Alt moves 1 ms). The wheel zooms in on time, Ctrl+wheel on the level, Shift+wheel scrolls, and Space plays.`} page="timing-and-loops#slicing-one-long-song" />
+            : <Help tip={t`Trim, split, move and fade the song. The cuts follow the audio they fall on`} page="timing-and-loops#the-waveform-suite" />}
           <span className="spacer" />
-          <button className="x" onClick={onClose} aria-label={t`Close`}>✕</button>
+          <button className="x" onClick={() => void close()} aria-label={t`Close`}>✕</button>
         </div>
-        {!file || !info ? (
+        <div className="xp-tabs slice-tabs" role="tablist" aria-label={t`Edit or cut the song`}>
+          <button role="tab" aria-selected={tab === "suite"} className={tab === "suite" ? "on" : ""} disabled={!source} onClick={toSuite}
+            data-tip={source ? t`Trim, fade or arrange the song before it is cut` : t`Choose a song first`}>
+            <Trans>Waveform Suite</Trans>{suite?.changed && <span className="wave-ed-dot" aria-label={t`Changed`} />}</button>
+          <button role="tab" aria-selected={tab === "slice"} className={tab === "slice" ? "on" : ""} disabled={suiteEmpty} onClick={() => void toSlicer()}
+            data-tip={suiteEmpty ? t`Add audio in the Waveform Suite first` : t`Cut the song into the slots`}><Trans>Slicer</Trans></button>
+        </div>
+        {source && suiteSeen && (
+          <WaveEditor key={source} tracks={[{ file: source, name: source.split(/[\\/]/).pop()! }]} what={source.split(/[\\/]/).pop()!} onClose={() => void close()}
+            embed={{ onBlocks, marks, shown: tab === "suite" }} />
+        )}
+        {tab !== "slice" ? null : retiming ? (
+          <div className="slice-empty"><p>{t`Mixing the edited song…`}</p></div>
+        ) : !file || !info ? (
           <div className="slice-empty">
             <p>{file ? t`Reading the song…` : only ? t`Choose a song to take a stretch of for this slot.` : t`Choose a song to cut into the slots.`}</p>
             {!file && <button className="btn primary" onClick={choose}><Trans>Choose a Song</Trans></button>}
@@ -348,7 +428,8 @@ export function SliceTool({ onClose, target, file: given, only }: { onClose: () 
         ) : (
           <>
             <div className="slice-bar">
-              <span className="slice-file" data-tip={file} data-tip-clip>{file.split(/[\\/]/).pop()}</span>
+              <span className="slice-file" data-tip={source ?? file} data-tip-clip>{(source ?? file).split(/[\\/]/).pop()}</span>
+              {source && file !== source && <span className="slice-edited" data-tip={t`As edited in the Waveform Suite`}>{t`Edited`}</span>}
               <span className="muted">{fmtTime(info.duration_ms)}</span>
               <button className="btn small-btn" onClick={choose} data-tip={t`Choose another song`}><Trans>Change</Trans></button>
               <span className="spacer" />
@@ -438,7 +519,7 @@ export function SliceTool({ onClose, target, file: given, only }: { onClose: () 
               <span className="muted small">{tooShort ? t`This song is shorter than ${MIN_PIECE} ms and can't be cut.`
                 : <Trans>Pieces are saved in the project's <code>{ph({ folder: "audio\\slices" })}</code> folder.</Trans>}</span>
               <span className="spacer" />
-              <button className="btn quiet" onClick={onClose}><Trans>Cancel</Trans></button>
+              <button className="btn quiet" onClick={() => void close()}><Trans>Cancel</Trans></button>
               <button className="btn primary" disabled={busy || n < 1 || tooShort} onClick={submit}>
                 {busy ? t`Slicing` : target ? plural({ pieces: n }, { one: "Cut into # Piece", other: "Cut into # Pieces" })
                   : plural({ slots: n }, { one: "Slice and Fill # Slot", other: "Slice and Fill # Slots" })}</button>

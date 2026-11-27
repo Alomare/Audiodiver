@@ -15,7 +15,7 @@ import { fullPath, pickAudio } from "./platform";
 import { player, usePlayer, type PlayedAt } from "./player";
 import type { Mark, Through } from "./PlayThrough";
 import { ResizeEdge, Splitter, useStoredHeight, useStoredWidth } from "./Resize";
-import { SliceTool } from "./SliceTool";
+import { SliceTool, type SliceTab } from "./SliceTool";
 import { useStable } from "./stable";
 import { useEditor, useShownTabs } from "./store";
 import { motionMs, scrollBehavior } from "./theme";
@@ -304,7 +304,7 @@ function PieceView({ item, part, setPart, sections, open }: {
   const [map, setMap] = useState<PlaylistMap | null>(null);
   const [cue, setCue] = useState<Cue | null>(null);
   const [failed, setFailed] = useState("");
-  const [slicing, setSlicing] = useState<{ file?: string } | null>(null); // the slice tool, and the song it starts on
+  const [slicing, setSlicing] = useState<{ file?: string; tab?: SliceTab } | null>(null); // the slice tool, the song it starts on and the tab
   const [exporting, setExporting] = useState<"item" | "list" | null>(null); // the Export panel, on the piece or on the list
   const [sel, setSel] = useState<string | null>(null);  // the slot selected: a segment's first, or a layer's
   const [run, setRun] = useState<FightRun | null>(null);
@@ -441,7 +441,7 @@ function PieceView({ item, part, setPart, sections, open }: {
     },
     onChoose: () => setSlicing({}),
     onRecut: () => setSlicing({ file: project && piece.song ? fullPath(project.folder, piece.song) : undefined }),
-    onEdited: (file: string) => setSlicing({ file }), // the song edited in the Waveform Suite, a new file, to cut
+    onEdit: () => setSlicing({ file: project && piece.song ? fullPath(project.folder, piece.song) : undefined, tab: "suite" }),
   });
   // a drop on One song or on a place (App.tsx hands it over)
   const latest = useRef({ put, fillFree, cueId });
@@ -580,7 +580,7 @@ function PieceView({ item, part, setPart, sections, open }: {
         <div className="st-body" ref={body}>
           {run && <Transcript run={run} now={now} fight={fight} />}
           {piece.mode === "song" && <SongBody map={map} cue={cue} piece={piece} firsts={firsts} lengths={lengths} marks={marks} onPick={setSel} at={at}
-            fight={fight} onChoose={pass.onChoose} onRecut={pass.onRecut} onEdited={pass.onEdited} rest={free.rest} onFill={pass.onFill} onClear={pass.onClear} />}
+            fight={fight} onChoose={pass.onChoose} onRecut={pass.onRecut} onEdit={pass.onEdit} rest={free.rest} onFill={pass.onFill} onClear={pass.onClear} />}
           {piece.mode === "tracks" && <PlaylistBody map={map} piece={piece} places={places} cueId={cueId} lengths={lengths} marks={marks} onPick={setSel} at={at}
             current={pass.current} put={pass.put} onSet={pass.onSet} fight={fight} />}
           {free.openings.length > 0 && <Openings map={map} cue={cue} lines={free.openings} from={map.song.length + 1} lengths={lengths} marks={marks}
@@ -602,7 +602,7 @@ function PieceView({ item, part, setPart, sections, open }: {
         </div>
       )}
       {panels.waves && cue && <Timeline room={() => room("wave")} through={run} at={sel ? at(sel) : null} cue={cue} source={sel} />}
-      {slicing && songTarget && <SliceTool target={songTarget} file={slicing.file} onClose={() => setSlicing(null)} />}
+      {slicing && songTarget && <SliceTool target={songTarget} file={slicing.file} tab={slicing.tab} onClose={() => setSlicing(null)} />}
       {exporting && (
         <ExportPanel start={exporting} onClose={() => setExporting(null)}
           target={cue ? { context: "soundtrack", cue, selected: sel ? [sel] : [], fight: fight && plays,
@@ -1001,13 +1001,12 @@ const Openings = memo(function Openings({ map, cue, lines, from, fight, onFill, 
 /** One song: the song, the pieces in the segments they went into, the ways to cut it again or choose another, and
     below the pieces the segments the song doesn't reach, which take files that play after it. A song dropped here
     opens the slice tool with it. */
-const SongBody = memo(function SongBody({ map, cue, piece, firsts, fight, onChoose, onRecut, onEdited, rest, onFill, onClear, ...pick }: Pickable & {
+const SongBody = memo(function SongBody({ map, cue, piece, firsts, fight, onChoose, onRecut, onEdit, rest, onFill, onClear, ...pick }: Pickable & {
   map: PlaylistMap; cue: Cue; piece: Piece; firsts: Map<string, string>; fight: boolean; onChoose: () => void; onRecut: () => void;
-  onEdited: (file: string) => void;
+  onEdit: () => void;
   rest: { seg: string; source: string | null }[]; onFill: (seg: string, files: string[]) => void; onClear: (seg: string) => void;
 }) {
   const { project } = useEditor();
-  const [editing, setEditing] = useState(false); // the song in the Waveform Suite: Apply saves it anew, to cut
   const added = new Set(piece.added ?? []);
   const segs = (piece.segments ?? []).filter((s) => !added.has(s));
   const opens = !!openings(map);
@@ -1026,12 +1025,10 @@ const SongBody = memo(function SongBody({ map, cue, piece, firsts, fight, onChoo
       <div className="st-row-btns">
         {piece.song && <span className="st-songname" data-tip={piece.song}>{fileName(piece.song)}</span>}
         {piece.song && <button className="btn small-btn" onClick={onRecut}><Trans>Change Cuts</Trans></button>}
-        {piece.song && <button className="btn small-btn st-edit-song" onClick={() => setEditing(true)} data-tip={t`Trim, fade or arrange the song before it is cut`}
-          data-tip-more={t`The result is saved as a new file, then cut into the pieces again`}><PencilIcon /><Trans>Edit Song</Trans></button>}
+        {piece.song && <button className="btn small-btn st-edit-song" onClick={onEdit} data-tip={t`Trim, fade or arrange the song before it is cut`}
+          data-tip-more={t`The cuts follow the edits. Cut saves the result as a new file`}><PencilIcon /><Trans>Edit Song</Trans></button>}
         <button className="btn quiet small-btn" onClick={onChoose}><Trans>Choose Another Song</Trans></button>
       </div>
-      {editing && piece.song && <WaveEditor tracks={[{ file: piece.song, name: fileName(piece.song) }]} what={fileName(piece.song)}
-        applyLabel={t`Save and Cut`} onFile={onEdited} onClose={() => setEditing(false)} />}
       <p className="st-note">{fight
         ? opens ? t`Each fight starts on one of the openings, then plays the song from piece 1.` : t`Each fight plays the song from piece 1.`
         : opens ? t`Each time the music comes on, one of the openings plays first, then the song from piece 1.`
