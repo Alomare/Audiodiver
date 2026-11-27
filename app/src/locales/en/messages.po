@@ -1583,6 +1583,10 @@ msgstr "Add Audio"
 msgid "Add audio files to build the new audio from, or start from the original."
 msgstr "Add audio files to build the new audio from, or start from the original."
 
+#: src/SliceTool.tsx
+msgid "Add audio in the Waveform Suite first"
+msgstr "Add audio in the Waveform Suite first"
+
 #: src/Library.tsx
 msgid "Add from Library"
 msgstr "Add from Library"
@@ -1929,6 +1933,10 @@ msgstr "Archives, banks, sounds and slots"
 #: src/content.ts
 msgid "Art and type"
 msgstr "Art and type"
+
+#: src/SliceTool.tsx
+msgid "As edited in the Waveform Suite"
+msgstr "As edited in the Waveform Suite"
 
 #: src/App.tsx
 msgid "As opened"
@@ -2435,6 +2443,7 @@ msgstr "Change this key"
 msgid "Change words in many lines at once"
 msgstr "Change words in many lines at once"
 
+#: src/SliceTool.tsx
 #: src/TextTab.tsx
 #: src/WaveEditor.tsx
 msgid "Changed"
@@ -2662,6 +2671,10 @@ msgstr "Choose a mod to repatch"
 #: src/Soundtrack.tsx
 msgid "Choose a Song"
 msgstr "Choose a Song"
+
+#: src/SliceTool.tsx
+msgid "Choose a song first"
+msgstr "Choose a song first"
 
 #: src/SliceTool.tsx
 msgid "Choose a song to cut into the slots."
@@ -3347,6 +3360,10 @@ msgstr "Cut into {pieces, plural, one {# piece} other {# pieces}}."
 msgid "Cut one song into pieces, one per slot"
 msgstr "Cut one song into pieces, one per slot"
 
+#: src/SliceTool.tsx
+msgid "Cut the song into the slots"
+msgstr "Cut the song into the slots"
+
 #: src/ProjectTab.tsx
 msgid "Cyan"
 msgstr "Cyan"
@@ -3463,10 +3480,12 @@ msgstr "Details"
 msgid "Difference"
 msgstr "Difference"
 
+#: src/SliceTool.tsx
 #: src/WaveEditor.tsx
 msgid "Discard"
 msgstr "Discard"
 
+#: src/SliceTool.tsx
 #: src/WaveEditor.tsx
 msgid "Discard the Changes?"
 msgstr "Discard the Changes?"
@@ -3727,6 +3746,10 @@ msgstr "Each time the music comes on, one of the openings plays first, then the 
 msgid "Eagle-1"
 msgstr "Eagle-1"
 
+#: src/SliceTool.tsx
+msgid "Edit or cut the song"
+msgstr "Edit or cut the song"
+
 #: src/Soundtrack.tsx
 msgid "Edit Song"
 msgstr "Edit Song"
@@ -3742,6 +3765,10 @@ msgstr "Edit the original in the Waveform Suite"
 #: src/Soundtrack.tsx
 msgid "Edit the song"
 msgstr "Edit the song"
+
+#: src/SliceTool.tsx
+msgid "Edited"
+msgstr "Edited"
 
 #: src/ModOptions.tsx
 msgid "Editing"
@@ -4966,6 +4993,7 @@ msgstr "Keep"
 msgid "Keep added audio to the project's banks"
 msgstr "Keep added audio to the project's banks"
 
+#: src/SliceTool.tsx
 #: src/WaveEditor.tsx
 msgid "Keep Editing"
 msgstr "Keep Editing"
@@ -5461,6 +5489,10 @@ msgstr "Mixed"
 #: src/WaveEditor.tsx
 msgid "Mixes into one file:"
 msgstr "Mixes into one file:"
+
+#: src/SliceTool.tsx
+msgid "Mixing the edited song…"
+msgstr "Mixing the edited song…"
 
 #: src/WaveEditor.tsx
 msgid "Mixing the segments…"
@@ -8112,10 +8144,6 @@ msgid "Save"
 msgstr "Save"
 
 #: src/Soundtrack.tsx
-msgid "Save and Cut"
-msgstr "Save and Cut"
-
-#: src/Soundtrack.tsx
 msgid "Save and Use"
 msgstr "Save and Use"
 
@@ -8683,6 +8711,10 @@ msgid "Sliced into {pieces, plural, one {# piece} other {# pieces}}, filled in p
 msgstr "Sliced into {pieces, plural, one {# piece} other {# pieces}}, filled in play order."
 
 #: src/SliceTool.tsx
+msgid "Slicer"
+msgstr "Slicer"
+
+#: src/SliceTool.tsx
 msgid "Slicing"
 msgstr "Slicing"
 
@@ -9182,6 +9214,7 @@ msgstr "The battle music plays on here, from where it is"
 msgid "The block on it is removed with it. Undo brings both back."
 msgstr "The block on it is removed with it. Undo brings both back."
 
+#: src/SliceTool.tsx
 #: src/WaveEditor.tsx
 msgid "The changes made in the Waveform Suite are lost."
 msgstr "The changes made in the Waveform Suite are lost."
@@ -9209,6 +9242,10 @@ msgstr "The current game doesn't have this sound. The banks in the mod bring it 
 #: src/WaveEditor.tsx
 msgid "The cursor, block edges, blocks and cue points snap to edges: of blocks, the start and where the original ends"
 msgstr "The cursor, block edges, blocks and cue points snap to edges: of blocks, the start and where the original ends"
+
+#: src/Soundtrack.tsx
+msgid "The cuts follow the edits. Cut saves the result as a new file"
+msgstr "The cuts follow the edits. Cut saves the result as a new file"
 
 #: src/SettingsTab.tsx
 msgid "The default."
@@ -9690,10 +9727,6 @@ msgstr "the reference for Wwise sound bank structures"
 msgid "The result becomes the new audio of the slot"
 msgstr "The result becomes the new audio of the slot"
 
-#: src/Soundtrack.tsx
-msgid "The result is saved as a new file, then cut into the pieces again"
-msgstr "The result is saved as a new file, then cut into the pieces again"
-
 #: src/content.ts
 msgid "the screenshots of Helldivers 2 behind Home"
 msgstr "the screenshots of Helldivers 2 behind Home"
@@ -10051,6 +10084,7 @@ msgstr "transcribing voice lines to match them to subtitles"
 msgid "Trim, fade or arrange it in the Waveform Suite. The result is saved as a new file in this place"
 msgstr "Trim, fade or arrange it in the Waveform Suite. The result is saved as a new file in this place"
 
+#: src/SliceTool.tsx
 #: src/Soundtrack.tsx
 msgid "Trim, fade or arrange the song before it is cut"
 msgstr "Trim, fade or arrange the song before it is cut"
@@ -10062,6 +10096,10 @@ msgstr "Trim, split, move and fade audio"
 #: src/Timeline.tsx
 msgid "Trim, split, move and fade in the Waveform Suite"
 msgstr "Trim, split, move and fade in the Waveform Suite"
+
+#: src/SliceTool.tsx
+msgid "Trim, split, move and fade the song. The cuts follow the audio they fall on"
+msgstr "Trim, split, move and fade the song. The cuts follow the audio they fall on"
 
 #: src/UpdatesTab.tsx
 msgid "Try Again"
@@ -10388,6 +10426,7 @@ msgid "WAV (24-bit)"
 msgstr "WAV (24-bit)"
 
 #: src/ModOptions.tsx
+#: src/SliceTool.tsx
 #: src/Timeline.tsx
 #: src/WaveEditor.tsx
 msgid "Waveform Suite"

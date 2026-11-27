@@ -1583,6 +1583,10 @@ msgstr "添加音频"
 msgid "Add audio files to build the new audio from, or start from the original."
 msgstr "添加音频文件来制作新音频，或从原版开始。"
 
+#: src/SliceTool.tsx
+msgid "Add audio in the Waveform Suite first"
+msgstr ""
+
 #: src/Library.tsx
 msgid "Add from Library"
 msgstr "从资源库添加"
@@ -1929,6 +1933,10 @@ msgstr "归档、音频库、声音和槽位"
 #: src/content.ts
 msgid "Art and type"
 msgstr "美术与字体"
+
+#: src/SliceTool.tsx
+msgid "As edited in the Waveform Suite"
+msgstr ""
 
 #: src/App.tsx
 msgid "As opened"
@@ -2435,6 +2443,7 @@ msgstr "更改此按键"
 msgid "Change words in many lines at once"
 msgstr "一次更改多行中的词语"
 
+#: src/SliceTool.tsx
 #: src/TextTab.tsx
 #: src/WaveEditor.tsx
 msgid "Changed"
@@ -2662,6 +2671,10 @@ msgstr "选择要 Repatch 的模组"
 #: src/Soundtrack.tsx
 msgid "Choose a Song"
 msgstr "选择歌曲"
+
+#: src/SliceTool.tsx
+msgid "Choose a song first"
+msgstr ""
 
 #: src/SliceTool.tsx
 msgid "Choose a song to cut into the slots."
@@ -3347,6 +3360,10 @@ msgstr "已切成 {pieces, plural, other {# 段}}。"
 msgid "Cut one song into pieces, one per slot"
 msgstr "将一首歌曲切成多段，每个槽位一段"
 
+#: src/SliceTool.tsx
+msgid "Cut the song into the slots"
+msgstr ""
+
 #: src/ProjectTab.tsx
 msgid "Cyan"
 msgstr "青色"
@@ -3463,10 +3480,12 @@ msgstr "详情"
 msgid "Difference"
 msgstr "差值"
 
+#: src/SliceTool.tsx
 #: src/WaveEditor.tsx
 msgid "Discard"
 msgstr "放弃"
 
+#: src/SliceTool.tsx
 #: src/WaveEditor.tsx
 msgid "Discard the Changes?"
 msgstr "放弃更改？"
@@ -3727,6 +3746,10 @@ msgstr "每次音乐响起时，先播放其中一个开场，然后播放各首
 msgid "Eagle-1"
 msgstr "“飞鹰”1号"
 
+#: src/SliceTool.tsx
+msgid "Edit or cut the song"
+msgstr ""
+
 #: src/Soundtrack.tsx
 msgid "Edit Song"
 msgstr "编辑歌曲"
@@ -3742,6 +3765,10 @@ msgstr "在 Waveform Suite 中编辑原版"
 #: src/Soundtrack.tsx
 msgid "Edit the song"
 msgstr "编辑歌曲"
+
+#: src/SliceTool.tsx
+msgid "Edited"
+msgstr ""
 
 #: src/ModOptions.tsx
 msgid "Editing"
@@ -4966,6 +4993,7 @@ msgstr "保留"
 msgid "Keep added audio to the project's banks"
 msgstr "添加的音频只放入项目的音频库"
 
+#: src/SliceTool.tsx
 #: src/WaveEditor.tsx
 msgid "Keep Editing"
 msgstr "继续编辑"
@@ -5461,6 +5489,10 @@ msgstr "混合"
 #: src/WaveEditor.tsx
 msgid "Mixes into one file:"
 msgstr "混合成一个文件："
+
+#: src/SliceTool.tsx
+msgid "Mixing the edited song…"
+msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Mixing the segments…"
@@ -8112,10 +8144,6 @@ msgid "Save"
 msgstr "保存"
 
 #: src/Soundtrack.tsx
-msgid "Save and Cut"
-msgstr "保存并切分"
-
-#: src/Soundtrack.tsx
 msgid "Save and Use"
 msgstr "保存并使用"
 
@@ -8683,6 +8711,10 @@ msgid "Sliced into {pieces, plural, one {# piece} other {# pieces}}, filled in p
 msgstr "已切成 {pieces, plural, other {# 段}}，并按播放顺序填充。"
 
 #: src/SliceTool.tsx
+msgid "Slicer"
+msgstr ""
+
+#: src/SliceTool.tsx
 msgid "Slicing"
 msgstr "正在切分"
 
@@ -9182,6 +9214,7 @@ msgstr "战斗音乐在此处从当前位置继续播放"
 msgid "The block on it is removed with it. Undo brings both back."
 msgstr "其上的块也会一并删除。撤销可同时恢复两者。"
 
+#: src/SliceTool.tsx
 #: src/WaveEditor.tsx
 msgid "The changes made in the Waveform Suite are lost."
 msgstr "在 Waveform Suite 中所做的更改将丢失。"
@@ -9209,6 +9242,10 @@ msgstr "当前游戏没有这个声音。模组中的音频库会把它带回来
 #: src/WaveEditor.tsx
 msgid "The cursor, block edges, blocks and cue points snap to edges: of blocks, the start and where the original ends"
 msgstr "光标、块边缘、块和提示点会吸附到边缘：块的边缘、开头以及原版结束处"
+
+#: src/Soundtrack.tsx
+msgid "The cuts follow the edits. Cut saves the result as a new file"
+msgstr ""
 
 #: src/SettingsTab.tsx
 msgid "The default."
@@ -9690,10 +9727,6 @@ msgstr "Wwise 音频库结构参考"
 msgid "The result becomes the new audio of the slot"
 msgstr "结果将成为该槽位的新音频"
 
-#: src/Soundtrack.tsx
-msgid "The result is saved as a new file, then cut into the pieces again"
-msgstr "结果会保存为新文件，然后重新切分成各个片段"
-
 #: src/content.ts
 msgid "the screenshots of Helldivers 2 behind Home"
 msgstr "主页背景中的 Helldivers 2 截图"
@@ -10051,6 +10084,7 @@ msgstr "转写语音台词以匹配字幕"
 msgid "Trim, fade or arrange it in the Waveform Suite. The result is saved as a new file in this place"
 msgstr "在 Waveform Suite 中裁剪、淡入淡出或编排。结果会作为新文件保存在此处"
 
+#: src/SliceTool.tsx
 #: src/Soundtrack.tsx
 msgid "Trim, fade or arrange the song before it is cut"
 msgstr "在切分前裁剪、淡入淡出或编排歌曲"
@@ -10062,6 +10096,10 @@ msgstr "裁剪、切分、移动音频并添加淡入淡出"
 #: src/Timeline.tsx
 msgid "Trim, split, move and fade in the Waveform Suite"
 msgstr "在 Waveform Suite 中裁剪、切分、移动并添加淡入淡出"
+
+#: src/SliceTool.tsx
+msgid "Trim, split, move and fade the song. The cuts follow the audio they fall on"
+msgstr ""
 
 #: src/UpdatesTab.tsx
 msgid "Try Again"
@@ -10388,6 +10426,7 @@ msgid "WAV (24-bit)"
 msgstr "WAV（24 位）"
 
 #: src/ModOptions.tsx
+#: src/SliceTool.tsx
 #: src/Timeline.tsx
 #: src/WaveEditor.tsx
 msgid "Waveform Suite"

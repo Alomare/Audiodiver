@@ -1583,6 +1583,10 @@ msgstr "오디오 추가"
 msgid "Add audio files to build the new audio from, or start from the original."
 msgstr "오디오 파일을 추가해 새 오디오를 만들거나 원본에서 시작하세요."
 
+#: src/SliceTool.tsx
+msgid "Add audio in the Waveform Suite first"
+msgstr ""
+
 #: src/Library.tsx
 msgid "Add from Library"
 msgstr "라이브러리에서 추가"
@@ -1929,6 +1933,10 @@ msgstr "아카이브, 뱅크, 사운드, 슬롯"
 #: src/content.ts
 msgid "Art and type"
 msgstr "그림과 글꼴"
+
+#: src/SliceTool.tsx
+msgid "As edited in the Waveform Suite"
+msgstr ""
 
 #: src/App.tsx
 msgid "As opened"
@@ -2435,6 +2443,7 @@ msgstr "이 키 변경"
 msgid "Change words in many lines at once"
 msgstr "여러 줄의 단어를 한 번에 바꾸기"
 
+#: src/SliceTool.tsx
 #: src/TextTab.tsx
 #: src/WaveEditor.tsx
 msgid "Changed"
@@ -2662,6 +2671,10 @@ msgstr "Repatch할 모드 선택"
 #: src/Soundtrack.tsx
 msgid "Choose a Song"
 msgstr "노래 선택"
+
+#: src/SliceTool.tsx
+msgid "Choose a song first"
+msgstr ""
 
 #: src/SliceTool.tsx
 msgid "Choose a song to cut into the slots."
@@ -3347,6 +3360,10 @@ msgstr "{pieces, plural, other {#조각}}으로 잘랐습니다."
 msgid "Cut one song into pieces, one per slot"
 msgstr "노래 하나를 슬롯마다 한 조각씩 자르기"
 
+#: src/SliceTool.tsx
+msgid "Cut the song into the slots"
+msgstr ""
+
 #: src/ProjectTab.tsx
 msgid "Cyan"
 msgstr "청록"
@@ -3463,10 +3480,12 @@ msgstr "세부 정보"
 msgid "Difference"
 msgstr "차이"
 
+#: src/SliceTool.tsx
 #: src/WaveEditor.tsx
 msgid "Discard"
 msgstr "버리기"
 
+#: src/SliceTool.tsx
 #: src/WaveEditor.tsx
 msgid "Discard the Changes?"
 msgstr "변경 사항을 버릴까요?"
@@ -3727,6 +3746,10 @@ msgstr "음악이 나올 때마다 오프닝 중 하나가 먼저 재생된 다�
 msgid "Eagle-1"
 msgstr "이글-1"
 
+#: src/SliceTool.tsx
+msgid "Edit or cut the song"
+msgstr ""
+
 #: src/Soundtrack.tsx
 msgid "Edit Song"
 msgstr "곡 편집"
@@ -3742,6 +3765,10 @@ msgstr "Waveform Suite에서 원본 편집"
 #: src/Soundtrack.tsx
 msgid "Edit the song"
 msgstr "곡 편집"
+
+#: src/SliceTool.tsx
+msgid "Edited"
+msgstr ""
 
 #: src/ModOptions.tsx
 msgid "Editing"
@@ -4966,6 +4993,7 @@ msgstr "유지"
 msgid "Keep added audio to the project's banks"
 msgstr "추가한 오디오는 프로젝트의 뱅크에만 넣기"
 
+#: src/SliceTool.tsx
 #: src/WaveEditor.tsx
 msgid "Keep Editing"
 msgstr "계속 편집"
@@ -5461,6 +5489,10 @@ msgstr "혼합"
 #: src/WaveEditor.tsx
 msgid "Mixes into one file:"
 msgstr "파일 하나로 믹스:"
+
+#: src/SliceTool.tsx
+msgid "Mixing the edited song…"
+msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Mixing the segments…"
@@ -8112,10 +8144,6 @@ msgid "Save"
 msgstr "저장"
 
 #: src/Soundtrack.tsx
-msgid "Save and Cut"
-msgstr "저장하고 자르기"
-
-#: src/Soundtrack.tsx
 msgid "Save and Use"
 msgstr "저장하고 사용"
 
@@ -8683,6 +8711,10 @@ msgid "Sliced into {pieces, plural, one {# piece} other {# pieces}}, filled in p
 msgstr "{pieces, plural, other {#조각}}으로 잘라 재생 순서대로 채웠습니다."
 
 #: src/SliceTool.tsx
+msgid "Slicer"
+msgstr ""
+
+#: src/SliceTool.tsx
 msgid "Slicing"
 msgstr "자르는 중"
 
@@ -9182,6 +9214,7 @@ msgstr "전투 음악이 지금 위치에서 이어서 재생됩니다"
 msgid "The block on it is removed with it. Undo brings both back."
 msgstr "그 위의 블록도 함께 삭제됩니다. 실행 취소하면 둘 다 되돌아옵니다."
 
+#: src/SliceTool.tsx
 #: src/WaveEditor.tsx
 msgid "The changes made in the Waveform Suite are lost."
 msgstr "Waveform Suite에서 한 변경 사항이 사라집니다."
@@ -9209,6 +9242,10 @@ msgstr "현재 게임에는 이 사운드가 없습니다. 모드에 든 뱅크�
 #: src/WaveEditor.tsx
 msgid "The cursor, block edges, blocks and cue points snap to edges: of blocks, the start and where the original ends"
 msgstr "커서, 블록 가장자리, 블록, 큐 포인트가 블록의 가장자리, 시작, 원본이 끝나는 위치에 맞춰집니다"
+
+#: src/Soundtrack.tsx
+msgid "The cuts follow the edits. Cut saves the result as a new file"
+msgstr ""
 
 #: src/SettingsTab.tsx
 msgid "The default."
@@ -9690,10 +9727,6 @@ msgstr "Wwise 사운드 뱅크 구조 참고 자료"
 msgid "The result becomes the new audio of the slot"
 msgstr "결과가 슬롯의 새 오디오가 됩니다"
 
-#: src/Soundtrack.tsx
-msgid "The result is saved as a new file, then cut into the pieces again"
-msgstr "결과는 새 파일로 저장된 다음 다시 조각으로 잘립니다"
-
 #: src/content.ts
 msgid "the screenshots of Helldivers 2 behind Home"
 msgstr "홈 배경의 Helldivers 2 스크린샷"
@@ -10051,6 +10084,7 @@ msgstr "대사를 받아써서 자막과 연결하기"
 msgid "Trim, fade or arrange it in the Waveform Suite. The result is saved as a new file in this place"
 msgstr "Waveform Suite에서 자르기, 페이드, 배열을 할 수 있습니다. 결과는 이 위치에 새 파일로 저장됩니다"
 
+#: src/SliceTool.tsx
 #: src/Soundtrack.tsx
 msgid "Trim, fade or arrange the song before it is cut"
 msgstr "곡을 나누기 전에 자르기, 페이드, 배열을 합니다"
@@ -10062,6 +10096,10 @@ msgstr "오디오 자르기, 나누기, 이동, 페이드"
 #: src/Timeline.tsx
 msgid "Trim, split, move and fade in the Waveform Suite"
 msgstr "Waveform Suite에서 자르기, 나누기, 이동, 페이드"
+
+#: src/SliceTool.tsx
+msgid "Trim, split, move and fade the song. The cuts follow the audio they fall on"
+msgstr ""
 
 #: src/UpdatesTab.tsx
 msgid "Try Again"
@@ -10388,6 +10426,7 @@ msgid "WAV (24-bit)"
 msgstr "WAV (24비트)"
 
 #: src/ModOptions.tsx
+#: src/SliceTool.tsx
 #: src/Timeline.tsx
 #: src/WaveEditor.tsx
 msgid "Waveform Suite"
