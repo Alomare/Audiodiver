@@ -146,6 +146,10 @@ msgstr "{file}은(는) 아이콘으로 쓰기에 너무 큽니다"
 msgid "{file} is not an image Audiodiver can read"
 msgstr "{file}은(는) Audiodiver가 읽을 수 있는 이미지가 아닙니다"
 
+#: audio.py editor.py
+msgid "Tempo and pitch need ffmpeg, which isn't installed"
+msgstr "템포와 피치에는 ffmpeg가 필요하지만 설치되어 있지 않습니다"
+
 #: audio.py
 msgid "The cut points lie outside the song"
 msgstr "자르기 지점이 노래 밖에 있습니다"
@@ -473,9 +477,21 @@ msgstr "변형 {id}"
 msgid "{group}: {value}"
 msgstr "{group}: {value}"
 
+#: catalog.py
+msgid "Percussion"
+msgstr "타악기"
+
+#: catalog.py
+msgid "Melody"
+msgstr "멜로디"
+
 #: catalog.py musiclist.py
 msgid "Also called '{name}'."
 msgstr "‘{name}’(이)라고도 합니다."
+
+#: catalog.py
+msgid "Layer {n}"
+msgstr "레이어 {n}"
 
 #: catalog.py
 msgid "Segment {n}"
@@ -575,6 +591,10 @@ msgid "Choose a song to slice"
 msgstr "자를 노래를 선택하세요"
 
 #: editor.py
+msgid "Choose the files and the slots to fill"
+msgstr "파일과 채울 슬롯을 선택하세요"
+
+#: editor.py
 msgid "Choose where to save the project (a full path)"
 msgstr "프로젝트를 저장할 위치를 선택하세요(전체 경로)"
 
@@ -611,10 +631,6 @@ msgid "Choose an audio file"
 msgstr "오디오 파일을 선택하세요"
 
 #: editor.py
-msgid "Choose the files and the slots to fill"
-msgstr "파일과 채울 슬롯을 선택하세요"
-
-#: editor.py
 msgid "Choose the slots to silence"
 msgstr "무음으로 만들 슬롯을 선택하세요"
 
@@ -645,6 +661,10 @@ msgstr "내보낼 것이 없습니다. 오디오가 있는 레이어나 원본�
 #: editor.py
 msgid "Nothing to save. Add audio to the time line first"
 msgstr "저장할 것이 없습니다. 먼저 타임라인에 오디오를 추가하세요"
+
+#: editor.py
+msgid "Select two blocks or more to merge"
+msgstr "병합할 블록을 두 개 이상 선택하세요"
 
 #: editor.py
 msgid "This slot has no new audio to edit"
@@ -1334,6 +1354,10 @@ msgstr "볼륨 곡선의 점은 최대 {n}개이며, 각각 시간과 레벨을 
 #: editor.py
 msgid "{file} couldn't be written: {why}"
 msgstr "{file}을(를) 쓰지 못했습니다: {why}"
+
+#: editor.py
+msgid "{file} couldn't be read: {why}"
+msgstr "{file}을(를) 읽을 수 없습니다: {why}"
 
 #: editor.py
 msgid "{file} can't be read, so global notes can't be shown or saved. Fix or move the file, or choose another folder in Settings ▸ System."

@@ -2,7 +2,7 @@
 title: Minutage, points de repère et boucles
 group: Créer un mod
 summary: Comment le jeu passe d’un segment au suivant, comment faire en sorte que la nouvelle musique s’enchaîne proprement, comment rogner et déplacer le nouvel audio, et comment découper une chanson dans un cue.
-source: 2a8c7f369c63
+source: f516c8a9ac66
 ---
 
 ## Ajuster le minutage au nouvel audio {#fitting-the-timing-to-the-new-audio}
@@ -27,20 +27,24 @@ Quand un même fichier est joué dans plusieurs segments, **Appliquer à … aut
 
 ## Waveform Suite {#the-waveform-suite}
 
-Le crayon à côté de **Ancien** (l’original) ou **Nouveau** (le nouvel audio) dans les formes d’onde ouvre Waveform Suite pour l’emplacement sélectionné. Le bouton blanc juste avant copie cet audio, pour le coller dans d’autres emplacements ou dans Waveform Suite. Dans la [Bande-son](app:soundtrack), **Modifier la chanson** et le crayon d’une chanson de playlist ouvrent une chanson de la même façon. L’outil rogne, coupe, déplace l’audio et y ajoute des fondus, si bien que les modifications simples ne demandent aucun autre programme. Cela marche sur tous les emplacements : musique, sons et répliques.
+Le crayon à côté de la forme d’onde de l’original ou de celle du nouvel audio ouvre Waveform Suite pour l’emplacement sélectionné. Le bouton blanc juste avant copie cet audio, pour le coller dans d’autres emplacements ou dans Waveform Suite. Dans la [Bande-son](app:soundtrack), **Modifier la chanson** et le crayon d’une chanson de playlist ouvrent une chanson de la même façon. L’outil rogne, coupe, déplace l’audio et y ajoute des fondus, si bien que les modifications simples ne demandent aucun autre programme. Cela marche sur tous les emplacements : musique, sons et répliques.
 
-L’audio est posé sur une ligne de temps sous forme de **blocs**. Chaque bloc est un passage d’un fichier, placé à un moment choisi, avec un fondu d’entrée, un fondu de sortie, un gain et une courbe de volume. L’original court tout en haut pour comparer, et une ligne pointillée marque l’endroit où il se termine. Les outils sont dans une barre au-dessus de la ligne de temps, et en pointer un montre ce qu’il fait et sa touche. Le temps du curseur s’affiche à droite, au-dessus des formes d’onde.
+L’audio est posé sur une ligne de temps sous forme de **blocs**. Chaque bloc est un passage d’un fichier, placé à un moment choisi, avec un fondu d’entrée, un fondu de sortie, un gain et une courbe de volume. L’original court tout en haut pour comparer, et une ligne pointillée marque l’endroit où il se termine. Les outils sont dans une barre au-dessus de la ligne de temps, et en pointer un montre ce qu’il fait et sa touche. Chaque outil a une touche, et [Paramètres ▸ Raccourcis](app:settings/shortcuts) les liste sous **Waveform Suite**, pour les changer. Le temps du curseur s’affiche à droite, au-dessus des formes d’onde.
 
 - Faites glisser le corps d’un bloc pour le déplacer. Faites glisser le bord gauche ou droit pour le rogner. Faites glisser les petits carrés du bord supérieur pour un fondu d’entrée ou de sortie.
 - Cliquez sur la ligne de temps pour placer le curseur. Pour le déplacer, faites glisser le curseur lui-même, ou le long de la règle en haut.
-- Faites glisser depuis un endroit vide pour tracer un cadre : chaque bloc qu’il touche est sélectionné, sur n’importe quelle couche. Shift ou Ctrl avec un clic ajoute un bloc à la sélection ou l’en retire, et Ctrl+A sélectionne tous les blocs. Les blocs sélectionnés se déplacent, se coupent, se dupliquent, se normalisent et se suppriment ensemble, et les valeurs à côté de la ligne de temps règlent les fondus et le gain de tous.
-- **Couper** ({key:suiteSplit}) coupe les blocs sélectionnés au curseur, ou le bloc sous le curseur, et chaque partie reçoit ses propres fondus. **Normaliser** (N) règle le gain pour que le moment le plus fort de chaque bloc atteigne −1 dB. **Dupliquer** (Ctrl+D) place des copies juste après les blocs, et **Retirer** (Suppr) les enlève.
-- **Aimant** (M) aimante le curseur, les bords et les blocs entre eux, au début et à l’endroit où l’original se termine.
-- **Courbes de volume** (V) affiche une ligne sur chaque bloc : plein niveau en haut du bloc, silence en bas. Cliquez sur la ligne pour ajouter un point, et faites glisser un point pour façonner le volume dans le temps. Un double-clic sur un point, ou Alt et un clic, le retire. Pendant qu’un point est déplacé, le niveau s’affiche à côté en dB. Les points restent avec l’audio quand un bloc est rogné ou coupé, et **Aplatir la courbe** à côté de la ligne de temps les retire tous.
-- **Ajouter de l’audio** place des fichiers audio sur la ligne de temps comme nouveaux blocs, l’un après l’autre à partir du curseur. Déposer des fichiers sur l’éditeur fait de même, et **Ctrl+V** colle les emplacements copiés avec Ctrl+C dans la liste (leur nouvel audio tel qu’il joue, ou l’original) ou des fichiers audio copiés dans l’Explorateur. Un emplacement peut ainsi être fait de plusieurs fichiers, et un emplacement sans nouvel audio peut partir de fichiers ou de l’original.
-- À côté de la ligne de temps, saisissez des valeurs exactes pour le bloc sélectionné, en millisecondes.
-- **Lire** (Espace) lit à partir du curseur, et **Boucle** (L) lit les blocs sélectionnés en boucle. Un double-clic sur la ligne de temps lance la lecture à partir de là. Les pistes qui jouent sont teintées de leur couleur.
-- Ctrl+Z et Ctrl+Y annulent et rétablissent dans l’éditeur. **Réinitialiser** revient au fichier entier, tel quel.
+- Faites glisser depuis un endroit vide pour tracer un cadre : chaque bloc qu’il touche est sélectionné, sur n’importe quelle couche. Shift ou Ctrl avec un clic ajoute un bloc à la sélection ou l’en retire, et {key:suiteSelectAll} sélectionne tous les blocs. Les blocs sélectionnés se déplacent, se coupent, se dupliquent, se normalisent et se suppriment ensemble, et les valeurs à côté de la ligne de temps règlent les fondus et le gain de tous.
+- **Couper** ({key:suiteSplit}) coupe les blocs sélectionnés au curseur, ou le bloc sous le curseur, et chaque partie reçoit ses propres fondus. **Normaliser** ({key:suiteNormalize}) règle le gain pour que le moment le plus fort de chaque bloc atteigne −1 dB. **Dupliquer** ({key:suiteDuplicate}) place des copies juste après les blocs, et **Retirer** ({key:suiteRemove}) les enlève.
+- **Fusionner** ({key:suiteMerge}) fait un seul bloc des blocs sélectionnés, tels qu’ils sont lus : les vides entre eux deviennent du silence, et les blocs qui se chevauchent sont lus ensemble. Le nouveau bloc lit un fichier enregistré dans le dossier `audio\edited` du projet, et Annuler ramène les blocs. Le fichier est supprimé si la Suite se ferme sans l’appliquer.
+- **Accoler à gauche** ({key:suiteSnapLeft}) et **Accoler à droite** ({key:suiteSnapRight}) déplacent les blocs sélectionnés jusqu’à toucher le bloc d’avant ou d’après sur leur couche. **Placer au début** ({key:suiteToStart}) les place au début, et **Placer à la fin** ({key:suiteToEnd}) les place pour qu’ils finissent là où finit l’original (sans original, après les autres blocs). **Combler les vides** ({key:suiteCloseGaps}) ramène les blocs de la couche les uns contre les autres, depuis le premier, et avec des blocs sélectionnés, il agit sur leurs couches.
+- **Aimant** ({key:suiteMagnet}) aimante le curseur, les bords et les blocs entre eux, au début et à l’endroit où l’original se termine.
+- **Courbes de volume** ({key:suiteCurves}) affiche une ligne sur chaque bloc : plein niveau en haut du bloc, silence en bas. Cliquez sur la ligne pour ajouter un point, et faites glisser un point pour façonner le volume dans le temps. Un double-clic sur un point, ou Alt et un clic, le retire. Pendant qu’un point est déplacé, le niveau s’affiche à côté en dB. Les points restent avec l’audio quand un bloc est rogné ou coupé, et **Aplatir la courbe** à côté de la ligne de temps les retire tous.
+- **Ajouter de l’audio** ({key:suiteAdd}) place des fichiers audio sur la ligne de temps comme nouveaux blocs, l’un après l’autre à partir du curseur. Déposer des fichiers sur l’éditeur fait de même, et {key:suitePaste} colle les emplacements copiés avec Ctrl+C dans la liste (leur nouvel audio tel qu’il joue, ou l’original) ou des fichiers audio copiés dans l’Explorateur. Un emplacement peut ainsi être fait de plusieurs fichiers, et un emplacement sans nouvel audio peut partir de fichiers ou de l’original.
+- À côté de la ligne de temps, saisissez des valeurs exactes pour le bloc sélectionné, en millisecondes. Le bloc change pendant la saisie, Entrée fixe la valeur, et Échap la reprend. Faites glisser le nom d’une valeur vers la gauche ou la droite pour la changer : Shift pour de plus grands pas, Ctrl pour des pas plus fins. ↑ et ↓ la changent aussi par pas.
+- **Tempo** lit un bloc plus vite ou plus lentement, de 50 % à 200 %, et **Hauteur** le rend plus aigu ou plus grave, jusqu’à 12 demi-tons dans chaque sens. Avec le lien entre les deux activé, l’un fait bouger l’autre, comme une bande lue plus vite. Sans lui, chacun change seul : le tempo garde la hauteur, et la hauteur garde le tempo.
+- **Lire** ({key:suitePlay}) lit à partir du curseur, et **Boucle** ({key:suiteLoop}) lit les blocs sélectionnés en boucle. Un double-clic sur la ligne de temps lance la lecture à partir de là. Les pistes qui jouent sont teintées de leur couleur.
+- {key:suiteUndo} et {key:suiteRedo} annulent et rétablissent dans l’éditeur. **Réinitialiser** ({key:suiteReset}) revient au fichier entier, tel quel.
+- Zoomez avec la molette, Ctrl+molette et les curseurs, comme dans les formes d’onde sous les emplacements. À côté du zoom temporel, {icon:fitsel} montre les blocs sélectionnés sur toute la largeur, et {icon:fitlayer} montre la couche du début à la fin de son dernier bloc. L’éditeur garde le zoom de chaque emplacement pour sa prochaine ouverture.
 
 ### Couches {#layers}
 
@@ -58,7 +62,7 @@ Les blocs d’une même couche peuvent aussi se chevaucher, et ils jouent ensemb
 
 Sur un emplacement d’un segment de musique, l’**Entrée** et la **Sortie** du segment se dressent sur la ligne de temps comme des lignes avec des drapeaux sur la règle, et leurs temps s’affichent au-dessus des formes d’onde. Faites glisser un drapeau pour déplacer le point de repère. Il s’aimante aux bords des blocs quand l’aimant est activé, et relâché près de la position automatique il y revient. La piste de l’original montre où le jeu les place. **Appliquer** fixe les points de repère avec les blocs.
 
-**Lire en contexte** (C) lit la fin du segment précédent, ce segment tel que vous l’avez dans l’éditeur et le début du segment suivant, enchaînés aux points de repère comme le jeu les joue. Rien n’a besoin d’être appliqué d’abord.
+**Lire en contexte** ({key:suiteContext}) lit la fin du segment précédent, ce segment tel que vous l’avez dans l’éditeur et le début du segment suivant, enchaînés aux points de repère comme le jeu les joue. Rien n’a besoin d’être appliqué d’abord.
 
 **Exporter**, à côté d’Appliquer, mixe les pistes cochées en un seul fichier audio : WAV, FLAC, MP3 ou Ogg Vorbis, à 48 ou 44,1 kHz, avec les canaux de l’audio, en stéréo ou en mono, et ramené à −1 dB au moment le plus fort si vous le souhaitez. Le projet ne change pas.
 
@@ -66,7 +70,7 @@ Rien ne change avant **Appliquer**. Les fichiers restent tels quels : le proje
 
 ## Écouter le résultat {#hearing-the-result}
 
-**Lecture enchaînée** joue tout le morceau comme il est joué dans le jeu, avec les segments dans l’ordre et chaque passage de relais à un point de Sortie. Comparez **Original** et **Remplacé** pour repérer les vides, les doubles coups et les sauts de volume avant de générer.
+**Lecture enchaînée** joue tout le morceau comme il est joué dans le jeu, avec les segments dans l’ordre et chaque passage de relais à un point de Sortie. Là où le jeu choisit des segments au hasard, chaque lecture enchaînée les choisit à nouveau. Comparez **Original** et **Remplacé** pour repérer les vides, les doubles coups et les sauts de volume avant de générer.
 
 ## Boucles {#loops}
 
@@ -74,7 +78,7 @@ Un segment marqué **en boucle** se répète jusqu’à ce que le jeu passe à l
 
 ## Découper une longue chanson {#slicing-one-long-song}
 
-{icon:slice} **Découper une chanson** découpe un long fichier en morceaux consécutifs à des positions d’échantillon exactes, si bien que les morceaux sonnent comme la chanson non découpée quand ils sont joués bout à bout. Chaque morceau va dans un segment, dans l’ordre de lecture. Les couches d’un segment sont jouées ensemble, donc tous les morceaux vont dans la couche de l’emplacement **Début**.
+{icon:slice} **Découper une chanson** découpe un long fichier en morceaux consécutifs à des positions d’échantillon exactes, si bien que les morceaux sonnent comme la chanson non découpée quand ils sont joués bout à bout. Chaque morceau va dans un segment, dans l’ordre de lecture. Les couches d’un segment sont jouées ensemble, donc tous les morceaux vont dans la couche de l’emplacement **Début**. Dans une musique dont les couches changent avec l’intensité, comme la musique d’Extraction, chaque morceau va dans cette couche à intensité faible et forte, et les autres couches sans nouvel audio reçoivent du silence, pour que la chanson joue seule.
 
 Un cue d’un seul emplacement, comme une transition, reçoit un seul morceau : placez **Début** et **Fin** sur le passage de la chanson qu’il doit jouer. Un son reçoit lui aussi un seul morceau : sélectionnez un emplacement du son, et **Découper une chanson** découpe un passage de la chanson pour cet emplacement. **Durées d’origine** donne au passage la durée de l’original.
 
@@ -91,5 +95,13 @@ Pour découper une chanson :
 4. Écoutez. **Chanson** joue la chanson, et **Originaux** joue l’audio d’origine des emplacements l’un après l’autre. Cliquez sur la chanson ou sur l’original pour lire à partir de ce point, ou appuyez sur ▶ sur un morceau ou sur l’original à côté dans le tableau. Space lance et met en pause.
 5. Zoomez avec la molette ou le curseur sous les pistes, et dessinez les pistes plus hautes pour une chanson faible avec Ctrl+molette ou le curseur à droite. Faites défiler avec Shift+molette ou la bande sous les pistes. {icon:reset}, dans le coin, affiche de nouveau toute la chanson. Cliquez sur une ligne du tableau pour amener ce morceau dans la vue.
 6. Appuyez sur **Découper et remplir**. Audiodiver enregistre les morceaux dans le dossier `audio\slices` du projet et remplit les emplacements.
+
+La fenêtre a deux onglets. **Découpeur** découpe la chanson, comme ci-dessus. **Waveform Suite** modifie d’abord la chanson, avec tous les outils de [Waveform Suite](#the-waveform-suite) : rognez-la, retirez-en un passage, déplacez des blocs ou ajoutez-leur des fondus, ou ajoutez un autre audio. Des lignes pointillées sur la ligne de temps montrent les coupes, numérotées par morceau, et elles suivent l’audio sur lequel elles tombent. De retour dans **Découpeur**, les coupes suivent les modifications :
+
+- Les coupes placées à la main restent sur le même moment de la musique. Une coupe dans un passage retiré va au bord le plus proche de ce qui reste, et un morceau sans audio restant se fond dans le suivant.
+- **Proportions d’origine**, **Durées d’origine** et **À parts égales** replacent les coupes sur la chanson modifiée.
+- Une coupe au début ou à la fin de la chanson reste au début ou à la fin.
+
+**Modifiée** à côté du nom de la chanson veut dire que le découpeur coupe la chanson telle que modifiée. **Découper et remplir** enregistre la chanson modifiée comme nouveau fichier dans le dossier `audio\edited`, puis la découpe. La chanson choisie reste telle quelle.
 
 Audiodiver conserve les coupes de chaque chanson, donc vous pouvez découper de nouveau la même chanson à partir de là où vous vous étiez arrêté.

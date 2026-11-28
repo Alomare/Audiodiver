@@ -2,7 +2,7 @@
 title: Bande-son
 group: Créer un mod
 summary: Comment chaque morceau de musique est joué : dans l’ordre d’origine, comme une seule chanson, comme une playlist, en silence, ou comme la musique de combat.
-source: e7954b89773c
+source: c669d9e53fc4
 ---
 
 Le jeu ne joue pas un morceau de musique de haut en bas. La playlist d’un morceau mélange des groupes joués dans l’ordre, des groupes qui jouent le segment suivant à chaque fois, et des groupes qui choisissent au hasard. La plupart des musiques de combat démarrent chaque combat sur une courte ouverture, et un nouveau combat reprend là où le précédent s’est arrêté. Une chanson découpée dans les emplacements dans l’ordre de la liste est jouée dans le désordre dans le jeu.
@@ -42,7 +42,7 @@ Annuler reprend un modèle entier. Un modèle qui ne trouve rien à modifier l�
 
 La liste continue après le dernier morceau avec les segments que la chanson n’atteint pas. Un fichier placé sur l’un d’eux est joué après la chanson et y reste si vous recoupez la chanson, sauf si un nouveau morceau tombe sur ce segment.
 
-**Modifier coupes** rouvre l’outil de découpe avec la même chanson et les mêmes coupes. **Choisir une autre chanson** recommence avec une nouvelle. **Modifier la chanson** ouvre la chanson dans [Waveform Suite](wiki:timing-and-loops#the-waveform-suite) pour la rogner, y ajouter des fondus ou l’arranger avant qu’elle soit découpée : **Enregistrer et découper** enregistre le résultat dans un nouveau fichier du dossier `audio\edited` du projet et ouvre l’outil de découpe avec. La chanson choisie reste telle quelle.
+**Modifier coupes** rouvre l’outil de découpe avec la même chanson et les mêmes coupes. **Choisir une autre chanson** recommence avec une nouvelle. **Modifier la chanson** ouvre l’outil de découpe sur l’onglet [Waveform Suite](wiki:timing-and-loops#slicing-one-long-song), pour rogner la chanson, y ajouter des fondus ou l’arranger avant qu’elle soit découpée. Les coupes suivent les modifications. **Découper en morceaux** enregistre le résultat dans un nouveau fichier du dossier `audio\edited` du projet et le découpe. La chanson choisie reste telle quelle.
 
 ## Playlist {#playlist}
 
@@ -85,8 +85,8 @@ L’ordre de lecture montre le morceau sous forme de groupes de segments, chacun
 
 Les segments d’un groupe sont reliés par ce que le groupe signifie : → pour dans l’ordre, *ou* pour un au hasard. Les groupes placés les uns sous les autres sont reliés de la même façon par *puis*, *la fois suivante* ou *ou*. Un petit choix de segments tient sur une seule ligne dans un cadre en pointillés, et un groupe qui ne contient qu’un seul élément montre cet élément seul, puisque le résultat est le même.
 
-**Se répète** marque un groupe qui est joué de nouveau jusqu’à ce que la musique change, et **3 fois** un groupe joué trois fois, puis qui passe à la suite. **Les combats commencent ici** marque l’endroit où la musique démarre quand un combat commence ([Ouvertures](wiki:soundtrack#openings)), et **Commence ici** l’endroit où une autre musique démarre chaque fois qu’elle se lance. Le ▶ sur un segment joue ce que le projet y joue.
+**Se répète** marque un groupe qui est joué de nouveau jusqu’à ce que la musique change, et **3 fois** un groupe joué trois fois, puis qui passe à la suite. **Les combats commencent ici** marque l’endroit où la musique démarre quand un combat commence ([Ouvertures](wiki:soundtrack#openings)), et **Commence ici** l’endroit où une autre musique démarre chaque fois qu’elle se lance. Le ▶ sur un segment joue ce que le projet y joue. Cliquez sur le nom d’un groupe pour le replier sur le nombre de segments qu’il contient, et de nouveau pour l’ouvrir.
 
 ## Couches {#layers}
 
-La musique qui joue plusieurs couches à la fois, comme celle de l’Extraction, les affiche en grille : une ligne par segment et une colonne par couche, à intensité faible et forte. Cliquez sur une case pour voir les formes d’onde. Remplacez les couches dans l’onglet [Audio](app:editor).
+La musique qui joue plusieurs couches à la fois, comme celle de l’Extraction, les affiche en grille : une ligne par segment et une colonne par couche, à intensité faible et forte. Cliquez sur une case pour voir les formes d’onde. Remplacez les couches dans l’onglet [Audio](app:editor), où chaque emplacement porte le nom de la couche où il joue (**Percussions**, **Mélodie**, ou **Couche 1** et **Couche 2** là où les clips ne le disent pas) et une étiquette de l’intensité à laquelle il joue.

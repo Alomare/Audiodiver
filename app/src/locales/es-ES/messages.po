@@ -1549,7 +1549,7 @@ msgstr "Añadir una tecla para: {command}"
 
 #: src/keys.ts
 msgid "Add a layer"
-msgstr ""
+msgstr "Añadir una capa"
 
 #: src/keys.ts
 msgid "add a slot to the selection, or select a range"
@@ -1585,7 +1585,7 @@ msgstr "Añadir audio"
 
 #: src/keys.ts
 msgid "Add audio files as blocks"
-msgstr ""
+msgstr "Añadir ficheros de audio como bloques"
 
 #: src/WaveEditor.tsx
 msgid "Add audio files to build the new audio from, or start from the original."
@@ -1593,7 +1593,7 @@ msgstr "Añade ficheros de audio para crear el audio nuevo a partir de ellos, o 
 
 #: src/SliceTool.tsx
 msgid "Add audio in the Waveform Suite first"
-msgstr ""
+msgstr "Añade audio en la Waveform Suite primero"
 
 #: src/Library.tsx
 msgid "Add from Library"
@@ -1719,7 +1719,7 @@ msgstr "Añade una columna con estas líneas en otro idioma"
 #. placeholder {0}: keyLabel("suitePaste")
 #: src/WaveEditor.tsx
 msgid "Adds audio files as new blocks on the selected layer, one after the other from the cursor. Dropping files on the editor does the same, and {0} pastes slots copied in the list or files copied in Explorer"
-msgstr ""
+msgstr "Añade ficheros de audio como bloques nuevos en la capa seleccionada, uno tras otro desde el cursor. Soltar ficheros en el editor hace lo mismo, y {0} pega slots copiados en la lista o ficheros copiados en el Explorador"
 
 #: src/SettingsTab.tsx
 msgid "After the pointer rests for a second."
@@ -1945,7 +1945,7 @@ msgstr "Arte y tipografía"
 
 #: src/SliceTool.tsx
 msgid "As edited in the Waveform Suite"
-msgstr ""
+msgstr "Tal como se editó en la Waveform Suite"
 
 #: src/App.tsx
 msgid "As opened"
@@ -2515,7 +2515,7 @@ msgstr "Cambios de otros tipos en los bancos de sonido, como efectos. El resulta
 
 #: src/WaveEditor.tsx
 msgid "Changing one changes the other, as a tape played faster"
-msgstr ""
+msgstr "Al cambiar uno cambia el otro, como una cinta reproducida más rápido"
 
 #: src/TextTab.tsx
 msgid "Changing text"
@@ -2683,7 +2683,7 @@ msgstr "Elegir una canción"
 
 #: src/SliceTool.tsx
 msgid "Choose a song first"
-msgstr ""
+msgstr "Elige una canción primero"
 
 #: src/SliceTool.tsx
 msgid "Choose a song to cut into the slots."
@@ -2889,7 +2889,7 @@ msgstr "Clic en ▶"
 
 #: src/WaveEditor.tsx
 msgid "Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Drag from an empty spot to select several blocks, and hold Shift or Ctrl to add to them. Where blocks overlap, click again for the one under it. A double click plays from there. With Volume Curves on ({curvesKey}), click the line over a block to shape the volume."
-msgstr ""
+msgstr "Haz clic en un bloque para configurarlo. Arrastra el cuerpo para moverlo, también a otra capa, un borde para recortarlo y los cuadrados del borde superior para los fundidos. Arrastra desde un espacio vacío para seleccionar varios bloques, y mantén Shift o Ctrl para añadir más. Donde los bloques se solapan, haz clic otra vez para el de debajo. Un doble clic reproduce desde ahí. Con Curvas de volumen activadas ({curvesKey}), haz clic en la línea sobre un bloque para dar forma al volumen."
 
 #: src/WikiLinks.tsx
 msgid "Click for the Wiki section"
@@ -2905,15 +2905,15 @@ msgstr "Haz clic en una asignación de tecla para cambiarla. Pulsa Esc para canc
 
 #: src/CueView.tsx
 msgid "Click to copy it. The clip ID in the game files. Right-click the row for the other IDs"
-msgstr ""
+msgstr "Haz clic para copiarlo. El ID del clip en los ficheros del juego. Haz clic derecho en la fila para los demás ID"
 
 #: src/CueView.tsx
 msgid "Click to copy it. The ID other audio tools list this clip by. Right-click the row for the other IDs"
-msgstr ""
+msgstr "Haz clic para copiarlo. El ID con el que otras herramientas de audio listan este clip. Haz clic derecho en la fila para los demás ID"
 
 #: src/Soundtrack.tsx
 msgid "Click to fold it away"
-msgstr ""
+msgstr "Haz clic para plegarlo"
 
 #: src/ItemHead.tsx
 msgid "Click to keep it shown"
@@ -2921,7 +2921,7 @@ msgstr "Haz clic para dejarlo visible"
 
 #: src/Soundtrack.tsx
 msgid "Click to open it"
-msgstr ""
+msgstr "Haz clic para abrirlo"
 
 #: src/Inspector.tsx
 msgid "Clip Sharing Mode"
@@ -2953,7 +2953,7 @@ msgstr "Cerrar de todos modos"
 
 #: src/WaveEditor.tsx
 msgid "Close Gaps"
-msgstr ""
+msgstr "Cerrar huecos"
 
 #: src/ProjectTab.tsx
 msgid "Close Project"
@@ -2961,7 +2961,7 @@ msgstr "Cerrar proyecto"
 
 #: src/keys.ts
 msgid "Close the gaps on the layer"
-msgstr ""
+msgstr "Cerrar los huecos de la capa"
 
 #: src/Home.tsx
 #: src/keys.ts
@@ -3245,7 +3245,7 @@ msgstr "Copiar el ID de origen"
 
 #: src/CueView.tsx
 msgid "Copy the source ID {id}"
-msgstr ""
+msgstr "Copiar el ID de origen {id}"
 
 #: src/Inspector.tsx
 msgid "Copy the stream ID"
@@ -3253,7 +3253,7 @@ msgstr "Copiar el ID de stream"
 
 #: src/CueView.tsx
 msgid "Copy the stream ID {id}"
-msgstr ""
+msgstr "Copiar el ID de stream {id}"
 
 #: src/Soundtrack.tsx
 msgid "Copy To"
@@ -3375,7 +3375,7 @@ msgstr "Cortar una canción en trozos, uno por slot"
 
 #: src/SliceTool.tsx
 msgid "Cut the song into the slots"
-msgstr ""
+msgstr "Cortar la canción en los slots"
 
 #: src/ProjectTab.tsx
 msgid "Cyan"
@@ -3563,7 +3563,7 @@ msgstr "Arrastra el cursor, o a lo largo de la regla, para moverlo"
 
 #: src/WaveEditor.tsx
 msgid "Drag the name to change it: Shift for bigger steps, Ctrl for finer ones"
-msgstr ""
+msgstr "Arrastra el nombre para cambiarlo: Shift para pasos mayores, Ctrl para pasos más finos"
 
 #: src/WaveEditor.tsx
 msgid "Drag their flags on the ruler. Let go near the automatic spot to go back to it"
@@ -3652,7 +3652,7 @@ msgstr "Duplicar"
 
 #: src/keys.ts
 msgid "Duplicate the selected blocks"
-msgstr ""
+msgstr "Duplicar los bloques seleccionados"
 
 #: src/TextTab.tsx
 msgid "Dutch"
@@ -3664,7 +3664,7 @@ msgstr "Así cada generación recibe un nombre de ZIP nuevo y los ZIP anteriores
 
 #: src/WaveEditor.tsx
 msgid "Each changes alone: the tempo keeps the pitch, the pitch keeps the tempo"
-msgstr ""
+msgstr "Cada uno cambia por separado: el tempo mantiene el tono y el tono mantiene el tempo"
 
 #: src/ExportDialog.tsx
 msgid "Each export is a new fight, with the segments picked as the game picks them in a mission"
@@ -3769,7 +3769,7 @@ msgstr "Águila 1"
 
 #: src/SliceTool.tsx
 msgid "Edit or cut the song"
-msgstr ""
+msgstr "Editar o cortar la canción"
 
 #: src/Soundtrack.tsx
 msgid "Edit Song"
@@ -3789,7 +3789,7 @@ msgstr "Editar la canción"
 
 #: src/SliceTool.tsx
 msgid "Edited"
-msgstr ""
+msgstr "Editada"
 
 #: src/ModOptions.tsx
 msgid "Editing"
@@ -4046,7 +4046,7 @@ msgstr "Exportar los ficheros de parche sin empaquetar"
 
 #: src/keys.ts
 msgid "Export the lanes ticked"
-msgstr ""
+msgstr "Exportar las capas marcadas"
 
 #: src/WaveEditor.tsx
 msgid "Export the lanes ticked as one audio file"
@@ -4371,7 +4371,7 @@ msgstr "De la Biblioteca a un mod generado: el disparo de un arma sustituido por
 
 #: src/WaveEditor.tsx
 msgid "From the start to the end of the selected blocks' layers, or of the layer worked on"
-msgstr ""
+msgstr "Desde el inicio hasta el final de las capas de los bloques seleccionados, o de la capa en la que trabajas"
 
 #: src/ExportDialog.tsx
 msgid "Full Names"
@@ -4621,11 +4621,11 @@ msgstr "cómo se reproduce cada pieza de música"
 
 #: src/WaveEditor.tsx
 msgid "How fast each block plays"
-msgstr ""
+msgstr "A qué velocidad se reproduce cada bloque"
 
 #: src/WaveEditor.tsx
 msgid "How fast the block plays: 200% in half the time"
-msgstr ""
+msgstr "A qué velocidad se reproduce el bloque: 200% en la mitad del tiempo"
 
 #: src/Soundtrack.tsx
 msgid "How it plays"
@@ -4665,11 +4665,11 @@ msgstr "Cuánto dura el trozo"
 
 #: src/WaveEditor.tsx
 msgid "How much higher or lower each block plays"
-msgstr ""
+msgstr "Cuánto más agudo o grave suena cada bloque"
 
 #: src/WaveEditor.tsx
 msgid "How much higher or lower the block plays, in semitones"
-msgstr ""
+msgstr "Cuánto más agudo o grave suena el bloque, en semitonos"
 
 #: src/SliceTool.tsx
 msgid "How much longer (+) or shorter (−) the piece is than the original"
@@ -4708,7 +4708,7 @@ msgstr "Solo iconos. Los nombres aparecen en las descripciones emergentes."
 #. Short tag at the end of a slot's line; the tooltip shows the ID
 #: src/CueView.tsx
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #: src/PatchContentPage.tsx
 msgid "ID {id}"
@@ -5266,7 +5266,7 @@ msgstr "Enlace"
 
 #: src/WaveEditor.tsx
 msgid "Link Tempo and Pitch"
-msgstr ""
+msgstr "Vincular tempo y tono"
 
 #: src/CueView.tsx
 msgid "Linked to other places. New audio here plays there too"
@@ -5332,7 +5332,7 @@ msgstr "Bucle"
 
 #: src/keys.ts
 msgid "Loop on or off"
-msgstr ""
+msgstr "Activar o desactivar el bucle"
 
 #: src/WaveEditor.tsx
 msgid "Loop: off"
@@ -5378,7 +5378,7 @@ msgstr "Imán"
 
 #: src/keys.ts
 msgid "Magnet on or off"
-msgstr ""
+msgstr "Activar o desactivar el imán"
 
 #: src/WaveEditor.tsx
 msgid "Magnet: off"
@@ -5459,7 +5459,7 @@ msgstr "Make-Up Gain ajustado a **{gain} dB**"
 
 #: src/WaveEditor.tsx
 msgid "Makes one block of the selected blocks, as they play: gaps between them become silence, and blocks that overlap play together"
-msgstr ""
+msgstr "Une los bloques seleccionados en uno, tal como suenan: los huecos entre ellos pasan a ser silencio y los bloques que se solapan suenan juntos"
 
 #: src/Tutorial.tsx
 msgid "Making the practice project"
@@ -5497,15 +5497,15 @@ msgstr "Midiendo"
 
 #: src/WaveEditor.tsx
 msgid "Merge"
-msgstr ""
+msgstr "Fusionar"
 
 #: src/keys.ts
 msgid "Merge the selected blocks into one"
-msgstr ""
+msgstr "Fusionar los bloques seleccionados en uno"
 
 #: src/WaveEditor.tsx
 msgid "Merging…"
-msgstr ""
+msgstr "Fusionando…"
 
 #: src/SettingsTab.tsx
 msgid "Minutes between saves"
@@ -5541,7 +5541,7 @@ msgstr "Mezcla en un fichero:"
 
 #: src/SliceTool.tsx
 msgid "Mixing the edited song…"
-msgstr ""
+msgstr "Mezclando la canción editada…"
 
 #: src/WaveEditor.tsx
 msgid "Mixing the segments…"
@@ -5728,27 +5728,27 @@ msgstr "sigue adelante"
 
 #: src/WaveEditor.tsx
 msgid "Moves the blocks of the layer back against each other, from the first. With blocks selected, on their layers"
-msgstr ""
+msgstr "Junta los bloques de la capa unos contra otros, desde el primero. Con bloques seleccionados, en sus capas"
 
 #: src/WaveEditor.tsx
 msgid "Moves the selected blocks back until they touch the block before them on their layer, or the start"
-msgstr ""
+msgstr "Mueve los bloques seleccionados hacia atrás hasta tocar el bloque anterior de su capa, o el inicio"
 
 #: src/WaveEditor.tsx
 msgid "Moves the selected blocks on until they touch the block after them on their layer"
-msgstr ""
+msgstr "Mueve los bloques seleccionados hacia delante hasta tocar el bloque siguiente de su capa"
 
 #: src/WaveEditor.tsx
 msgid "Moves the selected blocks to after the other blocks"
-msgstr ""
+msgstr "Mueve los bloques seleccionados detrás de los demás bloques"
 
 #: src/WaveEditor.tsx
 msgid "Moves the selected blocks to end where the original ends"
-msgstr ""
+msgstr "Mueve los bloques seleccionados para que terminen donde termina el original"
 
 #: src/WaveEditor.tsx
 msgid "Moves the selected blocks to the start"
-msgstr ""
+msgstr "Mueve los bloques seleccionados al inicio"
 
 #: src/ExportDialog.tsx
 msgid "MP3 VBR (best quality, smaller)"
@@ -6219,7 +6219,7 @@ msgstr "Normalizar"
 
 #: src/keys.ts
 msgid "Normalize the selected blocks"
-msgstr ""
+msgstr "Normalizar los bloques seleccionados"
 
 #: src/WaveEditor.tsx
 msgid "Normalize to −1 dB"
@@ -6786,7 +6786,6 @@ msgstr "original"
 #: src/Soundtrack.tsx
 #: src/store.tsx
 #: src/TextTab.tsx
-#: src/Timeline.tsx
 #: src/WaveEditor.tsx
 msgid "Original"
 msgstr "Original"
@@ -6955,7 +6954,7 @@ msgstr "Pegar"
 
 #: src/keys.ts
 msgid "Paste audio as blocks"
-msgstr ""
+msgstr "Pegar audio como bloques"
 
 #: src/keys.ts
 msgid "Paste into the selection"
@@ -7052,19 +7051,19 @@ msgstr "Los trozos se guardan en la carpeta <0>{folder}</0> del proyecto."
 
 #: src/WaveEditor.tsx
 msgid "Pitch"
-msgstr ""
+msgstr "Tono"
 
 #: src/WaveEditor.tsx
 msgid "Place"
-msgstr ""
+msgstr "Colocar"
 
 #: src/WaveEditor.tsx
 msgid "Place at the End"
-msgstr ""
+msgstr "Colocar al final"
 
 #: src/WaveEditor.tsx
 msgid "Place at the Start"
-msgstr ""
+msgstr "Colocar al inicio"
 
 #: src/SliceTool.tsx
 msgid "Place the cuts"
@@ -7072,11 +7071,11 @@ msgstr "Coloca los cortes"
 
 #: src/keys.ts
 msgid "Place the selected blocks at the end"
-msgstr ""
+msgstr "Colocar los bloques seleccionados al final"
 
 #: src/keys.ts
 msgid "Place the selected blocks at the start"
-msgstr ""
+msgstr "Colocar los bloques seleccionados al inicio"
 
 #: src/SliceTool.tsx
 msgid "Placed by hand"
@@ -7154,7 +7153,7 @@ msgstr "Reproducir desde el cursor"
 
 #: src/keys.ts
 msgid "Play from the cursor, or pause"
-msgstr ""
+msgstr "Reproducir desde el cursor, o pausar"
 
 #: src/WaveEditor.tsx
 msgid "Play in Context"
@@ -7162,7 +7161,7 @@ msgstr "Reproducir en contexto"
 
 #: src/keys.ts
 msgid "Play in Context (music segments)"
-msgstr ""
+msgstr "Reproducir en contexto (segmentos de música)"
 
 #. placeholder {0}: layer + 1
 #: src/WaveEditor.tsx
@@ -7664,7 +7663,7 @@ msgstr "Rehacer {redoName}"
 
 #: src/keys.ts
 msgid "Redo in the Waveform Suite"
-msgstr ""
+msgstr "Rehacer en la Waveform Suite"
 
 #: src/App.tsx
 msgid "Redo the change"
@@ -7859,7 +7858,7 @@ msgstr "Quitar la opción"
 
 #: src/keys.ts
 msgid "Remove the selected blocks"
-msgstr ""
+msgstr "Quitar los bloques seleccionados"
 
 #: src/CueView.tsx
 msgid "Remove the silence"
@@ -8138,7 +8137,7 @@ msgstr "Restablecido el valor predeterminado. Esto le ha quitado una tecla a {co
 
 #: src/keys.ts
 msgid "Reset to the whole file"
-msgstr ""
+msgstr "Restablecer al fichero completo"
 
 #: src/Waveform.tsx
 msgid "Reset zoom"
@@ -8365,7 +8364,7 @@ msgstr "Selecciona un slot."
 
 #: src/keys.ts
 msgid "Select every block"
-msgstr ""
+msgstr "Seleccionar todos los bloques"
 
 #: src/CueView.tsx
 msgid "Select every sequence shown"
@@ -8489,12 +8488,12 @@ msgstr "Varios subtítulos tienen estas palabras, así que esta coincidencia es 
 
 #: src/WaveEditor.tsx
 msgid "Shape it with the Volume Curves tool"
-msgstr ""
+msgstr "Dale forma con la herramienta Curvas de volumen"
 
 #. placeholder {0}: keyLabel("suiteCurves")
 #: src/WaveEditor.tsx
 msgid "Shape it with the Volume Curves tool ({0})"
-msgstr ""
+msgstr "Dale forma con la herramienta Curvas de volumen ({0})"
 
 #: src/Inspector.tsx
 msgid "Shared with <0>{also}</0>"
@@ -8795,7 +8794,7 @@ msgstr "Cortado en {pieces, plural, one {# trozo} other {# trozos}}, rellenado e
 
 #: src/SliceTool.tsx
 msgid "Slicer"
-msgstr ""
+msgstr "Cortador"
 
 #: src/SliceTool.tsx
 msgid "Slicing"
@@ -8829,19 +8828,19 @@ msgstr "Más lento"
 
 #: src/WaveEditor.tsx
 msgid "Snap Left"
-msgstr ""
+msgstr "Ajustar a la izquierda"
 
 #: src/WaveEditor.tsx
 msgid "Snap Right"
-msgstr ""
+msgstr "Ajustar a la derecha"
 
 #: src/keys.ts
 msgid "Snap the selected blocks left"
-msgstr ""
+msgstr "Ajustar los bloques seleccionados a la izquierda"
 
 #: src/keys.ts
 msgid "Snap the selected blocks right"
-msgstr ""
+msgstr "Ajustar los bloques seleccionados a la derecha"
 
 #: src/App.tsx
 msgid "Some jobs are still running."
@@ -8920,7 +8919,7 @@ msgstr "Código fuente"
 
 #: src/CueView.tsx
 msgid "Source ID {id}"
-msgstr ""
+msgstr "ID de origen {id}"
 
 #: src/ExportDialog.tsx
 msgid "Source IDs"
@@ -8959,7 +8958,7 @@ msgstr "Cuadrado"
 #. Unit: semitones
 #: src/WaveEditor.tsx
 msgid "st"
-msgstr ""
+msgstr "st"
 
 #. The menu on Home with New Project, Open Project and Import Mod
 #: src/Home.tsx
@@ -9045,7 +9044,7 @@ msgstr "Detener el tutorial"
 
 #: src/keys.ts
 msgid "Stop, and put the cursor back at the start"
-msgstr ""
+msgstr "Detener y devolver el cursor al inicio"
 
 #: src/App.tsx
 msgid "Stopping…"
@@ -9053,7 +9052,7 @@ msgstr "Deteniendo…"
 
 #: src/CueView.tsx
 msgid "Stream ID {id}"
-msgstr ""
+msgstr "ID de stream {id}"
 
 #: src/Inspector.tsx
 msgid "subtitle"
@@ -9155,15 +9154,15 @@ msgstr "Plantillas"
 
 #: src/WaveEditor.tsx
 msgid "Tempo"
-msgstr ""
+msgstr "Tempo"
 
 #: src/WaveEditor.tsx
 msgid "Tempo and Pitch: apart"
-msgstr ""
+msgstr "Tempo y tono: separados"
 
 #: src/WaveEditor.tsx
 msgid "Tempo and Pitch: linked"
-msgstr ""
+msgstr "Tempo y tono: vinculados"
 
 #: src/ProjectTab.tsx
 msgid "Terminid orange"
@@ -9341,7 +9340,7 @@ msgstr "El cursor, los bordes de los bloques, los bloques y los puntos de refere
 
 #: src/Soundtrack.tsx
 msgid "The cuts follow the edits. Cut saves the result as a new file"
-msgstr ""
+msgstr "Los cortes siguen las ediciones. Al cortar, el resultado se guarda como un fichero nuevo"
 
 #: src/SettingsTab.tsx
 msgid "The default."
@@ -9613,7 +9612,7 @@ msgstr "La música con el audio original, segmento a segmento"
 
 #: src/PlayThrough.tsx
 msgid "The music with the original audio, segment by segment. Segments the game picks at random come in a new order each time"
-msgstr ""
+msgstr "La música con el audio original, segmento a segmento. Los segmentos que el juego elige al azar salen en un orden nuevo cada vez"
 
 #: src/content.ts
 msgid "the name lists behind bank path names"
@@ -9857,11 +9856,11 @@ msgstr "Los segmentos que sonaron, en orden"
 
 #: src/WaveEditor.tsx
 msgid "The selected blocks across the whole width"
-msgstr ""
+msgstr "Los bloques seleccionados a todo el ancho"
 
 #: src/WaveEditor.tsx
 msgid "The selected blocks are in different slots"
-msgstr ""
+msgstr "Los bloques seleccionados están en slots distintos"
 
 #: src/Inspector.tsx
 msgid "The shortest new audio is {length} ms long."
@@ -10199,7 +10198,7 @@ msgstr "Recortar, dividir, mover y aplicar fundidos en Waveform Suite"
 
 #: src/SliceTool.tsx
 msgid "Trim, split, move and fade the song. The cuts follow the audio they fall on"
-msgstr ""
+msgstr "Recorta, divide, mueve y aplica fundidos a la canción. Los cortes siguen al audio en el que caen"
 
 #: src/UpdatesTab.tsx
 msgid "Try Again"
@@ -10280,7 +10279,7 @@ msgstr "Deshacer cambio"
 
 #: src/keys.ts
 msgid "Undo in the Waveform Suite"
-msgstr ""
+msgstr "Deshacer en la Waveform Suite"
 
 #: src/ModOptions.tsx
 msgid "Undo the change to {what}"
@@ -10487,7 +10486,7 @@ msgstr "Curvas de volumen"
 
 #: src/keys.ts
 msgid "Volume Curves on or off"
-msgstr ""
+msgstr "Activar o desactivar Curvas de volumen"
 
 #: src/WaveEditor.tsx
 msgid "Volume Curves: off"
@@ -10825,16 +10824,16 @@ msgstr "Ficheros ZIP, .7z, .rar o .patch_0"
 
 #: src/keys.ts
 msgid "Zoom to the layer"
-msgstr ""
+msgstr "Ampliar a la capa"
 
 #: src/WaveEditor.tsx
 msgid "Zoom to the Layer"
-msgstr ""
+msgstr "Ampliar a la capa"
 
 #: src/keys.ts
 msgid "Zoom to the selection"
-msgstr ""
+msgstr "Ampliar a la selección"
 
 #: src/WaveEditor.tsx
 msgid "Zoom to the Selection"
-msgstr ""
+msgstr "Ampliar a la selección"

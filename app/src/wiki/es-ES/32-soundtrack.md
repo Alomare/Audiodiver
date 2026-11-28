@@ -2,7 +2,7 @@
 title: Banda Sonora
 group: Crear un mod
 summary: Cómo se reproduce cada pieza de música: en el orden original, como una sola canción, como lista de reproducción, en silencio o como la música de batalla.
-source: e7954b89773c
+source: c669d9e53fc4
 ---
 
 El juego no reproduce una pieza de música de arriba abajo. La lista de reproducción de una pieza combina grupos que suenan en orden, grupos que reproducen cada vez el siguiente segmento y grupos que eligen al azar. La mayor parte de la música de combate empieza cada combate con una intro corta, y un combate nuevo continúa desde donde se detuvo el último. Una canción cortada en los slots en el orden de la lista suena desordenada en el juego.
@@ -42,7 +42,7 @@ Deshacer revierte una plantilla entera. Una plantilla que no encuentra nada que 
 
 La lista sigue después del último trozo con los segmentos a los que no llega la canción. Un fichero en uno de ellos suena después de la canción y se queda ahí si vuelves a cortar la canción, salvo que un trozo nuevo caiga en ese segmento.
 
-**Cambiar cortes** vuelve a abrir la herramienta de corte con la misma canción y los mismos cortes. **Elegir otra canción** empieza con una nueva. **Editar canción** abre la canción en [Waveform Suite](wiki:timing-and-loops#the-waveform-suite) para recortarla, aplicar fundidos u ordenarla antes de cortarla: **Guardar y cortar** guarda el resultado como un fichero nuevo en la carpeta `audio\edited` del proyecto y abre con él la herramienta de corte. La canción que elegiste se queda como está.
+**Cambiar cortes** vuelve a abrir la herramienta de corte con la misma canción y los mismos cortes. **Elegir otra canción** empieza con una nueva. **Editar canción** abre la herramienta de corte en la pestaña [Waveform Suite](wiki:timing-and-loops#slicing-one-long-song), para recortar la canción, aplicarle fundidos u ordenarla antes de cortarla. Los cortes siguen las ediciones. **Cortar en trozos** guarda el resultado como un fichero nuevo en la carpeta `audio\edited` del proyecto y lo corta. La canción que elegiste se queda como está.
 
 ## Lista de reproducción {#playlist}
 
@@ -85,8 +85,8 @@ El orden de reproducción muestra la pieza como grupos de segmentos, cada uno en
 
 Los segmentos de un grupo se unen según lo que significa el grupo: → para en orden, *o* para una al azar. Los grupos situados uno bajo otro se unen del mismo modo, con *luego*, *la próxima vez* o *o*. Una selección corta de segmentos va en una línea dentro de un marco de trazos, y un grupo con una sola cosa muestra solo esa cosa, porque suena igual.
 
-**Se repite** marca un grupo que suena otra vez hasta que cambia la música, y **3 veces** uno que suena tres veces y luego sigue. **Los combates empiezan aquí** marca dónde empieza la música cuando empieza un combate ([Intros](wiki:soundtrack#openings)), y **Empieza aquí** dónde empieza otra música cada vez que suena. El ▶ de un segmento reproduce lo que reproduce el proyecto en ese punto.
+**Se repite** marca un grupo que suena otra vez hasta que cambia la música, y **3 veces** uno que suena tres veces y luego sigue. **Los combates empiezan aquí** marca dónde empieza la música cuando empieza un combate ([Intros](wiki:soundtrack#openings)), y **Empieza aquí** dónde empieza otra música cada vez que suena. El ▶ de un segmento reproduce lo que reproduce el proyecto en ese punto. Haz clic en el nombre de un grupo para plegarlo y ver solo cuántos segmentos contiene, y otra vez para abrirlo.
 
 ## Capas {#layers}
 
-La música que suena con varias capas a la vez, como la de la Extracción, las muestra en una cuadrícula: una fila por segmento y una columna por capa, a intensidad baja y alta. Haz clic en una celda para ver las formas de onda. Sustituye capas en la pestaña [Audio](app:editor).
+La música que suena con varias capas a la vez, como la de la Extracción, las muestra en una cuadrícula: una fila por segmento y una columna por capa, a intensidad baja y alta. Haz clic en una celda para ver las formas de onda. Sustituye capas en la pestaña [Audio](app:editor), donde cada slot lleva el nombre de la capa en la que suena (**Percusión**, **Melodía**, o **Capa 1** y **Capa 2** donde los clips no lo indican) y una etiqueta con la intensidad a la que suena.

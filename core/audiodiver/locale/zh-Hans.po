@@ -146,6 +146,10 @@ msgstr "{file} 太大，无法用作图标"
 msgid "{file} is not an image Audiodiver can read"
 msgstr "{file} 不是 Audiodiver 能读取的图片"
 
+#: audio.py editor.py
+msgid "Tempo and pitch need ffmpeg, which isn't installed"
+msgstr "速度和音高需要 ffmpeg，但尚未安装"
+
 #: audio.py
 msgid "The cut points lie outside the song"
 msgstr "切点超出了歌曲范围"
@@ -473,9 +477,21 @@ msgstr "版本 {id}"
 msgid "{group}: {value}"
 msgstr "{group}：{value}"
 
+#: catalog.py
+msgid "Percussion"
+msgstr "打击乐"
+
+#: catalog.py
+msgid "Melody"
+msgstr "旋律"
+
 #: catalog.py musiclist.py
 msgid "Also called '{name}'."
 msgstr "又称“{name}”。"
+
+#: catalog.py
+msgid "Layer {n}"
+msgstr "层 {n}"
 
 #: catalog.py
 msgid "Segment {n}"
@@ -575,6 +591,10 @@ msgid "Choose a song to slice"
 msgstr "选择要切分的歌曲"
 
 #: editor.py
+msgid "Choose the files and the slots to fill"
+msgstr "选择要填充的文件和槽位"
+
+#: editor.py
 msgid "Choose where to save the project (a full path)"
 msgstr "选择项目的保存位置（完整路径）"
 
@@ -611,10 +631,6 @@ msgid "Choose an audio file"
 msgstr "选择音频文件"
 
 #: editor.py
-msgid "Choose the files and the slots to fill"
-msgstr "选择要填充的文件和槽位"
-
-#: editor.py
 msgid "Choose the slots to silence"
 msgstr "选择要静音的槽位"
 
@@ -645,6 +661,10 @@ msgstr "没有可导出的内容。请勾选有音频的层或原版"
 #: editor.py
 msgid "Nothing to save. Add audio to the time line first"
 msgstr "没有可保存的内容。请先在时间线上添加音频"
+
+#: editor.py
+msgid "Select two blocks or more to merge"
+msgstr "请选择两个或更多块来合并"
 
 #: editor.py
 msgid "This slot has no new audio to edit"
@@ -1334,6 +1354,10 @@ msgstr "音量曲线最多有 {n} 个点，每个点包含时间和电平"
 #: editor.py
 msgid "{file} couldn't be written: {why}"
 msgstr "无法写入 {file}：{why}"
+
+#: editor.py
+msgid "{file} couldn't be read: {why}"
+msgstr "无法读取 {file}：{why}"
 
 #: editor.py
 msgid "{file} can't be read, so global notes can't be shown or saved. Fix or move the file, or choose another folder in Settings ▸ System."

@@ -2,7 +2,7 @@
 title: Trilha Sonora
 group: Criando um mod
 summary: Como cada peça musical toca, na ordem original, como uma única música, como playlist, em silêncio ou como a música de batalha.
-source: e7954b89773c
+source: c669d9e53fc4
 ---
 
 O jogo não toca uma peça musical de cima para baixo. A playlist de uma peça mistura grupos que tocam em ordem, grupos que tocam o segmento seguinte a cada vez e grupos que escolhem ao acaso. A maioria das músicas de combate começa cada combate numa abertura curta, e um combate novo continua de onde o anterior parou. Uma música cortada nos slots na ordem da lista toca fora de ordem no jogo.
@@ -42,7 +42,7 @@ Desfazer reverte um modelo inteiro. Um modelo que não encontra nada para mudar 
 
 A lista continua depois do último pedaço com os segmentos que a música não alcança. Um arquivo em um deles toca depois da música e continua lá se você cortar a música de novo, a menos que um novo pedaço caia nesse segmento.
 
-**Alterar cortes** abre de novo a ferramenta de corte com a mesma música e os mesmos cortes. **Escolher outra música** começa com uma nova. **Editar música** abre a música no [Waveform Suite](wiki:timing-and-loops#the-waveform-suite) para cortar, aplicar fades ou organizar antes de ela ser dividida: **Salvar e cortar** salva o resultado como um novo arquivo na pasta `audio\edited` do projeto e abre a ferramenta de corte com ele. A música escolhida continua como está.
+**Alterar cortes** abre de novo a ferramenta de corte com a mesma música e os mesmos cortes. **Escolher outra música** começa com uma nova. **Editar música** abre a ferramenta de corte na aba [Waveform Suite](wiki:timing-and-loops#slicing-one-long-song), para aparar, aplicar fades ou organizar a música antes de ela ser dividida. Os cortes acompanham as edições. **Cortar em pedaços** salva o resultado como um novo arquivo na pasta `audio\edited` do projeto e o corta. A música escolhida continua como está.
 
 ## Playlist {#playlist}
 
@@ -85,8 +85,8 @@ A ordem de reprodução mostra a peça como grupos de segmentos, cada um num car
 
 Os segmentos de um grupo são ligados pelo que o grupo significa: → para em ordem, *ou* para um ao acaso. Os grupos um abaixo do outro são ligados por *depois*, *na próxima vez* ou *ou* do mesmo jeito. Uma escolha curta de segmentos fica numa única linha, numa moldura tracejada, e um grupo com uma única coisa dentro mostra essa coisa sozinha, já que ela toca do mesmo jeito.
 
-A marca **repete** indica um grupo que toca de novo até a música mudar, e **3 vezes**, um que toca três vezes e depois segue. **Os combates começam aqui** marca onde a música começa quando um combate começa ([Aberturas](wiki:soundtrack#openings)), e **Começa aqui**, onde outra música começa cada vez que entra. O ▶ num segmento toca o que o projeto toca ali.
+A marca **repete** indica um grupo que toca de novo até a música mudar, e **3 vezes**, um que toca três vezes e depois segue. **Os combates começam aqui** marca onde a música começa quando um combate começa ([Aberturas](wiki:soundtrack#openings)), e **Começa aqui**, onde outra música começa cada vez que entra. O ▶ num segmento toca o que o projeto toca ali. Clique no nome de um grupo para recolhê-lo e ver só quantos segmentos ele tem, e de novo para abri-lo.
 
 ## Camadas {#layers}
 
-Músicas que tocam várias camadas ao mesmo tempo, como a da Extração, aparecem em grade: uma linha para cada segmento e uma coluna para cada camada, em intensidade baixa e alta. Clique em uma célula para ver as formas de onda. Substitua camadas na aba [Áudio](app:editor).
+Músicas que tocam várias camadas ao mesmo tempo, como a da Extração, aparecem em grade: uma linha para cada segmento e uma coluna para cada camada, em intensidade baixa e alta. Clique em uma célula para ver as formas de onda. Substitua camadas na aba [Áudio](app:editor), onde cada slot tem o nome da camada em que toca (**Percussão**, **Melodia**, ou **Camada 1** e **Camada 2** onde os clipes não dizem qual) e uma etiqueta com a intensidade em que toca.

@@ -2,7 +2,7 @@
 title: Sincronización, puntos de cue y bucles
 group: Crear un mod
 summary: Cómo pasa el juego de un segmento al siguiente, cómo hacer que la música nueva enlace sin cortes, cómo recortar y mover el audio nuevo y cómo cortar una canción en un cue.
-source: 2a8c7f369c63
+source: f516c8a9ac66
 ---
 
 ## Ajustar los tiempos al audio nuevo {#fitting-the-timing-to-the-new-audio}
@@ -27,20 +27,24 @@ Cuando un fichero suena en varios segmentos, **Aplicar a … segmentos más con 
 
 ## Waveform Suite {#the-waveform-suite}
 
-El lápiz junto a **Antiguo** (el original) o **Nuevo** (el audio nuevo) en las formas de onda abre Waveform Suite para el slot seleccionado. El botón blanco que va antes copia ese audio, para pegarlo en otros slots o en Waveform Suite. En la [Banda sonora](app:soundtrack), **Editar canción** y el lápiz de una canción en una lista de reproducción abren una canción del mismo modo. Recorta, divide, mueve y aplica fundidos al audio, así que las ediciones sencillas no necesitan otro programa. Funciona en todos los slots: música, sonidos y frases.
+El lápiz junto a la forma de onda del original o a la del audio nuevo abre Waveform Suite para el slot seleccionado. El botón blanco que va antes copia ese audio, para pegarlo en otros slots o en Waveform Suite. En la [Banda sonora](app:soundtrack), **Editar canción** y el lápiz de una canción en una lista de reproducción abren una canción del mismo modo. Recorta, divide, mueve y aplica fundidos al audio, así que las ediciones sencillas no necesitan otro programa. Funciona en todos los slots: música, sonidos y frases.
 
-El audio está en una línea de tiempo en forma de **bloques**. Cada bloque es un tramo de un fichero, colocado en un momento elegido, con un fundido de entrada, uno de salida, una ganancia y una curva de volumen. El original va arriba del todo para comparar, y una línea discontinua marca dónde acaba. Las herramientas están en una barra sobre la línea de tiempo, y al señalar una se muestra qué hace y su tecla. El tiempo del cursor aparece a la derecha, sobre las formas de onda.
+El audio está en una línea de tiempo en forma de **bloques**. Cada bloque es un tramo de un fichero, colocado en un momento elegido, con un fundido de entrada, uno de salida, una ganancia y una curva de volumen. El original va arriba del todo para comparar, y una línea discontinua marca dónde acaba. Las herramientas están en una barra sobre la línea de tiempo, y al señalar una se muestra qué hace y su tecla. Cada herramienta tiene una tecla, y [Ajustes ▸ Atajos](app:settings/shortcuts) las muestra en **Waveform Suite**, donde se pueden cambiar. El tiempo del cursor aparece a la derecha, sobre las formas de onda.
 
 - Arrastra el cuerpo de un bloque para moverlo. Arrastra el borde izquierdo o derecho para recortarlo. Arrastra los cuadraditos del borde superior para hacer un fundido de entrada o de salida.
 - Haz clic en la línea de tiempo para colocar el cursor. Para moverlo, arrastra el propio cursor o arrastra a lo largo de la regla de arriba.
-- Arrastra desde un hueco vacío para dibujar un recuadro: se seleccionan todos los bloques que toca, en cualquier capa. Shift o Ctrl con un clic añaden un bloque a la selección o lo quitan, y Ctrl+A selecciona todos los bloques. Los bloques seleccionados se mueven, se dividen, se duplican, se normalizan y se quitan juntos, y los valores junto a la línea de tiempo fijan los fundidos y la ganancia de todos ellos.
-- **Dividir** ({key:suiteSplit}) corta los bloques seleccionados en el cursor, o el bloque bajo el cursor, y cada parte tiene sus propios fundidos. **Normalizar** (N) ajusta la ganancia para que el momento más fuerte de cada bloque llegue a −1 dB. **Duplicar** (Ctrl+D) coloca copias justo después de los bloques, y **Quitar** (Supr) los elimina.
-- **Imán** (M) ajusta el cursor, los bordes y los bloques entre sí, al inicio y a donde acaba el original.
-- **Curvas de volumen** (V) muestra una línea sobre cada bloque: nivel completo arriba del bloque, silencio abajo. Haz clic en la línea para añadir un punto, y arrastra un punto para dar forma al volumen en el tiempo. Un doble clic en un punto, o Alt y un clic, lo quita. Mientras arrastras un punto, el nivel aparece a su lado en dB. Los puntos se mantienen con el audio al recortar o dividir un bloque, y **Aplanar curva** junto a la línea de tiempo los quita todos.
-- **Añadir audio** pone ficheros de audio en la línea de tiempo como bloques nuevos, uno tras otro desde el cursor. Soltar ficheros en el editor hace lo mismo, y **Ctrl+V** pega slots copiados con Ctrl+C en la lista (su audio nuevo tal como suena, o el original) o ficheros de audio copiados en el Explorador. Así se puede hacer un slot con varios ficheros, y un slot sin audio nuevo puede empezar desde ficheros o desde el original.
-- Junto a la línea de tiempo, escribe valores exactos para el bloque seleccionado, en milisegundos.
-- **Reproducir** (Espacio) reproduce desde el cursor, y **Bucle** (L) reproduce una y otra vez los bloques seleccionados. Un doble clic en la línea de tiempo reproduce desde ahí. Las pistas que suenan se tiñen de su color.
-- Ctrl+Z y Ctrl+Y deshacen y rehacen dentro del editor. **Restablecer** vuelve al fichero entero tal cual.
+- Arrastra desde un hueco vacío para dibujar un recuadro: se seleccionan todos los bloques que toca, en cualquier capa. Shift o Ctrl con un clic añaden un bloque a la selección o lo quitan, y {key:suiteSelectAll} selecciona todos los bloques. Los bloques seleccionados se mueven, se dividen, se duplican, se normalizan y se quitan juntos, y los valores junto a la línea de tiempo fijan los fundidos y la ganancia de todos ellos.
+- **Dividir** ({key:suiteSplit}) corta los bloques seleccionados en el cursor, o el bloque bajo el cursor, y cada parte tiene sus propios fundidos. **Normalizar** ({key:suiteNormalize}) ajusta la ganancia para que el momento más fuerte de cada bloque llegue a −1 dB. **Duplicar** ({key:suiteDuplicate}) coloca copias justo después de los bloques, y **Quitar** ({key:suiteRemove}) los elimina.
+- **Fusionar** ({key:suiteMerge}) hace un solo bloque con los bloques seleccionados, tal como suenan: los huecos entre ellos pasan a ser silencio, y los bloques que se solapan suenan juntos. El bloque nuevo reproduce un fichero guardado en la carpeta `audio\edited` del proyecto, y Deshacer recupera los bloques. El fichero se elimina si la Suite se cierra sin aplicarlo.
+- **Ajustar a la izquierda** ({key:suiteSnapLeft}) y **Ajustar a la derecha** ({key:suiteSnapRight}) mueven los bloques seleccionados hasta tocar el bloque anterior o el siguiente de su capa. **Colocar al inicio** ({key:suiteToStart}) los mueve al inicio, y **Colocar al final** ({key:suiteToEnd}) los mueve para que terminen donde termina el original (si no hay original, detrás de los demás bloques). **Cerrar huecos** ({key:suiteCloseGaps}) junta los bloques de la capa unos contra otros, desde el primero, y con bloques seleccionados actúa en sus capas.
+- **Imán** ({key:suiteMagnet}) ajusta el cursor, los bordes y los bloques entre sí, al inicio y a donde acaba el original.
+- **Curvas de volumen** ({key:suiteCurves}) muestra una línea sobre cada bloque: nivel completo arriba del bloque, silencio abajo. Haz clic en la línea para añadir un punto, y arrastra un punto para dar forma al volumen en el tiempo. Un doble clic en un punto, o Alt y un clic, lo quita. Mientras arrastras un punto, el nivel aparece a su lado en dB. Los puntos se mantienen con el audio al recortar o dividir un bloque, y **Aplanar curva** junto a la línea de tiempo los quita todos.
+- **Añadir audio** ({key:suiteAdd}) pone ficheros de audio en la línea de tiempo como bloques nuevos, uno tras otro desde el cursor. Soltar ficheros en el editor hace lo mismo, y {key:suitePaste} pega slots copiados con Ctrl+C en la lista (su audio nuevo tal como suena, o el original) o ficheros de audio copiados en el Explorador. Así se puede hacer un slot con varios ficheros, y un slot sin audio nuevo puede empezar desde ficheros o desde el original.
+- Junto a la línea de tiempo, escribe valores exactos para el bloque seleccionado, en milisegundos. El bloque cambia mientras escribes, Enter fija el valor y Esc lo deshace. Arrastra el nombre de un valor a la izquierda o a la derecha para cambiarlo: mantén Shift para pasos mayores, o Ctrl para pasos más finos. ↑ y ↓ también lo cambian paso a paso.
+- **Tempo** reproduce un bloque más rápido o más lento, del 50% al 200%, y **Tono** lo hace más agudo o más grave, hasta 12 semitonos en cada sentido. Con el vínculo entre los dos activado, uno mueve al otro, como una cinta reproducida más rápido. Sin él, cada uno cambia por separado: el tempo mantiene el tono, y el tono mantiene el tempo.
+- **Reproducir** ({key:suitePlay}) reproduce desde el cursor, y **Bucle** ({key:suiteLoop}) reproduce una y otra vez los bloques seleccionados. Un doble clic en la línea de tiempo reproduce desde ahí. Las pistas que suenan se tiñen de su color.
+- {key:suiteUndo} y {key:suiteRedo} deshacen y rehacen dentro del editor. **Restablecer** ({key:suiteReset}) vuelve al fichero entero tal cual.
+- Haz zoom con la rueda, Ctrl+rueda y los controles deslizantes, como en las formas de onda bajo los slots. Junto al zoom de tiempo, {icon:fitsel} muestra los bloques seleccionados a todo el ancho, y {icon:fitlayer} muestra la capa desde el inicio hasta el final de su último bloque. El editor guarda el zoom de cada slot para la próxima vez que se abra.
 
 ### Capas {#layers}
 
@@ -58,7 +62,7 @@ Los bloques de una misma capa también pueden solaparse, y suenan juntos. Los bl
 
 En un slot de un segmento de música, la **Entrada** y la **Salida** del segmento aparecen en la línea de tiempo como líneas con banderas en la regla, y sus tiempos se muestran sobre las formas de onda. Arrastra una bandera para mover el punto de referencia. Se ajusta a los bordes de los bloques con el imán activado, y si la sueltas cerca del punto automático vuelve a él. La pista del original muestra dónde los tiene el juego. **Aplicar** fija los puntos de referencia junto con los bloques.
 
-**Reproducir en contexto** (C) reproduce el final del segmento anterior, este segmento tal como lo tienes en el editor y el inicio del segmento siguiente, con los relevos en los puntos de referencia como los reproduce el juego. No hace falta aplicar nada antes.
+**Reproducir en contexto** ({key:suiteContext}) reproduce el final del segmento anterior, este segmento tal como lo tienes en el editor y el inicio del segmento siguiente, con los relevos en los puntos de referencia como los reproduce el juego. No hace falta aplicar nada antes.
 
 **Exportar**, junto a Aplicar, mezcla las pistas marcadas en un fichero de audio: WAV, FLAC, MP3 u Ogg Vorbis, a 48 o 44,1 kHz, con los canales del audio, en estéreo o en mono, y llevado a −1 dB en su momento más fuerte si lo eliges. El proyecto no cambia.
 
@@ -66,7 +70,7 @@ Nada cambia hasta **Aplicar**. Los ficheros se quedan como están: el proyecto g
 
 ## Escuchar el resultado {#hearing-the-result}
 
-**Reproducción continua** reproduce la pieza entera como suena en el juego, con los segmentos en orden y cada traspaso en un punto de Salida. Compara **Original** y **Sustituido** para detectar huecos, golpes dobles y saltos de volumen antes de generar.
+**Reproducción continua** reproduce la pieza entera como suena en el juego, con los segmentos en orden y cada traspaso en un punto de Salida. Donde el juego elige segmentos al azar, cada reproducción continua los vuelve a elegir. Compara **Original** y **Sustituido** para detectar huecos, golpes dobles y saltos de volumen antes de generar.
 
 ## Bucles {#loops}
 
@@ -74,7 +78,7 @@ Un segmento marcado como **en bucle** se repite hasta que el juego pasa a lo sig
 
 ## Cortar una canción larga {#slicing-one-long-song}
 
-{icon:slice} **Cortar una canción** corta un fichero largo en trozos consecutivos en posiciones de muestra exactas, de modo que los trozos suenen como la canción sin cortar cuando se reproducen uno tras otro. Cada trozo va a un segmento, en orden de reproducción. Las capas de un segmento suenan juntas, así que todos los trozos van a la capa del slot **Desde**.
+{icon:slice} **Cortar una canción** corta un fichero largo en trozos consecutivos en posiciones de muestra exactas, de modo que los trozos suenen como la canción sin cortar cuando se reproducen uno tras otro. Cada trozo va a un segmento, en orden de reproducción. Las capas de un segmento suenan juntas, así que todos los trozos van a la capa del slot **Desde**. En la música cuyas capas cambian con la intensidad, como la de la Extracción, cada trozo va a esa capa a intensidad baja y alta, y las demás capas sin audio nuevo reciben silencio, para que la canción suene sola.
 
 Un cue con un solo slot, como una transición, recibe un trozo: mueve **Inicio** y **Fin** al tramo de la canción que debe sonar. Un sonido también recibe un trozo: selecciona un slot del sonido, y **Cortar una canción** corta un tramo de la canción para ese slot. **Duraciones originales** hace el tramo tan largo como el original.
 
@@ -91,5 +95,13 @@ Para cortar una canción:
 4. Escucha. **Canción** reproduce la canción, y **Originales** reproduce el audio original de los slots uno tras otro. Haz clic en la canción o en el original para reproducir desde ese punto, o pulsa ▶ en un trozo o en el original que hay a su lado en la tabla. La barra espaciadora reproduce y pausa.
 5. Haz zoom con la rueda o con el control deslizante bajo los carriles, y dibuja los carriles más altos para una canción silenciosa con Ctrl+rueda o con el control deslizante de la derecha. Desplázate con Shift+rueda o con la franja bajo los carriles. {icon:reset}, en la esquina, vuelve a mostrar la canción entera. Haz clic en una fila de la tabla para llevar ese trozo a la vista.
 6. Pulsa **Cortar y rellenar**. Audiodiver guarda los trozos en la carpeta `audio\slices` del proyecto y rellena los slots.
+
+La ventana tiene dos pestañas. **Cortador** corta la canción, como se explica arriba. **Waveform Suite** edita antes la canción, con todas las herramientas de [Waveform Suite](#the-waveform-suite): recórtala, quita un tramo, mueve bloques o aplícales fundidos, o añade otro audio. Unas líneas discontinuas en la línea de tiempo muestran los cortes, numerados por trozo, y se mueven con el audio en el que caen. De vuelta en **Cortador**, los cortes siguen las ediciones:
+
+- Los cortes colocados a mano se quedan en el mismo momento de la música. Un corte en un tramo que se quitó va al borde más cercano de lo que queda, y un trozo que se queda sin audio se une al siguiente.
+- **Proporciones originales**, **Duraciones originales** e **Iguales** vuelven a colocar los cortes sobre la canción editada.
+- Un corte en el inicio o el final de la canción se queda en el inicio o el final.
+
+**Editada** junto al nombre de la canción significa que el cortador corta la canción tal como se editó. **Cortar y rellenar** guarda la canción editada como un fichero nuevo en la carpeta `audio\edited` y luego la corta. La canción que elegiste se queda como está.
 
 Audiodiver conserva los cortes de cada canción, así que puedes volver a cortar la misma canción desde donde lo dejaste.

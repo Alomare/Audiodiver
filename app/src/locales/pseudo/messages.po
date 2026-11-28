@@ -6786,7 +6786,6 @@ msgstr ""
 #: src/Soundtrack.tsx
 #: src/store.tsx
 #: src/TextTab.tsx
-#: src/Timeline.tsx
 #: src/WaveEditor.tsx
 msgid "Original"
 msgstr ""

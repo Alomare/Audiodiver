@@ -146,6 +146,10 @@ msgstr "{file}は大きすぎるため、アイコンに使えません"
 msgid "{file} is not an image Audiodiver can read"
 msgstr "{file}はAudiodiverが読み取れる画像ではありません"
 
+#: audio.py editor.py
+msgid "Tempo and pitch need ffmpeg, which isn't installed"
+msgstr "テンポとピッチには ffmpeg が必要ですが、インストールされていません"
+
 #: audio.py
 msgid "The cut points lie outside the song"
 msgstr "カット位置が曲の範囲外です"
@@ -473,9 +477,21 @@ msgstr "バリアント {id}"
 msgid "{group}: {value}"
 msgstr "{group}：{value}"
 
+#: catalog.py
+msgid "Percussion"
+msgstr "パーカッション"
+
+#: catalog.py
+msgid "Melody"
+msgstr "メロディー"
+
 #: catalog.py musiclist.py
 msgid "Also called '{name}'."
 msgstr "「{name}」とも呼ばれます。"
+
+#: catalog.py
+msgid "Layer {n}"
+msgstr "レイヤー {n}"
 
 #: catalog.py
 msgid "Segment {n}"
@@ -575,6 +591,10 @@ msgid "Choose a song to slice"
 msgstr "切り分ける曲を選択してください"
 
 #: editor.py
+msgid "Choose the files and the slots to fill"
+msgstr "割り当てるファイルとスロットを選択してください"
+
+#: editor.py
 msgid "Choose where to save the project (a full path)"
 msgstr "プロジェクトの保存先を選択してください（フルパス）"
 
@@ -611,10 +631,6 @@ msgid "Choose an audio file"
 msgstr "音声ファイルを選択してください"
 
 #: editor.py
-msgid "Choose the files and the slots to fill"
-msgstr "割り当てるファイルとスロットを選択してください"
-
-#: editor.py
 msgid "Choose the slots to silence"
 msgstr "無音にするスロットを選択してください"
 
@@ -645,6 +661,10 @@ msgstr "エクスポートするものがありません。音声のあるレイ
 #: editor.py
 msgid "Nothing to save. Add audio to the time line first"
 msgstr "保存するものがありません。先にタイムラインに音声を追加してください"
+
+#: editor.py
+msgid "Select two blocks or more to merge"
+msgstr "結合するブロックを 2 つ以上選択してください"
 
 #: editor.py
 msgid "This slot has no new audio to edit"
@@ -1334,6 +1354,10 @@ msgstr "音量カーブの点は {n} 個まで、それぞれ時間とレベル�
 #: editor.py
 msgid "{file} couldn't be written: {why}"
 msgstr "{file} を書き込めませんでした：{why}"
+
+#: editor.py
+msgid "{file} couldn't be read: {why}"
+msgstr "{file} を読み込めませんでした: {why}"
 
 #: editor.py
 msgid "{file} can't be read, so global notes can't be shown or saved. Fix or move the file, or choose another folder in Settings ▸ System."

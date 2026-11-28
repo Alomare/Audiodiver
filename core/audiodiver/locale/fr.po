@@ -152,6 +152,10 @@ msgstr "{file} est trop volumineux pour servir d’icône"
 msgid "{file} is not an image Audiodiver can read"
 msgstr "{file} n’est pas une image qu’Audiodiver peut lire"
 
+#: audio.py editor.py
+msgid "Tempo and pitch need ffmpeg, which isn't installed"
+msgstr "Le tempo et la hauteur nécessitent ffmpeg, qui n’est pas installé"
+
 #: audio.py
 msgid "The cut points lie outside the song"
 msgstr "Les points de coupe sont en dehors de la chanson"
@@ -506,9 +510,21 @@ msgstr "variante {id}"
 msgid "{group}: {value}"
 msgstr "{group} : {value}"
 
+#: catalog.py
+msgid "Percussion"
+msgstr "Percussions"
+
+#: catalog.py
+msgid "Melody"
+msgstr "Mélodie"
+
 #: catalog.py musiclist.py
 msgid "Also called '{name}'."
 msgstr "Aussi appelé « {name} »."
+
+#: catalog.py
+msgid "Layer {n}"
+msgstr "Couche {n}"
 
 #: catalog.py
 msgid "Segment {n}"
@@ -609,6 +625,10 @@ msgid "Choose a song to slice"
 msgstr "Choisissez une chanson à découper"
 
 #: editor.py
+msgid "Choose the files and the slots to fill"
+msgstr "Choisissez les fichiers et les emplacements à remplir"
+
+#: editor.py
 msgid "Choose where to save the project (a full path)"
 msgstr "Choisissez où enregistrer le projet (un chemin complet)"
 
@@ -645,10 +665,6 @@ msgid "Choose an audio file"
 msgstr "Choisissez un fichier audio"
 
 #: editor.py
-msgid "Choose the files and the slots to fill"
-msgstr "Choisissez les fichiers et les emplacements à remplir"
-
-#: editor.py
 msgid "Choose the slots to silence"
 msgstr "Choisissez les emplacements à mettre en silence"
 
@@ -679,6 +695,10 @@ msgstr "Rien à exporter. Cochez une couche avec de l’audio, ou l’original"
 #: editor.py
 msgid "Nothing to save. Add audio to the time line first"
 msgstr "Rien à enregistrer. Ajoutez d’abord de l’audio à la ligne de temps"
+
+#: editor.py
+msgid "Select two blocks or more to merge"
+msgstr "Sélectionnez au moins deux blocs à fusionner"
 
 #: editor.py
 msgid "This slot has no new audio to edit"
@@ -1385,6 +1405,10 @@ msgstr "Une courbe de volume a jusqu’à {n} points, chacun avec un temps et un
 #: editor.py
 msgid "{file} couldn't be written: {why}"
 msgstr "Impossible d’écrire {file} : {why}"
+
+#: editor.py
+msgid "{file} couldn't be read: {why}"
+msgstr "{file} n’a pas pu être lu : {why}"
 
 #: editor.py
 msgid "{file} can't be read, so global notes can't be shown or saved. Fix or move the file, or choose another folder in Settings ▸ System."

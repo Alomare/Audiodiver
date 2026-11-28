@@ -152,6 +152,10 @@ msgstr "{file} é grande demais para usar como ícone"
 msgid "{file} is not an image Audiodiver can read"
 msgstr "{file} não é uma imagem que o Audiodiver consiga ler"
 
+#: audio.py editor.py
+msgid "Tempo and pitch need ffmpeg, which isn't installed"
+msgstr "O tempo e o tom precisam do ffmpeg, que não está instalado"
+
 #: audio.py
 msgid "The cut points lie outside the song"
 msgstr "Os pontos de corte estão fora da música"
@@ -506,9 +510,21 @@ msgstr "variante {id}"
 msgid "{group}: {value}"
 msgstr "{group}: {value}"
 
+#: catalog.py
+msgid "Percussion"
+msgstr "Percussão"
+
+#: catalog.py
+msgid "Melody"
+msgstr "Melodia"
+
 #: catalog.py musiclist.py
 msgid "Also called '{name}'."
 msgstr "Outro nome: '{name}'."
+
+#: catalog.py
+msgid "Layer {n}"
+msgstr "Camada {n}"
 
 #: catalog.py
 msgid "Segment {n}"
@@ -609,6 +625,10 @@ msgid "Choose a song to slice"
 msgstr "Escolha uma música para fatiar"
 
 #: editor.py
+msgid "Choose the files and the slots to fill"
+msgstr "Escolha os arquivos e os slots para preencher"
+
+#: editor.py
 msgid "Choose where to save the project (a full path)"
 msgstr "Escolha onde salvar o projeto (um caminho completo)"
 
@@ -645,10 +665,6 @@ msgid "Choose an audio file"
 msgstr "Escolha um arquivo de áudio"
 
 #: editor.py
-msgid "Choose the files and the slots to fill"
-msgstr "Escolha os arquivos e os slots para preencher"
-
-#: editor.py
 msgid "Choose the slots to silence"
 msgstr "Escolha os slots para silenciar"
 
@@ -679,6 +695,10 @@ msgstr "Nada para exportar. Marque uma camada com áudio, ou o original"
 #: editor.py
 msgid "Nothing to save. Add audio to the time line first"
 msgstr "Nada para salvar. Adicione áudio à linha do tempo primeiro"
+
+#: editor.py
+msgid "Select two blocks or more to merge"
+msgstr "Selecione dois blocos ou mais para mesclar"
 
 #: editor.py
 msgid "This slot has no new audio to edit"
@@ -1385,6 +1405,10 @@ msgstr "Uma curva de volume tem até {n} pontos, cada um com um tempo e um níve
 #: editor.py
 msgid "{file} couldn't be written: {why}"
 msgstr "Não foi possível gravar {file}: {why}"
+
+#: editor.py
+msgid "{file} couldn't be read: {why}"
+msgstr "Não foi possível ler {file}: {why}"
 
 #: editor.py
 msgid "{file} can't be read, so global notes can't be shown or saved. Fix or move the file, or choose another folder in Settings ▸ System."
