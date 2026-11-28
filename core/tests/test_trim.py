@@ -232,6 +232,19 @@ def test_edit_merge_mixes_blocks_into_one_new_file(tmp_path):
     assert len(s.project.replacements) == 1 and not s.project.replacements[0].blocks  # the project doesn't change
 
 
+def test_edit_discard_deletes_only_merged_files_of_the_project(tmp_path):
+    """The Suite closed without keeping a merge: its files go, and nothing else, even when asked for."""
+    s = Session(load=False)
+    s.new_project(tmp_path / "m.audi", "M")
+    a = ramp(tmp_path / "a.wav")
+    blocks = [{"start_ms": 0, "end_ms": 200, "at_ms": 0}, {"start_ms": 0, "end_ms": 200, "at_ms": 300}]
+    merged = Path(s.edit_merge(blocks, name="x", file=str(a))["path"])
+    other = tmp_path / "audio" / "edited" / "x (edited).wav"
+    other.write_bytes(a.read_bytes())
+    got = s.edit_discard([str(merged), str(other), str(a), str(tmp_path / "audio" / "edited" / "gone (merged).wav")])
+    assert got == {"deleted": 1} and not merged.exists() and other.exists() and a.exists()
+
+
 def test_layers_place_blocks_in_the_editor_and_play_the_same(tmp_path):
     """A block's layer (the Waveform Suite's lane) is kept, left out of the file when it is the first, repaired when
     out of range, and doesn't change the audio: moving a block to another layer makes the same file."""

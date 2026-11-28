@@ -161,7 +161,6 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
       <div className="tl-body zoom-grid">
         <div className="tl-rows" ref={waves}>
           <div className="tl-row">
-            {readOnly && <div className="tl-label game"><b>{t`Original`}</b></div>}
             {!readOnly && <span className="tl-edit-at">
               <CopyButton original onClick={!none && game ? () => actions.copySlots([source], { [source]: what }, true, false) : undefined} />
               <span className="tl-edit-col">{project && !none && game && <EditButton original onClick={() => setEditing("original")} />}</span></span>}

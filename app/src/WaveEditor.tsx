@@ -639,6 +639,15 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose, em
   /** Merge: the selected blocks of one track as one block, of a file the core mixes from them as they play (gaps
       silence, overlaps together; core edit_merge), at the first of them on the highest of their layers. */
   const [merging, setMerging] = useState(false);
+  // the files Merge made, and those an applied slot uses; the rest are deleted as the Suite closes (cancelled, the
+  // merged block undone or removed, or only mixed into a file: a file's Apply, the slice tool's Cut)
+  const made = useRef(new Set<string>());
+  const kept = useRef(new Set<string>());
+  useEffect(() => () => {
+    const gone = [...made.current].filter((p) => !kept.current.has(p));
+    gone.forEach((p) => merges.delete(p));
+    if (gone.length) void call("edit_discard", { paths: gone }).catch(() => {});
+  }, []);
   const mergeable = (() => { const list = chosen(); return list.length > 1 && !merging && list.every((i) => blocks[i].track === blocks[list[0]].track); })();
   const merge = async () => {
     const list = chosen();
@@ -651,6 +660,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose, em
       const got = await call<{ path: string }>("edit_merge", { ...(x.file ? { file: full(x.file) } : { source: x.source, original: editOriginal(track) }), blocks: parts, name: what });
       const f = await decode(fileUrl(got.path), ctx);
       merges.set(got.path, parts);
+      made.current.add(got.path);
       asked.current.add(got.path);
       setFiles((m) => ({ ...m, [got.path]: f }));
       const one_: EBlock = { start_ms: 0, end_ms: round1(f.buf.duration * 1000), at_ms: lo, fade_in_ms: 0, fade_out_ms: 0, gain_db: 0, audio: got.path,
@@ -872,7 +882,10 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose, em
           const got = await call<{ path: string }>("edit_render", { file: full(x.file), blocks: list });
           await onFile?.(got.path);
         } catch (e: any) { notify("bad", String(e?.message ?? e)); ok = false; }
-      } else ok = await actions.setEdit(x.source!, list, editOriginal(i), editOriginal(i) ? t`${x.name} (edited original)` : undefined, namesOf(i));
+      } else {
+        ok = await actions.setEdit(x.source!, list, editOriginal(i), editOriginal(i) ? t`${x.name} (edited original)` : undefined, namesOf(i));
+        if (ok) list.forEach((b) => b.audio && made.current.has(b.audio) && kept.current.add(b.audio));
+      }
     }
     if (ok && cues && cuesChanged) await actions.segmentOverride(cues.segment, cueOver.entry, cueOver.exit);
     setSaving(false);

@@ -694,6 +694,7 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .tl-rows { grid-area: 1 / 1; min-height: 0; display: flex; flex-direction: column; gap: calc(6px * var(--sp)); }
 .timeline .zoom-foot { padding-left: calc(64px * var(--fs) + 10px); } /* under the waveforms, past the labels */
 .timeline:not(.one) .zoom-foot { padding-left: calc(52px * var(--fs) + 26px); }
+.timeline.one .zoom-foot { padding-left: 0; } /* the Library: one waveform, nothing beside it */
 /* under zoomed-in waveforms: the whole audio, the stretch in view as a handle */
 .wave-scroll { flex: 1 1 0; position: relative; height: 14px; background: var(--bg); border: 1px solid var(--line-soft); border-radius: 2px; cursor: pointer; }
 .wave-thumb { position: absolute; top: 2px; bottom: 2px; min-width: 14px; background: var(--muted); opacity: .55; border-radius: 1px; cursor: grab; }
@@ -711,6 +712,7 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
    In the Audio tab a row is Copy and the pencil, then the waveform: as far from the waveform as from the panel's
    left edge (its 16px padding) */
 .timeline:not(.one) .tl-row { grid-template-columns: auto 1fr; column-gap: 16px; }
+.timeline.one .tl-row { grid-template-columns: 1fr; }
 .tl-edit-at { align-self: center; display: flex; align-items: flex-start; gap: 10px; }
 .tl-edit-col { display: flex; flex-direction: column; gap: 4px; min-width: calc(26px * var(--fs)); }
 .tl-edit-gap { flex: none; width: calc(26px * var(--fs)); }

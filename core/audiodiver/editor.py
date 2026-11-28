@@ -2424,6 +2424,31 @@ class Session:
             raise EditorError(tr("{file} couldn't be written: {why}").format(file=out.name, why=os_error(e))) from None
         return {"path": str(out), "duration_ms": duration_ms(out)}
 
+    def edit_discard(self, paths):
+        """The files Merge made that nothing kept: the Waveform Suite closed without applying, or the merged block
+        undone or removed before it applied. Only merged files in the project's audio/edited are deleted; anything
+        else is left as it is. Returns how many were deleted."""
+        p = self._need_project()
+        if not isinstance(paths, list):
+            raise EditorError("The paths are a list")
+        folder = (p.path.parent / "audio" / "edited").resolve()
+        n = 0
+        for x in paths:
+            try:
+                f = Path(str(x)).resolve()
+            except (OSError, ValueError):
+                continue
+            if f.parent != folder or f.suffix.lower() != ".wav" or "(merged" not in f.name:
+                continue
+            try:
+                f.unlink()
+                n += 1
+            except FileNotFoundError:
+                pass
+            except OSError as e:
+                log.warning("Couldn't delete %s: %s", f, e)
+        return {"deleted": n}
+
     def edit_context(self, cue_id, segment, tracks, entry_marker=None, exit_marker=None):
         """A segment as the Waveform Suite has it, in its place in the music: the segment before it in play order,
         this one and the one after, mixed as the game hands over (render.Renderer), with the editor's tracks in
