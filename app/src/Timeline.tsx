@@ -161,7 +161,7 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
       <div className="tl-body zoom-grid">
         <div className="tl-rows" ref={waves}>
           <div className="tl-row">
-            <div className="tl-label game"><b>{readOnly ? t`Original` : t({ message: "Old", comment: "The original audio's waveform, above the new audio's" })}</b></div>
+            {readOnly && <div className="tl-label game"><b>{t`Original`}</b></div>}
             {!readOnly && <span className="tl-edit-at">
               <CopyButton original onClick={!none && game ? () => actions.copySlots([source], { [source]: what }, true, false) : undefined} />
               <span className="tl-edit-col">{project && !none && game && <EditButton original onClick={() => setEditing("original")} />}</span></span>}
@@ -175,7 +175,6 @@ export function Timeline({ room, through, at, cue: given, source: picked }: {
           </div>
           {!readOnly && (
             <div className="tl-row">
-              <div className="tl-label mine"><b>{t({ message: "New", context: "waveform", comment: "The new audio's waveform, under the original's" })}</b></div>
               <span className="tl-edit-at">
                 <CopyButton original={false} onClick={a && (a.silence || a.exists) ? () => actions.copySlots([source], { [source]: what }) : undefined} />
                 <span className="tl-edit-col">{(!a || (audible(a) && a.exists)) && <EditButton original={false} onClick={() => setEditing("mine")} />}</span></span>

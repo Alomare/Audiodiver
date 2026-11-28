@@ -211,6 +211,27 @@ def test_edit_render_saves_a_file_target_as_a_new_file(tmp_path):
         s.edit_render(str(song), [])
 
 
+def test_edit_merge_mixes_blocks_into_one_new_file(tmp_path):
+    """Merge: blocks of one track mixed as they play, from 0: a gap is silence and an overlap adds up; saved in
+    audio/edited as <name> (merged).wav, numbered when taken. A slot's own file and other files both go in."""
+    s = Session(load=False)
+    s.new_project(tmp_path / "m.audi", "M")
+    a = ramp(tmp_path / "a.wav")
+    s._edit("assign", lambda p: s._set(p, 1234, str(a)))
+    blocks = [{"start_ms": 0, "end_ms": 200, "at_ms": 0}, {"start_ms": 0, "end_ms": 200, "at_ms": 300},
+              {"start_ms": 0, "end_ms": 200, "at_ms": 400, "audio": str(a)}]
+    got = s.edit_merge(blocks, name="Slot: one", source=1234)
+    v = samples(got["path"])
+    assert Path(got["path"]) == tmp_path / "audio" / "edited" / "Slot one (merged).wav"  # a name made safe for a file
+    assert len(v) == 28800 and abs(got["duration_ms"] - 600) < 1  # 0..200, silence, 300..500 and 400..600
+    assert v[100] == 50 and not v[9600:14400].any()  # the first block, then the gap
+    assert v[19200 + 10] == (4800 + 10) // 2 + 10 // 2  # 400 ms: the second block's 100 ms and the third's start, added
+    assert Path(s.edit_merge(blocks[:2], name="Slot: one", source=1234)["path"]).name == "Slot one (merged 2).wav"
+    with pytest.raises(EditorError, match="two blocks"):
+        s.edit_merge(blocks[:1], source=1234)
+    assert len(s.project.replacements) == 1 and not s.project.replacements[0].blocks  # the project doesn't change
+
+
 def test_layers_place_blocks_in_the_editor_and_play_the_same(tmp_path):
     """A block's layer (the Waveform Suite's lane) is kept, left out of the file when it is the first, repaired when
     out of range, and doesn't change the audio: moving a block to another layer makes the same file."""

@@ -2398,6 +2398,32 @@ class Session:
             raise EditorError(tr("Nothing to save. Add audio to the time line first"))
         return {"path": str(wav)}
 
+    def edit_merge(self, blocks, name="", source=None, file=None, original=False):
+        """The Waveform Suite's Merge: blocks of one track (a slot's `source`, its `original` when that is edited, or
+        a `file`), placed from 0, mixed as they play (gaps silent, overlaps added up) and saved as a new file in the
+        project, audio/edited/<name> (merged).wav, numbered when that is taken. The editor puts one block of it in
+        their place. Returns the new file's full path and length."""
+        import shutil
+        from .audio import duration_ms
+        p = self._need_project()
+        if not isinstance(blocks, list) or len(blocks) < 2:
+            raise EditorError(tr("Select two blocks or more to merge"))
+        t = {"file": file, "blocks": blocks} if file else {"source": source, "original": original is True, "blocks": blocks}
+        wav = self._edit_track(p, t)
+        if not wav:
+            raise EditorError(tr("Nothing to save. Add audio to the time line first"))
+        stem = _filename(str(name or Path(str(file or "")).stem or "audio"))[:80].strip() or "audio"
+        folder = p.path.parent / "audio" / "edited"
+        out, n = folder / f"{stem} (merged).wav", 2
+        while out.exists():
+            out, n = folder / f"{stem} (merged {n}).wav", n + 1
+        try:
+            folder.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(wav, out)
+        except OSError as e:
+            raise EditorError(tr("{file} couldn't be written: {why}").format(file=out.name, why=os_error(e))) from None
+        return {"path": str(out), "duration_ms": duration_ms(out)}
+
     def edit_context(self, cue_id, segment, tracks, entry_marker=None, exit_marker=None):
         """A segment as the Waveform Suite has it, in its place in the music: the segment before it in play order,
         this one and the one after, mixed as the game hands over (render.Renderer), with the editor's tracks in

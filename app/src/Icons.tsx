@@ -258,13 +258,17 @@ export const SplitIcon = () => (
 export const MagnetIcon = () => (
   <Icon size={1.1}><path d="M6 4v8a6 6 0 0 0 12 0V4" /><path d="M6 4h3.5v8a2.5 2.5 0 0 0 5 0V4H18" /><path d="M6 7.5h3.5M14.5 7.5H18" /></Icon>
 );
-/** A block moved against the one before it: snap left (the Waveform Suite's placing). */
+/** A block with a large arrow ahead of it, pointing left: snap left (the Waveform Suite's placing). */
 export const SnapLeftIcon = () => (
-  <Icon size={1.1}><rect x="2.5" y="8" width="6" height="8" rx=".5" /><rect x="15.5" y="8" width="6" height="8" rx=".5" /><path d="M14 12h-3.5M12.2 10.2 10.4 12l1.8 1.8" /></Icon>
+  <Icon size={1.1}><rect x="13" y="6.5" width="8" height="11" rx=".5" /><path d="M10.5 12H2.5M6.5 7.5 2 12l4.5 4.5" /></Icon>
 );
-/** A block moved against the one after it: snap right. */
+/** A block with a large arrow ahead of it, pointing right: snap right. */
 export const SnapRightIcon = () => (
-  <Icon size={1.1}><rect x="2.5" y="8" width="6" height="8" rx=".5" /><rect x="15.5" y="8" width="6" height="8" rx=".5" /><path d="M10 12h3.5M11.8 10.2l1.8 1.8-1.8 1.8" /></Icon>
+  <Icon size={1.1}><rect x="3" y="6.5" width="8" height="11" rx=".5" /><path d="M13.5 12h8M17.5 7.5 22 12l-4.5 4.5" /></Icon>
+);
+/** One block with two arrows pressing in from its ends: merge blocks into one. */
+export const MergeBlocksIcon = () => (
+  <Icon size={1.1}><rect x="2.5" y="6" width="19" height="12" rx=".5" /><path d="M6 12h4.5M8.6 9.6 11 12l-2.4 2.4M18 12h-4.5M15.4 9.6 13 12l2.4 2.4" /></Icon>
 );
 /** A block against a wall on the left: place at the start. */
 export const ToStartIcon = () => (

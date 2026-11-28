@@ -5,11 +5,13 @@ import { Trans } from "@lingui/react/macro";
 import { audioUrl, call, fileUrl, fmtDecimal, fmtExact, fmtTime, type Block } from "./api";
 import { confirm } from "./Confirm";
 import { useDialog } from "./dialog";
-import { AddAudioIcon, CloseGapsIcon, CloseIcon, CurveIcon, DuplicateIcon, ExportIcon, FitLayerIcon, FitSelIcon, GripIcon, LinkIcon, LoopIcon, MagnetIcon, NormalizeIcon,
+import { AddAudioIcon, CloseGapsIcon, CloseIcon, CurveIcon, DuplicateIcon, ExportIcon, FitLayerIcon, FitSelIcon, GripIcon, LinkIcon, LoopIcon, MagnetIcon, MergeBlocksIcon, NormalizeIcon,
   PauseIcon, PlayIcon, PlusIcon, RedoIcon, RemoveIcon, ResetIcon, SnapLeftIcon, SnapRightIcon, SplitIcon, StopIcon, ThroughIcon, ToEndIcon, ToStartIcon, TrashIcon,
   UndoIcon } from "./Icons";
+import { keyLabel, suiteCommand, useKeymap, type SuiteCommand } from "./keys";
 import { fullPath, pickAudio, pickAudioToSave } from "./platform";
 import { player, usePlayer } from "./player";
+import { merges } from "./retime";
 import { useEditor } from "./store";
 import { useWaveZoom, WaveScroll, WaveZoom, wheelZoom, type WaveZoomState } from "./Waveform";
 import { Help } from "./WikiLinks";
@@ -133,6 +135,13 @@ export function curveLines(blocks: Block[] | undefined): number[][][] {
       [at(b.end_ms), curveAt(b, b.end_ms)]];
   });
 }
+/** A block's curve without its point k. What is left is no curve once it is only the two points at full that came
+    with the first point put on it (or nothing but full), so Flatten goes away with the last point put there. */
+function withoutPoint(b: Block, k: number): number[][] {
+  const c = (b.curve ?? []).filter((_, j) => j !== k);
+  const flat = c.every((p) => p[1] >= 0.9999 && (p[0] <= b.start_ms + 0.05 || p[0] >= b.end_ms - 0.05));
+  return flat ? [] : c;
+}
 /** A level as decibels, for the point being dragged. */
 const dbText = (lv: number) => (lv <= 0.00001 ? "−∞ dB" : `${fmtDecimal(20 * Math.log10(lv), 1, true)} dB`);
 /** A block as the core takes it: without the track it belongs to. */
@@ -246,6 +255,8 @@ function decode(url: string, ctx: BaseAudioContext): Promise<Decoded> {
   return p;
 }
 
+/** The block the side panel is measured with: every field, and Flatten Curve. */
+const SIZER: Block = { start_ms: 0, end_ms: 1000, at_ms: 0, fade_in_ms: 0, fade_out_ms: 0, gain_db: 0, curve: [[0, 1], [500, 0.5], [1000, 1]] };
 /** A block of a whole file, at the start. */
 const whole = (ms: number, track: number): EBlock => ({ start_ms: 0, end_ms: ms, at_ms: 0, fade_in_ms: 0, fade_out_ms: 0, gain_db: 0, track });
 
@@ -260,6 +271,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose, em
 }) {
   const { project, actions, quick, notify } = useEditor();
   const vol = usePlayer().volume;
+  useKeymap(); // the keys the tooltips name follow a rebinding
   const many = tracks.length > 1;
   const isFile = (i: number) => !!tracks[i].file;
   const assign = (i: number) => (tracks[i].source ? project?.assignments[tracks[i].source!] : undefined);
@@ -542,7 +554,17 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose, em
     if (from >= to - 1) from = 0;
     if (from >= to) return;
     schedule(list, from, to, 0, "edit", loop ? () => startPlay(chosen.length ? from : 0) : undefined);
-  }, [ctx, master, files, refs, blocks, live, loop, sel, stop, plays, refPlays, modes]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ctx, master, files, refs, blocks, live, loop, sel, stop, plays, refPlays, modes, bent]); // eslint-disable-line react-hooks/exhaustive-deps
+  // a change while it plays is heard at once: a block set otherwise, or a stretched file now read (Tempo and Pitch
+  // apart), plays on from where the playhead is
+  const lastHeard = useRef({ blocks, bent });
+  useEffect(() => {
+    if (lastHeard.current.blocks === blocks && lastHeard.current.bent === bent) return;
+    lastHeard.current = { blocks, bent };
+    const p = play.current;
+    if (playing !== "edit" || !p || !ctx || loop) return;
+    startPlay(p.from + Math.max(0, ctx.currentTime - p.t0) * 1000);
+  }, [blocks, bent]); // eslint-disable-line react-hooks/exhaustive-deps
   const [preparing, setPreparing] = useState(false);
   /** Play in Context: the core mixes the segment before, this one as edited here and the one after; it plays from a
       little before Entry to a little after Exit. */
@@ -613,6 +635,31 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose, em
     const span = Math.max(...list.map(endOf)) - Math.min(...list.map((b) => b.at_ms));
     commit([...blocks, ...list.map((b) => ({ ...b, at_ms: b.at_ms + span }))]);
     setSel(range(blocks.length, list.length));
+  };
+  /** Merge: the selected blocks of one track as one block, of a file the core mixes from them as they play (gaps
+      silence, overlaps together; core edit_merge), at the first of them on the highest of their layers. */
+  const [merging, setMerging] = useState(false);
+  const mergeable = (() => { const list = chosen(); return list.length > 1 && !merging && list.every((i) => blocks[i].track === blocks[list[0]].track); })();
+  const merge = async () => {
+    const list = chosen();
+    if (!mergeable || !ctx) return;
+    const track = blocks[list[0]].track, x = tracks[track], lo = Math.min(...list.map((i) => blocks[i].at_ms));
+    const parts = list.map((i) => ({ ...strip(blocks[i]), at_ms: round1(blocks[i].at_ms - lo), layer: 0 }));
+    setMerging(true);
+    stop();
+    try {
+      const got = await call<{ path: string }>("edit_merge", { ...(x.file ? { file: full(x.file) } : { source: x.source, original: editOriginal(track) }), blocks: parts, name: what });
+      const f = await decode(fileUrl(got.path), ctx);
+      merges.set(got.path, parts);
+      asked.current.add(got.path);
+      setFiles((m) => ({ ...m, [got.path]: f }));
+      const one_: EBlock = { start_ms: 0, end_ms: round1(f.buf.duration * 1000), at_ms: lo, fade_in_ms: 0, fade_out_ms: 0, gain_db: 0, audio: got.path,
+        layer: Math.min(...list.map((i) => layerOf(blocks[i]))), track };
+      const kept = blocks.filter((_, j) => !picked.has(j));
+      commit([...kept, one_]);
+      setSel([kept.length]);
+    } catch (e: any) { notify("bad", String(e?.message ?? e)); }
+    setMerging(false);
   };
   const normalize = () => {
     if (!sel.length) return;
@@ -1165,6 +1212,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose, em
   const onDown = (e: React.PointerEvent) => {
     if (e.button !== 0 || !ready || (e.target as HTMLElement).closest("button")) return; // the empty start's buttons
     e.preventDefault();
+    (e.currentTarget.closest(".wave-ed") as HTMLElement | null)?.focus({ preventScroll: true }); // a field left is set; the keys come here
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     const { x, y } = local(e), hit = hitAt(x, y), lane = lanes[laneAt(y)], add = e.shiftKey || e.ctrlKey || e.metaKey;
     if (y >= RULER && lane) setActive({ track: lane.track, layer: lane.kind === "layer" ? lane.layer : 0 });
@@ -1173,7 +1221,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose, em
     if (hit.kind === "point" || hit.kind === "line") { // a volume curve: a point taken (Alt: removed), or put on the line and taken
       const b = blocks[hit.i];
       let curve = (b.curve ?? []).map((p) => [...p]), pt = hit.pt ?? -1;
-      if (hit.kind === "point" && e.altKey) { commit(blocks.map((x2, j) => (j === hit.i ? { ...x2, curve: curve.filter((_, k) => k !== pt) } : x2))); return; }
+      if (hit.kind === "point" && e.altKey) { commit(blocks.map((x2, j) => (j === hit.i ? { ...x2, curve: withoutPoint(x2, pt) } : x2))); return; }
       if (hit.kind === "line") {
         if (curve.length >= MAX_CURVE) return;
         const ms = round1(b.start_ms + (msOf(x) - b.at_ms) * speedOf(b)), lv = curveAt(b, ms);
@@ -1245,7 +1293,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose, em
     if (!ready || (e.target as HTMLElement).closest("button")) return;
     const { x, y } = local(e);
     const pt = curving && y >= RULER ? hitAt(x, y) : null;
-    if (pt?.kind === "point") { commit(blocks.map((b, j) => (j === pt.i ? { ...b, curve: (b.curve ?? []).filter((_, k) => k !== pt.pt) } : b))); return; }
+    if (pt?.kind === "point") { commit(blocks.map((b, j) => (j === pt.i ? { ...b, curve: withoutPoint(b, pt.pt!) } : b))); return; }
     if (y < RULER && cues && (hitAt(x, y).kind === "entry" || hitAt(x, y).kind === "exit")) return;
     const ms = Math.max(0, msOf(x)), at = Math.max(0, ms + snap([ms], null, false));
     setCursor(at);
@@ -1261,28 +1309,37 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose, em
   }, [zoom]);
 
   // --- keys (not while typing in a field)
+  // the Suite's commands, on the keys Settings ▸ Shortcuts gives them (keys.ts); a few keys stay fixed
+  const commands: Record<SuiteCommand, () => void> = {
+    suitePlay: toggle, suiteStop: () => { stop(); setCursor(0); }, suiteLoop: () => setLoop((l) => !l),
+    suiteContext: () => { if (cues) void playContext(); }, suiteAdd: () => { if (ctx && !adding) void addFiles(); },
+    suiteSplit: () => splitAt(cursor), suiteNormalize: normalize, suiteDuplicate: duplicate, suiteMerge: () => void merge(),
+    suiteRemove: remove, suiteSnapLeft: () => snapSide(-1), suiteSnapRight: () => snapSide(1), suiteToStart: () => placeAt("start"),
+    suiteToEnd: () => placeAt("end"), suiteCloseGaps: closeGaps, suiteMagnet: () => setMagnet((m) => !m), suiteCurves: () => setCurving((c) => !c),
+    suiteUndo: undo, suiteRedo: redo, suiteReset: () => { if (ready) reset(); }, suiteFitSel: fitSelected, suiteFitLayer: fitLayers,
+    suiteNewLayer: addLayer, suitePaste: () => void paste(), suiteSelectAll: () => setSel(range(0, blocks.length)),
+    suiteExport: () => { if (ready && exportable) { stop(); setExporting(true); } },
+  };
   const onKey = (e: React.KeyboardEvent) => {
     if (exporting || (e.target as HTMLElement).closest("input:not([type=checkbox]), textarea, select")) return;
     const k = e.key.toLowerCase(), mod = e.ctrlKey || e.metaKey;
     const did = () => { e.preventDefault(); e.stopPropagation(); };
-    if (k === " ") { did(); toggle(); }
-    else if (mod && k === "z") { did(); if (e.shiftKey) redo(); else undo(); }
-    else if (mod && k === "y") { did(); redo(); }
-    else if (mod && k === "d") { did(); duplicate(); }
-    else if (mod && k === "v") { did(); void paste(); }
-    else if (mod && k === "a") { did(); setSel(range(0, blocks.length)); }
-    else if (!mod && k === "s") { did(); splitAt(cursor); }
-    else if (!mod && k === "n") { did(); normalize(); }
-    else if (!mod && k === "m") { did(); setMagnet((m) => !m); }
-    else if (!mod && k === "l") { did(); setLoop((l) => !l); }
-    else if (!mod && k === "v") { did(); setCurving((c) => !c); }
-    else if (!mod && k === "c" && cues) { did(); void playContext(); }
-    else if (k === "delete" || k === "backspace") { did(); remove(); }
-    else if (k === "home") { did(); setCursor(0); }
-    else if (k === "end") { did(); setCursor(resultMs); }
-    else if (k === "arrowleft" || k === "arrowright") { did(); nudge((k === "arrowleft" ? -1 : 1) * NUDGE * (e.shiftKey ? 10 : 1)); }
+    const id = suiteCommand(e.nativeEvent);
+    if (id) { did(); commands[id](); }
+    else if (k === "home" && !mod) { did(); setCursor(0); }
+    else if (k === "end" && !mod) { did(); setCursor(resultMs); }
+    else if ((k === "arrowleft" || k === "arrowright") && !mod) { did(); nudge((k === "arrowleft" ? -1 : 1) * NUDGE * (e.shiftKey ? 10 : 1)); }
     else if (k === "enter" && mod && !embed) { did(); void apply(); }
   };
+  /** A button that goes away or turns off under the focus (Merge while it works, Remove with nothing left to remove)
+      drops the focus to the page: it comes back to the Suite, so its keys go on working. */
+  const keepFocus = (e: React.FocusEvent<HTMLElement>) => {
+    if (e.relatedTarget) return;
+    const root = e.currentTarget;
+    requestAnimationFrame(() => { if (root.isConnected && (document.activeElement === document.body || !document.activeElement)) root.focus({ preventScroll: true }); });
+  };
+  const kl = (id: SuiteCommand) => keyLabel(id) || undefined;
+  const curvesKey = keyLabel("suiteCurves") || "—";
 
   const cursorCls = { move: "grab", trimL: "ew-resize", trimR: "ew-resize", fadeIn: "col-resize", fadeOut: "col-resize", cursor: "ew-resize", box: "crosshair", entry: "ew-resize", exit: "ew-resize", point: "grab", line: "copy" } as const;
   const single = tracks.length === 1 ? 0 : null;
@@ -1306,42 +1363,45 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose, em
             <div className="wave-ed-group" role="group" aria-label={t`Playback`}>
               <button className={`icon-btn wave-ed-play${playing === "edit" ? " on" : ""}`} onClick={toggle} disabled={!ready || !audible.length}
                 aria-label={playing === "edit" ? t`Pause` : t`Play`} data-tip={playing === "edit" ? t`Pause` : audible.length ? t`Play from the cursor` : t`Tick a lane to play it`}
-                data-tip-more={t`Plays the lanes ticked. A double click on the waveforms plays from there`} data-tip-key="Space">
+                data-tip-more={t`Plays the lanes ticked. A double click on the waveforms plays from there`} data-tip-key={kl("suitePlay")}>
                 {playing === "edit" ? <PauseIcon /> : <PlayIcon />}</button>
-              {tool(<StopIcon />, t`Stop`, () => { stop(); setCursor(0); }, false, undefined, t`Puts the cursor back at the start`)}
+              {tool(<StopIcon />, t`Stop`, () => { stop(); setCursor(0); }, false, kl("suiteStop"), t`Puts the cursor back at the start`)}
               <button className="icon-btn wave-ed-toggle" aria-pressed={loop} onClick={() => setLoop(!loop)} aria-label={t`Loop`}
-                data-tip={loop ? t`Loop: on` : t`Loop: off`} data-tip-more={t`Plays the selected blocks over and over, or the whole result`} data-tip-key="L"><LoopIcon /></button>
+                data-tip={loop ? t`Loop: on` : t`Loop: off`} data-tip-more={t`Plays the selected blocks over and over, or the whole result`} data-tip-key={kl("suiteLoop")}><LoopIcon /></button>
               {cues && <button className={`icon-btn wave-ed-context${playing === "context" ? " on" : ""}`} onClick={() => void playContext()} disabled={!ready || preparing || !blocks.length}
-                aria-label={t`Play in Context`} data-tip={playing === "context" ? t`Stop` : preparing ? t`Mixing the segments…` : t`Play in Context`} data-tip-key="C"
+                aria-label={t`Play in Context`} data-tip={playing === "context" ? t`Stop` : preparing ? t`Mixing the segments…` : t`Play in Context`} data-tip-key={kl("suiteContext")}
                 data-tip-more={t`Plays the end of the segment before, this segment as edited here and the start of the one after, handed over at the cue points as in game`}>
                 {preparing ? <span className="wave-ed-spin" aria-hidden="true" /> : <ThroughIcon />}</button>}
             </div>
             <div className="wave-ed-group" role="group" aria-label={t`Blocks`}>
-              {tool(<AddAudioIcon />, t`Add Audio`, () => void addFiles(), !ctx || adding, undefined,
-                t`Adds audio files as new blocks on the selected layer, one after the other from the cursor. Dropping files on the editor does the same, and Ctrl+V pastes slots copied in the list or files copied in Explorer`)}
-              {tool(<SplitIcon />, t`Split at the cursor`, () => splitAt(cursor), !shown.length, "S", t`Splits the selected blocks there, or the block under the cursor`)}
-              {tool(<NormalizeIcon />, t`Normalize`, normalize, !sel.length, "N", t`Brings each selected block up or down until the loudest moment of it reaches −1 dB`)}
-              {tool(<DuplicateIcon />, t`Duplicate`, duplicate, !sel.length, "Ctrl+D", t`The copies go right after the selected blocks`)}
-              {tool(<RemoveIcon />, t`Remove`, remove, !removable, "Delete", t`Removes the selected blocks`)}
+              {tool(<AddAudioIcon />, t`Add Audio`, () => void addFiles(), !ctx || adding, kl("suiteAdd"),
+                t`Adds audio files as new blocks on the selected layer, one after the other from the cursor. Dropping files on the editor does the same, and ${keyLabel("suitePaste")} pastes slots copied in the list or files copied in Explorer`)}
+              {tool(<SplitIcon />, t`Split at the cursor`, () => splitAt(cursor), !shown.length, kl("suiteSplit"), t`Splits the selected blocks there, or the block under the cursor`)}
+              {tool(<NormalizeIcon />, t`Normalize`, normalize, !sel.length, kl("suiteNormalize"), t`Brings each selected block up or down until the loudest moment of it reaches −1 dB`)}
+              {tool(<DuplicateIcon />, t`Duplicate`, duplicate, !sel.length, kl("suiteDuplicate"), t`The copies go right after the selected blocks`)}
+              {merging ? <button className="icon-btn" disabled aria-label={t`Merging…`} data-tip={t`Merging…`}><span className="wave-ed-spin" aria-hidden="true" /></button>
+                : tool(<MergeBlocksIcon />, t`Merge`, () => void merge(), !mergeable, kl("suiteMerge"),
+                  mergeable || sel.length < 2 ? t`Makes one block of the selected blocks, as they play: gaps between them become silence, and blocks that overlap play together` : t`The selected blocks are in different slots`)}
+              {tool(<RemoveIcon />, t`Remove`, remove, !removable, kl("suiteRemove"), t`Removes the selected blocks`)}
             </div>
             <div className="wave-ed-group" role="group" aria-label={t`Place`}>
-              {tool(<SnapLeftIcon />, t`Snap Left`, () => snapSide(-1), !sel.length, undefined, t`Moves the selected blocks back until they touch the block before them on their layer, or the start`)}
-              {tool(<SnapRightIcon />, t`Snap Right`, () => snapSide(1), !sel.length, undefined, t`Moves the selected blocks on until they touch the block after them on their layer`)}
-              {tool(<ToStartIcon />, t`Place at the Start`, () => placeAt("start"), !sel.length, undefined, t`Moves the selected blocks to the start`)}
-              {tool(<ToEndIcon />, t`Place at the End`, () => placeAt("end"), !sel.length, undefined, refMs ? t`Moves the selected blocks to end where the original ends` : t`Moves the selected blocks to after the other blocks`)}
-              {tool(<CloseGapsIcon />, t`Close Gaps`, closeGaps, !gapsIn, undefined, t`Moves the blocks of the layer back against each other, from the first. With blocks selected, on their layers`)}
+              {tool(<SnapLeftIcon />, t`Snap Left`, () => snapSide(-1), !sel.length, kl("suiteSnapLeft"), t`Moves the selected blocks back until they touch the block before them on their layer, or the start`)}
+              {tool(<SnapRightIcon />, t`Snap Right`, () => snapSide(1), !sel.length, kl("suiteSnapRight"), t`Moves the selected blocks on until they touch the block after them on their layer`)}
+              {tool(<ToStartIcon />, t`Place at the Start`, () => placeAt("start"), !sel.length, kl("suiteToStart"), t`Moves the selected blocks to the start`)}
+              {tool(<ToEndIcon />, t`Place at the End`, () => placeAt("end"), !sel.length, kl("suiteToEnd"), refMs ? t`Moves the selected blocks to end where the original ends` : t`Moves the selected blocks to after the other blocks`)}
+              {tool(<CloseGapsIcon />, t`Close Gaps`, closeGaps, !gapsIn, kl("suiteCloseGaps"), t`Moves the blocks of the layer back against each other, from the first. With blocks selected, on their layers`)}
             </div>
             <div className="wave-ed-group" role="group" aria-label={t`Modes`}>
               <button className="icon-btn wave-ed-toggle" aria-pressed={magnet} onClick={() => setMagnet(!magnet)} aria-label={t`Magnet`} data-tip={magnet ? t`Magnet: on` : t`Magnet: off`}
-                data-tip-more={t`The cursor, block edges, blocks and cue points snap to edges: of blocks, the start and where the original ends`} data-tip-key="M"><MagnetIcon /></button>
+                data-tip-more={t`The cursor, block edges, blocks and cue points snap to edges: of blocks, the start and where the original ends`} data-tip-key={kl("suiteMagnet")}><MagnetIcon /></button>
               <button className="icon-btn wave-ed-toggle wave-ed-curves" aria-pressed={curving} onClick={() => setCurving(!curving)} aria-label={t`Volume Curves`}
-                data-tip={curving ? t`Volume Curves: on` : t`Volume Curves: off`} data-tip-key="V"
+                data-tip={curving ? t`Volume Curves: on` : t`Volume Curves: off`} data-tip-key={kl("suiteCurves")}
                 data-tip-more={t`Shows a line over each block, from full at the top to silence at the foot. Click the line to add a point, drag a point to shape the volume, double-click a point to remove it`}><CurveIcon /></button>
             </div>
             <div className="wave-ed-group wave-ed-hist" role="group" aria-label={t`History`}>
-              {tool(<UndoIcon />, t`Undo`, undo, hist.at === 0, "Ctrl+Z")}
-              {tool(<RedoIcon />, t`Redo`, redo, hist.at >= hist.list.length - 1, "Ctrl+Y")}
-              {tool(<ResetIcon />, t`Reset`, reset, !ready, undefined, t`Back to the whole file, as it is, on one layer`)}
+              {tool(<UndoIcon />, t`Undo`, undo, hist.at === 0, kl("suiteUndo"))}
+              {tool(<RedoIcon />, t`Redo`, redo, hist.at >= hist.list.length - 1, kl("suiteRedo"))}
+              {tool(<ResetIcon />, t`Reset`, reset, !ready, kl("suiteReset"), t`Back to the whole file, as it is, on one layer`)}
             </div>
           </div>
           <span className="spacer" />
@@ -1412,10 +1472,10 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose, em
           </div>
           {/* under the waveforms, at the left: New Layer, then the scroll bar and the time zoom */}
           <WaveZoom zoom={zoom} fits={<>
-            {tool(<FitSelIcon />, t`Zoom to the Selection`, fitSelected, !sel.length || !ready, undefined, t`The selected blocks across the whole width`)}
-            {tool(<FitLayerIcon />, t`Zoom to the Layer`, fitLayers, !ready || layerEnd() <= 0, undefined, t`From the start to the end of the selected blocks' layers, or of the layer worked on`)}
+            {tool(<FitSelIcon />, t`Zoom to the Selection`, fitSelected, !sel.length || !ready, kl("suiteFitSel"), t`The selected blocks across the whole width`)}
+            {tool(<FitLayerIcon />, t`Zoom to the Layer`, fitLayers, !ready || layerEnd() <= 0, kl("suiteFitLayer"), t`From the start to the end of the selected blocks' layers, or of the layer worked on`)}
           </>} foot={<>
-            <button className="btn quiet wave-ed-new-layer" onClick={addLayer} disabled={layersOf(on.track) >= MAX_LAYERS}
+            <button className="btn quiet wave-ed-new-layer" onClick={addLayer} disabled={layersOf(on.track) >= MAX_LAYERS} data-tip-key={kl("suiteNewLayer")}
               data-tip={many ? t`A layer under ${tracks[on.track].name}, to keep blocks apart on` : t`A layer to keep blocks apart on`}
               data-tip-more={t`Every layer plays, all together. Drag a block up or down to move it to another layer`}><PlusIcon /><Trans>New Layer</Trans></button>
             {zoom.x > 1 && <WaveScroll zoom={zoom} />}
@@ -1423,14 +1483,20 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose, em
         </div>
         </div>
         <aside className="wave-ed-side" aria-label={t`Selected blocks`}>
-          {one != null ? <BlockFields b={blocks[one]} n={one + 1} fileMs={msOfFile(blocks[one])} file={(many ? `${tracks[blocks[one].track].name} · ` : "") + (blocks[one].audio ? nameOf(blocks[one].audio!) : ownName(blocks[one].track))} onSet={(x) => set(one, x)} link={link} onLink={setLink} />
-            : selList.length > 1 ? <ManyFields list={selList} onSet={setMany} link={link} onLink={setLink} />
-            : <p className="wave-ed-hint"><Trans>Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Drag from an empty spot to select several blocks, and hold Shift or Ctrl to add to them. Where blocks overlap, click again for the one under it. A double click plays from there. With Volume Curves on (V), click the line over a block to shape the volume.</Trans></p>}
+          {/* as tall as the most fields there are, so the dialog keeps its height as the selection changes */}
+          <div className="wave-ed-sizer" aria-hidden="true" inert>
+            <BlockFields b={SIZER} base={SIZER} n={1} fileMs={1000} file="-" onSet={() => {}} onLive={() => {}} link={link} onLink={() => {}} />
+          </div>
+          {one != null ? <BlockFields b={shown[one] ?? blocks[one]} base={blocks[one]} n={one + 1} fileMs={msOfFile(blocks[one])} file={(many ? `${tracks[blocks[one].track].name} · ` : "") + (blocks[one].audio ? nameOf(blocks[one].audio!) : ownName(blocks[one].track))}
+            onSet={(x) => set(one, x)} onLive={(x) => setLive(x ? blocks.map((b, j) => (j === one ? fitted({ ...b, ...x }) : b)) : null)} link={link} onLink={setLink} />
+            : selList.length > 1 ? <ManyFields list={chosen().map((i) => shown[i] ?? blocks[i])} onSet={setMany} link={link} onLink={setLink}
+              onLive={(x) => setLive(x ? blocks.map((b, j) => (picked.has(j) ? fitted({ ...b, ...x }) : b)) : null)} />
+            : <p className="wave-ed-hint"><Trans>Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Drag from an empty spot to select several blocks, and hold Shift or Ctrl to add to them. Where blocks overlap, click again for the one under it. A double click plays from there. With Volume Curves on ({curvesKey}), click the line over a block to shape the volume.</Trans></p>}
         </aside>
         </div>
   );
   const exportBtn = (
-    <button className="btn" onClick={() => { stop(); setExporting(true); }} disabled={!ready || !exportable}
+    <button className="btn" onClick={() => { stop(); setExporting(true); }} disabled={!ready || !exportable} data-tip-key={kl("suiteExport")}
       data-tip={exportable ? t`Export the lanes ticked as one audio file` : t`Tick a lane with audio to export it`}><ExportIcon /><Trans>Export</Trans></button>
   );
   const sum = (
@@ -1447,7 +1513,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose, em
       .map((l) => { const nm = names[lk(i, l)]?.trim(); return many ? (nm ? `${x.name}, ${nm}` : t`${x.name}, layer ${l + 1}`) : nm || t`Layer ${l + 1}`; }))]}
     onExport={doExport} onClose={() => setExporting(false)} />;
   if (embed) return (
-    <div className="wave-ed wave-ed-embed" ref={embedBox} tabIndex={-1} onKeyDown={onKey} hidden={embed.shown === false}
+    <div className="wave-ed wave-ed-embed" ref={embedBox} tabIndex={-1} onKeyDown={onKey} onBlur={keepFocus} hidden={embed.shown === false}
       onPointerDown={(e) => { if (!(e.target as Element).closest("input, button, select, textarea, [tabindex]:not([tabindex='-1'])")) embedBox.current?.focus({ preventScroll: true }); }}>
       {main}
       <div className="wave-ed-embed-foot">{exportBtn}<span className="spacer" />{sum}</div>
@@ -1456,7 +1522,7 @@ export function WaveEditor({ tracks, what, cues, onFile, applyLabel, onClose, em
   );
   return createPortal(
     <div className="modal-back" onPointerDown={(e) => { if (e.target === e.currentTarget) void close(); }}>
-      <div className="modal wave-ed" role="dialog" aria-modal="true" aria-label={t`Waveform Suite`} ref={box} tabIndex={-1} onKeyDown={onKey}>
+      <div className="modal wave-ed" role="dialog" aria-modal="true" aria-label={t`Waveform Suite`} ref={box} tabIndex={-1} onKeyDown={onKey} onBlur={keepFocus}>
         <header className="wave-ed-head">
           <h2><Trans>Waveform Suite</Trans></h2>
           <span className="wave-ed-what" data-tip={what} data-tip-clip>{what}</span>
@@ -1548,37 +1614,89 @@ function ExportPanel({ what, onExport, onClose }: { what: string[]; onExport: (p
 }
 
 /** One field of the values beside the time line: label, value and unit on the column's grid. `value` null: the
-    selected blocks differ, and the field shows empty until a value is typed. */
-function Field({ name, tip, value, lo, hi, unit = "ms", step = 1, onSet }: {
-  name: string; tip: string; value: number | null; lo: number; hi: number; unit?: string; step?: number; onSet: (v: number) => void;
+    selected blocks differ, and the field shows empty until a value is typed. What is typed plays at once (`onLive`)
+    and is set on Enter or on leaving the field (Esc takes it back); ↑ and ↓ step it. Dragging the name left or right
+    changes the value by `rate` a pixel, ten times as much with Shift and a tenth with Ctrl. */
+function Field({ name, tip, value, lo, hi, unit = "ms", step = 1, rate = 2, onSet, onLive }: {
+  name: string; tip: string; value: number | null; lo: number; hi: number; unit?: string; step?: number; rate?: number;
+  onSet: (v: number) => void; onLive?: (v: number | null) => void;
 }) {
+  const dec = step < 1 ? 2 : 1, fix = (v: number) => Math.round(v * 10 ** dec) / 10 ** dec;
+  const text = (v: number | null) => (v == null ? "" : String(fix(v)).replace("-", "−"));
+  const [val, setVal] = useState(() => text(value));
+  const editing = useRef(false); // typed in or dragged: the field shows that until it is set or taken back
+  const input = useRef<HTMLInputElement>(null);
+  useEffect(() => { if (!editing.current) setVal(text(value)); }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
+  const parse = (raw: string) => {
+    const s = raw.trim().replace(/[−–]/g, "-").replace(",", "."), v = Number(s);
+    return !s || !Number.isFinite(v) ? null : clamp(v, lo, hi);
+  };
+  const finish = (v: number | null) => {
+    editing.current = false;
+    if (v == null || (value != null && fix(v) === fix(value))) { onLive?.(null); setVal(text(value)); return; }
+    setVal(text(v));
+    onSet(fix(v));
+  };
+  const back = () => { editing.current = false; onLive?.(null); setVal(text(value)); };
+  const scrub = (e: React.PointerEvent<HTMLSpanElement>) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    const el = e.currentTarget;
+    el.setPointerCapture(e.pointerId);
+    let v = parse(val) ?? clamp(value ?? 0, lo, hi), x = e.clientX, moved = false;
+    const move = (ev: PointerEvent) => {
+      const dx = ev.clientX - x;
+      if (!dx) return;
+      x = ev.clientX; moved = true; editing.current = true;
+      v = clamp(v + dx * rate * (ev.shiftKey ? 10 : ev.ctrlKey || ev.metaKey ? 0.1 : 1), lo, hi);
+      setVal(text(v));
+      onLive?.(fix(v));
+    };
+    const up = () => {
+      el.removeEventListener("pointermove", move); el.removeEventListener("pointerup", up); el.removeEventListener("pointercancel", up);
+      if (moved) finish(v); else input.current?.focus();
+    };
+    el.addEventListener("pointermove", move); el.addEventListener("pointerup", up); el.addEventListener("pointercancel", up);
+  };
   return (
-    <label className="wave-ed-field" data-tip={tip} data-tip-side="left">
-      <span className="wave-ed-label">{name}</span>
-      <input type="number" min={lo} max={hi} step={step} key={String(value)} defaultValue={value == null ? "" : round1(value)} placeholder="—" aria-label={`${name} (${unit})`}
-        onKeyDown={(e) => { if (e.key === "Enter") (e.target as HTMLInputElement).blur(); }}
-        onBlur={(e) => {
-          const raw = e.target.value, v = Number(raw);
-          if (raw === "" || !Number.isFinite(v) || (value != null && round1(v) === round1(value))) { e.target.value = value == null ? "" : String(round1(value)); return; }
-          onSet(clamp(v, lo, hi));
-        }} /><span className="unit">{unit}</span>
-    </label>
+    <div className="wave-ed-field" data-tip={tip} data-tip-more={t`Drag the name to change it: Shift for bigger steps, Ctrl for finer ones`} data-tip-side="left">
+      <span className="wave-ed-label wave-ed-scrub" onPointerDown={scrub}>{name}</span>
+      <input ref={input} type="text" inputMode="decimal" value={val} placeholder="—" aria-label={`${name} (${unit})`} spellCheck={false} autoComplete="off" data-own-esc
+        onChange={(e) => { editing.current = true; setVal(e.target.value); const v = parse(e.target.value); if (v != null) onLive?.(v); }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") e.currentTarget.closest<HTMLElement>(".wave-ed")?.focus({ preventScroll: true }); // set, and the keys go to the Suite
+          else if (e.key === "Escape") { // back to what it was, and the keys go to the Suite again
+            e.preventDefault(); e.stopPropagation(); back();
+            e.currentTarget.closest<HTMLElement>(".wave-ed")?.focus({ preventScroll: true });
+          }
+          else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+            e.preventDefault();
+            const v = clamp((parse(val) ?? value ?? 0) + (e.key === "ArrowUp" ? 1 : -1) * step * (e.shiftKey ? 10 : e.ctrlKey ? 0.1 : 1), lo, hi);
+            finish(v);
+          }
+        }}
+        onBlur={() => { if (editing.current) finish(parse(val)); }} />
+      <span className="unit">{unit}</span>
+    </div>
   );
 }
 
 /** Tempo (in %) and Pitch (in semitones), and the link between them: linked, one moves the other as a tape played
     faster would; apart, the tempo changes and the pitch stays, or the other way round. `b` null: several blocks
     that differ, shown empty. */
-function SpeedFields({ tempo, pitch, link, onLink, onSet, many }: {
-  tempo: number | null; pitch: number | null; link: boolean; onLink: (v: boolean) => void; onSet: (b: Partial<Block>) => void; many?: boolean;
+function SpeedFields({ tempo, pitch, link, onLink, onSet, onLive, many }: {
+  tempo: number | null; pitch: number | null; link: boolean; onLink: (v: boolean) => void; onSet: (b: Partial<Block>) => void;
+  onLive: (b: Partial<Block> | null) => void; many?: boolean;
 }) {
   const st = (v: number) => Math.round(12 * Math.log2(v) * 100) / 100;
+  const byTempo = (v: number): Partial<Block> => (link ? { tempo: v / 100, pitch: st(v / 100) } : { tempo: v / 100 });
+  const byPitch = (v: number): Partial<Block> => (link ? { pitch: v, tempo: clamp(2 ** (v / 12), TEMPO[0], TEMPO[1]) } : { pitch: v });
   return (
     <div className="wave-ed-set wave-ed-speed">
-      <Field name={t`Tempo`} tip={many ? t`How fast each block plays` : t`How fast the block plays: 200% in half the time`} value={tempo == null ? null : tempo * 100} lo={TEMPO[0] * 100} hi={TEMPO[1] * 100} unit="%" step={1}
-        onSet={(v) => onSet(link ? { tempo: v / 100, pitch: st(v / 100) } : { tempo: v / 100 })} />
-      <Field name={t`Pitch`} tip={many ? t`How much higher or lower each block plays` : t`How much higher or lower the block plays, in semitones`} value={pitch} lo={-PITCH} hi={PITCH} unit={t({ message: "st", comment: "Unit: semitones" })} step={0.5}
-        onSet={(v) => onSet(link ? { pitch: v, tempo: clamp(2 ** (v / 12), TEMPO[0], TEMPO[1]) } : { pitch: v })} />
+      <Field name={t`Tempo`} tip={many ? t`How fast each block plays` : t`How fast the block plays: 200% in half the time`} value={tempo == null ? null : tempo * 100} lo={TEMPO[0] * 100} hi={TEMPO[1] * 100} unit="%" step={1} rate={0.5}
+        onSet={(v) => onSet(byTempo(v))} onLive={(v) => onLive(v == null ? null : byTempo(v))} />
+      <Field name={t`Pitch`} tip={many ? t`How much higher or lower each block plays` : t`How much higher or lower the block plays, in semitones`} value={pitch} lo={-PITCH} hi={PITCH} unit={t({ message: "st", comment: "Unit: semitones" })} step={0.5} rate={0.05}
+        onSet={(v) => onSet(byPitch(v))} onLive={(v) => onLive(v == null ? null : byPitch(v))} />
       <button className={`icon-btn small wave-ed-link${link ? " on" : ""}`} aria-pressed={link} onClick={() => onLink(!link)} aria-label={t`Link Tempo and Pitch`}
         data-tip={link ? t`Tempo and Pitch: linked` : t`Tempo and Pitch: apart`}
         data-tip-more={link ? t`Changing one changes the other, as a tape played faster` : t`Each changes alone: the tempo keeps the pitch, the pitch keeps the tempo`}><LinkIcon /></button>
@@ -1588,30 +1706,33 @@ function SpeedFields({ tempo, pitch, link, onLink, onSet, many }: {
 
 /** The selected block in numbers, in ms (Gain in dB): what the canvas does by dragging, to type exactly. A column of
     label, value and unit, in groups: where it plays, the stretch of the file, the fades, the level, the speed. */
-function BlockFields({ b, n, fileMs, file, onSet, link, onLink }: {
-  b: Block; n: number; fileMs: number; file: string; onSet: (b: Partial<Block>) => void; link: boolean; onLink: (v: boolean) => void;
+function BlockFields({ b, base, n, fileMs, file, onSet, onLive, link, onLink }: {
+  b: Block; base: Block; n: number; fileMs: number; file: string; onSet: (b: Partial<Block>) => void; onLive: (b: Partial<Block> | null) => void;
+  link: boolean; onLink: (v: boolean) => void;
 }) {
-  const len = lengthOf(b);
+  // b shows the block as it is now (a drag too); the limits come from it as set (base), so a field being dragged keeps them
+  const len = lengthOf(base);
+  const f = (k: keyof Block) => ({ onSet: (v: number) => onSet({ [k]: v }), onLive: (v: number | null) => onLive(v == null ? null : { [k]: v }) });
   return (
     <div className="wave-ed-block">
       <div className="wave-ed-block-head"><b>{t`Block ${n}`}</b><span className="wave-ed-file" data-tip={file} data-tip-clip>{file}</span></div>
       <div className="wave-ed-set">
-        <Field name={t`Position`} tip={t`When the block plays, from the start of the slot`} value={b.at_ms} lo={0} hi={3_600_000} onSet={(v) => onSet({ at_ms: v })} />
-        <div className="wave-ed-field wave-ed-ro"><span className="wave-ed-label">{t`Length`}</span><b>{fmtDecimal(len, 1)}</b><span className="unit">ms</span></div>
+        <Field name={t`Position`} tip={t`When the block plays, from the start of the slot`} value={b.at_ms} lo={0} hi={3_600_000} {...f("at_ms")} />
+        <div className="wave-ed-field wave-ed-ro"><span className="wave-ed-label">{t`Length`}</span><b>{fmtDecimal(lengthOf(b), 1)}</b><span className="unit">ms</span></div>
       </div>
       <div className="wave-ed-set">
-        <Field name={t({ message: "Start", context: "Trim handle" })} tip={t`Where the block starts in the file`} value={b.start_ms} lo={0} hi={b.end_ms - MIN_BLOCK} onSet={(v) => onSet({ start_ms: v })} />
-        <Field name={t({ message: "End", context: "Trim handle" })} tip={t`Where the block ends in the file`} value={b.end_ms} lo={b.start_ms + MIN_BLOCK} hi={fileMs} onSet={(v) => onSet({ end_ms: v })} />
+        <Field name={t({ message: "Start", context: "Trim handle" })} tip={t`Where the block starts in the file`} value={b.start_ms} lo={0} hi={base.end_ms - MIN_BLOCK} {...f("start_ms")} />
+        <Field name={t({ message: "End", context: "Trim handle" })} tip={t`Where the block ends in the file`} value={b.end_ms} lo={base.start_ms + MIN_BLOCK} hi={fileMs} {...f("end_ms")} />
       </div>
       <div className="wave-ed-set">
-        <Field name={t`Fade In`} tip={t`How long the block takes to rise from silence`} value={b.fade_in_ms} lo={0} hi={len - b.fade_out_ms} onSet={(v) => onSet({ fade_in_ms: v })} />
-        <Field name={t`Fade Out`} tip={t`How long the block takes to fall to silence before it ends`} value={b.fade_out_ms} lo={0} hi={len - b.fade_in_ms} onSet={(v) => onSet({ fade_out_ms: v })} />
+        <Field name={t`Fade In`} tip={t`How long the block takes to rise from silence`} value={b.fade_in_ms} lo={0} hi={len - base.fade_out_ms} {...f("fade_in_ms")} />
+        <Field name={t`Fade Out`} tip={t`How long the block takes to fall to silence before it ends`} value={b.fade_out_ms} lo={0} hi={len - base.fade_in_ms} {...f("fade_out_ms")} />
       </div>
       <div className="wave-ed-set">
-        <Field name={t`Gain`} tip={t`How much louder or quieter the block plays`} value={b.gain_db} lo={-60} hi={24} unit="dB" step={0.5} onSet={(v) => onSet({ gain_db: v })} />
+        <Field name={t`Gain`} tip={t`How much louder or quieter the block plays`} value={b.gain_db} lo={-60} hi={24} unit="dB" step={0.5} rate={0.1} {...f("gain_db")} />
         <CurveRow points={b.curve?.length ?? 0} onFlatten={() => onSet({ curve: [] })} />
       </div>
-      <SpeedFields tempo={speedOf(b)} pitch={b.pitch ?? 0} link={link} onLink={onLink} onSet={onSet} />
+      <SpeedFields tempo={speedOf(b)} pitch={b.pitch ?? 0} link={link} onLink={onLink} onSet={onSet} onLive={onLive} />
     </div>
   );
 }
@@ -1620,7 +1741,7 @@ function BlockFields({ b, n, fileMs, file, onSet, link, onLink }: {
 function CurveRow({ points, onFlatten, many }: { points: number; onFlatten: () => void; many?: boolean }) {
   return (
     <>
-      <div className="wave-ed-field wave-ed-ro" data-tip={t`Shape it with the Volume Curves tool (V)`} data-tip-side="left">
+      <div className="wave-ed-field wave-ed-ro" data-tip={keyLabel("suiteCurves") ? t`Shape it with the Volume Curves tool (${keyLabel("suiteCurves")})` : t`Shape it with the Volume Curves tool`} data-tip-side="left">
         <span className="wave-ed-label">{t`Volume Curve`}</span><b>{points ? points : "—"}</b><span className="unit">{points ? t`pts` : ""}</span></div>
       {points > 0 && <button className="btn quiet wave-ed-flatten" onClick={onFlatten}
         data-tip={many ? t`Takes the points off every selected block` : t`Takes the points off: the block plays at full level all along`}>{many ? t`Flatten Curves` : t`Flatten Curve`}</button>}
@@ -1630,7 +1751,10 @@ function CurveRow({ points, onFlatten, many }: { points: number; onFlatten: () =
 
 /** Several blocks selected: the values they can share, set on all of them at once (a fade longer than a block stops
     at its length). A value they differ in shows empty. */
-function ManyFields({ list, onSet, link, onLink }: { list: Block[]; onSet: (b: Partial<Block>) => void; link: boolean; onLink: (v: boolean) => void }) {
+function ManyFields({ list, onSet, onLive, link, onLink }: {
+  list: Block[]; onSet: (b: Partial<Block>) => void; onLive: (b: Partial<Block> | null) => void; link: boolean; onLink: (v: boolean) => void;
+}) {
+  const f = (k: keyof Block) => ({ onSet: (v: number) => onSet({ [k]: v }), onLive: (v: number | null) => onLive(v == null ? null : { [k]: v }) });
   const same = (k: "fade_in_ms" | "fade_out_ms" | "gain_db") => (list.every((b) => round1(b[k]) === round1(list[0][k])) ? list[0][k] : null);
   const tempo = list.every((b) => speedOf(b) === speedOf(list[0])) ? speedOf(list[0]) : null;
   const pitch = list.every((b) => (b.pitch ?? 0) === (list[0].pitch ?? 0)) ? list[0].pitch ?? 0 : null;
@@ -1640,14 +1764,14 @@ function ManyFields({ list, onSet, link, onLink }: { list: Block[]; onSet: (b: P
     <div className="wave-ed-block">
       <div className="wave-ed-block-head"><b>{t`${n} blocks`}</b><span className="wave-ed-file">{t`Values set here apply to each of them`}</span></div>
       <div className="wave-ed-set">
-        <Field name={t`Fade In`} tip={t`How long each block takes to rise from silence`} value={same("fade_in_ms")} lo={0} hi={longest} onSet={(v) => onSet({ fade_in_ms: v })} />
-        <Field name={t`Fade Out`} tip={t`How long each block takes to fall to silence before it ends`} value={same("fade_out_ms")} lo={0} hi={longest} onSet={(v) => onSet({ fade_out_ms: v })} />
+        <Field name={t`Fade In`} tip={t`How long each block takes to rise from silence`} value={same("fade_in_ms")} lo={0} hi={longest} {...f("fade_in_ms")} />
+        <Field name={t`Fade Out`} tip={t`How long each block takes to fall to silence before it ends`} value={same("fade_out_ms")} lo={0} hi={longest} {...f("fade_out_ms")} />
       </div>
       <div className="wave-ed-set">
-        <Field name={t`Gain`} tip={t`How much louder or quieter each block plays`} value={same("gain_db")} lo={-60} hi={24} unit="dB" step={0.5} onSet={(v) => onSet({ gain_db: v })} />
+        <Field name={t`Gain`} tip={t`How much louder or quieter each block plays`} value={same("gain_db")} lo={-60} hi={24} unit="dB" step={0.5} rate={0.1} {...f("gain_db")} />
         {list.some((b) => b.curve?.length) && <CurveRow many points={list.reduce((s, b) => s + (b.curve?.length ?? 0), 0)} onFlatten={() => onSet({ curve: [] })} />}
       </div>
-      <SpeedFields many tempo={tempo} pitch={pitch} link={link} onLink={onLink} onSet={onSet} />
+      <SpeedFields many tempo={tempo} pitch={pitch} link={link} onLink={onLink} onSet={onSet} onLive={onLive} />
     </div>
   );
 }

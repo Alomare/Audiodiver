@@ -11,13 +11,23 @@ export type CommandId =
   | "search" | "back" | "forward"
   | "save" | "undo" | "redo" | "build" | "newProject" | "openProject" | "closeProject"
   | "tabHome" | "tabProject" | "tabLibrary" | "tabEditor" | "tabSoundtrack" | "tabText" | "tabBuild" | "tabTools"
-  | "updates" | "wiki" | "tutorials" | "settings" | "shortcuts";
+  | "updates" | "wiki" | "tutorials" | "settings" | "shortcuts"
+  | SuiteCommand;
+/** The Waveform Suite's commands: they run only in the Suite (WaveEditor.tsx asks suiteCommand), so their keys are
+    apart from the app's (Ctrl+S splits there and saves elsewhere). */
+export type SuiteCommand =
+  | "suitePlay" | "suiteStop" | "suiteLoop" | "suiteContext" | "suiteAdd" | "suiteSplit" | "suiteNormalize" | "suiteDuplicate"
+  | "suiteMerge" | "suiteRemove" | "suiteSnapLeft" | "suiteSnapRight" | "suiteToStart" | "suiteToEnd" | "suiteCloseGaps"
+  | "suiteMagnet" | "suiteCurves" | "suiteUndo" | "suiteRedo" | "suiteReset" | "suiteFitSel" | "suiteFitLayer" | "suiteNewLayer"
+  | "suitePaste" | "suiteSelectAll" | "suiteExport";
 
 export type Command = {
   id: CommandId; group: string; label: string;
   keys: string[];     // the default chords; the first is the one tooltips and menus show
   inputs?: boolean;   // also runs while typing in a text field (only on a chord with Ctrl or Alt, or an F key)
+  scope?: "suite";    // runs only there, with keys of its own
 };
+const SUITE = t`Waveform Suite`;
 
 /** In the order Settings ▸ Shortcuts lists them. */
 export const COMMANDS: Command[] = [
@@ -64,8 +74,40 @@ export const COMMANDS: Command[] = [
   { id: "tutorials", group: t`Tabs`, label: t`Open the interactive tutorials`, keys: [], inputs: true },
   { id: "settings", group: t`Tabs`, label: t`Open or close Settings`, keys: ["Ctrl+,"], inputs: true },
   { id: "shortcuts", group: t`Tabs`, label: t`Show these shortcuts`, keys: ["?"] },
+
+  ...([
+    ["suitePlay", t`Play from the cursor, or pause`, ["Space"]],
+    ["suiteStop", t`Stop, and put the cursor back at the start`, ["Shift+Space"]],
+    ["suiteLoop", t`Loop on or off`, ["L"]],
+    ["suiteContext", t`Play in Context (music segments)`, ["C"]],
+    ["suiteAdd", t`Add audio files as blocks`, ["A"]],
+    ["suiteSplit", t`Split at the cursor`, ["Ctrl+S"]],
+    ["suiteNormalize", t`Normalize the selected blocks`, ["N"]],
+    ["suiteDuplicate", t`Duplicate the selected blocks`, ["Ctrl+D"]],
+    ["suiteMerge", t`Merge the selected blocks into one`, ["Ctrl+M"]],
+    ["suiteRemove", t`Remove the selected blocks`, ["Delete", "Backspace"]],
+    ["suiteSnapLeft", t`Snap the selected blocks left`, ["Ctrl+ArrowLeft"]],
+    ["suiteSnapRight", t`Snap the selected blocks right`, ["Ctrl+ArrowRight"]],
+    ["suiteToStart", t`Place the selected blocks at the start`, ["Ctrl+Home"]],
+    ["suiteToEnd", t`Place the selected blocks at the end`, ["Ctrl+End"]],
+    ["suiteCloseGaps", t`Close the gaps on the layer`, ["G"]],
+    ["suiteMagnet", t`Magnet on or off`, ["M"]],
+    ["suiteCurves", t`Volume Curves on or off`, ["V"]],
+    ["suiteUndo", t`Undo in the Waveform Suite`, ["Ctrl+Z"]],
+    ["suiteRedo", t`Redo in the Waveform Suite`, ["Ctrl+Y", "Ctrl+Shift+Z"]],
+    ["suiteReset", t`Reset to the whole file`, ["Shift+R"]],
+    ["suiteFitSel", t`Zoom to the selection`, ["Z"]],
+    ["suiteFitLayer", t`Zoom to the layer`, ["Shift+Z"]],
+    ["suiteNewLayer", t`Add a layer`, ["Ctrl+L"]],
+    ["suitePaste", t`Paste audio as blocks`, ["Ctrl+V"]],
+    ["suiteSelectAll", t`Select every block`, ["Ctrl+A"]],
+    ["suiteExport", t`Export the lanes ticked`, ["Ctrl+E"]],
+  ] as [SuiteCommand, string, string[]][]).map(([id, label, keys]): Command => ({ id, group: SUITE, label, keys, scope: "suite" })),
 ];
 const BY_ID = new Map(COMMANDS.map((c) => [c.id, c]));
+/** The key of a chord in a scope: the app's commands and the Suite's each have their own. */
+const sk = (chord: string, scope?: string) => (scope ? `${scope}|${chord}` : chord);
+const scopeOf = (id: CommandId) => BY_ID.get(id)!.scope;
 
 /** What the mouse and a few fixed keys do: listed with the shortcuts, but not for rebinding. */
 export const FIXED: [string, string][] = [
@@ -146,8 +188,8 @@ function rebuild() {
   for (const pass of [true, false]) {
     for (const c of COMMANDS) {
       if (!!changed[c.id] !== pass) continue;
-      m[c.id] = (changed[c.id] ?? c.keys).filter((chord) => !byChord.has(chord));
-      for (const chord of m[c.id]) byChord.set(chord, c.id);
+      m[c.id] = (changed[c.id] ?? c.keys).filter((chord) => !byChord.has(sk(chord, c.scope)));
+      for (const chord of m[c.id]) byChord.set(sk(chord, c.scope), c.id);
     }
   }
   map = m;
@@ -164,12 +206,12 @@ function commit() {
 export const keymap = {
   get: () => map,
   command: (id: CommandId) => BY_ID.get(id)!,
-  /** The command a chord runs, if any. */
-  owner: (chord: string) => byChord.get(chord) ?? null,
+  /** The command a chord runs, if any (in the app, or in the Suite with scope "suite"). */
+  owner: (chord: string, scope?: "suite") => byChord.get(sk(chord, scope)) ?? null,
   /** Puts a command on a chord, in place of `replacing` (one of its chords) or as one more. A chord belongs to one
-      command: it is taken from the command that had it, and that command's id is returned. */
+      command of a scope: it is taken from the command that had it, and that command's id is returned. */
   bind(id: CommandId, chord: string, replacing?: string): CommandId | null {
-    const from = byChord.get(chord) ?? null;
+    const from = byChord.get(sk(chord, scopeOf(id))) ?? null;
     if (from && from !== id) changed[from] = map[from].filter((c) => c !== chord);
     const mine = map[id].filter((c) => c !== chord);
     const at = replacing ? mine.indexOf(replacing) : -1;
@@ -184,7 +226,7 @@ export const keymap = {
   reset(id: CommandId): CommandId[] {
     const lost = new Set<CommandId>();
     for (const chord of BY_ID.get(id)!.keys) {
-      const o = byChord.get(chord);
+      const o = byChord.get(sk(chord, scopeOf(id)));
       if (o && o !== id) { changed[o] = (changed[o] ?? map[o]).filter((c) => c !== chord); lost.add(o); }
     }
     delete changed[id];
@@ -203,6 +245,11 @@ export const useKeymap = () => useSyncExternalStore(keymap.subscribe, keymap.get
 export const keyLabel = (id: CommandId) => (map[id][0] ? fmtChord(map[id][0]) : "");
 /** " (Ctrl+Z)", or "" when the command has no key: for sentences that mention one in passing. */
 export const keyHint = (id: CommandId) => (map[id][0] ? ` (${fmtChord(map[id][0])})` : "");
+/** The Suite's command a key press runs, if any (WaveEditor.tsx runs it). */
+export function suiteCommand(e: KeyboardEvent): SuiteCommand | null {
+  const chord = chordOf(e);
+  return chord ? (byChord.get(sk(chord, "suite")) as SuiteCommand | undefined) ?? null : null;
+}
 
 // ---- running commands
 

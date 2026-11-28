@@ -1548,6 +1548,10 @@ msgid "Add a key for: {command}"
 msgstr "キーを追加：{command}"
 
 #: src/keys.ts
+msgid "Add a layer"
+msgstr ""
+
+#: src/keys.ts
 msgid "add a slot to the selection, or select a range"
 msgstr "スロットを選択に追加、または範囲を選択"
 
@@ -1578,6 +1582,10 @@ msgstr "MODを2つ以上追加してください"
 #: src/WaveEditor.tsx
 msgid "Add Audio"
 msgstr "音声を追加"
+
+#: src/keys.ts
+msgid "Add audio files as blocks"
+msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Add audio files to build the new audio from, or start from the original."
@@ -1708,9 +1716,10 @@ msgstr "エクスポートリストに追加しました（パートごとに1�
 msgid "Adds a column with these lines in another language"
 msgstr "これらの行を別の言語で示す列を追加します"
 
+#. placeholder {0}: keyLabel("suitePaste")
 #: src/WaveEditor.tsx
-msgid "Adds audio files as new blocks on the selected layer, one after the other from the cursor. Dropping files on the editor does the same, and Ctrl+V pastes slots copied in the list or files copied in Explorer"
-msgstr "選択したレイヤーに、カーソル位置から順番に音声ファイルを新しいブロックとして追加します。エディターにファイルをドロップしても同じです。Ctrl+V でリストでコピーしたスロットやエクスプローラーでコピーしたファイルを貼り付けます"
+msgid "Adds audio files as new blocks on the selected layer, one after the other from the cursor. Dropping files on the editor does the same, and {0} pastes slots copied in the list or files copied in Explorer"
+msgstr ""
 
 #: src/SettingsTab.tsx
 msgid "After the pointer rests for a second."
@@ -2879,8 +2888,8 @@ msgid "Click ▶"
 msgstr "▶をクリック"
 
 #: src/WaveEditor.tsx
-msgid "Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Drag from an empty spot to select several blocks, and hold Shift or Ctrl to add to them. Where blocks overlap, click again for the one under it. A double click plays from there. With Volume Curves on (V), click the line over a block to shape the volume."
-msgstr "ブロックをクリックして設定します。本体をドラッグすると移動でき、別のレイヤーにも移せます。端をドラッグするとトリム、上端の四角をドラッグするとフェードします。空いている場所からドラッグすると複数のブロックを選択でき、Shift か Ctrl を押しながらで追加できます。ブロックが重なっている所では、もう一度クリックすると下のブロックを選べます。ダブルクリックでそこから再生します。音量カーブ（V）がオンのときは、ブロックの上の線をクリックして音量を形作れます。"
+msgid "Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Drag from an empty spot to select several blocks, and hold Shift or Ctrl to add to them. Where blocks overlap, click again for the one under it. A double click plays from there. With Volume Curves on ({curvesKey}), click the line over a block to shape the volume."
+msgstr ""
 
 #: src/WikiLinks.tsx
 msgid "Click for the Wiki section"
@@ -2949,6 +2958,10 @@ msgstr ""
 #: src/ProjectTab.tsx
 msgid "Close Project"
 msgstr "プロジェクトを閉じる"
+
+#: src/keys.ts
+msgid "Close the gaps on the layer"
+msgstr ""
 
 #: src/Home.tsx
 #: src/keys.ts
@@ -3549,6 +3562,10 @@ msgid "Drag the cursor, or along the ruler, to move it"
 msgstr "カーソルをドラッグするか、ルーラーに沿ってドラッグして移動します"
 
 #: src/WaveEditor.tsx
+msgid "Drag the name to change it: Shift for bigger steps, Ctrl for finer ones"
+msgstr ""
+
+#: src/WaveEditor.tsx
 msgid "Drag their flags on the ruler. Let go near the automatic spot to go back to it"
 msgstr "ルーラー上の旗をドラッグします。自動の位置の近くで離すとそこに戻ります"
 
@@ -3632,6 +3649,10 @@ msgstr "ファイルのドロップにはデスクトップアプリが必要で
 #: src/WaveEditor.tsx
 msgid "Duplicate"
 msgstr "複製"
+
+#: src/keys.ts
+msgid "Duplicate the selected blocks"
+msgstr ""
 
 #: src/TextTab.tsx
 msgid "Dutch"
@@ -4022,6 +4043,10 @@ msgstr "メモをエクスポート"
 #: src/BuildTab.tsx
 msgid "Export raw patch files"
 msgstr "パッチファイルをそのまま書き出す"
+
+#: src/keys.ts
+msgid "Export the lanes ticked"
+msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Export the lanes ticked as one audio file"
@@ -5305,6 +5330,10 @@ msgstr "検索中"
 msgid "Loop"
 msgstr "ループ"
 
+#: src/keys.ts
+msgid "Loop on or off"
+msgstr ""
+
 #: src/WaveEditor.tsx
 msgid "Loop: off"
 msgstr "ループ：オフ"
@@ -5346,6 +5375,10 @@ msgstr "ローパスは音をこもらせ、ハイパスは音を細くします
 #: src/WaveEditor.tsx
 msgid "Magnet"
 msgstr "マグネット"
+
+#: src/keys.ts
+msgid "Magnet on or off"
+msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Magnet: off"
@@ -5424,6 +5457,10 @@ msgstr "{total} 個のスロットのうち{matched, plural, other {# 個}}にMa
 msgid "Make-Up Gain set to **{gain} dB**"
 msgstr "Make-Up Gainを**{gain} dB**に設定しました"
 
+#: src/WaveEditor.tsx
+msgid "Makes one block of the selected blocks, as they play: gaps between them become silence, and blocks that overlap play together"
+msgstr ""
+
 #: src/Tutorial.tsx
 msgid "Making the practice project"
 msgstr "練習用プロジェクトを作成中"
@@ -5457,6 +5494,18 @@ msgstr "オリジナルのラウドネスに合わせる"
 #: src/Inspector.tsx
 msgid "Measuring"
 msgstr "測定中"
+
+#: src/WaveEditor.tsx
+msgid "Merge"
+msgstr ""
+
+#: src/keys.ts
+msgid "Merge the selected blocks into one"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Merging…"
+msgstr ""
 
 #: src/SettingsTab.tsx
 msgid "Minutes between saves"
@@ -5817,12 +5866,6 @@ msgctxt "Column of the slice tool: how long the new piece is"
 msgid "New"
 msgstr "新規"
 
-#. The new audio's waveform, under the original's
-#: src/Timeline.tsx
-msgctxt "waveform"
-msgid "New"
-msgstr "新"
-
 #: src/App.tsx
 msgid "new and recent projects"
 msgstr "新規プロジェクトと最近のプロジェクト"
@@ -6174,6 +6217,10 @@ msgstr "標準"
 msgid "Normalize"
 msgstr "ノーマライズ"
 
+#: src/keys.ts
+msgid "Normalize the selected blocks"
+msgstr ""
+
 #: src/WaveEditor.tsx
 msgid "Normalize to −1 dB"
 msgstr "−1 dB にノーマライズ"
@@ -6418,11 +6465,6 @@ msgstr "オフ。「?」ボタンでは引き続きテキストが表示され�
 #: src/content.ts
 msgid "official art and trailer stills behind Home for Helldivers 1"
 msgstr "Helldivers 1のホームの背景にある公式アートとトレーラーの静止画"
-
-#. The original audio's waveform, above the new audio's
-#: src/Timeline.tsx
-msgid "Old"
-msgstr "旧"
 
 #: src/RepatchPage.tsx
 msgid "Older game version"
@@ -6912,6 +6954,10 @@ msgid "Paste"
 msgstr "貼り付け"
 
 #: src/keys.ts
+msgid "Paste audio as blocks"
+msgstr ""
+
+#: src/keys.ts
 msgid "Paste into the selection"
 msgstr "選択範囲に貼り付け"
 
@@ -7024,6 +7070,14 @@ msgstr ""
 msgid "Place the cuts"
 msgstr "カットの配置"
 
+#: src/keys.ts
+msgid "Place the selected blocks at the end"
+msgstr ""
+
+#: src/keys.ts
+msgid "Place the selected blocks at the start"
+msgstr ""
+
 #: src/SliceTool.tsx
 msgid "Placed by hand"
 msgstr "手動で配置"
@@ -7098,9 +7152,17 @@ msgstr "最初のテイクを再生"
 msgid "Play from the cursor"
 msgstr "カーソル位置から再生"
 
+#: src/keys.ts
+msgid "Play from the cursor, or pause"
+msgstr ""
+
 #: src/WaveEditor.tsx
 msgid "Play in Context"
 msgstr "前後とつなげて再生"
+
+#: src/keys.ts
+msgid "Play in Context (music segments)"
+msgstr ""
 
 #. placeholder {0}: layer + 1
 #: src/WaveEditor.tsx
@@ -7600,6 +7662,10 @@ msgstr "やり直し"
 msgid "Redo {redoName}"
 msgstr "やり直し：{redoName}"
 
+#: src/keys.ts
+msgid "Redo in the Waveform Suite"
+msgstr ""
+
 #: src/App.tsx
 msgid "Redo the change"
 msgstr "変更をやり直す"
@@ -7790,6 +7856,10 @@ msgstr "これをインポートする前に、MODマネージャーで古いMOD
 #: src/ModOptions.tsx
 msgid "Remove the option"
 msgstr "オプションを削除"
+
+#: src/keys.ts
+msgid "Remove the selected blocks"
+msgstr ""
 
 #: src/CueView.tsx
 msgid "Remove the silence"
@@ -8066,6 +8136,10 @@ msgstr "デフォルトにリセット"
 msgid "Reset to default. This took a key from {commands}."
 msgstr "デフォルトにリセットしました。{commands}からキーが外れました。"
 
+#: src/keys.ts
+msgid "Reset to the whole file"
+msgstr ""
+
 #: src/Waveform.tsx
 msgid "Reset zoom"
 msgstr "ズームをリセット"
@@ -8289,6 +8363,10 @@ msgstr "スロットを選択すると波形が表示されます"
 msgid "Select a slot."
 msgstr "スロットを選択してください。"
 
+#: src/keys.ts
+msgid "Select every block"
+msgstr ""
+
 #: src/CueView.tsx
 msgid "Select every sequence shown"
 msgstr "表示中のすべてのシーケンスを選択"
@@ -8410,8 +8488,13 @@ msgid "Several subtitles have these words, so this match is likely but not certa
 msgstr "この文言を持つ字幕が複数あるため、この対応は可能性が高いものの確実ではありません。ライブラリで開いてください"
 
 #: src/WaveEditor.tsx
-msgid "Shape it with the Volume Curves tool (V)"
-msgstr "音量カーブツール（V）で形作れます"
+msgid "Shape it with the Volume Curves tool"
+msgstr ""
+
+#. placeholder {0}: keyLabel("suiteCurves")
+#: src/WaveEditor.tsx
+msgid "Shape it with the Volume Curves tool ({0})"
+msgstr ""
 
 #: src/Inspector.tsx
 msgid "Shared with <0>{also}</0>"
@@ -8752,6 +8835,14 @@ msgstr ""
 msgid "Snap Right"
 msgstr ""
 
+#: src/keys.ts
+msgid "Snap the selected blocks left"
+msgstr ""
+
+#: src/keys.ts
+msgid "Snap the selected blocks right"
+msgstr ""
+
 #: src/App.tsx
 msgid "Some jobs are still running."
 msgstr "まだ実行中のジョブがあります。"
@@ -8847,6 +8938,7 @@ msgstr "スペイン語（中南米）"
 msgid "Spanish (Spain)"
 msgstr "スペイン語（スペイン）"
 
+#: src/keys.ts
 #: src/WaveEditor.tsx
 msgid "Split at the cursor"
 msgstr "カーソル位置で分割"
@@ -8950,6 +9042,10 @@ msgstr "再生を停止、または選択を解除"
 #: src/Tutorial.tsx
 msgid "Stop Tutorial"
 msgstr "チュートリアルを中止"
+
+#: src/keys.ts
+msgid "Stop, and put the cursor back at the start"
+msgstr ""
 
 #: src/App.tsx
 msgid "Stopping…"
@@ -9763,6 +9859,10 @@ msgstr "再生されたセグメント（順番どおり）"
 msgid "The selected blocks across the whole width"
 msgstr ""
 
+#: src/WaveEditor.tsx
+msgid "The selected blocks are in different slots"
+msgstr ""
+
 #: src/Inspector.tsx
 msgid "The shortest new audio is {length} ms long."
 msgstr "最も短い新しい音声の長さは {length} msです。"
@@ -10178,6 +10278,10 @@ msgstr "元に戻す：{undoName}"
 msgid "Undo Change"
 msgstr "変更を元に戻す"
 
+#: src/keys.ts
+msgid "Undo in the Waveform Suite"
+msgstr ""
+
 #: src/ModOptions.tsx
 msgid "Undo the change to {what}"
 msgstr "{what} の変更を元に戻す"
@@ -10381,6 +10485,10 @@ msgstr "音量カーブ"
 msgid "Volume Curves"
 msgstr "音量カーブ"
 
+#: src/keys.ts
+msgid "Volume Curves on or off"
+msgstr ""
+
 #: src/WaveEditor.tsx
 msgid "Volume Curves: off"
 msgstr "音量カーブ：オフ"
@@ -10425,6 +10533,7 @@ msgstr "暖かさ"
 msgid "WAV (24-bit)"
 msgstr "WAV（24ビット）"
 
+#: src/keys.ts
 #: src/ModOptions.tsx
 #: src/SliceTool.tsx
 #: src/Timeline.tsx
@@ -10714,8 +10823,16 @@ msgstr "自分のヘルダイバー、無線の味方、および車両内の全
 msgid "ZIPs, .7z, .rar or .patch_0 files"
 msgstr "ZIP、.7z、.rar、または.patch_0ファイル"
 
+#: src/keys.ts
+msgid "Zoom to the layer"
+msgstr ""
+
 #: src/WaveEditor.tsx
 msgid "Zoom to the Layer"
+msgstr ""
+
+#: src/keys.ts
+msgid "Zoom to the selection"
 msgstr ""
 
 #: src/WaveEditor.tsx

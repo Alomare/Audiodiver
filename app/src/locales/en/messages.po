@@ -1548,6 +1548,10 @@ msgid "Add a key for: {command}"
 msgstr "Add a key for: {command}"
 
 #: src/keys.ts
+msgid "Add a layer"
+msgstr "Add a layer"
+
+#: src/keys.ts
 msgid "add a slot to the selection, or select a range"
 msgstr "add a slot to the selection, or select a range"
 
@@ -1578,6 +1582,10 @@ msgstr "Add at least two mods"
 #: src/WaveEditor.tsx
 msgid "Add Audio"
 msgstr "Add Audio"
+
+#: src/keys.ts
+msgid "Add audio files as blocks"
+msgstr "Add audio files as blocks"
 
 #: src/WaveEditor.tsx
 msgid "Add audio files to build the new audio from, or start from the original."
@@ -1708,9 +1716,10 @@ msgstr "Added to the export list, as {total} entries (one per part)"
 msgid "Adds a column with these lines in another language"
 msgstr "Adds a column with these lines in another language"
 
+#. placeholder {0}: keyLabel("suitePaste")
 #: src/WaveEditor.tsx
-msgid "Adds audio files as new blocks on the selected layer, one after the other from the cursor. Dropping files on the editor does the same, and Ctrl+V pastes slots copied in the list or files copied in Explorer"
-msgstr "Adds audio files as new blocks on the selected layer, one after the other from the cursor. Dropping files on the editor does the same, and Ctrl+V pastes slots copied in the list or files copied in Explorer"
+msgid "Adds audio files as new blocks on the selected layer, one after the other from the cursor. Dropping files on the editor does the same, and {0} pastes slots copied in the list or files copied in Explorer"
+msgstr "Adds audio files as new blocks on the selected layer, one after the other from the cursor. Dropping files on the editor does the same, and {0} pastes slots copied in the list or files copied in Explorer"
 
 #: src/SettingsTab.tsx
 msgid "After the pointer rests for a second."
@@ -2879,8 +2888,8 @@ msgid "Click ▶"
 msgstr "Click ▶"
 
 #: src/WaveEditor.tsx
-msgid "Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Drag from an empty spot to select several blocks, and hold Shift or Ctrl to add to them. Where blocks overlap, click again for the one under it. A double click plays from there. With Volume Curves on (V), click the line over a block to shape the volume."
-msgstr "Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Drag from an empty spot to select several blocks, and hold Shift or Ctrl to add to them. Where blocks overlap, click again for the one under it. A double click plays from there. With Volume Curves on (V), click the line over a block to shape the volume."
+msgid "Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Drag from an empty spot to select several blocks, and hold Shift or Ctrl to add to them. Where blocks overlap, click again for the one under it. A double click plays from there. With Volume Curves on ({curvesKey}), click the line over a block to shape the volume."
+msgstr "Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Drag from an empty spot to select several blocks, and hold Shift or Ctrl to add to them. Where blocks overlap, click again for the one under it. A double click plays from there. With Volume Curves on ({curvesKey}), click the line over a block to shape the volume."
 
 #: src/WikiLinks.tsx
 msgid "Click for the Wiki section"
@@ -2949,6 +2958,10 @@ msgstr "Close Gaps"
 #: src/ProjectTab.tsx
 msgid "Close Project"
 msgstr "Close Project"
+
+#: src/keys.ts
+msgid "Close the gaps on the layer"
+msgstr "Close the gaps on the layer"
 
 #: src/Home.tsx
 #: src/keys.ts
@@ -3549,6 +3562,10 @@ msgid "Drag the cursor, or along the ruler, to move it"
 msgstr "Drag the cursor, or along the ruler, to move it"
 
 #: src/WaveEditor.tsx
+msgid "Drag the name to change it: Shift for bigger steps, Ctrl for finer ones"
+msgstr "Drag the name to change it: Shift for bigger steps, Ctrl for finer ones"
+
+#: src/WaveEditor.tsx
 msgid "Drag their flags on the ruler. Let go near the automatic spot to go back to it"
 msgstr "Drag their flags on the ruler. Let go near the automatic spot to go back to it"
 
@@ -3632,6 +3649,10 @@ msgstr "Dropping files needs the desktop app"
 #: src/WaveEditor.tsx
 msgid "Duplicate"
 msgstr "Duplicate"
+
+#: src/keys.ts
+msgid "Duplicate the selected blocks"
+msgstr "Duplicate the selected blocks"
 
 #: src/TextTab.tsx
 msgid "Dutch"
@@ -4022,6 +4043,10 @@ msgstr "Export Notes"
 #: src/BuildTab.tsx
 msgid "Export raw patch files"
 msgstr "Export raw patch files"
+
+#: src/keys.ts
+msgid "Export the lanes ticked"
+msgstr "Export the lanes ticked"
 
 #: src/WaveEditor.tsx
 msgid "Export the lanes ticked as one audio file"
@@ -5305,6 +5330,10 @@ msgstr "Looking"
 msgid "Loop"
 msgstr "Loop"
 
+#: src/keys.ts
+msgid "Loop on or off"
+msgstr "Loop on or off"
+
 #: src/WaveEditor.tsx
 msgid "Loop: off"
 msgstr "Loop: off"
@@ -5346,6 +5375,10 @@ msgstr "Low-Pass dulls the sound and High-Pass thins it. They add to what the ga
 #: src/WaveEditor.tsx
 msgid "Magnet"
 msgstr "Magnet"
+
+#: src/keys.ts
+msgid "Magnet on or off"
+msgstr "Magnet on or off"
 
 #: src/WaveEditor.tsx
 msgid "Magnet: off"
@@ -5424,6 +5457,10 @@ msgstr "Make-Up Gain set on {matched, plural, one {# slot} other {# slots}} of {
 msgid "Make-Up Gain set to **{gain} dB**"
 msgstr "Make-Up Gain set to **{gain} dB**"
 
+#: src/WaveEditor.tsx
+msgid "Makes one block of the selected blocks, as they play: gaps between them become silence, and blocks that overlap play together"
+msgstr "Makes one block of the selected blocks, as they play: gaps between them become silence, and blocks that overlap play together"
+
 #: src/Tutorial.tsx
 msgid "Making the practice project"
 msgstr "Making the practice project"
@@ -5457,6 +5494,18 @@ msgstr "Match Original Loudness"
 #: src/Inspector.tsx
 msgid "Measuring"
 msgstr "Measuring"
+
+#: src/WaveEditor.tsx
+msgid "Merge"
+msgstr "Merge"
+
+#: src/keys.ts
+msgid "Merge the selected blocks into one"
+msgstr "Merge the selected blocks into one"
+
+#: src/WaveEditor.tsx
+msgid "Merging…"
+msgstr "Merging…"
 
 #: src/SettingsTab.tsx
 msgid "Minutes between saves"
@@ -5817,12 +5866,6 @@ msgctxt "Column of the slice tool: how long the new piece is"
 msgid "New"
 msgstr "New"
 
-#. The new audio's waveform, under the original's
-#: src/Timeline.tsx
-msgctxt "waveform"
-msgid "New"
-msgstr "New"
-
 #: src/App.tsx
 msgid "new and recent projects"
 msgstr "new and recent projects"
@@ -6174,6 +6217,10 @@ msgstr "Normal"
 msgid "Normalize"
 msgstr "Normalize"
 
+#: src/keys.ts
+msgid "Normalize the selected blocks"
+msgstr "Normalize the selected blocks"
+
 #: src/WaveEditor.tsx
 msgid "Normalize to −1 dB"
 msgstr "Normalize to −1 dB"
@@ -6418,11 +6465,6 @@ msgstr "Off. The “?” buttons still show their text."
 #: src/content.ts
 msgid "official art and trailer stills behind Home for Helldivers 1"
 msgstr "official art and trailer stills behind Home for Helldivers 1"
-
-#. The original audio's waveform, above the new audio's
-#: src/Timeline.tsx
-msgid "Old"
-msgstr "Old"
 
 #: src/RepatchPage.tsx
 msgid "Older game version"
@@ -6912,6 +6954,10 @@ msgid "Paste"
 msgstr "Paste"
 
 #: src/keys.ts
+msgid "Paste audio as blocks"
+msgstr "Paste audio as blocks"
+
+#: src/keys.ts
 msgid "Paste into the selection"
 msgstr "Paste into the selection"
 
@@ -7024,6 +7070,14 @@ msgstr "Place at the Start"
 msgid "Place the cuts"
 msgstr "Place the cuts"
 
+#: src/keys.ts
+msgid "Place the selected blocks at the end"
+msgstr "Place the selected blocks at the end"
+
+#: src/keys.ts
+msgid "Place the selected blocks at the start"
+msgstr "Place the selected blocks at the start"
+
 #: src/SliceTool.tsx
 msgid "Placed by hand"
 msgstr "Placed by hand"
@@ -7098,9 +7152,17 @@ msgstr "Play First Take"
 msgid "Play from the cursor"
 msgstr "Play from the cursor"
 
+#: src/keys.ts
+msgid "Play from the cursor, or pause"
+msgstr "Play from the cursor, or pause"
+
 #: src/WaveEditor.tsx
 msgid "Play in Context"
 msgstr "Play in Context"
+
+#: src/keys.ts
+msgid "Play in Context (music segments)"
+msgstr "Play in Context (music segments)"
 
 #. placeholder {0}: layer + 1
 #: src/WaveEditor.tsx
@@ -7600,6 +7662,10 @@ msgstr "Redo"
 msgid "Redo {redoName}"
 msgstr "Redo {redoName}"
 
+#: src/keys.ts
+msgid "Redo in the Waveform Suite"
+msgstr "Redo in the Waveform Suite"
+
 #: src/App.tsx
 msgid "Redo the change"
 msgstr "Redo the change"
@@ -7790,6 +7856,10 @@ msgstr "Remove the old mod in the mod manager before importing this one."
 #: src/ModOptions.tsx
 msgid "Remove the option"
 msgstr "Remove the option"
+
+#: src/keys.ts
+msgid "Remove the selected blocks"
+msgstr "Remove the selected blocks"
 
 #: src/CueView.tsx
 msgid "Remove the silence"
@@ -8066,6 +8136,10 @@ msgstr "Reset to Default"
 msgid "Reset to default. This took a key from {commands}."
 msgstr "Reset to default. This took a key from {commands}."
 
+#: src/keys.ts
+msgid "Reset to the whole file"
+msgstr "Reset to the whole file"
+
 #: src/Waveform.tsx
 msgid "Reset zoom"
 msgstr "Reset zoom"
@@ -8289,6 +8363,10 @@ msgstr "Select a slot to see the waveforms"
 msgid "Select a slot."
 msgstr "Select a slot."
 
+#: src/keys.ts
+msgid "Select every block"
+msgstr "Select every block"
+
 #: src/CueView.tsx
 msgid "Select every sequence shown"
 msgstr "Select every sequence shown"
@@ -8410,8 +8488,13 @@ msgid "Several subtitles have these words, so this match is likely but not certa
 msgstr "Several subtitles have these words, so this match is likely but not certain. Open it in the Library"
 
 #: src/WaveEditor.tsx
-msgid "Shape it with the Volume Curves tool (V)"
-msgstr "Shape it with the Volume Curves tool (V)"
+msgid "Shape it with the Volume Curves tool"
+msgstr "Shape it with the Volume Curves tool"
+
+#. placeholder {0}: keyLabel("suiteCurves")
+#: src/WaveEditor.tsx
+msgid "Shape it with the Volume Curves tool ({0})"
+msgstr "Shape it with the Volume Curves tool ({0})"
 
 #: src/Inspector.tsx
 msgid "Shared with <0>{also}</0>"
@@ -8752,6 +8835,14 @@ msgstr "Snap Left"
 msgid "Snap Right"
 msgstr "Snap Right"
 
+#: src/keys.ts
+msgid "Snap the selected blocks left"
+msgstr "Snap the selected blocks left"
+
+#: src/keys.ts
+msgid "Snap the selected blocks right"
+msgstr "Snap the selected blocks right"
+
 #: src/App.tsx
 msgid "Some jobs are still running."
 msgstr "Some jobs are still running."
@@ -8847,6 +8938,7 @@ msgstr "Spanish (Latin America)"
 msgid "Spanish (Spain)"
 msgstr "Spanish (Spain)"
 
+#: src/keys.ts
 #: src/WaveEditor.tsx
 msgid "Split at the cursor"
 msgstr "Split at the cursor"
@@ -8950,6 +9042,10 @@ msgstr "Stop playback, or clear the selection"
 #: src/Tutorial.tsx
 msgid "Stop Tutorial"
 msgstr "Stop Tutorial"
+
+#: src/keys.ts
+msgid "Stop, and put the cursor back at the start"
+msgstr "Stop, and put the cursor back at the start"
 
 #: src/App.tsx
 msgid "Stopping…"
@@ -9763,6 +9859,10 @@ msgstr "The segments that played, in order"
 msgid "The selected blocks across the whole width"
 msgstr "The selected blocks across the whole width"
 
+#: src/WaveEditor.tsx
+msgid "The selected blocks are in different slots"
+msgstr "The selected blocks are in different slots"
+
 #: src/Inspector.tsx
 msgid "The shortest new audio is {length} ms long."
 msgstr "The shortest new audio is {length} ms long."
@@ -10178,6 +10278,10 @@ msgstr "Undo {undoName}"
 msgid "Undo Change"
 msgstr "Undo Change"
 
+#: src/keys.ts
+msgid "Undo in the Waveform Suite"
+msgstr "Undo in the Waveform Suite"
+
 #: src/ModOptions.tsx
 msgid "Undo the change to {what}"
 msgstr "Undo the change to {what}"
@@ -10381,6 +10485,10 @@ msgstr "Volume Curve"
 msgid "Volume Curves"
 msgstr "Volume Curves"
 
+#: src/keys.ts
+msgid "Volume Curves on or off"
+msgstr "Volume Curves on or off"
+
 #: src/WaveEditor.tsx
 msgid "Volume Curves: off"
 msgstr "Volume Curves: off"
@@ -10425,6 +10533,7 @@ msgstr "Warmth"
 msgid "WAV (24-bit)"
 msgstr "WAV (24-bit)"
 
+#: src/keys.ts
 #: src/ModOptions.tsx
 #: src/SliceTool.tsx
 #: src/Timeline.tsx
@@ -10714,9 +10823,17 @@ msgstr "Your Helldiver, teammates on the radio, and anyone in a vehicle"
 msgid "ZIPs, .7z, .rar or .patch_0 files"
 msgstr "ZIPs, .7z, .rar or .patch_0 files"
 
+#: src/keys.ts
+msgid "Zoom to the layer"
+msgstr "Zoom to the layer"
+
 #: src/WaveEditor.tsx
 msgid "Zoom to the Layer"
 msgstr "Zoom to the Layer"
+
+#: src/keys.ts
+msgid "Zoom to the selection"
+msgstr "Zoom to the selection"
 
 #: src/WaveEditor.tsx
 msgid "Zoom to the Selection"

@@ -1548,6 +1548,10 @@ msgid "Add a key for: {command}"
 msgstr "키 추가: {command}"
 
 #: src/keys.ts
+msgid "Add a layer"
+msgstr ""
+
+#: src/keys.ts
 msgid "add a slot to the selection, or select a range"
 msgstr "선택에 슬롯 추가 또는 범위 선택"
 
@@ -1578,6 +1582,10 @@ msgstr "모드를 두 개 이상 추가하세요"
 #: src/WaveEditor.tsx
 msgid "Add Audio"
 msgstr "오디오 추가"
+
+#: src/keys.ts
+msgid "Add audio files as blocks"
+msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Add audio files to build the new audio from, or start from the original."
@@ -1708,9 +1716,10 @@ msgstr "내보내기 목록에 항목 {total}개로 추가했습니다 (파트�
 msgid "Adds a column with these lines in another language"
 msgstr "이 줄을 다른 언어로 담은 열을 추가합니다"
 
+#. placeholder {0}: keyLabel("suitePaste")
 #: src/WaveEditor.tsx
-msgid "Adds audio files as new blocks on the selected layer, one after the other from the cursor. Dropping files on the editor does the same, and Ctrl+V pastes slots copied in the list or files copied in Explorer"
-msgstr "선택한 레이어에 커서부터 차례로 오디오 파일을 새 블록으로 추가합니다. 편집기에 파일을 놓아도 같으며, Ctrl+V는 목록에서 복사한 슬롯이나 탐색기에서 복사한 파일을 붙여넣습니다"
+msgid "Adds audio files as new blocks on the selected layer, one after the other from the cursor. Dropping files on the editor does the same, and {0} pastes slots copied in the list or files copied in Explorer"
+msgstr ""
 
 #: src/SettingsTab.tsx
 msgid "After the pointer rests for a second."
@@ -2879,8 +2888,8 @@ msgid "Click ▶"
 msgstr "▶ 클릭"
 
 #: src/WaveEditor.tsx
-msgid "Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Drag from an empty spot to select several blocks, and hold Shift or Ctrl to add to them. Where blocks overlap, click again for the one under it. A double click plays from there. With Volume Curves on (V), click the line over a block to shape the volume."
-msgstr "블록을 클릭해 설정합니다. 본체를 드래그하면 다른 레이어로도 옮길 수 있고, 가장자리를 드래그하면 자르기, 윗변의 사각형을 드래그하면 페이드입니다. 빈 곳에서 드래그하면 여러 블록을 선택하며, Shift나 Ctrl을 누르면 추가합니다. 블록이 겹친 곳에서는 다시 클릭하면 아래 블록을 고릅니다. 더블클릭하면 그 위치부터 재생합니다. 볼륨 곡선(V)이 켜져 있으면 블록 위의 선을 클릭해 볼륨을 조정합니다."
+msgid "Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Drag from an empty spot to select several blocks, and hold Shift or Ctrl to add to them. Where blocks overlap, click again for the one under it. A double click plays from there. With Volume Curves on ({curvesKey}), click the line over a block to shape the volume."
+msgstr ""
 
 #: src/WikiLinks.tsx
 msgid "Click for the Wiki section"
@@ -2949,6 +2958,10 @@ msgstr ""
 #: src/ProjectTab.tsx
 msgid "Close Project"
 msgstr "프로젝트 닫기"
+
+#: src/keys.ts
+msgid "Close the gaps on the layer"
+msgstr ""
 
 #: src/Home.tsx
 #: src/keys.ts
@@ -3549,6 +3562,10 @@ msgid "Drag the cursor, or along the ruler, to move it"
 msgstr "커서를 드래그하거나 눈금자를 따라 드래그해 옮기세요"
 
 #: src/WaveEditor.tsx
+msgid "Drag the name to change it: Shift for bigger steps, Ctrl for finer ones"
+msgstr ""
+
+#: src/WaveEditor.tsx
 msgid "Drag their flags on the ruler. Let go near the automatic spot to go back to it"
 msgstr "눈금자의 깃발을 드래그하세요. 자동 위치 근처에서 놓으면 그 위치로 돌아갑니다"
 
@@ -3632,6 +3649,10 @@ msgstr "파일을 끌어다 놓으려면 데스크톱 앱이 필요합니다"
 #: src/WaveEditor.tsx
 msgid "Duplicate"
 msgstr "복제"
+
+#: src/keys.ts
+msgid "Duplicate the selected blocks"
+msgstr ""
 
 #: src/TextTab.tsx
 msgid "Dutch"
@@ -4022,6 +4043,10 @@ msgstr "메모 내보내기"
 #: src/BuildTab.tsx
 msgid "Export raw patch files"
 msgstr "패치 파일 그대로 내보내기"
+
+#: src/keys.ts
+msgid "Export the lanes ticked"
+msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Export the lanes ticked as one audio file"
@@ -5305,6 +5330,10 @@ msgstr "찾는 중"
 msgid "Loop"
 msgstr "반복"
 
+#: src/keys.ts
+msgid "Loop on or off"
+msgstr ""
+
 #: src/WaveEditor.tsx
 msgid "Loop: off"
 msgstr "반복: 끔"
@@ -5346,6 +5375,10 @@ msgstr "로우패스는 소리를 둔하게, 하이패스는 가늘게 만듭니
 #: src/WaveEditor.tsx
 msgid "Magnet"
 msgstr "자석"
+
+#: src/keys.ts
+msgid "Magnet on or off"
+msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Magnet: off"
@@ -5424,6 +5457,10 @@ msgstr "슬롯 {total}개 중 {matched, plural, other {#개}}에 Make-Up Gain을
 msgid "Make-Up Gain set to **{gain} dB**"
 msgstr "Make-Up Gain을 **{gain} dB**로 설정했습니다"
 
+#: src/WaveEditor.tsx
+msgid "Makes one block of the selected blocks, as they play: gaps between them become silence, and blocks that overlap play together"
+msgstr ""
+
 #: src/Tutorial.tsx
 msgid "Making the practice project"
 msgstr "연습 프로젝트를 만드는 중"
@@ -5457,6 +5494,18 @@ msgstr "원본 라우드니스에 맞추기"
 #: src/Inspector.tsx
 msgid "Measuring"
 msgstr "측정 중"
+
+#: src/WaveEditor.tsx
+msgid "Merge"
+msgstr ""
+
+#: src/keys.ts
+msgid "Merge the selected blocks into one"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Merging…"
+msgstr ""
 
 #: src/SettingsTab.tsx
 msgid "Minutes between saves"
@@ -5817,12 +5866,6 @@ msgctxt "Column of the slice tool: how long the new piece is"
 msgid "New"
 msgstr "새 조각"
 
-#. The new audio's waveform, under the original's
-#: src/Timeline.tsx
-msgctxt "waveform"
-msgid "New"
-msgstr "새 오디오"
-
 #: src/App.tsx
 msgid "new and recent projects"
 msgstr "새 프로젝트와 최근 프로젝트"
@@ -6174,6 +6217,10 @@ msgstr "보통"
 msgid "Normalize"
 msgstr "노멀라이즈"
 
+#: src/keys.ts
+msgid "Normalize the selected blocks"
+msgstr ""
+
 #: src/WaveEditor.tsx
 msgid "Normalize to −1 dB"
 msgstr "−1 dB로 노멀라이즈"
@@ -6418,11 +6465,6 @@ msgstr "꺼짐. “?” 버튼은 계속 설명을 표시합니다."
 #: src/content.ts
 msgid "official art and trailer stills behind Home for Helldivers 1"
 msgstr "Helldivers 1 모드의 홈 배경에 쓰인 공식 그림과 트레일러 장면"
-
-#. The original audio's waveform, above the new audio's
-#: src/Timeline.tsx
-msgid "Old"
-msgstr "이전"
 
 #: src/RepatchPage.tsx
 msgid "Older game version"
@@ -6912,6 +6954,10 @@ msgid "Paste"
 msgstr "붙여넣기"
 
 #: src/keys.ts
+msgid "Paste audio as blocks"
+msgstr ""
+
+#: src/keys.ts
 msgid "Paste into the selection"
 msgstr "선택 항목에 붙여넣기"
 
@@ -7024,6 +7070,14 @@ msgstr ""
 msgid "Place the cuts"
 msgstr "자르기 지점 배치"
 
+#: src/keys.ts
+msgid "Place the selected blocks at the end"
+msgstr ""
+
+#: src/keys.ts
+msgid "Place the selected blocks at the start"
+msgstr ""
+
 #: src/SliceTool.tsx
 msgid "Placed by hand"
 msgstr "직접 배치함"
@@ -7098,9 +7152,17 @@ msgstr "첫 테이크 재생"
 msgid "Play from the cursor"
 msgstr "커서부터 재생"
 
+#: src/keys.ts
+msgid "Play from the cursor, or pause"
+msgstr ""
+
 #: src/WaveEditor.tsx
 msgid "Play in Context"
 msgstr "앞뒤와 이어서 재생"
+
+#: src/keys.ts
+msgid "Play in Context (music segments)"
+msgstr ""
 
 #. placeholder {0}: layer + 1
 #: src/WaveEditor.tsx
@@ -7600,6 +7662,10 @@ msgstr "다시 실행"
 msgid "Redo {redoName}"
 msgstr "{redoName} 다시 실행"
 
+#: src/keys.ts
+msgid "Redo in the Waveform Suite"
+msgstr ""
+
 #: src/App.tsx
 msgid "Redo the change"
 msgstr "변경 사항 다시 실행"
@@ -7790,6 +7856,10 @@ msgstr "이 모드를 가져오기 전에 모드 관리자에서 이전 모드�
 #: src/ModOptions.tsx
 msgid "Remove the option"
 msgstr "옵션 삭제"
+
+#: src/keys.ts
+msgid "Remove the selected blocks"
+msgstr ""
 
 #: src/CueView.tsx
 msgid "Remove the silence"
@@ -8066,6 +8136,10 @@ msgstr "기본값으로 초기화"
 msgid "Reset to default. This took a key from {commands}."
 msgstr "기본값으로 초기화했습니다. 이 과정에서 {commands}의 키를 가져왔습니다."
 
+#: src/keys.ts
+msgid "Reset to the whole file"
+msgstr ""
+
 #: src/Waveform.tsx
 msgid "Reset zoom"
 msgstr "확대 초기화"
@@ -8289,6 +8363,10 @@ msgstr "파형을 보려면 슬롯을 선택하세요"
 msgid "Select a slot."
 msgstr "슬롯을 선택하세요."
 
+#: src/keys.ts
+msgid "Select every block"
+msgstr ""
+
 #: src/CueView.tsx
 msgid "Select every sequence shown"
 msgstr "표시된 모든 시퀀스 선택"
@@ -8410,8 +8488,13 @@ msgid "Several subtitles have these words, so this match is likely but not certa
 msgstr "이 문장이 들어 있는 자막이 여러 개라서 이 연결은 가능성이 높을 뿐 확실하지 않습니다. 라이브러리에서 열어 보세요"
 
 #: src/WaveEditor.tsx
-msgid "Shape it with the Volume Curves tool (V)"
-msgstr "볼륨 곡선 도구(V)로 조정하세요"
+msgid "Shape it with the Volume Curves tool"
+msgstr ""
+
+#. placeholder {0}: keyLabel("suiteCurves")
+#: src/WaveEditor.tsx
+msgid "Shape it with the Volume Curves tool ({0})"
+msgstr ""
 
 #: src/Inspector.tsx
 msgid "Shared with <0>{also}</0>"
@@ -8752,6 +8835,14 @@ msgstr ""
 msgid "Snap Right"
 msgstr ""
 
+#: src/keys.ts
+msgid "Snap the selected blocks left"
+msgstr ""
+
+#: src/keys.ts
+msgid "Snap the selected blocks right"
+msgstr ""
+
 #: src/App.tsx
 msgid "Some jobs are still running."
 msgstr "아직 실행 중인 작업이 있습니다."
@@ -8847,6 +8938,7 @@ msgstr "스페인어(중남미)"
 msgid "Spanish (Spain)"
 msgstr "스페인어(스페인)"
 
+#: src/keys.ts
 #: src/WaveEditor.tsx
 msgid "Split at the cursor"
 msgstr "커서에서 나누기"
@@ -8950,6 +9042,10 @@ msgstr "재생 중지 또는 선택 해제"
 #: src/Tutorial.tsx
 msgid "Stop Tutorial"
 msgstr "튜토리얼 중지"
+
+#: src/keys.ts
+msgid "Stop, and put the cursor back at the start"
+msgstr ""
 
 #: src/App.tsx
 msgid "Stopping…"
@@ -9763,6 +9859,10 @@ msgstr "재생된 세그먼트를 순서대로"
 msgid "The selected blocks across the whole width"
 msgstr ""
 
+#: src/WaveEditor.tsx
+msgid "The selected blocks are in different slots"
+msgstr ""
+
 #: src/Inspector.tsx
 msgid "The shortest new audio is {length} ms long."
 msgstr "가장 짧은 새 오디오의 길이는 {length} ms입니다."
@@ -10178,6 +10278,10 @@ msgstr "{undoName} 실행 취소"
 msgid "Undo Change"
 msgstr "변경 취소"
 
+#: src/keys.ts
+msgid "Undo in the Waveform Suite"
+msgstr ""
+
 #: src/ModOptions.tsx
 msgid "Undo the change to {what}"
 msgstr "{what}의 변경 취소"
@@ -10381,6 +10485,10 @@ msgstr "볼륨 곡선"
 msgid "Volume Curves"
 msgstr "볼륨 곡선"
 
+#: src/keys.ts
+msgid "Volume Curves on or off"
+msgstr ""
+
 #: src/WaveEditor.tsx
 msgid "Volume Curves: off"
 msgstr "볼륨 곡선: 끔"
@@ -10425,6 +10533,7 @@ msgstr "따뜻함"
 msgid "WAV (24-bit)"
 msgstr "WAV (24비트)"
 
+#: src/keys.ts
 #: src/ModOptions.tsx
 #: src/SliceTool.tsx
 #: src/Timeline.tsx
@@ -10714,8 +10823,16 @@ msgstr "자신의 헬다이버, 무전으로 들리는 분대원, 탈것에 탄 
 msgid "ZIPs, .7z, .rar or .patch_0 files"
 msgstr "ZIP, .7z, .rar 또는 .patch_0 파일"
 
+#: src/keys.ts
+msgid "Zoom to the layer"
+msgstr ""
+
 #: src/WaveEditor.tsx
 msgid "Zoom to the Layer"
+msgstr ""
+
+#: src/keys.ts
+msgid "Zoom to the selection"
 msgstr ""
 
 #: src/WaveEditor.tsx

@@ -1548,6 +1548,10 @@ msgid "Add a key for: {command}"
 msgstr "为以下命令添加按键：{command}"
 
 #: src/keys.ts
+msgid "Add a layer"
+msgstr ""
+
+#: src/keys.ts
 msgid "add a slot to the selection, or select a range"
 msgstr "将槽位加入选择，或选择一个范围"
 
@@ -1578,6 +1582,10 @@ msgstr "请至少添加两个模组"
 #: src/WaveEditor.tsx
 msgid "Add Audio"
 msgstr "添加音频"
+
+#: src/keys.ts
+msgid "Add audio files as blocks"
+msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Add audio files to build the new audio from, or start from the original."
@@ -1708,9 +1716,10 @@ msgstr "已添加到导出列表，共 {total} 个条目（每个部分一个）
 msgid "Adds a column with these lines in another language"
 msgstr "添加一列，显示这些行的另一种语言"
 
+#. placeholder {0}: keyLabel("suitePaste")
 #: src/WaveEditor.tsx
-msgid "Adds audio files as new blocks on the selected layer, one after the other from the cursor. Dropping files on the editor does the same, and Ctrl+V pastes slots copied in the list or files copied in Explorer"
-msgstr "从光标处起，将音频文件依次作为新块添加到所选层。将文件拖放到编辑器中效果相同，Ctrl+V 可粘贴在列表中复制的槽位或在资源管理器中复制的文件"
+msgid "Adds audio files as new blocks on the selected layer, one after the other from the cursor. Dropping files on the editor does the same, and {0} pastes slots copied in the list or files copied in Explorer"
+msgstr ""
 
 #: src/SettingsTab.tsx
 msgid "After the pointer rests for a second."
@@ -2879,8 +2888,8 @@ msgid "Click ▶"
 msgstr "点击 ▶"
 
 #: src/WaveEditor.tsx
-msgid "Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Drag from an empty spot to select several blocks, and hold Shift or Ctrl to add to them. Where blocks overlap, click again for the one under it. A double click plays from there. With Volume Curves on (V), click the line over a block to shape the volume."
-msgstr "点击块进行设置。拖动块的主体可移动它，也可移到其他层；拖动边缘可裁剪；拖动上边缘的小方块可淡入淡出。从空白处拖动可选择多个块，按住 Shift 或 Ctrl 可追加。块重叠处再点一次可选中下面的块。双击从该处播放。开启音量曲线（V）后，点击块上方的线可调整音量形状。"
+msgid "Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Drag from an empty spot to select several blocks, and hold Shift or Ctrl to add to them. Where blocks overlap, click again for the one under it. A double click plays from there. With Volume Curves on ({curvesKey}), click the line over a block to shape the volume."
+msgstr ""
 
 #: src/WikiLinks.tsx
 msgid "Click for the Wiki section"
@@ -2949,6 +2958,10 @@ msgstr ""
 #: src/ProjectTab.tsx
 msgid "Close Project"
 msgstr "关闭项目"
+
+#: src/keys.ts
+msgid "Close the gaps on the layer"
+msgstr ""
 
 #: src/Home.tsx
 #: src/keys.ts
@@ -3549,6 +3562,10 @@ msgid "Drag the cursor, or along the ruler, to move it"
 msgstr "拖动光标或沿标尺拖动以移动光标"
 
 #: src/WaveEditor.tsx
+msgid "Drag the name to change it: Shift for bigger steps, Ctrl for finer ones"
+msgstr ""
+
+#: src/WaveEditor.tsx
 msgid "Drag their flags on the ruler. Let go near the automatic spot to go back to it"
 msgstr "拖动标尺上的旗标。在自动位置附近松开即可回到该位置"
 
@@ -3632,6 +3649,10 @@ msgstr "拖放文件需要使用桌面应用"
 #: src/WaveEditor.tsx
 msgid "Duplicate"
 msgstr "复制一份"
+
+#: src/keys.ts
+msgid "Duplicate the selected blocks"
+msgstr ""
 
 #: src/TextTab.tsx
 msgid "Dutch"
@@ -4022,6 +4043,10 @@ msgstr "导出备注"
 #: src/BuildTab.tsx
 msgid "Export raw patch files"
 msgstr "导出原始补丁文件"
+
+#: src/keys.ts
+msgid "Export the lanes ticked"
+msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Export the lanes ticked as one audio file"
@@ -5305,6 +5330,10 @@ msgstr "正在查找"
 msgid "Loop"
 msgstr "循环"
 
+#: src/keys.ts
+msgid "Loop on or off"
+msgstr ""
+
 #: src/WaveEditor.tsx
 msgid "Loop: off"
 msgstr "循环：关"
@@ -5346,6 +5375,10 @@ msgstr "低通让声音变闷，高通让声音变薄。它们与游戏的设置
 #: src/WaveEditor.tsx
 msgid "Magnet"
 msgstr "吸附"
+
+#: src/keys.ts
+msgid "Magnet on or off"
+msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Magnet: off"
@@ -5424,6 +5457,10 @@ msgstr "已为 {total} 个中的 {matched, plural, other {# 个槽位}}设置 Ma
 msgid "Make-Up Gain set to **{gain} dB**"
 msgstr "Make-Up Gain 已设为 **{gain} dB**"
 
+#: src/WaveEditor.tsx
+msgid "Makes one block of the selected blocks, as they play: gaps between them become silence, and blocks that overlap play together"
+msgstr ""
+
 #: src/Tutorial.tsx
 msgid "Making the practice project"
 msgstr "正在创建练习项目"
@@ -5457,6 +5494,18 @@ msgstr "匹配原版响度"
 #: src/Inspector.tsx
 msgid "Measuring"
 msgstr "正在测量"
+
+#: src/WaveEditor.tsx
+msgid "Merge"
+msgstr ""
+
+#: src/keys.ts
+msgid "Merge the selected blocks into one"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Merging…"
+msgstr ""
 
 #: src/SettingsTab.tsx
 msgid "Minutes between saves"
@@ -5817,12 +5866,6 @@ msgctxt "Column of the slice tool: how long the new piece is"
 msgid "New"
 msgstr "新段"
 
-#. The new audio's waveform, under the original's
-#: src/Timeline.tsx
-msgctxt "waveform"
-msgid "New"
-msgstr "新"
-
 #: src/App.tsx
 msgid "new and recent projects"
 msgstr "新建和最近的项目"
@@ -6174,6 +6217,10 @@ msgstr "正常"
 msgid "Normalize"
 msgstr "标准化"
 
+#: src/keys.ts
+msgid "Normalize the selected blocks"
+msgstr ""
+
 #: src/WaveEditor.tsx
 msgid "Normalize to −1 dB"
 msgstr "标准化到 −1 dB"
@@ -6418,11 +6465,6 @@ msgstr "关闭。“?”按钮仍会显示说明文字。"
 #: src/content.ts
 msgid "official art and trailer stills behind Home for Helldivers 1"
 msgstr "Helldivers 1 主页背景中的官方美术和预告片截图"
-
-#. The original audio's waveform, above the new audio's
-#: src/Timeline.tsx
-msgid "Old"
-msgstr "旧"
 
 #: src/RepatchPage.tsx
 msgid "Older game version"
@@ -6912,6 +6954,10 @@ msgid "Paste"
 msgstr "粘贴"
 
 #: src/keys.ts
+msgid "Paste audio as blocks"
+msgstr ""
+
+#: src/keys.ts
 msgid "Paste into the selection"
 msgstr "粘贴到所选内容"
 
@@ -7024,6 +7070,14 @@ msgstr ""
 msgid "Place the cuts"
 msgstr "放置切点"
 
+#: src/keys.ts
+msgid "Place the selected blocks at the end"
+msgstr ""
+
+#: src/keys.ts
+msgid "Place the selected blocks at the start"
+msgstr ""
+
 #: src/SliceTool.tsx
 msgid "Placed by hand"
 msgstr "手动放置"
@@ -7098,9 +7152,17 @@ msgstr "播放第一个变体"
 msgid "Play from the cursor"
 msgstr "从光标处播放"
 
+#: src/keys.ts
+msgid "Play from the cursor, or pause"
+msgstr ""
+
 #: src/WaveEditor.tsx
 msgid "Play in Context"
 msgstr "连同前后播放"
+
+#: src/keys.ts
+msgid "Play in Context (music segments)"
+msgstr ""
 
 #. placeholder {0}: layer + 1
 #: src/WaveEditor.tsx
@@ -7600,6 +7662,10 @@ msgstr "重做"
 msgid "Redo {redoName}"
 msgstr "重做“{redoName}”"
 
+#: src/keys.ts
+msgid "Redo in the Waveform Suite"
+msgstr ""
+
 #: src/App.tsx
 msgid "Redo the change"
 msgstr "重做此更改"
@@ -7790,6 +7856,10 @@ msgstr "导入此模组前，请先在模组管理器中移除旧模组。"
 #: src/ModOptions.tsx
 msgid "Remove the option"
 msgstr "删除该选项"
+
+#: src/keys.ts
+msgid "Remove the selected blocks"
+msgstr ""
 
 #: src/CueView.tsx
 msgid "Remove the silence"
@@ -8066,6 +8136,10 @@ msgstr "恢复默认"
 msgid "Reset to default. This took a key from {commands}."
 msgstr "已恢复默认。该按键原先归 {commands} 使用。"
 
+#: src/keys.ts
+msgid "Reset to the whole file"
+msgstr ""
+
 #: src/Waveform.tsx
 msgid "Reset zoom"
 msgstr "重置缩放"
@@ -8289,6 +8363,10 @@ msgstr "选择槽位即可查看波形"
 msgid "Select a slot."
 msgstr "请选择一个槽位。"
 
+#: src/keys.ts
+msgid "Select every block"
+msgstr ""
+
 #: src/CueView.tsx
 msgid "Select every sequence shown"
 msgstr "选择所有显示的序列"
@@ -8410,8 +8488,13 @@ msgid "Several subtitles have these words, so this match is likely but not certa
 msgstr "多条字幕都有这些词，所以这条匹配很可能对，但不保证。可在资源库中打开"
 
 #: src/WaveEditor.tsx
-msgid "Shape it with the Volume Curves tool (V)"
-msgstr "用音量曲线工具（V）调整形状"
+msgid "Shape it with the Volume Curves tool"
+msgstr ""
+
+#. placeholder {0}: keyLabel("suiteCurves")
+#: src/WaveEditor.tsx
+msgid "Shape it with the Volume Curves tool ({0})"
+msgstr ""
 
 #: src/Inspector.tsx
 msgid "Shared with <0>{also}</0>"
@@ -8752,6 +8835,14 @@ msgstr ""
 msgid "Snap Right"
 msgstr ""
 
+#: src/keys.ts
+msgid "Snap the selected blocks left"
+msgstr ""
+
+#: src/keys.ts
+msgid "Snap the selected blocks right"
+msgstr ""
+
 #: src/App.tsx
 msgid "Some jobs are still running."
 msgstr "有些任务仍在运行。"
@@ -8847,6 +8938,7 @@ msgstr "西班牙语（拉丁美洲）"
 msgid "Spanish (Spain)"
 msgstr "西班牙语（西班牙）"
 
+#: src/keys.ts
 #: src/WaveEditor.tsx
 msgid "Split at the cursor"
 msgstr "在光标处切分"
@@ -8950,6 +9042,10 @@ msgstr "停止播放，或清除选择"
 #: src/Tutorial.tsx
 msgid "Stop Tutorial"
 msgstr "停止教程"
+
+#: src/keys.ts
+msgid "Stop, and put the cursor back at the start"
+msgstr ""
 
 #: src/App.tsx
 msgid "Stopping…"
@@ -9763,6 +9859,10 @@ msgstr "已播放的段落，按顺序排列"
 msgid "The selected blocks across the whole width"
 msgstr ""
 
+#: src/WaveEditor.tsx
+msgid "The selected blocks are in different slots"
+msgstr ""
+
 #: src/Inspector.tsx
 msgid "The shortest new audio is {length} ms long."
 msgstr "最短的新音频时长为 {length} ms。"
@@ -10178,6 +10278,10 @@ msgstr "撤销“{undoName}”"
 msgid "Undo Change"
 msgstr "撤销更改"
 
+#: src/keys.ts
+msgid "Undo in the Waveform Suite"
+msgstr ""
+
 #: src/ModOptions.tsx
 msgid "Undo the change to {what}"
 msgstr "撤销对 {what} 的更改"
@@ -10381,6 +10485,10 @@ msgstr "音量曲线"
 msgid "Volume Curves"
 msgstr "音量曲线"
 
+#: src/keys.ts
+msgid "Volume Curves on or off"
+msgstr ""
+
 #: src/WaveEditor.tsx
 msgid "Volume Curves: off"
 msgstr "音量曲线：关"
@@ -10425,6 +10533,7 @@ msgstr "暖色强度"
 msgid "WAV (24-bit)"
 msgstr "WAV（24 位）"
 
+#: src/keys.ts
 #: src/ModOptions.tsx
 #: src/SliceTool.tsx
 #: src/Timeline.tsx
@@ -10714,8 +10823,16 @@ msgstr "你自己的绝地潜兵、无线电中的队友，以及载具中的任
 msgid "ZIPs, .7z, .rar or .patch_0 files"
 msgstr "ZIP、.7z、.rar 或 .patch_0 文件"
 
+#: src/keys.ts
+msgid "Zoom to the layer"
+msgstr ""
+
 #: src/WaveEditor.tsx
 msgid "Zoom to the Layer"
+msgstr ""
+
+#: src/keys.ts
+msgid "Zoom to the selection"
 msgstr ""
 
 #: src/WaveEditor.tsx

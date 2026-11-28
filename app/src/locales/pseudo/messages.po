@@ -1548,6 +1548,10 @@ msgid "Add a key for: {command}"
 msgstr ""
 
 #: src/keys.ts
+msgid "Add a layer"
+msgstr ""
+
+#: src/keys.ts
 msgid "add a slot to the selection, or select a range"
 msgstr ""
 
@@ -1577,6 +1581,10 @@ msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Add Audio"
+msgstr ""
+
+#: src/keys.ts
+msgid "Add audio files as blocks"
 msgstr ""
 
 #: src/WaveEditor.tsx
@@ -1708,8 +1716,9 @@ msgstr ""
 msgid "Adds a column with these lines in another language"
 msgstr ""
 
+#. placeholder {0}: keyLabel("suitePaste")
 #: src/WaveEditor.tsx
-msgid "Adds audio files as new blocks on the selected layer, one after the other from the cursor. Dropping files on the editor does the same, and Ctrl+V pastes slots copied in the list or files copied in Explorer"
+msgid "Adds audio files as new blocks on the selected layer, one after the other from the cursor. Dropping files on the editor does the same, and {0} pastes slots copied in the list or files copied in Explorer"
 msgstr ""
 
 #: src/SettingsTab.tsx
@@ -2879,7 +2888,7 @@ msgid "Click ▶"
 msgstr ""
 
 #: src/WaveEditor.tsx
-msgid "Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Drag from an empty spot to select several blocks, and hold Shift or Ctrl to add to them. Where blocks overlap, click again for the one under it. A double click plays from there. With Volume Curves on (V), click the line over a block to shape the volume."
+msgid "Click a block to set it up. Drag the body to move it, also to another layer, an edge to trim it, and the squares on the top edge to fade it. Drag from an empty spot to select several blocks, and hold Shift or Ctrl to add to them. Where blocks overlap, click again for the one under it. A double click plays from there. With Volume Curves on ({curvesKey}), click the line over a block to shape the volume."
 msgstr ""
 
 #: src/WikiLinks.tsx
@@ -2948,6 +2957,10 @@ msgstr ""
 
 #: src/ProjectTab.tsx
 msgid "Close Project"
+msgstr ""
+
+#: src/keys.ts
+msgid "Close the gaps on the layer"
 msgstr ""
 
 #: src/Home.tsx
@@ -3549,6 +3562,10 @@ msgid "Drag the cursor, or along the ruler, to move it"
 msgstr ""
 
 #: src/WaveEditor.tsx
+msgid "Drag the name to change it: Shift for bigger steps, Ctrl for finer ones"
+msgstr ""
+
+#: src/WaveEditor.tsx
 msgid "Drag their flags on the ruler. Let go near the automatic spot to go back to it"
 msgstr ""
 
@@ -3631,6 +3648,10 @@ msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Duplicate"
+msgstr ""
+
+#: src/keys.ts
+msgid "Duplicate the selected blocks"
 msgstr ""
 
 #: src/TextTab.tsx
@@ -4021,6 +4042,10 @@ msgstr ""
 
 #: src/BuildTab.tsx
 msgid "Export raw patch files"
+msgstr ""
+
+#: src/keys.ts
+msgid "Export the lanes ticked"
 msgstr ""
 
 #: src/WaveEditor.tsx
@@ -5305,6 +5330,10 @@ msgstr ""
 msgid "Loop"
 msgstr ""
 
+#: src/keys.ts
+msgid "Loop on or off"
+msgstr ""
+
 #: src/WaveEditor.tsx
 msgid "Loop: off"
 msgstr ""
@@ -5345,6 +5374,10 @@ msgstr ""
 
 #: src/WaveEditor.tsx
 msgid "Magnet"
+msgstr ""
+
+#: src/keys.ts
+msgid "Magnet on or off"
 msgstr ""
 
 #: src/WaveEditor.tsx
@@ -5424,6 +5457,10 @@ msgstr ""
 msgid "Make-Up Gain set to **{gain} dB**"
 msgstr ""
 
+#: src/WaveEditor.tsx
+msgid "Makes one block of the selected blocks, as they play: gaps between them become silence, and blocks that overlap play together"
+msgstr ""
+
 #: src/Tutorial.tsx
 msgid "Making the practice project"
 msgstr ""
@@ -5456,6 +5493,18 @@ msgstr ""
 
 #: src/Inspector.tsx
 msgid "Measuring"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Merge"
+msgstr ""
+
+#: src/keys.ts
+msgid "Merge the selected blocks into one"
+msgstr ""
+
+#: src/WaveEditor.tsx
+msgid "Merging…"
 msgstr ""
 
 #: src/SettingsTab.tsx
@@ -5817,12 +5866,6 @@ msgctxt "Column of the slice tool: how long the new piece is"
 msgid "New"
 msgstr ""
 
-#. The new audio's waveform, under the original's
-#: src/Timeline.tsx
-msgctxt "waveform"
-msgid "New"
-msgstr ""
-
 #: src/App.tsx
 msgid "new and recent projects"
 msgstr ""
@@ -6174,6 +6217,10 @@ msgstr ""
 msgid "Normalize"
 msgstr ""
 
+#: src/keys.ts
+msgid "Normalize the selected blocks"
+msgstr ""
+
 #: src/WaveEditor.tsx
 msgid "Normalize to −1 dB"
 msgstr ""
@@ -6417,11 +6464,6 @@ msgstr ""
 
 #: src/content.ts
 msgid "official art and trailer stills behind Home for Helldivers 1"
-msgstr ""
-
-#. The original audio's waveform, above the new audio's
-#: src/Timeline.tsx
-msgid "Old"
 msgstr ""
 
 #: src/RepatchPage.tsx
@@ -6912,6 +6954,10 @@ msgid "Paste"
 msgstr ""
 
 #: src/keys.ts
+msgid "Paste audio as blocks"
+msgstr ""
+
+#: src/keys.ts
 msgid "Paste into the selection"
 msgstr ""
 
@@ -7024,6 +7070,14 @@ msgstr ""
 msgid "Place the cuts"
 msgstr ""
 
+#: src/keys.ts
+msgid "Place the selected blocks at the end"
+msgstr ""
+
+#: src/keys.ts
+msgid "Place the selected blocks at the start"
+msgstr ""
+
 #: src/SliceTool.tsx
 msgid "Placed by hand"
 msgstr ""
@@ -7098,8 +7152,16 @@ msgstr ""
 msgid "Play from the cursor"
 msgstr ""
 
+#: src/keys.ts
+msgid "Play from the cursor, or pause"
+msgstr ""
+
 #: src/WaveEditor.tsx
 msgid "Play in Context"
+msgstr ""
+
+#: src/keys.ts
+msgid "Play in Context (music segments)"
 msgstr ""
 
 #. placeholder {0}: layer + 1
@@ -7600,6 +7662,10 @@ msgstr ""
 msgid "Redo {redoName}"
 msgstr ""
 
+#: src/keys.ts
+msgid "Redo in the Waveform Suite"
+msgstr ""
+
 #: src/App.tsx
 msgid "Redo the change"
 msgstr ""
@@ -7789,6 +7855,10 @@ msgstr ""
 
 #: src/ModOptions.tsx
 msgid "Remove the option"
+msgstr ""
+
+#: src/keys.ts
+msgid "Remove the selected blocks"
 msgstr ""
 
 #: src/CueView.tsx
@@ -8066,6 +8136,10 @@ msgstr ""
 msgid "Reset to default. This took a key from {commands}."
 msgstr ""
 
+#: src/keys.ts
+msgid "Reset to the whole file"
+msgstr ""
+
 #: src/Waveform.tsx
 msgid "Reset zoom"
 msgstr ""
@@ -8289,6 +8363,10 @@ msgstr ""
 msgid "Select a slot."
 msgstr ""
 
+#: src/keys.ts
+msgid "Select every block"
+msgstr ""
+
 #: src/CueView.tsx
 msgid "Select every sequence shown"
 msgstr ""
@@ -8410,7 +8488,12 @@ msgid "Several subtitles have these words, so this match is likely but not certa
 msgstr ""
 
 #: src/WaveEditor.tsx
-msgid "Shape it with the Volume Curves tool (V)"
+msgid "Shape it with the Volume Curves tool"
+msgstr ""
+
+#. placeholder {0}: keyLabel("suiteCurves")
+#: src/WaveEditor.tsx
+msgid "Shape it with the Volume Curves tool ({0})"
 msgstr ""
 
 #: src/Inspector.tsx
@@ -8752,6 +8835,14 @@ msgstr ""
 msgid "Snap Right"
 msgstr ""
 
+#: src/keys.ts
+msgid "Snap the selected blocks left"
+msgstr ""
+
+#: src/keys.ts
+msgid "Snap the selected blocks right"
+msgstr ""
+
 #: src/App.tsx
 msgid "Some jobs are still running."
 msgstr ""
@@ -8847,6 +8938,7 @@ msgstr ""
 msgid "Spanish (Spain)"
 msgstr ""
 
+#: src/keys.ts
 #: src/WaveEditor.tsx
 msgid "Split at the cursor"
 msgstr ""
@@ -8949,6 +9041,10 @@ msgstr ""
 
 #: src/Tutorial.tsx
 msgid "Stop Tutorial"
+msgstr ""
+
+#: src/keys.ts
+msgid "Stop, and put the cursor back at the start"
 msgstr ""
 
 #: src/App.tsx
@@ -9763,6 +9859,10 @@ msgstr ""
 msgid "The selected blocks across the whole width"
 msgstr ""
 
+#: src/WaveEditor.tsx
+msgid "The selected blocks are in different slots"
+msgstr ""
+
 #: src/Inspector.tsx
 msgid "The shortest new audio is {length} ms long."
 msgstr ""
@@ -10178,6 +10278,10 @@ msgstr ""
 msgid "Undo Change"
 msgstr ""
 
+#: src/keys.ts
+msgid "Undo in the Waveform Suite"
+msgstr ""
+
 #: src/ModOptions.tsx
 msgid "Undo the change to {what}"
 msgstr ""
@@ -10381,6 +10485,10 @@ msgstr ""
 msgid "Volume Curves"
 msgstr ""
 
+#: src/keys.ts
+msgid "Volume Curves on or off"
+msgstr ""
+
 #: src/WaveEditor.tsx
 msgid "Volume Curves: off"
 msgstr ""
@@ -10425,6 +10533,7 @@ msgstr ""
 msgid "WAV (24-bit)"
 msgstr ""
 
+#: src/keys.ts
 #: src/ModOptions.tsx
 #: src/SliceTool.tsx
 #: src/Timeline.tsx
@@ -10714,8 +10823,16 @@ msgstr ""
 msgid "ZIPs, .7z, .rar or .patch_0 files"
 msgstr ""
 
+#: src/keys.ts
+msgid "Zoom to the layer"
+msgstr ""
+
 #: src/WaveEditor.tsx
 msgid "Zoom to the Layer"
+msgstr ""
+
+#: src/keys.ts
+msgid "Zoom to the selection"
 msgstr ""
 
 #: src/WaveEditor.tsx

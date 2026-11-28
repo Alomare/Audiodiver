@@ -693,7 +693,7 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .tl-body { flex: 1 1 0; min-height: 0; }
 .tl-rows { grid-area: 1 / 1; min-height: 0; display: flex; flex-direction: column; gap: calc(6px * var(--sp)); }
 .timeline .zoom-foot { padding-left: calc(64px * var(--fs) + 10px); } /* under the waveforms, past the labels */
-.timeline:not(.one) .zoom-foot { padding-left: calc(112px * var(--fs) + 8px); }
+.timeline:not(.one) .zoom-foot { padding-left: calc(52px * var(--fs) + 26px); }
 /* under zoomed-in waveforms: the whole audio, the stretch in view as a handle */
 .wave-scroll { flex: 1 1 0; position: relative; height: 14px; background: var(--bg); border: 1px solid var(--line-soft); border-radius: 2px; cursor: pointer; }
 .wave-thumb { position: absolute; top: 2px; bottom: 2px; min-width: 14px; background: var(--muted); opacity: .55; border-radius: 1px; cursor: grab; }
@@ -707,16 +707,15 @@ input.hue-slider:disabled::-webkit-slider-thumb { cursor: default; }
 .tl-label.mine b { color: var(--accent-fg); }
 /* a waveform */
 .tl-wave { position: relative; display: grid; grid-template-rows: minmax(0, 1fr); min-width: 0; min-height: 0; }
-/* the Waveform Suite's way in: a small square in the primary colour, attached to the left edge of each waveform, so
-   the two line up. In the Audio tab a row is the label, the square's column and the waveform */
-.timeline:not(.one) .tl-row { grid-template-columns: calc(60px * var(--fs)) calc(52px * var(--fs) + 8px) 1fr; column-gap: 0; }
-.timeline:not(.one) .tl-label { margin-right: 10px; }
-/* beside a waveform's name: Copy, then the pencil */
-.tl-edit-at { align-self: center; display: flex; align-items: flex-start; gap: 4px; }
-.tl-edit-col { display: flex; flex-direction: column; gap: 4px; }
+/* the Waveform Suite's way in: a small square in the primary colour before each waveform, so the two line up.
+   In the Audio tab a row is Copy and the pencil, then the waveform: as far from the waveform as from the panel's
+   left edge (its 16px padding) */
+.timeline:not(.one) .tl-row { grid-template-columns: auto 1fr; column-gap: 16px; }
+.tl-edit-at { align-self: center; display: flex; align-items: flex-start; gap: 10px; }
+.tl-edit-col { display: flex; flex-direction: column; gap: 4px; min-width: calc(26px * var(--fs)); }
 .tl-edit-gap { flex: none; width: calc(26px * var(--fs)); }
 .tl-edit { flex: none; display: inline-grid; place-items: center; width: calc(26px * var(--fs)); height: calc(26px * var(--fs));
-  padding: 0; color: var(--accent-ink); background: var(--accent); border-radius: 2px 0 0 2px; font-size: calc(17px * var(--fs));
+  padding: 0; color: var(--accent-ink); background: var(--accent); border-radius: 2px; font-size: calc(17px * var(--fs));
   transition: background-color var(--t1); }
 .tl-edit:hover { background: var(--accent-hover); }
 .tl-edit .icon { width: 1em; height: 1em; display: block; }
@@ -2102,7 +2101,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .slice-cut.edge:is(:hover, .on, .dragging, :focus-visible)::after { left: 1px; }
 .slice-cut.edge.end:is(:hover, .on, .dragging, :focus-visible)::after { left: 9px; }
 .slice-cut-flag { position: absolute; top: -19px; left: 7px; padding: 0 5px; font-size: calc(11px * var(--fs)); line-height: calc(16px * var(--fs));
-  background: var(--accent-fg); color: var(--accent-ink); white-space: nowrap; pointer-events: none; }
+  background: var(--accent-fg); color: var(--bg); white-space: nowrap; pointer-events: none; } /* --bg: dark on yellow, light on the light theme's blue */
 .slice-cut.end .slice-cut-flag { left: auto; right: 7px; }
 .slice-cut.dragging .slice-cut-flag { background: var(--second-fg); color: var(--bg); }
 .slice-canvas .playhead.game { background: var(--steel); }
@@ -2450,7 +2449,7 @@ kbd.none { color: var(--faint); font-weight: 400; }
 .wave-ed-dot { width: 6px; height: 6px; margin-left: 4px; border-radius: 50%; background: var(--accent-fg); }
 .wave-ed-time { font-size: calc(14px * var(--fs)); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--second-fg); white-space: nowrap; }
 /* the lanes with the zoom, and the selected block's values in a column to their right */
-.wave-ed-main { display: grid; grid-template-columns: minmax(0, 1fr) calc(244px * var(--fs)); gap: 14px; align-items: start; }
+.wave-ed-main { display: grid; grid-template-columns: minmax(0, 1fr) calc(264px * var(--fs)); gap: 14px; align-items: start; }
 .wave-ed-body { min-width: 0; }
 /* the lanes scroll up and down once the layers outgrow the room; the wheel over them zooms, as on every waveform */
 .wave-ed-lanes { grid-area: 1 / 1; min-width: 0; max-height: 58vh; overflow-y: auto; overscroll-behavior: contain; display: grid;
@@ -2506,23 +2505,29 @@ input.wave-ed-layer-name:focus { border-color: var(--second-fg); background: var
 .wave-ed-empty > * { pointer-events: auto; }
 .wave-ed-empty p { margin: 0; }
 .wave-ed-empty .btn { gap: 7px; }
-.wave-ed-side { max-height: 64vh; overflow: auto; border-left: 1px solid var(--line-soft); padding-left: 14px; }
+.wave-ed-side { max-height: 64vh; overflow: auto; border-left: 1px solid var(--line-soft); padding-left: 14px; display: grid; align-items: start; }
+.wave-ed-side > * { grid-area: 1 / 1; min-width: 0; }
+.wave-ed-sizer { visibility: hidden; pointer-events: none; }
 .wave-ed-hint { margin: 0; font-size: calc(13px * var(--fs)); color: var(--muted); }
 .wave-ed-block { display: flex; flex-direction: column; gap: 6px; font-size: calc(13px * var(--fs)); color: var(--muted); }
 .wave-ed-block-head { display: flex; flex-direction: column; min-width: 0; }
 .wave-ed-block-head b { color: var(--text); font-size: calc(14px * var(--fs)); }
 .wave-ed-file { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: calc(12px * var(--fs)); color: var(--muted); }
 /* a set of values: label, value and unit on one grid, so the fields line up down the column */
-.wave-ed-set { display: grid; grid-template-columns: 1fr calc(84px * var(--fs)) calc(22px * var(--fs)); gap: 4px 6px; align-items: center;
+/* (every set has the link's column of Tempo and Pitch, so all the values end on one line) */
+.wave-ed-set { display: grid; grid-template-columns: 1fr calc(84px * var(--fs)) calc(22px * var(--fs)) calc(24px * var(--fs)); gap: 4px 6px; align-items: center;
   padding-top: 6px; border-top: 1px solid var(--line-soft); }
 .wave-ed-field { display: contents; }
+.wave-ed-field > .wave-ed-label { grid-column: 1; }
 .wave-ed-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.wave-ed-field input { width: 100%; padding: 2px 6px; font: inherit; text-align: right; font-variant-numeric: tabular-nums; color: var(--text); }
-.wave-ed-ro b { padding: 3px 7px; text-align: right; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
+/* a field's name: dragged left or right, it changes the value */
+.wave-ed-scrub { cursor: ew-resize; user-select: none; touch-action: none; }
+.wave-ed-scrub:hover { color: var(--text); }
+.wave-ed-field input { width: 100%; padding: 2px 3px 2px 6px; font: inherit; text-align: right; font-variant-numeric: tabular-nums; color: var(--text); }
+.wave-ed-ro b { padding: 3px 4px 3px 7px; text-align: right; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
 .wave-ed-field .unit, .wave-ed-ro .unit { font-size: calc(12px * var(--fs)); }
-.wave-ed-flatten { grid-column: 1 / -1; justify-self: end; }
+.wave-ed-flatten { grid-column: 1 / 4; justify-self: end; }
 /* Tempo and Pitch, with the link between them beside both */
-.wave-ed-speed { grid-template-columns: 1fr calc(84px * var(--fs)) calc(22px * var(--fs)) calc(24px * var(--fs)); }
 .wave-ed-speed .wave-ed-link { grid-column: 4; grid-row: 1 / span 2; width: calc(24px * var(--fs)); height: calc(24px * var(--fs)); display: grid; place-items: center;
   border: 1px solid transparent; color: var(--muted); }
 .wave-ed-speed .wave-ed-link.on { color: var(--second-fg); border-color: var(--second-fg); background: color-mix(in srgb, var(--second-fg) 18%, var(--raised)); }

@@ -12,6 +12,8 @@ window.addEventListener("keydown", (e) => {
   const top = [...open].reverse().find((d) => d.el()?.getClientRects().length);
   if (!top || document.querySelector("[role=menu]")) return; // a menu over the dialog closes first, on its own
   const el = top.el();
+  // a field that takes Esc itself (the Waveform Suite's values: what was typed goes back, and the field is left)
+  if (e.key === "Escape" && e.target instanceof Element && e.target.closest("[data-own-esc]")) return;
   if (e.key === "Escape") {
     e.preventDefault();
     e.stopImmediatePropagation();

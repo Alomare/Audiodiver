@@ -16,6 +16,27 @@ const keyOf = (b: Block) => b.audio ?? "";
 /** The song's length as blocks make it. */
 export const songMs = (blocks: Block[]) => Math.max(0, ...blocks.map(endOf));
 
+/** The files Merge made (WaveEditor.tsx), each with the blocks it was mixed from, placed from 0 in it: a cut on a
+    merged block still follows the audio of the block it fell on. */
+export const merges = new Map<string, Block[]>();
+/** Blocks with each merged one put back as the parts of it that still play, trimmed and placed as it is. */
+function expand(blocks: Block[], depth = 0): Block[] {
+  if (!merges.size || depth > 8) return blocks;
+  let any = false;
+  const out = blocks.flatMap((m) => {
+    const parts = m.audio ? merges.get(m.audio) : undefined;
+    if (!parts) return [m];
+    any = true;
+    const T = speed(m), s = m.start_ms, e = m.end_ms;
+    return parts.flatMap((p) => {
+      const sp = speed(p), lo = Math.max(s, p.at_ms), hi = Math.min(e, endOf(p));
+      if (hi <= lo) return [];
+      return [{ ...p, at_ms: m.at_ms + (lo - s) / T, start_ms: p.start_ms + (lo - p.at_ms) * sp, end_ms: p.start_ms + (hi - p.at_ms) * sp, tempo: sp * T }];
+    });
+  });
+  return any ? expand(out, depth + 1) : blocks;
+}
+
 type Pin = { key: string; file: number; was: number } | { after: Pin; by: number } | { at: number };
 
 function pin(blocks: Block[], ms: number): Pin {
@@ -56,11 +77,11 @@ function place(blocks: Block[], p: Pin): number {
 /** `cuts` (in order, ms) moved from the song `from` makes to the song `to` makes, kept in order and in the song. */
 export function retime(cuts: number[], from: Block[], to: Block[]): number[] {
   if (!cuts.length) return cuts;
-  const was = songMs(from), now = songMs(to);
+  const was = songMs(from), now = songMs(to), a = expand(from), b = expand(to);
   const out = cuts.map((ms) => {
     if (ms <= 0.5) return 0;
     if (Math.abs(ms - was) <= END_MS) return now;
-    return place(to, pin(from, ms));
+    return place(b, pin(a, ms));
   }).map((ms) => Math.round(Math.max(0, Math.min(now, ms))));
   for (let i = 1; i < out.length; i++) out[i] = Math.max(out[i], out[i - 1]);
   return out;
