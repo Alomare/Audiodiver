@@ -3,6 +3,54 @@
 The Updates tab shows this file. Each release starts with a second-level heading, `<version> - <date>`,
 newest first.
 
+## 2.1.0 - 2026-11-28
+
+### Highlights
+
+#### Editing in the Slice Tool
+
+Added a **Waveform Suite** tab to the slice tool, so a song is edited and cut in one window. The cuts move with the audio they fall on. Before, **Edit Song** saved a new file and the cuts started over.
+
+#### Tempo and Pitch
+
+Added **Tempo** and **Pitch** to the blocks of the **Waveform Suite**. Link them to change both at once, as on a tape played faster, or set each one without changing the other.
+
+#### Merging and Placing Blocks
+
+Added **Merge** to the **Waveform Suite**, which makes one block of the selected blocks as they play. Also added **Snap Left**, **Snap Right**, **Place at the Start**, **Place at the End** and **Close Gaps**, which line blocks up without dragging.
+
+#### Extraction Music by Layer
+
+Renamed the slots of the Extraction music by layer and intensity, in place of the clip names, which were mixed up. **Slice a song** now fills a layer at both intensities, not only high, and silences the other layers without new audio.
+
+### Additions
+
+- Added a key to every tool of the **Waveform Suite**, listed under **Waveform Suite** in **Settings ▸ Shortcuts**, where they can be changed.
+- Added **Zoom to the Selection** and **Zoom to the Layer** beside the time zoom of the **Waveform Suite**.
+- Added folding to the groups of the **Play order** in the Soundtrack tab: a click on the name of a group folds it to a count of the segments in it.
+
+### Changes
+
+- Changed **Split** in the **Waveform Suite** from S to Ctrl+S.
+- Replaced the arrows on the values of the **Waveform Suite** with dragging: drag the name of a value to change it, with Shift for bigger steps and Ctrl for finer ones. Blocks now change as a value is typed.
+- Changed the **Waveform Suite** to stay the same height as blocks are selected, instead of growing and shrinking with the values beside the time line.
+- Changed the **Waveform Suite** to keep the zoom of each slot for the next time it opens.
+- Changed the time line of the **Waveform Suite** to end near the end of what plays and of the original, so a long file trimmed short no longer needs zooming in each time.
+- Made the scroll strip of the **Waveform Suite** thicker, and moved the cue point and cursor times under the tools in a narrow window, where they used to wrap the toolbar.
+- Brought back the zoom of the waveforms under the slots, taken out in 2.0.1.
+- Changed the waveforms under the slots to draw the volume curves of the **Waveform Suite** over the new audio, and made every curve line 70% fainter.
+- Changed the ID at the end of a slot's line to a small **ID** tag that shows the ID when pointed at and copies it on a click, so names and tags have more room.
+- Removed the **Old** and **New** names beside the waveforms under the slots, and the **Original** name beside the waveform in the Library, and spaced out the copy and edit buttons.
+
+### Bug Fixes
+
+- Fixed **Play through** always playing the segments the game picks at random in the same order.
+- Fixed the Extraction music listing the audio of each segment twice, once as a slot that never plays, so some segments seemed to have two high intensity layers.
+- Fixed **Flatten Curve** staying after the only point on a volume curve was removed.
+- Fixed the keys of the **Waveform Suite** doing nothing after a button that turns off when used, such as **Remove**, until something in the Suite was clicked.
+- Fixed Esc in a value of the **Waveform Suite** closing the Suite. It now takes back what was typed.
+- Fixed the **Start** and **End** flags of the slice tool being hard to read in the light theme.
+
 ## 2.0.1 - 2026-11-26
 
 ### Changes
